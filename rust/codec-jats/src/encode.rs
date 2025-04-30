@@ -1,3 +1,11 @@
+use std::io::Cursor;
+
+use quick_xml::{
+    events::{BytesEnd, BytesStart, BytesText, Event},
+    Writer,
+};
+use roxmltree::{Node as XmlNode, NodeType as XmlNodeType};
+
 use codec::{common::eyre::Result, schema::Node, EncodeInfo, EncodeOptions, Losses};
 use codec_jats_trait::JatsCodec as _;
 
@@ -66,4 +74,47 @@ fn indent(jats: &str) -> String {
     std::str::from_utf8(&writer.into_inner())
         .expect("Failed to convert a slice of bytes to a string slice")
         .to_string()
+}
+
+/// Recursively serialise a `roxmltree::Node` (and its subtree) to XML.
+pub(super) fn serialize_node(node: XmlNode) -> Result<String> {
+    let mut writer = Writer::new(Cursor::new(Vec::new()));
+    write_node(&mut writer, node)?;
+    let bytes = writer.into_inner().into_inner();
+    Ok(String::from_utf8(bytes).expect("UTF-8 in quick-xml writer"))
+}
+
+/// Internal helper that writes one node and all descendants.
+fn write_node<W: std::io::Write>(w: &mut Writer<W>, node: XmlNode) -> Result<()> {
+    match node.node_type() {
+        XmlNodeType::Element => {
+            // <elem …attrs…>
+            let mut start = BytesStart::new(node.tag_name().name());
+            for a in node.attributes() {
+                start.push_attribute((a.name().as_bytes(), a.value().as_bytes()));
+            }
+            w.write_event(Event::Start(start))?;
+
+            // children
+            for child in node.children() {
+                write_node(w, child)?;
+            }
+
+            // </elem>
+            let end = BytesEnd::new(node.tag_name().name());
+            w.write_event(Event::End(end))?;
+        }
+
+        XmlNodeType::Text => {
+            w.write_event(Event::Text(BytesText::new(node.text().unwrap_or(""))))?;
+        }
+
+        XmlNodeType::Comment => {
+            w.write_event(Event::Comment(BytesText::new(node.text().unwrap_or(""))))?;
+        }
+
+        // Skip document nodes / DTD etc. for brevity. Add if you need them.
+        _ => {}
+    }
+    Ok(())
 }

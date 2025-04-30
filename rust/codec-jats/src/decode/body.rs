@@ -17,6 +17,8 @@ use codec::{
     Losses,
 };
 
+use crate::encode::serialize_node;
+
 use super::{
     inlines::normalize_inlines,
     utilities::{extend_path, record_attrs_lost, record_node_lost},
@@ -415,12 +417,24 @@ fn decode_code(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/disp-formula.html
 fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8) -> Block {
-    let code = node
+    let mut code = node
         .attribute("code")
         .and_then(|code| code.into())
-        .unwrap_or_default();
+        .unwrap_or_default()
+        .to_string();
 
-    let math_language = node.attribute("language").map(|lang| lang.to_string());
+    let mut math_language = node.attribute("language").map(|lang| lang.to_string());
+
+    if code.is_empty() {
+        if let Some(mathml) = node
+            .children()
+            .find(|child| child.tag_name().name() == "math")
+            .and_then(|node| serialize_node(node).ok())
+        {
+            code = mathml;
+            math_language = Some("mathml".into());
+        }
+    }
 
     let images = node
         .children()
@@ -689,6 +703,7 @@ pub fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
                 "inline-graphic" | "inline-media" => {
                     decode_inline_media(&child_path, &child, losses)
                 }
+                "math" => decode_inline_math(&child),
                 "parameter" => decode_parameter(&child_path, &child, losses),
                 "styled-content" => decode_styled_content(&child_path, &child, losses),
                 "time" => decode_time(&child_path, &child, losses),
@@ -936,10 +951,29 @@ fn decode_footnote(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 
 /// Decode a `<inline-formula>` to a [`Inline::MathInline`]
 fn decode_inline_formula(path: &str, node: &Node, losses: &mut Losses) -> Inline {
-    let code = node.attribute("code").map(Cord::from).unwrap_or_default();
-    let lang = node.attribute("language");
+    let mut code = node.attribute("code").unwrap_or_default().to_string();
+    let mut lang = node.attribute("language");
+
+    if code.is_empty() {
+        if let Some(mathml) = node
+            .children()
+            .find(|child| child.tag_name().name() == "math")
+            .and_then(|node| serialize_node(node).ok())
+        {
+            code = mathml;
+            lang = Some("mathml");
+        }
+    }
 
     record_attrs_lost(path, node, ["code", "language"], losses);
+
+    mi(code, lang)
+}
+
+/// Decode a inline `<mml::math>` element to a [`Inline::MathInline`]
+fn decode_inline_math(node: &Node) -> Inline {
+    let code = serialize_node(*node).unwrap_or_default();
+    let lang = Some("mathml");
 
     mi(code, lang)
 }
