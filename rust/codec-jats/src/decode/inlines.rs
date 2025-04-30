@@ -15,8 +15,8 @@ pub(super) fn normalize_inlines(input: Vec<Inline>) -> Vec<Inline> {
         if let Inline::Citation(current) = &mut inline {
             if let Some(Inline::Text(Text { value, .. })) = output.last_mut() {
                 let trimmed = value.trim().to_string();
-                if value.ends_with("(") {
-                    // Remove opening parenthesis before citation/s
+                if value.ends_with("(") || value.ends_with("[") {
+                    // Remove opening parenthesis/bracket before citation/s
                     value.pop();
                 } else if trimmed == ";"
                     || trimmed == ","
@@ -172,9 +172,9 @@ pub(super) fn normalize_inlines(input: Vec<Inline>) -> Vec<Inline> {
             if matches!(
                 output.last(),
                 Some(Inline::Citation(..) | Inline::CitationGroup(..))
-            ) && value.starts_with(")")
+            ) && (value.starts_with(")") || value.starts_with("]"))
             {
-                // Remove closing parentheses after citation/s
+                // Remove closing parentheses/brackets after citation/s
                 output.push(Inline::Text(Text::new(value[1..].into())));
                 continue;
             }

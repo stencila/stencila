@@ -29,6 +29,7 @@ codec-markdown = { path = "../codec-markdown" }
 codec-odt = {path = "../codec-odt"}
 codec-pandoc = { path = "../codec-pandoc" }
 codec-pdf = { path = "../codec-pdf" }
+codec-pmcoap = { path = "../codec-pmcoap" }
 codec-swb = { path = "../codec-swb" }
 codec-text = { path = "../codec-text" }
 codec-yaml = { path = "../codec-yaml" }
