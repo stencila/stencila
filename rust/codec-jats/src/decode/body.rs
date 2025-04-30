@@ -694,7 +694,7 @@ pub fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
                 "time" => decode_time(&child_path, &child, losses),
                 "timestamp" => decode_timestamp(&child_path, &child, losses),
                 "xref" => match child.attribute("ref-type") {
-                    Some("bibr") => decode_xref_bibr(&child_path, &child, losses),
+                    Some("bibr" | "ref") => decode_xref_bibr(&child_path, &child, losses),
                     _ => {
                         record_node_lost(path, &child, losses);
                         continue;
@@ -1004,7 +1004,7 @@ fn decode_timestamp(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     })
 }
 
-/// Decode a `<xref ref-type="bibr">` to a [`Inline::Citation`]
+/// Decode a `<xref>` with `ref-type` of "bibr" or "ref" to a [`Inline::Citation`]
 fn decode_xref_bibr(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     let target = node.attribute("rid").map(String::from).unwrap_or_default();
 
