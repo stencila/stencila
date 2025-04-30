@@ -36,6 +36,7 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(codec_markdown::MarkdownCodec),
         Box::new(codec_odt::OdtCodec),
         Box::new(codec_pandoc::PandocCodec),
+        Box::new(codec_pmcoap::PmcOapCodec),
         Box::new(codec_pdf::PdfCodec),
         Box::<codec_swb::SwbCodec>::default(),
         Box::new(codec_text::TextCodec),
@@ -350,7 +351,13 @@ pub async fn convert(
     encode_options: Option<EncodeOptions>,
 ) -> Result<String> {
     let node = match input {
-        Some(input) => from_path(input, decode_options).await?,
+        Some(input) => {
+            if input == PathBuf::from("-") {
+                from_stdin(decode_options).await?
+            } else {
+                from_path(input, decode_options).await?
+            }
+        }
         None => from_stdin(decode_options).await?,
     };
 
