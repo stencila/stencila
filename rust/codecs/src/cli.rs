@@ -63,19 +63,28 @@ impl List {
     async fn run(self) -> Result<()> {
         let mut formats = Vec::new();
         for format in Format::iter() {
-            let (Ok(from_codec), Ok(to_codec)) = (
-                super::get(None, Some(&format), Some(CodecDirection::Decode)),
-                super::get(None, Some(&format), Some(CodecDirection::Encode)),
-            ) else {
+            let from = super::get(None, Some(&format), Some(CodecDirection::Decode)).map_or_else(
+                |_| CodecAvailability::Unavailable,
+                |codec| codec.availability(),
+            );
+
+            let to = super::get(None, Some(&format), Some(CodecDirection::Encode)).map_or_else(
+                |_| CodecAvailability::Unavailable,
+                |codec| codec.availability(),
+            );
+
+            if matches!(from, CodecAvailability::Unavailable)
+                && matches!(to, CodecAvailability::Unavailable)
+            {
                 continue;
-            };
+            }
 
             formats.push(FormatSpecification {
                 name: format.name().into(),
                 extension: format.extension(),
                 lossless: format.is_lossless(),
-                from: from_codec.availability(),
-                to: to_codec.availability(),
+                from,
+                to,
             })
         }
         formats.sort_by(|a, b| a.name.cmp(&b.name));
