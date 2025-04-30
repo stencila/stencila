@@ -102,6 +102,7 @@ pub enum Format {
     // Directories, bundles and archives
     Directory,
     Swb,
+    PmcOap,
     // Development focussed formats
     Debug,
     // Other arbitrary format, not listed above
@@ -156,6 +157,7 @@ impl Format {
             Ogg => "Ogg Vorbis",
             Ogv => "Ogg Vorbis Video",
             Pandoc => "Pandoc AST",
+            PmcOap => "PubMed Central OA Package",
             Pdf => "PDF",
             Png => "PNG",
             Python => "Python",
@@ -296,6 +298,7 @@ impl Format {
             "ogg" => Ogg,
             "ogv" => Ogv,
             "pandoc" => Pandoc,
+            "pmcoap" => PmcOap,
             "png" => Png,
             "pdf" => Pdf,
             "python" | "py" => Python,
@@ -478,6 +481,7 @@ impl Display for Format {
             Ogg => "ogg",
             Ogv => "ogv",
             Pandoc => "pandoc",
+            PmcOap => "pmcoap",
             Pdf => "pdf",
             Png => "png",
             Python => "python",

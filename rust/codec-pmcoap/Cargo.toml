@@ -1,0 +1,13 @@
+[package]
+name = "codec-pmcoap"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codec = { path = "../codec" }
+codec-jats = { path = "../codec-jats" }
+flate2 = { workspace = true }
+images = { path = "../images" }
+
+[lints]
+workspace = true

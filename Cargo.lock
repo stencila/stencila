@@ -1201,6 +1201,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-pmcoap"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-jats",
+ "flate2",
+ "images",
+]
+
+[[package]]
 name = "codec-swb"
 version = "0.0.0"
 dependencies = [
@@ -1267,6 +1277,7 @@ dependencies = [
  "codec-odt",
  "codec-pandoc",
  "codec-pdf",
+ "codec-pmcoap",
  "codec-swb",
  "codec-text",
  "codec-yaml",
