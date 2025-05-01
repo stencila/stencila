@@ -73,7 +73,7 @@ pub(super) async fn download_package(pmcid: &str, dir: &Path) -> Result<PathBuf>
         .text()
         .await?;
 
-    let re = Regex::new(r#"href="([^"]+\.tar\.gz)""#).unwrap();
+    let re = Regex::new(r#"href="([^"]+\.tar\.gz)""#).expect("invalid regex");
     let ftp_url = re
         .captures(&xml)
         .and_then(|c| c.get(1))
@@ -103,7 +103,7 @@ pub(super) async fn download_package(pmcid: &str, dir: &Path) -> Result<PathBuf>
     let tar_gz = std::fs::File::open(&tar_gz_path)?;
     let tar = GzDecoder::new(tar_gz);
     let mut archive = Archive::new(tar);
-    archive.unpack(&dir)?;
+    archive.unpack(dir)?;
 
     Ok(dir.join(pmcid))
 }
@@ -117,7 +117,7 @@ struct ImageInliner {
 impl ImageInliner {
     fn inline_image(&self, image: &mut ImageObject) {
         for ext in ["", ".png", ".jpg", ".jpeg", ".gif"] {
-            let path = self.dir.join(&[&image.content_url, ext].concat());
+            let path = self.dir.join([&image.content_url, ext].concat());
             if path.exists() {
                 if let Ok(url) = images::path_to_data_uri(&path) {
                     image.content_url = url;
