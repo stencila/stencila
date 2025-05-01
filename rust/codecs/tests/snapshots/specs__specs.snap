@@ -265,6 +265,19 @@ expression: specs
     "supports_to_string": false,
     "supports_to_path": true
   },
+  "pmcoap": {
+    "status": "under-development",
+    "supports_from_formats": {
+      "pmcoap": "LowLoss"
+    },
+    "supports_from_bytes": false,
+    "supports_from_string": true,
+    "supports_from_path": true,
+    "supports_to_formats": {},
+    "supports_to_bytes": false,
+    "supports_to_string": true,
+    "supports_to_path": true
+  },
   "swb": {
     "status": "alpha",
     "supports_from_formats": {},
