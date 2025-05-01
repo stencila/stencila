@@ -36,6 +36,7 @@ The `Inline` type has these members:
 - [`Note`](https://stencila.ghost.io/docs/reference/schema/note)
 - [`Parameter`](https://stencila.ghost.io/docs/reference/schema/parameter)
 - [`QuoteInline`](https://stencila.ghost.io/docs/reference/schema/quote-inline)
+- [`Sentence`](https://stencila.ghost.io/docs/reference/schema/sentence)
 - [`StyledInline`](https://stencila.ghost.io/docs/reference/schema/styled-inline)
 - [`Strikeout`](https://stencila.ghost.io/docs/reference/schema/strikeout)
 - [`Strong`](https://stencila.ghost.io/docs/reference/schema/strong)
@@ -90,6 +91,7 @@ During property-based (a.k.a generative) testing, the variants of the `Inline` t
 |                     | Low+       | Generate `Note` nodes in inline content.                                                                                                                                                          | Default for level                                |
 | `Parameter`         | Min+       | Do not generate `Parameter` nodes in inline content.                                                                                                                                              | -                                                |
 |                     | Low+       | Generate `Parameter` nodes in inline content.                                                                                                                                                     | Default for level                                |
+| `Sentence`          | Min+       | Do not generate `Sentence` nodes in inline content.                                                                                                                                               | -                                                |
 | `SuggestionInline`  | Min+       | Do not generate `SuggestionInline` nodes in inline content.                                                                                                                                       | -                                                |
 | `Time`              | Min+       | Do not generate `Time` nodes in inline content.                                                                                                                                                   | -                                                |
 |                     | High+      | Generate `Time` nodes in inline content.                                                                                                                                                          | Default for level                                |

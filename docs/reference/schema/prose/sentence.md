@@ -1,38 +1,37 @@
 ---
-title: Config
-description: Stencila document configuration options.
+title: Sentence
+description: A sentence, usually within a `Paragraph`.
 config:
   publish:
     ghost:
       type: post
-      slug: config
+      slug: sentence
       state: publish
       tags:
       - '#doc'
       - '#schema'
-      - Config
+      - Prose
 ---
 
 # Properties
 
-The `Config` type has these properties:
+The `Sentence` type has these properties:
 
-| Name      | Description                                                        | Type                                                                              | Inherited from | `JSON-LD @id` | Aliases |
-| --------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------- | -------------- | ------------- | ------- |
-| `theme`   | The styling theme to use for the document                          | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                | -              | ``            | -       |
-| `models`  | The parameters used for selecting and running generative AI models | [`ConfigModels`](https://stencila.ghost.io/docs/reference/schema/config-models)   | -              | ``            | -       |
-| `publish` | Publishing configuration options                                   | [`ConfigPublish`](https://stencila.ghost.io/docs/reference/schema/config-publish) | -              | ``            | -       |
+| Name      | Description                   | Type                                                                | Inherited from                                                     | `JSON-LD @id`                        | Aliases |
+| --------- | ----------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------ | ------- |
+| `id`      | The identifier for this item. | [`String`](https://stencila.ghost.io/docs/reference/schema/string)  | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id) | -       |
+| `content` | The content of the sentence.  | [`Inline`](https://stencila.ghost.io/docs/reference/schema/inline)* | -                                                                  | `stencila:content`                   | -       |
 
 # Related
 
-The `Config` type is related to these types:
+The `Sentence` type is related to these types:
 
-- Parents: None
+- Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
 # Formats
 
-The `Config` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
+The `Sentence` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
 | Format                                                                               | Encoding     | Decoding   | Support | Notes |
 | ------------------------------------------------------------------------------------ | ------------ | ---------- | ------- | ----- |
@@ -68,14 +67,14 @@ The `Config` type can be encoded (serialized) to, and/or decoded (deserialized) 
 
 # Bindings
 
-The `Config` type is represented in:
+The `Sentence` type is represented in:
 
-- [JSON-LD](https://stencila.org/Config.jsonld)
-- [JSON Schema](https://stencila.org/Config.schema.json)
-- Python class [`Config`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/config.py)
-- Rust struct [`Config`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/config.rs)
-- TypeScript class [`Config`](https://github.com/stencila/stencila/blob/main/ts/src/types/Config.ts)
+- [JSON-LD](https://stencila.org/Sentence.jsonld)
+- [JSON Schema](https://stencila.org/Sentence.schema.json)
+- Python class [`Sentence`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/sentence.py)
+- Rust struct [`Sentence`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/sentence.rs)
+- TypeScript class [`Sentence`](https://github.com/stencila/stencila/blob/main/ts/src/types/Sentence.ts)
 
 # Source
 
-This documentation was generated from [`Config.yaml`](https://github.com/stencila/stencila/blob/main/schema/Config.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
+This documentation was generated from [`Sentence.yaml`](https://github.com/stencila/stencila/blob/main/schema/Sentence.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

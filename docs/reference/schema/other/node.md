@@ -120,6 +120,7 @@ The `Node` type has these members:
 - [`Reference`](https://stencila.ghost.io/docs/reference/schema/reference)
 - [`Review`](https://stencila.ghost.io/docs/reference/schema/review)
 - [`Section`](https://stencila.ghost.io/docs/reference/schema/section)
+- [`Sentence`](https://stencila.ghost.io/docs/reference/schema/sentence)
 - [`SoftwareApplication`](https://stencila.ghost.io/docs/reference/schema/software-application)
 - [`SoftwareSourceCode`](https://stencila.ghost.io/docs/reference/schema/software-source-code)
 - [`Strikeout`](https://stencila.ghost.io/docs/reference/schema/strikeout)

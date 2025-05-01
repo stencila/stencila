@@ -86,6 +86,7 @@ Support and degree of loss by node type:
 | [QuoteBlock](https://stencila.ghost.io/docs/reference/schema/quote_block)                    | 🟢 No loss    | 🟢 No loss  |       |
 | [QuoteInline](https://stencila.ghost.io/docs/reference/schema/quote_inline)                  | ⚠️ High loss |            |       |
 | [Section](https://stencila.ghost.io/docs/reference/schema/section)                           | 🟢 No loss    | 🟢 No loss  |       |
+| [Sentence](https://stencila.ghost.io/docs/reference/schema/sentence)                         | ⚠️ High loss |            |       |
 | [Strikeout](https://stencila.ghost.io/docs/reference/schema/strikeout)                       | ⚠️ High loss |            |       |
 | [Strong](https://stencila.ghost.io/docs/reference/schema/strong)                             | 🟢 No loss    | 🟢 No loss  |       |
 | [Subscript](https://stencila.ghost.io/docs/reference/schema/subscript)                       | 🟢 No loss    | 🟢 No loss  |       |

@@ -94,6 +94,7 @@ Support and degree of loss by node type:
 | [QuoteBlock](https://stencila.ghost.io/docs/reference/schema/quote_block)                    | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
 | [QuoteInline](https://stencila.ghost.io/docs/reference/schema/quote_inline)                  | ⚠️ High loss |            | Encoded as `<q>{{content}}</q>`    |
 | [Section](https://stencila.ghost.io/docs/reference/schema/section)                           | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
+| [Sentence](https://stencila.ghost.io/docs/reference/schema/sentence)                         | ⚠️ High loss |            |                                    |
 | [Strikeout](https://stencila.ghost.io/docs/reference/schema/strikeout)                       | ⚠️ High loss |            | Encoded as `~~{{content}}~~`       |
 | [Strong](https://stencila.ghost.io/docs/reference/schema/strong)                             | 🟢 No loss    | 🟢 No loss  | Encoded as `**{{content}}**`       |
 | [Subscript](https://stencila.ghost.io/docs/reference/schema/subscript)                       | 🟢 No loss    | 🟢 No loss  | Encoded as `~{{content}}~`         |

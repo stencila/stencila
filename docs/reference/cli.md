@@ -280,20 +280,24 @@ Query a workspace database
 
 ###### **Options:**
 
+* `--db <DB>` — The database to query
+
+  Default value: `workspace`
+* `--dir <DIR>` — The directory from which the closest workspace should be found
+
+   Defaults to the current directory. Use this option if wanting to query a database outside of the current workspace, or if not in a workspace.
+
+  Default value: `.`
+* `-c`, `--cypher` — Use Cypher as the query language (instead of DocsQL the default)
 * `-t`, `--to <TO>` — The format to output the result as
 
    Defaults to inferring the format from the file name extension of the `output`. If no `output` is supplied, defaults to JSON. See `stencila codecs list` for available formats.
-* `-c`, `--compact` — Use compact form of encoding if possible
+* `--compact` — Use compact form of encoding if possible
 
    Use this flag to produce the compact forms of encoding (e.g. no indentation) which are supported by some formats (e.g. JSON, HTML).
 * `-p`, `--pretty` — Use a "pretty" form of encoding if possible
 
    Use this flag to produce pretty forms of encoding (e.g. indentation) which are supported by some formats (e.g. JSON, HTML).
-* `-d`, `--dir <DIR>` — The directory from which the closest workspace should be found
-
-   Defaults to the current directory. Use this option if wanting to query a database outside of the current workspace, or if not in a workspace.
-
-  Default value: `.`
 
 
 
