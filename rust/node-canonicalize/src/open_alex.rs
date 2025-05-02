@@ -10,7 +10,6 @@ use reqwest_ratelimit::{all, RateLimiter as ReqwestRateLimiter};
 
 use codec_text::to_text;
 use common::{
-    async_trait::async_trait,
     eyre::{bail, Result},
     itertools::Itertools,
     once_cell::sync::Lazy,
@@ -55,7 +54,6 @@ static GOVERNOR: Lazy<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>
 
 struct RateLimiter;
 
-#[async_trait]
 impl ReqwestRateLimiter for RateLimiter {
     async fn acquire_permit(&self) {
         let start = Instant::now();
