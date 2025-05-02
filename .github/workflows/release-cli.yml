@@ -62,8 +62,8 @@ jobs:
         include:
           # Important: use the Ubuntu version with the oldest GLIBC version we wish
           # to support. Binaries built with older GLIBC versions work on newer GLIBC
-          # versions, but not vice versa. Ubuntu 22.04 has GLIBC 2.35.
-          - runner: ubuntu-22.04
+          # versions, but not vice versa. Kuzu does not compile on ubuntu-22.04 
+          - runner: ubuntu-24.04
             target: x86_64-unknown-linux-gnu
             ext: tar.gz
           # Important: use same MacOS version used in `test-rust.yaml`
