@@ -21,12 +21,12 @@ cached = { version = "0.55.1", features = ["async"] }
 darling = "0.20.11"
 derive_more = { version = "2.0.1", features = ["display", "deref", "deref_mut", "into_iterator"] }
 directories = "6.0.0"
-flate2 = "1.1.0"
+flate2 = "1.1.1"
 lru = "0.13.0"
 mime = "0.3.17"
 mime_guess = "2.0.5"
 monostate = "0.1.14"
-quick-xml = "0.37.2"
+quick-xml = "0.37.5"
 rand = "0.9.0"
 serde = { version = "1.0.219", features = ["derive", "rc"] }
 semver = { version = "1.0.26", features = ["serde"] }

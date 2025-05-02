@@ -10,7 +10,7 @@ proptest-high = ["schema/proptest-high"]
 proptest-max = ["schema/proptest-max"]
 
 [dependencies]
-automerge = "0.6.0"
+automerge = "0.6.1"
 common = { path = "../common" }
 node-store-derive = { path = "../node-store-derive" }
 node-strip = { path = "../node-strip" }

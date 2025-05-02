@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-clap-markdown = "0.1.4"
+clap-markdown = "0.1.5"
 cli = { path = "../cli" }
 
 [lints]
