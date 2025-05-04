@@ -23,13 +23,13 @@ setup:
 
 # Make formatting and linting fixes
 fix:
-	cargo clippy --workspace --tests --fix --allow-dirty
+	cargo clippy --workspace --no-deps --tests --fix --allow-dirty
 	cargo fmt --all
 	ruff check --no-cache --fix kernel-python/src/kernel.py
 
 # Run linting checks
 lint:
-	cargo clippy --workspace --tests
+	cargo clippy --workspace --no-deps --tests
 	ruff check --no-cache kernel-python/src/kernel.py
 	pyright kernel-python/src/kernel.py
 
