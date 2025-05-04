@@ -16,13 +16,11 @@ use common::{
 use image::{ImageFormat, ImageReader};
 use mime_guess::from_path;
 
-/**
- * Covert an image URL to a HTTP or data URI
- *
- * URL beginning with `http://`, `https://`, or `data:` will be returned unchanged.
- * Other URLs, including those beginning with `file://`, are assumed to be filesystem
- * path and will be converted to a sata URI.
- */
+/// Covert an image URL to a HTTP or data URI
+///
+/// URL beginning with `http://`, `https://`, or `data:` will be returned unchanged.
+/// Other URLs, including those beginning with `file://`, are assumed to be filesystem
+/// path and will be converted to a sata URI.
 pub fn ensure_http_or_data_uri(url: &str) -> Result<String> {
     if url.starts_with("http://") || url.starts_with("https://") || url.starts_with("data:") {
         return Ok(url.into());
@@ -34,9 +32,7 @@ pub fn ensure_http_or_data_uri(url: &str) -> Result<String> {
     path_to_data_uri(&path)
 }
 
-/**
- * Convert a filesystem path to an image into a data URI
- */
+/// Convert a filesystem path to an image into a data URI
 pub fn path_to_data_uri(path: &Path) -> Result<String> {
     let mime_type = from_path(path).first_or_octet_stream();
 
@@ -58,22 +54,20 @@ pub fn path_to_data_uri(path: &Path) -> Result<String> {
     Ok(format!("data:{};base64,{}", mime_type, encoded))
 }
 
-/**
- * Convert a data URI into an image file
- *
- * The image will be converted into an image file with a name
- * based on the hash of the URI and an extension based on the
- * type of data URI.
- *
- * # Arguments
- *
- * - `data_uri`: the data URI
- * - `images_dir`: the destination images directory
- *
- * # Returns
- *
- * The file name of the image within `images_dir`.
- */
+/// Convert a data URI into an image file
+///
+/// The image will be converted into an image file with a name
+/// based on the hash of the URI and an extension based on the
+/// type of data URI.
+///
+/// # Arguments
+///
+/// - `data_uri`: the data URI
+/// - `images_dir`: the destination images directory
+///
+/// # Returns
+///
+/// The file name of the image within `images_dir`.
 pub fn data_uri_to_file(data_uri: &str, images_dir: &Path) -> Result<String> {
     // Parse the data URI
     let Some((header, data)) = data_uri.split(',').collect_tuple() else {
@@ -117,22 +111,20 @@ pub fn data_uri_to_file(data_uri: &str, images_dir: &Path) -> Result<String> {
     Ok(image_name)
 }
 
-/**
- * Convert a file URI to a filesystem path to an image
- *
- * The absolute path of the source image will be resolved
- * from `file_uri` and `src_path` and the image copied to `images_dir`.
- *
- * # Arguments
- *
- * - `file_uri`: an absolute or relative filesystem path, which may be prefixed with `file://`
- * - `src_path`: the path that any relative paths are relative to
- * - `images_dir`: the destination images directory
- *
- * # Returns
- *
- * The file name of the image within `images_dir`.
- */
+/// Convert a file URI to a filesystem path to an image
+///
+/// The absolute path of the source image will be resolved
+/// from `file_uri` and `src_path` and the image copied to `images_dir`.
+///
+/// # Arguments
+///
+/// - `file_uri`: an absolute or relative filesystem path, which may be prefixed with `file://`
+/// - `src_path`: the path that any relative paths are relative to
+/// - `images_dir`: the destination images directory
+///
+/// # Returns
+///
+/// The file name of the image within `images_dir`.
 pub fn file_uri_to_file(
     file_uri: &str,
     src_path: Option<&Path>,
