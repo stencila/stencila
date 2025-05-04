@@ -852,6 +852,7 @@ dependencies = [
  "flate2",
  "format",
  "kernels",
+ "knit",
  "lsp",
  "models",
  "node-execute",
@@ -3432,6 +3433,19 @@ dependencies = [
  "security-framework 2.11.1",
  "security-framework 3.2.0",
  "windows-sys 0.59.0",
+]
+
+[[package]]
+name = "knit"
+version = "0.0.0"
+dependencies = [
+ "codec-latex-trait",
+ "common",
+ "document",
+ "format",
+ "images",
+ "rand 0.9.0",
+ "schema",
 ]
 
 [[package]]
