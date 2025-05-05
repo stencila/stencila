@@ -13,7 +13,7 @@ use crate::latex;
 
 /// Knit a document
 #[tracing::instrument]
-pub(super) async fn knit(
+pub async fn knit(
     input: PathBuf,
     outputs: Vec<String>,
     from: Option<Format>,
