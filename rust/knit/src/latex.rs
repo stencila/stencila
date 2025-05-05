@@ -41,7 +41,11 @@ pub(super) fn article_to_latex(article: &Article, path: &Path) -> Result<()> {
 
 /// Encode a knitted [`Article`] to PDF
 #[tracing::instrument(skip(article))]
-pub(super) fn article_to_pdf(article: &Article, path: &Path) -> Result<()> {
+pub(super) fn article_to_pdf(
+    article: &Article,
+    path: &Path,
+    passthrough_args: &[String],
+) -> Result<()> {
     tracing::trace!("Encoding Article to PDF");
 
     let temp = tempdir()?;
@@ -61,6 +65,7 @@ pub(super) fn article_to_pdf(article: &Article, path: &Path) -> Result<()> {
             "-output-format=pdf",
             "main.tex",
         ])
+        .args(passthrough_args)
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .status()?;
@@ -79,7 +84,11 @@ pub(super) fn article_to_pdf(article: &Article, path: &Path) -> Result<()> {
 
 /// Encode a knitted [`Article`] to DOCX
 #[tracing::instrument(skip(article))]
-pub(super) fn article_to_docx(article: &Article, path: &Path) -> Result<()> {
+pub(super) fn article_to_docx(
+    article: &Article,
+    path: &Path,
+    passthrough_args: &[String],
+) -> Result<()> {
     tracing::trace!("Encoding Article to DOCX");
 
     let temp = tempdir()?;
@@ -91,23 +100,24 @@ pub(super) fn article_to_docx(article: &Article, path: &Path) -> Result<()> {
     let latex = blocks_to_latex(&article.content, &Format::Docx, temp_path)?;
 
     let input = temp_path.join("main.tex");
-    let output = temp_path.join("main.docx");
-
     write(&input, latex)?;
 
+    if let Some(dir) = path.parent() {
+        create_dir_all(dir)?;
+    }
+
     let status = Command::new("pandoc")
-        .current_dir(temp_path)
-        .args(["main.tex", "-omain.docx"])
+        .args([
+            &input.to_string_lossy().to_string(),
+            "-o",
+            &path.to_string_lossy().to_string(),
+        ])
+        .args(passthrough_args)
         .stdout(Stdio::null())
         .status()?;
     if !status.success() {
         bail!("pandoc failed");
     }
-
-    if let Some(dir) = path.parent() {
-        create_dir_all(dir)?;
-    }
-    rename(&output, path)?;
 
     Ok(())
 }
