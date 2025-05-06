@@ -423,7 +423,7 @@ pub struct DecodeOptions {
     pub strict: Option<bool>,
 
     /// Decode coarsely
-    /// 
+    ///
     /// Codecs that support this option will only decode certain node types
     /// (usually executable block types) and put the content between those nodes
     /// into `RawBlock`s of the given format. Useful for formats such as LaTeX
@@ -434,8 +434,11 @@ pub struct DecodeOptions {
     #[default(_code = "LossesResponse::Warn")]
     pub losses: LossesResponse,
 
-    /// Arguments to passthrough to CLI tools delegated to for decoding (e.g. Pandoc)
-    pub passthrough_args: Vec<String>,
+    /// The tool to delegate to for decoding (e.g. `pandoc`)
+    pub tool: Option<String>,
+
+    /// Additional arguments to pass through to the tool delegated to for decoding
+    pub tool_args: Vec<String>,
 }
 
 /// Encoding options
@@ -515,6 +518,9 @@ pub struct EncodeOptions {
     #[default(_code = "LossesResponse::Warn")]
     pub losses: LossesResponse,
 
-    /// Arguments to passthrough to CLI tools delegated to for encoding (e.g. Pandoc)
-    pub passthrough_args: Vec<String>,
+    /// The tool to delegate to for encoding (e.g. `pandoc`)
+    pub tool: Option<String>,
+
+    /// Additional arguments to pass through to the tool delegated to for encoding
+    pub tool_args: Vec<String>,
 }

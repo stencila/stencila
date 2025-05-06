@@ -70,9 +70,7 @@ impl Codec for OdtCodec {
             "",
             Some(path),
             PANDOC_FORMAT,
-            options
-                .map(|options| options.passthrough_args)
-                .unwrap_or_default(),
+            options.map(|options| options.tool_args).unwrap_or_default(),
         )
         .await?;
         root_from_pandoc(pandoc, Format::Odt)
@@ -89,9 +87,7 @@ impl Codec for OdtCodec {
             &pandoc,
             Some(path),
             PANDOC_FORMAT,
-            options
-                .map(|options| options.passthrough_args)
-                .unwrap_or_default(),
+            options.map(|options| options.tool_args).unwrap_or_default(),
         )
         .await?;
         Ok(info)

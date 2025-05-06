@@ -72,7 +72,7 @@ pub(super) async fn fine(latex: &str, options: DecodeOptions) -> Result<(Node, D
         }
     });
 
-    let pandoc = pandoc_from_format(&latex, None, PANDOC_FORMAT, options.passthrough_args).await?;
+    let pandoc = pandoc_from_format(&latex, None, PANDOC_FORMAT, options.tool_args).await?;
     root_from_pandoc(pandoc, Format::Latex)
 }
 

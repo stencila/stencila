@@ -70,9 +70,7 @@ impl Codec for DocxCodec {
             "",
             Some(path),
             &[PANDOC_FORMAT, "+styles"].concat(),
-            options
-                .map(|options| options.passthrough_args)
-                .unwrap_or_default(),
+            options.map(|options| options.tool_args).unwrap_or_default(),
         )
         .await?;
         root_from_pandoc(pandoc, Format::Docx)
@@ -89,9 +87,7 @@ impl Codec for DocxCodec {
             &pandoc,
             Some(path),
             &[PANDOC_FORMAT, "+styles+native_numbering"].concat(),
-            options
-                .map(|options| options.passthrough_args)
-                .unwrap_or_default(),
+            options.map(|options| options.tool_args).unwrap_or_default(),
         )
         .await?;
         Ok(info)
