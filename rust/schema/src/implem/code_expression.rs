@@ -2,6 +2,29 @@ use codec_info::{lost_exec_options, lost_options};
 
 use crate::{prelude::*, CodeExpression};
 
+impl LatexCodec for CodeExpression {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id, execution_mode, execution_bounds));
+
+        if matches!(context.format, Format::Rnw) {
+            context
+                .str(r"\Sexpr{")
+                .property_fn(NodeProperty::Code, |context| self.code.to_latex(context))
+                .str("}");
+        } else if let Some(output) = &self.output {
+            context
+                .add_loss("CodeExpression.code")
+                .property_fn(NodeProperty::Output, |context| output.to_latex(context));
+        } else {
+            context.property_str(NodeProperty::Code, &self.code);
+        }
+
+        context.exit_node();
+    }
+}
+
 impl MarkdownCodec for CodeExpression {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context

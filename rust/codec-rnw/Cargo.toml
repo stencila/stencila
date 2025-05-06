@@ -1,0 +1,15 @@
+[package]
+name = "codec-rnw"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+codec = { path = "../codec" }
+codec-latex = { path = "../codec-latex" }
+codec-pandoc = { path = "../codec-pandoc" }
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }
+
+[lints]
+workspace = true

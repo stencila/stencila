@@ -34,6 +34,7 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(codec_latex::LatexCodec),
         Box::new(codec_lexical::LexicalCodec),
         Box::new(codec_markdown::MarkdownCodec),
+        Box::new(codec_rnw::RnwCodec),
         Box::new(codec_odt::OdtCodec),
         Box::new(codec_pandoc::PandocCodec),
         Box::new(codec_pmcoap::PmcOapCodec),

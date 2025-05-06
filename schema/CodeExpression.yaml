@@ -11,6 +11,8 @@ jats:
   elem: code
   attrs:
     executable: 'yes'
+latex:
+  derive: false
 markdown:
   derive: false
 proptest: {}

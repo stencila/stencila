@@ -464,6 +464,16 @@ fn code_block_from_pandoc(
             programming_language = None;
         }
 
+        let is_echoed = attrs.attributes.iter().find_map(|(name, value)| {
+            (name == "echo")
+                .then_some(["true", "yes", "1"].contains(&value.to_lowercase().as_str()))
+        });
+
+        let is_hidden = attrs.attributes.iter().find_map(|(name, value)| {
+            (name == "hide")
+                .then_some(["true", "yes", "1"].contains(&value.to_lowercase().as_str()))
+        });
+
         let execution_mode = attrs
             .classes
             .iter()
@@ -498,6 +508,8 @@ fn code_block_from_pandoc(
 
         return Block::CodeChunk(CodeChunk {
             programming_language,
+            is_echoed,
+            is_hidden,
             execution_mode,
             execution_bounds,
             label_type,

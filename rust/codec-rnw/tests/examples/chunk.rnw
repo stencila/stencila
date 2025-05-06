@@ -1,0 +1,16 @@
+Chunk name, no options, no code:
+
+<<chunkname>>=
+@
+
+No chunk name, options and code:
+
+<<echo=FALSE>>=
+# Some code
+@
+
+All:
+
+<<chunkname, echo=FALSE, hide=TRUE>>=
+# Some code
+@

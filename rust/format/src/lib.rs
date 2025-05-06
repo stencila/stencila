@@ -41,6 +41,7 @@ pub enum Format {
     Llmd,
     // Typesetting / text formats
     Latex,
+    Rnw,
     Pdf,
     Text,
     // Notebook formats
@@ -153,6 +154,7 @@ impl Format {
             Mp3 => "MPEG-3",
             Mp4 => "MPEG-4",
             Myst => "MyST Markdown",
+            Rnw => "R+LaTeX",
             Odt => "OpenDocument ODT",
             Ogg => "Ogg Vorbis",
             Ogv => "Ogg Vorbis Video",
@@ -294,6 +296,7 @@ impl Format {
             "mkv" => Mkv,
             "mp3" => Mp3,
             "mp4" => Mp4,
+            "rnw" => Rnw,
             "odt" => Odt,
             "ogg" => Ogg,
             "ogv" => Ogv,
@@ -477,6 +480,7 @@ impl Display for Format {
             Mp3 => "mp3",
             Mp4 => "mp4",
             Myst => "myst",
+            Rnw => "rnw",
             Odt => "odt",
             Ogg => "ogg",
             Ogv => "ogv",
