@@ -8,7 +8,7 @@ impl LatexCodec for CodeExpression {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, execution_mode, execution_bounds));
 
-        if matches!(context.format, Format::Noweb) {
+        if matches!(context.format, Format::Rnw) {
             context
                 .str(r"\Sexpr{")
                 .property_fn(NodeProperty::Code, |context| self.code.to_latex(context))

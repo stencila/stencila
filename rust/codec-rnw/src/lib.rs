@@ -13,24 +13,23 @@ use codec::{
 };
 use codec_latex::LatexCodec;
 
-/// A codec for Noweb
+/// A codec for Rnw
 ///
 /// Noweb is an early literate programming format (https://en.wikipedia.org/wiki/Noweb).
-/// Although, the original Noweb, could be used with other formats such as HTML and plain text,
-/// this codec is for Noweb + LaTeX only.
-///
-/// In addition to the code chunks of the original Noweb, this codec also supports
-/// Rnw style `\Sexpr` elements for inline code expressions.
-pub struct NowebCodec;
+/// Although the original Noweb could be used with a variety of formats and languages
+/// its most enduring use has been with LaTeX and R in `Rnw` files.
+/// In addition to the code chunks of the original Noweb, Rnw added `\Sexpr` commands
+/// for inline code expressions.
+pub struct RnwCodec;
 
 #[async_trait]
-impl Codec for NowebCodec {
+impl Codec for RnwCodec {
     fn name(&self) -> &str {
-        "noweb"
+        "rnw"
     }
 
     fn status(&self) -> Status {
-        Status::UnderDevelopment
+        Status::Alpha
     }
 
     fn availability(&self) -> CodecAvailability {
@@ -39,14 +38,14 @@ impl Codec for NowebCodec {
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {
         match format {
-            Format::Noweb => CodecSupport::LowLoss,
+            Format::Rnw => CodecSupport::LowLoss,
             _ => CodecSupport::None,
         }
     }
 
     fn supports_to_format(&self, format: &Format) -> CodecSupport {
         match format {
-            Format::Noweb => CodecSupport::LowLoss,
+            Format::Rnw => CodecSupport::LowLoss,
             _ => CodecSupport::None,
         }
     }
@@ -64,7 +63,7 @@ impl Codec for NowebCodec {
         noweb: &str,
         options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
-        let latex = latex_from_noweb(&noweb);
+        let latex = latex_from_rnw(&noweb);
         LatexCodec.from_str(&latex, options).await
     }
 
@@ -74,7 +73,7 @@ impl Codec for NowebCodec {
         options: Option<EncodeOptions>,
     ) -> Result<(String, EncodeInfo)> {
         let options = EncodeOptions {
-            format: Some(Format::Noweb),
+            format: Some(Format::Rnw),
             ..options.unwrap_or_default()
         };
         let (noweb, info) = LatexCodec.to_string(node, Some(options)).await?;
@@ -82,13 +81,13 @@ impl Codec for NowebCodec {
     }
 }
 
-/// Translate Noweb LaTeX into pure LaTeX which can be passed [`LatexCodec`] for decoding
+/// Translate Rnw LaTeX into pure LaTeX which can be passed [`LatexCodec`] for decoding
 ///
 /// Uses regexes to convert code chunks (<<id>>=) into `lstlisting` directives
 /// and code expressions (\Sexpr) into `lstinline` directives
 /// (both with the `exec` attributes). These directives are then decoded by
 /// the LaTeX codec into `CodeChunk` and `CodeExpression` nodes respectively.
-fn latex_from_noweb(noweb: &str) -> String {
+fn latex_from_rnw(noweb: &str) -> String {
     // Code expression regex
     static SEXPR: Lazy<Regex> =
         Lazy::new(|| Regex::new(r"\\Sexpr\{([^}]*)\}").expect("invalid regex"));

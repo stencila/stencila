@@ -146,7 +146,7 @@ impl LatexCodec for CodeChunk {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id));
 
-        if matches!(context.format, Format::Noweb) {
+        if matches!(context.format, Format::Rnw) {
             let name = self.label.as_deref().unwrap_or("unnamed");
             context.str("<<").str(name);
 

@@ -1175,16 +1175,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "codec-noweb"
-version = "0.0.0"
-dependencies = [
- "codec",
- "codec-latex",
- "codec-pandoc",
- "common-dev",
-]
-
-[[package]]
 name = "codec-odt"
 version = "0.0.0"
 dependencies = [
@@ -1218,6 +1208,16 @@ dependencies = [
  "codec-jats",
  "flate2",
  "images",
+]
+
+[[package]]
+name = "codec-rnw"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-latex",
+ "codec-pandoc",
+ "common-dev",
 ]
 
 [[package]]
@@ -1284,11 +1284,11 @@ dependencies = [
  "codec-latex",
  "codec-lexical",
  "codec-markdown",
- "codec-noweb",
  "codec-odt",
  "codec-pandoc",
  "codec-pdf",
  "codec-pmcoap",
+ "codec-rnw",
  "codec-swb",
  "codec-text",
  "codec-yaml",

@@ -1,5 +1,5 @@
 ---
-source: rust/codec-noweb/tests/examples.rs
+source: rust/codec-rnw/tests/examples.rs
 expression: article
 ---
 {

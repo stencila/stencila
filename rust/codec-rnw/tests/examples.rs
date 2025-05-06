@@ -5,10 +5,10 @@ use codec::{
     common::{eyre::Result, glob::glob, tokio},
 };
 
-use codec_noweb::NowebCodec;
+use codec_rnw::RnwCodec;
 use common_dev::insta::{assert_json_snapshot, assert_snapshot, assert_yaml_snapshot};
 
-/// Decode each example of a Noweb document and create JSON and Noweb snapshots
+/// Decode each example of a Noweb document and create JSON and Rnw snapshots
 /// including snapshots for losses
 #[tokio::test]
 async fn examples() -> Result<()> {
@@ -17,7 +17,7 @@ async fn examples() -> Result<()> {
         .canonicalize()?
         .to_string_lossy()
         .to_string()
-        + "/*.nw";
+        + "/*.rnw";
 
     for path in glob(&pattern)?.flatten() {
         let name = path
@@ -25,12 +25,12 @@ async fn examples() -> Result<()> {
             .expect("should have file stem")
             .to_string_lossy();
 
-        let (article, info) = NowebCodec.from_path(&path, None).await?;
+        let (article, info) = RnwCodec.from_path(&path, None).await?;
 
         assert_json_snapshot!(format!("{name}.json"), article);
         assert_yaml_snapshot!(format!("{name}.decode.losses"), info.losses);
 
-        let (noweb, info) = NowebCodec
+        let (noweb, info) = RnwCodec
             .to_string(
                 &article,
                 Some(EncodeOptions {
@@ -40,7 +40,7 @@ async fn examples() -> Result<()> {
             )
             .await?;
 
-        assert_snapshot!(format!("{name}.nw"), &noweb);
+        assert_snapshot!(format!("{name}.rnw"), &noweb);
         assert_yaml_snapshot!(format!("{name}.encode.losses"), info.losses);
     }
 

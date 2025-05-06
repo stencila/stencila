@@ -1,5 +1,5 @@
 [package]
-name = "codec-noweb"
+name = "codec-rnw"
 version = "0.0.0"
 edition = "2024"
 
