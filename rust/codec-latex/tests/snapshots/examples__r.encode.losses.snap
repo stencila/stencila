@@ -1,5 +1,0 @@
----
-source: rust/codec-latex/tests/examples.rs
-expression: info.losses
----
-{}

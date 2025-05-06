@@ -6,7 +6,7 @@ use codec::{
 };
 
 use codec_latex::LatexCodec;
-use common_dev::insta::{assert_json_snapshot, assert_snapshot, assert_yaml_snapshot};
+use common_dev::insta::{assert_json_snapshot, assert_snapshot};
 
 /// Decode each example of a LaTeX document and create JSON and LaTeX snapshots
 /// including snapshots for losses
@@ -28,31 +28,38 @@ async fn examples() -> Result<()> {
             .expect("should have file stem")
             .to_string_lossy();
 
-        let (article, info) = LatexCodec
+        // Using default `--coarse` decoding
+        let (article, ..) = LatexCodec.from_path(&path, None).await?;
+        assert_json_snapshot!(format!("{name}.coarse.json"), article);
+
+        // Using default encoding of coarse article
+        let (latex, info) = LatexCodec.to_string(&article, None).await?;
+        assert_snapshot!(format!("{name}.coarse.tex"), &latex);
+        assert_snapshot!(format!("{name}.coarse.encode.map"), info.mapping);
+
+        // Using `--fine` decoding
+        let (article, ..) = LatexCodec
             .from_path(
                 &path,
                 Some(DecodeOptions {
-                    coarse: Some(true),
+                    coarse: Some(false),
                     ..Default::default()
                 }),
             )
             .await?;
+        assert_json_snapshot!(format!("{name}.fine.json"), article);
 
-        assert_json_snapshot!(format!("{name}.json"), article);
-        assert_yaml_snapshot!(format!("{name}.decode.losses"), info.losses);
-
-        let (latex, info) = LatexCodec
+        // Using Pandoc encoding of fine article
+        let (latex, ..) = LatexCodec
             .to_string(
                 &article,
                 Some(EncodeOptions {
-                    passthrough_args: vec!["--builtin".into()],
+                    tool: Some("pandoc".into()),
                     ..Default::default()
                 }),
             )
             .await?;
-
-        assert_snapshot!(format!("{name}.tex"), &latex);
-        assert_yaml_snapshot!(format!("{name}.encode.losses"), info.losses);
+        assert_snapshot!(format!("{name}.fine.tex"), &latex);
     }
 
     Ok(())

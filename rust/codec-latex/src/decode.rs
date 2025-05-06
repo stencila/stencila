@@ -1,11 +1,84 @@
 use codec::{
-    common::{eyre::Result, once_cell::sync::Lazy, regex::Regex},
+    common::{
+        eyre::Result,
+        once_cell::sync::Lazy,
+        regex::{Captures, Regex},
+        tracing,
+    },
     format::Format,
     schema::{Article, Block, CodeChunk, Node, RawBlock, Section},
-    DecodeInfo,
+    DecodeInfo, DecodeOptions,
 };
+use codec_pandoc::{pandoc_from_format, root_from_pandoc};
 
-/// Decode LaTeX into an [`Article`] with only [`RawBlock`]s and executable block types
+use crate::PANDOC_FORMAT;
+
+/// Decode LaTeX
+pub(super) async fn decode(
+    latex: &str,
+    options: Option<DecodeOptions>,
+) -> Result<(Node, DecodeInfo)> {
+    let options = options.unwrap_or_default();
+
+    // Default to coarse decoding to avoid loss of LaTeX not recognized by Pandoc
+    if options.coarse.unwrap_or(true) {
+        coarse(latex)
+    } else {
+        fine(latex, options).await
+    }
+}
+
+static RE: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(
+        r"(?sx)
+        \\expr\{(?P<expr>[^}]*)\}
+
+      | \\begin\{chunk\} \s*
+          (?:\[(?P<chunk_opts>[^\]]*?)\])? \s* 
+          (?P<chunk>.*?)
+        \\end\{chunk\}
+
+      | \\begin\{island\}
+          (?P<island>.*?)
+        \\end\{island\}
+    ",
+    )
+    .expect("invalid regex")
+});
+
+/// Decode LaTeX with the `--fine` option
+///
+/// Transforms custom LaTeX commands and environments into those recognized by
+/// Pandoc.
+pub(super) async fn fine(latex: &str, options: DecodeOptions) -> Result<(Node, DecodeInfo)> {
+    let latex = RE.replace_all(latex, |captures: &Captures| {
+        if let Some(mat) = captures.name("expr") {
+            // Transform to lstinline expression
+            [r"\lstinline{", mat.as_str(), "}"].concat()
+        } else if let Some(mat) = captures.name("chunk") {
+            // Transform to lstlisting environment
+            [
+                r"\begin{lstlisting}[exec]\n",
+                mat.as_str(),
+                r"\end{lstlisting}\n",
+            ]
+            .concat()
+        } else if let Some(mat) = captures.name("island") {
+            // No transformation required, parsed by Pandoc into a Div with class "island"
+            [r"\begin{island}\n", mat.as_str(), r"\end{island}\n"].concat()
+        } else {
+            tracing::error!("Unreachable branch reached");
+            String::from("")
+        }
+    });
+
+    let pandoc = pandoc_from_format(&latex, None, PANDOC_FORMAT, options.passthrough_args).await?;
+    root_from_pandoc(pandoc, Format::Latex)
+}
+
+/// Decode LaTeX with the `--course` option
+///
+/// Decodes into an [`Article`] with only [`RawBlock`]s and executable block types
 pub(super) fn coarse(latex: &str) -> Result<(Node, DecodeInfo)> {
     Ok((
         Node::Article(Article::new(latex_to_blocks(latex))),
@@ -15,33 +88,15 @@ pub(super) fn coarse(latex: &str) -> Result<(Node, DecodeInfo)> {
 
 /// Decode LaTeX into a vector of "coarse" [`Block`]s
 fn latex_to_blocks(latex: &str) -> Vec<Block> {
-    static RE: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(
-            r"(?sx)
-            \\expr\{(?P<expr>[^}]*)\}
-
-          | \\begin\{chunk\} \s*
-              (?:\[(?P<chunk_opts>[^\]]*?)\])? \s* 
-              (?P<chunk>.*?)
-            \\end\{chunk\}
-
-          | \\begin\{island\}
-              (?P<island>.*?)
-            \\end\{island\}
-        ",
-        )
-        .expect("invalid regex")
-    });
-
     let mut blocks = Vec::new();
     let mut cursor = 0;
 
     for captures in RE.captures_iter(latex) {
-        let m = captures.get(0).expect("always present");
-        if m.start() > cursor {
+        let mat = captures.get(0).expect("always present");
+        if mat.start() > cursor {
             blocks.push(Block::RawBlock(RawBlock::new(
                 Format::Latex.to_string(),
-                latex[cursor..m.start()].into(),
+                latex[cursor..mat.start()].into(),
             )));
         }
 
@@ -79,7 +134,7 @@ fn latex_to_blocks(latex: &str) -> Vec<Block> {
             blocks.push(Block::Section(Section::new(latex_to_blocks(mat.as_str()))));
         }
 
-        cursor = m.end();
+        cursor = mat.end();
     }
 
     if cursor < latex.len() {

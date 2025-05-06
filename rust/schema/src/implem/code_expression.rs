@@ -1,4 +1,4 @@
-use codec_info::{lost_exec_options, lost_options};
+use codec_info::{lost_exec_options, lost_options, lost_props};
 
 use crate::{prelude::*, CodeExpression};
 
@@ -6,20 +6,37 @@ impl LatexCodec for CodeExpression {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id, execution_mode, execution_bounds));
+            .merge_losses(lost_options!(
+                self,
+                id,
+                programming_language,
+                execution_mode,
+                execution_bounds
+            ));
 
-        if matches!(context.format, Format::Rnw) {
-            context
-                .str(r"\Sexpr{")
-                .property_fn(NodeProperty::Code, |context| self.code.to_latex(context))
-                .str("}");
-        } else if let Some(output) = &self.output {
-            context
-                .add_loss("CodeExpression.code")
-                .property_fn(NodeProperty::Output, |context| output.to_latex(context));
+        // Render mode: only encode output
+        // TODO: reinstate rendering
+        if false {
+            if let Some(output) = &self.output {
+                context.property_fn(NodeProperty::Output, |context| output.to_latex(context));
+            }
+            context.merge_losses(lost_props!(self, code)).exit_node();
+            return;
         } else {
-            context.property_str(NodeProperty::Code, &self.code);
+            context.merge_losses(lost_options!(self, output));
         }
+
+        let command = if matches!(context.format, Format::Rnw) {
+            "Sexpr"
+        } else {
+            "expr"
+        };
+        context
+            .str(r"\")
+            .str(command)
+            .str("{")
+            .property_fn(NodeProperty::Code, |context| self.code.to_latex(context))
+            .str("}");
 
         context.exit_node();
     }

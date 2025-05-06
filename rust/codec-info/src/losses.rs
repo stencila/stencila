@@ -197,8 +197,8 @@ impl Losses {
 ///
 #[macro_export]
 macro_rules! lost_props {
-    ($object:expr, $($field:literal),*) => {{
-        Losses::props(&$object, [$($field,)*])
+    ($object:expr, $($field:ident),*) => {{
+        Losses::props(&$object, [$(stringify!($field),)*])
     }};
 }
 

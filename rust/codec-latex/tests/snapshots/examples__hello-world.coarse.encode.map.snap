@@ -1,0 +1,8 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: info.mapping
+---
+start     end        offsets   node_type+property                   authorship
+     0     71        (0, 71)   RawBlock.content
+     0     71         (0, 0)   RawBlock
+     0     71         (0, 0)   Article
