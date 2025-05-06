@@ -1,0 +1,45 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: "&latex"
+---
+\documentclass{article}
+
+\usepackage{pdflscape}
+
+\begin{document}
+
+\title{Knitting LaTeX + R with Stencila}
+
+\p An example of using R.
+
+\begin{lstlisting}[language=r, exec]
+library(xtable)
+\end{lstlisting}
+
+
+
+\p Tables can be made landscape by placing them within a \verb|landscape| environment, within an \verb|island| environment  e.g.
+
+
+\begin{landscape}
+\begin{lstlisting}[exec]
+print.xtable(xtable(mtcars))
+\end{lstlisting}
+
+
+\end{landscape}
+
+
+\begin{lstlisting}[exec]
+hist(rnorm(1000), breaks=30, main='')
+\end{lstlisting}
+
+
+
+\p One plus two is \begin{lstlisting}[exec]
+1 + 2
+\end{lstlisting}
+
+.
+
+\end{document}

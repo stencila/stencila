@@ -1,0 +1,31 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: "&latex"
+---
+\documentclass{article}
+
+\begin{document}
+
+Before island.
+
+
+
+Within island. There can be inline code expression: \begin{lstlisting}[exec]
+1 + 2
+\end{lstlisting}
+
+.
+
+And there can be block code chunk:
+
+\begin{lstlisting}[exec]
+2 + 3
+\end{lstlisting}
+
+
+
+
+
+After island.
+
+\end{document}

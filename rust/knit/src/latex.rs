@@ -10,22 +10,11 @@ use rand::{Rng, distr::Alphanumeric, rng};
 use codec_latex_trait::to_latex;
 use common::{
     eyre::{Result, bail},
-    once_cell::sync::Lazy,
-    regex::Regex,
     tempfile::tempdir,
     tracing,
 };
 use format::Format;
 use schema::{Article, Block, CodeChunk, Node, RawBlock, Section};
-
-/// Decode a LaTeX to a knitted [`Article`]
-#[tracing::instrument]
-pub(super) fn latex_to_article(path: &Path) -> Result<Article> {
-    tracing::trace!("Decoding LaTeX to Article");
-
-    let latex = read_to_string(path)?;
-    Ok(Article::new(latex_to_blocks(&latex)))
-}
 
 /// Encode a knitted [`Article`] to LaTeX
 #[tracing::instrument(skip(article))]
@@ -120,81 +109,6 @@ pub(super) fn article_to_docx(
     }
 
     Ok(())
-}
-
-/// Decode LaTeX into a vector of [`Block`]s
-fn latex_to_blocks(latex: &str) -> Vec<Block> {
-    static RE: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(
-            r"(?sx)                                   # s = . matches \n, x = ignore whitespace & allow comments
-            \\code\{(?P<code_cmd>[^}]*)\}                # \code{<...>}
-          | \\begin\{code\} \s*                          # \begin{code}
-              (?:\[(?P<code_opts>[^\]]*?)\])? \s*        #   [opt1, opt2]   ← OPTIONAL
-              (?P<code_env>.*?)                          #   body (lazy)
-            \\end\{code\}                                # \end{code}
-          | \\begin\{island\} (?P<island>.*?) \\end\{island\}  # island env
-        ",
-        )
-        .expect("invalid regex")
-    });
-
-    let mut blocks = Vec::new();
-    let mut cursor = 0;
-
-    for captures in RE.captures_iter(latex) {
-        let m = captures.get(0).expect("always present");
-        if m.start() > cursor {
-            blocks.push(Block::RawBlock(RawBlock::new(
-                Format::Latex.to_string(),
-                latex[cursor..m.start()].into(),
-            )));
-        }
-
-        if let Some(mat) = captures.name("code_cmd").or(captures.name("code_env")) {
-            let code = mat.as_str().into();
-
-            let mut programming_language = None;
-            let mut is_echoed = None;
-            let mut is_hidden = None;
-            if let Some(options) = captures.name("code_opts") {
-                for option in options
-                    .as_str()
-                    .split(',')
-                    .map(|s| s.trim())
-                    .filter(|s| !s.is_empty())
-                {
-                    if option == "hide" {
-                        is_hidden = Some(true);
-                    } else if option == "echo" {
-                        is_echoed = Some(true);
-                    } else if programming_language.is_none() {
-                        programming_language = Some(option.to_string());
-                    }
-                }
-            }
-
-            blocks.push(Block::CodeChunk(CodeChunk {
-                programming_language,
-                is_hidden,
-                is_echoed,
-                code,
-                ..Default::default()
-            }));
-        } else if let Some(mat) = captures.name("island") {
-            blocks.push(Block::Section(Section::new(latex_to_blocks(mat.as_str()))));
-        }
-
-        cursor = m.end();
-    }
-
-    if cursor < latex.len() {
-        blocks.push(Block::RawBlock(RawBlock::new(
-            Format::Latex.to_string(),
-            latex[cursor..].into(),
-        )));
-    }
-
-    blocks
 }
 
 /// Encode a vector of [`Block`]s to LaTeX

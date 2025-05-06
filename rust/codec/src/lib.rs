@@ -422,6 +422,14 @@ pub struct DecodeOptions {
     /// Decode in strict mode for the format
     pub strict: Option<bool>,
 
+    /// Decode coarsely
+    /// 
+    /// Codecs that support this option will only decode certain node types
+    /// (usually executable block types) and put the content between those nodes
+    /// into `RawBlock`s of the given format. Useful for formats such as LaTeX
+    /// where the codec does not fully decoding all elements.
+    pub coarse: Option<bool>,
+
     /// The response to take when there are losses in the decoding
     #[default(_code = "LossesResponse::Warn")]
     pub losses: LossesResponse,

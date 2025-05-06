@@ -11,6 +11,8 @@ use codec_pandoc::{
     pandoc_availability, pandoc_from_format, pandoc_to_format, root_from_pandoc, root_to_pandoc,
 };
 
+mod decode;
+
 /// A codec for LaTeX
 pub struct LatexCodec;
 
@@ -57,16 +59,15 @@ impl Codec for LatexCodec {
         input: &str,
         options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
-        let pandoc = pandoc_from_format(
-            input,
-            None,
-            PANDOC_FORMAT,
-            options
-                .map(|options| options.passthrough_args)
-                .unwrap_or_default(),
-        )
-        .await?;
-        root_from_pandoc(pandoc, Format::Latex)
+        let options = options.unwrap_or_default();
+
+        if options.coarse.unwrap_or_default() {
+            decode::coarse(input)
+        } else {
+            let pandoc =
+                pandoc_from_format(input, None, PANDOC_FORMAT, options.passthrough_args).await?;
+            root_from_pandoc(pandoc, Format::Latex)
+        }
     }
 
     async fn to_string(

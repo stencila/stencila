@@ -5,7 +5,7 @@ use common::{
     itertools::Itertools,
     tracing,
 };
-use document::{Document, ExecuteOptions};
+use document::{DecodeOptions, Document, ExecuteOptions, codecs};
 use format::Format;
 use schema::Node;
 
@@ -21,14 +21,18 @@ pub async fn knit(
 ) -> Result<()> {
     let from = from.unwrap_or_else(|| Format::from_path(&input));
 
-    // Decode from the input file
-    let article = match from {
-        Format::Latex | Format::Tex => latex::latex_to_article(&input),
-        _ => bail!("Unsupported from format: {from}"),
-    }?;
+    // Decode article from the input file
+    let node = codecs::from_path(
+        &input,
+        Some(DecodeOptions {
+            coarse: Some(true),
+            ..Default::default()
+        }),
+    )
+    .await?;
 
     // Execute the article
-    let document = Document::from(Node::Article(article), Some(input.to_path_buf())).await?;
+    let document = Document::from(node, Some(input.to_path_buf())).await?;
     document.execute(ExecuteOptions::default()).await?;
     document.diagnostics_print().await?;
 

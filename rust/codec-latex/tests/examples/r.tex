@@ -1,0 +1,31 @@
+\documentclass{article}
+
+\usepackage{pdflscape}
+
+\begin{document}
+
+\title{Knitting LaTeX + R with Stencila}
+
+\p An example of using R.
+
+\begin{chunk}[r,hide]
+library(xtable)
+\end{chunk}
+
+\p Tables can be made landscape by placing them within a \verb|landscape| environment, within an \verb|island| environment  e.g.
+
+\begin{island}
+\begin{landscape}
+\begin{chunk}
+print.xtable(xtable(mtcars))
+\end{chunk}
+\end{landscape}
+\end{island}
+
+\begin{chunk}
+hist(rnorm(1000), breaks=30, main='')
+\end{chunk}
+
+\p One plus two is \expr{1 + 2}.
+
+\end{document}
