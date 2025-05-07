@@ -71,17 +71,23 @@ impl Codec for PngCodec {
         let options = options.unwrap_or_default();
         let tool = options.tool.clone().unwrap_or_default();
 
-        if tool == "latex" || tool.is_empty() {
-            latex_to_png(node, path, options).await
+        let info = if tool == "latex" || tool.is_empty() {
+            latex_to_png(node, path, &options).await?
         } else {
             bail!("Tool `{tool}` is not supported for encoding to PNG")
-        }
+        };
+
+        modify_png(path, options).await?;
+
+        Ok(info)
     }
 }
 
 /// Encode a node to PNG using `latex` binary
 #[tracing::instrument(skip(node))]
-async fn latex_to_png(node: &Node, path: &Path, options: EncodeOptions) -> Result<EncodeInfo> {
+async fn latex_to_png(node: &Node, path: &Path, options: &EncodeOptions) -> Result<EncodeInfo> {
+    tracing::trace!("Generating PNG using LaTeX");
+
     // Use a unique job name to be able to run `latex` in the current working directory
     // (because paths in \input and \includegraphics commands are relative to that)
     // whilst also being able to clean up temporary file afterwards
@@ -133,7 +139,6 @@ async fn latex_to_png(node: &Node, path: &Path, options: EncodeOptions) -> Resul
             &job,
             &input_file,
         ])
-        .args(options.tool_args)
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .status()
@@ -173,4 +178,28 @@ async fn latex_to_png(node: &Node, path: &Path, options: EncodeOptions) -> Resul
     }
 
     Ok(info)
+}
+
+/// Modify a generated PNG
+#[tracing::instrument]
+async fn modify_png(path: &Path, options: EncodeOptions) -> Result<()> {
+    if options.tool_args.is_empty() {
+        return Ok(());
+    }
+
+    tracing::trace!("Modifying PNG");
+
+    let output = Command::new("mogrify")
+        .args(options.tool_args)
+        .arg(path)
+        .output()
+        .await?;
+    if !output.status.success() {
+        bail!(
+            "mogrify failed:\n\n{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+
+    Ok(())
 }
