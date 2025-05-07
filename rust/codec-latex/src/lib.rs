@@ -73,7 +73,8 @@ impl Codec for LatexCodec {
         let tool = options.tool.unwrap_or_default();
 
         if tool == "" {
-            let mut context = LatexEncodeContext::new(format);
+            let mut context =
+                LatexEncodeContext::new(format, options.standalone.unwrap_or_default());
             node.to_latex(&mut context);
 
             let mut output = context.content;
@@ -91,7 +92,10 @@ impl Codec for LatexCodec {
             let (pandoc, info) = root_to_pandoc(node, format)?;
 
             let mut args = options.tool_args;
-            args.append(&mut vec!["--listings".into(), "--standalone".into()]);
+            args.push("--listings".into());
+            if matches!(options.standalone, Some(true)) {
+                args.push("--standalone".into());
+            }
 
             let output = pandoc_to_format(&pandoc, None, PANDOC_FORMAT, args).await?;
 

@@ -6,7 +6,10 @@ use codec::{
         tracing,
     },
     format::Format,
-    schema::{Article, Block, CodeChunk, Node, RawBlock, Section},
+    schema::{
+        Article, Block, CodeChunk, CodeExpression, Inline, InlinesBlock, Node, RawBlock, Section,
+        SectionType,
+    },
     DecodeInfo, DecodeOptions,
 };
 use codec_pandoc::{pandoc_from_format, root_from_pandoc};
@@ -28,6 +31,7 @@ pub(super) async fn decode(
     }
 }
 
+/// Regex for custom commands and environments
 static RE: Lazy<Regex> = Lazy::new(|| {
     Regex::new(
         r"(?sx)
@@ -36,11 +40,11 @@ static RE: Lazy<Regex> = Lazy::new(|| {
       | \\begin\{chunk\} \s*
           (?:\[(?P<chunk_opts>[^\]]*?)\])? \s* 
           (?P<chunk>.*?)
-        \\end\{chunk\}
+        \\end\{chunk\}(\n)?
 
       | \\begin\{island\}
           (?P<island>.*?)
-        \\end\{island\}
+        \\end\{island\}(\n)?
     ",
     )
     .expect("invalid regex")
@@ -51,27 +55,36 @@ static RE: Lazy<Regex> = Lazy::new(|| {
 /// Transforms custom LaTeX commands and environments into those recognized by
 /// Pandoc.
 pub(super) async fn fine(latex: &str, options: DecodeOptions) -> Result<(Node, DecodeInfo)> {
-    let latex = RE.replace_all(latex, |captures: &Captures| {
-        if let Some(mat) = captures.name("expr") {
-            // Transform to lstinline expression
-            [r"\lstinline{", mat.as_str(), "}"].concat()
-        } else if let Some(mat) = captures.name("chunk") {
-            // Transform to lstlisting environment
-            [
-                r"\begin{lstlisting}[exec]\n",
-                mat.as_str(),
-                r"\end{lstlisting}\n",
-            ]
-            .concat()
-        } else if let Some(mat) = captures.name("island") {
-            // No transformation required, parsed by Pandoc into a Div with class "island"
-            [r"\begin{island}\n", mat.as_str(), r"\end{island}\n"].concat()
-        } else {
-            tracing::error!("Unreachable branch reached");
-            String::from("")
-        }
-    });
+    fn transform(latex: &str) -> String {
+        RE.replace_all(latex, |captures: &Captures| {
+            if let Some(mat) = captures.name("expr") {
+                // Transform to lstinline expression
+                ["\\lstinline{", mat.as_str(), "}"].concat()
+            } else if let Some(mat) = captures.name("chunk") {
+                // Transform to lstlisting environment
+                [
+                    "\\begin{lstlisting}[exec]\n",
+                    mat.as_str(),
+                    "\\end{lstlisting}\n",
+                ]
+                .concat()
+            } else if let Some(mat) = captures.name("island") {
+                // No transformation required, parsed by Pandoc into a Div with class "island"
+                [
+                    "\\begin{island}\n",
+                    &transform(mat.as_str()),
+                    "\\end{island}\n",
+                ]
+                .concat()
+            } else {
+                tracing::error!("Unreachable branch reached");
+                String::from("")
+            }
+        })
+        .to_string()
+    }
 
+    let latex = transform(latex);
     let pandoc = pandoc_from_format(&latex, None, PANDOC_FORMAT, options.tool_args).await?;
     root_from_pandoc(pandoc, Format::Latex)
 }
@@ -100,7 +113,16 @@ fn latex_to_blocks(latex: &str) -> Vec<Block> {
             )));
         }
 
-        if let Some(mat) = captures.name("expr").or(captures.name("chunk")) {
+        if let Some(mat) = captures.name("expr") {
+            let code = mat.as_str().into();
+
+            blocks.push(Block::InlinesBlock(InlinesBlock::new(vec![
+                Inline::CodeExpression(CodeExpression {
+                    code,
+                    ..Default::default()
+                }),
+            ])));
+        } else if let Some(mat) = captures.name("chunk") {
             let code = mat.as_str().into();
 
             let mut programming_language = None;
@@ -131,7 +153,11 @@ fn latex_to_blocks(latex: &str) -> Vec<Block> {
                 ..Default::default()
             }));
         } else if let Some(mat) = captures.name("island") {
-            blocks.push(Block::Section(Section::new(latex_to_blocks(mat.as_str()))));
+            blocks.push(Block::Section(Section {
+                section_type: Some(SectionType::Island),
+                content: latex_to_blocks(mat.as_str()),
+                ..Default::default()
+            }));
         }
 
         cursor = mat.end();

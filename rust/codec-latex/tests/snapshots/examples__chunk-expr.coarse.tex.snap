@@ -1,0 +1,27 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: "&latex"
+---
+\documentclass{article}
+
+\begin{document}
+
+\title{Knitting LaTeX and code with Stencila}
+
+One plus two equals \expr{1 + 2}.
+
+No language or other options:
+
+\begin{chunk}
+3
+\end{chunk}
+
+
+With lang and options:
+
+\begin{chunk}[r]
+4
+\end{chunk}
+
+
+\end{document}

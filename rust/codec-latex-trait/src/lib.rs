@@ -24,7 +24,15 @@ where
 
 #[derive(Default)]
 pub struct LatexEncodeContext {
+    /// The format to encode (Latex or Rnw)
     pub format: Format,
+
+    /// Whether the root node should be encoded standalone
+    pub standalone: bool,
+
+    /// Whether the root node is "coarse grained" (i.e. decoded with the `--coarse` option).
+    /// Used to determine whether newlines are needed between blocks.
+    pub coarse: bool,
 
     /// The encoded Latex content
     pub content: String,
@@ -43,9 +51,10 @@ pub struct LatexEncodeContext {
 }
 
 impl LatexEncodeContext {
-    pub fn new(format: Format) -> Self {
+    pub fn new(format: Format, standalone: bool) -> Self {
         Self {
             format,
+            standalone,
             ..Default::default()
         }
     }

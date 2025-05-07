@@ -1,0 +1,79 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: article
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Before island."
+          }
+        }
+      ]
+    },
+    {
+      "type": "StyledBlock",
+      "code": {
+        "string": "island"
+      },
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Within island. There can be inline code expression: "
+              }
+            },
+            {
+              "type": "CodeInline",
+              "code": {
+                "string": "1 + 2"
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "And there can be block code chunk:"
+              }
+            }
+          ]
+        },
+        {
+          "type": "CodeChunk",
+          "code": {
+            "string": "2 + 3"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "After island."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: "&latex"
+---
+One plus two equals \passthrough{\lstinline!1 + 2!}.
+
+No language or other options:
+
+\begin{lstlisting}
+3
+\end{lstlisting}
+
+With lang and options:
+
+\begin{lstlisting}
+4
+\end{lstlisting}
