@@ -7,8 +7,8 @@ use codec::{
     },
     format::Format,
     schema::{
-        Article, Block, CodeChunk, CodeExpression, ForBlock, IncludeBlock, Inline, InlinesBlock,
-        Node, RawBlock, Section, SectionType,
+        Article, Block, CodeChunk, CodeExpression, ForBlock, IfBlock, IfBlockClause, IncludeBlock,
+        Inline, InlinesBlock, Node, RawBlock, Section, SectionType,
     },
     DecodeInfo, DecodeOptions,
 };
@@ -48,6 +48,10 @@ static RE: Lazy<Regex> = Lazy::new(|| {
       | \\begin\{for\}\{(?P<for_var>[\w_]+)\}\{(?P<for_code>[^\}]+)\} \s*
           (?P<for>.*?)
         \\end\{for\}\n?
+
+      | \\begin\{if\}\{(?P<if_code>[^\}]+)\} \s*
+          (?P<if>.*?)
+        \\end\{if\}\n?
 
       | \\begin\{island\}
           (?P<island>.*?)
@@ -106,6 +110,22 @@ pub(super) async fn fine(latex: &str, options: DecodeOptions) -> Result<(Node, D
                     "}\n",
                     &transform(mat.as_str()),
                     "\\end{for}\n",
+                ]
+                .concat()
+            } else if let Some(mat) = captures.name("if") {
+                // Passthrough as is but with content also transformed
+                let code = captures
+                    .name("if_code")
+                    .map(|code| code.as_str())
+                    .unwrap_or_default()
+                    .into();
+
+                [
+                    "\\begin{if}{",
+                    code,
+                    "}\n",
+                    &transform(mat.as_str()),
+                    "\\end{if}\n",
                 ]
                 .concat()
             } else if let Some(mat) = captures.name("island") {
@@ -218,6 +238,18 @@ fn latex_to_blocks(latex: &str) -> Vec<Block> {
                 content: latex_to_blocks(mat.as_str()),
                 ..Default::default()
             }));
+        } else if let Some(mat) = captures.name("if") {
+            let code = captures
+                .name("if_code")
+                .map(|code| code.as_str())
+                .unwrap_or_default()
+                .into();
+
+            blocks.push(Block::IfBlock(IfBlock::new(vec![IfBlockClause {
+                code,
+                content: latex_to_blocks(mat.as_str()),
+                ..Default::default()
+            }])));
         } else if let Some(mat) = captures.name("island") {
             blocks.push(Block::Section(Section {
                 section_type: Some(SectionType::Island),

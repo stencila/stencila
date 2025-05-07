@@ -1,0 +1,11 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: info.mapping
+---
+start     end        offsets   node_type+property                   authorship
+    11     15       (11, 15)   IfBlock.code
+    17     45        (6, 30)   RawBlock.content
+    17     45         (0, 0)   RawBlock
+    17     45         (0, 0)   IfBlock.content
+     0     54       (-17, 9)   IfBlock
+     0     55         (0, 1)   Article
