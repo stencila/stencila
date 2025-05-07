@@ -62,7 +62,7 @@ pub(super) async fn fine(latex: &str, options: DecodeOptions) -> Result<(Node, D
         RE.replace_all(latex, |captures: &Captures| {
             if let Some(mat) = captures.name("expr") {
                 // Transform to lstinline expression
-                ["\\lstinline{", mat.as_str(), "}"].concat()
+                ["\\lstinline[language=exec]{", mat.as_str(), "}"].concat()
             } else if let Some(mat) = captures.name("input") {
                 // Transform \input to an "" environment environment with source as the content
                 // because pandoc does not allow for args on unknown environments.

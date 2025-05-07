@@ -2,7 +2,7 @@
 source: rust/codec-latex/tests/examples.rs
 expression: "&latex"
 ---
-One plus two equals \passthrough{\lstinline!1 + 2!}.
+One plus two equals \expr{1 + 2}.
 
 No language or other options:
 

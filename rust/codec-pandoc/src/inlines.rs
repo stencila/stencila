@@ -2,6 +2,7 @@ use pandoc_types::definition::{self as pandoc, Attr, Target};
 
 use codec::{
     common::{itertools::Itertools, serde_json},
+    format::Format,
     schema::*,
 };
 use codec_text_trait::to_text;
@@ -356,8 +357,20 @@ fn styled_inline_from_pandoc(
 
 fn code_expression_to_pandoc(
     expr: &CodeExpression,
-    _context: &mut PandocEncodeContext,
+    context: &mut PandocEncodeContext,
 ) -> pandoc::Inline {
+    if matches!(context.format, Format::Latex | Format::Rnw) {
+        let begin = if matches!(context.format, Format::Rnw) {
+            "\\Sexpr{"
+        } else {
+            "\\expr{"
+        };
+        return pandoc::Inline::RawInline(
+            pandoc::Format("latex".into()),
+            [begin, &expr.code.to_string(), "}"].concat(),
+        );
+    }
+
     let content = if let Some(output) = &expr.output {
         to_text(output)
     } else {

@@ -23,7 +23,7 @@ expression: article
           }
         },
         {
-          "type": "CodeInline",
+          "type": "CodeExpression",
           "code": {
             "string": "1 + 2"
           }

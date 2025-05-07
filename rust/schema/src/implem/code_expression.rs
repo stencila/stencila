@@ -26,15 +26,13 @@ impl LatexCodec for CodeExpression {
             context.merge_losses(lost_options!(self, output));
         }
 
-        let command = if matches!(context.format, Format::Rnw) {
-            "Sexpr"
+        let begin = if matches!(context.format, Format::Rnw) {
+            "\\Sexpr{"
         } else {
-            "expr"
+            "\\expr{"
         };
         context
-            .str(r"\")
-            .str(command)
-            .str("{")
+            .str(begin)
             .property_fn(NodeProperty::Code, |context| self.code.to_latex(context))
             .str("}");
 
