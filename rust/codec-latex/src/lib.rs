@@ -72,7 +72,7 @@ impl Codec for LatexCodec {
         let format = options.format.unwrap_or(Format::Latex);
         let tool = options.tool.unwrap_or_default();
 
-        if tool == "" {
+        if tool.is_empty() {
             let mut context =
                 LatexEncodeContext::new(format, options.standalone.unwrap_or_default());
             node.to_latex(&mut context);

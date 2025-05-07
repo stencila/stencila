@@ -63,7 +63,7 @@ impl Codec for RnwCodec {
         noweb: &str,
         options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
-        let latex = latex_from_rnw(&noweb);
+        let latex = latex_from_rnw(noweb);
         LatexCodec.from_str(&latex, options).await
     }
 

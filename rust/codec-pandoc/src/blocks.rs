@@ -851,7 +851,7 @@ fn include_block_to_pandoc(
     if matches!(context.format, Format::Latex | Format::Rnw) {
         return pandoc::Block::RawBlock(
             pandoc::Format("latex".into()),
-            ["\\input{", &block.source.trim_end_matches(".tex"), "}"].concat(),
+            ["\\input{", block.source.trim_end_matches(".tex"), "}"].concat(),
         );
     }
 

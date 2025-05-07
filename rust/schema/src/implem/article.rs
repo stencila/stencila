@@ -55,7 +55,10 @@ impl LatexCodec for Article {
         let mut wrap = context.standalone;
         if context.standalone {
             // Only wrap if necessary i.e. first block is not a RawBlock with preamble
-            if let Some(Block::RawBlock(RawBlock { format, content, .. })) = self.content.first() {
+            if let Some(Block::RawBlock(RawBlock {
+                format, content, ..
+            })) = self.content.first()
+            {
                 if format.to_lowercase() == "latex" && content.contains(r"\documentclass") {
                     context.coarse = true;
                     wrap = false;

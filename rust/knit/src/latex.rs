@@ -97,9 +97,9 @@ pub(super) fn article_to_docx(
 
     let status = Command::new("pandoc")
         .args([
-            &input.to_string_lossy().to_string(),
+            input.to_string_lossy().as_ref(),
             "-o",
-            &path.to_string_lossy().to_string(),
+            path.to_string_lossy().as_ref(),
         ])
         .args(passthrough_args)
         .stdout(Stdio::null())
@@ -119,7 +119,7 @@ fn blocks_to_latex(blocks: &Vec<Block>, format: &Format, dir: &Path) -> Result<S
     let mut latex = String::new();
     for block in blocks {
         match block {
-            Block::RawBlock(RawBlock { content, .. }) => latex.push_str(&content),
+            Block::RawBlock(RawBlock { content, .. }) => latex.push_str(content),
             Block::CodeChunk(CodeChunk {
                 code,
                 outputs,
@@ -170,11 +170,11 @@ fn blocks_to_latex(blocks: &Vec<Block>, format: &Format, dir: &Path) -> Result<S
                     // If there are no outputs, and final format is LaTeX, then display code
                     if is_block {
                         latex.push_str(r"\begin{code}");
-                        latex.push_str(&code);
+                        latex.push_str(code);
                         latex.push_str(r"\end{code}");
                     } else {
                         latex.push_str(r"\code{");
-                        latex.push_str(&code);
+                        latex.push_str(code);
                         latex.push('}');
                     }
                 }
