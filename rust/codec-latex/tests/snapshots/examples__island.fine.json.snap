@@ -17,10 +17,7 @@ expression: article
       ]
     },
     {
-      "type": "StyledBlock",
-      "code": {
-        "string": "island"
-      },
+      "type": "Section",
       "content": [
         {
           "type": "Paragraph",
@@ -62,7 +59,8 @@ expression: article
             "string": "2 + 3"
           }
         }
-      ]
+      ],
+      "sectionType": "Island"
     },
     {
       "type": "Paragraph",

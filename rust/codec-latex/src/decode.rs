@@ -71,9 +71,9 @@ pub(super) async fn fine(latex: &str, options: DecodeOptions) -> Result<(Node, D
             } else if let Some(mat) = captures.name("island") {
                 // No transformation required, parsed by Pandoc into a Div with class "island"
                 [
-                    "\\begin{island}\n",
+                    "\\begin{section-island}\n",
                     &transform(mat.as_str()),
-                    "\\end{island}\n",
+                    "\\end{section-island}\n",
                 ]
                 .concat()
             } else {
