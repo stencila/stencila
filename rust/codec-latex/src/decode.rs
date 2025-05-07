@@ -7,8 +7,8 @@ use codec::{
     },
     format::Format,
     schema::{
-        Article, Block, CodeChunk, CodeExpression, Inline, InlinesBlock, Node, RawBlock, Section,
-        SectionType,
+        Article, Block, CodeChunk, CodeExpression, IncludeBlock, Inline, InlinesBlock, Node,
+        RawBlock, Section, SectionType,
     },
     DecodeInfo, DecodeOptions,
 };
@@ -35,16 +35,19 @@ pub(super) async fn decode(
 static RE: Lazy<Regex> = Lazy::new(|| {
     Regex::new(
         r"(?sx)
+
         \\expr\{(?P<expr>[^}]*)\}
+
+      |  \\input\{(?P<input>[^}]*)\}\n?
 
       | \\begin\{chunk\} \s*
           (?:\[(?P<chunk_opts>[^\]]*?)\])? \s* 
           (?P<chunk>.*?)
-        \\end\{chunk\}(\n)?
+        \\end\{chunk\}\n?
 
       | \\begin\{island\}
           (?P<island>.*?)
-        \\end\{island\}(\n)?
+        \\end\{island\}\n?
     ",
     )
     .expect("invalid regex")
@@ -53,13 +56,22 @@ static RE: Lazy<Regex> = Lazy::new(|| {
 /// Decode LaTeX with the `--fine` option
 ///
 /// Transforms custom LaTeX commands and environments into those recognized by
-/// Pandoc.
+/// Pandoc. See the `pandoc-codec/src/blocks.rs` for why we encode things as we do below.
 pub(super) async fn fine(latex: &str, options: DecodeOptions) -> Result<(Node, DecodeInfo)> {
     fn transform(latex: &str) -> String {
         RE.replace_all(latex, |captures: &Captures| {
             if let Some(mat) = captures.name("expr") {
                 // Transform to lstinline expression
                 ["\\lstinline{", mat.as_str(), "}"].concat()
+            } else if let Some(mat) = captures.name("input") {
+                // Transform \input to an "" environment environment with source as the content
+                // because pandoc does not allow for args on unknown environments.
+                // If we do not do this then Pandoc will attempt to do the transclusion itself
+                let mut source = mat.as_str().to_string();
+                if !source.ends_with(".tex") {
+                    source.push_str(".tex");
+                }
+                ["\\begin{include}", &source, "\\end{include}"].concat()
             } else if let Some(mat) = captures.name("chunk") {
                 // Transform to lstlisting environment
                 [
@@ -122,6 +134,13 @@ fn latex_to_blocks(latex: &str) -> Vec<Block> {
                     ..Default::default()
                 }),
             ])));
+        } else if let Some(mat) = captures.name("input") {
+            let mut source = mat.as_str().to_string();
+            if !source.ends_with(".tex") {
+                source.push_str(".tex");
+            }
+
+            blocks.push(Block::IncludeBlock(IncludeBlock::new(source)));
         } else if let Some(mat) = captures.name("chunk") {
             let code = mat.as_str().into();
 

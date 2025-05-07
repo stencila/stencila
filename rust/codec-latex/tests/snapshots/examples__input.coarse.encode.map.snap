@@ -1,0 +1,14 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: info.mapping
+---
+start     end        offsets   node_type+property                   authorship
+     7     12        (7, 12)   IncludeBlock.source
+     0     14        (-7, 2)   IncludeBlock
+    21     28       (21, 14)   IncludeBlock.source
+    14     30        (-7, 2)   IncludeBlock
+    37     44       (23, 14)   IncludeBlock.source
+    30     46        (-7, 2)   IncludeBlock
+    53     63       (23, 17)   IncludeBlock.source
+    46     65        (-7, 2)   IncludeBlock
+     0     65       (-46, 0)   Article

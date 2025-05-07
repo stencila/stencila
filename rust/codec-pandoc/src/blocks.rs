@@ -848,6 +848,13 @@ fn include_block_to_pandoc(
     block: &IncludeBlock,
     context: &mut PandocEncodeContext,
 ) -> pandoc::Block {
+    if matches!(context.format, Format::Latex | Format::Rnw) {
+        return pandoc::Block::RawBlock(
+            pandoc::Format("latex".into()),
+            ["\\input{", &block.source.trim_end_matches(".tex"), "}"].concat(),
+        );
+    }
+
     let mut attributes = vec![("source".into(), block.source.clone())];
     if let Some(media) = &block.media_type {
         attributes.push(("media".into(), media.to_string().clone()));
@@ -891,7 +898,7 @@ fn include_block_from_pandoc(
             }
         }
     }
-    let source = source.unwrap_or_default();
+    let mut source = source.unwrap_or_default();
 
     let mut select = None;
     let mut media_type = None;
@@ -906,8 +913,20 @@ fn include_block_from_pandoc(
         }
     }
 
-    let content = blocks_from_pandoc(blocks, context);
-    let content = (!content.is_empty()).then_some(content);
+    let content = if source.is_empty() && matches!(context.format, Format::Latex) {
+        // Content is the path of the source
+        source = blocks
+            .pop()
+            .map(|node| match node {
+                pandoc::Block::Para(inlines) => string_from_pandoc_inlines(inlines),
+                _ => String::new(),
+            })
+            .unwrap_or_default();
+        None
+    } else {
+        let content = blocks_from_pandoc(blocks, context);
+        (!content.is_empty()).then_some(content)
+    };
 
     Block::IncludeBlock(IncludeBlock {
         execution_mode,
