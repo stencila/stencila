@@ -7,8 +7,8 @@ use codec::{
     },
     format::Format,
     schema::{
-        Article, Block, CodeChunk, CodeExpression, IncludeBlock, Inline, InlinesBlock, Node,
-        RawBlock, Section, SectionType,
+        Article, Block, CodeChunk, CodeExpression, ForBlock, IncludeBlock, Inline, InlinesBlock,
+        Node, RawBlock, Section, SectionType,
     },
     DecodeInfo, DecodeOptions,
 };
@@ -45,6 +45,10 @@ static RE: Lazy<Regex> = Lazy::new(|| {
           (?P<chunk>.*?)
         \\end\{chunk\}\n?
 
+      | \\begin\{for\}\{(?P<for_var>[\w_]+)\}\{(?P<for_code>[^\}]+)\} \s*
+          (?P<for>.*?)
+        \\end\{for\}\n?
+
       | \\begin\{island\}
           (?P<island>.*?)
         \\end\{island\}\n?
@@ -78,6 +82,30 @@ pub(super) async fn fine(latex: &str, options: DecodeOptions) -> Result<(Node, D
                     "\\begin{lstlisting}[exec]\n",
                     mat.as_str(),
                     "\\end{lstlisting}\n",
+                ]
+                .concat()
+            } else if let Some(mat) = captures.name("for") {
+                // Passthrough as is but with content also transformed
+                let variable = captures
+                    .name("for_var")
+                    .map(|var| var.as_str())
+                    .unwrap_or_default()
+                    .into();
+
+                let code = captures
+                    .name("for_code")
+                    .map(|code| code.as_str())
+                    .unwrap_or_default()
+                    .into();
+
+                [
+                    "\\begin{for}{",
+                    variable,
+                    "}{",
+                    code,
+                    "}\n",
+                    &transform(mat.as_str()),
+                    "\\end{for}\n",
                 ]
                 .concat()
             } else if let Some(mat) = captures.name("island") {
@@ -169,6 +197,25 @@ fn latex_to_blocks(latex: &str) -> Vec<Block> {
                 is_hidden,
                 is_echoed,
                 code,
+                ..Default::default()
+            }));
+        } else if let Some(mat) = captures.name("for") {
+            let variable = captures
+                .name("for_var")
+                .map(|var| var.as_str())
+                .unwrap_or_default()
+                .into();
+
+            let code = captures
+                .name("for_code")
+                .map(|code| code.as_str())
+                .unwrap_or_default()
+                .into();
+
+            blocks.push(Block::ForBlock(ForBlock {
+                variable,
+                code,
+                content: latex_to_blocks(mat.as_str()),
                 ..Default::default()
             }));
         } else if let Some(mat) = captures.name("island") {

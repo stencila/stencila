@@ -1,0 +1,41 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: article
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "ForBlock",
+      "code": {
+        "string": "c(1,2,3)"
+      },
+      "variable": "item",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "This is item "
+              }
+            },
+            {
+              "type": "CodeExpression",
+              "code": {
+                "string": "item"
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
