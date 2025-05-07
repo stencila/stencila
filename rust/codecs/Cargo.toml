@@ -30,6 +30,7 @@ codec-odt = { path = "../codec-odt" }
 codec-pandoc = { path = "../codec-pandoc" }
 codec-pdf = { path = "../codec-pdf" }
 codec-pmcoap = { path = "../codec-pmcoap" }
+codec-png = { path = "../codec-png" }
 codec-rnw = { path = "../codec-rnw" }
 codec-swb = { path = "../codec-swb" }
 codec-text = { path = "../codec-text" }

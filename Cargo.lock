@@ -1214,6 +1214,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-png"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-latex",
+ "rand 0.9.0",
+]
+
+[[package]]
 name = "codec-rnw"
 version = "0.0.0"
 dependencies = [
@@ -1291,6 +1300,7 @@ dependencies = [
  "codec-pandoc",
  "codec-pdf",
  "codec-pmcoap",
+ "codec-png",
  "codec-rnw",
  "codec-swb",
  "codec-text",
