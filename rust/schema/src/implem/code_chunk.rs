@@ -241,7 +241,11 @@ impl LatexCodec for CodeChunk {
             context.environ_end(ENVIRON);
         }
 
-        context.exit_node().newline();
+        context.exit_node();
+
+        if !context.coarse {
+            context.newline();
+        }
     }
 }
 

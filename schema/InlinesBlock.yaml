@@ -1,0 +1,21 @@
+title: InlinesBlock
+'@id': stencila:InlinesBlock
+nick: inb
+extends: Entity
+category: prose
+description: A block containing inlines with no other semantics.
+$comment: |
+  Similar in structure to a `Paragraph` but displayed without newline or other spacing around it.
+  Used when decoding content with the `--coarse` option to encapsulate executable inlines without
+  creating a new paragraph.
+required:
+  - content
+properties:
+  content:
+    '@id': stencila:content
+    description: The contents of the block.
+    type: array
+    items:
+      $ref: Inline
+    dom:
+      elem: div

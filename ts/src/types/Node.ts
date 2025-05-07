@@ -65,6 +65,7 @@ import { type IfBlock } from "./IfBlock.js";
 import { type IfBlockClause } from "./IfBlockClause.js";
 import { type ImageObject } from "./ImageObject.js";
 import { type IncludeBlock } from "./IncludeBlock.js";
+import { type InlinesBlock } from "./InlinesBlock.js";
 import { type InstructionBlock } from "./InstructionBlock.js";
 import { type InstructionInline } from "./InstructionInline.js";
 import { type InstructionMessage } from "./InstructionMessage.js";
@@ -206,6 +207,7 @@ export type Node =
   IfBlockClause |
   ImageObject |
   IncludeBlock |
+  InlinesBlock |
   InstructionBlock |
   InstructionInline |
   InstructionMessage |
@@ -341,6 +343,7 @@ export function node(other: Node): Node {
     case "IfBlockClause":
     case "ImageObject":
     case "IncludeBlock":
+    case "InlinesBlock":
     case "InstructionBlock":
     case "InstructionInline":
     case "InstructionMessage":

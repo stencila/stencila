@@ -1,4 +1,4 @@
-use crate::{prelude::*, Article};
+use crate::{prelude::*, Article, Block, RawBlock};
 
 impl Article {
     pub fn to_jats_special(&self) -> (String, Losses) {
@@ -52,7 +52,32 @@ impl LatexCodec for Article {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
         context.enter_node(self.node_type(), self.node_id());
 
+        let mut wrap = context.standalone;
+        if context.standalone {
+            // Only wrap if necessary i.e. first block is not a RawBlock with preamble
+            if let Some(Block::RawBlock(RawBlock { format, content, .. })) = self.content.first() {
+                if format.to_lowercase() == "latex" && content.contains(r"\documentclass") {
+                    context.coarse = true;
+                    wrap = false;
+                }
+            }
+        }
+
+        if wrap {
+            context.str(
+                r"\documentclass{article}
+
+\begin{document}
+
+",
+            );
+        }
+
         self.content.to_latex(context);
+
+        if wrap {
+            context.str(r"\end{document}").newline();
+        }
 
         context.exit_node_final();
     }

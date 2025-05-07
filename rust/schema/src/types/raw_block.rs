@@ -39,7 +39,7 @@ pub struct RawBlock {
 
     /// The raw content.
     #[walk]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "all")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::from("content")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9]{1,10}".prop_map(Cord::from)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^\p{C}]{1,100}".prop_map(Cord::from)"#))]

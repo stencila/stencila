@@ -19,6 +19,7 @@ export type BlockType =
   | "IfBlock"
   | "ImageObject"
   | "IncludeBlock"
+  | "InlinesBlock"
   | "InstructionBlock"
   | "List"
   | "MathBlock"
@@ -53,6 +54,7 @@ export const BlockTypeList = [
   "IfBlock",
   "ImageObject",
   "IncludeBlock",
+  "InlinesBlock",
   "InstructionBlock",
   "List",
   "MathBlock",

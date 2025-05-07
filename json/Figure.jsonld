@@ -723,6 +723,9 @@
           "@id": "stencila:IncludeBlock"
         },
         {
+          "@id": "stencila:InlinesBlock"
+        },
+        {
           "@id": "stencila:InstructionBlock"
         },
         {

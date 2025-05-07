@@ -1,0 +1,51 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/InlinesBlock.schema.json",
+  "@id": "stencila:InlinesBlock",
+  "title": "InlinesBlock",
+  "nick": "inb",
+  "extends": [
+    "Entity"
+  ],
+  "category": "prose",
+  "description": "A block containing inlines with no other semantics.",
+  "$comment": "Similar in structure to a `Paragraph` but displayed without newline or other spacing around it.\nUsed when decoding content with the `--coarse` option to encapsulate executable inlines without\ncreating a new paragraph.\n",
+  "required": [
+    "type",
+    "content"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The contents of the block.",
+      "dom": {
+        "elem": "div"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Inline.schema.json"
+      }
+    }
+  }
+}

@@ -35,6 +35,7 @@ The `Block` type has these members:
 - [`IfBlock`](https://stencila.ghost.io/docs/reference/schema/if-block)
 - [`ImageObject`](https://stencila.ghost.io/docs/reference/schema/image-object)
 - [`IncludeBlock`](https://stencila.ghost.io/docs/reference/schema/include-block)
+- [`InlinesBlock`](https://stencila.ghost.io/docs/reference/schema/inlines-block)
 - [`InstructionBlock`](https://stencila.ghost.io/docs/reference/schema/instruction-block)
 - [`List`](https://stencila.ghost.io/docs/reference/schema/list)
 - [`MathBlock`](https://stencila.ghost.io/docs/reference/schema/math-block)
@@ -90,6 +91,7 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 | `ImageObject`      | Min+       | Do not generate `ImageObject` nodes in block content.      | -                 |
 | `IncludeBlock`     | Min+       | Do not generate `IncludeBlock` nodes in block content.     | -                 |
 |                    | Low+       | Generate `IncludeBlock` nodes in block content.            | Default for level |
+| `InlinesBlock`     | Min+       | Do not generate `InlinesBlock` nodes in block content.     | -                 |
 | `InstructionBlock` | Min+       | Do not generate `InstructionBlock` nodes in block content. | -                 |
 | `PromptBlock`      | Min+       | Do not generate `PromptBlock` nodes in block content.      | -                 |
 | `Section`          | Min+       | Do not generate `Section` nodes in block content.          | -                 |

@@ -210,6 +210,9 @@
       "$ref": "IncludeBlock.schema.json"
     },
     {
+      "$ref": "InlinesBlock.schema.json"
+    },
+    {
       "$ref": "InstructionBlock.schema.json"
     },
     {

@@ -37,4 +37,7 @@ pub enum SectionType {
 
     /// A section representing an iteration of a `ForBlock`.
     Iteration,
+
+    /// A section representing an island of island content.
+    Island,
 }

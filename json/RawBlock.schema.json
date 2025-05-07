@@ -78,15 +78,6 @@
     "content": {
       "@id": "stencila:content",
       "description": "The raw content.",
-      "patch": {
-        "formats": [
-          "md",
-          "smd",
-          "myst",
-          "ipynb",
-          "qmd"
-        ]
-      },
       "proptest": {
         "min": {
           "description": "Generate a simple fixed string.",
