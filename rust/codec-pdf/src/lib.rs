@@ -125,8 +125,7 @@ async fn latex_to_pdf(node: &Node, path: &Path, options: EncodeOptions) -> Resul
         .args(options.tool_args)
         .stdout(Stdio::null())
         .stderr(Stdio::null())
-        .spawn()?
-        .wait()
+        .status()
         .await?;
 
     let output_file = PathBuf::from(format!("{job}.pdf"));
