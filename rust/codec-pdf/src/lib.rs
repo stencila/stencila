@@ -19,13 +19,10 @@ use codec::{
     format::Format,
     schema::Node,
     status::Status,
-    Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    NodeType,
+    Codec, CodecSupport, EncodeInfo, EncodeOptions, NodeType,
 };
 use codec_latex::LatexCodec;
-use codec_pandoc::{
-    pandoc_availability, pandoc_from_format, pandoc_to_format, root_from_pandoc, root_to_pandoc,
-};
+use codec_pandoc::{pandoc_to_format, root_to_pandoc};
 
 /// A codec for PDF
 pub struct PdfCodec;
@@ -39,11 +36,7 @@ impl Codec for PdfCodec {
     }
 
     fn status(&self) -> Status {
-        Status::UnderDevelopment
-    }
-
-    fn availability(&self) -> CodecAvailability {
-        pandoc_availability()
+        Status::Beta
     }
 
     fn supports_from_format(&self, _format: &Format) -> CodecSupport {
@@ -52,7 +45,7 @@ impl Codec for PdfCodec {
 
     fn supports_to_format(&self, format: &Format) -> CodecSupport {
         match format {
-            Format::Pdf => CodecSupport::LowLoss,
+            Format::Pdf => CodecSupport::HighLoss,
             _ => CodecSupport::None,
         }
     }
@@ -62,7 +55,7 @@ impl Codec for PdfCodec {
     }
 
     fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::LowLoss
+        CodecSupport::HighLoss
     }
 
     fn supports_from_string(&self) -> bool {
@@ -71,21 +64,6 @@ impl Codec for PdfCodec {
 
     fn supports_to_string(&self) -> bool {
         false
-    }
-
-    async fn from_path(
-        &self,
-        path: &Path,
-        options: Option<DecodeOptions>,
-    ) -> Result<(Node, DecodeInfo)> {
-        let pandoc = pandoc_from_format(
-            "",
-            Some(path),
-            PANDOC_FORMAT,
-            options.map(|options| options.tool_args).unwrap_or_default(),
-        )
-        .await?;
-        root_from_pandoc(pandoc, Format::Pdf)
     }
 
     async fn to_path(
