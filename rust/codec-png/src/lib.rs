@@ -166,7 +166,7 @@ async fn latex_to_png(node: &Node, path: &Path, options: &EncodeOptions) -> Resu
         .status()
         .await?;
 
-    for path in glob::glob(&format!("{job}.*"))?.into_iter().flatten() {
+    for path in glob::glob(&format!("{job}.*"))?.flatten() {
         remove_file(path).await?;
     }
 

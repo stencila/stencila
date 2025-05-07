@@ -93,14 +93,12 @@ pub(super) async fn fine(latex: &str, options: DecodeOptions) -> Result<(Node, D
                 let variable = captures
                     .name("for_var")
                     .map(|var| var.as_str())
-                    .unwrap_or_default()
-                    .into();
+                    .unwrap_or_default();
 
                 let code = captures
                     .name("for_code")
                     .map(|code| code.as_str())
-                    .unwrap_or_default()
-                    .into();
+                    .unwrap_or_default();
 
                 [
                     "\\begin{for}{",
@@ -117,8 +115,7 @@ pub(super) async fn fine(latex: &str, options: DecodeOptions) -> Result<(Node, D
                 let code = captures
                     .name("if_code")
                     .map(|code| code.as_str())
-                    .unwrap_or_default()
-                    .into();
+                    .unwrap_or_default();
 
                 [
                     "\\begin{if}{",
