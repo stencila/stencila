@@ -15,8 +15,7 @@ impl LatexCodec for CodeExpression {
             ));
 
         // Render mode: only encode output
-        // TODO: reinstate rendering
-        if false {
+        if context.render {
             if let Some(output) = &self.output {
                 context.property_fn(NodeProperty::Output, |context| output.to_latex(context));
             }

@@ -147,8 +147,7 @@ impl LatexCodec for CodeChunk {
             .merge_losses(lost_options!(self, id, execution_mode, execution_bounds));
 
         // Render mode: only encode outputs
-        // TODO: reinstate rendering
-        if false {
+        if context.render {
             if let Some(output) = &self.outputs {
                 context.property_fn(NodeProperty::Outputs, |context| output.to_latex(context));
             }

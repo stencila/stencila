@@ -78,6 +78,10 @@ impl DecodeOptions {
 /// Command line arguments for encoding nodes to other formats
 #[derive(Debug, Args)]
 pub struct EncodeOptions {
+    /// Encode outputs, rather than source, of executable nodes
+    #[arg(long, short)]
+    render: bool,
+
     /// Encode as a standalone document
     #[arg(long, conflicts_with = "not_standalone")]
     standalone: bool,
@@ -130,6 +134,8 @@ impl EncodeOptions {
             .then_some(true)
             .or(self.pretty.then_some(false));
 
+        let render = self.render.then_some(true);
+
         let standalone = self
             .standalone
             .then_some(true)
@@ -141,6 +147,7 @@ impl EncodeOptions {
             codec,
             format,
             compact,
+            render,
             standalone,
             from_path,
             strip_scopes: strip_options.strip_scopes,

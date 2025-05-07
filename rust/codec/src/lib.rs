@@ -457,6 +457,9 @@ pub struct EncodeOptions {
     /// formats it may be necessary to specify this option.
     pub format: Option<Format>,
 
+    /// Encode outputs, rather than source properties, of executable nodes
+    pub render: Option<bool>,
+
     /// Whether to encode as a standalone document
     ///
     /// Unless specified otherwise, this is the default when encoding to a file

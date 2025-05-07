@@ -73,8 +73,11 @@ impl Codec for LatexCodec {
         let tool = options.tool.unwrap_or_default();
 
         if tool.is_empty() {
-            let mut context =
-                LatexEncodeContext::new(format, options.standalone.unwrap_or_default());
+            let mut context = LatexEncodeContext::new(
+                format,
+                options.standalone.unwrap_or_default(),
+                options.render.unwrap_or_default(),
+            );
             node.to_latex(&mut context);
 
             let mut output = context.content;
@@ -101,7 +104,7 @@ impl Codec for LatexCodec {
 
             Ok((output, info))
         } else {
-            bail!("Tool `{tool}` is not supported for encoding to {format}",)
+            bail!("Tool `{tool}` is not supported for encoding to {format}")
         }
     }
 }

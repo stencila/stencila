@@ -30,6 +30,9 @@ pub struct LatexEncodeContext {
     /// Whether the root node should be encoded standalone
     pub standalone: bool,
 
+    /// Whether encoding in render mode (executable outputs)
+    pub render: bool,
+
     /// Whether the root node is "coarse grained" (i.e. decoded with the `--coarse` option).
     /// Used to determine whether newlines are needed between blocks.
     pub coarse: bool,
@@ -51,10 +54,11 @@ pub struct LatexEncodeContext {
 }
 
 impl LatexEncodeContext {
-    pub fn new(format: Format, standalone: bool) -> Self {
+    pub fn new(format: Format, standalone: bool, render: bool) -> Self {
         Self {
             format,
             standalone,
+            render,
             ..Default::default()
         }
     }
