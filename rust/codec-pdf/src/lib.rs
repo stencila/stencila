@@ -1,13 +1,28 @@
-use std::path::Path;
+use std::{
+    path::{Path, PathBuf},
+    process::Stdio,
+};
+
+use rand::{distr::Alphanumeric, rng, Rng};
 
 use codec::{
-    common::{async_trait::async_trait, eyre::Result},
+    common::{
+        async_trait::async_trait,
+        eyre::{bail, Result},
+        glob,
+        tokio::{
+            fs::{create_dir_all, read_to_string, remove_file, rename},
+            process::Command,
+        },
+        tracing,
+    },
     format::Format,
     schema::Node,
     status::Status,
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     NodeType,
 };
+use codec_latex::LatexCodec;
 use codec_pandoc::{
     pandoc_availability, pandoc_from_format, pandoc_to_format, root_from_pandoc, root_to_pandoc,
 };
@@ -79,14 +94,85 @@ impl Codec for PdfCodec {
         path: &Path,
         options: Option<EncodeOptions>,
     ) -> Result<EncodeInfo> {
-        let (pandoc, info) = root_to_pandoc(node, Format::Pdf)?;
-        pandoc_to_format(
-            &pandoc,
-            Some(path),
-            PANDOC_FORMAT,
-            options.map(|options| options.tool_args).unwrap_or_default(),
+        let options = options.unwrap_or_default();
+        let tool = options.tool.clone().unwrap_or_default();
+
+        if tool == "pandoc" {
+            let (pandoc, info) = root_to_pandoc(node, Format::Pdf)?;
+            pandoc_to_format(&pandoc, Some(path), PANDOC_FORMAT, options.tool_args).await?;
+            Ok(info)
+        } else if tool == "latex" || tool.is_empty() {
+            latex_to_pdf(node, path, options).await
+        } else {
+            bail!("Tool `{tool}` is not supported for encoding to PDF")
+        }
+    }
+}
+
+/// Encode a node to PDF using `latex` binary
+#[tracing::instrument(skip(node))]
+async fn latex_to_pdf(node: &Node, path: &Path, options: EncodeOptions) -> Result<EncodeInfo> {
+    // Use a unique job name to be able to run `latex` in the current working directory
+    // (because paths in \input and \includegraphics commands are relative to that)
+    // whilst also being able to clean up temporary file afterwards
+    let job: String = rng()
+        .sample_iter(&Alphanumeric)
+        .take(16)
+        .map(char::from)
+        .collect();
+
+    let input_file = format!("{job}.tex");
+
+    let info = LatexCodec
+        .to_path(
+            node,
+            &PathBuf::from(&input_file),
+            Some(EncodeOptions {
+                standalone: Some(true),
+                render: Some(true),
+                ..Default::default()
+            }),
         )
         .await?;
-        Ok(info)
+
+    let status = Command::new("latex")
+        .args([
+            "-interaction=batchmode",
+            "-halt-on-error",
+            "-output-format=pdf",
+            "-jobname",
+            &job,
+            &input_file,
+        ])
+        .args(options.tool_args)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()?
+        .wait()
+        .await?;
+
+    let output_file = PathBuf::from(format!("{job}.pdf"));
+    if output_file.exists() {
+        if let Some(dir) = path.parent() {
+            create_dir_all(dir).await?;
+        }
+        rename(output_file, path).await?;
     }
+
+    let log_file = PathBuf::from(format!("{job}.log"));
+    let log = if log_file.exists() {
+        read_to_string(log_file).await?
+    } else {
+        String::new()
+    };
+
+    for path in glob::glob(&format!("{job}.*"))?.into_iter().flatten() {
+        remove_file(path).await?;
+    }
+
+    if !status.success() {
+        bail!("latex failed:\n\n{}", log);
+    }
+
+    Ok(info)
 }
