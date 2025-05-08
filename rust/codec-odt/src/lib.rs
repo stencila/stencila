@@ -9,7 +9,8 @@ use codec::{
     NodeType,
 };
 use codec_pandoc::{
-    pandoc_availability, pandoc_from_format, pandoc_to_format, root_from_pandoc, root_to_pandoc,
+    coarse_to_path, pandoc_availability, pandoc_from_format, pandoc_to_format, root_from_pandoc,
+    root_to_pandoc,
 };
 
 /// A codec for Open Document Format
@@ -76,6 +77,21 @@ impl Codec for OdtCodec {
         path: &Path,
         options: Option<EncodeOptions>,
     ) -> Result<EncodeInfo> {
+        let mut options = options.unwrap_or_default();
+        if options.render.is_none() {
+            options.render = Some(true);
+        }
+
+        if options.render.unwrap_or_default() {
+            if let Node::Article(article) = node {
+                if article.is_coarse(&Format::Latex) {
+                    return coarse_to_path(node, Format::Latex, Format::Odt, path, Some(options))
+                        .await;
+                }
+            }
+        }
+
+        let options = Some(options);
         let (pandoc, info) = root_to_pandoc(node, Format::Odt, &options)?;
         pandoc_to_format(&pandoc, Some(path), PANDOC_FORMAT, &options).await?;
         Ok(info)
