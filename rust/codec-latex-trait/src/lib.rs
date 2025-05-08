@@ -35,7 +35,6 @@ pub trait LatexCodec {
     fn to_latex(&self, context: &mut LatexEncodeContext);
 }
 
-#[derive(Default)]
 pub struct LatexEncodeContext {
     /// The format to encode (Latex or Rnw)
     pub format: Format,
@@ -78,7 +77,12 @@ impl LatexEncodeContext {
             standalone,
             render,
             temp_dir,
-            ..Default::default()
+            coarse: false,
+            content: String::default(),
+            node_stack: Vec::default(),
+            mapping: Mapping::default(),
+            losses: Losses::default(),
+            depth: 0,
         }
     }
 
