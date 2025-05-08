@@ -79,6 +79,9 @@ impl LatexCodec for Article {
             context.str(
                 r"\documentclass{article}
 
+\usepackage{graphicx}
+\usepackage{pdflscape}
+                    
 \begin{document}
 
 ",

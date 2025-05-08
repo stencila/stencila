@@ -19,7 +19,7 @@ use codec::{
     schema::Node,
     status::Status,
 };
-use codec_latex_trait::to_latex;
+use codec_latex_trait::{requires_packages, to_latex};
 use rand::{Rng, distr::Alphanumeric, rng};
 
 /// A codec for PNG
@@ -106,7 +106,9 @@ async fn latex_to_png(node: &Node, path: &Path, options: &EncodeOptions) -> Resu
             r"
 \documentclass[border=5pt,preview]{standalone}
 
-\usepackage{pdflscape}
+",
+            &requires_packages(&latex),
+            r"
 
 \begin{document}
 

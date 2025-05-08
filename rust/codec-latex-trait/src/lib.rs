@@ -3,6 +3,7 @@
 use std::{env::temp_dir, path::PathBuf};
 
 use codec_info::{EncodeInfo, Losses, Mapping, NodeId, NodeProperty, NodeType};
+use common::itertools::Itertools;
 use format::Format;
 
 pub use codec_latex_derive::LatexCodec;
@@ -28,6 +29,24 @@ where
     };
 
     (latex, info)
+}
+
+///
+pub fn requires_packages(latex: &str) -> String {
+    let mut packages = Vec::new();
+
+    if latex.contains(r"\includegraphics") {
+        packages.push("graphicx");
+    }
+
+    if latex.contains(r"\landscape") {
+        packages.push("pdflscape");
+    }
+
+    packages
+        .iter()
+        .map(|pkg| [r"\usepackage{", pkg, "}"].concat())
+        .join("\n")
 }
 
 pub trait LatexCodec {
