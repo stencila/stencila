@@ -12,6 +12,8 @@ use common::{
     once_cell::sync::Lazy,
     regex::{Captures, Regex},
     seahash::SeaHasher,
+    tokio::process::Command,
+    tracing,
 };
 use image::{ImageFormat, ImageReader};
 use mime_guess::from_path;
@@ -228,6 +230,26 @@ fn img_srcs_transform(html: &str, transform: impl Fn(&str) -> String) -> String 
             format!(r#"{}src="{}""#, prefix, new_src)
         })
         .into_owned()
+}
+
+/// Modify an image using ImageMagick `mogrify`
+#[tracing::instrument]
+pub async fn mogrify_image(path: &Path, args: &[String]) -> Result<()> {
+    tracing::trace!("Modifying image");
+
+    let output = Command::new("mogrify")
+        .args(args)
+        .arg(path)
+        .output()
+        .await?;
+    if !output.status.success() {
+        bail!(
+            "mogrify failed:\n\n{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+
+    Ok(())
 }
 
 #[cfg(test)]

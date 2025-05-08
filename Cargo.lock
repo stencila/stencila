@@ -1126,6 +1126,7 @@ dependencies = [
  "codec-latex-derive",
  "common",
  "format",
+ "rand 0.9.0",
 ]
 
 [[package]]
@@ -1220,7 +1221,7 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-latex-trait",
- "rand 0.9.0",
+ "images",
 ]
 
 [[package]]

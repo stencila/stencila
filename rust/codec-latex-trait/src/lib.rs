@@ -1,9 +1,24 @@
 //! Provides the `LatexCodec` trait for generating Latex for Stencila Schema nodes
 
-use std::{env::temp_dir, path::PathBuf};
+use std::{
+    env::temp_dir,
+    path::{Path, PathBuf},
+    process::Stdio,
+};
+
+use rand::{distr::Alphanumeric, rng, Rng};
 
 use codec_info::{EncodeInfo, Losses, Mapping, NodeId, NodeProperty, NodeType};
-use common::itertools::Itertools;
+use common::{
+    eyre::{bail, Result},
+    glob,
+    itertools::Itertools,
+    tokio::{
+        fs::{create_dir_all, read_to_string, remove_file, write},
+        process::Command,
+    },
+    tracing,
+};
 use format::Format;
 
 pub use codec_latex_derive::LatexCodec;
@@ -19,6 +34,27 @@ where
     node.to_latex(&mut context);
 
     let mut latex = context.content;
+
+    // If the generated LaTeX does not have a preamble (might be one in a RawBlock),
+    // then use necessary pages and wrap
+    if standalone {
+        if !latex.contains("\\end{document}") {
+            latex.push_str("\\end{document}");
+        }
+        if !latex.contains("\\begin{document}") {
+            latex.insert_str(0, "\\begin{document}\n\n");
+        }
+        if !latex.contains("\\documentclass") {
+            let preamble = [
+                "\\documentclass{article}\n\n",
+                &use_packages(&latex),
+                "\n\n",
+            ]
+            .concat();
+            latex.insert_str(0, &preamble);
+        }
+    }
+
     if latex.ends_with("\n\n") {
         latex.pop();
     }
@@ -31,8 +67,8 @@ where
     (latex, info)
 }
 
-///
-pub fn requires_packages(latex: &str) -> String {
+/// Generate `\usepackage` commands necessary for the included LaTeX
+pub fn use_packages(latex: &str) -> String {
     let mut packages = Vec::new();
 
     if latex.contains(r"\includegraphics") {
@@ -47,6 +83,96 @@ pub fn requires_packages(latex: &str) -> String {
         .iter()
         .map(|pkg| [r"\usepackage{", pkg, "}"].concat())
         .join("\n")
+}
+
+/// Encode a node to PNG using `latex` binary
+#[tracing::instrument(skip(latex))]
+pub async fn latex_to_png(latex: &str, path: &Path) -> Result<()> {
+    tracing::trace!("Generating PNG from LaTeX");
+
+    // Use a unique job name to be able to run `latex` in the current working directory
+    // (because paths in \input and \includegraphics commands are relative to that)
+    // whilst also being able to clean up temporary file afterwards
+    let job: String = rng()
+        .sample_iter(&Alphanumeric)
+        .take(16)
+        .map(char::from)
+        .collect();
+
+    //...and then wrap in standalone \documentclass if a \documentclass is not specified
+    let latex = if !latex.contains("\\documentclass") {
+        [
+            r"
+\documentclass[border=5pt,preview]{standalone}
+
+",
+            &use_packages(&latex),
+            r"
+
+\begin{document}
+
+",
+            latex,
+            r"
+\end{document}
+",
+        ]
+        .concat()
+    } else {
+        latex.to_string()
+    };
+
+    let input_file = format!("{job}.tex");
+    write(&input_file, latex).await?;
+
+    let latex_status = Command::new("latex")
+        .args([
+            "-interaction=batchmode",
+            "-halt-on-error",
+            "-output-format=dvi",
+            "-jobname",
+            &job,
+            &input_file,
+        ])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .await?;
+
+    let log_file = PathBuf::from(format!("{job}.log"));
+    let log = if log_file.exists() {
+        read_to_string(log_file).await?
+    } else {
+        String::new()
+    };
+
+    if let Some(dir) = path.parent() {
+        create_dir_all(dir).await?;
+    }
+    let dvi_status = Command::new("dvipng")
+        .args([
+            "-D300",
+            "-o",
+            &path.to_string_lossy(),
+            &format!("{job}.dvi"),
+        ])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .await?;
+
+    for path in glob::glob(&format!("{job}.*"))?.flatten() {
+        remove_file(path).await?;
+    }
+
+    if !latex_status.success() {
+        bail!("latex failed:\n\n{}", log);
+    }
+    if !dvi_status.success() {
+        bail!("dvipng failed");
+    }
+
+    Ok(())
 }
 
 pub trait LatexCodec {

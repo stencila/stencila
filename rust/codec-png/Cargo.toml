@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 codec = { path = "../codec" }
 codec-latex-trait = { path = "../codec-latex-trait" }
-rand = { workspace = true }
+images = { path = "../images" }
 
 [lints]
 workspace = true

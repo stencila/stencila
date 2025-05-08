@@ -1,4 +1,4 @@
-use crate::{prelude::*, Article, Block, RawBlock};
+use crate::{prelude::*, Article, Block};
 
 impl Article {
     /// Does tha article appear to be have been decoded from the format using the `--coarse` option
@@ -61,40 +61,12 @@ impl Article {
 
 impl LatexCodec for Article {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
-        context.enter_node(self.node_type(), self.node_id());
-
-        let wrap = context.standalone
-            && !self
-                .content
-                .first()
-                .map(|block| match block {
-                    Block::RawBlock(RawBlock { content, .. }) => {
-                        content.contains(r"\documentclass")
-                    }
-                    _ => false,
-                })
-                .unwrap_or_default();
-
-        if wrap {
-            context.str(
-                r"\documentclass{article}
-
-\usepackage{graphicx}
-\usepackage{pdflscape}
-                    
-\begin{document}
-
-",
-            );
-        }
-
-        self.content.to_latex(context);
-
-        if wrap {
-            context.str(r"\end{document}").newline();
-        }
-
-        context.exit_node_final();
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .property_fn(NodeProperty::Content, |context| {
+                self.content.to_latex(context)
+            })
+            .exit_node_final();
     }
 }
 
