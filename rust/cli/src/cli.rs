@@ -116,8 +116,6 @@ pub enum Command {
     Execute(execute::Cli),
     Render(render::Cli),
 
-    Knit(knit::cli::Knit),
-
     Preview(preview::Cli),
     Publish(publish::Cli),
 
@@ -169,8 +167,6 @@ impl Cli {
             Command::Lint(lint) => lint.run().await?,
             Command::Execute(execute) => execute.run().await?,
             Command::Render(render) => render.run().await?,
-
-            Command::Knit(knit) => knit.run().await?,
 
             Command::Preview(preview) => preview.run().await?,
             Command::Publish(publish) => publish.run().await?,
