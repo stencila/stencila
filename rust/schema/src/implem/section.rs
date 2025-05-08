@@ -1,4 +1,6 @@
 use codec_info::lost_options;
+use codec_latex_trait::{latex_to_png, to_latex};
+use common::tracing;
 
 use crate::{prelude::*, Section, SectionType};
 
@@ -17,6 +19,39 @@ impl Section {
         let children = self.content.to_html(context);
 
         elem(tag, &attrs, &[children])
+    }
+}
+
+impl LatexCodec for Section {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        context.enter_node(self.node_type(), self.node_id());
+
+        if matches!(context.format, Format::Docx | Format::Odt)
+            && matches!(self.section_type, Some(SectionType::Island))
+        {
+            let path = context.temp_dir.join(format!("{}.png", self.node_id()));
+            let (latex, ..) =
+                to_latex(&self.content, context.format.clone(), false, context.render);
+
+            if let Err(error) = latex_to_png(&latex, &path) {
+                tracing::error!("While encoding island section to PNG: {error}");
+                // Will fallback to just encoding the content slow
+            } else {
+                let path = path.to_string_lossy();
+                context
+                    .str(r"\centerline{\includegraphics{")
+                    .str(&path)
+                    .str("}}")
+                    .exit_node();
+                return;
+            }
+        }
+
+        context
+            .property_fn(NodeProperty::Content, |context| {
+                self.content.to_latex(context)
+            })
+            .exit_node();
     }
 }
 

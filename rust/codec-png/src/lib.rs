@@ -64,7 +64,7 @@ impl Codec for PngCodec {
 
         let info = if tool == "latex" || tool.is_empty() {
             let (latex, info) = to_latex(node, Format::Latex, false, true);
-            latex_to_png(&latex, path).await?;
+            latex_to_png(&latex, path)?;
             info
         } else {
             bail!("Tool `{tool}` is not supported for encoding to PNG")

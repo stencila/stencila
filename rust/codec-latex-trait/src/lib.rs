@@ -2,8 +2,9 @@
 
 use std::{
     env::temp_dir,
+    fs::{create_dir_all, read_to_string, remove_file, write},
     path::{Path, PathBuf},
-    process::Stdio,
+    process::{Command, Stdio},
 };
 
 use rand::{distr::Alphanumeric, rng, Rng};
@@ -13,10 +14,6 @@ use common::{
     eyre::{bail, Result},
     glob,
     itertools::Itertools,
-    tokio::{
-        fs::{create_dir_all, read_to_string, remove_file, write},
-        process::Command,
-    },
     tracing,
 };
 use format::Format;
@@ -87,7 +84,7 @@ pub fn use_packages(latex: &str) -> String {
 
 /// Encode a node to PNG using `latex` binary
 #[tracing::instrument(skip(latex))]
-pub async fn latex_to_png(latex: &str, path: &Path) -> Result<()> {
+pub fn latex_to_png(latex: &str, path: &Path) -> Result<()> {
     tracing::trace!("Generating PNG from LaTeX");
 
     // Use a unique job name to be able to run `latex` in the current working directory
@@ -123,7 +120,7 @@ pub async fn latex_to_png(latex: &str, path: &Path) -> Result<()> {
     };
 
     let input_file = format!("{job}.tex");
-    write(&input_file, latex).await?;
+    write(&input_file, latex)?;
 
     let latex_status = Command::new("latex")
         .args([
@@ -136,18 +133,17 @@ pub async fn latex_to_png(latex: &str, path: &Path) -> Result<()> {
         ])
         .stdout(Stdio::null())
         .stderr(Stdio::null())
-        .status()
-        .await?;
+        .status()?;
 
     let log_file = PathBuf::from(format!("{job}.log"));
     let log = if log_file.exists() {
-        read_to_string(log_file).await?
+        read_to_string(log_file)?
     } else {
         String::new()
     };
 
     if let Some(dir) = path.parent() {
-        create_dir_all(dir).await?;
+        create_dir_all(dir)?;
     }
     let dvi_status = Command::new("dvipng")
         .args([
@@ -158,11 +154,10 @@ pub async fn latex_to_png(latex: &str, path: &Path) -> Result<()> {
         ])
         .stdout(Stdio::null())
         .stderr(Stdio::null())
-        .status()
-        .await?;
+        .status()?;
 
     for path in glob::glob(&format!("{job}.*"))?.flatten() {
-        remove_file(path).await?;
+        remove_file(path)?;
     }
 
     if !latex_status.success() {

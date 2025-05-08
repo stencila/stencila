@@ -8,6 +8,8 @@ jats:
 html:
   elem: section
   special: true
+latex:
+  derive: false
 markdown:
   derive: false
 proptest: {}

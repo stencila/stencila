@@ -15,6 +15,9 @@
   "jats": {
     "elem": "sec"
   },
+  "latex": {
+    "derive": false
+  },
   "markdown": {
     "derive": false
   },
