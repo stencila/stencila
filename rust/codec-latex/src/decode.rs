@@ -1,6 +1,7 @@
 use codec::{
     common::{
         eyre::Result,
+        itertools::Itertools,
         once_cell::sync::Lazy,
         regex::{Captures, Regex},
         tracing,
@@ -208,8 +209,16 @@ fn latex_to_blocks(latex: &str) -> Vec<Block> {
                         is_hidden = Some(true);
                     } else if option == "echo" {
                         is_echoed = Some(true);
-                    } else if programming_language.is_none() {
+                    } else if !option.contains("=") && programming_language.is_none() {
                         programming_language = Some(option.to_string());
+                    } else if let Some((name, value)) =
+                        option.split("=").map(|s| s.trim()).collect_tuple()
+                    {
+                        if name == "hide" {
+                            is_hidden = Some(value.to_lowercase() == "true")
+                        } else if name == "echo" {
+                            is_echoed = Some(value.to_lowercase() == "true")
+                        }
                     }
                 }
             }
