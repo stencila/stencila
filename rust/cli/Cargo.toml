@@ -22,6 +22,7 @@ document = { path = "../document" }
 flate2 = { workspace = true }
 format = { path = "../format" }
 kernels = { path = "../kernels" }
+knit = { path = "../knit" }
 lsp = { path = "../lsp" }
 models = { path = "../models" }
 node-execute = { path = "../node-execute" }
