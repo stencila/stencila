@@ -9,9 +9,7 @@ use codec_text_trait::to_text;
 
 use crate::{
     blocks::{blocks_from_pandoc, blocks_to_pandoc},
-    shared::{
-        attrs_attributes, attrs_classes, attrs_empty, PandocDecodeContext, PandocEncodeContext,
-    },
+    shared::{attrs_classes, attrs_empty, PandocDecodeContext, PandocEncodeContext},
 };
 
 pub(super) fn inlines_to_pandoc(
@@ -371,16 +369,10 @@ fn code_expression_to_pandoc(
         );
     }
 
-    let content = if let Some(output) = &expr.output {
-        to_text(output)
-    } else {
-        expr.code.to_string()
-    };
+    let mut lang = expr.programming_language.clone().unwrap_or_default();
+    lang.push_str("exec");
 
-    pandoc::Inline::Span(
-        attrs_attributes(vec![("custom-style".into(), "CodeExpression".into())]),
-        vec![pandoc::Inline::Str(content)],
-    )
+    pandoc::Inline::Code(attrs_classes(vec![lang]), expr.code.to_string())
 }
 
 fn code_inline_to_pandoc(code: &CodeInline, _context: &mut PandocEncodeContext) -> pandoc::Inline {
