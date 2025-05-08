@@ -7,6 +7,7 @@ use codec::{
 };
 
 mod blocks;
+mod coarse;
 mod inlines;
 mod meta;
 mod nodes;
@@ -14,6 +15,7 @@ mod pandoc;
 mod shared;
 
 // Exports for derived crates
+pub use coarse::*;
 pub use nodes::*;
 pub use pandoc::*;
 
@@ -65,11 +67,11 @@ impl Codec for PandocCodec {
     async fn from_str(
         &self,
         str: &str,
-        _options: Option<DecodeOptions>,
+        options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
         let pandoc = serde_json::from_str(str)?;
 
-        root_from_pandoc(pandoc, Format::Pandoc)
+        root_from_pandoc(pandoc, Format::Pandoc, &options)
     }
 
     async fn to_string(
@@ -77,7 +79,7 @@ impl Codec for PandocCodec {
         node: &Node,
         options: Option<EncodeOptions>,
     ) -> Result<(String, EncodeInfo)> {
-        let (pandoc, info) = root_to_pandoc(node, Format::Pandoc)?;
+        let (pandoc, info) = root_to_pandoc(node, Format::Pandoc, &options)?;
 
         let json = match options.and_then(|options| options.compact) {
             Some(true) | None => serde_json::to_string(&pandoc)?,

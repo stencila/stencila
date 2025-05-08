@@ -1,6 +1,17 @@
-use crate::{prelude::*, Article};
+use crate::{prelude::*, Article, Block, RawBlock};
 
 impl Article {
+    /// Does tha article appear to be have been decoded from the format using the `--coarse` option
+    ///
+    /// Checks whether the first block in the content of the article is a `RawBlock` of the given formats
+    pub fn is_coarse(&self, format: &Format) -> bool {
+        if let Some(Block::RawBlock(raw)) = self.content.first() {
+            &Format::from_name(&raw.format) == format
+        } else {
+            false
+        }
+    }
+
     pub fn to_jats_special(&self) -> (String, Losses) {
         use codec_jats_trait::encode::{elem, elem_no_attrs};
 
@@ -52,7 +63,33 @@ impl LatexCodec for Article {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
         context.enter_node(self.node_type(), self.node_id());
 
+        let wrap = context.standalone
+            && !self
+                .content
+                .first()
+                .map(|block| match block {
+                    Block::RawBlock(RawBlock { content, .. }) => {
+                        content.contains(r"\documentclass")
+                    }
+                    _ => false,
+                })
+                .unwrap_or_default();
+
+        if wrap {
+            context.str(
+                r"\documentclass{article}
+
+\begin{document}
+
+",
+            );
+        }
+
         self.content.to_latex(context);
+
+        if wrap {
+            context.str(r"\end{document}").newline();
+        }
 
         context.exit_node_final();
     }

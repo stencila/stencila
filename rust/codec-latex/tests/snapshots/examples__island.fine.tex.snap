@@ -1,0 +1,15 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: "&latex"
+---
+Before island.
+
+Within island. There can be inline code expression: \expr{1 + 2}.
+
+And there can be block code chunk:
+
+\begin{lstlisting}
+2 + 3
+\end{lstlisting}
+
+After island.

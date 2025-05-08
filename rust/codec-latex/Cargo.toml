@@ -8,5 +8,8 @@ codec = { path = "../codec" }
 codec-latex-trait = { path = "../codec-latex-trait" }
 codec-pandoc = { path = "../codec-pandoc" }
 
+[dev-dependencies]
+common-dev = { path = "../common-dev" }
+
 [lints]
 workspace = true

@@ -20,6 +20,7 @@ import { type Heading } from "./Heading.js";
 import { type IfBlock } from "./IfBlock.js";
 import { type ImageObject } from "./ImageObject.js";
 import { type IncludeBlock } from "./IncludeBlock.js";
+import { type InlinesBlock } from "./InlinesBlock.js";
 import { type InstructionBlock } from "./InstructionBlock.js";
 import { type List } from "./List.js";
 import { type MathBlock } from "./MathBlock.js";
@@ -57,6 +58,7 @@ export type Block =
   IfBlock |
   ImageObject |
   IncludeBlock |
+  InlinesBlock |
   InstructionBlock |
   List |
   MathBlock |
@@ -95,6 +97,7 @@ export function block(other: Block): Block {
     case "IfBlock":
     case "ImageObject":
     case "IncludeBlock":
+    case "InlinesBlock":
     case "InstructionBlock":
     case "List":
     case "MathBlock":

@@ -20,6 +20,7 @@ use super::heading::Heading;
 use super::if_block::IfBlock;
 use super::image_object::ImageObject;
 use super::include_block::IncludeBlock;
+use super::inlines_block::InlinesBlock;
 use super::instruction_block::InstructionBlock;
 use super::list::List;
 use super::math_block::MathBlock;
@@ -115,6 +116,12 @@ pub enum Block {
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     IncludeBlock(IncludeBlock),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    InlinesBlock(InlinesBlock),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]

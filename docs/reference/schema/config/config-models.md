@@ -45,6 +45,7 @@ The `ConfigModels` type can be encoded (serialized) to, and/or decoded (deserial
 | [MyST Markdown](https://stencila.ghost.io/docs/reference/formats/myst)               |          |          |         |
 | [LLM Markdown](https://stencila.ghost.io/docs/reference/formats/llmd)                |          |          |         |
 | [LaTeX](https://stencila.ghost.io/docs/reference/formats/latex)                      |          |          |         |
+| [R+LaTeX](https://stencila.ghost.io/docs/reference/formats/rnw)                      |          |          |         |
 | [PDF](https://stencila.ghost.io/docs/reference/formats/pdf)                          |          |          |         |
 | [Plain text](https://stencila.ghost.io/docs/reference/formats/text)                  |          |          |         |
 | [IPYNB](https://stencila.ghost.io/docs/reference/formats/ipynb)                      |          |          |         |

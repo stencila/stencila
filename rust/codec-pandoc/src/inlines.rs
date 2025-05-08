@@ -2,15 +2,14 @@ use pandoc_types::definition::{self as pandoc, Attr, Target};
 
 use codec::{
     common::{itertools::Itertools, serde_json},
+    format::Format,
     schema::*,
 };
 use codec_text_trait::to_text;
 
 use crate::{
     blocks::{blocks_from_pandoc, blocks_to_pandoc},
-    shared::{
-        attrs_attributes, attrs_classes, attrs_empty, PandocDecodeContext, PandocEncodeContext,
-    },
+    shared::{attrs_classes, attrs_empty, PandocDecodeContext, PandocEncodeContext},
 };
 
 pub(super) fn inlines_to_pandoc(
@@ -356,18 +355,24 @@ fn styled_inline_from_pandoc(
 
 fn code_expression_to_pandoc(
     expr: &CodeExpression,
-    _context: &mut PandocEncodeContext,
+    context: &mut PandocEncodeContext,
 ) -> pandoc::Inline {
-    let content = if let Some(output) = &expr.output {
-        to_text(output)
-    } else {
-        expr.code.to_string()
-    };
+    if matches!(context.format, Format::Latex | Format::Rnw) {
+        let begin = if matches!(context.format, Format::Rnw) {
+            "\\Sexpr{"
+        } else {
+            "\\expr{"
+        };
+        return pandoc::Inline::RawInline(
+            pandoc::Format("latex".into()),
+            [begin, &expr.code.to_string(), "}"].concat(),
+        );
+    }
 
-    pandoc::Inline::Span(
-        attrs_attributes(vec![("custom-style".into(), "CodeExpression".into())]),
-        vec![pandoc::Inline::Str(content)],
-    )
+    let mut lang = expr.programming_language.clone().unwrap_or_default();
+    lang.push_str("exec");
+
+    pandoc::Inline::Code(attrs_classes(vec![lang]), expr.code.to_string())
 }
 
 fn code_inline_to_pandoc(code: &CodeInline, _context: &mut PandocEncodeContext) -> pandoc::Inline {

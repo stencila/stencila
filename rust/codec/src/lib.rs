@@ -422,12 +422,23 @@ pub struct DecodeOptions {
     /// Decode in strict mode for the format
     pub strict: Option<bool>,
 
+    /// Decode coarsely
+    ///
+    /// Codecs that support this option will only decode certain node types
+    /// (usually executable block types) and put the content between those nodes
+    /// into `RawBlock`s of the given format. Useful for formats such as LaTeX
+    /// where the codec does not fully decoding all elements.
+    pub coarse: Option<bool>,
+
     /// The response to take when there are losses in the decoding
     #[default(_code = "LossesResponse::Warn")]
     pub losses: LossesResponse,
 
-    /// Arguments to passthrough to CLI tools delegated to for decoding (e.g. Pandoc)
-    pub passthrough_args: Vec<String>,
+    /// The tool to delegate to for decoding (e.g. `pandoc`)
+    pub tool: Option<String>,
+
+    /// Additional arguments to pass through to the tool delegated to for decoding
+    pub tool_args: Vec<String>,
 }
 
 /// Encoding options
@@ -445,6 +456,9 @@ pub struct EncodeOptions {
     /// Most codecs only encode to one format. However, for those that handle multiple
     /// formats it may be necessary to specify this option.
     pub format: Option<Format>,
+
+    /// Encode outputs, rather than source properties, of executable nodes
+    pub render: Option<bool>,
 
     /// Whether to encode as a standalone document
     ///
@@ -507,6 +521,9 @@ pub struct EncodeOptions {
     #[default(_code = "LossesResponse::Warn")]
     pub losses: LossesResponse,
 
-    /// Arguments to passthrough to CLI tools delegated to for encoding (e.g. Pandoc)
-    pub passthrough_args: Vec<String>,
+    /// The tool to delegate to for encoding (e.g. `pandoc`)
+    pub tool: Option<String>,
+
+    /// Additional arguments to pass through to the tool delegated to for encoding
+    pub tool_args: Vec<String>,
 }

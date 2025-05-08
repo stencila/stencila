@@ -66,6 +66,7 @@ use super::if_block::IfBlock;
 use super::if_block_clause::IfBlockClause;
 use super::image_object::ImageObject;
 use super::include_block::IncludeBlock;
+use super::inlines_block::InlinesBlock;
 use super::instruction_block::InstructionBlock;
 use super::instruction_inline::InstructionInline;
 use super::instruction_message::InstructionMessage;
@@ -279,6 +280,8 @@ pub enum Node {
     ImageObject(ImageObject),
 
     IncludeBlock(IncludeBlock),
+
+    InlinesBlock(InlinesBlock),
 
     InstructionBlock(InstructionBlock),
 

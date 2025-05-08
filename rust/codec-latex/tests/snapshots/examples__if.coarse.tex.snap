@@ -1,0 +1,7 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: "&latex"
+---
+\begin{if}{true}
+    \p Conditional content.
+\end{if}

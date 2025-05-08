@@ -1,0 +1,16 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: article
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\\documentclass{article}\n\n\\begin{document}\nHello, world!\n\\end{document}\n"
+      }
+    }
+  ]
+}

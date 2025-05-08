@@ -27,7 +27,22 @@ pub struct StripOptions {
 
 /// Command line arguments for decoding nodes from other formats
 #[derive(Debug, Args)]
-pub struct DecodeOptions {}
+pub struct DecodeOptions {
+    /// Use fine decoding if possible
+    ///
+    /// Use this flag to decode content to the finest level of granularity
+    /// supported by the codec. This is the default for most codecs.
+    #[arg(long, conflicts_with = "coarse")]
+    fine: bool,
+
+    /// Use coarse decoding if possible
+    ///
+    /// Use this flag to decode content to the coarsest level of granularity
+    /// supported by the codec. Useful for decoding formats that are not fully
+    /// supported to avoid loss of structure.
+    #[arg(long, conflicts_with = "fine")]
+    coarse: bool,
+}
 
 impl DecodeOptions {
     /// Build a set of [`codecs::DecodeOptions`] from command line arguments
@@ -41,16 +56,20 @@ impl DecodeOptions {
         let codec = format_or_codec
             .as_ref()
             .and_then(|name| codecs::codec_maybe(name));
+
         let format = format_or_codec.map(|name| Format::from_name(&name));
+
+        let coarse = self.coarse.then_some(true).or(self.fine.then_some(false));
 
         codecs::DecodeOptions {
             codec,
             format,
+            coarse,
             strip_scopes: strip_options.strip_scopes,
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,
             losses,
-            passthrough_args,
+            tool_args: passthrough_args,
             ..Default::default()
         }
     }
@@ -59,6 +78,10 @@ impl DecodeOptions {
 /// Command line arguments for encoding nodes to other formats
 #[derive(Debug, Args)]
 pub struct EncodeOptions {
+    /// Encode outputs, rather than source, of executable nodes
+    #[arg(long, short)]
+    render: bool,
+
     /// Encode as a standalone document
     #[arg(long, conflicts_with = "not_standalone")]
     standalone: bool,
@@ -111,6 +134,8 @@ impl EncodeOptions {
             .then_some(true)
             .or(self.pretty.then_some(false));
 
+        let render = self.render.then_some(true);
+
         let standalone = self
             .standalone
             .then_some(true)
@@ -122,13 +147,14 @@ impl EncodeOptions {
             codec,
             format,
             compact,
+            render,
             standalone,
             from_path,
             strip_scopes: strip_options.strip_scopes,
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,
             losses,
-            passthrough_args,
+            tool_args: passthrough_args,
             ..Default::default()
         }
     }

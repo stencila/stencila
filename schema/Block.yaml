@@ -129,6 +129,12 @@ anyOf:
         description: Generate `IncludeBlock` nodes in block content.
         skip: false
 
+  - $ref: InlinesBlock
+    proptest:
+      min:
+        description: Do not generate `InlinesBlock` nodes in block content.
+        skip: true
+
   - $ref: InstructionBlock
     proptest:
       min:

@@ -1,0 +1,9 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: "&latex"
+---
+\documentclass{article}
+
+\begin{document}
+Hello, world!
+\end{document}

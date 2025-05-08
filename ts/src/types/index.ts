@@ -100,6 +100,7 @@ export * from "./IfBlockClause.js";
 export * from "./ImageObject.js";
 export * from "./IncludeBlock.js";
 export * from "./Inline.js";
+export * from "./InlinesBlock.js";
 export * from "./Instruction.js";
 export * from "./InstructionBlock.js";
 export * from "./InstructionInline.js";

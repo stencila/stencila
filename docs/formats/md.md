@@ -86,6 +86,7 @@ Support and degree of loss by node type:
 | [DefinedTerm](https://stencila.ghost.io/docs/reference/schema/defined_term)                  | ⚠️ High loss |            |                                    |
 | [Emphasis](https://stencila.ghost.io/docs/reference/schema/emphasis)                         | 🟢 No loss    | 🟢 No loss  | Encoded as `_{{content}}_`         |
 | [Heading](https://stencila.ghost.io/docs/reference/schema/heading)                           | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
+| [InlinesBlock](https://stencila.ghost.io/docs/reference/schema/inlines_block)                | ⚠️ High loss |            |                                    |
 | [Link](https://stencila.ghost.io/docs/reference/schema/link)                                 | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
 | [List](https://stencila.ghost.io/docs/reference/schema/list)                                 | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
 | [ListItem](https://stencila.ghost.io/docs/reference/schema/list_item)                        | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |

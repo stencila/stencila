@@ -460,6 +460,7 @@ class SectionType(StrEnum):
     Header = "Header"
     Footer = "Footer"
     Iteration = "Iteration"
+    Island = "Island"
 
 
 class SuggestionStatus(StrEnum):
@@ -2048,6 +2049,18 @@ class ImageObject(MediaObject):
 
 
 @dataclass(kw_only=True, repr=False)
+class InlinesBlock(Entity):
+    """
+    A block containing inlines with no other semantics.
+    """
+
+    type: Literal["InlinesBlock"] = "InlinesBlock"
+
+    content: list[Inline]
+    """The contents of the block."""
+
+
+@dataclass(kw_only=True, repr=False)
 class InstructionBlock(Instruction):
     """
     An instruction to edit some block content.
@@ -3185,6 +3198,7 @@ Block = Union[
     IfBlock,
     ImageObject,
     IncludeBlock,
+    InlinesBlock,
     InstructionBlock,
     List,
     MathBlock,
@@ -3401,6 +3415,7 @@ Node = Union[
     IfBlockClause,
     ImageObject,
     IncludeBlock,
+    InlinesBlock,
     InstructionBlock,
     InstructionInline,
     InstructionMessage,
@@ -3607,6 +3622,7 @@ TYPES = [
     IfBlock,
     IfBlockClause,
     ImageObject,
+    InlinesBlock,
     InstructionBlock,
     InstructionInline,
     InstructionMessage,

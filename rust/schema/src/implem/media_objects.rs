@@ -238,6 +238,23 @@ impl DomCodec for ImageObject {
     }
 }
 
+impl LatexCodec for ImageObject {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        let source = if self.content_url.starts_with("data:") {
+            images::data_uri_to_file(&self.content_url, &context.temp_dir).unwrap_or_default()
+        } else {
+            self.content_url.clone()
+        };
+
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .str(r"\includegraphics{")
+            .str(&source)
+            .char('}')
+            .exit_node();
+    }
+}
+
 impl MarkdownCodec for ImageObject {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         to_markdown!(self, context, lost_options!(self.options, thumbnail))

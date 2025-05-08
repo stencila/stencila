@@ -4,18 +4,14 @@ use crate::{prelude::*, IncludeBlock};
 
 impl LatexCodec for IncludeBlock {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
-        const ENVIRON: &str = "include";
-
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, media_type, select, execution_mode))
             .merge_losses(lost_exec_options!(self))
-            .environ_begin(ENVIRON)
-            .char('{')
-            .property_str(NodeProperty::Source, &self.source)
+            .str("\\input{")
+            .property_str(NodeProperty::Source, self.source.trim_end_matches(".tex"))
             .char('}')
             .newline()
-            .environ_end(ENVIRON)
             .exit_node();
     }
 }

@@ -1,4 +1,4 @@
-use codec_info::{lost_exec_options, lost_options};
+use codec_info::{lost_exec_options, lost_options, lost_props};
 use codec_markdown_trait::to_markdown;
 
 use crate::{
@@ -144,9 +144,35 @@ impl LatexCodec for CodeChunk {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id));
+            .merge_losses(lost_options!(self, id, execution_mode, execution_bounds));
+
+        // Render mode: only encode outputs
+        if context.render {
+            if let Some(output) = &self.outputs {
+                context.property_fn(NodeProperty::Outputs, |context| output.to_latex(context));
+            }
+            context
+                .merge_losses(lost_options!(
+                    self,
+                    programming_language,
+                    is_echoed,
+                    is_hidden
+                ))
+                .merge_losses(lost_props!(self, code))
+                .exit_node()
+                .newline();
+            return;
+        } else {
+            context.merge_losses(lost_options!(self, outputs));
+        }
 
         if matches!(context.format, Format::Rnw) {
+            if let Some(lang) = &self.programming_language {
+                if lang.to_lowercase() != "r" {
+                    context.merge_losses(lost_options!(self, programming_language));
+                }
+            }
+
             let name = self.label.as_deref().unwrap_or("unnamed");
             context.str("<<").str(name);
 
@@ -173,38 +199,41 @@ impl LatexCodec for CodeChunk {
 
             context.str("@").newline();
         } else {
-            const ENVIRON: &str = "lstlisting";
-            context.environ_begin(ENVIRON).str("[");
+            const ENVIRON: &str = r"chunk";
+            context.environ_begin(ENVIRON);
 
-            if let Some(lang) = &self.programming_language {
-                context
-                    .str("language=")
-                    .property_str(NodeProperty::ProgrammingLanguage, lang)
-                    .str(", exec");
-            } else {
-                context.str("exec");
-            }
+            if self.programming_language.is_some()
+                || self.execution_mode.is_some()
+                || self.execution_bounds.is_some()
+            {
+                context.str("[");
 
-            if let Some(mode) = &self.execution_mode {
-                if !matches!(mode, ExecutionMode::Need) {
-                    context.str(" ").property_str(
-                        NodeProperty::ExecutionMode,
-                        &mode.to_string().to_lowercase(),
-                    );
+                if let Some(lang) = &self.programming_language {
+                    context.property_str(NodeProperty::ProgrammingLanguage, lang);
                 }
-            }
 
-            if let Some(bounds) = &self.execution_bounds {
-                if !matches!(bounds, ExecutionBounds::Main) {
-                    context.str(" ").property_str(
-                        NodeProperty::ExecutionBounds,
-                        &bounds.to_string().to_lowercase(),
-                    );
+                if let Some(mode) = &self.execution_mode {
+                    if !matches!(mode, ExecutionMode::Need) {
+                        context.str(" ").property_str(
+                            NodeProperty::ExecutionMode,
+                            &mode.to_string().to_lowercase(),
+                        );
+                    }
                 }
+
+                if let Some(bounds) = &self.execution_bounds {
+                    if !matches!(bounds, ExecutionBounds::Main) {
+                        context.str(" ").property_str(
+                            NodeProperty::ExecutionBounds,
+                            &bounds.to_string().to_lowercase(),
+                        );
+                    }
+                }
+
+                context.str("]");
             }
 
             context
-                .str("]")
                 .newline()
                 .property_fn(NodeProperty::Code, |context| self.code.to_latex(context));
 
@@ -215,7 +244,11 @@ impl LatexCodec for CodeChunk {
             context.environ_end(ENVIRON);
         }
 
-        context.exit_node().newline();
+        context.exit_node();
+
+        if !context.coarse {
+            context.newline();
+        }
     }
 }
 

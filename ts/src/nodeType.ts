@@ -70,6 +70,7 @@ export type NodeType =
   | "IfBlockClause"
   | "ImageObject"
   | "IncludeBlock"
+  | "InlinesBlock"
   | "InstructionBlock"
   | "InstructionInline"
   | "InstructionMessage"
@@ -206,6 +207,7 @@ export const NodeTypeList = [
   "IfBlockClause",
   "ImageObject",
   "IncludeBlock",
+  "InlinesBlock",
   "InstructionBlock",
   "InstructionInline",
   "InstructionMessage",

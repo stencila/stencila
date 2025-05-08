@@ -1,0 +1,5 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: "&latex"
+---
+Hello, world!

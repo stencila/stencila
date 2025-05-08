@@ -1,15 +1,18 @@
 use codec::{
-    common::{async_trait::async_trait, eyre::Result},
+    common::{
+        async_trait::async_trait,
+        eyre::{bail, Result},
+    },
     format::Format,
     schema::Node,
     status::Status,
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     NodeType,
 };
-use codec_latex_trait::{LatexCodec as _, LatexEncodeContext};
-use codec_pandoc::{
-    pandoc_availability, pandoc_from_format, pandoc_to_format, root_from_pandoc, root_to_pandoc,
-};
+use codec_latex_trait::to_latex;
+use codec_pandoc::{pandoc_availability, pandoc_to_format, root_to_pandoc};
+
+mod decode;
 
 /// A codec for LaTeX
 pub struct LatexCodec;
@@ -54,19 +57,10 @@ impl Codec for LatexCodec {
 
     async fn from_str(
         &self,
-        input: &str,
+        latex: &str,
         options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
-        let pandoc = pandoc_from_format(
-            input,
-            None,
-            PANDOC_FORMAT,
-            options
-                .map(|options| options.passthrough_args)
-                .unwrap_or_default(),
-        )
-        .await?;
-        root_from_pandoc(pandoc, Format::Latex)
+        decode::decode(latex, options).await
     }
 
     async fn to_string(
@@ -74,33 +68,27 @@ impl Codec for LatexCodec {
         node: &Node,
         options: Option<EncodeOptions>,
     ) -> Result<(String, EncodeInfo)> {
-        let options = options.unwrap_or_default();
-        let format = options.format.unwrap_or(Format::Latex);
+        let mut options = options.unwrap_or_default();
+        let format = options.format.clone().unwrap_or(Format::Latex);
+        let tool = options.tool.clone().unwrap_or_default();
+        let standalone = options.standalone.unwrap_or_default();
+        let render = options.render.unwrap_or_default();
 
-        if let Some("--builtin") = options.passthrough_args.first().map(|arg| arg.as_str()) {
-            let mut context = LatexEncodeContext::new(format);
-            node.to_latex(&mut context);
-
-            let mut output = context.content;
-            if output.ends_with("\n\n") {
-                output.pop();
+        if tool.is_empty() {
+            Ok(to_latex(node, format, standalone, render))
+        } else if tool == "pandoc" {
+            options.tool_args.push("--listings".into());
+            if standalone {
+                options.tool_args.push("--standalone".into());
             }
+            let options = Some(options);
 
-            let info = EncodeInfo {
-                losses: context.losses,
-                mapping: context.mapping,
-            };
+            let (pandoc, info) = root_to_pandoc(node, format, &options)?;
+            let output = pandoc_to_format(&pandoc, None, PANDOC_FORMAT, &options).await?;
 
             Ok((output, info))
         } else {
-            let (pandoc, info) = root_to_pandoc(node, format)?;
-
-            let mut args = options.passthrough_args;
-            args.push("--listings".into());
-
-            let output = pandoc_to_format(&pandoc, None, PANDOC_FORMAT, args).await?;
-
-            Ok((output, info))
+            bail!("Tool `{tool}` is not supported for encoding to {format}")
         }
     }
 }

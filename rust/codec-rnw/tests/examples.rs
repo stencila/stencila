@@ -34,7 +34,7 @@ async fn examples() -> Result<()> {
             .to_string(
                 &article,
                 Some(EncodeOptions {
-                    passthrough_args: vec!["--builtin".into()],
+                    tool_args: vec!["--builtin".into()],
                     ..Default::default()
                 }),
             )

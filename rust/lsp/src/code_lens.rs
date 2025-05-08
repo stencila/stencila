@@ -8,6 +8,7 @@ use async_lsp::{
     lsp_types::{CodeLens, Command, Range, Url},
     ErrorCode, ResponseError,
 };
+use codecs::Format;
 use common::{inflector::Inflector, itertools::Itertools, serde_json::json, tokio::sync::RwLock};
 use schema::NodeType;
 
@@ -42,6 +43,7 @@ pub(super) const WALKTHROUGH_EXPAND: &str = "stencila.walkthroughs.expand";
 /// the command in the `resolve` handler below
 pub(crate) async fn request(
     uri: Url,
+    format: Format,
     root: Arc<RwLock<TextNode>>,
 ) -> Result<Option<Vec<CodeLens>>, ResponseError> {
     let code_lenses = root
@@ -124,8 +126,18 @@ pub(crate) async fn request(
                         }
                         lenses
                     }
-                    NodeType::MathBlock | NodeType::RawBlock | NodeType::StyledBlock => {
+                    NodeType::MathBlock | NodeType::StyledBlock => {
                         vec![lens(VIEW_NODE)]
+                    }
+                    NodeType::RawBlock => {
+                        // If document is LaTeX then do add View lens.
+                        // Ideally this would not add lens for any raw block the same format as the
+                        // document, but at this stage we do not collect that
+                        if matches!(format, Format::Latex) {
+                            Vec::new()
+                        } else {
+                            vec![lens(VIEW_NODE)]
+                        }
                     }
                     NodeType::WalkthroughStep => {
                         if matches!(is_active, Some(true)) {

@@ -184,6 +184,15 @@
     {
       "proptest": {
         "min": {
+          "description": "Do not generate `InlinesBlock` nodes in block content.",
+          "skip": true
+        }
+      },
+      "$ref": "InlinesBlock.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
           "description": "Do not generate `InstructionBlock` nodes in block content.",
           "skip": true
         }

@@ -184,6 +184,11 @@
       "@id": "stencila:IterationSection",
       "description": "A section representing an iteration of a `ForBlock`.",
       "const": "Iteration"
+    },
+    {
+      "@id": "stencila:IslandSection",
+      "description": "A section representing an island of island content.",
+      "const": "Island"
     }
   ]
 }

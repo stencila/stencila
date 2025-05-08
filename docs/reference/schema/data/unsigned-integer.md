@@ -28,6 +28,7 @@ The `UnsignedInteger` type can be encoded (serialized) to, and/or decoded (deser
 | [MyST Markdown](https://stencila.ghost.io/docs/reference/formats/myst)               | 🔷 Low loss | 🔷 Low loss |         |
 | [LLM Markdown](https://stencila.ghost.io/docs/reference/formats/llmd)                | 🔷 Low loss | 🔷 Low loss |         |
 | [LaTeX](https://stencila.ghost.io/docs/reference/formats/latex)                      | 🔷 Low loss | 🔷 Low loss |         |
+| [R+LaTeX](https://stencila.ghost.io/docs/reference/formats/rnw)                      | 🔷 Low loss | 🔷 Low loss |         |
 | [PDF](https://stencila.ghost.io/docs/reference/formats/pdf)                          | 🔷 Low loss |            |         |
 | [Plain text](https://stencila.ghost.io/docs/reference/formats/text)                  | 🔷 Low loss |            |         |
 | [IPYNB](https://stencila.ghost.io/docs/reference/formats/ipynb)                      | 🔷 Low loss | 🔷 Low loss |         |

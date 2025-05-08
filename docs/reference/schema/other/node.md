@@ -86,6 +86,7 @@ The `Node` type has these members:
 - [`IfBlockClause`](https://stencila.ghost.io/docs/reference/schema/if-block-clause)
 - [`ImageObject`](https://stencila.ghost.io/docs/reference/schema/image-object)
 - [`IncludeBlock`](https://stencila.ghost.io/docs/reference/schema/include-block)
+- [`InlinesBlock`](https://stencila.ghost.io/docs/reference/schema/inlines-block)
 - [`InstructionBlock`](https://stencila.ghost.io/docs/reference/schema/instruction-block)
 - [`InstructionInline`](https://stencila.ghost.io/docs/reference/schema/instruction-inline)
 - [`InstructionMessage`](https://stencila.ghost.io/docs/reference/schema/instruction-message)

@@ -1,0 +1,25 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: article
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "IncludeBlock",
+      "source": "intro.tex"
+    },
+    {
+      "type": "IncludeBlock",
+      "source": "methods.tex"
+    },
+    {
+      "type": "IncludeBlock",
+      "source": "results.tex"
+    },
+    {
+      "type": "IncludeBlock",
+      "source": "discussion.tex"
+    }
+  ]
+}

@@ -41,8 +41,6 @@ properties:
     '@id': stencila:content
     description: The raw content.
     $ref: Cord
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
     proptest:
       min:
         description: Generate a simple fixed string.

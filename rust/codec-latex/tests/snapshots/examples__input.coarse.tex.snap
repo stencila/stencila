@@ -1,0 +1,8 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: "&latex"
+---
+\input{intro}
+\input{methods}
+\input{results}
+\input{discussion}

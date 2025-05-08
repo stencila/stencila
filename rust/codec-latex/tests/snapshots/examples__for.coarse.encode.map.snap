@@ -1,0 +1,18 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: info.mapping
+---
+start     end        offsets   node_type+property                   authorship
+    12     16       (12, 16)   ForBlock.variable
+    18     26        (6, 10)   ForBlock.code
+    28     48       (10, 22)   RawBlock.content
+    28     48         (0, 0)   RawBlock
+    54     58       (26, 10)   CodeExpression.code
+    48     59        (-6, 1)   CodeExpression
+    48     59         (0, 0)   InlinesBlock.content
+    48     59         (0, 0)   InlinesBlock
+    59     61        (11, 2)   RawBlock.content
+    59     61         (0, 0)   RawBlock
+    28     61       (-31, 0)   ForBlock.content
+     0     71      (-28, 10)   ForBlock
+     0     72         (0, 1)   Article

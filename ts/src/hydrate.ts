@@ -175,6 +175,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.ImageObject.prototype);
     case "IncludeBlock":
       return Object.setPrototypeOf(value, types.IncludeBlock.prototype);
+    case "InlinesBlock":
+      return Object.setPrototypeOf(value, types.InlinesBlock.prototype);
     case "Instruction":
       return Object.setPrototypeOf(value, types.Instruction.prototype);
     case "InstructionBlock":

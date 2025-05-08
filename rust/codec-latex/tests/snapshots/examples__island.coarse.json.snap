@@ -1,0 +1,67 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: article
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\\documentclass{article}\n\n\\begin{document}\n\nBefore island.\n\n"
+      }
+    },
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "RawBlock",
+          "format": "latex",
+          "content": {
+            "string": "\n\nWithin island. There can be inline code expression: "
+          }
+        },
+        {
+          "type": "InlinesBlock",
+          "content": [
+            {
+              "type": "CodeExpression",
+              "code": {
+                "string": "1 + 2"
+              }
+            }
+          ]
+        },
+        {
+          "type": "RawBlock",
+          "format": "latex",
+          "content": {
+            "string": ".\n\nAnd there can be block code chunk:\n\n"
+          }
+        },
+        {
+          "type": "CodeChunk",
+          "code": {
+            "string": "2 + 3\n"
+          }
+        },
+        {
+          "type": "RawBlock",
+          "format": "latex",
+          "content": {
+            "string": "\n"
+          }
+        }
+      ],
+      "sectionType": "Island"
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\nAfter island.\n\n\\end{document}\n"
+      }
+    }
+  ]
+}

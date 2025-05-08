@@ -85,13 +85,13 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) -> Result<()> {
         router
             .request::<request::CodeLensRequest, _>(|state, params| {
                 let uri = params.text_document.uri;
-                let root = state
+                let format_root = state
                     .documents
                     .get(&uri)
-                    .map(|text_doc| text_doc.root.clone());
+                    .map(|text_doc| (text_doc.format.clone(), text_doc.root.clone()));
                 async move {
-                    match root {
-                        Some(root) => code_lens::request(uri, root).await,
+                    match format_root {
+                        Some((format, root)) => code_lens::request(uri, format, root).await,
                         None => Ok(None),
                     }
                 }

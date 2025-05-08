@@ -1,0 +1,29 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: article
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "IfBlock",
+      "clauses": [
+        {
+          "type": "IfBlockClause",
+          "code": {
+            "string": "true"
+          },
+          "content": [
+            {
+              "type": "RawBlock",
+              "format": "latex",
+              "content": {
+                "string": "\\p Conditional content.\n"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

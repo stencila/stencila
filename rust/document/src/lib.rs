@@ -10,7 +10,7 @@ use std::{
 use codecs::PoshMap;
 use common::{
     clap::{self, ValueEnum},
-    eyre::{bail, eyre, Result},
+    eyre::{bail, eyre, OptionExt, Result},
     serde::{Deserialize, Serialize},
     strum::{Display, EnumString},
     tokio::{
@@ -22,7 +22,6 @@ use common::{
 };
 use kernels::Kernels;
 use node_diagnostics::{diagnostics, Diagnostic};
-use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
     authorship, Article, AuthorRole, Chat, Config, ExecutionBounds, File, Node, NodeId,
@@ -45,6 +44,7 @@ mod track;
 
 // Re-exports for convenience of consuming crates
 pub use codecs::{self, DecodeOptions, EncodeOptions, Format, LossesResponse};
+pub use node_execute::ExecuteOptions;
 pub use schema;
 pub use sync_dom::DomPatch;
 
@@ -302,25 +302,36 @@ impl Document {
     /// Initializes the document's "watch", "update", "patch", and "command" channels, and
     /// starts the corresponding background tasks.
     #[tracing::instrument]
-    pub fn init(home: PathBuf, path: Option<PathBuf>, node_type: Option<NodeType>) -> Result<Self> {
-        // Create the default root node type, if there is no sidecar file
-        // The default node type itself defaults to none, because that is used in the
-        // merge function to signal that root should be written over.
-        let root_default = || match node_type.unwrap_or(NodeType::Null) {
-            NodeType::Article => Node::Article(Article::default()),
-            NodeType::Chat => Node::Chat(Chat::default()),
-            NodeType::Prompt => Node::Prompt(Prompt::default()),
-            _ => Node::Null(Null),
+    pub fn init(
+        home: PathBuf,
+        path: Option<PathBuf>,
+        root: Option<Node>,
+        node_type: Option<NodeType>,
+    ) -> Result<Self> {
+        let root = if let Some(root) = root {
+            // Use the supplied root node
+            root
+        } else {
+            // Create the default root node type, if there is no sidecar file
+            // The default node type itself defaults to none, because that is used in the
+            // merge function to signal that root should be written over.
+            let root_default = || match node_type.unwrap_or(NodeType::Null) {
+                NodeType::Article => Node::Article(Article::default()),
+                NodeType::Chat => Node::Chat(Chat::default()),
+                NodeType::Prompt => Node::Prompt(Prompt::default()),
+                _ => Node::Null(Null),
+            };
+
+            // Create the root node from the store or an empty article
+            match &path {
+                Some(path) => Document::restore(path).ok().unwrap_or_else(&root_default),
+                None => root_default(),
+            }
         };
 
-        // Create the root node from the store or an empty article
-        let root = match &path {
-            Some(path) => Document::restore(path).ok().unwrap_or_else(&root_default),
-            None => root_default(),
-        };
+        // Create channels
         let (watch_sender, watch_receiver) = watch::channel(root.clone());
         let root = Arc::new(RwLock::new(root));
-
         let (update_sender, update_receiver) = mpsc::channel(8);
         let (patch_sender, patch_receiver) = mpsc::unbounded_channel();
         let (command_sender, command_receiver) = mpsc::channel(256);
@@ -370,10 +381,22 @@ impl Document {
         })
     }
 
-    /// Create a new in-memory document
+    /// Create a new in-memory document of a specific node type
     pub async fn new(node_type: NodeType) -> Result<Self> {
         let home = std::env::current_dir()?;
-        Self::init(home, None, Some(node_type))
+        Self::init(home, None, None, Some(node_type))
+    }
+
+    /// Create a new document from an existing root, node
+    pub async fn from(root: Node, path: Option<PathBuf>) -> Result<Self> {
+        let home = match &path {
+            Some(path) => path
+                .parent()
+                .ok_or_eyre("path has no parent")?
+                .to_path_buf(),
+            None => std::env::current_dir()?,
+        };
+        Self::init(home, path, Some(root), None)
     }
 
     /// Initialize a document at a path
@@ -387,7 +410,7 @@ impl Document {
             .ok_or_else(|| eyre!("path has no parent; is it a file?"))?
             .to_path_buf();
 
-        Self::init(home, Some(path.to_path_buf()), node_type)
+        Self::init(home, Some(path.to_path_buf()), None, node_type)
     }
 
     /// Create a new document at a path

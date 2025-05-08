@@ -16,11 +16,15 @@
 
 use std::{path::Path, process::Stdio};
 
-use codec::common::{
-    eyre::{bail, Result},
-    serde_json,
-    tokio::{io::AsyncWriteExt, process::Command},
-    tracing,
+use codec::{
+    common::{
+        eyre::{bail, Result},
+        serde_json,
+        tokio::{io::AsyncWriteExt, process::Command},
+        tracing,
+    },
+    format::Format,
+    DecodeOptions, EncodeOptions,
 };
 use pandoc_types::definition::Pandoc;
 
@@ -30,12 +34,17 @@ pub async fn pandoc_from_format(
     input: &str,
     path: Option<&Path>,
     format: &str,
-    mut args: Vec<String>,
+    options: &Option<DecodeOptions>,
 ) -> Result<Pandoc> {
     let json = if format == "pandoc" {
         input.to_string()
     } else {
         tracing::debug!("Spawning pandoc to parse `{format}`");
+
+        let mut args = options
+            .as_ref()
+            .map(|options| options.tool_args.clone())
+            .unwrap_or_default();
 
         // Some codecs use the `--pandoc` to indicate that pandoc should be used
         // instead of the default decoding so remove that.
@@ -81,7 +90,7 @@ pub async fn pandoc_to_format(
     pandoc: &Pandoc,
     path: Option<&Path>,
     format: &str,
-    mut args: Vec<String>,
+    options: &Option<EncodeOptions>,
 ) -> Result<String> {
     let json = serde_json::to_string(&pandoc)?;
 
@@ -90,6 +99,11 @@ pub async fn pandoc_to_format(
     }
 
     tracing::debug!("Spawning pandoc to generate `{format}`");
+
+    let mut args = options
+        .as_ref()
+        .map(|options| options.tool_args.clone())
+        .unwrap_or_default();
 
     // Some codecs use the `--pandoc` to indicate that pandoc should be used
     // instead of the default encoding so remove that.
@@ -124,4 +138,41 @@ pub async fn pandoc_to_format(
         let stdout = String::from_utf8(result.stdout)?;
         Ok(stdout)
     }
+}
+
+/// Encode content to a path
+#[tracing::instrument(skip(content))]
+pub(crate) async fn format_to_path(
+    from: &Format,
+    to: &Format,
+    content: &str,
+    path: &Path,
+) -> Result<()> {
+    let mut command = Command::new("pandoc");
+    command.args([
+        "--from",
+        &from.to_string(),
+        "--to",
+        &to.to_string(),
+        "--output",
+        &path.to_string_lossy(),
+    ]);
+
+    let mut child = command
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .stdin(Stdio::piped())
+        .spawn()?;
+    if let Some(mut stdin) = child.stdin.take() {
+        stdin.write_all(content.as_ref()).await?;
+    }
+
+    let result = child.wait_with_output().await?;
+
+    if !result.status.success() {
+        let error = String::from_utf8(result.stderr)?;
+        bail!("Pandoc error: {error}")
+    }
+
+    Ok(())
 }

@@ -1,0 +1,7 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: "&latex"
+---
+\begin{for}{item}{c(1,2,3)}
+    \p This is item \expr{item}.
+\end{for}

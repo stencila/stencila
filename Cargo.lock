@@ -852,6 +852,7 @@ dependencies = [
  "flate2",
  "format",
  "kernels",
+ "knit",
  "lsp",
  "models",
  "node-execute",
@@ -1106,6 +1107,7 @@ dependencies = [
  "codec",
  "codec-latex-trait",
  "codec-pandoc",
+ "common-dev",
 ]
 
 [[package]]
@@ -1187,6 +1189,7 @@ name = "codec-pandoc"
 version = "0.0.0"
 dependencies = [
  "codec",
+ "codec-latex-trait",
  "codec-text-trait",
  "pandoc_types",
  "which",
@@ -1197,7 +1200,9 @@ name = "codec-pdf"
 version = "0.0.0"
 dependencies = [
  "codec",
+ "codec-latex",
  "codec-pandoc",
+ "rand 0.9.0",
 ]
 
 [[package]]
@@ -1208,6 +1213,15 @@ dependencies = [
  "codec-jats",
  "flate2",
  "images",
+]
+
+[[package]]
+name = "codec-png"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-latex-trait",
+ "rand 0.9.0",
 ]
 
 [[package]]
@@ -1288,6 +1302,7 @@ dependencies = [
  "codec-pandoc",
  "codec-pdf",
  "codec-pmcoap",
+ "codec-png",
  "codec-rnw",
  "codec-swb",
  "codec-text",
@@ -3443,6 +3458,19 @@ dependencies = [
  "security-framework 2.11.1",
  "security-framework 3.2.0",
  "windows-sys 0.59.0",
+]
+
+[[package]]
+name = "knit"
+version = "0.0.0"
+dependencies = [
+ "codec-latex-trait",
+ "common",
+ "document",
+ "format",
+ "images",
+ "rand 0.9.0",
+ "schema",
 ]
 
 [[package]]

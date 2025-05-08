@@ -6,6 +6,20 @@ impl LatexCodec for IfBlock {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
         context.enter_node(self.node_type(), self.node_id());
 
+        if context.render {
+            // Render the first active clause only
+            for clause in &self.clauses {
+                if clause.is_active.unwrap_or_default() {
+                    context.property_fn(NodeProperty::Content, |context| {
+                        clause.content.to_latex(context)
+                    });
+                    break;
+                }
+            }
+            context.exit_node();
+            return;
+        }
+
         if let (1, Some(IfBlockClause { code, content, .. })) =
             (self.clauses.len(), self.clauses.first())
         {
