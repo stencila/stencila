@@ -1,25 +1,38 @@
 //! Provides the `LatexCodec` trait for generating Latex for Stencila Schema nodes
 
-use codec_info::{Losses, Mapping, NodeId, NodeProperty, NodeType};
+use std::{env::temp_dir, path::PathBuf};
+
+use codec_info::{EncodeInfo, Losses, Mapping, NodeId, NodeProperty, NodeType};
 use format::Format;
 
 pub use codec_latex_derive::LatexCodec;
 
-pub trait LatexCodec {
-    /// Encode a Stencila Schema node to Latex
-    fn to_latex(&self, context: &mut LatexEncodeContext);
-}
-
 /// Encode a node that implements `LatexCodec` to Latex
 ///
 /// A convenience function to save the caller from having to create a context etc.
-pub fn to_latex<T>(node: &T) -> String
+pub fn to_latex<T>(node: &T, format: Format, standalone: bool, render: bool) -> (String, EncodeInfo)
 where
     T: LatexCodec,
 {
-    let mut context = LatexEncodeContext::default();
+    let mut context = LatexEncodeContext::new(format, standalone, render);
     node.to_latex(&mut context);
-    context.content.trim().to_string()
+
+    let mut latex = context.content;
+    if latex.ends_with("\n\n") {
+        latex.pop();
+    }
+
+    let info = EncodeInfo {
+        losses: context.losses,
+        mapping: context.mapping,
+    };
+
+    (latex, info)
+}
+
+pub trait LatexCodec {
+    /// Encode a Stencila Schema node to Latex
+    fn to_latex(&self, context: &mut LatexEncodeContext);
 }
 
 #[derive(Default)]
@@ -40,6 +53,9 @@ pub struct LatexEncodeContext {
     /// The encoded Latex content
     pub content: String,
 
+    /// The temporary directory where images are encoded to if necessary
+    pub temp_dir: PathBuf,
+
     /// A stack of node types, ids and start positions
     node_stack: Vec<(NodeType, NodeId, usize)>,
 
@@ -55,10 +71,13 @@ pub struct LatexEncodeContext {
 
 impl LatexEncodeContext {
     pub fn new(format: Format, standalone: bool, render: bool) -> Self {
+        let temp_dir = temp_dir();
+
         Self {
             format,
             standalone,
             render,
+            temp_dir,
             ..Default::default()
         }
     }

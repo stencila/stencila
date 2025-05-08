@@ -19,7 +19,7 @@ use codec::{
     schema::Node,
     status::Status,
 };
-use codec_latex::LatexCodec;
+use codec_latex_trait::to_latex;
 use rand::{Rng, distr::Alphanumeric, rng};
 
 /// A codec for PNG
@@ -98,15 +98,7 @@ async fn latex_to_png(node: &Node, path: &Path, options: &EncodeOptions) -> Resu
         .collect();
 
     // Encode to string without `standalone` options
-    let (mut latex, info) = LatexCodec
-        .to_string(
-            node,
-            Some(EncodeOptions {
-                render: Some(true),
-                ..Default::default()
-            }),
-        )
-        .await?;
+    let (mut latex, info) = to_latex(node, Format::Latex, false, true);
 
     //...and then wrap in standalone \documentclass if a \documentclass is not specified
     if !latex.contains("\\documentclass") {

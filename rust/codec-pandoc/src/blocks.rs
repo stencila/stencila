@@ -174,7 +174,6 @@ fn section_to_pandoc(section: &Section, context: &mut PandocEncodeContext) -> pa
 
     let attrs = pandoc::Attr {
         classes: vec![class],
-        // attributes,
         ..attrs_empty()
     };
     pandoc::Block::Div(attrs, blocks_to_pandoc(&section.content, context))

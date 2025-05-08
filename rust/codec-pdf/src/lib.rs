@@ -72,12 +72,14 @@ impl Codec for PdfCodec {
         path: &Path,
         options: Option<EncodeOptions>,
     ) -> Result<EncodeInfo> {
-        let options = options.unwrap_or_default();
-        let tool = options.tool.clone().unwrap_or_default();
+        let tool = options
+            .as_ref()
+            .and_then(|opts| opts.tool.clone())
+            .unwrap_or_default();
 
         if tool == "pandoc" {
-            let (pandoc, info) = root_to_pandoc(node, Format::Pdf)?;
-            pandoc_to_format(&pandoc, Some(path), PANDOC_FORMAT, options.tool_args).await?;
+            let (pandoc, info) = root_to_pandoc(node, Format::Pdf, &options)?;
+            pandoc_to_format(&pandoc, Some(path), PANDOC_FORMAT, &options).await?;
             Ok(info)
         } else if tool == "latex" || tool.is_empty() {
             latex_to_pdf(node, path, options).await
@@ -89,7 +91,11 @@ impl Codec for PdfCodec {
 
 /// Encode a node to PDF using `latex` binary
 #[tracing::instrument(skip(node))]
-async fn latex_to_pdf(node: &Node, path: &Path, options: EncodeOptions) -> Result<EncodeInfo> {
+async fn latex_to_pdf(
+    node: &Node,
+    path: &Path,
+    options: Option<EncodeOptions>,
+) -> Result<EncodeInfo> {
     // Use a unique job name to be able to run `latex` in the current working directory
     // (because paths in \input and \includegraphics commands are relative to that)
     // whilst also being able to clean up temporary file afterwards
@@ -122,7 +128,7 @@ async fn latex_to_pdf(node: &Node, path: &Path, options: EncodeOptions) -> Resul
             &job,
             &input_file,
         ])
-        .args(options.tool_args)
+        .args(options.map(|opts| opts.tool_args).unwrap_or_default())
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .status()

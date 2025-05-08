@@ -21,10 +21,12 @@ pub(super) async fn decode(
     latex: &str,
     options: Option<DecodeOptions>,
 ) -> Result<(Node, DecodeInfo)> {
-    let options = options.unwrap_or_default();
-
     // Default to coarse decoding to avoid loss of LaTeX not recognized by Pandoc
-    if options.coarse.unwrap_or(true) {
+    if options
+        .as_ref()
+        .and_then(|opts| opts.coarse)
+        .unwrap_or(true)
+    {
         coarse(latex)
     } else {
         fine(latex, options).await
@@ -65,7 +67,10 @@ static RE: Lazy<Regex> = Lazy::new(|| {
 ///
 /// Transforms custom LaTeX commands and environments into those recognized by
 /// Pandoc. See the `pandoc-codec/src/blocks.rs` for why we encode things as we do below.
-pub(super) async fn fine(latex: &str, options: DecodeOptions) -> Result<(Node, DecodeInfo)> {
+pub(super) async fn fine(
+    latex: &str,
+    options: Option<DecodeOptions>,
+) -> Result<(Node, DecodeInfo)> {
     fn transform(latex: &str) -> String {
         RE.replace_all(latex, |captures: &Captures| {
             if let Some(mat) = captures.name("expr") {
@@ -142,8 +147,8 @@ pub(super) async fn fine(latex: &str, options: DecodeOptions) -> Result<(Node, D
     }
 
     let latex = transform(latex);
-    let pandoc = pandoc_from_format(&latex, None, PANDOC_FORMAT, options.tool_args).await?;
-    root_from_pandoc(pandoc, Format::Latex)
+    let pandoc = pandoc_from_format(&latex, None, PANDOC_FORMAT, &options).await?;
+    root_from_pandoc(pandoc, Format::Latex, &options)
 }
 
 /// Decode LaTeX with the `--course` option

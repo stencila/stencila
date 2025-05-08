@@ -1188,6 +1188,7 @@ name = "codec-pandoc"
 version = "0.0.0"
 dependencies = [
  "codec",
+ "codec-latex-trait",
  "codec-text-trait",
  "pandoc_types",
  "which",
@@ -1218,7 +1219,7 @@ name = "codec-png"
 version = "0.0.0"
 dependencies = [
  "codec",
- "codec-latex",
+ "codec-latex-trait",
  "rand 0.9.0",
 ]
 

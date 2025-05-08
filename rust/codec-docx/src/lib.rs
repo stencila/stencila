@@ -9,7 +9,8 @@ use codec::{
     NodeType,
 };
 use codec_pandoc::{
-    pandoc_availability, pandoc_from_format, pandoc_to_format, root_from_pandoc, root_to_pandoc,
+    coarse_to_path, pandoc_availability, pandoc_from_format, pandoc_to_format, root_from_pandoc,
+    root_to_pandoc,
 };
 
 /// A codec for Microsoft Word DOCX
@@ -70,10 +71,10 @@ impl Codec for DocxCodec {
             "",
             Some(path),
             &[PANDOC_FORMAT, "+styles"].concat(),
-            options.map(|options| options.tool_args).unwrap_or_default(),
+            &options,
         )
         .await?;
-        root_from_pandoc(pandoc, Format::Docx)
+        root_from_pandoc(pandoc, Format::Docx, &options)
     }
 
     async fn to_path(
@@ -82,14 +83,30 @@ impl Codec for DocxCodec {
         path: &Path,
         options: Option<EncodeOptions>,
     ) -> Result<EncodeInfo> {
-        let (pandoc, info) = root_to_pandoc(node, Format::Docx)?;
+        let mut options = options.unwrap_or_default();
+        if options.render.is_none() {
+            options.render = Some(true);
+        }
+
+        if options.render.unwrap_or_default() {
+            if let Node::Article(article) = node {
+                if article.is_coarse(&Format::Latex) {
+                    return coarse_to_path(node, Format::Latex, Format::Docx, path, Some(options))
+                        .await;
+                }
+            }
+        }
+
+        let options = Some(options);
+        let (pandoc, info) = root_to_pandoc(node, Format::Docx, &options)?;
         pandoc_to_format(
             &pandoc,
             Some(path),
             &[PANDOC_FORMAT, "+styles+native_numbering"].concat(),
-            options.map(|options| options.tool_args).unwrap_or_default(),
+            &options,
         )
         .await?;
+
         Ok(info)
     }
 }

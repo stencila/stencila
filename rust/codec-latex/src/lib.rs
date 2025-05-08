@@ -9,7 +9,7 @@ use codec::{
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     NodeType,
 };
-use codec_latex_trait::{LatexCodec as _, LatexEncodeContext};
+use codec_latex_trait::to_latex;
 use codec_pandoc::{pandoc_availability, pandoc_to_format, root_to_pandoc};
 
 mod decode;
@@ -68,39 +68,23 @@ impl Codec for LatexCodec {
         node: &Node,
         options: Option<EncodeOptions>,
     ) -> Result<(String, EncodeInfo)> {
-        let options = options.unwrap_or_default();
-        let format = options.format.unwrap_or(Format::Latex);
-        let tool = options.tool.unwrap_or_default();
+        let mut options = options.unwrap_or_default();
+        let format = options.format.clone().unwrap_or(Format::Latex);
+        let tool = options.tool.clone().unwrap_or_default();
+        let standalone = options.standalone.unwrap_or_default();
+        let render = options.render.unwrap_or_default();
 
         if tool.is_empty() {
-            let mut context = LatexEncodeContext::new(
-                format,
-                options.standalone.unwrap_or_default(),
-                options.render.unwrap_or_default(),
-            );
-            node.to_latex(&mut context);
-
-            let mut output = context.content;
-            if output.ends_with("\n\n") {
-                output.pop();
-            }
-
-            let info = EncodeInfo {
-                losses: context.losses,
-                mapping: context.mapping,
-            };
-
-            Ok((output, info))
+            Ok(to_latex(node, format, standalone, render))
         } else if tool == "pandoc" {
-            let (pandoc, info) = root_to_pandoc(node, format)?;
-
-            let mut args = options.tool_args;
-            args.push("--listings".into());
-            if matches!(options.standalone, Some(true)) {
-                args.push("--standalone".into());
+            options.tool_args.push("--listings".into());
+            if standalone {
+                options.tool_args.push("--standalone".into());
             }
+            let options = Some(options);
 
-            let output = pandoc_to_format(&pandoc, None, PANDOC_FORMAT, args).await?;
+            let (pandoc, info) = root_to_pandoc(node, format, &options)?;
+            let output = pandoc_to_format(&pandoc, None, PANDOC_FORMAT, &options).await?;
 
             Ok((output, info))
         } else {
