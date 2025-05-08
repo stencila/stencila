@@ -278,6 +278,19 @@ expression: specs
     "supports_to_string": true,
     "supports_to_path": true
   },
+  "png": {
+    "status": "alpha",
+    "supports_from_formats": {},
+    "supports_from_bytes": false,
+    "supports_from_string": false,
+    "supports_from_path": true,
+    "supports_to_formats": {
+      "png": "HighLoss"
+    },
+    "supports_to_bytes": false,
+    "supports_to_string": false,
+    "supports_to_path": true
+  },
   "rnw": {
     "status": "alpha",
     "supports_from_formats": {
