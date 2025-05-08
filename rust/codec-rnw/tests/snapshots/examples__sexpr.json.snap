@@ -6,96 +6,83 @@ expression: article
   "type": "Article",
   "content": [
     {
-      "type": "Paragraph",
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "A code expression "
+      }
+    },
+    {
+      "type": "InlinesBlock",
       "content": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "A code expression "
-          }
-        },
         {
           "type": "CodeExpression",
           "code": {
             "string": "6*7"
-          },
-          "programmingLanguage": "r"
-        },
-        {
-          "type": "Text",
-          "value": {
-            "string": " within a paragraph."
           }
         }
       ]
     },
     {
-      "type": "Paragraph",
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": " within a paragraph.\n\nHandles possible delimiter characters in code:\n\n\\begin{itemize}\n  \\item "
+      }
+    },
+    {
+      "type": "InlinesBlock",
       "content": [
         {
-          "type": "Text",
-          "value": {
-            "string": "Handles possible delimiter characters in code:"
+          "type": "CodeExpression",
+          "code": {
+            "string": "!foo"
           }
         }
       ]
     },
     {
-      "type": "List",
-      "items": [
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\n  \\item "
+      }
+    },
+    {
+      "type": "InlinesBlock",
+      "content": [
         {
-          "type": "ListItem",
-          "content": [
-            {
-              "type": "Paragraph",
-              "content": [
-                {
-                  "type": "CodeExpression",
-                  "code": {
-                    "string": "!foo"
-                  },
-                  "programmingLanguage": "r"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "ListItem",
-          "content": [
-            {
-              "type": "Paragraph",
-              "content": [
-                {
-                  "type": "CodeExpression",
-                  "code": {
-                    "string": "!foo|bar"
-                  },
-                  "programmingLanguage": "r"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "ListItem",
-          "content": [
-            {
-              "type": "Paragraph",
-              "content": [
-                {
-                  "type": "CodeExpression",
-                  "code": {
-                    "string": "!foo|bar+baz"
-                  },
-                  "programmingLanguage": "r"
-                }
-              ]
-            }
-          ]
+          "type": "CodeExpression",
+          "code": {
+            "string": "!foo|bar"
+          }
         }
-      ],
-      "order": "Unordered"
+      ]
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\n  \\item "
+      }
+    },
+    {
+      "type": "InlinesBlock",
+      "content": [
+        {
+          "type": "CodeExpression",
+          "code": {
+            "string": "!foo|bar+baz"
+          }
+        }
+      ]
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\n\\end{itemize}\n"
+      }
     }
   ]
 }

@@ -95,18 +95,7 @@ fn latex_from_rnw(noweb: &str) -> String {
     let latex = SEXPR.replace_all(noweb, |captures: &Captures| {
         let code = &captures[1];
 
-        // Delimiting character depends upon whether it is in the code
-        let char = if !code.contains("!") {
-            "!"
-        } else if !code.contains("|") {
-            "|"
-        } else if !code.contains("+") {
-            "+"
-        } else {
-            "?"
-        };
-
-        ["\\lstinline[language=rexec]", char, code, char].concat()
+        ["\\expr{", code, "}"].concat()
     });
 
     // Code chunk regex
@@ -134,13 +123,13 @@ fn latex_from_rnw(noweb: &str) -> String {
         let code = &captures[3];
 
         [
-            "\\begin{lstlisting}[language=r, exec",
+            "\\begin{chunk}[r",
             &options
                 .map(|options| [", ", options].concat())
                 .unwrap_or_default(),
             "]\n",
             code,
-            "\\end{lstlisting}\n\n",
+            "\\end{chunk}\n",
         ]
         .concat()
     });

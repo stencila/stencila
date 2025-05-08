@@ -6,15 +6,11 @@ expression: article
   "type": "Article",
   "content": [
     {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Chunk name, no options, no code:"
-          }
-        }
-      ]
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "Chunk name, no options, no code:\n"
+      }
     },
     {
       "type": "CodeChunk",
@@ -24,39 +20,31 @@ expression: article
       "programmingLanguage": "r"
     },
     {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "No chunk name, options and code:"
-          }
-        }
-      ]
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\nNo chunk name, options and code:\n"
+      }
     },
     {
       "type": "CodeChunk",
       "code": {
-        "string": "# Some code"
+        "string": "# Some code\n"
       },
       "programmingLanguage": "r",
       "isEchoed": false
     },
     {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "All:"
-          }
-        }
-      ]
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\nAll:\n"
+      }
     },
     {
       "type": "CodeChunk",
       "code": {
-        "string": "# Some code"
+        "string": "# Some code\n"
       },
       "programmingLanguage": "r",
       "isEchoed": false,
