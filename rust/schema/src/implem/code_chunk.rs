@@ -167,7 +167,11 @@ impl LatexCodec for CodeChunk {
         }
 
         if matches!(context.format, Format::Rnw) {
-            context.merge_losses(lost_options!(self, programming_language));
+            if let Some(lang) = &self.programming_language {
+                if lang.to_lowercase() != "r" {
+                    context.merge_losses(lost_options!(self, programming_language));
+                }
+            }
 
             let name = self.label.as_deref().unwrap_or("unnamed");
             context.str("<<").str(name);
