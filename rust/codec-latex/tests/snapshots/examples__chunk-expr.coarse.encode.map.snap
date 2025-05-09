@@ -20,4 +20,5 @@ start     end        offsets   node_type+property                   authorship
    210    241      (-17, 12)   CodeChunk
    242    258       (32, 17)   RawBlock.content
    242    258         (0, 0)   RawBlock
-     0    258      (-242, 0)   Article
+     0    258      (-242, 0)   Article.content
+     0    258         (0, 0)   Article
