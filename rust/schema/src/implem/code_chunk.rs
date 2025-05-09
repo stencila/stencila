@@ -154,12 +154,18 @@ impl LatexCodec for CodeChunk {
             if let Some(outputs) = &self.outputs {
                 context.property_fn(NodeProperty::Outputs, |context| {
                     for output in outputs {
-                        context.str("\\begin{center}");
+                        //context.str("\\begin{center}");
 
                         if matches!(context.format, Format::Docx | Format::Odt) {
                             // Encode outputs as images so that they are not editable
-                            let (latex, ..) =
-                                to_latex(output, Format::Latex, false, true, context.highlight);
+                            let (latex, ..) = to_latex(
+                                output,
+                                Format::Latex,
+                                false,
+                                true,
+                                context.highlight,
+                                context.prelude.clone(),
+                            );
 
                             if matches!(output, Node::ImageObject(..)) {
                                 // Already encoded as an image, so just add the LaTeX
@@ -185,7 +191,7 @@ impl LatexCodec for CodeChunk {
                             output.to_latex(context);
                         }
 
-                        context.str("\\end{center}\n");
+                        //context.str("\\end{center}\n");
                     }
                 });
             }

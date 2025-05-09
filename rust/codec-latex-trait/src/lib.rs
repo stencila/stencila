@@ -29,11 +29,12 @@ pub fn to_latex<T>(
     standalone: bool,
     render: bool,
     highlight: bool,
+    prelude: Option<String>,
 ) -> (String, EncodeInfo)
 where
     T: LatexCodec,
 {
-    let mut context = LatexEncodeContext::new(format, standalone, render, highlight);
+    let mut context = LatexEncodeContext::new(format, standalone, render, highlight, prelude);
     node.to_latex(&mut context);
 
     let mut latex = context.content;
@@ -81,7 +82,7 @@ pub fn use_packages(latex: &str) -> String {
     let has_pkg = |pkg: &str| {
         latex.contains(&format!(r"\usepackage{{{}}}", pkg))
             || latex.contains(&format!(r"\RequirePackage{{{}}}", pkg))
-            || latex.contains(&format!(r"\usepackage[")) && latex.contains(pkg)
+            || latex.contains(&r"\usepackage[".to_string()) && latex.contains(pkg)
     };
 
     // hyperref: links & urls
@@ -107,13 +108,18 @@ pub fn use_packages(latex: &str) -> String {
     {
         packages.push("amssymb");
     }
+    // array: custom column types (\newcolumntype)
+    if latex.contains(r"\newcolumntype") && !has_pkg("array") {
+        packages.push("array");
+    }
     // xcolor: color support
     if (latex.contains(r"\color")
         || latex.contains(r"\textcolor")
-        || latex.contains(r"\definecolor"))
+        || latex.contains(r"\definecolor")
+        || latex.contains(r"\rowcolors"))
         && !has_pkg("xcolor")
     {
-        packages.push("xcolor");
+        packages.push("\\usepackage[table]{xcolor}");
     }
     // soul: text highlighting (\hl, \sethlcolor)
     if (latex.contains(r"\hl") || latex.contains(r"\sethlcolor")) && !has_pkg("soul") {
@@ -200,7 +206,13 @@ pub fn use_packages(latex: &str) -> String {
     // Build the final string
     packages
         .iter()
-        .map(|pkg| [r"\usepackage{", pkg, "}"].concat())
+        .map(|pkg| {
+            if !pkg.contains(r"\usepackage") {
+                [r"\usepackage{", pkg, "}"].concat()
+            } else {
+                pkg.to_string()
+            }
+        })
         .join("\n")
 }
 
@@ -221,9 +233,10 @@ pub fn latex_to_png(latex: &str, path: &Path) -> Result<()> {
     //...and then wrap in standalone \documentclass if a \documentclass is not specified
     let latex = if !latex.contains("\\documentclass") {
         [
+            // This border has to be large to avoid tables being cut off.
+            // TODO: investigate other solutions to this
             r"
-\documentclass[border=5pt,preview]{standalone}
-
+\documentclass[border=30pt,preview]{standalone}
 ",
             &use_packages(latex),
             r"
@@ -317,6 +330,9 @@ pub struct LatexEncodeContext {
     /// The encoded Latex content
     pub content: String,
 
+    /// A prelude to add to islands and other LaTeX snippets generated during encoding
+    pub prelude: Option<String>,
+
     /// The temporary directory where images are encoded to if necessary
     pub temp_dir: PathBuf,
 
@@ -334,17 +350,26 @@ pub struct LatexEncodeContext {
 }
 
 impl LatexEncodeContext {
-    pub fn new(format: Format, standalone: bool, render: bool, highlight: bool) -> Self {
+    pub fn new(
+        format: Format,
+        standalone: bool,
+        render: bool,
+        highlight: bool,
+        prelude: Option<String>,
+    ) -> Self {
         let temp_dir = temp_dir();
+
+        let content = prelude.clone().unwrap_or_default();
 
         Self {
             format,
             standalone,
             render,
             highlight,
+            prelude,
             temp_dir,
             coarse: false,
-            content: String::default(),
+            content,
             node_stack: Vec::default(),
             mapping: Mapping::default(),
             losses: Losses::default(),

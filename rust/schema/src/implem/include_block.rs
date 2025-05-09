@@ -1,9 +1,28 @@
+use std::fs::read_to_string;
+
 use codec_info::{lost_exec_options, lost_options};
+use common::tracing;
 
 use crate::{prelude::*, IncludeBlock};
 
 impl LatexCodec for IncludeBlock {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
+        if self.source.ends_with("prelude.tex") {
+            context.prelude = match read_to_string(&self.source) {
+                Ok(prelude) => Some(prelude),
+                Err(error) => {
+                    tracing::error!("While reading {}: {error}", self.source);
+                    None
+                }
+            };
+
+            // The preamble can cause Pandoc parsing errors so do not
+            // pass the `\input` through in those cases
+            if matches!(context.format, Format::Docx | Format::Odt) {
+                return;
+            }
+        }
+
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, media_type, select, execution_mode))

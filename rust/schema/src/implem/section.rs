@@ -30,7 +30,14 @@ impl LatexCodec for Section {
         if matches!(context.format, Format::Docx | Format::Odt)
             && matches!(self.section_type, Some(SectionType::Island))
         {
-            let (latex, ..) = to_latex(&self.content, Format::Latex, false, true, false);
+            let (latex, ..) = to_latex(
+                &self.content,
+                Format::Latex,
+                false,
+                true,
+                false,
+                context.prelude.clone(),
+            );
 
             let path = context.temp_dir.join(format!("{}.png", self.node_id()));
             if let Err(error) = latex_to_png(&latex, &path) {
