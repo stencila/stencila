@@ -73,9 +73,10 @@ impl Codec for LatexCodec {
         let tool = options.tool.clone().unwrap_or_default();
         let standalone = options.standalone.unwrap_or_default();
         let render = options.render.unwrap_or_default();
+        let highlight = options.render.unwrap_or_default();
 
         if tool.is_empty() {
-            Ok(to_latex(node, format, standalone, render))
+            Ok(to_latex(node, format, standalone, render, highlight))
         } else if tool == "pandoc" {
             options.tool_args.push("--listings".into());
             if standalone {

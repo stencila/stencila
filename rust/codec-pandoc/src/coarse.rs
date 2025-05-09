@@ -28,9 +28,10 @@ pub async fn coarse_to_path(
     let options = options.unwrap_or_default();
     let standalone = options.standalone.unwrap_or(true);
     let render = options.render.unwrap_or(true);
+    let highlight = options.highlight.unwrap_or(false);
 
     let (content, info) = match from {
-        Format::Latex | Format::Tex => to_latex(node, to.clone(), standalone, render),
+        Format::Latex | Format::Tex => to_latex(node, to.clone(), standalone, render, highlight),
         _ => bail!("Unsupported from format: {from}"),
     };
 

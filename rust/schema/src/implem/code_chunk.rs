@@ -1,5 +1,8 @@
 use codec_info::{lost_exec_options, lost_options, lost_props};
+use codec_latex_trait::{latex_to_png, to_latex};
 use codec_markdown_trait::to_markdown;
+use common::tracing;
+use images::highlight_image;
 
 use crate::{
     prelude::*, CodeChunk, Duration, ExecutionBounds, ExecutionMode, LabelType, MessageLevel,
@@ -148,9 +151,45 @@ impl LatexCodec for CodeChunk {
 
         // Render mode: only encode outputs
         if context.render {
-            if let Some(output) = &self.outputs {
-                context.property_fn(NodeProperty::Outputs, |context| output.to_latex(context));
+            if let Some(outputs) = &self.outputs {
+                context.property_fn(NodeProperty::Outputs, |context| {
+                    for output in outputs {
+                        context.str("\\begin{center}");
+
+                        if matches!(context.format, Format::Docx | Format::Odt) {
+                            // Encode outputs as images so that they are not editable
+                            let (latex, ..) =
+                                to_latex(output, Format::Latex, false, true, context.highlight);
+
+                            if matches!(output, Node::ImageObject(..)) {
+                                // Already encoded as an image, so just add the LaTeX
+                                context.str(&latex);
+                            } else {
+                                let path = context.temp_dir.join(format!("{}.png", self.node_id()));
+                                if let Err(error) = latex_to_png(&latex, &path) {
+                                    tracing::error!("While code chunk output to PNG: {error}");
+                                } else {
+                                    if context.highlight {
+                                        if let Err(error) = highlight_image(&path) {
+                                            tracing::error!(
+                                                "While highlighting code chunk output PNG: {error}"
+                                            );
+                                        }
+                                    }
+
+                                    let path = path.to_string_lossy();
+                                    context.str(r"\includegraphics{").str(&path).char('}');
+                                }
+                            }
+                        } else {
+                            output.to_latex(context);
+                        }
+
+                        context.str("\\end{center}\n");
+                    }
+                });
             }
+
             context
                 .merge_losses(lost_options!(
                     self,
@@ -161,6 +200,7 @@ impl LatexCodec for CodeChunk {
                 .merge_losses(lost_props!(self, code))
                 .exit_node()
                 .newline();
+
             return;
         } else {
             context.merge_losses(lost_options!(self, outputs));

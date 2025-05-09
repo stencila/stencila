@@ -78,9 +78,13 @@ impl DecodeOptions {
 /// Command line arguments for encoding nodes to other formats
 #[derive(Debug, Args)]
 pub struct EncodeOptions {
-    /// Encode outputs, rather than source, of executable nodes
+    /// Encode the outputs, rather than the source, of executable nodes
     #[arg(long, short)]
     render: bool,
+
+    /// Highlight the rendered outputs of executable nodes
+    #[arg(long)]
+    highlight: bool,
 
     /// Encode as a standalone document
     #[arg(long, conflicts_with = "not_standalone")]
@@ -135,6 +139,7 @@ impl EncodeOptions {
             .or(self.pretty.then_some(false));
 
         let render = self.render.then_some(true);
+        let highlight = self.highlight.then_some(true);
 
         let standalone = self
             .standalone
@@ -148,6 +153,7 @@ impl EncodeOptions {
             format,
             compact,
             render,
+            highlight,
             standalone,
             from_path,
             strip_scopes: strip_options.strip_scopes,

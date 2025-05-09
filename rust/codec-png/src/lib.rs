@@ -11,7 +11,6 @@ use codec::{
     status::Status,
 };
 use codec_latex_trait::{latex_to_png, to_latex};
-use images::mogrify_image;
 
 /// A codec for PNG
 pub struct PngCodec;
@@ -63,16 +62,12 @@ impl Codec for PngCodec {
         let tool = options.tool.clone().unwrap_or_default();
 
         let info = if tool == "latex" || tool.is_empty() {
-            let (latex, info) = to_latex(node, Format::Latex, false, true);
+            let (latex, info) = to_latex(node, Format::Latex, false, true, false);
             latex_to_png(&latex, path)?;
             info
         } else {
             bail!("Tool `{tool}` is not supported for encoding to PNG")
         };
-
-        if !options.tool_args.is_empty() {
-            mogrify_image(path, &options.tool_args).await?;
-        }
 
         Ok(info)
     }

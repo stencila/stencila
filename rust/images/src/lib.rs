@@ -12,10 +12,8 @@ use common::{
     once_cell::sync::Lazy,
     regex::{Captures, Regex},
     seahash::SeaHasher,
-    tokio::process::Command,
-    tracing,
 };
-use image::{ImageFormat, ImageReader};
+use image::{open, GenericImage, GenericImageView, ImageBuffer, ImageFormat, ImageReader, Rgba};
 use mime_guess::from_path;
 
 /// Covert an image URL to a HTTP or data URI
@@ -232,22 +230,24 @@ fn img_srcs_transform(html: &str, transform: impl Fn(&str) -> String) -> String 
         .into_owned()
 }
 
-/// Modify an image using ImageMagick `mogrify`
-#[tracing::instrument]
-pub async fn mogrify_image(path: &Path, args: &[String]) -> Result<()> {
-    tracing::trace!("Modifying image");
+/// Highlight an image by placing a green border around it
+///
+/// This border width is 0.5% of the maximum of the image's hight or width.
+pub fn highlight_image(path: &Path) -> Result<()> {
+    let img = open(path)?;
 
-    let output = Command::new("mogrify")
-        .args(args)
-        .arg(path)
-        .output()
-        .await?;
-    if !output.status.success() {
-        bail!(
-            "mogrify failed:\n\n{}",
-            String::from_utf8_lossy(&output.stderr)
-        );
-    }
+    let border_color = Rgba([0, 255, 0, 255]);
+
+    let (w, h) = img.dimensions();
+    let border_width = (w.max(h) / 200).max(2);
+    let new_w = w + 2 * border_width;
+    let new_h = h + 2 * border_width;
+
+    // Create a new image and fill it with the border color and overlay the original image in the center
+    let mut bordered = ImageBuffer::from_pixel(new_w, new_h, border_color);
+    bordered.copy_from(&img.to_rgba8(), border_width, border_width)?;
+
+    bordered.save(path)?;
 
     Ok(())
 }

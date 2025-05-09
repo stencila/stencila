@@ -1,6 +1,7 @@
 use codec_info::lost_options;
 use codec_latex_trait::{latex_to_png, to_latex};
 use common::tracing;
+use images::highlight_image;
 
 use crate::{prelude::*, Section, SectionType};
 
@@ -29,14 +30,19 @@ impl LatexCodec for Section {
         if matches!(context.format, Format::Docx | Format::Odt)
             && matches!(self.section_type, Some(SectionType::Island))
         {
-            let path = context.temp_dir.join(format!("{}.png", self.node_id()));
-            let (latex, ..) =
-                to_latex(&self.content, context.format.clone(), false, context.render);
+            let (latex, ..) = to_latex(&self.content, Format::Latex, false, true, false);
 
+            let path = context.temp_dir.join(format!("{}.png", self.node_id()));
             if let Err(error) = latex_to_png(&latex, &path) {
                 tracing::error!("While encoding island section to PNG: {error}");
                 // Will fallback to just encoding the content slow
             } else {
+                if context.highlight {
+                    if let Err(error) = highlight_image(&path) {
+                        tracing::error!("While highlighting island section PNG: {error}");
+                    }
+                }
+
                 let path = path.to_string_lossy();
                 context
                     .str(r"\centerline{\includegraphics{")

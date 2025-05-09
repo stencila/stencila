@@ -1,5 +1,6 @@
 use codec_info::lost_options;
 use common::tracing;
+use images::highlight_image;
 
 use crate::{prelude::*, AudioObject, ImageObject, MediaObject, VideoObject};
 
@@ -240,11 +241,19 @@ impl DomCodec for ImageObject {
 
 impl LatexCodec for ImageObject {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
-        let source = if self.content_url.starts_with("data:") {
+        let path = if self.content_url.starts_with("data:") {
             let images_dir = context.temp_dir.clone();
             let image_name =
                 images::data_uri_to_file(&self.content_url, &images_dir).unwrap_or_default();
-            images_dir.join(image_name).to_string_lossy().to_string()
+            let path = images_dir.join(image_name);
+
+            if context.highlight && matches!(context.format, Format::Docx | Format::Odt) {
+                if let Err(error) = highlight_image(&path) {
+                    tracing::error!("While highlighting image object: {error}");
+                }
+            }
+
+            path.to_string_lossy().to_string()
         } else {
             self.content_url.clone()
         };
@@ -252,7 +261,7 @@ impl LatexCodec for ImageObject {
         context
             .enter_node(self.node_type(), self.node_id())
             .str(r"\includegraphics{")
-            .str(&source)
+            .str(&path)
             .char('}')
             .exit_node();
     }

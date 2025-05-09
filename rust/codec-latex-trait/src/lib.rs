@@ -23,11 +23,17 @@ pub use codec_latex_derive::LatexCodec;
 /// Encode a node that implements `LatexCodec` to Latex
 ///
 /// A convenience function to save the caller from having to create a context etc.
-pub fn to_latex<T>(node: &T, format: Format, standalone: bool, render: bool) -> (String, EncodeInfo)
+pub fn to_latex<T>(
+    node: &T,
+    format: Format,
+    standalone: bool,
+    render: bool,
+    highlight: bool,
+) -> (String, EncodeInfo)
 where
     T: LatexCodec,
 {
-    let mut context = LatexEncodeContext::new(format, standalone, render);
+    let mut context = LatexEncodeContext::new(format, standalone, render, highlight);
     node.to_latex(&mut context);
 
     let mut latex = context.content;
@@ -103,7 +109,7 @@ pub fn latex_to_png(latex: &str, path: &Path) -> Result<()> {
 \documentclass[border=5pt,preview]{standalone}
 
 ",
-            &use_packages(&latex),
+            &use_packages(latex),
             r"
 
 \begin{document}
@@ -182,8 +188,11 @@ pub struct LatexEncodeContext {
     /// Whether the root node should be encoded standalone
     pub standalone: bool,
 
-    /// Whether encoding in render mode (executable outputs)
+    /// Encode the outputs, rather than the source, of executable nodes
     pub render: bool,
+
+    /// Highlight the rendered outputs of executable nodes
+    pub highlight: bool,
 
     /// Whether the root node is "coarse grained" (i.e. decoded with the `--coarse` option).
     /// Used to determine whether newlines are needed between blocks.
@@ -209,13 +218,14 @@ pub struct LatexEncodeContext {
 }
 
 impl LatexEncodeContext {
-    pub fn new(format: Format, standalone: bool, render: bool) -> Self {
+    pub fn new(format: Format, standalone: bool, render: bool, highlight: bool) -> Self {
         let temp_dir = temp_dir();
 
         Self {
             format,
             standalone,
             render,
+            highlight,
             temp_dir,
             coarse: false,
             content: String::default(),

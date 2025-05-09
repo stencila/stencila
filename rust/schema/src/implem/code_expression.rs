@@ -17,7 +17,19 @@ impl LatexCodec for CodeExpression {
         // Render mode: only encode output
         if context.render {
             if let Some(output) = &self.output {
-                context.property_fn(NodeProperty::Output, |context| output.to_latex(context));
+                context.property_fn(NodeProperty::Output, |context| {
+                    let highlight =
+                        context.highlight && matches!(context.format, Format::Docx | Format::Odt);
+                    if highlight {
+                        context.str("\\verb|");
+                    }
+
+                    output.to_latex(context);
+
+                    if highlight {
+                        context.str("|");
+                    }
+                });
             }
             context.merge_losses(lost_props!(self, code)).exit_node();
             return;
