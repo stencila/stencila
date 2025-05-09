@@ -71,17 +71,133 @@ where
 }
 
 /// Generate `\usepackage` commands necessary for the included LaTeX
+///
+/// Looks for commonly used commands and environments and returns `\usepackage`
+/// commands for the corresponding packages.
 pub fn use_packages(latex: &str) -> String {
     let mut packages = Vec::new();
 
-    if latex.contains(r"\includegraphics") {
+    // helper to check for either \usepackage or \RequirePackage (with or without options)
+    let has_pkg = |pkg: &str| {
+        latex.contains(&format!(r"\usepackage{{{}}}", pkg))
+            || latex.contains(&format!(r"\RequirePackage{{{}}}", pkg))
+            || latex.contains(&format!(r"\usepackage[")) && latex.contains(pkg)
+    };
+
+    // hyperref: links & urls
+    if (latex.contains(r"\href") || latex.contains(r"\url")) && !has_pkg("hyperref") {
+        packages.push("hyperref");
+    }
+    // graphicx: images
+    if latex.contains(r"\includegraphics") && !has_pkg("graphicx") {
         packages.push("graphicx");
     }
-
-    if latex.contains(r"\landscape") {
+    // amsmath: display‐math environments
+    if (latex.contains(r"\begin{align}")
+        || latex.contains(r"\begin{equation}")
+        || latex.contains(r"\[")
+        || latex.contains(r"\]"))
+        && !has_pkg("amsmath")
+    {
+        packages.push("amsmath");
+    }
+    // amssymb: extra math symbols (\mathbb, \mathcal, etc.)
+    if (latex.contains(r"\mathbb") || latex.contains(r"\mathcal") || latex.contains(r"\mathfrak"))
+        && !has_pkg("amssymb")
+    {
+        packages.push("amssymb");
+    }
+    // xcolor: color support
+    if (latex.contains(r"\color")
+        || latex.contains(r"\textcolor")
+        || latex.contains(r"\definecolor"))
+        && !has_pkg("xcolor")
+    {
+        packages.push("xcolor");
+    }
+    // soul: text highlighting (\hl, \sethlcolor)
+    if (latex.contains(r"\hl") || latex.contains(r"\sethlcolor")) && !has_pkg("soul") {
+        packages.push("soul");
+    }
+    // colortbl: colored table rules (\arrayrulecolor)
+    if latex.contains(r"\arrayrulecolor") && !has_pkg("colortbl") {
+        packages.push("colortbl");
+    }
+    // geometry: page geometry
+    if (latex.contains(r"\newgeometry") || latex.contains(r"\geometry{")) && !has_pkg("geometry") {
+        packages.push("geometry");
+    }
+    // pdflscape: landscape pages
+    if latex.contains(r"\begin{landscape}") && !has_pkg("pdflscape") {
         packages.push("pdflscape");
     }
+    // placeins: \FloatBarrier
+    if latex.contains(r"\FloatBarrier") && !has_pkg("placeins") {
+        packages.push("placeins");
+    }
+    // booktabs: \toprule, \midrule, \bottomrule etc
+    if (latex.contains(r"\toprule")
+        || latex.contains(r"\midrule")
+        || latex.contains(r"\bottomrule")
+        || latex.contains(r"\addlinespace"))
+        && !has_pkg("booktabs")
+    {
+        packages.push("booktabs");
+    }
+    // enumitem: customized lists
+    if (latex.contains(r"\setlist")
+        || latex.contains(r"\begin{itemize}[")
+        || latex.contains(r"\begin{enumerate}["))
+        && !has_pkg("enumitem")
+    {
+        packages.push("enumitem");
+    }
+    // listings/minted: source code
+    if (latex.contains(r"\begin{lstlisting}") || latex.contains(r"\lstinline"))
+        && !has_pkg("listings")
+    {
+        packages.push("listings");
+    }
+    if latex.contains(r"\begin{minted}") && !has_pkg("minted") {
+        packages.push("minted");
+    }
+    // caption/subcaption: captions outside floats & sub‐floats
+    if latex.contains(r"\captionof{") && !has_pkg("caption") {
+        packages.push("caption");
+    }
+    if latex.contains(r"\begin{subfigure}") && !has_pkg("subcaption") {
+        packages.push("subcaption");
+    }
+    // longtable: multipage tables (\begin{longtable})
+    if latex.contains(r"\begin{longtable}") && !has_pkg("longtable") {
+        packages.push("longtable");
+    }
+    // threeparttable: table notes environment
+    if latex.contains(r"\begin{threeparttable}") && !has_pkg("threeparttable") {
+        packages.push("threeparttable");
+    }
+    // fancyhdr: fancy headers/footers
+    if (latex.contains(r"\pagestyle{fancy}")
+        || latex.contains(r"\fancyhead")
+        || latex.contains(r"\fancyhf")
+        || latex.contains(r"\fancyfoot"))
+        && !has_pkg("fancyhdr")
+    {
+        packages.push("fancyhdr");
+    }
+    // tikz/pgfplots: graphics & plots
+    if (latex.contains(r"\begin{tikzpicture}") || latex.contains(r"\tikz")) && !has_pkg("tikz") {
+        packages.push("tikz");
+    }
+    if latex.contains(r"\begin{axis}") && !has_pkg("pgfplots") {
+        packages.push("pgfplots");
+    }
+    // subfiles: stand-alone sub-documents
+    if latex.contains(r"\subfile{") && !has_pkg("subfiles") {
+        packages.push("subfiles");
+    }
 
+    // Build the final string
     packages
         .iter()
         .map(|pkg| [r"\usepackage{", pkg, "}"].concat())
