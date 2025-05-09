@@ -19,6 +19,7 @@ pub enum DirType {
     Prompts,
     Plugins,
     Kernels,
+    Templates,
 }
 
 /// Get an application directory
@@ -40,6 +41,7 @@ pub fn get_app_dir(dir_type: DirType, mut ensure: bool) -> Result<PathBuf> {
             }
             DirType::Plugins => dirs.config_dir().join("plugins"),
             DirType::Kernels => dirs.config_dir().join("kernels"),
+            DirType::Templates => dirs.cache_dir().join("templates"),
         }
     };
 

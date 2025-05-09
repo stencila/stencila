@@ -463,6 +463,11 @@ pub struct EncodeOptions {
     /// Highlight the rendered outputs of executable nodes
     pub highlight: Option<bool>,
 
+    /// The template document to use
+    ///
+    /// Only supported by some formats (e.g. DOCX).
+    pub template: Option<PathBuf>,
+
     /// Whether to encode as a standalone document
     ///
     /// Unless specified otherwise, this is the default when encoding to a file

@@ -1,7 +1,13 @@
 use std::path::Path;
 
+use rust_embed::RustEmbed;
+
 use codec::{
-    common::{async_trait::async_trait, eyre::Result},
+    common::{
+        async_trait::async_trait,
+        eyre::{OptionExt, Result},
+        tokio::fs::write,
+    },
     format::Format,
     schema::Node,
     status::Status,
@@ -17,6 +23,7 @@ use codec_pandoc::{
 pub struct DocxCodec;
 
 const PANDOC_FORMAT: &str = "docx";
+const DEFAULT_TEMPLATE: &str = "default.docx";
 
 #[async_trait]
 impl Codec for DocxCodec {
@@ -84,16 +91,29 @@ impl Codec for DocxCodec {
         options: Option<EncodeOptions>,
     ) -> Result<EncodeInfo> {
         let mut options = options.unwrap_or_default();
+
+        // Default to render mode
         if options.render.is_none() {
             options.render = Some(true);
         }
 
-        if options.render.unwrap_or_default() {
-            if let Node::Article(article) = node {
-                if article.is_coarse(&Format::Latex) {
-                    return coarse_to_path(node, Format::Latex, Format::Docx, path, Some(options))
-                        .await;
-                }
+        // Default to using builtin template by extracting it to cache
+        if options.template.is_none() {
+            use dirs::{get_app_dir, DirType};
+            let template = get_app_dir(DirType::Templates, true)?.join(DEFAULT_TEMPLATE);
+            if !template.exists() {
+                let file =
+                    Templates::get(DEFAULT_TEMPLATE).ok_or_eyre("template does not exist")?;
+                write(&template, file.data).await?;
+            }
+            options.template = Some(template);
+        }
+
+        // If a "coarse" article then encode directly from that format
+        if let Node::Article(article) = node {
+            if article.is_coarse(&Format::Latex) {
+                return coarse_to_path(node, Format::Latex, Format::Docx, path, Some(options))
+                    .await;
             }
         }
 
@@ -110,3 +130,7 @@ impl Codec for DocxCodec {
         Ok(info)
     }
 }
+
+#[derive(RustEmbed)]
+#[folder = "$CARGO_MANIFEST_DIR/templates"]
+struct Templates;

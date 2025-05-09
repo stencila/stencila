@@ -953,6 +953,8 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-pandoc",
+ "dirs 0.0.0",
+ "rust-embed",
 ]
 
 [[package]]

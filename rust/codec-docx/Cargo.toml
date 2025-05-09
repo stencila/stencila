@@ -6,6 +6,8 @@ edition = "2021"
 [dependencies]
 codec = { path = "../codec" }
 codec-pandoc = { path = "../codec-pandoc" }
+dirs = { path = "../dirs" }
+rust-embed = { version = "8.7.0", features = ["interpolate-folder-path", "include-exclude"] }
 
 [lints]
 workspace = true

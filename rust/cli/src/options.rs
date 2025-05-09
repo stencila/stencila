@@ -79,12 +79,22 @@ impl DecodeOptions {
 #[derive(Debug, Args)]
 pub struct EncodeOptions {
     /// Encode the outputs, rather than the source, of executable nodes
+    ///
+    /// Only supported by some formats.
     #[arg(long, short)]
     render: bool,
 
     /// Highlight the rendered outputs of executable nodes
+    ///
+    /// Only supported by some formats (e.g. DOCX and ODT).
     #[arg(long)]
     highlight: bool,
+
+    /// The template document to use
+    ///
+    /// Only supported by some formats (e.g. DOCX).
+    #[arg(long)]
+    template: Option<PathBuf>,
 
     /// Encode as a standalone document
     #[arg(long, conflicts_with = "not_standalone")]
@@ -141,6 +151,8 @@ impl EncodeOptions {
         let render = self.render.then_some(true);
         let highlight = self.highlight.then_some(true);
 
+        let template = self.template.clone();
+
         let standalone = self
             .standalone
             .then_some(true)
@@ -154,6 +166,7 @@ impl EncodeOptions {
             compact,
             render,
             highlight,
+            template,
             standalone,
             from_path,
             strip_scopes: strip_options.strip_scopes,

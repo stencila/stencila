@@ -37,7 +37,7 @@ pub async fn coarse_to_path(
         _ => bail!("Unsupported from format: {from}"),
     };
 
-    format_to_path(&from, &to, &content, path).await?;
+    format_to_path(&from, &to, &content, path, &Some(options)).await?;
 
     Ok(info)
 }

@@ -100,18 +100,20 @@ pub async fn pandoc_to_format(
 
     tracing::debug!("Spawning pandoc to generate `{format}`");
 
-    let mut args = options
-        .as_ref()
-        .map(|options| options.tool_args.clone())
-        .unwrap_or_default();
+    let options = options.clone().unwrap_or_default();
+    let mut args = options.tool_args.clone();
 
     // Some codecs use the `--pandoc` to indicate that pandoc should be used
     // instead of the default encoding so remove that.
     args.retain(|arg| arg != "--pandoc");
 
+    // Translate `template` option to Pandoc argument
+    if let Some(template) = options.template {
+        args.push(format!("--reference-doc={}", template.to_string_lossy()));
+    }
     let mut command = Command::new("pandoc");
-    command.args(["--from", "json", "--to", format]);
     command.args(args);
+    command.args(["--from", "json", "--to", format]);
     if let Some(path) = &path {
         command.args(["--output", &path.to_string_lossy()]);
     }
@@ -147,8 +149,18 @@ pub(crate) async fn format_to_path(
     to: &Format,
     content: &str,
     path: &Path,
+    options: &Option<EncodeOptions>,
 ) -> Result<()> {
+    let options = options.clone().unwrap_or_default();
+    let mut args = options.tool_args.clone();
+
+    // Translate `template` option to Pandoc argument
+    if let Some(template) = options.template {
+        args.push(format!("--reference-doc={}", template.to_string_lossy()));
+    }
+
     let mut command = Command::new("pandoc");
+    command.args(args);
     command.args([
         "--from",
         &from.to_string(),
