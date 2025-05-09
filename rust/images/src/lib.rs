@@ -239,7 +239,7 @@ pub fn highlight_image(path: &Path) -> Result<()> {
     let border_color = Rgba([0, 255, 0, 255]);
 
     let (w, h) = img.dimensions();
-    let border_width = (w.max(h) / 200).max(2);
+    let border_width = (w.min(h) / 200).max(2);
     let new_w = w + 2 * border_width;
     let new_h = h + 2 * border_width;
 
