@@ -327,8 +327,15 @@ plot_to_image_object <- function(value, options = list()) {
   )
 }
 
-# Monkey patch `print` to encode individual objects
-print <- function(x, ...) write(paste0(to_json(x), END), stdout)
+# Monkey patch `print` to encode individual objects excepting those designed to
+# generate content for interpolation into documents
+print <- function(x, ...) {
+  if (inherits(x, 'xtable')) {
+    base::print(x, ...)
+  } else {
+    write(paste0(to_json(x), END), stdout)
+  }
+}
 
 # Expose `unbox` so that users can, for example, show a single number vector as a number
 unbox <- jsonlite::unbox
