@@ -1259,11 +1259,11 @@ pub(super) fn add_subquery_functions(env: &mut Environment) {
 ///
 /// is equivalent to
 ///
-///   document.figures(@label == '1')
+///   document.figures(.label == '1')
 ///
 /// Other filters can be used as well e.g.
 ///
-///   figure(@caption ^= 'Plot of')
+///   figure(.caption ^= 'Plot of')
 #[derive(Debug)]
 struct QueryLabelled {
     table: String,
@@ -1338,11 +1338,11 @@ impl Object for QueryLabelled {
 ///
 /// is equivalent to
 ///
-///   document.variables(@name == '1')
+///   document.variables(.name == '1')
 ///
 /// Other filters can be used as well e.g.
 ///
-///   variable(@nodeType == 'Integer')
+///   variable(.nodeType == 'Integer')
 #[derive(Debug)]
 struct QueryVariable {
     document: Arc<Query>,
