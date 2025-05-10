@@ -1770,9 +1770,9 @@ dependencies = [
 
 [[package]]
 name = "cxx"
-version = "1.0.143"
+version = "1.0.138"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "050906babad73f9b32a91cecc3063ff1e2235226dd2367dd839fd6fbc941c68a"
+checksum = "3956d60afa98653c5a57f60d7056edd513bfe0307ef6fb06f6167400c3884459"
 dependencies = [
  "cc",
  "cxxbridge-cmd",
@@ -1798,9 +1798,9 @@ dependencies = [
 
 [[package]]
 name = "cxxbridge-cmd"
-version = "1.0.143"
+version = "1.0.138"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "19c3062da294104183e1c34ea9887941d4d8c74f6195ce9fbb430ac4b5290ede"
+checksum = "0f01e92ab4ce9fd4d16e3bb11b158d98cbdcca803c1417aa43130a6526fbf208"
 dependencies = [
  "clap",
  "codespan-reporting",
@@ -1811,15 +1811,15 @@ dependencies = [
 
 [[package]]
 name = "cxxbridge-flags"
-version = "1.0.143"
+version = "1.0.138"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f4b358173a166833ddef75fe468579f71727c789b8082d4cc77c38d08f656c59"
+checksum = "8c41cbfab344869e70998b388923f7d1266588f56c8ca284abf259b1c1ffc695"
 
 [[package]]
 name = "cxxbridge-macro"
-version = "1.0.143"
+version = "1.0.138"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9531217f3b5f7728244d2b7312bc6660f6b3e4cdbc118f4f1fbce48cb401a0f"
+checksum = "88d82a2f759f0ad3eae43b96604efd42b1d4729a35a6f2dc7bdb797ae25d9284"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2580,12 +2580,6 @@ name = "heck"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
-
-[[package]]
-name = "hermit-abi"
-version = "0.3.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d231dfb89cfffdbc30e7fc41579ed6066ad03abda9e567ccafae602b97ec5024"
 
 [[package]]
 name = "hex"
@@ -3484,14 +3478,13 @@ dependencies = [
 
 [[package]]
 name = "kuzu"
-version = "0.9.0"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8bf1c964fda5f292c796601a4ab221b9643a12935d42a0adbb833a1f332549bf"
+checksum = "903a7e618b2a56085c7f2f3a445b93be7ef0e3a8aefefbff74bc526818996d56"
 dependencies = [
  "cmake",
  "cxx",
  "cxx-build",
- "num_cpus",
  "rust_decimal",
  "rustversion",
  "time",
@@ -4454,16 +4447,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
 dependencies = [
  "autocfg",
-]
-
-[[package]]
-name = "num_cpus"
-version = "1.16.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4161fcb6d602d4d2081af7c3a45852d875a03dd337a6bfdd6e06407b61342a43"
-dependencies = [
- "hermit-abi",
- "libc",
 ]
 
 [[package]]
@@ -5826,9 +5809,9 @@ dependencies = [
 
 [[package]]
 name = "rust_decimal"
-version = "1.36.0"
+version = "1.37.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b082d80e3e3cc52b2ed634388d436fe1f4de6af5786cc2de9ba9737527bdf555"
+checksum = "faa7de2ba56ac291bd90c6b9bece784a52ae1411f9506544b3eae36dd2356d50"
 dependencies = [
  "arrayvec",
  "num-traits",
