@@ -28,7 +28,9 @@ use kernel_jinja::{
 
 mod query;
 
-use query::{add_document_functions, add_functions, NodeProxies, NodeProxy, Query};
+use query::{
+    add_document_functions, add_functions, add_subquery_functions, NodeProxies, NodeProxy, Query,
+};
 
 const NAME: &str = "docsql";
 
@@ -176,7 +178,9 @@ impl KernelInstance for DocsQLKernelInstance {
             );
         }
 
-        #[cfg(test)]
+        add_subquery_functions(&mut env);
+
+        #[cfg(debug_assertions)]
         if code.contains("test") {
             env.add_global(
                 "test",
@@ -407,17 +411,6 @@ fn error_to_execution_message(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
-    use kernel_jinja::kernel::{
-        common::{
-            eyre::{bail, Result},
-            tokio,
-        },
-        schema::CodeChunk,
-        KernelInstance,
-    };
-
     use common_dev::pretty_assertions::assert_eq;
 
     #[test]
@@ -428,173 +421,5 @@ mod tests {
         assert_eq!(s("// comment\nA"), "\nA");
         assert_eq!(s("A\n// comment\nB"), "A\n\nB");
         assert_eq!(s("A // comment\nB//comment"), "A \nB");
-    }
-
-    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-    async fn generate_cypher() -> Result<()> {
-        let mut kernel = DocsQLKernelInstance::new(None, None)?;
-
-        macro_rules! expect {
-            ($code:literal, $cypher:literal) => {
-                let code = [$code, ".explain()"].concat();
-                match kernel.execute(&code).await?.0.first() {
-                    Some(Node::CodeChunk(CodeChunk { code, .. })) => {
-                        let code = code.lines().skip(1).join("\n");
-                        assert_eq!(code.as_str(), $cypher)
-                    }
-                    _ => bail!("Expected a code chunk"),
-                }
-            };
-        }
-
-        expect!(
-            "test",
-            "MATCH (node)
-RETURN *
-LIMIT 10"
-        );
-
-        expect!(
-            "test.tables()",
-            "MATCH (`table`:`Table`)
-RETURN `table`
-LIMIT 10"
-        );
-
-        expect!(
-            "test.cells().skip(3).limit(2)",
-            "MATCH (cell:TableCell)
-RETURN cell
-SKIP 3
-LIMIT 2"
-        );
-
-        expect!(
-            "test.cells(.position < 3)",
-            r#"MATCH (cell:TableCell)
-WHERE cell.position < 3
-RETURN cell
-LIMIT 10"#
-        );
-
-        expect!(
-            "test.cells(.text != 'a')",
-            r#"MATCH (cell:TableCell)
-WHERE cell.text <> 'a'
-RETURN cell
-LIMIT 10"#
-        );
-
-        expect!(
-            "test.cells(.text =~ 'a')",
-            r#"MATCH (cell:TableCell)
-WHERE regexp_matches(cell.text, 'a')
-RETURN cell
-LIMIT 10"#
-        );
-
-        expect!(
-            "test.cells(.text !~ 'a')",
-            r#"MATCH (cell:TableCell)
-WHERE NOT regexp_matches(cell.text, 'a')
-RETURN cell
-LIMIT 10"#
-        );
-
-        expect!(
-            "test.cells(.text ^= 'a')",
-            r#"MATCH (cell:TableCell)
-WHERE starts_with(cell.text, 'a')
-RETURN cell
-LIMIT 10"#
-        );
-
-        expect!(
-            "test.cells(.text $= 'a')",
-            r#"MATCH (cell:TableCell)
-WHERE ends_with(cell.text, 'a')
-RETURN cell
-LIMIT 10"#
-        );
-
-        expect!(
-            "test.cells(.text in ['a', 'b'])",
-            r#"MATCH (cell:TableCell)
-WHERE list_contains(["a", "b"], cell.text)
-RETURN cell
-LIMIT 10"#
-        );
-
-        expect!(
-            "test.cells(.text has 'a')",
-            r#"MATCH (cell:TableCell)
-WHERE list_contains(cell.text, 'a')
-RETURN cell
-LIMIT 10"#
-        );
-
-        expect!(
-            "test.abstracts()",
-            r#"MATCH (section:Section)
-WHERE section.sectionType = 'Abstract'
-RETURN section
-LIMIT 10"#
-        );
-
-        expect!(
-            "test.introductions()",
-            r#"MATCH (section:Section)
-WHERE section.sectionType = 'Introduction'
-RETURN section
-LIMIT 10"#
-        );
-
-        expect!(
-            "test.methods()",
-            r#"MATCH (section:Section)
-WHERE section.sectionType = 'Methods'
-RETURN section
-LIMIT 10"#
-        );
-
-        expect!(
-            "test.results()",
-            r#"MATCH (section:Section)
-WHERE section.sectionType = 'Results'
-RETURN section
-LIMIT 10"#
-        );
-
-        expect!(
-            "test.discussions()",
-            r#"MATCH (section:Section)
-WHERE section.sectionType = 'Discussion'
-RETURN section
-LIMIT 10"#
-        );
-
-        expect!(
-            "test.paragraphs(search = 'keyword')",
-            r#"CALL QUERY_FTS_INDEX('Paragraph', 'fts', 'keyword')
-RETURN node
-LIMIT 10"#
-        );
-
-        expect!(
-            "test.paragraphs(searchAll = 'keyword1 keyword2')",
-            r#"CALL QUERY_FTS_INDEX('Paragraph', 'fts', 'keyword1 keyword2', conjunctive := true)
-RETURN node
-LIMIT 10"#
-        );
-
-        expect!(
-            "test.paragraphs(.text ^= 'Word', search = 'keyword')",
-            r#"CALL QUERY_FTS_INDEX('Paragraph', 'fts', 'keyword')
-WHERE starts_with(node.text, 'Word')
-RETURN node
-LIMIT 10"#
-        );
-
-        Ok(())
     }
 }

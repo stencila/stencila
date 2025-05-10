@@ -33,6 +33,8 @@ async fn golden() -> Result<()> {
     for path in glob(&pattern)?.flatten() {
         let contents = read_to_string(&path)?;
 
+        let filename = path.file_name().unwrap().to_string_lossy();
+
         let mut tests = contents.split("\n\n").map(String::from).collect_vec();
         for test in tests.iter_mut() {
             let mut parts = test.split("---");
@@ -43,7 +45,7 @@ async fn golden() -> Result<()> {
             }
 
             let (outputs, messages) = kernel.execute(&format!("{docsql}.explain()")).await?;
-            assert_eq!(messages, []);
+            assert_eq!(messages, [], "\n\nFile: {}\nDocsQL: {}", filename, docsql);
 
             let actual = match outputs.first() {
                 Some(Node::CodeChunk(CodeChunk { code, .. })) => code.lines().skip(1).join("\n"),
@@ -54,11 +56,9 @@ async fn golden() -> Result<()> {
             let expected = parts.next().unwrap_or_default().trim();
             if !update {
                 assert_eq!(
-                    actual,
-                    expected,
+                    actual, expected,
                     "\n\nFile: {}\nDocsQL: {}",
-                    path.file_name().unwrap().to_string_lossy(),
-                    docsql
+                    filename, docsql
                 )
             } else {
                 *test = format!("{docsql}\n---\n{actual}\n");

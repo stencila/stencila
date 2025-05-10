@@ -49,38 +49,53 @@ pub(super) fn transform_filters(code: &str) -> String {
             .expect("invalid regex")
     });
 
-    FILTERS
+    let code = FILTERS.replace_all(&code, |captures: &Captures| {
+        let pre = &captures[1];
+        let var = &captures[2];
+        let op = match &captures[3] {
+            "=" | "==" => "",
+            "!=" => "0",
+            "<" => "1",
+            "<=" => "2",
+            ">" => "3",
+            ">=" => "4",
+            "~=" | "=~" => "5",
+            "!~" => "6",
+            "^=" => "7",
+            "$=" => "8",
+            "in" => "9",
+            "has" => "_",
+            echo => echo,
+        };
+
+        let spaces = captures[0]
+            .len()
+            .saturating_sub(pre.len() + var.len() + op.len() + 1);
+        let spaces = " ".repeat(spaces);
+
+        [pre, var, op, &spaces, "="].concat()
+    });
+
+    static SUBQUERY: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"((?:\(|,)\s*)\.\.\.([a-zA-Z][\w_]*)").expect("invalid regex"));
+
+    SUBQUERY
         .replace_all(&code, |captures: &Captures| {
             let pre = &captures[1];
-            let var = &captures[2];
-            let op = match &captures[3] {
-                "=" | "==" => "",
-                "!=" => "0",
-                "<" => "1",
-                "<=" => "2",
-                ">" => "3",
-                ">=" => "4",
-                "~=" | "=~" => "5",
-                "!~" => "6",
-                "^=" => "7",
-                "$=" => "8",
-                "in" => "9",
-                "has" => "_",
-                echo => echo,
-            };
-
-            let spaces = captures[0]
-                .len()
-                .saturating_sub(pre.len() + var.len() + op.len() + 1);
-            let spaces = " ".repeat(spaces);
-
-            [pre, var, op, &spaces, "="].concat()
+            let func = &captures[2];
+            [pre, "_=_", func].concat()
         })
         .into()
 }
 
 /// Translate a filter into a Cypher `WHERE` clause
 fn apply_filter(alias: &str, property: &str, value: Value) -> String {
+    if property == "_" {
+        if let Some(subquery) = value.downcast_object_ref::<Subquery>() {
+            return subquery.generate(alias);
+        }
+    }
+
     let mut chars = property.chars().collect_vec();
 
     let last = *chars.last().expect("always has at least one char");
@@ -252,53 +267,19 @@ impl Query {
 
         let mut query = self.clone();
 
-        let table = match method {
-            "rows" => "TableRow".to_string(),
-            "cells" => "TableCell".to_string(),
-            "eqn" | "equations" => "MathBlock".to_string(),
-            "items" => "ListItem".to_string(),
-            "audios" => "AudioObject".to_string(),
-            "images" => "ImageObject".to_string(),
-            "videos" => "VideoObject".to_string(),
-            "people" => "Person".to_string(),
-            "orgs" => "Organization".to_string(),
-            "refs" => "Reference".to_string(),
-            "abstracts" | "introductions" | "methods" | "results" | "discussions" => {
-                let section_type = match method {
-                    "methods" => "Methods".to_string(),
-                    "results" => "Results".to_string(),
-                    _ => method.to_singular().to_title_case(),
-                };
-                query
-                    .ands
-                    .push(format!("section.sectionType = '{section_type}'"));
-                "Section".to_string()
-            }
-            _ => method.to_singular().to_pascal_case(),
-        };
-        let table = escape_keyword(&table);
+        let (table, and) = table_for_method(method);
+        if let Some(and) = and {
+            query.ands.push(and);
+        }
 
         let alias = alias_for_table(&table);
-
         let node = ["(", &alias, ":", &table, ")"].concat();
 
         query.pattern = Some(match query.pattern {
             Some(pattern) => {
                 let prev_table = self.node_table_used.as_deref().unwrap_or_default();
-                let relation = match (prev_table, table.as_str()) {
-                    ("CitationGroup", "Citation") => "[:items]",
-                    (_, "Citation") => "[:content|:items*]",
-                    ("Citation", "Reference") => "[:cites]",
-                    (_, "Reference") => "[:content|:items|:cites*]",
-                    ("Table", "TableRow") => "[:rows]",
-                    ("TableRow", "TableCell") => "[:cells]",
-                    ("Table", "TableCell") => "[:rows]-(row:TableRow)-[:cells]",
-                    ("Article", "Person") => "[:authors]",
-                    ("Reference", "Person") => "[:authors]",
-                    ("Person", "Organization") => "[:affiliations]",
-                    _ => "[:content|:items* acyclic]",
-                };
-                [&pattern, "-", relation, "->", &node].concat()
+                let relation = relation_between_tables(&prev_table, &table);
+                [&pattern, "-", &relation, "->", &node].concat()
             }
             None => node,
         });
@@ -827,18 +808,78 @@ impl Query {
     }
 }
 
+/// Generate a table name for a method
+fn table_for_method(method: &str) -> (String, Option<String>) {
+    (
+        match method {
+            "affs" | "affiliations" => "Organization".into(),
+            "audios" => "AudioObject".into(),
+            "cells" => "TableCell".into(),
+            "chunks" => "CodeChunks".into(),
+            "exprs" => "CodeExpression".into(),
+            "eqns" | "equations" => "MathBlock".into(),
+            "images" => "ImageObject".into(),
+            "items" => "ListItem".into(),
+            "orgs" => "Organization".into(),
+            "people" => "Person".into(),
+            "refs" => "Reference".into(),
+            "rows" => "TableRow".into(),
+            "videos" => "VideoObject".into(),
+            "abstracts" | "introductions" | "methods" | "results" | "discussions" => {
+                let section_type = match method {
+                    "methods" => "Methods".into(),
+                    "results" => "Results".into(),
+                    _ => escape_keyword(&method.to_singular().to_pascal_case()),
+                };
+                return (
+                    "Section".into(),
+                    Some(format!("section.sectionType = '{section_type}'")),
+                );
+            }
+            _ => escape_keyword(&method.to_singular().to_pascal_case()),
+        },
+        None,
+    )
+}
+
 /// Generate an alias for a table
 fn alias_for_table<S: AsRef<str>>(table: S) -> String {
     let alias = table.as_ref().to_camel_case();
 
     match alias.as_str() {
-        "mathBlock" => "eqn".to_string(),
-        "organization" => "org".to_string(),
-        "reference" => "ref".to_string(),
-        "tableCell" => "cell".to_string(),
-        "tableRow" => "row".to_string(),
+        "audioObject" => "audio".into(),
+        "codeChunk" => "chunk".into(),
+        "codeExpression" => "expr".into(),
+        "imageObject" => "image".into(),
+        "listItem" => "item".into(),
+        "mathBlock" => "eqn".into(),
+        "organization" => "org".into(),
+        "reference" => "ref".into(),
+        "tableCell" => "cell".into(),
+        "tableRow" => "row".into(),
+        "videoObject" => "video".into(),
         _ => escape_keyword(&alias),
     }
+}
+
+const DEFAULT_RELATION: &str = "[:content|:items* acyclic]";
+
+/// Generate the relation between to tables
+fn relation_between_tables(table1: &str, table2: &str) -> String {
+    match (table1, table2) {
+        ("CitationGroup", "Citation") => "[:items]",
+        (_, "Citation") => "[:content|:items*]",
+        ("Citation", "Reference") => "[:cites]",
+        (_, "Reference") => "[:content|:items|:cites*]",
+        ("Table", "TableRow") => "[:rows]",
+        ("TableRow", "TableCell") => "[:cells]",
+        ("Table", "TableCell") => "[:rows]-(row:TableRow)-[:cells]",
+        ("Article", "Person") => "[:authors]",
+        ("Reference", "Person") => "[:authors]",
+        ("Person", "Organization") => "[:affiliations]",
+        _ => DEFAULT_RELATION,
+    }
+    .into()
 }
 
 /// Escape an expression if it is a keyword
@@ -1047,6 +1088,166 @@ impl Object for Query {
             node,
             self.messages.clone(),
         )))
+    }
+}
+
+/// A subquery filter
+#[derive(Debug, Clone)]
+pub(super) struct Subquery {
+    /// The `MATCH` pattern for the subquery
+    ///
+    /// The front of the pattern can not be determined until the `generate`
+    /// method is called.
+    pattern: String,
+
+    /// The initial relation involved in the subquery
+    first_relation: String,
+
+    /// The initial table involved in the subquery
+    first_table: String,
+
+    /// The last table involved in the subquery
+    ///
+    /// Used to determine the relation at the back of the `pattern`.
+    last_table: String,
+
+    /// Filters applied in the subquery
+    ands: Vec<String>,
+
+    /// Whether this is a `COUNT` subquery, and if so the conditional clause associated with it.
+    ///
+    /// See https://docs.kuzudb.com/cypher/subquery/#count
+    count: Option<String>,
+}
+
+impl Subquery {
+    /// Create a new subquery
+    fn new(relation: &str, table: &str) -> Self {
+        Self {
+            pattern: String::new(),
+            first_relation: relation.into(),
+            first_table: table.into(),
+            last_table: table.into(),
+            ands: Vec::new(),
+            count: None,
+        }
+    }
+
+    /// Generate cypher for the subquery
+    fn generate(&self, alias: &str) -> String {
+        let mut cypher = format!(
+            "MATCH ({alias})-{}->({}:{}){}",
+            self.first_relation,
+            alias_for_table(&self.first_table),
+            self.first_table,
+            self.pattern
+        );
+
+        if !self.ands.is_empty() {
+            cypher.push_str(" WHERE ");
+            cypher.push_str(&self.ands.join(" AND "));
+        }
+
+        if let Some(count) = &self.count {
+            format!("COUNT {{ {cypher} }} {count}")
+        } else {
+            format!("EXISTS {{ {cypher} }}")
+        }
+    }
+}
+
+impl Object for Subquery {
+    fn call(self: &Arc<Self>, _state: &State, args: &[Value]) -> Result<Value, Error> {
+        let mut subquery = self.deref().clone();
+
+        let table = &self.first_table;
+
+        // TODO: alias needs to be different from alias used in outer
+        let alias = alias_for_table(table);
+
+        let (kwargs,): (Kwargs,) = from_args(args)?;
+        for arg in kwargs.args() {
+            let value = kwargs.get(arg)?;
+            let filter = apply_filter(&alias, arg, value);
+            subquery.ands.push(filter);
+        }
+
+        Ok(Value::from_object(subquery))
+    }
+
+    fn call_method(
+        self: &Arc<Self>,
+        _state: &State,
+        name: &str,
+        args: &[Value],
+    ) -> Result<Value, Error> {
+        let mut subquery = self.deref().clone();
+
+        match name {
+            "eq" | "lt" | "lte" | "gt" | "gte" => {
+                let (num,): (u64,) = from_args(args)?;
+                let op = match name {
+                    "eq" => "=",
+                    "lt" => "<",
+                    "lte" => "<=",
+                    "gt" => ">",
+                    "gte" => ">=",
+                    _ => unreachable!(),
+                };
+                subquery.count = Some(format!("{op} {num}"))
+            }
+            "between" => {
+                let (from, to): (u64, u64) = from_args(args)?;
+                subquery.count = Some(format!("IN range({from}, {to})"))
+            }
+            _ => {
+                let (table, and) = table_for_method(name);
+                if let Some(and) = and {
+                    subquery.ands.push(and);
+                }
+
+                let alias = alias_for_table(&table);
+                let relation = relation_between_tables(&self.last_table, &table);
+
+                subquery
+                    .pattern
+                    .push_str(&format!("-{relation}->({alias}:{table})"));
+
+                let (kwargs,): (Kwargs,) = from_args(args)?;
+                for arg in kwargs.args() {
+                    let value = kwargs.get(arg)?;
+                    let filter = apply_filter(&alias, arg, value);
+                    subquery.ands.push(filter);
+                }
+
+                subquery.last_table = table;
+            }
+        }
+
+        Ok(Value::from_object(subquery))
+    }
+}
+
+/// Add functions for subqueries
+///
+/// These functions are all prefixed with an underscore because they are not intended
+/// to be used directly by users but are rather invocated via the ... syntax for
+/// subquery filters.
+pub(super) fn add_subquery_functions(env: &mut Environment) {
+    for (name, relation, table) in [
+        ("authors", "[authors]", "Person"),
+        ("refs", "[references]", "Reference"),
+        // Node type in content
+        ("audios", DEFAULT_RELATION, "AudioObject"),
+        ("chunks", DEFAULT_RELATION, "CodeChunk"),
+        ("exprs", DEFAULT_RELATION, "CodeExpression"),
+        ("images", DEFAULT_RELATION, "ImageObject"),
+        ("videos", DEFAULT_RELATION, "VideoObject"),
+    ] {
+        env.add_global(
+            ["_", name].concat(),
+            Value::from_object(Subquery::new(relation, table)),
+        );
     }
 }
 
