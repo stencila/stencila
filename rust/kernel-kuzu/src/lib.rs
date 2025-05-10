@@ -42,6 +42,22 @@ const NAME: &str = "kuzu";
 #[derive(Default)]
 pub struct KuzuKernel;
 
+impl KuzuKernel {
+    /// Load an extension, installing it if necessary
+    pub fn use_extension(connection: &Connection, extension: &str) -> Result<()> {
+        if connection
+            .query(&format!("LOAD {extension}"))
+            .is_ok()
+        {
+            return Ok(());
+        }
+
+        connection.query(&format!("INSTALL {extension}; LOAD {extension}"))?;
+
+        Ok(())
+    }
+}
+
 impl Kernel for KuzuKernel {
     fn name(&self) -> String {
         NAME.to_string()
@@ -335,7 +351,7 @@ impl KernelInstance for KuzuKernelInstance {
 
         // Ensure any necessary extensions are loaded. Any errors are intentionally ignored.
         if code.to_uppercase().contains("QUERY_FTS_INDEX") {
-            connection.query("LOAD EXTENSION FTS;").ok();
+            KuzuKernel::use_extension(&connection, "fts")?;
         }
 
         // Return on the first error, otherwise treat the result of the last statement

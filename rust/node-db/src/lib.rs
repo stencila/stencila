@@ -20,7 +20,7 @@ use common::{
 };
 use kernel_kuzu::{
     kuzu::{Connection, Database, LogicalType, PreparedStatement, SystemConfig, Value},
-    ToKuzu,
+    KuzuKernel, ToKuzu,
 };
 use schema::{Node, NodeId, NodePath, NodeProperty, NodeType, Visitor, WalkNode};
 
@@ -252,11 +252,7 @@ impl NodeDatabase {
     /// Update database indices
     #[tracing::instrument(skip(self))]
     pub fn update(&self) -> Result<()> {
-        // TODO: Disable creating FTS indices until the FTS extension is able to be
-        // used with statically linked binary
-        //   https://github.com/kuzudb/kuzu/issues/5065
-        //   https://github.com/kuzudb/kuzu/issues/5076
-        // self.create_fts_indices()
+        self.create_fts_indices()?;
 
         Ok(())
     }
@@ -513,11 +509,11 @@ impl NodeDatabase {
     /// Create FTS indices
     #[tracing::instrument(skip(self))]
     pub fn create_fts_indices(&self) -> Result<()> {
+        tracing::trace!("Creating FTS indices");
+
         let connection = Connection::new(&self.database)?;
 
-        // This occasionally throws error "Too many values for string_format",
-        // although it seems to succeed, so is `ok()`ed.
-        connection.query("LOAD EXTENSION FTS;").ok();
+        KuzuKernel::use_extension(&connection, "fts")?;
 
         for (table, properties) in FTS_INDICES {
             // This is `ok()`ed because it may may fail if the index does not exist yet.
