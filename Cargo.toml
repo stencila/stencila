@@ -8,6 +8,10 @@ members = ["rust/*", "node/stencila-node", "python/stencila"]
 [profile.dev]
 debug = 1
 
+# Compile Kuzu optimized so it runs faster during development
+[profile.dev.package.kuzu]
+opt-level = 3
+
 # Profile to reduce the binary size based on https://github.com/johnthagen/min-sized-rust
 [profile.release]
 strip = true
