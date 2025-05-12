@@ -10,7 +10,7 @@ use codec::{
     schema::Node,
     status::Status,
 };
-use codec_latex_trait::{latex_to_png, to_latex};
+use codec_latex_trait::{latex_to_image, to_latex};
 
 /// A codec for PNG
 pub struct PngCodec;
@@ -63,7 +63,7 @@ impl Codec for PngCodec {
 
         let info = if tool == "latex" || tool.is_empty() {
             let (latex, info) = to_latex(node, Format::Latex, false, true, false, None);
-            latex_to_png(&latex, path)?;
+            latex_to_image(&latex, path, None)?;
             info
         } else {
             bail!("Tool `{tool}` is not supported for encoding to PNG")

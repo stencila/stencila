@@ -1,8 +1,7 @@
 use codec_info::{lost_exec_options, lost_options, lost_props};
-use codec_latex_trait::{latex_to_png, to_latex};
+use codec_latex_trait::{latex_to_image, to_latex};
 use codec_markdown_trait::to_markdown;
 use common::tracing;
-use images::highlight_image;
 
 use crate::{
     prelude::*, CodeChunk, Duration, ExecutionBounds, ExecutionMode, LabelType, MessageLevel,
@@ -154,8 +153,6 @@ impl LatexCodec for CodeChunk {
             if let Some(outputs) = &self.outputs {
                 context.property_fn(NodeProperty::Outputs, |context| {
                     for output in outputs {
-                        //context.str("\\begin{center}");
-
                         if matches!(context.format, Format::Docx | Format::Odt) {
                             // Encode outputs as images so that they are not editable
                             let (latex, ..) = to_latex(
@@ -171,18 +168,12 @@ impl LatexCodec for CodeChunk {
                                 // Already encoded as an image, so just add the LaTeX
                                 context.str(&latex);
                             } else {
-                                let path = context.temp_dir.join(format!("{}.png", self.node_id()));
-                                if let Err(error) = latex_to_png(&latex, &path) {
-                                    tracing::error!("While code chunk output to PNG: {error}");
+                                let path = context.temp_dir.join(format!("{}.svg", self.node_id()));
+                                if let Err(error) = latex_to_image(&latex, &path, None) {
+                                    tracing::error!(
+                                        "While encoding code chunk output to image: {error}"
+                                    );
                                 } else {
-                                    if context.highlight {
-                                        if let Err(error) = highlight_image(&path) {
-                                            tracing::error!(
-                                                "While highlighting code chunk output PNG: {error}"
-                                            );
-                                        }
-                                    }
-
                                     let path = path.to_string_lossy();
                                     context.str(r"\includegraphics{").str(&path).char('}');
                                 }
@@ -190,8 +181,6 @@ impl LatexCodec for CodeChunk {
                         } else {
                             output.to_latex(context);
                         }
-
-                        //context.str("\\end{center}\n");
                     }
                 });
             }

@@ -78,7 +78,10 @@ where
 pub fn use_packages(latex: &str) -> String {
     let mut packages = Vec::new();
 
-    // helper to check for either \usepackage or \RequirePackage (with or without options)
+    // Helper to check for usage of packages
+    let has = |usage: &str| latex.contains(usage);
+
+    // Helper to check for either \usepackage or \RequirePackage (with or without options)
     let has_pkg = |pkg: &str| {
         latex.contains(&format!(r"\usepackage{{{}}}", pkg))
             || latex.contains(&format!(r"\RequirePackage{{{}}}", pkg))
@@ -86,120 +89,118 @@ pub fn use_packages(latex: &str) -> String {
     };
 
     // hyperref: links & urls
-    if (latex.contains(r"\href") || latex.contains(r"\url")) && !has_pkg("hyperref") {
+    if (has(r"\href") || has(r"\url")) && !has_pkg("hyperref") {
         packages.push("hyperref");
     }
     // graphicx: images
-    if latex.contains(r"\includegraphics") && !has_pkg("graphicx") {
+    if has(r"\includegraphics") && !has_pkg("graphicx") {
         packages.push("graphicx");
     }
     // amsmath: display‐math environments
-    if (latex.contains(r"\begin{align}")
-        || latex.contains(r"\begin{equation}")
-        || latex.contains(r"\[")
-        || latex.contains(r"\]"))
+    if (has(r"\begin{align}") || has(r"\begin{equation}") || has(r"\[") || has(r"\]"))
         && !has_pkg("amsmath")
     {
         packages.push("amsmath");
     }
     // amssymb: extra math symbols (\mathbb, \mathcal, etc.)
-    if (latex.contains(r"\mathbb") || latex.contains(r"\mathcal") || latex.contains(r"\mathfrak"))
-        && !has_pkg("amssymb")
-    {
+    if (has(r"\mathbb") || has(r"\mathcal") || has(r"\mathfrak")) && !has_pkg("amssymb") {
         packages.push("amssymb");
     }
     // array: custom column types (\newcolumntype)
-    if latex.contains(r"\newcolumntype") && !has_pkg("array") {
+    if has(r"\newcolumntype") && !has_pkg("array") {
         packages.push("array");
     }
     // xcolor: color support
-    if (latex.contains(r"\color")
-        || latex.contains(r"\textcolor")
-        || latex.contains(r"\definecolor")
-        || latex.contains(r"\rowcolors"))
+    if (has(r"\color") || has(r"\textcolor") || has(r"\definecolor") || has(r"\rowcolors"))
         && !has_pkg("xcolor")
     {
         packages.push("\\usepackage[table]{xcolor}");
     }
     // soul: text highlighting (\hl, \sethlcolor)
-    if (latex.contains(r"\hl") || latex.contains(r"\sethlcolor")) && !has_pkg("soul") {
+    if (has(r"\hl") || has(r"\sethlcolor")) && !has_pkg("soul") {
         packages.push("soul");
     }
     // colortbl: colored table rules (\arrayrulecolor)
-    if latex.contains(r"\arrayrulecolor") && !has_pkg("colortbl") {
+    if has(r"\arrayrulecolor") && !has_pkg("colortbl") {
         packages.push("colortbl");
     }
     // geometry: page geometry
-    if (latex.contains(r"\newgeometry") || latex.contains(r"\geometry{")) && !has_pkg("geometry") {
+    if (has(r"\newgeometry") || has(r"\geometry{")) && !has_pkg("geometry") {
         packages.push("geometry");
     }
     // pdflscape: landscape pages
-    if latex.contains(r"\begin{landscape}") && !has_pkg("pdflscape") {
+    if has(r"\begin{landscape}") && !has_pkg("pdflscape") {
         packages.push("pdflscape");
     }
     // placeins: \FloatBarrier
-    if latex.contains(r"\FloatBarrier") && !has_pkg("placeins") {
+    if has(r"\FloatBarrier") && !has_pkg("placeins") {
         packages.push("placeins");
     }
+    // floatrow: float configuration & utilities (\floatsetup, floatrow env, ffigbox, ttabbox, capbeside, fcapside, floatbox, floatfoot, DeclareNewFloatType, restylefloat, newfloatcommand)
+    if (has(r"\floatsetup")
+        || has(r"\begin{floatrow}")
+        || has(r"\ffigbox")
+        || has(r"\ttabbox")
+        || has(r"\capbeside")
+        || has(r"\fcapside")
+        || has(r"\floatbox")
+        || has(r"\floatfoot")
+        || has(r"\DeclareNewFloatType")
+        || has(r"\restylefloat")
+        || has(r"\newfloatcommand"))
+        && !has_pkg("floatrow")
+    {
+        packages.push("floatrow");
+    }
     // booktabs: \toprule, \midrule, \bottomrule etc
-    if (latex.contains(r"\toprule")
-        || latex.contains(r"\midrule")
-        || latex.contains(r"\bottomrule")
-        || latex.contains(r"\addlinespace"))
+    if (has(r"\toprule") || has(r"\midrule") || has(r"\bottomrule") || has(r"\addlinespace"))
         && !has_pkg("booktabs")
     {
         packages.push("booktabs");
     }
     // enumitem: customized lists
-    if (latex.contains(r"\setlist")
-        || latex.contains(r"\begin{itemize}[")
-        || latex.contains(r"\begin{enumerate}["))
+    if (has(r"\setlist") || has(r"\begin{itemize}[") || has(r"\begin{enumerate}["))
         && !has_pkg("enumitem")
     {
         packages.push("enumitem");
     }
     // listings/minted: source code
-    if (latex.contains(r"\begin{lstlisting}") || latex.contains(r"\lstinline"))
-        && !has_pkg("listings")
-    {
+    if (has(r"\begin{lstlisting}") || has(r"\lstinline")) && !has_pkg("listings") {
         packages.push("listings");
     }
-    if latex.contains(r"\begin{minted}") && !has_pkg("minted") {
+    if has(r"\begin{minted}") && !has_pkg("minted") {
         packages.push("minted");
     }
     // caption/subcaption: captions outside floats & sub‐floats
-    if latex.contains(r"\captionof{") && !has_pkg("caption") {
+    if has(r"\captionof{") && !has_pkg("caption") {
         packages.push("caption");
     }
-    if latex.contains(r"\begin{subfigure}") && !has_pkg("subcaption") {
+    if has(r"\begin{subfigure}") && !has_pkg("subcaption") {
         packages.push("subcaption");
     }
     // longtable: multipage tables (\begin{longtable})
-    if latex.contains(r"\begin{longtable}") && !has_pkg("longtable") {
+    if has(r"\begin{longtable}") && !has_pkg("longtable") {
         packages.push("longtable");
     }
     // threeparttable: table notes environment
-    if latex.contains(r"\begin{threeparttable}") && !has_pkg("threeparttable") {
+    if has(r"\begin{threeparttable}") && !has_pkg("threeparttable") {
         packages.push("threeparttable");
     }
     // fancyhdr: fancy headers/footers
-    if (latex.contains(r"\pagestyle{fancy}")
-        || latex.contains(r"\fancyhead")
-        || latex.contains(r"\fancyhf")
-        || latex.contains(r"\fancyfoot"))
+    if (has(r"\pagestyle{fancy}") || has(r"\fancyhead") || has(r"\fancyhf") || has(r"\fancyfoot"))
         && !has_pkg("fancyhdr")
     {
         packages.push("fancyhdr");
     }
     // tikz/pgfplots: graphics & plots
-    if (latex.contains(r"\begin{tikzpicture}") || latex.contains(r"\tikz")) && !has_pkg("tikz") {
+    if (has(r"\begin{tikzpicture}") || has(r"\tikz")) && !has_pkg("tikz") {
         packages.push("tikz");
     }
-    if latex.contains(r"\begin{axis}") && !has_pkg("pgfplots") {
+    if has(r"\begin{axis}") && !has_pkg("pgfplots") {
         packages.push("pgfplots");
     }
     // subfiles: stand-alone sub-documents
-    if latex.contains(r"\subfile{") && !has_pkg("subfiles") {
+    if has(r"\subfile{") && !has_pkg("subfiles") {
         packages.push("subfiles");
     }
 
@@ -218,8 +219,15 @@ pub fn use_packages(latex: &str) -> String {
 
 /// Encode a node to PNG using `latex` binary
 #[tracing::instrument(skip(latex))]
-pub fn latex_to_png(latex: &str, path: &Path) -> Result<()> {
-    tracing::trace!("Generating PNG from LaTeX");
+pub fn latex_to_image(latex: &str, path: &Path, class: Option<&str>) -> Result<()> {
+    let format = Format::from_path(path);
+    let (latex_tool, image_tool) = match format {
+        Format::Png => ("latex", "dvipng"),
+        Format::Svg => ("xelatex", "dvisvgm"),
+        _ => bail!("unhandled format {format}"),
+    };
+
+    tracing::trace!("Generating {format} from LaTeX using `{latex_tool}`");
 
     // Use a unique job name to be able to run `latex` in the current working directory
     // (because paths in \input and \includegraphics commands are relative to that)
@@ -231,25 +239,22 @@ pub fn latex_to_png(latex: &str, path: &Path) -> Result<()> {
         .collect();
 
     //...and then wrap in standalone \documentclass if a \documentclass is not specified
+    let class = class.unwrap_or("standalone");
+    let preamble = use_packages(latex);
     let latex = if !latex.contains("\\documentclass") {
-        [
-            // This border has to be large to avoid tables being cut off.
-            // TODO: investigate other solutions to this
+        format!(
             r"
-\documentclass[border=30pt,preview]{standalone}
-",
-            &use_packages(latex),
-            r"
+\documentclass[preview]{{{class}}}
 
-\begin{document}
+{preamble}
 
+\begin{{document}}
+
+{latex}
+
+\end{{document}}
 ",
-            latex,
-            r"
-\end{document}
-",
-        ]
-        .concat()
+        )
     } else {
         latex.to_string()
     };
@@ -257,11 +262,15 @@ pub fn latex_to_png(latex: &str, path: &Path) -> Result<()> {
     let input_file = format!("{job}.tex");
     write(&input_file, latex)?;
 
-    let latex_status = Command::new("latex")
+    let latex_status = Command::new(latex_tool)
         .args([
             "-interaction=batchmode",
             "-halt-on-error",
-            "-output-format=dvi",
+            if latex_tool == "xelatex" {
+                "-no-pdf"
+            } else {
+                "-output-format=dvi"
+            },
             "-jobname",
             &job,
             &input_file,
@@ -280,12 +289,24 @@ pub fn latex_to_png(latex: &str, path: &Path) -> Result<()> {
     if let Some(dir) = path.parent() {
         create_dir_all(dir)?;
     }
-    let dvi_status = Command::new("dvipng")
+    let mut image_command = Command::new(image_tool);
+    if image_tool == "dvisvgm" {
+        // Using --no-fonts when generating SVGs improves was found
+        // to improve layout of text
+        image_command.arg("--no-fonts");
+    }
+    let image_status = image_command
         .args([
-            "-D300",
             "-o",
             &path.to_string_lossy(),
-            &format!("{job}.dvi"),
+            &format!(
+                "{job}.{}",
+                if latex_tool == "xelatex" {
+                    "xdv"
+                } else {
+                    "dvi"
+                }
+            ),
         ])
         .stdout(Stdio::null())
         .stderr(Stdio::null())
@@ -296,10 +317,10 @@ pub fn latex_to_png(latex: &str, path: &Path) -> Result<()> {
     }
 
     if !latex_status.success() {
-        bail!("latex failed:\n\n{}", log);
+        bail!("{latex_tool} failed:\n\n{log}");
     }
-    if !dvi_status.success() {
-        bail!("dvipng failed");
+    if !image_status.success() {
+        bail!("{image_tool} failed");
     }
 
     Ok(())
