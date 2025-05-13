@@ -16,9 +16,9 @@ use kernels::{KernelLintingOptions, Kernels};
 use prompts::prompt::{DocumentContext, InstructionContext};
 use schema::{
     AuthorRole, AuthorRoleName, Block, Citation, CompilationDigest, CompilationMessage, Config,
-    ExecutionBounds, ExecutionMode, ExecutionStatus, Inline, Link, List, ListItem, ListOrder, Node,
-    NodeId, NodePath, NodeProperty, NodeType, Paragraph, Patch, PatchNode, PatchOp, PatchValue,
-    Reference, Timestamp, VisitorAsync, WalkControl, WalkNode,
+    ExecutionBounds, ExecutionMode, ExecutionStatus, Inline, LabelType, Link, List, ListItem,
+    ListOrder, Node, NodeId, NodePath, NodeProperty, NodeType, Paragraph, Patch, PatchNode,
+    PatchOp, PatchValue, Reference, Timestamp, VisitorAsync, WalkControl, WalkNode,
 };
 
 type NodeIds = Vec<NodeId>;
@@ -41,6 +41,7 @@ mod include_block;
 mod instruction_block;
 mod instruction_inline;
 mod island;
+mod link;
 mod math_block;
 mod math_inline;
 mod model_utils;
@@ -223,6 +224,9 @@ pub struct Executor {
 
     /// The count of `MathBlock`s
     equation_count: u32,
+
+    /// Labels that may be the target of internal `Link`s
+    labels: HashMap<String, (LabelType, String)>,
 
     /// References that may be the `target` of citations
     targets: HashMap<String, Reference>,
@@ -438,6 +442,7 @@ impl Executor {
             table_count: 0,
             figure_count: 0,
             equation_count: 0,
+            labels: Default::default(),
             targets: Default::default(),
             references: Default::default(),
             programming_language: None,
@@ -1228,6 +1233,7 @@ impl VisitorAsync for Executor {
             CodeExpression(node) => self.visit_executable(node).await,
             InstructionInline(node) => self.visit_executable(node).await,
             MathInline(node) => self.visit_executable(node).await,
+            Link(node) => self.visit_executable(node).await,
             Parameter(node) => self.visit_executable(node).await,
             StyledInline(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
