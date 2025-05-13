@@ -272,6 +272,14 @@ impl Schemas {
             ("Person", vec![("name", "self.name()")]),
         ]);
 
+        // Node types for which embeddings should be created.
+        // Used to generate a function which returns the text string that is used to create the embeddings
+        let embeddings_properties = HashMap::from([
+            ("Article", vec!["title", "abstract"]),
+            ("Paragraph", vec!["text"]),
+            ("Sentence", vec!["text"]),
+        ]);
+
         // Node types where the primary key is not the node id. These node types are treated
         // as being "outside" of documents: we do not use node ids to create relations with them
         // rather, we use these canonical ids.
@@ -493,6 +501,9 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
                     node_table_props.push_str(&format!("\n  `{name}` STRING,"));
                 }
             }
+            if embeddings_properties.contains_key(&title.as_str()) {
+                node_table_props.push_str("\n  `embeddings` FLOAT[384],");
+            }
 
             let extra = if let Some(primary_key) = primary_keys.get(&title.as_str()) {
                 format!(
@@ -523,44 +534,33 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
 
             let mut implem_node_table = properties
                 .iter()
-                .map(|&(name, data_type, on_options)| {
+                .map(|&(name, .., on_options)| {
                     let mut property = name.to_pascal_case();
                     if property.ends_with("ID") {
                         property.pop();
                         property.push('d');
                     }
 
-                    fn rust_type(data_type: &str) -> String {
-                        if let Some(rest) = data_type.strip_suffix("[]") {
-                            return ["Vec::<", &rust_type(rest), ">"].concat()
-                        }
-
-                        match data_type {
-                            "BOOLEAN" => "bool".to_string(),
-                            "INT64" => "i64".to_string(),
-                            "UINT64" => "u64".to_string(),
-                            "DOUBLE" => "f64".to_string(),
-                            "INTERVAL" => "Duration".to_string(),
-                            _ => data_type.to_pascal_case(),
-                        }
-                    }
-                    let rust_type = rust_type(data_type);
-
                     let mut field = name.to_snake_case();
                     if on_options {
                         field = ["options.", &field].concat()
                     };
 
-                    format!("(NodeProperty::{property}, {rust_type}::to_kuzu_type(), self.{field}.to_kuzu_value())")
+                    format!("(NodeProperty::{property}, self.{field}.to_kuzu_type(), self.{field}.to_kuzu_value())")
                 })
                 .collect_vec();
             if let Some(props) = derived_properties.get(&title.as_str()) {
                 for (name, derivation) in props {
                     let property = name.to_pascal_case();
                     implem_node_table.push(format!(
-                        "(NodeProperty::{property}, String::to_kuzu_type(), {derivation}.to_kuzu_value())"
+                        "(NodeProperty::{property}, LogicalType::String, {derivation}.to_kuzu_value())"
                     ));
                 }
+            }
+            if embeddings_properties.contains_key(&title.as_str()) {
+                implem_node_table.push(
+                    "(embeddings_property(), embeddings_type(), Null.to_kuzu_value())".to_string(),
+                );
             }
             let implem_node_table = implem_node_table.join(",\n            ");
 
@@ -779,7 +779,7 @@ use kernel_kuzu::{{kuzu::{{LogicalType, Value}}, ToKuzu}};
 use codec_text_trait::to_text;
 use schema::*;
 
-use super::DatabaseNode;
+use super::{{embeddings_property, embeddings_type, DatabaseNode}};
 
 pub(super) fn primary_key(node_type: &NodeType) -> &'static str {{
     match node_type {{

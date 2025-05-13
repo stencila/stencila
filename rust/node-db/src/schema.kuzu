@@ -41,6 +41,7 @@ CREATE NODE TABLE IF NOT EXISTS `Article` (
   `frontmatter` STRING,
   `title` STRING,
   `abstract` STRING,
+  `embeddings` FLOAT[384],
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
@@ -439,6 +440,7 @@ CREATE NODE TABLE IF NOT EXISTS `Organization` (
 
 CREATE NODE TABLE IF NOT EXISTS `Paragraph` (
   `text` STRING,
+  `embeddings` FLOAT[384],
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
@@ -555,6 +557,7 @@ CREATE NODE TABLE IF NOT EXISTS `Section` (
 
 CREATE NODE TABLE IF NOT EXISTS `Sentence` (
   `text` STRING,
+  `embeddings` FLOAT[384],
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
