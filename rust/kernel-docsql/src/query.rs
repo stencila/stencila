@@ -361,6 +361,8 @@ impl Query {
                             query.call = Some(format!(
                                 "CALL QUERY_FTS_INDEX('{table}', 'fts', '{value}'{option})",
                             ));
+                            query.order_by = Some("score".to_string());
+                            query.order_by_order = Some("DESC".to_string());
                         }
                         "and" => query.ands.push(value),
                         "or" => query.ors.push(value),
