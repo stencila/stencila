@@ -45,10 +45,7 @@ pub struct KuzuKernel;
 impl KuzuKernel {
     /// Load an extension, installing it if necessary
     pub fn use_extension(connection: &Connection, extension: &str) -> Result<()> {
-        if connection
-            .query(&format!("LOAD {extension}"))
-            .is_ok()
-        {
+        if connection.query(&format!("LOAD {extension}")).is_ok() {
             return Ok(());
         }
 
@@ -349,9 +346,12 @@ impl KernelInstance for KuzuKernelInstance {
         let database = self.database()?;
         let connection = Connection::new(&database)?;
 
-        // Ensure any necessary extensions are loaded. Any errors are intentionally ignored.
+        // Ensure any necessary extensions are loaded.
         if code.to_uppercase().contains("QUERY_FTS_INDEX") {
             KuzuKernel::use_extension(&connection, "fts")?;
+        }
+        if code.to_uppercase().contains("QUERY_VECTOR_INDEX") {
+            KuzuKernel::use_extension(&connection, "vector")?;
         }
 
         // Return on the first error, otherwise treat the result of the last statement

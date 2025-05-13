@@ -29,10 +29,13 @@ use schema::{Node, NodeId, NodePath, NodeProperty, NodeType, Visitor, WalkNode};
 mod node_types;
 #[rustfmt::skip]
 mod fts_indices;
+#[rustfmt::skip]
+mod vector_indices;
 
 mod walker;
 
 use fts_indices::FTS_INDICES;
+use vector_indices::VECTOR_EMBEDDINGS;
 use walker::DatabaseWalker;
 
 #[derive(Clone, Default, Deref, DerefMut)]
@@ -45,12 +48,23 @@ impl Display for NodeAncestors {
 }
 
 impl ToKuzu for NodeAncestors {
-    fn to_kuzu_type() -> LogicalType {
+    fn to_kuzu_type(&self) -> LogicalType {
         LogicalType::String
     }
 
     fn to_kuzu_value(&self) -> Value {
         Value::String(self.to_string())
+    }
+}
+
+fn embeddings_property() -> NodeProperty {
+    NodeProperty::Identifiers
+}
+
+fn embeddings_type() -> LogicalType {
+    LogicalType::Array {
+        num_elements: 1024,
+        child_type: Box::new(LogicalType::Float),
     }
 }
 
@@ -190,6 +204,7 @@ impl NodeDatabase {
     /// Insert a document into the database
     #[tracing::instrument(skip(self, node))]
     pub fn insert(&mut self, doc_id: &NodeId, node: &Node) -> Result<()> {
+        tracing::trace!("Inserting document");
         self.create_node(doc_id, node)
     }
 
@@ -212,6 +227,8 @@ impl NodeDatabase {
     /// the new `node`.
     #[tracing::instrument(skip(self, node))]
     pub fn upsert(&mut self, doc_id: &NodeId, node: &Node) -> Result<()> {
+        tracing::trace!("Upserting document");
+
         self.delete(doc_id)?;
         self.insert(doc_id, node)?;
 
@@ -221,7 +238,25 @@ impl NodeDatabase {
     /// Delete a document from the database
     #[tracing::instrument(skip(self))]
     pub fn delete(&mut self, doc_id: &NodeId) -> Result<()> {
+        tracing::trace!("Deleting document");
+
         let connection = Connection::new(&self.database)?;
+
+        // It is necessary to drop any vector indices before deleting nodes
+        // TODO: This should not be necessary.
+        KuzuKernel::use_extension(&connection, "vector")?;
+        for (table, ..) in VECTOR_EMBEDDINGS {
+            if let Err(error) =
+                connection.query(&format!("CALL DROP_VECTOR_INDEX('{table}', 'vector');"))
+            {
+                if !error
+                    .to_string()
+                    .contains("doesn't have an index with name vector")
+                {
+                    return Err(eyre!(error));
+                }
+            };
+        }
 
         let delete_doc = match self.delete_doc_statement.as_mut() {
             Some(statement) => statement,
@@ -243,6 +278,8 @@ impl NodeDatabase {
     /// Delete all nodes from a table
     #[tracing::instrument(skip(self))]
     pub fn delete_all(&mut self, table: &str) -> Result<()> {
+        tracing::trace!("Deleting all `{table}`");
+
         let connection = Connection::new(&self.database)?;
         connection.query(&format!("MATCH (node:{table}) DETACH DELETE node"))?;
 
@@ -253,6 +290,7 @@ impl NodeDatabase {
     #[tracing::instrument(skip(self))]
     pub fn update(&self) -> Result<()> {
         self.create_fts_indices()?;
+        self.create_vector_indices()?;
 
         Ok(())
     }
@@ -512,7 +550,6 @@ impl NodeDatabase {
         tracing::trace!("Creating FTS indices");
 
         let connection = Connection::new(&self.database)?;
-
         KuzuKernel::use_extension(&connection, "fts")?;
 
         for (table, properties) in FTS_INDICES {
@@ -528,6 +565,57 @@ impl NodeDatabase {
                     .iter()
                     .map(|name| ["'", name, "'"].concat())
                     .join(",")
+            ))?;
+        }
+
+        Ok(())
+    }
+
+    /// Create vector indices
+    #[tracing::instrument(skip(self))]
+    pub fn create_vector_indices(&self) -> Result<()> {
+        tracing::trace!("Creating vector indices");
+
+        let connection = Connection::new(&self.database)?;
+        KuzuKernel::use_extension(&connection, "vector")?;
+
+        for (table, properties) in VECTOR_EMBEDDINGS {
+            // Get all the nodes in the table that have no embeddings
+            let (node_ids, texts): (Vec<Value>, Vec<String>) = connection.query(&format!(
+                "MATCH (node:`{table}`) WHERE node.embeddings IS NULL RETURN node.nodeId, concat({})",
+                properties
+                    .iter()
+                    .map(|name| ["node.`", name, "`"].concat())
+                    .join(",")
+            ))?
+                .map(|values| {
+                    (values[0].clone(), values[1].to_string())
+            }).unzip();
+
+            // Generate embeddings for each
+            let embeddings: Vec<Vec<f32>> = embed::passages(texts)?;
+
+            // Insert embeddings into table
+            let mut statement = connection.prepare(&format!("MATCH (node:`{table}`) WHERE node.nodeId = $node_id SET node.embeddings = $embeddings"))?;
+            for (node_id, .., embeddings) in node_ids.into_iter().zip(embeddings) {
+                let embeddings = embeddings.into_iter().map(Value::Float).collect();
+                connection.execute(
+                    &mut statement,
+                    vec![
+                        ("node_id", node_id),
+                        ("embeddings", Value::Array(LogicalType::Float, embeddings)),
+                    ],
+                )?;
+            }
+
+            // This is `ok()`ed because it may may fail if the index does not exist yet.
+            // This is a lot less code than explicitly listing indices and checking for each one.
+            connection
+                .query(&format!("CALL DROP_VECTOR_INDEX('{table}', 'vector');"))
+                .ok();
+
+            connection.query(&format!(
+                "CALL CREATE_VECTOR_INDEX('{table}', 'vector', 'embeddings');",
             ))?;
         }
 
