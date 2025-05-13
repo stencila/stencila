@@ -81,7 +81,7 @@ impl Codec for PdfCodec {
             let (pandoc, info) = root_to_pandoc(node, Format::Pdf, &options)?;
             pandoc_to_format(&pandoc, Some(path), PANDOC_FORMAT, &options).await?;
             Ok(info)
-        } else if tool == "latex" || tool.is_empty() {
+        } else if tool.ends_with("latex") || tool.is_empty() {
             latex_to_pdf(node, path, options).await
         } else {
             bail!("Tool `{tool}` is not supported for encoding to PDF")
@@ -96,6 +96,8 @@ async fn latex_to_pdf(
     path: &Path,
     options: Option<EncodeOptions>,
 ) -> Result<EncodeInfo> {
+    let options = options.unwrap_or_default();
+
     // Use a unique job name to be able to run `latex` in the current working directory
     // (because paths in \input and \includegraphics commands are relative to that)
     // whilst also being able to clean up temporary file afterwards
@@ -119,16 +121,20 @@ async fn latex_to_pdf(
         )
         .await?;
 
-    let status = Command::new("latex")
+    let tool = options
+        .tool
+        .clone()
+        .unwrap_or_else(|| "xelatex".to_string());
+
+    let status = Command::new(&tool)
         .args([
             "-interaction=batchmode",
             "-halt-on-error",
-            "-output-format=pdf",
             "-jobname",
             &job,
             &input_file,
         ])
-        .args(options.map(|opts| opts.tool_args).unwrap_or_default())
+        .args(options.tool_args)
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .status()
@@ -154,7 +160,7 @@ async fn latex_to_pdf(
     }
 
     if !status.success() {
-        bail!("latex failed:\n\n{}", log);
+        bail!("{tool} failed:\n\n{}", log);
     }
 
     Ok(info)
