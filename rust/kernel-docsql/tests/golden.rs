@@ -33,7 +33,10 @@ async fn golden() -> Result<()> {
     for path in glob(&pattern)?.flatten() {
         let contents = read_to_string(&path)?;
 
-        let filename = path.file_name().unwrap().to_string_lossy();
+        let Some(filename) = path.file_name() else {
+            continue;
+        };
+        let filename = filename.to_string_lossy();
 
         let mut tests = contents.split("\n\n").map(String::from).collect_vec();
         for test in tests.iter_mut() {

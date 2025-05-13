@@ -19,8 +19,8 @@ use kernel_jinja::{
             tracing,
         },
         schema::{
-            get, CodeChunk, ExecutionMessage, MessageLevel, Node, NodePath, NodeProperty, NodeSet,
-            NodeType, SectionType,
+            get, Array, CodeChunk, ExecutionMessage, MessageLevel, Node, NodePath, NodeProperty,
+            NodeSet, NodeType, Primitive, SectionType,
         },
         KernelInstance,
     },
@@ -156,6 +156,12 @@ pub(super) struct Query {
     /// Any `MATCH` pattern for the query
     pattern: Option<String>,
 
+    /// Parameters of the query
+    ///
+    /// Used to pass embedding vectors through to the [`DocsDBKernelInstance`] by
+    /// setting calling `set`.
+    parameters: Vec<Node>,
+
     /// Condition that should be `AND`ed in the `WHERE` clause
     ands: Vec<String>,
 
@@ -200,7 +206,7 @@ pub(super) struct Query {
 }
 
 impl Query {
-    /// Create a new query on
+    /// Create a new query
     pub fn new(
         db_name: String,
         db: Arc<Mutex<DocsDBKernelInstance>>,
@@ -213,6 +219,7 @@ impl Query {
             cypher: None,
             call: None,
             pattern: None,
+            parameters: Vec::new(),
             ands: Vec::new(),
             ors: Vec::new(),
             r#return: None,
@@ -278,7 +285,7 @@ impl Query {
         query.pattern = Some(match query.pattern {
             Some(pattern) => {
                 let prev_table = self.node_table_used.as_deref().unwrap_or_default();
-                let relation = relation_between_tables(&prev_table, &table);
+                let relation = relation_between_tables(prev_table, &table);
                 [&pattern, "-", &relation, "->", &node].concat()
             }
             None => node,
@@ -295,14 +302,50 @@ impl Query {
             }
 
             match arg {
+                "like" => {
+                    let text = if let Some(text) = value.as_str() {
+                        text.to_string()
+                    } else if let Some(query) = value.downcast_object::<Query>() {
+                        query.text()?.to_string()
+                    } else if let Some(nodes) = value.downcast_object::<NodeProxies>() {
+                        nodes.text()?.to_string()
+                    } else if let Some(node) = value.downcast_object::<NodeProxy>() {
+                        node.text()?.to_string()
+                    } else {
+                        return Err(Error::new(
+                            ErrorKind::InvalidOperation,
+                            "unexpected type for argument `like`".to_string(),
+                        ));
+                    };
+
+                    let embeddings = embed::query(&text).map_err(|error| {
+                        Error::new(
+                            ErrorKind::InvalidOperation,
+                            format!("while generating embeddings: {error}"),
+                        )
+                    })?;
+                    let embeddings = embeddings
+                        .into_iter()
+                        .map(|value| Primitive::Number(value as f64))
+                        .collect_vec();
+
+                    query.parameters.push(Node::Array(Array(embeddings)));
+                    let par = query.parameters.len();
+
+                    let table = table.replace("`", "");
+                    query.call = Some(format!(
+                        "CALL QUERY_VECTOR_INDEX('{table}', 'vector', $par{par}, 10)",
+                    ));
+                    query.order_by = Some("distance".to_string());
+                }
                 "search" | "searchAll" | "and" | "or" => {
-                    // Non-filter arguments: should be string
+                    // Argument value should be string
                     let value = value
                         .as_str()
                         .ok_or_else(|| {
                             Error::new(
                                 ErrorKind::InvalidOperation,
-                                format!("argument `{arg}` is should be a string"),
+                                format!("argument `{arg}` should be a string"),
                             )
                         })?
                         .to_string();
@@ -676,15 +719,22 @@ impl Query {
         Value::from_object(NodeProxy::new(node, self.messages.clone()))
     }
 
-    /// Execute the query in the kernel
+    /// Execute the query and return the resulting [`Node`]s
     pub fn nodes(&self) -> Vec<Node> {
         let cypher = self.generate();
 
-        let db = self.db.clone();
+        let kernel = self.db.clone();
         let cypher_clone = cypher.clone();
+        let parameters = self.parameters.clone();
         let (outputs, mut messages) = match task::block_in_place(move || {
-            runtime::Handle::current()
-                .block_on(async move { db.lock().await.execute(&cypher_clone).await })
+            runtime::Handle::current().block_on(async move {
+                let kernel = &mut kernel.lock().await;
+                for (index, value) in parameters.iter().enumerate() {
+                    let name = format!("par{}", index + 1);
+                    kernel.set(&name, value).await?;
+                }
+                kernel.execute(&cypher_clone).await
+            })
         }) {
             Ok(result) => result,
             Err(error) => (
@@ -711,7 +761,14 @@ impl Query {
         outputs
     }
 
-    /// Execute and return a [`NodeProxies`] for all nodes
+    /// Execute the query and return the combined text representations of all nodes.
+    fn text(&self) -> Result<Value, Error> {
+        let nodes = self.nodes();
+        try_messages(&self.messages)?;
+        Ok(Value::from(nodes.iter().map(to_text).join(" ")))
+    }
+
+    /// Execute the query and return [`NodeProxies`] for all nodes in the result
     fn all(&self) -> Value {
         Value::from_object(NodeProxies::new(self.nodes(), self.messages.clone()))
     }
@@ -1014,6 +1071,16 @@ impl Object for Query {
             }
             // Return the generated Cypher
             "explain" => return Ok(self.explain()),
+            // Methods that execute the query and return values
+            "text" => {
+                if !args.is_empty() {
+                    return Err(Error::new(
+                        ErrorKind::TooManyArguments,
+                        format!("Method `{name}` takes no arguments."),
+                    ));
+                }
+                return self.text();
+            }
             // Methods that execute the query and return node proxies
             "all" | "one" | "first" | "last" => {
                 if !args.is_empty() {
@@ -1537,6 +1604,11 @@ impl NodeProxy {
     pub fn nodes(&self) -> Vec<Node> {
         vec![self.node.clone()]
     }
+
+    fn text(&self) -> Result<Value, Error> {
+        try_messages(&self.messages)?;
+        Ok(Value::from(to_text(&self.node)))
+    }
 }
 
 impl Object for NodeProxy {
@@ -1601,13 +1673,12 @@ impl Object for NodeProxy {
     ) -> Result<Value, Error> {
         if method == "text" {
             if !args.is_empty() {
-                Err(Error::new(
+                return Err(Error::new(
                     ErrorKind::TooManyArguments,
                     "Method `text` takes no arguments.",
-                ))
-            } else {
-                Ok(Value::from(to_text(&self.node)))
+                ));
             }
+            self.text()
         } else {
             Err(Error::new(
                 ErrorKind::UnknownMethod,
@@ -1633,6 +1704,11 @@ impl NodeProxies {
 
     pub fn nodes(&self) -> Vec<Node> {
         self.nodes.clone()
+    }
+
+    fn text(&self) -> Result<Value, Error> {
+        try_messages(&self.messages)?;
+        Ok(Value::from(self.nodes.iter().map(to_text).join(" ")))
     }
 }
 
@@ -1683,13 +1759,12 @@ impl Object for NodeProxies {
     ) -> Result<Value, Error> {
         if method == "text" {
             if !args.is_empty() {
-                Err(Error::new(
+                return Err(Error::new(
                     ErrorKind::TooManyArguments,
                     "Method `text` takes no arguments.",
-                ))
-            } else {
-                Ok(Value::from(to_text(&self.nodes)))
+                ));
             }
+            self.text()
         } else {
             Err(Error::new(
                 ErrorKind::UnknownMethod,
@@ -1739,6 +1814,19 @@ fn lock_messages(
             tracing::error!("Unable to lock messages");
             None
         }
+    }
+}
+
+fn try_messages(messages: &SyncMutex<Vec<ExecutionMessage>>) -> Result<(), Error> {
+    let Some(messages) = lock_messages(messages) else {
+        return Ok(());
+    };
+
+    if !messages.is_empty() {
+        let detail = messages.iter().map(|msg| &msg.message).join(". ");
+        Err(Error::new(ErrorKind::InvalidOperation, detail))
+    } else {
+        Ok(())
     }
 }
 
