@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/InlinesBlock",
-  "name": "InlinesBlock",
+  "@id": "https://stencila.org/Island",
+  "name": "Island",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,10 +9,10 @@
   },
   "@graph": [
     {
-      "@id": "stencila:InlinesBlock",
+      "@id": "stencila:Island",
       "@type": "rdfs:Class",
-      "rdfs:label": "InlinesBlock",
-      "rdfs:comment": "A block containing inlines with no other semantics.",
+      "rdfs:label": "Island",
+      "rdfs:comment": "An island of content in a document.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }
@@ -21,7 +21,7 @@
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",
-      "rdfs:comment": "The contents of the block.",
+      "rdfs:comment": "The content within the section.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Article"
@@ -133,7 +133,97 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "stencila:Inline"
+        "@id": "stencila:Block"
+      }
+    },
+    {
+      "@id": "stencila:labelType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "labelType",
+      "rdfs:comment": "The type of the label for the island.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Island"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:LabelType"
+      }
+    },
+    {
+      "@id": "stencila:label",
+      "@type": "rdfs:Property",
+      "rdfs:label": "label",
+      "rdfs:comment": "A short label for the chunk.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:Table"
+        },
+        {
+          "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:Island"
+        },
+        {
+          "@id": "stencila:MathBlock"
+        },
+        {
+          "@id": "stencila:Parameter"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:labelAutomatically",
+      "@type": "rdfs:Property",
+      "rdfs:label": "labelAutomatically",
+      "rdfs:comment": "Whether the label should be automatically updated.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Table"
+        },
+        {
+          "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:Island"
+        },
+        {
+          "@id": "stencila:MathBlock"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    },
+    {
+      "@id": "stencila:style",
+      "@type": "rdfs:Property",
+      "rdfs:label": "style",
+      "rdfs:comment": "The style to apply to the island.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Island"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
       }
     }
   ]

@@ -423,9 +423,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "labelType",
       "rdfs:comment": "The type of the label for the chunk.",
-      "schema:domainIncludes": {
-        "@id": "stencila:CodeChunk"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Island"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "stencila:LabelType"
       }
@@ -452,6 +457,9 @@
           "@id": "stencila:Figure"
         },
         {
+          "@id": "stencila:Island"
+        },
+        {
           "@id": "stencila:MathBlock"
         },
         {
@@ -476,6 +484,9 @@
         },
         {
           "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:Island"
         },
         {
           "@id": "stencila:MathBlock"

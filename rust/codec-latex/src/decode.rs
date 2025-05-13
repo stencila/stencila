@@ -9,7 +9,7 @@ use codec::{
     format::Format,
     schema::{
         Article, Block, CodeChunk, CodeExpression, ForBlock, IfBlock, IfBlockClause, IncludeBlock,
-        Inline, InlinesBlock, Node, RawBlock, Section, SectionType,
+        Inline, InlinesBlock, Island, LabelType, Node, RawBlock,
     },
     DecodeInfo, DecodeOptions,
 };
@@ -56,7 +56,8 @@ static RE: Lazy<Regex> = Lazy::new(|| {
           (?P<if>.*?)
         \\end\{if\}\n?
 
-      | \\begin\{island\}
+      | \\begin\{island\} \s*
+          (?:\[(?P<island_opts>[^\]]*?)\])? \s* 
           (?P<island>.*?)
         \\end\{island\}\n?
     ",
@@ -134,9 +135,9 @@ pub(super) async fn fine(
             } else if let Some(mat) = captures.name("island") {
                 // No transformation required, parsed by Pandoc into a Div with class "island"
                 [
-                    "\\begin{section-island}\n",
+                    "\\begin{island}\n",
                     &transform(mat.as_str()),
-                    "\\end{section-island}\n",
+                    "\\end{island}\n",
                 ]
                 .concat()
             } else {
@@ -262,9 +263,44 @@ fn latex_to_blocks(latex: &str) -> Vec<Block> {
                 ..Default::default()
             }])));
         } else if let Some(mat) = captures.name("island") {
-            blocks.push(Block::Section(Section {
-                section_type: Some(SectionType::Island),
+            let mut id = None;
+            let mut label_type = None;
+            let mut label = None;
+            let mut label_automatically = None;
+            let mut style = None;
+            if let Some(options) = captures.name("island_opts") {
+                for option in options
+                    .as_str()
+                    .split(',')
+                    .map(|s| s.trim())
+                    .filter(|s| !s.is_empty())
+                {
+                    if let Some((name, value)) = option.split("=").map(|s| s.trim()).collect_tuple()
+                    {
+                        if name == "label-type" {
+                            label_type = match value.to_lowercase().as_str() {
+                                "tab" | "table" => Some(LabelType::TableLabel),
+                                "fig" | "figure" => Some(LabelType::FigureLabel),
+                                _ => None,
+                            }
+                        } else if name == "label" {
+                            label = Some(value.to_string());
+                            label_automatically = Some(false);
+                        } else if name == "style" {
+                            style = Some(value.to_string())
+                        }
+                    } else if id.is_none() {
+                        id = Some(option.to_string())
+                    }
+                }
+            }
+
+            blocks.push(Block::Island(Island {
                 content: latex_to_blocks(mat.as_str()),
+                label_type,
+                label,
+                label_automatically,
+                style,
                 ..Default::default()
             }));
         }

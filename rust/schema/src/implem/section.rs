@@ -1,6 +1,4 @@
 use codec_info::lost_options;
-use codec_latex_trait::{latex_to_image, to_latex};
-use common::tracing;
 
 use crate::{prelude::*, Section, SectionType};
 
@@ -24,36 +22,8 @@ impl Section {
 
 impl LatexCodec for Section {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
-        context.enter_node(self.node_type(), self.node_id());
-
-        if matches!(context.format, Format::Docx | Format::Odt)
-            && matches!(self.section_type, Some(SectionType::Island))
-        {
-            let (latex, ..) = to_latex(
-                &self.content,
-                Format::Latex,
-                false,
-                true,
-                false,
-                context.prelude.clone(),
-            );
-
-            let path = context.temp_dir.join(format!("{}.svg", self.node_id()));
-            if let Err(error) = latex_to_image(&latex, &path, Some("island")) {
-                tracing::error!("While encoding island section to image: {error}");
-                // Will fallback to just encoding the content below
-            } else {
-                let path = path.to_string_lossy();
-                context
-                    .str(r"\centerline{\includegraphics{")
-                    .str(&path)
-                    .str("}}")
-                    .exit_node();
-                return;
-            }
-        }
-
         context
+            .enter_node(self.node_type(), self.node_id())
             .property_fn(NodeProperty::Content, |context| {
                 self.content.to_latex(context)
             })

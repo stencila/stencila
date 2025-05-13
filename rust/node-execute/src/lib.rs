@@ -40,6 +40,7 @@ mod if_block;
 mod include_block;
 mod instruction_block;
 mod instruction_inline;
+mod island;
 mod math_block;
 mod math_inline;
 mod model_utils;
@@ -1203,6 +1204,7 @@ impl VisitorAsync for Executor {
             IfBlock(node) => self.visit_executable(node).await,
             IncludeBlock(node) => self.visit_executable(node).await,
             InstructionBlock(node) => self.visit_executable(node).await,
+            Island(node) => self.visit_executable(node).await,
             MathBlock(node) => self.visit_executable(node).await,
             Paragraph(node) => self.visit_executable(node).await,
             PromptBlock(node) => self.visit_executable(node).await,

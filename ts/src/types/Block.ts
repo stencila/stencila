@@ -22,6 +22,7 @@ import { type ImageObject } from "./ImageObject.js";
 import { type IncludeBlock } from "./IncludeBlock.js";
 import { type InlinesBlock } from "./InlinesBlock.js";
 import { type InstructionBlock } from "./InstructionBlock.js";
+import { type Island } from "./Island.js";
 import { type List } from "./List.js";
 import { type MathBlock } from "./MathBlock.js";
 import { type Paragraph } from "./Paragraph.js";
@@ -60,6 +61,7 @@ export type Block =
   IncludeBlock |
   InlinesBlock |
   InstructionBlock |
+  Island |
   List |
   MathBlock |
   Paragraph |
@@ -99,6 +101,7 @@ export function block(other: Block): Block {
     case "IncludeBlock":
     case "InlinesBlock":
     case "InstructionBlock":
+    case "Island":
     case "List":
     case "MathBlock":
     case "Paragraph":

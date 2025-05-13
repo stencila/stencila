@@ -75,6 +75,7 @@ export type NodeType =
   | "InstructionInline"
   | "InstructionMessage"
   | "IntegerValidator"
+  | "Island"
   | "Link"
   | "List"
   | "ListItem"
@@ -212,6 +213,7 @@ export const NodeTypeList = [
   "InstructionInline",
   "InstructionMessage",
   "IntegerValidator",
+  "Island",
   "Link",
   "List",
   "ListItem",

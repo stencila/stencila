@@ -259,6 +259,7 @@ pub enum NodeProperty {
     StateDigest,
     Steps,
     StreetAddress,
+    Style,
     StyleLanguage,
     SuggestionStatus,
     Suggestions,

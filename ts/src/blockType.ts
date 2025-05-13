@@ -21,6 +21,7 @@ export type BlockType =
   | "IncludeBlock"
   | "InlinesBlock"
   | "InstructionBlock"
+  | "Island"
   | "List"
   | "MathBlock"
   | "Paragraph"
@@ -56,6 +57,7 @@ export const BlockTypeList = [
   "IncludeBlock",
   "InlinesBlock",
   "InstructionBlock",
+  "Island",
   "List",
   "MathBlock",
   "Paragraph",

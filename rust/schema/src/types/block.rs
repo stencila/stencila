@@ -22,6 +22,7 @@ use super::image_object::ImageObject;
 use super::include_block::IncludeBlock;
 use super::inlines_block::InlinesBlock;
 use super::instruction_block::InstructionBlock;
+use super::island::Island;
 use super::list::List;
 use super::math_block::MathBlock;
 use super::paragraph::Paragraph;
@@ -128,6 +129,12 @@ pub enum Block {
     #[cfg_attr(feature = "proptest-high", proptest(skip))]
     #[cfg_attr(feature = "proptest-max", proptest(skip))]
     InstructionBlock(InstructionBlock),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    Island(Island),
 
     List(List),
 

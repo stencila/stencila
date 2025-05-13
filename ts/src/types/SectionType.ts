@@ -16,7 +16,6 @@ export type SectionType =
   'Main' |
   'Header' |
   'Footer' |
-  'Iteration' |
-  'Island';
+  'Iteration';
 
 

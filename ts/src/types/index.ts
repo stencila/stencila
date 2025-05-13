@@ -109,6 +109,7 @@ export * from "./InstructionType.js";
 export * from "./Integer.js";
 export * from "./IntegerOrString.js";
 export * from "./IntegerValidator.js";
+export * from "./Island.js";
 export * from "./LabelType.js";
 export * from "./Link.js";
 export * from "./List.js";

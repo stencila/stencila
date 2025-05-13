@@ -141,6 +141,12 @@ anyOf:
         description: Do not generate `InstructionBlock` nodes in block content.
         skip: true
 
+  - $ref: Island
+    proptest:
+      min:
+        description: Do not generate `Island` nodes in block content.
+        skip: true
+
   - $ref: List
 
   - $ref: MathBlock

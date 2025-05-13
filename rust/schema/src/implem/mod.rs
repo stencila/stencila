@@ -42,6 +42,7 @@ mod instruction_block;
 mod instruction_inline;
 mod instruction_message;
 mod integer_or_string;
+mod island;
 mod link;
 mod list;
 mod list_item;

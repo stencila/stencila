@@ -8,4 +8,5 @@ start     end        offsets   node_type+property                   authorship
     17     45         (0, 0)   RawBlock
     17     45         (0, 0)   IfBlock.content
      0     54       (-17, 9)   IfBlock
-     0     55         (0, 1)   Article
+     0     55         (0, 1)   Article.content
+     0     55         (0, 0)   Article

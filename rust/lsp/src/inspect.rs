@@ -3,18 +3,7 @@ use async_lsp::lsp_types::Range;
 use codec_text_trait::TextCodec;
 use codecs::{Mapping, PoshMap};
 use common::tracing;
-use schema::{
-    Admonition, Annotation, Article, AudioObject, Block, Button, CallBlock, Chat, ChatMessage,
-    ChatMessageGroup, CitationGroup, Claim, CodeBlock, CodeChunk, CodeExpression, CodeInline, Date,
-    DateTime, Duration, Emphasis, Excerpt, ExecutionStatus, Figure, File, ForBlock, Form, Heading,
-    IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline, InlinesBlock, InstructionBlock,
-    InstructionInline, LabelType, Link, List, ListItem, MathBlock, MathInline, MediaObject, Node,
-    NodeId, NodeProperty, NodeType, Note, Paragraph, Parameter, Prompt, PromptBlock,
-    ProvenanceCount, QuoteBlock, QuoteInline, RawBlock, Reference, Section, Sentence, Strikeout,
-    Strong, StyledBlock, StyledInline, Subscript, SuggestionBlock, SuggestionInline, Superscript,
-    Table, TableCell, TableRow, Text, ThematicBreak, Time, Timestamp, Underline, VideoObject,
-    Visitor, WalkControl, Walkthrough, WalkthroughStep,
-};
+use schema::*;
 
 use crate::{
     text_document::{TextNode, TextNodeExecution},
@@ -171,6 +160,7 @@ impl Visitor for Inspector<'_, '_> {
             IncludeBlock,
             InlinesBlock,
             InstructionBlock,
+            Island,
             List,
             MathBlock,
             Paragraph,
@@ -817,6 +807,7 @@ default!(
     File,
     Form,
     InlinesBlock,
+    Island,
     List,
     QuoteBlock,
     Reference,

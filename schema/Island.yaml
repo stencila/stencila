@@ -1,0 +1,50 @@
+title: Island
+"@id": stencila:Island
+extends: Entity
+category: other
+description: An island of content in a document.
+latex:
+  derive: false
+proptest: {}
+required:
+  - content
+core:
+  - labelType
+  - label
+  - labelAutomatically
+  - style
+properties:
+  content:
+    "@id": stencila:content
+    description: The content within the section.
+    type: array
+    items:
+      $ref: Block
+    dom:
+      elem: section
+  labelType:
+    "@id": stencila:labelType
+    description: The type of the label for the island.
+    $comment: |
+      Used during automatic sequential numbering of figures and tables within the document.
+    $ref: LabelType
+    patch:
+      formats: [md, smd, myst, ipynb, qmd, latex]
+  label:
+    "@id": stencila:label
+    description: A short label for the chunk.
+    type: string
+    patch:
+      formats: [md, smd, myst, ipynb, qmd, latex]
+  labelAutomatically:
+    "@id": stencila:labelAutomatically
+    description: Whether the label should be automatically updated.
+    type: boolean
+    patch:
+      formats: [md, smd, myst, ipynb, qmd, latex]
+  style:
+    "@id": stencila:style
+    description: The style to apply to the island.
+    type: string
+    patch:
+      formats: [md, smd, myst, ipynb, qmd, latex]

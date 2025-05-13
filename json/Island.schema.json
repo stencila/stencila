@@ -1,0 +1,125 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/Island.schema.json",
+  "@id": "stencila:Island",
+  "title": "Island",
+  "extends": [
+    "Entity"
+  ],
+  "description": "An island of content in a document.",
+  "latex": {
+    "derive": false
+  },
+  "proptest": {},
+  "required": [
+    "type",
+    "content"
+  ],
+  "core": [
+    "id",
+    "labelType",
+    "label",
+    "labelAutomatically",
+    "style"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content within the section.",
+      "dom": {
+        "elem": "section"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
+    },
+    "labelType": {
+      "@id": "stencila:labelType",
+      "description": "The type of the label for the island.",
+      "$comment": "Used during automatic sequential numbering of figures and tables within the document.\n",
+      "aliases": [
+        "label-type",
+        "label_type"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd",
+          "latex"
+        ]
+      },
+      "$ref": "LabelType.schema.json"
+    },
+    "label": {
+      "@id": "stencila:label",
+      "description": "A short label for the chunk.",
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd",
+          "latex"
+        ]
+      },
+      "type": "string"
+    },
+    "labelAutomatically": {
+      "@id": "stencila:labelAutomatically",
+      "description": "Whether the label should be automatically updated.",
+      "aliases": [
+        "label-automatically",
+        "label_automatically"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd",
+          "latex"
+        ]
+      },
+      "type": "boolean"
+    },
+    "style": {
+      "@id": "stencila:style",
+      "description": "The style to apply to the island.",
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd",
+          "latex"
+        ]
+      },
+      "type": "string"
+    }
+  }
+}

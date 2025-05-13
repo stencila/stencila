@@ -200,6 +200,15 @@
       "$ref": "InstructionBlock.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Island` nodes in block content.",
+          "skip": true
+        }
+      },
+      "$ref": "Island.schema.json"
+    },
+    {
       "$ref": "List.schema.json"
     },
     {

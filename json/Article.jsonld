@@ -982,6 +982,9 @@
           "@id": "stencila:InstructionInline"
         },
         {
+          "@id": "stencila:Island"
+        },
+        {
           "@id": "stencila:Link"
         },
         {

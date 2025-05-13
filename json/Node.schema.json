@@ -225,6 +225,9 @@
       "$ref": "IntegerValidator.schema.json"
     },
     {
+      "$ref": "Island.schema.json"
+    },
+    {
       "$ref": "Link.schema.json"
     },
     {

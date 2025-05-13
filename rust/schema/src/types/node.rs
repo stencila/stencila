@@ -72,6 +72,7 @@ use super::instruction_inline::InstructionInline;
 use super::instruction_message::InstructionMessage;
 use super::integer::Integer;
 use super::integer_validator::IntegerValidator;
+use super::island::Island;
 use super::link::Link;
 use super::list::List;
 use super::list_item::ListItem;
@@ -290,6 +291,8 @@ pub enum Node {
     InstructionMessage(InstructionMessage),
 
     IntegerValidator(IntegerValidator),
+
+    Island(Island),
 
     Link(Link),
 

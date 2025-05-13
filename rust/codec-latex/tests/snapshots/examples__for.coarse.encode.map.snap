@@ -15,4 +15,5 @@ start     end        offsets   node_type+property                   authorship
     59     61         (0, 0)   RawBlock
     28     61       (-31, 0)   ForBlock.content
      0     71      (-28, 10)   ForBlock
-     0     72         (0, 1)   Article
+     0     72         (0, 1)   Article.content
+     0     72         (0, 0)   Article

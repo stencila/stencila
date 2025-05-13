@@ -71,6 +71,7 @@ import { type InstructionInline } from "./InstructionInline.js";
 import { type InstructionMessage } from "./InstructionMessage.js";
 import { type Integer } from "./Integer.js";
 import { type IntegerValidator } from "./IntegerValidator.js";
+import { type Island } from "./Island.js";
 import { type Link } from "./Link.js";
 import { type List } from "./List.js";
 import { type ListItem } from "./ListItem.js";
@@ -212,6 +213,7 @@ export type Node =
   InstructionInline |
   InstructionMessage |
   IntegerValidator |
+  Island |
   Link |
   List |
   ListItem |
@@ -348,6 +350,7 @@ export function node(other: Node): Node {
     case "InstructionInline":
     case "InstructionMessage":
     case "IntegerValidator":
+    case "Island":
     case "Link":
     case "List":
     case "ListItem":

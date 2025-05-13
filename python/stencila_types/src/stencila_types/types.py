@@ -460,7 +460,6 @@ class SectionType(StrEnum):
     Header = "Header"
     Footer = "Footer"
     Iteration = "Iteration"
-    Island = "Island"
 
 
 class SuggestionStatus(StrEnum):
@@ -2121,6 +2120,30 @@ class IntegerValidator(NumberValidator):
 
 
 @dataclass(kw_only=True, repr=False)
+class Island(Entity):
+    """
+    An island of content in a document.
+    """
+
+    type: Literal["Island"] = "Island"
+
+    content: list[Block]
+    """The content within the section."""
+
+    label_type: LabelType | None = None
+    """The type of the label for the island."""
+
+    label: str | None = None
+    """A short label for the chunk."""
+
+    label_automatically: bool | None = None
+    """Whether the label should be automatically updated."""
+
+    style: str | None = None
+    """The style to apply to the island."""
+
+
+@dataclass(kw_only=True, repr=False)
 class Link(Entity):
     """
     A hyperlink to other pages, sections within the same document, resources, or any URL.
@@ -3200,6 +3223,7 @@ Block = Union[
     IncludeBlock,
     InlinesBlock,
     InstructionBlock,
+    Island,
     List,
     MathBlock,
     Paragraph,
@@ -3420,6 +3444,7 @@ Node = Union[
     InstructionInline,
     InstructionMessage,
     IntegerValidator,
+    Island,
     Link,
     List,
     ListItem,
@@ -3627,6 +3652,7 @@ TYPES = [
     InstructionInline,
     InstructionMessage,
     IntegerValidator,
+    Island,
     Link,
     List,
     ListItem,

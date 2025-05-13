@@ -761,32 +761,6 @@ impl DatabaseNode for IncludeBlock {
     }
 }
 
-impl DatabaseNode for InlinesBlock {
-    fn node_type(&self) -> NodeType {
-        NodeType::InlinesBlock
-    }
-
-    fn node_id(&self) -> NodeId {
-        InlinesBlock::node_id(self)
-    }
-    
-    fn primary_key(&self) -> Value {
-        self.node_id().to_kuzu_value()
-    }
-    
-    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
-        vec![
-            
-        ]
-    }
-
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
-        vec![
-            (NodeProperty::Content, relations(self.content.iter()))
-        ]
-    }
-}
-
 impl DatabaseNode for Link {
     fn node_type(&self) -> NodeType {
         NodeType::Link
@@ -1744,7 +1718,6 @@ impl DatabaseNode for Node {
             Node::IfBlockClause(node) => node.node_type(),
             Node::ImageObject(node) => node.node_type(),
             Node::IncludeBlock(node) => node.node_type(),
-            Node::InlinesBlock(node) => node.node_type(),
             Node::Link(node) => node.node_type(),
             Node::List(node) => node.node_type(),
             Node::ListItem(node) => node.node_type(),
@@ -1802,7 +1775,6 @@ impl DatabaseNode for Node {
             Node::IfBlockClause(node) => node.node_id(),
             Node::ImageObject(node) => node.node_id(),
             Node::IncludeBlock(node) => node.node_id(),
-            Node::InlinesBlock(node) => node.node_id(),
             Node::Link(node) => node.node_id(),
             Node::List(node) => node.node_id(),
             Node::ListItem(node) => node.node_id(),
@@ -1860,7 +1832,6 @@ impl DatabaseNode for Node {
             Node::IfBlockClause(node) => node.primary_key(),
             Node::ImageObject(node) => node.primary_key(),
             Node::IncludeBlock(node) => node.primary_key(),
-            Node::InlinesBlock(node) => node.primary_key(),
             Node::Link(node) => node.primary_key(),
             Node::List(node) => node.primary_key(),
             Node::ListItem(node) => node.primary_key(),
@@ -1918,7 +1889,6 @@ impl DatabaseNode for Node {
             Node::IfBlockClause(node) => node.node_table(),
             Node::ImageObject(node) => node.node_table(),
             Node::IncludeBlock(node) => node.node_table(),
-            Node::InlinesBlock(node) => node.node_table(),
             Node::Link(node) => node.node_table(),
             Node::List(node) => node.node_table(),
             Node::ListItem(node) => node.node_table(),
@@ -1976,7 +1946,6 @@ impl DatabaseNode for Node {
             Node::IfBlockClause(node) => node.rel_tables(),
             Node::ImageObject(node) => node.rel_tables(),
             Node::IncludeBlock(node) => node.rel_tables(),
-            Node::InlinesBlock(node) => node.rel_tables(),
             Node::Link(node) => node.rel_tables(),
             Node::List(node) => node.rel_tables(),
             Node::ListItem(node) => node.rel_tables(),
@@ -2028,7 +1997,6 @@ impl DatabaseNode for Block {
             Block::IfBlock(node) => node.node_type(),
             Block::ImageObject(node) => node.node_type(),
             Block::IncludeBlock(node) => node.node_type(),
-            Block::InlinesBlock(node) => node.node_type(),
             Block::List(node) => node.node_type(),
             Block::MathBlock(node) => node.node_type(),
             Block::Paragraph(node) => node.node_type(),
@@ -2057,7 +2025,6 @@ impl DatabaseNode for Block {
             Block::IfBlock(node) => node.node_id(),
             Block::ImageObject(node) => node.node_id(),
             Block::IncludeBlock(node) => node.node_id(),
-            Block::InlinesBlock(node) => node.node_id(),
             Block::List(node) => node.node_id(),
             Block::MathBlock(node) => node.node_id(),
             Block::Paragraph(node) => node.node_id(),
@@ -2086,7 +2053,6 @@ impl DatabaseNode for Block {
             Block::IfBlock(node) => node.primary_key(),
             Block::ImageObject(node) => node.primary_key(),
             Block::IncludeBlock(node) => node.primary_key(),
-            Block::InlinesBlock(node) => node.primary_key(),
             Block::List(node) => node.primary_key(),
             Block::MathBlock(node) => node.primary_key(),
             Block::Paragraph(node) => node.primary_key(),
@@ -2115,7 +2081,6 @@ impl DatabaseNode for Block {
             Block::IfBlock(node) => node.node_table(),
             Block::ImageObject(node) => node.node_table(),
             Block::IncludeBlock(node) => node.node_table(),
-            Block::InlinesBlock(node) => node.node_table(),
             Block::List(node) => node.node_table(),
             Block::MathBlock(node) => node.node_table(),
             Block::Paragraph(node) => node.node_table(),
@@ -2144,7 +2109,6 @@ impl DatabaseNode for Block {
             Block::IfBlock(node) => node.rel_tables(),
             Block::ImageObject(node) => node.rel_tables(),
             Block::IncludeBlock(node) => node.rel_tables(),
-            Block::InlinesBlock(node) => node.rel_tables(),
             Block::List(node) => node.rel_tables(),
             Block::MathBlock(node) => node.rel_tables(),
             Block::Paragraph(node) => node.rel_tables(),

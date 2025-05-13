@@ -17,7 +17,10 @@ expression: article
       ]
     },
     {
-      "type": "Section",
+      "type": "StyledBlock",
+      "code": {
+        "string": "island"
+      },
       "content": [
         {
           "type": "Paragraph",
@@ -59,8 +62,7 @@ expression: article
             "string": "2 + 3"
           }
         }
-      ],
-      "sectionType": "Island"
+      ]
     },
     {
       "type": "Paragraph",
@@ -70,6 +72,36 @@ expression: article
           "value": {
             "string": "After island."
           }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Island with options"
+          }
+        }
+      ]
+    },
+    {
+      "type": "StyledBlock",
+      "code": {
+        "string": "island"
+      },
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Within the island with options."
+              }
+            }
+          ]
         }
       ]
     }

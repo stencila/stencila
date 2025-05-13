@@ -606,6 +606,9 @@
           "@id": "stencila:Figure"
         },
         {
+          "@id": "stencila:Island"
+        },
+        {
           "@id": "stencila:MathBlock"
         },
         {
@@ -630,6 +633,9 @@
         },
         {
           "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:Island"
         },
         {
           "@id": "stencila:MathBlock"
