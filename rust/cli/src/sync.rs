@@ -60,6 +60,7 @@ impl Cli {
                 format_or_codec.clone(),
                 self.strip_options.clone(),
                 self.losses.clone(),
+                None,
                 Vec::new(),
             ));
             let encode_options = Some(self.encode_options.build(
@@ -69,6 +70,7 @@ impl Cli {
                 Format::Json,
                 self.strip_options.clone(),
                 self.losses.clone(),
+                None,
                 Vec::new(),
             ));
 
