@@ -9,7 +9,7 @@ use codec::{
     format::Format,
     schema::{
         Article, Block, CodeChunk, CodeExpression, ForBlock, IfBlock, IfBlockClause, IncludeBlock,
-        Inline, InlinesBlock, Island, LabelType, Node, RawBlock,
+        Inline, InlinesBlock, Island, LabelType, Link, Node, RawBlock,
     },
     DecodeInfo, DecodeOptions,
 };
@@ -41,7 +41,9 @@ static RE: Lazy<Regex> = Lazy::new(|| {
 
         \\expr\{(?P<expr>[^}]*)\}
 
-      |  \\input\{(?P<input>[^}]*)\}\n?
+      | \\(auto)?ref\{(?P<ref>[^}]*)\}
+
+      | \\input\{(?P<input>[^}]*)\}\n?
 
       | \\begin\{chunk\} \s*
           (?:\[(?P<chunk_opts>[^\]]*?)\])? \s* 
@@ -186,6 +188,17 @@ fn latex_to_blocks(latex: &str) -> Vec<Block> {
                     ..Default::default()
                 }),
             ])));
+        } else if let Some(mat) = captures.name("ref") {
+            let target = mat.as_str().into();
+            let label_only = captures[0].contains("\\ref{").then_some(true);
+
+            blocks.push(Block::InlinesBlock(InlinesBlock::new(vec![Inline::Link(
+                Link {
+                    target,
+                    label_only,
+                    ..Default::default()
+                },
+            )])));
         } else if let Some(mat) = captures.name("input") {
             let mut source = mat.as_str().to_string();
             if !source.ends_with(".tex") {
@@ -288,6 +301,8 @@ fn latex_to_blocks(latex: &str) -> Vec<Block> {
                             label_automatically = Some(false);
                         } else if name == "style" {
                             style = Some(value.to_string())
+                        } else if name == "id" {
+                            id = Some(value.to_string())
                         }
                     } else if id.is_none() {
                         id = Some(option.to_string())
@@ -295,12 +310,36 @@ fn latex_to_blocks(latex: &str) -> Vec<Block> {
                 }
             }
 
+            let content = mat.as_str();
+
+            // If no id is specified, try to get from the \label command within the table
+            if id.is_none() {
+                static RE: Lazy<Regex> =
+                    Lazy::new(|| Regex::new(r"\\label\{([^}]+)\}").expect("invalid regex"));
+                if let Some(label) = RE
+                    .captures(content)
+                    .and_then(|caps| caps.get(1))
+                    .map(|mat| mat.as_str())
+                {
+                    id = Some(label.to_string())
+                }
+            }
+
+            if let (Some(id), None) = (&id, &label_type) {
+                if id.starts_with("tab:") {
+                    label_type = Some(LabelType::TableLabel);
+                } else if id.starts_with("fig:") {
+                    label_type = Some(LabelType::FigureLabel);
+                }
+            }
+
             blocks.push(Block::Island(Island {
-                content: latex_to_blocks(mat.as_str()),
+                id,
                 label_type,
                 label,
                 label_automatically,
                 style,
+                content: latex_to_blocks(content),
                 ..Default::default()
             }));
         }

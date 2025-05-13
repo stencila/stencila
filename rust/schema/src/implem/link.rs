@@ -30,6 +30,56 @@ impl DomCodec for Link {
     }
 }
 
+impl LatexCodec for Link {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        context.enter_node(self.node_type(), self.node_id());
+
+        let command = if self.target.starts_with("https://") || self.target.starts_with("http://") {
+            if self.content.is_empty() {
+                "url"
+            } else {
+                "href"
+            }
+        } else if matches!(context.format, Format::Docx | Format::Odt) {
+            // Pandoc’s built-in LaTeX reader doesn’t implement Hyperref’s \autoref prefix logic,
+            // so both \ref and \autoref get treated as “just the label number” when you go to DOCX.
+            // See https://github.com/jgm/pandoc/issues/7463.
+            // Therefore, we use \hyperref here as it allows us to set the content of the link (which
+            // will have been done by Stencila's compile/link phases)
+            "hyperref"
+        } else if self.label_only.unwrap_or_default() {
+            "ref"
+        } else {
+            "autoref"
+        };
+
+        if command == "hyperref" {
+            context
+                .char('\\')
+                .str(command)
+                .char('[')
+                .property_str(NodeProperty::Target, &self.target)
+                .char(']');
+        } else {
+            context
+                .command_enter(command)
+                .property_str(NodeProperty::Target, &self.target)
+                .command_exit();
+        }
+
+        if (command == "href" && !self.content.is_empty()) || command == "hyperref" {
+            context
+                .char('{')
+                .property_fn(NodeProperty::Content, |context| {
+                    self.content.to_latex(context)
+                })
+                .char('}');
+        }
+
+        context.exit_node();
+    }
+}
+
 impl MarkdownCodec for Link {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context

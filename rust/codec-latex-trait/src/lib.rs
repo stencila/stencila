@@ -89,7 +89,7 @@ pub fn use_packages(latex: &str) -> String {
     };
 
     // hyperref: links & urls
-    if (has(r"\href") || has(r"\url")) && !has_pkg("hyperref") {
+    if (has(r"\href") || has(r"\url") || has(r"\autoref") || has(r"\ref")) && !has_pkg("hyperref") {
         packages.push("hyperref");
     }
     // graphicx: images

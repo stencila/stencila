@@ -1,0 +1,38 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: article
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "An autoref ."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A ref ."
+          }
+        }
+      ]
+    },
+    {
+      "type": "StyledBlock",
+      "code": {
+        "string": "island"
+      },
+      "content": []
+    }
+  ]
+}

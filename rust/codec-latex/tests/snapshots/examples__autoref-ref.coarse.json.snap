@@ -1,0 +1,64 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: article
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\\documentclass{article}\n\n\\begin{document}\n\nAn autoref "
+      }
+    },
+    {
+      "type": "InlinesBlock",
+      "content": [
+        {
+          "type": "Link",
+          "content": [],
+          "target": "tab:one"
+        }
+      ]
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": ".\n\nA ref "
+      }
+    },
+    {
+      "type": "InlinesBlock",
+      "content": [
+        {
+          "type": "Link",
+          "content": [],
+          "target": "tab:one",
+          "labelOnly": true
+        }
+      ]
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": ".\n\n"
+      }
+    },
+    {
+      "type": "Island",
+      "id": "tab:one",
+      "content": [],
+      "labelType": "TableLabel"
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\n\\end{document}\n"
+      }
+    }
+  ]
+}

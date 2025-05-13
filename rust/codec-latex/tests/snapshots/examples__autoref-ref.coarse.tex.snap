@@ -1,0 +1,14 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: "&latex"
+---
+\documentclass{article}
+
+\begin{document}
+
+An autoref \autoref{tab:one}.
+
+A ref \ref{tab:one}.
+
+
+\end{document}
