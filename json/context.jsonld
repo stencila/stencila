@@ -340,6 +340,7 @@
     "keywords": "schema:keywords",
     "label": "stencila:label",
     "labelAutomatically": "stencila:labelAutomatically",
+    "labelOnly": "stencila:labelOnly",
     "labelType": "stencila:labelType",
     "lastModified": "stencila:lastModified",
     "legalName": "schema:legalName",

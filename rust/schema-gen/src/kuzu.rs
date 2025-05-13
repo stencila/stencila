@@ -57,6 +57,7 @@ impl Schemas {
             "executionInstance",
             "mathml",
             "value",
+            "labelOnly",
             // Avoid many paragraph nodes for each table cell with `text`
             // same as the `text` of the table cell itself (most table cells have a single paragraph)
             "TableCell.content",

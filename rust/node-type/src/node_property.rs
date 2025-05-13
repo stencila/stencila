@@ -158,6 +158,7 @@ pub enum NodeProperty {
     Keywords,
     Label,
     LabelAutomatically,
+    LabelOnly,
     LabelType,
     LastModified,
     LegalName,

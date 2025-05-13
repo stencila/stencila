@@ -72,7 +72,7 @@ pub(crate) fn node_type_properties(node_type: &NodeType) -> Vec<NodeProperty> {
         NodeType::InstructionMessage => vec![NodeProperty::Id, NodeProperty::Role, NodeProperty::Parts, NodeProperty::Authors, NodeProperty::Provenance],
         NodeType::IntegerValidator => vec![NodeProperty::Id, NodeProperty::Minimum, NodeProperty::ExclusiveMinimum, NodeProperty::Maximum, NodeProperty::ExclusiveMaximum, NodeProperty::MultipleOf],
         NodeType::Island => vec![NodeProperty::Id, NodeProperty::Content, NodeProperty::LabelType, NodeProperty::Label, NodeProperty::LabelAutomatically, NodeProperty::Style],
-        NodeType::Link => vec![NodeProperty::Id, NodeProperty::Content, NodeProperty::Target, NodeProperty::Title, NodeProperty::Rel],
+        NodeType::Link => vec![NodeProperty::Id, NodeProperty::Content, NodeProperty::Target, NodeProperty::Title, NodeProperty::Rel, NodeProperty::LabelOnly],
         NodeType::List => vec![NodeProperty::Id, NodeProperty::Items, NodeProperty::Order, NodeProperty::Authors, NodeProperty::Provenance],
         NodeType::ListItem => vec![NodeProperty::Id, NodeProperty::AlternateNames, NodeProperty::Description, NodeProperty::Identifiers, NodeProperty::Images, NodeProperty::Name, NodeProperty::Url, NodeProperty::Content, NodeProperty::Item, NodeProperty::IsChecked, NodeProperty::Position],
         NodeType::MathBlock => vec![NodeProperty::Id, NodeProperty::Code, NodeProperty::MathLanguage, NodeProperty::Authors, NodeProperty::Provenance, NodeProperty::CompilationDigest, NodeProperty::CompilationMessages, NodeProperty::Mathml, NodeProperty::Images, NodeProperty::Label, NodeProperty::LabelAutomatically],

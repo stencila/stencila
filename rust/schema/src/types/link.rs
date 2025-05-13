@@ -2,13 +2,14 @@
 
 use crate::prelude::*;
 
+use super::boolean::Boolean;
 use super::inline::Inline;
 use super::string::String;
 
 /// A hyperlink to other pages, sections within the same document, resources, or any URL.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -55,6 +56,12 @@ pub struct Link {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "rel")]
     pub rel: Option<String>,
+
+    /// Only show the label of the internal target (e.g. "2"), rather than both the label type and label (e.g. "Figure 2").
+    #[serde(alias = "label-only", alias = "label_only")]
+    #[patch(format = "latex")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub label_only: Option<Boolean>,
 
     /// A unique identifier for a node within a document
     #[serde(skip)]

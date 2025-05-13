@@ -190,6 +190,18 @@
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
+    },
+    {
+      "@id": "stencila:labelOnly",
+      "@type": "rdfs:Property",
+      "rdfs:label": "labelOnly",
+      "rdfs:comment": "Only show the label of the internal target (e.g. \"2\"), rather than both the label type and label (e.g. \"Figure 2\").",
+      "schema:domainIncludes": {
+        "@id": "stencila:Link"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
     }
   ]
 }

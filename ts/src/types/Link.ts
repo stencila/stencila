@@ -30,6 +30,11 @@ export class Link extends Entity {
    */
   rel?: string;
 
+  /**
+   * Only show the label of the internal target (e.g. "2"), rather than both the label type and label (e.g. "Figure 2").
+   */
+  labelOnly?: boolean;
+
   constructor(content: Inline[], target: string, options?: Partial<Link>) {
     super();
     this.type = "Link";

@@ -9,6 +9,8 @@ html:
   elem: a
 jats:
   elem: ext-link
+latex:
+  derive: false
 markdown:
   derive: false
 proptest: {}
@@ -18,6 +20,7 @@ required:
 core:
   - title
   - rel
+  - labelOnly
 properties:
   content:
     '@id': stencila:content
@@ -48,7 +51,7 @@ properties:
     $comment: |
       Note that this is equivalent to the `href` attribute on a HTML `<a>` element,
       not the `target` attribute (which is used to defined where to display the linked content,
-      e.g. in a new browser window).
+      e.g. in a new browser window). May be the `id` of another node in the document (e.g a table or figure)
     type: string
     # See http://json-schema.org/draft-06/json-schema-release-notes.html#formats-uri-vs-uri-reference
     # for the difference between `uri` and `uri-reference`. The latter is more permissive, and is
@@ -83,3 +86,12 @@ properties:
     type: string
     html:
       attr: rel
+  labelOnly:
+    '@id': stencila:labelOnly
+    description: Only show the label of the internal target (e.g. "2"), rather than both the label type and label (e.g. "Figure 2"). 
+    $comment: |
+      This property allows for internal cross links like "Tables 8, 9 and 10" rather than "Table 8, Table 9, and Table 10".
+      A `Link` with `labelOnly: true` is equivalent to a LaTeX `\ref` whereas the default is equivalent to a `\autoref`.
+    type: boolean
+    patch:
+      formats: [latex]

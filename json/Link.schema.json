@@ -17,6 +17,9 @@
   "jats": {
     "elem": "ext-link"
   },
+  "latex": {
+    "derive": false
+  },
   "markdown": {
     "derive": false
   },
@@ -29,7 +32,8 @@
   "core": [
     "id",
     "title",
-    "rel"
+    "rel",
+    "labelOnly"
   ],
   "properties": {
     "type": {
@@ -93,7 +97,7 @@
     "target": {
       "@id": "schema:target",
       "description": "The target of the link.",
-      "$comment": "Note that this is equivalent to the `href` attribute on a HTML `<a>` element,\nnot the `target` attribute (which is used to defined where to display the linked content,\ne.g. in a new browser window).\n",
+      "$comment": "Note that this is equivalent to the `href` attribute on a HTML `<a>` element,\nnot the `target` attribute (which is used to defined where to display the linked content,\ne.g. in a new browser window). May be the `id` of another node in the document (e.g a table or figure)\n",
       "patch": {
         "formats": [
           "md",
@@ -155,6 +159,21 @@
         "attr": "rel"
       },
       "type": "string"
+    },
+    "labelOnly": {
+      "@id": "stencila:labelOnly",
+      "description": "Only show the label of the internal target (e.g. \"2\"), rather than both the label type and label (e.g. \"Figure 2\").",
+      "$comment": "This property allows for internal cross links like \"Tables 8, 9 and 10\" rather than \"Table 8, Table 9, and Table 10\".\nA `Link` with `labelOnly: true` is equivalent to a LaTeX `\\ref` whereas the default is equivalent to a `\\autoref`.\n",
+      "aliases": [
+        "label-only",
+        "label_only"
+      ],
+      "patch": {
+        "formats": [
+          "latex"
+        ]
+      },
+      "type": "boolean"
     }
   }
 }
