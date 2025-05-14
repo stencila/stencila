@@ -201,7 +201,9 @@ fn latex_to_blocks(latex: &str) -> Vec<Block> {
             )])));
         } else if let Some(mat) = captures.name("input") {
             let mut source = mat.as_str().to_string();
-            if !source.ends_with(".tex") {
+
+            // If source does not have an extension then assume tex
+            if !source.contains(".") {
                 source.push_str(".tex");
             }
 
