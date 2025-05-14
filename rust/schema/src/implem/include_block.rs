@@ -4,23 +4,33 @@ use crate::{prelude::*, IncludeBlock};
 
 impl LatexCodec for IncludeBlock {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
-        if self.source.ends_with("prelude.tex") {
+        if self.source.ends_with("prelude.tex")
+            && matches!(context.format, Format::Docx | Format::Odt)
+        {
             // The \input{prelude} is treated specially. It is not passed on to pandoc, so it
             // can be used for LaTeX that is needed in the document but which Pandoc baulks at
-            if matches!(context.format, Format::Docx | Format::Odt) {
-                return;
-            }
+            return;
         }
 
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, media_type, select, execution_mode))
-            .merge_losses(lost_exec_options!(self))
-            .str("\\input{")
-            .property_str(NodeProperty::Source, self.source.trim_end_matches(".tex"))
-            .char('}')
-            .newline()
-            .exit_node();
+            .merge_losses(lost_exec_options!(self));
+
+        if context.render {
+            // Render mode: only encode outputs
+            context.property_fn(NodeProperty::Content, |context| {
+                self.content.to_latex(context)
+            });
+        } else {
+            context
+                .str("\\input{")
+                .property_str(NodeProperty::Source, self.source.trim_end_matches(".tex"))
+                .char('}')
+                .newline();
+        }
+
+        context.exit_node();
     }
 }
 
