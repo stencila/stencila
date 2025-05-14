@@ -47,11 +47,18 @@ impl LatexCodec for Island {
                 // Will fallback to just encoding the content below
             } else {
                 let path = path.to_string_lossy();
+
+                // Add id (if any) any as a label to that cross links work
+                if let Some(id) = &self.id {
+                    context.str(r"\label{").str(id).char('}');
+                }
+
                 context
                     .str(r"\centerline{\includegraphics{")
                     .str(&path)
                     .str("}}")
                     .exit_node();
+
                 return;
             }
         }
