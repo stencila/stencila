@@ -1183,6 +1183,7 @@ dependencies = [
  "codec-latex-trait",
  "codec-pandoc",
  "common-dev",
+ "which",
 ]
 
 [[package]]

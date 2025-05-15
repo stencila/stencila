@@ -22,6 +22,8 @@ async fn examples() -> Result<()> {
         .to_string()
         + "/*.tex";
 
+    let have_pandoc = which::which("pandoc").is_ok();
+
     for path in glob(&pattern)?.flatten() {
         let name = path
             .file_stem()
@@ -36,6 +38,11 @@ async fn examples() -> Result<()> {
         let (latex, info) = LatexCodec.to_string(&article, None).await?;
         assert_snapshot!(format!("{name}.coarse.tex"), &latex);
         assert_snapshot!(format!("{name}.coarse.encode.map"), info.mapping);
+
+        // Only run the following tests if Pandoc is installed
+        if !have_pandoc {
+            continue;
+        }
 
         // Using `--fine` decoding
         let (article, ..) = LatexCodec
