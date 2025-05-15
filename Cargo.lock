@@ -1203,6 +1203,7 @@ dependencies = [
  "codec-latex-derive",
  "common",
  "format",
+ "node-path",
  "rand 0.9.0",
 ]
 
@@ -4522,6 +4523,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "node-path"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "derive_more",
+ "node-type",
+]
+
+[[package]]
 name = "node-probe-derive"
 version = "0.0.0"
 dependencies = [
@@ -6459,6 +6469,7 @@ dependencies = [
  "monostate",
  "node-id",
  "node-patch-derive",
+ "node-path",
  "node-probe-derive",
  "node-store",
  "node-strip",

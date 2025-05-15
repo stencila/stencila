@@ -1,0 +1,12 @@
+[package]
+name = "node-path"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+common = { path = "../common" }
+derive_more = { workspace = true }
+node-type = { path = "../node-type" }
+
+[lints]
+workspace = true

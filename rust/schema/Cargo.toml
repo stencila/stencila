@@ -27,6 +27,7 @@ interim = { version = "0.2.1", features = ["chrono_0_4"] }
 monostate = { workspace = true }
 node-id = { path = "../node-id" }
 node-patch-derive = { path = "../node-patch-derive" }
+node-path = { path = "../node-path" }
 node-probe-derive = { path = "../node-probe-derive" }
 node-store = { path = "../node-store" }
 node-strip = { path = "../node-strip" }

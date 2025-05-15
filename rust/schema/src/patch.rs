@@ -8,11 +8,12 @@ use common::{
 };
 use format::Format;
 use node_id::NodeId;
+use node_path::{NodePath, NodeSlot};
 use node_type::NodeProperty;
 
 use crate::{
     prelude::AuthorType, replicate, Author, AuthorRole, AuthorRoleName, Block, ChatMessage, CordOp,
-    Inline, Node, NodePath, NodeSlot, PromptBlock, ProvenanceCount, SuggestionBlock, Timestamp,
+    Inline, Node, PromptBlock, ProvenanceCount, SuggestionBlock, Timestamp,
 };
 
 /// Assign authorship to a node

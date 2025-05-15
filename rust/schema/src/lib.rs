@@ -8,9 +8,6 @@ mod prelude;
 mod types;
 pub use types::*;
 
-mod path;
-pub use path::*;
-
 mod patch;
 pub use patch::*;
 
@@ -27,6 +24,7 @@ pub mod shortcuts;
 pub mod transforms;
 
 pub use node_id::NodeId;
+pub use node_path::{NodePath, NodeSlot};
 pub use node_type::{NodeProperty, NodeType};
 
 pub mod cord_provenance;

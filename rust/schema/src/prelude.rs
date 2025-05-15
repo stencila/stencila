@@ -23,6 +23,7 @@ pub use codec_text_trait::TextCodec;
 pub use format::Format;
 pub use node_id::{NodeId, NodeUid};
 pub use node_patch_derive::PatchNode;
+pub use node_path::{NodePath, NodeSlot};
 pub use node_probe_derive::ProbeNode;
 pub use node_store::{ReadNode, WriteNode};
 pub use node_strip::{StripNode, StripScope, StripTargets};
@@ -31,7 +32,6 @@ pub use node_walk_derive::WalkNode;
 
 pub use crate::deserialize::*;
 pub use crate::patch::{Patch, PatchContext, PatchNode, PatchOp, PatchValue};
-pub use crate::path::{NodePath, NodeSlot};
 pub use crate::probe::{NodeSet, ProbeNode};
 pub use crate::walk::{Visitor, VisitorAsync, VisitorMut, WalkNode};
 pub use crate::{Author, AuthorType, Node, ProvenanceCount};
