@@ -74,13 +74,7 @@ impl Codec for DocxCodec {
         path: &Path,
         options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
-        let pandoc = pandoc_from_format(
-            "",
-            Some(path),
-            &[PANDOC_FORMAT, "+styles"].concat(),
-            &options,
-        )
-        .await?;
+        let pandoc = pandoc_from_format("", Some(path), PANDOC_FORMAT, &options).await?;
         root_from_pandoc(pandoc, Format::Docx, &options)
     }
 
@@ -122,7 +116,7 @@ impl Codec for DocxCodec {
         pandoc_to_format(
             &pandoc,
             Some(path),
-            &[PANDOC_FORMAT, "+styles+native_numbering"].concat(),
+            &[PANDOC_FORMAT, "+native_numbering"].concat(),
             &options,
         )
         .await?;
