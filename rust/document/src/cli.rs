@@ -241,7 +241,7 @@ pub struct Config {
 impl Config {
     #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
-        let doc = Document::open(&self.file).await?;
+        let doc = Document::open(&self.file, None).await?;
 
         let (config, sources) = doc.config_with_sources().await?;
 

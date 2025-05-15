@@ -29,6 +29,7 @@ impl Document {
         root: DocumentRoot,
         kernels: DocumentKernels,
         patch_sender: DocumentPatchSender,
+        decode_options: Option<DecodeOptions>,
     ) {
         tracing::debug!("Document command task started");
 
@@ -200,9 +201,17 @@ impl Document {
 
                 CompileDocument { config } => {
                     let status_sender_clone = status_sender.clone();
+                    let decode_options = decode_options.clone();
                     let task = tokio::spawn(async move {
-                        let status = if let Err(error) =
-                            compile(home, root, kernels, Some(patch_sender), config).await
+                        let status = if let Err(error) = compile(
+                            home,
+                            root,
+                            kernels,
+                            Some(patch_sender),
+                            config,
+                            decode_options,
+                        )
+                        .await
                         {
                             CommandStatus::Failed(format!("While compiling document: {error}"))
                         } else {

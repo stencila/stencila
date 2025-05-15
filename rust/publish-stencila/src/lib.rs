@@ -57,7 +57,7 @@ async fn publish_path(
     }
 
     if path.is_file() {
-        let doc = Document::open(path).await?;
+        let doc = Document::open(path, None).await?;
         doc.compile().await?;
 
         let theme = doc.config().await?.theme;

@@ -2,7 +2,7 @@
 
 use std::{collections::HashMap, fmt::Debug, path::PathBuf, str::FromStr, sync::Arc};
 
-use codecs::Format;
+use codecs::{DecodeOptions, Format};
 use common::{
     clap::{self, Args},
     eyre::{bail, eyre, Result},
@@ -65,10 +65,12 @@ pub async fn compile(
     kernels: Arc<RwLock<Kernels>>,
     patch_sender: Option<PatchSender>,
     config: Config,
+    decode_options: Option<DecodeOptions>,
 ) -> Result<()> {
     let mut root = root.read().await.clone();
     let mut executor = Executor::new(home, kernels, patch_sender);
     executor.config = Some(config);
+    executor.decode_options = decode_options;
     executor.compile(&mut root).await?;
     executor.link(&mut root).await?;
     executor.finalize().await
@@ -173,6 +175,9 @@ pub struct Executor {
     /// Needs to be a stack for nested includes and calls (i.e. those inside documents
     /// that have themselves been included or called).
     directory_stack: Vec<PathBuf>,
+
+    /// The decoding options used when compiling `IncludeBlock`s
+    decode_options: Option<DecodeOptions>,
 
     /// The kernels that will be used for execution
     kernels: Arc<RwLock<Kernels>>,
@@ -429,6 +434,7 @@ impl Executor {
     ) -> Self {
         Self {
             directory_stack: vec![home],
+            decode_options: None,
             kernels,
             patch_sender,
             node_ids: None,

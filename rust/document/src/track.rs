@@ -460,7 +460,7 @@ impl Document {
             let (doc_id, _, store_path, _) =
                 Document::track_path(path, Some(time_now()), Some(time_now())).await?;
 
-            let doc = Document::open(path).await?;
+            let doc = Document::open(path, None).await?;
 
             let root = &mut *doc.root.write().await;
 

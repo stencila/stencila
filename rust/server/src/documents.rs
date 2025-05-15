@@ -97,7 +97,7 @@ impl Documents {
         let doc = if let Some(direction) = sync {
             Document::synced(path, direction).await?
         } else {
-            Document::open(path).await?
+            Document::open(path, None).await?
         };
 
         // Compile the document (so math, headings list, etc can be properly encoded to HTML)

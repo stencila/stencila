@@ -176,7 +176,7 @@ impl Cli {
         }
 
         // Open and compile document
-        let doc = Document::open(path).await?;
+        let doc = Document::open(path, None).await?;
         doc.compile().await?;
 
         // Determine if the document has a Ghost URL

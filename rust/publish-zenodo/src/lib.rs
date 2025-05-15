@@ -372,7 +372,7 @@ impl Cli {
         }
 
         // Open and compile document
-        let Ok(doc) = Document::open(&self.path).await else {
+        let Ok(doc) = Document::open(&self.path, None).await else {
             tracing::error!("Document root is not an Article");
             hint!("Attempt to re-render a standalone document and retry.").to_stdout();
             cli_hint!(

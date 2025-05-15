@@ -31,7 +31,7 @@ impl Cli {
         let mut files_with_issues = 0;
         let mut count_of_issues = 0;
         for file in self.files {
-            let doc = Document::open(&file).await?;
+            let doc = Document::open(&file, None).await?;
             doc.lint(self.format, self.fix).await?;
 
             if self.format || self.fix {

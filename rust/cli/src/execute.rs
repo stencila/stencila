@@ -70,7 +70,7 @@ impl Cli {
             tool_args,
         } = self;
 
-        let doc = Document::open(&input).await?;
+        let doc = Document::open(&input, None).await?;
         doc.compile().await?;
         doc.execute(execute_options).await?;
         doc.diagnostics_print().await?;

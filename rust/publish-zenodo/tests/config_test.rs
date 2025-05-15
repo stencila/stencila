@@ -27,7 +27,7 @@ config:
 
         std::fs::write(&file_path, content)?;
 
-        let doc = Document::open(&file_path).await?;
+        let doc = Document::open(&file_path, None).await?;
 
         let Some(config) = doc
             .inspect(|root| {

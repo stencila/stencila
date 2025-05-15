@@ -198,7 +198,7 @@ async fn source_to_content(
         &url,
         Some(DecodeOptions {
             media_type: media_type.clone(),
-            ..Default::default()
+            ..executor.decode_options.clone().unwrap_or_default()
         }),
     )
     .await

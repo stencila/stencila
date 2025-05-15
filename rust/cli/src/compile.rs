@@ -65,7 +65,7 @@ impl Cli {
             ..
         } = self;
 
-        let doc = Document::open(&input).await?;
+        let doc = Document::open(&input, None).await?;
         doc.compile().await?;
         doc.diagnostics_print().await?;
 

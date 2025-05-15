@@ -277,6 +277,9 @@ pub struct Document {
     /// The path to the document's source file
     path: Option<PathBuf>,
 
+    /// Options for decoding the document from its source, and the source of any `IncludeBlocks` within it
+    decode_options: Option<DecodeOptions>,
+
     /// The root node of the document
     root: DocumentRoot,
 
@@ -305,6 +308,7 @@ impl Document {
     pub fn init(
         home: PathBuf,
         path: Option<PathBuf>,
+        decode_options: Option<DecodeOptions>,
         root: Option<Node>,
         node_type: Option<NodeType>,
     ) -> Result<Self> {
@@ -364,14 +368,24 @@ impl Document {
             let root = root.clone();
             let kernels = kernels.clone();
             let patch_sender = patch_sender.clone();
+            let decode_options = decode_options.clone();
             tokio::spawn(async move {
-                Self::command_task(command_receiver, home, root, kernels, patch_sender).await
+                Self::command_task(
+                    command_receiver,
+                    home,
+                    root,
+                    kernels,
+                    patch_sender,
+                    decode_options,
+                )
+                .await
             });
         }
 
         Ok(Self {
             home,
             path,
+            decode_options,
             root,
             kernels,
             watch_receiver,
@@ -384,11 +398,15 @@ impl Document {
     /// Create a new in-memory document of a specific node type
     pub async fn new(node_type: NodeType) -> Result<Self> {
         let home = std::env::current_dir()?;
-        Self::init(home, None, None, Some(node_type))
+        Self::init(home, None, None, None, Some(node_type))
     }
 
     /// Create a new document from an existing root, node
-    pub async fn from(root: Node, path: Option<PathBuf>) -> Result<Self> {
+    pub async fn from(
+        root: Node,
+        path: Option<PathBuf>,
+        decode_options: Option<DecodeOptions>,
+    ) -> Result<Self> {
         let home = match &path {
             Some(path) => path
                 .parent()
@@ -396,7 +414,7 @@ impl Document {
                 .to_path_buf(),
             None => std::env::current_dir()?,
         };
-        Self::init(home, path, Some(root), None)
+        Self::init(home, path, decode_options, Some(root), None)
     }
 
     /// Initialize a document at a path
@@ -404,13 +422,23 @@ impl Document {
     /// Note that this simply associates the document with the path.
     /// It does not read the document from the path. Use `open`
     /// or `synced` for that.
-    async fn at(path: &Path, node_type: Option<NodeType>) -> Result<Self> {
+    async fn at(
+        path: &Path,
+        decode_options: Option<DecodeOptions>,
+        node_type: Option<NodeType>,
+    ) -> Result<Self> {
         let home = path
             .parent()
             .ok_or_else(|| eyre!("path has no parent; is it a file?"))?
             .to_path_buf();
 
-        Self::init(home, Some(path.to_path_buf()), None, node_type)
+        Self::init(
+            home,
+            Some(path.to_path_buf()),
+            decode_options,
+            None,
+            node_type,
+        )
     }
 
     /// Create a new document at a path
@@ -427,7 +455,7 @@ impl Document {
 
         // Create a document at the path and track it (which will create a tracking file)
         // and save it (which create the file itself)
-        let doc = Self::at(path, Some(node_type)).await?;
+        let doc = Self::at(path, None, Some(node_type)).await?;
         doc.save().await?;
         doc.track(None).await?;
         Ok(doc)
@@ -442,12 +470,12 @@ impl Document {
     /// memory first and then the file at `path` will be merged into it, but
     /// only if it has a last modification time after the sidecar file.
     #[tracing::instrument]
-    pub async fn open(path: &Path) -> Result<Self> {
+    pub async fn open(path: &Path, decode_options: Option<DecodeOptions>) -> Result<Self> {
         if !path.exists() {
             bail!("File does not exist: {}", path.display());
         }
 
-        let doc = Self::at(path, None).await?;
+        let doc = Self::at(path, decode_options.clone(), None).await?;
 
         let mut import = true;
 
@@ -465,7 +493,7 @@ impl Document {
         }
 
         if import {
-            doc.import(path, None, None).await?;
+            doc.import(path, decode_options, None).await?;
         }
 
         Ok(doc)
@@ -474,7 +502,7 @@ impl Document {
     /// Open an existing document with syncing
     #[tracing::instrument]
     pub async fn synced(path: &Path, sync: SyncDirection) -> Result<Self> {
-        let doc = Self::open(path).await?;
+        let doc = Self::open(path, None).await?;
 
         doc.sync_file(path, sync, None, None).await?;
 
@@ -624,6 +652,8 @@ impl Document {
         options: Option<DecodeOptions>,
         authors: Option<Vec<AuthorRole>>,
     ) -> Result<()> {
+        let options = options.or(self.decode_options.clone());
+
         let format = options
             .as_ref()
             .and_then(|opts| opts.format.clone())
