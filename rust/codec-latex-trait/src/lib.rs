@@ -2,7 +2,7 @@
 
 use std::{
     env::temp_dir,
-    fs::{create_dir_all, read_to_string, remove_file, write},
+    fs::{create_dir_all, read_to_string, remove_file, rename, write},
     path::{Path, PathBuf},
     process::{Command, Stdio},
 };
@@ -222,8 +222,9 @@ pub fn use_packages(latex: &str) -> String {
 pub fn latex_to_image(latex: &str, path: &Path, class: Option<&str>) -> Result<()> {
     let format = Format::from_path(path);
     let (latex_tool, image_tool) = match format {
+        Format::Pdf => ("xelatex", ""),
         Format::Png => ("latex", "dvipng"),
-        Format::Svg => ("xelatex", "dvisvgm"),
+        Format::Svg => ("xelatex", "pdf2svg"), // dvisvgm is an alternative here but does not handle raster images (e.g. PNG) well
         _ => bail!("unhandled format {format}"),
     };
 
@@ -244,7 +245,7 @@ pub fn latex_to_image(latex: &str, path: &Path, class: Option<&str>) -> Result<(
     let latex = if !latex.contains("\\documentclass") {
         format!(
             r"
-\documentclass[preview]{{{class}}}
+\documentclass[preview,border=8pt]{{{class}}}
 
 {preamble}
 
@@ -267,9 +268,15 @@ pub fn latex_to_image(latex: &str, path: &Path, class: Option<&str>) -> Result<(
             "-interaction=batchmode",
             "-halt-on-error",
             if latex_tool == "xelatex" {
-                "-no-pdf"
-            } else {
+                if matches!(format, Format::Pdf) || image_tool == "pdf2svg" {
+                    "-output-format=pdf"
+                } else {
+                    "-no-pdf"
+                }
+            } else if latex_tool == "latex" {
                 "-output-format=dvi"
+            } else {
+                ""
             },
             "-jobname",
             &job,
@@ -289,28 +296,46 @@ pub fn latex_to_image(latex: &str, path: &Path, class: Option<&str>) -> Result<(
     if let Some(dir) = path.parent() {
         create_dir_all(dir)?;
     }
-    let mut image_command = Command::new(image_tool);
-    if image_tool == "dvisvgm" {
-        // Using --no-fonts when generating SVGs improves was found
-        // to improve layout of text
-        image_command.arg("--no-fonts");
-    }
-    let image_status = image_command
-        .args([
-            "-o",
-            &path.to_string_lossy(),
-            &format!(
-                "{job}.{}",
-                if latex_tool == "xelatex" {
-                    "xdv"
-                } else {
-                    "dvi"
-                }
-            ),
-        ])
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .status()?;
+
+    let image_status = if image_tool.is_empty() {
+        rename(format!("{job}.pdf"), path)?;
+
+        None
+    } else {
+        let mut image_command = Command::new(image_tool);
+
+        let input = format!(
+            "{job}.{}",
+            if image_tool == "pdf2svg" {
+                "pdf"
+            } else if latex_tool == "xelatex" {
+                "xdv"
+            } else {
+                "dvi"
+            }
+        );
+        let output = path.to_string_lossy().to_string();
+
+        let args = if image_tool == "dvisvgm" {
+            // Using --no-fonts when generating SVGs was found
+            // to improve layout of text
+            vec!["--no-fonts", "-o", &output, &input]
+        } else if image_tool == "dvipng" {
+            vec!["-o", &output, &input]
+        } else if image_tool == "pdf2svg" {
+            vec![input.as_str(), &output.as_str()]
+        } else {
+            vec![]
+        };
+
+        let status = image_command
+            .args(args)
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status()?;
+
+        Some(status)
+    };
 
     for path in glob::glob(&format!("{job}.*"))?.flatten() {
         remove_file(path)?;
@@ -319,7 +344,7 @@ pub fn latex_to_image(latex: &str, path: &Path, class: Option<&str>) -> Result<(
     if !latex_status.success() {
         bail!("{latex_tool} failed:\n\n{log}");
     }
-    if !image_status.success() {
+    if !image_status.map(|status| status.success()).unwrap_or(true) {
         bail!("{image_tool} failed");
     }
 

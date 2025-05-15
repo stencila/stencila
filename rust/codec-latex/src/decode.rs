@@ -28,7 +28,7 @@ pub(super) async fn decode(
         .and_then(|opts| opts.coarse)
         .unwrap_or(true)
     {
-        coarse(latex)
+        coarse(latex, options)
     } else {
         fine(latex, options).await
     }
@@ -158,15 +158,48 @@ pub(super) async fn fine(
 /// Decode LaTeX with the `--course` option
 ///
 /// Decodes into an [`Article`] with only [`RawBlock`]s and executable block types
-pub(super) fn coarse(latex: &str) -> Result<(Node, DecodeInfo)> {
+pub(super) fn coarse(latex: &str, options: Option<DecodeOptions>) -> Result<(Node, DecodeInfo)> {
+    let options = options.unwrap_or_default();
+
+    let latex = if !options.island_wrap.is_empty() {
+        wrap_island_envs(latex, &options.island_wrap, &options.island_style)?
+    } else {
+        latex.into()
+    };
+
     Ok((
-        Node::Article(Article::new(latex_to_blocks(latex))),
+        Node::Article(Article::new(latex_to_blocks(&latex, &options.island_style))),
         DecodeInfo::none(),
     ))
 }
 
+/// Wrap specified environments in
+fn wrap_island_envs(
+    input: &str,
+    island_envs: &[String],
+    island_style: &Option<String>,
+) -> Result<String> {
+    let style = island_style
+        .as_ref()
+        .map(|style| format!("[style={style}]"))
+        .unwrap_or_default();
+
+    let mut output = input.to_owned();
+    for env in island_envs {
+        let re = Regex::new(&format!(r"(?s)\\begin\{{{env}\}}.*?\\end\{{{env}\}}"))?;
+
+        output = re
+            .replace_all(&output, |captures: &Captures| {
+                format!("\\begin{{island}}{}{}\\end{{island}}", style, &captures[0])
+            })
+            .into_owned();
+    }
+
+    Ok(output)
+}
+
 /// Decode LaTeX into a vector of "coarse" [`Block`]s
-fn latex_to_blocks(latex: &str) -> Vec<Block> {
+fn latex_to_blocks(latex: &str, island_style: &Option<String>) -> Vec<Block> {
     let mut blocks = Vec::new();
     let mut cursor = 0;
 
@@ -262,7 +295,7 @@ fn latex_to_blocks(latex: &str) -> Vec<Block> {
             blocks.push(Block::ForBlock(ForBlock {
                 variable,
                 code,
-                content: latex_to_blocks(mat.as_str()),
+                content: latex_to_blocks(mat.as_str(), island_style),
                 ..Default::default()
             }));
         } else if let Some(mat) = captures.name("if") {
@@ -274,7 +307,7 @@ fn latex_to_blocks(latex: &str) -> Vec<Block> {
 
             blocks.push(Block::IfBlock(IfBlock::new(vec![IfBlockClause {
                 code,
-                content: latex_to_blocks(mat.as_str()),
+                content: latex_to_blocks(mat.as_str(), island_style),
                 ..Default::default()
             }])));
         } else if let Some(mat) = captures.name("island") {
@@ -282,7 +315,7 @@ fn latex_to_blocks(latex: &str) -> Vec<Block> {
             let mut label_type = None;
             let mut label = None;
             let mut label_automatically = None;
-            let mut style = None;
+            let mut style = island_style.clone();
             if let Some(options) = captures.name("island_opts") {
                 for option in options
                     .as_str()
@@ -341,7 +374,7 @@ fn latex_to_blocks(latex: &str) -> Vec<Block> {
                 label,
                 label_automatically,
                 style,
-                content: latex_to_blocks(content),
+                content: latex_to_blocks(content, island_style),
                 ..Default::default()
             }));
         }

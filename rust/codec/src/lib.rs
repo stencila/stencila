@@ -430,6 +430,18 @@ pub struct DecodeOptions {
     /// where the codec does not fully decoding all elements.
     pub coarse: Option<bool>,
 
+    /// Automatically create `Island` nodes by wrapping elements in the decoded document
+    ///
+    /// Only supported by some codecs. The interpretation of these strings is dependent on
+    /// the decoding codec. For example, the LaTeX codec will wrap environments with matching
+    /// names in an island.
+    pub island_wrap: Vec<String>,
+
+    /// The style to apply to automatically created `Island` nodes
+    ///
+    /// Only supported by some codecs and only if `--island-wrap` is used.
+    pub island_style: Option<String>,
+
     /// The response to take when there are losses in the decoding
     #[default(_code = "LossesResponse::Warn")]
     pub losses: LossesResponse,

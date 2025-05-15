@@ -54,7 +54,7 @@ impl LatexCodec for Island {
                 }
 
                 context
-                    .str(r"\centerline{\includegraphics{")
+                    .str(r"\centerline{\includegraphics[width=14cm]{")
                     .str(&path)
                     .str("}}")
                     .exit_node();
