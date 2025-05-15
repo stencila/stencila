@@ -475,6 +475,9 @@ pub struct EncodeOptions {
     /// Highlight the rendered outputs of executable nodes
     pub highlight: Option<bool>,
 
+    /// Link the rendered outputs of executable nodes to the document cache
+    pub link: Option<bool>,
+
     /// The template document to use
     ///
     /// Only supported by some formats (e.g. DOCX).

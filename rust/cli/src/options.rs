@@ -92,6 +92,13 @@ pub struct EncodeOptions {
     #[arg(long)]
     highlight: bool,
 
+    /// Link the rendered outputs of executable nodes to the document cache
+    ///
+    /// Used in association with `--render` to additionally encode a link
+    /// to the location in the cache of the entire node, including its source.s
+    #[arg(long)]
+    link: bool,
+
     /// The template document to use
     ///
     /// Only supported by some formats (e.g. DOCX).
@@ -153,6 +160,7 @@ impl EncodeOptions {
 
         let render = self.render.then_some(true);
         let highlight = self.highlight.then_some(true);
+        let link = self.link.then_some(true);
 
         let template = self.template.clone();
 
@@ -169,6 +177,7 @@ impl EncodeOptions {
             compact,
             render,
             highlight,
+            link,
             template,
             standalone,
             from_path,

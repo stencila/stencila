@@ -23,6 +23,7 @@ impl LatexCodec for Island {
                 false,
                 true,
                 false,
+                false,
                 context.prelude.clone(),
             );
 
@@ -53,11 +54,19 @@ impl LatexCodec for Island {
                     context.str(r"\label{").str(id).char('}');
                 }
 
+                if context.link {
+                    context.link_begin();
+                }
+
                 context
                     .str(r"\centerline{\includegraphics[width=14cm]{")
                     .str(&path)
                     .str("}}")
                     .exit_node();
+
+                if context.link {
+                    context.link_end();
+                }
 
                 return;
             }

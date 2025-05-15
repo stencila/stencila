@@ -29,12 +29,13 @@ pub fn to_latex<T>(
     standalone: bool,
     render: bool,
     highlight: bool,
+    link: bool,
     prelude: Option<String>,
 ) -> (String, EncodeInfo)
 where
     T: LatexCodec,
 {
-    let mut context = LatexEncodeContext::new(format, standalone, render, highlight, prelude);
+    let mut context = LatexEncodeContext::new(format, standalone, render, highlight, link, prelude);
     node.to_latex(&mut context);
 
     let mut latex = context.content;
@@ -369,6 +370,9 @@ pub struct LatexEncodeContext {
     /// Highlight the rendered outputs of executable nodes
     pub highlight: bool,
 
+    /// Encode the source of executable nodes
+    pub link: bool,
+
     /// Whether the root node is "coarse grained" (i.e. decoded with the `--coarse` option).
     /// Used to determine whether newlines are needed between blocks.
     pub coarse: bool,
@@ -401,6 +405,7 @@ impl LatexEncodeContext {
         standalone: bool,
         render: bool,
         highlight: bool,
+        source: bool,
         prelude: Option<String>,
     ) -> Self {
         let temp_dir = temp_dir();
@@ -412,6 +417,7 @@ impl LatexEncodeContext {
             standalone,
             render,
             highlight,
+            link: source,
             prelude,
             temp_dir,
             coarse: false,
@@ -565,6 +571,21 @@ impl LatexEncodeContext {
     /// Exit a LaTeX command
     pub fn command_exit(&mut self) -> &mut Self {
         self.content.push('}');
+        self
+    }
+
+    /// Begin a link to the current node
+    pub fn link_begin(&mut self) -> &mut Self {
+        if let Some((_, node_id, _)) = self.node_stack.last() {
+            let node_id = node_id.to_string();
+            self.str("\\href{stencila://").str(&node_id).str("}{");
+        }
+        self
+    }
+
+    /// End a link to the current node
+    pub fn link_end(&mut self) -> &mut Self {
+        self.char('}');
         self
     }
 

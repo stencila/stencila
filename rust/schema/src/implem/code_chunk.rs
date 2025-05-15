@@ -150,6 +150,10 @@ impl LatexCodec for CodeChunk {
 
         // Render mode: only encode outputs
         if context.render {
+            if context.link {
+                context.link_begin();
+            }
+
             if let Some(outputs) = &self.outputs {
                 context.property_fn(NodeProperty::Outputs, |context| {
                     for output in outputs {
@@ -161,6 +165,7 @@ impl LatexCodec for CodeChunk {
                                 false,
                                 true,
                                 context.highlight,
+                                context.link,
                                 context.prelude.clone(),
                             );
 
@@ -183,6 +188,10 @@ impl LatexCodec for CodeChunk {
                         }
                     }
                 });
+            }
+
+            if context.link {
+                context.link_end();
             }
 
             context
