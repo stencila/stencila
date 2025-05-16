@@ -18,7 +18,7 @@ on:
 
 env:
   RUST_VERSION: "1.85.1"
-  ORT_VERSION: "1.22.2"
+  ORT_VERSION: "1.22.0"
 
 jobs:
   test-rust:
