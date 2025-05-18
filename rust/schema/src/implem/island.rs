@@ -54,19 +54,23 @@ impl LatexCodec for Island {
                     context.str(r"\label{").str(id).char('}');
                 }
 
+                context.str(r"\centerline{");
+
                 if context.link {
                     context.link_begin();
                 }
 
                 context
-                    .str(r"\centerline{\includegraphics[width=14cm]{")
+                    .str(r"\includegraphics[width=14cm]{")
                     .str(&path)
-                    .str("}}")
+                    .str("}")
                     .exit_node();
 
                 if context.link {
                     context.link_end();
                 }
+
+                context.str("}");
 
                 return;
             }
