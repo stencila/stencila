@@ -595,6 +595,11 @@ impl LatexEncodeContext {
         self
     }
 
+    /// Create a link to the current with some content
+    pub fn link_with(&mut self, content: &str) -> &mut Self {
+        self.link_begin().str(content).link_end()
+    }
+
     /// Trim whitespace from the end of the content in-place
     ///
     /// According to [this](https://users.rust-lang.org/t/trim-string-in-place/15809/18)

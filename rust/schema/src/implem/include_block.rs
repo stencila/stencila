@@ -18,10 +18,23 @@ impl LatexCodec for IncludeBlock {
             .merge_losses(lost_exec_options!(self));
 
         if context.render {
-            // Render mode: only encode outputs
+            if context.link {
+                context
+                    .str("\n\n\\centerline{")
+                    .link_with(&format!(r"\verb|[Begin include {}]|", self.source))
+                    .str("}\n\n");
+            }
+
             context.property_fn(NodeProperty::Content, |context| {
                 self.content.to_latex(context)
             });
+
+            if context.link {
+                context
+                    .str("\n\n\\centerline{")
+                    .link_with(&format!(r"\verb|[End include {}]|", self.source))
+                    .str("}\n\n");
+            }
         } else {
             context
                 .str("\\input{")
