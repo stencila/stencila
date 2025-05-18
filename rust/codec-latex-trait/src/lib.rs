@@ -7,6 +7,7 @@ use std::{
     process::{Command, Stdio},
 };
 
+use node_path::{NodePath, NodeSlot};
 use rand::{distr::Alphanumeric, rng, Rng};
 
 use codec_info::{EncodeInfo, Losses, Mapping, NodeId, NodeProperty, NodeType};
@@ -389,6 +390,9 @@ pub struct LatexEncodeContext {
     /// A stack of node types, ids and start positions
     node_stack: Vec<(NodeType, NodeId, usize)>,
 
+    /// The path to the current node
+    node_path: NodePath,
+
     /// Node to position mapping
     pub mapping: Mapping,
 
@@ -423,6 +427,7 @@ impl LatexEncodeContext {
             coarse: false,
             content,
             node_stack: Vec::default(),
+            node_path: NodePath::new(),
             mapping: Mapping::default(),
             losses: Losses::default(),
             depth: 0,
@@ -495,7 +500,9 @@ impl LatexEncodeContext {
     {
         let start = self.char_index();
 
+        self.node_path.push_back(NodeSlot::from(prop));
         func(self);
+        self.node_path.pop_back();
 
         if let Some((node_type, node_id, ..)) = self.node_stack.last() {
             let end = self.char_index();
@@ -576,10 +583,9 @@ impl LatexEncodeContext {
 
     /// Begin a link to the current node
     pub fn link_begin(&mut self) -> &mut Self {
-        if let Some((_, node_id, _)) = self.node_stack.last() {
-            let node_id = node_id.to_string();
-            self.str("\\href{stencila://").str(&node_id).str("}{");
-        }
+        let node_id = self.node_path.to_string();
+        self.str("\\href{stencila://").str(&node_id).str("}{");
+
         self
     }
 
@@ -658,8 +664,10 @@ where
     T: LatexCodec,
 {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
-        for item in self.iter() {
+        for (index, item) in self.iter().enumerate() {
+            context.node_path.push_back(NodeSlot::from(index));
             item.to_latex(context);
+            context.node_path.pop_back();
         }
     }
 }

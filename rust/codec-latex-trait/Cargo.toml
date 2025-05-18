@@ -8,6 +8,7 @@ codec-info = { path = "../codec-info" }
 codec-latex-derive = { path = "../codec-latex-derive" }
 common = { path = "../common" }
 format = { path = "../format" }
+node-path = { path = "../node-path" }
 rand = { workspace = true }
 
 [lints]
