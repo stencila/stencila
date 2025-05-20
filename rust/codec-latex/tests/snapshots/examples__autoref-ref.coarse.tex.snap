@@ -10,5 +10,8 @@ An autoref \autoref{tab:one}.
 
 A ref \ref{tab:one}.
 
+\begin{island}[tab:one,label-type=tab]
+
+\end{island}
 
 \end{document}

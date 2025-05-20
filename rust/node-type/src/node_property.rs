@@ -133,6 +133,7 @@ pub enum NodeProperty {
     InstructionType,
     InstructionTypes,
     IsActive,
+    IsAutomatic,
     IsChecked,
     IsCollapsed,
     IsDisabled,

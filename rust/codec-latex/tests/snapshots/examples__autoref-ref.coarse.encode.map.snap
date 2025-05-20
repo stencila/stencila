@@ -17,9 +17,9 @@ start     end        offsets   node_type+property                   authorship
     80     93         (0, 0)   InlinesBlock
     93     96        (13, 3)   RawBlock.content
     93     95        (0, -1)   RawBlock
-    96     96         (3, 1)   Island.content
-    96     95        (0, -1)   Island
-    96    112        (0, 17)   RawBlock.content
-    96    112         (0, 0)   RawBlock
-     0    112       (-96, 0)   Article.content
-     0    112         (0, 0)   Article
+   136    136       (43, 41)   Island.content
+    96    149      (-40, 13)   Island
+   149    165       (53, 16)   RawBlock.content
+   149    165         (0, 0)   RawBlock
+     0    165      (-149, 0)   Article.content
+     0    165         (0, 0)   Article

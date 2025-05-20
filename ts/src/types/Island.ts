@@ -17,6 +17,11 @@ export class Island extends Entity {
   content: Block[];
 
   /**
+   * Whether the island is automatically generated.
+   */
+  isAutomatic?: boolean;
+
+  /**
    * The type of the label for the island.
    */
   labelType?: LabelType;

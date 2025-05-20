@@ -11,14 +11,14 @@ start     end        offsets   node_type+property                   authorship
    110    122         (0, 0)   InlinesBlock
    122    156       (12, 34)   RawBlock.content
    122    155        (0, -1)   RawBlock
-   170    172       (48, 17)   CodeChunk.code
-   156    184      (-14, 12)   CodeChunk
-   185    210       (29, 26)   RawBlock.content
-   185    209        (0, -1)   RawBlock
-   224    225       (39, 16)   CodeChunk.programmingLanguage
-   227    229         (3, 4)   CodeChunk.code
-   210    241      (-17, 12)   CodeChunk
-   242    258       (32, 17)   RawBlock.content
-   242    258         (0, 0)   RawBlock
-     0    258      (-242, 0)   Article.content
-     0    258         (0, 0)   Article
+   170    176       (48, 21)   CodeChunk.code
+   156    188      (-14, 12)   CodeChunk
+   189    214       (33, 26)   RawBlock.content
+   189    213        (0, -1)   RawBlock
+   228    229       (39, 16)   CodeChunk.programmingLanguage
+   231    244        (3, 15)   CodeChunk.code
+   214    256      (-17, 12)   CodeChunk
+   257    273       (43, 17)   RawBlock.content
+   257    273         (0, 0)   RawBlock
+     0    273      (-257, 0)   Article.content
+     0    273         (0, 0)   Article

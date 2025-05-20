@@ -24,6 +24,9 @@ pub use codec_latex_derive::LatexCodec;
 /// Encode a node that implements `LatexCodec` to Latex
 ///
 /// A convenience function to save the caller from having to create a context etc.
+/// 
+/// Note: the `format` argument is the final destination format. LaTeX is always generated,
+/// but it will differ depending on the destination format.
 pub fn to_latex<T>(
     node: &T,
     format: Format,

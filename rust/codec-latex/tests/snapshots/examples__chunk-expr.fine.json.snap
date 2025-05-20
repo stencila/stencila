@@ -50,7 +50,7 @@ expression: article
     {
       "type": "CodeChunk",
       "code": {
-        "string": "3"
+        "string": "3 + 1"
       }
     },
     {
@@ -67,7 +67,7 @@ expression: article
     {
       "type": "CodeChunk",
       "code": {
-        "string": "4"
+        "string": "x <- 3\n3 + 2"
       }
     }
   ]

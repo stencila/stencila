@@ -137,6 +137,18 @@
       }
     },
     {
+      "@id": "stencila:isAutomatic",
+      "@type": "rdfs:Property",
+      "rdfs:label": "isAutomatic",
+      "rdfs:comment": "Whether the island is automatically generated.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Island"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    },
+    {
       "@id": "stencila:labelType",
       "@type": "rdfs:Property",
       "rdfs:label": "labelType",

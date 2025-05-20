@@ -315,6 +315,7 @@
     "instructionType": "stencila:instructionType",
     "instructionTypes": "stencila:instructionTypes",
     "isActive": "stencila:isActive",
+    "isAutomatic": "stencila:isAutomatic",
     "isChecked": "stencila:isChecked",
     "isCollapsed": "stencila:isCollapsed",
     "isDisabled": "stencila:isDisabled",

@@ -34,6 +34,12 @@ pub struct Island {
     #[dom(elem = "section")]
     pub content: Vec<Block>,
 
+    /// Whether the island is automatically generated.
+    #[serde(alias = "is-automatic", alias = "is_automatic")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub is_automatic: Option<Boolean>,
+
     /// The type of the label for the island.
     #[serde(alias = "label-type", alias = "label_type")]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]

@@ -33,7 +33,7 @@ expression: article
     {
       "type": "CodeChunk",
       "code": {
-        "string": "3\n"
+        "string": "3 + 1\n"
       }
     },
     {
@@ -46,7 +46,7 @@ expression: article
     {
       "type": "CodeChunk",
       "code": {
-        "string": "4\n"
+        "string": "x <- 3\n3 + 2\n"
       },
       "programmingLanguage": "r",
       "isEchoed": true,

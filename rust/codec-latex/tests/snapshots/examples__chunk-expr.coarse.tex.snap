@@ -13,14 +13,15 @@ One plus two equals \expr{1 + 2}.
 No language or other options:
 
 \begin{chunk}
-3
+3 + 1
 \end{chunk}
 
 
 With lang and options:
 
 \begin{chunk}[r]
-4
+x <- 3
+3 + 2
 \end{chunk}
 
 

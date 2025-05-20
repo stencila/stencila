@@ -2130,6 +2130,9 @@ class Island(Entity):
     content: list[Block]
     """The content within the section."""
 
+    is_automatic: bool | None = None
+    """Whether the island is automatically generated."""
+
     label_type: LabelType | None = None
     """The type of the label for the island."""
 
@@ -2162,6 +2165,9 @@ class Link(Entity):
 
     rel: str | None = None
     """The relation between the target and the current thing."""
+
+    label_only: bool | None = None
+    """Only show the label of the internal target (e.g. "2"), rather than both the label type and label (e.g. "Figure 2")."""
 
 
 @dataclass(kw_only=True, repr=False)

@@ -1,4 +1,3 @@
-use codec_info::lost_options;
 use codec_latex_trait::{latex_to_image, to_latex};
 use common::tracing;
 
@@ -6,20 +5,12 @@ use crate::{prelude::*, Island, LabelType};
 
 impl LatexCodec for Island {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
-        context
-            .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(
-                self,
-                id,
-                label,
-                label_type,
-                label_automatically
-            ));
+        context.enter_node(self.node_type(), self.node_id());
 
         if matches!(context.format, Format::Docx | Format::Odt) {
             let (mut latex, ..) = to_latex(
                 &self.content,
-                Format::Latex,
+                Format::Svg,
                 false,
                 true,
                 false,
@@ -76,10 +67,49 @@ impl LatexCodec for Island {
             }
         }
 
-        context
-            .property_fn(NodeProperty::Content, |context| {
-                self.content.to_latex(context)
-            })
-            .exit_node();
+        let should_wrap = !self.is_automatic.unwrap_or_default()
+            && matches!(context.format, Format::Latex | Format::Tex);
+        if should_wrap {
+            context.str("\\begin{island}");
+
+            let has_options = self.id.is_some()
+                || self.label_type.is_some()
+                || self.label.is_some()
+                || self.style.is_some();
+            if has_options {
+                let props = [
+                    self.id.clone(),
+                    self.label_type.as_ref().map(|lt| {
+                        [
+                            "label-type=",
+                            match lt {
+                                LabelType::FigureLabel => "fig",
+                                LabelType::TableLabel => "tab",
+                            },
+                        ]
+                        .concat()
+                    }),
+                    self.label.as_ref().map(|label| ["label=", label].concat()),
+                    self.style.as_ref().map(|style| ["style=", style].concat()),
+                ]
+                .into_iter()
+                .filter_map(|item| item)
+                .join(",");
+
+                context.char('[').str(&props).char(']');
+            }
+
+            context.str("\n\n");
+        }
+
+        context.property_fn(NodeProperty::Content, |context| {
+            self.content.to_latex(context)
+        });
+
+        if should_wrap {
+            context.str("\\end{island}\n");
+        }
+
+        context.exit_node();
     }
 }

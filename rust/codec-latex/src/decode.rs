@@ -181,7 +181,7 @@ fn wrap_island_envs(
 ) -> Result<String> {
     let style = island_style
         .as_ref()
-        .map(|style| format!("[style={style}]"))
+        .map(|style| format!("style={style}"))
         .unwrap_or_default();
 
     let mut output = input.to_owned();
@@ -190,7 +190,10 @@ fn wrap_island_envs(
 
         output = re
             .replace_all(&output, |captures: &Captures| {
-                format!("\\begin{{island}}{}{}\\end{{island}}", style, &captures[0])
+                format!(
+                    "\\begin{{island}}[auto,{}]{}\\end{{island}}",
+                    style, &captures[0]
+                )
             })
             .into_owned();
     }
@@ -312,6 +315,7 @@ fn latex_to_blocks(latex: &str, island_style: &Option<String>) -> Vec<Block> {
             }])));
         } else if let Some(mat) = captures.name("island") {
             let mut id = None;
+            let mut is_automatic = None;
             let mut label_type = None;
             let mut label = None;
             let mut label_automatically = None;
@@ -339,6 +343,8 @@ fn latex_to_blocks(latex: &str, island_style: &Option<String>) -> Vec<Block> {
                         } else if name == "id" {
                             id = Some(value.to_string())
                         }
+                    } else if option == "auto" {
+                        is_automatic = Some(true);
                     } else if id.is_none() {
                         id = Some(option.to_string())
                     }
@@ -370,6 +376,7 @@ fn latex_to_blocks(latex: &str, island_style: &Option<String>) -> Vec<Block> {
 
             blocks.push(Block::Island(Island {
                 id,
+                is_automatic,
                 label_type,
                 label,
                 label_automatically,

@@ -8,6 +8,8 @@ expression: "&latex"
 
 Before island.
 
+\begin{island}
+
 Within island. There can be inline code expression: \expr{1 + 2}.
 
 And there can be block code chunk:
@@ -17,12 +19,16 @@ And there can be block code chunk:
 \end{chunk}
 
 
+\end{island}
 
 After island.
 
 Island with options
 
+\begin{island}[label-type=tab,label=7,style=some-style]
+
 Within the island with options.
 
+\end{island}
 
 \end{document}

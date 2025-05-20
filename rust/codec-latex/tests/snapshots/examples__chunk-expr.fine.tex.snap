@@ -7,11 +7,12 @@ One plus two equals \expr{1 + 2}.
 No language or other options:
 
 \begin{lstlisting}
-3
+3 + 1
 \end{lstlisting}
 
 With lang and options:
 
 \begin{lstlisting}
-4
+x <- 3
+3 + 2
 \end{lstlisting}

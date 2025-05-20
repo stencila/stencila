@@ -161,7 +161,7 @@ impl LatexCodec for CodeChunk {
                             // Encode outputs as images so that they are not editable
                             let (latex, ..) = to_latex(
                                 output,
-                                Format::Latex,
+                                Format::Svg,
                                 false,
                                 true,
                                 context.highlight,
