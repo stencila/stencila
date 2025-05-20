@@ -116,6 +116,9 @@ async fn latex_to_pdf(
             Some(EncodeOptions {
                 standalone: Some(true),
                 render: Some(true),
+                // Indicate that the LaTeX should be generated for PDF as final
+                // destination format
+                format: Some(Format::Pdf),
                 ..Default::default()
             }),
         )
