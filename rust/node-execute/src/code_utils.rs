@@ -4,7 +4,7 @@ use schema::{Block, CodeChunk, ExecutionBounds, VisitorMut, WalkControl, WalkNod
 
 /// Apply execution bounds to all executable nodes within a root node
 pub(super) fn apply_execution_bounds<W: WalkNode>(node: &mut W, execution_bounds: ExecutionBounds) {
-    ApplyBounds { execution_bounds }.visit(node);
+    ApplyBounds { execution_bounds }.walk(node);
 }
 
 struct ApplyBounds {

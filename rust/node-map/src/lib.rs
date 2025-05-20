@@ -7,7 +7,7 @@ use schema::{
 /// Generate a mapping of [`NodeId`] to [`NodePath`] within a node
 pub fn map<T: WalkNode>(node: &T) -> IndexMap<NodeId, NodePath> {
     let mut mapper = Mapper::default();
-    mapper.visit(node);
+    mapper.walk(node);
     mapper.map
 }
 

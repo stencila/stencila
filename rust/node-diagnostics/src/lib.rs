@@ -21,7 +21,7 @@ where
     T: WalkNode,
 {
     let mut walker = Collector::default();
-    walker.visit(node);
+    walker.walk(node);
     walker.messages
 }
 

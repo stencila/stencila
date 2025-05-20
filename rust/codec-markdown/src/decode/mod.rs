@@ -97,7 +97,7 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
 
     // Link footnotes to the `Note` inlines in the content
     if !context.footnotes.is_empty() {
-        context.visit(&mut node);
+        context.walk(&mut node);
     }
 
     // Map the position of the root node

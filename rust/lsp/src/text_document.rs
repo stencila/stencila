@@ -827,7 +827,7 @@ impl TextDocument {
             // Walk the node to collect nodes and diagnostics
             let source = source.read().await;
             let mut inspector = Inspector::new(&source, &generated, mapping);
-            inspector.visit(&node);
+            inspector.walk(&node);
 
             // Publish diagnostics and update the root TextNode
             if let Some(text_node) = inspector.root() {

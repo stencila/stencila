@@ -15,7 +15,7 @@ where
         node_ids,
         node_id: None,
     };
-    finder.visit(node);
+    finder.walk(node);
     finder.node_id
 }
 

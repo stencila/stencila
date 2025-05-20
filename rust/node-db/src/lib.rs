@@ -303,7 +303,7 @@ impl NodeDatabase {
     fn create_node(&mut self, doc_id: &NodeId, node: &Node) -> Result<()> {
         // Walk over the node and collect nodes and relations
         let mut walker = DatabaseWalker::default();
-        walker.visit(node);
+        walker.walk(node);
 
         // Create entries for each of the node types collected
         for (node_type, (properties, rows)) in walker.node_tables {

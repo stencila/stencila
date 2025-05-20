@@ -9,7 +9,7 @@ where
         node_id,
         node: None,
     };
-    finder.visit(node);
+    finder.walk(node);
     finder.node
 }
 

@@ -240,7 +240,7 @@ impl Visitor for Inspector<'_, '_> {
         });
 
         self.enter_node(citation.node_type(), node_id, None, None, execution, None);
-        self.visit(&citation.options.content);
+        self.walk(&citation.options.content);
         self.exit_node();
 
         // Break walk because `content` already visited above
@@ -249,7 +249,7 @@ impl Visitor for Inspector<'_, '_> {
 
     fn visit_suggestion_block(&mut self, block: &SuggestionBlock) -> WalkControl {
         self.enter_node(block.node_type(), block.node_id(), None, None, None, None);
-        self.visit(&block.content);
+        self.walk(&block.content);
         self.exit_node();
 
         // Break walk because `content` already visited above
@@ -281,7 +281,7 @@ impl Visitor for Inspector<'_, '_> {
             execution,
             provenance,
         );
-        self.visit(&inline.content);
+        self.walk(&inline.content);
         self.exit_node();
 
         // Break walk because `content` already visited above
@@ -318,7 +318,7 @@ impl Visitor for Inspector<'_, '_> {
             provenance,
         );
         node.is_active = clause.is_active;
-        self.visit(&clause.content);
+        self.walk(&clause.content);
         self.exit_node();
 
         // Break walk because `content` already visited above
@@ -334,7 +334,7 @@ impl Visitor for Inspector<'_, '_> {
             None,
             None,
         );
-        self.visit(&list_item.content);
+        self.walk(&list_item.content);
         self.exit_node();
 
         // Break walk because `content` already visited above
@@ -350,7 +350,7 @@ impl Visitor for Inspector<'_, '_> {
             None,
             None,
         );
-        self.visit(&table_row.cells);
+        self.walk(&table_row.cells);
         self.exit_node();
 
         // Break walk because `cells` already visited above
@@ -367,7 +367,7 @@ impl Visitor for Inspector<'_, '_> {
             None,
         );
         self.in_table_cell = true;
-        self.visit(&table_cell.content);
+        self.walk(&table_cell.content);
         self.in_table_cell = false;
         self.exit_node();
 
@@ -382,7 +382,7 @@ impl Visitor for Inspector<'_, '_> {
         } else {
             Some(true)
         };
-        self.visit(&step.content);
+        self.walk(&step.content);
         self.exit_node();
 
         // Break walk because `content` already visited above
@@ -415,7 +415,7 @@ impl Inspect for Chat {
         // Do not visit the messages of embedded chats otherwise can get phantom
         // code lenses for blocks that are not rendered in content
         if !self.is_embedded.unwrap_or_default() {
-            inspector.visit(self);
+            inspector.walk(self);
         }
 
         inspector.exit_node();
@@ -443,7 +443,7 @@ impl Inspect for ChatMessage {
             execution,
             None,
         );
-        inspector.visit(self);
+        inspector.walk(self);
         inspector.exit_node();
     }
 }
@@ -531,7 +531,7 @@ impl Inspect for CodeChunk {
             execution,
             provenance,
         );
-        inspector.visit(self);
+        inspector.walk(self);
         inspector.exit_node();
     }
 }
@@ -574,7 +574,7 @@ impl Inspect for CodeExpression {
             execution,
             provenance,
         );
-        inspector.visit(self);
+        inspector.walk(self);
         inspector.exit_node();
     }
 }
@@ -635,7 +635,7 @@ impl Inspect for InstructionBlock {
         );
         node.index_of = index_of;
 
-        inspector.visit(self);
+        inspector.walk(self);
         inspector.exit_node();
     }
 }
@@ -664,7 +664,7 @@ impl Inspect for ForBlock {
         let provenance = self.provenance.clone();
 
         inspector.enter_node(self.node_type(), node_id, None, None, execution, provenance);
-        inspector.visit(self);
+        inspector.walk(self);
         inspector.exit_node();
     }
 }
@@ -690,7 +690,7 @@ impl Inspect for Heading {
             None,
             provenance,
         );
-        inspector.visit(self);
+        inspector.walk(self);
         inspector.exit_node();
     }
 }
@@ -714,7 +714,7 @@ impl Inspect for Paragraph {
             None,
             provenance,
         );
-        inspector.visit(self);
+        inspector.walk(self);
         inspector.exit_node();
     }
 }
@@ -742,7 +742,7 @@ impl Inspect for MathBlock {
             execution,
             self.provenance.clone(),
         );
-        inspector.visit(self);
+        inspector.walk(self);
         inspector.exit_node();
     }
 }
@@ -770,7 +770,7 @@ impl Inspect for RawBlock {
             execution,
             self.provenance.clone(),
         );
-        inspector.visit(self);
+        inspector.walk(self);
         inspector.exit_node();
     }
 }
@@ -778,7 +778,7 @@ impl Inspect for RawBlock {
 impl Inspect for Walkthrough {
     fn inspect(&self, inspector: &mut Inspector) {
         inspector.enter_node(self.node_type(), self.node_id(), None, None, None, None);
-        inspector.visit(self);
+        inspector.walk(self);
         inspector.exit_node();
     }
 }

@@ -26,7 +26,7 @@ where
         dest_dir: dest_dir.to_path_buf(),
         rewrite,
     };
-    walker.visit(node);
+    walker.walk(node);
 }
 
 /// A visitor that collects node ids and addresses
