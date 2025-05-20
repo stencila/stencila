@@ -791,7 +791,7 @@ macro_rules! default {
                 //eprintln!("INSPECT DEFAULT {}", self.node_id());
 
                 inspector.enter_node(self.node_type(), self.node_id(), None, None, None, None);
-                inspector.visit(self);
+                inspector.walk(self);
                 inspector.exit_node();
             }
         })*
@@ -864,7 +864,7 @@ macro_rules! root {
                 });
 
                 inspector.enter_node(self.node_type(), node_id, None, None, execution, None);
-                inspector.visit(self);
+                inspector.walk(self);
                 inspector.exit_node();
             }
         })*
@@ -893,7 +893,7 @@ macro_rules! compiled_options {
                 });
 
                 inspector.enter_node(self.node_type(), node_id, None, None, execution, self.provenance.clone());
-                inspector.visit(self);
+                inspector.walk(self);
                 inspector.exit_node();
             }
         })*
@@ -932,7 +932,7 @@ macro_rules! captioned {
                 let provenance = self.provenance.clone();
 
                 inspector.enter_node(self.node_type(), self.node_id(), None, detail, None, provenance);
-                inspector.visit(self);
+                inspector.walk(self);
                 inspector.exit_node();
             }
         })*
@@ -968,7 +968,7 @@ macro_rules! executable {
                 });
 
                 inspector.enter_node(self.node_type(), node_id, None, None, execution, None);
-                inspector.visit(self);
+                inspector.walk(self);
                 inspector.exit_node();
             }
         })*
