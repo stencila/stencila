@@ -30,12 +30,12 @@ jobs:
             runner: ubuntu-latest-16core
             ort_asset: linux-x64
             ort_ext: tgz
-            install_dir: /usr/local/onnxruntime
+            install_dir: ./onnxruntime
           - platform: macos
             runner: macos-15
             ort_asset: osx-x86_64
             ort_ext: tgz
-            install_dir: /usr/local/onnxruntime
+            install_dir: ./onnxruntime
           - platform: windows
             runner: windows-latest
             ort_asset: win-x64
