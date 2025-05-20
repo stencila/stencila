@@ -33,7 +33,7 @@ jobs:
             install_dir: /usr/local/onnxruntime
           - platform: macos
             runner: macos-15
-            ort_asset: osx-x64
+            ort_asset: osx-x86_64
             ort_ext: tgz
             install_dir: /usr/local/onnxruntime
           - platform: windows
@@ -66,6 +66,7 @@ jobs:
         run: choco install ninja --yes
 
       - name: Download ONNX Runtime SDK
+        shell: bash
         run: |
           URL="https://github.com/microsoft/onnxruntime/releases/download/v${ORT_VERSION}/onnxruntime-${{ matrix.ort_asset }}-${ORT_VERSION}.${{ matrix.ort_ext }}"
           echo "Downloading ONNX Runtime from $URL"
