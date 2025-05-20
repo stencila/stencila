@@ -169,6 +169,10 @@ impl LatexCodec for CodeChunk {
                                 context.prelude.clone(),
                             );
 
+                            if latex.trim().is_empty() {
+                                continue;
+                            }
+
                             if matches!(output, Node::ImageObject(..)) {
                                 // Already encoded as an image, so just add the LaTeX
                                 context.str(&latex);
@@ -176,7 +180,7 @@ impl LatexCodec for CodeChunk {
                                 let path = context.temp_dir.join(format!("{}.svg", self.node_id()));
                                 if let Err(error) = latex_to_image(&latex, &path, None) {
                                     tracing::error!(
-                                        "While encoding code chunk output to image: {error}"
+                                        "While encoding code chunk output `{output}` to image: {error}\n\nLaTeX: {latex}"
                                     );
                                 } else {
                                     let path = path.to_string_lossy();

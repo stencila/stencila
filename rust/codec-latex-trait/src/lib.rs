@@ -241,13 +241,23 @@ pub fn latex_to_image(latex: &str, path: &Path, class: Option<&str>) -> Result<(
         .map(char::from)
         .collect();
 
+    // The varwidth option tells the standalone class to size the PDF page to the natural width of
+    // its contents (up to the specified maximum) instead of a fixed text width. Without it content
+    // (particulary in wide) table can be cut off. However, this errors with landscape tables, so ther
+    // we need to use preview.
+    let width = if latex.contains(r"\begin{landscape}") {
+        "preview"
+    } else {
+        "varwidth=16cm"
+    };
+
     //...and then wrap in standalone \documentclass if a \documentclass is not specified
     let class = class.unwrap_or("standalone");
     let preamble = use_packages(latex);
     let latex = if !latex.contains("\\documentclass") {
         format!(
             r"
-\documentclass[preview,border=8pt]{{{class}}}
+\documentclass[{width},border=8pt]{{{class}}}
 
 {preamble}
 
@@ -596,8 +606,16 @@ impl LatexEncodeContext {
     }
 
     /// Create a link to the current with some content
-    pub fn link_with(&mut self, content: &str) -> &mut Self {
-        self.link_begin().str(content).link_end()
+    pub fn link_with(&mut self, content: &str, suffix: Option<&str>) -> &mut Self {
+        let node_id = self.node_path.to_string();
+
+        self.str("\\href{stencila://").str(&node_id);
+
+        if let Some(suffix) = suffix {
+            self.char(':').str(suffix);
+        }
+
+        self.str("}{").str(content).char('}')
     }
 
     /// Trim whitespace from the end of the content in-place

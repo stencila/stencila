@@ -61,7 +61,7 @@ impl LatexCodec for Island {
                 }
 
                 context
-                    .str(r"\includegraphics[width=14cm]{")
+                    .str(r"\includegraphics[width=16cm]{")
                     .str(&path)
                     .str("}")
                     .exit_node();
