@@ -72,10 +72,15 @@ jobs:
           echo "Downloading ONNX Runtime from $URL"
           mkdir -p "${{ matrix.install_dir }}"
           if [[ "${{ matrix.ort_ext }}" == "tgz" ]]; then
-            curl -sL $URL | tar zx -C "${{ matrix.install_dir }}"
+            curl -sL "$URL" | tar zx --strip-components=1 -C "${{ matrix.install_dir }}"
           else
-            curl -sL $URL -o onnxruntime.zip
-            pwsh -Command "Expand-Archive onnxruntime.zip -DestinationPath '${{ matrix.install_dir }}'"
+            curl -sL "$URL" -o onnxruntime.zip
+            # unzip into a temp dir, then move contents up one level
+            TMP="${{ matrix.install_dir }}_tmp"
+            rm -rf "$TMP"
+            unzip -q onnxruntime.zip -d "$TMP"
+            rsync -a "${TMP}/" "${{ matrix.install_dir }}/"
+            rm -rf "$TMP"
           fi
 
       - name: Run tests
