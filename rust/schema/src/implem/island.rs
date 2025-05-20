@@ -79,15 +79,31 @@ impl LatexCodec for Island {
             if has_options {
                 let props = [
                     self.id.clone(),
-                    self.label_type.as_ref().map(|lt| {
-                        [
-                            "label-type=",
-                            match lt {
-                                LabelType::FigureLabel => "fig",
-                                LabelType::TableLabel => "tab",
-                            },
-                        ]
-                        .concat()
+                    self.label_type.as_ref().and_then(|lt| {
+                        if let Some(id) = &self.id {
+                            // Label type does not need to be encoded if id contains it
+                            if id.starts_with("tab:")
+                                && matches!(self.label_type, None | Some(LabelType::TableLabel))
+                                || id.starts_with("fig:")
+                                    && matches!(
+                                        self.label_type,
+                                        None | Some(LabelType::FigureLabel)
+                                    )
+                            {
+                                return None;
+                            }
+                        }
+
+                        Some(
+                            [
+                                "label-type=",
+                                match lt {
+                                    LabelType::FigureLabel => "fig",
+                                    LabelType::TableLabel => "tab",
+                                },
+                            ]
+                            .concat(),
+                        )
                     }),
                     self.label.as_ref().map(|label| ["label=", label].concat()),
                     self.style.as_ref().map(|style| ["style=", style].concat()),

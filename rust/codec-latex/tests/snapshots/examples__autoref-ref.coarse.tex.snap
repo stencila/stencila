@@ -10,7 +10,7 @@ An autoref \autoref{tab:one}.
 
 A ref \ref{tab:one}.
 
-\begin{island}[tab:one,label-type=tab]
+\begin{island}[tab:one]
 
 \end{island}
 

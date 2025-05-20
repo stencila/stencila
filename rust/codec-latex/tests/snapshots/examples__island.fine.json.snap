@@ -81,6 +81,55 @@ expression: article
         {
           "type": "Text",
           "value": {
+            "string": "Island with id"
+          }
+        }
+      ]
+    },
+    {
+      "type": "StyledBlock",
+      "code": {
+        "string": "island"
+      },
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Within the island with table id."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "StyledBlock",
+      "code": {
+        "string": "island"
+      },
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Within the island with figure id."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
             "string": "Island with options"
           }
         }

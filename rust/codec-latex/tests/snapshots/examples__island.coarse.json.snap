@@ -59,7 +59,49 @@ expression: article
       "type": "RawBlock",
       "format": "latex",
       "content": {
-        "string": "\nAfter island.\n\nIsland with options\n\n"
+        "string": "\nAfter island.\n\nIsland with id\n\n"
+      }
+    },
+    {
+      "type": "Island",
+      "id": "tab:one",
+      "content": [
+        {
+          "type": "RawBlock",
+          "format": "latex",
+          "content": {
+            "string": "Within the island with table id.\n\n"
+          }
+        }
+      ],
+      "labelType": "TableLabel"
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\n"
+      }
+    },
+    {
+      "type": "Island",
+      "id": "fig:one",
+      "content": [
+        {
+          "type": "RawBlock",
+          "format": "latex",
+          "content": {
+            "string": "Within the island with figure id.\n\n"
+          }
+        }
+      ],
+      "labelType": "FigureLabel"
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\nIsland with options\n\n"
       }
     },
     {
