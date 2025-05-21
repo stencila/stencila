@@ -73,73 +73,75 @@ impl LatexCodec for Article {
             })
         };
 
-        if !has("\\documentclass") {
-            context.str("\\documentclass{article}\n\n");
-        }
+        const ENVIRON: &str = "document";
+        if context.standalone {
+            if !has("\\documentclass") {
+                context.str("\\documentclass{article}\n\n");
+            }
 
-        if let Some(title) = &self.title {
-            context.property_fn(NodeProperty::Title, |context| {
-                context.command_enter("title");
-                title.to_latex(context);
-                context.command_exit().newline();
-            });
-            context.newline();
-        }
+            if let Some(title) = &self.title {
+                context.property_fn(NodeProperty::Title, |context| {
+                    context.command_enter("title");
+                    title.to_latex(context);
+                    context.command_exit().newline();
+                });
+                context.newline();
+            }
 
-        if let Some(authors) = &self.authors {
-            context.property_fn(NodeProperty::Authors, |context| {
-                for author in authors {
+            if let Some(authors) = &self.authors {
+                context.property_fn(NodeProperty::Authors, |context| {
+                    for author in authors {
+                        context
+                            .command_enter("author")
+                            .str(&author.name())
+                            .command_exit()
+                            .newline();
+                    }
+                });
+                context.newline();
+            }
+
+            if let Some(date) = self
+                .date_published
+                .as_ref()
+                .or(self.date_modified.as_ref())
+                .or(self.date_created.as_ref())
+            {
+                context.property_fn(NodeProperty::Date, |context| {
                     context
-                        .command_enter("author")
-                        .str(&author.name())
+                        .command_enter("date")
+                        .str(&date.value)
                         .command_exit()
                         .newline();
-                }
-            });
-            context.newline();
-        }
+                });
+                context.newline();
+            }
 
-        if let Some(date) = self
-            .date_published
-            .as_ref()
-            .or(self.date_modified.as_ref())
-            .or(self.date_created.as_ref())
-        {
-            context.property_fn(NodeProperty::Date, |context| {
-                context
-                    .command_enter("date")
-                    .str(&date.value)
-                    .command_exit()
-                    .newline();
-            });
-            context.newline();
-        }
+            if let Some(keywords) = &self.keywords {
+                context.property_fn(NodeProperty::Keywords, |context| {
+                    context
+                        .command_enter("keywords")
+                        .str(&keywords.join(", "))
+                        .command_exit()
+                        .newline();
+                });
+                context.newline();
+            }
 
-        if let Some(keywords) = &self.keywords {
-            context.property_fn(NodeProperty::Keywords, |context| {
-                context
-                    .command_enter("keywords")
-                    .str(&keywords.join(", "))
-                    .command_exit()
-                    .newline();
-            });
-            context.newline();
-        }
+            if !has("\\begin{document}") {
+                context.environ_begin(ENVIRON).str("\n\n");
+            }
 
-        const ENVIRON: &str = "document";
-        if !has("\\begin{document}") {
-            context.environ_begin(ENVIRON).str("\n\n");
-        }
-
-        if self.title.is_some() {
-            context.str("\\maketitle\n\n");
+            if self.title.is_some() {
+                context.str("\\maketitle\n\n");
+            }
         }
 
         context.property_fn(NodeProperty::Content, |context| {
             self.content.to_latex(context)
         });
 
-        if !has("\\end{document}") {
+        if context.standalone && !has("\\end{document}") {
             if !context.content.ends_with("\n") {
                 context.str("\n");
             }
