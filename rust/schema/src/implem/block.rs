@@ -168,7 +168,7 @@ impl TryFrom<Node> for Block {
             ($( $variant:ident ),*) => {
                 match node {
                     $(Node::$variant(node) => Ok(Block::$variant(node)),)*
-                    _ => bail!("Unable to convert node to block")
+                    _ => bail!("Unable to convert Node::{} to Block", node.node_type())
                 }
             };
         }
@@ -189,6 +189,7 @@ impl TryFrom<Node> for Block {
             IfBlock,
             IncludeBlock,
             InstructionBlock,
+            Island,
             List,
             MathBlock,
             Paragraph,

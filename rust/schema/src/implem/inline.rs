@@ -264,3 +264,52 @@ impl From<Block> for Vec<Inline> {
         }
     }
 }
+
+impl TryFrom<Node> for Inline {
+    type Error = ErrReport;
+
+    fn try_from(node: Node) -> Result<Self> {
+        // Inlines are directly convertible
+        macro_rules! inlines {
+            ($( $variant:ident ),*) => {
+                match node {
+                    $(Node::$variant(node) => Ok(Inline::$variant(node)),)*
+                    _ => bail!("Unable to convert Node::{} to Inline", node.node_type())
+                }
+            };
+        }
+        inlines!(
+            Annotation,
+            AudioObject,
+            Button,
+            Citation,
+            CitationGroup,
+            CodeExpression,
+            CodeInline,
+            Date,
+            DateTime,
+            Duration,
+            Emphasis,
+            ImageObject,
+            InstructionInline,
+            Link,
+            MathInline,
+            MediaObject,
+            Note,
+            Parameter,
+            QuoteInline,
+            Sentence,
+            Strikeout,
+            Strong,
+            StyledInline,
+            Subscript,
+            SuggestionInline,
+            Superscript,
+            Text,
+            Time,
+            Timestamp,
+            Underline,
+            VideoObject
+        )
+    }
+}
