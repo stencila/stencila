@@ -2,11 +2,11 @@ use std::path::{Path, PathBuf};
 
 use codec::{
     common::{
-        eyre::{bail, eyre, Result},
+        eyre::{bail, eyre, OptionExt, Result},
         reqwest::Client,
         tracing,
     },
-    schema::Node,
+    schema::{Article, Block, IncludeBlock, Node, VisitorAsync, WalkControl, WalkNode},
 };
 pub use codec::{
     format::Format, Codec, CodecDirection, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo,
@@ -249,7 +249,10 @@ pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<St
             .format
             .map(|format| format!("{format} ", format = format.name()))
             .unwrap_or_default();
-        losses.respond(format!("Losses when encoding to {format}string"), options.losses)?;
+        losses.respond(
+            format!("Losses when encoding to {format}string"),
+            options.losses,
+        )?;
     }
 
     Ok(content)
@@ -296,11 +299,24 @@ pub async fn to_string_with_info(
 #[tracing::instrument(skip(node))]
 pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<()> {
     let EncodeInfo { losses, .. } = to_path_with_info(node, path, options.clone()).await?;
+
     if !losses.is_empty() {
         losses.respond(
             format!("Losses when encoding to `{path}`", path = path.display()),
-            options.unwrap_or_default().losses,
+            options.clone().unwrap_or_default().losses,
         )?;
+    }
+
+    if options
+        .as_ref()
+        .and_then(|opts| opts.recurse)
+        .unwrap_or_default()
+    {
+        let mut recurser = Recurser {
+            path: path.to_path_buf(),
+            options,
+        };
+        node.clone().walk_async(&mut recurser).await?;
     }
 
     Ok(())
@@ -373,5 +389,51 @@ pub async fn convert(
             }
         }
         None => to_string(&node, encode_options).await,
+    }
+}
+
+/// A visitor that implements the `--recurse` encoding option by walking over
+/// the a node and encoding anf `IncludeBlock` nodes having `content` to their
+/// `source` file.
+struct Recurser {
+    /// The path of the main file being encoded
+    path: PathBuf,
+
+    /// Encoding options
+    options: Option<EncodeOptions>,
+}
+
+impl VisitorAsync for Recurser {
+    async fn visit_block(&mut self, block: &mut Block) -> Result<WalkControl> {
+        if let Block::IncludeBlock(IncludeBlock {
+            source,
+            content: Some(content),
+            ..
+        }) = block
+        {
+            let path = self
+                .path
+                .canonicalize()?
+                .parent()
+                .ok_or_eyre("no parent")?
+                .join(source);
+
+            let node = Node::Article(Article {
+                content: content.clone(),
+                ..Default::default()
+            });
+
+            let format = Format::from_path(&path);
+
+            let options = EncodeOptions {
+                standalone: Some(false),
+                format: Some(format),
+                ..self.options.clone().unwrap_or_default()
+            };
+
+            to_path(&node, &path, Some(options)).await?;
+        }
+
+        Ok(WalkControl::Continue)
     }
 }

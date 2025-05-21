@@ -52,7 +52,7 @@ pub struct DecodeOptions {
     /// Only supported for some formats (.e.g DOCX, ODT).
     /// At present, the cache must be the path to a JSON file.
     #[arg(long)]
-    cache: Option<PathBuf>
+    cache: Option<PathBuf>,
 }
 
 impl DecodeOptions {
@@ -125,6 +125,12 @@ pub struct EncodeOptions {
     #[arg(long, conflicts_with = "standalone")]
     not_standalone: bool,
 
+    /// Recursively encode the content of `IncludeBlock`s to their source file
+    /// 
+    /// Only supported when encoding to a path.
+    #[arg(long)]
+    recurse: bool,
+
     /// Use compact form of encoding if possible
     ///
     /// Use this flag to produce the compact forms of encoding (e.g. no indentation)
@@ -181,6 +187,8 @@ impl EncodeOptions {
             .then_some(true)
             .or(self.not_standalone.then_some(false));
 
+        let recurse = self.recurse.then_some(true);
+
         let from_path = input.map(PathBuf::from);
 
         codecs::EncodeOptions {
@@ -192,6 +200,7 @@ impl EncodeOptions {
             link,
             template,
             standalone,
+            recurse,
             from_path,
             strip_scopes: strip_options.strip_scopes,
             strip_types: strip_options.strip_types,

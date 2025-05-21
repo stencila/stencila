@@ -529,6 +529,9 @@ pub struct EncodeOptions {
     /// overrides should do the same.
     pub to_path: Option<PathBuf>,
 
+    /// Recursively encode the content of `IncludeBlock`s to their source file
+    pub recurse: Option<bool>,
+
     /// The base URL of the file being encoded to
     ///
     /// Used by some codecs when it is necessary to create absolute URLs.
