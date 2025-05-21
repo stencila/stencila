@@ -3,13 +3,13 @@ source: rust/codec-latex/tests/examples.rs
 expression: info.mapping
 ---
 start     end        offsets   node_type+property                   authorship
-    50     55       (50, 55)   IncludeBlock.source
-    43     57        (-7, 2)   IncludeBlock
-    65     72       (22, 15)   IncludeBlock.source
-    58     74        (-7, 2)   IncludeBlock
-    82     89       (24, 15)   IncludeBlock.source
-    75     91        (-7, 2)   IncludeBlock
-    99    109       (24, 18)   IncludeBlock.source
-    92    111        (-7, 2)   IncludeBlock
-    43    112       (-49, 1)   Article.content
-     0    128      (-43, 16)   Article
+     7     12        (7, 12)   IncludeBlock.source
+     0     14        (-7, 2)   IncludeBlock
+    22     29       (22, 15)   IncludeBlock.source
+    15     31        (-7, 2)   IncludeBlock
+    39     46       (24, 15)   IncludeBlock.source
+    32     48        (-7, 2)   IncludeBlock
+    56     66       (24, 18)   IncludeBlock.source
+    49     68        (-7, 2)   IncludeBlock
+     0     69       (-49, 1)   Article.content
+     0     69         (0, 0)   Article

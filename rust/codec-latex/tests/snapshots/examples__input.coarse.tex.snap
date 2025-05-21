@@ -2,10 +2,6 @@
 source: rust/codec-latex/tests/examples.rs
 expression: "&latex"
 ---
-\documentclass{article}
-
-\begin{document}
-
 \input{intro}
 
 \input{methods}
@@ -13,5 +9,3 @@ expression: "&latex"
 \input{results}
 
 \input{discussion}
-
-\end{document}

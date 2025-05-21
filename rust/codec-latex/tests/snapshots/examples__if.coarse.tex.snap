@@ -2,12 +2,6 @@
 source: rust/codec-latex/tests/examples.rs
 expression: "&latex"
 ---
-\documentclass{article}
-
-\begin{document}
-
 \begin{if}{true}
   \p Conditional content.
 \end{if}
-
-\end{document}
