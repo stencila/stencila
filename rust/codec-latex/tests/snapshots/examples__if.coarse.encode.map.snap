@@ -4,9 +4,9 @@ expression: info.mapping
 ---
 start     end        offsets   node_type+property                   authorship
     11     15       (11, 15)   IfBlock.code
-    17     43        (6, 28)   RawBlock.content
-    17     43         (0, 0)   RawBlock
-    17     43         (0, 0)   IfBlock.content
-     0     52       (-17, 9)   IfBlock
-     0     53         (0, 1)   Article.content
-     0     53         (0, 0)   Article
+    17     41        (6, 26)   RawBlock.content
+    17     41         (0, 0)   RawBlock
+    17     41         (0, 0)   IfBlock.content
+     0     50       (-17, 9)   IfBlock
+     0     51         (0, 1)   Article.content
+     0     51         (0, 0)   Article

@@ -5,15 +5,15 @@ expression: info.mapping
 start     end        offsets   node_type+property                   authorship
     12     16       (12, 16)   ForBlock.variable
     18     26        (6, 10)   ForBlock.code
-    28     46       (10, 20)   RawBlock.content
-    28     46         (0, 0)   RawBlock
-    52     56       (24, 10)   CodeExpression.code
-    46     57        (-6, 1)   CodeExpression
-    46     57         (0, 0)   InlinesBlock.content
-    46     57         (0, 0)   InlinesBlock
-    57     59        (11, 2)   RawBlock.content
-    57     59         (0, 0)   RawBlock
-    28     59       (-29, 0)   ForBlock.content
-     0     69      (-28, 10)   ForBlock
-     0     70         (0, 1)   Article.content
-     0     70         (0, 0)   Article
+    28     44       (10, 18)   RawBlock.content
+    28     44         (0, 0)   RawBlock
+    50     54       (22, 10)   CodeExpression.code
+    44     55        (-6, 1)   CodeExpression
+    44     55         (0, 0)   InlinesBlock.content
+    44     55         (0, 0)   InlinesBlock
+    55     57        (11, 2)   RawBlock.content
+    55     57         (0, 0)   RawBlock
+    28     57       (-27, 0)   ForBlock.content
+     0     67      (-28, 10)   ForBlock
+     0     68         (0, 1)   Article.content
+     0     68         (0, 0)   Article
