@@ -3,7 +3,7 @@ use pandoc_types::definition::{self as pandoc};
 use codec::schema::*;
 
 use crate::{
-    inlines::{inlines_from_pandoc, inlines_to_pandoc},
+    inlines::{inlines_from_pandoc, inlines_to_pandoc, string_from_pandoc_inlines},
     shared::{PandocDecodeContext, PandocEncodeContext},
 };
 
@@ -13,6 +13,8 @@ pub(super) fn string_to_meta_value(string: &str) -> pandoc::MetaValue {
 
 pub(super) fn string_from_meta_value(meta: pandoc::MetaValue) -> String {
     match meta {
+        pandoc::MetaValue::MetaBool(bool) => bool.to_string(),
+        pandoc::MetaValue::MetaInlines(inlines) => string_from_pandoc_inlines(inlines),
         pandoc::MetaValue::MetaString(string) => string,
         _ => String::new(),
     }
