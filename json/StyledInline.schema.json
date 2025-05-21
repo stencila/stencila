@@ -19,6 +19,9 @@
   "jats": {
     "elem": "styled-content"
   },
+  "latex": {
+    "derive": false
+  },
   "markdown": {
     "derive": false
   },

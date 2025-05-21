@@ -41,6 +41,19 @@ impl DomCodec for StyledInline {
     }
 }
 
+impl LatexCodec for StyledInline {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id))
+            .add_loss("StyledInline.code")
+            .property_fn(NodeProperty::Content, |context| {
+                self.content.to_latex(context)
+            })
+            .exit_node();
+    }
+}
+
 impl MarkdownCodec for StyledInline {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context

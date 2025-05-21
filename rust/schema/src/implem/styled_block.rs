@@ -41,6 +41,19 @@ impl DomCodec for StyledBlock {
     }
 }
 
+impl LatexCodec for StyledBlock {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id))
+            .add_loss("StyledBlock.code")
+            .property_fn(NodeProperty::Content, |context| {
+                self.content.to_latex(context)
+            })
+            .exit_node();
+    }
+}
+
 impl MarkdownCodec for StyledBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         if matches!(context.format, Format::Llmd) {

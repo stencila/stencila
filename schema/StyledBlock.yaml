@@ -9,6 +9,8 @@ dom:
   derive: false
 html:
   elem: div
+latex:
+  derive: false
 markdown:
   derive: false
 proptest: {}
