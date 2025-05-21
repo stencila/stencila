@@ -58,12 +58,12 @@ impl LatexCodec for Link {
                 .char('\\')
                 .str(command)
                 .char('[')
-                .property_str(NodeProperty::Target, &self.target)
+                .property_str(NodeProperty::Target, &self.target.trim_start_matches("#"))
                 .char(']');
         } else {
             context
                 .command_enter(command)
-                .property_str(NodeProperty::Target, &self.target)
+                .property_str(NodeProperty::Target, &self.target.trim_start_matches("#"))
                 .command_exit();
         }
 
