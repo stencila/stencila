@@ -19,6 +19,9 @@
     "elem": "disp-formula",
     "special": true
   },
+  "latex": {
+    "derive": false
+  },
   "markdown": {
     "derive": false
   },

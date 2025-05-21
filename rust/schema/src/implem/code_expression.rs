@@ -29,7 +29,7 @@ impl LatexCodec for CodeExpression {
                     output.to_latex(context);
 
                     if context.highlight {
-                        context.str("|");
+                        context.char('|');
                     }
                 });
             }
@@ -51,8 +51,9 @@ impl LatexCodec for CodeExpression {
         };
         context
             .str(begin)
-            .property_fn(NodeProperty::Code, |context| self.code.to_latex(context))
-            .str("}");
+            // Note: this intentionally does not escape code
+            .property_str(NodeProperty::Code, &self.code)
+            .char('}');
 
         context.exit_node();
     }

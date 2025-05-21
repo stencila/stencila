@@ -245,7 +245,7 @@ impl LatexCodec for CodeChunk {
                 context.newline();
             }
 
-            context.str("@").newline();
+            context.char('@').newline();
         } else {
             const ENVIRON: &str = r"chunk";
             context.environ_begin(ENVIRON);
@@ -254,7 +254,7 @@ impl LatexCodec for CodeChunk {
                 || self.execution_mode.is_some()
                 || self.execution_bounds.is_some()
             {
-                context.str("[");
+                context.char('[');
 
                 if let Some(lang) = &self.programming_language {
                     context.property_str(NodeProperty::ProgrammingLanguage, lang);
@@ -262,7 +262,7 @@ impl LatexCodec for CodeChunk {
 
                 if let Some(mode) = &self.execution_mode {
                     if !matches!(mode, ExecutionMode::Need) {
-                        context.str(" ").property_str(
+                        context.char(' ').property_str(
                             NodeProperty::ExecutionMode,
                             &mode.to_string().to_lowercase(),
                         );
@@ -271,19 +271,20 @@ impl LatexCodec for CodeChunk {
 
                 if let Some(bounds) = &self.execution_bounds {
                     if !matches!(bounds, ExecutionBounds::Main) {
-                        context.str(" ").property_str(
+                        context.char(' ').property_str(
                             NodeProperty::ExecutionBounds,
                             &bounds.to_string().to_lowercase(),
                         );
                     }
                 }
 
-                context.str("]");
+                context.char(']');
             }
 
             context
                 .newline()
-                .property_fn(NodeProperty::Code, |context| self.code.to_latex(context));
+                // Note: this intentionally does not escape code
+                .property_str(NodeProperty::Code, &self.code);
 
             if !self.code.ends_with('\n') {
                 context.newline();

@@ -60,6 +60,18 @@ impl DomCodec for RawBlock {
     }
 }
 
+impl LatexCodec for RawBlock {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id))
+            .add_loss("RawBlock.format")
+            // Note: this intentionally does not escape content
+            .property_str(NodeProperty::Content, &self.content)
+            .exit_node();
+    }
+}
+
 impl MarkdownCodec for RawBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         if matches!(context.format, Format::Llmd) {

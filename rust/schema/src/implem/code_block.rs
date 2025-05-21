@@ -45,7 +45,7 @@ impl LatexCodec for CodeBlock {
         if let Some(lang) = &self.programming_language {
             context.str("[language=");
             context.property_str(NodeProperty::ProgrammingLanguage, lang);
-            context.str("]");
+            context.char(']');
         }
 
         context

@@ -93,7 +93,7 @@ impl LatexCodec for Article {
                     for author in authors {
                         context
                             .command_enter("author")
-                            .str(&author.name())
+                            .escape_str(&author.name())
                             .command_exit()
                             .newline();
                     }
@@ -110,7 +110,7 @@ impl LatexCodec for Article {
                 context.property_fn(NodeProperty::Date, |context| {
                     context
                         .command_enter("date")
-                        .str(&date.value)
+                        .escape_str(&date.value)
                         .command_exit()
                         .newline();
                 });
@@ -121,7 +121,7 @@ impl LatexCodec for Article {
                 context.property_fn(NodeProperty::Keywords, |context| {
                     context
                         .command_enter("keywords")
-                        .str(&keywords.join(", "))
+                        .escape_str(&keywords.join(", "))
                         .command_exit()
                         .newline();
                 });
@@ -143,12 +143,12 @@ impl LatexCodec for Article {
 
         if context.standalone && !has("\\end{document}") {
             if !context.content.ends_with("\n") {
-                context.str("\n");
+                context.char('\n');
             }
             if !context.content.ends_with("\n\n") {
-                context.str("\n");
+                context.char('\n');
             }
-            context.environ_end(ENVIRON).str("\n");
+            context.environ_end(ENVIRON).char('\n');
         }
 
         context.exit_node_final();

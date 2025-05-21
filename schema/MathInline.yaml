@@ -11,6 +11,8 @@ html:
 jats:
   elem: inline-formula
   special: true
+latex:
+  derive: false
 markdown:
   derive: false
 proptest: {}

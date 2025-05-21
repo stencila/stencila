@@ -68,6 +68,25 @@ impl DomCodec for MathInline {
     }
 }
 
+impl LatexCodec for MathInline {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id, math_language))
+            .merge_losses(lost_options!(
+                self.options,
+                compilation_digest,
+                compilation_messages,
+                mathml
+            ))
+            .str("\\(")
+            // Note: this intentionally does not escape code
+            .property_str(NodeProperty::Code, &self.code)
+            .str("\\)")
+            .exit_node();
+    }
+}
+
 impl MarkdownCodec for MathInline {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context

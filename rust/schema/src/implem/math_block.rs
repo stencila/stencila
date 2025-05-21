@@ -88,6 +88,30 @@ impl DomCodec for MathBlock {
     }
 }
 
+impl LatexCodec for MathBlock {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id, math_language))
+            .merge_losses(lost_options!(
+                self.options,
+                compilation_digest,
+                compilation_messages,
+                mathml
+            ))
+            .str("\\[\n")
+            // Note: this intentionally does not escape code
+            .property_str(NodeProperty::Code, &self.code)
+            .str(if self.code.ends_with('\n') {
+                "\\]\n"
+            } else {
+                "\n\\]\n"
+            })
+            .exit_node()
+            .newline();
+    }
+}
+
 impl MarkdownCodec for MathBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context
