@@ -63,7 +63,7 @@ where
         if !pkgs.trim().is_empty() {
             // Insert any missing package definitions after document class (ensured above)
             if let Some(pos) = latex.find("}\n") {
-                latex.insert_str(pos, &["\n", &pkgs, "\n"].concat());
+                latex.insert_str(pos + 2, &["\n", &pkgs, "\n"].concat());
             }
         }
     }
