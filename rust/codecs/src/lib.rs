@@ -249,7 +249,7 @@ pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<St
             .format
             .map(|format| format!("{format} ", format = format.name()))
             .unwrap_or_default();
-        losses.respond(format!("While encoding to {format}string"), options.losses)?;
+        losses.respond(format!("Losses when encoding to {format}string"), options.losses)?;
     }
 
     Ok(content)
@@ -298,7 +298,7 @@ pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -
     let EncodeInfo { losses, .. } = to_path_with_info(node, path, options.clone()).await?;
     if !losses.is_empty() {
         losses.respond(
-            format!("While encoding to `{path}`", path = path.display()),
+            format!("Losses when encoding to `{path}`", path = path.display()),
             options.unwrap_or_default().losses,
         )?;
     }
