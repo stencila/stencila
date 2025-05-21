@@ -56,10 +56,10 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         return TokenStream::new();
     }
 
-    let (command_enter, command_exit) = if let Some(command) = type_attr.command {
+    let (command_begin, command_end) = if let Some(command) = type_attr.command {
         (
-            quote!(context.command_enter(#command);),
-            quote!(context.command_exit();),
+            quote!(context.command_begin(#command);),
+            quote!(context.command_end();),
         )
     } else {
         (TokenStream::new(), TokenStream::new())
@@ -89,9 +89,9 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         impl LatexCodec for #struct_name {
             fn to_latex(&self, context: &mut LatexEncodeContext) {
                 context.enter_node(self.node_type(), self.node_id());
-                #command_enter
+                #command_begin
                 #fields
-                #command_exit
+                #command_end
                 context.exit_node();
             }
         }

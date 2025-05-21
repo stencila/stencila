@@ -57,12 +57,7 @@ impl LatexCodec for Heading {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
         // Ensure blank line before section
         if !context.content.is_empty() {
-            if !context.content.ends_with('\n') {
-                context.char('\n');
-            }
-            if !context.content.ends_with("\n\n") {
-                context.char('\n');
-            }
+            context.blankline();
         }
 
         context.enter_node(self.node_type(), self.node_id());
@@ -76,11 +71,11 @@ impl LatexCodec for Heading {
         };
 
         context
-            .command_enter(command)
+            .command_begin(command)
             .property_fn(NodeProperty::Content, |context| {
                 self.content.to_latex(context)
             })
-            .command_exit()
+            .command_end()
             .newline()
             .exit_node()
             .newline();

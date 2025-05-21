@@ -81,9 +81,9 @@ impl LatexCodec for Article {
 
             if let Some(title) = &self.title {
                 context.property_fn(NodeProperty::Title, |context| {
-                    context.command_enter("title");
+                    context.command_begin("title");
                     title.to_latex(context);
-                    context.command_exit().newline();
+                    context.command_end().newline();
                 });
                 context.newline();
             }
@@ -92,9 +92,9 @@ impl LatexCodec for Article {
                 context.property_fn(NodeProperty::Authors, |context| {
                     for author in authors {
                         context
-                            .command_enter("author")
+                            .command_begin("author")
                             .escape_str(&author.name())
-                            .command_exit()
+                            .command_end()
                             .newline();
                     }
                 });
@@ -109,9 +109,9 @@ impl LatexCodec for Article {
             {
                 context.property_fn(NodeProperty::Date, |context| {
                     context
-                        .command_enter("date")
+                        .command_begin("date")
                         .escape_str(&date.value)
-                        .command_exit()
+                        .command_end()
                         .newline();
                 });
                 context.newline();
@@ -120,9 +120,9 @@ impl LatexCodec for Article {
             if let Some(keywords) = &self.keywords {
                 context.property_fn(NodeProperty::Keywords, |context| {
                     context
-                        .command_enter("keywords")
+                        .command_begin("keywords")
                         .escape_str(&keywords.join(", "))
-                        .command_exit()
+                        .command_end()
                         .newline();
                 });
                 context.newline();
@@ -142,13 +142,7 @@ impl LatexCodec for Article {
         });
 
         if context.standalone && !has("\\end{document}") {
-            if !context.content.ends_with("\n") {
-                context.char('\n');
-            }
-            if !context.content.ends_with("\n\n") {
-                context.char('\n');
-            }
-            context.environ_end(ENVIRON).char('\n');
+            context.blankline().environ_end(ENVIRON).char('\n');
         }
 
         context.exit_node_final();

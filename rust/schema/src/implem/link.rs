@@ -63,9 +63,9 @@ impl LatexCodec for Link {
                 .char(']');
         } else {
             context
-                .command_enter(command)
+                .command_begin(command)
                 .property_str(NodeProperty::Target, &self.target.trim_start_matches("#"))
-                .command_exit();
+                .command_end();
         }
 
         if (command == "href" && !self.content.is_empty()) || command == "hyperref" {
