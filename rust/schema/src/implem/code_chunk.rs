@@ -239,7 +239,8 @@ impl LatexCodec for CodeChunk {
             context
                 .str(">>=")
                 .newline()
-                .property_fn(NodeProperty::Code, |context| self.code.to_latex(context));
+                // Note: this intentionally does not escape code
+                .property_str(NodeProperty::Code, &self.code);
 
             if !self.code.ends_with('\n') {
                 context.newline();
