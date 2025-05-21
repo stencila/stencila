@@ -430,6 +430,12 @@ pub struct DecodeOptions {
     /// where the codec does not fully decoding all elements.
     pub coarse: Option<bool>,
 
+    /// Reconstitute nodes from a cache
+    ///
+    /// Only supported by some codecs and only if `--link` was used when encoding
+    /// the document.
+    pub cache: Option<PathBuf>,
+
     /// Automatically create `Island` nodes by wrapping elements in the decoded document
     ///
     /// Only supported by some codecs. The interpretation of these strings is dependent on

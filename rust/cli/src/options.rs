@@ -28,20 +28,31 @@ pub struct StripOptions {
 /// Command line arguments for decoding nodes from other formats
 #[derive(Debug, Args)]
 pub struct DecodeOptions {
-    /// Use fine decoding if possible
+    /// Use fine decoding if available for format
     ///
     /// Use this flag to decode content to the finest level of granularity
-    /// supported by the codec. This is the default for most codecs.
+    /// supported by the format. This is the default for most formats.
     #[arg(long, conflicts_with = "coarse")]
     fine: bool,
 
-    /// Use coarse decoding if possible
+    /// Use coarse decoding if available for format
     ///
     /// Use this flag to decode content to the coarsest level of granularity
-    /// supported by the codec. Useful for decoding formats that are not fully
+    /// supported by the format. Useful for decoding formats that are not fully
     /// supported to avoid loss of structure.
     #[arg(long, conflicts_with = "fine")]
     coarse: bool,
+
+    /// Reconstitute nodes from a cache
+    ///
+    /// Only useful when reconstituting a document from a file previously
+    /// encoded with the `--link` option and where a JSON cache of the document
+    /// was encoded at the same times.
+    ///
+    /// Only supported for some formats (.e.g DOCX, ODT).
+    /// At present, the cache must be the path to a JSON file.
+    #[arg(long)]
+    cache: Option<PathBuf>
 }
 
 impl DecodeOptions {
@@ -66,6 +77,7 @@ impl DecodeOptions {
             codec,
             format,
             coarse,
+            cache: self.cache.clone(),
             strip_scopes: strip_options.strip_scopes,
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,

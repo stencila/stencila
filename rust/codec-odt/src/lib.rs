@@ -8,10 +8,12 @@ use codec::{
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     NodeType,
 };
+use codec_json::JsonCodec;
 use codec_pandoc::{
     coarse_to_path, pandoc_availability, pandoc_from_format, pandoc_to_format, root_from_pandoc,
     root_to_pandoc,
 };
+use node_reconstitute::reconstitute;
 
 /// A codec for Open Document Format
 pub struct OdtCodec;
@@ -68,7 +70,14 @@ impl Codec for OdtCodec {
         options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
         let pandoc = pandoc_from_format("", Some(path), PANDOC_FORMAT, &options).await?;
-        root_from_pandoc(pandoc, Format::Odt, &options)
+        let (mut node, info) = root_from_pandoc(pandoc, Format::Odt, &options)?;
+
+        if let Some(cache) = options.and_then(|options| options.cache) {
+            let (cache, ..) = JsonCodec.from_path(&cache, None).await?;
+            reconstitute(&mut node, cache);
+        }
+
+        Ok((node, info))
     }
 
     async fn to_path(

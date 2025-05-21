@@ -5,8 +5,10 @@ edition = "2021"
 
 [dependencies]
 codec = { path = "../codec" }
+codec-json = { path = "../codec-json" }
 codec-pandoc = { path = "../codec-pandoc" }
 dirs = { path = "../dirs" }
+node-reconstitute = { path = "../node-reconstitute" }
 rust-embed = { version = "8.7.0", features = ["interpolate-folder-path", "include-exclude"] }
 
 [lints]

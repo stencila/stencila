@@ -1026,8 +1026,10 @@ name = "codec-docx"
 version = "0.0.0"
 dependencies = [
  "codec",
+ "codec-json",
  "codec-pandoc",
  "dirs 0.0.0",
+ "node-reconstitute",
  "rust-embed",
 ]
 
@@ -1259,7 +1261,9 @@ name = "codec-odt"
 version = "0.0.0"
 dependencies = [
  "codec",
+ "codec-json",
  "codec-pandoc",
+ "node-reconstitute",
 ]
 
 [[package]]
@@ -4538,6 +4542,14 @@ dependencies = [
  "common",
  "darling",
  "syn 2.0.100",
+]
+
+[[package]]
+name = "node-reconstitute"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "schema",
 ]
 
 [[package]]

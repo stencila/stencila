@@ -1,0 +1,11 @@
+[package]
+name = "node-reconstitute"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+common = { path = "../common" }
+schema = { path = "../schema" }
+
+[lints]
+workspace = true

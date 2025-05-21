@@ -1,5 +1,7 @@
 use std::path::Path;
 
+use codec_json::JsonCodec;
+use node_reconstitute::reconstitute;
 use rust_embed::RustEmbed;
 
 use codec::{
@@ -75,7 +77,14 @@ impl Codec for DocxCodec {
         options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
         let pandoc = pandoc_from_format("", Some(path), PANDOC_FORMAT, &options).await?;
-        root_from_pandoc(pandoc, Format::Docx, &options)
+        let (mut node, info) = root_from_pandoc(pandoc, Format::Docx, &options)?;
+
+        if let Some(cache) = options.and_then(|options| options.cache) {
+            let (cache, ..) = JsonCodec.from_path(&cache, None).await?;
+            reconstitute(&mut node, cache);
+        }
+
+        Ok((node, info))
     }
 
     async fn to_path(
