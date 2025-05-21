@@ -247,6 +247,7 @@ fn latex_to_blocks(latex: &str, island_style: &Option<String>) -> Vec<Block> {
         } else if let Some(mat) = captures.name("chunk") {
             let code = mat.as_str().into();
 
+            let mut id = None;
             let mut programming_language = None;
             let mut is_echoed = None;
             let mut is_hidden = None;
@@ -266,7 +267,9 @@ fn latex_to_blocks(latex: &str, island_style: &Option<String>) -> Vec<Block> {
                     } else if let Some((name, value)) =
                         option.split("=").map(|s| s.trim()).collect_tuple()
                     {
-                        if name == "hide" {
+                        if name == "id" {
+                            id = Some(value.to_string())
+                        } else if name == "hide" {
                             is_hidden = Some(value.to_lowercase() == "true")
                         } else if name == "echo" {
                             is_echoed = Some(value.to_lowercase() == "true")
@@ -276,6 +279,7 @@ fn latex_to_blocks(latex: &str, island_style: &Option<String>) -> Vec<Block> {
             }
 
             blocks.push(Block::CodeChunk(CodeChunk {
+                id,
                 programming_language,
                 is_hidden,
                 is_echoed,

@@ -3,7 +3,7 @@ source: rust/codec-rnw/tests/examples.rs
 expression: "&noweb"
 ---
 Chunk name, no options, no code:
-<<unnamed>>=
+<<chunkname>>=
 
 @
 
@@ -15,6 +15,6 @@ No chunk name, options and code:
 
 
 All:
-<<unnamed, echo=FALSE, hidden=TRUE>>=
+<<chunkname, echo=FALSE, hidden=TRUE>>=
 # Some code
 @

@@ -146,7 +146,7 @@ impl LatexCodec for CodeChunk {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id, execution_mode, execution_bounds));
+            .merge_losses(lost_options!(self, execution_mode, execution_bounds));
 
         // Render mode: only encode outputs
         if context.render {
@@ -221,7 +221,7 @@ impl LatexCodec for CodeChunk {
                 }
             }
 
-            let name = self.label.as_deref().unwrap_or("unnamed");
+            let name = self.id.as_deref().unwrap_or("unnamed");
             context.str("<<").str(name);
 
             if let Some(is_echoed) = self.is_echoed {
@@ -263,7 +263,7 @@ impl LatexCodec for CodeChunk {
 
                 if let Some(mode) = &self.execution_mode {
                     if !matches!(mode, ExecutionMode::Need) {
-                        context.char(' ').property_str(
+                        context.char(',').property_str(
                             NodeProperty::ExecutionMode,
                             &mode.to_string().to_lowercase(),
                         );
@@ -272,11 +272,15 @@ impl LatexCodec for CodeChunk {
 
                 if let Some(bounds) = &self.execution_bounds {
                     if !matches!(bounds, ExecutionBounds::Main) {
-                        context.char(' ').property_str(
+                        context.char(',').property_str(
                             NodeProperty::ExecutionBounds,
                             &bounds.to_string().to_lowercase(),
                         );
                     }
+                }
+
+                if let Some(id) = &self.id {
+                    context.str(",id=").property_str(NodeProperty::Id, id);
                 }
 
                 context.char(']');

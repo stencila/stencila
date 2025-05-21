@@ -4,6 +4,7 @@ use codec::{
     common::{
         async_trait::async_trait,
         eyre::Result,
+        itertools::Itertools,
         once_cell::sync::Lazy,
         regex::{Captures, Regex},
     },
@@ -98,35 +99,33 @@ fn latex_from_rnw(noweb: &str) -> String {
         ["\\expr{", code, "}"].concat()
     });
 
-    // Code chunk regex
-    //
-    // (?m) multi-line mode  → ^ and $ match at every line break
-    // (?s) dot-all mode    → . also matches new-lines, so the body can span lines
-    //
-    // ^\s*                 → allow indentation before ‘<<’
-    // <<\s*
-    //   (?:                → ── optional chunk-name part ──
-    //       ([^,\s>]+)     →   capture *chunk name*  (group 1)
-    //       \s*,\s*        →   followed by a comma
-    //   )?                 → ────────────────────────────────
-    //   ([^>]+?)           → capture everything up to “>>” as *options* (group 2)
-    // \s*>>= \n            → header terminator
-    // (.*?)                → lazily capture the chunk body        (group 3)
-    // ^\s*@\s*$            → a line containing only “@” closes the chunk
     static CHUNK: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"(?ms)^\s*<<\s*(?:([^,\s>]+)\s*,\s*)?([^>]+?)\s*>>=\n(.*?)^\s*@\s*$")
-            .expect("invalid regex")
+        Regex::new(r"(?ms)^\s*<<\s*(.*?)\s*>>=\n(.*?)^\s*@\s*$").expect("invalid regex")
     });
 
     let latex = CHUNK.replace_all(&latex, |captures: &Captures| {
-        let options = captures.get(2).map(|mat| mat.as_str());
-        let code = &captures[3];
+        let mut options = captures[1].split(",").collect_vec();
+        let code = &captures[2];
+
+        let id = if let Some(id) = options.first().and_then(|first| {
+            (!first.is_empty() && !first.contains("=")).then_some(first.to_string())
+        }) {
+            options.remove(0);
+            [",id=", &id].concat()
+        } else {
+            String::new()
+        };
+
+        let options = if !options.is_empty() {
+            [",", &options.join(",")].concat()
+        } else {
+            String::new()
+        };
 
         [
             "\\begin{chunk}[r",
-            &options
-                .map(|options| [", ", options].concat())
-                .unwrap_or_default(),
+            &id,
+            &options,
             "]\n",
             code,
             "\\end{chunk}\n",
