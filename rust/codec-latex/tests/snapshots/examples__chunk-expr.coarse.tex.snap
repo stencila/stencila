@@ -16,13 +16,11 @@ No language or other options:
 3 + 1
 \end{chunk}
 
-
 With lang and options:
 
 \begin{chunk}[r]
 x <- 3
 3 + 2
 \end{chunk}
-
 
 \end{document}

@@ -29,14 +29,12 @@ impl LatexCodec for IfBlock {
                 .property_str(NodeProperty::Code, code)
                 .char('}')
                 .newline()
-                .increase_depth()
                 .property_fn(NodeProperty::Content, |context| content.to_latex(context))
-                .decrease_depth()
                 .trim_end()
                 .newline()
                 .environ_end("if");
         } else {
-            context.environ_begin("ifblock").newline().increase_depth();
+            context.environ_begin("ifblock").newline();
             for (index, IfBlockClause { code, content, .. }) in self.clauses.iter().enumerate() {
                 let environ = if index == 0 {
                     "if"
@@ -52,18 +50,12 @@ impl LatexCodec for IfBlock {
                     .property_str(NodeProperty::Code, code)
                     .char('}')
                     .newline()
-                    .increase_depth()
                     .property_fn(NodeProperty::Content, |context| content.to_latex(context))
-                    .decrease_depth()
                     .trim_end()
                     .newline()
                     .environ_end(environ);
             }
-            context
-                .decrease_depth()
-                .trim_end()
-                .newline()
-                .environ_end("ifblock");
+            context.trim_end().newline().environ_end("ifblock");
         }
 
         context.exit_node().newline();

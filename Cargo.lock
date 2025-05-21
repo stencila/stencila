@@ -1203,6 +1203,7 @@ version = "0.0.0"
 dependencies = [
  "codec-info",
  "codec-latex-derive",
+ "codec-utils",
  "common",
  "format",
  "node-path",
@@ -1350,6 +1351,13 @@ version = "0.0.0"
 dependencies = [
  "codec-info",
  "codec-text-derive",
+]
+
+[[package]]
+name = "codec-utils"
+version = "0.0.0"
+dependencies = [
+ "common",
 ]
 
 [[package]]

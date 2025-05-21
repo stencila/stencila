@@ -55,12 +55,9 @@ impl DomCodec for Heading {
 
 impl LatexCodec for Heading {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
-        // Ensure blank line before section
-        if !context.content.is_empty() {
-            context.blankline();
-        }
-
-        context.enter_node(self.node_type(), self.node_id());
+        context
+            .ensure_blankline()
+            .enter_node(self.node_type(), self.node_id());
 
         let command = match self.level {
             1 => "section",

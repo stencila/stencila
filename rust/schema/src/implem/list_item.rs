@@ -6,8 +6,7 @@ impl LatexCodec for ListItem {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id, item, position, is_checked))
-            .increase_depth();
+            .merge_losses(lost_options!(self, id, item, position, is_checked));
 
         if let (1, Some(Block::Paragraph(..))) = (self.content.len(), self.content.first()) {
             context
@@ -18,14 +17,12 @@ impl LatexCodec for ListItem {
         } else {
             context
                 .str("\\item\n")
-                .increase_depth()
                 .property_fn(NodeProperty::Content, |context| {
                     self.content.to_latex(context)
-                })
-                .decrease_depth();
+                });
         }
 
-        context.decrease_depth().exit_node();
+        context.exit_node();
     }
 }
 

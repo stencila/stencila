@@ -7,6 +7,7 @@ use std::{
     process::{Command, Stdio},
 };
 
+use codec_utils::split_paragraph;
 use node_path::{NodePath, NodeSlot};
 use rand::{distr::Alphanumeric, rng, Rng};
 
@@ -398,14 +399,17 @@ pub struct LatexEncodeContext {
     /// Used to determine whether newlines are needed between blocks.
     pub coarse: bool,
 
-    /// The encoded Latex content
-    pub content: String,
-
     /// A prelude to add to islands and other LaTeX snippets generated during encoding
     pub prelude: Option<String>,
 
     /// The temporary directory where images are encoded to if necessary
     pub temp_dir: PathBuf,
+
+    /// The encoded Latex content
+    content: String,
+
+    /// Whether paragraph wrapping is turned on
+    paragraph_content: Option<String>,
 
     /// A stack of node types, ids and start positions
     node_stack: Vec<(NodeType, NodeId, usize)>,
@@ -418,9 +422,6 @@ pub struct LatexEncodeContext {
 
     /// Encoding losses
     pub losses: Losses,
-
-    /// The nesting depth for any node type using fenced divs
-    depth: usize,
 }
 
 impl LatexEncodeContext {
@@ -446,11 +447,11 @@ impl LatexEncodeContext {
             temp_dir,
             coarse: false,
             content,
+            paragraph_content: None,
             node_stack: Vec::default(),
             node_path: NodePath::new(),
             mapping: Mapping::default(),
             losses: Losses::default(),
-            depth: 0,
         }
     }
 
@@ -501,7 +502,7 @@ impl LatexEncodeContext {
     pub fn property_str(&mut self, prop: NodeProperty, value: &str) -> &mut Self {
         let start = self.char_index();
 
-        self.content.push_str(value);
+        self.str(value);
 
         if let Some((node_type, node_id, ..)) = self.node_stack.last() {
             let end = self.char_index();
@@ -532,88 +533,87 @@ impl LatexEncodeContext {
         self
     }
 
-    /// Increase the nesting depth
-    pub fn increase_depth(&mut self) -> &mut Self {
-        self.depth += 1;
-        self
-    }
-
-    /// Decrease the nesting depth
-    pub fn decrease_depth(&mut self) -> &mut Self {
-        self.depth = self.depth.saturating_sub(1);
+    /// Push a character onto the LaTeX content
+    pub fn char(&mut self, value: char) -> &mut Self {
+        if let Some(paragraph_content) = self.paragraph_content.as_mut() {
+            paragraph_content.push(value);
+        } else {
+            self.content.push(value);
+        }
         self
     }
 
     /// Push a string onto the LaTeX content
     pub fn str(&mut self, value: &str) -> &mut Self {
-        if self.depth > 0 && matches!(self.content.chars().last(), None | Some('\n')) {
-            self.content.push_str(&"  ".repeat(self.depth));
+        if let Some(paragraph_content) = self.paragraph_content.as_mut() {
+            paragraph_content.push_str(value);
+        } else {
+            self.content.push_str(value);
         }
-        self.content.push_str(value);
         self
     }
 
     /// Escape a string and push it onto the LaTeX content
-    pub fn escape_str(&mut self, value: &str) -> &mut Self {
-        self.str(&escape_latex(value))
-    }
-
-    /// Push a character onto the Latex content
-    pub fn char(&mut self, value: char) -> &mut Self {
-        self.content.push(value);
-        self
+    pub fn escaped_str(&mut self, value: &str) -> &mut Self {
+        let escaped = escape_latex(value);
+        self.str(&escaped)
     }
 
     /// Add a single space to the end of the content
     pub fn space(&mut self) -> &mut Self {
-        self.content.push(' ');
-        self
+        self.char(' ')
     }
 
     /// Add a single newline to the end of the content
     pub fn newline(&mut self) -> &mut Self {
-        self.content.push('\n');
-        self
+        self.char('\n')
     }
 
-    /// Ensure that there is a blank line at the
-    pub fn blankline(&mut self) -> &mut Self {
-        if !self.content.ends_with("\n") {
-            self.newline();
-        }
-        if !self.content.ends_with("\n\n") {
-            self.newline();
+    /// Ensure that there is a blank line at the end of the content
+    pub fn ensure_blankline(&mut self) -> &mut Self {
+        if !self.content.is_empty() {
+            if !self.content.ends_with("\n") {
+                self.newline();
+            }
+            if !self.content.ends_with("\n\n") {
+                self.newline();
+            }
         }
         self
     }
 
     /// Begin a LaTeX environment
     pub fn environ_begin(&mut self, name: &str) -> &mut Self {
-        self.str("\\begin{");
-        self.content.push_str(name);
-        self.content.push('}');
-        self
+        self.str("\\begin{").str(name).char('}')
     }
 
     /// End a LaTeX environment
     pub fn environ_end(&mut self, name: &str) -> &mut Self {
-        self.str("\\end{");
-        self.content.push_str(name);
-        self.content.push_str("}\n");
-        self
+        self.str("\\end{").str(name).char('}')
     }
 
     /// Begin a LaTeX command
     pub fn command_begin(&mut self, name: &str) -> &mut Self {
-        self.content.push('\\');
-        self.content.push_str(name);
-        self.content.push('{');
-        self
+        self.char('\\').str(name).char('{')
     }
 
     /// End a LaTeX command
     pub fn command_end(&mut self) -> &mut Self {
-        self.content.push('}');
+        self.char('}')
+    }
+
+    /// Begin a LaTeX paragraph
+    pub fn paragraph_begin(&mut self) -> &mut Self {
+        self.paragraph_content = Some(String::new());
+        self
+    }
+
+    /// End a LaTeX paragraph
+    pub fn paragraph_end(&mut self) -> &mut Self {
+        if let Some(paragraph_content) = self.paragraph_content.take() {
+            let para = split_paragraph::split(&paragraph_content, 80, true).join("\n");
+            self.content.push_str(&para);
+        }
         self
     }
 
@@ -627,8 +627,7 @@ impl LatexEncodeContext {
 
     /// End a link to the current node
     pub fn link_end(&mut self) -> &mut Self {
-        self.char('}');
-        self
+        self.char('}')
     }
 
     /// Create a link to the current with some content
@@ -684,7 +683,7 @@ to_string!(f64, "Number");
 
 impl LatexCodec for String {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
-        context.escape_str(&self.to_string());
+        context.escaped_str(&self.to_string());
     }
 }
 

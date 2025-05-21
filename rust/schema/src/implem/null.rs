@@ -58,7 +58,7 @@ impl JatsCodec for Null {
 impl LatexCodec for Null {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
         let (text, losses) = self.to_text();
-        context.escape_str(&text);
+        context.escaped_str(&text);
         context.merge_losses(losses);
     }
 }

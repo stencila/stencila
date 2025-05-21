@@ -38,11 +38,9 @@ impl LatexCodec for ForBlock {
             .property_str(NodeProperty::Code, &self.code)
             .char('}')
             .newline()
-            .increase_depth()
             .property_fn(NodeProperty::Content, |context| {
                 self.content.to_latex(context)
             })
-            .decrease_depth()
             .trim_end()
             .newline()
             .environ_end(ENVIRON)
