@@ -224,10 +224,22 @@ fn link_from_pandoc(
     let target = target.url.to_string();
     let content = inlines_from_pandoc(inlines, context);
 
+    let label_only = if !target.starts_with("https://") && !target.starts_with("http://") {
+        // Set to true if an internal link with only a number as content
+        to_text(&content)
+            .trim()
+            .parse::<u32>()
+            .is_ok()
+            .then_some(true)
+    } else {
+        None
+    };
+
     Inline::Link(Link {
         target,
         title,
         content,
+        label_only,
         ..Default::default()
     })
 }
