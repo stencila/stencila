@@ -1,4 +1,5 @@
 use codec_info::lost_options;
+use codec_text_trait::to_text;
 
 use crate::{prelude::*, Inline, Link};
 
@@ -35,7 +36,7 @@ impl LatexCodec for Link {
         context.enter_node(self.node_type(), self.node_id());
 
         let command = if self.target.starts_with("https://") || self.target.starts_with("http://") {
-            if self.content.is_empty() {
+            if self.content.is_empty() || to_text(&self.content) == self.target {
                 "url"
             } else {
                 "href"
