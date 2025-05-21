@@ -2,6 +2,12 @@
 source: rust/codec-latex/tests/examples.rs
 expression: "&latex"
 ---
+\documentclass{article}
+
+\begin{document}
+
 \begin{for}{item}{c(1,2,3)}
-    \p This is item \expr{item}.
+  \p This is item \expr{item}.
 \end{for}
+
+\end{document}

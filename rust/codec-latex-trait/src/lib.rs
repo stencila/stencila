@@ -24,7 +24,7 @@ pub use codec_latex_derive::LatexCodec;
 /// Encode a node that implements `LatexCodec` to Latex
 ///
 /// A convenience function to save the caller from having to create a context etc.
-/// 
+///
 /// Note: the `format` argument is the final destination format. LaTeX is always generated,
 /// but it will differ depending on the destination format.
 pub fn to_latex<T>(
@@ -44,23 +44,27 @@ where
 
     let mut latex = context.content;
 
-    // If the generated LaTeX does not have a preamble (might be one in a RawBlock),
-    // then use necessary pages and wrap
     if standalone {
+        // Ensure necessary syntax for standalone, including any missing use packages
+
         if !latex.contains("\\end{document}") {
             latex.push_str("\\end{document}");
         }
+
         if !latex.contains("\\begin{document}") {
             latex.insert_str(0, "\\begin{document}\n\n");
         }
+
         if !latex.contains("\\documentclass") {
-            let preamble = [
-                "\\documentclass{article}\n\n",
-                &use_packages(&latex),
-                "\n\n",
-            ]
-            .concat();
-            latex.insert_str(0, &preamble);
+            latex.insert_str(0, "\\documentclass{article}\n\n");
+        }
+
+        let pkgs = use_packages(&latex);
+        if !pkgs.trim().is_empty() {
+            // Insert any missing package definitions after document class (ensured above)
+            if let Some(pos) = latex.find("}\n") {
+                latex.insert_str(pos, &["\n", &pkgs, "\n"].concat());
+            }
         }
     }
 
@@ -540,7 +544,7 @@ impl LatexEncodeContext {
     /// Push a string onto the Latex content
     pub fn str(&mut self, value: &str) -> &mut Self {
         if self.depth > 0 && matches!(self.content.chars().last(), None | Some('\n')) {
-            self.content.push_str(&"    ".repeat(self.depth));
+            self.content.push_str(&"  ".repeat(self.depth));
         }
         self.content.push_str(value);
         self

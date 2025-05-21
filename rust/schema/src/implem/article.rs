@@ -1,4 +1,4 @@
-use crate::{prelude::*, Article, Block};
+use crate::{prelude::*, Article, Block, RawBlock};
 
 impl Article {
     /// Does tha article appear to be have been decoded from the format using the `--coarse` option
@@ -61,12 +61,95 @@ impl Article {
 
 impl LatexCodec for Article {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
-        context
-            .enter_node(self.node_type(), self.node_id())
-            .property_fn(NodeProperty::Content, |context| {
-                self.content.to_latex(context)
+        context.enter_node(self.node_type(), self.node_id());
+
+        // Scan any raw latex blocks to check if command is already present
+        let has = |what: &str| -> bool {
+            self.content.iter().any(|block| match block {
+                Block::RawBlock(RawBlock {
+                    format, content, ..
+                }) => matches!(Format::from_name(format), Format::Latex) && content.contains(what),
+                _ => false,
             })
-            .exit_node_final();
+        };
+
+        if !has("\\documentclass") {
+            context.str("\\documentclass{article}\n\n");
+        }
+
+        if let Some(title) = &self.title {
+            context.property_fn(NodeProperty::Title, |context| {
+                context.command_enter("title");
+                title.to_latex(context);
+                context.command_exit().newline();
+            });
+            context.newline();
+        }
+
+        if let Some(authors) = &self.authors {
+            context.property_fn(NodeProperty::Authors, |context| {
+                for author in authors {
+                    context
+                        .command_enter("author")
+                        .str(&author.name())
+                        .command_exit()
+                        .newline();
+                }
+            });
+            context.newline();
+        }
+
+        if let Some(date) = self
+            .date_published
+            .as_ref()
+            .or(self.date_modified.as_ref())
+            .or(self.date_created.as_ref())
+        {
+            context.property_fn(NodeProperty::Date, |context| {
+                context
+                    .command_enter("date")
+                    .str(&date.value)
+                    .command_exit()
+                    .newline();
+            });
+            context.newline();
+        }
+
+        if let Some(keywords) = &self.keywords {
+            context.property_fn(NodeProperty::Keywords, |context| {
+                context
+                    .command_enter("keywords")
+                    .str(&keywords.join(", "))
+                    .command_exit()
+                    .newline();
+            });
+            context.newline();
+        }
+
+        const ENVIRON: &str = "document";
+        if !has("\\begin{document}") {
+            context.environ_begin(ENVIRON).str("\n\n");
+        }
+
+        if self.title.is_some() {
+            context.str("\\maketitle\n\n");
+        }
+
+        context.property_fn(NodeProperty::Content, |context| {
+            self.content.to_latex(context)
+        });
+
+        if !has("\\end{document}") {
+            if !context.content.ends_with("\n") {
+                context.str("\n");
+            }
+            if !context.content.ends_with("\n\n") {
+                context.str("\n");
+            }
+            context.environ_end(ENVIRON).str("\n");
+        }
+
+        context.exit_node_final();
     }
 }
 

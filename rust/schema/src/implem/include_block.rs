@@ -46,6 +46,7 @@ impl LatexCodec for IncludeBlock {
                 .str("\\input{")
                 .property_str(NodeProperty::Source, self.source.trim_end_matches(".tex"))
                 .char('}')
+                .newline()
                 .newline();
         }
 
