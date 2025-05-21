@@ -67,10 +67,11 @@ impl LatexCodec for Island {
             }
         }
 
+        const ENVIRON: &str = "island";
         let should_wrap = !self.is_automatic.unwrap_or_default()
             && matches!(context.format, Format::Latex | Format::Tex);
         if should_wrap {
-            context.str("\\begin{island}");
+            context.environ_begin(ENVIRON);
 
             let has_options = self.id.is_some()
                 || self.label_type.is_some()
@@ -115,7 +116,7 @@ impl LatexCodec for Island {
                 context.char('[').str(&props).char(']');
             }
 
-            context.str("\n\n");
+            context.newline();
         }
 
         context.property_fn(NodeProperty::Content, |context| {
@@ -123,7 +124,7 @@ impl LatexCodec for Island {
         });
 
         if should_wrap {
-            context.str("\\end{island}\n");
+            context.environ_end(ENVIRON).newline();
         }
 
         context.exit_node();
