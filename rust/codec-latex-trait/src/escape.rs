@@ -26,24 +26,24 @@ pub fn escape_latex(input: &str) -> String {
     ];
 
     let mut out = String::with_capacity(input.len());
+    let char_positions: Vec<usize> = input.char_indices().map(|(i, _)| i).collect();
+    let chars: Vec<char> = input.chars().collect();
+    let len = chars.len();
     let mut i = 0;
-    let bytes = input.as_bytes();
     let mut in_math = false;
     let mut math_delim = ""; // "$" or "$$"
 
-    while i < bytes.len() {
-        let c = bytes[i] as char;
+    while i < len {
+        let c = chars[i];
+        let next = if i + 1 < len { chars[i + 1] } else { '\0' };
 
         if !in_math && c == '$' {
-            // ---- decide whether this starts math or is a literal $ ----
-            let next = if i + 1 < bytes.len() {
-                bytes[i + 1] as char
-            } else {
-                '\0'
-            };
             if next == '$' {
-                // Candidate `$$`
-                let rest = &input[i + 2..];
+                let rest = if i + 2 < len {
+                    &input[char_positions[i + 2]..]
+                } else {
+                    ""
+                };
                 if rest.contains("$$") {
                     in_math = true;
                     math_delim = "$$";
@@ -52,8 +52,7 @@ pub fn escape_latex(input: &str) -> String {
                     continue;
                 }
             } else {
-                // Candidate single `$`
-                let rest = &input[i + 1..];
+                let rest = &input[char_positions[i + 1]..];
                 if !next.is_ascii_digit()
                     && !next.is_ascii_whitespace()
                     && !"#%&_~$".contains(next)
@@ -78,9 +77,8 @@ pub fn escape_latex(input: &str) -> String {
         }
 
         if in_math {
-            // ---- inside math ------------------------------------------------
             if c == '$' {
-                if math_delim == "$$" && i + 1 < bytes.len() && bytes[i + 1] == b'$' {
+                if math_delim == "$$" && next == '$' {
                     out.push_str("$$");
                     in_math = false;
                     i += 2;
@@ -97,7 +95,7 @@ pub fn escape_latex(input: &str) -> String {
             continue;
         }
 
-        // ---- text mode: ordinary escapes -----------------------------------
+        // ---- text mode escapes ----
         if let Some((_, repl)) = MAP.iter().find(|(ch, _)| *ch == c) {
             out.push_str(repl);
         } else {
@@ -124,6 +122,13 @@ mod tests {
     fn escapes_outside_math_only() {
         let raw = r"\price_$#1 ~ ok $$x^2$$";
         let want = r"\textbackslash{}price\_\$\#1 \textasciitilde{} ok $$x^2$$";
+        assert_eq!(escape_latex(raw), want);
+    }
+
+    #[test]
+    fn handles_unicode_characters() {
+        let raw = "Emoji: 😊 & price 5€";
+        let want = r"Emoji: 😊 \& price 5€";
         assert_eq!(escape_latex(raw), want);
     }
 }
