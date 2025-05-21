@@ -32,15 +32,9 @@ pub async fn coarse_to_path(
     let link = options.link.unwrap_or(false);
 
     let (content, info) = match from {
-        Format::Latex | Format::Tex => to_latex(
-            node,
-            to.clone(),
-            standalone,
-            render,
-            highlight,
-            link,
-            None,
-        ),
+        Format::Latex | Format::Tex => {
+            to_latex(node, to.clone(), standalone, render, highlight, link, None)
+        }
         _ => bail!("Unsupported from format: {from}"),
     };
 

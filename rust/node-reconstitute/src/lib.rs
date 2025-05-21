@@ -127,11 +127,8 @@ impl VisitorMut for Reconstituter {
         } else if end {
             // Pop off the collected blocks and assign them to the content of the reconstituted block
             let blocks = self.blocks.pop();
-            match &mut block_node {
-                Block::IncludeBlock(node) => {
-                    node.content = blocks;
-                }
-                _ => {}
+            if let Block::IncludeBlock(node) = &mut block_node {
+                node.content = blocks;
             }
             // If there is a list of blocks (ie this is nested)
             // then push there, otherwise overwrite

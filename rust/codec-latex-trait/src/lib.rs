@@ -723,15 +723,15 @@ pub fn escape_latex(input: &str) -> String {
     // Mapping for ordinary text-mode escapes.
     const MAP: [(char, &str); 10] = [
         ('\\', r"\textbackslash{}"),
-        ('{',  r"\{"),
-        ('}',  r"\}"),
-        ('#',  r"\#"),
-        ('$',  r"\$"),
-        ('%',  r"\%"),
-        ('&',  r"\&"),
-        ('~',  r"\textasciitilde{}"),
-        ('_',  r"\_"),
-        ('^',  r"\textasciicircum{}"),
+        ('{', r"\{"),
+        ('}', r"\}"),
+        ('#', r"\#"),
+        ('$', r"\$"),
+        ('%', r"\%"),
+        ('&', r"\&"),
+        ('~', r"\textasciitilde{}"),
+        ('_', r"\_"),
+        ('^', r"\textasciicircum{}"),
     ];
 
     let mut out = String::with_capacity(input.len());
@@ -745,7 +745,11 @@ pub fn escape_latex(input: &str) -> String {
 
         if !in_math && c == '$' {
             // ---- decide whether this starts math or is a literal $ ----
-            let next = if i + 1 < bytes.len() { bytes[i + 1] as char } else { '\0' };
+            let next = if i + 1 < bytes.len() {
+                bytes[i + 1] as char
+            } else {
+                '\0'
+            };
             if next == '$' {
                 // Candidate `$$`
                 let rest = &input[i + 2..];

@@ -126,7 +126,7 @@ pub struct EncodeOptions {
     not_standalone: bool,
 
     /// Recursively encode the content of `IncludeBlock`s to their source file
-    /// 
+    ///
     /// Only supported when encoding to a path.
     #[arg(long)]
     recurse: bool,

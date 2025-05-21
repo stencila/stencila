@@ -109,7 +109,7 @@ impl LatexCodec for Island {
                     self.style.as_ref().map(|style| ["style=", style].concat()),
                 ]
                 .into_iter()
-                .filter_map(|item| item)
+                .flatten()
                 .join(",");
 
                 context.char('[').str(&props).char(']');
