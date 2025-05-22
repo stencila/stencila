@@ -221,8 +221,17 @@ fn link_from_pandoc(
     context: &mut PandocDecodeContext,
 ) -> Inline {
     let title = (!target.title.is_empty()).then(|| target.title.clone());
-    let target = target.url.to_string();
+    let mut target = target.url.to_string();
     let content = inlines_from_pandoc(inlines, context);
+
+    // Some software will URL encode the target (e.g. LibreOffice for DOCX). This can break
+    // internal links using ids like `fig:xxx` and `tab:xxx` as used in LaTeX documents so
+    // revert these.
+    if target.starts_with("#tab%3A") {
+        target = target.replacen("#tab%3A", "tab:", 1);
+    } else if target.starts_with("#fig%3A") {
+        target = target.replacen("#fig%3A", "fig:", 1);
+    }
 
     let label_only = if !target.starts_with("https://") && !target.starts_with("http://") {
         // Set to true if an internal link with only a number as content
