@@ -116,7 +116,7 @@ impl LatexCodec for Island {
                 context.char('[').str(&props).char(']');
             }
 
-            context.newline();
+            context.str("\n\n");
         }
 
         context.property_fn(NodeProperty::Content, |context| {
