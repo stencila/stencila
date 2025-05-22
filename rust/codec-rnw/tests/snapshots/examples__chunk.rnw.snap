@@ -9,12 +9,12 @@ Chunk name, no options, no code:
 
 
 No chunk name, options and code:
-<<unnamed, echo=FALSE>>=
+<<echo=FALSE>>=
 # Some code
 @
 
 
 All:
-<<chunkname, echo=FALSE, hidden=TRUE>>=
+<<chunkname,echo=FALSE,hidden=TRUE>>=
 # Some code
 @

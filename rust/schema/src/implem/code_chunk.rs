@@ -150,11 +150,11 @@ impl LatexCodec for CodeChunk {
 
         // Render mode: only encode outputs
         if context.render {
-            if context.link {
-                context.link_begin();
-            }
-
             if let Some(outputs) = &self.outputs {
+                if context.link {
+                    context.link_begin();
+                }
+
                 context.property_fn(NodeProperty::Outputs, |context| {
                     for output in outputs {
                         if matches!(context.format, Format::Docx | Format::Odt) {
@@ -192,10 +192,24 @@ impl LatexCodec for CodeChunk {
                         }
                     }
                 });
-            }
 
-            if context.link {
-                context.link_end();
+                if context.link {
+                    context.link_end();
+                }
+            } else {
+                context
+                    .str("\n\n\\centerline{")
+                    .link_with(
+                        &format!(
+                            r"\verb|[Code chunk {}]|",
+                            match &self.id {
+                                Some(id) => id,
+                                _ => "",
+                            }
+                        ),
+                        None,
+                    )
+                    .str("}\n\n");
             }
 
             context
@@ -221,18 +235,30 @@ impl LatexCodec for CodeChunk {
                 }
             }
 
-            let name = self.id.as_deref().unwrap_or("unnamed");
-            context.str("<<").str(name);
+            context.str("<<");
+            let mut need_comma = false;
+
+            if let Some(id) = &self.id {
+                context.str(id);
+                need_comma = true;
+            }
 
             if let Some(is_echoed) = self.is_echoed {
+                if need_comma {
+                    context.char(',');
+                }
                 context
-                    .str(", echo=")
+                    .str("echo=")
                     .str(&is_echoed.to_string().to_uppercase());
+                need_comma = true;
             }
 
             if let Some(is_hidden) = self.is_hidden {
+                if need_comma {
+                    context.char(',');
+                }
                 context
-                    .str(", hidden=")
+                    .str("hidden=")
                     .str(&is_hidden.to_string().to_uppercase());
             }
 
