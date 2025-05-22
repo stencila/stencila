@@ -29,6 +29,18 @@ impl DomCodec for Text {
     }
 }
 
+impl LatexCodec for Text {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .property_fn(NodeProperty::Value, |context| {
+                // Note use of escaping here
+                context.escaped_str(&self.value);
+            })
+            .exit_node();
+    }
+}
+
 impl MarkdownCodec for Text {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context

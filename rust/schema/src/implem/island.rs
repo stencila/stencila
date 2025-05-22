@@ -35,7 +35,7 @@ impl LatexCodec for Island {
 
             let path = context.temp_dir.join(format!("{}.svg", self.node_id()));
             if let Err(error) = latex_to_image(&latex, &path, self.style.as_deref()) {
-                tracing::error!("While encoding island to image: {error}");
+                tracing::error!("While encoding island to image: {error}\n\n{latex}");
                 // Will fallback to just encoding the content below
             } else {
                 let path = path.to_string_lossy();

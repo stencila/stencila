@@ -18,6 +18,8 @@ html:
   elem: span
 jats:
   special: true
+latex:
+  derive: false
 markdown:
   derive: false
 proptest: {}

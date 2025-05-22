@@ -683,7 +683,7 @@ to_string!(f64, "Number");
 
 impl LatexCodec for String {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
-        context.escaped_str(&self.to_string());
+        context.str(&self.to_string());
     }
 }
 

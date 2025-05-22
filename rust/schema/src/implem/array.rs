@@ -73,8 +73,7 @@ impl HtmlCodec for Array {
 impl LatexCodec for Array {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
         let (text, losses) = self.to_text();
-        context.escaped_str(&text);
-        context.merge_losses(losses);
+        context.str(&text).merge_losses(losses);
     }
 }
 
