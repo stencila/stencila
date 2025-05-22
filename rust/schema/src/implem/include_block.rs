@@ -22,7 +22,7 @@ impl LatexCodec for IncludeBlock {
                 context
                     .str("\n\n\\centerline{")
                     .link_with(
-                        &format!(r"\verb|[Begin include {}]|", self.source),
+                        &format!(r"\verb|[Begin {}]|", self.source),
                         Some("begin"),
                     )
                     .str("}\n\n");
@@ -36,7 +36,7 @@ impl LatexCodec for IncludeBlock {
                 context
                     .str("\n\n\\centerline{")
                     .link_with(
-                        &format!(r"\verb|[End include {}]|", self.source),
+                        &format!(r"\verb|[End {}]|", self.source),
                         Some("end"),
                     )
                     .str("}\n\n");
