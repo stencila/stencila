@@ -12,6 +12,18 @@ use common::{
 /// Calculate the edits from Unedited to Edited, "lift" them to Original-positions, and
 /// apply them to Original to return Original′.
 pub fn lift_edits(original: &str, unedited: &str, edited: &str) -> String {
+    // If there is no difference between unedited and edited then there are no edits
+    // so just return the original
+    if edited == unedited {
+        return original.to_string();
+    }
+
+    // If there is no difference between original and unedited then there is no lifting
+    // of edits to do, so just return edited
+    if original == unedited {
+        return edited.to_string();
+    }
+
     let original = original.chars().collect_vec();
     let unedited = unedited.chars().collect_vec();
     let edited = edited.chars().collect_vec();
@@ -40,7 +52,7 @@ pub fn lift_edits(original: &str, unedited: &str, edited: &str) -> String {
                 new_index,
                 ..
             } => {
-                let anchor = u2o_prefixes[old_index]; // position after the B-prefix
+                let anchor = u2o_prefixes[old_index]; // position after the U-prefix
                 if new_len > 0 {
                     let text = edited[new_index..new_index + new_len].iter().collect();
                     patch.push(PatchOp::Insert { pos: anchor, text });
@@ -225,13 +237,22 @@ mod tests {
 
     pub use common_dev::proptest::prelude::*;
 
-    /// Identity: nothing changes anywhere.
+    /// Nothing changes anywhere.
     #[test]
-    fn no_op() {
+    fn no_changes() {
         let o = "unchanged";
         let u = "unchanged";
         let e = "unchanged";
         assert_eq!(lift_edits(o, u, e), "unchanged");
+    }
+
+    /// No edits.
+    #[test]
+    fn no_edits() {
+        let o = "abcde";
+        let u = "ade";
+        let e = "ade";
+        assert_eq!(lift_edits(o, u, e), "abcde");
     }
 
     /// Pure insertion (O == U; user inserts into E.
@@ -272,6 +293,14 @@ mod tests {
         assert_eq!(lift_edits(o, u, e), "abXcdef");
     }
 
+    #[test]
+    fn replace_across_gap() {
+        let o = "The quick brown fox";
+        let u = "The uick brown fx"; // lost 'q' and 'o'
+        let e = "The UICK brown fX"; // replaced next characters
+        assert_eq!(lift_edits(o, u, e), "The qUICK brown foX");
+    }
+
     /// Mixed case
     #[test]
     fn round_trip_example() {
@@ -306,6 +335,22 @@ mod tests {
         fn no_loss_replays_edits(original in ".{0,50}", edited in ".{0,50}") {
             let result = lift_edits(&original, &original, &edited);
             prop_assert_eq!(result, edited);
+        }
+
+        /// Fuzz-test the “full” path: when there are real differences
+        /// in both the O→U (lossy) step and the U→E (edit) step.
+        /// Only checks for panics (e.g. out of bounds errors)
+        #[test]
+        fn fuzz_full_diff(
+            original in ".{0,50}",
+            unedited in ".{0,50}",
+            edited   in ".{0,50}",
+        ) {
+            // run the function (check it does not  panic)
+            let _result = lift_edits(&original, &unedited, &edited);
+
+            // trivial assertion so proptest counts it as a test
+            prop_assert!(true);
         }
     }
 }
