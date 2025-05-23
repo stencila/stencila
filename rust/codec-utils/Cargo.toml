@@ -6,5 +6,8 @@ edition = "2024"
 [dependencies]
 common = { path = "../common" }
 
+[dev-dependencies]
+common-dev = { path = "../common-dev" }
+
 [lints]
 workspace = true

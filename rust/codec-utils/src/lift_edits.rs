@@ -1,4 +1,7 @@
-use common::similar::{Algorithm, DiffOp, capture_diff_slices};
+use common::{
+    itertools::Itertools,
+    similar::{Algorithm, DiffOp, capture_diff_slices},
+};
 
 /// Given three documents,
 ///
@@ -9,11 +12,15 @@ use common::similar::{Algorithm, DiffOp, capture_diff_slices};
 /// Calculate the edits from Unedited to Edited, "lift" them to Original-positions, and
 /// apply them to Original to return Original′.
 pub fn lift_edits(original: &str, unedited: &str, edited: &str) -> String {
-    let o2u_ops = capture_diff_slices(Algorithm::Myers, original.as_bytes(), unedited.as_bytes());
+    let original = original.chars().collect_vec();
+    let unedited = unedited.chars().collect_vec();
+    let edited = edited.chars().collect_vec();
+
+    let o2u_ops = capture_diff_slices(Algorithm::Myers, &original, &unedited);
 
     let (.., u2o_prefixes, u2o_chars) = build_maps(&o2u_ops);
 
-    let u2e_ops = capture_diff_slices(Algorithm::Patience, unedited.as_bytes(), edited.as_bytes());
+    let u2e_ops = capture_diff_slices(Algorithm::Patience, &unedited, &edited);
 
     // Calculate patch
     let mut patch: Vec<PatchOp> = Vec::new();
@@ -35,11 +42,8 @@ pub fn lift_edits(original: &str, unedited: &str, edited: &str) -> String {
             } => {
                 let anchor = u2o_prefixes[old_index]; // position after the B-prefix
                 if new_len > 0 {
-                    let text = &edited.as_bytes()[new_index..new_index + new_len];
-                    patch.push(PatchOp::Insert {
-                        pos: anchor,
-                        text: String::from_utf8_lossy(text).into_owned(),
-                    });
+                    let text = edited[new_index..new_index + new_len].iter().collect();
+                    patch.push(PatchOp::Insert { pos: anchor, text });
                 }
             }
 
@@ -55,11 +59,8 @@ pub fn lift_edits(original: &str, unedited: &str, edited: &str) -> String {
 
                 // new part → insertion in O just after the deleted span
                 let anchor = u2o_prefixes[old_index + old_len];
-                let text = &edited.as_bytes()[new_index..new_index + new_len];
-                patch.push(PatchOp::Insert {
-                    pos: anchor,
-                    text: String::from_utf8_lossy(text).into_owned(),
-                });
+                let text = edited[new_index..new_index + new_len].iter().collect();
+                patch.push(PatchOp::Insert { pos: anchor, text });
             }
         }
     }
@@ -71,20 +72,23 @@ pub fn lift_edits(original: &str, unedited: &str, edited: &str) -> String {
         match op {
             PatchOp::Delete { pos, len } => {
                 if cur < pos {
-                    applied.push_str(&original[cur..pos]);
+                    let text: String = original[cur..pos].iter().collect();
+                    applied.push_str(&text);
                 }
                 cur = pos + len;
             }
             PatchOp::Insert { pos, ref text } => {
                 if cur < pos {
-                    applied.push_str(&original[cur..pos]);
+                    let text: String = original[cur..pos].iter().collect();
+                    applied.push_str(&text);
                     cur = pos;
                 }
                 applied.push_str(text);
             }
         }
     }
-    applied.push_str(&original[cur..]);
+    let text: String = original[cur..].iter().collect();
+    applied.push_str(&text);
 
     applied
 }
@@ -219,6 +223,8 @@ fn push_deletions(
 mod tests {
     use super::*;
 
+    pub use common_dev::proptest::prelude::*;
+
     /// Identity: nothing changes anywhere.
     #[test]
     fn no_op() {
@@ -282,5 +288,24 @@ mod tests {
         let u = "abcdf";
         let e = "ab🍩def";
         assert_eq!(lift_edits(o, u, e), "a🌈🍩de😾f");
+    }
+
+    proptest! {
+        /// If there are no “edits” (unedited == edited),
+        /// lift_edits must return the original.
+        #[test]
+        fn no_edit_yields_original(original in ".{0,50}", unedited in ".{0,50}") {
+            let result = lift_edits(&original, &unedited, &unedited);
+            prop_assert_eq!(result, original);
+        }
+
+        /// If the “lossy” step did nothing (original == unedited),
+        /// then lift_edits should just replay the edits on original directly,
+        /// i.e. result == edited.
+        #[test]
+        fn no_loss_replays_edits(original in ".{0,50}", edited in ".{0,50}") {
+            let result = lift_edits(&original, &original, &edited);
+            prop_assert_eq!(result, edited);
+        }
     }
 }
