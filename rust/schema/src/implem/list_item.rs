@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, Block, ListItem};
+use crate::{prelude::*, Block, ListItem, Paragraph};
 
 impl LatexCodec for ListItem {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
@@ -8,15 +8,20 @@ impl LatexCodec for ListItem {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, item, position, is_checked));
 
-        if let (1, Some(Block::Paragraph(..))) = (self.content.len(), self.content.first()) {
+        if let (1, Some(Block::Paragraph(Paragraph { content, .. }))) =
+            (self.content.len(), self.content.first())
+        {
             context
-                .str("\\item ")
+                .str("  \\item ")
                 .property_fn(NodeProperty::Content, |context| {
-                    self.content.to_latex(context)
+                    // Encode paragraph content without ensuring blank line before it
+                    context.paragraph_begin();
+                    content.to_latex(context);
+                    context.paragraph_end();
                 });
         } else {
             context
-                .str("\\item\n")
+                .str("  \\item\n")
                 .property_fn(NodeProperty::Content, |context| {
                     self.content.to_latex(context)
                 });
