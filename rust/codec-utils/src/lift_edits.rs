@@ -1,33 +1,30 @@
-//! Given three documents Original, Base (imperfect conversion of original),
-//! and Edited (edited version of base) this lift the edits that turned B → E back onto O.
-
 use common::similar::{Algorithm, DiffOp, capture_diff_slices};
 
-/// An patch operation expressed in `O`-coordinates.
-#[derive(Debug)]
-enum PatchOp {
-    Delete { pos: usize, len: usize },
-    Insert { pos: usize, text: String },
-}
+/// Given three documents,
+///
+/// - Original (O)
+/// - Unedited (U, lossy version of O)
+/// - Edited (E, edited version of U)
+///
+/// Calculate the edits from Unedited to Edited, "lift" them to Original-positions, and
+/// apply them to Original to return Original′.
+pub fn lift_edits(original: &str, unedited: &str, edited: &str) -> String {
+    let o2u_ops = capture_diff_slices(Algorithm::Myers, original.as_bytes(), unedited.as_bytes());
 
-/// Top-level helper: apply the B → E edits to `O` and return O′.
-pub fn lift_edits(o: &str, b: &str, e: &str) -> String {
-    let d_ob = capture_diff_slices(Algorithm::Myers, o.as_bytes(), b.as_bytes());
+    let (.., u2o_prefixes, u2o_chars) = build_maps(&o2u_ops);
 
-    let (_o2b_pref, b2o_pref, b2o_char) = build_maps(&d_ob);
+    let u2e_ops = capture_diff_slices(Algorithm::Patience, unedited.as_bytes(), edited.as_bytes());
 
-    let d_be = capture_diff_slices(Algorithm::Patience, b.as_bytes(), e.as_bytes());
-
+    // Calculate patch
     let mut patch: Vec<PatchOp> = Vec::new();
-
-    for op in &d_be {
+    for op in &u2e_ops {
         match *op {
             DiffOp::Equal { .. } => {}
 
             DiffOp::Delete {
                 old_index, old_len, ..
             } => {
-                push_deletions(&mut patch, old_index, old_len, &b2o_char);
+                push_deletions(&mut patch, old_index, old_len, &u2o_chars);
             }
 
             DiffOp::Insert {
@@ -36,9 +33,9 @@ pub fn lift_edits(o: &str, b: &str, e: &str) -> String {
                 new_index,
                 ..
             } => {
-                let anchor = b2o_pref[old_index]; // position after the B-prefix
+                let anchor = u2o_prefixes[old_index]; // position after the B-prefix
                 if new_len > 0 {
-                    let text = &e.as_bytes()[new_index..new_index + new_len];
+                    let text = &edited.as_bytes()[new_index..new_index + new_len];
                     patch.push(PatchOp::Insert {
                         pos: anchor,
                         text: String::from_utf8_lossy(text).into_owned(),
@@ -54,11 +51,11 @@ pub fn lift_edits(o: &str, b: &str, e: &str) -> String {
                 ..
             } => {
                 // old part → deletions in O
-                push_deletions(&mut patch, old_index, old_len, &b2o_char);
+                push_deletions(&mut patch, old_index, old_len, &u2o_chars);
 
                 // new part → insertion in O just after the deleted span
-                let anchor = b2o_pref[old_index + old_len];
-                let text = &e.as_bytes()[new_index..new_index + new_len];
+                let anchor = u2o_prefixes[old_index + old_len];
+                let text = &edited.as_bytes()[new_index..new_index + new_len];
                 patch.push(PatchOp::Insert {
                     pos: anchor,
                     text: String::from_utf8_lossy(text).into_owned(),
@@ -67,37 +64,66 @@ pub fn lift_edits(o: &str, b: &str, e: &str) -> String {
         }
     }
 
-    apply_patch(o, &patch)
+    // Apply patch
+    let mut applied = String::with_capacity(original.len());
+    let mut cur = 0usize;
+    for op in patch {
+        match op {
+            PatchOp::Delete { pos, len } => {
+                if cur < pos {
+                    applied.push_str(&original[cur..pos]);
+                }
+                cur = pos + len;
+            }
+            PatchOp::Insert { pos, ref text } => {
+                if cur < pos {
+                    applied.push_str(&original[cur..pos]);
+                    cur = pos;
+                }
+                applied.push_str(text);
+            }
+        }
+    }
+    applied.push_str(&original[cur..]);
+
+    applied
+}
+
+/// A patch operation expressed in O-position.
+#[derive(Debug)]
+enum PatchOp {
+    Delete { pos: usize, len: usize },
+    Insert { pos: usize, text: String },
 }
 
 /// Build maps
 ///
-///   * `o2b_pref`  – prefix map O→B
-///   * `b2o_pref`  – prefix map B→O
-///   * `b2o_char`  – per-char mapping: for each byte in B, which byte in O?
+///   * `o2b_pref`  – prefix map O→U
+///   * `b2o_pref`  – prefix map U→O
+///   * `b2o_char`  – per-char mapping: for each byte in U, which byte in O?
 fn build_maps(dob: &[DiffOp]) -> (Vec<usize>, Vec<usize>, Vec<Option<usize>>) {
     // infer final lengths
-    let (mut len_o, mut len_b) = (0usize, 0usize);
+    let (mut len_o, mut len_u) = (0usize, 0usize);
     for op in dob {
         match *op {
             DiffOp::Equal { len, .. } => {
                 len_o += len;
-                len_b += len;
+                len_u += len;
             }
             DiffOp::Delete { old_len, .. } => len_o += old_len,
-            DiffOp::Insert { new_len, .. } => len_b += new_len,
+            DiffOp::Insert { new_len, .. } => len_u += new_len,
             DiffOp::Replace {
                 old_len, new_len, ..
             } => {
                 len_o += old_len;
-                len_b += new_len;
+                len_u += new_len;
             }
         }
     }
 
-    let mut o2b = vec![0usize; len_o + 1];
-    let mut b2o = vec![0usize; len_b + 1];
-    let mut char_map = vec![None; len_b]; // length == |B|
+    let mut o2u = vec![0usize; len_o + 1];
+    let mut u2o = vec![0usize; len_u + 1];
+    let mut char_map = vec![None; len_u]; // length == |B|
 
     let (mut i, mut j) = (0usize, 0usize);
 
@@ -107,21 +133,21 @@ fn build_maps(dob: &[DiffOp]) -> (Vec<usize>, Vec<usize>, Vec<Option<usize>>) {
                 for _ in 0..len {
                     i += 1;
                     j += 1;
-                    o2b[i] = j;
-                    b2o[j] = i;
+                    o2u[i] = j;
+                    u2o[j] = i;
                     char_map[j - 1] = Some(i - 1);
                 }
             }
             DiffOp::Delete { old_len, .. } => {
                 for _ in 0..old_len {
                     i += 1;
-                    o2b[i] = j;
+                    o2u[i] = j;
                 }
             }
             DiffOp::Insert { new_len, .. } => {
                 for _ in 0..new_len {
                     j += 1;
-                    b2o[j] = i;
+                    u2o[j] = i;
                     // inserted char: None in char_map
                 }
             }
@@ -131,12 +157,12 @@ fn build_maps(dob: &[DiffOp]) -> (Vec<usize>, Vec<usize>, Vec<Option<usize>>) {
                 // deletions
                 for _ in 0..old_len {
                     i += 1;
-                    o2b[i] = j;
+                    o2u[i] = j;
                 }
                 // insertions
                 for _ in 0..new_len {
                     j += 1;
-                    b2o[j] = i;
+                    u2o[j] = i;
                     // replaced chars are *new* wrt O → None in char_map
                 }
             }
@@ -144,11 +170,12 @@ fn build_maps(dob: &[DiffOp]) -> (Vec<usize>, Vec<usize>, Vec<Option<usize>>) {
     }
 
     debug_assert_eq!(i, len_o);
-    debug_assert_eq!(j, len_b);
-    (o2b, b2o, char_map)
+    debug_assert_eq!(j, len_u);
+
+    (o2u, u2o, char_map)
 }
 
-/// Convert a B-segment (old_index, old_len) into one or more contiguous
+/// Convert a U-segment (old_index, old_len) into one or more contiguous
 /// `Delete` ops in O using the fine-grained char map.
 fn push_deletions(
     patch: &mut Vec<PatchOp>,
@@ -159,25 +186,24 @@ fn push_deletions(
     let mut run_start: Option<usize> = None;
     let mut last_o: usize = 0;
 
-    for j in old_index..old_index + old_len {
-        if let Some(pos_o) = char_map[j] {
-            match run_start {
-                None => {
-                    run_start = Some(pos_o);
-                    last_o = pos_o;
-                }
-                Some(..) if pos_o == last_o + 1 => {
-                    // still contiguous
-                    last_o = pos_o;
-                }
-                Some(start) => {
-                    patch.push(PatchOp::Delete {
-                        pos: start,
-                        len: last_o - start + 1,
-                    });
-                    run_start = Some(pos_o);
-                    last_o = pos_o;
-                }
+    for pos_o in char_map.iter().skip(old_index).take(old_len).flatten() {
+        let pos_o = *pos_o;
+        match run_start {
+            None => {
+                run_start = Some(pos_o);
+                last_o = pos_o;
+            }
+            Some(..) if pos_o == last_o + 1 => {
+                // still contiguous
+                last_o = pos_o;
+            }
+            Some(start) => {
+                patch.push(PatchOp::Delete {
+                    pos: start,
+                    len: last_o - start + 1,
+                });
+                run_start = Some(pos_o);
+                last_o = pos_o;
             }
         }
     }
@@ -189,31 +215,6 @@ fn push_deletions(
     }
 }
 
-/// Apply the ordered operations to original
-fn apply_patch(original: &str, ops: &[PatchOp]) -> String {
-    let mut out = String::with_capacity(original.len());
-    let mut cur = 0usize;
-    for op in ops {
-        match *op {
-            PatchOp::Delete { pos, len } => {
-                if cur < pos {
-                    out.push_str(&original[cur..pos]);
-                }
-                cur = pos + len;
-            }
-            PatchOp::Insert { pos, ref text } => {
-                if cur < pos {
-                    out.push_str(&original[cur..pos]);
-                    cur = pos;
-                }
-                out.push_str(text);
-            }
-        }
-    }
-    out.push_str(&original[cur..]);
-    out
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -222,64 +223,64 @@ mod tests {
     #[test]
     fn no_op() {
         let o = "unchanged";
-        let b = "unchanged";
+        let u = "unchanged";
         let e = "unchanged";
-        assert_eq!(lift_edits(o, b, e), "unchanged");
+        assert_eq!(lift_edits(o, u, e), "unchanged");
     }
 
-    /// Pure insertion (O == B; user inserts into E.
+    /// Pure insertion (O == U; user inserts into E.
     #[test]
     fn simple_insertion() {
         let o = "hello";
-        let b = "hello";
+        let u = "hello";
         let e = "he--llo";
-        assert_eq!(lift_edits(o, b, e), "he--llo");
+        assert_eq!(lift_edits(o, u, e), "he--llo");
     }
 
-    /// Pure deletion: O lost a char when forming B; the edit does nothing.
+    /// Pure deletion: O lost a char when forming U; the edit does nothing.
     /// The original char must survive the round-trip.
     #[test]
     fn deletion_only() {
         let o = "abcdef";
-        let b = "abdef"; // lost the ‘c’
+        let u = "abdef"; // lost the ‘c’
         let e = "abdef"; // user made no change around that spot
-        assert_eq!(lift_edits(o, b, e), "abcdef");
+        assert_eq!(lift_edits(o, u, e), "abcdef");
     }
 
     /// Replace a single character that happens to sit *after*
-    /// a deletion in O→B.
+    /// a deletion in O→U.
     #[test]
     fn single_replacement() {
         let o = "abcdef";
-        let b = "abdef"; // lost the ‘c’
+        let u = "abdef"; // lost the ‘c’
         let e = "abDef"; // user upper-cases the ‘d’
-        assert_eq!(lift_edits(o, b, e), "abcDef");
+        assert_eq!(lift_edits(o, u, e), "abcDef");
     }
 
     /// Insert into a gap that was created by the lossy conversion.
     #[test]
     fn insert_into_deleted_gap() {
         let o = "abcdef";
-        let b = "abdef"; // lost the ‘c’
+        let u = "abdef"; // lost the ‘c’
         let e = "abXdef"; // user inserts ‘X’ where ‘c’ used to be
-        assert_eq!(lift_edits(o, b, e), "abXcdef");
+        assert_eq!(lift_edits(o, u, e), "abXcdef");
     }
 
     /// Mixed case
     #[test]
     fn round_trip_example() {
         let o = "abcDEFghi";
-        let b = "abEFXh";
+        let u = "abEFXh";
         let e = "ab--EFXH";
-        assert_eq!(lift_edits(o, b, e), "ab--cDEFgHi");
+        assert_eq!(lift_edits(o, u, e), "ab--cDEFgHi");
     }
 
     /// Unicode
     #[test]
     fn unicode() {
         let o = "a🌈cd😾f";
-        let b = "abcdf";
+        let u = "abcdf";
         let e = "ab🍩def";
-        assert_eq!(lift_edits(o, b, e), "a🌈🍩de😾f");
+        assert_eq!(lift_edits(o, u, e), "a🌈🍩de😾f");
     }
 }
