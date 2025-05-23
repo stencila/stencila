@@ -21,6 +21,8 @@ use codec_pandoc::{
     root_to_pandoc,
 };
 
+mod decode;
+
 /// A codec for Microsoft Word DOCX
 pub struct DocxCodec;
 
@@ -78,6 +80,12 @@ impl Codec for DocxCodec {
     ) -> Result<(Node, DecodeInfo)> {
         let pandoc = pandoc_from_format("", Some(path), PANDOC_FORMAT, &options).await?;
         let (mut node, info) = root_from_pandoc(pandoc, Format::Docx, &options)?;
+
+        if let Node::Article(article) = &mut node {
+            if let Some(extra) = decode::custom_properties(path)? {
+                article.options.extra = Some(extra);
+            }
+        }
 
         if let Some(cache) = options.and_then(|options| options.cache) {
             let (cache, ..) = JsonCodec.from_path(&cache, None).await?;

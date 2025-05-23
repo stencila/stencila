@@ -1030,7 +1030,9 @@ dependencies = [
  "codec-pandoc",
  "dirs 0.0.0",
  "node-reconstitute",
+ "roxmltree",
  "rust-embed",
+ "zip",
 ]
 
 [[package]]
@@ -1358,6 +1360,7 @@ name = "codec-utils"
 version = "0.0.0"
 dependencies = [
  "common",
+ "common-dev",
 ]
 
 [[package]]
@@ -1396,10 +1399,12 @@ dependencies = [
  "codec-rnw",
  "codec-swb",
  "codec-text",
+ "codec-utils",
  "codec-yaml",
  "common-dev",
  "json_value_merge",
  "node-strip",
+ "walkdir",
 ]
 
 [[package]]

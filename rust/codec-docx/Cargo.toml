@@ -9,7 +9,9 @@ codec-json = { path = "../codec-json" }
 codec-pandoc = { path = "../codec-pandoc" }
 dirs = { path = "../dirs" }
 node-reconstitute = { path = "../node-reconstitute" }
+roxmltree = "0.20.0"
 rust-embed = { version = "8.7.0", features = ["interpolate-folder-path", "include-exclude"] }
+zip = { workspace = true }
 
 [lints]
 workspace = true
