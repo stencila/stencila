@@ -4,6 +4,8 @@ use codec::{
     common::{
         eyre::{bail, eyre, OptionExt, Result},
         reqwest::Client,
+        tempfile::tempdir,
+        tokio::fs::{read_to_string, write},
         tracing,
     },
     schema::{Article, Block, IncludeBlock, Node, VisitorAsync, WalkControl, WalkNode},
@@ -13,7 +15,9 @@ pub use codec::{
     EncodeOptions, Losses, LossesResponse, Mapping, MappingEntry, Message, MessageLevel, Messages,
     PoshMap, Position16, Position8, Positions, Range16, Range8,
 };
+use codec_utils::lift_edits::lift_edits;
 use node_strip::{StripNode, StripTargets};
+use walkdir::WalkDir;
 
 pub mod cli;
 
@@ -390,6 +394,102 @@ pub async fn convert(
         }
         None => to_string(&node, encode_options).await,
     }
+}
+
+/// Merge changes from an edited document into the original
+#[tracing::instrument]
+pub async fn merge(
+    edited: &Path,
+    original: &Path,
+    unedited: Option<&Path>,
+    decode_options: DecodeOptions,
+    mut encode_options: EncodeOptions,
+    workdir: Option<PathBuf>,
+) -> Result<()> {
+    // Create, or use specified, working directory
+    let tempdir = tempdir()?;
+    let workdir = if let Some(workdir) = &workdir {
+        workdir
+    } else {
+        tempdir.path()
+    };
+
+    // Get the dir and file name of the original for intermediate files
+    let original_dir = original
+        .parent()
+        .ok_or_eyre("original file has no parent")?;
+    let original_file = original
+        .file_name()
+        .ok_or_eyre("original file has no name")?;
+
+    // Override decoding and encoding options
+    // TODO: Warn user if there settings have been ignored
+    encode_options.recurse = Some(true);
+    encode_options.render = Some(false);
+
+    // Convert the edited file into the original format
+    let edited_dir = workdir.join("edited");
+    convert(
+        Some(edited),
+        Some(&edited_dir.join(original_file)),
+        Some(decode_options.clone()),
+        Some(encode_options.clone()),
+    )
+    .await?;
+
+    let unedited = unedited.ok_or_eyre("")?;
+
+    // Convert the unedited file into the original format
+    let unedited_dir = workdir.join("unedited");
+    convert(
+        Some(unedited),
+        Some(&unedited_dir.join(original_file)),
+        Some(decode_options),
+        Some(encode_options),
+    )
+    .await?;
+
+    // Merge edits for each file in edited.
+    for entry in WalkDir::new(&edited_dir)
+        .follow_links(false)
+        .into_iter()
+        .flatten()
+    {
+        let edited_path = entry.path();
+        if !edited_path.is_file() {
+            continue;
+        }
+
+        let edited = read_to_string(edited_path).await?;
+
+        let relative_path = edited_path
+            .strip_prefix(&edited_dir)
+            .expect("not in edited dir");
+        let unedited_path = unedited_dir.join(relative_path);
+        let original_path = original_dir.join(relative_path);
+
+        // If a file exists in the edited dir but not in the unedited then just
+        // write it to the original dir.
+        if !unedited_path.exists() {
+            write(original_path, edited).await?;
+            continue;
+        }
+
+        let unedited = read_to_string(unedited_path).await?;
+        if edited == unedited {
+            tracing::trace!("No changes, skipping `{}`", relative_path.display());
+            continue;
+        }
+
+        let original = read_to_string(&original_path).await?;
+
+        tracing::debug!("Merging `{}`", relative_path.display());
+        let merged = lift_edits(&original, &unedited, &edited);
+
+        write(original_path, merged).await?;
+    }
+
+    Ok(())
 }
 
 /// A visitor that implements the `--recurse` encoding option by walking over

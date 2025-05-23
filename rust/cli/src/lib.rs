@@ -9,6 +9,7 @@ pub mod errors;
 mod execute;
 mod lint;
 pub mod logging;
+mod merge;
 mod new;
 mod options;
 mod preview;

@@ -34,8 +34,10 @@ codec-png = { path = "../codec-png" }
 codec-rnw = { path = "../codec-rnw" }
 codec-swb = { path = "../codec-swb" }
 codec-text = { path = "../codec-text" }
+codec-utils = { path = "../codec-utils" }
 codec-yaml = { path = "../codec-yaml" }
 node-strip = { path = "../node-strip" }
+walkdir = "2.5.0"
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
