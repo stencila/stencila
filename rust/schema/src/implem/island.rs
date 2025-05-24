@@ -40,12 +40,12 @@ impl LatexCodec for Island {
             } else {
                 let path = path.to_string_lossy();
 
+                context.str(r"\centerline{");
+
                 // Add id (if any) any as a label to that cross links work
                 if let Some(id) = &self.id {
                     context.str(r"\label{").str(id).char('}');
                 }
-
-                context.str(r"\centerline{");
 
                 if context.link {
                     context.link_begin();
