@@ -80,7 +80,7 @@ impl DecodeOptions {
     ) -> codecs::DecodeOptions {
         let format = self.from.as_ref().map_or_else(
             || input.map(Format::from_path),
-            |name| Some(Format::from_name(&name)),
+            |name| Some(Format::from_name(name)),
         );
 
         let coarse = self.coarse.then_some(true).or(self.fine.then_some(false));
@@ -187,7 +187,7 @@ impl EncodeOptions {
             .as_ref()
             .map_or_else(
                 || output.map(Format::from_path),
-                |name| Some(Format::from_name(&name)),
+                |name| Some(Format::from_name(name)),
             )
             .or(Some(default_format));
 

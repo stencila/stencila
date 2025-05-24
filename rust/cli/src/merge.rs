@@ -47,12 +47,9 @@ impl Cli {
             ..
         } = self;
 
-        let decode_options = self.decode_options.build(
-            Some(&edited),
-            StripOptions::default(),
-            None,
-            Vec::new(),
-        );
+        let decode_options =
+            self.decode_options
+                .build(Some(&edited), StripOptions::default(), None, Vec::new());
 
         let encode_options = self.encode_options.build(
             Some(&edited),
