@@ -1,7 +1,6 @@
 use std::path::PathBuf;
 
 use cli_utils::{Code, ToStdout};
-use codecs::LossesResponse;
 use common::{
     clap::{self, Parser},
     eyre::Result,
@@ -21,16 +20,9 @@ pub struct Cli {
 
     /// The path of the file to write the executed document to
     ///
-    /// If not supplied the output content is written to `stdout`.
+    /// If not supplied the output content is written to `stdout`
+    /// in the format specified by the `--to` option (defaulting to JSON).
     output: Option<PathBuf>,
-
-    /// The format to encode to (or codec to use)
-    ///
-    /// Defaults to inferring the format from the file name extension
-    /// of the `output`. If no `output` is supplied, defaults to JSON.
-    /// See `stencila codecs list` for available formats.
-    #[arg(long, short)]
-    to: Option<String>,
 
     #[command(flatten)]
     encode_options: EncodeOptions,
@@ -56,7 +48,6 @@ impl Cli {
         let Self {
             input,
             output,
-            to,
             encode_options,
             strip_options,
             no_save,
@@ -73,14 +64,13 @@ impl Cli {
             doc.save().await?;
         }
 
+        let to = encode_options.to.clone();
         if output.is_some() || to.is_some() {
             let encode_options = Some(encode_options.build(
                 Some(input.as_ref()),
                 output.as_deref(),
-                to.clone(),
                 Format::Json,
                 strip_options,
-                LossesResponse::Debug,
                 tool,
                 tool_args,
             ));

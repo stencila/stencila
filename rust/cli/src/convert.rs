@@ -22,35 +22,6 @@ pub struct Cli {
     /// If not supplied the output content is written to `stdout`.
     output: Option<PathBuf>,
 
-    /// The format to encode from (or codec to use)
-    ///
-    /// Defaults to inferring the format from the file name extension
-    /// of the `input`.
-    /// See `stencila codecs list` for available formats.
-    #[arg(long, short)]
-    from: Option<String>,
-
-    /// The format to encode to (or codec to use)
-    ///
-    /// Defaults to inferring the format from the file name extension
-    /// of the `output`. If no `output` is supplied, defaults to JSON.
-    /// See `stencila codecs list` for available formats.
-    #[arg(long, short)]
-    to: Option<String>,
-
-    /// What to do if there are losses when decoding from the input
-    ///
-    /// Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or
-    /// a filename to write the losses to (only `json` or `yaml` file extensions are supported).
-    #[arg(long, short, default_value_t = codecs::LossesResponse::Warn)]
-    input_losses: codecs::LossesResponse,
-
-    /// What to do if there are losses when encoding to the output
-    ///
-    /// See help for `--input-losses` for details.
-    #[arg(long, short, default_value_t = codecs::LossesResponse::Warn)]
-    output_losses: codecs::LossesResponse,
-
     #[command(flatten)]
     decode_options: DecodeOptions,
 
@@ -74,10 +45,6 @@ impl Cli {
         let Self {
             input,
             output,
-            from,
-            to,
-            input_losses,
-            output_losses,
             decode_options,
             encode_options,
             strip_options,
@@ -85,15 +52,12 @@ impl Cli {
             tool_args,
         } = self;
 
-        let decode_options =
-            decode_options.build(from, strip_options.clone(), input_losses, None, Vec::new());
+        let decode_options = decode_options.build(None, strip_options.clone(), None, Vec::new());
         let encode_options = encode_options.build(
             input.as_deref(),
             output.as_deref(),
-            to,
             Format::Json,
             strip_options,
-            output_losses,
             tool,
             tool_args.clone(),
         );

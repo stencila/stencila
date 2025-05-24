@@ -26,16 +26,6 @@ pub struct Cli {
     /// The files to synchronize with
     files: Vec<PathBuf>,
 
-    /// The formats of the files (or the name of codecs to use)
-    ///
-    /// This option can be provided separately for each file.
-    #[arg(long = "format", short)]
-    formats: Vec<String>,
-
-    /// What to do if there are losses when either encoding or decoding between any of the files
-    #[arg(long, short, default_value_t = codecs::LossesResponse::Warn)]
-    losses: codecs::LossesResponse,
-
     #[command(flatten)]
     decode_options: DecodeOptions,
 
@@ -51,25 +41,20 @@ impl Cli {
         let (main, direction) = resolve_path_direction(&self.doc);
         let doc = Document::synced(&main, direction).await?;
 
-        for (index, file) in self.files.iter().enumerate() {
+        for file in self.files.iter() {
             let (path, direction) = resolve_path_direction(file);
 
-            let format_or_codec = self.formats.get(index).cloned();
-
             let decode_options = Some(self.decode_options.build(
-                format_or_codec.clone(),
+                Some(main.as_ref()),
                 self.strip_options.clone(),
-                self.losses.clone(),
                 None,
                 Vec::new(),
             ));
             let encode_options = Some(self.encode_options.build(
                 Some(main.as_ref()),
                 Some(&path),
-                format_or_codec,
                 Format::Json,
                 self.strip_options.clone(),
-                self.losses.clone(),
                 None,
                 Vec::new(),
             ));

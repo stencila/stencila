@@ -1,6 +1,5 @@
 use std::path::PathBuf;
 
-use codecs::LossesResponse;
 use common::{
     clap::{self, Parser},
     eyre::Result,
@@ -49,9 +48,8 @@ impl Cli {
         } = self;
 
         let decode_options = self.decode_options.build(
-            None,
+            Some(&edited),
             StripOptions::default(),
-            LossesResponse::Debug,
             None,
             Vec::new(),
         );
@@ -59,10 +57,8 @@ impl Cli {
         let encode_options = self.encode_options.build(
             Some(&edited),
             Some(&original),
-            None,
             Format::Markdown,
             StripOptions::default(),
-            LossesResponse::Debug,
             None,
             Vec::new(),
         );

@@ -1,7 +1,6 @@
 use std::path::PathBuf;
 
 use cli_utils::{Code, ToStdout};
-use codecs::LossesResponse;
 use common::{
     clap::{self, Parser},
     eyre::Result,
@@ -26,14 +25,6 @@ pub struct Cli {
     ///
     /// If not supplied the output content is written to `stdout`.
     output: Option<PathBuf>,
-
-    /// The format to encode to (or codec to use)
-    ///
-    /// Defaults to inferring the format from the file name extension
-    /// of the `output`. If no `output` is supplied, defaults to Markdown.
-    /// See `stencila codecs list` for available formats.
-    #[arg(long, short)]
-    to: Option<String>,
 
     #[clap(flatten)]
     execute_options: ExecuteOptions,
@@ -62,7 +53,6 @@ impl Cli {
         let Self {
             input,
             output,
-            to,
             execute_options,
             encode_options,
             strip_options,
@@ -80,13 +70,12 @@ impl Cli {
             doc.save().await?;
         }
 
+        let to = encode_options.to.clone();
         let encode_options = encode_options.build(
             Some(input.as_ref()),
             output.as_deref(),
-            to.clone(),
             Format::Markdown,
             strip_options,
-            LossesResponse::Debug,
             tool,
             tool_args,
         );
