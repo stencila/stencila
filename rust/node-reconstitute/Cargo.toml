@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 common = { path = "../common" }
+node-url = { path = "../node-url" }
 schema = { path = "../schema" }
 
 [lints]

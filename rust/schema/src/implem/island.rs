@@ -48,7 +48,7 @@ impl LatexCodec for Island {
                 }
 
                 if context.link {
-                    context.link_begin();
+                    context.link_begin(None);
                 }
 
                 context

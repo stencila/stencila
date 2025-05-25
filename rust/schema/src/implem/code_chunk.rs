@@ -152,7 +152,7 @@ impl LatexCodec for CodeChunk {
         if context.render {
             if let Some(outputs) = &self.outputs {
                 if context.link {
-                    context.link_begin();
+                    context.link_begin(None);
                 }
 
                 context.property_fn(NodeProperty::Outputs, |context| {
@@ -200,6 +200,7 @@ impl LatexCodec for CodeChunk {
                 context
                     .str("\n\n\\centerline{")
                     .link_with(
+                        None,
                         &format!(
                             r"\verb|[Code chunk {}]|",
                             match &self.id {
@@ -207,7 +208,6 @@ impl LatexCodec for CodeChunk {
                                 _ => "",
                             }
                         ),
-                        None,
                     )
                     .str("}\n\n");
             }

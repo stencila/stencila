@@ -1209,6 +1209,7 @@ dependencies = [
  "common",
  "format",
  "node-path",
+ "node-url",
  "rand 0.9.0",
 ]
 
@@ -4562,6 +4563,7 @@ name = "node-reconstitute"
 version = "0.0.0"
 dependencies = [
  "common",
+ "node-url",
  "schema",
 ]
 
@@ -4618,6 +4620,17 @@ version = "0.0.0"
 dependencies = [
  "common",
  "node-id",
+]
+
+[[package]]
+name = "node-url"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "node-id",
+ "node-path",
+ "node-type",
+ "url",
 ]
 
 [[package]]
@@ -6499,6 +6512,7 @@ dependencies = [
  "node-store",
  "node-strip",
  "node-type",
+ "node-url",
  "node-walk-derive",
  "proptest",
  "proptest-derive",

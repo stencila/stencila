@@ -9,6 +9,7 @@ use std::{
 
 use codec_utils::split_paragraph;
 use node_path::{NodePath, NodeSlot};
+use node_url::{NodePosition, NodeUrl};
 use rand::{distr::Alphanumeric, rng, Rng};
 
 use codec_info::{EncodeInfo, Losses, Mapping, NodeId, NodeProperty, NodeType};
@@ -618,11 +619,19 @@ impl LatexEncodeContext {
     }
 
     /// Begin a link to the current node
-    pub fn link_begin(&mut self) -> &mut Self {
-        let node_id = self.node_path.to_string();
-        self.str("\\href{stencila://").str(&node_id).str("}{");
+    pub fn link_begin(&mut self, position: Option<NodePosition>) -> &mut Self {
+        let r#type = self.node_stack.last().map(|(node_type, ..)| *node_type);
 
-        self
+        let path = Some(self.node_path.clone());
+
+        let node_url = NodeUrl {
+            r#type,
+            path,
+            position,
+            ..Default::default()
+        };
+
+        self.str("\\href{").str(&node_url.to_string()).str("}{")
     }
 
     /// End a link to the current node
@@ -631,16 +640,8 @@ impl LatexEncodeContext {
     }
 
     /// Create a link to the current with some content
-    pub fn link_with(&mut self, content: &str, suffix: Option<&str>) -> &mut Self {
-        let node_id = self.node_path.to_string();
-
-        self.str("\\href{stencila://").str(&node_id);
-
-        if let Some(suffix) = suffix {
-            self.char(':').str(suffix);
-        }
-
-        self.str("}{").str(content).char('}')
+    pub fn link_with(&mut self, position: Option<NodePosition>, content: &str) -> &mut Self {
+        self.link_begin(position).str(content).link_end()
     }
 
     /// Trim whitespace from the end of the content in-place

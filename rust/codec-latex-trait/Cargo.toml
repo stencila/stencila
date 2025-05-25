@@ -10,6 +10,7 @@ codec-utils = { path = "../codec-utils" }
 common = { path = "../common" }
 format = { path = "../format" }
 node-path = { path = "../node-path" }
+node-url = { path = "../node-url" }
 rand = { workspace = true }
 
 [lints]

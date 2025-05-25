@@ -17,7 +17,7 @@ impl LatexCodec for CodeExpression {
         // Render mode: only encode output
         if context.render {
             if context.link {
-                context.link_begin();
+                context.link_begin(None);
             }
 
             if let Some(output) = &self.output {
