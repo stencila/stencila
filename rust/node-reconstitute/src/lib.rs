@@ -3,8 +3,8 @@ use std::str::FromStr;
 use common::tracing;
 use node_url::{NodePosition, NodeUrl};
 use schema::{
-    Article, Block, ForBlock, IfBlockClause, IncludeBlock, Inline, Link, Node, NodePath, NodeSet,
-    Paragraph, RawBlock, Section, StyledBlock, VisitorMut, WalkControl, get,
+    Article, Block, ForBlock, IfBlockClause, IncludeBlock, Inline, Link, Node, NodeSet, Paragraph,
+    RawBlock, Section, StyledBlock, VisitorMut, WalkControl, get,
 };
 
 /// Reconstitute a node from a cache
@@ -46,7 +46,7 @@ impl VisitorMut for Reconstituter {
             return WalkControl::Continue;
         };
 
-        // ... that have a single inline, that is a link
+        // ...that have a single inline, that is a link
         let (1, Some(Inline::Link(Link { target, .. }))) = (content.len(), content.first()) else {
             if let Some(blocks) = self.blocks.last_mut() {
                 blocks.push(block.clone());
@@ -61,8 +61,8 @@ impl VisitorMut for Reconstituter {
             return WalkControl::Continue;
         };
 
-        // ... with a path as a target
-        let Some(node_path) = NodeUrl::from_str(target).ok().and_then(|url| url.path) else {
+        // ...with a path as a target
+        let Some(node_path) = node_url.path else {
             if let Some(blocks) = self.blocks.last_mut() {
                 blocks.push(block.clone());
                 *block = delete();
@@ -148,18 +148,9 @@ impl VisitorMut for Reconstituter {
             return WalkControl::Continue;
         };
 
-        // ...that have a `stencila://` target
-        let Some(node_path) = target.strip_prefix("stencila://") else {
+        // ...that has a Stencila node URL with a path as a target
+        let Some(node_path) = NodeUrl::from_str(target).ok().and_then(|url| url.path) else {
             return WalkControl::Continue;
-        };
-
-        // ...that is a valid node path
-        let node_path = match NodePath::from_str(node_path) {
-            Ok(node_path) => node_path,
-            Err(error) => {
-                tracing::error!("While parsing `{node_path}`: {error}");
-                return WalkControl::Continue;
-            }
         };
 
         // ...that is getable from the cache
