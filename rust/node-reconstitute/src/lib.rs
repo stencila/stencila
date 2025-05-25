@@ -46,8 +46,9 @@ impl VisitorMut for Reconstituter {
             return WalkControl::Continue;
         };
 
-        // ...that have a single inline, that is a link
-        let (1, Some(Inline::Link(Link { target, .. }))) = (content.len(), content.first()) else {
+        // ...where the last inline is a link (may be single link, or have other inline nodes, 
+        // such as an anchor (bookmark) in front of it)
+        let Some(Inline::Link(Link { target, .. })) = content.last() else {
             if let Some(blocks) = self.blocks.last_mut() {
                 blocks.push(block.clone());
                 *block = delete();
