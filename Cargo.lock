@@ -4626,7 +4626,9 @@ dependencies = [
 name = "node-url"
 version = "0.0.0"
 dependencies = [
+ "base64 0.22.1",
  "common",
+ "flate2",
  "node-id",
  "node-path",
  "node-type",

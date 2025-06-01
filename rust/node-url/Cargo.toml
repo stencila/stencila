@@ -4,7 +4,9 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+base64 = { workspace = true }
 common = { path = "../common" }
+flate2 = { workspace = true }
 node-id = { path = "../node-id" }
 node-path = { path = "../node-path" }
 node-type = { path = "../node-type" }

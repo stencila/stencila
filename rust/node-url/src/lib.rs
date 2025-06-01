@@ -1,13 +1,22 @@
-use std::{fmt::Display, str::FromStr};
+use std::{
+    fmt::Display,
+    io::{Read, Write},
+    str::FromStr,
+};
+
+use base64::{prelude::BASE64_URL_SAFE_NO_PAD, Engine as _};
+use flate2::{read::ZlibDecoder, write::ZlibEncoder, Compression};
+use url::Url;
 
 use common::{
-    eyre::{bail, Report},
+    eyre::{bail, Report, Result},
+    serde::{de::DeserializeOwned, Serialize},
+    serde_json,
     strum::{Display, EnumString},
 };
 use node_id::NodeId;
 use node_path::NodePath;
 use node_type::NodeType;
-use url::Url;
 
 const DOMAIN: &str = "stencila.io";
 const PATH: &str = "/node";
@@ -28,6 +37,12 @@ pub struct NodeUrl {
 
     /// The position of the link within the node
     pub position: Option<NodePosition>,
+
+    /// The node as JSON, compressed using ZLib, and Base64 encoded
+    ///
+    /// This is useful for formats, such as Google Docs, where it is not possible to embed
+    /// a cache of the root node in the document.
+    pub jzb64: Option<String>,
 }
 
 /// The position in the node that the URL relates to
@@ -40,6 +55,51 @@ pub struct NodeUrl {
 pub enum NodePosition {
     Begin,
     End,
+}
+
+impl NodeUrl {
+    /// Convert a node to the the `jzb64` field of the URL
+    ///
+    /// This uses ZLib encoding to reduce the length of the encoded JSON and Base64 encodes it to
+    /// ensure that it is URL safe. The overhead of compression is small. For example, the URL for
+    /// an empty string (the smallest possible node to encode) is:
+    ///
+    /// https://stencila.io/node?jzb64=eNpTUgIAAGgARQ
+    pub fn to_jzb64<T>(&mut self, node: T) -> Result<()>
+    where
+        T: Serialize,
+    {
+        let json = serde_json::to_string(&node)?;
+
+        let mut encoder = ZlibEncoder::new(Vec::new(), Compression::best());
+        encoder.write_all(json.as_bytes())?;
+
+        let compressed = encoder.finish()?;
+        let base64 = BASE64_URL_SAFE_NO_PAD.encode(&compressed);
+
+        self.jzb64 = Some(base64);
+
+        Ok(())
+    }
+
+    /// Create a node from the `jzb64` field of the URL
+    pub fn from_jzb64<T>(&self) -> Result<T>
+    where
+        T: DeserializeOwned,
+    {
+        let Some(base64) = &self.jzb64 else {
+            bail!("Node URL does not have the `jzb64` field")
+        };
+
+        let compressed = BASE64_URL_SAFE_NO_PAD.decode(base64)?;
+
+        let mut decoder = ZlibDecoder::new(compressed.as_slice());
+        let mut json = String::new();
+        decoder.read_to_string(&mut json)?;
+
+        let node: T = serde_json::from_str(&json)?;
+        Ok(node)
+    }
 }
 
 impl FromStr for NodeUrl {
@@ -64,6 +124,7 @@ impl FromStr for NodeUrl {
                 "id" => node_url.id = value.parse().ok(),
                 "path" => node_url.path = value.parse().ok(),
                 "position" => node_url.position = value.parse().ok(),
+                "jzb64" => node_url.jzb64 = Some(value.to_string()),
                 _ => {}
             };
         }
@@ -87,6 +148,9 @@ impl Display for NodeUrl {
         }
         if let Some(pos) = &self.position {
             pairs.push(format!("position={}", pos));
+        }
+        if let Some(jzb64) = &self.jzb64 {
+            pairs.push(format!("jzb64={}", jzb64));
         }
         if !pairs.is_empty() {
             write!(f, "?")?;
@@ -116,17 +180,33 @@ mod tests {
     }
 
     #[test]
-    fn roundtrip_all_fields() -> Result<()> {
+    fn roundtrip_fields() -> Result<()> {
         let url = NodeUrl {
             r#type: Some(NodeType::CodeChunk),
             id: Some(NodeId::from_str("cdc_123456")?),
             path: Some(NodePath::from_str("content/1/item/4")?),
             position: Some(NodePosition::End),
+            ..Default::default()
         };
 
         let s = url.to_string();
         let parsed = NodeUrl::from_str(&s)?;
         assert_eq!(parsed, url);
+
+        Ok(())
+    }
+
+    #[test]
+    fn roundtrip_jzb64() -> Result<()> {
+        let node = "Hello world!";
+
+        let mut url = NodeUrl::default();
+        url.to_jzb64(node)?;
+        let url = url.to_string();
+
+        let url = NodeUrl::from_str(&url)?;
+        let round_tripped: String = url.from_jzb64()?;
+        assert_eq!(node, round_tripped);
 
         Ok(())
     }
