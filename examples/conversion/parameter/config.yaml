@@ -3,8 +3,8 @@ compact.jats.xml:
     # At present, only a limited number of `Parameter` props are supported
     strip-props:
       - Parameter.value
-      - ParameterOptions.default
-      - ParameterOptions.validator
+      - Parameter.default
+      - Parameter.validator
 
 smd:
   decode:

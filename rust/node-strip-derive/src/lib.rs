@@ -79,6 +79,11 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     let struct_name = type_attr.ident;
 
+    let type_name = struct_name
+        .to_string()
+        .trim_end_matches("Options")
+        .to_string();
+
     let mut fields = TokenStream::new();
     type_attr.data.map_struct_fields(|field| {
         let Some(field_name) = field.ident else {
@@ -206,7 +211,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             fields.extend(quote! {
                 if targets.properties.iter().any(|prop|
                     prop.as_str() == stringify!(#field_name) ||
-                    prop.as_str() == concat!(stringify!(#struct_name), ".", stringify!(#field_name))
+                    prop.as_str() == concat!(#type_name, ".", stringify!(#field_name))
                 ) {
                     self.#field_name #strip;
                 }
