@@ -260,13 +260,21 @@ pub trait Codec: Sync + Send {
             bail!("Path `{}` does not exist", path.display());
         }
 
+        // Capture info needed to reverse changes unless flag is explicitly false
+        let reversible = options
+            .as_ref()
+            .and_then(|opts| opts.reversible)
+            .unwrap_or(true);
+
         let mut file = File::open(path).await?;
         let (mut node, info) = self.from_file(&mut file, options).await?;
 
-        if let Node::Article(Article { options, .. }) = &mut node {
-            let (source, commit) = reversible_info(path)?;
-            options.source = source;
-            options.commit = commit;
+        if reversible {
+            if let Node::Article(Article { options, .. }) = &mut node {
+                let (source, commit) = reversible_info(path)?;
+                options.source = source;
+                options.commit = commit;
+            }
         }
 
         Ok((node, info))
@@ -445,6 +453,12 @@ pub struct DecodeOptions {
     /// into `RawBlock`s of the given format. Useful for formats such as LaTeX
     /// where the codec does not fully decoding all elements.
     pub coarse: Option<bool>,
+
+    /// Decode such that changes in the encoded document can be reversed back to the source
+    ///
+    /// Usually defaults to `true` when decoding from a path, but can be explicitly set
+    /// to `false` if `source` and `commit` properties should not be populated.
+    pub reversible: Option<bool>,
 
     /// Reconstitute nodes from a cache
     ///

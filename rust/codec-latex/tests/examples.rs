@@ -11,7 +11,7 @@ use common_dev::insta::{assert_json_snapshot, assert_snapshot};
 /// Decode each example of a LaTeX document and create JSON and LaTeX snapshots
 /// including snapshots for losses
 ///
-/// Currently testing decoding with `--coarse` options and bultin, rather than
+/// Currently testing decoding with `--coarse` options and built-in, rather than
 /// Pandoc-based encoding.
 #[tokio::test]
 async fn examples() -> Result<()> {
@@ -32,7 +32,7 @@ async fn examples() -> Result<()> {
 
         // Using default `--coarse` decoding
         let (article, ..) = LatexCodec.from_path(&path, None).await?;
-        assert_json_snapshot!(format!("{name}.coarse.json"), article);
+        assert_json_snapshot!(format!("{name}.coarse.json"), article, {".commit" => "redacted"});
 
         // Using default encoding of coarse article
         let (latex, info) = LatexCodec.to_string(&article, None).await?;
@@ -54,7 +54,7 @@ async fn examples() -> Result<()> {
                 }),
             )
             .await?;
-        assert_json_snapshot!(format!("{name}.fine.json"), article);
+        assert_json_snapshot!(format!("{name}.fine.json"), article, {".commit" => "redacted"});
 
         // Using Pandoc encoding of fine article
         let (latex, ..) = LatexCodec

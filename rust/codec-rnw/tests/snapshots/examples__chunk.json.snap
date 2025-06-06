@@ -52,5 +52,7 @@ expression: article
       "isEchoed": false,
       "isHidden": true
     }
-  ]
+  ],
+  "source": "rust/codec-rnw/tests/examples/chunk.rnw",
+  "commit": "redacted"
 }

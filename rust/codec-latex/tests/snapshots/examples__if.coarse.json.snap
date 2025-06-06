@@ -25,5 +25,7 @@ expression: article
         }
       ]
     }
-  ]
+  ],
+  "source": "rust/codec-latex/tests/examples/if.tex",
+  "commit": "redacted"
 }

@@ -84,5 +84,7 @@ expression: article
         "string": "\n\\end{itemize}\n"
       }
     }
-  ]
+  ],
+  "source": "rust/codec-rnw/tests/examples/sexpr.rnw",
+  "commit": "redacted"
 }

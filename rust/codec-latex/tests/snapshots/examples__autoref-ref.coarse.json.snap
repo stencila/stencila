@@ -60,5 +60,7 @@ expression: article
         "string": "\n\\end{document}\n"
       }
     }
-  ]
+  ],
+  "source": "rust/codec-latex/tests/examples/autoref-ref.tex",
+  "commit": "redacted"
 }

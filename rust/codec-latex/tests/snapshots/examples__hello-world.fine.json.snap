@@ -16,5 +16,7 @@ expression: article
         }
       ]
     }
-  ]
+  ],
+  "source": "rust/codec-latex/tests/examples/hello-world.tex",
+  "commit": "redacted"
 }

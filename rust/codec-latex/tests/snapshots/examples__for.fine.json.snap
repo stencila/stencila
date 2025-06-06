@@ -37,5 +37,7 @@ expression: article
         }
       ]
     }
-  ]
+  ],
+  "source": "rust/codec-latex/tests/examples/for.tex",
+  "commit": "redacted"
 }

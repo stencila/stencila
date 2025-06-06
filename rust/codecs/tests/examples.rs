@@ -369,7 +369,14 @@ async fn examples() -> Result<()> {
             .unwrap_or("json");
         let path = dir.join(format!("{name}.{canon}"));
 
-        let node = codecs::from_path(&path, None).await?;
+        let node = codecs::from_path(
+            &path,
+            Some(DecodeOptions {
+                reversible: Some(false),
+                ..Default::default()
+            }),
+        )
+        .await?;
 
         for (extension, config) in &config {
             if extension == canon {
@@ -409,6 +416,7 @@ async fn examples() -> Result<()> {
 
                 let encode_options = Some(EncodeOptions {
                     format: Some(config.format.clone()),
+                    reversible: Some(false),
                     ..config.encode.options.clone()
                 });
 
@@ -510,6 +518,7 @@ async fn examples() -> Result<()> {
             if file.exists() && !config.decode.skip {
                 let decode_options = Some(DecodeOptions {
                     format: Some(config.format.clone()),
+                    reversible: Some(false),
                     ..config.decode.options.clone()
                 });
 

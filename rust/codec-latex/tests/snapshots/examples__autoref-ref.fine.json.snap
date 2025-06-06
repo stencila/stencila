@@ -34,5 +34,7 @@ expression: article
       },
       "content": []
     }
-  ]
+  ],
+  "source": "rust/codec-latex/tests/examples/autoref-ref.tex",
+  "commit": "redacted"
 }

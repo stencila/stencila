@@ -12,5 +12,7 @@ expression: article
         "string": "\\documentclass{article}\n\n\\begin{document}\nHello, world!\n\\end{document}\n"
       }
     }
-  ]
+  ],
+  "source": "rust/codec-latex/tests/examples/hello-world.tex",
+  "commit": "redacted"
 }

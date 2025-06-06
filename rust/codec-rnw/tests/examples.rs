@@ -27,7 +27,7 @@ async fn examples() -> Result<()> {
 
         let (article, info) = RnwCodec.from_path(&path, None).await?;
 
-        assert_json_snapshot!(format!("{name}.json"), article);
+        assert_json_snapshot!(format!("{name}.json"), article, {".commit" => "redacted"});
         assert_yaml_snapshot!(format!("{name}.decode.losses"), info.losses);
 
         let (noweb, info) = RnwCodec

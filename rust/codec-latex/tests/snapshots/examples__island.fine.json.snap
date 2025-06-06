@@ -154,5 +154,7 @@ expression: article
         }
       ]
     }
-  ]
+  ],
+  "source": "rust/codec-latex/tests/examples/island.tex",
+  "commit": "redacted"
 }

@@ -70,5 +70,7 @@ expression: article
         "string": "x <- 3\n3 + 2"
       }
     }
-  ]
+  ],
+  "source": "rust/codec-latex/tests/examples/chunk-expr.tex",
+  "commit": "redacted"
 }

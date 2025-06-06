@@ -127,5 +127,7 @@ expression: article
         "string": "\n\\end{document}\n"
       }
     }
-  ]
+  ],
+  "source": "rust/codec-latex/tests/examples/island.tex",
+  "commit": "redacted"
 }
