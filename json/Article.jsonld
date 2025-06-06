@@ -1054,6 +1054,47 @@
       "schema:domainIncludes": {
         "@id": "schema:Article"
       }
+    },
+    {
+      "@id": "stencila:source",
+      "@type": "rdfs:Property",
+      "rdfs:label": "source",
+      "rdfs:comment": "The filesystem path of the source of the creative work.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "stencila:CodeLocation"
+        },
+        {
+          "@id": "stencila:Excerpt"
+        },
+        {
+          "@id": "stencila:IncludeBlock"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:QuoteInline"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:commit",
+      "@type": "rdfs:Property",
+      "rdfs:label": "commit",
+      "rdfs:comment": "The commit hash (or similar) of the source of the creative work.",
+      "schema:domainIncludes": {
+        "@id": "schema:Article"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
     }
   ]
 }

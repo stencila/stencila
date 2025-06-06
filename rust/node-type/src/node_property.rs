@@ -48,6 +48,7 @@ pub enum NodeProperty {
     Columns,
     CommentAspect,
     Comments,
+    Commit,
     CompilationDigest,
     CompilationMessages,
     Config,

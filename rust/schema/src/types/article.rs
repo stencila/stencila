@@ -469,6 +469,16 @@ pub struct ArticleOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(skip)]
     pub extra: Option<Object>,
+
+    /// The filesystem path of the source of the creative work.
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub source: Option<String>,
+
+    /// The commit hash (or similar) of the source of the creative work.
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub commit: Option<String>,
 }
 
 impl Article {

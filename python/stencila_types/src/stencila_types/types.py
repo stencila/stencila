@@ -1140,6 +1140,12 @@ class Article(CreativeWork, Executable):
     extra: Object | None = None
     """Additional metadata for the article."""
 
+    source: str | None = None
+    """The filesystem path of the source of the creative work."""
+
+    commit: str | None = None
+    """The commit hash (or similar) of the source of the creative work."""
+
 
 @dataclass(kw_only=True, repr=False)
 class AudioObject(MediaObject):

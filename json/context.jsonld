@@ -234,6 +234,7 @@
     "columns": "stencila:columns",
     "commentAspect": "stencila:commentAspect",
     "comments": "schema:comment",
+    "commit": "stencila:commit",
     "compilationDigest": "stencila:compilationDigest",
     "compilationMessages": "stencila:compilationMessages",
     "config": "stencila:config",

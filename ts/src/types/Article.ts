@@ -60,6 +60,16 @@ export class Article extends CreativeWork {
    */
   extra?: Object;
 
+  /**
+   * The filesystem path of the source of the creative work.
+   */
+  source?: string;
+
+  /**
+   * The commit hash (or similar) of the source of the creative work.
+   */
+  commit?: string;
+
   constructor(content: Block[], options?: Partial<Article>) {
     super();
     this.type = "Article";

@@ -53,6 +53,8 @@ impl Schemas {
             "transcript",
             "headings",
             "archive",
+            "Article.source",
+            "Article.commit",
             // Others (not excluded by skip_types below)
             "executionInstance",
             "mathml",
