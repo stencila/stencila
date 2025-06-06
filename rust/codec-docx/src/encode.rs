@@ -16,7 +16,7 @@ pub(super) fn embeddings_and_custom_properties(
         return Ok(());
     }
 
-    let mut src = ZipArchive::new(File::open(&path)?)?;
+    let mut src = ZipArchive::new(File::open(path)?)?;
 
     let mut buf = Cursor::new(Vec::new());
     let mut dst = ZipWriter::new(&mut buf);

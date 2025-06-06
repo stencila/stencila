@@ -126,7 +126,7 @@ pub struct EncodeOptions {
     ///
     /// Used in association with `--render` to additionally encode links to the source
     /// of nodes that are not natively supported in the format.
-    /// 
+    ///
     /// Only supported by some formats, and may be the default for those.
     #[arg(long)]
     reversible: bool,
