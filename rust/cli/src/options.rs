@@ -122,12 +122,14 @@ pub struct EncodeOptions {
     #[arg(long)]
     highlight: bool,
 
-    /// Link the rendered outputs of executable nodes to the document cache
+    /// Encode such that changes in the encoded document can be applied to its source
     ///
-    /// Used in association with `--render` to additionally encode a link
-    /// to the location in the cache of the entire node, including its source.s
+    /// Used in association with `--render` to additionally encode links to the source
+    /// of nodes that are not natively supported in the format.
+    /// 
+    /// Only supported by some formats, and may be the default for those.
     #[arg(long)]
-    link: bool,
+    reversible: bool,
 
     /// The template document to use
     ///
@@ -198,7 +200,7 @@ impl EncodeOptions {
 
         let render = self.render.then_some(true);
         let highlight = self.highlight.then_some(true);
-        let link = self.link.then_some(true);
+        let reversible = self.reversible.then_some(true);
 
         let template = self.template.clone();
 
@@ -216,7 +218,7 @@ impl EncodeOptions {
             compact,
             render,
             highlight,
-            link,
+            reversible,
             template,
             standalone,
             recurse,

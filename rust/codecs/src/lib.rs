@@ -15,7 +15,7 @@ pub use codec::{
     EncodeOptions, Losses, LossesResponse, Mapping, MappingEntry, Message, MessageLevel, Messages,
     PoshMap, Position16, Position8, Positions, Range16, Range8,
 };
-use codec_utils::lift_edits::lift_edits;
+use codec_utils::lift_edits;
 use node_strip::{StripNode, StripTargets};
 use walkdir::WalkDir;
 

@@ -3,6 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use codec_utils::{reversible_info, reversible_warnings};
 use common::{
     async_trait::async_trait,
     eyre::{bail, Result},
@@ -18,7 +19,7 @@ use common::{
 };
 use format::Format;
 use node_strip::StripScope;
-use schema::Node;
+use schema::{Article, Node};
 use status::Status;
 
 // Re-exports for the convenience of internal crates implementing `Codec`
@@ -260,7 +261,18 @@ pub trait Codec: Sync + Send {
         }
 
         let mut file = File::open(path).await?;
-        self.from_file(&mut file, options).await
+        let (mut node, info) = self.from_file(&mut file, options).await?;
+
+        match &mut node {
+            Node::Article(Article { options, .. }) => {
+                let (source, commit) = reversible_info(path)?;
+                options.source = source;
+                options.commit = commit;
+            }
+            _ => {}
+        }
+
+        Ok((node, info))
     }
 
     /// Encode a Stencila Schema node to bytes
@@ -321,15 +333,22 @@ pub trait Codec: Sync + Send {
         path: &Path,
         options: Option<EncodeOptions>,
     ) -> Result<EncodeInfo> {
+        let options = EncodeOptions {
+            to_path: Some(path.to_path_buf()),
+            ..options.unwrap_or_default()
+        };
+
+        if options.reversible.unwrap_or_default() {
+            if let Node::Article(Article { options, .. }) = &node {
+                reversible_warnings(&options.source, &options.commit)
+            }
+        }
+
         if let Some(parent) = path.parent() {
             create_dir_all(parent).await?;
         }
         let mut file = File::create(path).await?;
-        let options = Some(EncodeOptions {
-            to_path: Some(path.to_path_buf()),
-            ..options.unwrap_or_default()
-        });
-        self.to_file(node, &mut file, options).await
+        self.to_file(node, &mut file, Some(options)).await
     }
 }
 
@@ -481,8 +500,8 @@ pub struct EncodeOptions {
     /// Highlight the rendered outputs of executable nodes
     pub highlight: Option<bool>,
 
-    /// Link the rendered outputs of executable nodes to the document cache
-    pub link: Option<bool>,
+    /// Encode such that changes in the encoded document can be applied to its source
+    pub reversible: Option<bool>,
 
     /// The template document to use
     ///

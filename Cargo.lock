@@ -989,6 +989,7 @@ name = "codec"
 version = "0.0.0"
 dependencies = [
  "codec-info",
+ "codec-utils",
  "common",
  "format",
  "node-strip",
@@ -1028,6 +1029,8 @@ dependencies = [
  "codec",
  "codec-json",
  "codec-pandoc",
+ "codec-utils",
+ "common-dev",
  "dirs 0.0.0",
  "node-reconstitute",
  "roxmltree",
@@ -1362,6 +1365,7 @@ version = "0.0.0"
 dependencies = [
  "common",
  "common-dev",
+ "which",
 ]
 
 [[package]]
