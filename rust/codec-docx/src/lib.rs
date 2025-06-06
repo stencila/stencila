@@ -1,6 +1,7 @@
 use std::path::Path;
 
 use codec_json::JsonCodec;
+use codec_utils::reversible_warnings;
 use node_reconstitute::reconstitute;
 use rust_embed::RustEmbed;
 
@@ -8,10 +9,11 @@ use codec::{
     common::{
         async_trait::async_trait,
         eyre::{OptionExt, Result},
+        serde_json,
         tokio::fs::write,
     },
     format::Format,
-    schema::Node,
+    schema::{Article, Node, Object, Primitive},
     status::Status,
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     NodeType,
@@ -22,6 +24,10 @@ use codec_pandoc::{
 };
 
 mod decode;
+mod encode;
+
+#[cfg(test)]
+mod tests;
 
 /// A codec for Microsoft Word DOCX
 pub struct DocxCodec;
@@ -82,8 +88,18 @@ impl Codec for DocxCodec {
         let (mut node, info) = root_from_pandoc(pandoc, Format::Docx, &options)?;
 
         if let Node::Article(article) = &mut node {
-            if let Some(extra) = decode::custom_properties(path)? {
-                article.options.extra = Some(extra);
+            let mut properties = decode::custom_properties(path)?;
+
+            if let Some(Primitive::String(source)) = properties.shift_remove("source") {
+                article.options.source = Some(source);
+            }
+
+            if let Some(Primitive::String(commit)) = properties.shift_remove("commit") {
+                article.options.commit = Some(commit);
+            }
+
+            if !properties.is_empty() {
+                article.options.extra = Some(Object(properties));
             }
         }
 
@@ -103,9 +119,20 @@ impl Codec for DocxCodec {
     ) -> Result<EncodeInfo> {
         let mut options = options.unwrap_or_default();
 
-        // Default to render mode
+        if options.reversible.unwrap_or_default() {
+            if let Node::Article(Article { options, .. }) = &node {
+                reversible_warnings(&options.source, &options.commit)
+            }
+        }
+
+        // Default to render
         if options.render.is_none() {
             options.render = Some(true);
+        }
+
+        // Default to reversible
+        if options.reversible.is_none() {
+            options.reversible = Some(true);
         }
 
         // Default to using builtin template by extracting it to cache
@@ -120,23 +147,62 @@ impl Codec for DocxCodec {
             options.template = Some(template);
         }
 
-        // If a "coarse" article then encode directly from that format
-        if let Node::Article(article) = node {
-            if article.is_coarse(&Format::Latex) {
-                return coarse_to_path(node, Format::Latex, Format::Docx, path, Some(options))
+        let info = 'to_path: {
+            // If a "coarse" article then encode directly from that format
+            if let Node::Article(article) = node {
+                if article.is_coarse(&Format::Latex) {
+                    break 'to_path coarse_to_path(
+                        node,
+                        Format::Latex,
+                        Format::Docx,
+                        path,
+                        Some(options),
+                    )
                     .await;
+                }
+            }
+
+            // Delegate to Pandoc
+            let options = Some(options);
+            let (pandoc, info) = root_to_pandoc(node, Format::Docx, &options)?;
+            pandoc_to_format(
+                &pandoc,
+                Some(path),
+                &[PANDOC_FORMAT, "+native_numbering"].concat(),
+                &options,
+            )
+            .await?;
+
+            Ok(info)
+        }?;
+
+        // Add any embeddings
+        let embeddings = vec![("cache.json", "Hello")];
+
+        // Collect custom properties
+        let mut properties = Vec::new();
+        if let Node::Article(article) = node {
+            if let Some(source) = &article.options.source {
+                properties.push(("source", source.clone()));
+            }
+
+            if let Some(commit) = &article.options.commit {
+                properties.push(("commit", commit.clone()));
+            }
+
+            if let Some(extra) = &article.options.extra {
+                for (name, value) in extra.iter() {
+                    let name = name.as_str();
+                    let value = match value {
+                        Primitive::String(value) => value.to_string(),
+                        _ => serde_json::to_string(value).unwrap_or_default(),
+                    };
+                    properties.push((name, value));
+                }
             }
         }
 
-        let options = Some(options);
-        let (pandoc, info) = root_to_pandoc(node, Format::Docx, &options)?;
-        pandoc_to_format(
-            &pandoc,
-            Some(path),
-            &[PANDOC_FORMAT, "+native_numbering"].concat(),
-            &options,
-        )
-        .await?;
+        encode::embeddings_and_custom_properties(path, &embeddings, &properties)?;
 
         Ok(info)
     }
