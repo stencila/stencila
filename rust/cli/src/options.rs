@@ -122,7 +122,7 @@ pub struct EncodeOptions {
     #[arg(long)]
     highlight: bool,
 
-    /// Encode such that changes in the encoded document can be applied to its source
+    /// Encode such that changes in the encoded document can be applied back to its source
     ///
     /// Used in association with `--render` to additionally encode links to the source
     /// of nodes that are not natively supported in the format.

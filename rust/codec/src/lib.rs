@@ -454,7 +454,7 @@ pub struct DecodeOptions {
     /// where the codec does not fully decoding all elements.
     pub coarse: Option<bool>,
 
-    /// Decode such that changes in the encoded document can be reversed back to the source
+    /// Decode such that changes in the encoded document can be applied back to the source
     ///
     /// Usually defaults to `true` when decoding from a path, but can be explicitly set
     /// to `false` if `source` and `commit` properties should not be populated.
@@ -511,7 +511,7 @@ pub struct EncodeOptions {
     /// Highlight the rendered outputs of executable nodes
     pub highlight: Option<bool>,
 
-    /// Encode such that changes in the encoded document can be applied to its source
+    /// Encode such that changes in the encoded document can be applied back to its source
     pub reversible: Option<bool>,
 
     /// The template document to use
