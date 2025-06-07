@@ -19,7 +19,7 @@ impl LatexCodec for IncludeBlock {
             .merge_losses(lost_exec_options!(self));
 
         if context.render {
-            if context.link {
+            if context.reversible {
                 context
                     .str("\n\n\\centerline{")
                     .link_with(
@@ -33,7 +33,7 @@ impl LatexCodec for IncludeBlock {
                 self.content.to_latex(context)
             });
 
-            if context.link {
+            if context.reversible {
                 context
                     .str("\n\n\\centerline{")
                     .link_with(

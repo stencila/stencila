@@ -16,7 +16,7 @@ impl LatexCodec for CodeExpression {
 
         // Render mode: only encode output
         if context.render {
-            if context.link {
+            if context.reversible {
                 context.link_begin(None);
             }
 
@@ -34,7 +34,7 @@ impl LatexCodec for CodeExpression {
                 });
             }
 
-            if context.link {
+            if context.reversible {
                 context.link_end();
             }
 

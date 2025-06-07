@@ -38,13 +38,14 @@ pub fn to_latex<T>(
     standalone: bool,
     render: bool,
     highlight: bool,
-    link: bool,
+    reversible: bool,
     prelude: Option<String>,
 ) -> (String, EncodeInfo)
 where
     T: LatexCodec,
 {
-    let mut context = LatexEncodeContext::new(format, standalone, render, highlight, link, prelude);
+    let mut context =
+        LatexEncodeContext::new(format, standalone, render, highlight, reversible, prelude);
     node.to_latex(&mut context);
 
     let mut latex = context.content;
@@ -393,8 +394,8 @@ pub struct LatexEncodeContext {
     /// Highlight the rendered outputs of executable nodes
     pub highlight: bool,
 
-    /// Encode the source of executable nodes
-    pub link: bool,
+    /// Encode such that changes in the encoded document can be applied back to its source
+    pub reversible: bool,
 
     /// Whether the root node is "coarse grained" (i.e. decoded with the `--coarse` option).
     /// Used to determine whether newlines are needed between blocks.
@@ -431,7 +432,7 @@ impl LatexEncodeContext {
         standalone: bool,
         render: bool,
         highlight: bool,
-        source: bool,
+        reversible: bool,
         prelude: Option<String>,
     ) -> Self {
         let temp_dir = temp_dir();
@@ -443,7 +444,7 @@ impl LatexEncodeContext {
             standalone,
             render,
             highlight,
-            link: source,
+            reversible,
             prelude,
             temp_dir,
             coarse: false,

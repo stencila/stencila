@@ -47,7 +47,7 @@ impl LatexCodec for Island {
                     context.str(r"\label{").str(id).char('}');
                 }
 
-                if context.link {
+                if context.reversible {
                     context.link_begin(None);
                 }
 
@@ -57,7 +57,7 @@ impl LatexCodec for Island {
                     .str("}")
                     .exit_node();
 
-                if context.link {
+                if context.reversible {
                     context.link_end();
                 }
 

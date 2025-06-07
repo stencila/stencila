@@ -151,7 +151,7 @@ impl LatexCodec for CodeChunk {
         // Render mode: only encode outputs
         if context.render {
             if let Some(outputs) = &self.outputs {
-                if context.link {
+                if context.reversible {
                     context.link_begin(None);
                 }
 
@@ -165,7 +165,7 @@ impl LatexCodec for CodeChunk {
                                 false,
                                 true,
                                 context.highlight,
-                                context.link,
+                                context.reversible,
                                 context.prelude.clone(),
                             );
 
@@ -193,7 +193,7 @@ impl LatexCodec for CodeChunk {
                     }
                 });
 
-                if context.link {
+                if context.reversible {
                     context.link_end();
                 }
             } else {
