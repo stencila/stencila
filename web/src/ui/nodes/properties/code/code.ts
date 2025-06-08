@@ -371,11 +371,11 @@ export class UINodeCode extends LitElement {
     const authorshipMarkers = this.getAuthorshipMarkers()
     this.authorshipExtensions = authorshipMarkers
       ? [
-          EditorView.decorations.of(
-            createProvenanceDecorations(authorshipMarkers)
-          ),
-          provenanceTooltip(authorshipMarkers, this.diagnostics),
-        ]
+        EditorView.decorations.of(
+          createProvenanceDecorations(authorshipMarkers)
+        ),
+        provenanceTooltip(authorshipMarkers, this.diagnostics),
+      ]
       : []
 
     this.viewEditable = new Compartment()
@@ -422,15 +422,20 @@ export class UINodeCode extends LitElement {
 
   /**
    * Takes the string value of the `code-authorship` property and attempts to
-   * parse it into JS, if successful will convert the elements in `CodeAuthorshipMarker` objects
+   * parse it as a jSoN array. If successful will convert the item of the
+   * array into `CodeAuthorshipMarker` objects
    *
-   * Return `null` if value is falsy, or parsing fails
-   * @returns `CodeAuthorshipMarker[] | null`
+   * Returns `null` if value is falsy, empty, or if parsing fails
    */
   private getAuthorshipMarkers = (): AuthorshipMarker[] | null => {
     if (this.codeAuthorship) {
       try {
         const authorshipRun = JSON.parse(this.codeAuthorship) as AuthorshipRun[]
+
+        if (authorshipRun.length == 0) {
+          return null
+        }
+
         return authorshipRun.map((run) => ({
           from: run[0],
           to: run[1],
