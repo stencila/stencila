@@ -131,16 +131,9 @@ stencila-datatable {
         font-weight: bold !important;
       }
 
-      td,
       th {
         @apply pb-3;
         border-bottom: 1px solid rgba(0, 0, 0, 0.3);
-      }
-    }
-
-    tr:nth-child(2) {
-      td {
-        @apply pt-3;
       }
     }
 
@@ -170,25 +163,6 @@ stencila-datatable {
 
     div:not(.chip) {
       display: contents;
-    }
-  }
-}
-
-stencila-datatable {
-  table {
-    @apply mx-0;
-  }
-
-  tr:first-child {
-    td {
-      @apply pt-3 pb-0;
-      border: unset;
-    }
-  }
-
-  tr:nth-child(2) {
-    td {
-      @apply pt-0;
     }
   }
 }
