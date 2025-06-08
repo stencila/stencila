@@ -87,7 +87,7 @@ impl MarkdownCodec for CodeExpression {
             context
                 .push_prop_str(NodeProperty::Code, &self.code)
                 .push_str("`");
-        } else if matches!(self.programming_language.as_deref(), Some("jinja")) {
+        } else if matches!(self.programming_language.as_deref(), Some("docsql")) {
             context
                 .push_str("{{ ")
                 .push_prop_str(NodeProperty::Code, &self.code)
