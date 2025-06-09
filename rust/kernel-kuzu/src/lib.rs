@@ -18,8 +18,8 @@ use kernel::{
     format::Format,
     generate_id,
     schema::{
-        CodeLocation, ExecutionBounds, ExecutionMessage, MessageLevel, Node, Null,
-        SoftwareApplication, SoftwareApplicationOptions, StringOrNumber,
+        Array, CodeLocation, Datatable, ExecutionBounds, ExecutionMessage, MessageLevel, Node,
+        Null, SoftwareApplication, SoftwareApplicationOptions, StringOrNumber,
     },
     Kernel, KernelInstance, KernelType, KernelVariableRequest, KernelVariableRequester,
     KernelVariableResponder,
@@ -470,21 +470,37 @@ impl KernelInstance for KuzuKernelInstance {
 
     async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionMessage>)> {
         // When evaluating an expression, force the transform to be a datatable
-        // Do it this way to avoid adding to code.
+        // (for use in for loops etc) but if the datatable has a single column called
+        // "val" and a single row then return as value, or if name "col" then return as array
+
         let transform = self.transform;
         self.transform = Some(QueryResultTransform::Datatable);
 
         let (nodes, messages) = self.execute(code).await?;
 
-        // Reinstate default transform
+        let node = if let Some(node) = nodes.first() {
+            if let Node::Datatable(Datatable { columns, .. }) = node {
+                if let (1, Some(column)) = (columns.len(), columns.first()) {
+                    if column.name == "val" && column.values.len() == 1 {
+                        Node::try_from(column.values[0].clone())?
+                    } else if column.name == "col" {
+                        Node::Array(Array(column.values.clone()))
+                    } else {
+                        node.clone()
+                    }
+                } else {
+                    node.clone()
+                }
+            } else {
+                node.clone()
+            }
+        } else {
+            Node::Null(Null)
+        };
+
         self.transform = transform;
 
-        Ok((
-            nodes
-                .first()
-                .map_or_else(|| Node::Null(Null), |node| node.clone()),
-            messages,
-        ))
+        Ok((node, messages))
     }
 
     async fn set(&mut self, name: &str, value: &Node) -> Result<()> {
