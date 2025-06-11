@@ -521,6 +521,38 @@ repository:
   ########## IfBlock ##########
 
   if-block:
+    patterns:
+      - include: "#if-block.sql"
+      - include: "#if-block.cypher"
+      - include: "#if-block.no-lang"
+
+  if-block.sql:
+    name: meta.stencila.if-block.sql
+    match: ^(:{3,})\s*(if|elif)\s+((SELECT|select)\s*.*)$
+    captures:
+      "1": { name: markup.heading.stencila } # semicolons
+      "2": { name: keyword.control.stencila } # if
+      "3": # code
+        patterns:
+          - begin: .*
+            end: $
+            contentName: meta.embedded.language.sql
+            include: source.sql
+
+  if-block.cypher:
+    name: meta.stencila.if-block.cypher
+    match: ^(:{3,})\s*(if|elif)\s+((MATCH|match)\s*.*)$
+    captures:
+      "1": { name: markup.heading.stencila } # semicolons
+      "2": { name: keyword.control.stencila } # if
+      "3": # code
+        patterns:
+          - begin: .*
+            end: $
+            contentName: meta.embedded.language.cypher
+            include: source.cypher
+
+  if-block-no-lang:
     name: meta.stencila.if-block
     match: ^(:{3,})\s*(if|elif)\s+(.*)$
     captures:
