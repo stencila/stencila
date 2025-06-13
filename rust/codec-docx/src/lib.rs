@@ -87,9 +87,9 @@ impl Codec for DocxCodec {
         let pandoc = pandoc_from_format("", Some(path), PANDOC_FORMAT, &options).await?;
         let (mut node, info) = root_from_pandoc(pandoc, Format::Docx, &options)?;
 
-        if let Node::Article(article) = &mut node {
-            let mut properties = decode::custom_properties(path)?;
+        let (embeddings, mut properties) = decode::data_and_properties(path)?;
 
+        if let Node::Article(article) = &mut node {
             if let Some(Primitive::String(source)) = properties.shift_remove("source") {
                 article.options.source = Some(source);
             }
@@ -103,8 +103,16 @@ impl Codec for DocxCodec {
             }
         }
 
-        if let Some(cache) = options.and_then(|options| options.cache) {
+        let cache = if let Some(cache) = options.and_then(|options| options.cache) {
             let (cache, ..) = JsonCodec.from_path(&cache, None).await?;
+            Some(cache)
+        } else if let Some(cache) = embeddings.get("cache.json") {
+            let (cache, ..) = JsonCodec.from_str(&cache, None).await?;
+            Some(cache)
+        } else {
+            None
+        };
+        if let Some(cache) = cache {
             reconstitute(&mut node, cache);
         }
 
@@ -119,20 +127,17 @@ impl Codec for DocxCodec {
     ) -> Result<EncodeInfo> {
         let mut options = options.unwrap_or_default();
 
-        if options.reversible.unwrap_or_default() {
-            if let Node::Article(Article { options, .. }) = &node {
-                reversible_warnings(&options.source, &options.commit)
-            }
-        }
-
         // Default to render
         if options.render.is_none() {
             options.render = Some(true);
         }
 
-        // Default to reversible
-        if options.reversible.is_none() {
-            options.reversible = Some(true);
+        let reversible = options.reversible.unwrap_or_default();
+
+        if reversible {
+            if let Node::Article(Article { options, .. }) = &node {
+                reversible_warnings(&options.source, &options.commit)
+            }
         }
 
         // Default to using builtin template by extracting it to cache
@@ -168,7 +173,7 @@ impl Codec for DocxCodec {
             pandoc_to_format(
                 &pandoc,
                 Some(path),
-                &[PANDOC_FORMAT, "+native_numbering"].concat(),
+                &[PANDOC_FORMAT, "+native_numbering+styles"].concat(),
                 &options,
             )
             .await?;
@@ -177,17 +182,30 @@ impl Codec for DocxCodec {
         }?;
 
         // Add any embeddings
-        let embeddings = vec![("cache.json", "Hello")];
+        let mut embeddings = Vec::new();
+        if reversible {
+            let (cache, ..) = JsonCodec
+                .to_string(
+                    node,
+                    Some(EncodeOptions {
+                        // Standalone so that schema version is included
+                        standalone: Some(true),
+                        ..Default::default()
+                    }),
+                )
+                .await?;
+            embeddings.push(("cache.json".into(), cache));
+        }
 
         // Collect custom properties
         let mut properties = Vec::new();
         if let Node::Article(article) = node {
             if let Some(source) = &article.options.source {
-                properties.push(("source", source.clone()));
+                properties.push(("source".into(), source.clone()));
             }
 
             if let Some(commit) = &article.options.commit {
-                properties.push(("commit", commit.clone()));
+                properties.push(("commit".into(), commit.clone()));
             }
 
             if let Some(extra) = &article.options.extra {
@@ -197,12 +215,12 @@ impl Codec for DocxCodec {
                         Primitive::String(value) => value.to_string(),
                         _ => serde_json::to_string(value).unwrap_or_default(),
                     };
-                    properties.push((name, value));
+                    properties.push((name.into(), value));
                 }
             }
         }
 
-        encode::embeddings_and_custom_properties(path, &embeddings, &properties)?;
+        encode::data_and_properties(path, embeddings, properties)?;
 
         Ok(info)
     }
