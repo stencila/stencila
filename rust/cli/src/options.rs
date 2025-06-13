@@ -53,7 +53,7 @@ pub struct DecodeOptions {
     /// Reconstitute nodes from a cache
     ///
     /// Only useful when reconstituting a document from a file previously
-    /// encoded with the `--link` option and where a JSON cache of the document
+    /// encoded with the `--reversible` option and where a JSON cache of the document
     /// was encoded at the same times.
     ///
     /// Only supported for some formats (.e.g DOCX, ODT).
