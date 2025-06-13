@@ -42,7 +42,7 @@ impl PandocEncodeContext {
     }
 
     /// Run an encoding function within the scope of a node property
-    /// 
+    ///
     /// Modifies the context's node path before and after executing the function
     /// so that calls to `reversible_link` contain the correct `path` field
     pub fn within_property<F, T>(&mut self, property: NodeProperty, func: F) -> T

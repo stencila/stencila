@@ -482,7 +482,7 @@ impl KernelInstance for KuzuKernelInstance {
             if let Node::Datatable(Datatable { columns, .. }) = node {
                 if let (1, Some(column)) = (columns.len(), columns.first()) {
                     if column.name == "val" && column.values.len() == 1 {
-                        Node::try_from(column.values[0].clone())?
+                        Node::from(column.values[0].clone())
                     } else if column.name == "col" {
                         Node::Array(Array(column.values.clone()))
                     } else {

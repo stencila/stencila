@@ -25,7 +25,7 @@ pub fn data_and_properties(
 
     // Read the DOCX (ZIP) into a BTreeMap for easy lookup and replacement.
     let mut docx =
-        File::open(&path).wrap_err_with(|| eyre!("unable to open: {}", path.display()))?;
+        File::open(path).wrap_err_with(|| eyre!("unable to open: {}", path.display()))?;
     let mut zip = ZipArchive::new(&mut docx)
         .wrap_err_with(|| eyre!("DOCX is not a valid zip: {}", path.display()))?;
     let mut parts: BTreeMap<String, Vec<u8>> = BTreeMap::new();
@@ -128,7 +128,7 @@ pub fn data_and_properties(
         writer.write_all(&data)?;
     }
     writer.finish()?;
-    rename(tmp.path(), &path)?;
+    rename(tmp.path(), path)?;
 
     Ok(())
 }

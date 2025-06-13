@@ -343,7 +343,11 @@ fn citation_from_pandoc(
 }
 
 fn note_to_pandoc(note: &Note, context: &mut PandocEncodeContext) -> pandoc::Inline {
-    pandoc::Inline::Note(blocks_to_pandoc(NodeProperty::Content, &note.content, context))
+    pandoc::Inline::Note(blocks_to_pandoc(
+        NodeProperty::Content,
+        &note.content,
+        context,
+    ))
 }
 
 fn note_from_pandoc(blocks: Vec<pandoc::Block>, context: &mut PandocDecodeContext) -> Inline {

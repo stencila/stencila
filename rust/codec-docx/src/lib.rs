@@ -107,7 +107,7 @@ impl Codec for DocxCodec {
             let (cache, ..) = JsonCodec.from_path(&cache, None).await?;
             Some(cache)
         } else if let Some(cache) = embeddings.get("cache.json") {
-            let (cache, ..) = JsonCodec.from_str(&cache, None).await?;
+            let (cache, ..) = JsonCodec.from_str(cache, None).await?;
             Some(cache)
         } else {
             None

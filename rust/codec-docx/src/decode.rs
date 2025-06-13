@@ -22,7 +22,7 @@ pub(super) fn data_and_properties(
     path: &Path,
 ) -> Result<(IndexMap<String, String>, IndexMap<String, Primitive>)> {
     let mut docx =
-        File::open(&path).wrap_err_with(|| eyre!("unable to open: {}", path.display()))?;
+        File::open(path).wrap_err_with(|| eyre!("unable to open: {}", path.display()))?;
     let mut zip = ZipArchive::new(&mut docx)
         .wrap_err_with(|| eyre!("DOCX is not a valid zip: {}", path.display()))?;
 

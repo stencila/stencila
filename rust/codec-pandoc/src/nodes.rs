@@ -80,7 +80,10 @@ fn article_to_pandoc(
     let mut meta = HashMap::new();
 
     if let Some(title) = &article.title {
-        meta.insert("title".into(), inlines_to_meta_inlines(NodeProperty::Title, title, context));
+        meta.insert(
+            "title".into(),
+            inlines_to_meta_inlines(NodeProperty::Title, title, context),
+        );
     }
 
     if let Some(date) = &article.date_published {
