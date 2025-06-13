@@ -48,17 +48,20 @@ pub(super) fn data_and_properties(
 
         if is_custom_props {
             if let Ok(doc) = Document::parse(&xml) {
-                for prop in doc
-                    .root()
-                    .children()
-                    .filter(|n| n.is_element() && n.tag_name().name() == "property")
-                {
+                for prop in doc.descendants().filter(|node| {
+                    node.has_tag_name((
+                        "http://schemas.openxmlformats.org/officeDocument/2006/custom-properties",
+                        "property",
+                    ))
+                }) {
                     if let Some(name) = prop.attribute("name") {
                         // Find the first child in the vt namespace and get its text
                         let value = prop
                             .children()
-                            .find(|child| child.is_element() && child.tag_name().namespace() == Some("http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"))
-                            .and_then(|n| n.text())
+                            .find(|child| child.tag_name().namespace() == Some(
+                                "http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"
+                            ))
+                            .and_then(|child| child.text())
                             .unwrap_or("");
 
                         // Deserialize as a primitive node, falling back to a string
