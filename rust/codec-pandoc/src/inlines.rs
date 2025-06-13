@@ -13,13 +13,19 @@ use crate::{
 };
 
 pub(super) fn inlines_to_pandoc(
+    property: NodeProperty,
     inlines: &[Inline],
     context: &mut PandocEncodeContext,
 ) -> Vec<pandoc::Inline> {
-    inlines
-        .iter()
-        .map(|inline| inline_to_pandoc(inline, context))
-        .collect()
+    context.within_property(property, |context| {
+        inlines
+            .iter()
+            .enumerate()
+            .map(|(index, inline)| {
+                context.within_index(index, |context| inline_to_pandoc(inline, context))
+            })
+            .collect()
+    })
 }
 
 pub(super) fn inlines_from_pandoc(
@@ -75,13 +81,13 @@ fn inline_to_pandoc(
         Inline::Duration(duration) => pandoc::Inline::Str(duration.value.to_string()),
 
         // Marks
-        Inline::Emphasis(mark) => pandoc::Inline::Emph(inlines_to_pandoc(&mark.content, context)),
-        Inline::QuoteInline(mark) => pandoc::Inline::Quoted(pandoc::QuoteType::DoubleQuote, inlines_to_pandoc(&mark.content, context)),
-        Inline::Strikeout(mark) => pandoc::Inline::Strikeout(inlines_to_pandoc(&mark.content, context)),
-        Inline::Strong(mark) => pandoc::Inline::Strong(inlines_to_pandoc(&mark.content, context)),
-        Inline::Subscript(mark) => pandoc::Inline::Subscript(inlines_to_pandoc(&mark.content, context)),
-        Inline::Superscript(mark) => pandoc::Inline::Superscript(inlines_to_pandoc(&mark.content, context)),
-        Inline::Underline(mark) => pandoc::Inline::Underline(inlines_to_pandoc(&mark.content, context)),
+        Inline::Emphasis(mark) => pandoc::Inline::Emph(inlines_to_pandoc(NodeProperty::Content, &mark.content, context)),
+        Inline::QuoteInline(mark) => pandoc::Inline::Quoted(pandoc::QuoteType::DoubleQuote, inlines_to_pandoc(NodeProperty::Content, &mark.content, context)),
+        Inline::Strikeout(mark) => pandoc::Inline::Strikeout(inlines_to_pandoc(NodeProperty::Content, &mark.content, context)),
+        Inline::Strong(mark) => pandoc::Inline::Strong(inlines_to_pandoc(NodeProperty::Content, &mark.content, context)),
+        Inline::Subscript(mark) => pandoc::Inline::Subscript(inlines_to_pandoc(NodeProperty::Content, &mark.content, context)),
+        Inline::Superscript(mark) => pandoc::Inline::Superscript(inlines_to_pandoc(NodeProperty::Content, &mark.content, context)),
+        Inline::Underline(mark) => pandoc::Inline::Underline(inlines_to_pandoc(NodeProperty::Content, &mark.content, context)),
 
         // Media and links
         Inline::AudioObject(audio) => audio_to_pandoc(audio, context),
@@ -175,7 +181,7 @@ fn media_object_to_pandoc(
         attrs_empty(),
         caption
             .as_ref()
-            .map(|caption| inlines_to_pandoc(caption, context))
+            .map(|caption| inlines_to_pandoc(NodeProperty::Caption, caption, context))
             .unwrap_or_default(),
         pandoc::Target {
             url: url.to_string(),
@@ -206,7 +212,7 @@ fn media_from_pandoc(
 fn link_to_pandoc(link: &Link, context: &mut PandocEncodeContext) -> pandoc::Inline {
     pandoc::Inline::Link(
         attrs_empty(),
-        inlines_to_pandoc(&link.content, context),
+        inlines_to_pandoc(NodeProperty::Content, &link.content, context),
         Target {
             url: link.target.clone(),
             title: link.title.clone().unwrap_or_default(),
@@ -337,7 +343,7 @@ fn citation_from_pandoc(
 }
 
 fn note_to_pandoc(note: &Note, context: &mut PandocEncodeContext) -> pandoc::Inline {
-    pandoc::Inline::Note(blocks_to_pandoc(&note.content, context))
+    pandoc::Inline::Note(blocks_to_pandoc(NodeProperty::Content, &note.content, context))
 }
 
 fn note_from_pandoc(blocks: Vec<pandoc::Block>, context: &mut PandocDecodeContext) -> Inline {
@@ -359,7 +365,7 @@ fn styled_inline_to_pandoc(
 
     pandoc::Inline::Span(
         attrs_classes(classes),
-        inlines_to_pandoc(&styled.content, context),
+        inlines_to_pandoc(NodeProperty::Content, &styled.content, context),
     )
 }
 
@@ -378,6 +384,33 @@ fn code_expression_to_pandoc(
     expr: &CodeExpression,
     context: &mut PandocEncodeContext,
 ) -> pandoc::Inline {
+    if context.render {
+        let content = if let Some(output) = &expr.output {
+            to_text(output)
+        } else {
+            String::new()
+        };
+
+        let inline = pandoc::Inline::Str(content);
+
+        let attrs = if context.highlight {
+            Attr {
+                attributes: vec![("custom-style".to_string(), "Code Expression".to_string())],
+                ..Default::default()
+            }
+        } else {
+            attrs_empty()
+        };
+
+        return if context.reversible {
+            context.reversible_link(NodeType::CodeExpression, attrs, vec![inline])
+        } else if context.highlight {
+            pandoc::Inline::Span(attrs, vec![inline])
+        } else {
+            inline
+        };
+    }
+
     if matches!(context.format, Format::Latex | Format::Rnw) {
         let begin = if matches!(context.format, Format::Rnw) {
             "\\Sexpr{"

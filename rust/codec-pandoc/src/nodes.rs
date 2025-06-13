@@ -21,12 +21,15 @@ use crate::{
 pub fn root_to_pandoc(
     root: &Node,
     format: Format,
-    _options: &Option<EncodeOptions>,
+    options: &Option<EncodeOptions>,
 ) -> Result<(pandoc::Pandoc, EncodeInfo)> {
-    let mut context = PandocEncodeContext {
+    let options = options.clone().unwrap_or_default();
+    let mut context = PandocEncodeContext::new(
         format,
-        ..Default::default()
-    };
+        options.render.unwrap_or_default(),
+        options.highlight.unwrap_or_default(),
+        options.reversible.unwrap_or_default(),
+    );
     let pandoc = node_to_pandoc(root, &mut context)?;
 
     Ok((
@@ -77,12 +80,13 @@ fn article_to_pandoc(
     let mut meta = HashMap::new();
 
     if let Some(title) = &article.title {
-        meta.insert("title".into(), inlines_to_meta_inlines(title, context));
+        meta.insert("title".into(), inlines_to_meta_inlines(NodeProperty::Title, title, context));
     }
 
     if let Some(date) = &article.date_published {
         meta.insert("date".into(), string_to_meta_value(&date.value.to_string()));
     }
+
     if let Some(keywords) = &article.keywords {
         let mut keywords_meta = Vec::new();
         for keyword in keywords {
@@ -93,16 +97,17 @@ fn article_to_pandoc(
             pandoc::MetaValue::MetaList(keywords_meta),
         );
     }
+
     if let Some(r#abstract) = &article.r#abstract {
         if let Some(Block::Paragraph(paragraph)) = &r#abstract.first() {
             meta.insert(
                 "abstract".into(),
-                inlines_to_meta_inlines(&paragraph.content, context),
+                inlines_to_meta_inlines(NodeProperty::Content, &paragraph.content, context),
             );
         }
     }
 
-    let blocks = blocks_to_pandoc(&article.content, context);
+    let blocks = blocks_to_pandoc(NodeProperty::Content, &article.content, context);
 
     Ok(pandoc::Pandoc { meta, blocks })
 }

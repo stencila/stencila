@@ -1,16 +1,89 @@
-use codec::{format::Format, Losses};
-use pandoc_types::definition as pandoc;
+use codec::{common::inflector::Inflector, format::Format, Losses, NodeProperty, NodeType};
+use node_path::{NodePath, NodeSlot};
+use node_url::NodeUrl;
+use pandoc_types::definition::{self as pandoc, Attr, Target};
 
 /// The context for encoding to Pandoc AST
-#[derive(Default)]
 pub(super) struct PandocEncodeContext {
-    #[allow(unused)]
+    /// The format to encode
     pub format: Format,
-    pub losses: Losses,
+
+    /// Encode the outputs, rather than the source, of executable nodes
+    pub render: bool,
+
+    /// Highlight the rendered outputs of executable nodes
+    pub highlight: bool,
+
+    /// Encode such that changes in the encoded document can be applied back to its source
+    pub reversible: bool,
 
     /// Encode paragraphs as Pandoc `Plain` blocks in places
     /// like figure and table captions.
     pub paragraph_to_plain: bool,
+
+    /// An enumeration of the losses while encoding
+    pub losses: Losses,
+
+    /// The path to the current node
+    node_path: NodePath,
+}
+
+impl PandocEncodeContext {
+    pub fn new(format: Format, render: bool, highlight: bool, reversible: bool) -> Self {
+        Self {
+            format,
+            render,
+            highlight,
+            reversible,
+            paragraph_to_plain: false,
+            losses: Losses::default(),
+            node_path: NodePath::new(),
+        }
+    }
+
+    /// Run an encoding function within the scope of a node property
+    /// 
+    /// Modifies the context's node path before and after executing the function
+    /// so that calls to `reversible_link` contain the correct `path` field
+    pub fn within_property<F, T>(&mut self, property: NodeProperty, func: F) -> T
+    where
+        F: Fn(&mut Self) -> T,
+    {
+        self.node_path.push_back(NodeSlot::from(property));
+        let result = func(self);
+        self.node_path.pop_back();
+        result
+    }
+
+    /// Run an encoding function within the scope of a node index
+    pub fn within_index<F, T>(&mut self, index: usize, mut func: F) -> T
+    where
+        F: FnMut(&mut Self) -> T,
+    {
+        self.node_path.push_back(NodeSlot::from(index));
+        let result = func(self);
+        self.node_path.pop_back();
+        result
+    }
+
+    /// Create a Pandoc link with a [`NodeUrl`] allowing the node to be reconstituted at a later time
+    pub fn reversible_link(
+        &mut self,
+        node_type: NodeType,
+        attrs: Attr,
+        content: Vec<pandoc::Inline>,
+    ) -> pandoc::Inline {
+        let url = NodeUrl {
+            r#type: Some(node_type),
+            path: Some(self.node_path.clone()),
+            ..Default::default()
+        }
+        .to_string();
+
+        let title = node_type.to_string().to_sentence_case();
+
+        pandoc::Inline::Link(attrs, content, Target { url, title })
+    }
 }
 
 /// The context for decoding from Pandoc AST

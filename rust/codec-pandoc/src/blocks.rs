@@ -1,6 +1,6 @@
 use std::{any::type_name_of_val, str::FromStr};
 
-use pandoc_types::definition::{self as pandoc};
+use pandoc_types::definition::{self as pandoc, Attr};
 
 use codec::{format::Format, schema::*};
 use codec_text_trait::to_text;
@@ -14,13 +14,19 @@ use crate::{
 };
 
 pub(super) fn blocks_to_pandoc(
+    property: NodeProperty,
     blocks: &[Block],
     context: &mut PandocEncodeContext,
 ) -> Vec<pandoc::Block> {
-    blocks
-        .iter()
-        .map(|block| block_to_pandoc(block, context))
-        .collect()
+    context.within_property(property, |context| {
+        blocks
+            .iter()
+            .enumerate()
+            .flat_map(|(index, block)| {
+                context.within_index(index, |context| block_to_pandoc(block, context))
+            })
+            .collect()
+    })
 }
 
 pub(super) fn blocks_from_pandoc(
@@ -33,8 +39,8 @@ pub(super) fn blocks_from_pandoc(
         .collect()
 }
 
-pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pandoc::Block {
-    match block {
+pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> Vec<pandoc::Block> {
+    let block = match block {
         // Structure
         Block::Heading(para) => heading_to_pandoc(para, context),
         Block::Paragraph(para) => paragraph_to_pandoc(para, context),
@@ -50,7 +56,7 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pand
 
         // Code and math
         Block::CodeBlock(block) => code_block_to_pandoc(block, context),
-        Block::CodeChunk(chunk) => code_chunk_to_pandoc(chunk, context),
+        Block::CodeChunk(chunk) => return code_chunk_to_pandoc(chunk, context),
         Block::MathBlock(block) => math_block_to_pandoc(block, context),
 
         // Other
@@ -73,7 +79,8 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pand
             context.losses.add(block.node_type().to_string());
             pandoc::Block::Div(attrs_empty(), Vec::new())
         }
-    }
+    };
+    vec![block]
 }
 
 #[rustfmt::skip]
@@ -119,7 +126,7 @@ fn heading_to_pandoc(heading: &Heading, context: &mut PandocEncodeContext) -> pa
     pandoc::Block::Header(
         heading.level as i32,
         attrs_empty(),
-        inlines_to_pandoc(&heading.content, context),
+        inlines_to_pandoc(NodeProperty::Content, &heading.content, context),
     )
 }
 
@@ -136,7 +143,7 @@ fn heading_from_pandoc(
 }
 
 fn paragraph_to_pandoc(para: &Paragraph, context: &mut PandocEncodeContext) -> pandoc::Block {
-    let inlines = inlines_to_pandoc(&para.content, context);
+    let inlines = inlines_to_pandoc(NodeProperty::Content, &para.content, context);
 
     // Do the equivalent of Pandoc's `implicit_figures` default extension https://pandoc.org/MANUAL.html#extension-implicit_figures
     if let (true, Some(pandoc::Inline::Image(_, caption, _))) =
@@ -176,14 +183,22 @@ fn section_to_pandoc(section: &Section, context: &mut PandocEncodeContext) -> pa
         classes: vec![class],
         ..attrs_empty()
     };
-    pandoc::Block::Div(attrs, blocks_to_pandoc(&section.content, context))
+    pandoc::Block::Div(
+        attrs,
+        blocks_to_pandoc(NodeProperty::Content, &section.content, context),
+    )
 }
 
 fn list_to_pandoc(list: &List, context: &mut PandocEncodeContext) -> pandoc::Block {
     let items = list
         .items
         .iter()
-        .map(|item| blocks_to_pandoc(&item.content, context))
+        .enumerate()
+        .map(|(index, item)| {
+            context.within_index(index, |context| {
+                blocks_to_pandoc(NodeProperty::Content, &item.content, context)
+            })
+        })
         .collect();
 
     match &list.order {
@@ -223,37 +238,42 @@ fn table_to_pandoc(table: &Table, context: &mut PandocEncodeContext) -> pandoc::
     let caption = table
         .caption
         .as_ref()
-        .map(|caption| blocks_to_pandoc(caption, context))
+        .map(|caption| blocks_to_pandoc(NodeProperty::Caption, caption, context))
         .unwrap_or_default();
 
     let mut head = vec![];
     let mut body = vec![];
     let mut foot = vec![];
     let mut cols = 0;
-    for row in &table.rows {
-        if row.cells.len() > cols {
-            cols = row.cells.len();
-        }
-        let cells = row
-            .cells
-            .iter()
-            .map(|cell| pandoc::Cell {
+    for (index, row) in table.rows.iter().enumerate() {
+        context.within_index(index, |context| {
+            if row.cells.len() > cols {
+                cols = row.cells.len();
+            }
+            let cells = row
+                .cells
+                .iter()
+                .enumerate()
+                .map(|(index, cell)| {
+                    context.within_index(index, |context| pandoc::Cell {
+                        attr: attrs_empty(),
+                        align: pandoc::Alignment::AlignDefault,
+                        row_span: 1,
+                        col_span: 1,
+                        content: blocks_to_pandoc(NodeProperty::Content, &cell.content, context),
+                    })
+                })
+                .collect();
+            let pandoc_row = pandoc::Row {
                 attr: attrs_empty(),
-                align: pandoc::Alignment::AlignDefault,
-                row_span: 1,
-                col_span: 1,
-                content: blocks_to_pandoc(&cell.content, context),
-            })
-            .collect();
-        let pandoc_row = pandoc::Row {
-            attr: attrs_empty(),
-            cells,
-        };
-        match row.row_type {
-            Some(TableRowType::HeaderRow) => head.push(pandoc_row),
-            Some(TableRowType::FooterRow) => foot.push(pandoc_row),
-            _ => body.push(pandoc_row),
-        }
+                cells,
+            };
+            match row.row_type {
+                Some(TableRowType::HeaderRow) => head.push(pandoc_row),
+                Some(TableRowType::FooterRow) => foot.push(pandoc_row),
+                _ => body.push(pandoc_row),
+            }
+        })
     }
 
     let colspecs = (0..cols)
@@ -392,10 +412,10 @@ fn figure_to_pandoc(figure: &Figure, context: &mut PandocEncodeContext) -> pando
     let caption = figure
         .caption
         .as_ref()
-        .map(|blocks| blocks_to_pandoc(blocks, context))
+        .map(|blocks| blocks_to_pandoc(NodeProperty::Caption, blocks, context))
         .unwrap_or_default();
 
-    let blocks = blocks_to_pandoc(&figure.content, context);
+    let blocks = blocks_to_pandoc(NodeProperty::Content, &figure.content, context);
 
     context.paragraph_to_plain = false;
 
@@ -529,11 +549,49 @@ fn code_block_from_pandoc(
 
 fn code_chunk_to_pandoc(
     code_chunk: &CodeChunk,
-    _context: &mut PandocEncodeContext,
-) -> pandoc::Block {
-    // TODO: Handle outputs
+    context: &mut PandocEncodeContext,
+) -> Vec<pandoc::Block> {
+    if context.render {
+        let attrs = if context.highlight {
+            Attr {
+                attributes: vec![("custom-style".to_string(), "Code Chunk".to_string())],
+                ..Default::default()
+            }
+        } else {
+            attrs_empty()
+        };
 
-    // If no outputs, then encode as a code block
+        let Some(outputs) = &code_chunk.outputs else {
+            if context.reversible {
+                let link = context.reversible_link(
+                    NodeType::CodeChunk,
+                    attrs,
+                    vec![pandoc::Inline::Str("Code Chunk".into())],
+                );
+                return vec![pandoc::Block::Para(vec![link])];
+            } else {
+                return Vec::new();
+            }
+        };
+
+        let content = if let Some(output) = outputs.first() {
+            to_text(output)
+        } else {
+            String::new()
+        };
+
+        let inline = pandoc::Inline::Str(content);
+
+        let inline = if context.reversible {
+            context.reversible_link(NodeType::CodeChunk, attrs, vec![inline])
+        } else if context.highlight {
+            pandoc::Inline::Span(attrs, vec![inline])
+        } else {
+            inline
+        };
+
+        return vec![pandoc::Block::Para(vec![inline])];
+    }
 
     let mut classes = code_chunk
         .programming_language
@@ -560,7 +618,7 @@ fn code_chunk_to_pandoc(
         attributes,
         ..Default::default()
     };
-    pandoc::Block::CodeBlock(attrs, code_chunk.code.to_string())
+    vec![pandoc::Block::CodeBlock(attrs, code_chunk.code.to_string())]
 }
 
 fn math_block_to_pandoc(
@@ -612,7 +670,10 @@ fn claim_to_pandoc(claim: &Claim, context: &mut PandocEncodeContext) -> pandoc::
         ..attrs_empty()
     };
 
-    pandoc::Block::Div(attrs, blocks_to_pandoc(&claim.content, context))
+    pandoc::Block::Div(
+        attrs,
+        blocks_to_pandoc(NodeProperty::Content, &claim.content, context),
+    )
 }
 
 fn call_block_to_pandoc(block: &CallBlock, context: &mut PandocEncodeContext) -> pandoc::Block {
@@ -644,7 +705,10 @@ fn call_block_to_pandoc(block: &CallBlock, context: &mut PandocEncodeContext) ->
     };
     let content = &block.content.clone().unwrap_or_default();
 
-    pandoc::Block::Div(attrs, blocks_to_pandoc(content, context))
+    pandoc::Block::Div(
+        attrs,
+        blocks_to_pandoc(NodeProperty::Content, content, context),
+    )
 }
 
 fn call_block_from_pandoc(
@@ -713,7 +777,7 @@ fn chat_message_to_pandoc(
         ..attrs_empty()
     };
 
-    let blocks = blocks_to_pandoc(&message.content, context);
+    let blocks = blocks_to_pandoc(NodeProperty::Content, &message.content, context);
 
     pandoc::Block::Div(attrs, blocks)
 }
@@ -739,34 +803,42 @@ fn admonition_to_pandoc(admon: &Admonition, context: &mut PandocEncodeContext) -
         ..attrs_empty()
     };
 
-    pandoc::Block::Div(attrs, blocks_to_pandoc(&admon.content, context))
+    pandoc::Block::Div(
+        attrs,
+        blocks_to_pandoc(NodeProperty::Content, &admon.content, context),
+    )
 }
 
 fn if_block_to_pandoc(block: &IfBlock, context: &mut PandocEncodeContext) -> pandoc::Block {
-    let clauses_block = &block.clauses;
-    let mut clauses = Vec::new();
-
-    for clause in clauses_block.iter() {
-        let mut attributes = vec![("code".into(), clause.code.to_string())];
-        if let Some(lang) = &clause.programming_language {
-            attributes.push(("lang".into(), lang.clone()));
-        }
-
-        let attrs = pandoc::Attr {
-            classes: vec!["if-clause".into()],
-            attributes,
-            ..attrs_empty()
-        };
-
-        clauses.push(pandoc::Block::Div(
-            attrs,
-            blocks_to_pandoc(&clause.content, context),
-        ))
-    }
     let attrs = pandoc::Attr {
         classes: vec!["if".into()],
         ..attrs_empty()
     };
+
+    let clauses = block
+        .clauses
+        .iter()
+        .enumerate()
+        .map(|(index, clause)| {
+            context.within_index(index, |context| {
+                let mut attributes = vec![("code".into(), clause.code.to_string())];
+                if let Some(lang) = &clause.programming_language {
+                    attributes.push(("lang".into(), lang.clone()));
+                }
+
+                let attrs = pandoc::Attr {
+                    classes: vec!["if-clause".into()],
+                    attributes,
+                    ..attrs_empty()
+                };
+
+                pandoc::Block::Div(
+                    attrs,
+                    blocks_to_pandoc(NodeProperty::Content, &clause.content, context),
+                )
+            })
+        })
+        .collect();
 
     pandoc::Block::Div(attrs, clauses)
 }
@@ -873,7 +945,10 @@ fn include_block_to_pandoc(
     };
     let content = &block.content.clone().unwrap_or_default();
 
-    pandoc::Block::Div(attrs, blocks_to_pandoc(content, context))
+    pandoc::Block::Div(
+        attrs,
+        blocks_to_pandoc(NodeProperty::Content, content, context),
+    )
 }
 
 fn include_block_from_pandoc(
@@ -972,7 +1047,10 @@ fn instruction_block_to_pandoc(
 
     let content = &block.content.clone().unwrap_or_default();
 
-    pandoc::Block::Div(attrs, blocks_to_pandoc(content, context))
+    pandoc::Block::Div(
+        attrs,
+        blocks_to_pandoc(NodeProperty::Content, content, context),
+    )
 }
 
 fn excerpt_to_pandoc(block: &Excerpt, context: &mut PandocEncodeContext) -> pandoc::Block {
@@ -982,7 +1060,10 @@ fn excerpt_to_pandoc(block: &Excerpt, context: &mut PandocEncodeContext) -> pand
         ..attrs_empty()
     };
 
-    pandoc::Block::Div(attrs, blocks_to_pandoc(&block.content, context))
+    pandoc::Block::Div(
+        attrs,
+        blocks_to_pandoc(NodeProperty::Content, &block.content, context),
+    )
 }
 
 fn for_block_to_pandoc(block: &ForBlock, context: &mut PandocEncodeContext) -> pandoc::Block {
@@ -1000,7 +1081,10 @@ fn for_block_to_pandoc(block: &ForBlock, context: &mut PandocEncodeContext) -> p
         ..attrs_empty()
     };
 
-    pandoc::Block::Div(attrs, blocks_to_pandoc(&block.content, context))
+    pandoc::Block::Div(
+        attrs,
+        blocks_to_pandoc(NodeProperty::Content, &block.content, context),
+    )
 }
 
 fn for_block_from_pandoc(
@@ -1064,7 +1148,11 @@ fn quote_block_to_pandoc(block: &QuoteBlock, context: &mut PandocEncodeContext) 
         context.losses.add("QuoteBlock.source");
     }
 
-    pandoc::Block::BlockQuote(blocks_to_pandoc(&block.content, context))
+    pandoc::Block::BlockQuote(blocks_to_pandoc(
+        NodeProperty::Content,
+        &block.content,
+        context,
+    ))
 }
 
 fn quote_block_from_pandoc(blocks: Vec<pandoc::Block>, context: &mut PandocDecodeContext) -> Block {
@@ -1095,7 +1183,7 @@ fn styled_block_to_pandoc(block: &StyledBlock, context: &mut PandocEncodeContext
 
     pandoc::Block::Div(
         attrs_classes(classes),
-        blocks_to_pandoc(&block.content, context),
+        blocks_to_pandoc(NodeProperty::Content, &block.content, context),
     )
 }
 

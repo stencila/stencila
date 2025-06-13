@@ -1280,6 +1280,8 @@ dependencies = [
  "codec",
  "codec-latex-trait",
  "codec-text-trait",
+ "node-path",
+ "node-url",
  "pandoc_types",
  "which",
 ]

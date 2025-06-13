@@ -21,10 +21,11 @@ pub(super) fn string_from_meta_value(meta: pandoc::MetaValue) -> String {
 }
 
 pub(super) fn inlines_to_meta_inlines(
+    property: NodeProperty,
     inlines: &[Inline],
     context: &mut PandocEncodeContext,
 ) -> pandoc::MetaValue {
-    pandoc::MetaValue::MetaInlines(inlines_to_pandoc(inlines, context))
+    pandoc::MetaValue::MetaInlines(inlines_to_pandoc(property, inlines, context))
 }
 
 pub(super) fn inlines_from_meta_inlines(
