@@ -392,7 +392,8 @@ fn code_expression_to_pandoc(
         let content = if let Some(output) = &expr.output {
             to_text(output)
         } else {
-            String::new()
+            // Need to have some content for reversibility
+            "-".into()
         };
 
         let inline = pandoc::Inline::Str(content);

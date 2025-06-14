@@ -87,7 +87,7 @@ impl Codec for DocxCodec {
         let pandoc = pandoc_from_format("", Some(path), PANDOC_FORMAT, &options).await?;
         let (mut node, info) = root_from_pandoc(pandoc, Format::Docx, &options)?;
 
-        let (embeddings, mut properties) = decode::data_and_properties(path)?;
+        let (data, mut properties) = decode::data_and_properties(path)?;
 
         if let Node::Article(article) = &mut node {
             if let Some(Primitive::String(source)) = properties.shift_remove("source") {
@@ -106,7 +106,7 @@ impl Codec for DocxCodec {
         let cache = if let Some(cache) = options.and_then(|options| options.cache) {
             let (cache, ..) = JsonCodec.from_path(&cache, None).await?;
             Some(cache)
-        } else if let Some(cache) = embeddings.get("cache.json") {
+        } else if let Some(cache) = data.get("cache.json") {
             let (cache, ..) = JsonCodec.from_str(cache, None).await?;
             Some(cache)
         } else {
