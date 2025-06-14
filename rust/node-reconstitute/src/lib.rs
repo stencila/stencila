@@ -38,6 +38,7 @@ impl VisitorMut for Reconstituter {
 
         // Only reconstitute paragraphs...
         let Block::Paragraph(Paragraph { content, .. }) = block else {
+            // If blocks being collected then add to them
             if let Some(blocks) = self.blocks.last_mut() {
                 blocks.push(block.clone());
                 *block = delete();
@@ -49,6 +50,7 @@ impl VisitorMut for Reconstituter {
         // ...where the last inline is a link (may be single link, or have other inline nodes,
         // such as an anchor (bookmark) in front of it)
         let Some(Inline::Link(Link { target, .. })) = content.last() else {
+            // If blocks being collected then add to them
             if let Some(blocks) = self.blocks.last_mut() {
                 blocks.push(block.clone());
                 *block = delete();
@@ -62,8 +64,25 @@ impl VisitorMut for Reconstituter {
             return WalkControl::Continue;
         };
 
+        // ...that is for a block node (avoids links for inline nodes, such as
+        // code expressions, being turned into a block)
+        if !node_url
+            .r#type
+            .map(|typ| typ.is_block())
+            .unwrap_or_default()
+        {
+            // If blocks being collected then add to them
+            if let Some(blocks) = self.blocks.last_mut() {
+                blocks.push(block.clone());
+                *block = delete();
+            }
+
+            return WalkControl::Continue;
+        }
+
         // ...with a path as a target
         let Some(node_path) = node_url.path else {
+            // If blocks being collected then add to them
             if let Some(blocks) = self.blocks.last_mut() {
                 blocks.push(block.clone());
                 *block = delete();
