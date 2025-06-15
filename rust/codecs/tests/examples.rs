@@ -525,6 +525,7 @@ async fn examples() -> Result<()> {
                 // Decode from file
                 let (
                     mut decoded,
+                    ..,
                     DecodeInfo {
                         losses, mapping, ..
                     },

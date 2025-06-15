@@ -65,8 +65,9 @@ impl Codec for JsonCodec {
         &self,
         path: &Path,
         options: Option<DecodeOptions>,
-    ) -> Result<(Node, DecodeInfo)> {
-        from_path(path, options)
+    ) -> Result<(Node, Option<Node>, DecodeInfo)> {
+        let (node, info) = from_path(path, options)?;
+        Ok((node, None, info))
     }
 
     async fn from_bytes(

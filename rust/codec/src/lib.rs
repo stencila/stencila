@@ -250,12 +250,15 @@ pub trait Codec: Sync + Send {
     }
 
     /// Decode a Stencila Schema node from a file system path
+    ///
+    /// May be overridden by codecs to return an unedited version of the document
+    /// which may be used to rebase edits
     #[tracing::instrument(skip(self))]
     async fn from_path(
         &self,
         path: &Path,
         options: Option<DecodeOptions>,
-    ) -> Result<(Node, DecodeInfo)> {
+    ) -> Result<(Node, Option<Node>, DecodeInfo)> {
         if !path.exists() {
             bail!("Path `{}` does not exist", path.display());
         }
@@ -277,7 +280,7 @@ pub trait Codec: Sync + Send {
             }
         }
 
-        Ok((node, info))
+        Ok((node, None, info))
     }
 
     /// Encode a Stencila Schema node to bytes

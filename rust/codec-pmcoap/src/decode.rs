@@ -49,7 +49,7 @@ pub(super) async fn decode_id(
         .ok_or_eyre("Unable to find JATS XML file")?;
 
     // Decode the JATS
-    let (mut node, info) = JatsCodec.from_path(&jats_path, options).await?;
+    let (mut node, .., info) = JatsCodec.from_path(&jats_path, options).await?;
 
     // Inline any images if possible
     node.walk_mut(&mut ImageInliner { dir });

@@ -25,7 +25,7 @@ async fn examples() -> Result<()> {
             .expect("should have file stem")
             .to_string_lossy();
 
-        let (article, info) = RnwCodec.from_path(&path, None).await?;
+        let (article, .., info) = RnwCodec.from_path(&path, None).await?;
 
         assert_json_snapshot!(format!("{name}.json"), article, {".commit" => "redacted"});
         assert_yaml_snapshot!(format!("{name}.decode.losses"), info.losses);

@@ -68,7 +68,7 @@ impl Codec for OdtCodec {
         &self,
         path: &Path,
         options: Option<DecodeOptions>,
-    ) -> Result<(Node, DecodeInfo)> {
+    ) -> Result<(Node, Option<Node>, DecodeInfo)> {
         let pandoc = pandoc_from_format("", Some(path), PANDOC_FORMAT, &options).await?;
         let (mut node, info) = root_from_pandoc(pandoc, Format::Odt, &options)?;
 
@@ -77,7 +77,7 @@ impl Codec for OdtCodec {
             reconstitute(&mut node, cache);
         }
 
-        Ok((node, info))
+        Ok((node, None, info))
     }
 
     async fn to_path(

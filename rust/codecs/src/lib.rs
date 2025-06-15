@@ -1,5 +1,9 @@
+use std::io::{self, Write};
 use std::path::{Path, PathBuf};
+use std::process::Command;
 
+use codec::common::eyre::Context;
+use codec::common::inflector::Inflector;
 use codec::{
     common::{
         eyre::{bail, eyre, OptionExt, Result},
@@ -157,7 +161,7 @@ pub async fn from_str_with_info(
 /// Decode a Stencila Schema node from a file system path
 #[tracing::instrument]
 pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<Node> {
-    let (node, DecodeInfo { losses, .. }) = from_path_with_info(path, options.clone()).await?;
+    let (node, .., DecodeInfo { losses, .. }) = from_path_with_info(path, options.clone()).await?;
     if !losses.is_empty() {
         let options = options.unwrap_or_default();
         losses.respond(
@@ -203,7 +207,7 @@ pub async fn from_url(url: &str, options: Option<DecodeOptions>) -> Result<Node>
 pub async fn from_path_with_info(
     path: &Path,
     options: Option<DecodeOptions>,
-) -> Result<(Node, DecodeInfo)> {
+) -> Result<(Node, Option<Node>, DecodeInfo)> {
     if !path.exists() {
         bail!("Path does not exist: {}", path.display());
     }
@@ -396,11 +400,12 @@ pub async fn convert(
     }
 }
 
-/// Merge changes from an edited document into the original
+/// Reverse changes from an edited document (in a different format) into the original
+/// document (in a different format)
 #[tracing::instrument]
-pub async fn merge(
+pub async fn reverse(
     edited: &Path,
-    original: &Path,
+    original: Option<&Path>,
     unedited: Option<&Path>,
     decode_options: DecodeOptions,
     mut encode_options: EncodeOptions,
@@ -414,6 +419,23 @@ pub async fn merge(
         tempdir.path()
     };
 
+    // Decode the edited file because it may contain information on the
+    // original source & commit
+    let (edited_node, unedited_node, ..) =
+        from_path_with_info(edited, Some(decode_options.clone())).await?;
+
+    let mut original = original.map(|path| path.to_path_buf());
+    if original.is_none() {
+        if let Node::Article(Article { options, .. }) = &edited_node {
+            if let Some(source) = &options.source {
+                original = Some(PathBuf::from(source));
+            }
+        }
+    }
+    let Some(original) = original else {
+        bail!("Relative path of original source file not specified and not available from edited document")
+    };
+
     // Get the dir and file name of the original for intermediate files
     let original_dir = original
         .parent()
@@ -423,33 +445,37 @@ pub async fn merge(
         .ok_or_eyre("original file has no name")?;
 
     // Override decoding and encoding options
-    // TODO: Warn user if there settings have been ignored
+    // TODO: Warn user if their settings have been ignored
     encode_options.recurse = Some(true);
     encode_options.render = Some(false);
 
-    // Convert the edited file into the original format
+    // Convert the edited node into the original format
     let edited_dir = workdir.join("edited");
-    convert(
-        Some(edited),
-        Some(&edited_dir.join(original_file)),
-        Some(decode_options.clone()),
+    to_path(
+        &edited_node,
+        &edited_dir.join(original_file),
         Some(encode_options.clone()),
     )
     .await?;
 
-    let unedited = unedited.ok_or_eyre("")?;
-
-    // Convert the unedited file into the original format
     let unedited_dir = workdir.join("unedited");
-    convert(
-        Some(unedited),
-        Some(&unedited_dir.join(original_file)),
-        Some(decode_options),
-        Some(encode_options),
-    )
-    .await?;
+    let unedited_file = unedited_dir.join(original_file);
+    if let Some(unedited) = unedited {
+        // If an unedited file was provided, convert into the original format
+        convert(
+            Some(unedited),
+            Some(&unedited_file),
+            Some(decode_options),
+            Some(encode_options),
+        )
+        .await?;
+    } else if let Some(unedited_node) = unedited_node {
+        // If un unedited node was embedded in the edited file, encode it to the
+        // original format
+        to_path(&unedited_node, &unedited_file, Some(encode_options)).await?
+    }
 
-    // Merge edits for each file in edited.
+    // Rebase edits for each file in the `edited` directory.
     for entry in WalkDir::new(&edited_dir)
         .follow_links(false)
         .into_iter()
@@ -492,8 +518,170 @@ pub async fn merge(
     Ok(())
 }
 
+/// Check if a file has changed since a specific commit and optionally create a branch
+///
+/// This function compares a file's current state against a specified commit. If the file
+/// has changed, it offers to create a new branch at that commit point, handling any
+/// conflicting uncommitted changes by stashing them first.
+///
+/// # Workflow
+///
+/// 1. Check if the file has any changes since the specified commit
+/// 2. If no changes, exit early with an info message
+/// 3. If changes exist, prompt user (unless `force` is true) to create a branch
+/// 4. If file has uncommitted changes that would conflict:
+///    - Prompt user to stash changes or exit to commit manually (unless `force` is true)
+///    - Stash changes if user agrees or if `force` is true
+/// 5. Create a new branch with format `reverse-{path-kebab}-{commit-short}`
+/// 6. Switch to the new branch at the specified commit
+///
+/// # Error Handling
+///
+/// - Git command failures are wrapped with context
+/// - If branch creation fails after stashing, attempts to restore stashed changes
+/// - User input errors are propagated with context
+///
+/// # Arguments
+///
+/// * `path` - Path to the file relative to the repository root
+/// * `commit` - The commit hash or reference to compare against and branch from
+/// * `force` - Skip all user prompts and automatically stash/create branch
+///
+/// # Returns
+///
+/// * `Ok(())` - Operation completed successfully (including early exits)
+/// * `Err(_)` - Git operations failed or user input could not be read
+#[allow(clippy::print_stdout)]
+#[tracing::instrument]
+fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> {
+    let path_ = path.display();
+
+    // Check if file has changed since the specified commit
+    tracing::debug!("Checking git diff for {path_} against commit {commit}");
+    let diff_output = Command::new("git")
+        .args(&["diff", commit, "--", path.to_str().unwrap_or("")])
+        .output()?;
+    if !diff_output.status.success() {
+        let error = String::from_utf8_lossy(&diff_output.stderr);
+        bail!("Failed to get git diff: {error}");
+    }
+
+    if diff_output.stdout.is_empty() {
+        tracing::debug!("No changes detected in {path_} since commit {commit}");
+        return Ok(());
+    } else {
+        tracing::debug!("File {path_} has changed since commit {commit}");
+    }
+
+    // Determine if we should create a branch
+    tracing::debug!("File has changes, determining whether to create branch");
+    let should_create_branch = if force {
+        tracing::debug!("Force mode enabled, will create branch");
+        true
+    } else {
+        print!("Would you like to create a new branch at commit {commit}? (y/N): ");
+        io::stdout().flush().unwrap();
+
+        let mut input = String::new();
+        io::stdin()
+            .read_line(&mut input)
+            .wrap_err("Failed to read user input")?;
+
+        let input = input.trim().to_lowercase();
+        let result = input == "y" || input == "yes";
+        tracing::debug!("User input: '{}', will create branch: {}", input, result);
+        result
+    };
+
+    if !should_create_branch {
+        tracing::info!("Branch creation cancelled");
+        return Ok(());
+    }
+
+    // Check if the file has uncommitted changes
+    tracing::debug!("Checking if file {path_} has uncommitted changes");
+    let file_status_output = Command::new("git")
+        .args(&["status", "--porcelain", "--", path.to_str().unwrap_or("")])
+        .output()?;
+    if !file_status_output.status.success() {
+        let error = String::from_utf8_lossy(&file_status_output.stderr);
+        bail!("Failed to get file status: {error}");
+    }
+
+    let file_has_uncommitted_changes = !file_status_output.stdout.is_empty();
+    let mut stashed = false;
+
+    // Handle uncommitted changes if they exist
+    if file_has_uncommitted_changes {
+        tracing::debug!("File {path_} has uncommitted changes that conflict with target commit");
+
+        if !force {
+            print!("File {path_} has uncommitted changes that conflict with the target commit.\n");
+            print!("Would you like to stash changes before creating branch? (y/N): ");
+            io::stdout().flush().unwrap();
+
+            let mut input = String::new();
+            io::stdin()
+                .read_line(&mut input)
+                .wrap_err("Failed to read user input")?;
+
+            let input = input.trim().to_lowercase();
+            let should_stash = input == "y" || input == "yes";
+            if !should_stash {
+                println!("Please commit your changes first, then run this command again.");
+                return Ok(());
+            }
+        }
+
+        // Stash the changes
+        tracing::info!("Stashing uncommitted changes");
+        let stash_output = Command::new("git")
+            .args(&[
+                "stash",
+                "push",
+                "-m",
+                "WIP: auto-stash before branch creation",
+            ])
+            .output()?;
+        if !stash_output.status.success() {
+            let error = String::from_utf8_lossy(&stash_output.stderr);
+            bail!("Failed to stash changes: {error}");
+        }
+
+        stashed = true;
+    }
+
+    // Generate a branch name based on the path and the commit hash
+    let path_kebab = path.to_string_lossy().to_kebab_case();
+    let commit_short = &commit[..8];
+    let branch_name = format!("reverse-{path_kebab}-{commit_short}");
+
+    // Create and checkout the new branch at the specified commit
+    tracing::debug!("Executing git checkout -b {} {}", branch_name, commit);
+    tracing::info!("Creating branch '{}' at commit {}", branch_name, commit);
+    let branch_result = Command::new("git")
+        .args(&["checkout", "-b", &branch_name, commit])
+        .status()
+        .wrap_err("Failed to execute git checkout")?;
+
+    if !branch_result.success() {
+        // If we stashed changes, try to restore them
+        if stashed {
+            tracing::debug!("Branch creation failed, attempting to restore stashed changes");
+            let _ = Command::new("git").args(&["stash", "pop"]).status();
+        }
+        bail!("Failed to create branch. The commit may not exist");
+    }
+
+    tracing::info!(
+        "Successfully created and switched to branch '{}'",
+        branch_name
+    );
+    Ok(())
+}
+
 /// A visitor that implements the `--recurse` encoding option by walking over
-/// the a node and encoding anf `IncludeBlock` nodes having `content` to their
+/// the a node and encoding any `IncludeBlock` nodes having `content` to their
 /// `source` file.
 struct Recurser {
     /// The path of the main file being encoded

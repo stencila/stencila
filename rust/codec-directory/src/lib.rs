@@ -79,7 +79,7 @@ impl Codec for DirectoryCodec {
         &self,
         root: &Path,
         _options: Option<DecodeOptions>,
-    ) -> Result<(Node, DecodeInfo)> {
+    ) -> Result<(Node, Option<Node>, DecodeInfo)> {
         let root = root.canonicalize()?;
 
         let mut dirs: Vec<(usize, Directory)> = Vec::new();
@@ -186,6 +186,6 @@ impl Codec for DirectoryCodec {
 
         let node = Node::Directory(root);
 
-        Ok((node, DecodeInfo::none()))
+        Ok((node, None, DecodeInfo::none()))
     }
 }

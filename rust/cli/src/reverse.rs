@@ -8,14 +8,14 @@ use format::Format;
 
 use crate::options::{DecodeOptions, EncodeOptions, StripOptions};
 
-/// Merge changes from an edited document into the original
+/// Reverse changes from an edited document into the original
 #[derive(Debug, Parser)]
 pub struct Cli {
     /// The edited version of the document
     edited: PathBuf,
 
     /// The original version of the document
-    original: PathBuf,
+    original: Option<PathBuf>,
 
     /// The unedited version of the document
     ///
@@ -53,16 +53,16 @@ impl Cli {
 
         let encode_options = self.encode_options.build(
             Some(&edited),
-            Some(&original),
+            original.as_deref(),
             Format::Markdown,
             StripOptions::default(),
             None,
             Vec::new(),
         );
 
-        codecs::merge(
+        codecs::reverse(
             &edited,
-            &original,
+            original.as_deref(),
             unedited.as_deref(),
             decode_options,
             encode_options,

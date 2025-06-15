@@ -83,7 +83,7 @@ impl Codec for DocxCodec {
         &self,
         path: &Path,
         options: Option<DecodeOptions>,
-    ) -> Result<(Node, DecodeInfo)> {
+    ) -> Result<(Node, Option<Node>, DecodeInfo)> {
         let pandoc = pandoc_from_format("", Some(path), PANDOC_FORMAT, &options).await?;
         let (mut node, info) = root_from_pandoc(pandoc, Format::Docx, &options)?;
 
@@ -103,6 +103,7 @@ impl Codec for DocxCodec {
             }
         }
 
+        // If a cache is specified, or embedded in the DOCX, then use it to reconstitute the node
         let cache = if let Some(cache) = options.and_then(|options| options.cache) {
             let (cache, ..) = JsonCodec.from_path(&cache, None).await?;
             Some(cache)
@@ -112,11 +113,23 @@ impl Codec for DocxCodec {
         } else {
             None
         };
-        if let Some(cache) = cache {
+        if let Some(cache) = cache.clone() {
             reconstitute(&mut node, cache);
         }
 
-        Ok((node, info))
+        // If a unedited version of the document is embedded in the DOCX, then add it to the
+        // decoding info
+        let unedited = if let Some(unedited) = data.get("unedited.json") {
+            let (mut unedited, ..) = JsonCodec.from_str(unedited, None).await?;
+            if let Some(cache) = cache {
+                reconstitute(&mut unedited, cache);
+            }
+            Some(unedited)
+        } else {
+            None
+        };
+
+        Ok((node, unedited, info))
     }
 
     async fn to_path(
@@ -181,9 +194,10 @@ impl Codec for DocxCodec {
             Ok(info)
         }?;
 
-        // Add any embeddings
-        let mut embeddings = Vec::new();
+        // Add any custom data
+        let mut data = Vec::new();
         if reversible {
+            // Store node as JSON so the document can be reconstituted
             let (cache, ..) = JsonCodec
                 .to_string(
                     node,
@@ -194,7 +208,22 @@ impl Codec for DocxCodec {
                     }),
                 )
                 .await?;
-            embeddings.push(("cache.json".into(), cache));
+            data.push(("cache.json".into(), cache));
+
+            // Decode the DOCX (before adding cache) so that have a snapshot
+            // of unedited, but backed out version of root node for rebasing
+            let (unedited, ..) = DocxCodec.from_path(path, None).await?;
+            let (unedited, ..) = JsonCodec
+                .to_string(
+                    &unedited,
+                    Some(EncodeOptions {
+                        // Standalone so that schema version is included
+                        standalone: Some(true),
+                        ..Default::default()
+                    }),
+                )
+                .await?;
+            data.push(("unedited.json".into(), unedited));
         }
 
         // Collect custom properties
@@ -220,7 +249,7 @@ impl Codec for DocxCodec {
             }
         }
 
-        encode::data_and_properties(path, embeddings, properties)?;
+        encode::data_and_properties(path, data, properties)?;
 
         Ok(info)
     }

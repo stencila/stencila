@@ -9,7 +9,7 @@ use version::STENCILA_VERSION;
 use crate::{
     compile, convert, execute, lint,
     logging::{LoggingFormat, LoggingLevel},
-    merge, new, preview, render, sync, uninstall, upgrade,
+    reverse, new, preview, render, sync, uninstall, upgrade,
 };
 
 /// CLI subcommands and global options
@@ -109,7 +109,7 @@ pub enum Command {
     Query(document::cli::Query),
 
     Convert(convert::Cli),
-    Merge(merge::Cli),
+    Reverse(reverse::Cli),
     Sync(sync::Cli),
 
     Compile(compile::Cli),
@@ -162,7 +162,7 @@ impl Cli {
             Command::Query(query) => query.run().await?,
 
             Command::Convert(convert) => convert.run().await?,
-            Command::Merge(merge) => merge.run().await?,
+            Command::Reverse(reverse) => reverse.run().await?,
             Command::Sync(sync) => sync.run().await?,
 
             Command::Compile(compile) => compile.run().await?,
