@@ -14,13 +14,18 @@ pub struct Cli {
     /// The edited version of the document
     edited: PathBuf,
 
-    /// The original version of the document
+    /// The original source of the document
     original: Option<PathBuf>,
 
     /// The unedited version of the document
     ///
     /// This should be in the same format as the edited version.
     unedited: Option<PathBuf>,
+
+    /// The commit at which the edited document was generated
+    /// from the original
+    #[arg(long)]
+    commit: Option<String>,
 
     #[command(flatten)]
     decode_options: DecodeOptions,
@@ -43,6 +48,7 @@ impl Cli {
             edited,
             original,
             unedited,
+            commit,
             workdir,
             ..
         } = self;
@@ -64,6 +70,7 @@ impl Cli {
             &edited,
             original.as_deref(),
             unedited.as_deref(),
+            commit.as_deref(),
             decode_options,
             encode_options,
             workdir,

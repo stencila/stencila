@@ -407,6 +407,7 @@ pub async fn reverse(
     edited: &Path,
     original: Option<&Path>,
     unedited: Option<&Path>,
+    commit: Option<&str>,
     decode_options: DecodeOptions,
     mut encode_options: EncodeOptions,
     workdir: Option<PathBuf>,
@@ -420,7 +421,7 @@ pub async fn reverse(
     };
 
     // Decode the edited file because it may contain information on the
-    // original source & commit
+    // original source & commit not supplied as an argument
     let (edited_node, unedited_node, ..) =
         from_path_with_info(edited, Some(decode_options.clone())).await?;
 
@@ -435,6 +436,22 @@ pub async fn reverse(
     let Some(original) = original else {
         bail!("Relative path of original source file not specified and not available from edited document")
     };
+
+    let mut commit = commit.map(String::from);
+    if commit.is_none() {
+        if let Node::Article(Article { options, .. }) = &edited_node {
+            if let Some(value) = &options.commit {
+                commit = Some(value.to_string());
+            }
+        }
+    }
+
+    // If a commit is available then check the status of the file relative to the path
+    if let Some(commit) = commit {
+        if commit != "untracked" && commit != "dirty" {
+            check_git_status(&original, &commit, false)?;
+        }
+    }
 
     // Get the dir and file name of the original for intermediate files
     let original_dir = original
@@ -555,6 +572,7 @@ pub async fn reverse(
 #[tracing::instrument]
 fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> {
     let path_ = path.display();
+    let commit_short = &commit[..8.min(commit.len())];
 
     // Check if file has changed since the specified commit
     tracing::debug!("Checking git diff for {path_} against commit {commit}");
@@ -563,7 +581,7 @@ fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> {
         .output()?;
     if !diff_output.status.success() {
         let error = String::from_utf8_lossy(&diff_output.stderr);
-        bail!("Failed to get git diff: {error}");
+        bail!("Unable to check for changes in {path_} since commit {commit}: {error}");
     }
 
     if diff_output.stdout.is_empty() {
@@ -579,7 +597,8 @@ fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> {
         tracing::debug!("Force mode enabled, will create branch");
         true
     } else {
-        print!("Would you like to create a new branch at commit {commit}? (y/N): ");
+        print!("Original source file `{path_}` has changed since the edited file was generated from it.\n");
+        print!("Would you like to create a new branch at commit `{commit_short}` so edits can be applied correctly? (y/N): ");
         io::stdout().flush().unwrap();
 
         let mut input = String::new();
@@ -616,7 +635,7 @@ fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> {
         tracing::debug!("File {path_} has uncommitted changes that conflict with target commit");
 
         if !force {
-            print!("File {path_} has uncommitted changes that conflict with the target commit.\n");
+            print!("File `{path_}` has uncommitted changes.\n");
             print!("Would you like to stash changes before creating branch? (y/N): ");
             io::stdout().flush().unwrap();
 
@@ -653,7 +672,6 @@ fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> {
 
     // Generate a branch name based on the path and the commit hash
     let path_kebab = path.to_string_lossy().to_kebab_case();
-    let commit_short = &commit[..8];
     let branch_name = format!("reverse-{path_kebab}-{commit_short}");
 
     // Create and checkout the new branch at the specified commit
