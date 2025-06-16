@@ -1388,7 +1388,18 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<
         ),
 
         mdast::Node::Paragraph(mdast::Paragraph { children, position }) => {
-            let inlines = mds_to_inlines(children, context);
+            let mut inlines = mds_to_inlines(children, context);
+
+            if !context.preserve_newlines {
+                // Replace newlines in paragraphs with a space
+                for inline in inlines.iter_mut() {
+                    if let Inline::Text(Text { value, .. }) = inline {
+                        if value.contains('\n') {
+                            value.string = value.replace('\n', " ");
+                        }
+                    }
+                }
+            }
 
             let block = if let (
                 1,
@@ -1773,8 +1784,20 @@ fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
     }
 }
 
-fn mds_to_quote_block_or_admonition(mds: Vec<mdast::Node>, context: &mut Context) -> Block {
-    let mut content = mds_to_blocks(mds, context);
+fn mds_to_quote_block_or_admonition(mut mds: Vec<mdast::Node>, context: &mut Context) -> Block {
+    let mut content = Vec::new();
+    if let Some(mdast::Node::Paragraph(..)) = mds.first() {
+        // If the first node is a paragraph (usually the case) then
+        // convert it to a block with newlines preserved for the following
+        // parsing of the first line
+        context.preserve_newlines = true;
+        if let Some((block, position)) = md_to_block(mds.remove(0), context) {
+            context.map_position(&position, block.node_type(), block.node_id());
+            content.push(block);
+        }
+        context.preserve_newlines = false;
+    }
+    content.append(&mut mds_to_blocks(mds, context));
 
     let mut first_para = content.first_mut().and_then(|node| {
         if let Block::Paragraph(para) = node {

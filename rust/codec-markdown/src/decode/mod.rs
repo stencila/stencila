@@ -69,7 +69,7 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
 
     // Transform MDAST to blocks
     let mut context = Context::new(format);
-    let content = blocks::mds_to_blocks(children, &mut context);
+    let content = mds_to_blocks(children, &mut context);
 
     // Decode frontmatter (which may have a `type`, but defaults to `Article`)
     let mut node = if let Some(yaml) = context.yaml.take() {
@@ -338,6 +338,12 @@ struct Context {
 
     /// Start positions of nodes
     map_stack: Vec<(usize, NodeType, NodeId)>,
+
+    /// Preserve newlines in paragraphs
+    /// 
+    /// By default newlines in paragraphs are converted to a single space.
+    /// But in admonitions, for correct parsing, they need to be retained.
+    preserve_newlines: bool
 }
 
 impl Context {

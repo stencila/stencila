@@ -1,0 +1,16 @@
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Newlines in Markdown paragraphs are decoded to a single space."
+          }
+        }
+      ]
+    }
+  ]
+}
