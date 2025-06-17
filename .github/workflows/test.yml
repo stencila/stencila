@@ -107,6 +107,10 @@ jobs:
         uses: browser-actions/setup-chrome@v1
       - run: which chrome
 
+      - name: Setup Pandoc
+        uses: pandoc/actions/setup@v1
+      - run: which pandoc
+
       - name: Show disk usage
         run: df -h && du -hd1
 
