@@ -5,9 +5,8 @@ use ollama_rs::{
     generation::{
         chat::{request::ChatMessageRequest, ChatMessage, MessageRole},
         images::Image,
-        options::GenerationOptions,
     },
-    models::LocalModel,
+    models::{LocalModel, ModelOptions},
     Ollama,
 };
 
@@ -170,7 +169,7 @@ impl Model for OllamaModel {
         let mut request = ChatMessageRequest::new(self.model.clone(), messages);
 
         // Map options to Ollama options
-        let mut options = GenerationOptions::default();
+        let mut options = ModelOptions::default();
         macro_rules! map_option {
             ($from:ident, $to:ident) => {
                 if let Some(value) = &task.$from {
