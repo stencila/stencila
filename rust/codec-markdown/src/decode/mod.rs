@@ -340,10 +340,10 @@ struct Context {
     map_stack: Vec<(usize, NodeType, NodeId)>,
 
     /// Preserve newlines in paragraphs
-    /// 
+    ///
     /// By default newlines in paragraphs are converted to a single space.
     /// But in admonitions, for correct parsing, they need to be retained.
-    preserve_newlines: bool
+    preserve_newlines: bool,
 }
 
 impl Context {

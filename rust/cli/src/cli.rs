@@ -9,7 +9,7 @@ use version::STENCILA_VERSION;
 use crate::{
     compile, convert, execute, lint,
     logging::{LoggingFormat, LoggingLevel},
-    reverse, new, preview, render, sync, uninstall, upgrade,
+    new, preview, render, reverse, sync, uninstall, upgrade,
 };
 
 /// CLI subcommands and global options

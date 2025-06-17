@@ -310,11 +310,28 @@ fn table_from_pandoc(table: pandoc::Table, context: &mut PandocDecodeContext) ->
     let label = get_attr(&table.attr, "label");
     let label_automatically = label.is_some().then_some(false);
 
-    let caption = blocks_from_pandoc(table.caption.long, context);
-    let caption = match caption.is_empty() {
-        true => None,
-        false => Some(caption),
-    };
+    // Remove any leading table label, semicolon and space. These can be added
+    // by software such as Word or Libre Office when editing DOCX or ODT but
+    // Stencila treats "Table X" as being separate to the caption itself.
+    let mut caption = table.caption.long;
+    if let Some(pandoc::Block::Para(para)) = caption.first_mut() {
+        if let Some(pandoc::Inline::Str(str)) = para.first() {
+            if str.starts_with("Table") && str.ends_with(":") {
+                para.remove(0);
+            }
+        }
+        if let Some(pandoc::Inline::Str(str)) = para.first() {
+            if str == ":" {
+                para.remove(0);
+            }
+        }
+        if matches!(para.first(), Some(pandoc::Inline::Space)) {
+            para.remove(0);
+        }
+    }
+
+    let caption = blocks_from_pandoc(caption, context);
+    let caption = (!caption.is_empty()).then_some(caption);
 
     let head: Vec<TableRow> = table
         .head

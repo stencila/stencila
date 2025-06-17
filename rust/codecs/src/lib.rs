@@ -577,7 +577,7 @@ fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> {
     // Check if file has changed since the specified commit
     tracing::debug!("Checking git diff for {path_} against commit {commit}");
     let diff_output = Command::new("git")
-        .args(&["diff", commit, "--", path.to_str().unwrap_or("")])
+        .args(["diff", commit, "--", path.to_str().unwrap_or("")])
         .output()?;
     if !diff_output.status.success() {
         let error = String::from_utf8_lossy(&diff_output.stderr);
@@ -597,9 +597,9 @@ fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> {
         tracing::debug!("Force mode enabled, will create branch");
         true
     } else {
-        print!("Original source file `{path_}` has changed since the edited file was generated from it.\n");
+        println!("Original source file `{path_}` has changed since the edited file was generated from it.");
         print!("Would you like to create a new branch at commit `{commit_short}` so edits can be applied correctly? (y/N): ");
-        io::stdout().flush().unwrap();
+        io::stdout().flush()?;
 
         let mut input = String::new();
         io::stdin()
@@ -620,7 +620,7 @@ fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> {
     // Check if the file has uncommitted changes
     tracing::debug!("Checking if file {path_} has uncommitted changes");
     let file_status_output = Command::new("git")
-        .args(&["status", "--porcelain", "--", path.to_str().unwrap_or("")])
+        .args(["status", "--porcelain", "--", path.to_str().unwrap_or("")])
         .output()?;
     if !file_status_output.status.success() {
         let error = String::from_utf8_lossy(&file_status_output.stderr);
@@ -635,9 +635,9 @@ fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> {
         tracing::debug!("File {path_} has uncommitted changes that conflict with target commit");
 
         if !force {
-            print!("File `{path_}` has uncommitted changes.\n");
+            println!("File `{path_}` has uncommitted changes.");
             print!("Would you like to stash changes before creating branch? (y/N): ");
-            io::stdout().flush().unwrap();
+            io::stdout().flush()?;
 
             let mut input = String::new();
             io::stdin()
@@ -655,7 +655,7 @@ fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> {
         // Stash the changes
         tracing::info!("Stashing uncommitted changes");
         let stash_output = Command::new("git")
-            .args(&[
+            .args([
                 "stash",
                 "push",
                 "-m",
@@ -678,7 +678,7 @@ fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> {
     tracing::debug!("Executing git checkout -b {} {}", branch_name, commit);
     tracing::info!("Creating branch '{}' at commit {}", branch_name, commit);
     let branch_result = Command::new("git")
-        .args(&["checkout", "-b", &branch_name, commit])
+        .args(["checkout", "-b", &branch_name, commit])
         .status()
         .wrap_err("Failed to execute git checkout")?;
 
@@ -686,7 +686,7 @@ fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> {
         // If we stashed changes, try to restore them
         if stashed {
             tracing::debug!("Branch creation failed, attempting to restore stashed changes");
-            let _ = Command::new("git").args(&["stash", "pop"]).status();
+            let _ = Command::new("git").args(["stash", "pop"]).status();
         }
         bail!("Failed to create branch. The commit may not exist");
     }
