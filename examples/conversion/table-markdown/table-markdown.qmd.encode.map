@@ -1,0 +1,20 @@
+start     end        offsets   node_type+property                   authorship
+     0     69        (0, 69)   Text.value
+     0     69         (0, 0)   Text
+     0     69         (0, 0)   Paragraph.content
+     0     70         (0, 1)   Paragraph
+    72     97       (72, 27)   TableCell
+    98    115       (26, 18)   TableCell
+    71    117       (-27, 2)   TableRow
+   164    189       (93, 72)   TableCell
+   190    207       (26, 18)   TableCell
+   163    209       (-27, 2)   TableRow
+   210    235       (47, 26)   TableCell
+   236    253       (26, 18)   TableCell
+   209    255       (-27, 2)   TableRow
+   256    281       (47, 26)   TableCell
+   282    299       (26, 18)   TableCell
+   255    301       (-27, 2)   TableRow
+    71    301      (-184, 0)   Table
+     0    302       (-71, 1)   Article.content
+     0    302         (0, 0)   Article

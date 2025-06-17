@@ -1,0 +1,7 @@
+Examples of table in Markdown with cell contents other than just text
+
+| _Emphasized header_     | `Code header`   |
+| ----------------------- | --------------- |
+| `Code inline`           | **Strong cell** |
+| `Code expression`{exec} | {{ 2 * 2 }}     |
+| $E = mc^2$              | H~2~0           |
