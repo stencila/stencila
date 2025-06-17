@@ -1213,7 +1213,7 @@ dependencies = [
  "format",
  "node-path",
  "node-url",
- "rand 0.9.0",
+ "rand 0.9.1",
 ]
 
 [[package]]
@@ -1293,7 +1293,7 @@ dependencies = [
  "codec",
  "codec-latex",
  "codec-pandoc",
- "rand 0.9.0",
+ "rand 0.9.1",
 ]
 
 [[package]]
@@ -3794,7 +3794,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc2f4eb4bc735547cfed7c0a4922cbd04a4655978c09b54f1f7b228750664c34"
 dependencies = [
  "cfg-if",
- "windows-targets 0.52.6",
+ "windows-targets 0.48.5",
 ]
 
 [[package]]
@@ -4507,7 +4507,7 @@ version = "0.0.0"
 dependencies = [
  "common",
  "derive_more",
- "rand 0.9.0",
+ "rand 0.9.1",
 ]
 
 [[package]]
@@ -5285,7 +5285,7 @@ dependencies = [
  "dirs 0.0.0",
  "kernel",
  "model",
- "rand 0.9.0",
+ "rand 0.9.1",
  "semver",
  "which",
 ]
@@ -5429,7 +5429,7 @@ dependencies = [
  "bitflags 2.9.1",
  "lazy_static",
  "num-traits",
- "rand 0.9.0",
+ "rand 0.9.1",
  "rand_chacha 0.9.0",
  "rand_xorshift",
  "regex-syntax 0.8.5",
@@ -5773,13 +5773,12 @@ dependencies = [
 
 [[package]]
 name = "rand"
-version = "0.9.0"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3779b94aeb87e8bd4e834cee3650289ee9e0d5677f976ecdb6d219e5f4f6cd94"
+checksum = "9fbfd9d094a40bf3ae768db9361049ace4c0e04a4fd6b359518bd7b73a73dd97"
 dependencies = [
  "rand_chacha 0.9.0",
  "rand_core 0.9.0",
- "zerocopy 0.8.14",
 ]
 
 [[package]]
@@ -6848,7 +6847,7 @@ dependencies = [
  "document",
  "format",
  "mime_guess",
- "rand 0.9.0",
+ "rand 0.9.1",
  "tower-cookies",
  "tower-http",
  "version",
