@@ -3751,9 +3751,8 @@ dependencies = [
 
 [[package]]
 name = "latex2mathml"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "678cf5bdb3ba63a264e6e0c9eee36538ca1d2da0afa4dd801c1f96309e710765"
+version = "0.3.0"
+source = "git+https://github.com/TheClams/latex2mathml?rev=26cdf2be7f58663b3274fadf4118e9ec86ca21ce#26cdf2be7f58663b3274fadf4118e9ec86ca21ce"
 
 [[package]]
 name = "layout-rs"

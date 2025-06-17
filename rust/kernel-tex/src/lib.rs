@@ -198,4 +198,15 @@ mod tests {
 
         Ok(())
     }
+
+    /// Regression test for https://github.com/stencila/stencila/issues/2567
+    #[tokio::test]
+    async fn cases() -> Result<()> {
+        let mut instance = TexKernelInstance::new();
+
+        let (.., messages) = instance.evaluate(r"\begin{cases}\end{cases}").await?;
+        assert_eq!(messages, vec![]);
+
+        Ok(())
+    }
 }

@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 kernel = { path = "../kernel" }
-latex2mathml = "0.2.3"
+latex2mathml = { git = "https://github.com/TheClams/latex2mathml", rev = "26cdf2be7f58663b3274fadf4118e9ec86ca21ce" }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
