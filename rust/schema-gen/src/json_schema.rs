@@ -12,7 +12,7 @@ use common::{
         io::AsyncWriteExt,
     },
 };
-use schemars::gen::SchemaSettings;
+use schemars::generate::SchemaSettings;
 
 use crate::{schema::Schema, schemas::Schemas};
 
@@ -34,9 +34,7 @@ impl Schemas {
         let path = dir.join("meta.schema.json");
         let mut file = File::create(path).await?;
 
-        let settings = SchemaSettings::draft07().with(|s| {
-            s.option_add_null_type = false;
-        });
+        let settings = SchemaSettings::draft07();
         let gen = settings.into_generator();
         let schema = gen.into_root_schema_for::<Schema>();
 

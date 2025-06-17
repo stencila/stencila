@@ -951,7 +951,7 @@ where
 }
 
 /// Set the JSON Schema as allowing for an optional string or array of strings
-fn schema_string_or_array(_: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
+fn schema_string_or_array(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
     serde_json::from_value(json!({
         "anyOf": [
             {
