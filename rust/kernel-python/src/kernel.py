@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-# We are using `pyright` for type checking. We disable these as the imports are
-# not necessarily there. And the unbound variables occur because of the
-# optional imports.
+# We are using `ruff` and `pyright` for linting and  type checking.
+# We disable these checks as the imports are not necessarily there.
+# The unbound variables occur because of the optional imports.
 #
+# ruff: noqa: PLC0415
 # pyright: reportMissingImports=false
 # pyright: reportPossiblyUnboundVariable = false
 
@@ -23,8 +24,7 @@ from typing import Any, Callable, Literal, Optional, TypedDict, Union, get_type_
 # 3.9 does not have `type` or TypeAlias.
 PrimitiveType = Union[str, int, float, bool, None]
 
-
-# TODO: This is just a first pass at typing. It could be improved.
+# Types
 #
 # We are partially constrained by relying on 3.9 and not wanting to to import
 # `typing_extensions`.
@@ -34,6 +34,7 @@ PrimitiveType = Union[str, int, float, bool, None]
 #
 # What we have here is useful, however, because this provides an overview of
 # the excepted types that are returned via the API.
+
 class ArrayHint(TypedDict):
     type: Literal["ArrayHint"]
     length: int
@@ -97,8 +98,6 @@ class SoftwareApplication(TypedDict):
     software_version: str
     operating_system: str
 
-
-# Used to track imports
 class SoftwareSourceCode(TypedDict):
     type: Literal["SoftwareSourceCode"]
     name: str
