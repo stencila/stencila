@@ -7,7 +7,7 @@ edition = "2021"
 insta = { version = "1.43.1", features = ["json", "yaml", "redactions"] }
 ntest = "0.9.3"
 pretty_assertions = "1.4.1"
-proptest = "1.6.0"
+proptest = "1.7.0"
 
 [lints]
 workspace = true

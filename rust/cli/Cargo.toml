@@ -14,7 +14,7 @@ tokio-console = ["console-subscriber"]
 [dependencies]
 cli-utils = { path = "../cli-utils" }
 codecs = { path = "../codecs" }
-color-eyre = { version = "0.6.3", features = ["issue-url"] }
+color-eyre = { version = "0.6.5", features = ["issue-url"] }
 common = { path = "../common" }
 console-subscriber = { version = "0.4.1", optional = true }
 dirs = { path = "../dirs" }
@@ -37,7 +37,7 @@ server = { path = "../server" }
 tracing-error = "0.2.1"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter", "json"] }
 version = { path = "../version" }
-webbrowser = "1.0.4"
+webbrowser = "1.0.5"
 zip = { workspace = true }
 
 [lints.rust]

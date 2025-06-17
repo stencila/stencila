@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 common = { path = "../common" }
 dirs = { path = "../dirs" }
-fastembed = "4.8.0"
+fastembed = "4.8.1"
 
 [lints]
 workspace = true
