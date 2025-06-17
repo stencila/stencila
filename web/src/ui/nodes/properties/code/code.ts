@@ -371,11 +371,11 @@ export class UINodeCode extends LitElement {
     const authorshipMarkers = this.getAuthorshipMarkers()
     this.authorshipExtensions = authorshipMarkers
       ? [
-        EditorView.decorations.of(
-          createProvenanceDecorations(authorshipMarkers)
-        ),
-        provenanceTooltip(authorshipMarkers, this.diagnostics),
-      ]
+          EditorView.decorations.of(
+            createProvenanceDecorations(authorshipMarkers)
+          ),
+          provenanceTooltip(authorshipMarkers, this.diagnostics),
+        ]
       : []
 
     this.viewEditable = new Compartment()
