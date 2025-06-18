@@ -3,7 +3,7 @@
 # A script to download the CLI binary for the platform
 # and put it in the `cli` subdir.
 
-VERSION="v2.0.2"
+VERSION="v2.2.0"
 
 # Detect the operating system
 OS=$(uname -s)

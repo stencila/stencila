@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.3.0 2025-06-19
+
+- Based on Stencila CLI [v2.2.0](https://github.com/stencila/stencila/releases/tag/v2.0.2) which has various fixes and updates including new Kuzu and DocsQL kernels.
+
 ## 0.2.1 2025-02-25
 
 - Based on Stencila CLI [v2.0.2](https://github.com/stencila/stencila/releases/tag/v2.0.2)
