@@ -357,7 +357,7 @@ impl MarkdownEncodeContext {
         self.content.push('{');
         self.content.push_str(name);
         for option in options {
-            self.content.push_str(" ");
+            self.content.push(' ');
             self.content.push_str(&option);
         }
         self.content.push_str("}`");

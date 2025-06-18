@@ -267,7 +267,9 @@ fn myst_role(input: &mut Located<&str>) -> ModalResult<Inline> {
                 })
             } else {
                 // If the name is not recognized then reconstitute the input as plain text
-                Inline::Text(Text::from(&["{", name_and_options, "}`", value, "`"].concat()))
+                Inline::Text(Text::from(
+                    &["{", name_and_options, "}`", value, "`"].concat(),
+                ))
             }
         })
         .parse_next(input)
