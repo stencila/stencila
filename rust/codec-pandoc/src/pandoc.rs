@@ -27,6 +27,16 @@ use codec::{
     DecodeOptions, EncodeOptions,
 };
 use pandoc_types::definition::Pandoc;
+use which::which;
+
+/// Check that Pandoc is available
+fn pandoc_available() -> Result<()> {
+    if which("pandoc").is_err() {
+        bail!("Pandoc is not available on $PATH. Perhaps it needs to be installed?")
+    }
+
+    Ok(())
+}
 
 /// Call Pandoc binary to convert some input content to Pandoc JSON.
 #[tracing::instrument(skip(input))]
@@ -39,6 +49,7 @@ pub async fn pandoc_from_format(
     let json = if format == "pandoc" {
         input.to_string()
     } else {
+        pandoc_available()?;
         tracing::debug!("Spawning pandoc to parse `{format}`");
 
         let mut args = options
@@ -98,6 +109,7 @@ pub async fn pandoc_to_format(
         return Ok(json.to_string());
     }
 
+    pandoc_available()?;
     tracing::debug!("Spawning pandoc to generate `{format}`");
 
     let options = options.clone().unwrap_or_default();
@@ -151,6 +163,9 @@ pub(crate) async fn format_to_path(
     path: &Path,
     options: &Option<EncodeOptions>,
 ) -> Result<()> {
+    pandoc_available()?;
+    tracing::debug!("Spawning pandoc to create {}", path.display());
+
     let options = options.clone().unwrap_or_default();
     let mut args = options.tool_args.clone();
 
