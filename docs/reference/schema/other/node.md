@@ -23,7 +23,6 @@ The `Node` type has these members:
 - [`UnsignedInteger`](https://stencila.ghost.io/docs/reference/schema/unsigned-integer)
 - [`Number`](https://stencila.ghost.io/docs/reference/schema/number)
 - [`String`](https://stencila.ghost.io/docs/reference/schema/string)
-- [`Cord`](https://stencila.ghost.io/docs/reference/schema/cord)
 - [`Array`](https://stencila.ghost.io/docs/reference/schema/array)
 - [`Admonition`](https://stencila.ghost.io/docs/reference/schema/admonition)
 - [`Annotation`](https://stencila.ghost.io/docs/reference/schema/annotation)
@@ -152,6 +151,7 @@ The `Node` type has these members:
 - [`VideoObject`](https://stencila.ghost.io/docs/reference/schema/video-object)
 - [`Walkthrough`](https://stencila.ghost.io/docs/reference/schema/walkthrough)
 - [`WalkthroughStep`](https://stencila.ghost.io/docs/reference/schema/walkthrough-step)
+- [`Cord`](https://stencila.ghost.io/docs/reference/schema/cord)
 - [`Object`](https://stencila.ghost.io/docs/reference/schema/object)
 
 # Bindings
