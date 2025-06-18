@@ -68,12 +68,22 @@ impl MarkdownCodec for CodeExpression {
 
         if matches!(context.format, Format::Myst) {
             context
-                .merge_losses(lost_options!(self, programming_language, execution_mode))
-                .myst_role("eval", |context| {
-                    context.push_prop_str(NodeProperty::Code, &self.code);
-                });
+                .merge_losses(lost_options!(self, execution_mode, execution_bounds))
+                .myst_role(
+                    "eval",
+                    if let Some(lang) = &self.programming_language {
+                        vec![lang.to_string()]
+                    } else {
+                        vec![]
+                    },
+                    |context| {
+                        context.push_prop_str(NodeProperty::Code, &self.code);
+                    },
+                );
         } else if matches!(context.format, Format::Qmd) {
-            context.push_str("`");
+            context
+                .merge_losses(lost_options!(self, execution_mode, execution_bounds))
+                .push_str("`");
 
             if let Some(lang) = &self.programming_language {
                 context

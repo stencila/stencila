@@ -241,15 +241,33 @@ fn myst_role(input: &mut Located<&str>) -> ModalResult<Inline> {
         delimited('{', take_until(0.., '}'), '}'),
         delimited('`', take_until(0.., '`'), '`'),
     )
-        .map(|(name, value): (&str, &str)| {
+        .map(|(name_and_options, value): (&str, &str)| {
+            let mut name_and_opts = name_and_options.trim().split(" ");
+            let name = name_and_opts.next().unwrap_or_default();
             if name == "eval" {
+                const LANGS: &[&str] = &["javascript", "js", "python", "py", "r", "sql"];
+                let mut programming_language = None;
+                for option in name_and_opts {
+                    // Allow for language options e.g. {eval python}`1 + 2`
+                    if LANGS.contains(&option.to_lowercase().as_str()) {
+                        programming_language = Some(option.to_string());
+                        break;
+                    }
+                    // Allow for "class style" language option e.g. {eval .python}`1 + 2`
+                    if LANGS.contains(&[".", option].concat().as_str()) {
+                        programming_language = Some(option.trim_start_matches(".").to_string());
+                        break;
+                    }
+                }
+
                 Inline::CodeExpression(CodeExpression {
                     code: value.into(),
+                    programming_language,
                     ..Default::default()
                 })
             } else {
-                // Fallback to just text
-                Inline::Text(Text::from(&["{", name, "}`", value, "}"].concat()))
+                // If the name is not recognized then reconstitute the input as plain text
+                Inline::Text(Text::from(&["{", name_and_options, "}`", value, "`"].concat()))
             }
         })
         .parse_next(input)

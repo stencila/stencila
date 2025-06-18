@@ -350,12 +350,16 @@ impl MarkdownEncodeContext {
     /// Create a MyST role
     ///
     /// See spec at https://mystmd.org/spec/overview#roles
-    pub fn myst_role<C>(&mut self, name: &str, content: C) -> &mut Self
+    pub fn myst_role<C>(&mut self, name: &str, options: Vec<String>, content: C) -> &mut Self
     where
         C: Fn(&mut Self),
     {
         self.content.push('{');
         self.content.push_str(name);
+        for option in options {
+            self.content.push_str(" ");
+            self.content.push_str(&option);
+        }
         self.content.push_str("}`");
 
         content(self);
