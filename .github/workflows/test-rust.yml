@@ -28,19 +28,10 @@ jobs:
         include:
           - platform: ubuntu
             runner: ubuntu-latest-16core
-            ort_asset: linux-x64
-            ort_ext: tgz
-            install_dir: ./onnxruntime
           - platform: macos
             runner: macos-15
-            ort_asset: osx-x86_64
-            ort_ext: tgz
-            install_dir: ./onnxruntime
           - platform: windows
             runner: windows-latest
-            ort_asset: win-x64
-            ort_ext: zip
-            install_dir: C:\onnxruntime
 
     runs-on: ${{ matrix.runner }}
     
@@ -65,29 +56,6 @@ jobs:
         if: ${{ contains(inputs.platforms, 'windows') && matrix.platform == 'windows' }}
         run: choco install ninja --yes
 
-      - name: Download ONNX Runtime SDK
-        shell: bash
-        run: |
-          URL="https://github.com/microsoft/onnxruntime/releases/download/v${ORT_VERSION}/onnxruntime-${{ matrix.ort_asset }}-${ORT_VERSION}.${{ matrix.ort_ext }}"
-          echo "Downloading ONNX Runtime from $URL"
-          mkdir -p "${{ matrix.install_dir }}"
-          if [[ "${{ matrix.ort_ext }}" == "tgz" ]]; then
-            curl -sL "$URL" | tar zx --strip-components=1 -C "${{ matrix.install_dir }}"
-          else
-            curl -sL "$URL" -o onnxruntime.zip
-            # unzip into a temp dir, then move contents up one level
-            TMP="${{ matrix.install_dir }}_tmp"
-            rm -rf "$TMP"
-            unzip -q onnxruntime.zip -d "$TMP"
-            rsync -a "${TMP}/" "${{ matrix.install_dir }}/"
-            rm -rf "$TMP"
-          fi
-
       - name: Run tests
         if: ${{ contains(inputs.platforms, matrix.platform) }}
-        env:
-          ORT_STRATEGY: system
-          ORT_LIB_LOCATION: ${{ matrix.install_dir }}/lib
-          ORT_LIB_PROFILE: Release
-          ORT_PREFER_DYNAMIC_LINK: "0"
         run: make -C rust test
