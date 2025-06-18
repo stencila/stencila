@@ -1,4 +1,5 @@
 # Use the official Node.js image to build web clients and components
+# for embedding in the CLI binary
 FROM node:22 AS web
 
 # Set the working directory to /build and copy files into it
@@ -12,7 +13,7 @@ RUN cd web && npm run build
 
 
 
-# Use the official Rust image to build CLI
+# Use the official Rust image to build CLI binary
 FROM rust:1.85 AS cli
 
 # Set the working directory to /build and copy files into it
@@ -28,8 +29,8 @@ RUN cargo build --bin stencila --release
 
 
 
-# Use small distroless image
-FROM gcr.io/distroless/cc-debian12
+# Use Ubuntu version compatible with CLI
+FROM ubuntu:24.04
 
 # Copy the binary into the image from the CLI build stage
 COPY --from=cli /build/target/release/stencila /
