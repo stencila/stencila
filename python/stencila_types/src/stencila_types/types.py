@@ -3388,7 +3388,6 @@ Node = Union[
     UnsignedInteger,
     float,
     str,
-    Cord,
     Array,
     Admonition,
     Annotation,
@@ -3517,6 +3516,7 @@ Node = Union[
     VideoObject,
     Walkthrough,
     WalkthroughStep,
+    Cord,
     Object,
 ]
 """

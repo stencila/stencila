@@ -35,9 +35,7 @@ async fn roundtrip_basic() -> Result<()> {
                 ("boolean".into(), Primitive::Boolean(true)),
                 ("integer".into(), Primitive::Integer(123)),
                 ("number".into(), Primitive::Number(1.23)),
-                // This can not use the key "string" otherwise the whole node is
-                // decoded as a Cord.
-                ("_string".into(), Primitive::String("a string".into())),
+                ("string".into(), Primitive::String("a string".into())),
                 ("array".into(), serde_json::from_value(json!([1, 2, 3]))?),
                 (
                     "object".into(),

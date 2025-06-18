@@ -6,10 +6,11 @@ use std::str::FromStr;
 
 use common::{
     eyre::{bail, Result},
+    indexmap::IndexMap,
     itertools::Itertools,
-    serde_yaml,
+    serde_json, serde_yaml,
 };
-use schema::{Array, Article, Date, IntegerOrString, Primitive};
+use schema::{Array, Article, Date, IntegerOrString, Node, Object, Primitive};
 
 /// Test that unrecognized keys are collected into the `Article.extra`
 /// primitive [`Object`].
@@ -76,6 +77,48 @@ content: []
         bail!("expected an integer")
     };
     assert_eq!(*integer, 2);
+
+    Ok(())
+}
+
+/// Test deserialization of potentially ambiguous JSON string to [`Node`] enum
+#[test]
+fn ambiguous_value() -> Result<()> {
+    // Regression tests for issue https://github.com/stencila/stencila/issues/2616
+    // which was due to arrays of string previously being deserialized as a Cord
+    assert_eq!(
+        serde_json::from_str::<Node>(r#""one""#)?,
+        Node::String("one".into())
+    );
+    assert_eq!(
+        serde_json::from_str::<Node>(r#"["one"]"#)?,
+        Node::Array(Array(vec![Primitive::String("one".into())]))
+    );
+    assert_eq!(
+        serde_json::from_str::<Node>(r#"["one", "two"]"#)?,
+        Node::Array(Array(vec![
+            Primitive::String("one".into()),
+            Primitive::String("two".into())
+        ]))
+    );
+
+    // Should be deserialized to Object because does not have a "type" key
+    assert_eq!(
+        serde_json::from_str::<Node>(r#"{"key": 123}"#)?,
+        Node::Object(Object(IndexMap::from([(
+            "key".into(),
+            Primitive::Integer(123),
+        )])))
+    );
+
+    // Should be deserialized to Object, not Cord, because has "number" key (in addition to "string")
+    assert_eq!(
+        serde_json::from_str::<Node>(r#"{"number": 1.23, "string": "one"}"#)?,
+        Node::Object(Object(IndexMap::from([
+            ("number".into(), Primitive::Number(1.23),),
+            ("string".into(), Primitive::String("one".into()),)
+        ])))
+    );
 
     Ok(())
 }

@@ -68,8 +68,10 @@ impl Schemas {
         // Node union type
         // Order is important for deserialization correctness and performance since
         // serde attempts to deserialize in the order in the enum. We put primitives
-        // first (for fast deserialization for kernel outputs) except for `Object` which is
-        // last so it does not "consume" entity types (which are also objects).
+        // first (for fast deserialization for kernel outputs) except for `Cord` which
+        // can get be deserialized from a plain string or object (with 'string' and
+        // 'authorship' fields) and `Object` which is last so it does not "consume"
+        // entity types (which are also objects) and
         let mut any_of = [
             "Null",
             "Boolean",
@@ -77,7 +79,6 @@ impl Schemas {
             "UnsignedInteger",
             "Number",
             "String",
-            "Cord",
             "Array",
         ]
         .iter()
@@ -104,10 +105,16 @@ impl Schemas {
         entities.sort_by(|a, b| a.r#ref.cmp(&b.r#ref));
         any_of.append(&mut entities);
 
-        any_of.push(Schema {
-            r#ref: Some("Object".to_string()),
-            ..Default::default()
-        });
+        any_of.append(&mut vec![
+            Schema {
+                r#ref: Some("Cord".to_string()),
+                ..Default::default()
+            },
+            Schema {
+                r#ref: Some("Object".to_string()),
+                ..Default::default()
+            },
+        ]);
 
         let title = "Node".to_string();
         self.schemas.insert(

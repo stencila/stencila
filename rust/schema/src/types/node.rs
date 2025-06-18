@@ -156,8 +156,6 @@ pub enum Node {
 
     String(String),
 
-    Cord(Cord),
-
     Array(Array),
 
     Admonition(Admonition),
@@ -413,6 +411,8 @@ pub enum Node {
     Walkthrough(Walkthrough),
 
     WalkthroughStep(WalkthroughStep),
+
+    Cord(Cord),
 
     Object(Object),
 }

@@ -83,7 +83,7 @@ impl From<Cord> for String {
 impl<'de> Deserialize<'de> for Cord {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         #[derive(Deserialize)]
-        #[serde(crate = "common::serde")]
+        #[serde(deny_unknown_fields, crate = "common::serde")]
         struct Map {
             string: String,
             #[serde(default)]

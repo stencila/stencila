@@ -374,6 +374,12 @@ console.log(a, b, c, d)",
                 ("Math.sqrt(16)", Node::Integer(4), None),
                 ("'a' + 'bc'", Node::String("abc".to_string()), None),
                 ("'ABC'.toLowerCase()", Node::String("abc".to_string()), None),
+                ("[1]", Node::Array(Array(vec![Primitive::Integer(1)])), None),
+                (
+                    "['one']",
+                    Node::Array(Array(vec![Primitive::String("one".into())])),
+                    None,
+                ),
                 (
                     "[...[1, 2], 3]",
                     Node::Array(Array(vec![

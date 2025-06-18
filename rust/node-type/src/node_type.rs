@@ -18,7 +18,6 @@ pub enum NodeType {
     UnsignedInteger,
     Number,
     String,
-    Cord,
     Array,
     Admonition,
     Annotation,
@@ -147,6 +146,7 @@ pub enum NodeType {
     VideoObject,
     Walkthrough,
     WalkthroughStep,
+    Cord,
     Object,
 
     /// Special node type for configuration structs

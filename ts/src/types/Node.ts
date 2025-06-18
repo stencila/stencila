@@ -145,7 +145,6 @@ export type Node =
   UnsignedInteger |
   number |
   string |
-  Cord |
   Array |
   Admonition |
   Annotation |
@@ -274,6 +273,7 @@ export type Node =
   VideoObject |
   Walkthrough |
   WalkthroughStep |
+  Cord |
   Object;
 
 /**

@@ -7,7 +7,6 @@ export type NodeType =
   | "UnsignedInteger"
   | "Number"
   | "String"
-  | "Cord"
   | "Array"
   | "Admonition"
   | "Annotation"
@@ -136,6 +135,7 @@ export type NodeType =
   | "VideoObject"
   | "Walkthrough"
   | "WalkthroughStep"
+  | "Cord"
   | "Object";
 
 export const NodeTypeList = [
@@ -145,7 +145,6 @@ export const NodeTypeList = [
   "UnsignedInteger",
   "Number",
   "String",
-  "Cord",
   "Array",
   "Admonition",
   "Annotation",
@@ -274,5 +273,6 @@ export const NodeTypeList = [
   "VideoObject",
   "Walkthrough",
   "WalkthroughStep",
+  "Cord",
   "Object",
 ];

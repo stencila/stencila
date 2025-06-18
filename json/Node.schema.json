@@ -21,9 +21,6 @@
       "$ref": "String.schema.json"
     },
     {
-      "$ref": "Cord.schema.json"
-    },
-    {
       "$ref": "Array.schema.json"
     },
     {
@@ -406,6 +403,9 @@
     },
     {
       "$ref": "WalkthroughStep.schema.json"
+    },
+    {
+      "$ref": "Cord.schema.json"
     },
     {
       "$ref": "Object.schema.json"
