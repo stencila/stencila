@@ -34,20 +34,20 @@ jobs:
             runner: windows-latest
 
     runs-on: ${{ matrix.runner }}
-    
+
     steps:
       - uses: actions/checkout@v4
         if: ${{ contains(inputs.platforms, matrix.platform) }}
-          
+
       - uses: dtolnay/rust-toolchain@master
         if: ${{ contains(inputs.platforms, matrix.platform) }}
         with:
           toolchain: ${{ env.RUST_VERSION }}
           components: clippy
-          
+
       - uses: Swatinem/rust-cache@v2
         if: ${{ contains(inputs.platforms, matrix.platform) }}
-      
+
       - name: Install uv
         if: ${{ contains(inputs.platforms, matrix.platform) }}
         uses: astral-sh/setup-uv@v5
@@ -55,6 +55,9 @@ jobs:
       - name: Install Ninja for Kuzu (Windows)
         if: ${{ contains(inputs.platforms, 'windows') && matrix.platform == 'windows' }}
         run: choco install ninja --yes
+
+      - name: Setup Pandoc
+        uses: pandoc/actions/setup@v1
 
       - name: Run tests
         if: ${{ contains(inputs.platforms, matrix.platform) }}
