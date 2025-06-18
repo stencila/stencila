@@ -25,7 +25,7 @@ cached = { version = "0.55.1", features = ["async"] }
 darling = "0.20.11"
 derive_more = { version = "2.0.1", features = ["display", "deref", "deref_mut", "into_iterator"] }
 directories = "6.0.0"
-flate2 = "1.1.1"
+flate2 = "1.1.2"
 lru = "0.13.0"
 mime = "0.3.17"
 mime_guess = "2.0.5"
@@ -37,7 +37,7 @@ semver = { version = "1.0.26", features = ["serde"] }
 smart-default = "0.7.1"
 syn = "2.0.103"
 test-log = { version = "0.2.17", default-features = false, features = ["trace"] }
-time = { version = "0.3.39", features = ["formatting"] }
+time = { version = "0.3.41", features = ["formatting"] }
 url = { version = "2.5.4", features = ["serde"] }
 which = "7.0.2"
 zip = "2.3.0"
