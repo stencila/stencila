@@ -91,6 +91,7 @@ The `Node` type has these members:
 - [`InstructionInline`](https://stencila.ghost.io/docs/reference/schema/instruction-inline)
 - [`InstructionMessage`](https://stencila.ghost.io/docs/reference/schema/instruction-message)
 - [`IntegerValidator`](https://stencila.ghost.io/docs/reference/schema/integer-validator)
+- [`Island`](https://stencila.ghost.io/docs/reference/schema/island)
 - [`Link`](https://stencila.ghost.io/docs/reference/schema/link)
 - [`List`](https://stencila.ghost.io/docs/reference/schema/list)
 - [`ListItem`](https://stencila.ghost.io/docs/reference/schema/list-item)

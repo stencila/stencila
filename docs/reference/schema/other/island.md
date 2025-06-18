@@ -1,39 +1,42 @@
 ---
-title: Execution Dependant
-description: A downstream execution dependant of a node.
+title: Island
+description: An island of content in a document.
 config:
   publish:
     ghost:
       type: post
-      slug: execution-dependant
+      slug: island
       state: publish
       tags:
       - '#doc'
       - '#schema'
-      - Flow
+      - Other
 ---
 
 # Properties
 
-The `ExecutionDependant` type has these properties:
+The `Island` type has these properties:
 
-| Name                | Description                                 | Type                                                                                                         | Inherited from                                                     | `JSON-LD @id`                        | Aliases                                    |
-| ------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------ | ------------------------------------------ |
-| `id`                | The identifier for this item.               | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                           | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id) | -                                          |
-| `dependantRelation` | The relation to the dependant.              | [`ExecutionDependantRelation`](https://stencila.ghost.io/docs/reference/schema/execution-dependant-relation) | -                                                                  | `stencila:dependantRelation`         | `dependant-relation`, `dependant_relation` |
-| `dependantNode`     | The node that is the dependant.             | [`ExecutionDependantNode`](https://stencila.ghost.io/docs/reference/schema/execution-dependant-node)         | -                                                                  | `stencila:dependantNode`             | `dependant-node`, `dependant_node`         |
-| `codeLocation`      | The location that the dependant is defined. | [`CodeLocation`](https://stencila.ghost.io/docs/reference/schema/code-location)                              | -                                                                  | `stencila:codeLocation`              | `code-location`, `code_location`           |
+| Name                 | Description                                        | Type                                                                      | Inherited from                                                     | `JSON-LD @id`                        | Aliases                                      |
+| -------------------- | -------------------------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------ | -------------------------------------------- |
+| `id`                 | The identifier for this item.                      | [`String`](https://stencila.ghost.io/docs/reference/schema/string)        | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id) | -                                            |
+| `content`            | The content within the section.                    | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*         | -                                                                  | `stencila:content`                   | -                                            |
+| `isAutomatic`        | Whether the island is automatically generated.     | [`Boolean`](https://stencila.ghost.io/docs/reference/schema/boolean)      | -                                                                  | `stencila:isAutomatic`               | `is-automatic`, `is_automatic`               |
+| `labelType`          | The type of the label for the island.              | [`LabelType`](https://stencila.ghost.io/docs/reference/schema/label-type) | -                                                                  | `stencila:labelType`                 | `label-type`, `label_type`                   |
+| `label`              | A short label for the chunk.                       | [`String`](https://stencila.ghost.io/docs/reference/schema/string)        | -                                                                  | `stencila:label`                     | -                                            |
+| `labelAutomatically` | Whether the label should be automatically updated. | [`Boolean`](https://stencila.ghost.io/docs/reference/schema/boolean)      | -                                                                  | `stencila:labelAutomatically`        | `label-automatically`, `label_automatically` |
+| `style`              | The style to apply to the island.                  | [`String`](https://stencila.ghost.io/docs/reference/schema/string)        | -                                                                  | `stencila:style`                     | -                                            |
 
 # Related
 
-The `ExecutionDependant` type is related to these types:
+The `Island` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
 # Formats
 
-The `ExecutionDependant` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
+The `Island` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
 | Format                                                                               | Encoding     | Decoding   | Support | Notes |
 | ------------------------------------------------------------------------------------ | ------------ | ---------- | ------- | ----- |
@@ -71,14 +74,14 @@ The `ExecutionDependant` type can be encoded (serialized) to, and/or decoded (de
 
 # Bindings
 
-The `ExecutionDependant` type is represented in:
+The `Island` type is represented in:
 
-- [JSON-LD](https://stencila.org/ExecutionDependant.jsonld)
-- [JSON Schema](https://stencila.org/ExecutionDependant.schema.json)
-- Python class [`ExecutionDependant`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/execution_dependant.py)
-- Rust struct [`ExecutionDependant`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_dependant.rs)
-- TypeScript class [`ExecutionDependant`](https://github.com/stencila/stencila/blob/main/ts/src/types/ExecutionDependant.ts)
+- [JSON-LD](https://stencila.org/Island.jsonld)
+- [JSON Schema](https://stencila.org/Island.schema.json)
+- Python class [`Island`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/island.py)
+- Rust struct [`Island`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/island.rs)
+- TypeScript class [`Island`](https://github.com/stencila/stencila/blob/main/ts/src/types/Island.ts)
 
 # Source
 
-This documentation was generated from [`ExecutionDependant.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionDependant.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
+This documentation was generated from [`Island.yaml`](https://github.com/stencila/stencila/blob/main/schema/Island.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

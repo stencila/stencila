@@ -36,7 +36,6 @@ The `SectionType` type has these members:
 - `Header`
 - `Footer`
 - `Iteration`
-- `Island`
 
 # Bindings
 

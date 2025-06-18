@@ -186,6 +186,7 @@ Support and degree of loss by node type:
 | [Enumeration](https://stencila.ghost.io/docs/reference/schema/enumeration)                   | 🟢 No loss | 🟢 No loss |       |
 | [Excerpt](https://stencila.ghost.io/docs/reference/schema/excerpt)                           | 🟢 No loss | 🟢 No loss |       |
 | [Grant](https://stencila.ghost.io/docs/reference/schema/grant)                               | 🟢 No loss | 🟢 No loss |       |
+| [Island](https://stencila.ghost.io/docs/reference/schema/island)                             | 🟢 No loss | 🟢 No loss |       |
 | [ModelParameters](https://stencila.ghost.io/docs/reference/schema/model_parameters)          | 🟢 No loss | 🟢 No loss |       |
 | [MonetaryGrant](https://stencila.ghost.io/docs/reference/schema/monetary_grant)              | 🟢 No loss | 🟢 No loss |       |
 | [Organization](https://stencila.ghost.io/docs/reference/schema/organization)                 | 🟢 No loss | 🟢 No loss |       |
