@@ -1092,11 +1092,11 @@ async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
             Ok(Some(line)) => line.to_string(),
             Ok(None) => break,
             Err(error) => {
-                bail!("When receiving outputs from kernel: {}", error)
+                bail!("When receiving outputs from kernel: {error}")
             }
         };
 
-        //tracing::trace!("Received on output stream: {}", &line);
+        //tracing::trace!("Received on output stream: {line}");
         if !handle_line(&line, &mut item, &mut items) {
             break;
         }
@@ -1112,6 +1112,7 @@ async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
             }
         })
         .collect();
+    //tracing::trace!("Parsed outputs: {outputs:?}");
 
     let mut item = String::new();
     let mut items = Vec::new();
@@ -1121,7 +1122,7 @@ async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
             Ok(Some(line)) => line.to_string(),
             Ok(None) => break,
             Err(error) => {
-                bail!("When receiving outputs from kernel: {}", error)
+                bail!("When receiving outputs from kernel: {error}")
             }
         };
 
