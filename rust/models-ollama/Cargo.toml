@@ -6,7 +6,11 @@ edition = "2021"
 [dependencies]
 cached = { workspace = true }
 model = { path = "../model" }
-ollama-rs = { version = "0.3.1", features = ["rustls", "stream"] }
+# Ensure that rustls is used to avoid adding a dependence on OpenSSL
+ollama-rs = { version = "0.3.1", default-features = false, features = [
+    "rustls",
+    "stream",
+] }
 
 [lints]
 workspace = true
