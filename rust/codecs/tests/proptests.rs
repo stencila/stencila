@@ -180,7 +180,19 @@ proptest! {
             ..Default::default()
         });
 
-        assert_eq!(roundtrip(Format::Pandoc, &article, None, None).unwrap(), article);
+        let mut round_tripped = roundtrip(Format::Pandoc, &article, None, None).unwrap();
+
+        round_tripped.strip(&StripTargets {
+            properties: vec![
+                // Strip the `label_only` property of links to avoid this being implied
+                // to be true when the target is not HTTP and the content is a number
+                // (i.e. looks like a label only link to a table or figure)
+                "Link.label_only".into()
+            ],
+            ..Default::default()
+        });
+
+        assert_eq!(round_tripped, article);
     }
 }
 
