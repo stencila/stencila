@@ -1,0 +1,11 @@
+name = "web"
+compatibility_date = "2023-10-16"
+
+main = "web.ts"
+
+observability = { enabled = true }
+send_metrics = false
+
+[[r2_buckets]]
+binding = "WEB_DIST_BUCKET"
+bucket_name = "web-dist"
