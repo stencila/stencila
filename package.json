@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.2",
-    "@cloudflare/workers-types": "4.20250617.0",
+    "@cloudflare/workers-types": "4.20250619.0",
     "@eslint/js": "9.29.0",
     "@prettier/plugin-xml": "3.4.1",
     "@types/benchmark": "2.1.5",
@@ -29,8 +29,8 @@
     "depcheck": "1.4.7",
     "eslint": "9.29.0",
     "eslint-plugin-import": "2.31.0",
-    "eslint-plugin-lit": "1.15.0",
-    "eslint-plugin-wc": "2.2.1",
+    "eslint-plugin-lit": "2.1.1",
+    "eslint-plugin-wc": "3.0.1",
     "jest": "30.0.1",
     "prettier": "3.5.3",
     "process": "0.11.10",
@@ -41,6 +41,6 @@
     "tsup": "8.5.0",
     "typescript": "5.8.3",
     "typescript-eslint": "8.34.1",
-    "wrangler": "4.20.0"
+    "wrangler": "4.20.3"
   }
 }
