@@ -19,7 +19,6 @@ use codec::{
 use codec_dom::DomCodec;
 use codec_jsonld::JsonLdCodec;
 use codec_markdown::MarkdownCodec;
-use web_dist::Web;
 
 /// A codec for creating a Stencila Web Bundle (SWB)
 ///
@@ -103,10 +102,6 @@ impl Codec for SwbCodec {
                     }),
                 )
                 .await?;
-
-            // Add web dist to `~static`
-            let statics = temp_dir.path().join("~static");
-            Web::to_path(&statics, true)?;
         }
 
         if !self.no_jsonld {

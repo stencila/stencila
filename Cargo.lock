@@ -1335,7 +1335,6 @@ dependencies = [
  "codec-jsonld",
  "codec-markdown",
  "flate2",
- "web-dist",
 ]
 
 [[package]]
