@@ -135,7 +135,9 @@ if [[ ! -w "$INSTALL_DIR" ]]; then
 fi
 
 ###############################################################################
-# Resolve "latest" tag via GitHub API
+# Resolve "latest" tag by getting the URL that the latest release is redirected to
+# This approach is less brittle than making a request to the GitHub API (which
+# is rate limited) and parsing the response
 ###############################################################################
 if [[ "$VERSION" == "latest" ]]; then
   info "Determining latest version..."
@@ -147,12 +149,8 @@ if [[ "$VERSION" == "latest" ]]; then
     local attempt=1
     
     while [[ $attempt -le $retries ]]; do
-      if check_command jq; then
-        VERSION=$(curl -fsSL --retry 3 "https://api.github.com/repos/${REPO}/releases/latest" | jq -r .tag_name 2>/dev/null)
-      else
-        VERSION=$(curl -fsSL --retry 3 "https://api.github.com/repos/${REPO}/releases/latest" | 
-                  grep -o '"tag_name": "[^"]*' | cut -d'"' -f4)
-      fi
+      VERSION=$(curl -fsIL -o /dev/null -w '%{url_effective}' "https://github.com/$REPO/releases/latest" |
+        sed -E 's#.*/tag/([^[:space:]]+)#\1#')
       
       if [[ -n "$VERSION" ]]; then
         break
