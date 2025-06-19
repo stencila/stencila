@@ -1047,6 +1047,7 @@ dependencies = [
  "codec-text-trait",
  "lightningcss",
  "quick-xml 0.37.5",
+ "version",
 ]
 
 [[package]]

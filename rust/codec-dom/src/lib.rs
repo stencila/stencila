@@ -16,6 +16,7 @@ use codec_dom_trait::{
     DomCodec as DomCodecTrait, DomEncodeContext,
 };
 use codec_text_trait::to_text;
+use version::STENCILA_VERSION;
 
 /// A codec for DOM HTML
 pub struct DomCodec;
@@ -148,6 +149,8 @@ impl Codec for DomCodec {
                 })
                 .join("\n    ");
 
+            let static_prefix = format!("https://stencila.io/web/v{STENCILA_VERSION}");
+
             format!(
                 r#"<!DOCTYPE html>
 <html lang="en">
@@ -161,12 +164,12 @@ impl Codec for DomCodec {
     {og_image}
     {alternates}
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href="/~static/images/favicon.png" />
+    <link rel="icon" type="image/png" href="{static_prefix}/images/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" type="text/css" href="/~static/themes/{theme}.css" />
-    <link rel="stylesheet" type="text/css" href="/~static/views/dynamic.css" />
-    <script type="module" src="/~static/views/dynamic.js"></script>
+    <link rel="stylesheet" type="text/css" href="{static_prefix}/themes/{theme}.css" />
+    <link rel="stylesheet" type="text/css" href="{static_prefix}/views/dynamic.css" />
+    <script type="module" src="{static_prefix}/views/dynamic.js"></script>
   </head>
   <body>
     <stencila-dynamic-view view="dynamic">
