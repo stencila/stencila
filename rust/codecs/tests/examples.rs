@@ -85,63 +85,6 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             },
         ),
         (
-            "html".into(),
-            FormatConfig {
-                format: Format::Html,
-                encode: EncodeConfig {
-                    options: EncodeOptions {
-                        compact: Some(false),
-                        ..Default::default()
-                    },
-                    ..Default::default()
-                },
-                decode: DecodeConfig {
-                    // TODO
-                    skip: true,
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-        ),
-        (
-            "compact.html".into(),
-            FormatConfig {
-                format: Format::Html,
-                encode: EncodeConfig {
-                    options: EncodeOptions {
-                        compact: Some(true),
-                        ..Default::default()
-                    },
-                    ..Default::default()
-                },
-                decode: DecodeConfig {
-                    // TODO
-                    skip: true,
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-        ),
-        (
-            "standalone.html".into(),
-            FormatConfig {
-                format: Format::Html,
-                encode: EncodeConfig {
-                    options: EncodeOptions {
-                        standalone: Some(true),
-                        compact: Some(true),
-                        ..Default::default()
-                    },
-                    ..Default::default()
-                },
-                decode: DecodeConfig {
-                    skip: true,
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-        ),
-        (
             "json".into(),
             FormatConfig {
                 format: Format::Json,
