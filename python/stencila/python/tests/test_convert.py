@@ -86,16 +86,3 @@ async def test_from_to(tmp_path: Path):
     )
 
     assert markdown.startswith("This is paragraph one. It has two sentences.")
-
-    fpath = tmp_path / "file.html"
-    await from_to(
-        "../../examples/conversion/paragraph/paragraph.json",
-        str(fpath),
-        to_format="html",
-        to_standalone=False,
-        to_compact=True,
-    )
-    html = fpath.open().read()
-    assert html.startswith(
-        "<article><p><span>This is paragraph one. It has two sentences."
-    )

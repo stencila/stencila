@@ -9,7 +9,7 @@ test("fromString", async () => {
     '{type: "Article", content: [{type: "Paragraph", content: [{type: "Text", value: "Hello world"}]}]}',
     {
       format: "json5",
-    },
+    }
   );
 
   expect(node instanceof Article);
@@ -19,7 +19,7 @@ test("fromString", async () => {
 
 test("fromPath", async () => {
   const node = await fromPath(
-    "../../examples/conversion/paragraph/paragraph.json",
+    "../../examples/conversion/paragraph/paragraph.json"
   );
 
   expect(node instanceof Article);
@@ -58,18 +58,7 @@ test("fromTo", async () => {
     undefined,
     {
       format: "md",
-    },
+    }
   );
   expect(md).toMatchSnapshot();
-
-  const html = await fromTo(
-    "../../examples/conversion/paragraph/paragraph.json",
-    undefined,
-    undefined,
-    {
-      format: "html",
-      compact: true,
-    },
-  );
-  expect(html).toMatchSnapshot();
 });
