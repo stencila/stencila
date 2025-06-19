@@ -1,4 +1,4 @@
-# Workflow for triggering the `release-cli.yml` workflow when a version tag is created
+# Workflow for triggering various release workflows when a version tag is created
 
 name: Version
 
@@ -19,5 +19,8 @@ jobs:
         # Needed only because `gh` errors if not in a repo
         uses: actions/checkout@v4
 
-      - name: Trigger release workflow
+      - name: Trigger CLI release workflow
         run: gh workflow run release-cli.yml -f tag=${{ github.ref_name }}
+
+      - name: Trigger Web distribution publishing workflow
+        run: gh workflow run release-web.yml -f tag=${{ github.ref_name }}

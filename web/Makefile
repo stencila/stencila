@@ -43,23 +43,22 @@ audit: install
 	npm run unused
 	cd .. && npm run audit
 
-# Build the package
+# Build the distribution
 build: install clean
 	npm run build
 
-# Build in docker
-.docker:
-	docker build --no-cache -t stencila/web:latest .
-	touch $@
-build-in-docker: .docker
-	docker run --rm -it \
-		-v ./dist:/home/node/app/dist \
-		stencila/web:latest \
-		bash -c "npm run build"
+# Publish the distribution (requires rclone and relevant secrets)
+publish: build
+	RCLONE_CONFIG_R2_TYPE=s3 \
+	RCLONE_CONFIG_R2_PROVIDER=Cloudflare \
+	RCLONE_CONFIG_R2_ENV_AUTH=false \
+	RCLONE_CONFIG_R2_ENDPOINT=https://$(CF_ACCOUNT_ID).r2.cloudflarestorage.com \
+	RCLONE_CONFIG_R2_ACCESS_KEY_ID=$(R2_ACCESS_KEY_ID) \
+	RCLONE_CONFIG_R2_SECRET_ACCESS_KEY=$(R2_SECRET_ACCESS_KEY) \
+	rclone copy dist R2:web-dist/$(VERSION)  --immutable --checksum --progress
 
 # Clean up development artifacts
 clean:
-	rm -f .docker
 	mv dist/.gitignore dist.gitignore
 	rm -rf dist
 	mkdir dist

@@ -1,0 +1,38 @@
+# Workflow for creating a release of the Stencila's Web Distribution
+
+name: Release Web
+
+on:
+  # Allow this workflow to be triggered by the `version.yml` workflow
+  # or manually at https://github.com/stencila/stencila/actions/workflows/release-cli.yml
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: The tag to create the release for e.g. v2.1.0
+        type: string
+        required: true
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Publish distribution
+        run: make -C web publish
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          VERSION: ${{ inputs.tag }}
