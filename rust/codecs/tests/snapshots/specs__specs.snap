@@ -68,7 +68,8 @@ expression: specs
     "supports_from_string": true,
     "supports_from_path": true,
     "supports_to_formats": {
-      "dom.html": "NoLoss"
+      "dom.html": "NoLoss",
+      "html": "NoLoss"
     },
     "supports_to_bytes": false,
     "supports_to_string": true,

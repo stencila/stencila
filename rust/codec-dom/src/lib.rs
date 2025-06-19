@@ -33,7 +33,7 @@ impl Codec for DomCodec {
 
     fn supports_to_format(&self, format: &Format) -> CodecSupport {
         match format {
-            Format::Dom => CodecSupport::NoLoss,
+            Format::Dom | Format::Html => CodecSupport::NoLoss,
             _ => CodecSupport::None,
         }
     }

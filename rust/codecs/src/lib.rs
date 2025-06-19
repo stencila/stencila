@@ -31,6 +31,8 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(codec_cbor::CborCodec) as Box<dyn Codec>,
         Box::new(codec_debug::DebugCodec),
         Box::new(codec_docx::DocxCodec),
+        // DomCodec supports to HTML and because listed here before HtmlCodec
+        // will be selected when encoding to HTML
         Box::new(codec_dom::DomCodec),
         Box::new(codec_directory::DirectoryCodec),
         Box::new(codec_html::HtmlCodec),
