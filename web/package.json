@@ -80,7 +80,7 @@
     "@codemirror/view": "6.36.4",
     "@lit-labs/observers": "2.0.5",
     "@lit/context": "1.1.4",
-    "@shoelace-style/shoelace": "2.20.0",
+    "@shoelace-style/shoelace": "2.20.1",
     "@stencila/types": "2.0.0-alpha.26",
     "@tailwindcss/container-queries": "0.1.1",
     "@tailwindcss/typography": "0.5.16",
