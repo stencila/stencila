@@ -41,19 +41,18 @@ impl Kernel for RKernel {
     }
 
     fn supports_linting(&self) -> KernelLinting {
-        let styler = Command::new("Rscript")
-            .arg("-e")
-            .arg("styler::style_file")
-            .stdout(Stdio::null())
-            .status()
-            .is_ok_and(|status| status.success());
+        let have = |what| {
+            Command::new("Rscript")
+                .arg("-e")
+                .arg(what)
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .status()
+                .is_ok_and(|status| status.success())
+        };
 
-        let lintr = Command::new("Rscript")
-            .arg("-e")
-            .arg("lintr::lint")
-            .stdout(Stdio::null())
-            .status()
-            .is_ok_and(|status| status.success());
+        let styler = have("styler::style_file");
+        let lintr = have("lintr::lint");
 
         KernelLinting::new(styler, lintr, false)
     }
