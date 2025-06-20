@@ -29,7 +29,8 @@ use kernel_jinja::{
 mod query;
 
 use query::{
-    add_document_functions, add_functions, add_subquery_functions, NodeProxies, NodeProxy, Query,
+    add_constants, add_document_functions, add_functions, add_subquery_functions, NodeProxies,
+    NodeProxy, Query,
 };
 
 const NAME: &str = "docsql";
@@ -151,6 +152,7 @@ impl KernelInstance for DocsQLKernelInstance {
 
         let mut env = Environment::empty();
         env.set_undefined_behavior(UndefinedBehavior::Strict);
+        add_constants(&mut env);
         add_functions(&mut env);
 
         let messages = Arc::new(SyncMutex::new(Vec::new()));
@@ -361,10 +363,10 @@ impl KernelInstance for DocsQLKernelInstance {
     }
 
     async fn info(&mut self) -> Result<SoftwareApplication> {
-        tracing::trace!("Getting DocSQL kernel info");
+        tracing::trace!("Getting DocsQL kernel info");
 
         Ok(SoftwareApplication {
-            name: "DocSQL Kernel".to_string(),
+            name: "DocsQL Kernel".to_string(),
             ..Default::default()
         })
     }

@@ -11,9 +11,12 @@ use kernel_jinja::kernel::{
         eyre::{bail, Result},
         glob::glob,
         itertools::Itertools,
-        tokio,
+        tokio::{
+            self,
+            sync::{mpsc, watch},
+        },
     },
-    schema::{CodeChunk, Node},
+    schema::{CodeChunk, Node, Null},
     KernelInstance,
 };
 
@@ -28,7 +31,9 @@ async fn golden() -> Result<()> {
         .to_string()
         + "/*.cypher";
 
-    let mut kernel = DocsQLKernelInstance::new(None, None)?;
+    let (.., receiver) = watch::channel(Node::Null(Null));
+    let (sender, ..) = mpsc::channel(1);
+    let mut kernel = DocsQLKernelInstance::new(None, Some((receiver, sender)))?;
 
     for path in glob(&pattern)?.flatten() {
         let contents = read_to_string(&path)?;

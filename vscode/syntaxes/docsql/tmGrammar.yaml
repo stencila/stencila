@@ -22,7 +22,7 @@ repository:
   keywords:
     patterns:
       - name: keyword.control.docsql
-        match: \b(let)\b
+        match: \b(let|above|below|return)\b
 
   strings:
     patterns:
@@ -64,19 +64,9 @@ repository:
         patterns:
           - include: '$self'
 
-  filter-args:
-    patterns:
-      - name: meta.filter-arg.docsql
-        match: (@)([a-zA-Z_][a-zA-Z0-9_]*)
-        captures:
-          '1': {name: punctuation.definition.filter-arg.docsql}
-          '2': {name: variable.parameter.filter-arg.docsql}
-
   punctuation:
     patterns:
       - name: punctuation.separator.docsql
         match: '[.,;:]'
       - name: punctuation.bracket.docsql
         match: '[\(\)\[\]\{\}]'
-      - name: punctuation.dot.docsql
-        match: \.

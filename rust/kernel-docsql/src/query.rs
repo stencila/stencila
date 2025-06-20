@@ -30,20 +30,12 @@ use kernel_jinja::{
     },
 };
 
+const GLOBAL_CONSTS: &[&str] = &["above", "below", "return"];
+
 /// Transform property filter arguments into valid MiniJinja keyword arguments
 ///
 /// Uses single digit codes and spacing to ensure that the code stays the same length.
 pub(super) fn transform_filters(code: &str) -> String {
-    static POSITION: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"@(above|below|return)").expect("invalid regex"));
-
-    let code = POSITION.replace_all(code, |captures: &Captures| match &captures[1] {
-        "above" => "pos_=0",
-        "below" => "pos_=1",
-        "return" => "retu_=1",
-        _ => unreachable!(),
-    });
-
     static FILTERS: Lazy<Regex> = Lazy::new(|| {
         Regex::new(r"((?:\(|,)\s*)\.([a-zA-Z][\w_]*)\s*(==|\!=|<=|<|>=|>|=\~|\~=|\!\~|\^=|\$=|in|has|=)\s*")
             .expect("invalid regex")
@@ -264,7 +256,7 @@ impl Query {
     ///
     /// Adds the appropriate `-[relation]->(node)` to the pattern and
     /// makes the corresponding alias the `RETURN`.
-    fn table(&self, method: &str, kwargs: Kwargs) -> Result<Self, Error> {
+    fn table(&self, method: &str, args: &[Value], kwargs: Kwargs) -> Result<Self, Error> {
         if self.match_used {
             return Err(Error::new(
                 ErrorKind::InvalidOperation,
@@ -291,17 +283,69 @@ impl Query {
             None => node,
         });
 
-        for arg in kwargs.args() {
+        for (index, arg) in args.iter().enumerate() {
+            let index = index + 1;
+
+            if arg.is_undefined() {
+                return Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    format!("argument {index} is undefined"),
+                ));
+            };
+
+            let Some(arg) = arg.as_str() else {
+                return Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    format!("argument {index} is not a string"),
+                ));
+            };
+
+            match arg {
+                "above" | "below" => {
+                    let op = if arg == "above" { "<" } else { ">" };
+                    query
+                        .ands
+                        .push([&alias, ".position", op, "$currentPosition"].concat());
+
+                    // Ordering by position is important, particularly for `above`
+                    // where the ordering needs to be descending
+                    query.order_by = Some([&alias, ".position"].concat());
+                    if arg == "above" {
+                        query.order_by_order = Some("DESC".to_string());
+                    }
+                }
+
+                "return" => {
+                    if self.return_used {
+                        return Err(Error::new(
+                            ErrorKind::InvalidOperation,
+                            "`return` already specified".to_string(),
+                        ));
+                    }
+                    query.r#return = Some(alias.to_string());
+                    query.return_used = true;
+                }
+
+                _ => {
+                    return Err(Error::new(
+                        ErrorKind::TooManyArguments,
+                        format!("unrecognized argument `{arg}`"),
+                    ));
+                }
+            }
+        }
+
+        for key in kwargs.args() {
             // Ensure all arguments are defined
-            let value: Value = kwargs.get(arg)?;
+            let value: Value = kwargs.get(key)?;
             if value.is_undefined() {
                 return Err(Error::new(
                     ErrorKind::UndefinedError,
-                    format!("value for argument `{arg}` is undefined"),
+                    format!("value for argument `{key}` is undefined"),
                 ));
             }
 
-            match arg {
+            match key {
                 "like" => {
                     let text = if let Some(text) = value.as_str() {
                         text.to_string()
@@ -345,15 +389,15 @@ impl Query {
                         .ok_or_else(|| {
                             Error::new(
                                 ErrorKind::InvalidOperation,
-                                format!("argument `{arg}` should be a string"),
+                                format!("argument `{key}` should be a string"),
                             )
                         })?
                         .to_string();
 
-                    match arg {
+                    match key {
                         "search" | "searchAll" => {
                             let table = table.replace("`", "");
-                            let option = if arg == "searchAll" {
+                            let option = if key == "searchAll" {
                                 ", conjunctive := true"
                             } else {
                                 ""
@@ -369,34 +413,23 @@ impl Query {
                         _ => unreachable!(),
                     }
                 }
-                _ => {
-                    if arg == "pos_" {
-                        if let Some(dir) = value.as_i64() {
-                            let op = if dir == 0 { "<" } else { ">" };
-                            query
-                                .ands
-                                .push([&alias, ".position", op, "$currentPosition"].concat());
+                "skip" | "limit" => {
+                    let count = value.as_usize().ok_or_else(|| {
+                        Error::new(
+                            ErrorKind::InvalidOperation,
+                            format!("argument `skip` should be an unsigned integer"),
+                        )
+                    })?;
 
-                            // Ordering by position is important, particularly for `@above` filter
-                            // where the ordering needs to be descending
-                            query.order_by = Some([&alias, ".position"].concat());
-                            if dir == 0 {
-                                query.order_by_order = Some("DESC".to_string());
-                            }
-                        }
-                    } else if arg == "retu_" {
-                        if self.return_used {
-                            return Err(Error::new(
-                                ErrorKind::InvalidOperation,
-                                "`return` already specified".to_string(),
-                            ));
-                        }
-                        query.r#return = Some(alias.to_string());
-                        query.return_used = true;
-                    } else {
-                        let filter = apply_filter(&alias, arg, value);
-                        query.ands.push(filter)
+                    match key {
+                        "skip" => query.skip = Some(count),
+                        "limit" => query.limit = Some(count),
+                        _ => unreachable!(),
                     }
+                }
+                _ => {
+                    let filter = apply_filter(&alias, key, value);
+                    query.ands.push(filter)
                 }
             }
         }
@@ -1105,8 +1138,8 @@ impl Object for Query {
             }
             // Fallback to node adding a MATCH pattern for a node table
             _ => {
-                let (kwargs,) = from_args(args)?;
-                self.table(name, kwargs)?
+                let (args, kwargs) = from_args(args)?;
+                self.table(name, args, kwargs)?
             }
         };
         Ok(Value::from_object(query))
@@ -1337,25 +1370,28 @@ pub(super) fn add_subquery_functions(env: &mut Environment) {
 struct QueryLabelled {
     table: String,
     document: Arc<Query>,
+    one: bool,
 }
 
 impl QueryLabelled {
-    fn new(table: &str, document: Arc<Query>) -> Self {
+    fn new(table: &str, document: Arc<Query>, one: bool) -> Self {
         Self {
             table: table.into(),
             document,
+            one,
         }
     }
 }
 
 impl Object for QueryLabelled {
     fn call(self: &Arc<Self>, _state: &State<'_, '_>, args: &[Value]) -> Result<Value, Error> {
-        let (which, filters): (Option<Value>, Kwargs) = from_args(args)?;
+        let (args, mut kwargs): (&[Value], Kwargs) = from_args(args)?;
 
-        let filters = if let Some(which) = which {
-            let label = if let Some(label) = which.as_str() {
+        let mut args = args.to_vec();
+        if let Some(first) = args.first() {
+            let label = if let Some(label) = first.as_str() {
                 label.to_string()
-            } else if let Some(num) = which.as_i64() {
+            } else if let Some(num) = first.as_i64() {
                 num.to_string()
             } else {
                 return Err(Error::new(
@@ -1367,35 +1403,16 @@ impl Object for QueryLabelled {
                 ));
             };
 
-            kwargs_insert(filters, "label", Value::from(label.clone()))
-        } else {
-            filters
-        };
-
-        let node = match self
-            .document
-            .table(&self.table, filters.clone())?
-            .first()
-            .ok()
-        {
-            Some(node) => Some(node),
-            None => {
-                // If matching table or figure not found then looking for matching code chunk with
-                if self.table == "figures" || self.table == "tables" {
-                    let label_type = match self.table.as_str() {
-                        "figures" => "FigureLabel",
-                        "tables" => "TableLabel",
-                        _ => unreachable!(),
-                    };
-                    let filters = kwargs_insert(filters, "labelType", Value::from(label_type));
-                    self.document.table("codeChunks", filters)?.first().ok()
-                } else {
-                    None
-                }
+            if !GLOBAL_CONSTS.contains(&label.as_str()) {
+                args.remove(0);
+                kwargs = kwargs_insert(kwargs, "label", Value::from(label))
             }
-        };
+        }
 
-        Ok(node.unwrap_or_else(|| Value::from(())))
+        let query = self.document.table(&self.table, &args, kwargs)?;
+        let query = if self.one { query.limit(1) } else { query };
+
+        Ok(Value::from_object(query))
     }
 }
 
@@ -1413,42 +1430,33 @@ impl Object for QueryLabelled {
 ///
 ///   variable(.nodeType == 'Integer')
 #[derive(Debug)]
-struct QueryVariable {
+struct QueryVariables {
     document: Arc<Query>,
+    one: bool,
 }
 
-impl QueryVariable {
-    fn new(document: Arc<Query>) -> Self {
-        Self { document }
+impl QueryVariables {
+    fn new(document: Arc<Query>, one: bool) -> Self {
+        Self { document, one }
     }
 }
 
-impl Object for QueryVariable {
+impl Object for QueryVariables {
     fn call(self: &Arc<Self>, _state: &State<'_, '_>, args: &[Value]) -> Result<Value, Error> {
-        let (name, filters): (Option<Value>, Kwargs) = from_args(args)?;
+        let (args, mut kwargs): (&[Value], Kwargs) = from_args(args)?;
 
-        let filters = if let Some(which) = name {
-            let name = if let Some(name) = which.as_str() {
-                name.to_string()
-            } else {
-                return Err(Error::new(
-                    ErrorKind::InvalidOperation,
-                    "argument should be string name for variable",
-                ));
-            };
+        let mut args = args.to_vec();
+        if let Some(first) = args.first().and_then(|first| first.as_str()) {
+            if !GLOBAL_CONSTS.contains(&first) {
+                let first = args.remove(0);
+                kwargs = kwargs_insert(kwargs, "name", first)
+            }
+        }
 
-            kwargs_insert(filters, "name", Value::from(name.clone()))
-        } else {
-            filters
-        };
+        let query = self.document.table("variables", &args, kwargs)?;
+        let query = if self.one { query.limit(1) } else { query };
 
-        let node = self
-            .document
-            .table("variables", filters.clone())?
-            .first()
-            .ok();
-
-        Ok(node.unwrap_or_else(|| Value::from(())))
+        Ok(Value::from_object(query))
     }
 }
 
@@ -1470,16 +1478,16 @@ impl QuerySectionType {
 
 impl Object for QuerySectionType {
     fn call(self: &Arc<Self>, _state: &State<'_, '_>, args: &[Value]) -> Result<Value, Error> {
-        let (filters,): (Kwargs,) = from_args(args)?;
-
-        let filters = kwargs_insert(
-            filters,
+        let (args, kwargs) = from_args(args)?;
+        let kwargs = kwargs_insert(
+            kwargs,
             "sectionType",
             Value::from(self.section_type.to_string()),
         );
-        let node = self.document.table("sections", filters)?.first().ok();
 
-        Ok(node.unwrap_or_else(|| Value::from(())))
+        let query = self.document.table("sections", args, kwargs)?;
+
+        Ok(Value::from_object(query))
     }
 }
 
@@ -1488,13 +1496,15 @@ impl Object for QuerySectionType {
 struct QueryNodeType {
     node_type: NodeType,
     document: Arc<Query>,
+    one: bool,
 }
 
 impl QueryNodeType {
-    fn new(node_type: NodeType, document: Arc<Query>) -> Self {
+    fn new(node_type: NodeType, document: Arc<Query>, one: bool) -> Self {
         Self {
             node_type,
             document,
+            one,
         }
     }
 }
@@ -1502,10 +1512,12 @@ impl QueryNodeType {
 impl Object for QueryNodeType {
     fn call(self: &Arc<Self>, _state: &State<'_, '_>, args: &[Value]) -> Result<Value, Error> {
         let method = self.node_type.to_string().to_camel_case();
-        let (filters,): (Kwargs,) = from_args(args)?;
-        let node = self.document.table(&method, filters)?.first().ok();
+        let (args, kwargs) = from_args(args)?;
 
-        Ok(node.unwrap_or_else(|| Value::from(())))
+        let query = self.document.table(&method, args, kwargs)?;
+        let query = if self.one { query.limit(1) } else { query };
+
+        Ok(Value::from_object(query))
     }
 }
 
@@ -1514,13 +1526,21 @@ pub(super) fn add_document_functions(env: &mut Environment, document: Arc<Query>
     for name in ["figure", "table", "equation"] {
         env.add_global(
             name,
-            Value::from_object(QueryLabelled::new(&[name, "s"].concat(), document.clone())),
+            Value::from_object(QueryLabelled::new(name, document.clone(), true)),
+        );
+        env.add_global(
+            [name, "s"].concat(),
+            Value::from_object(QueryLabelled::new(name, document.clone(), false)),
         );
     }
 
     env.add_global(
         "variable",
-        Value::from_object(QueryVariable::new(document.clone())),
+        Value::from_object(QueryVariables::new(document.clone(), true)),
+    );
+    env.add_global(
+        "variables",
+        Value::from_object(QueryVariables::new(document.clone(), false)),
     );
 
     for (name, section_type) in [
@@ -1547,7 +1567,11 @@ pub(super) fn add_document_functions(env: &mut Environment, document: Arc<Query>
     ] {
         env.add_global(
             name,
-            Value::from_object(QueryNodeType::new(node_type, document.clone())),
+            Value::from_object(QueryNodeType::new(node_type, document.clone(), true)),
+        );
+        env.add_global(
+            [name, "s"].concat(),
+            Value::from_object(QueryNodeType::new(node_type, document.clone(), false)),
         );
     }
 }
@@ -1571,6 +1595,13 @@ fn combine(args: &[Value]) -> Result<Value, Error> {
     }
 
     Ok(Value::from_object(NodeProxies::new(nodes, Arc::default())))
+}
+
+/// Add global constants
+pub(super) fn add_constants(env: &mut Environment) {
+    for name in GLOBAL_CONSTS {
+        env.add_global(*name, *name);
+    }
 }
 
 /// Add global functions to the environment
@@ -1845,42 +1876,50 @@ fn kwargs_insert(kwargs: Kwargs, key: &str, value: Value) -> Kwargs {
 #[cfg(test)]
 mod tests {
     #[test]
-    fn transform() {
+    fn transform_filters() {
         use super::transform_filters as t;
 
         assert_eq!(t(""), "");
         assert_eq!(t(".a"), ".a");
 
-        assert_eq!(t("(.a = 1"), "(a   =1");
-        assert_eq!(t("(.a= 1"), "(a  =1");
-        assert_eq!(t("(.a =1"), "(a  =1");
-        assert_eq!(t("(.a=1"), "(a =1");
+        assert_eq!(t("(.a = 1)"), "(a   =1)");
+        assert_eq!(t("(.a= 1)"), "(a  =1)");
+        assert_eq!(t("(.a =1)"), "(a  =1)");
+        assert_eq!(t("(.a=1)"), "(a =1)");
 
-        assert_eq!(t("(.a == 1"), "(a    =1");
-        assert_eq!(t("(.a== 1"), "(a   =1");
-        assert_eq!(t("(.a ==1"), "(a   =1");
-        assert_eq!(t("(.a==1"), "(a  =1");
+        assert_eq!(t("(.a == 1)"), "(a    =1)");
+        assert_eq!(t("(.a== 1)"), "(a   =1)");
+        assert_eq!(t("(.a ==1)"), "(a   =1)");
+        assert_eq!(t("(.a==1)"), "(a  =1)");
 
-        assert_eq!(t("(.a < 1"), "(a1  =1");
-        assert_eq!(t("(.a< 1"), "(a1 =1");
-        assert_eq!(t("(.a <1"), "(a1 =1");
-        assert_eq!(t("(.a<1"), "(a1=1");
+        assert_eq!(t("(.a < 1)"), "(a1  =1)");
+        assert_eq!(t("(.a< 1)"), "(a1 =1)");
+        assert_eq!(t("(.a <1)"), "(a1 =1)");
+        assert_eq!(t("(.a<1)"), "(a1=1)");
 
-        assert_eq!(t("(.abc !~ 'regex'"), "(abc6   ='regex'");
-        assert_eq!(t("(.abc!~ 'regex'"), "(abc6  ='regex'");
-        assert_eq!(t("(.abc !~'regex'"), "(abc6  ='regex'");
-        assert_eq!(t("(.abc!~'regex'"), "(abc6 ='regex'");
+        assert_eq!(t("(.abc !~ 'regex')"), "(abc6   ='regex')");
+        assert_eq!(t("(.abc!~ 'regex')"), "(abc6  ='regex')");
+        assert_eq!(t("(.abc !~'regex')"), "(abc6  ='regex')");
+        assert_eq!(t("(.abc!~'regex')"), "(abc6 ='regex')");
 
-        assert_eq!(t("(.a != 1"), "(a0   =1");
-        assert_eq!(t("(.a < 1"), "(a1  =1");
-        assert_eq!(t("(.a <= 1"), "(a2   =1");
-        assert_eq!(t("(.a > 1"), "(a3  =1");
-        assert_eq!(t("(.a >= 1"), "(a4   =1");
-        assert_eq!(t("(.a =~ 1"), "(a5   =1");
-        assert_eq!(t("(.a !~ 1"), "(a6   =1");
-        assert_eq!(t("(.a ^= 1"), "(a7   =1");
-        assert_eq!(t("(.a $= 1"), "(a8   =1");
-        assert_eq!(t("(.a in 1"), "(a9   =1");
-        assert_eq!(t("(.a has 1"), "(a_    =1");
+        assert_eq!(t("(.a != 1)"), "(a0   =1)");
+        assert_eq!(t("(.a < 1)"), "(a1  =1)");
+        assert_eq!(t("(.a <= 1)"), "(a2   =1)");
+        assert_eq!(t("(.a > 1)"), "(a3  =1)");
+        assert_eq!(t("(.a >= 1)"), "(a4   =1)");
+        assert_eq!(t("(.a =~ 1)"), "(a5   =1)");
+        assert_eq!(t("(.a !~ 1)"), "(a6   =1)");
+        assert_eq!(t("(.a ^= 1)"), "(a7   =1)");
+        assert_eq!(t("(.a $= 1)"), "(a8   =1)");
+        assert_eq!(t("(.a in 1)"), "(a9   =1)");
+        assert_eq!(t("(.a has 1)"), "(a_    =1)");
+
+        assert_eq!(
+            t("(.a != 1, .b < 1,.c has 1)"),
+            "(a0   =1, b1  =1,c_    =1)"
+        );
+
+        assert_eq!(t("(above)"), "(above)");
+        assert_eq!(t("(below, .a != 1)"), "(below, a0   =1)");
     }
 }
