@@ -275,7 +275,7 @@ export class UINodeCode extends LitElement {
     }),
     LanguageDescription.of({
       name: 'javascript',
-      alias: ['js', 'quickjs', 'nodejs', 'docsql'],
+      alias: ['js', 'quickjs', 'nodejs'],
       load: async () => {
         return import('@codemirror/lang-javascript').then((obj) =>
           obj.javascript()
@@ -284,6 +284,7 @@ export class UINodeCode extends LitElement {
     }),
     LanguageDescription.of({
       name: 'jinja',
+      alias: ['docsql'],
       load: async () => {
         return import('@codemirror/legacy-modes/mode/jinja2').then(
           (mode) => new LanguageSupport(StreamLanguage.define(mode.jinja2))
