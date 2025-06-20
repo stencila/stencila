@@ -411,7 +411,7 @@ impl DocsDBKernelInstance {
             md.push_str(native_hint);
         } else if let Some(hint) = variable.hint.as_ref() {
             let yaml = serde_yaml::to_string(hint)?;
-            md.push_str(&format!(" A summary:\n\n```yaml\n{yaml}\n```"));
+            md.push_str(&format!(" A summary of the variable:\n\n```yaml\n{yaml}\n```"));
         };
 
         let content = codec_markdown::decode(&md, None)?.0.try_into()?;
