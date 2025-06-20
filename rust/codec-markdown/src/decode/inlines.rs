@@ -367,7 +367,7 @@ fn double_braces(input: &mut Located<&str>) -> ModalResult<Inline> {
     (delimited("{{", take_until(0.., "}}"), "}}"))
         .map(|code: &str| {
             Inline::CodeExpression(CodeExpression {
-                code: code.trim().into(),
+                code: code.into(),
                 programming_language: Some("docsql".to_string()),
                 ..Default::default()
             })
