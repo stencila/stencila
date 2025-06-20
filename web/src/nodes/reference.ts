@@ -126,23 +126,29 @@ export class Reference extends Entity {
   renderDefault() {
     const authors = this.authors
       ? this.authors.map(authorNameInitialsDotted).join(', ')
-      : 'Anon'
+      : ''
+
+    const date = this.date ? html` (${dateYear(this.date)}). ` : ''
+
+    const title = html`<span class="font-semibold"
+      ><slot name="title"></slot
+    ></span>`
+
+    const within = this.isPartOf
+      ? html`<span class="italic"> ${partOf(this.isPartOf)}</span>`
+      : ''
+
+    const doi = this.doi
+      ? html` <a href="https://doi.org/${this.doi}" target="_blank"
+          ><stencila-ui-icon
+            class="inline-block"
+            name="externalLink"
+          ></stencila-ui-icon
+        ></a>`
+      : ''
 
     return html`<div class="font-sans text-xs">
-      ${authors}${this.date ? html` (${dateYear(this.date)}). ` : ''}<span
-        class="font-semibold"
-        ><slot name="title"></slot></span
-      >.
-      ${this.isPartOf
-        ? html`<span class="italic"> ${partOf(this.isPartOf)}</span>`
-        : ''}${this.doi
-        ? html` <a href="https://doi.org/${this.doi}" target="_blank"
-            ><stencila-ui-icon
-              class="inline-block"
-              name="externalLink"
-            ></stencila-ui-icon
-          ></a>`
-        : ''}
+      ${authors}${date}${title}${within}${doi}
     </div>`
   }
 }

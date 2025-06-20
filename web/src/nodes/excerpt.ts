@@ -32,10 +32,10 @@ export class Excerpt extends Entity {
   /**
    * Toggle show/hide content
    *
-   * Defaults to false, and then is toggled off/on by user.
+   * Defaults to true, and then is toggled off/on by user.
    */
   @state()
-  private showContent?: boolean = false
+  private showContent?: boolean = true
 
   public static shouldExpand(card: HTMLElement, nodeType: NodeType): boolean {
     return (
