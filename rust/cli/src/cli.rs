@@ -53,7 +53,7 @@ pub struct Cli {
     /// syntax such as `tokio=debug`.
     #[arg(
         long,
-        default_value = "globset=warn,hyper=info,hyper_util=info,ignore=warn,keyring=info,mio=info,notify=warn,ort=error,reqwest=info,sled=info,tokio=info,tungstenite=info",
+        default_value = "globset=warn,hyper=info,hyper_util=info,ignore=warn,keyring=info,mio=info,notify=warn,ort=error,reqwest=info,rustls=info,sled=info,tokio=info,tungstenite=info",
         global = true,
         hide = true
     )]
