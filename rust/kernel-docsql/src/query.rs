@@ -1409,8 +1409,23 @@ impl Object for QueryLabelled {
             }
         }
 
-        let query = self.document.table(&self.table, &args, kwargs)?;
-        let query = if self.one { query.limit(1) } else { query };
+        let mut query = self.document.table(&self.table, &args, kwargs.clone())?;
+
+        if self.one {
+            query.limit = Some(1);
+        }
+
+        if &self.table == "table" {
+            query.pattern = Some("(`table`:`Table`:CodeChunk)".into());
+            query.ands.push(
+                "(starts_with(table.nodeId, 'tab') OR table.labelType = 'TableLabel')".into(),
+            );
+        } else if &self.table == "figure" {
+            query.pattern = Some("(figure:Figure:CodeChunk)".into());
+            query.ands.push(
+                "(starts_with(figure.nodeId, 'fig') OR figure.labelType = 'FigureLabel')".into(),
+            );
+        }
 
         Ok(Value::from_object(query))
     }
