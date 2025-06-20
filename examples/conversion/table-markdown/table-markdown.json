@@ -128,7 +128,7 @@
                     {
                       "type": "CodeExpression",
                       "code": {
-                        "string": "2 * 2"
+                        "string": " 2 * 2 "
                       },
                       "programmingLanguage": "docsql"
                     }

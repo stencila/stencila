@@ -99,9 +99,9 @@ impl MarkdownCodec for CodeExpression {
                 .push_str("`");
         } else if matches!(self.programming_language.as_deref(), Some("docsql")) {
             context
-                .push_str("{{ ")
+                .push_str("{{")
                 .push_prop_str(NodeProperty::Code, &self.code)
-                .push_str(" }}");
+                .push_str("}}");
         } else {
             context
                 .push_str("`")

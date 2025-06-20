@@ -115,7 +115,7 @@
                   content: [
                     {
                       type: "CodeExpression",
-                      code: { string: "2 * 2" },
+                      code: { string: " 2 * 2 " },
                       programmingLanguage: "docsql"
                     }
                   ]

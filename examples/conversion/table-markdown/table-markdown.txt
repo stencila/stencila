@@ -1,1 +1,1 @@
-Examples of table in Markdown with cell contents other than just text Emphasized header Code header Code inline Strong cell Code expression 2 * 2 E = mc^2 H 2 0
+Examples of table in Markdown with cell contents other than just text Emphasized header Code header Code inline Strong cell Code expression  2 * 2 E = mc^2 H 2 0
