@@ -21,7 +21,7 @@ use common::{
     tracing,
 };
 use kernels::Kernels;
-use node_diagnostics::{diagnostics, Diagnostic};
+use node_diagnostics::{diagnostics, Diagnostic, DiagnosticLevel};
 use node_find::find;
 use schema::{
     authorship, Article, AuthorRole, Chat, Config, ExecutionBounds, File, Node, NodeId,
@@ -820,12 +820,14 @@ impl Document {
     }
 
     /// Print diagnostics for the document
-    pub async fn diagnostics_print(&self) -> Result<usize> {
+    ///
+    /// Returns the count or error, warning, and advice diagnostics.
+    pub async fn diagnostics_print(&self) -> Result<(usize, usize, usize)> {
         let diagnostics = self.diagnostics().await;
 
         // No diagnostics so return early
         if diagnostics.is_empty() {
-            return Ok(0);
+            return Ok((0, 0, 0));
         }
 
         // If the document has a path read it so that diagnostics can be printed
@@ -855,13 +857,20 @@ impl Document {
             (String::from("<file>"), None)
         };
 
-        let count = diagnostics.len();
-
         // Print each of the diagnostics to stderr
+        let mut errors = 0;
+        let mut warnings = 0;
+        let mut advice = 0;
         for diagnostic in diagnostics {
+            match diagnostic.level {
+                DiagnosticLevel::Error => errors += 1,
+                DiagnosticLevel::Warning => warnings += 1,
+                DiagnosticLevel::Advice => advice += 1,
+            }
+
             diagnostic.to_stderr_pretty(&path, &source, &poshmap)?;
         }
 
-        Ok(count)
+        Ok((errors, warnings, advice))
     }
 }

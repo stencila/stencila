@@ -1,6 +1,7 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, process::exit};
 
 use cli_utils::{Code, ToStdout};
+use codecs::LossesResponse;
 use common::{
     clap::{self, Parser},
     eyre::Result,
@@ -9,22 +10,23 @@ use document::Document;
 use format::Format;
 use node_execute::ExecuteOptions;
 
-use crate::options::{EncodeOptions, StripOptions};
+use crate::options::{DecodeOptions, EncodeOptions, StripOptions};
 
 /// Render a document
-///
-/// Equivalent to the `execute` command with the `--render` flag.
 #[derive(Debug, Parser)]
 pub struct Cli {
-    /// The path of the file to render
-    ///
-    /// If not supplied the input content is read from `stdin`.
+    /// The path of the document to render
     input: PathBuf,
 
-    /// The path of the file to write the rendered document to
-    ///
-    /// If not supplied the output content is written to `stdout`.
+    /// The path of the rendered document
     output: Option<PathBuf>,
+
+    /// Ignore any errors while executing document
+    #[arg(long)]
+    ignore_errors: bool,
+
+    #[command(flatten)]
+    decode_options: DecodeOptions,
 
     #[clap(flatten)]
     execute_options: ExecuteOptions,
@@ -35,9 +37,9 @@ pub struct Cli {
     #[command(flatten)]
     strip_options: StripOptions,
 
-    /// Do not save the document after compiling it
+    /// Do not store the document after executing it
     #[arg(long)]
-    no_save: bool,
+    no_store: bool,
 
     /// The tool to use to encode the output format
     #[arg(long)]
@@ -53,39 +55,60 @@ impl Cli {
         let Self {
             input,
             output,
+            decode_options,
             execute_options,
             encode_options,
             strip_options,
-            no_save,
+            ignore_errors,
+            no_store,
             tool,
             tool_args,
         } = self;
 
-        let doc = Document::open(&input, None).await?;
+        let decode_options =
+            decode_options.build(Some(&input), StripOptions::default(), None, Vec::new());
+
+        let doc = Document::open(&input, Some(decode_options)).await?;
         doc.compile().await?;
         doc.execute(execute_options).await?;
-        doc.diagnostics_print().await?;
+        let (errors, ..) = doc.diagnostics_print().await?;
 
-        if !no_save {
-            doc.save().await?;
+        if !no_store {
+            doc.store().await?;
         }
 
-        let to = encode_options.to.clone();
-        let encode_options = encode_options.build(
-            Some(input.as_ref()),
+        if errors > 0 && !ignore_errors {
+            eprintln!("💣  Errors while executing `{}`", input.display());
+            exit(1);
+        }
+
+        let to = encode_options
+            .to
+            .as_ref()
+            .map_or_else(|| Format::Markdown, |format| Format::from_name(&format));
+
+        let mut encode_options = encode_options.build(
+            Some(&input),
             output.as_deref(),
-            Format::Markdown,
+            to.clone(),
             strip_options,
             tool,
             tool_args,
         );
+        encode_options.render = Some(true);
+        encode_options.losses = LossesResponse::Debug;
 
-        if let Some(dest) = &output {
-            doc.export(dest, Some(encode_options)).await?;
-        } else if let Some(format) = to {
-            let format = Format::from_name(&format);
-            let content = doc.dump(format.clone(), Some(encode_options)).await?;
-            Code::new(format, &content).to_stdout();
+        #[allow(clippy::print_stderr)]
+        if let Some(output) = &output {
+            doc.export(output, Some(encode_options)).await?;
+            eprintln!(
+                "📑 Successfully rendered `{}` to `{}",
+                input.display(),
+                output.display()
+            )
+        } else {
+            let content = doc.dump(to.clone(), Some(encode_options)).await?;
+            Code::new(to, &content).to_stdout();
         }
 
         Ok(())

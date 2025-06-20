@@ -43,9 +43,10 @@ impl Cli {
                 count_of_issues += diagnostics.len();
                 Code::new_from(format.into(), &diagnostics)?.to_stdout();
             } else {
-                let count = doc.diagnostics_print().await?;
-                if count > 0 {
-                    count_of_issues += count;
+                let (errors, warnings, advice, ..) = doc.diagnostics_print().await?;
+                let all = errors + warnings + advice;
+                if all > 0 {
+                    count_of_issues += all;
                     files_with_issues += 1;
                 }
             }
@@ -57,7 +58,7 @@ impl Cli {
 
         #[allow(clippy::print_stderr)]
         if files_with_issues == 0 {
-            eprintln!("🎉 No problems found")
+            eprintln!("🎉 No issues found")
         } else {
             eprintln!(
                 "⚠️  {count_of_issues} issue{} found in {files_with_issues} file{}",

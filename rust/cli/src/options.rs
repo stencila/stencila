@@ -110,12 +110,6 @@ pub struct EncodeOptions {
     #[arg(long, short)]
     pub to: Option<String>,
 
-    /// Encode the outputs, rather than the source, of executable nodes
-    ///
-    /// Only supported by some formats.
-    #[arg(long)]
-    render: bool,
-
     /// Highlight the rendered outputs of executable nodes
     ///
     /// Only supported by some formats (e.g. DOCX and ODT).
@@ -198,7 +192,6 @@ impl EncodeOptions {
             .then_some(true)
             .or(self.pretty.then_some(false));
 
-        let render = self.render.then_some(true);
         let highlight = self.highlight.then_some(true);
         let reversible = self.reversible.then_some(true);
 
@@ -216,7 +209,6 @@ impl EncodeOptions {
         codecs::EncodeOptions {
             format,
             compact,
-            render,
             highlight,
             reversible,
             template,
