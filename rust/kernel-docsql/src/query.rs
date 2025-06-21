@@ -41,7 +41,7 @@ pub(super) fn transform_filters(code: &str) -> String {
             .expect("invalid regex")
     });
 
-    let code = FILTERS.replace_all(&code, |captures: &Captures| {
+    let code = FILTERS.replace_all(code, |captures: &Captures| {
         let pre = &captures[1];
         let var = &captures[2];
         let op = match &captures[3] {
@@ -417,7 +417,7 @@ impl Query {
                     let count = value.as_usize().ok_or_else(|| {
                         Error::new(
                             ErrorKind::InvalidOperation,
-                            format!("argument `skip` should be an unsigned integer"),
+                            "argument `skip` should be an unsigned integer".to_string(),
                         )
                     })?;
 

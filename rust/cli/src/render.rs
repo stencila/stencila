@@ -85,7 +85,7 @@ impl Cli {
         let to = encode_options
             .to
             .as_ref()
-            .map_or_else(|| Format::Markdown, |format| Format::from_name(&format));
+            .map_or_else(|| Format::Markdown, |format| Format::from_name(format));
 
         let mut encode_options = encode_options.build(
             Some(&input),
