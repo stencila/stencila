@@ -12,12 +12,14 @@ impl LatexCodec for CodeExpression {
                 programming_language,
                 execution_mode,
                 execution_bounds
-            ));
+            ))
+            .merge_losses(lost_exec_options!(self));
 
-        // Render mode: only encode output
         if context.render {
             if context.reversible {
                 context.link_begin(None);
+            } else {
+                context.merge_losses(lost_props!(self, code));
             }
 
             if let Some(output) = &self.output {
@@ -38,7 +40,8 @@ impl LatexCodec for CodeExpression {
                 context.link_end();
             }
 
-            context.merge_losses(lost_props!(self, code)).exit_node();
+            context.exit_node();
+
             return;
         } else {
             context.merge_losses(lost_options!(self, output));
@@ -63,8 +66,20 @@ impl MarkdownCodec for CodeExpression {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id, output))
+            .merge_losses(lost_options!(self, id))
             .merge_losses(lost_exec_options!(self));
+
+        if context.render {
+            context.merge_losses(lost_props!(self, code, execution_mode, execution_bounds));
+
+            if let Some(output) = &self.output {
+                output.to_markdown(context);
+            }
+
+            context.exit_node();
+
+            return;
+        }
 
         if matches!(context.format, Format::Myst) {
             context
@@ -139,6 +154,8 @@ impl MarkdownCodec for CodeExpression {
             context
                 .push_str(" => ")
                 .push_prop_fn(NodeProperty::Output, |context| output.to_markdown(context));
+        } else {
+            context.merge_losses(lost_options!(self, output));
         }
 
         context.exit_node();

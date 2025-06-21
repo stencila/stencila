@@ -17,6 +17,7 @@ impl LatexCodec for IfBlock {
                 }
             }
             context.exit_node();
+
             return;
         }
 
@@ -64,21 +65,24 @@ impl LatexCodec for IfBlock {
 
 impl MarkdownCodec for IfBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        if matches!(context.format, Format::Llmd) {
-            // Encode content of the first active clause only
-            for clause in &self.clauses {
-                if clause.is_active == Some(true) {
-                    clause.content.to_markdown(context);
-                    return;
-                }
-            }
-
-            return;
-        }
-
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_exec_options!(self));
+
+        if matches!(context.format, Format::Llmd) || context.render {
+            // Render the first active clause only
+            for clause in &self.clauses {
+                if clause.is_active.unwrap_or_default() {
+                    context.push_prop_fn(NodeProperty::Content, |context| {
+                        clause.content.to_markdown(context)
+                    });
+                    break;
+                }
+            }
+            context.exit_node();
+
+            return;
+        }
 
         for (index, clause @ IfBlockClause { code, .. }) in self.clauses.iter().enumerate() {
             let keyword = if index == 0 {

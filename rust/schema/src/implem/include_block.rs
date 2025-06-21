@@ -62,6 +62,16 @@ impl MarkdownCodec for IncludeBlock {
             .merge_losses(lost_options!(self, id))
             .merge_losses(lost_exec_options!(self));
 
+        if matches!(context.format, Format::Llmd) || context.render {
+            context
+                .push_prop_fn(NodeProperty::Content, |context| {
+                    self.content.to_markdown(context)
+                })
+                .exit_node();
+
+            return;
+        }
+
         if matches!(context.format, Format::Myst) {
             // For MyST, encode as an include directive
             context
@@ -137,7 +147,7 @@ impl MarkdownCodec for IncludeBlock {
 
             context.newline().exit_node().newline();
         } else {
-            // For Markdown, QMD, LLMd etc, which do not support include blocks, only encode content (if any)
+            // For Markdown, QMD etc, which do not support include blocks, only encode content (if any)
             if let Some(content) = &self.content {
                 if !content.is_empty() {
                     context.push_prop_fn(NodeProperty::Content, |context| {

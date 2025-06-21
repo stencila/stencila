@@ -18,7 +18,7 @@ pub fn to_markdown<T>(node: &T) -> String
 where
     T: MarkdownCodec,
 {
-    let mut context = MarkdownEncodeContext::default();
+    let mut context = MarkdownEncodeContext::new(None, None);
     node.to_markdown(&mut context);
     context.content.trim().to_string()
 }
@@ -30,7 +30,7 @@ pub fn to_markdown_flavor<T>(node: &T, format: Format) -> String
 where
     T: MarkdownCodec,
 {
-    let mut context = MarkdownEncodeContext::new(Some(format));
+    let mut context = MarkdownEncodeContext::new(Some(format), None);
     node.to_markdown(&mut context);
     context.content.trim().to_string()
 }
@@ -39,6 +39,9 @@ where
 pub struct MarkdownEncodeContext {
     /// The format to render to
     pub format: Format,
+
+    /// Encode the outputs, rather than the source, of executable nodes
+    pub render: bool,
 
     /// The encoded Markdown content
     pub content: String,
@@ -69,9 +72,10 @@ pub struct MarkdownEncodeContext {
 }
 
 impl MarkdownEncodeContext {
-    pub fn new(format: Option<Format>) -> Self {
+    pub fn new(format: Option<Format>, render: Option<bool>) -> Self {
         Self {
             format: format.unwrap_or(Format::Smd), // Default to Stencila Markdown
+            render: render.unwrap_or_default(),
             ..Default::default()
         }
     }

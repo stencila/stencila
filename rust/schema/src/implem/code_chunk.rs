@@ -146,9 +146,9 @@ impl LatexCodec for CodeChunk {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, execution_mode, execution_bounds));
+            .merge_losses(lost_options!(self, execution_mode, execution_bounds))
+            .merge_losses(lost_exec_options!(self));
 
-        // Render mode: only encode outputs
         if context.render {
             if let Some(outputs) = &self.outputs {
                 if context.reversible {
@@ -338,8 +338,23 @@ impl MarkdownCodec for CodeChunk {
 
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id, outputs))
+            .merge_losses(lost_options!(self, id))
             .merge_losses(lost_exec_options!(self));
+
+        if context.render {
+            context.merge_losses(lost_props!(self, code, execution_mode, execution_bounds));
+
+            for (index, output) in self.outputs.iter().flatten().enumerate() {
+                if index > 0 {
+                    context.push_str("\n\n");
+                }
+                output.to_markdown(context);
+            }
+
+            context.exit_node();
+
+            return;
+        }
 
         if matches!(context.format, Format::Myst) {
             let is_mermaid = self.programming_language.as_deref() == Some("mermaid");
@@ -594,6 +609,8 @@ impl MarkdownCodec for CodeChunk {
                         context.push_str("\n\n");
                     }
                 }
+            } else {
+                context.merge_losses(lost_options!(self, outputs));
             }
 
             context.exit_node().newline();

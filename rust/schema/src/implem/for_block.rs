@@ -51,6 +51,17 @@ impl LatexCodec for ForBlock {
 
 impl MarkdownCodec for ForBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        if context.render {
+            context
+                .merge_losses(lost_props!(self, variable, code, content))
+                .push_prop_fn(NodeProperty::Iterations, |context| {
+                    self.iterations.to_markdown(context)
+                })
+                .exit_node();
+
+            return;
+        }
+
         if matches!(context.format, Format::Llmd) {
             // Encode iterations only (unwrapping the `Section` representing each as is
             // usually the case) but if none, render any `otherwise`

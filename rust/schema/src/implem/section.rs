@@ -37,6 +37,17 @@ impl MarkdownCodec for Section {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id));
 
+        if context.render {
+            context
+                .merge_losses(lost_options!(self, section_type))
+                .push_prop_fn(NodeProperty::Content, |context| {
+                    self.content.to_markdown(context)
+                })
+                .exit_node();
+
+            return;
+        }
+
         if let Some(section) = &self.section_type {
             context.push_colons().push_str(" ").push_prop_str(
                 NodeProperty::SectionType,
