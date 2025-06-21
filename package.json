@@ -14,12 +14,12 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.2",
-    "@cloudflare/workers-types": "4.20250619.0",
+    "@cloudflare/workers-types": "4.20250620.0",
     "@eslint/js": "9.29.0",
     "@prettier/plugin-xml": "3.4.1",
     "@types/benchmark": "2.1.5",
     "@types/jest": "30.0.0",
-    "@types/node": "22.13.13",
+    "@types/node": "22.15.32",
     "@types/tmp": "0.2.6",
     "@typescript-eslint/parser": "8.34.1",
     "benchmark": "2.1.4",
@@ -28,10 +28,10 @@
     "cross-env": "7.0.3",
     "depcheck": "1.4.7",
     "eslint": "9.29.0",
-    "eslint-plugin-import": "2.31.0",
+    "eslint-plugin-import": "2.32.0",
     "eslint-plugin-lit": "2.1.1",
     "eslint-plugin-wc": "3.0.1",
-    "jest": "30.0.1",
+    "jest": "30.0.2",
     "prettier": "3.5.3",
     "process": "0.11.10",
     "publint": "0.3.12",
@@ -41,6 +41,6 @@
     "tsup": "8.5.0",
     "typescript": "5.8.3",
     "typescript-eslint": "8.34.1",
-    "wrangler": "4.20.3"
+    "wrangler": "4.20.5"
   }
 }
