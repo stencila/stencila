@@ -1,6 +1,9 @@
-use codec::{common::inflector::Inflector, format::Format, Losses, NodeProperty, NodeType};
-use node_path::{NodePath, NodeSlot};
-use node_url::NodeUrl;
+use codec::{
+    common::{inflector::Inflector, serde::Serialize, tracing},
+    format::Format,
+    schema::{node_url_jzb64, node_url_path, NodePath, NodeSlot, StripNode},
+    Losses, NodeProperty, NodeType,
+};
 use pandoc_types::definition::{self as pandoc, Attr, Target};
 
 /// The context for encoding to Pandoc AST
@@ -67,19 +70,29 @@ impl PandocEncodeContext {
     }
 
     /// Create a Pandoc link with a [`NodeUrl`] allowing the node to be reconstituted at a later time
-    pub fn reversible_link(
+    pub fn reversible_link<T>(
         &mut self,
         node_type: NodeType,
+        node: &T,
         attrs: Attr,
         content: Vec<pandoc::Inline>,
-    ) -> pandoc::Inline {
-        let url = NodeUrl {
-            r#type: Some(node_type),
-            path: Some(self.node_path.clone()),
-            ..Default::default()
-        }
-        .to_string();
+    ) -> pandoc::Inline
+    where
+        T: Serialize + Clone + StripNode,
+    {
+        let url = if matches!(self.format, Format::GDocx) {
+            match node_url_jzb64(node_type, node) {
+                Ok(url) => url,
+                Err(error) => {
+                    tracing::error!("While encoding node url: {error}");
+                    node_url_path(node_type, self.node_path.clone())
+                }
+            }
+        } else {
+            node_url_path(node_type, self.node_path.clone())
+        };
 
+        let url = url.to_string();
         let title = node_type.to_string().to_sentence_case();
 
         pandoc::Inline::Link(attrs, content, Target { url, title })

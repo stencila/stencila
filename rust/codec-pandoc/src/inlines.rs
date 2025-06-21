@@ -159,7 +159,10 @@ fn audio_to_pandoc(audio: &AudioObject, context: &mut PandocEncodeContext) -> pa
     media_object_to_pandoc(&audio.content_url, &audio.title, &audio.caption, context)
 }
 
-fn image_to_pandoc(image: &ImageObject, context: &mut PandocEncodeContext) -> pandoc::Inline {
+pub(super) fn image_to_pandoc(
+    image: &ImageObject,
+    context: &mut PandocEncodeContext,
+) -> pandoc::Inline {
     media_object_to_pandoc(&image.content_url, &image.title, &image.caption, context)
 }
 
@@ -408,7 +411,7 @@ fn code_expression_to_pandoc(
         };
 
         return if context.reversible {
-            context.reversible_link(NodeType::CodeExpression, attrs, vec![inline])
+            context.reversible_link(NodeType::CodeExpression, expr, attrs, vec![inline])
         } else if context.highlight {
             pandoc::Inline::Span(attrs, vec![inline])
         } else {

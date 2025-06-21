@@ -20,11 +20,15 @@ pub use walk::*;
 mod replicate;
 pub use replicate::*;
 
+mod url;
+pub use url::*;
+
 pub mod shortcuts;
 pub mod transforms;
 
 pub use node_id::NodeId;
 pub use node_path::{NodePath, NodeSlot};
+pub use node_strip::StripNode;
 pub use node_type::{NodeProperty, NodeType};
 
 pub mod cord_provenance;

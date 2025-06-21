@@ -65,7 +65,7 @@ impl NodeUrl {
     /// an empty string (the smallest possible node to encode) is:
     ///
     /// https://stencila.io/node?jzb64=eNpTUgIAAGgARQ
-    pub fn to_jzb64<T>(&mut self, node: T) -> Result<()>
+    pub fn to_jzb64<T>(node: T) -> Result<String>
     where
         T: Serialize,
     {
@@ -77,21 +77,15 @@ impl NodeUrl {
         let compressed = encoder.finish()?;
         let base64 = BASE64_URL_SAFE_NO_PAD.encode(&compressed);
 
-        self.jzb64 = Some(base64);
-
-        Ok(())
+        Ok(base64)
     }
 
     /// Create a node from the `jzb64` field of the URL
-    pub fn from_jzb64<T>(&self) -> Result<T>
+    pub fn from_jzb64<T>(jzb64: &str) -> Result<T>
     where
         T: DeserializeOwned,
     {
-        let Some(base64) = &self.jzb64 else {
-            bail!("Node URL does not have the `jzb64` field")
-        };
-
-        let compressed = BASE64_URL_SAFE_NO_PAD.decode(base64)?;
+        let compressed = BASE64_URL_SAFE_NO_PAD.decode(jzb64)?;
 
         let mut decoder = ZlibDecoder::new(compressed.as_slice());
         let mut json = String::new();
@@ -201,11 +195,11 @@ mod tests {
         let node = "Hello world!";
 
         let mut url = NodeUrl::default();
-        url.to_jzb64(node)?;
+        url.jzb64 = Some(NodeUrl::to_jzb64(node)?);
         let url = url.to_string();
 
         let url = NodeUrl::from_str(&url)?;
-        let round_tripped: String = url.from_jzb64()?;
+        let round_tripped: String = NodeUrl::from_jzb64(&url.jzb64.unwrap())?;
         assert_eq!(node, round_tripped);
 
         Ok(())

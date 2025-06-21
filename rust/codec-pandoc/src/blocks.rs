@@ -6,7 +6,9 @@ use codec::{format::Format, schema::*};
 use codec_text_trait::to_text;
 
 use crate::{
-    inlines::{inlines_from_pandoc, inlines_to_pandoc, string_from_pandoc_inlines},
+    inlines::{
+        image_to_pandoc, inlines_from_pandoc, inlines_to_pandoc, string_from_pandoc_inlines,
+    },
     shared::{
         attrs_attributes, attrs_classes, attrs_empty, get_attr, PandocDecodeContext,
         PandocEncodeContext,
@@ -582,25 +584,28 @@ fn code_chunk_to_pandoc(
             if context.reversible {
                 let link = context.reversible_link(
                     NodeType::CodeChunk,
+                    code_chunk,
                     attrs,
                     vec![pandoc::Inline::Str("Code Chunk".into())],
                 );
+
                 return vec![pandoc::Block::Para(vec![link])];
             } else {
                 return Vec::new();
             }
         };
 
-        let content = if let Some(output) = outputs.first() {
-            to_text(output)
+        let inline = if let Some(output) = outputs.first() {
+            match output {
+                Node::ImageObject(image) => image_to_pandoc(image, context),
+                _ => pandoc::Inline::Str(to_text(output)),
+            }
         } else {
-            String::new()
+            pandoc::Inline::Str(String::new())
         };
 
-        let inline = pandoc::Inline::Str(content);
-
         let inline = if context.reversible {
-            context.reversible_link(NodeType::CodeChunk, attrs, vec![inline])
+            context.reversible_link(NodeType::CodeChunk, code_chunk, attrs, vec![inline])
         } else if context.highlight {
             pandoc::Inline::Span(attrs, vec![inline])
         } else {
