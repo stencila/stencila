@@ -30,6 +30,13 @@ pub struct Cli {
 }
 
 impl Cli {
+    pub fn new(path: PathBuf) -> Self {
+        Self {
+            path,
+            sync: SyncDirection::In,
+        }
+    }
+
     pub async fn run(self) -> Result<()> {
         // Resolve the path to a document file
         let Some(file) = Document::resolve_file(&self.path)? else {

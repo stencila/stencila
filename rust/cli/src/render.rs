@@ -10,7 +10,10 @@ use document::Document;
 use format::Format;
 use node_execute::ExecuteOptions;
 
-use crate::options::{DecodeOptions, EncodeOptions, StripOptions};
+use crate::{
+    options::{DecodeOptions, EncodeOptions, StripOptions},
+    preview,
+};
 
 /// Render a document
 #[derive(Debug, Parser)]
@@ -82,15 +85,14 @@ impl Cli {
             exit(1);
         }
 
-        let to = encode_options
-            .to
-            .as_ref()
-            .map_or_else(|| Format::Markdown, |format| Format::from_name(format));
+        if output.is_none() && encode_options.to.is_none() {
+            return preview::Cli::new(input).run().await;
+        }
 
         let mut encode_options = encode_options.build(
             Some(&input),
             output.as_deref(),
-            to.clone(),
+            Format::Markdown,
             strip_options,
             tool,
             tool_args,
@@ -102,11 +104,11 @@ impl Cli {
         if let Some(output) = &output {
             doc.export(output, Some(encode_options)).await?;
             eprintln!(
-                "📑 Successfully rendered `{}` to `{}",
+                "📑 Successfully rendered `{}` to `{}`",
                 input.display(),
                 output.display()
             )
-        } else {
+        } else if let Some(to) = encode_options.format.clone() {
             let content = doc.dump(to.clone(), Some(encode_options)).await?;
             Code::new(to, &content).to_stdout();
         }
