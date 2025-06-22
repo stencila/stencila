@@ -6,8 +6,8 @@ edition = "2021"
 [dependencies]
 codec = { path = "../codec" }
 codec-markdown = { path = "../codec-markdown" }
-jupyter-protocol = "0.7.0"
-nbformat = "0.11.0"
+jupyter-protocol = "0.8.0"
+nbformat = "0.12.0"
 
 [lints]
 workspace = true
