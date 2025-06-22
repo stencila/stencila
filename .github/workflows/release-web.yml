@@ -29,6 +29,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Setup rclone
+        uses: AnimMouse/setup-rclone@v1
+
       - name: Publish distribution
         run: make -C web publish
         env:
