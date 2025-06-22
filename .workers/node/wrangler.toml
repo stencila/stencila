@@ -1,0 +1,7 @@
+name = "node"
+compatibility_date = "2023-10-16"
+
+main = "node.ts"
+
+observability = { enabled = true }
+send_metrics = false
