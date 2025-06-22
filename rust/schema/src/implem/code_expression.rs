@@ -16,7 +16,7 @@ impl LatexCodec for CodeExpression {
             .merge_losses(lost_exec_options!(self));
 
         if context.render {
-            if context.reversible {
+            if context.reproducible {
                 context.link_begin(None);
             } else {
                 context.merge_losses(lost_props!(self, code));
@@ -36,7 +36,7 @@ impl LatexCodec for CodeExpression {
                 });
             }
 
-            if context.reversible {
+            if context.reproducible {
                 context.link_end();
             }
 

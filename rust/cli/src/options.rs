@@ -53,7 +53,7 @@ pub struct DecodeOptions {
     /// Reconstitute nodes from a cache
     ///
     /// Only useful when reconstituting a document from a file previously
-    /// encoded with the `--reversible` option and where a JSON cache of the document
+    /// encoded with the `--reproducible` option and where a JSON cache of the document
     /// was encoded at the same times.
     ///
     /// Only supported for some formats (.e.g DOCX, ODT).
@@ -123,7 +123,7 @@ pub struct EncodeOptions {
     ///
     /// Only supported by some formats, and may be the default for those.
     #[arg(long)]
-    reversible: bool,
+    reproducible: bool,
 
     /// The template document to use
     ///
@@ -193,7 +193,7 @@ impl EncodeOptions {
             .or(self.pretty.then_some(false));
 
         let highlight = self.highlight.then_some(true);
-        let reversible = self.reversible.then_some(true);
+        let reproducible = self.reproducible.then_some(true);
 
         let template = self.template.clone();
 
@@ -210,7 +210,7 @@ impl EncodeOptions {
             format,
             compact,
             highlight,
-            reversible,
+            reproducible,
             template,
             standalone,
             recurse,

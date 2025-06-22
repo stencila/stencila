@@ -74,11 +74,17 @@ impl Codec for LatexCodec {
         let standalone = options.standalone.unwrap_or_default();
         let render = options.render.unwrap_or_default();
         let highlight = options.highlight.unwrap_or_default();
-        let reversible = options.reversible.unwrap_or_default();
+        let reproducible = options.reproducible.unwrap_or_default();
 
         if tool.is_empty() {
             Ok(to_latex(
-                node, format, standalone, render, highlight, reversible, None,
+                node,
+                format,
+                standalone,
+                render,
+                highlight,
+                reproducible,
+                None,
             ))
         } else if tool == "pandoc" {
             options.tool_args.push("--listings".into());

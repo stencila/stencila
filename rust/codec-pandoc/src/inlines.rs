@@ -410,8 +410,8 @@ fn code_expression_to_pandoc(
             attrs_empty()
         };
 
-        return if context.reversible {
-            context.reversible_link(NodeType::CodeExpression, expr, attrs, vec![inline])
+        return if context.reproducible {
+            context.reproducible_link(NodeType::CodeExpression, expr, attrs, vec![inline])
         } else if context.highlight {
             pandoc::Inline::Span(attrs, vec![inline])
         } else {

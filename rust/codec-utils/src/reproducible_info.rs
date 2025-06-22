@@ -17,7 +17,7 @@ use common::eyre::{OptionExt, Result, bail};
 /// * If the file is untracked → `(Some(relative_path), Some("untracked"))`
 /// * If the file is dirty → `(Some(relative_path), Some("dirty")))`
 /// * Otherwise → `(Some(relative_path), Some(head_commit_sha))`
-pub fn reversible_info(path: &Path) -> Result<(Option<String>, Option<String>)> {
+pub fn reproducible_info(path: &Path) -> Result<(Option<String>, Option<String>)> {
     let path = path.canonicalize()?;
 
     let Ok(repo_root) = closest_git_repo(&path) else {

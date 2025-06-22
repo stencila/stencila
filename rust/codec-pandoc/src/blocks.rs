@@ -581,8 +581,8 @@ fn code_chunk_to_pandoc(
         };
 
         let Some(outputs) = &code_chunk.outputs else {
-            if context.reversible {
-                let link = context.reversible_link(
+            if context.reproducible {
+                let link = context.reproducible_link(
                     NodeType::CodeChunk,
                     code_chunk,
                     attrs,
@@ -604,8 +604,8 @@ fn code_chunk_to_pandoc(
             pandoc::Inline::Str(String::new())
         };
 
-        let inline = if context.reversible {
-            context.reversible_link(NodeType::CodeChunk, code_chunk, attrs, vec![inline])
+        let inline = if context.reproducible {
+            context.reproducible_link(NodeType::CodeChunk, code_chunk, attrs, vec![inline])
         } else if context.highlight {
             pandoc::Inline::Span(attrs, vec![inline])
         } else {

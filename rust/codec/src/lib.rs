@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use codec_utils::{reversible_info, reversible_warnings};
+use codec_utils::{reproducible_info, reproducible_warnings};
 use common::{
     async_trait::async_trait,
     eyre::{bail, Result},
@@ -264,17 +264,17 @@ pub trait Codec: Sync + Send {
         }
 
         // Capture info needed to reverse changes unless flag is explicitly false
-        let reversible = options
+        let reproducible = options
             .as_ref()
-            .and_then(|opts| opts.reversible)
+            .and_then(|opts| opts.reproducible)
             .unwrap_or(true);
 
         let mut file = File::open(path).await?;
         let (mut node, info) = self.from_file(&mut file, options).await?;
 
-        if reversible {
+        if reproducible {
             if let Node::Article(Article { options, .. }) = &mut node {
-                let (source, commit) = reversible_info(path)?;
+                let (source, commit) = reproducible_info(path)?;
                 options.source = source;
                 options.commit = commit;
             }
@@ -346,9 +346,9 @@ pub trait Codec: Sync + Send {
             ..options.unwrap_or_default()
         };
 
-        if options.reversible.unwrap_or_default() {
+        if options.reproducible.unwrap_or_default() {
             if let Node::Article(Article { options, .. }) = &node {
-                reversible_warnings(&options.source, &options.commit)
+                reproducible_warnings(&options.source, &options.commit)
             }
         }
 
@@ -461,7 +461,7 @@ pub struct DecodeOptions {
     ///
     /// Usually defaults to `true` when decoding from a path, but can be explicitly set
     /// to `false` if `source` and `commit` properties should not be populated.
-    pub reversible: Option<bool>,
+    pub reproducible: Option<bool>,
 
     /// Reconstitute nodes from a cache
     ///
@@ -515,7 +515,7 @@ pub struct EncodeOptions {
     pub highlight: Option<bool>,
 
     /// Encode such that changes in the encoded document can be applied back to its source
-    pub reversible: Option<bool>,
+    pub reproducible: Option<bool>,
 
     /// The template document to use
     ///
