@@ -158,7 +158,7 @@ impl Display for NodeUrl {
 mod tests {
     use std::str::FromStr;
 
-    use common::eyre::Result;
+    use common::eyre::{OptionExt, Result};
 
     use super::*;
 
@@ -194,12 +194,15 @@ mod tests {
     fn roundtrip_jzb64() -> Result<()> {
         let node = "Hello world!";
 
-        let mut url = NodeUrl::default();
-        url.jzb64 = Some(NodeUrl::to_jzb64(node)?);
-        let url = url.to_string();
+        let url = NodeUrl {
+            jzb64: Some(NodeUrl::to_jzb64(node)?),
+            ..Default::default()
+        }
+        .to_string();
 
         let url = NodeUrl::from_str(&url)?;
-        let round_tripped: String = NodeUrl::from_jzb64(&url.jzb64.unwrap())?;
+        let round_tripped: String =
+            NodeUrl::from_jzb64(&url.jzb64.ok_or_eyre("should have jzb64")?)?;
         assert_eq!(node, round_tripped);
 
         Ok(())

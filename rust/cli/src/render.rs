@@ -54,6 +54,7 @@ pub struct Cli {
 }
 
 impl Cli {
+    #[allow(clippy::print_stderr)]
     pub async fn run(self) -> Result<()> {
         let Self {
             input,
@@ -100,7 +101,6 @@ impl Cli {
         encode_options.render = Some(true);
         encode_options.losses = LossesResponse::Debug;
 
-        #[allow(clippy::print_stderr)]
         if let Some(output) = &output {
             doc.export(output, Some(encode_options)).await?;
             eprintln!(
