@@ -72,10 +72,14 @@ impl Codec for OdtCodec {
         let pandoc = pandoc_from_format("", Some(path), PANDOC_FORMAT, &options).await?;
         let (mut node, info) = root_from_pandoc(pandoc, Format::Odt, &options)?;
 
-        if let Some(cache) = options.and_then(|options| options.cache) {
+        // If a cache is specified then use it to reconstitute the node
+        let cache = if let Some(cache) = options.and_then(|options| options.cache) {
             let (cache, ..) = JsonCodec.from_path(&cache, None).await?;
-            reconstitute(&mut node, cache);
-        }
+            Some(cache)
+        } else {
+            None
+        };
+        reconstitute(&mut node, cache);
 
         Ok((node, None, info))
     }

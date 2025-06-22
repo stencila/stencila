@@ -85,7 +85,12 @@ impl Codec for DocxCodec {
         options: Option<DecodeOptions>,
     ) -> Result<(Node, Option<Node>, DecodeInfo)> {
         let pandoc = pandoc_from_format("", Some(path), PANDOC_FORMAT, &options).await?;
-        let (mut node, info) = root_from_pandoc(pandoc, Format::Docx, &options)?;
+
+        let format = options
+            .as_ref()
+            .and_then(|opts| opts.format.clone())
+            .unwrap_or(Format::Docx);
+        let (mut node, info) = root_from_pandoc(pandoc, format, &options)?;
 
         let (data, mut properties) = decode::data_and_properties(path)?;
 
@@ -113,17 +118,13 @@ impl Codec for DocxCodec {
         } else {
             None
         };
-        if let Some(cache) = cache.clone() {
-            reconstitute(&mut node, cache);
-        }
+        reconstitute(&mut node, cache.clone());
 
         // If a unedited version of the document is embedded in the DOCX, then add it to the
         // decoding info
         let unedited = if let Some(unedited) = data.get("unedited.json") {
             let (mut unedited, ..) = JsonCodec.from_str(unedited, None).await?;
-            if let Some(cache) = cache {
-                reconstitute(&mut unedited, cache);
-            }
+            reconstitute(&mut unedited, cache);
             Some(unedited)
         } else {
             None
@@ -144,6 +145,8 @@ impl Codec for DocxCodec {
         if options.render.is_none() {
             options.render = Some(true);
         }
+
+        let format = options.format.clone().unwrap_or(Format::Docx);
 
         let reversible = options.reversible.unwrap_or_default();
 
@@ -182,7 +185,7 @@ impl Codec for DocxCodec {
 
             // Delegate to Pandoc
             let options = Some(options);
-            let (pandoc, info) = root_to_pandoc(node, Format::Docx, &options)?;
+            let (pandoc, info) = root_to_pandoc(node, format.clone(), &options)?;
             pandoc_to_format(
                 &pandoc,
                 Some(path),

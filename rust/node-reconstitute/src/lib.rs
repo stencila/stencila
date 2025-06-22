@@ -11,7 +11,7 @@ use schema::{
 ///
 /// Walks over the node an when it encounters a `stencila://<path>` link, replaces it with
 /// the node in the cache at the `path`.
-pub fn reconstitute(node: &mut Node, cache: Node) {
+pub fn reconstitute(node: &mut Node, cache: Option<Node>) {
     Reconstituter {
         cache,
         ..Default::default()
@@ -25,7 +25,7 @@ pub fn reconstitute(node: &mut Node, cache: Node) {
 #[derive(Default)]
 struct Reconstituter {
     /// The cache node that linked nodes are copied from
-    cache: Node,
+    cache: Option<Node>,
 
     /// Stack of blocks collected between (potentially nested) `:begin` and `:end` links
     blocks: Vec<Vec<Block>>,
@@ -71,7 +71,7 @@ impl VisitorMut for Reconstituter {
             .map(|typ| typ.is_block())
             .unwrap_or_default()
         {
-            // If blocks being collected then add to them
+            // If blocks are currently being collected then add to them
             if let Some(blocks) = self.blocks.last_mut() {
                 blocks.push(block.clone());
                 *block = delete();
@@ -79,17 +79,6 @@ impl VisitorMut for Reconstituter {
 
             return WalkControl::Continue;
         }
-
-        // ...with a path as a target
-        let Some(node_path) = node_url.path else {
-            // If blocks being collected then add to them
-            if let Some(blocks) = self.blocks.last_mut() {
-                blocks.push(block.clone());
-                *block = delete();
-            }
-
-            return WalkControl::Continue;
-        };
 
         // ...that may be a `begin` or `end` marker
         let mut begin = false;
@@ -104,26 +93,46 @@ impl VisitorMut for Reconstituter {
             mid = !self.blocks.is_empty();
         };
 
-        // ...that is getable from the cache
-        let node = match get(&self.cache, node_path.clone()) {
-            Ok(node_set) => match node_set {
-                NodeSet::One(node) => node,
-                NodeSet::Many(..) => {
-                    tracing::error!("Got many nodes at `{node_path}`, expected one");
+        // ...with a path as a target (and cache is available)
+        let node = if let (Some(node_path), Some(cache)) = (node_url.path, &self.cache) {
+            // ...that is getable from the cache
+            match get(cache, node_path.clone()) {
+                Ok(node_set) => match node_set {
+                    NodeSet::One(node) => node,
+                    NodeSet::Many(..) => {
+                        tracing::error!("Got many nodes at `{node_path}`, expected one");
+                        return WalkControl::Continue;
+                    }
+                },
+                Err(error) => {
+                    tracing::error!("While getting `{node_path}` from cache: {error}");
                     return WalkControl::Continue;
                 }
-            },
-            Err(error) => {
-                tracing::error!("While getting `{node_path}` from cache: {error}");
-                return WalkControl::Continue;
             }
+        } else if let Some(jzb64) = node_url.jzb64 {
+            // ...that has a jzb64 field that can be deserialized to a node
+            match NodeUrl::from_jzb64::<Node>(&jzb64) {
+                Ok(node) => node,
+                Err(error) => {
+                    tracing::error!("While decoding `jzb64`: {error}");
+                    return WalkControl::Continue;
+                }
+            }
+        } else {
+            // If blocks being collected then add to them
+            if let Some(blocks) = self.blocks.last_mut() {
+                blocks.push(block.clone());
+                *block = delete();
+            }
+
+            return WalkControl::Continue;
         };
 
         // ...and is a block node.
         let mut block_node = match Block::try_from(node) {
             Ok(block_node) => block_node,
             Err(error) => {
-                tracing::error!("While converting `{node_path}`: {error}");
+                tracing::error!("While converting node: {error}");
                 return WalkControl::Continue;
             }
         };
@@ -168,31 +177,45 @@ impl VisitorMut for Reconstituter {
             return WalkControl::Continue;
         };
 
-        // ...that has a Stencila node URL with a path as a target
-        let Some(node_path) = NodeUrl::from_str(target).ok().and_then(|url| url.path) else {
+        // ...that has a Stencila node URL
+        let Some(node_url) = NodeUrl::from_str(target).ok() else {
             return WalkControl::Continue;
         };
 
-        // ...that is getable from the cache
-        let node = match get(&self.cache, node_path.clone()) {
-            Ok(node_set) => match node_set {
-                NodeSet::One(node) => node,
-                NodeSet::Many(..) => {
-                    tracing::error!("Got many nodes at `{node_path}`, expected one");
+        // ...with a path as a target (and cache is available)
+        let node = if let (Some(node_path), Some(cache)) = (node_url.path, &self.cache) {
+            // ...that is getable from the cache
+            match get(cache, node_path.clone()) {
+                Ok(node_set) => match node_set {
+                    NodeSet::One(node) => node,
+                    NodeSet::Many(..) => {
+                        tracing::error!("Got many nodes at `{node_path}`, expected one");
+                        return WalkControl::Continue;
+                    }
+                },
+                Err(error) => {
+                    tracing::error!("While getting `{node_path}` from cache: {error}");
                     return WalkControl::Continue;
                 }
-            },
-            Err(error) => {
-                tracing::error!("While getting `{node_path}` from cache: {error}");
-                return WalkControl::Continue;
             }
+        } else if let Some(jzb64) = node_url.jzb64 {
+            // ...that has a jzb64 field that can be deserialized to a node
+            match NodeUrl::from_jzb64::<Node>(&jzb64) {
+                Ok(node) => node,
+                Err(error) => {
+                    tracing::error!("While decoding `jzb64`: {error}");
+                    return WalkControl::Continue;
+                }
+            }
+        } else {
+            return WalkControl::Continue;
         };
 
         // ...and is an inline node.
         let inline_node = match Inline::try_from(node) {
             Ok(inline_node) => inline_node,
             Err(error) => {
-                tracing::error!("While converting `{node_path}`: {error}");
+                tracing::error!("While converting node: {error}");
                 return WalkControl::Continue;
             }
         };
