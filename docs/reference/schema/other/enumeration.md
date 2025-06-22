@@ -41,7 +41,7 @@ The `Enumeration` type can be encoded (serialized) to, and/or decoded (deseriali
 | Format                                                                               | Encoding     | Decoding   | Support | Notes |
 | ------------------------------------------------------------------------------------ | ------------ | ---------- | ------- | ----- |
 | [DOM HTML](https://stencila.ghost.io/docs/reference/formats/dom.html)                | 🟢 No loss    |            |         |
-| [HTML](https://stencila.ghost.io/docs/reference/formats/html)                        | 🔷 Low loss   |            |         |
+| [HTML](https://stencila.ghost.io/docs/reference/formats/html)                        | 🟢 No loss    |            |         |
 | [JATS](https://stencila.ghost.io/docs/reference/formats/jats)                        |              |            |         |
 | [Markdown](https://stencila.ghost.io/docs/reference/formats/md)                      | ⚠️ High loss |            |         |
 | [Stencila Markdown](https://stencila.ghost.io/docs/reference/formats/smd)            | ⚠️ High loss |            |         |
@@ -54,6 +54,7 @@ The `Enumeration` type can be encoded (serialized) to, and/or decoded (deseriali
 | [Plain text](https://stencila.ghost.io/docs/reference/formats/text)                  | ⚠️ High loss |            |         |
 | [IPYNB](https://stencila.ghost.io/docs/reference/formats/ipynb)                      | 🔷 Low loss   | 🔷 Low loss |         |
 | [Microsoft Word DOCX](https://stencila.ghost.io/docs/reference/formats/docx)         | 🔷 Low loss   | 🔷 Low loss |         |
+| [Google Docs DOCX](https://stencila.ghost.io/docs/reference/formats/gdocx)           |              |            |         |
 | [OpenDocument ODT](https://stencila.ghost.io/docs/reference/formats/odt)             | 🔷 Low loss   | 🔷 Low loss |         |
 | [TeX](https://stencila.ghost.io/docs/reference/formats/tex)                          | 🔷 Low loss   | 🔷 Low loss |         |
 | [JSON](https://stencila.ghost.io/docs/reference/formats/json)                        | 🟢 No loss    | 🟢 No loss  |         |

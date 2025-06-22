@@ -343,9 +343,6 @@ Convert a document to another format
 * `-t`, `--to <TO>` — The format of the output/s
 
    If not supplied, and outputting to a file, is inferred from the extension. See `stencila formats list` for available formats.
-* `--render` — Encode the outputs, rather than the source, of executable nodes
-
-   Only supported by some formats.
 * `--highlight` — Highlight the rendered outputs of executable nodes
 
    Only supported by some formats (e.g. DOCX and ODT).
@@ -444,9 +441,6 @@ Reverse changes from an edited document into the original
 * `-t`, `--to <TO>` — The format of the output/s
 
    If not supplied, and outputting to a file, is inferred from the extension. See `stencila formats list` for available formats.
-* `--render` — Encode the outputs, rather than the source, of executable nodes
-
-   Only supported by some formats.
 * `--highlight` — Highlight the rendered outputs of executable nodes
 
    Only supported by some formats (e.g. DOCX and ODT).
@@ -516,9 +510,6 @@ The direction of synchronization can be specified by appending the to the file p
 * `-t`, `--to <TO>` — The format of the output/s
 
    If not supplied, and outputting to a file, is inferred from the extension. See `stencila formats list` for available formats.
-* `--render` — Encode the outputs, rather than the source, of executable nodes
-
-   Only supported by some formats.
 * `--highlight` — Highlight the rendered outputs of executable nodes
 
    Only supported by some formats (e.g. DOCX and ODT).
@@ -581,83 +572,34 @@ The direction of synchronization can be specified by appending the to the file p
 
 Compile a document
 
-**Usage:** `stencila compile [OPTIONS] <INPUT> [OUTPUT] [TOOL_ARGS]...`
+**Usage:** `stencila compile [OPTIONS] <INPUT>`
 
 ###### **Arguments:**
 
-* `<INPUT>` — The path of the file to execute
-
-   If not supplied the input content is read from `stdin`.
-* `<OUTPUT>` — The path of the file to write the executed document to
-
-   If not supplied the output content is written to `stdout` in the format specified by the `--to` option (defaulting to JSON).
-* `<TOOL_ARGS>` — Arguments to pass through to any CLI tool delegated to for encoding to the output format (e.g. Pandoc)
+* `<INPUT>` — The path of the document to compile
 
 ###### **Options:**
 
-* `-t`, `--to <TO>` — The format of the output/s
+* `-f`, `--from <FROM>` — The format of the input/s
 
-   If not supplied, and outputting to a file, is inferred from the extension. See `stencila formats list` for available formats.
-* `--render` — Encode the outputs, rather than the source, of executable nodes
+   If not supplied, and inputting from a file, is inferred from the extension. See `stencila formats list` for available formats.
+* `--fine` — Use fine decoding if available for input format
 
-   Only supported by some formats.
-* `--highlight` — Highlight the rendered outputs of executable nodes
+   Use this flag to decode content to the finest level of granularity supported by the format. This is the default for most formats.
+* `--coarse` — Use coarse decoding if available for input format
 
-   Only supported by some formats (e.g. DOCX and ODT).
-* `--reversible` — Encode such that changes in the encoded document can be applied back to its source
+   Use this flag to decode content to the coarsest level of granularity supported by the format. Useful for decoding formats that are not fully supported to avoid loss of structure.
+* `--cache <CACHE>` — Reconstitute nodes from a cache
 
-   Used in association with `--render` to additionally encode links to the source of nodes that are not natively supported in the format.
+   Only useful when reconstituting a document from a file previously encoded with the `--reversible` option and where a JSON cache of the document was encoded at the same times.
 
-   Only supported by some formats, and may be the default for those.
-* `--template <TEMPLATE>` — The template document to use
+   Only supported for some formats (.e.g DOCX, ODT). At present, the cache must be the path to a JSON file.
+* `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
-   Only supported by some formats (e.g. DOCX).
-* `--standalone` — Encode as a standalone document
-* `--not-standalone` — Do not encode as a standalone document when writing to file
-* `--recursive` — Recursively encode the content of `IncludeBlock`s to their source file
-
-   Only supported when encoding to a path.
-* `--compact` — Use compact form of encoding if possible
-
-   Use this flag to produce the compact forms of encoding (e.g. no indentation) which are supported by some formats (e.g. JSON, HTML).
-* `--pretty` — Use a "pretty" form of encoding if possible
-
-   Use this flag to produce pretty forms of encoding (e.g. indentation) which are supported by some formats (e.g. JSON, HTML).
-* `--output-losses <OUTPUT_LOSSES>` — Action when there are losses encoding to output files
-
-   See help for `--input-losses` for details.
+   Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
 
   Default value: `warn`
-* `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
-
-  Possible values:
-  - `authors`:
-    Strip authorship properties of nodes
-  - `provenance`:
-    Strip provenance properties of nodes
-  - `metadata`:
-    Strip metadata properties of nodes
-  - `content`:
-    Strip content properties of nodes
-  - `archive`:
-    Strip archive properties of node
-  - `temporary`:
-    Strip temporary properties of a node
-  - `code`:
-    Strip code properties of executable nodes
-  - `compilation`:
-    Strip compilation related properties of executable nodes
-  - `execution`:
-    Strip execution related properties of executable nodes
-  - `output`:
-    Strip output properties of executable nodes
-  - `timestamps`:
-    Strip timestamp properties
-
-* `--strip-types <STRIP_TYPES>` — A list of node types to strip
-* `--strip-props <STRIP_PROPS>` — A list of node properties to strip
-* `--no-save` — Do not save the document after compiling it
-* `--tool <TOOL>` — The tool to use to encode the output format
+* `--no-store` — Do not store the document after compiling it
 
 
 
@@ -686,20 +628,33 @@ Lint one or more documents
 
 Execute a document
 
-**Usage:** `stencila execute [OPTIONS] <INPUT> [OUTPUT] [TOOL_ARGS]...`
+**Usage:** `stencila execute [OPTIONS] <INPUT>`
 
 ###### **Arguments:**
 
-* `<INPUT>` — The path of the file to execute
-
-   If not supplied the input content is read from `stdin`.
-* `<OUTPUT>` — The path of the file to write the executed document to
-
-   If not supplied the output content is written to `stdout`.
-* `<TOOL_ARGS>` — Arguments to pass through to any CLI tool delegated to for encoding to the output format (e.g. Pandoc)
+* `<INPUT>` — The path of the document to execute
 
 ###### **Options:**
 
+* `-f`, `--from <FROM>` — The format of the input/s
+
+   If not supplied, and inputting from a file, is inferred from the extension. See `stencila formats list` for available formats.
+* `--fine` — Use fine decoding if available for input format
+
+   Use this flag to decode content to the finest level of granularity supported by the format. This is the default for most formats.
+* `--coarse` — Use coarse decoding if available for input format
+
+   Use this flag to decode content to the coarsest level of granularity supported by the format. Useful for decoding formats that are not fully supported to avoid loss of structure.
+* `--cache <CACHE>` — Reconstitute nodes from a cache
+
+   Only useful when reconstituting a document from a file previously encoded with the `--reversible` option and where a JSON cache of the document was encoded at the same times.
+
+   Only supported for some formats (.e.g DOCX, ODT). At present, the cache must be the path to a JSON file.
+* `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
+
+   Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
+
+  Default value: `warn`
 * `--force-all` — Re-execute all node types regardless of current state
 * `--skip-code` — Skip executing code
 
@@ -722,69 +677,7 @@ Execute a document
 * `--dry-run` — Prepare, but do not actually perform, execution tasks
 
    Currently only supported by instructions where it is useful for debugging the rendering of prompts without making a potentially slow generative model API request.
-* `-t`, `--to <TO>` — The format of the output/s
-
-   If not supplied, and outputting to a file, is inferred from the extension. See `stencila formats list` for available formats.
-* `--render` — Encode the outputs, rather than the source, of executable nodes
-
-   Only supported by some formats.
-* `--highlight` — Highlight the rendered outputs of executable nodes
-
-   Only supported by some formats (e.g. DOCX and ODT).
-* `--reversible` — Encode such that changes in the encoded document can be applied back to its source
-
-   Used in association with `--render` to additionally encode links to the source of nodes that are not natively supported in the format.
-
-   Only supported by some formats, and may be the default for those.
-* `--template <TEMPLATE>` — The template document to use
-
-   Only supported by some formats (e.g. DOCX).
-* `--standalone` — Encode as a standalone document
-* `--not-standalone` — Do not encode as a standalone document when writing to file
-* `--recursive` — Recursively encode the content of `IncludeBlock`s to their source file
-
-   Only supported when encoding to a path.
-* `--compact` — Use compact form of encoding if possible
-
-   Use this flag to produce the compact forms of encoding (e.g. no indentation) which are supported by some formats (e.g. JSON, HTML).
-* `--pretty` — Use a "pretty" form of encoding if possible
-
-   Use this flag to produce pretty forms of encoding (e.g. indentation) which are supported by some formats (e.g. JSON, HTML).
-* `--output-losses <OUTPUT_LOSSES>` — Action when there are losses encoding to output files
-
-   See help for `--input-losses` for details.
-
-  Default value: `warn`
-* `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
-
-  Possible values:
-  - `authors`:
-    Strip authorship properties of nodes
-  - `provenance`:
-    Strip provenance properties of nodes
-  - `metadata`:
-    Strip metadata properties of nodes
-  - `content`:
-    Strip content properties of nodes
-  - `archive`:
-    Strip archive properties of node
-  - `temporary`:
-    Strip temporary properties of a node
-  - `code`:
-    Strip code properties of executable nodes
-  - `compilation`:
-    Strip compilation related properties of executable nodes
-  - `execution`:
-    Strip execution related properties of executable nodes
-  - `output`:
-    Strip output properties of executable nodes
-  - `timestamps`:
-    Strip timestamp properties
-
-* `--strip-types <STRIP_TYPES>` — A list of node types to strip
-* `--strip-props <STRIP_PROPS>` — A list of node properties to strip
-* `--no-save` — Do not save the document after compiling it
-* `--tool <TOOL>` — The tool to use to encode the output format
+* `--no-store` — Do not store the document after executing it
 
 
 
@@ -792,22 +685,36 @@ Execute a document
 
 Render a document
 
-Equivalent to the `execute` command with the `--render` flag.
-
 **Usage:** `stencila render [OPTIONS] <INPUT> [OUTPUT] [TOOL_ARGS]...`
 
 ###### **Arguments:**
 
-* `<INPUT>` — The path of the file to render
-
-   If not supplied the input content is read from `stdin`.
-* `<OUTPUT>` — The path of the file to write the rendered document to
-
-   If not supplied the output content is written to `stdout`.
+* `<INPUT>` — The path of the document to render
+* `<OUTPUT>` — The path of the rendered document
 * `<TOOL_ARGS>` — Arguments to pass through to any CLI tool delegated to for encoding to the output format (e.g. Pandoc)
 
 ###### **Options:**
 
+* `--ignore-errors` — Ignore any errors while executing document
+* `-f`, `--from <FROM>` — The format of the input/s
+
+   If not supplied, and inputting from a file, is inferred from the extension. See `stencila formats list` for available formats.
+* `--fine` — Use fine decoding if available for input format
+
+   Use this flag to decode content to the finest level of granularity supported by the format. This is the default for most formats.
+* `--coarse` — Use coarse decoding if available for input format
+
+   Use this flag to decode content to the coarsest level of granularity supported by the format. Useful for decoding formats that are not fully supported to avoid loss of structure.
+* `--cache <CACHE>` — Reconstitute nodes from a cache
+
+   Only useful when reconstituting a document from a file previously encoded with the `--reversible` option and where a JSON cache of the document was encoded at the same times.
+
+   Only supported for some formats (.e.g DOCX, ODT). At present, the cache must be the path to a JSON file.
+* `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
+
+   Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
+
+  Default value: `warn`
 * `--force-all` — Re-execute all node types regardless of current state
 * `--skip-code` — Skip executing code
 
@@ -833,9 +740,6 @@ Equivalent to the `execute` command with the `--render` flag.
 * `-t`, `--to <TO>` — The format of the output/s
 
    If not supplied, and outputting to a file, is inferred from the extension. See `stencila formats list` for available formats.
-* `--render` — Encode the outputs, rather than the source, of executable nodes
-
-   Only supported by some formats.
 * `--highlight` — Highlight the rendered outputs of executable nodes
 
    Only supported by some formats (e.g. DOCX and ODT).
@@ -891,7 +795,7 @@ Equivalent to the `execute` command with the `--render` flag.
 
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
-* `--no-save` — Do not save the document after compiling it
+* `--no-store` — Do not store the document after executing it
 * `--tool <TOOL>` — The tool to use to encode the output format
 
 

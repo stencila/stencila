@@ -50,6 +50,7 @@ The `ConfigModels` type can be encoded (serialized) to, and/or decoded (deserial
 | [Plain text](https://stencila.ghost.io/docs/reference/formats/text)                  |          |          |         |
 | [IPYNB](https://stencila.ghost.io/docs/reference/formats/ipynb)                      |          |          |         |
 | [Microsoft Word DOCX](https://stencila.ghost.io/docs/reference/formats/docx)         |          |          |         |
+| [Google Docs DOCX](https://stencila.ghost.io/docs/reference/formats/gdocx)           |          |          |         |
 | [OpenDocument ODT](https://stencila.ghost.io/docs/reference/formats/odt)             |          |          |         |
 | [TeX](https://stencila.ghost.io/docs/reference/formats/tex)                          |          |          |         |
 | [JSON](https://stencila.ghost.io/docs/reference/formats/json)                        |          |          |         |
