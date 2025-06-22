@@ -1071,6 +1071,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-gdocx"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-docx",
+]
+
+[[package]]
 name = "codec-html"
 version = "0.0.0"
 dependencies = [
@@ -1281,8 +1289,6 @@ dependencies = [
  "codec",
  "codec-latex-trait",
  "codec-text-trait",
- "node-path",
- "node-url",
  "pandoc_types",
  "which",
 ]
@@ -1389,6 +1395,7 @@ dependencies = [
  "codec-directory",
  "codec-docx",
  "codec-dom",
+ "codec-gdocx",
  "codec-html",
  "codec-ipynb",
  "codec-jats",

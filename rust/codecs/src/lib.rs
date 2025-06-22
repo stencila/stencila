@@ -35,6 +35,7 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         // will be selected when encoding to HTML
         Box::new(codec_dom::DomCodec),
         Box::new(codec_directory::DirectoryCodec),
+        Box::new(codec_gdocx::GDocxCodec),
         Box::new(codec_html::HtmlCodec),
         Box::new(codec_ipynb::IpynbCodec),
         Box::new(codec_jats::JatsCodec),

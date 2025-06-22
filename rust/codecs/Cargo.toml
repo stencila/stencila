@@ -17,6 +17,7 @@ codec-debug = { path = "../codec-debug" }
 codec-directory = { path = "../codec-directory" }
 codec-docx = { path = "../codec-docx" }
 codec-dom = { path = "../codec-dom" }
+codec-gdocx = { path = "../codec-gdocx" }
 codec-html = { path = "../codec-html" }
 codec-ipynb = { path = "../codec-ipynb" }
 codec-jats = { path = "../codec-jats" }

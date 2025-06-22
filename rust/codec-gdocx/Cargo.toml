@@ -1,0 +1,11 @@
+[package]
+name = "codec-gdocx"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codec = { path = "../codec" }
+codec-docx = { path = "../codec-docx" }
+
+[lints]
+workspace = true

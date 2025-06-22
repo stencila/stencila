@@ -48,6 +48,7 @@ pub enum Format {
     Ipynb,
     // Word processor formats
     Docx,
+    GDocx,
     Odt,
     // Math languages
     AsciiMath,
@@ -133,6 +134,7 @@ impl Format {
             Dom => "DOM HTML",
             Dot => "Graphviz DOT",
             Flac => "FLAC",
+            GDocx => "Google Docs DOCX",
             Gif => "GIF",
             Html => "HTML",
             Ipynb => "IPYNB",
@@ -275,6 +277,7 @@ impl Format {
             "dom" | "dom.html" => Dom,
             "dot" => Dot,
             "flac" => Flac,
+            "gdocx" => GDocx,
             "gif" => Gif,
             "html" => Html,
             "ipynb" => Ipynb,
@@ -459,6 +462,7 @@ impl Display for Format {
             Dom => "dom.html",
             Dot => "dot",
             Flac => "flac",
+            GDocx => "gdocx",
             Gif => "gif",
             Html => "html",
             Ipynb => "ipynb",
