@@ -34,13 +34,14 @@ use common::{
     },
     tracing,
 };
-use document::{Command, CommandNodes, CommandScope, CommandStatus, ContentType, Document};
+use document::{Command, CommandNodes, CommandScope, CommandStatus, Document};
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
-    diff, replicate, AuthorRole, AuthorRoleName, Block, Chat, ExecutionMode, InstructionBlock,
-    InstructionMessage, InstructionType, ModelParameters, Node, NodeId, NodePath, NodeProperty,
-    NodeType, Patch, PatchNode, PatchOp, PatchValue, PromptBlock, SuggestionBlock, Timestamp,
+    diff, replicate, AuthorRole, AuthorRoleName, Block, Chat, ContentType, ExecutionMode,
+    InstructionBlock, InstructionMessage, InstructionType, ModelParameters, Node, NodeId, NodePath,
+    NodeProperty, NodeType, Patch, PatchNode, PatchOp, PatchValue, PromptBlock, SuggestionBlock,
+    Timestamp,
 };
 
 use crate::{

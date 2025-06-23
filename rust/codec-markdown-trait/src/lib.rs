@@ -1,6 +1,6 @@
 //! Provides the `MarkdownCodec` trait for generating Markdown for Stencila Schema nodes
 
-use codec_info::{Losses, Mapping, MessageLevel, NodeId, NodeProperty, NodeType, ContentType};
+use codec_info::{ContentType, Losses, Mapping, MessageLevel, NodeId, NodeProperty, NodeType};
 use common::{inflector::Inflector, tracing};
 use format::Format;
 
@@ -50,7 +50,7 @@ pub struct MarkdownEncodeContext {
     node_stack: Vec<(NodeType, NodeId, usize)>,
 
     /// The current content type
-    /// 
+    ///
     /// Needed when encoding media object which may be
     /// inline or block.
     pub content_type: Option<ContentType>,

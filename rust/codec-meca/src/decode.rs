@@ -25,9 +25,9 @@ pub(super) async fn decode_path(
 
     if path.is_file() {
         tracing::debug!("Extracting MECA");
-        let file = std::fs::File::open(&path)?;
+        let file = std::fs::File::open(path)?;
         let mut zip = ZipArchive::new(file)?;
-        zip.extract(&dir)?;
+        zip.extract(dir)?;
     }
 
     let dir = dir.join("content");

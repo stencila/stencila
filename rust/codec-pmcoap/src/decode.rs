@@ -59,7 +59,7 @@ pub(super) async fn decode_path(
         let file = std::fs::File::open(path)?;
         let tar = GzDecoder::new(file);
         let mut archive = Archive::new(tar);
-        archive.unpack(&dir)?;
+        archive.unpack(dir)?;
     }
 
     // Find the PMCXXXX directory within the dir

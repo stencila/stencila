@@ -24,8 +24,8 @@ use kernels::Kernels;
 use node_diagnostics::{diagnostics, Diagnostic, DiagnosticLevel};
 use node_find::find;
 use schema::{
-    authorship, Article, AuthorRole, Chat, Config, ExecutionBounds, File, Node, NodeId,
-    NodeProperty, NodeType, ContentType, Null, Patch, Prompt,
+    authorship, Article, AuthorRole, Chat, Config, ContentType, ExecutionBounds, File, Node,
+    NodeId, NodeProperty, NodeType, Null, Patch, Prompt,
 };
 
 #[allow(clippy::print_stderr)]

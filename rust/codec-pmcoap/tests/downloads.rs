@@ -10,7 +10,7 @@ use codec_pmcoap::PmcOapCodec;
 #[tokio::test]
 async fn downloads() -> Result<()> {
     for pmcid in ["PMC11518443"] {
-        let (article, info) = PmcOapCodec.from_str(&pmcid, None).await?;
+        let (article, info) = PmcOapCodec.from_str(pmcid, None).await?;
 
         assert_json_snapshot!(format!("{pmcid}.json"), article);
         assert_yaml_snapshot!(format!("{pmcid}.decode.losses"), info.losses);
