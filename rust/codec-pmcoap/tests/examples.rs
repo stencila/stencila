@@ -31,7 +31,13 @@ async fn examples() -> Result<()> {
             .and_then(|name| name.strip_suffix(".tar.gz").map(String::from))
             .ok_or_eyre("should have .tar.gz suffix")?;
 
-        assert_json_snapshot!(format!("{pmcid}.json"), article);
+        // Redact inlined image dataURIs which can be very large
+        assert_json_snapshot!(format!("{pmcid}.json"), article, {
+            ".content[].contentUrl" => "redacted",
+            ".content[].content[].contentUrl" => "redacted",
+            ".content[].content[].content[].contentUrl" => "redacted",
+            ".content[].content[].content[].content[].contentUrl" => "redacted"
+        });
         assert_yaml_snapshot!(format!("{pmcid}.decode.losses"), info.losses);
     }
 

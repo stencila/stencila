@@ -31,7 +31,14 @@ async fn examples() -> Result<()> {
             .and_then(|name| name.strip_suffix(".meca").map(String::from))
             .ok_or_eyre("should have .meca suffix")?;
 
-        assert_json_snapshot!(format!("{id}.json"), article);
+        // Redact inlined image dataURIs which can be very large
+        assert_json_snapshot!(format!("{id}.json"), article, {
+            ".content[].contentUrl" => "redacted",
+            ".content[].content[].contentUrl" => "redacted",
+            ".content[].content[].content[].contentUrl" => "redacted",
+            ".content[].content[].content[].content[].contentUrl" => "redacted"
+        });
+
         assert_yaml_snapshot!(format!("{id}.decode.losses"), info.losses);
     }
 

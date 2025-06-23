@@ -2858,7 +2858,7 @@ expression: article
           "content": [
             {
               "type": "ImageObject",
-              "contentUrl": "656750v1_fig1.tif"
+              "contentUrl": "redacted"
             }
           ]
         }
@@ -3107,7 +3107,7 @@ expression: article
               "content": [
                 {
                   "type": "ImageObject",
-                  "contentUrl": "656750v1_fig2.tif"
+                  "contentUrl": "redacted"
                 }
               ]
             },
@@ -4651,7 +4651,7 @@ expression: article
               "content": [
                 {
                   "type": "ImageObject",
-                  "contentUrl": "656750v1_fig3.tif"
+                  "contentUrl": "redacted"
                 }
               ]
             }
