@@ -66,7 +66,7 @@ impl Cli {
             Vec::new(),
         );
 
-        codecs::reverse(
+        codecs::merge(
             &edited,
             original.as_deref(),
             unedited.as_deref(),

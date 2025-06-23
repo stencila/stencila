@@ -55,7 +55,7 @@ async fn roundtrip_basic() -> Result<()> {
             &article,
             &path,
             Some(EncodeOptions {
-                reversible: Some(true),
+                reproducible: Some(true),
                 ..Default::default()
             }),
         )

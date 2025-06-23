@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use codec_json::JsonCodec;
-use codec_utils::reversible_warnings;
+use codec_utils::reproducible_warnings;
 use node_reconstitute::reconstitute;
 use rust_embed::RustEmbed;
 
@@ -146,13 +146,17 @@ impl Codec for DocxCodec {
             options.render = Some(true);
         }
 
+        // Default to reproducible
+        if options.reproducible.is_none() {
+            options.reproducible = Some(true)
+        }
+
         let format = options.format.clone().unwrap_or(Format::Docx);
 
-        let reversible = options.reversible.unwrap_or_default();
-
-        if reversible {
+        let reproducible = options.reproducible.unwrap_or_default();
+        if reproducible {
             if let Node::Article(Article { options, .. }) = &node {
-                reversible_warnings(&options.source, &options.commit)
+                reproducible_warnings(&options.source, &options.commit)
             }
         }
 
@@ -199,7 +203,7 @@ impl Codec for DocxCodec {
 
         // Add any custom data
         let mut data = Vec::new();
-        if reversible {
+        if reproducible {
             // Store node as JSON so the document can be reconstituted
             let (cache, ..) = JsonCodec
                 .to_string(

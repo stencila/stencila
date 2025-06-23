@@ -3,15 +3,43 @@ use common::{
     similar::{Algorithm, DiffOp, capture_diff_slices},
 };
 
-/// Given three documents,
+/// Rebases edits from one document version to another, preserving user intent.
 ///
-/// - Original (O)
-/// - Unedited (U, lossy version of O)
-/// - Edited (E, edited version of U)
+/// This function solves the "three-way merge" problem where:
 ///
-/// Calculate the edits from Unedited to Edited, "lift" them to Original-positions, and
-/// apply them to Original to return Original′.
-pub fn lift_edits(original: &str, unedited: &str, edited: &str) -> String {
+/// - You have an original document (O)
+/// - You create a lossy version (U) from O (e.g. converting formats)
+/// - A user makes edits to U, producing E
+/// - You want to apply those same logical edits back to O, producing O′
+///
+/// # Algorithm
+///
+/// 1. Computes the diff from U→E to identify what the user changed
+/// 2. Maps those changes back to corresponding positions in O using the O→U diff  
+/// 3. Applies the mapped changes to O, preserving both user edits and original content
+///
+/// # Parameters
+///
+/// - `original`: The source document (O) - contains full fidelity content
+/// - `unedited`: The processed/lossy version (U) - derived from O, presented to user  
+/// - `edited`: The user-modified version (E) - user's edits applied to U
+///
+/// # Returns
+///
+/// A new string (O′) that combines:
+/// - The user's logical edits from the U→E transformation
+/// - The original content from O that was lost in the U version
+///
+/// # Examples
+///
+/// ```rust
+/// let original = "**bold** text here";     // O: Markdown with formatting  
+/// let unedited = "bold text here";         // U: Plain text version without formatting
+/// let edited = "BOLD text here";           // E: user changed "bold" to "BOLD"
+/// let result = codec_utils::rebase_edits(original, unedited, edited);
+/// assert_eq!(result, "**BOLD** text here"); // O′: edit applied, formatting preserved
+/// ```
+pub fn rebase_edits(original: &str, unedited: &str, edited: &str) -> String {
     // If there is no difference between unedited and edited then there are no edits
     // so just return the original
     if edited == unedited {
@@ -243,7 +271,7 @@ mod tests {
         let o = "unchanged";
         let u = "unchanged";
         let e = "unchanged";
-        assert_eq!(lift_edits(o, u, e), "unchanged");
+        assert_eq!(rebase_edits(o, u, e), "unchanged");
     }
 
     /// No edits.
@@ -252,7 +280,7 @@ mod tests {
         let o = "abcde";
         let u = "ade";
         let e = "ade";
-        assert_eq!(lift_edits(o, u, e), "abcde");
+        assert_eq!(rebase_edits(o, u, e), "abcde");
     }
 
     /// Pure insertion (O == U; user inserts into E.
@@ -261,7 +289,7 @@ mod tests {
         let o = "hello";
         let u = "hello";
         let e = "he--llo";
-        assert_eq!(lift_edits(o, u, e), "he--llo");
+        assert_eq!(rebase_edits(o, u, e), "he--llo");
     }
 
     /// Pure deletion: O lost a char when forming U; the edit does nothing.
@@ -271,7 +299,7 @@ mod tests {
         let o = "abcdef";
         let u = "abdef"; // lost the ‘c’
         let e = "abdef"; // user made no change around that spot
-        assert_eq!(lift_edits(o, u, e), "abcdef");
+        assert_eq!(rebase_edits(o, u, e), "abcdef");
     }
 
     /// Replace a single character that happens to sit *after*
@@ -281,7 +309,7 @@ mod tests {
         let o = "abcdef";
         let u = "abdef"; // lost the ‘c’
         let e = "abDef"; // user upper-cases the ‘d’
-        assert_eq!(lift_edits(o, u, e), "abcDef");
+        assert_eq!(rebase_edits(o, u, e), "abcDef");
     }
 
     /// Insert into a gap that was created by the lossy conversion.
@@ -290,7 +318,7 @@ mod tests {
         let o = "abcdef";
         let u = "abdef"; // lost the ‘c’
         let e = "abXdef"; // user inserts ‘X’ where ‘c’ used to be
-        assert_eq!(lift_edits(o, u, e), "abXcdef");
+        assert_eq!(rebase_edits(o, u, e), "abXcdef");
     }
 
     #[test]
@@ -298,7 +326,7 @@ mod tests {
         let o = "The quick brown fox";
         let u = "The uick brown fx"; // lost 'q' and 'o'
         let e = "The UICK brown fX"; // replaced next characters
-        assert_eq!(lift_edits(o, u, e), "The qUICK brown foX");
+        assert_eq!(rebase_edits(o, u, e), "The qUICK brown foX");
     }
 
     /// Mixed case
@@ -307,7 +335,7 @@ mod tests {
         let o = "abcDEFghi";
         let u = "abEFXh";
         let e = "ab--EFXH";
-        assert_eq!(lift_edits(o, u, e), "ab--cDEFgHi");
+        assert_eq!(rebase_edits(o, u, e), "ab--cDEFgHi");
     }
 
     /// Unicode
@@ -316,7 +344,7 @@ mod tests {
         let o = "a🌈cd😾f";
         let u = "abcdf";
         let e = "ab🍩def";
-        assert_eq!(lift_edits(o, u, e), "a🌈🍩de😾f");
+        assert_eq!(rebase_edits(o, u, e), "a🌈🍩de😾f");
     }
 
     proptest! {
@@ -324,7 +352,7 @@ mod tests {
         /// lift_edits must return the original.
         #[test]
         fn no_edit_yields_original(original in ".{0,50}", unedited in ".{0,50}") {
-            let result = lift_edits(&original, &unedited, &unedited);
+            let result = rebase_edits(&original, &unedited, &unedited);
             prop_assert_eq!(result, original);
         }
 
@@ -333,7 +361,7 @@ mod tests {
         /// i.e. result == edited.
         #[test]
         fn no_loss_replays_edits(original in ".{0,50}", edited in ".{0,50}") {
-            let result = lift_edits(&original, &original, &edited);
+            let result = rebase_edits(&original, &original, &edited);
             prop_assert_eq!(result, edited);
         }
 
@@ -347,7 +375,7 @@ mod tests {
             edited   in ".{0,50}",
         ) {
             // run the function (check it does not  panic)
-            let _result = lift_edits(&original, &unedited, &edited);
+            let _result = rebase_edits(&original, &unedited, &edited);
 
             // trivial assertion so proptest counts it as a test
             prop_assert!(true);

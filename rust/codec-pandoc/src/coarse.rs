@@ -29,7 +29,7 @@ pub async fn coarse_to_path(
     let standalone = options.standalone.unwrap_or(true);
     let render = options.render.unwrap_or(true);
     let highlight = options.highlight.unwrap_or(false);
-    let reversible = options.reversible.unwrap_or(false);
+    let reproducible = options.reproducible.unwrap_or(false);
 
     let (content, info) = match from {
         Format::Latex | Format::Tex => to_latex(
@@ -38,7 +38,7 @@ pub async fn coarse_to_path(
             standalone,
             render,
             highlight,
-            reversible,
+            reproducible,
             None,
         ),
         _ => bail!("Unsupported from format: {from}"),

@@ -315,7 +315,7 @@ async fn examples() -> Result<()> {
         let node = codecs::from_path(
             &path,
             Some(DecodeOptions {
-                reversible: Some(false),
+                reproducible: Some(false),
                 ..Default::default()
             }),
         )
@@ -359,7 +359,7 @@ async fn examples() -> Result<()> {
 
                 let encode_options = Some(EncodeOptions {
                     format: Some(config.format.clone()),
-                    reversible: Some(false),
+                    reproducible: Some(false),
                     ..config.encode.options.clone()
                 });
 
@@ -461,7 +461,7 @@ async fn examples() -> Result<()> {
             if file.exists() && !config.decode.skip {
                 let decode_options = Some(DecodeOptions {
                     format: Some(config.format.clone()),
-                    reversible: Some(false),
+                    reproducible: Some(false),
                     ..config.decode.options.clone()
                 });
 

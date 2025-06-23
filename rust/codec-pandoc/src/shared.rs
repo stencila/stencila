@@ -18,7 +18,7 @@ pub(super) struct PandocEncodeContext {
     pub highlight: bool,
 
     /// Encode such that changes in the encoded document can be applied back to its source
-    pub reversible: bool,
+    pub reproducible: bool,
 
     /// Encode paragraphs as Pandoc `Plain` blocks in places
     /// like figure and table captions.
@@ -32,12 +32,12 @@ pub(super) struct PandocEncodeContext {
 }
 
 impl PandocEncodeContext {
-    pub fn new(format: Format, render: bool, highlight: bool, reversible: bool) -> Self {
+    pub fn new(format: Format, render: bool, highlight: bool, reproducible: bool) -> Self {
         Self {
             format,
             render,
             highlight,
-            reversible,
+            reproducible,
             paragraph_to_plain: false,
             losses: Losses::default(),
             node_path: NodePath::new(),
@@ -47,7 +47,7 @@ impl PandocEncodeContext {
     /// Run an encoding function within the scope of a node property
     ///
     /// Modifies the context's node path before and after executing the function
-    /// so that calls to `reversible_link` contain the correct `path` field
+    /// so that calls to `reproducible_link` contain the correct `path` field
     pub fn within_property<F, T>(&mut self, property: NodeProperty, func: F) -> T
     where
         F: Fn(&mut Self) -> T,
@@ -70,7 +70,7 @@ impl PandocEncodeContext {
     }
 
     /// Create a Pandoc link with a [`NodeUrl`] allowing the node to be reconstituted at a later time
-    pub fn reversible_link<T>(
+    pub fn reproducible_link<T>(
         &mut self,
         node_type: NodeType,
         node: &T,

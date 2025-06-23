@@ -151,7 +151,7 @@ impl LatexCodec for CodeChunk {
 
         if context.render {
             if let Some(outputs) = &self.outputs {
-                if context.reversible {
+                if context.reproducible {
                     context.link_begin(None);
                 }
 
@@ -165,7 +165,7 @@ impl LatexCodec for CodeChunk {
                                 false,
                                 true,
                                 context.highlight,
-                                context.reversible,
+                                context.reproducible,
                                 context.prelude.clone(),
                             );
 
@@ -193,7 +193,7 @@ impl LatexCodec for CodeChunk {
                     }
                 });
 
-                if context.reversible {
+                if context.reproducible {
                     context.link_end();
                 }
             } else {

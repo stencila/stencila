@@ -28,7 +28,7 @@ pub fn root_to_pandoc(
         format,
         options.render.unwrap_or_default(),
         options.highlight.unwrap_or_default(),
-        options.reversible.unwrap_or_default(),
+        options.reproducible.unwrap_or_default(),
     );
     let pandoc = node_to_pandoc(root, &mut context)?;
 

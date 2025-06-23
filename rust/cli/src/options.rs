@@ -53,7 +53,7 @@ pub struct DecodeOptions {
     /// Reconstitute nodes from a cache
     ///
     /// Only useful when reconstituting a document from a file previously
-    /// encoded with the `--reversible` option and where a JSON cache of the document
+    /// encoded with the `--reproducible` option and where a JSON cache of the document
     /// was encoded at the same times.
     ///
     /// Only supported for some formats (.e.g DOCX, ODT).
@@ -65,7 +65,7 @@ pub struct DecodeOptions {
     ///
     /// Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or
     /// a filename to write the losses to (only `json` or `yaml` file extensions are supported).
-    #[arg(long, default_value_t = codecs::LossesResponse::Warn)]
+    #[arg(long, default_value_t = codecs::LossesResponse::Debug)]
     input_losses: codecs::LossesResponse,
 }
 
@@ -116,14 +116,18 @@ pub struct EncodeOptions {
     #[arg(long)]
     highlight: bool,
 
-    /// Encode such that changes in the encoded document can be applied back to its source
+    /// Encode executable nodes so that they are reproducible
     ///
-    /// Used in association with `--render` to additionally encode links to the source
-    /// of nodes that are not natively supported in the format.
+    /// Encode links to the source of executable nodes so that edits made
+    /// to rendered documents can be merged back to the source document.
     ///
     /// Only supported by some formats, and may be the default for those.
-    #[arg(long)]
-    reversible: bool,
+    #[arg(long, alias = "repro")]
+    reproducible: bool,
+
+    /// Do not encode executable nodes so that they are reproducible
+    #[arg(long, alias = "not-repro", conflicts_with = "reproducible")]
+    not_reproducible: bool,
 
     /// The template document to use
     ///
@@ -162,7 +166,7 @@ pub struct EncodeOptions {
     /// Action when there are losses encoding to output files
     ///
     /// See help for `--input-losses` for details.
-    #[arg(long, default_value_t = codecs::LossesResponse::Warn)]
+    #[arg(long, default_value_t = codecs::LossesResponse::Debug)]
     output_losses: codecs::LossesResponse,
 }
 
@@ -193,7 +197,11 @@ impl EncodeOptions {
             .or(self.pretty.then_some(false));
 
         let highlight = self.highlight.then_some(true);
-        let reversible = self.reversible.then_some(true);
+
+        let reproducible = self
+            .reproducible
+            .then_some(true)
+            .or(self.not_reproducible.then_some(false));
 
         let template = self.template.clone();
 
@@ -210,7 +218,7 @@ impl EncodeOptions {
             format,
             compact,
             highlight,
-            reversible,
+            reproducible,
             template,
             standalone,
             recurse,
