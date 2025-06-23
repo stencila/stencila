@@ -1,7 +1,4 @@
-use std::{
-    fs::create_dir_all,
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
 use codec::{
     common::{
@@ -12,7 +9,10 @@ use codec::{
         reqwest::Client,
         tar::Archive,
         tempfile,
-        tokio::{fs::File, io::AsyncWriteExt},
+        tokio::{
+            fs::{remove_file, File},
+            io::AsyncWriteExt,
+        },
         tracing,
     },
     schema::{Block, ImageObject, Inline, Node, VisitorMut, WalkControl, WalkNode},
@@ -22,31 +22,57 @@ use codec_jats::JatsCodec;
 use flate2::read::GzDecoder;
 
 /// Decode a PMCID to a Stencila [`Node`]
-pub(super) async fn decode_id(
-    id: &str,
+#[tracing::instrument]
+pub(super) async fn decode_pmcid(
+    pmcid: &str,
     options: Option<DecodeOptions>,
 ) -> Result<(Node, DecodeInfo)> {
-    if !id.starts_with("PMC") {
-        bail!("Unrecognized article id, should be a PMC id")
+    if !pmcid.starts_with("PMC") {
+        bail!("Unrecognized article id, should be a PMC id, starting with `PMC`")
     }
 
-    let dir = tempfile::TempDir::new()?;
-    let dir = if cfg!(debug_assertions) {
-        let dir = PathBuf::from("temp-pmc");
-        create_dir_all(&dir)?;
-        dir
-    } else {
-        dir.path().to_path_buf()
-    };
+    // Download package
+    let pmcoap = download_package(pmcid).await?;
 
-    // Download and extract
-    let dir = download_package(id, &dir).await?;
+    // Decode package
+    let (node, .., info) = decode_path(&pmcoap, options).await?;
+
+    // Remove downloaded package
+    remove_file(pmcoap).await?;
+
+    Ok((node, info))
+}
+
+/// Decode a PMC OA Package to a Stencila [`Node`]
+#[tracing::instrument]
+pub(super) async fn decode_path(
+    path: &Path,
+    options: Option<DecodeOptions>,
+) -> Result<(Node, Option<Node>, DecodeInfo)> {
+    // Create temporary directory to extract into
+    // if path is not already a directory (e.g. an unzipped PMC OA Package)
+    let tempdir = tempfile::TempDir::new()?;
+    let dir = if path.is_dir() { path } else { tempdir.path() };
+
+    if path.is_file() {
+        tracing::debug!("Extracting PMC OA package");
+        let file = std::fs::File::open(path)?;
+        let tar = GzDecoder::new(file);
+        let mut archive = Archive::new(tar);
+        archive.unpack(&dir)?;
+    }
+
+    // Find the PMCXXXX directory within the dir
+    let dir = glob(&dir.join("PMC*").to_string_lossy())?
+        .flatten()
+        .next()
+        .ok_or_eyre("Unable to find PMC subdirectory in archive")?;
 
     // Find the JATS file in the dir
     let jats_path = glob(&dir.join("*.nxml").to_string_lossy())?
         .next()
         .and_then(|res| res.ok())
-        .ok_or_eyre("Unable to find JATS XML file")?;
+        .ok_or_eyre("Unable to find JATS XML file in PMC OA PAckage")?;
 
     // Decode the JATS
     let (mut node, .., info) = JatsCodec.from_path(&jats_path, options).await?;
@@ -54,13 +80,13 @@ pub(super) async fn decode_id(
     // Inline any images if possible
     node.walk_mut(&mut ImageInliner { dir });
 
-    Ok((node, info))
+    Ok((node, None, info))
 }
 
 /// Download the PMC OA Package for a PMCID
 ///
-/// Returns the path to the directory of the extracted package.
-pub(super) async fn download_package(pmcid: &str, dir: &Path) -> Result<PathBuf> {
+/// Returns the path to the downloaded package.
+pub(super) async fn download_package(pmcid: &str) -> Result<PathBuf> {
     let pmcid = pmcid.trim();
 
     tracing::debug!("Getting URL for OA package for `{pmcid}`");
@@ -89,23 +115,16 @@ pub(super) async fn download_package(pmcid: &str, dir: &Path) -> Result<PathBuf>
         .await?
         .error_for_status()?;
 
-    let tar_gz_path = dir.join(format!("{pmcid}.tar.gz"));
-    let mut file = File::create(&tar_gz_path).await?;
+    let path = PathBuf::from(format!("{pmcid}.tar.gz"));
+    let mut file = File::create(&path).await?;
     let mut stream = response.bytes_stream();
     while let Some(chunk_result) = stream.next().await {
         let chunk = chunk_result?;
         file.write_all(&chunk).await?;
     }
     file.flush().await?;
-    drop(file);
 
-    tracing::debug!("Extracting OA package for `{pmcid}`");
-    let tar_gz = std::fs::File::open(&tar_gz_path)?;
-    let tar = GzDecoder::new(tar_gz);
-    let mut archive = Archive::new(tar);
-    archive.unpack(dir)?;
-
-    Ok(dir.join(pmcid))
+    Ok(path)
 }
 
 /// Reads any image files in the package and "inlines" them into the node's

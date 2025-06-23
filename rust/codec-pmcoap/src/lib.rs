@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use codec::{
     common::{async_trait::async_trait, eyre::Result},
     format::Format,
@@ -5,7 +7,6 @@ use codec::{
     status::Status,
     Codec, CodecSupport, DecodeInfo, DecodeOptions, NodeType,
 };
-use decode::decode_id;
 
 mod decode;
 
@@ -38,9 +39,17 @@ impl Codec for PmcOapCodec {
 
     async fn from_str(
         &self,
-        id: &str,
+        pmcid: &str,
         options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
-        decode_id(id, options).await
+        decode::decode_pmcid(pmcid, options).await
+    }
+
+    async fn from_path(
+        &self,
+        path: &Path,
+        options: Option<DecodeOptions>,
+    ) -> Result<(Node, Option<Node>, DecodeInfo)> {
+        decode::decode_path(path, options).await
     }
 }

@@ -9,5 +9,8 @@ codec-jats = { path = "../codec-jats" }
 flate2 = { workspace = true }
 images = { path = "../images" }
 
+[dev-dependencies]
+common-dev = { path = "../common-dev" }
+
 [lints]
 workspace = true
