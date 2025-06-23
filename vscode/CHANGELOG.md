@@ -1,8 +1,12 @@
 # Change Log
 
+## 0.4.0 2025-06-23
+
+- Based on Stencila CLI [v2.3.0](https://github.com/stencila/stencila/releases/tag/v2.3.0) which has improved support for rendering documents.
+
 ## 0.3.0 2025-06-19
 
-- Based on Stencila CLI [v2.2.0](https://github.com/stencila/stencila/releases/tag/v2.0.2) which has various fixes and updates including new Kuzu and DocsQL kernels.
+- Based on Stencila CLI [v2.2.0](https://github.com/stencila/stencila/releases/tag/v2.2.0) which has various fixes and updates including new Kuzu and DocsQL kernels.
 
 ## 0.2.1 2025-02-25
 
@@ -10,7 +14,7 @@
 
 ## 0.2.0 2025-02-25
 
-- Add status decorations for executable nodes that failed [`a0db6eb`](https://github.com/stencila/stencila/commit/caf9f5b4f70a8266abbef6ab13113f84fa81dbd3)
+- Adds status decorations for executable nodes that failed [`a0db6eb`](https://github.com/stencila/stencila/commit/caf9f5b4f70a8266abbef6ab13113f84fa81dbd3)
 
 - Fix to allow images in workspace to be loaded in preview window [`#2564`](https://github.com/stencila/stencila/issues/2564) [`caf9f5b`](https://github.com/stencila/stencila/commit/caf9f5b4f70a8266abbef6ab13113f84fa81dbd3)
 
@@ -56,7 +60,7 @@
 
 ## 0.0.21 2025-01-31
 
-- Load kernel, prompt, and model lists early to reduce waits when user interfaces first loaded. 
+- Load kernel, prompt, and model lists early to reduce waits when user interfaces first loaded.
 
 - Based on Stencila CLI v2.0.0-beta.24 which includes new code linting and formatting functionality, and quality, cost, and speed scores for models.
 
@@ -77,7 +81,6 @@
 - Adds preliminary support for LaTeX documents.
 
 - Based on Stencila CLI v2.0.0-beta.22.
-
 
 ## 0.0.18 2024-11-27
 
