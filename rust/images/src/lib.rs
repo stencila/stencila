@@ -252,6 +252,14 @@ pub fn highlight_image(path: &Path) -> Result<()> {
     Ok(())
 }
 
+/// Convert image from one format to another
+pub fn convert(from: &Path, to: &Path) -> Result<()> {
+    let img = open(from)?;
+    img.save(to)?;
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

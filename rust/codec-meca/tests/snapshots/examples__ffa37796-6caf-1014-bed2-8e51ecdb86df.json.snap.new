@@ -1,0 +1,4726 @@
+---
+source: rust/codec-meca/tests/examples.rs
+assertion_line: 34
+expression: article
+---
+{
+  "type": "Article",
+  "doi": "10.1101/2025.05.29.656750",
+  "abstract": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Deep Learning methods such as Deep Representation Learning (DRL) and, specifically, the Variational Autoencoder (VAE), have been widely used to handle the high dimensionality of available datasets. Hence, these methods have been applied to study cancer through omics data. Cancer is one of the leading causes of death worldwide, and its complex and dynamic nature makes it especially difficult to study. However, the temporal dimension of cancer progression is a target that has not been tackled. In this systematic literature review, we explore the use of DRL, particularly the VAE, in cancer studies with omics data in a temporal context. Our research reveals that the most common uses of the VAE in cancer studies are related to subtyping, diagnosis, and prognosis. Meanwhile, cancer’s temporal aspect is often overlooked, namely, because of the lack of longitudinal data. We propose that applying the VAE as a generative model to study cancer in time, for example, focusing on cancer staging, will lead to meaningful advancements in our understanding of cancer."
+          }
+        }
+      ]
+    }
+  ],
+  "authors": [
+    {
+      "type": "Person",
+      "orcid": "0000-0003-2662-1852",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Barcelona Supercomputing Center (BSC)"
+        },
+        {
+          "type": "Organization",
+          "name": "Department of Medicine and Life Sciences, Universitat Pompeu Fabra"
+        }
+      ],
+      "familyNames": [
+        "Prol-Castelo"
+      ],
+      "givenNames": [
+        "Guillermo"
+      ]
+    },
+    {
+      "type": "Person",
+      "orcid": "0000-0003-4982-4716",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Barcelona Supercomputing Center (BSC)"
+        }
+      ],
+      "familyNames": [
+        "Cirillo"
+      ],
+      "givenNames": [
+        "Davide"
+      ]
+    },
+    {
+      "type": "Person",
+      "orcid": "0000-0002-8937-6789",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Barcelona Supercomputing Center (BSC)"
+        },
+        {
+          "type": "Organization",
+          "name": "Institució Catalana de Recerca i Estudis Avançats (ICREA)"
+        }
+      ],
+      "familyNames": [
+        "Valencia"
+      ],
+      "givenNames": [
+        "Alfonso"
+      ]
+    }
+  ],
+  "dateReceived": {
+    "type": "Date",
+    "value": "2025-5-29"
+  },
+  "dateAccepted": {
+    "type": "Date",
+    "value": "2025-6-05"
+  },
+  "datePublished": {
+    "type": "Date",
+    "value": "2025"
+  },
+  "keywords": [
+    "unaligned data",
+    "longitudinal",
+    "stages",
+    "out-of-sample inference",
+    "generative"
+  ],
+  "references": [
+    {
+      "type": "Reference",
+      "id": "c1",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Miotto"
+          ],
+          "givenNames": [
+            "Riccardo"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Deep learning for healthcare: review, opportunities and challenges"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Briefings in Bioinformatics"
+        },
+        "volumeNumber": 19
+      },
+      "pageStart": 1236,
+      "pageEnd": 1246
+    },
+    {
+      "type": "Reference",
+      "id": "c2",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bengio"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2013"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Representation Learning: A Review and New Perspectives"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "IEEE Transactions on Pattern Analysis and Machine Intelligence"
+        },
+        "volumeNumber": 35
+      },
+      "pageStart": 1798,
+      "pageEnd": 1828
+    },
+    {
+      "type": "Reference",
+      "id": "c3",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bercea"
+          ],
+          "givenNames": [
+            "Cosmin",
+            "I"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Evaluating normative representation learning in generative AI for robust anomaly detection in brain imaging"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Communications"
+        },
+        "volumeNumber": 16
+      },
+      "pageStart": 1624
+    },
+    {
+      "type": "Reference",
+      "id": "c4",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kingma"
+          ],
+          "givenNames": [
+            "Diederik",
+            "P"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2013"
+      }
+    },
+    {
+      "type": "Reference",
+      "id": "c5",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wang"
+          ],
+          "givenNames": [
+            "Yixin"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Comment: Variational Autoencoders as Empirical Bayes"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Statistical Science"
+        },
+        "volumeNumber": 34
+      }
+    },
+    {
+      "type": "Reference",
+      "id": "c6",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Roth"
+          ],
+          "givenNames": [
+            "Gregory",
+            "A"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Global, regional, and national age-sex-specific mortality for 282 causes of death in 195 countries and territories, 1980–2017: a systematic analysis for the Global Burden of Disease Study 2017"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "The Lancet"
+        },
+        "volumeNumber": 392
+      },
+      "pageStart": 1736,
+      "pageEnd": 1788
+    },
+    {
+      "type": "Reference",
+      "id": "c7",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hulvat"
+          ],
+          "givenNames": [
+            "Melissa",
+            "C"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Cancer Incidence and Trends"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Surgical Clinics of North America"
+        },
+        "volumeNumber": 100
+      },
+      "pageStart": 469,
+      "pageEnd": 481
+    },
+    {
+      "type": "Reference",
+      "id": "c8",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Cirillo"
+          ],
+          "givenNames": [
+            "Davide"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Big data analytics for personalized medicine"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Current Opinion in Biotechnology"
+        },
+        "volumeNumber": 58
+      },
+      "pageStart": 161,
+      "pageEnd": 167
+    },
+    {
+      "type": "Reference",
+      "id": "c9",
+      "date": {
+        "type": "Date",
+        "value": "2001"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Initial sequencing and analysis of the human genome"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature"
+        },
+        "volumeNumber": 409
+      },
+      "pageStart": 860,
+      "pageEnd": 921
+    },
+    {
+      "type": "Reference",
+      "id": "c10",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tang"
+          ],
+          "givenNames": [
+            "Fuchou"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2009"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "mRNA-Seq whole-transcriptome analysis of a single cell"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Methods"
+        },
+        "volumeNumber": 6
+      },
+      "pageStart": 377,
+      "pageEnd": 382
+    },
+    {
+      "type": "Reference",
+      "id": "c11",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wang"
+          ],
+          "givenNames": [
+            "Zhong"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2009"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "RNA-Seq: a revolutionary tool for transcriptomics"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Reviews Genetics"
+        },
+        "volumeNumber": 10
+      },
+      "pageStart": 57,
+      "pageEnd": 63
+    },
+    {
+      "type": "Reference",
+      "id": "c12",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Patterson"
+          ],
+          "givenNames": [
+            "Scott",
+            "D"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2003"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Proteomics: the first decade and beyond"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Genetics"
+        },
+        "volumeNumber": 33
+      },
+      "pageStart": 311,
+      "pageEnd": 323
+    },
+    {
+      "type": "Reference",
+      "id": "c13",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Idle"
+          ],
+          "givenNames": [
+            "Jeffrey",
+            "R"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2007"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Metabolomics"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Cell Metabolism"
+        },
+        "volumeNumber": 6
+      },
+      "pageStart": 348,
+      "pageEnd": 351
+    },
+    {
+      "type": "Reference",
+      "id": "c14",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ståhl"
+          ],
+          "givenNames": [
+            "Patrik",
+            "L"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2016"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Visualization and analysis of gene expression in tissue sections by spatial transcriptomics"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Science"
+        },
+        "volumeNumber": 353
+      },
+      "pageStart": 78,
+      "pageEnd": 82
+    },
+    {
+      "type": "Reference",
+      "id": "c15",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Withnell"
+          ],
+          "givenNames": [
+            "Eloise"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "XOmiVAE: an interpretable deep learning model for cancer classification using high-dimensional omics data"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Briefings in Bioinformatics"
+        },
+        "volumeNumber": 22
+      },
+      "pageStart": "bbab315"
+    },
+    {
+      "type": "Reference",
+      "id": "c16",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chaudhary"
+          ],
+          "givenNames": [
+            "Kumardeep"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Deep Learning–Based Multi-Omics Integration Robustly Predicts Survival in Liver Cancer"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Clinical Cancer Research"
+        },
+        "volumeNumber": 24
+      },
+      "pageStart": 1248,
+      "pageEnd": 1259
+    },
+    {
+      "type": "Reference",
+      "id": "c17",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dagogo-Jack"
+          ],
+          "givenNames": [
+            "Ibiayi"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Tumour heterogeneity and resistance to cancer therapies"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Reviews Clinical Oncology"
+        },
+        "volumeNumber": 15
+      },
+      "pageStart": 81,
+      "pageEnd": 94
+    },
+    {
+      "type": "Reference",
+      "id": "c18",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Cao"
+          ],
+          "givenNames": [
+            "Kefan"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      }
+    },
+    {
+      "type": "Reference",
+      "id": "c19",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Frank"
+          ],
+          "givenNames": [
+            "Steven",
+            "A"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2010"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Somatic evolutionary genomics: Mutations during development cause highly variable genetic mosaicism with risk of cancer and neurodegeneration"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Proceedings of the National Academy of Sciences"
+        },
+        "volumeNumber": 107
+      },
+      "pageStart": 1725,
+      "pageEnd": 1730
+    },
+    {
+      "type": "Reference",
+      "id": "c20",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sado"
+          ],
+          "givenNames": [
+            "Innocent",
+            "Tatchum"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Early multi-cancer detection through deep learning: An anomaly detection approach using Variational Autoencoder"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Journal of Biomedical Informatics"
+        },
+        "volumeNumber": 160
+      },
+      "pageStart": 104751
+    },
+    {
+      "type": "Reference",
+      "id": "c21",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Khorshed"
+          ],
+          "givenNames": [
+            "Tarek"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Deep Learning for Multi-Tissue Cancer Classification of Gene Expressions (GeneXNet)"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "IEEE Access"
+        },
+        "volumeNumber": 8
+      },
+      "pageStart": 90615,
+      "pageEnd": 90629
+    },
+    {
+      "type": "Reference",
+      "id": "c22",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tan"
+          ],
+          "givenNames": [
+            "Kaiwen"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A multi-omics supervised autoencoder for pan-cancer clinical outcome endpoints prediction"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "BMC Medical Informatics and Decision Making"
+        },
+        "volumeNumber": 20
+      },
+      "pageStart": 129
+    },
+    {
+      "type": "Reference",
+      "id": "c23",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Fernandez-Mateos"
+          ],
+          "givenNames": [
+            "Javier"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Tumor evolution metrics predict recurrence beyond 10 years in locally advanced prostate cancer"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Cancer"
+        },
+        "volumeNumber": 5
+      },
+      "pageStart": 1334,
+      "pageEnd": 1351
+    },
+    {
+      "type": "Reference",
+      "id": "c24",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhang"
+          ],
+          "givenNames": [
+            "Lianmin"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Leveraging mitochondrial-programmed cell death dynamics to enhance prognostic accuracy and immunotherapy efficacy in lung adenocarcinoma"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Journal for Immunotherapy of Cancer"
+        },
+        "volumeNumber": 12
+      },
+      "pageStart": "e010008"
+    },
+    {
+      "type": "Reference",
+      "id": "c25",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Li"
+          ],
+          "givenNames": [
+            "Junyu"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Towards artificial intelligence to multi-omics characterization of tumor heterogeneity in esophageal cancer"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Seminars in Cancer Biology"
+        },
+        "volumeNumber": 91
+      },
+      "pageStart": 35,
+      "pageEnd": 49
+    },
+    {
+      "type": "Reference",
+      "id": "c26",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hassan"
+          ],
+          "givenNames": [
+            "Asmaa",
+            "M"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Multi-omics-based Machine Learning for the Subtype Classification of Breast Cancer"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Arabian Journal for Science and Engineering"
+        },
+        "volumeNumber": 50
+      },
+      "pageStart": 1339,
+      "pageEnd": 1352
+    },
+    {
+      "type": "Reference",
+      "id": "c27",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kurt"
+          ],
+          "givenNames": [
+            "Semih"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "CopyVAE: a variational autoencoder-based approach for copy number variation inference using single-cell transcriptomics"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "id": "c28",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Xu"
+          ],
+          "givenNames": [
+            "Chang"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "DeepST: identifying spatial domains in spatial transcriptomics by deep learning"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nucleic Acids Research"
+        },
+        "volumeNumber": 50
+      },
+      "pageStart": "e131",
+      "pageEnd": "e131"
+    },
+    {
+      "type": "Reference",
+      "id": "c29",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yang"
+          ],
+          "givenNames": [
+            "Bo"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Deep Subspace Mutual Learning for cancer subtypes prediction"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Bioinformatics"
+        },
+        "volumeNumber": 37
+      },
+      "pageStart": 3715,
+      "pageEnd": 3722
+    },
+    {
+      "type": "Reference",
+      "id": "c30",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wang"
+          ],
+          "givenNames": [
+            "Xiaoying"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "MarsGT: Multi-omics analysis for rare population inference using single-cell graph transformer"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Communications"
+        },
+        "volumeNumber": 15
+      },
+      "pageStart": 338
+    },
+    {
+      "type": "Reference",
+      "id": "c31",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wang"
+          ],
+          "givenNames": [
+            "Shihui"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A multi-model based on radiogenomics and deep learning techniques associated with histological grade and survival in clear cell renal cell carcinoma"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Insights into Imaging"
+        },
+        "volumeNumber": 14
+      },
+      "pageStart": 207
+    },
+    {
+      "type": "Reference",
+      "id": "c32",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Saillard"
+          ],
+          "givenNames": [
+            "Charlie"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Pacpaint: a histology-based deep learning model uncovers the extensive intratumor molecular heterogeneity of pancreatic adenocarcinoma"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Communications"
+        },
+        "volumeNumber": 14
+      },
+      "pageStart": 3459
+    },
+    {
+      "type": "Reference",
+      "id": "c33",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Quiros"
+          ],
+          "givenNames": [
+            "Adalberto",
+            "Claudio"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Mapping the landscape of histomorphological cancer phenotypes using self-supervised learning on unannotated pathology slides"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Communications"
+        },
+        "volumeNumber": 15
+      },
+      "pageStart": 4596
+    },
+    {
+      "type": "Reference",
+      "id": "c34",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bahrambeigi"
+          ],
+          "givenNames": [
+            "Vahid"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Transcriptomic Profiling of Plasma Extracellular Vesicles Enables Reliable Annotation of the Cancer-Specific Transcriptome and Molecular Subtype"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Cancer Research"
+        },
+        "volumeNumber": 84
+      },
+      "pageStart": 1719,
+      "pageEnd": 1732
+    },
+    {
+      "type": "Reference",
+      "id": "c35",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Placido"
+          ],
+          "givenNames": [
+            "Davide"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A deep learning algorithm to predict risk of pancreatic cancer from disease trajectories"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Medicine"
+        },
+        "volumeNumber": 29
+      },
+      "pageStart": 1113,
+      "pageEnd": 1122
+    },
+    {
+      "type": "Reference",
+      "id": "c36",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lee"
+          ],
+          "givenNames": [
+            "Garam"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "MildInt: Deep Learning-Based Multimodal Longitudinal Data Integration Framework"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Frontiers in Genetics"
+        },
+        "volumeNumber": 10
+      },
+      "pageStart": 617
+    },
+    {
+      "type": "Reference",
+      "id": "c37",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chung"
+          ],
+          "givenNames": [
+            "Neo",
+            "Christopher"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Unsupervised classification of multi-omics data during cardiac remodeling using deep learning"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Methods"
+        },
+        "volumeNumber": 166
+      },
+      "pageStart": 66,
+      "pageEnd": 73
+    },
+    {
+      "type": "Reference",
+      "id": "c38",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Iborra-Egea"
+          ],
+          "givenNames": [
+            "Oriol"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Deep Learning Analyses to Delineate the Molecular Remodeling Process after Myocardial Infarction"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Cells"
+        },
+        "volumeNumber": 10
+      },
+      "pageStart": 3268
+    },
+    {
+      "type": "Reference",
+      "id": "c39",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hölscher"
+          ],
+          "givenNames": [
+            "David",
+            "L"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Next-Generation Morphometry for pathomics-data mining in histopathology"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Communications"
+        },
+        "volumeNumber": 14
+      },
+      "pageStart": 470
+    },
+    {
+      "type": "Reference",
+      "id": "c40",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Brown"
+          ],
+          "givenNames": [
+            "Kathryn",
+            "H"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Characterisation of quantitative imaging biomarkers for inflammatory and fibrotic radiation-induced lung injuries using preclinical radiomics"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Radiotherapy and Oncology"
+        },
+        "volumeNumber": 192
+      },
+      "pageStart": 110106
+    },
+    {
+      "type": "Reference",
+      "id": "c41",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Azer"
+          ],
+          "givenNames": [
+            "Erfan",
+            "Sadeqi"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Tumor Phylogeny Topology Inference via Deep Learning"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "iScience"
+        },
+        "volumeNumber": 23
+      },
+      "pageStart": 101655
+    },
+    {
+      "type": "Reference",
+      "id": "c42",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Baciu-Drăgan"
+          ],
+          "givenNames": [
+            "Monica-Andreea"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Oncotree2vec — a method for embedding and clustering of tumor mutation trees"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Bioinformatics"
+        },
+        "volumeNumber": 40
+      },
+      "pageStart": "i180",
+      "pageEnd": "i188"
+    },
+    {
+      "type": "Reference",
+      "id": "c43",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Egner"
+          ],
+          "givenNames": [
+            "James",
+            "R"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2010"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "AJCC Cancer Staging Manual"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "JAMA"
+        },
+        "volumeNumber": 304
+      },
+      "pageStart": 1726
+    },
+    {
+      "type": "Reference",
+      "id": "c44",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Feng"
+          ],
+          "givenNames": [
+            "Yixiao"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Breast cancer development and progression: Risk factors, cancer stem cells, signaling pathways, genomics, and molecular pathogenesis"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Genes & Diseases"
+        },
+        "volumeNumber": 5
+      },
+      "pageStart": 77,
+      "pageEnd": 106
+    },
+    {
+      "type": "Reference",
+      "id": "c45",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nelligan"
+          ],
+          "givenNames": [
+            "Nicole",
+            "M"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Simulating the restoration of normal gene expression from different thyroid cancer stages using deep learning"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "BMC Cancer"
+        },
+        "volumeNumber": 22
+      },
+      "pageStart": 612
+    },
+    {
+      "type": "Reference",
+      "id": "c46",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lee"
+          ],
+          "givenNames": [
+            "Sugi"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A deep learning and similarity-based hierarchical clustering approach for pathological stage prediction of papillary renal cell carcinoma"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Computational and Structural Biotechnology Journal"
+        },
+        "volumeNumber": 18
+      },
+      "pageStart": 2639,
+      "pageEnd": 2646
+    },
+    {
+      "type": "Reference",
+      "id": "c47",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhang"
+          ],
+          "givenNames": [
+            "Xinyi"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Unsupervised representation learning of chromatin images identifies changes in cell state and tissue organization in DCIS"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Communications"
+        },
+        "volumeNumber": 15
+      },
+      "pageStart": 6112
+    },
+    {
+      "type": "Reference",
+      "id": "c48",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Long"
+          ],
+          "givenNames": [
+            "Nguyen",
+            "Phuoc"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2017"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Systematic assessment of cervical cancer initiation and progression uncovers genetic panels for deep learning-based early diagnosis and proposes novel diagnostic and prognostic biomarkers"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Oncotarget"
+        },
+        "volumeNumber": 8
+      },
+      "pageStart": 109436,
+      "pageEnd": 109456
+    },
+    {
+      "type": "Reference",
+      "id": "c49",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Smith"
+          ],
+          "givenNames": [
+            "Aaron",
+            "M"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Standard machine learning approaches outperform deep representation learning on phenotype prediction from transcriptomics data"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "BMC Bioinformatics"
+        },
+        "volumeNumber": 21
+      },
+      "pageStart": 119
+    },
+    {
+      "type": "Reference",
+      "id": "c50",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dogan"
+          ],
+          "givenNames": [
+            "Haluk"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Elucidation of dynamic microRNA regulations in cancer progression using integrative machine learning"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Briefings in Bioinformatics"
+        },
+        "volumeNumber": 22
+      },
+      "pageStart": "bbab270"
+    },
+    {
+      "type": "Reference",
+      "id": "c51",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Trapnell"
+          ],
+          "givenNames": [
+            "Cole"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2014"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The dynamics and regulators of cell fate decisions are revealed by pseudotemporal ordering of single cells"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Biotechnology"
+        },
+        "volumeNumber": 32
+      },
+      "pageStart": 381,
+      "pageEnd": 386
+    },
+    {
+      "type": "Reference",
+      "id": "c52",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wolf"
+          ],
+          "givenNames": [
+            "F",
+            "Alexander"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "PAGA: graph abstraction reconciles clustering with trajectory inference through a topology preserving map of single cells"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Genome Biology"
+        },
+        "volumeNumber": 20
+      },
+      "pageStart": 59
+    },
+    {
+      "type": "Reference",
+      "id": "c53",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rashid"
+          ],
+          "givenNames": [
+            "Sabrina"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Dhaka: variational autoencoder for unmasking tumor heterogeneity from single cell genomic data"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Bioinformatics"
+        },
+        "volumeNumber": 37
+      },
+      "pageStart": 1535,
+      "pageEnd": 1543
+    },
+    {
+      "type": "Reference",
+      "id": "c54",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chen"
+          ],
+          "givenNames": [
+            "Nan"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A signal-diffusion-based unsupervised contrastive representation learning for spatial transcriptomics analysis"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Bioinformatics"
+        },
+        "volumeNumber": 40
+      },
+      "pageStart": "btae663"
+    },
+    {
+      "type": "Reference",
+      "id": "c55",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zong"
+          ],
+          "givenNames": [
+            "Yongshuo"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      }
+    },
+    {
+      "type": "Reference",
+      "id": "c56",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hu"
+          ],
+          "givenNames": [
+            "Thomas"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Single-cell spatial metabolomics with cell-type specific protein profiling for tissue systems biology"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Communications"
+        },
+        "volumeNumber": 14
+      },
+      "pageStart": 8260
+    },
+    {
+      "type": "Reference",
+      "id": "c57",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zuo"
+          ],
+          "givenNames": [
+            "Chunman"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Elucidating tumor heterogeneity from spatially resolved transcriptomics data by multi-view graph collaborative learning"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Communications"
+        },
+        "volumeNumber": 13
+      },
+      "pageStart": 5962
+    },
+    {
+      "type": "Reference",
+      "id": "c58",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mo"
+          ],
+          "givenNames": [
+            "Chia-Kuei"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Tumour evolution and microenvironment interactions in 2D and 3D space"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature"
+        },
+        "volumeNumber": 634
+      },
+      "pageStart": 1178,
+      "pageEnd": 1186
+    },
+    {
+      "type": "Reference",
+      "id": "c59",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Song"
+          ],
+          "givenNames": [
+            "Xiaowei"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Strengths and challenges of longitudinal non-human primate neuroimaging"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "NeuroImage"
+        },
+        "volumeNumber": 236
+      },
+      "pageStart": 118009
+    },
+    {
+      "type": "Reference",
+      "id": "c60",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ghaffarizadeh"
+          ],
+          "givenNames": [
+            "Ahmadreza"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "PhysiCell: An open source physics-based cell simulator for 3-D multicellular systems"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "PLOS Computational Biology"
+        },
+        "volumeNumber": 14
+      },
+      "pageStart": "e1005991"
+    },
+    {
+      "type": "Reference",
+      "id": "c61",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ponce-de Leon"
+          ],
+          "givenNames": [
+            "Miguel"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "PhysiBoSS 2.0: a sustainable integration of stochastic Boolean and agent-based modelling frameworks"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "npj Systems Biology and Applications"
+        },
+        "volumeNumber": 9
+      },
+      "pageStart": 54
+    },
+    {
+      "type": "Reference",
+      "id": "c62",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Page"
+          ],
+          "givenNames": [
+            "Matthew",
+            "J"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The PRISMA 2020 statement: an updated guideline for reporting systematic reviews"
+          }
+        }
+      ]
+    }
+  ],
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "10 Years of Variational Autoencoder: Insights from Cancer Temporal Progression Studies, a Systematic Literature Review"
+      }
+    }
+  ],
+  "content": [
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Introduction"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Deep Learning (DL) is capable of capturing complex patterns inherent in health data, including molecular, imaging, and clinical data "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c1",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "1"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". Given the high-dimensionality of omics data, Deep Representation Learning (DRL) models have emerged as a way to model complex distributions in lower-dimensional representations "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c2",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "2"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". Moreover, specific DRL methodologies add a generative capability to the model "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c3",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "3"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". Such is the case of the Variational Autoencoder (VAE), a DRL method that uses Bayesian principles through variational inference to approximate complex relationships between observations and latent variables "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c4",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "4"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". The VAE, introduced over ten years ago, consists of an encoder and a decoder; the former infers a low-dimensional representation called the latent space, while the latter learns to reconstruct the latent space into the original data. This architecture makes it particularly useful to both model a real data distribution and generate synthetic data "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c5",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "5"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Given the VAE is able to learn non-linear relationships in heterogeneous, high-dimensional data, its use is appropriate for the study of very complex diseases. Such is the case of cancer, the second most common cause of death worldwide, with an increasing incidence "
+              }
+            },
+            {
+              "type": "CitationGroup",
+              "items": [
+                {
+                  "type": "Citation",
+                  "target": "c6",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "6"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c7",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". Well-established techniques for data collection, including omics approaches, have produced large amounts of information, also referred to as big data, about cancer "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c8",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "8"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". High-throughput molecular and imaging omics data are commonly high-dimensional, noisy, sparse, and heterogeneous. These are also highly informative, including data at different levels of granularity: patient- "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c9",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "9"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " and/or cell-level "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c10",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "10"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " resolution; information from different biological sources: genes "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c11",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "11"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ", proteins "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c12",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "12"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ", or metabolites "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c13",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "13"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; and even spatial information "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c14",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "14"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". Leveraging DRL methods, such as the VAE, and cancer omics, could have a translational impact by discovering clinically relevant biomarkers "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c15",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "15"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " and patient subgroups "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c16",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "16"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Navigating such a vast amount of information becomes even more challenging due to the fact that cancer is a dynamic process "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c17",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "17"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ", adding a temporal component. However, there are two main problems when considering cancer in a temporal manner. First, cancer progression is not uniform across individuals "
+              }
+            },
+            {
+              "type": "CitationGroup",
+              "items": [
+                {
+                  "type": "Citation",
+                  "target": "c18",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "18"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c19",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "19"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ", meaning that even taking a snapshot of the disease at regular intervals may provide varying progression times. Second, the nature of sequencing data involves the destruction of the sample. Both of these reasons imply that any longitudinal datasets capture snapshots of unaligned samples."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Here we present a Systematic Literature Review (SLR) on the use of DRL, paying special attention to the VAE, in cancer studies with omics data in a temporal context. To do so, we consider the following research questions:"
+              }
+            }
+          ]
+        },
+        {
+          "type": "List",
+          "items": [
+            {
+              "type": "ListItem",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "How has representation learning, particularly the VAE, been used to study cancer with omics data?"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ListItem",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "How do cancer studies take longitudinal data into account?"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ListItem",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "How is cancer’s temporal dimension studied with deep learning?"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ListItem",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Which type of omics are most commonly used in time-related cancer studies?"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ListItem",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "What are the key limitations and challenges in the use of DRL for cancer studies with omics data in a temporal context?"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "order": "Ascending"
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The process of the SLR is summarized in "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " (see Methods for details), and our main insights are summarized in "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". We found 440 papers related to our search terms and reviewed their titles and abstracts. These reveal that the most common use of representation learning and VAEs in cancer studies are related to subtyping, diagnosis, and prognosis. From the abstracts screening, we selected 44 papers for full-text review, of which 21 were included in our final analysis. We learned that single-cell omics, with a recent surge of spatially-resolved data, is the most common type of data used in time-related cancer studies, albeit in pseudotime. There is a lack of longitudinal records in the study of cancer in time, and even the ones available contain unaligned samples. Stages have been considered as a way to provide a time unit for the study of cancer’s advancement, but these usually consider different patients. Overall, there is not a clear methodology to align and study cancer through time. We propose the use of generative models, such as the VAE, could provide a way to infer out-of-sample longitudinal data that is aligned on stages."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Figure",
+          "label": "1",
+          "caption": [
+            {
+              "type": "Heading",
+              "level": 1,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Summary figure of the most common methodologies involving representation learning and cancer studies."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "On the left side of the figure are shown the most common types of data used to train VAEs particularly—and DRL methods more generally—, in cancer studies. After being passed to the encoder, data is embeded into a lower-dimensional representation, the latent space. The latent space has been commonly used for subtyping, survival anlyses (commonly as part of prognostic analyses), and, when it comes to single-cell data, also for pseudo-time trajectories inference. Possible further applications, shown on the right-hand side of the figure, include leveraging the decoder’s generative capabilities to reconstruct noisy data, and align and infer out-of-sample data, which may be used to study cancer progression in time. However, such applications of the decoder remain underexplored in biomedical research."
+                  }
+                }
+              ]
+            }
+          ],
+          "content": [
+            {
+              "type": "ImageObject",
+              "contentUrl": "656750v1_fig1.tif"
+            }
+          ]
+        }
+      ],
+      "sectionType": "Introduction"
+    },
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Results"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "VAEs have been used to study cancer diagnosis, prognosis, and subtyping"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "The most common applications of Deep Representation Learning (DRL) or Deep Learning (DL) in cancer are related to diagnosis, prognosis, or subtyping ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). Studies of cancer diagnosis aim to distinguish between cancerous and non-cancerous samples "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c20",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "20"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", or between cancer types "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c21",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "21"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ". Prognosis studies aim to predict the outcome of a disease, which usually involves a survival analysis "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c22",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "22"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", recurrence prediction "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c23",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "23"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", or treatment response "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c24",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "24"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ". Meanwhile, subtyping studies aim to identify different subtypes, that is, groups that a certain type of cancer may be separated into "
+                  }
+                },
+                {
+                  "type": "CitationGroup",
+                  "items": [
+                    {
+                      "type": "Citation",
+                      "target": "c25",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "25"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c26",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "26"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ". All three applications are crucial for developing more personalized treatments that would improve the outcome of the disease."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Figure",
+              "label": "2",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Results from queries."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "A)"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " Number of publications found, per year. There is a clear increase in relevant publications from 2020. ("
+                      }
+                    },
+                    {
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "B)"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": " Word cloud of exclusion reasons. Most publications use deep and representation learning applied to cancer for subtyping, diagnosis, and studying prognosis and survival."
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "656750v1_fig2.tif"
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "All of these and other cancer studies rely on the use of high-throughput omics data, which yield information at varying levels of resolution. Bulk data has been assessed through VAEs, providing a way to classify different cancers from TCGA in a reduced dimensional space that is biologically relevant and interpretable "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c15",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "15"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ". Classically, the most accessible data has been bulk data, where the sampled unit is a whole tissue or group of cells. However, the use of single-cell data has been increasing, as it provides more detailed resolution, sampling information from individual cells. For instance, VAEs have been applied to single cell data to detect copy number variations with the objective of probing intratumor heterogeneity "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c27",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "27"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ". Moreover, spatially resolved omics data has recently surged in popularity "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c28",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "28"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", additionally revealing the spatial distribution of cells in a tissue. Precisely "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c28",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "28"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " developed an AE-based methodology capable of distinguishing healthy tissue and different breast cancer types. Omics data also vary in the type of information they provide: transcriptomics data reveal gene expression levels, proteomics data reveal protein levels, and metabolomics data reveal metabolite levels. Besides, omics may be studied in combination, known as multiomics data "
+                  }
+                },
+                {
+                  "type": "CitationGroup",
+                  "items": [
+                    {
+                      "type": "Citation",
+                      "target": "c29",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "29"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c22",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "22"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ". Namely, "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c16",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "16"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " used an AE to link multi-omic features to the varying survival outcomes in hepatocellular carcinoma. Recent studies have focused on multiomics and single-cell data, with a recent emphasis on spatially resolved data, given they provide very detailed information and, as such, are expected to reveal new insights into cancer biology. "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c30",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "30"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " used multi-omics, single-cell data to discern rare cell populations in melanoma. The data included in these studies may go beyond molecular data, including imaging data such as radiomics "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c31",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "31"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " and histological "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c32",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "32"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " data. Histological images and DRL have been used to cluster the different areas of lung cancer whole-slide images in order to improve diagnosis "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c33",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "33"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ". All in all, it is common to find applications of DRL in general and VAEs in particular to study diagnosis, prognosis, and subtyping of cancers at different levels of resolution, without any particular emphasis on temporal information."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Longitudinal data is used to study diseases, but not so much in cancer"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "The data referenced in the previous section tends to be captured at a single time point. Here we distinguish between primary and metastatic cancer, which show different growth and behavior patterns, and focus on the former. Given the dynamic nature of primary cancer, longitudinal data is crucial to understand its progression. However, real-patient data is hard to follow up due to issues such as retention difficulties, measurement timing, resource limitations, and ethical considerations. Besides, the process of sequencing tumor samples is also destructive. Both factors render observing the course of cancer in real time not possible, neither at the patient nor the cellular level. Even when the data is collected in a longitudinal manner, cancer progression differs from patient to patient, so the data is unaligned. Possibly for these reasons we have observed the use of longitudinal data in primary cancer studies is scarce."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "We found a singular case "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c34",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "34"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", where extracellular vesicle RNA (evRNA) data from liquid biopsies of colorectal cancer were collected from three cohorts: no recurrence, recurrence, and stable disease. The authors used a DL model to classify temporal subtypes from GSEA pathways. They were able to find patients that changed subtype during follow-up from the liquid biopsy data, ahead of imaging-based diagnosis. This finding confirms an extra layer of complexity in the study of cancer progression: cancer subtypes are time-dependent and may be observed through molecular data."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "A study following up on cancer patients is "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c35",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "35"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", where the authors used electronic health record (EHR) data of patients with pancreatic cancer. They used a model based on gated recurrence units (GRUs) and Transformers to embed event features, encode trajectories in a latent space, and predict a time-dependent risk of occurrence. The study shows how representation learning enables out-of sample predictions when longitudinal, aligned data is available."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "The use of longitudinal data and its study with DL is more common in other diseases. During our review, we found examples of longitudinal studies on Cardiovascular Disease (CVD), Alzheimer’s Disease (AD), kidney function deterioration, and the effects of radiation. In "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c36",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "36"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", the authors trained a recurrent neural network on radiomics images of the brain and clinical assessments to learn a representation for binary classification of cognitive decline in AD. "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c37",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "37"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " used a LSTM-VAE trained on multi-omics (proteomics and metabolomics) to embed time-dependent data obtained during cardiac remodeling. The embeddings were then used to cluster temporal growth patterns, determined to be biologically relevant through KEGG pathway analysis. Time-dependent microarray data in "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c38",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "38"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " was collected at different time points pre- and post-myocardial infarction to predict the risk of heart failure. They used a ML model to combine interactomic, molecular, and clinical data, used alongside GSEA to discover biomarkers of progress toward myocardial infarction. Another study, "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c39",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "39"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", assessed progression of kidney function deterioration with histomorphometry data, applying DL for semantic segmentation. The authors used trajectory and pseudo-time unsupervised analysis, adapted from single-cell methodologies, to elucidate patterns in disease progression towards kidney failure. Pseudo-time trajectories recapitulated the patterns of damage observed in histology. The authors of "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c40",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "40"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " collected longitudinal data of blood samples and radiomics from mice lungs exposed to radiation, using DL for survival analyses from the radiomics data. Altogether, these studies highlight the importance of DL and DRL in the study of disease progression, and the potential of longitudinal data to provide insights into the evolution of diseases."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "The study of cancer evolution with DL and DRL is common in phylogeny, albeit mostly to discern subclones. A 2020 study "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c41",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "41"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " claimed to be the first to apply DL to study tumor evolution. Specifically, Reinforcement Learning was used to infer the most likely tumor phylogeny, and identify tumor subclones. In "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c42",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "42"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", the authors used unsupervised learning to learn graph embeddings of relationships between subclones. Hence, phylogeny studies of cancer subtypes offer a way to sort subtypes in terms of evolutionary terms. However, while phylogenetic data and studies reflect the evolutionary history of tumors and the subclone ordering, they lack an explicit temporal resolution the same way that clinically-annotated stages or time-resolved sampling do."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Stages as a way to study cancer in a longitudinal manner"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Thus far, we have considered actual time as the unit for the study of cancer progression. However, it is rather unfeasible to collect data in large proportions, from different patients, at regular intervals. Besides, tumor evolves differently from patient to patient, so the rate of progression may not be identical for everyone. In this context, stages may be considered as a possible time-unit to study cancer progression. Stages refer to the extent of cancer "
+                  }
+                },
+                {
+                  "type": "CitationGroup",
+                  "items": [
+                    {
+                      "type": "Citation",
+                      "target": "c43",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "43"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c44",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "44"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ". The most common staging system is the TNM (Tumor, Nodes, and Metastasis), which takes into account the size of the tumor, its spread to nearby lymph nodes, and whether it has metastasized. Thus, there are five stages: stage 0 describes a non-invasive tumor, or carcinoma in situ; stages I through III denote an invasive tumor, the more invasive, the larger the number; while stage IV refers to a metastatic tumor that has spread to distant body parts. Hence, stages provide a standardized and aligned way to monitor the progression of cancer, and may be used as a proxy to study cancer in a longitudinally aligned manner."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "The results from our search highlight a common trend: the difficulty of differentiating cancer stages. A way to take them in consideration, done in "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c45",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "45"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", is to compare normal tissue against the different stages. Authors used adversarial networks to transform a source sample, normal tissue from TCGA and GTEx, into the feature space of a target sample, the different stages, finding several up- and down-regulated genes across stages. Another way to circumvent this issue is to group stages together "
+                  }
+                },
+                {
+                  "type": "CitationGroup",
+                  "items": [
+                    {
+                      "type": "Citation",
+                      "target": "c46",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "46"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c47",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "47"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c48",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "48"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c49",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "49"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ". In "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c49",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "49"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", data from TCGA was used to classify either stages I and II or stages II and III across different cancers. The classification was compared when using real data and different DRL techniques, namely PCA, Stacked Denoising AE, and VAE. The authors found that representation learning techniques did not improve classification performances. Authors of "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c46",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "46"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " grouped stages I and II as an “early” stage, and stages III and IV as a “late” stage from papillary renal cancer data. Stages may be simplified even further to distinguish between normal tissue, non-invasive abnormally-grown tissue, and invasive cancer. "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c48",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "48"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " used DL To distinguish between normal, neoplasm, and cancer samples from cervical cancer microarray data. Besides molecular data, histological images may also be used to classify stages. As shown by "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c47",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "47"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", a Convolutional VAE was used to learn embeddings of cell states from chromatin images of breast cancer. The authors considered three stages: non-tumor, Ductal Carcinoma In Situ (DCIS), and Invasive Ductal Carcinoma (IDC). The latent embeddings were used to infer a pseudo-time ordering of the stages with Partition-based Graph Abstraction (PAGA), a single-cell trajectory inference method, revealing an ordering from non-tumor to tumor progression. Hence, there is a growing interest in the correct characterization of stages, but its hard separability has led to simplifications in the stages considered."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "The lack of separability between stages may be due to the usually-unbalanced data available across different stages. In this context, generative modeling may be useful, creating synthetic instances in order to balance out the data. Authors of "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c50",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "50"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " argued that the use of the Conditional Variational Autoencoder (CVAE) may be used to generate the stages of breast cancer in mRNA and miRNA data from TCGA. They trained the CVAE on the molecular data and used labels of the different stages: I to IV and took solid tissue normal as pseudo-stage 0. The CVAE is then able to generate new, synthetic samples at the trained labels (here, stages). These synthetic stages then showed high separability in a hierarchical clustering analysis. However, the trained CVAE model loss was not reported, and the huge difference between the separability of the real and synthetic data suggests the model may not be properly learning the actual data distribution. When using synthetic data, it is crucial to ensure the model is learning the original data distribution correctly, that the synthetic data is representative of the real data, and to validate the generated data."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Single cell omics data is commonly used to infer pseudo-time trajectories of cancer cells"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Single-cell data contains more information than bulk data, as it processes individual cells instead of obtaining an average from a tissue sample. In terms of disease progression, single-cell data can more accurately capture the individual differences between cells within the same tissue. Hence, single-cell data analyses open the door to calculating the difference between cells, to then organize them in terms of evolutionary distance. This calculation infers a differentiation trajectory, organizing the cells in a pseudo-time axis, and several methods have been developed in order to do so, such as Monocle "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c51",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "51"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " and PAGA "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c52",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "52"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ". During our search, we found that single-cell data was more commonly used in terms of trajectory inference than bulk or imaging data. This data was often processed with DRL techniques to generate lower-dimensional embeddings, used instead of the original data to infer pseudo-time trajectories. The VAE was used by "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c53",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "53"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " to embed data from Glioblastoma and Oligodendroglioma, and these embeddings were used to infer lineage and differentiation trajectories. As such, single-cell data may be seen as a proxy to study the tumor pseudo-time progression."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "We also found that most of the results from our search that used single-cell data included Spatial Transcriptomics (ST) data, i.e., how the cells are distributed in the tissue. Besides pseudo-time inference, spatial data also allows to link the different tissue layers. In "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c54",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "54"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", authors used a Contrast Learning (CL) method to learn latent embeddings of cells and their spots from ST data of the mouse brain. The embeddings were then used for pseudo-time and trajectory inference with PAGA, organizing the different tissue layers. CL was also used by "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c55",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "55"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " on the mouse visual cortex, combining ST with histological images to learn embeddings of similar spots across tissue regions. PAGA and Monocle were used for pseudo-time trajectory inference, indicating the progression in the developmental process from the white matter layer towards outer layers. "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c56",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "56"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " used a VAE to embed a joint representation of spatial proteomics and metabolomics data from B cells in the tonsils, and then used these embeddings for metabolite state clustering. The trajectory inference was able to reconstruct the cell differentiation process of B cells in a spatial domain. "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c57",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "57"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " used a graph attention autoencoders and multiview collaborative learning to embed ST and histological data from human brain slices. The embeddings were used to identify cancer-related cell states: stemness, migration, and metastasis. "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c58",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "58"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " combined an autoencoder with a visual transformer to obtain embeddings from spatial Copy Number Variation (CNV) and histology data from six cancer types in order to identify spatial subclones and reveal their evolutionary tree. Altogether, we see the relevance of combining ST data and DRL to relate pseudo-time trajectories with the spatial conformation of healthy and cancerous tissues."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Limitations and challenges"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "From the studies included in our review, we have observed some common trends that limit the study of cancer progression with DRL and DL. First, applications of DL and DRL in cancer studies are mostly centered on subtyping, diagnosis, and prognosis, which hardly take into account the longitudinal aspect of the disease. Studies that do take into account a temporal aspect tend to rely on single-cell data. Hence, the second limitation of the considered studies is that they tend to consider the cell as the fundamental unit of study, so they are not patient-centric. Compared to bulk data, single-cell data adds more per-sample noise, as it includes a level of cellular heterogeneity that is not present in bulk data. Besides, single-cell studies infer a pseudo-time developmental trajectory, calculating the evolutionary distance between cells, but without real temporal data, so the real longitudinal progression of the disease is not considered. Thirdly, stages, which can be seen as a proxy time-unit for cancer’s time dimension, are hard to classify. This means it is difficult to extract any meaningful information to infer stage progression."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "These limitations imply some challenges in the study of cancer in time. Firstly, the lack of longitudinal data is hence a major challenge. This is due to the need to sample patients at different time points, while also receiving treatment, altering the natural course of the disease. Even when the data is collected in this manner, which is usually more frequent in experimental animal data than human data "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c59",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "59"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", the degree of cancer advancement differs from patient to patient, meaning the resulting data is unaligned. A second challenge is the lack of a methodology to infer real-time progression. The use of generative models to amplify already-available data may be a way to circumvent this issue. Besides, the use of generative models may also provide a way to infer out-of-sample behavior, effectively adding a temporal dimension to the data. However, this approach leads to a third challenge: the lack of data to validate models. These challenges must be addressed in order to provide a more accurate understanding of cancer progression, and to develop more personalized treatments."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "sectionType": "Results"
+    },
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Discussion"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "DL is a commonly used methodology to learn complex patterns in health data. DRL comprises a specific type of DL methods that have the ability to learn a lower-dimensional representation of complex data distributions. This ability has been combined with generative capabilities in the VAE, a Bayesian-statistics-based representation learning method. Given the complexity of high-throughput data obtained in cancer research, these methods have been applied to study the disease. However, the dynamic nature of cancer implies a temporal component that has not yet been fully explored."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "In this study, we conducted a Systematic Literature Review (SLR) on the use of DRL in cancer studies with omics data in a temporal context. To encompass the complexity of the topic, we created a query that was adapted to three different search engines (see Methods). Our search returned 440 papers, of which 21 were relevant to our investigation. We summarized these papers and categorized them into 4 main groups. "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c1",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "1"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " Discarded papers were analyzed for their exclusion reasons, revealing that the most common applications of DRL and VAEs in cancer are related to subtyping, diagnostics, and prognosis studies. "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c2",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "2"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " These techniques have been applied in some diseases, taking into consideration a temporal aspect, but their application in longitudinal cancer studies remains limited. "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c3",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "3"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " Stages may serve as a proxy to align cancer data in a temporal manner. "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c4",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "4"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " Single-cell omics data is the most frequently used type in cancer studies, with a recent surge in spatially resolved data; however, these studies arrange cells in pseudo-time. Collectively, these findings reveal that the study of cancer progression in time has not yet been adequately explored."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The lack of full matches from our queries may be related to substantial challenges and limitations in the field. Research efforts have predominantly focused on handling the high dimensionality of omics data through embedding inference, which is then utilized for downstream tasks. These tasks rarely address temporal cancer dynamics, except for single-cell studies that employ embeddings to reveal pseudo-time trajectories of cells. However, pseudo-temporal ordering does not provide further longitudinal details such as clinically diagnosed stages or the elapsed time in the pseudo-temporal ordering. This type of longitudinal information is hard to obtain. Even when available, its acquisition occurs during treatment, altering the natural course of the disease, and involves sample destruction. Consequently, current cancer progression studies often rely on unaligned data."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Recently, there has been an uptick in interest in research of generative models, which can be used to align data, even when considering a temporal component. European projects, such as EVENFLOW, are delving into the application of such methodologies to overcome current limitations in cancer studies. Moreover, synthetic data generation methods based on simulation processes, such as agent-based modeling of cellular dynamics "
+              }
+            },
+            {
+              "type": "CitationGroup",
+              "items": [
+                {
+                  "type": "Citation",
+                  "target": "c60",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "60"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c61",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "61"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ", are making strides in integrating physics into generative frameworks to produce more realistic and reliable synthetic data. We believe that these approaches, along with investments in generating appropriate data for validation studies, will pave the way for the eventual development of personalized treatments that consider the individual progression of cancer across patients."
+              }
+            }
+          ]
+        }
+      ],
+      "sectionType": "Discussion"
+    },
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Methods"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "We undertook this systematic literature review in accordance with the Preferred Reporting Items for Systematic Reviews and Meta-Analyses (PRISMA) recommendations "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c62",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "62"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Search process and selection criteria"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "We performed a systematic literature review on the Variational Autoencoder applied to omics data and the study of cancer progression through time. Given the complex nature of the topic and the diversity of possible terms related to our research, we considered the following keywords:"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "List",
+              "items": [
+                {
+                  "type": "ListItem",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Variational Autoencoder: We considered its abbreviation, VAE, as well. Since the name may not have been explicitly used in the title or abstract, especially during the years after its publication in 2014 "
+                          }
+                        },
+                        {
+                          "type": "Citation",
+                          "target": "c4",
+                          "citationMode": "Parenthetical",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "4"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": ", we also included the term “representation learning” and “deep learning”."
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "ListItem",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "omics: We included the main omics data types, such as genomics, transcriptomics, proteomics, and metabolomics, as well as their combination by including multiomics."
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "ListItem",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "cancer: May also be referred to as tumor."
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "ListItem",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "time: To include possible references to studies that consider cancer progression through time, such as longitudinal studies, the queries included the keywords progression, evolution, trajectory, time series and longitudinal."
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "order": "Unordered"
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "For this review, we used Google Scholar, Scopus, and Web of Science to search the literature, including results from 2014 through 2024."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Given the keywords, we defined the following queries for each search engine:"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "List",
+              "items": [
+                {
+                  "type": "ListItem",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Google Scholar: (“deep learning” OR “representation learning” OR “Variational Autoencoder” OR VAE) AND (omics OR genomics OR transcriptomics OR proteomics OR metabolomics OR “multi-omics” OR multiomics) AND (“cancer” OR “tumor” OR “tumour”) AND (progression OR evolution OR trajectory OR “time series” OR longitudinal) since:2014 before:2025"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "ListItem",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Scopus: TS=(“deep learning” OR “representation learning” OR “Variational Autoencoder” OR VAE) AND TS=(omics OR genomics OR transcriptomics OR proteomics OR metabolomics OR “multi-omics” OR multiomics) AND TS=(“cancer” OR “tumor” OR “tumour”) AND TS=(progression OR evolution OR trajectory OR “time series” OR longitudinal) AND PY=(2014-2024)"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "ListItem",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Web of Science: TITLE-ABS-KEY((“deep learning” OR “representation learning” OR “Variational Autoencoder” OR VAE) AND (omics OR genomics OR transcriptomics OR proteomics OR metabolomics OR “multi-omics” OR multiomics) AND (“cancer” OR “tumor” OR “tumour”) AND (progression OR evolution OR trajectory OR “time series” OR longitudinal)) AND PUBYEAR > 2013 AND PUBYEAR < 2025"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "order": "Unordered"
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "To keep our search within scope and guarantee good quality, we enforced the following inclusion criteria: "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c1",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " Peer-review journal articles and conference proceedings; "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c2",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " omics data studies; and "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c3",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "3"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " papers that mathematically study cancer evolution or representational learning to study tumor evolution. For the same reasons, we also apply these exclusion criteria: "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c1",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " Opinions, letters to the editor, reviews, systematic reviews, and grey literature; "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c2",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " non-English language works."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Data extraction"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "The search on Scopus and Web of Science was performed through the respective websites. Publish or Perish was used to extract the results from Google Scholar. The searches were limited to 200 results for each query. For each query, a table with information about the publication was downloaded from the respective platform. We then identified the duplicated titles and removed them. Next, we read the titles and abstracts, narrowing down our selection. On the remaining entries a full-text screening was performed. The process is summarized in ("
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). One reviewer conducted the systematic review process, and a second reviewer assessed the results."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Figure",
+              "label": "3",
+              "caption": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Flow diagram of the systematic literature review process, following PRISMA guidelines."
+                      }
+                    }
+                  ]
+                }
+              ],
+              "content": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "656750v1_fig3.tif"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Risk of bias"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "During the search process, we found that most of the journal articles returned by our queries centered on for diagnosis, subtyping, and prognosis of cancer (see "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "). This trend is an expected outcome since there exists a great effort toward the early detection of cancers."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "sectionType": "Methods"
+    }
+  ],
+  "about": [
+    {
+      "type": "PropertyValue",
+      "propertyId": "author-type",
+      "value": "Regular Article"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "heading",
+      "value": "New Results"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "hwp-journal-coll",
+      "value": "Bioinformatics"
+    }
+  ],
+  "funders": [
+    {
+      "type": "Organization"
+    }
+  ],
+  "publisher": {
+    "type": "Organization",
+    "name": "Cold Spring Harbor Laboratory"
+  },
+  "version": "1.1"
+}

@@ -7,19 +7,19 @@ use codec::{
     status::Status,
     Codec, CodecSupport, DecodeInfo, DecodeOptions, NodeType,
 };
+use decode::decode_path;
 
 mod decode;
 
-/// A codec for decoding PubMed Central Open Access Package
+/// A codec for decoding MECA
 ///
-/// See https://pmc.ncbi.nlm.nih.gov/tools/oa-service/ and
-/// https://pmc.ncbi.nlm.nih.gov/tools/openftlist/
-pub struct PmcOapCodec;
+/// See https://www.niso.org/standards-committees/meca
+pub struct MecaCodec;
 
 #[async_trait]
-impl Codec for PmcOapCodec {
+impl Codec for MecaCodec {
     fn name(&self) -> &str {
-        "pmcoap"
+        "meca"
     }
 
     fn status(&self) -> Status {
@@ -28,7 +28,7 @@ impl Codec for PmcOapCodec {
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {
         match format {
-            Format::PmcOap => CodecSupport::LowLoss,
+            Format::Meca => CodecSupport::LowLoss,
             _ => CodecSupport::None,
         }
     }
@@ -37,19 +37,11 @@ impl Codec for PmcOapCodec {
         CodecSupport::LowLoss
     }
 
-    async fn from_str(
-        &self,
-        pmcid: &str,
-        options: Option<DecodeOptions>,
-    ) -> Result<(Node, DecodeInfo)> {
-        decode::decode_pmcid(pmcid, options).await
-    }
-
     async fn from_path(
         &self,
         path: &Path,
         options: Option<DecodeOptions>,
     ) -> Result<(Node, Option<Node>, DecodeInfo)> {
-        decode::decode_path(path, options).await
+        decode_path(path, options).await
     }
 }
