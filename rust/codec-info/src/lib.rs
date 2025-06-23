@@ -12,6 +12,8 @@ pub use poshmap::*;
 pub use positions::*;
 pub use shifter::*;
 
+pub use node_type::ContentType;
+
 /// Information which may be returned when decoding content to a node
 #[derive(Default)]
 pub struct DecodeInfo {

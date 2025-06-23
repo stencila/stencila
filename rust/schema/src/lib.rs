@@ -29,7 +29,7 @@ pub mod transforms;
 pub use node_id::NodeId;
 pub use node_path::{NodePath, NodeSlot};
 pub use node_strip::StripNode;
-pub use node_type::{NodeProperty, NodeType};
+pub use node_type::{ContentType, NodeProperty, NodeType};
 
 pub mod cord_provenance;
 

@@ -6,13 +6,8 @@
       "type": "Figure",
       "content": [
         {
-          "type": "Paragraph",
-          "content": [
-            {
-              "type": "ImageObject",
-              "contentUrl": "https://example.org/cat.jpg"
-            }
-          ]
+          "type": "ImageObject",
+          "contentUrl": "https://example.org/cat.jpg"
         }
       ]
     },
@@ -22,13 +17,8 @@
       "labelAutomatically": false,
       "content": [
         {
-          "type": "Paragraph",
-          "content": [
-            {
-              "type": "ImageObject",
-              "contentUrl": "https://example.org/dog.jpg"
-            }
-          ]
+          "type": "ImageObject",
+          "contentUrl": "https://example.org/dog.jpg"
         }
       ],
       "caption": [
@@ -50,13 +40,8 @@
           "type": "Figure",
           "content": [
             {
-              "type": "Paragraph",
-              "content": [
-                {
-                  "type": "ImageObject",
-                  "contentUrl": "https://example.org/mouse.jpg"
-                }
-              ]
+              "type": "ImageObject",
+              "contentUrl": "https://example.org/mouse.jpg"
             }
           ],
           "caption": [

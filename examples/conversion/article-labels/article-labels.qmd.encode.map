@@ -29,9 +29,7 @@ start     end        offsets   node_type+property                   authorship
    187    228         (0, 1)   Paragraph
    187    229         (0, 1)   Figure.caption
    233    274       (46, 45)   ImageObject.contentUrl
-   229    275        (-4, 1)   ImageObject
-   229    275         (0, 0)   Paragraph.content
-   229    276         (0, 1)   Paragraph
+   229    276        (-4, 2)   ImageObject
    229    277         (0, 1)   Figure.content
    175    281       (-54, 4)   Figure
    282    348      (107, 67)   Text.value

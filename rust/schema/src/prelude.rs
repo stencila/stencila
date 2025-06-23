@@ -27,7 +27,7 @@ pub use node_path::{NodePath, NodeSlot};
 pub use node_probe_derive::ProbeNode;
 pub use node_store::{ReadNode, WriteNode};
 pub use node_strip::{StripNode, StripScope, StripTargets};
-pub use node_type::{NodeProperty, NodeType};
+pub use node_type::{ContentType, NodeProperty, NodeType};
 pub use node_walk_derive::WalkNode;
 
 pub use crate::deserialize::*;

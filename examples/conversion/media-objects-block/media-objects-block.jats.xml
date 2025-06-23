@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+  <body>
+    <p>Test of media objects as blocks</p>
+    <inline-graphic xlink:href="https://example.org/cat.jpg">
+    </inline-graphic>
+    <inline-media xlink:href="https://example.org/cat.mp3" mimetype="audio">
+    </inline-media>
+    <inline-media xlink:href="https://example.org/cat.mp4" mimetype="video">
+    </inline-media>
+  </body>
+</article>

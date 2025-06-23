@@ -1,0 +1,32 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@type": "Article",
+  "stencila:content": [
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Test of media objects as blocks"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "ImageObject",
+      "contentUrl": "https://example.org/cat.jpg"
+    },
+    {
+      "@type": "AudioObject",
+      "contentUrl": "https://example.org/cat.mp3"
+    },
+    {
+      "@type": "VideoObject",
+      "contentUrl": "https://example.org/cat.mp4"
+    }
+  ]
+}

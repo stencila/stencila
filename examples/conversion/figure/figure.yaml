@@ -2,10 +2,8 @@ type: Article
 content:
 - type: Figure
   content:
-  - type: Paragraph
-    content:
-    - type: ImageObject
-      contentUrl: https://example.org/cat.jpg
+  - type: ImageObject
+    contentUrl: https://example.org/cat.jpg
 - type: Figure
   label: '2'
   labelAutomatically: false
@@ -16,10 +14,8 @@ content:
       value:
         string: A dog.
   content:
-  - type: Paragraph
-    content:
-    - type: ImageObject
-      contentUrl: https://example.org/dog.jpg
+  - type: ImageObject
+    contentUrl: https://example.org/dog.jpg
 - type: Section
   content:
   - type: Figure
@@ -30,7 +26,5 @@ content:
         value:
           string: A figure of a mouse inside a section.
     content:
-    - type: Paragraph
-      content:
-      - type: ImageObject
-        contentUrl: https://example.org/mouse.jpg
+    - type: ImageObject
+      contentUrl: https://example.org/mouse.jpg

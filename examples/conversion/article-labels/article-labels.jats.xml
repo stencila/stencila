@@ -7,10 +7,8 @@
       <caption>
         <p>Some white text on orange an background.</p>
       </caption>
-      <p>
-        <inline-graphic xlink:href="https://placehold.co/300x200/orange/white">
-        </inline-graphic>
-      </p>
+      <inline-graphic xlink:href="https://placehold.co/300x200/orange/white">
+      </inline-graphic>
     </fig>
     <p>Another figure that is actually a code chunk that produces a plot:</p>
     <code executable="yes" language="r" label-type="FigureLabel">plot(1:10)<caption>

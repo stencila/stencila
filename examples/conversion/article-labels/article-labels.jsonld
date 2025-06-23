@@ -92,13 +92,8 @@
       ],
       "stencila:content": [
         {
-          "@type": "stencila:Paragraph",
-          "stencila:content": [
-            {
-              "@type": "ImageObject",
-              "contentUrl": "https://placehold.co/300x200/orange/white"
-            }
-          ]
+          "@type": "ImageObject",
+          "contentUrl": "https://placehold.co/300x200/orange/white"
         }
       ]
     },

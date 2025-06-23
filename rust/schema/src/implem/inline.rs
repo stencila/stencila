@@ -190,6 +190,11 @@ impl From<Vec<Inline>> for Inline {
 impl From<Block> for Inline {
     fn from(block: Block) -> Self {
         match block {
+            // Blocks that can also be inlines
+            Block::AudioObject(obj) => Inline::AudioObject(obj),
+            Block::ImageObject(obj) => Inline::ImageObject(obj),
+            Block::VideoObject(obj) => Inline::VideoObject(obj),
+
             // Blocks with inline analogues
             Block::CodeBlock(code_block) => Inline::CodeInline(CodeInline {
                 code: code_block.code,

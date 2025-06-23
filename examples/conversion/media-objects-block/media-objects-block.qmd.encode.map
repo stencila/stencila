@@ -1,0 +1,13 @@
+start     end        offsets   node_type+property                   authorship
+     0     31        (0, 31)   Text.value
+     0     31         (0, 0)   Text
+     0     31         (0, 0)   Paragraph.content
+     0     32         (0, 1)   Paragraph
+    37     64       (37, 32)   ImageObject.contentUrl
+    33     66        (-4, 2)   ImageObject
+    71     98       (38, 32)   AudioObject.contentUrl
+    67    100        (-4, 2)   AudioObject
+   105    132       (38, 32)   VideoObject.contentUrl
+   101    134        (-4, 2)   VideoObject
+     0    135      (-101, 1)   Article.content
+     0    135         (0, 0)   Article

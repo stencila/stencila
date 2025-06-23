@@ -1,0 +1,27 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "Test of media objects as blocks"
+        }
+      ]
+    },
+    {
+      "type": "ImageObject",
+      "contentUrl": "https://example.org/cat.jpg"
+    },
+    {
+      "type": "AudioObject",
+      "contentUrl": "https://example.org/cat.mp3"
+    },
+    {
+      "type": "VideoObject",
+      "contentUrl": "https://example.org/cat.mp4"
+    }
+  ]
+}

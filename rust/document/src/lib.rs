@@ -25,7 +25,7 @@ use node_diagnostics::{diagnostics, Diagnostic, DiagnosticLevel};
 use node_find::find;
 use schema::{
     authorship, Article, AuthorRole, Chat, Config, ExecutionBounds, File, Node, NodeId,
-    NodeProperty, NodeType, Null, Patch, Prompt,
+    NodeProperty, NodeType, ContentType, Null, Patch, Prompt,
 };
 
 #[allow(clippy::print_stderr)]
@@ -132,16 +132,6 @@ pub enum Command {
         text: String,
         files: Option<Vec<File>>,
     },
-}
-
-/// The type of content in a
-#[derive(Default, Debug, Display, EnumString, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "kebab-case", crate = "common::serde")]
-#[strum(ascii_case_insensitive, crate = "common::strum")]
-pub enum ContentType {
-    #[default]
-    Block,
-    Inline,
 }
 
 /// The node ids for commands that require them

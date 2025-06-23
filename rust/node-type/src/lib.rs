@@ -1,3 +1,4 @@
+mod content_type;
 #[rustfmt::skip]
 mod node_property;
 #[rustfmt::skip]
@@ -10,8 +11,9 @@ use std::str::FromStr;
 use common::{eyre::Result, inflector::Inflector};
 use node_type_properties::node_type_properties;
 
-pub use crate::node_type::NodeType;
+pub use node_type::NodeType;
 pub use node_property::NodeProperty;
+pub use content_type::ContentType;
 
 impl NodeType {
     /// Parse a node type from a string

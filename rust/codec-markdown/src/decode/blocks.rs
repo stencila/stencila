@@ -17,10 +17,10 @@ use codec::{
     },
     format::Format,
     schema::{
-        shortcuts, Admonition, AdmonitionType, Author, Block, CallArgument, CallBlock, Chat,
-        ChatMessage, ChatMessageGroup, ChatMessageOptions, Claim, CodeBlock, CodeChunk,
-        CodeExpression, ExecutionBounds, ExecutionMode, Figure, ForBlock, Heading, IfBlock,
-        IfBlockClause, IncludeBlock, Inline, InstructionBlock, InstructionMessage, LabelType, List,
+        Admonition, AdmonitionType, Author, Block, CallArgument, CallBlock, Chat, ChatMessage,
+        ChatMessageGroup, ChatMessageOptions, Claim, CodeBlock, CodeChunk, CodeExpression,
+        ExecutionBounds, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
+        ImageObject, IncludeBlock, Inline, InstructionBlock, InstructionMessage, LabelType, List,
         ListItem, ListOrder, MathBlock, Node, Paragraph, PromptBlock, QuoteBlock, RawBlock,
         Section, SoftwareApplication, StyledBlock, SuggestionBlock, SuggestionStatus, Table,
         TableCell, TableRow, TableRowType, Text, ThematicBreak, Walkthrough, WalkthroughStep,
@@ -1419,6 +1419,13 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<
                 } else {
                     Block::Paragraph(Paragraph::new(inlines))
                 }
+            } else if inlines.len() == 1 {
+                match inlines.swap_remove(0) {
+                    Inline::AudioObject(obj) => Block::AudioObject(obj),
+                    Inline::ImageObject(obj) => Block::ImageObject(obj),
+                    Inline::VideoObject(obj) => Block::VideoObject(obj),
+                    inline => Block::Paragraph(Paragraph::new(vec![inline])),
+                }
             } else {
                 Block::Paragraph(Paragraph::new(inlines))
             };
@@ -1549,11 +1556,15 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
             })
         }
         "figure" => {
-            use shortcuts::{img, p};
             let content = code
                 .meta
                 .as_ref()
-                .map(|url| vec![p([img(url)])])
+                .map(|url| {
+                    vec![Block::ImageObject(ImageObject {
+                        content_url: url.into(),
+                        ..Default::default()
+                    })]
+                })
                 .unwrap_or_default();
             let caption = decode_blocks(&value, context);
 

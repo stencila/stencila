@@ -193,6 +193,14 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
     let enum_name = type_attr.ident;
 
+    let content_type = if enum_name == "Block" {
+        quote! {Some(ContentType::Block)}
+    } else if enum_name == "Inline" {
+        quote! {Some(ContentType::Inline)}
+    } else {
+        quote! {None}
+    };
+
     let mut variants = TokenStream::new();
     for variant in &data.variants {
         let variant_name = &variant.ident;
@@ -210,9 +218,11 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
     quote! {
         impl MarkdownCodec for #enum_name {
             fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+                context.content_type = #content_type;
                 match self {
                     #variants
                 }
+                context.content_type = None;
             }
         }
     }

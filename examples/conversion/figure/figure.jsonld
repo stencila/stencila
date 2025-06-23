@@ -9,13 +9,8 @@
       "@type": "stencila:Figure",
       "stencila:content": [
         {
-          "@type": "stencila:Paragraph",
-          "stencila:content": [
-            {
-              "@type": "ImageObject",
-              "contentUrl": "https://example.org/cat.jpg"
-            }
-          ]
+          "@type": "ImageObject",
+          "contentUrl": "https://example.org/cat.jpg"
         }
       ]
     },
@@ -38,13 +33,8 @@
       ],
       "stencila:content": [
         {
-          "@type": "stencila:Paragraph",
-          "stencila:content": [
-            {
-              "@type": "ImageObject",
-              "contentUrl": "https://example.org/dog.jpg"
-            }
-          ]
+          "@type": "ImageObject",
+          "contentUrl": "https://example.org/dog.jpg"
         }
       ]
     },
@@ -68,13 +58,8 @@
           ],
           "stencila:content": [
             {
-              "@type": "stencila:Paragraph",
-              "stencila:content": [
-                {
-                  "@type": "ImageObject",
-                  "contentUrl": "https://example.org/mouse.jpg"
-                }
-              ]
+              "@type": "ImageObject",
+              "contentUrl": "https://example.org/mouse.jpg"
             }
           ]
         }

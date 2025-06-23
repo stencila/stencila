@@ -60,7 +60,7 @@ pub(super) fn inlines_from_pandoc(
 }
 
 #[rustfmt::skip]
-fn inline_to_pandoc(
+pub(super) fn inline_to_pandoc(
     inline: &Inline,
     context: &mut PandocEncodeContext,
 ) -> pandoc::Inline {
@@ -204,12 +204,29 @@ fn media_from_pandoc(
         (!target.title.is_empty()).then(|| vec![Inline::Text(Text::new(target.title.into()))]);
     let caption = (!inlines.is_empty()).then(|| inlines_from_pandoc(inlines, context));
 
-    Inline::ImageObject(ImageObject {
-        content_url,
-        title,
-        caption,
-        ..Default::default()
-    })
+    let format = Format::from_url(&target.url);
+    if format.is_audio() {
+        Inline::AudioObject(AudioObject {
+            content_url,
+            caption,
+            title,
+            ..Default::default()
+        })
+    } else if format.is_video() {
+        Inline::VideoObject(VideoObject {
+            content_url,
+            caption,
+            title,
+            ..Default::default()
+        })
+    } else {
+        Inline::ImageObject(ImageObject {
+            content_url,
+            caption,
+            title,
+            ..Default::default()
+        })
+    }
 }
 
 fn link_to_pandoc(link: &Link, context: &mut PandocEncodeContext) -> pandoc::Inline {

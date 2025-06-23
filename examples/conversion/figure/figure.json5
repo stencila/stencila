@@ -5,13 +5,8 @@
       type: "Figure",
       content: [
         {
-          type: "Paragraph",
-          content: [
-            {
-              type: "ImageObject",
-              contentUrl: "https:\/\/example.org\/cat.jpg"
-            }
-          ]
+          type: "ImageObject",
+          contentUrl: "https:\/\/example.org\/cat.jpg"
         }
       ]
     },
@@ -32,13 +27,8 @@
       ],
       content: [
         {
-          type: "Paragraph",
-          content: [
-            {
-              type: "ImageObject",
-              contentUrl: "https:\/\/example.org\/dog.jpg"
-            }
-          ]
+          type: "ImageObject",
+          contentUrl: "https:\/\/example.org\/dog.jpg"
         }
       ]
     },
@@ -60,13 +50,8 @@
           ],
           content: [
             {
-              type: "Paragraph",
-              content: [
-                {
-                  type: "ImageObject",
-                  contentUrl: "https:\/\/example.org\/mouse.jpg"
-                }
-              ]
+              type: "ImageObject",
+              contentUrl: "https:\/\/example.org\/mouse.jpg"
             }
           ]
         }

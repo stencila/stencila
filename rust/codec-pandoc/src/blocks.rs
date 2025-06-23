@@ -7,7 +7,8 @@ use codec_text_trait::to_text;
 
 use crate::{
     inlines::{
-        image_to_pandoc, inlines_from_pandoc, inlines_to_pandoc, string_from_pandoc_inlines,
+        image_to_pandoc, inline_to_pandoc, inlines_from_pandoc, inlines_to_pandoc,
+        string_from_pandoc_inlines,
     },
     shared::{
         attrs_attributes, attrs_classes, attrs_empty, get_attr, PandocDecodeContext,
@@ -55,6 +56,11 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> Vec<
         // Tables and Figures
         Block::Table(table) => table_to_pandoc(table, context),
         Block::Figure(figure) => figure_to_pandoc(figure, context),
+
+        // Media
+        Block::AudioObject(..) | Block::ImageObject(..) | Block::VideoObject(..) => {
+            media_block_to_pandoc(block.clone().into(), context)
+        }
 
         // Code and math
         Block::CodeBlock(block) => code_block_to_pandoc(block, context),
@@ -171,7 +177,20 @@ fn paragraph_to_pandoc(para: &Paragraph, context: &mut PandocEncodeContext) -> p
 }
 
 fn paragraph_from_pandoc(inlines: Vec<pandoc::Inline>, context: &mut PandocDecodeContext) -> Block {
-    Block::Paragraph(Paragraph::new(inlines_from_pandoc(inlines, context)))
+    let mut inlines = inlines_from_pandoc(inlines, context);
+
+    if let (1, Some(Inline::ImageObject(..) | Inline::AudioObject(..) | Inline::VideoObject(..))) =
+        (inlines.len(), inlines.first())
+    {
+        match inlines.swap_remove(0) {
+            Inline::AudioObject(obj) => Block::AudioObject(obj),
+            Inline::ImageObject(obj) => Block::ImageObject(obj),
+            Inline::VideoObject(obj) => Block::VideoObject(obj),
+            inline => Block::Paragraph(Paragraph::new(vec![inline])),
+        }
+    } else {
+        Block::Paragraph(Paragraph::new(inlines))
+    }
 }
 
 fn section_to_pandoc(section: &Section, context: &mut PandocEncodeContext) -> pandoc::Block {
@@ -468,6 +487,10 @@ fn figure_from_pandoc(
         caption,
         ..Default::default()
     })
+}
+
+fn media_block_to_pandoc(media_inline: Inline, context: &mut PandocEncodeContext) -> pandoc::Block {
+    pandoc::Block::Para(vec![inline_to_pandoc(&media_inline, context)])
 }
 
 fn code_block_to_pandoc(

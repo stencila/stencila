@@ -80,7 +80,14 @@ macro_rules! to_markdown {
                 .push_str("\"");
         }
 
-        $context.push_str(")").exit_node();
+        $context.push_str(")");
+
+        if matches!($context.content_type, Some(ContentType::Block)) {
+            // If a block media object, then ensure newlines after it
+            $context.newline().exit_node().newline();
+        } else {
+            $context.exit_node();
+        }
     }};
 }
 
