@@ -13,7 +13,7 @@ use node_type_properties::node_type_properties;
 
 pub use content_type::ContentType;
 pub use node_property::NodeProperty;
-pub use node_type::NodeType;
+pub use crate::node_type::NodeType;
 
 impl NodeType {
     /// Parse a node type from a string
