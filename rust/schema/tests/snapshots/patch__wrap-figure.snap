@@ -39,17 +39,8 @@ old:
           provenanceCategory: Hw
           characterCount: 8
           characterPercent: 100
-    - type: Paragraph
-      content:
-        - type: ImageObject
-          contentUrl: "https://example.org/cat.jpg"
-          authors:
-            - type: AuthorRole
-              author:
-                type: Person
-                givenNames:
-                  - Alice
-              roleName: Importer
+    - type: ImageObject
+      contentUrl: "https://example.org/cat.jpg"
       authors:
         - type: AuthorRole
           author:
@@ -68,10 +59,8 @@ new:
               value:
                 string: Caption.
       content:
-        - type: Paragraph
-          content:
-            - type: ImageObject
-              contentUrl: "https://example.org/cat.jpg"
+        - type: ImageObject
+          contentUrl: "https://example.org/cat.jpg"
 merged:
   type: Article
   authors:
@@ -130,17 +119,8 @@ merged:
               characterCount: 8
               characterPercent: 100
       content:
-        - type: Paragraph
-          content:
-            - type: ImageObject
-              contentUrl: "https://example.org/cat.jpg"
-              authors:
-                - type: AuthorRole
-                  author:
-                    type: Person
-                    givenNames:
-                      - Bob
-                  roleName: Writer
+        - type: ImageObject
+          contentUrl: "https://example.org/cat.jpg"
           authors:
             - type: AuthorRole
               author:
@@ -163,7 +143,5 @@ ops:
                     value:
                       string: Caption.
             content:
-              - type: Paragraph
-                content:
-                  - type: ImageObject
-                    contentUrl: "https://example.org/cat.jpg"
+              - type: ImageObject
+                contentUrl: "https://example.org/cat.jpg"
