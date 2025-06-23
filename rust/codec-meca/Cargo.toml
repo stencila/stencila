@@ -1,0 +1,16 @@
+[package]
+name = "codec-meca"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codec = { path = "../codec" }
+codec-jats = { path = "../codec-jats" }
+images = { path = "../images" }
+zip = { workspace = true }
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }
+
+[lints]
+workspace = true

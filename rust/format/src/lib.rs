@@ -104,6 +104,7 @@ pub enum Format {
     // Directories, bundles and archives
     Directory,
     Swb,
+    Meca,
     PmcOap,
     // Development focussed formats
     Debug,
@@ -151,6 +152,7 @@ impl Format {
             Lexical => "Lexical JSON",
             Llmd => "LLM Markdown",
             Markdown => "Markdown",
+            Meca => "Meca",
             Mermaid => "Mermaid",
             Mkv => "Matroska",
             Mp3 => "MPEG-3",
@@ -294,6 +296,7 @@ impl Format {
             "lexical" => Lexical,
             "llmd" | "llmmd" => Llmd,
             "markdown" | "md" => Markdown,
+            "meca" => Meca,
             "mermaid" => Mermaid,
             "myst" => Myst,
             "mkv" => Mkv,
@@ -479,6 +482,7 @@ impl Display for Format {
             Lexical => "lexical",
             Llmd => "llmd",
             Markdown => "md",
+            Meca => "meca",
             Mermaid => "mermaid",
             Mkv => "mkv",
             Mp3 => "mp3",

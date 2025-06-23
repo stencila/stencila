@@ -1273,6 +1273,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-meca"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-jats",
+ "common-dev",
+ "images",
+ "zip",
+]
+
+[[package]]
 name = "codec-odt"
 version = "0.0.0"
 dependencies = [
@@ -1309,6 +1320,7 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-jats",
+ "common-dev",
  "flate2",
  "images",
 ]
@@ -1405,6 +1417,7 @@ dependencies = [
  "codec-latex",
  "codec-lexical",
  "codec-markdown",
+ "codec-meca",
  "codec-odt",
  "codec-pandoc",
  "codec-pdf",

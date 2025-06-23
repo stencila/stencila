@@ -1,0 +1,2527 @@
+---
+source: rust/codec-meca/tests/examples.rs
+assertion_line: 34
+expression: article
+---
+{
+  "type": "Article",
+  "doi": "10.1101/2025.06.09.658655",
+  "abstract": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Duchenne muscular dystrophy (DMD) involves progressive muscle degeneration associated with calcium dysregulation, but the mechanisms linking extracellular matrix (ECM) integrity to calcium homeostasis remain unclear. We investigated whether MUA- 3, a fibrillin-related ECM protein in "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Caenorhabditis elegans"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ", contributes to calcium regulation in dystrophic muscle. Using fluorescent calcium imaging in transgenic worms expressing muscle-specific GCaMP2, we found that downregulating "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "mua-3"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " selectively elevated resting calcium levels in healthy muscle but had no effect in dystrophic ("
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "dys-1"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ") muscle, suggesting impaired MUA-3 function in dystrophy. Despite altered calcium dynamics, "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "mua-3"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " downregulation did not affect locomotor function. In human dystrophic myoblasts, we observed significantly elevated sarcoplasmic calcium levels concurrent with substantial downregulation of fibrillin genes FBN1/FBN2. These findings demonstrate that fibrillin-related proteins regulate calcium homeostasis across species, suggesting that ECM integrity directly contributes to cellular calcium control in muscle. This work identifies a conserved mechanism linking extracellular matrix stability to intracellular calcium regulation and suggests that targeting ECM-calcium coupling may offer new therapeutic approaches for muscular dystrophy."
+          }
+        }
+      ]
+    }
+  ],
+  "authors": [
+    {
+      "type": "Person",
+      "orcid": "0009-0003-9157-1561",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "School of Biological Sciences, Illinois State University"
+        }
+      ],
+      "familyNames": [
+        "Marchiafava"
+      ],
+      "givenNames": [
+        "D"
+      ]
+    },
+    {
+      "type": "Person",
+      "orcid": "0000-0001-5981-5528",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "School of Biological Sciences, Illinois State University"
+        }
+      ],
+      "familyNames": [
+        "Vidal-Gadea"
+      ],
+      "givenNames": [
+        "A",
+        "G"
+      ]
+    }
+  ],
+  "dateReceived": {
+    "type": "Date",
+    "value": "2025-6-09"
+  },
+  "dateAccepted": {
+    "type": "Date",
+    "value": "2025-6-11"
+  },
+  "datePublished": {
+    "type": "Date",
+    "value": "2025"
+  },
+  "references": [
+    {
+      "type": "Reference",
+      "id": "c1",
+      "doi": "10.1152/physrev.00007.2015",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Allen"
+          ],
+          "givenNames": [
+            "D",
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Whitehead"
+          ],
+          "givenNames": [
+            "N",
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Froehner"
+          ],
+          "givenNames": [
+            "S",
+            "C"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2016"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Absence of Dystrophin Disrupts Skeletal Muscle Signaling: Roles of Ca2+, Reactive Oxygen Species, and Nitric Oxide in the Development of Muscular Dystrophy"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Physiological Reviews"
+        },
+        "volumeNumber": 96
+      },
+      "pageStart": 253,
+      "pageEnd": 305
+    },
+    {
+      "type": "Reference",
+      "id": "c2",
+      "doi": "10.1083/jcb.200103035",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bercher"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wahl"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Vogel"
+          ],
+          "givenNames": [
+            "B",
+            "E"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lu"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hedgecock"
+          ],
+          "givenNames": [
+            "E",
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hall"
+          ],
+          "givenNames": [
+            "D",
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Plenefisch"
+          ],
+          "givenNames": [
+            "J",
+            "D"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2001"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Mua-3, a gene required for mechanical tissue integrity in Caenorhabditis elegans, encodes a novel transmembrane protein of epithelial attachment complexes"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "The Journal of Cell Biology"
+        },
+        "volumeNumber": 154
+      },
+      "pageStart": 415,
+      "pageEnd": 426
+    },
+    {
+      "type": "Reference",
+      "id": "c3",
+      "doi": "10.1093/genetics/77.1.71",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Brenner"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1974"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "THE GENETICS OF CAENORHABDITIS ELEGANS"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Genetics"
+        },
+        "volumeNumber": 77
+      },
+      "pageStart": 71,
+      "pageEnd": 94
+    },
+    {
+      "type": "Reference",
+      "id": "c4",
+      "doi": "10.1038/nature12354",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chen"
+          ],
+          "givenNames": [
+            "T.-W"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wardill"
+          ],
+          "givenNames": [
+            "T",
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sun"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pulver"
+          ],
+          "givenNames": [
+            "S",
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Renninger"
+          ],
+          "givenNames": [
+            "S",
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Baohan"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schreiter"
+          ],
+          "givenNames": [
+            "E",
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kerr"
+          ],
+          "givenNames": [
+            "R",
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Orger"
+          ],
+          "givenNames": [
+            "M",
+            "B"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jayaraman"
+          ],
+          "givenNames": [
+            "V"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Looger"
+          ],
+          "givenNames": [
+            "L",
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Svoboda"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kim"
+          ],
+          "givenNames": [
+            "D",
+            "S"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2013"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Ultrasensitive fluorescent proteins for imaging neuronal activity"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature"
+        },
+        "volumeNumber": 499
+      },
+      "pageStart": 295,
+      "pageEnd": 300
+    },
+    {
+      "type": "Reference",
+      "id": "c5",
+      "doi": "10.1016/j.ymgme.2012.07.023",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Davis"
+          ],
+          "givenNames": [
+            "M",
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Summers"
+          ],
+          "givenNames": [
+            "K",
+            "M"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2012"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Structure and function of the mammalian fibrillin gene family: Implications for human connective tissue diseases"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Molecular Genetics and Metabolism"
+        },
+        "volumeNumber": 107
+      },
+      "pageStart": 635,
+      "pageEnd": 647
+    },
+    {
+      "type": "Reference",
+      "id": "c6",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Duan"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Goemans"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Takeda"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mercuri"
+          ],
+          "givenNames": [
+            "E"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Aartsma-Rus"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Duchenne muscular dystrophy"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Reviews Disease Primers"
+        },
+        "volumeNumber": 7
+      },
+      "pageStart": 13
+    },
+    {
+      "type": "Reference",
+      "id": "c7",
+      "doi": "10.1534/g3.115.018465",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Fotopoulos"
+          ],
+          "givenNames": [
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kim"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hyun"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Qamari"
+          ],
+          "givenNames": [
+            "W"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lee"
+          ],
+          "givenNames": [
+            "I"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "You"
+          ],
+          "givenNames": [
+            "Y.-J"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2015"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "DPY-17 and MUA-3 Interact for Connective Tissue-Like Tissue Integrity in Caenorhabditis elegans: A Model for Marfan Syndrome"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "G3 Genes|Genomes|Genetics"
+        },
+        "volumeNumber": 5
+      },
+      "pageStart": 1371,
+      "pageEnd": 1378
+    },
+    {
+      "type": "Reference",
+      "id": "c8",
+      "doi": "10.1186/gb-2007-8-9-r188",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Fox"
+          ],
+          "givenNames": [
+            "R",
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Watson"
+          ],
+          "givenNames": [
+            "J",
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Von Stetina"
+          ],
+          "givenNames": [
+            "S",
+            "E"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "McDermott"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Brodigan"
+          ],
+          "givenNames": [
+            "T",
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Fukushige"
+          ],
+          "givenNames": [
+            "T"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Krause"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Miller"
+          ],
+          "givenNames": [
+            "D",
+            "M"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2007"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The embryonic muscle transcriptome of Caenorhabditis elegans"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Genome Biology"
+        },
+        "volumeNumber": 8
+      },
+      "pageStart": "R188"
+    },
+    {
+      "type": "Reference",
+      "id": "c9",
+      "doi": "10.1073/pnas.1811379116",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hughes"
+          ],
+          "givenNames": [
+            "K",
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rodriguez"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Flatt"
+          ],
+          "givenNames": [
+            "K",
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ray"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schuler"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rodemoyer"
+          ],
+          "givenNames": [
+            "B"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Veerappan"
+          ],
+          "givenNames": [
+            "V"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Cuciarone"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kullman"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lim"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gutta"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Vemuri"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Andriulis"
+          ],
+          "givenNames": [
+            "V"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Niswonger"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Barickman"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Stein"
+          ],
+          "givenNames": [
+            "W"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Singhvi"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schroeder"
+          ],
+          "givenNames": [
+            "N",
+            "E"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Vidal-Gadea"
+          ],
+          "givenNames": [
+            "A",
+            "G"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Physical exertion exacerbates decline in the musculature of an animal model of Duchenne muscular dystrophy"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Proceedings of the National Academy of Sciences"
+        },
+        "volumeNumber": 116
+      },
+      "pageStart": 3508,
+      "pageEnd": 3517
+    },
+    {
+      "type": "Reference",
+      "id": "c10",
+      "doi": "10.3389/fphys.2021.647010",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mareedu"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Million"
+          ],
+          "givenNames": [
+            "E",
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Duan"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Babu"
+          ],
+          "givenNames": [
+            "G",
+            "J"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Abnormal Calcium Handling in Duchenne Muscular Dystrophy: Mechanisms and Potential Therapies"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Frontiers in Physiology"
+        },
+        "volumeNumber": 12
+      },
+      "pageStart": 647010
+    },
+    {
+      "type": "Reference",
+      "id": "c11",
+      "doi": "10.1038/84397",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nakai"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ohkura"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Imoto"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2001"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A high signal-to-noise Ca2+ probe composed of a single green fluorescent protein"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Biotechnology"
+        },
+        "volumeNumber": 19
+      },
+      "pageStart": 137,
+      "pageEnd": 141
+    },
+    {
+      "type": "Reference",
+      "id": "c12",
+      "doi": "10.1007/s00441-009-0822-x",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ramirez"
+          ],
+          "givenNames": [
+            "F"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sakai"
+          ],
+          "givenNames": [
+            "L",
+            "Y"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2010"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Biogenesis and function of fibrillin assemblies"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Cell and Tissue Research"
+        },
+        "volumeNumber": 339
+      },
+      "pageStart": 71,
+      "pageEnd": 82
+    },
+    {
+      "type": "Reference",
+      "id": "c13",
+      "doi": "10.1038/nmeth.2089",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schneider"
+          ],
+          "givenNames": [
+            "C",
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rasband"
+          ],
+          "givenNames": [
+            "W",
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Eliceiri"
+          ],
+          "givenNames": [
+            "K",
+            "W"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2012"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "NIH Image to ImageJ: 25 years of image analysis"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Methods"
+        },
+        "volumeNumber": 9
+      },
+      "pageStart": 671,
+      "pageEnd": 675
+    }
+  ],
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Fibrillin-Related Proteins Control Calcium Homeostasis in Dystrophic Muscle Across Species"
+      }
+    }
+  ],
+  "content": [
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Description"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Duchenne Muscular Dystrophy (DMD) is a severe X-linked neuromuscular disorder characterized by progressive muscle degeneration and weakness. DMD results from loss-of-function mutations in the dystrophin ("
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "DMD"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ") gene, leading to the absence of dystrophin, a critical cytoskeletal protein that connects the intracellular actin cytoskeleton to the extracellular matrix via the dystrophin-associated protein complex (DAPC) (Duan et al., n.d.). The loss of dystrophin leads to the destabilization of the DAPC and compromises the structural integrity of the sarcolemma, rendering it susceptible to damage during muscle contraction and stretching "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c1",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Allen et al., 2016"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". Consequently, repeated mechanical stress leads to sarcolemmal tears, increased sarcoplasmic calcium influx, proteolytic enzyme activation, and eventual muscle fiber necrosis "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c10",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Mareedu et al., 2021"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". Over time, the regenerative capacity of muscle tissue diminishes, resulting in replacement of muscle fibers with fibrotic and adipose tissue."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "In the nematode "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Caenorhabditis elegans"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ", the gene MUA-3 encodes a transmembrane cell adhesion receptor that shares functional properties with human fibrillin-1 and 2 (FBN1, FBN2), which are components of connective tissue microfibrils and the extracellular matrix (ECM)"
+              }
+            },
+            {
+              "type": "CitationGroup",
+              "items": [
+                {
+                  "type": "Citation",
+                  "target": "c5",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Davis & Summers, 2012"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c12",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Ramirez & Sakai, 2010"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". MUA-3 localizes to hypodermal cells, facilitating the attachment of body wall muscles to the overlying cuticle, and is essential for maintaining the integrity of hemidesmosome-like structures that anchor muscle cells in the worm "
+              }
+            },
+            {
+              "type": "CitationGroup",
+              "items": [
+                {
+                  "type": "Citation",
+                  "target": "c2",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Bercher et al., 2001"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c7",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Fotopoulos et al., 2015"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". Mutations in "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "mua-3"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " lead to progressive muscle detachment during larval development into adulthood, highlighting its critical role in muscle adhesion and structural stability. Given that both MUA-3 and human fibrillins are essential for ECM integrity and tissue mechanical properties, we hypothesized that dysfunction of these fibrillin-related proteins contributes to altered calcium homeostasis in dystrophic muscle. To investigate this, we used a synergistic approach of worm and human myocyte cultures to investigate the role of these proteins in the pathology of DMD."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "To understand the role of MUA-3 in maintaining muscle calcium homeostasis, we downregulated "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "mua-3"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " in both healthy (ZW495) and dystrophic (AVG6) worms expressing muscle-specific GCaMP protein, using fluorescence as an indirect indicator of calcium "
+              }
+            },
+            {
+              "type": "CitationGroup",
+              "items": [
+                {
+                  "type": "Citation",
+                  "target": "c4",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Chen et al., 2013"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c11",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Nakai et al., 2001"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". Downregulating "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "mua-3"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " did not increase calcium levels during contraction in either wild-type or "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "dys-1"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " worms ("
+              }
+            },
+            {
+              "type": "Strong",
+              "content": []
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). However, downregulating "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "mua-3"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " selectively increased calcium levels only in the relaxed muscles of healthy worms ("
+              }
+            },
+            {
+              "type": "Strong",
+              "content": []
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). Downregulating "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "mua-3"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " had no effect on the relaxed muscle brightness in dystrophic worms. Downregulating "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "mua-3"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " also decreased the contracted:relaxed calcium ratio in healthy but not dystrophic worms ("
+              }
+            },
+            {
+              "type": "Strong",
+              "content": []
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). The lack of a calcium increase when downregulating "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "mua-3"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " in dystrophic worms suggests that "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "mua-3"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " may not function properly in dystrophic worms."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Figure",
+          "label": "1",
+          "caption": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "MUA-3 and FBN1/2 contribute to elevated baseline calcium in muscle. "
+                  }
+                },
+                {
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "A)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " Representative images of brightness levels of wildtype and dystrophic strains in both the control and RNAi treated conditions via "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Pmyo3::gCaMP"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " expression. Brightness levels were linearly adjusted for each image to enhance the visualization of each worm. "
+                  }
+                },
+                {
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "B)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " Muscle brightness changes in the contracted muscle of each worm (Tukey’s Honest Significance Test, n=50) "
+                  }
+                },
+                {
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "C)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " Muscle brightness changes in the relaxed muscle of each worm (Tukey’s Honest Significance Test, n=50) "
+                  }
+                },
+                {
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "D)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " Contracted:relaxed muscle brightness ratio changes of each worm (Tukey’s Honest Significance Test, n=50) "
+                  }
+                },
+                {
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "E)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " Representative images depicting brightness levels of healthy and dystrophic myoblasts via Fluo-4 AM. Brightness levels were linearly adjusted for each image to enhance visualization. "
+                  }
+                },
+                {
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "F)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " Dystrophic myoblasts contain elevated sarcoplasmic calcium compared to healthy myoblasts after 1 day of differentiation (unpaired two-tailed t-test, n=300) "
+                  }
+                },
+                {
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "G)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " Fold change differences in "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "FBN1"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " and "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "FBN2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " expression in dystrophic compared to healthy myoblasts via RNASeq of healthy and dystrophic myoblasts (Wald test, n=6). *=p<0.05, **=p<0.01, "
+                  }
+                },
+                {
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "**"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "*=p<0.001 ****=p<0.0001, *****=p< 0.00000001, ******=p<1.88E-13."
+                  }
+                }
+              ]
+            }
+          ],
+          "content": [
+            {
+              "type": "ImageObject",
+              "contentUrl": "658655v1_fig1.tif"
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Next, we subjected worms to bouts of swimming and recorded the swimming frequency at both the beginning of the bout and after 3 h of swimming in liquid NGM media to measure exercise-induced fatigue. While healthy and dystrophic worms treated with an L4440 empty vector control significantly differed in swimming frequency at both the pre- and post-exercise periods, no significant differences were observed when "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "mua-3"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " was downregulated in each condition. Healthy worms with downregulated "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "mua-3"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " were still able to swim at a significantly higher frequency than dystrophic worms ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). These results suggest that MUA-3 is not required for proper swimming in healthy or dystrophic worms. Although downregulating "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "mua-3"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " increased resting calcium levels in wild-type worms, they were able to maintain their swimming ability."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Next, we aimed to validate these findings in human myocyte cultures, where FBN1 and FBN2 represent the fibrillin-related proteins analogous to MUA-3 function in ECM integrity. Using Fluo-4 AM calcium indicator dye, we quantified calcium levels in healthy and dystrophic myoblasts after one day of differentiation. Dystrophic myoblasts displayed significantly elevated calcium levels compared to healthy controls ("
+              }
+            },
+            {
+              "type": "Strong",
+              "content": []
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). To examine FBN1/FBN2 expression, we analyzed RNASeq data from an independent, unpublished study (Marchiafava et al., in preparation), which revealed significant downregulation of both genes in dystrophic myoblasts."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Collectively, our data indicate that downregulation of FBN1 and FBN2 is associated with elevated resting sarcoplasmic calcium levels in dystrophic human myoblasts, mirroring the calcium dysregulation observed upon downregulating "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "mua-3"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " in "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "C. elegans"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". The absence of calcium elevation in contracted muscles of "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "mua-3"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " downregulated dystrophic worms suggests that dystrophic conditions may impair MUA-3 function, potentially compromising sarcolemmal integrity. This is further supported by the parallel downregulation of fibrillin-related proteins (FBN1/FBN2) in human dystrophic myoblasts. Given the established role of fibrillins in organizing ECM-integrin-cytoskeleton linkages critical for sarcolemmal stability, we propose that FBN1/FBN2 deficiency could contribute to calcium dyshomeostasis in dystrophic muscle by weakening cell-ECM coupling."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Methods"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "C. elegans"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " strains and culture conditions"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Animals were maintained at 20°C on nematode growth media (NGM) agar plates seeded with "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Escherichia coli"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " OP50 as previously described "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c3",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Brenner, 1974"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ". Strains used in this study included the ZW495 strain ("
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "zwIs132[myo-3p::GCaMP2 + lin-15(+)]"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ")and the AVG6 strain generated by crossing ZW495 with the BZ33 strain ("
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "dys-1(eg33))"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ". All strains were obtained from the Caenorhabditis Genetics Center (CGC) which is supported by the NIH Office of Research Infrastructure Programs (P40 OD010440)."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Calcium imaging in "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "C. elegans"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " embryos"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Animals carrying "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "zwIs132[Pmyo- 3::GCaMP2::unc-54_3’UTR]"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " were imaged as previously described "
+                  }
+                },
+                {
+                  "type": "CitationGroup",
+                  "items": [
+                    {
+                      "type": "Citation",
+                      "target": "c8",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Fox et al., 2007"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c9",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Hughes et al., 2019"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ". Motion recording was followed by single-frame fluorescence imaging under blue-light illumination using a Sola Light Engine. Images were acquired to minimize fluorophore bleaching."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Calcium quantification in "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "C. elegans"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "ImageJ was used to draw a region of interest (ROI) around each specified region of animal muscle to measure maximum GCaMP2 brightness (indicating relative calcium levels) "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c13",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Schneider et al., 2012"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ". A matched ROI outside the animal served as background. The brightness ratio was calculated as animal fluorescence in the region of interest divided by adjacent background fluorescence."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "C. elegans"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " RNA interference (RNAi)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "WT (ZW495) and dystrophic (AVG6) worms were cultivated on NGM plates containing IPTG and seeded with bacteria expressing either the L4440 empty vector (control) or RNAi targeting "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "mua-3"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ". Downregulation of gene expression was confirmed via qPCR."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "C. elegans"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " swimming assays"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Day-one adults were placed in a 12-well agar plate and flooded with 1mL liquid NGM. Animals were filmed and swimming frequency was calculated as the number of body bends per second once placed in the NGM as well as after a 3-hour period to quantify endurance."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Human myocyte cultures"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Age matched (16 yo male) immortalized healthy (AB1190) and dystrophic (Ab1071) skeletal myoblast lines (Myology Institute in France) were maintained in Skeletal Muscle Growth Media (PromoCell) on Matrigel (1%, Fisher, Cat #CB-40234A) until ∼40% confluence. All experiments used cells within six passages."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Human myocyte calcium imaging"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Myoblasts were seeded at 1×10"
+                  }
+                },
+                {
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "5"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " cells/mL on Matrigel-coated 12-well plates and loaded with 5 μM Fluo 4-AM (Thermo Fisher) in growth medium for 30 minutes at 37°C, then washed and imaged in live imaging medium (Gibco) using the Keyence BZ-X810 fluorescent microscope. ImageJ was used to calculate mean brightness of each myoblast."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "RNASeq"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Unpublished RNASeq data (Marchiafava et al., "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "in preparation"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ") are available from the authors upon reasonable request. RNA was extracted from wildtype or dystrophic myoblasts using the DirectZol RNA Miniprep Kit (Zymo). RNA-seq library preparation and sequencing were performed by Azenta Life Sciences. Briefly, mRNA was enriched using poly-A selection, and libraries were prepared using the NEBNext Ultra II RNA Library Prep Kit for Illumina (NEB). Paired-end sequencing was performed targeting a minimum depth of 30 million reads per sample."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "sectionType": "Methods"
+    }
+  ],
+  "about": [
+    {
+      "type": "PropertyValue",
+      "propertyId": "author-type",
+      "value": "Regular Article"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "heading",
+      "value": "New Results"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "hwp-journal-coll",
+      "value": "Molecular Biology"
+    }
+  ],
+  "funders": [
+    {
+      "type": "Organization"
+    }
+  ],
+  "publisher": {
+    "type": "Organization",
+    "name": "Cold Spring Harbor Laboratory"
+  },
+  "version": "1.1"
+}

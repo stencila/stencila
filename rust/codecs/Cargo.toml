@@ -27,6 +27,7 @@ codec-jsonld = { path = "../codec-jsonld" }
 codec-latex = { path = "../codec-latex" }
 codec-lexical = { path = "../codec-lexical" }
 codec-markdown = { path = "../codec-markdown" }
+codec-meca = { path = "../codec-meca" }
 codec-odt = { path = "../codec-odt" }
 codec-pandoc = { path = "../codec-pandoc" }
 codec-pdf = { path = "../codec-pdf" }

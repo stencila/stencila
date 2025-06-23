@@ -1,0 +1,3806 @@
+---
+source: rust/codec-meca/tests/examples.rs
+assertion_line: 34
+expression: article
+---
+{
+  "type": "Article",
+  "doi": "10.1101/2025.06.16.659939",
+  "abstract": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "CRISPR/Cas9 genome editing has become an important and routine method in "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "C. elegans"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " research to generate new mutants and endogenously tag genes. One complication of CRISPR experiments is that the efficiency of single-guide RNA sequences can vary dramatically. One solution to this problem is to create an intermediate entry strain using the efficient and well-characterised "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "dpy-10"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " guide RNA sequence. This “d10 entry strain” can then be used to generate your knock-in of interest. However, the "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "dpy-10"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " sequence is not always suitable when creating an entry strain. For example, if your gene of interest is closely linked to "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "dpy-10"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " on LGII or if you want to use the "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "dpy-10"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " as a co-CRISPR marker for the creation of the entry strain then you can not use the "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "dpy-10"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " sequence. This publication reports a synthetic guide sequence, GCTATCAACTATCCATATCG, that is not present in the "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "C. elegans"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " genome and can be used to create entry strains. This guide sequence is demonstrated to be relatively robust with a knock-in efficiency that varies from 1-11%. While this is lower than the efficiency observed with "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "d10"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " entry strains, it is still sufficient for most applications. This guide sequence can be added to the "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "C. elegans"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " CRISPR toolkit and is particularly useful for generating entry strains where the standard "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "dpy-10"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " guide sequence is not suitable."
+          }
+        }
+      ]
+    }
+  ],
+  "authors": [
+    {
+      "type": "Person",
+      "orcid": "0000-0002-2414-5277",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "School of Biomolecular and Biomedical Science, University College Dublin"
+        },
+        {
+          "type": "Organization",
+          "name": "UCD Conway Institute of Biomolecular and Biomedical Research"
+        }
+      ],
+      "familyNames": [
+        "Lange"
+      ],
+      "givenNames": [
+        "Karen",
+        "I"
+      ]
+    }
+  ],
+  "dateReceived": {
+    "type": "Date",
+    "value": "2025-6-16"
+  },
+  "dateAccepted": {
+    "type": "Date",
+    "value": "2025-6-16"
+  },
+  "datePublished": {
+    "type": "Date",
+    "value": "2025"
+  },
+  "references": [
+    {
+      "type": "Reference",
+      "id": "c1",
+      "doi": "10.1534/genetics.114.169730",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Arribere"
+          ],
+          "givenNames": [
+            "J",
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bell"
+          ],
+          "givenNames": [
+            "R",
+            "T"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Fu"
+          ],
+          "givenNames": [
+            "B",
+            "X",
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Artiles"
+          ],
+          "givenNames": [
+            "K",
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hartman"
+          ],
+          "givenNames": [
+            "P",
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Fire"
+          ],
+          "givenNames": [
+            "A",
+            "Z"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2014"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Efficient marker-free recovery of custom genetic modifications with CRISPR/Cas9 in Caenorhabditis elegans"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Genetics"
+        },
+        "volumeNumber": 198
+      },
+      "pageStart": 837,
+      "pageEnd": 846
+    },
+    {
+      "type": "Reference",
+      "id": "c2",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Brenner"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1974"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The genetics of Caenorhabditis elegans"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Genetics"
+        },
+        "volumeNumber": 77
+      },
+      "pageStart": 71,
+      "pageEnd": 94
+    },
+    {
+      "type": "Reference",
+      "id": "c3",
+      "doi": "10.1038/s41467-021-22861-2",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dietz"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Almeida"
+          ],
+          "givenNames": [
+            "M",
+            "V"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nischwitz"
+          ],
+          "givenNames": [
+            "E"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schreier"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Viceconte"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Fradera-Sola"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Renz"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ceron-Noriega"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ulrich"
+          ],
+          "givenNames": [
+            "H",
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kappei"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ketting"
+          ],
+          "givenNames": [
+            "R",
+            "F"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Butter"
+          ],
+          "givenNames": [
+            "F"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The double-stranded DNA-binding proteins TEBP-1 and TEBP-2 form a telomeric complex with POT-1"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Communications"
+        },
+        "volumeNumber": 12
+      },
+      "pageStart": 2668
+    },
+    {
+      "type": "Reference",
+      "id": "c4",
+      "doi": "10.1038/nbt.3026",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Doench"
+          ],
+          "givenNames": [
+            "J",
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hartenian"
+          ],
+          "givenNames": [
+            "E"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Graham"
+          ],
+          "givenNames": [
+            "D",
+            "B"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tothova"
+          ],
+          "givenNames": [
+            "Z"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hegde"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Smith"
+          ],
+          "givenNames": [
+            "I"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sullender"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ebert"
+          ],
+          "givenNames": [
+            "B",
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Xavier"
+          ],
+          "givenNames": [
+            "R",
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Root"
+          ],
+          "givenNames": [
+            "D",
+            "E"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2014"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Rational design of highly active sgRNAs for CRISPR-Cas9-mediated gene inactivation"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Biotechnology"
+        },
+        "volumeNumber": 32
+      },
+      "pageStart": 1262,
+      "pageEnd": 1267
+    },
+    {
+      "type": "Reference",
+      "id": "c5",
+      "doi": "10.1534/g3.117.040824",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "El Mouridi"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lecroisey"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tardy"
+          ],
+          "givenNames": [
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mercier"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Leclercq-Blondel"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zariohi"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Boulin"
+          ],
+          "givenNames": [
+            "T"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2017"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Reliable CRISPR/Cas9 Genome Engineering in Caenorhabditis elegans Using a Single Efficient sgRNA and an Easily Recognizable Phenotype"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "G3"
+        },
+        "volumeNumber": 7
+      },
+      "pageStart": 1429,
+      "pageEnd": 1437
+    },
+    {
+      "type": "Reference",
+      "id": "c6",
+      "doi": "10.7554/eLife.12677",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Horlbeck"
+          ],
+          "givenNames": [
+            "M",
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Witkowsky"
+          ],
+          "givenNames": [
+            "L",
+            "B"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Guglielmi"
+          ],
+          "givenNames": [
+            "B"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Replogle"
+          ],
+          "givenNames": [
+            "J",
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gilbert"
+          ],
+          "givenNames": [
+            "L",
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Villalta"
+          ],
+          "givenNames": [
+            "J",
+            "E"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Torigoe"
+          ],
+          "givenNames": [
+            "S",
+            "E"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tjian"
+          ],
+          "givenNames": [
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Weissman"
+          ],
+          "givenNames": [
+            "J",
+            "S"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2016"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Nucleosomes impede Cas9 access to DNA in vivo and in vitro"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "eLife"
+        },
+        "volumeNumber": 5
+      }
+    },
+    {
+      "type": "Reference",
+      "id": "c7",
+      "doi": "10.1534/g3.116.038133",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hostettler"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Grundy"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Käser-Pébernard"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wicky"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schafer"
+          ],
+          "givenNames": [
+            "W",
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Glauser"
+          ],
+          "givenNames": [
+            "D",
+            "A"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2017"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The Bright Fluorescent Protein mNeonGreen Facilitates Protein Expression Analysis In Vivo"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "G3"
+        },
+        "volumeNumber": 7
+      },
+      "pageStart": 607,
+      "pageEnd": 615
+    },
+    {
+      "type": "Reference",
+      "id": "c8",
+      "doi": "10.7554/eLife.13450",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Isaac"
+          ],
+          "givenNames": [
+            "R",
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jiang"
+          ],
+          "givenNames": [
+            "F"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Doudna"
+          ],
+          "givenNames": [
+            "J",
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lim"
+          ],
+          "givenNames": [
+            "W",
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Narlikar"
+          ],
+          "givenNames": [
+            "G",
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Almeida"
+          ],
+          "givenNames": [
+            "R"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2016"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Nucleosome breathing and remodeling constrain CRISPR-Cas9 function"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "eLife"
+        },
+        "volumeNumber": 5
+      }
+    },
+    {
+      "type": "Reference",
+      "id": "c9",
+      "doi": "10.3390/ijms232415863",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kim"
+          ],
+          "givenNames": [
+            "H.-M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hong"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chen"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A decade of CRISPR-Cas genome editing in C"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "elegans. International Journal of Molecular Sciences"
+        },
+        "volumeNumber": 23
+      },
+      "pageStart": 15863
+    },
+    {
+      "type": "Reference",
+      "id": "c10",
+      "doi": "10.1242/dmm.046631",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lange"
+          ],
+          "givenNames": [
+            "K",
+            "I"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tsiropoulou"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kucharska"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Blacque"
+          ],
+          "givenNames": [
+            "O",
+            "E"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Interpreting the pathogenicity of Joubert Syndrome missense variants in Caenorhabditis elegans"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "id": "c11",
+      "doi": "10.1242/dev.200332",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lynch"
+          ],
+          "givenNames": [
+            "T",
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Xue"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Czerniak"
+          ],
+          "givenNames": [
+            "C",
+            "W"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lee"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kimble"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Notch-dependent DNA cis-regulatory elements and their dose-dependent control of C. elegans stem cell self-renewal"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Development (Cambridge, England)"
+        },
+        "volumeNumber": 149
+      },
+      "pageStart": "dev200332"
+    },
+    {
+      "type": "Reference",
+      "id": "c12",
+      "doi": "10.1534/genetics.115.179382",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Paix"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Folkmann"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rasoloson"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Seydoux"
+          ],
+          "givenNames": [
+            "G"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2015"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "High Efficiency, Homology-Directed Genome Editing in Caenorhabditis elegans Using CRISPR-Cas9 Ribonucleoprotein Complexes"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Genetics"
+        },
+        "volumeNumber": 201
+      },
+      "pageStart": 47,
+      "pageEnd": 54
+    },
+    {
+      "type": "Reference",
+      "id": "c13",
+      "doi": "10.15252/embj.2020105280",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Placentino"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "de Jesus Domingues"
+          ],
+          "givenNames": [
+            "A",
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schreier"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dietz"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hellmann"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "de Albuquerque"
+          ],
+          "givenNames": [
+            "B",
+            "F"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Butter"
+          ],
+          "givenNames": [
+            "F"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ketting"
+          ],
+          "givenNames": [
+            "R",
+            "F"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Intrinsically disordered protein PID-2 modulates Z granules and is required for heritable piRNA-induced silencing in the Caenorhabditis elegans embryo"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "The EMBO Journal"
+        },
+        "volumeNumber": 40
+      },
+      "pageStart": "e105280"
+    },
+    {
+      "type": "Reference",
+      "id": "c14",
+      "doi": "10.1038/s41556-021-00827-2",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schreier"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dietz"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Boermel"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Oorschot"
+          ],
+          "givenNames": [
+            "V"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Seistrup"
+          ],
+          "givenNames": [
+            "A.-S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "de Jesus Domingues"
+          ],
+          "givenNames": [
+            "A",
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bronkhorst"
+          ],
+          "givenNames": [
+            "A",
+            "W"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nguyen"
+          ],
+          "givenNames": [
+            "D",
+            "A",
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Phillis"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gleason"
+          ],
+          "givenNames": [
+            "E",
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "L’Hernault"
+          ],
+          "givenNames": [
+            "S",
+            "W"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Phillips"
+          ],
+          "givenNames": [
+            "C",
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Butter"
+          ],
+          "givenNames": [
+            "F"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ketting"
+          ],
+          "givenNames": [
+            "R",
+            "F"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Membrane-associated cytoplasmic granules carrying the Argonaute protein WAGO-3 enable paternal epigenetic inheritance in Caenorhabditis elegans"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Cell Biology"
+        },
+        "volumeNumber": 24
+      },
+      "pageStart": 217,
+      "pageEnd": 229
+    },
+    {
+      "type": "Reference",
+      "id": "c15",
+      "doi": "10.1038/nmeth.2413",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Shaner"
+          ],
+          "givenNames": [
+            "N",
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lambert"
+          ],
+          "givenNames": [
+            "G",
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chammas"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ni"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Cranfill"
+          ],
+          "givenNames": [
+            "P",
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Baird"
+          ],
+          "givenNames": [
+            "M",
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sell"
+          ],
+          "givenNames": [
+            "B",
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Allen"
+          ],
+          "givenNames": [
+            "J",
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Day"
+          ],
+          "givenNames": [
+            "R",
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Israelsson"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Davidson"
+          ],
+          "givenNames": [
+            "M",
+            "W"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wang"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2013"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A bright monomeric green fluorescent protein derived from Branchiostoma lanceolatum"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Methods"
+        },
+        "volumeNumber": 10
+      },
+      "pageStart": 407,
+      "pageEnd": 409
+    },
+    {
+      "type": "Reference",
+      "id": "c16",
+      "doi": "10.1534/g3.119.400314",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Silva-García"
+          ],
+          "givenNames": [
+            "C",
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lanjuin"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Heintz"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dutta"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Clark"
+          ],
+          "givenNames": [
+            "N",
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mair"
+          ],
+          "givenNames": [
+            "W",
+            "B"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Single-copy knock-in loci for defined gene expression in Caenorhabditis elegans"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "G3 (Bethesda, Md"
+        },
+        "volumeNumber": 9
+      },
+      "pageStart": 2195,
+      "pageEnd": 2198
+    },
+    {
+      "type": "Reference",
+      "id": "c17",
+      "doi": "10.1895/wormbook.1.101.1",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Stiernagle"
+          ],
+          "givenNames": [
+            "T"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2006"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Maintenance of C. elegans"
+          }
+        }
+      ],
+      "pageStart": 1,
+      "pageEnd": 11
+    },
+    {
+      "type": "Reference",
+      "id": "c18",
+      "doi": "10.1126/sciadv.abd9941",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Vigne"
+          ],
+          "givenNames": [
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gimond"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ferrari"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Vielle"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hallin"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pino-Querido"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "El Mouridi"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mignerot"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Frøkjær-Jensen"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Boulin"
+          ],
+          "givenNames": [
+            "T"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Teotónio"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Braendle"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A single-nucleotide change underlies the genetic assimilation of a plastic trait"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Science Advances"
+        },
+        "volumeNumber": 7
+      },
+      "pageStart": "eabd9941"
+    },
+    {
+      "type": "Reference",
+      "id": "c19",
+      "doi": "10.1186/s13059-015-0784-0",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wong"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liu"
+          ],
+          "givenNames": [
+            "W"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wang"
+          ],
+          "givenNames": [
+            "X"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2015"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "WU-CRISPR: characteristics of functional guide RNAs for the CRISPR/Cas9 system"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Genome Biology"
+        },
+        "volumeNumber": 16
+      },
+      "pageStart": 218
+    }
+  ],
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Synthetic guide sequence to generate CRISPR-Cas9 entry strains in "
+      }
+    },
+    {
+      "type": "Emphasis",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "C. elegans"
+          }
+        }
+      ]
+    }
+  ],
+  "content": [
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Description"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Over the last decade, CRISPR/Cas9 genome editing has become an important and routine method in "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "C. elegans"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " research "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c9",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Kim et al., 2022"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". There are many applications for genome editing including engineering specific mutations and endogenously tagging genes. In "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "C. elegans"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ", a co-CRISPR strategy using dominant phenotypic markers "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c1",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Arribere et al., 2014"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " has been a very successful method to facilitate reproducible and reliable genome editing. The most widely used co-CRISPR gene is "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "dpy-10;"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " a specific "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "dpy-10"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " missense mutation, Arg92Cys, exhibits a dominant roller (Rol) phenotype while imprecise edits cause a recessive dumpy (Dpy) phenotype. Cas9 cutting of the "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "dpy-10"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " guide sequence is very efficient with homozygous Dpy or DpyRol worms frequently observed in the F1 generation of CRISPR edited worms "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c1",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Arribere et al., 2014"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". One difficulty in designing new CRISPR experiments is that there is no method to accurately predict the efficiency of a guide RNA "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "a priori"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". It has previously been described that you can take advantage of the efficient "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "dpy-10"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " guide sequence to create an entry strain for your gene of interest to facilitate genome editing with a single efficient guide RNA "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c5",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "El Mouridi et al., 2017"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". You can create a “d10 entry” strain by inserting "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "dpy-10"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " guide sequence at your region of interest and then use this strain in a second round of CRISPR genome editing to reliably introduce your desired edits "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c5",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "El Mouridi et al., 2017"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". There are many advantages to this d10 entry strain approach including increasing the reliability of low efficiency knock-in edits, easily editing the same gene multiple times, and the ability to engineer scarless edits. This method has proven to be effective as evidenced by the many publications that cite this strategy "
+              }
+            },
+            {
+              "type": "CitationGroup",
+              "items": [
+                {
+                  "type": "Citation",
+                  "target": "c3",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Dietz et al., 2021"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c11",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Lynch et al., 2022"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c13",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Placentino et al., 2021"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c14",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Schreier et al., 2022"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c16",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Silva-García et al., 2019"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c18",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Vigne et al., 2021"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". There are several situations where a d10 entry strain is not possible such as if your gene of interest is closely linked to "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "dpy-10"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " on chromosome II or if you want to use the efficient "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "dpy-10"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " co-CRISPR marker when you generate the entry strain. This publication reports an alternative guide sequence that can be used to generate reliable entry strains."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "I wanted to knock-in mNeonGreen(mNG) at the N-terminus of "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "cep-290"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " and the closest adjacent PAM was 25 nucleotides from the start codon. After screening 4520 co-CRISPR positive F1 and not isolating the desired knock-in, I decided to attempt the “d10 entry” strain approach "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c5",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "El Mouridi et al., 2017"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". I designed an ssODN repair template that included a 25bp deletion and insertion of the d10 guide sequence on the antisense strand directly after the start codon ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). The repair template also included a mutation in a nearby EcoRI cut site to facilitate detection of the edit. I screened 124 "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "unc-58"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " co-CRISPR positive F1 for the loss of the EcoRI site and identified one potential edit. This allele w as isolated named "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "cep-290(oq120)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". It was sequenced revealing that "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "cep-290(oq120)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " differed significantly from the original repair template; the d10 sequence was partially inserted and there was no adjacent PAM ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). I observed that a novel PAM site was unexpectedly generated in the "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "cep-290(oq120)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " allele so it could potentially function as an entry strain. This new PAM has a guide sequence, GCTATCAACTATCCATATCG, that is a hybrid of the "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "cep-290"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " and the "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "dpy-10"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " sequences so I refer to it as a “synthetic guide”. I reasoned that this sequence may have high on-target efficiency because it exhibits some of the qualities that have been previously reported in efficient Cas9 guide sequences including a high GC content (40%), multiple CA or AC dinucleotides, and a G in the 20 position "
+              }
+            },
+            {
+              "type": "CitationGroup",
+              "items": [
+                {
+                  "type": "Citation",
+                  "target": "c4",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Doench et al., 2014"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c19",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Wong et al., 2015"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": ". To check for off target sites in the "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "C. elegans"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " genome, I employed the CRISPR-Cas9 guide RNA design checker that is available on the Integrated DNA Technologies website. All identified off targets have at least 4 mismatches ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). By targeting the synthetic guide sequence in the "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "cep-290(oq120)"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " entry strain I was able to efficiently generate the mNG::"
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "cep-290"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " strain by screening only 184 co-CRISPR positive F1s and isolating two knock-in lines."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Figure",
+          "label": "1",
+          "caption": [
+            {
+              "type": "Heading",
+              "level": 1,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Synthetic guide sequence generated when attempting to generate a d10 entry strain at the 5’ end of "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "cep-290"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "A)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " DNA sequences of wild-type "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "cep-290"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", the repair template for the designed “d10 entry” allele, and the actual allele isolated. The repair template (ssODN) was designed to introduce a 25 bp deletion and insertion of the d10 guide sequence directly after the start codon. The "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "cep-290(oq120)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " allele (chromatogram shown) was detected and isolated due to the missense mutation that disrupts an EroRI site (red), however the sequence was not consistent with the engineered entry strain. A new guide with PAM (highlighted in purple) was generated in this allele. This sequence has partial homology with "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "cep-290"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " and "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "dpy-10"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " and we have termed it a synthetic guide sequence. Relevant guide sequences are bolded and PAMs are underlined."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "B)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " Predicted off target effects of the synthetic guide sequence identified with the CRISPR-Cas9 guide RNA design checker available on the Integrated DNA Technologies website. All identified off targets have at least 4 mismatches. Mismatches are red. Insertions are highlighted in yellow."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "C)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " Insertion of the synthetic guide sequence can be detected efficiently by a 2 primer PCR reaction where one primer is gene specific and the other binds to the synthetic guide sequence. A product will only be amplified if the synthetic guide sequence has been inserted in the genome. A sample gel is shown."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "D)"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " Knock-in efficiency using this synthetic guide sequence at various loci in the "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "C. elegans"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " genome ranges from approximately 1-11%. Efficiency was calculated by taking the number of PCR positive F1 pools and dividing it by the total number of F1 that were screened."
+                  }
+                }
+              ]
+            }
+          ],
+          "content": [
+            {
+              "type": "ImageObject",
+              "contentUrl": "659939v1_fig1.tif"
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "I have since used this synthetic guide sequence to make multiple entry strains and found it to be reliable and efficient. Insertion of the entry strain can be easily detected in F1 progeny using a 2 primer PCR reaction with one gene specific primer and one primer that is complementary to the synthetic guide sequence ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). The efficiency of knock-in strains generated with this guide has ranged from 1% to 10% ("
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "). This is lower than the reported efficiency of d10 entry strains which ranged from 3-19% "
+              }
+            },
+            {
+              "type": "Citation",
+              "target": "c5",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "El Mouridi et al., 2017"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " but is still sufficient for use in generating entry strains. Interestingly, both of these guide sequences exhibited a wide range of efficiencies when inserted at different genomic loci; this observation highlights how CRISPR efficiency can be affected by non-sequence specific factors such as chromatin state "
+              }
+            },
+            {
+              "type": "CitationGroup",
+              "items": [
+                {
+                  "type": "Citation",
+                  "target": "c6",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Horlbeck et al., 2016"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c8",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Isaac et al., 2016"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "."
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "The synthetic guide sequence reported here can be used in any "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "C. elegans"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " CRISPR application where you might use an entry strain. I have found it to be particularly useful in situations where the d10 guide sequence is not suitable, such as if the gene of interest is linked to "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "dpy-10"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " on chromosome II or when you want to use "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "dpy-10"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " as the co-CRISPR marker while generating the entry strain. The synthetic guide sequence described here was generated by accident and not designed. It may be possible to rationally design a more efficient synthetic guide sequence, but since the sequence described here is functional it may not be worth the time and resources that would be required to attempt to improve it. In conclusion, this sequence is another useful option that can be added to the "
+              }
+            },
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "C. elegans"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": " CRISPR tool kit."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Methods"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Nematode strains"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Caenorhabditis elegans"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " strains were maintained at 20°C on NGM agar plates seeded with "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "E. coli"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " (OP50) using standard worm maintenance techniques "
+                  }
+                },
+                {
+                  "type": "CitationGroup",
+                  "items": [
+                    {
+                      "type": "Citation",
+                      "target": "c2",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Brenner, 1974"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c17",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Stiernagle, 2006"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "The following worm strains were used or generated in this study: N2 wild-type, OEB931 "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "cep-290(oq120[entry strain]) I"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ", and OEB932 "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "cep-290(oq121[mNeonGreen::cep-290]) I"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "PCR to generate "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "mNG::cep-290"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " repair template"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "mNeonGreen(mNG) is licensed by Allele Biotechnology and Pharmaceuticals "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c15",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Shaner et al., 2013"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ". "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "C. elegans"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " codon optimised mNeonGreen "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c7",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Hostettler et al., 2017"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " was amplified from a plasmid, dg353 (a gift from D. Glauser), and a 12 amino acid flexible linker (GTGGGGSGGGGS) was added to the 3’ end of the mNG sequence as previously described "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c10",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Lange et al., 2021"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ". 35 base pair homology arms were added to the mNG sequence with two rounds of high-fidelity PCR as per manufacturer’s instructions (Velocity, BIO-21098, Meridian BioScience)."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Generation of entry strains "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "and mNG::cep-290"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " with CRISPR"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "CRISPR experiments were performed by microinjection of the Cas9 ribonucleoprotein complex "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c12",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Paix et al., 2015"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": ". CRISPR reagents were purchased from IDT: Alt-R Cas9 Nuclease V3 (IDT, #1081058), Alt-R tracrRNA (IDT, #1072533), and custom synthesised gene specific Alt-R crRNA. All RNA for CRISPR experiments was reconstituted with 5 mM Tris (pH 7.5) and stored at −75°C. Single-stranded oligonucleotides (ssODN) repair templates were ordered from Sigma-Merck and reconstituted with 1 M Tris pH 7.4 and kept at −20°C. CRISPR mixes were prepared as previously described "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c10",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Lange et al., 2021"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " and incubated at 37°C for 15 min prior to microinjection into the gonads of young adult hermaphrodites. A co-CRISPR approach with "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "dpy-10"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " or "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "unc-58"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " was used "
+                  }
+                },
+                {
+                  "type": "Citation",
+                  "target": "c1",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Arribere et al., 2014"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "; F1 progeny with the co-CRISPR marker phenotype were pooled in groups of 3-8 worms and edits were detected by PCR. The "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "d10::cep-290"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " entry allele was identified by loss of an EcoRI cut site; restriction digests were performed with EcoRI-HF (R3101S, NEB) as per the manufacturer’s instructions. Subsequent entry strains were identified by using a primer that was complementary to the synthetic guide sequence. Sanger sequencing by Eurofins Genomics was used to determine the sequence of all CRISPR alleles generated."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Calculating efficiency of the synthetic guide RNA sequence"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Knock-in efficiency was calculated by dividing the number of PCR positive F1 pools by the total number of co-CRISPR positive F1 that were screened."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "sectionType": "Methods"
+    },
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Heading",
+          "level": 1,
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Reagents"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "crRNA*"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "cep-290:"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " TGCAAGAATTCTTCAAGTTG"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Synthetic guide: GCTATCAACTATCCATATCG"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "dpy-10:"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " GCTACCATAGGCACCACGAG"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "unc-58:"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " ATCCACGCACATGGTCACTA"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "*For convenience crRNA sequences are shown as their corresponding DNA sequences."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "ssODN repair templates"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "d10::cep-290"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " ssODN: GCACCTTTTTACTAGCACAAATGTACTGAGACATGCCGCTCGTGGTGCCTATGGTAGCAC TTGAAGAGTTCTTGCAAAATGATGGTCCTACCGAGGAAGAAGT"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "dpy-10"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " ssODN: CACTTGAACTTCAATACGGCAAGATGAGAATGACTGGAAACCGTACCGCATGCGGTGCC TATGGTAGCGGAGCTTCACATGGCTTCAGACCAACAGCCTAT"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "unc-58"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " ssODN: GTGGTATAAAATAGCCGAGTTAGGAAACAAATTTTTCTTTCAGGTTTTTCTGTCGTTACCAT GTGCGTGGATCTTGCGTCCACACATCTCAAGGCGTACTT"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Primers to generate "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "mNG::cep-290"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " repair template"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "For: GCACCTTTTTACTAGCACAAATGTACTGAGACATGGTGTCGAAGGGAGAAGAGG Rev: TCTTCCTCGGTAGGACCATCATTTTGCAAGAACTCTTCAAGTTGTGGATAGTTGAT AGCAGCTAACTGAGATCCGCCACCTCCAG"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Nested For: GCACCTTTTTACTAGCACAAATG Nested Rev: TCTTCCTCGGTAGGACCATC"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Genotyping and sequencing primers for "
+                  }
+                },
+                {
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "cep-290(oq121)"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "mNG Rev: AGGCTCCATCCTCGAATTGC For: CTGTCAGTTTCTCATGGTGC"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Rev: ATCCTCTGCCTCCTTGGAC Seq: TCCACCCTCCTACACACTC"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Heading",
+              "level": 2,
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Synthetic guide specific primer"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Rev: CGATATGGATAGTTGATAGC"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "about": [
+    {
+      "type": "PropertyValue",
+      "propertyId": "author-type",
+      "value": "Regular Article"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "heading",
+      "value": "New Results"
+    },
+    {
+      "type": "PropertyValue",
+      "propertyId": "hwp-journal-coll",
+      "value": "Genetics"
+    }
+  ],
+  "funders": [
+    {
+      "type": "Organization"
+    }
+  ],
+  "publisher": {
+    "type": "Organization",
+    "name": "Cold Spring Harbor Laboratory"
+  },
+  "version": "1.1"
+}
