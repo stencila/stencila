@@ -110,6 +110,12 @@ pub struct EncodeOptions {
     #[arg(long, short)]
     pub to: Option<String>,
 
+    /// The template document to use
+    ///
+    /// Only supported by some formats (e.g. DOCX).
+    #[arg(long)]
+    template: Option<PathBuf>,
+
     /// Highlight the rendered outputs of executable nodes
     ///
     /// Only supported by some formats (e.g. DOCX and ODT).
@@ -128,12 +134,6 @@ pub struct EncodeOptions {
     /// Do not encode executable nodes so that they are reproducible
     #[arg(long, alias = "not-repro", conflicts_with = "reproducible")]
     not_reproducible: bool,
-
-    /// The template document to use
-    ///
-    /// Only supported by some formats (e.g. DOCX).
-    #[arg(long)]
-    template: Option<PathBuf>,
 
     /// Encode as a standalone document
     #[arg(long, conflicts_with = "not_standalone")]

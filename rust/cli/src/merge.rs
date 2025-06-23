@@ -15,11 +15,15 @@ pub struct Cli {
     edited: PathBuf,
 
     /// The original source of the document
+    ///
+    /// This file may be in a different same format to the edited version.
+    #[arg(long)]
     original: Option<PathBuf>,
 
     /// The unedited version of the document
     ///
-    /// This should be in the same format as the edited version.
+    /// This file should be in the same format as the edited version.
+    #[arg(long)]
     unedited: Option<PathBuf>,
 
     /// The commit at which the edited document was generated
