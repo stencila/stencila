@@ -403,10 +403,12 @@ pub async fn convert(
     }
 }
 
-/// Reverse changes from an edited document (in a different format) into the original
-/// document (in a different format)
+/// Merge changes from an edited document into the original document
+///
+/// Usually the edited document is in a different format to the
+/// original.
 #[tracing::instrument]
-pub async fn reverse(
+pub async fn merge(
     edited: &Path,
     original: Option<&Path>,
     unedited: Option<&Path>,
@@ -495,7 +497,7 @@ pub async fn reverse(
         to_path(&unedited_node, &unedited_file, Some(encode_options)).await?
     }
 
-    // Rebase edits for each file in the `edited` directory.
+    // Apply edits for each file in the `edited` directory.
     for entry in WalkDir::new(&edited_dir)
         .follow_links(false)
         .into_iter()
@@ -515,7 +517,7 @@ pub async fn reverse(
         let original_path = original_dir.join(relative_path);
 
         // If a file exists in the edited dir but not in the unedited then just
-        // write it to the original dir.
+        // write it to the original dir (no rebasing to do)
         if !unedited_path.exists() {
             write(original_path, edited).await?;
             continue;
@@ -529,10 +531,10 @@ pub async fn reverse(
 
         let original = read_to_string(&original_path).await?;
 
-        tracing::debug!("Merging `{}`", relative_path.display());
-        let merged = rebase_edits(&original, &unedited, &edited);
+        tracing::debug!("Rebasing `{}`", relative_path.display());
+        let rebased = rebase_edits(&original, &unedited, &edited);
 
-        write(original_path, merged).await?;
+        write(original_path, rebased).await?;
     }
 
     Ok(())

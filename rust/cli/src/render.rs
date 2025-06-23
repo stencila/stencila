@@ -1,7 +1,6 @@
 use std::{path::PathBuf, process::exit};
 
 use cli_utils::{Code, ToStdout};
-use codecs::LossesResponse;
 use common::{
     clap::{self, Parser},
     eyre::Result,
@@ -99,7 +98,6 @@ impl Cli {
             tool_args,
         );
         encode_options.render = Some(true);
-        encode_options.losses = LossesResponse::Debug;
 
         if let Some(output) = &output {
             doc.export(output, Some(encode_options)).await?;

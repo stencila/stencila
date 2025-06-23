@@ -583,7 +583,7 @@ pub struct EncodeOptions {
     pub strip_props: Vec<String>,
 
     /// The response to take when there are losses in the encoding
-    #[default(_code = "LossesResponse::Warn")]
+    #[default(_code = "LossesResponse::Debug")]
     pub losses: LossesResponse,
 
     /// The tool to delegate to for encoding (e.g. `pandoc`)

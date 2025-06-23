@@ -146,10 +146,14 @@ impl Codec for DocxCodec {
             options.render = Some(true);
         }
 
+        // Default to reproducible
+        if options.reproducible.is_none() {
+            options.reproducible = Some(true)
+        }
+
         let format = options.format.clone().unwrap_or(Format::Docx);
 
         let reproducible = options.reproducible.unwrap_or_default();
-
         if reproducible {
             if let Node::Article(Article { options, .. }) = &node {
                 reproducible_warnings(&options.source, &options.commit)
