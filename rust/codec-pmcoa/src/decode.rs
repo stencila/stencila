@@ -32,13 +32,13 @@ pub(super) async fn decode_pmcid(
     }
 
     // Download package
-    let pmcoap = download_package(pmcid).await?;
+    let pmcoa = download_package(pmcid).await?;
 
     // Decode package
-    let (node, .., info) = decode_path(&pmcoap, options).await?;
+    let (node, .., info) = decode_path(&pmcoa, options).await?;
 
     // Remove downloaded package
-    remove_file(pmcoap).await?;
+    remove_file(pmcoa).await?;
 
     Ok((node, info))
 }

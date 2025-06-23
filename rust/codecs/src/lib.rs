@@ -49,7 +49,7 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(codec_rnw::RnwCodec),
         Box::new(codec_odt::OdtCodec),
         Box::new(codec_pandoc::PandocCodec),
-        Box::new(codec_pmcoap::PmcOapCodec),
+        Box::new(codec_pmcoa::PmcOaCodec),
         Box::new(codec_pdf::PdfCodec),
         Box::new(codec_png::PngCodec),
         Box::<codec_swb::SwbCodec>::default(),

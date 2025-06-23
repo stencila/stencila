@@ -10,7 +10,7 @@ use codec::{
 };
 use common_dev::insta::{assert_json_snapshot, assert_yaml_snapshot};
 
-use codec_pmcoap::PmcOapCodec;
+use codec_pmcoa::PmcOaCodec;
 
 /// Decode each example of a PMC OA Package and create JSON snapshots (including for losses)
 #[tokio::test]
@@ -23,7 +23,7 @@ async fn examples() -> Result<()> {
         + "/**/*.tar.gz";
 
     for path in glob(&pattern)?.flatten() {
-        let (article, .., info) = PmcOapCodec.from_path(&path, None).await?;
+        let (article, .., info) = PmcOaCodec.from_path(&path, None).await?;
 
         let pmcid = path
             .file_name()

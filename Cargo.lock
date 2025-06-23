@@ -1315,7 +1315,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "codec-pmcoap"
+name = "codec-pmcoa"
 version = "0.0.0"
 dependencies = [
  "codec",
@@ -1421,7 +1421,7 @@ dependencies = [
  "codec-odt",
  "codec-pandoc",
  "codec-pdf",
- "codec-pmcoap",
+ "codec-pmcoa",
  "codec-png",
  "codec-rnw",
  "codec-swb",

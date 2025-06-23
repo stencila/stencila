@@ -14,12 +14,12 @@ mod decode;
 ///
 /// See https://pmc.ncbi.nlm.nih.gov/tools/oa-service/ and
 /// https://pmc.ncbi.nlm.nih.gov/tools/openftlist/
-pub struct PmcOapCodec;
+pub struct PmcOaCodec;
 
 #[async_trait]
-impl Codec for PmcOapCodec {
+impl Codec for PmcOaCodec {
     fn name(&self) -> &str {
-        "pmcoap"
+        "pmcoa"
     }
 
     fn status(&self) -> Status {
@@ -28,7 +28,7 @@ impl Codec for PmcOapCodec {
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {
         match format {
-            Format::PmcOap => CodecSupport::LowLoss,
+            Format::PmcOa => CodecSupport::LowLoss,
             _ => CodecSupport::None,
         }
     }

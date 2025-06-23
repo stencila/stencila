@@ -31,7 +31,7 @@ codec-meca = { path = "../codec-meca" }
 codec-odt = { path = "../codec-odt" }
 codec-pandoc = { path = "../codec-pandoc" }
 codec-pdf = { path = "../codec-pdf" }
-codec-pmcoap = { path = "../codec-pmcoap" }
+codec-pmcoa = { path = "../codec-pmcoa" }
 codec-png = { path = "../codec-png" }
 codec-rnw = { path = "../codec-rnw" }
 codec-swb = { path = "../codec-swb" }

@@ -294,10 +294,10 @@ expression: specs
     "supports_to_string": false,
     "supports_to_path": true
   },
-  "pmcoap": {
+  "pmcoa": {
     "status": "under-development",
     "supports_from_formats": {
-      "pmcoap": "LowLoss"
+      "pmcoa": "LowLoss"
     },
     "supports_from_bytes": false,
     "supports_from_string": true,
