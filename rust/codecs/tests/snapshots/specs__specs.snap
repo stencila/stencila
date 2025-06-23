@@ -238,6 +238,19 @@ expression: specs
     "supports_to_string": true,
     "supports_to_path": true
   },
+  "meca": {
+    "status": "under-development",
+    "supports_from_formats": {
+      "meca": "LowLoss"
+    },
+    "supports_from_bytes": false,
+    "supports_from_string": true,
+    "supports_from_path": true,
+    "supports_to_formats": {},
+    "supports_to_bytes": false,
+    "supports_to_string": true,
+    "supports_to_path": true
+  },
   "odt": {
     "status": "under-development",
     "supports_from_formats": {
