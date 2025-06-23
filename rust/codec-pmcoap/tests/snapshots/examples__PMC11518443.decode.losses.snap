@@ -1,6 +1,5 @@
 ---
-source: rust/codec-pmcoap/tests/downloads.rs
-assertion_line: 16
+source: rust/codec-pmcoap/tests/examples.rs
 expression: info.losses
 ---
 //article/front/article-meta/abstract/sec/@id: 4

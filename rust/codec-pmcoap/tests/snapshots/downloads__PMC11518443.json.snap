@@ -1,6 +1,5 @@
 ---
 source: rust/codec-pmcoap/tests/downloads.rs
-assertion_line: 15
 expression: article
 ---
 {
