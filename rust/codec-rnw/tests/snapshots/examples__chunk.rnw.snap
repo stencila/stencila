@@ -18,3 +18,9 @@ All:
 <<chunkname,echo=FALSE,hidden=TRUE>>=
 # Some code
 @
+
+<<chunkname>>=
+#| fig.height: 6
+#| fig.width: 12
+plot(1:10)
+@

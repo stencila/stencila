@@ -56,6 +56,20 @@ expression: article
       "type": "RawBlock",
       "format": "latex",
       "content": {
+        "string": "\n"
+      }
+    },
+    {
+      "type": "CodeChunk",
+      "code": {
+        "string": "#| fig.height: 6\n#| fig.width: 12\nplot(1:10)\n"
+      },
+      "programmingLanguage": "r"
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
         "string": "\n\\end{document}\n"
       }
     }

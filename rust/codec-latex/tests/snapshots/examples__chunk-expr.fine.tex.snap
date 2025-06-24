@@ -16,3 +16,7 @@ With lang and options:
 x <- 3
 3 + 2
 \end{lstlisting}
+
+\begin{lstlisting}
+plot(1:10)
+\end{lstlisting}

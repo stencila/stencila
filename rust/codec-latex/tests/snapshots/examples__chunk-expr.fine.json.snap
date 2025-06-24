@@ -69,6 +69,12 @@ expression: article
       "code": {
         "string": "x <- 3\n3 + 2"
       }
+    },
+    {
+      "type": "CodeChunk",
+      "code": {
+        "string": "plot(1:10)"
+      }
     }
   ],
   "source": "rust/codec-latex/tests/examples/chunk-expr.tex",

@@ -51,6 +51,14 @@ expression: article
       "programmingLanguage": "r",
       "isEchoed": false,
       "isHidden": true
+    },
+    {
+      "type": "CodeChunk",
+      "id": "chunkname",
+      "code": {
+        "string": "#| fig.height: 6\n#| fig.width: 12\nplot(1:10)\n"
+      },
+      "programmingLanguage": "r"
     }
   ],
   "source": "rust/codec-rnw/tests/examples/chunk.rnw",

@@ -245,12 +245,13 @@ fn latex_to_blocks(latex: &str, island_style: &Option<String>) -> Vec<Block> {
 
             blocks.push(Block::IncludeBlock(IncludeBlock::new(source)));
         } else if let Some(mat) = captures.name("chunk") {
-            let code = mat.as_str().into();
+            let code = mat.as_str().to_string();
 
             let mut id = None;
             let mut programming_language = None;
             let mut is_echoed = None;
             let mut is_hidden = None;
+            let mut code_options = Vec::new();
             if let Some(options) = captures.name("chunk_opts") {
                 for option in options
                     .as_str()
@@ -273,10 +274,28 @@ fn latex_to_blocks(latex: &str, island_style: &Option<String>) -> Vec<Block> {
                             is_hidden = Some(value.to_lowercase() == "true")
                         } else if name == "echo" {
                             is_echoed = Some(value.to_lowercase() == "true")
+                        } else {
+                            code_options.push((name, value))
                         }
                     }
                 }
             }
+
+            let code = if code_options.is_empty() {
+                code
+            } else {
+                let mut new_code = String::with_capacity(code.len() + code_options.len() * 20);
+                for (name, value) in code_options {
+                    new_code.push_str(&match programming_language.as_deref() {
+                        Some("js" | "javascript") => ["// @", name, " ", value, "\n"].concat(),
+                        // Use Knitr style attribute comments: https://quarto.org/docs/reference/cells/cells-knitr.html
+                        _ => ["#| ", name, ": ", value, "\n"].concat(),
+                    });
+                }
+                new_code.push_str(&code);
+                new_code
+            }
+            .into();
 
             blocks.push(Block::CodeChunk(CodeChunk {
                 id,
