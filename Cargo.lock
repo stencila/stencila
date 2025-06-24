@@ -1311,6 +1311,7 @@ dependencies = [
  "codec",
  "codec-latex",
  "codec-pandoc",
+ "codec-utils",
  "rand 0.9.1",
 ]
 

@@ -2,12 +2,12 @@
 
 use std::{
     env::temp_dir,
-    fs::{create_dir_all, read_to_string, remove_file, rename, write},
+    fs::{create_dir_all, read_to_string, remove_file, write},
     path::{Path, PathBuf},
     process::{Command, Stdio},
 };
 
-use codec_utils::split_paragraph;
+use codec_utils::{move_file, split_paragraph};
 use node_path::{NodePath, NodeSlot};
 use node_url::{NodePosition, NodeUrl};
 use rand::{distr::Alphanumeric, rng, Rng};
@@ -248,11 +248,16 @@ pub fn latex_to_image(latex: &str, path: &Path, class: Option<&str>) -> Result<(
     // Use a unique job name to be able to run `latex` in the current working directory
     // (because paths in \input and \includegraphics commands are relative to that)
     // whilst also being able to clean up temporary file afterwards
-    let job: String = rng()
-        .sample_iter(&Alphanumeric)
-        .take(16)
-        .map(char::from)
-        .collect();
+    let job = [
+        "temp-",
+        rng()
+            .sample_iter(&Alphanumeric)
+            .take(16)
+            .map(char::from)
+            .collect::<String>()
+            .as_str(),
+    ]
+    .concat();
 
     // The varwidth option tells the standalone class to size the PDF page to the natural width of
     // its contents (up to the specified maximum) instead of a fixed text width. Without it content
@@ -323,7 +328,7 @@ pub fn latex_to_image(latex: &str, path: &Path, class: Option<&str>) -> Result<(
     }
 
     let image_status = if image_tool.is_empty() {
-        rename(format!("{job}.pdf"), path)?;
+        move_file(format!("{job}.pdf"), path)?;
 
         None
     } else {

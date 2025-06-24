@@ -1,6 +1,6 @@
 use std::{
     collections::BTreeMap,
-    fs::{rename, File},
+    fs::File,
     io::{Read, Write},
     path::Path,
 };
@@ -11,6 +11,7 @@ use codec::common::{
     tempfile,
     uuid::Uuid,
 };
+use codec_utils::move_file;
 use zip::{write::SimpleFileOptions, ZipArchive, ZipWriter};
 
 /// Encode custom data and properties into a DOCX
@@ -128,7 +129,8 @@ pub fn data_and_properties(
         writer.write_all(&data)?;
     }
     writer.finish()?;
-    rename(tmp.path(), path)?;
+
+    move_file(tmp.path(), path)?;
 
     Ok(())
 }

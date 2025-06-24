@@ -11,7 +11,7 @@ use codec::{
         eyre::{bail, Result},
         glob,
         tokio::{
-            fs::{create_dir_all, read_to_string, remove_file, rename},
+            fs::{create_dir_all, read_to_string, remove_file},
             process::Command,
         },
         tracing,
@@ -23,6 +23,7 @@ use codec::{
 };
 use codec_latex::LatexCodec;
 use codec_pandoc::{pandoc_to_format, root_to_pandoc};
+use codec_utils::move_file;
 
 /// A codec for PDF
 pub struct PdfCodec;
@@ -101,11 +102,16 @@ async fn latex_to_pdf(
     // Use a unique job name to be able to run `latex` in the current working directory
     // (because paths in \input and \includegraphics commands are relative to that)
     // whilst also being able to clean up temporary file afterwards
-    let job: String = rng()
-        .sample_iter(&Alphanumeric)
-        .take(16)
-        .map(char::from)
-        .collect();
+    let job = [
+        "temp-",
+        rng()
+            .sample_iter(&Alphanumeric)
+            .take(16)
+            .map(char::from)
+            .collect::<String>()
+            .as_str(),
+    ]
+    .concat();
 
     let input_file = format!("{job}.tex");
 
@@ -148,7 +154,7 @@ async fn latex_to_pdf(
         if let Some(dir) = path.parent() {
             create_dir_all(dir).await?;
         }
-        rename(output_file, path).await?;
+        move_file(output_file, path)?;
     }
 
     let log_file = PathBuf::from(format!("{job}.log"));

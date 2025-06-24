@@ -7,6 +7,7 @@ edition = "2021"
 codec = { path = "../codec" }
 codec-latex = { path = "../codec-latex" }
 codec-pandoc = { path = "../codec-pandoc" }
+codec-utils = { path = "../codec-utils" }
 rand = { workspace = true }
 
 [lints]
