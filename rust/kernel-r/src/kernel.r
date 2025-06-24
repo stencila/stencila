@@ -124,9 +124,9 @@ exception <- function(error, error_type = "RuntimeError") message(error, "Except
 interrupt <- function(condition, error_type = "Interrupt") message("Code execution was interrupted", "Exception", error_type)
 
 # Serialize an R object as JSON
-to_json <- function(value) {
+to_json <- function(value, ...) {
   if (inherits(value, "recordedplot") || inherits(value, "ggplot")) {
-    toJSON(plot_to_image_object(value))
+    toJSON(plot_to_image_object(value, ...))
   } else if (inherits(value, "table")) {
     # The functions `summary` and `table` return class "table" results
     # Currently, just "print" them. In the future, we may convert these to Datatables.
@@ -303,20 +303,14 @@ dataframe_from_datatable <- function(dt) {
 }
 
 # Convert a R plot to an `ImageObject`
-plot_to_image_object <- function(value, options = list()) {
+plot_to_image_object <- function(value, width = 480, height = 480) {
   # Create a new graphics device for the format, with a temporary path.
   # The tempdir check is needed when forking.
   filename <- tempfile(fileext = paste0(".png"), tmpdir = tempdir(check = TRUE))
-  width <- try(as.numeric(options$width))
-  height <- try(as.numeric(options$height))
-
-  # Width and height should be in pixel
-  res <- 300 # pixels per inch
   png(
     filename,
-    width = ifelse(is.numeric(width) && length(width) == 1, width, 15) / 2.542 * res,
-    height = ifelse(is.numeric(height) && length(width) == 1, height, 15) / 2.542 * res,
-    res = res
+    width = if (!is.na(width)) width else getOption('repr.plot.width', 480),
+    height = if (!is.na(height)) height else getOption('repr.plot.height', 480),
   )
   base::print(value)
   grDevices::dev.off()
@@ -333,7 +327,7 @@ print <- function(x, ...) {
   if (inherits(x, 'xtable')) {
     base::print(x, ...)
   } else {
-    write(paste0(to_json(x), END), stdout)
+    write(paste0(to_json(x, ...), END), stdout)
   }
 }
 
@@ -342,6 +336,24 @@ unbox <- jsonlite::unbox
 
 # Create environment in which code will be executed
 envir <- new.env()
+
+# Extract an option from Knitr style attribute comments
+# https://quarto.org/docs/reference/cells/cells-knitr.html
+extract_option <- function(lines, aliases) {
+  pattern <- sprintf(
+    "^\\s*#\\|\\s*(?:%s)\\s*:\\s*([0-9]+(?:\\.[0-9]+)?)\\s*$",
+    paste(aliases, collapse = "|")
+  )
+
+  m <- regexec(pattern, lines, perl = TRUE, ignore.case = TRUE)
+  captures <- regmatches(lines, m)
+
+  vals <- vapply(captures, function(x) {
+    if (length(x) == 2) as.numeric(x[2]) else NA
+  }, numeric(1))
+
+  vals[!is.na(vals)][1]
+}
 
 # Execute lines of code
 #
@@ -364,6 +376,15 @@ envir <- new.env()
 #    )
 #
 execute <- function(lines) {
+  # Detect any graphics device settings in Knitr style comments
+  # Currently assume to be in inches
+  current_plot_width <- NA
+  current_plot_height <- NA
+  if (any(grepl("^\\s*#\\|", lines, perl = TRUE))) {
+    current_plot_width <- extract_option(lines, c("fig\\.width", "fig-width", "width")) * 72
+    current_plot_height <- extract_option(lines, c("fig\\.height", "fig-height", "height")) * 72
+  }
+
   code <- paste0(lines, collapse = "\n")
   compiled <- tryCatch(parse(text = code), error = identity)
   if (inherits(compiled, "simpleError")) {
@@ -417,7 +438,7 @@ execute <- function(lines) {
 
     # Ignore any values that are not visible
     if (!is.null(value_and_visible) && value_and_visible$visible) {
-      print(value_and_visible$value)
+      print(value_and_visible$value, width = current_plot_width, height = current_plot_height)
     }
   }
 }
