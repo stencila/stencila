@@ -53,7 +53,7 @@ impl Cli {
             eprintln!("💣  Errors while executing `{}`", input.display());
             exit(1);
         } else if warnings > 0 {
-            eprintln!("⚠️ Warnings while executing `{}`", input.display())
+            eprintln!("⚠️  Warnings while executing `{}`", input.display())
         } else {
             eprintln!("🚀 Successfully executed `{}`", input.display())
         }

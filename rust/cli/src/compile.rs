@@ -47,7 +47,7 @@ impl Cli {
             eprintln!("💣 Errors while compiling `{}`", input.display());
             exit(1)
         } else if warnings > 0 {
-            eprintln!("⚠️ Warnings while compiling `{}`", input.display())
+            eprintln!("⚠️  Warnings while compiling `{}`", input.display())
         } else {
             eprintln!("🛠️  Successfully compiled `{}`", input.display())
         }
