@@ -158,7 +158,7 @@ impl LatexCodec for CodeChunk {
                 context.property_fn(NodeProperty::Outputs, |context| {
                     for output in outputs {
                         if matches!(context.format, Format::Docx | Format::Odt) {
-                            // Encode outputs as images so that they are not editable
+                            // Encode output to LaTeX
                             let (latex, ..) = to_latex(
                                 output,
                                 Format::Svg,
@@ -174,9 +174,11 @@ impl LatexCodec for CodeChunk {
                             }
 
                             if matches!(output, Node::ImageObject(..)) {
-                                // Already encoded as an image, so just add the LaTeX
+                                // Output already encoded as a LaTeX image in call to `to_latex`  above
+                                // so just add that here
                                 context.str(&latex);
                             } else {
+                                // Convert the LaTeX to an image (so it can not be edited)
                                 let path = context.temp_dir.join(format!("{}.svg", self.node_id()));
                                 if let Err(error) = latex_to_image(&latex, &path, None) {
                                     tracing::error!(
@@ -196,20 +198,22 @@ impl LatexCodec for CodeChunk {
                 if context.reproducible {
                     context.link_end();
                 }
-            } else {
+            } else if context.reproducible {
+                // If code chunk does not have any outputs and encoding as reproducible
+                // then create a link for it
                 context
-                    .str("\n\n\\centerline{")
+                    .str("\n\n")
                     .link_with(
                         None,
                         &format!(
                             r"\verb|[Code chunk {}]|",
                             match &self.id {
-                                Some(id) => id,
-                                _ => "",
+                                Some(id) => id.replace('|', ""),
+                                _ => String::new(),
                             }
                         ),
                     )
-                    .str("}\n\n");
+                    .str("\n\n");
             }
 
             context
