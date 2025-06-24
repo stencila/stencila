@@ -34,37 +34,36 @@ impl LatexCodec for Island {
             }
 
             let path = context.temp_dir.join(format!("{}.svg", self.node_id()));
-            if let Err(error) = latex_to_image(&latex, &path, self.style.as_deref()) {
+            let inner = if let Err(error) = latex_to_image(&latex, &path, self.style.as_deref()) {
                 tracing::error!("While encoding island to image: {error}\n\n{latex}");
-                // Will fallback to just encoding the content below
+
+                // Rather than adding potentially broken LaTeX to DOCX/ODT, add message to document
+                r"\verb|[Unable to generate image from LaTeX. Please refer to PDF or other version]|".to_string()
             } else {
                 let path = path.to_string_lossy();
+                [r"\includegraphics[width=16cm]{", &path, "}"].concat()
+            };
 
-                context.str(r"\centerline{");
+            context.str(r"\centerline{");
 
-                // Add id (if any) any as a label to that cross links work
-                if let Some(id) = &self.id {
-                    context.str(r"\label{").str(id).char('}');
-                }
-
-                if context.reproducible {
-                    context.link_begin(None);
-                }
-
-                context
-                    .str(r"\includegraphics[width=16cm]{")
-                    .str(&path)
-                    .str("}")
-                    .exit_node();
-
-                if context.reproducible {
-                    context.link_end();
-                }
-
-                context.str("}");
-
-                return;
+            // Add id (if any) any as a label to that cross links work
+            if let Some(id) = &self.id {
+                context.str(r"\label{").str(id).char('}');
             }
+
+            if context.reproducible {
+                context.link_begin(None);
+            }
+
+            context.str(&inner);
+
+            if context.reproducible {
+                context.link_end();
+            }
+
+            context.str("}").exit_node();
+
+            return;
         }
 
         const ENVIRON: &str = "island";
