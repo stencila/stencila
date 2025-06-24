@@ -267,7 +267,7 @@ impl LatexCodec for ImageObject {
 
         context
             .enter_node(self.node_type(), self.node_id())
-            .str(r"\includegraphics{")
+            .str(r"\includegraphics[width=\linewidth,keepaspectratio]{")
             .str(&path)
             .char('}')
             .exit_node();
