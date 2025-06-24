@@ -250,7 +250,15 @@ impl Diagnostic {
 /// A visitor that walks over a node and collects any messages
 #[derive(Default)]
 struct Collector {
+    /// The collected messages
     messages: Vec<Diagnostic>,
+
+    /// The node id and file name of any included, or called, file
+    /// 
+    /// Used to locate diagnostics properly to the top level include.
+    /// At this stage we are unable to to provide more precise location within
+    /// included file.
+    within: Option<(NodeId, String)>,
 }
 
 impl Collector {
@@ -262,7 +270,13 @@ impl Collector {
         messages: &Option<Vec<CompilationMessage>>,
         lang: Option<&str>,
         code: Option<&Cord>,
-    ) {
+    ) {        
+        let (node_id, prefix) = if let Some((node_id, source)) = &self.within {
+            (node_id.clone(), format!("Within `{source}`: "))
+        } else {
+            (node_id, String::new())
+        };
+        
         let mut msgs = messages
             .iter()
             .flatten()
@@ -279,7 +293,7 @@ impl Collector {
                     level: DiagnosticLevel::from(&msg.level),
                     kind,
                     error_type: msg.error_type.clone(),
-                    message: msg.message.clone(),
+                    message: format!("{}{}", prefix, msg.message),
                     format: lang.map(Format::from_name),
                     code: code.map(|cord| cord.to_string()),
                     code_location: msg.code_location.clone(),
@@ -298,6 +312,12 @@ impl Collector {
         lang: Option<&str>,
         code: Option<&Cord>,
     ) {
+        let (node_id, prefix) = if let Some((node_id, source)) = &self.within {
+            (node_id.clone(), format!("Within `{source}`: "))
+        } else {
+            (node_id, String::new())
+        };
+
         let mut msgs = messages
             .iter()
             .flatten()
@@ -307,7 +327,7 @@ impl Collector {
                 level: DiagnosticLevel::from(&msg.level),
                 kind: DiagnosticKind::Execution,
                 error_type: msg.error_type.clone(),
-                message: msg.message.clone(),
+                message: format!("{}{}", prefix, msg.message),
                 format: lang.map(Format::from_name),
                 code: code.map(|cord| cord.to_string()),
                 code_location: msg.code_location.clone(),
@@ -388,12 +408,16 @@ impl Visitor for Collector {
             Block::ForBlock(block) => cms_ems!(self, block, block.programming_language.as_deref(), Some(&block.code)),
             Block::IfBlock(block) => cms_ems!(self, block, None, None),
             Block::IncludeBlock(block) => {
-                // Collect diagnostics on the include block itself but do
-                // not continue walk into the included content because
-                // we are unable to link any diagnostics in there to the
-                // original source location.
+                // Collect diagnostics on the include block itself..
                 cms_ems!(self, block, None, None);
-                return WalkControl::Break;
+                
+                // Continue walk but with `within` set
+                self.within = Some((block.node_id(), block.source.clone()));
+                block.content.walk(self);
+                self.within = None;
+
+                // Break walk because content already walked over
+                return WalkControl::Break
             },
             Block::InstructionBlock(block) => cms_ems!(self, block, None, None),
             Block::MathBlock(block) => cms!(self, block, block.math_language.as_deref(), Some(&block.code)),
