@@ -254,7 +254,7 @@ struct Collector {
     messages: Vec<Diagnostic>,
 
     /// The node id and file name of any included, or called, file
-    /// 
+    ///
     /// Used to locate diagnostics properly to the top level include.
     /// At this stage we are unable to to provide more precise location within
     /// included file.
@@ -270,13 +270,13 @@ impl Collector {
         messages: &Option<Vec<CompilationMessage>>,
         lang: Option<&str>,
         code: Option<&Cord>,
-    ) {        
+    ) {
         let (node_id, prefix) = if let Some((node_id, source)) = &self.within {
             (node_id.clone(), format!("Within `{source}`: "))
         } else {
             (node_id, String::new())
         };
-        
+
         let mut msgs = messages
             .iter()
             .flatten()
@@ -410,7 +410,7 @@ impl Visitor for Collector {
             Block::IncludeBlock(block) => {
                 // Collect diagnostics on the include block itself..
                 cms_ems!(self, block, None, None);
-                
+
                 // Continue walk but with `within` set
                 self.within = Some((block.node_id(), block.source.clone()));
                 block.content.walk(self);
