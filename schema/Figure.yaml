@@ -80,8 +80,8 @@ properties:
       elem: figure
     proptest:
       min:
-        description: Generate a single arbitrary paragraph.
-        strategy: vec_paragraphs(1)
+        description: Generate a single arbitrary block image object.
+        strategy: vec_blocks_image_object(1)
       low:
         description: Generate up to two arbitrary, non-recursive, block nodes (excluding code chunks).
         strategy: vec_blocks_figure_content(2)

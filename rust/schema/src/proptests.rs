@@ -162,9 +162,22 @@ prop_compose! {
 }
 
 prop_compose! {
+    /// Generate a vector of block image object
+    pub fn vec_blocks_image_object(max_size: usize)(
+        length in 1..=max_size
+    )(
+        blocks in vec(
+            ImageObject::arbitrary().prop_map(Block::ImageObject),
+            size_range(length)
+        )
+    ) -> Vec<Block> {
+        blocks
+    }
+}
+
+prop_compose! {
     /// Generate a vector of block content of arbitrary length that are
     /// commonly used as figure content
-    ///
     ///
     /// Used for `Figure.content` during `proptest-low` to avoid confounding
     /// between figure `content` and `caption`. Also excludes code chunks since
@@ -175,7 +188,7 @@ prop_compose! {
     )(
         blocks in vec(
             prop_oneof![
-                Just(Block::Paragraph(Paragraph::new(vec![Inline::ImageObject(ImageObject::new("url".into()))]))),
+                ImageObject::arbitrary().prop_map(Block::ImageObject),
                 CodeBlock::arbitrary().prop_map(Block::CodeBlock),
                 MathBlock::arbitrary().prop_map(Block::MathBlock),
             ],
