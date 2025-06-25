@@ -596,6 +596,7 @@ finally:
                     ]))),
                     None,
                 ),
+                ("1+\n2", Node::Integer(3), None),
                 ("", Node::Null(Null), None),
                 ("@", Node::Null(Null), syntax_err),
                 ("foo", Node::Null(Null), Some("name 'foo' is not defined")),

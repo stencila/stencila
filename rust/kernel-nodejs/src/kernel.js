@@ -415,7 +415,8 @@ rl.on("line", (task) => {
         case EXEC:
           return execute(lines.slice(1));
         case EVAL:
-          return evaluate(lines[1]);
+          // Note: if multiple lines provided then joined with space
+          return evaluate(lines.slice(1).join(" "));
         case INFO:
           return info();
         case PKGS:

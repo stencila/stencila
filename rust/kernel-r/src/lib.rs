@@ -356,6 +356,7 @@ b",
                     ]))),
                     None,
                 ),
+                ("1+\n2", Node::Integer(3), None),
                 ("", Node::Null(Null), None),
                 (
                     "@",

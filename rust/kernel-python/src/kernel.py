@@ -1021,7 +1021,8 @@ def main() -> None:
                 code_label = f"Code chunk #{code_id}"
                 execute(lines[1:], code_label)
             elif task_type == EVAL:
-                evaluate(lines[1])
+                # Note: if multiple lines provided then joined with space
+                evaluate(" ".join(lines[1:]))
             elif task_type == INFO:
                 get_info()
             elif task_type == PKGS:

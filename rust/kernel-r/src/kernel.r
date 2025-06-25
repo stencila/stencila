@@ -698,7 +698,11 @@ while (!is.null(stdin)) {
     if (task_type == EXEC) {
       if (length(lines) > 1) execute(lines[2:length(lines)])
     }
-    else if (task_type == EVAL) evaluate(lines[2])
+    else if (task_type == EVAL) {
+      # Note: if multiple lines provided then joined with space
+      if (length(lines) == 2) evaluate(lines[2])
+      else if (length(lines) > 2) evaluate(paste(lines[2:length(lines)], collapse = " "))
+    }
     else if (task_type == INFO) get_info()
     else if (task_type == PKGS) get_packages()
     else if (task_type == LIST) list_variables()
