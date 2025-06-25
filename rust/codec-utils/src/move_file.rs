@@ -37,15 +37,6 @@ use common::eyre::{Context, Result};
 /// - Only works with regular files (not directories)
 /// - Permission preservation is best-effort and may not work on all platforms
 /// - Temporary disk space is required for the copy operation
-///
-/// ## Example
-///
-/// ```rust
-/// use std::path::Path;
-///
-/// // This will work even if /tmp and ./output are on different filesystems
-/// move_file("./temp_file.txt", "./output/final_file.txt")?;
-/// ```
 pub fn move_file<S: AsRef<Path>, D: AsRef<Path>>(src: S, dst: D) -> Result<()> {
     let src = src.as_ref();
     let dst = dst.as_ref();
