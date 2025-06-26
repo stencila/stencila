@@ -140,8 +140,8 @@ impl Codec for MarkdownCodec {
         }
 
         let (md, info) = if !options.compact.unwrap_or_default() {
-            // Need to create a mutable copy so that media URLs can be written to
-            // local files if necessary
+            // Need to create a mutable copy so that any dataURIs can be altered
+            // to point to files in the media directory
             let mut copy = node.clone();
 
             if let (Some(parent), Some(file_name)) = (path.parent(), path.file_name()) {
@@ -151,7 +151,7 @@ impl Codec for MarkdownCodec {
 
             encode(&copy, Some(options))?
         } else {
-            encode(&node, Some(options))?
+            encode(node, Some(options))?
         };
 
         if let Some(parent) = path.parent() {

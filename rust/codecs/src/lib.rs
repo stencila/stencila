@@ -259,8 +259,8 @@ pub async fn to_stdout(node: &Node, options: Option<EncodeOptions>) -> Result<()
         .as_ref()
         .and_then(|opts| opts.format.clone())
         .unwrap_or_default();
-    
-    let content = to_string(&node, options).await?;
+
+    let content = to_string(node, options).await?;
     Code::new(format, &content).to_stdout();
 
     Ok(())
