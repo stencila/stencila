@@ -47,13 +47,8 @@ impl Executable for CodeChunk {
             }
         }
 
-        // Return early if no change and no change to execution required
-        if info.changed.no() && Some(execution_required) == self.options.execution_required {
-            tracing::trace!("Skipping compiling CodeChunk {node_id}");
-
-            // Continue walk to compile any outputs
-            return WalkControl::Continue;
-        }
+        let execution_required_changed =
+            Some(execution_required) != self.options.execution_required;
 
         // These need to be set here because they may be used in `self.execute`
         // before the following patch is applied (below, or if `Executor.compile_prepare_execute`)
@@ -62,14 +57,17 @@ impl Executable for CodeChunk {
         self.options.execution_tags = info.execution_tags.clone();
         self.options.execution_required = Some(execution_required);
 
-        executor.patch(
-            &node_id,
-            [
-                set(NodeProperty::CompilationDigest, info.compilation_digest),
-                set(NodeProperty::ExecutionTags, info.execution_tags),
-                set(NodeProperty::ExecutionRequired, execution_required),
-            ],
-        );
+        // As an optimization, only patch if necessary
+        if info.changed.yes() || execution_required_changed {
+            executor.patch(
+                &node_id,
+                [
+                    set(NodeProperty::CompilationDigest, info.compilation_digest),
+                    set(NodeProperty::ExecutionTags, info.execution_tags),
+                    set(NodeProperty::ExecutionRequired, execution_required),
+                ],
+            );
+        }
 
         // Some code chunks should be executed during "compile" phase to
         // enable live updates (e.g. Graphviz, Mermaid)
@@ -107,8 +105,7 @@ impl Executable for CodeChunk {
             self.node_type(),
             &node_id,
             &self.execution_mode,
-            &self.options.compilation_digest,
-            &self.options.execution_digest,
+            &self.options.execution_required,
         ) {
             self.options.execution_status = Some(status);
             executor.patch(&node_id, [set(NodeProperty::ExecutionStatus, status)]);

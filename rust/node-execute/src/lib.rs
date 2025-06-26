@@ -15,8 +15,8 @@ use common::{
 use kernels::{KernelLintingOptions, Kernels};
 use prompts::prompt::{DocumentContext, InstructionContext};
 use schema::{
-    AuthorRole, AuthorRoleName, Block, Citation, CompilationDigest, CompilationMessage, Config,
-    ExecutionBounds, ExecutionMode, ExecutionStatus, Inline, LabelType, Link, List, ListItem,
+    AuthorRole, AuthorRoleName, Block, Citation, CompilationMessage, Config, ExecutionBounds,
+    ExecutionMode, ExecutionRequired, ExecutionStatus, Inline, LabelType, Link, List, ListItem,
     ListOrder, Node, NodeId, NodePath, NodeProperty, NodeType, Paragraph, Patch, PatchNode,
     PatchOp, PatchValue, Reference, Timestamp, VisitorAsync, WalkControl, WalkNode,
 };
@@ -995,8 +995,7 @@ impl Executor {
         node_type: NodeType,
         node_id: &NodeId,
         execution_mode: &Option<ExecutionMode>,
-        compilation_digest: &Option<CompilationDigest>,
-        execution_digest: &Option<CompilationDigest>,
+        execution_required: &Option<ExecutionRequired>,
     ) -> Option<ExecutionStatus> {
         // If the node is locked then do not execute
         // A locked node should never be executed, not even if force_all is true
@@ -1050,9 +1049,7 @@ impl Executor {
 
         // Only remaining execution variant to be checked for is `Need`, so check that
         // node needs to be executed
-        if (compilation_digest.is_none() && execution_digest.is_none())
-            || compilation_digest != execution_digest
-        {
+        if !matches!(execution_required, Some(ExecutionRequired::No)) {
             // If the node has never been executed (both digests are none),
             // or if the digest has changed since last executed, then return
             // `self.execution_status` (usually Pending)

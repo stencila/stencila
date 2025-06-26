@@ -13,8 +13,7 @@ impl Executable for InstructionInline {
             self.node_type(),
             &node_id,
             &self.execution_mode,
-            &self.options.compilation_digest,
-            &self.options.execution_digest,
+            &self.options.execution_required,
         ) {
             self.options.execution_status = Some(status);
             executor.patch(&node_id, [set(NodeProperty::ExecutionStatus, status)]);
