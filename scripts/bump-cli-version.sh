@@ -23,9 +23,8 @@ fi
 # Update the version in the Rust version crate
 sed -i -e "s/^version = .*/version = \"$VERSION\"/" rust/version/Cargo.toml
 
-# Update the workspace Cargo.lock file so that above version changes
-# are propagated to it 
-cargo generate-lockfile
+# Build the version crates so that change is propagated to the Cargo.lock file
+cargo build -p version
 
 # Commit the changed files
 git add .
