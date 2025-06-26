@@ -1032,6 +1032,7 @@ dependencies = [
  "codec-utils",
  "common-dev",
  "dirs 0.0.0",
+ "media-embed",
  "node-reconstitute",
  "roxmltree",
  "rust-embed",
@@ -1279,7 +1280,7 @@ dependencies = [
  "codec",
  "codec-jats",
  "common-dev",
- "images",
+ "media-embed",
  "zip",
 ]
 
@@ -1323,7 +1324,7 @@ dependencies = [
  "codec-jats",
  "common-dev",
  "flate2",
- "images",
+ "media-embed",
 ]
 
 [[package]]
@@ -4088,6 +4089,16 @@ checksum = "8ea1f30cedd69f0a2954655f7188c6a834246d2bcf1e315e2ac40c4b24dc9519"
 dependencies = [
  "cfg-if",
  "rayon",
+]
+
+[[package]]
+name = "media-embed"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "format",
+ "images",
+ "schema",
 ]
 
 [[package]]

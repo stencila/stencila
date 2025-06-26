@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use codec::{
     common::{
@@ -6,10 +6,11 @@ use codec::{
         glob::glob,
         tempfile, tracing,
     },
-    schema::{Block, ImageObject, Inline, Node, VisitorMut, WalkControl, WalkNode},
+    schema::Node,
     Codec, DecodeInfo, DecodeOptions,
 };
 use codec_jats::JatsCodec;
+use media_embed::embed_media;
 use zip::ZipArchive;
 
 /// Decode a MECA file to a Stencila [`Node`]
@@ -41,70 +42,8 @@ pub(super) async fn decode_path(
     // Decode the JATS
     let (mut node, .., info) = JatsCodec.from_path(&jats_path, options).await?;
 
-    // Inline any images if possible
-    node.walk_mut(&mut ImageInliner { dir });
+    // Embed any images
+    embed_media(&mut node, &dir)?;
 
     Ok((node, None, info))
-}
-
-/// Reads any image files in the package and "inlines" them into the node's
-/// `content_url` as a dataURI
-struct ImageInliner {
-    dir: PathBuf,
-}
-
-impl ImageInliner {
-    fn inline_image(&self, image: &mut ImageObject) {
-        for ext in ["", ".png", ".jpg", ".jpeg", ".gif", ".tif", ".tiff"] {
-            let mut path = self.dir.join([&image.content_url, ext].concat());
-
-            if path.exists() {
-                if matches!(
-                    path.extension().and_then(|ext| ext.to_str()),
-                    Some("tif" | "tiff")
-                ) {
-                    let mut to = path.clone();
-                    to.set_extension("png");
-
-                    match images::convert(&path, &to) {
-                        Ok(..) => {
-                            path = to;
-                        }
-                        Err(error) => {
-                            tracing::error!("While converting TIFF to PNG: {error}")
-                        }
-                    }
-                }
-
-                match images::path_to_data_uri(&path) {
-                    Ok(url) => {
-                        image.content_url = url;
-                    }
-                    Err(error) => {
-                        tracing::error!("While converting image to dataURI: {error}")
-                    }
-                }
-
-                return;
-            }
-        }
-    }
-}
-
-impl VisitorMut for ImageInliner {
-    fn visit_block(&mut self, block: &mut Block) -> WalkControl {
-        if let Block::ImageObject(image) = block {
-            self.inline_image(image)
-        }
-
-        WalkControl::Continue
-    }
-
-    fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
-        if let Inline::ImageObject(image) = inline {
-            self.inline_image(image)
-        }
-
-        WalkControl::Continue
-    }
 }

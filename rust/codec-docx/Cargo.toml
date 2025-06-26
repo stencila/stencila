@@ -9,6 +9,7 @@ codec-json = { path = "../codec-json" }
 codec-pandoc = { path = "../codec-pandoc" }
 codec-utils = { path = "../codec-utils" }
 dirs = { path = "../dirs" }
+media-embed = { path = "../media-embed" }
 node-reconstitute = { path = "../node-reconstitute" }
 roxmltree = "0.20.0"
 rust-embed = { version = "8.7.2", features = ["interpolate-folder-path", "include-exclude"] }

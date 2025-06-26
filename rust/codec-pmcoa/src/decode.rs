@@ -15,11 +15,12 @@ use codec::{
         },
         tracing,
     },
-    schema::{Block, ImageObject, Inline, Node, VisitorMut, WalkControl, WalkNode},
+    schema::Node,
     Codec, DecodeInfo, DecodeOptions,
 };
 use codec_jats::JatsCodec;
 use flate2::read::GzDecoder;
+use media_embed::embed_media;
 
 /// Decode a PMCID to a Stencila [`Node`]
 #[tracing::instrument]
@@ -77,8 +78,8 @@ pub(super) async fn decode_path(
     // Decode the JATS
     let (mut node, .., info) = JatsCodec.from_path(&jats_path, options).await?;
 
-    // Inline any images if possible
-    node.walk_mut(&mut ImageInliner { dir });
+    // Embed any images
+    embed_media(&mut node, &dir)?;
 
     Ok((node, None, info))
 }
@@ -125,42 +126,4 @@ pub(super) async fn download_package(pmcid: &str) -> Result<PathBuf> {
     file.flush().await?;
 
     Ok(path)
-}
-
-/// Reads any image files in the package and "inlines" them into the node's
-/// `content_url` as a dataURI
-struct ImageInliner {
-    dir: PathBuf,
-}
-
-impl ImageInliner {
-    fn inline_image(&self, image: &mut ImageObject) {
-        for ext in ["", ".png", ".jpg", ".jpeg", ".gif"] {
-            let path = self.dir.join([&image.content_url, ext].concat());
-            if path.exists() {
-                if let Ok(url) = images::path_to_data_uri(&path) {
-                    image.content_url = url;
-                    break;
-                }
-            }
-        }
-    }
-}
-
-impl VisitorMut for ImageInliner {
-    fn visit_block(&mut self, block: &mut Block) -> WalkControl {
-        if let Block::ImageObject(image) = block {
-            self.inline_image(image)
-        }
-
-        WalkControl::Continue
-    }
-
-    fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
-        if let Inline::ImageObject(image) = inline {
-            self.inline_image(image)
-        }
-
-        WalkControl::Continue
-    }
 }

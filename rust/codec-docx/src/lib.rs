@@ -2,6 +2,7 @@ use std::path::Path;
 
 use codec_json::JsonCodec;
 use codec_utils::reproducible_warnings;
+use media_embed::embed_media;
 use node_reconstitute::reconstitute;
 use rust_embed::RustEmbed;
 
@@ -10,6 +11,7 @@ use codec::{
         async_trait::async_trait,
         eyre::{OptionExt, Result},
         serde_json,
+        tempfile::tempdir,
         tokio::fs::write,
     },
     format::Format,
@@ -84,13 +86,26 @@ impl Codec for DocxCodec {
         path: &Path,
         options: Option<DecodeOptions>,
     ) -> Result<(Node, Option<Node>, DecodeInfo)> {
-        let pandoc = pandoc_from_format("", Some(path), PANDOC_FORMAT, &options).await?;
+        let mut options = options.unwrap_or_default();
 
-        let format = options
-            .as_ref()
-            .and_then(|opts| opts.format.clone())
-            .unwrap_or(Format::Docx);
+        // Default to extracting media to a temporary directory so that
+        // they can be inlined into the decoded document
+        let media_dir = tempdir()?;
+        if !options.tool_args.join(" ").contains("--extract-media") {
+            options
+                .tool_args
+                .push(format!("--extract-media={}", media_dir.path().display()));
+        }
+
+        let format = options.format.clone().unwrap_or(Format::Docx);
+        let cache = options.cache.clone();
+
+        let options = Some(options);
+        let pandoc = pandoc_from_format("", Some(path), PANDOC_FORMAT, &options).await?;
         let (mut node, info) = root_from_pandoc(pandoc, format, &options)?;
+
+        // Embed any images
+        embed_media(&mut node, media_dir.path())?;
 
         let (data, mut properties) = decode::data_and_properties(path)?;
 
@@ -109,7 +124,7 @@ impl Codec for DocxCodec {
         }
 
         // If a cache is specified, or embedded in the DOCX, then use it to reconstitute the node
-        let cache = if let Some(cache) = options.and_then(|options| options.cache) {
+        let cache = if let Some(cache) = cache {
             let (cache, ..) = JsonCodec.from_path(&cache, None).await?;
             Some(cache)
         } else if let Some(cache) = data.get("cache.json") {

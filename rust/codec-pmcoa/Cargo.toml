@@ -7,7 +7,7 @@ edition = "2021"
 codec = { path = "../codec" }
 codec-jats = { path = "../codec-jats" }
 flate2 = { workspace = true }
-images = { path = "../images" }
+media-embed = { path = "../media-embed" }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }

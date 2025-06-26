@@ -1,0 +1,13 @@
+[package]
+name = "media-embed"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+common = { path = "../common" }
+format = { path = "../format" }
+images = { path = "../images" }
+schema = { path = "../schema" }
+
+[lints]
+workspace = true
