@@ -33,40 +33,41 @@ The `ConfigPublish` type is related to these types:
 
 The `ConfigPublish` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                                               | Encoding | Decoding | Support | Notes |
-| ------------------------------------------------------------------------------------ | -------- | -------- | ------- | ----- |
-| [DOM HTML](https://stencila.ghost.io/docs/reference/formats/dom.html)                |          |          |         |
-| [HTML](https://stencila.ghost.io/docs/reference/formats/html)                        |          |          |         |
-| [JATS](https://stencila.ghost.io/docs/reference/formats/jats)                        |          |          |         |
-| [Markdown](https://stencila.ghost.io/docs/reference/formats/md)                      |          |          |         |
-| [Stencila Markdown](https://stencila.ghost.io/docs/reference/formats/smd)            |          |          |         |
-| [Quarto Markdown](https://stencila.ghost.io/docs/reference/formats/qmd)              |          |          |         |
-| [MyST Markdown](https://stencila.ghost.io/docs/reference/formats/myst)               |          |          |         |
-| [LLM Markdown](https://stencila.ghost.io/docs/reference/formats/llmd)                |          |          |         |
-| [LaTeX](https://stencila.ghost.io/docs/reference/formats/latex)                      |          |          |         |
-| [R+LaTeX](https://stencila.ghost.io/docs/reference/formats/rnw)                      |          |          |         |
-| [PDF](https://stencila.ghost.io/docs/reference/formats/pdf)                          |          |          |         |
-| [Plain text](https://stencila.ghost.io/docs/reference/formats/text)                  |          |          |         |
-| [IPYNB](https://stencila.ghost.io/docs/reference/formats/ipynb)                      |          |          |         |
-| [Microsoft Word DOCX](https://stencila.ghost.io/docs/reference/formats/docx)         |          |          |         |
-| [Google Docs DOCX](https://stencila.ghost.io/docs/reference/formats/gdocx)           |          |          |         |
-| [OpenDocument ODT](https://stencila.ghost.io/docs/reference/formats/odt)             |          |          |         |
-| [TeX](https://stencila.ghost.io/docs/reference/formats/tex)                          |          |          |         |
-| [JSON](https://stencila.ghost.io/docs/reference/formats/json)                        |          |          |         |
-| [JSON+Zip](https://stencila.ghost.io/docs/reference/formats/json.zip)                |          |          |         |
-| [JSON5](https://stencila.ghost.io/docs/reference/formats/json5)                      |          |          |         |
-| [JSON-LD](https://stencila.ghost.io/docs/reference/formats/jsonld)                   |          |          |         |
-| [CBOR](https://stencila.ghost.io/docs/reference/formats/cbor)                        |          |          |         |
-| [CBOR+Zstd](https://stencila.ghost.io/docs/reference/formats/cbor.zstd)              |          |          |         |
-| [YAML](https://stencila.ghost.io/docs/reference/formats/yaml)                        |          |          |         |
-| [Lexical JSON](https://stencila.ghost.io/docs/reference/formats/lexical)             |          |          |         |
-| [Koenig JSON](https://stencila.ghost.io/docs/reference/formats/koenig)               |          |          |         |
-| [Pandoc AST](https://stencila.ghost.io/docs/reference/formats/pandoc)                |          |          |         |
-| [PNG](https://stencila.ghost.io/docs/reference/formats/png)                          |          |          |         |
-| [Directory](https://stencila.ghost.io/docs/reference/formats/directory)              |          |          |         |
-| [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)          |          |          |         |
-| [PubMed Central OA Package](https://stencila.ghost.io/docs/reference/formats/pmcoap) |          |          |         |
-| [Debug](https://stencila.ghost.io/docs/reference/formats/debug)                      |          |          |         |
+| Format                                                                              | Encoding | Decoding | Support | Notes |
+| ----------------------------------------------------------------------------------- | -------- | -------- | ------- | ----- |
+| [DOM HTML](https://stencila.ghost.io/docs/reference/formats/dom.html)               |          |          |         |
+| [HTML](https://stencila.ghost.io/docs/reference/formats/html)                       |          |          |         |
+| [JATS](https://stencila.ghost.io/docs/reference/formats/jats)                       |          |          |         |
+| [Markdown](https://stencila.ghost.io/docs/reference/formats/md)                     |          |          |         |
+| [Stencila Markdown](https://stencila.ghost.io/docs/reference/formats/smd)           |          |          |         |
+| [Quarto Markdown](https://stencila.ghost.io/docs/reference/formats/qmd)             |          |          |         |
+| [MyST Markdown](https://stencila.ghost.io/docs/reference/formats/myst)              |          |          |         |
+| [LLM Markdown](https://stencila.ghost.io/docs/reference/formats/llmd)               |          |          |         |
+| [LaTeX](https://stencila.ghost.io/docs/reference/formats/latex)                     |          |          |         |
+| [R+LaTeX](https://stencila.ghost.io/docs/reference/formats/rnw)                     |          |          |         |
+| [PDF](https://stencila.ghost.io/docs/reference/formats/pdf)                         |          |          |         |
+| [Plain text](https://stencila.ghost.io/docs/reference/formats/text)                 |          |          |         |
+| [IPYNB](https://stencila.ghost.io/docs/reference/formats/ipynb)                     |          |          |         |
+| [Microsoft Word DOCX](https://stencila.ghost.io/docs/reference/formats/docx)        |          |          |         |
+| [Google Docs DOCX](https://stencila.ghost.io/docs/reference/formats/gdocx)          |          |          |         |
+| [OpenDocument ODT](https://stencila.ghost.io/docs/reference/formats/odt)            |          |          |         |
+| [TeX](https://stencila.ghost.io/docs/reference/formats/tex)                         |          |          |         |
+| [JSON](https://stencila.ghost.io/docs/reference/formats/json)                       |          |          |         |
+| [JSON+Zip](https://stencila.ghost.io/docs/reference/formats/json.zip)               |          |          |         |
+| [JSON5](https://stencila.ghost.io/docs/reference/formats/json5)                     |          |          |         |
+| [JSON-LD](https://stencila.ghost.io/docs/reference/formats/jsonld)                  |          |          |         |
+| [CBOR](https://stencila.ghost.io/docs/reference/formats/cbor)                       |          |          |         |
+| [CBOR+Zstd](https://stencila.ghost.io/docs/reference/formats/cbor.zstd)             |          |          |         |
+| [YAML](https://stencila.ghost.io/docs/reference/formats/yaml)                       |          |          |         |
+| [Lexical JSON](https://stencila.ghost.io/docs/reference/formats/lexical)            |          |          |         |
+| [Koenig JSON](https://stencila.ghost.io/docs/reference/formats/koenig)              |          |          |         |
+| [Pandoc AST](https://stencila.ghost.io/docs/reference/formats/pandoc)               |          |          |         |
+| [PNG](https://stencila.ghost.io/docs/reference/formats/png)                         |          |          |         |
+| [Directory](https://stencila.ghost.io/docs/reference/formats/directory)             |          |          |         |
+| [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)         |          |          |         |
+| [Meca](https://stencila.ghost.io/docs/reference/formats/meca)                       |          |          |         |
+| [PubMed Central OA Package](https://stencila.ghost.io/docs/reference/formats/pmcoa) |          |          |         |
+| [Debug](https://stencila.ghost.io/docs/reference/formats/debug)                     |          |          |         |
 
 # Bindings
 
