@@ -34,25 +34,25 @@ impl Executable for CodeChunk {
         // Add code to the linting context
         executor.linting_code(&node_id, &self.code.to_string(), &lang, info.changed.yes());
 
-        // Return early if no change
-        if info.changed.no() {
-            tracing::trace!("Skipping compiling CodeChunk {node_id}");
-
-            // Continue walk to compile any outputs
-            return WalkControl::Continue;
-        }
-
         let mut execution_required =
             execution_required_digests(&self.options.execution_digest, &info.compilation_digest);
 
         // Check whether the kernel instance used last time is active in the kernels set (if not forked)
-        if let (Some(ExecutionBounds::Main), Some(id)) = (
+        if let (None | Some(ExecutionBounds::Main), Some(id)) = (
             &self.options.execution_bounded,
             &self.options.execution_instance,
         ) {
             if !executor.kernels().await.has_instance(id).await {
                 execution_required = ExecutionRequired::KernelRestarted;
             }
+        }
+
+        // Return early if no change and no change to execution required
+        if info.changed.no() && Some(execution_required) == self.options.execution_required {
+            tracing::trace!("Skipping compiling CodeChunk {node_id}");
+
+            // Continue walk to compile any outputs
+            return WalkControl::Continue;
         }
 
         // These need to be set here because they may be used in `self.execute`
