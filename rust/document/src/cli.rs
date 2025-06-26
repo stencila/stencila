@@ -302,6 +302,8 @@ impl Track {
 #[derive(Debug, Parser)]
 pub struct Untrack {
     /// The path of the file to stop tracking
+    ///
+    /// Use "deleted" to untrack all files that have been deleted.
     file: PathBuf,
 
     /// The URL of the remote to stop tracking
@@ -311,7 +313,10 @@ pub struct Untrack {
 impl Untrack {
     #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
-        if let Some(url) = self.url {
+        if self.file == PathBuf::from("deleted") {
+            Document::untrack_deleted(&current_dir()?).await?;
+            eprintln!("🟥 Stopped tracking all deleted files");
+        } else if let Some(url) = self.url {
             Document::untrack_remote(&self.file, &url).await?;
             eprintln!("🟥 Stopped tracking {url} for `{}`", self.file.display());
         } else {

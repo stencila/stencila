@@ -27,7 +27,7 @@ use common::{
     tracing,
 };
 use dirs::{
-    closest_stencila_dir, stencila_db_dir, stencila_docs_file, stencila_store_dir,
+    closest_stencila_dir, stencila_db_dir, stencila_docs_file, stencila_store_dir, workspace_dir,
     workspace_relative_path, DB_DIR, DOCS_FILE, STORE_DIR,
 };
 use format::Format;
@@ -617,6 +617,28 @@ impl Document {
 
         // Update tracking file
         write_entries(&stencila_dir, &entries).await?;
+
+        Ok(())
+    }
+
+    /// Untrack all paths that have been deleted
+    pub async fn untrack_deleted(dir: &Path) -> Result<()> {
+        let statuses = match Document::tracking_all(dir).await? {
+            Some(statuses) => statuses,
+            None => {
+                tracing::warn!("Current folder is not being tracked by Stencila");
+                return Ok(());
+            }
+        };
+
+        let stencila_dir = closest_stencila_dir(dir, false).await?;
+        let workspace_dir = workspace_dir(&stencila_dir)?;
+
+        for (path, tracking) in statuses {
+            if let (DocumentTrackingStatus::Deleted, ..) = tracking.status(&workspace_dir, &path) {
+                Document::untrack_path(&path).await?;
+            }
+        }
 
         Ok(())
     }
