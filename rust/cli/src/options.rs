@@ -145,14 +145,16 @@ pub struct EncodeOptions {
     #[arg(long)]
     recursive: bool,
 
-    /// Use compact form of encoding if possible
+    /// Use a compact form of encoding if available
     ///
-    /// Use this flag to produce the compact forms of encoding (e.g. no indentation)
-    /// which are supported by some formats (e.g. JSON, HTML).
+    /// Use this flag to produce a compact form of encoding if the format supports it.
+    /// For formats such as JSON and HTML, this usually means no indentation.
+    /// For Markdown-based formats, this means that embedded Base64 media will NOT
+    /// be written to separate files in a media folder (the default behavior).
     #[arg(long, conflicts_with = "pretty")]
     compact: bool,
 
-    /// Use a "pretty" form of encoding if possible
+    /// Use a "pretty" form of encoding if available
     ///
     /// Use this flag to produce pretty forms of encoding (e.g. indentation)
     /// which are supported by some formats (e.g. JSON, HTML).

@@ -1249,8 +1249,10 @@ dependencies = [
  "codec-json5-trait",
  "codec-markdown-trait",
  "codec-text-trait",
+ "codec-utils",
  "common-dev",
  "markdown",
+ "media-write",
  "winnow",
 ]
 
@@ -4097,6 +4099,15 @@ version = "0.0.0"
 dependencies = [
  "common",
  "format",
+ "images",
+ "schema",
+]
+
+[[package]]
+name = "media-write"
+version = "0.0.0"
+dependencies = [
+ "common",
  "images",
  "schema",
 ]
