@@ -150,12 +150,12 @@ where
         let level = event.metadata().level();
 
         let prefix = if std::io::stderr().is_terminal() {
-            match level {
-                &Level::TRACE => "🔬",
-                &Level::DEBUG => "🔧",
-                &Level::INFO => "ℹ️ ",
-                &Level::WARN => "⚠️ ",
-                &Level::ERROR => "🚨",
+            match *level {
+                Level::TRACE => "🔬",
+                Level::DEBUG => "🔧",
+                Level::INFO => "ℹ️ ",
+                Level::WARN => "⚠️ ",
+                Level::ERROR => "🚨",
             }
         } else {
             level.as_str()
