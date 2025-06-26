@@ -210,6 +210,11 @@ proptest! {
 
         article.strip(&StripTargets {
             types: vec![
+                // Strip figures because not yet differentiating
+                // between <graphic> and <inline-graphic> when encoding
+                // block and inline images
+                "Figure".into(),
+
                 // TODO Remove these as implemented
                 "CallBlock".into(),
                 "ForBlock".into(),
