@@ -1,10 +1,16 @@
-use tracing_subscriber::prelude::*;
+use std::io::IsTerminal;
+
+use tracing_subscriber::{
+    fmt::{format::Writer, FmtContext, FormatEvent, FormatFields},
+    prelude::*,
+    registry::LookupSpan,
+};
 
 use common::{
     clap::{self, ValueEnum},
     eyre::Result,
     strum::AsRefStr,
-    tracing::metadata::LevelFilter,
+    tracing::{metadata::LevelFilter, Event, Level, Subscriber},
 };
 
 /// Setup logging
@@ -17,7 +23,6 @@ use common::{
 #[cfg(not(feature = "console-subscriber"))]
 pub fn setup(level: LoggingLevel, filter: &str, format: LoggingFormat) -> Result<()> {
     use common::eyre::{bail, Context};
-    use std::io::IsTerminal;
     use tracing_error::ErrorLayer;
     use tracing_subscriber::{fmt, registry, EnvFilter};
 
@@ -54,14 +59,7 @@ pub fn setup(level: LoggingLevel, filter: &str, format: LoggingFormat) -> Result
     let format_layer = fmt::layer().with_ansi(ansi).with_writer(std::io::stderr);
     match format {
         LoggingFormat::Simple => registry
-            .with(
-                format_layer
-                    .without_time()
-                    .with_thread_ids(false)
-                    .with_thread_names(false)
-                    .with_target(false)
-                    .compact(),
-            )
+            .with(format_layer.event_format(SimpleFormatter))
             .init(),
         LoggingFormat::Compact => registry.with(format_layer.compact()).init(),
         LoggingFormat::Pretty => registry.with(format_layer.pretty()).init(),
@@ -134,4 +132,37 @@ pub enum LoggingFormat {
     Pretty,
     Full,
     Json,
+}
+
+struct SimpleFormatter;
+
+impl<S, N> FormatEvent<S, N> for SimpleFormatter
+where
+    S: Subscriber + for<'a> LookupSpan<'a>,
+    N: for<'a> FormatFields<'a> + 'static,
+{
+    fn format_event(
+        &self,
+        ctx: &FmtContext<'_, S, N>,
+        mut writer: Writer<'_>,
+        event: &Event<'_>,
+    ) -> std::fmt::Result {
+        let level = event.metadata().level();
+
+        let prefix = if std::io::stderr().is_terminal() {
+            match level {
+                &Level::TRACE => "🔬",
+                &Level::DEBUG => "🔧",
+                &Level::INFO => "ℹ️ ",
+                &Level::WARN => "⚠️ ",
+                &Level::ERROR => "🚨",
+            }
+        } else {
+            level.as_str()
+        };
+
+        write!(writer, "{} ", prefix)?;
+        ctx.field_format().format_fields(writer.by_ref(), event)?;
+        writeln!(writer)
+    }
 }
