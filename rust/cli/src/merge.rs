@@ -57,17 +57,15 @@ impl Cli {
             ..
         } = self;
 
-        let decode_options =
-            self.decode_options
-                .build(Some(&edited), StripOptions::default(), None, Vec::new());
+        let decode_options = self
+            .decode_options
+            .build(Some(&edited), StripOptions::default());
 
         let encode_options = self.encode_options.build(
             Some(&edited),
             original.as_deref(),
             Format::Markdown,
             StripOptions::default(),
-            None,
-            Vec::new(),
         );
 
         codecs::merge(

@@ -75,8 +75,6 @@ impl DecodeOptions {
         &self,
         input: Option<&Path>,
         strip_options: StripOptions,
-        tool: Option<String>,
-        tool_args: Vec<String>,
     ) -> codecs::DecodeOptions {
         let format = self.from.as_ref().map_or_else(
             || input.map(Format::from_path),
@@ -93,8 +91,6 @@ impl DecodeOptions {
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,
             losses: self.input_losses.clone(),
-            tool,
-            tool_args,
             ..Default::default()
         }
     }
@@ -168,6 +164,20 @@ pub struct EncodeOptions {
     /// See help for `--input-losses` for details.
     #[arg(long, default_value_t = codecs::LossesResponse::Debug)]
     output_losses: codecs::LossesResponse,
+
+    /// The tool to use for encoding outputs (e.g. pandoc)
+    ///
+    /// Only supported for formats that use alternative external tools for encoding and ignored otherwise.
+    /// Note: this tool is not used for decoding from the input, only for encoding to the output.
+    #[arg(long)]
+    tool: Option<String>,
+
+    /// Arguments to pass through to the tool using for encoding
+    ///
+    /// Only supported for formats that use external tools for encoding and ignored otherwise.
+    /// Note: these arguments are not used for decoding from the input, only for encoding to the output.
+    #[arg(last = true, allow_hyphen_values = true)]
+    tool_args: Vec<String>,
 }
 
 impl EncodeOptions {
@@ -179,8 +189,6 @@ impl EncodeOptions {
         output: Option<&Path>,
         default_format: Format,
         strip_options: StripOptions,
-        tool: Option<String>,
-        tool_args: Vec<String>,
     ) -> codecs::EncodeOptions {
         let format = self
             .to
@@ -227,8 +235,8 @@ impl EncodeOptions {
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,
             losses: self.output_losses.clone(),
-            tool,
-            tool_args,
+            tool: self.tool.clone(),
+            tool_args: self.tool_args.clone(),
             ..Default::default()
         }
     }

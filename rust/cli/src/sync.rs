@@ -44,19 +44,15 @@ impl Cli {
         for file in self.files.iter() {
             let (path, direction) = resolve_path_direction(file);
 
-            let decode_options = Some(self.decode_options.build(
-                Some(main.as_ref()),
-                self.strip_options.clone(),
-                None,
-                Vec::new(),
-            ));
+            let decode_options = Some(
+                self.decode_options
+                    .build(Some(main.as_ref()), self.strip_options.clone()),
+            );
             let encode_options = Some(self.encode_options.build(
                 Some(main.as_ref()),
                 Some(&path),
                 Format::Json,
                 self.strip_options.clone(),
-                None,
-                Vec::new(),
             ));
 
             doc.sync_file(&path, direction, decode_options, encode_options)

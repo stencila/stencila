@@ -20,36 +20,33 @@ pub struct Cli {
     /// The path of the document to render
     input: PathBuf,
 
-    /// The path of the rendered document
-    output: Option<PathBuf>,
+    /// The paths of the output files
+    ///
+    /// If no outputs are supplied, and the `--to` format option is not used,
+    /// the document will be rendered in a browser window. If no outputs are
+    /// supplied and the `--to` option is used the document will be rendered
+    /// to `stdout` in that format.
+    outputs: Vec<PathBuf>,
 
     /// Ignore any errors while executing document
     #[arg(long)]
     ignore_errors: bool,
 
-    #[command(flatten)]
-    decode_options: DecodeOptions,
+    /// Do not store the document after executing it
+    #[arg(long)]
+    no_store: bool,
 
     #[clap(flatten)]
     execute_options: ExecuteOptions,
+
+    #[command(flatten)]
+    decode_options: DecodeOptions,
 
     #[command(flatten)]
     encode_options: EncodeOptions,
 
     #[command(flatten)]
     strip_options: StripOptions,
-
-    /// Do not store the document after executing it
-    #[arg(long)]
-    no_store: bool,
-
-    /// The tool to use to encode the output format
-    #[arg(long)]
-    tool: Option<String>,
-
-    /// Arguments to pass through to any CLI tool delegated to for encoding to the output format (e.g. Pandoc)
-    #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
-    tool_args: Vec<String>,
 }
 
 impl Cli {
@@ -57,19 +54,16 @@ impl Cli {
     pub async fn run(self) -> Result<()> {
         let Self {
             input,
-            output,
+            outputs,
             decode_options,
             execute_options,
             encode_options,
             strip_options,
             ignore_errors,
             no_store,
-            tool,
-            tool_args,
         } = self;
 
-        let decode_options =
-            decode_options.build(Some(&input), StripOptions::default(), None, Vec::new());
+        let decode_options = decode_options.build(Some(&input), StripOptions::default());
 
         let doc = Document::open(&input, Some(decode_options)).await?;
         doc.compile().await?;
@@ -85,30 +79,50 @@ impl Cli {
             exit(1);
         }
 
-        if output.is_none() && encode_options.to.is_none() {
-            return preview::Cli::new(input).run().await;
+        if outputs.is_empty() {
+            if let Some(format) = &encode_options.to {
+                let format = Format::from_name(format);
+                let content = doc
+                    .dump(
+                        format.clone(),
+                        Some(codecs::EncodeOptions {
+                            render: Some(true),
+                            ..encode_options.build(
+                                Some(&input),
+                                None,
+                                Format::Markdown,
+                                strip_options,
+                            )
+                        }),
+                    )
+                    .await?;
+                Code::new(format, &content).to_stdout();
+            } else {
+                preview::Cli::new(input).run().await?;
+            }
+
+            return Ok(());
         }
 
-        let mut encode_options = encode_options.build(
-            Some(&input),
-            output.as_deref(),
-            Format::Markdown,
-            strip_options,
-            tool,
-            tool_args,
-        );
-        encode_options.render = Some(true);
-
-        if let Some(output) = &output {
-            doc.export(output, Some(encode_options)).await?;
+        for output in outputs {
+            doc.export(
+                &output,
+                Some(codecs::EncodeOptions {
+                    render: Some(true),
+                    ..encode_options.build(
+                        Some(&input),
+                        Some(&output),
+                        Format::Markdown,
+                        strip_options.clone(),
+                    )
+                }),
+            )
+            .await?;
             eprintln!(
                 "📑 Successfully rendered `{}` to `{}`",
                 input.display(),
                 output.display()
             )
-        } else if let Some(to) = encode_options.format.clone() {
-            let content = doc.dump(to.clone(), Some(encode_options)).await?;
-            Code::new(to, &content).to_stdout();
         }
 
         Ok(())

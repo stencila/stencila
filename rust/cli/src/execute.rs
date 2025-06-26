@@ -16,15 +16,15 @@ pub struct Cli {
     /// The path of the document to execute
     input: PathBuf,
 
+    /// Do not store the document after executing it
+    #[arg(long)]
+    no_store: bool,
+
     #[command(flatten)]
     decode_options: DecodeOptions,
 
     #[clap(flatten)]
     execute_options: ExecuteOptions,
-
-    /// Do not store the document after executing it
-    #[arg(long)]
-    no_store: bool,
 }
 
 impl Cli {
@@ -36,8 +36,7 @@ impl Cli {
             no_store,
         } = self;
 
-        let decode_options =
-            decode_options.build(Some(&input), StripOptions::default(), None, Vec::new());
+        let decode_options = decode_options.build(Some(&input), StripOptions::default());
 
         let doc = Document::open(&input, Some(decode_options)).await?;
         doc.compile().await?;

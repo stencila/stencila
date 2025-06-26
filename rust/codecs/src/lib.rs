@@ -2,6 +2,7 @@ use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+use cli_utils::{Code, ToStdout};
 use codec::common::eyre::Context;
 use codec::common::inflector::Inflector;
 use codec::{
@@ -249,6 +250,20 @@ pub async fn from_stdin(options: Option<DecodeOptions>) -> Result<Node> {
     }
 
     from_str(&content, options).await
+}
+
+/// Encode a Stencila Schema node to `stdout`
+#[tracing::instrument]
+pub async fn to_stdout(node: &Node, options: Option<EncodeOptions>) -> Result<()> {
+    let format = options
+        .as_ref()
+        .and_then(|opts| opts.format.clone())
+        .unwrap_or_default();
+    
+    let content = to_string(&node, options).await?;
+    Code::new(format, &content).to_stdout();
+
+    Ok(())
 }
 
 /// Encode a Stencila Schema node to a string

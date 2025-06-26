@@ -14,12 +14,12 @@ pub struct Cli {
     /// The path of the document to compile
     input: PathBuf,
 
-    #[command(flatten)]
-    decode_options: DecodeOptions,
-
     /// Do not store the document after compiling it
     #[arg(long)]
     no_store: bool,
+
+    #[command(flatten)]
+    decode_options: DecodeOptions,
 }
 
 impl Cli {
@@ -31,8 +31,7 @@ impl Cli {
             ..
         } = self;
 
-        let decode_options =
-            decode_options.build(Some(&input), StripOptions::default(), None, Vec::new());
+        let decode_options = decode_options.build(Some(&input), StripOptions::default());
 
         let doc = Document::open(&input, Some(decode_options)).await?;
         doc.compile().await?;
