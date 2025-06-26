@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.5.0 2025-06-26
+
+- Based on Stencila CLI [v2.4.0](https://github.com/stencila/stencila/releases/tag/v2.4.0).
+
 ## 0.4.0 2025-06-23
 
 - Based on Stencila CLI [v2.3.0](https://github.com/stencila/stencila/releases/tag/v2.3.0) which has improved support for rendering documents.
