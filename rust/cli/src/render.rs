@@ -75,7 +75,7 @@ impl Cli {
         }
 
         if errors > 0 && !ignore_errors {
-            eprintln!("💣  Errors while executing `{}`", input.display());
+            eprintln!("💥  Errors while executing `{}`", input.display());
             exit(1);
         }
 

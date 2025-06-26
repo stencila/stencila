@@ -49,7 +49,7 @@ impl Cli {
 
         #[allow(clippy::print_stderr)]
         if errors > 0 {
-            eprintln!("💣  Errors while executing `{}`", input.display());
+            eprintln!("💥  Errors while executing `{}`", input.display());
             exit(1);
         } else if warnings > 0 {
             eprintln!("⚠️  Warnings while executing `{}`", input.display())
