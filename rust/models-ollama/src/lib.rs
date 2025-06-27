@@ -161,7 +161,8 @@ impl Model for OllamaModel {
                     } else {
                         Some(images)
                     },
-                    tool_calls: Vec::new()
+                    tool_calls: Vec::new(),
+                    thinking: None
                 }
             })
             .collect();

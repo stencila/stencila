@@ -1,71 +1,39 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Schema",
-  "description": "A schema in the Stencila Schema\n\n This meta-schema is based on JSON Schema with custom extensions\n to meet the needs of Stencila Schema.\n\n Only the JSON Schema properties actually used by Stencila Schema,\n are included in the meta-schema. An error will be thrown if a schema\n as an unknown property.\n\n Much of the documentation provided here for JSON Schema properties is\n drawn directly from\n https://json-schema.org/draft/2020-12/json-schema-core.html and\n https://json-schema.org/draft/2020-12/json-schema-validation.html.\n\n The current version of this meta-schema is published a https://stencila.org/meta.schema.json.\n Previous versions are available via https://stencila.org/<version>/meta.schema.json\n (replace `<version>` with the version tag name e.g. `v2.0.0-alpha.6`).\n\n Stencila Schema authors should start the schema with the `$schema` keyword pointing\n to this meta-schema. Amongst other things, this provides useful tool tips and input validation\n in several commonly used code editors.",
+  "description": "A schema in the Stencila Schema\n\nThis meta-schema is based on JSON Schema with custom extensions\nto meet the needs of Stencila Schema.\n\nOnly the JSON Schema properties actually used by Stencila Schema,\nare included in the meta-schema. An error will be thrown if a schema\nas an unknown property.\n\nMuch of the documentation provided here for JSON Schema properties is\ndrawn directly from\nhttps://json-schema.org/draft/2020-12/json-schema-core.html and\nhttps://json-schema.org/draft/2020-12/json-schema-validation.html.\n\nThe current version of this meta-schema is published a https://stencila.org/meta.schema.json.\nPrevious versions are available via https://stencila.org/<version>/meta.schema.json\n(replace `<version>` with the version tag name e.g. `v2.0.0-alpha.6`).\n\nStencila Schema authors should start the schema with the `$schema` keyword pointing\nto this meta-schema. Amongst other things, this provides useful tool tips and input validation\nin several commonly used code editors.",
   "type": "object",
   "properties": {
-    "$id": {
-      "description": "The JSON Schema id for the schema\n\n The value of this keyword MUST be a URI. It is automatically\n generated for each schema.Stencila Schema authors should use\n the `@id` property instead.",
+    "$schema": {
+      "description": "The meta-schema of the schema\n\nThe value of this keyword MUST be \"https://stencila.org/meta.schema.json\".",
       "type": [
         "string",
         "null"
       ]
     },
-    "$schema": {
-      "description": "The meta-schema of the schema\n\n The value of this keyword MUST be \"https://stencila.org/meta.schema.json\".",
+    "$id": {
+      "description": "The JSON Schema id for the schema\n\nThe value of this keyword MUST be a URI. It is automatically\ngenerated for each schema.Stencila Schema authors should use\nthe `@id` property instead.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "@id": {
+      "description": "The JSON-LD id for the schema\n\nThe value of this keyword MUST be a string.\nIf the schema belongs to another vocabulary such as schema.org, prefix the\nid which that. e.g. `schema:Person`, otherwise, prefix it with `stencila`.",
       "type": [
         "string",
         "null"
       ]
     },
     "title": {
-      "description": "A description of the schema\n\n The value of this keyword MUST be a string.",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "description": {
-      "description": "A description of the schema\n\n The value of this keyword MUST be a string.\n The description SHOULD be short, use `$comment` for more extensive\n descriptive content.",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "type": {
-      "description": "The value of this keyword MUST be either a string or an array.  If it\n is an array, elements of the array MUST be strings and MUST be\n unique.\n\n String values MUST be one of the six primitive types (\"null\",\n \"boolean\", \"object\", \"array\", \"number\", or \"string\"), or \"integer\"\n which matches any number with a zero fractional part.\n\n An instance validates if and only if the instance is in any of the\n sets listed for this keyword.",
-      "anyOf": [
-        {
-          "$ref": "#/definitions/Type"
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "format": {
-      "description": "The expected format of the value",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "properties": {
-      "description": "The properties of an object schema\n\n The value of \"properties\" MUST be an object. Each value of this object MUST be a valid JSON Schema.\n Validation succeeds if, for each name that appears in both the instance and as a name within this\n keyword's value, the child instance for that name successfully validates against the corresponding\n schema. The annotation result of this keyword is the set of instance property names matched by this keyword.\n\n Omitting this keyword has the same assertion behavior as an empty object.",
-      "type": "object",
-      "additionalProperties": {
-        "$ref": "#/definitions/Schema"
-      }
-    },
-    "@id": {
-      "description": "The JSON-LD id for the schema\n\n The value of this keyword MUST be a string.\n If the schema belongs to another vocabulary such as schema.org, prefix the\n id which that. e.g. `schema:Person`, otherwise, prefix it with `stencila`.",
+      "description": "A description of the schema\n\nThe value of this keyword MUST be a string.",
       "type": [
         "string",
         "null"
       ]
     },
     "nick": {
-      "description": "The short identifier for this type\n\n Used to prefix `NodeId`s to add type information to them.\n Defaults to the lowercase first three letters of the `title`.",
+      "description": "The short identifier for this type\n\nUsed to prefix `NodeId`s to add type information to them.\nDefaults to the lowercase first three letters of the `title`.",
       "type": [
         "string",
         "null"
@@ -94,11 +62,18 @@
       ]
     },
     "abstract": {
-      "description": "Whether the schema is only an abstract base for other schemas\n\n Types are usually not generated for abstract schemas.",
+      "description": "Whether the schema is only an abstract base for other schemas\n\nTypes are usually not generated for abstract schemas.",
       "type": "boolean"
     },
+    "description": {
+      "description": "A description of the schema\n\nThe value of this keyword MUST be a string.\nThe description SHOULD be short, use `$comment` for more extensive\ndescriptive content.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "$comment": {
-      "description": "Comments for the schema\n\n The value of this keyword MUST be a string.\n Use this for more extensive descriptive content such as the\n decisions made in the design of the schema.",
+      "description": "Comments for the schema\n\nThe value of this keyword MUST be a string.\nUse this for more extensive descriptive content such as the\ndecisions made in the design of the schema.",
       "type": [
         "string",
         "null"
@@ -221,14 +196,25 @@
       }
     },
     "$ref": {
-      "description": "A reference to another schema in Stencila Schema\n\n The value of this keyword MUST be a string of the\n title of the schema being referenced.",
+      "description": "A reference to another schema in Stencila Schema\n\nThe value of this keyword MUST be a string of the\ntitle of the schema being referenced.",
       "type": [
         "string",
         "null"
       ]
     },
+    "type": {
+      "description": "The value of this keyword MUST be either a string or an array.  If it\nis an array, elements of the array MUST be strings and MUST be\nunique.\n\nString values MUST be one of the six primitive types (\"null\",\n\"boolean\", \"object\", \"array\", \"number\", or \"string\"), or \"integer\"\nwhich matches any number with a zero fractional part.\n\nAn instance validates if and only if the instance is in any of the\nsets listed for this keyword.",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Type"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "enum": {
-      "description": "The value of this keyword MUST be an array.  This array SHOULD have\n at least one element.  Elements in the array SHOULD be unique.\n\n An instance validates successfully against this keyword if its value\n is equal to one of the elements in this keyword's array value.\n\n Elements in the array might be of any type, including null.",
+      "description": "The value of this keyword MUST be an array.  This array SHOULD have\nat least one element.  Elements in the array SHOULD be unique.\n\nAn instance validates successfully against this keyword if its value\nis equal to one of the elements in this keyword's array value.\n\nElements in the array might be of any type, including null.",
       "type": [
         "array",
         "null"
@@ -238,7 +224,7 @@
       }
     },
     "const": {
-      "description": "The value of this keyword MAY be of any type, including null.\n\n Use of this keyword is functionally equivalent to an \"enum\"\n with a single value.\n\n An instance validates successfully against this keyword if its value\n is equal to the value of the keyword.",
+      "description": "The value of this keyword MAY be of any type, including null.\n\nUse of this keyword is functionally equivalent to an \"enum\"\nwith a single value.\n\nAn instance validates successfully against this keyword if its value\nis equal to the value of the keyword.",
       "anyOf": [
         {
           "$ref": "#/definitions/Value"
@@ -249,7 +235,7 @@
       ]
     },
     "exclusiveMinimum": {
-      "description": "The exclusive minimum valid value\n\n The value of \"exclusiveMinimum\" MUST be a number, representing an exclusive lower limit for a numeric instance.\n If the instance is a number, then the instance is valid only if it has a value strictly greater than\n (not equal to) \"exclusiveMinimum\".",
+      "description": "The exclusive minimum valid value\n\nThe value of \"exclusiveMinimum\" MUST be a number, representing an exclusive lower limit for a numeric instance.\nIf the instance is a number, then the instance is valid only if it has a value strictly greater than\n(not equal to) \"exclusiveMinimum\".",
       "type": [
         "number",
         "null"
@@ -257,7 +243,7 @@
       "format": "double"
     },
     "minimum": {
-      "description": "The minimum valid value\n\n The value of \"minimum\" MUST be a number, representing an inclusive lower limit for a numeric instance.\n If the instance is a number, then this keyword validates only if the instance is greater than or exactly\n equal to \"minimum\".",
+      "description": "The minimum valid value\n\nThe value of \"minimum\" MUST be a number, representing an inclusive lower limit for a numeric instance.\nIf the instance is a number, then this keyword validates only if the instance is greater than or exactly\nequal to \"minimum\".",
       "type": [
         "number",
         "null"
@@ -265,7 +251,7 @@
       "format": "double"
     },
     "exclusiveMaximum": {
-      "description": "The exclusive maximum valid value\n\n The value of \"exclusiveMaximum\" MUST be a number, representing an exclusive upper limit for a numeric instance.\n If the instance is a number, then the instance is valid only if it has a value strictly less than\n (not equal to) \"exclusiveMaximum\".",
+      "description": "The exclusive maximum valid value\n\nThe value of \"exclusiveMaximum\" MUST be a number, representing an exclusive upper limit for a numeric instance.\nIf the instance is a number, then the instance is valid only if it has a value strictly less than\n(not equal to) \"exclusiveMaximum\".",
       "type": [
         "number",
         "null"
@@ -273,7 +259,7 @@
       "format": "double"
     },
     "maximum": {
-      "description": "The maximum valid value\n\n The value of \"maximum\" MUST be a number, representing an inclusive upper limit for a numeric instance.\n If the instance is a number, then this keyword validates only if the instance is less than or exactly\n equal to \"maximum\".",
+      "description": "The maximum valid value\n\nThe value of \"maximum\" MUST be a number, representing an inclusive upper limit for a numeric instance.\nIf the instance is a number, then this keyword validates only if the instance is less than or exactly\nequal to \"maximum\".",
       "type": [
         "number",
         "null"
@@ -281,14 +267,21 @@
       "format": "double"
     },
     "pattern": {
-      "description": "The expected format of the value\n\n The value of this keyword MUST be a string. This string SHOULD be a valid regular expression,\n according to the ECMA-262 regular expression dialect. A string instance is considered valid\n if the regular expression matches the instance successfully. Recall: regular expressions\n are not implicitly anchored.",
+      "description": "The expected format of the value\n\nThe value of this keyword MUST be a string. This string SHOULD be a valid regular expression,\naccording to the ECMA-262 regular expression dialect. A string instance is considered valid\nif the regular expression matches the instance successfully. Recall: regular expressions\nare not implicitly anchored.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "format": {
+      "description": "The expected format of the value",
       "type": [
         "string",
         "null"
       ]
     },
     "items": {
-      "description": "Subschema for valid items in the array\n\n The value of \"items\" MUST be a valid JSON Schema. This keyword applies its\n subschema to all instance array elements.",
+      "description": "Subschema for valid items in the array\n\nThe value of \"items\" MUST be a valid JSON Schema. This keyword applies its\nsubschema to all instance array elements.",
       "anyOf": [
         {
           "$ref": "#/definitions/Items"
@@ -299,7 +292,7 @@
       ]
     },
     "minItems": {
-      "description": "The minimum number of items in the array\n\n The value of this keyword MUST be a non-negative integer. An array instance\n is valid against \"minItems\" if its size is greater than, or equal to, the\n value of this keyword. Omitting this keyword has the same behavior as a\n value of 0.",
+      "description": "The minimum number of items in the array\n\nThe value of this keyword MUST be a non-negative integer. An array instance\nis valid against \"minItems\" if its size is greater than, or equal to, the\nvalue of this keyword. Omitting this keyword has the same behavior as a\nvalue of 0.",
       "type": [
         "integer",
         "null"
@@ -308,7 +301,7 @@
       "minimum": 0
     },
     "maxItems": {
-      "description": "The maximum number of items in the array\n\n The value of this keyword MUST be a non-negative integer. An array instance\n is valid against \"maxItems\" if its size is less than, or equal to, the value\n of this keyword.",
+      "description": "The maximum number of items in the array\n\nThe value of this keyword MUST be a non-negative integer. An array instance\nis valid against \"maxItems\" if its size is less than, or equal to, the value\nof this keyword.",
       "type": [
         "integer",
         "null"
@@ -317,24 +310,31 @@
       "minimum": 0
     },
     "required": {
-      "description": "The names of required properties of an object schema\n\n The value of this keyword MUST be an array. Elements of this array, if any, MUST be strings,\n and MUST be unique. An object instance is valid against this keyword if every item in the array\n is the name of a property in the instance. Omitting this keyword has the same behavior\n as an empty array.",
+      "description": "The names of required properties of an object schema\n\nThe value of this keyword MUST be an array. Elements of this array, if any, MUST be strings,\nand MUST be unique. An object instance is valid against this keyword if every item in the array\nis the name of a property in the instance. Omitting this keyword has the same behavior\nas an empty array.",
       "type": "array",
       "items": {
         "type": "string"
       }
     },
     "core": {
-      "description": "Core properties, which although optional, should not be placed in\n the `options` field of generated Rust types",
+      "description": "Core properties, which although optional, should not be placed in\nthe `options` field of generated Rust types",
       "type": "array",
       "items": {
         "type": "string"
       }
     },
+    "properties": {
+      "description": "The properties of an object schema\n\nThe value of \"properties\" MUST be an object. Each value of this object MUST be a valid JSON Schema.\nValidation succeeds if, for each name that appears in both the instance and as a name within this\nkeyword's value, the child instance for that name successfully validates against the corresponding\nschema. The annotation result of this keyword is the set of instance property names matched by this keyword.\n\nOmitting this keyword has the same assertion behavior as an empty object.",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#"
+      }
+    },
     "additionalProperties": {
-      "description": "The subschema for additional properties\n\n The value of \"additionalProperties\" MUST be a valid JSON Schema. The behavior of this keyword\n depends on the presence and annotation results of \"properties\" and \"patternProperties\" within\n the same schema object. Validation with \"additionalProperties\" applies only to the child\n values of instance names that do not appear in the annotation results of either \"properties\"\n or \"patternProperties\". For all such properties, validation succeeds if the child instance\n validates against the \"additionalProperties\" schema.",
+      "description": "The subschema for additional properties\n\nThe value of \"additionalProperties\" MUST be a valid JSON Schema. The behavior of this keyword\ndepends on the presence and annotation results of \"properties\" and \"patternProperties\" within\nthe same schema object. Validation with \"additionalProperties\" applies only to the child\nvalues of instance names that do not appear in the annotation results of either \"properties\"\nor \"patternProperties\". For all such properties, validation succeeds if the child instance\nvalidates against the \"additionalProperties\" schema.",
       "anyOf": [
         {
-          "$ref": "#/definitions/Schema"
+          "$ref": "#"
         },
         {
           "type": "null"
@@ -342,17 +342,17 @@
       ]
     },
     "anyOf": {
-      "description": "Subschema of a union type\n\n This keyword's value MUST be a non-empty array. Each item of the array MUST be a valid JSON Schema.\n An instance validates successfully against this keyword if it validates successfully against at least\n one schema defined by this keyword's value. Note that when annotations are being collected, all\n subschemas MUST be examined so that annotations are collected from each subschema that validates\n successfully.",
+      "description": "Subschema of a union type\n\nThis keyword's value MUST be a non-empty array. Each item of the array MUST be a valid JSON Schema.\nAn instance validates successfully against this keyword if it validates successfully against at least\none schema defined by this keyword's value. Note that when annotations are being collected, all\nsubschemas MUST be examined so that annotations are collected from each subschema that validates\nsuccessfully.",
       "type": [
         "array",
         "null"
       ],
       "items": {
-        "$ref": "#/definitions/Schema"
+        "$ref": "#"
       }
     },
     "default": {
-      "description": "A default value for the schema\n\n There are no restrictions placed on the value of this keyword. When multiple occurrences\n of this keyword are applicable to a single sub-instance, implementations SHOULD remove\n duplicates. This keyword can be used to supply a default JSON value associated with a\n particular schema. It is RECOMMENDED that a default value be valid against the associated schema.",
+      "description": "A default value for the schema\n\nThere are no restrictions placed on the value of this keyword. When multiple occurrences\nof this keyword are applicable to a single sub-instance, implementations SHOULD remove\nduplicates. This keyword can be used to supply a default JSON value associated with a\nparticular schema. It is RECOMMENDED that a default value be valid against the associated schema.",
       "anyOf": [
         {
           "$ref": "#/definitions/Value"
@@ -456,18 +456,18 @@
           "type": "boolean"
         },
         "applyWith": {
-          "description": "A custom function for applying patch operations\n\n This function has a similar signature to `PatchNode::apply` but returns\n `Result<bool>`. If the function does not handle the operation it\n should return `Ok(false)`, in which case the derived implementation\n may attempt to handle it.",
+          "description": "A custom function for applying patch operations\n\nThis function has a similar signature to `PatchNode::apply` but returns\n`Result<bool>`. If the function does not handle the operation it\nshould return `Ok(false)`, in which case the derived implementation\nmay attempt to handle it.",
           "type": [
             "string",
             "null"
           ]
         },
         "takeAuthors": {
-          "description": "Whether the `authors` of the context should be \"taken\" (i.e made not\n available to child nodes).",
+          "description": "Whether the `authors` of the context should be \"taken\" (i.e made not\navailable to child nodes).",
           "type": "boolean"
         },
         "formats": {
-          "description": "The formats from which the property should be patched for\n\n Only formats that support the property should be included.\n If this list is present (i.e. not `None`) but empty, it is\n assumed that the property is supported by all formats.",
+          "description": "The formats from which the property should be patched for\n\nOnly formats that support the property should be included.\nIf this list is present (i.e. not `None`) but empty, it is\nassumed that the property is supported by all formats.",
           "type": [
             "array",
             "null"
@@ -484,29 +484,29 @@
       "type": "object",
       "properties": {
         "default": {
-          "description": "Set the `default` attribute of a field\n\n See https://serde.rs/field-attrs.html#default",
+          "description": "Set the `default` attribute of a field\n\nSee https://serde.rs/field-attrs.html#default",
           "type": "boolean"
         },
         "flatten": {
-          "description": "Set the `flatten` attribute of a field\n\n See https://serde.rs/field-attrs.html#flatten",
+          "description": "Set the `flatten` attribute of a field\n\nSee https://serde.rs/field-attrs.html#flatten",
           "type": "boolean"
         },
         "rename": {
-          "description": "Set the `rename` attribute to an enum variant\n\n See https://serde.rs/field-attrs.html#rename",
+          "description": "Set the `rename` attribute to an enum variant\n\nSee https://serde.rs/field-attrs.html#rename",
           "type": [
             "string",
             "null"
           ]
         },
         "alias": {
-          "description": "Add an `alias` attribute to an enum variant\n\n See https://serde.rs/field-attrs.html#alias",
+          "description": "Add an `alias` attribute to an enum variant\n\nSee https://serde.rs/field-attrs.html#alias",
           "type": [
             "string",
             "null"
           ]
         },
         "deserializeWith": {
-          "description": "Set the `deserialize_with` attribute of a field\n\n See https://serde.rs/field-attrs.html#deserialize_with",
+          "description": "Set the `deserialize_with` attribute of a field\n\nSee https://serde.rs/field-attrs.html#deserialize_with",
           "type": [
             "string",
             "null"
@@ -528,21 +528,21 @@
           "type": "boolean"
         },
         "elem": {
-          "description": "The HTML element name to wrap the children or for a specific property\n\n If supplied for a struct, the elem will be used to wrap the children\n of the node.\n\n If not supplied for a property it will be encoded as an attribute\n on the parent element.",
+          "description": "The HTML element name to wrap the children or for a specific property\n\nIf supplied for a struct, the elem will be used to wrap the children\nof the node.\n\nIf not supplied for a property it will be encoded as an attribute\non the parent element.",
           "type": [
             "string",
             "null"
           ]
         },
         "attr": {
-          "description": "The HTML attribute name for a property\n\n Should only be used if `elem` is `None`. If not supplied, defaults\n to the name of the attribute converted to kebab-case.",
+          "description": "The HTML attribute name for a property\n\nShould only be used if `elem` is `None`. If not supplied, defaults\nto the name of the attribute converted to kebab-case.",
           "type": [
             "string",
             "null"
           ]
         },
         "with": {
-          "description": "The name of a function to use to encode a property to an attribute\n\n If specified, `elem` and `attr` will be ignored.",
+          "description": "The name of a function to use to encode a property to an attribute\n\nIf specified, `elem` and `attr` will be ignored.",
           "type": [
             "string",
             "null"
@@ -574,7 +574,7 @@
           "type": "boolean"
         },
         "attr": {
-          "description": "The HTML attribute name for a property\n\n Should only be used when `elem` is not `None`. When `elem` is `None`,\n the name of the attribute will be the name of the property.",
+          "description": "The HTML attribute name for a property\n\nShould only be used when `elem` is not `None`. When `elem` is `None`,\nthe name of the attribute will be the name of the property.",
           "type": [
             "string",
             "null"
@@ -585,7 +585,7 @@
           "type": "boolean"
         },
         "slot": {
-          "description": "Whether a property should be encoded as a slot of the parent element\n and the HTML element (e.g. `div`) to use for that slot",
+          "description": "Whether a property should be encoded as a slot of the parent element\nand the HTML element (e.g. `div`) to use for that slot",
           "type": [
             "string",
             "null"
@@ -617,7 +617,7 @@
           "type": "boolean"
         },
         "attr": {
-          "description": "The name of the JATS attribute to use for a property\n\n Should only be used when `elem` is not `None`. When `elem` is `None`,\n the name of the attribute will be the name of the property.",
+          "description": "The name of the JATS attribute to use for a property\n\nShould only be used when `elem` is not `None`. When `elem` is `None`,\nthe name of the attribute will be the name of the property.",
           "type": [
             "string",
             "null"
@@ -685,11 +685,11 @@
           ]
         },
         "skip": {
-          "description": "Whether to skip the member of a union type, or variant of an enumeration.\n\n See https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#skip",
+          "description": "Whether to skip the member of a union type, or variant of an enumeration.\n\nSee https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#skip",
           "type": "boolean"
         },
         "weight": {
-          "description": "The relative weight given to the member of a union type, or variant of an enumeration.\n\n See https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#weight",
+          "description": "The relative weight given to the member of a union type, or variant of an enumeration.\n\nSee https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#weight",
           "type": [
             "integer",
             "null"
@@ -698,28 +698,28 @@
           "minimum": 0
         },
         "strategy": {
-          "description": "A Rust expression for generating a value\n\n Should only be used on members of union types, variants of enumerations, or properties\n of object types.\n See https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#strategy",
+          "description": "A Rust expression for generating a value\n\nShould only be used on members of union types, variants of enumerations, or properties\nof object types.\nSee https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#strategy",
           "type": [
             "string",
             "null"
           ]
         },
         "value": {
-          "description": "A Rust expression for generating a constant value for the property\n\n Usually only used on properties of object types.\n See https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#value",
+          "description": "A Rust expression for generating a constant value for the property\n\nUsually only used on properties of object types.\nSee https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#value",
           "type": [
             "string",
             "null"
           ]
         },
         "regex": {
-          "description": "A regular expression to randomly generate characters for the property\n\n Should only be used on properties of object types.\n See https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#regex",
+          "description": "A regular expression to randomly generate characters for the property\n\nShould only be used on properties of object types.\nSee https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#regex",
           "type": [
             "string",
             "null"
           ]
         },
         "filter": {
-          "description": "A Rust expression or function name for filtering objects and/or their properties\n\n Can be used on object types, union types, enumerations and properties.\n Avoid using if possible.\n See https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#filter",
+          "description": "A Rust expression or function name for filtering objects and/or their properties\n\nCan be used on object types, union types, enumerations and properties.\nAvoid using if possible.\nSee https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#filter",
           "type": [
             "string",
             "null"
@@ -787,7 +787,7 @@
         {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Schema"
+            "$ref": "#"
           }
         }
       ]
@@ -820,378 +820,13 @@
         "anyOf": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Schema"
+            "$ref": "#"
           }
         }
       },
       "required": [
         "anyOf"
       ]
-    },
-    "Schema": {
-      "description": "A schema in the Stencila Schema\n\n This meta-schema is based on JSON Schema with custom extensions\n to meet the needs of Stencila Schema.\n\n Only the JSON Schema properties actually used by Stencila Schema,\n are included in the meta-schema. An error will be thrown if a schema\n as an unknown property.\n\n Much of the documentation provided here for JSON Schema properties is\n drawn directly from\n https://json-schema.org/draft/2020-12/json-schema-core.html and\n https://json-schema.org/draft/2020-12/json-schema-validation.html.\n\n The current version of this meta-schema is published a https://stencila.org/meta.schema.json.\n Previous versions are available via https://stencila.org/<version>/meta.schema.json\n (replace `<version>` with the version tag name e.g. `v2.0.0-alpha.6`).\n\n Stencila Schema authors should start the schema with the `$schema` keyword pointing\n to this meta-schema. Amongst other things, this provides useful tool tips and input validation\n in several commonly used code editors.",
-      "type": "object",
-      "properties": {
-        "$id": {
-          "description": "The JSON Schema id for the schema\n\n The value of this keyword MUST be a URI. It is automatically\n generated for each schema.Stencila Schema authors should use\n the `@id` property instead.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "$schema": {
-          "description": "The meta-schema of the schema\n\n The value of this keyword MUST be \"https://stencila.org/meta.schema.json\".",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "title": {
-          "description": "A description of the schema\n\n The value of this keyword MUST be a string.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "description": {
-          "description": "A description of the schema\n\n The value of this keyword MUST be a string.\n The description SHOULD be short, use `$comment` for more extensive\n descriptive content.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "type": {
-          "description": "The value of this keyword MUST be either a string or an array.  If it\n is an array, elements of the array MUST be strings and MUST be\n unique.\n\n String values MUST be one of the six primitive types (\"null\",\n \"boolean\", \"object\", \"array\", \"number\", or \"string\"), or \"integer\"\n which matches any number with a zero fractional part.\n\n An instance validates if and only if the instance is in any of the\n sets listed for this keyword.",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Type"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "format": {
-          "description": "The expected format of the value",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "properties": {
-          "description": "The properties of an object schema\n\n The value of \"properties\" MUST be an object. Each value of this object MUST be a valid JSON Schema.\n Validation succeeds if, for each name that appears in both the instance and as a name within this\n keyword's value, the child instance for that name successfully validates against the corresponding\n schema. The annotation result of this keyword is the set of instance property names matched by this keyword.\n\n Omitting this keyword has the same assertion behavior as an empty object.",
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/Schema"
-          }
-        },
-        "@id": {
-          "description": "The JSON-LD id for the schema\n\n The value of this keyword MUST be a string.\n If the schema belongs to another vocabulary such as schema.org, prefix the\n id which that. e.g. `schema:Person`, otherwise, prefix it with `stencila`.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "nick": {
-          "description": "The short identifier for this type\n\n Used to prefix `NodeId`s to add type information to them.\n Defaults to the lowercase first three letters of the `title`.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "extends": {
-          "description": "The title of the schema that this schema extends",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          ]
-        },
-        "category": {
-          "description": "The category of the schema",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Category"
-            }
-          ]
-        },
-        "abstract": {
-          "description": "Whether the schema is only an abstract base for other schemas\n\n Types are usually not generated for abstract schemas.",
-          "type": "boolean"
-        },
-        "$comment": {
-          "description": "Comments for the schema\n\n The value of this keyword MUST be a string.\n Use this for more extensive descriptive content such as the\n decisions made in the design of the schema.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "status": {
-          "description": "The status of the schema",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Status"
-            }
-          ]
-        },
-        "aliases": {
-          "description": "Aliases which may be used for a property name",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "strip": {
-          "description": "The stripping scopes that the property should be stripped for",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/StripScopes"
-          }
-        },
-        "patch": {
-          "description": "Options for patching the type or property",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/PatchOptions"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "walk": {
-          "description": "Whether a property should be visited when the node is walked over",
-          "type": [
-            "boolean",
-            "null"
-          ]
-        },
-        "serde": {
-          "description": "Options for serializing the type or property using Serde",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/SerdeOptions"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "dom": {
-          "description": "Options for encoding the type or property to HTML for the browser DOM",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/DomOptions"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "html": {
-          "description": "Options for encoding the type or property to/from HTML",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/HtmlOptions"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "jats": {
-          "description": "Options for encoding the type or property to/from JATS XML",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/JatsOptions"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "latex": {
-          "description": "Options for encoding the type or property to LaTeX",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/LatexOptions"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "markdown": {
-          "description": "Options for encoding the type or property to Markdown",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/MarkdownOptions"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "proptest": {
-          "description": "Options for property testing",
-          "type": [
-            "object",
-            "null"
-          ],
-          "additionalProperties": {
-            "$ref": "#/definitions/ProptestOptions"
-          }
-        },
-        "$ref": {
-          "description": "A reference to another schema in Stencila Schema\n\n The value of this keyword MUST be a string of the\n title of the schema being referenced.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "enum": {
-          "description": "The value of this keyword MUST be an array.  This array SHOULD have\n at least one element.  Elements in the array SHOULD be unique.\n\n An instance validates successfully against this keyword if its value\n is equal to one of the elements in this keyword's array value.\n\n Elements in the array might be of any type, including null.",
-          "type": [
-            "array",
-            "null"
-          ],
-          "items": {
-            "$ref": "#/definitions/Value"
-          }
-        },
-        "const": {
-          "description": "The value of this keyword MAY be of any type, including null.\n\n Use of this keyword is functionally equivalent to an \"enum\"\n with a single value.\n\n An instance validates successfully against this keyword if its value\n is equal to the value of the keyword.",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Value"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "exclusiveMinimum": {
-          "description": "The exclusive minimum valid value\n\n The value of \"exclusiveMinimum\" MUST be a number, representing an exclusive lower limit for a numeric instance.\n If the instance is a number, then the instance is valid only if it has a value strictly greater than\n (not equal to) \"exclusiveMinimum\".",
-          "type": [
-            "number",
-            "null"
-          ],
-          "format": "double"
-        },
-        "minimum": {
-          "description": "The minimum valid value\n\n The value of \"minimum\" MUST be a number, representing an inclusive lower limit for a numeric instance.\n If the instance is a number, then this keyword validates only if the instance is greater than or exactly\n equal to \"minimum\".",
-          "type": [
-            "number",
-            "null"
-          ],
-          "format": "double"
-        },
-        "exclusiveMaximum": {
-          "description": "The exclusive maximum valid value\n\n The value of \"exclusiveMaximum\" MUST be a number, representing an exclusive upper limit for a numeric instance.\n If the instance is a number, then the instance is valid only if it has a value strictly less than\n (not equal to) \"exclusiveMaximum\".",
-          "type": [
-            "number",
-            "null"
-          ],
-          "format": "double"
-        },
-        "maximum": {
-          "description": "The maximum valid value\n\n The value of \"maximum\" MUST be a number, representing an inclusive upper limit for a numeric instance.\n If the instance is a number, then this keyword validates only if the instance is less than or exactly\n equal to \"maximum\".",
-          "type": [
-            "number",
-            "null"
-          ],
-          "format": "double"
-        },
-        "pattern": {
-          "description": "The expected format of the value\n\n The value of this keyword MUST be a string. This string SHOULD be a valid regular expression,\n according to the ECMA-262 regular expression dialect. A string instance is considered valid\n if the regular expression matches the instance successfully. Recall: regular expressions\n are not implicitly anchored.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "items": {
-          "description": "Subschema for valid items in the array\n\n The value of \"items\" MUST be a valid JSON Schema. This keyword applies its\n subschema to all instance array elements.",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Items"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "minItems": {
-          "description": "The minimum number of items in the array\n\n The value of this keyword MUST be a non-negative integer. An array instance\n is valid against \"minItems\" if its size is greater than, or equal to, the\n value of this keyword. Omitting this keyword has the same behavior as a\n value of 0.",
-          "type": [
-            "integer",
-            "null"
-          ],
-          "format": "uint",
-          "minimum": 0
-        },
-        "maxItems": {
-          "description": "The maximum number of items in the array\n\n The value of this keyword MUST be a non-negative integer. An array instance\n is valid against \"maxItems\" if its size is less than, or equal to, the value\n of this keyword.",
-          "type": [
-            "integer",
-            "null"
-          ],
-          "format": "uint",
-          "minimum": 0
-        },
-        "required": {
-          "description": "The names of required properties of an object schema\n\n The value of this keyword MUST be an array. Elements of this array, if any, MUST be strings,\n and MUST be unique. An object instance is valid against this keyword if every item in the array\n is the name of a property in the instance. Omitting this keyword has the same behavior\n as an empty array.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "core": {
-          "description": "Core properties, which although optional, should not be placed in\n the `options` field of generated Rust types",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": {
-          "description": "The subschema for additional properties\n\n The value of \"additionalProperties\" MUST be a valid JSON Schema. The behavior of this keyword\n depends on the presence and annotation results of \"properties\" and \"patternProperties\" within\n the same schema object. Validation with \"additionalProperties\" applies only to the child\n values of instance names that do not appear in the annotation results of either \"properties\"\n or \"patternProperties\". For all such properties, validation succeeds if the child instance\n validates against the \"additionalProperties\" schema.",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Schema"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "anyOf": {
-          "description": "Subschema of a union type\n\n This keyword's value MUST be a non-empty array. Each item of the array MUST be a valid JSON Schema.\n An instance validates successfully against this keyword if it validates successfully against at least\n one schema defined by this keyword's value. Note that when annotations are being collected, all\n subschemas MUST be examined so that annotations are collected from each subschema that validates\n successfully.",
-          "type": [
-            "array",
-            "null"
-          ],
-          "items": {
-            "$ref": "#/definitions/Schema"
-          }
-        },
-        "default": {
-          "description": "A default value for the schema\n\n There are no restrictions placed on the value of this keyword. When multiple occurrences\n of this keyword are applicable to a single sub-instance, implementations SHOULD remove\n duplicates. This keyword can be used to supply a default JSON value associated with a\n particular schema. It is RECOMMENDED that a default value be valid against the associated schema.",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Value"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      },
-      "additionalProperties": false
     }
   }
 }
