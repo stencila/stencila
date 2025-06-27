@@ -23,7 +23,7 @@ pub struct Cli {
     /// and assumed to be Markdown (but can be specified with the `--from` option).
     /// Note that the Markdown parser should handle alternative flavors so
     /// it may not be necessary to use the `--from` option for MyST, Quarto or
-    /// Stencila Markdown. 
+    /// Stencila Markdown.
     input: Option<PathBuf>,
 
     /// The paths of desired output files
@@ -161,9 +161,7 @@ impl Cli {
         };
 
         let doc = if input_stdin {
-            let mut decode_options = self
-                .decode_options
-                .build(None, StripOptions::default());
+            let mut decode_options = self.decode_options.build(None, StripOptions::default());
             if decode_options.format.is_none() {
                 decode_options.format = Some(Format::Markdown)
             }
@@ -225,12 +223,12 @@ impl Cli {
 
         for output in outputs {
             doc.export(
-                &output,
+                output,
                 Some(codecs::EncodeOptions {
                     render: Some(true),
                     ..self.encode_options.build(
                         input.as_deref(),
-                        Some(&output),
+                        Some(output),
                         Format::Markdown,
                         self.strip_options.clone(),
                     )

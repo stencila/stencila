@@ -20,7 +20,7 @@ struct Walker<'lt> {
     node: Option<Node>,
 }
 
-impl<'lt> Walker<'lt> {
+impl Walker<'_> {
     /// Break walk if node has been found
     fn walk_control(&self) -> WalkControl {
         match self.node {
@@ -30,7 +30,7 @@ impl<'lt> Walker<'lt> {
     }
 }
 
-impl<'lt> Visitor for Walker<'lt> {
+impl Visitor for Walker<'_> {
     fn enter_struct(&mut self, _node_type: schema::NodeType, _node_id: NodeId) -> WalkControl {
         self.walk_control()
     }
