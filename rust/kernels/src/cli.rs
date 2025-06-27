@@ -11,6 +11,7 @@ use kernel::{
         itertools::Itertools,
         serde_yaml,
         tokio::fs::read_to_string,
+        tracing,
     },
     format::Format,
     schema::{ExecutionBounds, ExecutionMessage, Node, NodeId, NodeType, StringOrNumber},
@@ -274,10 +275,11 @@ impl Execute {
         };
 
         let mut kernels = Kernels::new_here(bounds);
-        let instance = kernels.create_instance(Some(&self.name)).await?;
 
         let code = self.code.replace("\\n", "\n");
-        let (outputs, messages) = instance.lock().await.execute(&code).await?;
+        let (outputs, messages, instance) = kernels.execute(&code, Some(&self.name)).await?;
+
+        tracing::debug!("Executed code in kernel instance: {instance}");
 
         display(NodeType::CodeChunk, self.code, messages, outputs)
     }
@@ -303,9 +305,10 @@ impl Evaluate {
     #[allow(clippy::print_stdout)]
     async fn run(self) -> Result<()> {
         let mut kernels = Kernels::new_here(ExecutionBounds::Main);
-        let instance = kernels.create_instance(Some(&self.name)).await?;
 
-        let (output, messages) = instance.lock().await.evaluate(&self.code).await?;
+        let (output, messages, instance) = kernels.evaluate(&self.code, Some(&self.name)).await?;
+
+        tracing::debug!("Executed code in kernel instance: {instance}");
 
         display(NodeType::CodeExpression, self.code, messages, vec![output])
     }

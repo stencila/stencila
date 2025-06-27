@@ -2226,6 +2226,7 @@ dependencies = [
  "node-diagnostics",
  "node-execute",
  "node-find",
+ "node-first",
  "node-map",
  "node-sentencize",
  "node-strip",
@@ -4494,6 +4495,13 @@ dependencies = [
 
 [[package]]
 name = "node-find"
+version = "0.0.0"
+dependencies = [
+ "schema",
+]
+
+[[package]]
+name = "node-first"
 version = "0.0.0"
 dependencies = [
  "schema",

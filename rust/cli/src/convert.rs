@@ -31,6 +31,20 @@ pub struct Cli {
 
     #[command(flatten)]
     strip_options: StripOptions,
+
+    /// The tool to use for encoding outputs (e.g. pandoc)
+    ///
+    /// Only supported for formats that use alternative external tools for encoding and ignored otherwise.
+    /// Note: this tool is not used for decoding from the input, only for encoding to the output.
+    #[arg(long)]
+    tool: Option<String>,
+
+    /// Arguments to pass through to the tool using for encoding
+    ///
+    /// Only supported for formats that use external tools for encoding and ignored otherwise.
+    /// Note: these arguments are not used for decoding from the input, only for encoding to the output.
+    #[arg(last = true, allow_hyphen_values = true)]
+    tool_args: Vec<String>,
 }
 
 impl Cli {
@@ -41,6 +55,8 @@ impl Cli {
             decode_options,
             encode_options,
             strip_options,
+            tool,
+            tool_args,
         } = self;
 
         let decode_options = decode_options.build(input.as_deref(), strip_options.clone());
@@ -55,37 +71,38 @@ impl Cli {
         if outputs.is_empty() || outputs.iter().all(|path| path.to_string_lossy() == "-") {
             codecs::to_stdout(
                 &node,
-                Some(encode_options.build(
-                    input.as_deref(),
-                    None,
-                    Format::Json,
-                    strip_options.clone(),
-                )),
+                Some(
+                    encode_options
+                        .build(input.as_deref(), None, Format::Json, strip_options.clone())
+                        .with_tool(tool, tool_args),
+                ),
             )
             .await?;
         } else {
             for output in outputs {
+                let strip_options = strip_options.clone();
+                let tool = tool.clone();
+                let tool_args = tool_args.clone();
+
                 if output == PathBuf::from("-") {
                     codecs::to_stdout(
                         &node,
-                        Some(encode_options.build(
-                            input.as_deref(),
-                            None,
-                            Format::Json,
-                            strip_options.clone(),
-                        )),
+                        Some(
+                            encode_options
+                                .build(input.as_deref(), None, Format::Json, strip_options)
+                                .with_tool(tool, tool_args),
+                        ),
                     )
                     .await?;
                 } else {
                     codecs::to_path(
                         &node,
                         &output,
-                        Some(encode_options.build(
-                            input.as_deref(),
-                            Some(&output),
-                            Format::Json,
-                            strip_options.clone(),
-                        )),
+                        Some(
+                            encode_options
+                                .build(input.as_deref(), Some(&output), Format::Json, strip_options)
+                                .with_tool(tool, tool_args),
+                        ),
                     )
                     .await?;
                 }

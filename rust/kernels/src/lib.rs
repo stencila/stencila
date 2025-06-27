@@ -97,20 +97,19 @@ pub async fn get(name: &str) -> Option<Box<dyn Kernel>> {
 }
 
 /// Get a kernel by name or language
-async fn get_for(lang: &str) -> Result<Box<dyn Kernel>> {
-    let format = Format::from_name(lang);
+async fn get_for(name_or_lang: &str) -> Result<Box<dyn Kernel>> {
+    if let Some(kernel) = get(name_or_lang).await {
+        return Ok(kernel);
+    }
 
+    let format = Format::from_name(name_or_lang);
     for kernel in list().await {
-        if kernel.name() == lang {
-            return Ok(kernel);
-        }
-
         if kernel.supports_language(&format) && kernel.is_available() {
             return Ok(kernel);
         }
     }
 
-    bail!("No kernel available with name, or that supports language, `{lang}`")
+    bail!("No kernel available with name, or that supports language, `{name_or_lang}`")
 }
 
 /// Lint some code
@@ -160,11 +159,6 @@ pub async fn lint(
     }
 
     bail!("No available kernel supports linting of {format}")
-}
-
-/// Get the default kernel (used when no language is specified)
-pub fn default() -> Box<dyn Kernel> {
-    Box::<QuickJsKernel>::default() as Box<dyn Kernel>
 }
 
 /// An entry for a kernel instance
@@ -359,18 +353,16 @@ impl Kernels {
         &mut self,
         language: Option<&str>,
     ) -> Result<Arc<Mutex<Box<dyn KernelInstance>>>> {
-        tracing::debug!(
-            "Creating kernel instance for language {:?}",
-            language.unwrap_or_default()
-        );
+        let language = language.unwrap_or("quickjs");
 
-        let kernel = match language {
-            Some(language) => get_for(language).await?,
-            None => default(),
-        };
+        tracing::debug!("Creating kernel instance for language {language}");
+
+        let kernel = get_for(language).await?;
 
         let kernel_name = kernel.name();
         let mut instance = if matches!(kernel_name.as_str(), "docsql" | "docsdb") {
+            let dir = Some(self.home.clone());
+
             let channels = match &self.root_receiver {
                 Some(root_receiver) => {
                     Some((root_receiver.clone(), self.variables_list_sender.clone()))
@@ -379,20 +371,14 @@ impl Kernels {
             };
 
             if kernel_name == "docsql" {
-                Box::new(DocsQLKernelInstance::new(
-                    Some(self.home.clone()),
-                    channels,
-                )?) as Box<dyn KernelInstance>
+                Box::new(DocsQLKernelInstance::new(dir, channels)?) as Box<dyn KernelInstance>
             } else {
-                Box::new(DocsDBKernelInstance::new(
-                    Some(self.home.clone()),
-                    channels,
-                    None,
-                )?) as Box<dyn KernelInstance>
+                Box::new(DocsDBKernelInstance::new(dir, channels, None)?) as Box<dyn KernelInstance>
             }
         } else {
             kernel.create_instance(self.bounds)?
         };
+
         let id = instance.id().to_string();
         if kernel.supports_variable_requests() {
             instance.variable_channel(
@@ -401,6 +387,7 @@ impl Kernels {
             );
         }
         instance.start(&self.home).await?;
+
         let instance = Arc::new(Mutex::new(instance));
 
         let mut instances = self.instances.write().await;
@@ -652,6 +639,25 @@ mod tests {
 
     use super::*;
 
+    /// Test `get_for` for regression in which QuickJS was resolved for "nodejs"
+    #[tokio::test]
+    async fn test_get_for() -> Result<()> {
+        assert_eq!(get_for("nodejs").await?.name(), "nodejs");
+        assert_eq!(get_for("NodeJs").await?.name(), "nodejs");
+
+        assert_eq!(get_for("quickjs").await?.name(), "quickjs");
+        assert_eq!(get_for("js").await?.name(), "quickjs");
+        assert_eq!(get_for("JavaScript").await?.name(), "quickjs");
+
+        assert_eq!(get_for("python").await?.name(), "python");
+        assert_eq!(get_for("py").await?.name(), "python");
+        assert_eq!(get_for("Python").await?.name(), "python");
+
+        assert!(get_for("foo").await.is_err());
+
+        Ok(())
+    }
+
     /// Test on-demand variable requests from Rhai to Jinja kernel
     ///
     /// Multithreaded test needed so that variable request does not hang.
@@ -689,17 +695,17 @@ mod tests {
     #[test_log::test(tokio::test(flavor = "multi_thread", worker_threads = 2))]
     async fn fork() -> Result<()> {
         let mut kernels = Kernels::new_here(ExecutionBounds::Main);
-        kernels.execute("var a = 1", Some("js")).await?;
-        kernels.execute("var b = 2", Some("js")).await?;
+        kernels.execute("var a = 1", None).await?;
+        kernels.execute("var b = 2", None).await?;
 
         let mut fork = kernels.replicate(ExecutionBounds::Fork, None).await?;
-        fork.execute("a = 11", Some("js")).await?;
-        fork.execute("b = 22", Some("js")).await?;
-        fork.execute("var c = 33", Some("js")).await?;
+        fork.execute("a = 11", None).await?;
+        fork.execute("b = 22", None).await?;
+        fork.execute("var c = 33", None).await?;
 
         // In original kernels post forking
 
-        let (node, messages, ..) = kernels.evaluate("a", Some("js")).await?;
+        let (node, messages, ..) = kernels.evaluate("a", None).await?;
         assert_eq!(messages, vec![]);
         assert_eq!(node, Node::Integer(1));
 
@@ -719,7 +725,7 @@ mod tests {
 
         // In fork
 
-        let (node, messages, ..) = fork.evaluate("a", Some("js")).await?;
+        let (node, messages, ..) = fork.evaluate("a", None).await?;
         assert_eq!(messages, vec![]);
         assert_eq!(node, Node::Integer(11));
 

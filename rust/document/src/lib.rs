@@ -12,6 +12,7 @@ use common::{
     clap::{self, ValueEnum},
     eyre::{bail, eyre, OptionExt, Result},
     serde::{Deserialize, Serialize},
+    serde_json,
     strum::{Display, EnumString},
     tokio::{
         self,
@@ -23,6 +24,7 @@ use common::{
 use kernels::Kernels;
 use node_diagnostics::{diagnostics, Diagnostic, DiagnosticLevel};
 use node_find::find;
+use node_first::first;
 use schema::{
     authorship, Article, AuthorRole, Chat, Config, ContentType, ExecutionBounds, File, Node,
     NodeId, NodeProperty, NodeType, Null, Patch, Prompt,
@@ -802,6 +804,64 @@ impl Document {
         tracing::trace!("Executing document");
 
         self.command_wait(Command::ExecuteDocument(options)).await
+    }
+
+    /// Call the document
+    #[tracing::instrument(skip(self))]
+    pub async fn call(&self, arguments: &[(&str, &str)], options: ExecuteOptions) -> Result<()> {
+        tracing::trace!("Calling document");
+
+        // If there are no arguments then just execute the document
+        if arguments.is_empty() {
+            return self.command_wait(Command::ExecuteDocument(options)).await;
+        }
+
+        // Get the default language of the document. Currently this is just the first
+        // language used in any `CodeExecutable` node (usually will be a `CodeChunk`)
+        let language = self
+            .inspect(|root| {
+                first(
+                    root,
+                    &[
+                        NodeType::CodeChunk,
+                        NodeType::CodeExpression,
+                        NodeType::ForBlock,
+                        NodeType::IfBlockClause,
+                    ],
+                )
+                .and_then(|node| match node {
+                    Node::CodeChunk(node) => node.programming_language,
+                    Node::CodeExpression(node) => node.programming_language,
+                    Node::ForBlock(node) => node.programming_language,
+                    Node::IfBlockClause(node) => node.programming_language,
+                    _ => None,
+                })
+            })
+            .await;
+
+        // Set each argument in the kernels (will use the first programming language kernel)
+        // In block to ensure lock on kernels is dropped
+        {
+            let mut kernels = self.kernels.write().await;
+
+            for (name, value) in arguments {
+                let value =
+                    serde_json::from_str(value).unwrap_or_else(|_| Node::String(value.to_string()));
+                kernels.set(name, &value, language.as_deref()).await?;
+            }
+
+            drop(kernels);
+        }
+
+        self.command_wait(Command::ExecuteDocument(ExecuteOptions {
+            // Force re-execution
+            // TODO: when dependency analysis is implemented, this needs
+            // to be reconsidered. Some code chunks may not need to be re-executed
+            // if the variable value did not change.
+            force_all: true,
+            ..options
+        }))
+        .await
     }
 
     /// Get diagnostics for the document

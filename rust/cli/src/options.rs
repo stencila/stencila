@@ -166,20 +166,6 @@ pub struct EncodeOptions {
     /// See help for `--input-losses` for details.
     #[arg(long, default_value_t = codecs::LossesResponse::Debug)]
     output_losses: codecs::LossesResponse,
-
-    /// The tool to use for encoding outputs (e.g. pandoc)
-    ///
-    /// Only supported for formats that use alternative external tools for encoding and ignored otherwise.
-    /// Note: this tool is not used for decoding from the input, only for encoding to the output.
-    #[arg(long)]
-    tool: Option<String>,
-
-    /// Arguments to pass through to the tool using for encoding
-    ///
-    /// Only supported for formats that use external tools for encoding and ignored otherwise.
-    /// Note: these arguments are not used for decoding from the input, only for encoding to the output.
-    #[arg(last = true, allow_hyphen_values = true)]
-    tool_args: Vec<String>,
 }
 
 impl EncodeOptions {
@@ -236,9 +222,6 @@ impl EncodeOptions {
             strip_scopes: strip_options.strip_scopes,
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,
-            losses: self.output_losses.clone(),
-            tool: self.tool.clone(),
-            tool_args: self.tool_args.clone(),
             ..Default::default()
         }
     }

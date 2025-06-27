@@ -592,3 +592,14 @@ pub struct EncodeOptions {
     /// Additional arguments to pass through to the tool delegated to for encoding
     pub tool_args: Vec<String>,
 }
+
+impl EncodeOptions {
+    /// Set `tool` and `tool_args` properties
+    pub fn with_tool(self, tool: Option<String>, tool_args: Vec<String>) -> Self {
+        Self {
+            tool,
+            tool_args,
+            ..self
+        }
+    }
+}
