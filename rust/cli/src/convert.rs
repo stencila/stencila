@@ -16,7 +16,7 @@ pub struct Cli {
     /// If not supplied, or if "-", the input content is read from `stdin`.
     input: Option<PathBuf>,
 
-    /// The paths of the output files
+    /// The paths of desired output files
     ///
     /// Each output may be of a different format (inferred from the extension).
     /// If the `--to` format option is used it will apply to all outputs.

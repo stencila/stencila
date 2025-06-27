@@ -18,14 +18,20 @@ use crate::{
 #[derive(Debug, Parser)]
 pub struct Cli {
     /// The path of the document to render
-    input: PathBuf,
+    ///
+    /// If not supplied, or if "-", the input content is read from `stdin`
+    /// and assumed to be Markdown (but can be specified with the `--from` option).
+    /// Note that the Markdown parser should handle alternative flavors so
+    /// it may not be necessary to use the `--from` option for MyST, Quarto or
+    /// Stencila Markdown. 
+    input: Option<PathBuf>,
 
     /// The paths of desired output files
     ///
-    /// If no outputs are supplied, and the `--to` format option is not used,
-    /// the document will be rendered in a browser window. If no outputs are
-    /// supplied and the `--to` option is used the document will be rendered
-    /// to `stdout` in that format.
+    /// If an input was supplied, but no outputs, and the `--to` format option
+    /// is not used, the document will be rendered in a browser window.
+    /// If no outputs are supplied and the `--to` option is used the document
+    /// will be rendered to `stdout` in that format.
     outputs: Vec<PathBuf>,
 
     /// Ignore any errors while executing document
@@ -48,7 +54,7 @@ pub struct Cli {
     #[command(flatten)]
     strip_options: StripOptions,
 
-    /// Document arguments
+    /// Arguments to pass to the document
     ///
     /// The name of each argument is matched against the document's parameters.
     /// If a match is found, then the argument value is coerced to the expected
@@ -146,34 +152,61 @@ impl Cli {
         let outputs = &self.outputs;
         let arguments = self.arguments()?;
 
-        let decode_options = self
-            .decode_options
-            .build(Some(&input), StripOptions::default());
+        let input_path = input.clone().unwrap_or_else(|| PathBuf::from("-"));
+        let input_stdin = input_path == PathBuf::from("-");
+        let input_display = if input_stdin {
+            "stdin".to_string()
+        } else {
+            input_path.to_string_lossy().to_string()
+        };
 
-        let doc = Document::open(&input, Some(decode_options)).await?;
+        let doc = if input_stdin {
+            let mut decode_options = self
+                .decode_options
+                .build(None, StripOptions::default());
+            if decode_options.format.is_none() {
+                decode_options.format = Some(Format::Markdown)
+            }
+
+            let root = codecs::from_stdin(Some(decode_options.clone())).await?;
+            Document::from(root, None, Some(decode_options)).await?
+        } else {
+            let decode_options = self
+                .decode_options
+                .build(input.as_deref(), StripOptions::default());
+            Document::open(&input_path, Some(decode_options)).await?
+        };
+
         doc.compile().await?;
         doc.call(&arguments, self.execute_options.clone()).await?;
         let (errors, ..) = doc.diagnostics_print().await?;
 
-        if !self.no_store {
+        if !self.no_store && !input_stdin {
             doc.store().await?;
         }
 
         if errors > 0 && !self.ignore_errors {
-            eprintln!("💥  Errors while executing `{}`", input.display());
+            eprintln!("💥  Errors while executing `{input_display}`");
             exit(1);
         }
 
         if outputs.is_empty() {
-            if let Some(format) = &self.encode_options.to {
-                let format = Format::from_name(format);
+            if let Some(format) = self
+                .encode_options
+                .to
+                .as_ref()
+                .map(|format| Format::from_name(format))
+                .or_else(|| input_stdin.then_some(Format::Markdown))
+            {
+                // If a `--to` format was supplied, or input was stdin (i.e. no
+                // path to review in the browser) then dump to console
                 let content = doc
                     .dump(
                         format.clone(),
                         Some(codecs::EncodeOptions {
                             render: Some(true),
                             ..self.encode_options.build(
-                                Some(&input),
+                                input.as_deref(),
                                 None,
                                 Format::Markdown,
                                 self.strip_options,
@@ -182,8 +215,9 @@ impl Cli {
                     )
                     .await?;
                 Code::new(format, &content).to_stdout();
-            } else {
-                preview::Cli::new(input.into()).run().await?;
+            } else if let Some(input) = input {
+                // Otherwise render the path in the browser
+                preview::Cli::new(input.to_path_buf()).run().await?;
             }
 
             return Ok(());
@@ -195,7 +229,7 @@ impl Cli {
                 Some(codecs::EncodeOptions {
                     render: Some(true),
                     ..self.encode_options.build(
-                        Some(&input),
+                        input.as_deref(),
                         Some(&output),
                         Format::Markdown,
                         self.strip_options.clone(),
@@ -204,8 +238,7 @@ impl Cli {
             )
             .await?;
             eprintln!(
-                "📑 Successfully rendered `{}` to `{}`",
-                input.display(),
+                "📑 Successfully rendered `{input_display}` to `{}`",
                 output.display()
             )
         }
