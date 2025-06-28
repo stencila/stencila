@@ -214,13 +214,19 @@ impl DocsDBKernelInstance {
 
         let db_dir = stencila_db_dir(&stencila_dir, false).await?;
         if !db_dir.exists() {
-            bail!("Workspace database `{}` does not exist yet", db_dir.display())
+            bail!(
+                "Workspace database `{}` does not exist yet",
+                db_dir.display()
+            )
         }
         self.workspace_db.set_path(db_dir);
 
         let store_dir = stencila_store_dir(&stencila_dir, false).await?;
         if !store_dir.exists() {
-            bail!("Workspace store `{}` does not exist yet", store_dir.display())
+            bail!(
+                "Workspace store `{}` does not exist yet",
+                store_dir.display()
+            )
         }
         self.store = Some(store_dir);
         if let Some(cache) = self.cache.as_mut() {
