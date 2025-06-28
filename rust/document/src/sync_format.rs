@@ -347,8 +347,7 @@ impl Document {
                         {
                             // TODO: update `format` should be based on the `path` & `decode_options`
                             // and `authors` should use the local user
-                            if let Err(error) =
-                                update_sender.send(Update::new(node, None, None)).await
+                            if let Err(error) = update_sender.send((Update::new(node), None)).await
                             {
                                 tracing::error!("While sending root update: {error}");
                             }
@@ -607,7 +606,7 @@ mod tests {
 
         // Test inserting content
         document
-            .update(art([p([t("Hello world")])]), None, None)
+            .update(Update::new(art([p([t("Hello world")])])))
             .await?;
         let patch = patch_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 2);
@@ -618,7 +617,7 @@ mod tests {
 
         // Test deleting content
         document
-            .update(art([p([t("Hello ld")])]), None, None)
+            .update(Update::new(art([p([t("Hello ld")])])))
             .await?;
         let patch = patch_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 3);
@@ -626,7 +625,7 @@ mod tests {
 
         // Test replacing content
         document
-            .update(art([p([t("Hello friend")])]), None, None)
+            .update(Update::new(art([p([t("Hello friend")])])))
             .await?;
         let patch = patch_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 4);

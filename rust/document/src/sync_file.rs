@@ -184,7 +184,14 @@ impl Document {
                         Ok(node) => {
                             if let Err(error) = update_sender
                                 // TODO: `authors` should use the local user
-                                .send(Update::new(node, format.clone(), None))
+                                .send((
+                                    Update {
+                                        node,
+                                        format: format.clone(),
+                                        ..Default::default()
+                                    },
+                                    None,
+                                ))
                                 .await
                             {
                                 tracing::error!("While sending node update: {error}");

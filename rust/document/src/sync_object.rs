@@ -186,6 +186,8 @@ mod tests {
         NodeType,
     };
 
+    use crate::Update;
+
     use super::*;
 
     /// Test sending patches to the client
@@ -209,7 +211,7 @@ mod tests {
 
         // Test inserting content
         document
-            .update(art([p([t("Hello world")])]), None, None)
+            .update(crate::Update::new(art([p([t("Hello world")])])))
             .await?;
         let patch = out_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 2);
@@ -220,7 +222,9 @@ mod tests {
         }
 
         // Test replacing content
-        document.update(art([p([t("Hello!")])]), None, None).await?;
+        document
+            .update(Update::new(art([p([t("Hello!")])])))
+            .await?;
         let patch = out_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 3);
         if let Some(PatchOperation::Replace(ReplaceOperation { path, .. })) = &patch.ops.get(1) {
@@ -230,7 +234,7 @@ mod tests {
         }
 
         // Test removing content
-        document.update(art([p([])]), None, None).await?;
+        document.update(Update::new(art([p([])]))).await?;
         let patch = out_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 4);
         if let Some(PatchOperation::Remove(RemoveOperation { path, .. })) = &patch.ops.first() {

@@ -13,6 +13,7 @@ use common::{
     eyre::{bail, eyre, OptionExt, Result},
     serde::{Deserialize, Serialize},
     serde_json,
+    smart_default::SmartDefault,
     strum::{Display, EnumString},
     tokio::{
         self,
@@ -26,8 +27,8 @@ use node_diagnostics::{diagnostics, Diagnostic, DiagnosticLevel};
 use node_find::find;
 use node_first::first;
 use schema::{
-    authorship, Article, AuthorRole, Chat, Config, ContentType, ExecutionBounds, File, Node,
-    NodeId, NodeProperty, NodeType, Null, Patch, Prompt,
+    Article, AuthorRole, Chat, Config, ContentType, ExecutionBounds, File, Node, NodeId,
+    NodeProperty, NodeType, Null, Patch, Prompt,
 };
 
 #[allow(clippy::print_stderr)]
@@ -216,8 +217,8 @@ impl CommandStatus {
 }
 
 /// An update to the root node of the document
-#[derive(Debug, Default)]
-pub(crate) struct Update {
+#[derive(Debug, SmartDefault)]
+pub struct Update {
     /// The new value of the node (at present always the `root` of the document)
     pub node: Node,
 
@@ -229,14 +230,26 @@ pub(crate) struct Update {
 
     /// The authors of the update
     pub authors: Option<Vec<AuthorRole>>,
+
+    /// Whether to compile the document after the update
+    ///
+    /// If `lint` is `true` then this will be ignored (since linting
+    /// involves compiling the document).
+    #[default = true]
+    pub compile: bool,
+
+    /// Whether to lint the document after the update
+    pub lint: bool,
+
+    /// Whether to execute the document after the update
+    pub execute: Option<Vec<NodeId>>,
 }
 
 impl Update {
-    pub fn new(node: Node, format: Option<Format>, authors: Option<Vec<AuthorRole>>) -> Self {
+    pub fn new(node: Node) -> Self {
         Self {
             node,
-            format,
-            authors,
+            ..Default::default()
         }
     }
 }
@@ -248,12 +261,13 @@ type DocumentRoot = Arc<RwLock<Node>>;
 type DocumentWatchSender = watch::Sender<Node>;
 type DocumentWatchReceiver = watch::Receiver<Node>;
 
-type DocumentUpdateSender = mpsc::Sender<Update>;
-type DocumentUpdateReceiver = mpsc::Receiver<Update>;
+type DocumentAckSender = oneshot::Sender<()>;
 
-type DocumentPatchAckSender = oneshot::Sender<()>;
-type DocumentPatchSender = mpsc::UnboundedSender<(Patch, Option<DocumentPatchAckSender>)>;
-type DocumentPatchReceiver = mpsc::UnboundedReceiver<(Patch, Option<DocumentPatchAckSender>)>;
+type DocumentUpdateSender = mpsc::Sender<(Update, Option<DocumentAckSender>)>;
+type DocumentUpdateReceiver = mpsc::Receiver<(Update, Option<DocumentAckSender>)>;
+
+type DocumentPatchSender = mpsc::UnboundedSender<(Patch, Option<DocumentAckSender>)>;
+type DocumentPatchReceiver = mpsc::UnboundedReceiver<(Patch, Option<DocumentAckSender>)>;
 
 type DocumentCommandStatusSender = mpsc::Sender<CommandStatus>;
 type DocumentCommandSender = mpsc::Sender<(Command, Option<DocumentCommandStatusSender>)>;
@@ -546,7 +560,8 @@ impl Document {
     /// Mutate the root node of the document using a function or closure
     ///
     /// See [`Document::inspect`] for an alternative if it is not necessary to have
-    /// a mutable reference to the root node.
+    /// a mutable reference to the root node. When using this function, note that
+    /// no watchers will be notified of the update.
     pub async fn mutate<F, R>(&self, func: F) -> R
     where
         F: Fn(&mut Node) -> R,
@@ -571,52 +586,12 @@ impl Document {
         find(&*self.root.read().await, node_id)
     }
 
-    /// Assign a node to the root of a document
-    ///
-    /// The `authors` arguments will be used when recording authorship
-    /// of the assigned node.
-    #[tracing::instrument(skip(self, node))]
-    pub async fn assign(&self, mut node: Node, authors: Option<Vec<AuthorRole>>) -> Result<()> {
-        if let Some(authors) = authors {
-            authorship(&mut node, authors)?;
-        }
-
-        let root = &mut *self.root.write().await;
-        *root = node;
-
-        Ok(())
-    }
-
-    /// Merge a node into the root of a document
-    ///
-    /// If the root node is `Null` it will be overwritten by the new
-    /// node. Otherwise, the new node will be merged into the root.
-    ///
-    /// The `authors` arguments will be used when recording authorship
-    /// of the assigned node or the merge.
-    #[tracing::instrument(skip(self, node))]
-    pub async fn merge(
-        &self,
-        mut node: Node,
-        format: Option<Format>,
-        authors: Option<Vec<AuthorRole>>,
-    ) -> Result<()> {
-        let root = &mut *self.root.write().await;
-        if matches!(root, Node::Null(..)) {
-            if let Some(authors) = authors {
-                authorship(&mut node, authors)?;
-            }
-            *root = node;
-        } else {
-            schema::merge(root, &node, format, authors)?;
-        }
-
-        Ok(())
-    }
-
     /// Load a string, in a given format, into a new, or existing, document
     ///
     /// The format must be specified in the `format` option.
+    ///
+    /// Sends the loaded node to the update task so it can be assigned or merged
+    /// and watchers notified. Does NOT compile the node as part of the update.
     #[tracing::instrument(skip(self, source))]
     pub async fn load(
         &self,
@@ -630,13 +605,23 @@ impl Document {
 
         let node = codecs::from_str(source, options).await?;
 
-        self.merge(node, Some(format), authors).await
+        self.update(Update {
+            node,
+            format: Some(format),
+            authors,
+            compile: false,
+            ..Default::default()
+        })
+        .await
     }
 
     /// Import a file into a new, or existing, document
     ///
     /// By default, the format of the `source` file is inferred from its extension but
     /// this can be overridden by providing the `format` option.
+    ///
+    /// Sends the imported node to the update task so it can be assigned or merged
+    /// and watchers notified. Does NOT compile the node as part of the update.
     #[tracing::instrument(skip(self))]
     pub async fn import(
         &self,
@@ -652,7 +637,14 @@ impl Document {
             .or_else(|| Some(Format::from_path(source)));
         let node = codecs::from_path(source, options).await?;
 
-        self.merge(node, format, authors).await
+        self.update(Update {
+            node,
+            format,
+            authors,
+            compile: false,
+            ..Default::default()
+        })
+        .await
     }
 
     /// Dump a document to a string in a specified format
@@ -711,15 +703,17 @@ impl Document {
     }
 
     /// Update the root node of the document with a new node value
-    pub async fn update(
-        &self,
-        node: Node,
-        format: Option<Format>,
-        authors: Option<Vec<AuthorRole>>,
-    ) -> Result<()> {
-        self.update_sender
-            .send(Update::new(node, format, authors))
-            .await?;
+    ///
+    /// This is usually the best way to update the document's root node, rather than
+    /// assigning to it directly because watchers will be notified. Waits for acknowledgment
+    /// that the update was applied.
+    pub async fn update(&self, update: Update) -> Result<()> {
+        tracing::trace!("Sending document update");
+
+        let (sender, receiver) = oneshot::channel();
+        self.update_sender.send((update, Some(sender))).await?;
+        receiver.await?;
+
         Ok(())
     }
 

@@ -26,7 +26,7 @@ use common::{
     },
     tracing,
 };
-use document::Document;
+use document::{Document, Update};
 use schema::{
     Author, AuthorRole, AuthorRoleName, CompilationMessage, Duration, ExecutionBounds,
     ExecutionMessage, ExecutionMode, ExecutionRequired, ExecutionStatus, Node, NodeId, NodeType,
@@ -697,11 +697,13 @@ impl TextDocument {
             // Update the Stencila document with the new node
             let doc = doc.write().await;
             if let Err(error) = doc
-                .update(
-                    node.clone(),
-                    Some(format.clone()),
-                    Some(vec![author_role.clone()]),
-                )
+                .update(Update {
+                    node: node.clone(),
+                    format: Some(format.clone()),
+                    authors: Some(vec![author_role.clone()]),
+                    lint: true,
+                    ..Default::default()
+                })
                 .await
             {
                 tracing::error!("While updating node: {error}");

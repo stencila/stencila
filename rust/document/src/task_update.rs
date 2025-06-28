@@ -5,7 +5,7 @@ use common::{
     tracing,
 };
 use node_execute::ExecuteOptions;
-use schema::{Config, Node, PatchNode, PatchOp};
+use schema::{authorship, Config, Node, PatchNode, PatchOp};
 
 use crate::{
     Command, CommandNodes, CommandScope, Document, DocumentCommandSender, DocumentPatchReceiver,
@@ -46,18 +46,25 @@ impl Document {
 
         loop {
             let (compile, lint, execute, ack) = tokio::select! {
-                Some(update) = update_receiver.recv() => {
+                Some((update, ack)) = update_receiver.recv() => {
                     tracing::trace!("Document root node update received");
 
                     let root = &mut *root.write().await;
                     if matches!(root, Node::Null(..)) {
                         // If the root is null, then just set it to the node, rather than merging
-                        *root = update.node;
+                        let mut node = update.node;
+                        if let Some(authors) = update.authors {
+                            // In this case ensure authors are applied to the new node
+                            if let Err(error) = authorship(&mut node, authors.clone()) {
+                                tracing::error!("While apply authors to updated node: {error}");
+                            }
+                        }
+                        *root = node;
                     } else if let Err(error) = schema::merge(root, &update.node, update.format, update.authors) {
                         tracing::error!("While merging update into root: {error}");
                     }
 
-                    (true, true, None, None)
+                    (update.compile, update.lint, update.execute, ack)
                 },
                 Some((mut patch, ack)) = patch_receiver.recv() => {
                     tracing::trace!("Document root node patch received");
