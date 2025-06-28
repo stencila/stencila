@@ -1,5 +1,6 @@
 use std::{
     collections::HashMap,
+    fs::read_dir,
     path::{Path, PathBuf},
     str::FromStr,
     sync::Arc,
@@ -10,7 +11,7 @@ use kuzu::{Connection, Database, LogicalType, SystemConfig, Value};
 use kernel::{
     common::{
         async_trait::async_trait,
-        eyre::{bail, OptionExt, Result},
+        eyre::{bail, eyre, Context, OptionExt, Result},
         once_cell::sync::Lazy,
         regex::Regex,
         tracing,
@@ -198,18 +199,35 @@ impl KuzuKernelInstance {
     }
 
     /// Get, or instantiate, the Kuzu database instance
+    #[tracing::instrument(skip(self))]
     pub fn database(&mut self) -> Result<Arc<Database>> {
         Ok(match &self.database {
             Some(database) => database.clone(),
             None => {
                 let (path, read_only) = match &self.path {
-                    Some(path) => (path.clone(), self.read_only),
+                    Some(path) => {
+                        if !path.exists() {
+                            bail!("Database `{}` does not exist", path.display())
+                        }
+
+                        if read_dir(&path)?.count() == 0 {
+                            bail!("Database `{}` is empty.", path.display())
+                        }
+
+                        (path.clone(), self.read_only)
+                    }
                     // In-memory databases can not be read only
                     None => (PathBuf::from(":memory:"), false),
                 };
+
                 let config = SystemConfig::default().read_only(read_only);
 
-                let database = Arc::new(Database::new(path, config)?);
+                tracing::trace!("Opening database {}", path.display());
+
+                let database = Arc::new(
+                    Database::new(&path, config)
+                        .wrap_err_with(|| eyre!("Unable to open database `{}`", path.display()))?,
+                );
                 self.database = Some(database.clone());
                 database
             }
