@@ -43,8 +43,8 @@ pub(crate) const GLOBAL_NAMES: &[&str] = &[
     "figure", "table", "equation", "variable",
     "figures", "tables", "equations", "variables",
     "introduction", "methods","results", "discussion",
-    "claim", "codeBlock", "image", "list", "mathBlock", "paragraph", "section",
-    "claims", "codeBlocks", "images", "lists", "mathBlocks", "paragraphs", "sections",
+    "claim", "codeBlock", "image", "list", "mathBlock", "paragraph", "section", "sentence",
+    "claims", "codeBlocks", "images", "lists", "mathBlocks", "paragraphs", "sections", "sentences",
     // GLOBAL_CONSTS added in add_constants
     "above", "below", "return",
     // Added in add_functions
@@ -1593,11 +1593,14 @@ pub(super) fn add_document_functions(env: &mut Environment, document: Arc<Query>
         ("claim", NodeType::Claim),
         ("codeBlock", NodeType::CodeBlock),
         ("codeChunk", NodeType::CodeChunk),
+        ("codeInline", NodeType::CodeInline),
         ("image", NodeType::ImageObject),
         ("list", NodeType::List),
         ("mathBlock", NodeType::MathBlock),
+        ("mathInline", NodeType::MathInline),
         ("paragraph", NodeType::Paragraph),
         ("section", NodeType::Section),
+        ("sentence", NodeType::Sentence),
     ] {
         env.add_global(
             name,
