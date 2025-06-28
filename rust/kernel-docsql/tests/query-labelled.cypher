@@ -2,7 +2,7 @@ table(1)
 ---
 MATCH (`table`:`Table`:CodeChunk)
 WHERE `table`.label = '1'
-  AND (starts_with(table.nodeId, 'tab') OR table.labelType = 'TableLabel')
+  AND (starts_with(`table`.nodeId, 'tab') OR `table`.labelType = 'TableLabel')
 RETURN `table`
 LIMIT 1
 
@@ -37,7 +37,7 @@ LIMIT 1
 tables()
 ---
 MATCH (`table`:`Table`:CodeChunk)
-WHERE (starts_with(table.nodeId, 'tab') OR table.labelType = 'TableLabel')
+WHERE (starts_with(`table`.nodeId, 'tab') OR `table`.labelType = 'TableLabel')
 RETURN `table`
 LIMIT 10
 

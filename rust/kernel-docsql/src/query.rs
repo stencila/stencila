@@ -1437,7 +1437,7 @@ impl Object for QueryLabelled {
         if &self.table == "table" {
             query.pattern = Some("(`table`:`Table`:CodeChunk)".into());
             query.ands.push(
-                "(starts_with(table.nodeId, 'tab') OR table.labelType = 'TableLabel')".into(),
+                "(starts_with(`table`.nodeId, 'tab') OR `table`.labelType = 'TableLabel')".into(),
             );
         } else if &self.table == "figure" {
             query.pattern = Some("(figure:Figure:CodeChunk)".into());
