@@ -1,6 +1,5 @@
 use std::{
     collections::HashMap,
-    fs::read_dir,
     path::{Path, PathBuf},
     str::FromStr,
     sync::Arc,
@@ -11,7 +10,7 @@ use kuzu::{Connection, Database, LogicalType, SystemConfig, Value};
 use kernel::{
     common::{
         async_trait::async_trait,
-        eyre::{bail, eyre, Context, OptionExt, Result},
+        eyre::{bail, eyre, OptionExt, Result},
         once_cell::sync::Lazy,
         regex::Regex,
         tracing,
@@ -205,17 +204,13 @@ impl KuzuKernelInstance {
             Some(database) => database.clone(),
             None => {
                 let (path, read_only) = match &self.path {
-                    Some(path) => {
-                        if !path.exists() {
-                            bail!("Database `{}` does not exist", path.display())
-                        }
-
-                        if read_dir(&path)?.count() == 0 {
-                            bail!("Database `{}` is empty.", path.display())
-                        }
-
-                        (path.clone(), self.read_only)
-                    }
+                    // Path does not need to exists but should be a Kuzu database if it does
+                    // If it does not exist yet then it can not be read only (because Kuzu
+                    // needs to crate it!).
+                    Some(path) => (
+                        path.clone(),
+                        if path.exists() { self.read_only } else { false },
+                    ),
                     // In-memory databases can not be read only
                     None => (PathBuf::from(":memory:"), false),
                 };
@@ -224,10 +219,9 @@ impl KuzuKernelInstance {
 
                 tracing::trace!("Opening database {}", path.display());
 
-                let database = Arc::new(
-                    Database::new(&path, config)
-                        .wrap_err_with(|| eyre!("Unable to open database `{}`", path.display()))?,
-                );
+                let database = Arc::new(Database::new(&path, config).map_err(|error| {
+                    eyre!("Unable to open database `{}`: {error}", path.display())
+                })?);
                 self.database = Some(database.clone());
                 database
             }

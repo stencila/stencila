@@ -213,9 +213,15 @@ impl DocsDBKernelInstance {
         let stencila_dir = closest_stencila_dir(&home_dir, false).await?;
 
         let db_dir = stencila_db_dir(&stencila_dir, false).await?;
+        if !db_dir.exists() {
+            bail!("Workspace database `{}` does not exist yet", db_dir.display())
+        }
         self.workspace_db.set_path(db_dir);
 
         let store_dir = stencila_store_dir(&stencila_dir, false).await?;
+        if !store_dir.exists() {
+            bail!("Workspace store `{}` does not exist yet", store_dir.display())
+        }
         self.store = Some(store_dir);
         if let Some(cache) = self.cache.as_mut() {
             cache.lock().await.clear();
@@ -443,6 +449,7 @@ impl KernelInstance for DocsDBKernelInstance {
         self.workspace_db.start(directory).await
     }
 
+    #[tracing::instrument(skip(self))]
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
         tracing::trace!("Executing query in DocsDB kernel");
 
@@ -468,18 +475,21 @@ impl KernelInstance for DocsDBKernelInstance {
         let kuzu_kernel = match self.which_db {
             DocsDB::Workspace => &mut self.workspace_db,
             DocsDB::Document => {
+                let Some(node) = &self.document else {
+                    bail!("No document attached to document database")
+                };
+                let (node, synced) = &mut *node.lock().await;
+
                 let doc_id = NodeId::new(b"doc", b"0");
 
                 // Update the database with the document root node, if out of sync
-                if let Some(node) = &self.document {
-                    let (node, synced) = &mut *node.lock().await;
+                if !*synced {
+                    tracing::debug!("Updating document nodes");
 
-                    if !*synced {
-                        let database = self.document_db.database()?;
-                        let mut db = NodeDatabase::attached(database)?;
-                        db.upsert(&doc_id, node)?;
-                        *synced = true;
-                    }
+                    let database = self.document_db.database()?;
+                    let mut db = NodeDatabase::attached(database)?;
+                    db.upsert(&doc_id, node)?;
+                    *synced = true;
                 }
 
                 // If the query potentially involves variables, update the variables list
@@ -487,6 +497,8 @@ impl KernelInstance for DocsDBKernelInstance {
                     &self.variables_requester,
                     code.to_lowercase().contains("variable"),
                 ) {
+                    tracing::debug!("Updating document variables");
+
                     let (response_sender, response_receiver) = oneshot::channel();
                     requester
                         .send((self.id.to_string(), response_sender))

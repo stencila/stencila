@@ -305,6 +305,12 @@ impl NodeDatabase {
         let mut walker = DatabaseWalker::default();
         walker.walk(node);
 
+        tracing::trace!(
+            "Database walker collected {} node types and {} relation types",
+            walker.node_tables.len(),
+            walker.rel_tables.len()
+        );
+
         // Create entries for each of the node types collected
         for (node_type, (properties, rows)) in walker.node_tables {
             if !rows.is_empty() && !matches!(node_type, NodeType::Unknown) {

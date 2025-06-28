@@ -27,13 +27,12 @@ pub struct CreateStencilaDirOptions {
     pub gitignore_file: bool,
 
     #[default = true]
-    pub db_dir: bool,
-
-    #[default = true]
     pub store_dir: bool,
 }
 
 /// Create a `.stencila` directory initialized with expected file and directory structure
+///
+/// Does not create the DB directory as that is done by Kuzu on database creation.
 pub async fn stencila_dir_create(path: &Path, options: CreateStencilaDirOptions) -> Result<()> {
     if !path.exists() {
         create_dir_all(path).await?;
@@ -53,10 +52,6 @@ pub async fn stencila_dir_create(path: &Path, options: CreateStencilaDirOptions)
 
     if options.store_dir {
         stencila_store_dir(path, true).await?;
-    }
-
-    if options.db_dir {
-        stencila_db_dir(path, true).await?;
     }
 
     Ok(())
