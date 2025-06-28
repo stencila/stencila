@@ -11,6 +11,7 @@ use kernel::{
     common::{
         async_trait::async_trait,
         eyre::{bail, eyre, OptionExt, Result},
+        itertools::Itertools,
         once_cell::sync::Lazy,
         regex::Regex,
         tracing,
@@ -271,6 +272,11 @@ impl KernelInstance for KuzuKernelInstance {
             .map(|capture| (capture[1].to_string(), None))
             .collect();
         if !params.is_empty() {
+            tracing::trace!(
+                "Attempting to get request params {}",
+                params.iter().map(|(name, ..)| name).join(",")
+            );
+
             // Try to get each parameter from variables first
             for (name, value) in params.iter_mut() {
                 if let Some(node) = self.variables.get(name) {
