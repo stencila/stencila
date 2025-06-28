@@ -417,7 +417,7 @@ impl Query {
                     let count = value.as_usize().ok_or_else(|| {
                         Error::new(
                             ErrorKind::InvalidOperation,
-                            "argument `skip` should be an unsigned integer".to_string(),
+                            format!("argument `{key}` should be an unsigned integer"),
                         )
                     })?;
 
