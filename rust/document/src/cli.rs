@@ -26,8 +26,9 @@ use dirs::{
     STENCILA_DIR,
 };
 use format::Format;
+use kernels::Kernels;
 use node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
-use schema::{Article, Block, Node, NodeId, NodeType};
+use schema::{Article, Block, ExecutionBounds, Node, NodeId, NodeType};
 
 use crate::track::DocumentRemote;
 
@@ -92,20 +93,26 @@ impl Rebuild {
 /// Query a workspace database
 #[derive(Debug, Parser)]
 pub struct Query {
-    /// The DocsQL query
-    query: String,
+    /// The document, or document database, to query
+    ///
+    /// Use the path to a file to create a temporary database for that
+    /// file to query.
+    input: String,
+
+    /// The DocsQL or Cypher query to run
+    ///
+    /// If the query begins with the word `MATCH` it will be assumed to be cypher.
+    /// Use the `--cypher` flag to force this.
+    query: Option<String>,
 
     /// The path of the file to output the result to
     ///
     /// If not supplied the output content is written to `stdout`.
-    output: Option<PathBuf>,
-
-    /// The database to query
-    #[arg(long, default_value = "workspace")]
-    db: String,
+    output: Option<String>,
 
     /// The directory from which the closest workspace should be found
     ///
+    /// Only applies when `input` is `.` or `workspace`
     /// Defaults to the current directory. Use this option if wanting
     /// to query a database outside of the current workspace, or if
     /// not in a workspace.
@@ -115,6 +122,15 @@ pub struct Query {
     /// Use Cypher as the query language (instead of DocsQL the default)
     #[arg(long, short)]
     cypher: bool,
+
+    /// Do not compile the document before querying it
+    ///
+    /// By default, the document is compiled before it is loaded into
+    /// the database. This means that if it has any `IncludeBlock` nodes
+    /// that their included content will be included in the database.
+    /// Use this flag to turn off this behavior.
+    #[arg(long)]
+    no_compile: bool,
 
     /// The format to output the result as
     ///
@@ -146,21 +162,48 @@ impl Query {
             bail!("Directory `{}` does not exist", self.dir.display())
         }
 
-        let (kernel, query) = if self.cypher {
-            ("docsdb", format!("// @{}\n{}", self.db, self.query))
-        } else if !self.query.starts_with(&self.db) {
-            ("docsql", format!("{}.{}", self.db, self.query))
-        } else {
-            ("docsql", self.query)
+        // Shift positional arguments to handle case when two or less provided
+        let (document, query, output) = match (self.query, self.output) {
+            // Three args
+            (Some(query), Some(output)) => (Some(self.input), query, Some(output)),
+            // Two args
+            (Some(query), None) => {
+                if PathBuf::from(&self.input).exists() {
+                    // Input exists of the filesystem so use args as provided
+                    (Some(self.input), query, None)
+                } else {
+                    // "Shift" args to right so that second one is the output
+                    (None, self.input, Some(query))
+                }
+            }
+            // One arg
+            (None, ..) => (None, self.input, None),
         };
 
-        // Create a docs kernel and execute query
-        let Some(kernel) = kernels::get(kernel).await else {
-            bail!("Unable to create `{kernel}` kernel")
+        let db = match document {
+            Some(..) => "document",
+            None => "workspace", // TODO: add --db option for specifying db when using cypher
         };
-        let mut kernel = kernel.create_instance(schema::ExecutionBounds::Box)?;
-        kernel.start(&self.dir).await?;
-        let (nodes, messages) = kernel.execute(&query).await?;
+
+        let (language, code) = if self.cypher || query.to_lowercase().starts_with("match ") {
+            ("docsdb", format!("// @{}\n{}", db, query))
+        } else {
+            ("docsql", query.to_string())
+        };
+
+        let (nodes, messages, ..) = if let Some(path) = document.map(PathBuf::from) {
+            // Open the document and execute within its kernels
+            let document = Document::open(&path, None).await?;
+            if !self.no_compile {
+                document.compile().await?;
+            }
+            let mut kernels = document.kernels.write().await;
+            kernels.execute(&code, Some(language)).await?
+        } else {
+            // Create an "orphan" set of kernels (not bound to a document)
+            let mut kernels = Kernels::new(ExecutionBounds::Main, &self.dir, None);
+            kernels.execute(&code, Some(language)).await?
+        };
 
         // Display any messages as a diagnostic
         for msg in messages {
@@ -172,7 +215,7 @@ impl Query {
                 error_type: msg.error_type.clone(),
                 message: msg.message.clone(),
                 format: None,
-                code: None,
+                code: Some(query.to_string()),
                 code_location: msg.code_location.clone(),
             }
             .to_stderr_pretty("<code>", &query, &None)
@@ -192,13 +235,19 @@ impl Query {
             Node::Article(Article::new(blocks))
         };
 
-        if let Some(output) = self.output {
+        let compact = self
+            .compact
+            .then_some(true)
+            .or(self.pretty.then_some(false));
+
+        if let Some(output) = output.map(PathBuf::from) {
             // If output is defined then encode to file
             codecs::to_path(
                 &node,
                 &output,
                 Some(EncodeOptions {
                     format: self.to,
+                    compact,
                     losses: LossesResponse::Debug,
                     ..Default::default()
                 }),
@@ -210,10 +259,6 @@ impl Query {
         } else {
             // Otherwise print using output format, defaulting to Markdown
             let format = self.r#to.unwrap_or(Format::Markdown);
-            let compact = self
-                .compact
-                .then_some(true)
-                .or(self.pretty.then_some(false));
             let content = codecs::to_string(
                 &node,
                 Some(EncodeOptions {
