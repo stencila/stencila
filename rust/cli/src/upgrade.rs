@@ -30,11 +30,11 @@ use dirs::{get_app_dir, DirType};
 use version::STENCILA_VERSION;
 
 /// Upgrade the Stencila CLI to the latest version
-pub async fn upgrade(force: bool) -> Result<bool> {
+pub async fn upgrade(force: bool) -> Result<Option<String>> {
     let latest = GithubRelease::latest().await?;
 
     if !force && latest.version() == *STENCILA_VERSION {
-        return Ok(false);
+        return Ok(None);
     }
 
     let temp = tempfile::tempdir()?;
@@ -43,7 +43,7 @@ pub async fn upgrade(force: bool) -> Result<bool> {
     tracing::debug!("Replacing binary with `{}`", path.display());
     self_replace::self_replace(path)?;
 
-    Ok(true)
+    Ok(Some(latest.version()))
 }
 
 static UPGRADE_AVAILABLE: Lazy<AtomicBool> = Lazy::new(AtomicBool::default);
@@ -241,13 +241,17 @@ impl Cli {
                     println!("🎂 Upgrade available: {STENCILA_VERSION} → {version}");
                 }
                 None => {
-                    println!("👍 No upgrade needed: current version is the latest");
+                    println!(
+                        "👍 No upgrade needed: current version {STENCILA_VERSION} is the latest"
+                    );
                 }
             }
-        } else if upgrade(self.force).await? {
-            println!("🍰 Successfully upgraded to the latest version");
+        } else if let Some(version) = upgrade(self.force).await? {
+            println!("🍰 Successfully upgraded to version {version}");
         } else {
-            println!("👍 Current version is already the latest (use --force to override)");
+            println!(
+                "🙌 Current version {STENCILA_VERSION} is the latest (use --force to override)"
+            );
         }
 
         Ok(())
