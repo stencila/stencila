@@ -192,6 +192,7 @@ impl KernelInstance for JinjaKernelInstance {
             instance: self.id().to_string(),
             variables: Mutex::default(),
             variable_channel: Mutex::new((requester, responder)),
+            globals: Vec::new(),
         }));
     }
 
@@ -289,6 +290,12 @@ pub struct JinjaKernelContext {
     ///
     /// Needs to be `Mutex` because is used in an immutable method
     variable_channel: Mutex<(KernelVariableRequester, KernelVariableResponder)>,
+
+    /// Names defined in the environment that this context is in
+    ///
+    /// Used as an optimization to avoid unnecessary requests to
+    /// other kernels.
+    globals: Vec<String>,
 }
 
 impl JinjaKernelContext {
@@ -296,12 +303,18 @@ impl JinjaKernelContext {
         instance: String,
         requester: KernelVariableRequester,
         responder: KernelVariableResponder,
+        globals: &[&str],
     ) -> Self {
         Self {
             instance,
             variables: Mutex::default(),
             variable_channel: Mutex::new((requester, responder)),
+            globals: globals.iter().map(|str| str.to_string()).collect(),
         }
+    }
+
+    pub fn has_global(&self, global: &str) -> bool {
+        self.globals.iter().any(|name| name == global)
     }
 
     pub fn get_variable(&self, name: &str) -> Result<Option<Node>> {
@@ -338,6 +351,13 @@ impl Object for JinjaKernelContext {
 
         if let Some(node) = self.get_variable(&name).ok().flatten() {
             return Some(Value::from_serialize(&node));
+        }
+
+        // If the environment this context is in has the name then return
+        // none so lookup proceeds to there, rather than making a request
+        // to other kernels
+        if self.has_global(&name) {
+            return None;
         }
 
         let Ok(mut guard) = self.variable_channel.lock() else {

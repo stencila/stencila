@@ -32,6 +32,25 @@ use kernel_jinja::{
 
 const GLOBAL_CONSTS: &[&str] = &["above", "below", "return"];
 
+/// Names used with `env.add_global`
+#[rustfmt::skip]
+pub(crate) const GLOBAL_NAMES: &[&str] = &[
+    // Database names added in lib.rs
+    "document", "workspace",
+    // Added in add_subquery_functions
+    "_authors", "_refs", "_audios", "_chunks", "_exprs", "_images", "_videos",
+    // Added in add_document_functions
+    "figure", "table", "equation", "variable",
+    "figures", "tables", "equations", "variables",
+    "introduction", "methods","results", "discussion",
+    "claim", "codeBlock", "image", "list", "mathBlock", "paragraph", "section",
+    "claims", "codeBlocks", "images", "lists", "mathBlocks", "paragraphs", "sections",
+    // GLOBAL_CONSTS added in add_constants
+    "above", "below", "return",
+    // Added in add_functions
+    "combine"
+];
+
 /// Transform property filter arguments into valid MiniJinja keyword arguments
 ///
 /// Uses single digit codes and spacing to ensure that the code stays the same length.
@@ -1591,6 +1610,18 @@ pub(super) fn add_document_functions(env: &mut Environment, document: Arc<Query>
     }
 }
 
+/// Add global constants
+pub(super) fn add_constants(env: &mut Environment) {
+    for name in GLOBAL_CONSTS {
+        env.add_global(*name, *name);
+    }
+}
+
+/// Add global functions to the environment
+pub(super) fn add_functions(env: &mut Environment) {
+    env.add_function("combine", combine);
+}
+
 /// Function to combine nodes from several queries
 fn combine(args: &[Value]) -> Result<Value, Error> {
     let mut nodes = Vec::new();
@@ -1610,18 +1641,6 @@ fn combine(args: &[Value]) -> Result<Value, Error> {
     }
 
     Ok(Value::from_object(NodeProxies::new(nodes, Arc::default())))
-}
-
-/// Add global constants
-pub(super) fn add_constants(env: &mut Environment) {
-    for name in GLOBAL_CONSTS {
-        env.add_global(*name, *name);
-    }
-}
-
-/// Add global functions to the environment
-pub(super) fn add_functions(env: &mut Environment) {
-    env.add_function("combine", combine);
 }
 
 /// A proxy for a [`Node`] to allow it to be accessed as a minijinja [`Value`]

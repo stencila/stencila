@@ -30,7 +30,7 @@ mod query;
 
 use query::{
     add_constants, add_document_functions, add_functions, add_subquery_functions, NodeProxies,
-    NodeProxy, Query,
+    NodeProxy, Query, GLOBAL_NAMES,
 };
 
 const NAME: &str = "docsql";
@@ -359,6 +359,7 @@ impl KernelInstance for DocsQLKernelInstance {
             self.id().to_string(),
             requester,
             responder,
+            &GLOBAL_NAMES,
         )));
     }
 
