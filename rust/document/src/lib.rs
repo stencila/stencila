@@ -1,10 +1,8 @@
 #![recursion_limit = "256"]
 
 use std::{
-    io,
     path::{Path, PathBuf},
     sync::Arc,
-    time::SystemTime,
 };
 
 use codecs::PoshMap;
@@ -469,12 +467,8 @@ impl Document {
 
     /// Open an existing document
     ///
-    /// If there is no sidecar file for the `path`, the file at `path` is
-    /// loaded into memory.
-    ///
-    /// If there is a sidecar file for the `path`, that will be loaded into
-    /// memory first and then the file at `path` will be merged into it, but
-    /// only if it has a last modification time after the sidecar file.
+    /// Restores the document if possible (ie. if there is a .stencila/store file for it)
+    /// and then imports the path (merging in any differences).
     #[tracing::instrument]
     pub async fn open(path: &Path, decode_options: Option<DecodeOptions>) -> Result<Self> {
         if !path.exists() {
@@ -482,25 +476,7 @@ impl Document {
         }
 
         let doc = Self::at(path, decode_options.clone(), None).await?;
-
-        let mut import = true;
-
-        if let Some(storage_path) = Document::tracking_storage(path).await? {
-            if storage_path.exists() {
-                fn modification_time(path: &Path) -> io::Result<SystemTime> {
-                    let metadata = std::fs::File::open(path)?.metadata()?;
-                    metadata.modified()
-                }
-
-                if modification_time(path)? <= modification_time(&storage_path)? {
-                    import = false;
-                }
-            }
-        }
-
-        if import {
-            doc.import(path, decode_options, None).await?;
-        }
+        doc.import(path, decode_options, None).await?;
 
         Ok(doc)
     }
