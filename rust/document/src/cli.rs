@@ -223,7 +223,7 @@ impl Query {
         }
 
         let node = if nodes.is_empty() {
-            eprintln!("No matching nodes");
+            eprintln!("🔍 No nodes matching query");
             return Ok(());
         } else if nodes.len() == 1 {
             nodes[0].clone()
