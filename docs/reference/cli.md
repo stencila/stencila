@@ -273,26 +273,31 @@ Rebuild a workspace database
 
 Query a workspace database
 
-**Usage:** `stencila query [OPTIONS] <QUERY> [OUTPUT]`
+**Usage:** `stencila query [OPTIONS] <INPUT> [QUERY] [OUTPUT]`
 
 ###### **Arguments:**
 
-* `<QUERY>` — The DocsQL query
+* `<INPUT>` — The document, or document database, to query
+
+   Use the path to a file to create a temporary database for that file to query.
+* `<QUERY>` — The DocsQL or Cypher query to run
+
+   If the query begins with the word `MATCH` it will be assumed to be cypher. Use the `--cypher` flag to force this.
 * `<OUTPUT>` — The path of the file to output the result to
 
    If not supplied the output content is written to `stdout`.
 
 ###### **Options:**
 
-* `--db <DB>` — The database to query
-
-  Default value: `workspace`
 * `--dir <DIR>` — The directory from which the closest workspace should be found
 
-   Defaults to the current directory. Use this option if wanting to query a database outside of the current workspace, or if not in a workspace.
+   Only applies when `input` is `.` or `workspace` Defaults to the current directory. Use this option if wanting to query a database outside of the current workspace, or if not in a workspace.
 
   Default value: `.`
 * `-c`, `--cypher` — Use Cypher as the query language (instead of DocsQL the default)
+* `--no-compile` — Do not compile the document before querying it
+
+   By default, the document is compiled before it is loaded into the database. This means that if it has any `IncludeBlock` nodes that their included content will be included in the database. Use this flag to turn off this behavior.
 * `-t`, `--to <TO>` — The format to output the result as
 
    Defaults to inferring the format from the file name extension of the `output`. If no `output` is supplied, defaults to JSON. See `stencila codecs list` for available formats.
@@ -316,7 +321,7 @@ Convert a document to another format
 * `<INPUT>` — The path of the input file
 
    If not supplied, or if "-", the input content is read from `stdin`.
-* `<OUTPUTS>` — The paths of the output files
+* `<OUTPUTS>` — The paths of desired output files
 
    Each output may be of a different format (inferred from the extension). If the `--to` format option is used it will apply to all outputs. If no output paths supplied, or if "-", the output content is written to `stdout`.
 * `<TOOL_ARGS>` — Arguments to pass through to the tool using for encoding
@@ -375,9 +380,6 @@ Convert a document to another format
    See help for `--input-losses` for details.
 
   Default value: `debug`
-* `--tool <TOOL>` — The tool to use for encoding outputs (e.g. pandoc)
-
-   Only supported for formats that use alternative external tools for encoding and ignored otherwise. Note: this tool is not used for decoding from the input, only for encoding to the output.
 * `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
 
   Possible values:
@@ -406,6 +408,9 @@ Convert a document to another format
 
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
+* `--tool <TOOL>` — The tool to use for encoding outputs (e.g. pandoc)
+
+   Only supported for formats that use alternative external tools for encoding and ignored otherwise. Note: this tool is not used for decoding from the input, only for encoding to the output.
 
 
 
@@ -413,14 +418,11 @@ Convert a document to another format
 
 Reverse changes from an edited document into the original
 
-**Usage:** `stencila merge [OPTIONS] <EDITED> [-- <TOOL_ARGS>...]`
+**Usage:** `stencila merge [OPTIONS] <EDITED>`
 
 ###### **Arguments:**
 
 * `<EDITED>` — The edited version of the document
-* `<TOOL_ARGS>` — Arguments to pass through to the tool using for encoding
-
-   Only supported for formats that use external tools for encoding and ignored otherwise. Note: these arguments are not used for decoding from the input, only for encoding to the output.
 
 ###### **Options:**
 
@@ -481,9 +483,6 @@ Reverse changes from an edited document into the original
    See help for `--input-losses` for details.
 
   Default value: `debug`
-* `--tool <TOOL>` — The tool to use for encoding outputs (e.g. pandoc)
-
-   Only supported for formats that use alternative external tools for encoding and ignored otherwise. Note: this tool is not used for decoding from the input, only for encoding to the output.
 
 
 
@@ -495,15 +494,12 @@ The direction of synchronization can be specified by appending the to the file p
 
 - `:in` only sync incoming changes from the file - `:out` only sync outgoing changes to the file - `:io` sync incoming and outgoing changes (default)
 
-**Usage:** `stencila sync [OPTIONS] <DOC> [FILES]... [-- <TOOL_ARGS>...]`
+**Usage:** `stencila sync [OPTIONS] <DOC> [FILES]...`
 
 ###### **Arguments:**
 
 * `<DOC>` — The path of the document to synchronize
 * `<FILES>` — The files to synchronize with
-* `<TOOL_ARGS>` — Arguments to pass through to the tool using for encoding
-
-   Only supported for formats that use external tools for encoding and ignored otherwise. Note: these arguments are not used for decoding from the input, only for encoding to the output.
 
 ###### **Options:**
 
@@ -557,9 +553,6 @@ The direction of synchronization can be specified by appending the to the file p
    See help for `--input-losses` for details.
 
   Default value: `debug`
-* `--tool <TOOL>` — The tool to use for encoding outputs (e.g. pandoc)
-
-   Only supported for formats that use alternative external tools for encoding and ignored otherwise. Note: this tool is not used for decoding from the input, only for encoding to the output.
 * `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
 
   Possible values:
@@ -708,17 +701,19 @@ Execute a document
 
 Render a document
 
-**Usage:** `stencila render [OPTIONS] <INPUT> [OUTPUTS]... [-- <TOOL_ARGS>...]`
+**Usage:** `stencila render [OPTIONS] [INPUT] [OUTPUTS]... [-- <ARGUMENTS>...]`
 
 ###### **Arguments:**
 
 * `<INPUT>` — The path of the document to render
-* `<OUTPUTS>` — The paths of the output files
 
-   If no outputs are supplied, and the `--to` format option is not used, the document will be rendered in a browser window. If no outputs are supplied and the `--to` option is used the document will be rendered to `stdout` in that format.
-* `<TOOL_ARGS>` — Arguments to pass through to the tool using for encoding
+   If not supplied, or if "-", the input content is read from `stdin` and assumed to be Markdown (but can be specified with the `--from` option). Note that the Markdown parser should handle alternative flavors so it may not be necessary to use the `--from` option for MyST, Quarto or Stencila Markdown.
+* `<OUTPUTS>` — The paths of desired output files
 
-   Only supported for formats that use external tools for encoding and ignored otherwise. Note: these arguments are not used for decoding from the input, only for encoding to the output.
+   If an input was supplied, but no outputs, and the `--to` format option is not used, the document will be rendered in a browser window. If no outputs are supplied and the `--to` option is used the document will be rendered to `stdout` in that format.
+* `<ARGUMENTS>` — Arguments to pass to the document
+
+   The name of each argument is matched against the document's parameters. If a match is found, then the argument value is coerced to the expected type of the parameter. If no corresponding parameter is found, then the argument is parsed as JSON and set as a variable in the document's default kernel (usually the first programming language used in the document).
 
 ###### **Options:**
 
@@ -796,9 +791,6 @@ Render a document
    See help for `--input-losses` for details.
 
   Default value: `debug`
-* `--tool <TOOL>` — The tool to use for encoding outputs (e.g. pandoc)
-
-   Only supported for formats that use alternative external tools for encoding and ignored otherwise. Note: this tool is not used for decoding from the input, only for encoding to the output.
 * `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
 
   Possible values:
