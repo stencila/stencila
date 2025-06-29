@@ -23,7 +23,7 @@ RETURN article
 LIMIT 10
 
 
-test.articles(...refs().lte(10))
+test.articles(...references().lte(10))
 ---
 MATCH (article:Article)
 WHERE COUNT { MATCH (article)-[references]->(ref:Reference) } <= 10
