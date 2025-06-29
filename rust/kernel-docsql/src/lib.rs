@@ -401,7 +401,7 @@ impl KernelInstance for DocsQLKernelInstance {
             self.id().to_string(),
             requester,
             responder,
-            &GLOBAL_NAMES,
+            GLOBAL_NAMES,
         )));
     }
 

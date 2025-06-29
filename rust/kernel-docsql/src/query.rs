@@ -200,16 +200,15 @@ fn apply_filter(
         if !for_subquery {
             return Err(Error::new(
                 ErrorKind::InvalidOperation,
-                format!("count filters (*) can only be used with subqueries"),
+                "count filters (*) can only be used with subqueries".to_string(),
             ));
         }
 
         if last.is_numeric() && last > '4' && last != '9' {
             return Err(Error::new(
                 ErrorKind::InvalidOperation,
-                format!(
-                    "only numeric comparison operators (e.g. <=) can be used in count filters (*)"
-                ),
+                "only numeric comparison operators (e.g. <=) can be used in count filters (*)"
+                    .to_string(),
             ));
         }
 
@@ -1729,7 +1728,7 @@ pub(super) fn add_document_functions(env: &mut Environment, document: Arc<Query>
 /// These functions are all prefixed with an underscore because they are not intended
 /// to be used directly by users but are rather invocated via the ... syntax for
 /// subquery filters.
-/// 
+///
 /// Note: leading underscore intentional and important         
 pub(super) fn add_subquery_functions(env: &mut Environment) {
     for (name, relation, table) in [
