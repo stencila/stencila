@@ -1364,12 +1364,13 @@ pub(super) struct Subquery {
 
 impl Subquery {
     /// Create a new subquery
-    fn new(relation: &str, table: &str) -> Self {
+    fn new(relation: &str, node_type: NodeType) -> Self {
+        let table = node_type.to_string();
         Self {
             pattern: String::new(),
             first_relation: relation.into(),
-            first_table: table.into(),
-            last_table: table.into(),
+            first_table: table.clone(),
+            last_table: table,
             ands: Vec::new(),
             count: None,
         }
@@ -1670,7 +1671,8 @@ pub(super) fn add_document_functions(env: &mut Environment, document: Arc<Query>
         ("list", NodeType::List),
         ("paragraph", NodeType::Paragraph),
         ("section", NodeType::Section),
-        ("sentence", NodeType::Sentence),
+        // Note: at present, mainly for performance reasons, the current document is not
+        // "sentencized" so `sentence` and `sentences` function are not provided here.
         // Metadata
         ("organization", NodeType::Organization),
         ("person", NodeType::Person),
@@ -1727,21 +1729,49 @@ pub(super) fn add_document_functions(env: &mut Environment, document: Arc<Query>
 /// These functions are all prefixed with an underscore because they are not intended
 /// to be used directly by users but are rather invocated via the ... syntax for
 /// subquery filters.
+/// 
+/// Note: leading underscore intentional and important         
 pub(super) fn add_subquery_functions(env: &mut Environment) {
     for (name, relation, table) in [
-        ("authors", "[authors]", "Person"),
-        ("references", "[references]", "Reference"),
-        // Node type in content
-        ("chunks", DEFAULT_RELATION, "CodeChunk"),
-        ("expressions", DEFAULT_RELATION, "CodeExpression"),
-        ("audios", DEFAULT_RELATION, "AudioObject"),
-        ("images", DEFAULT_RELATION, "ImageObject"),
-        ("videos", DEFAULT_RELATION, "VideoObject"),
+        ("authors", "[authors]", NodeType::Person),
+        ("references", "[references]", NodeType::Reference),
     ] {
         env.add_global(
-            // Note: leading underscore intentional and important
             ["_", name].concat(),
             Value::from_object(Subquery::new(relation, table)),
+        );
+    }
+
+    for (name, table) in [
+        // Static code
+        ("codeBlocks", NodeType::CodeBlock),
+        ("codeInlines", NodeType::CodeInline),
+        // Executable code
+        ("codeChunks", NodeType::CodeChunk),
+        ("chunks", NodeType::CodeChunk),
+        ("codeExpressions", NodeType::CodeExpression),
+        ("expressions", NodeType::CodeExpression),
+        // Math
+        ("mathBlocks", NodeType::MathBlock),
+        ("mathInlines", NodeType::MathInline),
+        // Media
+        ("images", NodeType::ImageObject),
+        ("audios", NodeType::AudioObject),
+        ("videos", NodeType::VideoObject),
+        // Containers
+        ("admonitions", NodeType::Admonition),
+        ("claims", NodeType::Claim),
+        ("lists", NodeType::List),
+        ("paragraphs", NodeType::Paragraph),
+        ("sections", NodeType::Section),
+        ("sentences", NodeType::Sentence),
+        // Metadata
+        ("organizations", NodeType::Organization),
+        ("people", NodeType::Person),
+    ] {
+        env.add_global(
+            ["_", name].concat(),
+            Value::from_object(Subquery::new(DEFAULT_RELATION, table)),
         );
     }
 }
