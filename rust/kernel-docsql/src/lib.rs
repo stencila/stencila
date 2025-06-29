@@ -9,7 +9,7 @@ use kernel_jinja::{
     kernel::{
         common::{
             async_trait::async_trait,
-            eyre::{eyre, Result},
+            eyre::{eyre, OptionExt, Result},
             itertools::Itertools,
             once_cell::sync::Lazy,
             regex::Regex,
@@ -32,6 +32,8 @@ use query::{
     add_constants, add_document_functions, add_functions, add_subquery_functions, NodeProxies,
     NodeProxy, Query, GLOBAL_NAMES,
 };
+
+use crate::query::{QueryLabelled, QueryNodeType, QuerySectionType, QueryVariables};
 
 const NAME: &str = "docsql";
 
@@ -253,12 +255,17 @@ impl KernelInstance for DocsQLKernelInstance {
 
             line_offset += lines;
 
-            let mut nodes = if let Some(query) = value.downcast_object::<Query>() {
-                query.nodes()
-            } else if let Some(proxies) = value.downcast_object::<NodeProxies>() {
-                proxies.nodes()
-            } else if let Some(proxy) = value.downcast_object::<NodeProxy>() {
-                proxy.nodes()
+            // Attempt to convert from minijinja as simple primitive types before
+            // attempting downcasts
+            let mut nodes = if value.is_none() {
+                Vec::new()
+            } else if value.is_integer() {
+                // Uses is_integer, rather than as_i64 first so that the minijinja ValueRepr::F64
+                // does not get captured here (as_i64 uses try_from).
+                let int = value.as_i64().ok_or_eyre("Unable to convert to integer")?;
+                vec![Node::Integer(int)]
+            } else if let Some(string) = value.as_str() {
+                vec![Node::String(string.into())]
             } else if value.is_undefined() {
                 let messages = messages
                     .lock()
@@ -273,7 +280,42 @@ impl KernelInstance for DocsQLKernelInstance {
                     messages
                 };
                 return Ok((Vec::new(), messages));
+            } else if value.downcast_object_ref::<QueryLabelled>().is_some()
+                || value.downcast_object_ref::<QueryVariables>().is_some()
+                || value.downcast_object_ref::<QuerySectionType>().is_some()
+                || value.downcast_object_ref::<QueryNodeType>().is_some()
+            {
+                return Ok((
+                    Vec::new(),
+                    vec![ExecutionMessage::new(
+                        MessageLevel::Error,
+                        format!(
+                            "Document query function should be called, use `{}()`",
+                            statement.trim()
+                        ),
+                    )],
+                ));
+            } else if let Some(query) = value.downcast_object::<Query>() {
+                if query.is_database {
+                    return Ok((
+                        Vec::new(),
+                        vec![ExecutionMessage::new(
+                            MessageLevel::Error,
+                            format!(
+                                "Document database should have a method called on it, e.g. `{}.figures()`",
+                                statement.trim()
+                            ),
+                        )],
+                    ));
+                }
+
+                query.nodes()
+            } else if let Some(proxies) = value.downcast_object::<NodeProxies>() {
+                proxies.nodes()
+            } else if let Some(proxy) = value.downcast_object::<NodeProxy>() {
+                proxy.nodes()
             } else {
+                // Coerce to a Stencila node via JSON as a last resort
                 let value = serde_json::to_value(value)?;
                 let node: Node = serde_json::from_value(value)?;
                 vec![node]

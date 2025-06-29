@@ -32,23 +32,95 @@ use kernel_jinja::{
 
 const GLOBAL_CONSTS: &[&str] = &["above", "below", "return"];
 
-/// Names used with `env.add_global`
-#[rustfmt::skip]
+/// Names added to the Jinja environment with `env.add_global`
+///
+/// Maintaining this list is tedious. However, it is only
+/// used as an optimization to avoid searching for
+/// these function as variables in other kernels. As such it
+/// does not need to be complete (or even accurate), but better
+/// if it is (both complete and accurate).
+///
+/// Unfortunately, at this time, this can not be done dynamically.
 pub(crate) const GLOBAL_NAMES: &[&str] = &[
     // Database names added in lib.rs
-    "document", "workspace",
-    // Added in add_subquery_functions
-    "_authors", "_refs", "_audios", "_chunks", "_exprs", "_images", "_videos",
+    "document",
+    "workspace",
     // Added in add_document_functions
-    "figure", "table", "equation", "variable",
-    "figures", "tables", "equations", "variables",
-    "introduction", "methods","results", "discussion",
-    "claim", "codeBlock", "image", "list", "mathBlock", "paragraph", "section", "sentence",
-    "claims", "codeBlocks", "images", "lists", "mathBlocks", "paragraphs", "sections", "sentences",
+    // Static code
+    "codeBlock",
+    "codeBlocks",
+    "codeInline",
+    "codeInlines",
+    // Executable code
+    "codeChunk",
+    "codeChunks",
+    "chunk",
+    "chunks",
+    "codeExpression",
+    "codeExpressions",
+    "expression",
+    "expressions",
+    // Math
+    "mathBlock",
+    "mathBlocks",
+    "mathInline",
+    "mathInlines",
+    // Media
+    "image",
+    "images",
+    "audio",
+    "audios",
+    "video",
+    "videos",
+    // Containers
+    "admonition",
+    "admonitions",
+    "claim",
+    "claims",
+    "list",
+    "lists",
+    "paragraph",
+    "paragraphs",
+    "section",
+    "sections",
+    "sentence",
+    "sentences",
+    // Metadata
+    "organization",
+    "organizations",
+    "person",
+    "people",
+    "reference",
+    "references",
+    // Labelled types
+    "figure",
+    "figures",
+    "table",
+    "tables",
+    "equation",
+    "equations",
+    // Section types
+    "methods",
+    "results",
+    "introduction",
+    "discussion",
+    // Variables
+    "variable",
+    "variables",
+    // Added in add_subquery_functions
+    "_authors",
+    "_references",
+    "_chunks",
+    "_expressions",
+    "_audios",
+    "_images",
+    "_videos",
     // GLOBAL_CONSTS added in add_constants
-    "above", "below", "return",
+    "above",
+    "below",
+    "return",
     // Added in add_functions
-    "combine"
+    "combine",
 ];
 
 /// Transform property filter arguments into valid MiniJinja keyword arguments
@@ -158,6 +230,10 @@ pub(super) struct Query {
     /// Execution messages to be added to when executing the query
     messages: Arc<SyncMutex<Vec<ExecutionMessage>>>,
 
+    /// Whether this a database [`Query`] such as `document` or `workspace`
+    /// without any methods called on it
+    pub is_database: bool,
+
     /// The Cypher for the query
     cypher: Option<String>,
 
@@ -227,6 +303,7 @@ impl Query {
             db_name,
             db,
             messages,
+            is_database: true,
             cypher: None,
             call: None,
             pattern: None,
@@ -454,6 +531,10 @@ impl Query {
         }
 
         query.node_table_used = Some(table);
+
+        // This is done in call_method but because this method is called directly from some of
+        // the document query objects e.g. `QueryNodeType`, also done here
+        query.is_database = false;
 
         Ok(query)
     }
@@ -923,17 +1004,18 @@ impl Query {
 fn table_for_method(method: &str) -> (String, Option<String>) {
     (
         match method {
-            "affs" | "affiliations" => "Organization".into(),
+            "affiliations" => "Organization".into(),
+            "authors" => "Person".into(),
             "audios" => "AudioObject".into(),
             "cells" => "TableCell".into(),
             "chunks" => "CodeChunks".into(),
-            "exprs" => "CodeExpression".into(),
-            "eqns" | "equations" => "MathBlock".into(),
+            "expressions" => "CodeExpression".into(),
+            "equations" => "MathBlock".into(),
             "images" => "ImageObject".into(),
             "items" => "ListItem".into(),
-            "orgs" => "Organization".into(),
+            "organizations" => "Organization".into(),
             "people" => "Person".into(),
-            "refs" => "Reference".into(),
+            "references" => "Reference".into(),
             "rows" => "TableRow".into(),
             "videos" => "VideoObject".into(),
             "abstracts" | "introductions" | "methods" | "results" | "discussions" => {
@@ -1063,7 +1145,7 @@ impl Object for Query {
         name: &str,
         args: &[Value],
     ) -> Result<Value, Error> {
-        let query = match name {
+        let mut query = match name {
             // Core Cypher query building methods
             "cypher" => {
                 let (cypher,) = from_args(args)?;
@@ -1161,6 +1243,9 @@ impl Object for Query {
                 self.table(name, args, kwargs)?
             }
         };
+
+        query.is_database = false;
+
         Ok(Value::from_object(query))
     }
 
@@ -1349,29 +1434,6 @@ impl Object for Subquery {
     }
 }
 
-/// Add functions for subqueries
-///
-/// These functions are all prefixed with an underscore because they are not intended
-/// to be used directly by users but are rather invocated via the ... syntax for
-/// subquery filters.
-pub(super) fn add_subquery_functions(env: &mut Environment) {
-    for (name, relation, table) in [
-        ("authors", "[authors]", "Person"),
-        ("refs", "[references]", "Reference"),
-        // Node type in content
-        ("audios", DEFAULT_RELATION, "AudioObject"),
-        ("chunks", DEFAULT_RELATION, "CodeChunk"),
-        ("exprs", DEFAULT_RELATION, "CodeExpression"),
-        ("images", DEFAULT_RELATION, "ImageObject"),
-        ("videos", DEFAULT_RELATION, "VideoObject"),
-    ] {
-        env.add_global(
-            ["_", name].concat(),
-            Value::from_object(Subquery::new(relation, table)),
-        );
-    }
-}
-
 /// Query the current document for a type with a label
 ///
 /// Allows for a label filter to be provided without the keyword. e.g.
@@ -1386,7 +1448,7 @@ pub(super) fn add_subquery_functions(env: &mut Environment) {
 ///
 ///   figure(.caption ^= 'Plot of')
 #[derive(Debug)]
-struct QueryLabelled {
+pub(super) struct QueryLabelled {
     table: String,
     document: Arc<Query>,
     one: bool,
@@ -1437,7 +1499,7 @@ impl Object for QueryLabelled {
         if &self.table == "table" {
             query.pattern = Some("(`table`:`Table`:CodeChunk)".into());
             query.ands.push(
-                "(starts_with(`table`.nodeId, 'tab') OR `table`.labelType = 'TableLabel')".into(),
+                "(starts_with(`table`.nodeId, 'tbl') OR `table`.labelType = 'TableLabel')".into(),
             );
         } else if &self.table == "figure" {
             query.pattern = Some("(figure:Figure:CodeChunk)".into());
@@ -1464,7 +1526,7 @@ impl Object for QueryLabelled {
 ///
 ///   variable(.nodeType == 'Integer')
 #[derive(Debug)]
-struct QueryVariables {
+pub(super) struct QueryVariables {
     document: Arc<Query>,
     one: bool,
 }
@@ -1496,7 +1558,7 @@ impl Object for QueryVariables {
 
 /// Query the current document for a section of a particular type
 #[derive(Debug)]
-struct QuerySectionType {
+pub(super) struct QuerySectionType {
     section_type: SectionType,
     document: Arc<Query>,
 }
@@ -1527,7 +1589,7 @@ impl Object for QuerySectionType {
 
 /// Query the current document for a node matching filters
 #[derive(Debug)]
-struct QueryNodeType {
+pub(super) struct QueryNodeType {
     node_type: NodeType,
     document: Arc<Query>,
     one: bool,
@@ -1557,6 +1619,47 @@ impl Object for QueryNodeType {
 
 /// A document shortcut functions to the environment
 pub(super) fn add_document_functions(env: &mut Environment, document: Arc<Query>) {
+    for (name, node_type) in [
+        // Static code
+        ("codeBlock", NodeType::CodeBlock),
+        ("codeInline", NodeType::CodeInline),
+        // Executable code
+        ("codeChunk", NodeType::CodeChunk),
+        ("chunk", NodeType::CodeChunk),
+        ("codeExpression", NodeType::CodeExpression),
+        ("expressions", NodeType::CodeExpression),
+        // Math
+        ("mathBlock", NodeType::MathBlock),
+        ("mathInline", NodeType::MathInline),
+        // Media
+        ("image", NodeType::ImageObject),
+        ("audio", NodeType::AudioObject),
+        ("video", NodeType::VideoObject),
+        // Containers
+        ("admonition", NodeType::Admonition),
+        ("claim", NodeType::Claim),
+        ("list", NodeType::List),
+        ("paragraph", NodeType::Paragraph),
+        ("section", NodeType::Section),
+        ("sentence", NodeType::Sentence),
+        // Metadata
+        ("organization", NodeType::Organization),
+        ("person", NodeType::Person),
+        ("reference", NodeType::Reference),
+    ] {
+        env.add_global(
+            name,
+            Value::from_object(QueryNodeType::new(node_type, document.clone(), true)),
+        );
+        env.add_global(
+            match name {
+                "person" => "people".to_string(),
+                _ => [name, "s"].concat(),
+            },
+            Value::from_object(QueryNodeType::new(node_type, document.clone(), false)),
+        );
+    }
+
     for name in ["figure", "table", "equation"] {
         env.add_global(
             name,
@@ -1567,15 +1670,6 @@ pub(super) fn add_document_functions(env: &mut Environment, document: Arc<Query>
             Value::from_object(QueryLabelled::new(name, document.clone(), false)),
         );
     }
-
-    env.add_global(
-        "variable",
-        Value::from_object(QueryVariables::new(document.clone(), true)),
-    );
-    env.add_global(
-        "variables",
-        Value::from_object(QueryVariables::new(document.clone(), false)),
-    );
 
     for (name, section_type) in [
         ("introduction", SectionType::Introduction),
@@ -1589,26 +1683,36 @@ pub(super) fn add_document_functions(env: &mut Environment, document: Arc<Query>
         );
     }
 
-    for (name, node_type) in [
-        ("claim", NodeType::Claim),
-        ("codeBlock", NodeType::CodeBlock),
-        ("codeChunk", NodeType::CodeChunk),
-        ("codeInline", NodeType::CodeInline),
-        ("image", NodeType::ImageObject),
-        ("list", NodeType::List),
-        ("mathBlock", NodeType::MathBlock),
-        ("mathInline", NodeType::MathInline),
-        ("paragraph", NodeType::Paragraph),
-        ("section", NodeType::Section),
-        ("sentence", NodeType::Sentence),
+    env.add_global(
+        "variable",
+        Value::from_object(QueryVariables::new(document.clone(), true)),
+    );
+    env.add_global(
+        "variables",
+        Value::from_object(QueryVariables::new(document.clone(), false)),
+    );
+}
+
+/// Add functions for subqueries
+///
+/// These functions are all prefixed with an underscore because they are not intended
+/// to be used directly by users but are rather invocated via the ... syntax for
+/// subquery filters.
+pub(super) fn add_subquery_functions(env: &mut Environment) {
+    for (name, relation, table) in [
+        ("authors", "[authors]", "Person"),
+        ("references", "[references]", "Reference"),
+        // Node type in content
+        ("chunks", DEFAULT_RELATION, "CodeChunk"),
+        ("expressions", DEFAULT_RELATION, "CodeExpression"),
+        ("audios", DEFAULT_RELATION, "AudioObject"),
+        ("images", DEFAULT_RELATION, "ImageObject"),
+        ("videos", DEFAULT_RELATION, "VideoObject"),
     ] {
         env.add_global(
-            name,
-            Value::from_object(QueryNodeType::new(node_type, document.clone(), true)),
-        );
-        env.add_global(
-            [name, "s"].concat(),
-            Value::from_object(QueryNodeType::new(node_type, document.clone(), false)),
+            // Note: leading underscore intentional and important
+            ["_", name].concat(),
+            Value::from_object(Subquery::new(relation, table)),
         );
     }
 }
