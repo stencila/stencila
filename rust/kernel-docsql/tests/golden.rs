@@ -53,12 +53,17 @@ async fn golden() -> Result<()> {
             }
 
             let (outputs, messages) = kernel.execute(&format!("{docsql}.explain()")).await?;
-            assert_eq!(messages, [], "\n\nFile: {}\nDocsQL: {}", filename, docsql);
 
-            let actual = match outputs.first() {
-                Some(Node::CodeChunk(CodeChunk { code, .. })) => code.lines().skip(1).join("\n"),
-                Some(node) => bail!("Expected a code chunk, got {}", node.to_string()),
-                None => bail!("Expect a code chunk, got `None`"),
+            let actual = if let Some(message) = messages.first() {
+                message.message.clone()
+            } else {
+                match outputs.first() {
+                    Some(Node::CodeChunk(CodeChunk { code, .. })) => {
+                        code.lines().skip(1).join("\n")
+                    }
+                    Some(node) => bail!("Expected a code chunk, got {}", node.to_string()),
+                    None => bail!("Expect a code chunk, got `None`"),
+                }
             };
 
             let expected = parts.next().unwrap_or_default().trim();

@@ -128,12 +128,12 @@ pub(crate) const GLOBAL_NAMES: &[&str] = &[
 /// Uses single digit codes and spacing to ensure that the code stays the same length.
 pub(super) fn transform_filters(code: &str) -> String {
     static FILTERS: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"((?:\(|,)\s*)\.([a-zA-Z][\w_]*)\s*(==|\!=|<=|<|>=|>|=\~|\~=|\!\~|\^=|\$=|in|has|=)\s*")
+        Regex::new(r"((?:\(|,)\s*)(\*|(?:\.[a-zA-Z][\w_]*))\s*(==|\!=|<=|<|>=|>|=\~|\~=|\!\~|\^=|\$=|in|has|=)\s*")
             .expect("invalid regex")
     });
 
     let code = FILTERS.replace_all(code, |captures: &Captures| {
-        let pre = &captures[1];
+        let before = &captures[1];
         let var = &captures[2];
         let op = match &captures[3] {
             "=" | "==" => "",
@@ -151,12 +151,17 @@ pub(super) fn transform_filters(code: &str) -> String {
             echo => echo,
         };
 
+        let var = match var {
+            "*" => "_C", // Count
+            _ => var.trim_start_matches("."),
+        };
+
         let spaces = captures[0]
             .len()
-            .saturating_sub(pre.len() + var.len() + op.len() + 1);
+            .saturating_sub(before.len() + var.len() + op.len() + 1);
         let spaces = " ".repeat(spaces);
 
-        [pre, var, op, &spaces, "="].concat()
+        [before, var, op, &spaces, "="].concat()
     });
 
     static SUBQUERY: Lazy<Regex> =
@@ -172,10 +177,15 @@ pub(super) fn transform_filters(code: &str) -> String {
 }
 
 /// Translate a filter into a Cypher `WHERE` clause
-fn apply_filter(alias: &str, property: &str, value: Value) -> String {
+fn apply_filter(
+    alias: &str,
+    property: &str,
+    value: Value,
+    for_subquery: bool,
+) -> Result<String, Error> {
     if property == "_" {
         if let Some(subquery) = value.downcast_object_ref::<Subquery>() {
-            return subquery.generate(alias);
+            return Ok(subquery.generate(alias));
         }
     }
 
@@ -186,7 +196,27 @@ fn apply_filter(alias: &str, property: &str, value: Value) -> String {
         chars.pop();
     }
 
-    let col = || [alias, ".", &chars.iter().join("").to_camel_case()].concat();
+    let col = if property.starts_with("_C") {
+        if !for_subquery {
+            return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                format!("count filters (*) can only be used with subqueries"),
+            ));
+        }
+
+        if last.is_numeric() && last > '4' && last != '9' {
+            return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                format!(
+                    "only numeric comparison operators (e.g. <=) can be used in count filters (*)"
+                ),
+            ));
+        }
+
+        "_COUNT".to_string()
+    } else {
+        [alias, ".", &chars.iter().join("").to_camel_case()].concat()
+    };
 
     let val_str = || ["'", &value.to_string(), "'"].concat();
 
@@ -198,13 +228,19 @@ fn apply_filter(alias: &str, property: &str, value: Value) -> String {
         }
     };
 
-    match last {
-        '5' => ["regexp_matches(", &col(), ", ", &val_str(), ")"].concat(),
-        '6' => ["NOT regexp_matches(", &col(), ", ", &val_str(), ")"].concat(),
-        '7' => ["starts_with(", &col(), ", ", &val_str(), ")"].concat(),
-        '8' => ["ends_with(", &col(), ", ", &val_str(), ")"].concat(),
-        '9' => ["list_contains(", &val_lit(), ", ", &col(), ")"].concat(),
-        '_' => ["list_contains(", &col(), ", ", &val_lit(), ")"].concat(),
+    Ok(match last {
+        '5' => ["regexp_matches(", &col, ", ", &val_str(), ")"].concat(),
+        '6' => ["NOT regexp_matches(", &col, ", ", &val_str(), ")"].concat(),
+        '7' => ["starts_with(", &col, ", ", &val_str(), ")"].concat(),
+        '8' => ["ends_with(", &col, ", ", &val_str(), ")"].concat(),
+        '9' => {
+            if col == "_COUNT" {
+                [&col, " IN ", &val_lit()].concat()
+            } else {
+                ["list_contains(", &val_lit(), ", ", &col, ")"].concat()
+            }
+        }
+        '_' => ["list_contains(", &col, ", ", &val_lit(), ")"].concat(),
         _ => {
             let op = match last {
                 '0' => "<>",
@@ -214,9 +250,9 @@ fn apply_filter(alias: &str, property: &str, value: Value) -> String {
                 '4' => ">=",
                 _ => "=",
             };
-            [&col(), " ", op, " ", &val_lit()].concat()
+            [&col, " ", op, " ", &val_lit()].concat()
         }
-    }
+    })
 }
 
 #[derive(Debug, Clone)]
@@ -524,7 +560,7 @@ impl Query {
                     }
                 }
                 _ => {
-                    let filter = apply_filter(&alias, key, value);
+                    let filter = apply_filter(&alias, key, value, false)?;
                     query.ands.push(filter)
                 }
             }
@@ -1374,8 +1410,21 @@ impl Object for Subquery {
         let (kwargs,): (Kwargs,) = from_args(args)?;
         for arg in kwargs.args() {
             let value = kwargs.get(arg)?;
-            let filter = apply_filter(&alias, arg, value);
-            subquery.ands.push(filter);
+
+            let filter = apply_filter(&alias, arg, value, true)?;
+
+            if let Some(rest) = filter.strip_prefix("_COUNT") {
+                if subquery.count.is_some() {
+                    return Err(Error::new(
+                        ErrorKind::InvalidOperation,
+                        "only one count filter (*) allowed per call",
+                    ));
+                }
+
+                subquery.count = Some(rest.trim().to_string());
+            } else {
+                subquery.ands.push(filter);
+            }
         }
 
         Ok(Value::from_object(subquery))
@@ -1389,46 +1438,26 @@ impl Object for Subquery {
     ) -> Result<Value, Error> {
         let mut subquery = self.deref().clone();
 
-        match name {
-            "eq" | "lt" | "lte" | "gt" | "gte" => {
-                let (num,): (u64,) = from_args(args)?;
-                let op = match name {
-                    "eq" => "=",
-                    "lt" => "<",
-                    "lte" => "<=",
-                    "gt" => ">",
-                    "gte" => ">=",
-                    _ => unreachable!(),
-                };
-                subquery.count = Some(format!("{op} {num}"))
-            }
-            "between" => {
-                let (from, to): (u64, u64) = from_args(args)?;
-                subquery.count = Some(format!("IN range({from}, {to})"))
-            }
-            _ => {
-                let (table, and) = table_for_method(name);
-                if let Some(and) = and {
-                    subquery.ands.push(and);
-                }
-
-                let alias = alias_for_table(&table);
-                let relation = relation_between_tables(&self.last_table, &table);
-
-                subquery
-                    .pattern
-                    .push_str(&format!("-{relation}->({alias}:{table})"));
-
-                let (kwargs,): (Kwargs,) = from_args(args)?;
-                for arg in kwargs.args() {
-                    let value = kwargs.get(arg)?;
-                    let filter = apply_filter(&alias, arg, value);
-                    subquery.ands.push(filter);
-                }
-
-                subquery.last_table = table;
-            }
+        let (table, and) = table_for_method(name);
+        if let Some(and) = and {
+            subquery.ands.push(and);
         }
+
+        let alias = alias_for_table(&table);
+        let relation = relation_between_tables(&self.last_table, &table);
+
+        subquery
+            .pattern
+            .push_str(&format!("-{relation}->({alias}:{table})"));
+
+        let (kwargs,): (Kwargs,) = from_args(args)?;
+        for arg in kwargs.args() {
+            let value = kwargs.get(arg)?;
+            let filter = apply_filter(&alias, arg, value, true)?;
+            subquery.ands.push(filter);
+        }
+
+        subquery.last_table = table;
 
         Ok(Value::from_object(subquery))
     }
@@ -2062,5 +2091,10 @@ mod tests {
 
         assert_eq!(t("(above)"), "(above)");
         assert_eq!(t("(below, .a != 1)"), "(below, a0   =1)");
+
+        assert_eq!(t("(* == 1)"), "(_C  =1)");
+        assert_eq!(t("(* <  1)"), "(_C1 =1)");
+        assert_eq!(t("(* > 1)"), "(_C3=1)");
+        assert_eq!(t("(*>=1)"), "(_C4=1)");
     }
 }

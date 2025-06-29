@@ -15,7 +15,7 @@ RETURN article
 LIMIT 10
 
 
-test.articles(...authors().gt(4))
+test.articles(...authors(* > 4))
 ---
 MATCH (article:Article)
 WHERE COUNT { MATCH (article)-[authors]->(person:Person) } > 4
@@ -23,9 +23,42 @@ RETURN article
 LIMIT 10
 
 
-test.articles(...references().lte(10))
+test.articles(...references(* <= 10))
 ---
 MATCH (article:Article)
 WHERE COUNT { MATCH (article)-[references]->(ref:Reference) } <= 10
 RETURN article
 LIMIT 10
+
+
+test.articles(...references(* == 1))
+---
+MATCH (article:Article)
+WHERE COUNT { MATCH (article)-[references]->(ref:Reference) } = 1
+RETURN article
+LIMIT 10
+
+
+test.articles(...references(* in [1,2,3]))
+---
+MATCH (article:Article)
+WHERE COUNT { MATCH (article)-[references]->(ref:Reference) } IN [1, 2, 3]
+RETURN article
+LIMIT 10
+
+
+test.articles(...references(* ~= 1))
+---
+only numeric comparison operators (e.g. <=) can be used in count filters (*)
+
+
+test.articles(...references(* > 1, * < 10))
+---
+only one count filter (*) allowed per call
+
+
+test.articles(* < 10)
+---
+count filters (*) can only be used with subqueries
+
+
