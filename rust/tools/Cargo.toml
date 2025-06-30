@@ -1,0 +1,15 @@
+[package]
+name = "tools"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+cli-utils = { path = "../cli-utils" }
+common = { path = "../common" }
+directories = { workspace = true }
+mcp-types = "0.1.1"
+semver = { workspace = true }
+which = { workspace = true }
+
+[lints]
+workspace = true

@@ -130,6 +130,7 @@ pub enum Command {
     Formats(codecs::cli::Cli),
     Plugins(plugins::cli::Cli),
     Secrets(secrets::cli::Cli),
+    Tools(tools::cli::Cli),
 
     Upgrade(upgrade::Cli),
     Uninstall(uninstall::Cli),
@@ -181,6 +182,7 @@ impl Cli {
             Command::Formats(codecs) => codecs.run().await?,
             Command::Plugins(plugins) => plugins.run().await?,
             Command::Secrets(secrets) => secrets.run().await?,
+            Command::Tools(tools) => tools.run().await?,
 
             Command::Upgrade(upgrade) => upgrade.run().await?,
             Command::Uninstall(uninstall) => uninstall.run()?,

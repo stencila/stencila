@@ -1,0 +1,93 @@
+use crate::{Tool, ToolType, VersionReq};
+
+pub struct Bash;
+
+impl Tool for Bash {
+    fn name(&self) -> &'static str {
+        "bash"
+    }
+
+    fn url(&self) -> &'static str {
+        "https://www.gnu.org/software/bash/"
+    }
+
+    fn description(&self) -> &'static str {
+        "Unix shell and command language"
+    }
+
+    fn r#type(&self) -> ToolType {
+        ToolType::Execution
+    }
+}
+
+pub struct Node;
+
+impl Tool for Node {
+    fn name(&self) -> &'static str {
+        "node"
+    }
+
+    fn url(&self) -> &'static str {
+        "https://nodejs.org/"
+    }
+
+    fn description(&self) -> &'static str {
+        "JavaScript runtime and execution environment"
+    }
+
+    fn r#type(&self) -> ToolType {
+        ToolType::Execution
+    }
+}
+
+pub struct Python;
+
+impl Tool for Python {
+    fn name(&self) -> &'static str {
+        "python"
+    }
+
+    fn url(&self) -> &'static str {
+        "https://www.python.org/"
+    }
+
+    fn description(&self) -> &'static str {
+        "General-purpose programming language interpreter"
+    }
+
+    fn r#type(&self) -> ToolType {
+        ToolType::Execution
+    }
+
+    fn executable_name(&self) -> &'static str {
+        "python3"
+    }
+
+    fn version_required(&self) -> VersionReq {
+        VersionReq::parse("3").expect("invalid semver")
+    }
+}
+
+pub struct R;
+
+impl Tool for R {
+    fn name(&self) -> &'static str {
+        "r"
+    }
+
+    fn url(&self) -> &'static str {
+        "https://www.r-project.org/"
+    }
+
+    fn description(&self) -> &'static str {
+        "Statistical computing and graphics language"
+    }
+
+    fn r#type(&self) -> ToolType {
+        ToolType::Execution
+    }
+
+    fn executable_name(&self) -> &'static str {
+        "Rscript"
+    }
+}
