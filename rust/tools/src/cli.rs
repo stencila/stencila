@@ -142,21 +142,13 @@ impl List {
         }
 
         let mut table = table::new();
-        table.set_header([
-            "Name",
-            "Description",
-            "Type",
-            "Ver. Required",
-            "Ver. Available",
-            "Path",
-        ]);
+        table.set_header(["Name", "Description", "Type", "Version", "Path"]);
 
         for tool in list {
             let name = tool.name();
             let description = tool.description();
             let r#type = tool.r#type();
-            let version_required = tool.version_required().to_string();
-            let version_available = tool
+            let version = tool
                 .version_available()
                 .map_or_else(|| "-".into(), |version| version.to_string());
             let path = tool
@@ -174,8 +166,7 @@ impl List {
                     ToolType::Conversion => Cell::new(r#type.to_string()).fg(Color::Yellow),
                     ToolType::Collaboration => Cell::new(r#type.to_string()).fg(Color::Red),
                 },
-                Cell::new(version_required).set_alignment(CellAlignment::Right),
-                Cell::new(version_available).set_alignment(CellAlignment::Right),
+                Cell::new(version).set_alignment(CellAlignment::Right),
                 Cell::new(path),
             ]);
         }
