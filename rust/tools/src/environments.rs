@@ -1,3 +1,5 @@
+use std::process::Command;
+
 use crate::{Tool, ToolType};
 
 pub struct Asdf;
@@ -17,6 +19,10 @@ impl Tool for Asdf {
 
     fn r#type(&self) -> ToolType {
         ToolType::Environments
+    }
+
+    fn config_files(&self) -> Vec<&'static str> {
+        vec![".tool-versions"]
     }
 }
 
@@ -38,6 +44,18 @@ impl Tool for Devbox {
     fn r#type(&self) -> ToolType {
         ToolType::Environments
     }
+
+    fn config_files(&self) -> Vec<&'static str> {
+        vec!["devbox.json"]
+    }
+
+    fn exec_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
+        let Some(path) = self.path() else { return None };
+
+        let mut command = Command::new(path);
+        command.args(["run", "--", cmd]).args(args);
+        Some(command)
+    }
 }
 
 pub struct Mise;
@@ -58,6 +76,23 @@ impl Tool for Mise {
     fn r#type(&self) -> ToolType {
         ToolType::Environments
     }
+
+    fn config_files(&self) -> Vec<&'static str> {
+        vec![
+            "mise.toml",
+            ".mise.toml",
+            "mise.local.toml",
+            ".mise.local.toml",
+        ]
+    }
+
+    fn exec_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
+        let Some(path) = self.path() else { return None };
+
+        let mut command = Command::new(path);
+        command.args(["exec", "--", cmd]).args(args);
+        Some(command)
+    }
 }
 
 pub struct Pixi;
@@ -77,5 +112,17 @@ impl Tool for Pixi {
 
     fn r#type(&self) -> ToolType {
         ToolType::Environments
+    }
+
+    fn config_files(&self) -> Vec<&'static str> {
+        vec!["pixi.toml"]
+    }
+
+    fn exec_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
+        let Some(path) = self.path() else { return None };
+
+        let mut command = Command::new(path);
+        command.args(["run", cmd]).args(args);
+        Some(command)
     }
 }

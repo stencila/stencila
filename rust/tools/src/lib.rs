@@ -1,4 +1,9 @@
-use std::{collections::HashMap, path::PathBuf, process::Command};
+use std::{
+    collections::HashMap,
+    io,
+    path::{Path, PathBuf},
+    process::{Command, ExitStatus, Output},
+};
 
 use common::{
     clap::{self, ValueEnum},
@@ -7,6 +12,7 @@ use common::{
     serde::Serialize,
     strum::Display,
 };
+use derive_more::{Deref, DerefMut};
 use mcp_types::{Tool as McpTool, ToolInputSchema as McpToolInputSchema};
 pub use semver::{Version, VersionReq};
 use which::which;
@@ -190,6 +196,23 @@ pub trait Tool {
             )]),
         }
     }
+
+    /// Get the configuration files used by this tool
+    ///
+    /// Returns a list of filenames that can be used to detect if this tool
+    /// is configured in a project. Environment managers should override this.
+    fn config_files(&self) -> Vec<&'static str> {
+        vec![]
+    }
+
+    /// Build a command that executes within this tool's environment
+    ///
+    /// Given a command and its arguments, returns a new command that will
+    /// execute the original command within the tool's managed environment.
+    /// Returns `None` if this tool doesn't provide environment management.
+    fn exec_command(&self, _cmd: &str, _args: &[String]) -> Option<Command> {
+        None
+    }
 }
 
 /// Macro to create a [`serde_json::Map`] needed within MCP tool definition
@@ -218,4 +241,147 @@ macro_rules! json_map {
             map
         }
     };
+}
+
+/// A wrapper around `std::process::Command` that automatically runs commands
+/// through detected environment managers (mise, devbox, pixi, etc.)
+#[derive(Debug, Deref, DerefMut)]
+pub struct EnvironmentCommand {
+    #[deref]
+    #[deref_mut]
+    inner: Command,
+}
+
+impl EnvironmentCommand {
+    /// Creates a new `EnvironmentCommand` for the given program.
+    ///
+    /// The program and arguments will be executed through an environment manager
+    /// if one is detected in the current working directory.
+    pub fn new<S: AsRef<std::ffi::OsStr>>(program: S) -> Self {
+        Self {
+            inner: Command::new(program),
+        }
+    }
+
+    /// Executes the command as a child process, waiting for it to finish and
+    /// collecting all of its output.
+    ///
+    /// If an environment manager is detected, the command will be wrapped
+    /// to run within that environment.
+    pub fn output(&mut self) -> io::Result<Output> {
+        self.wrap_if_needed().output()
+    }
+
+    /// Executes the command as a child process, waiting for it to finish and
+    /// collecting its status.
+    ///
+    /// If an environment manager is detected, the command will be wrapped
+    /// to run within that environment.
+    pub fn status(&mut self) -> io::Result<ExitStatus> {
+        self.wrap_if_needed().status()
+    }
+
+    /// Executes the command as a child process, returning a handle to it.
+    ///
+    /// If an environment manager is detected, the command will be wrapped
+    /// to run within that environment.
+    pub fn spawn(&mut self) -> io::Result<std::process::Child> {
+        self.wrap_if_needed().spawn()
+    }
+
+    /// Wraps the command with an environment manager if one is detected
+    fn wrap_if_needed(&mut self) -> &mut Command {
+        // Get the current directory for environment detection
+        let cwd = self
+            .inner
+            .get_current_dir()
+            .map(|p| p.to_path_buf())
+            .or_else(|| std::env::current_dir().ok());
+
+        if let Some(cwd) = cwd {
+            if let Some((manager, _)) = detect_environment_manager(&cwd) {
+                // Get the program and args from the original command
+                let program = self.inner.get_program().to_string_lossy().to_string();
+                let args: Vec<String> = self
+                    .inner
+                    .get_args()
+                    .map(|arg| arg.to_string_lossy().to_string())
+                    .collect();
+
+                // Create wrapped command if the manager provides one
+                if let Some(mut wrapped_cmd) = manager.exec_command(&program, &args) {
+                    // Copy over important properties from the original command
+                    if let Some(dir) = self.inner.get_current_dir() {
+                        wrapped_cmd.current_dir(dir);
+                    }
+
+                    // Copy environment variables
+                    for (key, value) in self.inner.get_envs() {
+                        if let (Some(key), Some(value)) = (key.to_str(), value) {
+                            wrapped_cmd.env(key, value);
+                        }
+                    }
+
+                    // Replace inner command with wrapped version
+                    self.inner = wrapped_cmd;
+                }
+            }
+        }
+
+        &mut self.inner
+    }
+}
+
+
+/// Find a config file in the given path or any of its ancestor directories
+///
+/// Searches up the directory tree from the given path (or its parent directory if
+/// the path is a file) looking for any of the specified config files. 
+/// Returns the path to the first matching config file found.
+fn find_config_in_ancestors(start_path: &Path, config_files: &[&str]) -> Option<PathBuf> {
+    let mut current = if start_path.is_file() {
+        start_path.parent()?.to_path_buf()
+    } else {
+        start_path.to_path_buf()
+    };
+
+    loop {
+        for config_file in config_files {
+            let config_path = current.join(config_file);
+            if config_path.exists() {
+                return Some(config_path);
+            }
+        }
+
+        if !current.pop() {
+            break;
+        }
+    }
+
+    None
+}
+
+/// Detect which environment manager is configured for a given path
+///
+/// Searches up the directory tree from the given path (or its parent directory if
+/// the path is a file) looking for environment manager config files in the priority 
+/// order: devbox, pixi, mise, asdf.
+/// Returns the detected environment manager tool and the path to its config file.
+fn detect_environment_manager(path: &Path) -> Option<(Box<dyn Tool>, PathBuf)> {
+    // Define priority order
+    let managers: Vec<Box<dyn Tool>> = vec![
+        Box::new(Devbox),
+        Box::new(Pixi),
+        Box::new(Mise),
+        Box::new(Asdf),
+    ];
+
+    for manager in managers {
+        let config_files = manager.config_files();
+        if let Some(config_path) = find_config_in_ancestors(path, &config_files) {
+            return Some((manager, config_path));
+        }
+    }
+
+    None
 }

@@ -7,6 +7,7 @@ edition = "2021"
 cli-utils = { path = "../cli-utils" }
 common = { path = "../common" }
 directories = { workspace = true }
+derive_more = { workspace = true }
 mcp-types = "0.1.1"
 semver = { workspace = true }
 which = { workspace = true }

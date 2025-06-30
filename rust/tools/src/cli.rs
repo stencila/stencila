@@ -1,15 +1,18 @@
-use std::{path::PathBuf, process::exit};
+use std::{fs::canonicalize, path::PathBuf, process::exit};
 
 use cli_utils::{
+    format::Format,
     table::{self, Attribute, Cell, CellAlignment, Color},
     AsFormat, Code, ToStdout,
 };
 use common::{
     clap::{self, Args, Parser, Subcommand},
-    eyre::Result,
+    eyre::{bail, Result},
     itertools::Itertools,
+    once_cell::sync::Lazy,
     serde_json::json,
 };
+use directories::UserDirs;
 
 use crate::ToolType;
 
@@ -24,6 +27,7 @@ pub struct Cli {
 enum Command {
     List(List),
     Show(Show),
+    Env(Env),
 }
 
 impl Cli {
@@ -35,6 +39,7 @@ impl Cli {
         match command {
             Command::List(list) => list.run().await,
             Command::Show(show) => show.run().await,
+            Command::Env(detect) => detect.run().await,
         }
     }
 }
@@ -90,8 +95,6 @@ impl List {
             "Path",
         ]);
 
-        let home = directories::UserDirs::new().map(|dirs| dirs.home_dir().to_path_buf());
-
         for tool in list {
             let name = tool.name();
             let description = tool.description();
@@ -100,19 +103,9 @@ impl List {
             let version_available = tool
                 .version_available()
                 .map_or_else(|| "-".into(), |version| version.to_string());
-            let path = tool.path().map_or_else(
-                || "-".into(),
-                |path| {
-                    if let Some(rest) = home.as_ref().and_then(|home| path.strip_prefix(home).ok())
-                    {
-                        PathBuf::from("~").join(rest)
-                    } else {
-                        path
-                    }
-                    .to_string_lossy()
-                    .to_string()
-                },
-            );
+            let path = tool
+                .path()
+                .map_or_else(|| "-".into(), |path| strip_home_dir(&path));
 
             table.add_row([
                 Cell::new(name).add_attribute(Attribute::Bold),
@@ -158,11 +151,64 @@ impl Show {
             "Description": tool.description(),
             "Version required": tool.version_required(),
             "Version available": tool.version_available().map_or_else(|| "None".into(), |version| version.to_string()),
-            "Path": tool.path().map_or_else(|| "None".into(), |path| path.to_string_lossy().to_string()),
+            "Path": tool.path().map_or_else(|| "None".into(), |path| strip_home_dir(&path)),
         });
 
-        Code::new_from(AsFormat::Yaml.into(), &tool)?.to_stdout();
+        Code::new_from(Format::Yaml, &tool)?.to_stdout();
 
         Ok(())
     }
+}
+
+/// Detect environment manager configuration for a path
+#[derive(Debug, Args)]
+struct Env {
+    /// The directory or file to check for environment manager configuration
+    #[arg(default_value = ".")]
+    path: PathBuf,
+}
+
+impl Env {
+    #[allow(clippy::print_stderr)]
+    async fn run(self) -> Result<()> {
+        if !self.path.exists() {
+            bail!("Path does not exist: {}", self.path.display());
+        }
+
+        let path = canonicalize(&self.path).unwrap_or(self.path);
+
+        let Some((manager, config_path)) = super::detect_environment_manager(&path) else {
+            eprintln!(
+                "🔍 No environment manager configuration found for directory: {}",
+                strip_home_dir(&path)
+            );
+            exit(1)
+        };
+
+        let env = json!({
+            "Environment manager": manager.name(),
+            "Config file": strip_home_dir(&config_path)
+        });
+        Code::new_from(Format::Yaml, &env)?.to_stdout();
+
+        let content = std::fs::read_to_string(&config_path)?;
+        let format = Format::from_path(&config_path);
+        Code::new(format, &content).to_stdout();
+
+        Ok(())
+    }
+}
+
+/// Strip the home directory from a path and replace it with `~`
+fn strip_home_dir(path: &PathBuf) -> String {
+    static HOME: Lazy<Option<PathBuf>> =
+        Lazy::new(|| UserDirs::new().map(|dirs| dirs.home_dir().to_path_buf()));
+
+    if let Some(rest) = HOME.as_ref().and_then(|home| path.strip_prefix(home).ok()) {
+        PathBuf::from("~").join(rest)
+    } else {
+        path.clone()
+    }
+    .to_string_lossy()
+    .to_string()
 }

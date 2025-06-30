@@ -7683,6 +7683,7 @@ version = "0.0.0"
 dependencies = [
  "cli-utils",
  "common",
+ "derive_more",
  "directories",
  "mcp-types",
  "semver",
