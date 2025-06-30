@@ -28,6 +28,7 @@ enum Command {
     List(List),
     Show(Show),
     Env(Env),
+    Run(Run),
 }
 
 impl Cli {
@@ -40,6 +41,7 @@ impl Cli {
             Command::List(list) => list.run().await,
             Command::Show(show) => show.run().await,
             Command::Env(detect) => detect.run().await,
+            Command::Run(run) => run.run().await,
         }
     }
 }
@@ -194,6 +196,50 @@ impl Env {
         let content = std::fs::read_to_string(&config_path)?;
         let format = Format::from_path(&config_path);
         Code::new(format, &content).to_stdout();
+
+        Ok(())
+    }
+}
+
+/// Run a command through environment manager detection
+#[derive(Debug, Args)]
+struct Run {
+    /// Working directory for the command
+    #[arg(long, short = 'C')]
+    cwd: Option<PathBuf>,
+
+    /// The command and arguments to run (after --)
+    #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
+    args: Vec<String>,
+}
+
+impl Run {
+    async fn run(self) -> Result<()> {
+        if self.args.is_empty() {
+            bail!("No command specified. Use -- to separate command from options, e.g.: stencila tools run -- pandoc --version");
+        }
+
+        let command = &self.args[0];
+        let args = &self.args[1..];
+
+        let mut cmd = crate::EnvironmentCommand::new(command);
+        cmd.args(args);
+
+        if let Some(cwd) = &self.cwd {
+            if !cwd.exists() {
+                bail!("Working directory does not exist: {}", cwd.display());
+            }
+            cmd.current_dir(cwd);
+        }
+
+        let status = cmd.status()?;
+        if !status.success() {
+            if let Some(code) = status.code() {
+                exit(code);
+            } else {
+                exit(1);
+            }
+        }
 
         Ok(())
     }
