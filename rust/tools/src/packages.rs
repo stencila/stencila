@@ -1,6 +1,6 @@
 use std::process::Command;
 
-use crate::{Tool, ToolType};
+use crate::{execution::Python, Tool, ToolType};
 
 pub struct Npm;
 
@@ -63,6 +63,20 @@ impl Tool for Uv {
 
         let mut command = Command::new(self.executable_name());
         command.args(["run", cmd]).args(args);
+        Some(command)
+    }
+
+    fn install_command(&self, tool: &dyn Tool) -> Option<Command> {
+        // Only install Python
+        if tool.name() != Python.name() {
+            return None;
+        }
+
+        self.path()?;
+
+        // Use `use` here so that a mise.toml get created or added to
+        let mut command = Command::new(self.executable_name());
+        command.args(["python", "install"]);
         Some(command)
     }
 }

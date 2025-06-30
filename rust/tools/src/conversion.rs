@@ -1,4 +1,7 @@
-use crate::{Tool, ToolType, VersionReq};
+use crate::{
+    environments::{Mise, Nix},
+    Tool, ToolType, VersionReq,
+};
 
 pub struct Pandoc;
 
@@ -21,6 +24,10 @@ impl Tool for Pandoc {
 
     fn version_required(&self) -> VersionReq {
         VersionReq::parse("3").expect("invalid semver")
+    }
+
+    fn install_tools(&self) -> Vec<Box<dyn Tool>> {
+        vec![Box::new(Mise), Box::new(Nix)]
     }
 }
 

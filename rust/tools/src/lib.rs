@@ -1,11 +1,13 @@
 use std::{
     collections::HashMap,
+    fmt::Debug,
     io,
     path::{Path, PathBuf},
     process::{Command, ExitStatus, Output},
 };
 
 use common::{
+    async_recursion::async_recursion,
     clap::{self, ValueEnum},
     eyre::{bail, OptionExt, Result},
     once_cell::sync::Lazy,
@@ -83,7 +85,7 @@ pub enum ToolType {
     Packages,
 }
 
-pub trait Tool {
+pub trait Tool: Sync + Send {
     /// The name of the tool
     fn name(&self) -> &'static str;
 
@@ -111,6 +113,11 @@ pub trait Tool {
     /// should be within any environments defined by them.
     fn path(&self) -> Option<PathBuf> {
         which(self.executable_name()).ok()
+    }
+
+    /// Check if the tool is installed (available on the system)
+    fn is_installed(&self) -> bool {
+        self.path().is_some()
     }
 
     /// The version required by Stencila
@@ -221,6 +228,29 @@ pub trait Tool {
         vec![]
     }
 
+    /// Get the tools that can install *this* tool, in priority order
+    ///
+    /// Returns an empty vector if this tool can be installed directly (e.g., via script).
+    /// Returns a vector of tools in priority order that can install this tool.
+    /// The first available tool will be used for installation.
+    fn install_tools(&self) -> Vec<Box<dyn Tool>> {
+        Vec::new()
+    }
+
+    /// Get the installation script details for this tool
+    ///
+    /// Returns `None` if the tool doesn't support script-based installation.
+    /// Returns a tuple of (url, arguments) where arguments are passed to the script.
+    /// Note the the install script is used as a fallback if the tools has no `install_tools`
+    fn install_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
+        None
+    }
+
+    /// Check if the tool can be installed automatically
+    fn is_installable(&self) -> bool {
+        !self.install_tools().is_empty() || self.install_script().is_some()
+    }
+
     /// Build a command that executes within this tool's environment
     ///
     /// Given a command and its arguments, returns a new command that will
@@ -230,22 +260,99 @@ pub trait Tool {
         None
     }
 
-    /// Get the installation script details for this tool
+    /// Build a command to install another [`Tool`]
     ///
-    /// Returns `None` if the tool doesn't support script-based installation.
-    /// Returns a tuple of (url, arguments) where arguments are passed to the script.
-    fn install_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
+    /// This method should be implemented by tools that can install other tools (like mise, nix, devbox).
+    /// Returns `None` if this tool doesn't support installing other tools.
+    fn install_command(&self, _tool: &dyn Tool) -> Option<Command> {
         None
     }
+}
 
-    /// Check if the tool is installed (available on the system)
-    fn is_installed(&self) -> bool {
-        self.path().is_some()
+impl Debug for dyn Tool {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Tool {}", self.name())
+    }
+}
+
+/// Install the tool using its installation script or dependency
+///
+/// Automatically resolves dependencies and installs tools. Returns an error if
+/// installation is not supported or fails.
+pub async fn install(tool: &dyn Tool, force: bool) -> Result<()> {
+    install_with_depth(tool, 0, force).await
+}
+
+/// Internal install function with dependency resolution and depth tracking
+#[async_recursion]
+async fn install_with_depth(tool: &dyn Tool, depth: u32, force: bool) -> Result<()> {
+    const MAX_DEPTH: u32 = 3;
+
+    if depth > MAX_DEPTH {
+        bail!(
+            "Maximum dependency chain depth ({}) exceeded when installing {}",
+            MAX_DEPTH,
+            tool.name()
+        );
     }
 
-    /// Check if the tool can be installed automatically via script
-    fn is_installable(&self) -> bool {
-        self.install_script().is_some()
+    // Check if already installed
+    if !force && tool.is_installed() {
+        return Ok(());
+    }
+
+    let install_tools = tool.install_tools();
+    if !install_tools.is_empty() {
+        // Find the first available installer tool
+        for installer in &install_tools {
+            if installer.is_installed() {
+                tracing::debug!(
+                    "Installing `{}` using available installer `{}`",
+                    tool.name(),
+                    installer.name()
+                );
+                return install_via_installer(installer.as_ref(), tool).await;
+            }
+        }
+
+        // No installer is available, try to install the first one
+        let first_installer = install_tools.first().expect("checked is_empty above");
+        tracing::debug!(
+            "Installing installer `{}` first for `{}`",
+            first_installer.name(),
+            tool.name()
+        );
+
+        // Note that force is always false here
+        install_with_depth(first_installer.as_ref(), depth + 1, false).await?;
+        install_via_installer(first_installer.as_ref(), tool).await
+    } else {
+        install_via_script(tool).await
+    }
+}
+
+/// Install the tool using another tool
+async fn install_via_installer(installer: &dyn Tool, tool: &dyn Tool) -> Result<()> {
+    if let Some(mut command) = installer.install_command(tool) {
+        tracing::debug!("Installing `{}` using `{}`", tool.name(), installer.name());
+
+        let output = command.output()?;
+        if output.status.success() {
+            Ok(())
+        } else {
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            bail!(
+                "Failed to install `{}` with `{}`:\n\n{stdout}\n\n{stderr}",
+                tool.name(),
+                installer.name()
+            )
+        }
+    } else {
+        tracing::warn!("Tool `{}` defines `{}` as an installer but the latter does not provide a command to install it", tool.name(), installer.name());
+
+        // Fall back to using script
+        install_via_script(tool).await
     }
 }
 
@@ -253,10 +360,12 @@ pub trait Tool {
 ///
 /// Downloads and executes the installation script. Returns an error if
 /// installation is not supported or fails.
-async fn install(tool: &dyn Tool) -> Result<()> {
+async fn install_via_script(tool: &dyn Tool) -> Result<()> {
     let (url, script_args) = tool
         .install_script()
         .ok_or_eyre("This tool does not support automated installation")?;
+
+    tracing::debug!("Installing `{}` using install script", tool.name());
 
     // Create a client that follows redirects and sets user agent to avoid 403s
     let client = reqwest::Client::builder()
@@ -393,6 +502,17 @@ impl ToolCommand {
 
     /// Wraps the command with environment managers if detected
     fn wrap_if_needed(&mut self) -> &mut Command {
+        // Check if tool needs auto-installation (sync version cannot install)
+        let program = self.inner.get_program().to_string_lossy().to_string();
+        if let Some(tool) = get(&program) {
+            if !tool.is_installed() {
+                tracing::warn!(
+                    "Tool {} is not installed and cannot be auto-installed in sync context. Use AsyncToolCommand or install manually.", 
+                    tool.name()
+                );
+            }
+        }
+
         // Get the current directory for environment detection
         let cwd = self
             .inner
@@ -499,6 +619,23 @@ impl AsyncToolCommand {
 
     /// Wraps the command with environment managers if detected
     async fn wrap_if_needed(&mut self) -> &mut AsyncCommand {
+        // Auto-install tool if it's a known tool and not installed
+        let program = self
+            .inner
+            .as_std()
+            .get_program()
+            .to_string_lossy()
+            .to_string();
+
+        if let Some(tool) = get(&program) {
+            if !tool.is_installed() {
+                tracing::info!("Auto-installing missing tool: {}", tool.name());
+                if let Err(e) = install(tool.as_ref(), false).await {
+                    tracing::warn!("Failed to auto-install {}: {}", tool.name(), e);
+                }
+            }
+        }
+
         // Get the current directory for environment detection
         let cwd = self
             .inner

@@ -1,4 +1,4 @@
-use crate::{Tool, ToolType};
+use crate::{environments::{Mise, Nix}, Tool, ToolType};
 
 pub struct Ruff;
 
@@ -21,5 +21,9 @@ impl Tool for Ruff {
 
     fn r#type(&self) -> ToolType {
         ToolType::Linting
+    }
+
+    fn install_tools(&self) -> Vec<Box<dyn Tool>> {
+        vec![Box::new(Mise), Box::new(Nix)]
     }
 }

@@ -1,4 +1,4 @@
-use crate::{Tool, ToolType, VersionReq};
+use crate::{environments::Mise, packages::Uv, Tool, ToolType, VersionReq};
 
 pub struct Bash;
 
@@ -38,6 +38,10 @@ impl Tool for Node {
     fn r#type(&self) -> ToolType {
         ToolType::Execution
     }
+
+    fn install_tools(&self) -> Vec<Box<dyn Tool>> {
+        vec![Box::new(Mise)]
+    }
 }
 
 pub struct Python;
@@ -66,6 +70,10 @@ impl Tool for Python {
     fn version_required(&self) -> VersionReq {
         VersionReq::parse("3").expect("invalid semver")
     }
+
+    fn install_tools(&self) -> Vec<Box<dyn Tool>> {
+        vec![Box::new(Uv), Box::new(Mise)]
+    }
 }
 
 pub struct R;
@@ -89,5 +97,9 @@ impl Tool for R {
 
     fn executable_name(&self) -> &'static str {
         "Rscript"
+    }
+
+    fn install_tools(&self) -> Vec<Box<dyn Tool>> {
+        vec![Box::new(Mise)]
     }
 }

@@ -324,7 +324,7 @@ impl Install {
 
         println!("📥 Installing {}...", tool.name());
 
-        match super::install(tool.as_ref()).await {
+        match super::install(tool.as_ref(), self.force).await {
             Ok(()) => {
                 println!("✅ {} installed successfully", tool.name());
 

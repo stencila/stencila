@@ -82,6 +82,20 @@ impl Tool for Mise {
         command.args(["exec", "--", cmd]).args(args);
         Some(command)
     }
+
+    fn install_command(&self, tool: &dyn Tool) -> Option<Command> {
+        self.path()?;
+
+        let tool = match tool.name() {
+            "r" => "asdf:r",
+            name => name,
+        };
+
+        // Use `use` here so that a mise.toml get created or added to
+        let mut command = Command::new(self.executable_name());
+        command.args(["use", tool]);
+        Some(command)
+    }
 }
 
 pub struct Nix;
