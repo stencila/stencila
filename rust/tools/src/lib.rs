@@ -40,6 +40,7 @@ pub fn list() -> Vec<Box<dyn Tool>> {
         // Environments
         Box::new(Devbox) as Box<dyn Tool>,
         Box::new(Mise) as Box<dyn Tool>,
+        Box::new(Nix) as Box<dyn Tool>,
         Box::new(Pixi) as Box<dyn Tool>,
         // Packages
         Box::new(Npm) as Box<dyn Tool>,
@@ -506,6 +507,8 @@ fn detect_all_managers(path: &Path) -> Vec<(Box<dyn Tool>, PathBuf)> {
     let managers: Vec<Box<dyn Tool>> = vec![
         Box::new(Devbox),
         Box::new(Mise),
+        Box::new(Nix),
+        Box::new(NixShell),
         Box::new(Pixi),
         Box::new(Uv),
     ];
