@@ -18,6 +18,10 @@ impl Tool for Devbox {
         Some(("https://get.jetify.com/devbox", vec!["--force"]))
     }
 
+    fn version_command(&self) -> Vec<&'static str> {
+        vec!["version"]
+    }
+
     fn description(&self) -> &'static str {
         "Isolated development environments with Nix"
     }

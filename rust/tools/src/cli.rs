@@ -207,8 +207,6 @@ impl List {
 #[command(after_long_help = SHOW_AFTER_LONG_HELP)]
 struct Show {
     /// The name of the tool to show details for
-    ///
-    /// Use `stencila tools list` to see available tool names
     #[arg(value_name = "TOOL")]
     name: String,
 }
@@ -220,6 +218,10 @@ pub static SHOW_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Show details about uv</dim>
   <blue>></blue> stencila tools show uv
+
+<bold><blue>Supported tools</blue></bold>
+  <dim># See which tools are installed</dim>
+  <blue>></blue> stencila tools list --installed
 "
 );
 

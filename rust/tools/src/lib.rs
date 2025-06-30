@@ -120,9 +120,17 @@ pub trait Tool {
         VersionReq::STAR
     }
 
+    /// Get the command arguments to retrieve the version of this tool
+    ///
+    /// Most tools use `--version`, but some may use different arguments.
+    /// Override this method for tools that use non-standard version commands.
+    fn version_command(&self) -> Vec<&'static str> {
+        vec!["--version"]
+    }
+
     /// The version available (if any)
     ///
-    /// Defaults to calling the discovered binary with the `--version` argument
+    /// Defaults to calling the discovered binary with the version command
     /// and then parsing it into a version.
     ///
     /// Note that Stencila uses (and returns from this function) semantic version numbers
@@ -134,9 +142,8 @@ pub trait Tool {
 
         let unknown = Version::new(0, 0, 0);
 
-        // TODO: instead of returning early here, try to call the tool with the "version"
-        // command as a callback
-        let Ok(output) = Command::new(path).arg("--version").output() else {
+        let version_args = self.version_command();
+        let Ok(output) = Command::new(path).args(version_args).output() else {
             return Some(unknown);
         };
 
