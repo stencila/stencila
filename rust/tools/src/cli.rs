@@ -5,6 +5,7 @@ use std::{
 };
 
 use cli_utils::{
+    color_print::cstr,
     format::Format,
     table::{self, Attribute, Cell, CellAlignment, Color},
     AsFormat, Code, ToStdout,
@@ -20,12 +21,34 @@ use directories::UserDirs;
 
 use crate::{detect_all_managers, ToolType};
 
-/// Manage tools used by Stencila
+/// Manage tools and environments used by Stencila
+///
+/// Provides a unified interface for managing various tools including
+/// programming languages, package managers, linters, and converters.
+/// It automatically detects and integrates with environment managers like devbox,
+/// mise, and uv to provide isolated and reproducible environments.
 #[derive(Debug, Parser)]
+#[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     #[command(subcommand)]
     command: Option<Command>,
 }
+
+pub static CLI_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># List all available tools</dim>
+  <blue>></blue> stencila tools
+
+  <dim># Show details about a specific tool</dim>
+  <blue>></blue> stencila tools show python
+
+  <dim># Detect environment configuration in current directory</dim>
+  <blue>></blue> stencila tools env
+
+  <dim># Run a command with automatic environment detection</dim>
+  <blue>></blue> stencila tools run -- python script.py
+"
+);
 
 #[derive(Debug, Subcommand)]
 enum Command {
@@ -50,23 +73,50 @@ impl Cli {
     }
 }
 
-/// List tools used by Stencila
+/// List available tools and their installation status
+///   
+/// Displays a table of all tools that Stencila can manage, including their type,
+/// required version, available version, and installation path.
 #[derive(Debug, Default, Args)]
+#[command(after_long_help = LIST_AFTER_LONG_HELP)]
 struct List {
     /// Only list tools of a particular type
     #[arg(short, long)]
     r#type: Option<ToolType>,
 
-    /// Only list tools that are available on the current machine
+    /// Only list tools that are available (installed) on the current machine
+    ///
+    /// This filters out tools that are not installed or cannot be found in PATH
     #[arg(long)]
     available: bool,
 
-    /// Output the tools as Model Context Protocol tool specifications in JSON or YAML
+    /// Output format for tool specifications
     ///
-    /// See https://modelcontextprotocol.io/docs/concepts/tools for more details
-    #[arg(long, short)]
+    /// Export tools as Model Context Protocol (MCP) tool specifications.
+    /// This is useful for integrating with AI assistants and other MCP-compatible systems.
+    /// See https://modelcontextprotocol.io/docs/concepts/tools for more details.
+    #[arg(long, short, value_name = "FORMAT")]
     r#as: Option<AsFormat>,
 }
+
+pub static LIST_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># List all tools</dim>
+  <blue>></blue> stencila tools list
+
+  <dim># List only available (installed) tools</dim>
+  <blue>></blue> stencila tools list --available
+
+  <dim># List only execution tools (programming languages)</dim>
+  <blue>></blue> stencila tools list --type execution
+
+  <dim># Export tool list as Model Context Protocol tool specifications</dim>
+  <blue>></blue> stencila tools list --as json
+
+  <dim># Display tool list as YAML</dim>
+  <blue>></blue> stencila tools list --as yaml
+"
+);
 
 impl List {
     async fn run(self) -> Result<()> {
@@ -136,12 +186,29 @@ impl List {
     }
 }
 
-/// Show details for a tool
+/// Show information about a specific tool
+///
+/// Displays information about a tool including its name, URL,
+/// description, version requirements, installation status, and file path.
 #[derive(Debug, Default, Args)]
+#[command(after_long_help = SHOW_AFTER_LONG_HELP)]
 struct Show {
     /// The name of the tool to show details for
+    ///
+    /// Use `stencila tools list` to see available tool names
+    #[arg(value_name = "TOOL")]
     name: String,
 }
+
+pub static SHOW_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Show details about Pandoc</dim>
+  <blue>></blue> stencila tools show pandoc
+
+  <dim># Show details about uv</dim>
+  <blue>></blue> stencila tools show uv
+"
+);
 
 impl Show {
     #[allow(clippy::print_stderr)]
@@ -166,13 +233,37 @@ impl Show {
     }
 }
 
-/// Detect environment manager configuration for a path
+/// Detect environment manager configuration for a directory
+///
+/// Searches the specified directory (and parent directories) for configuration
+/// files that indicate the presence of environment or package managers.
+/// This helps understand what development environment is configured for a project.
+///
+/// Displays both the manager information and the content of the configuration
+/// files for inspection.
 #[derive(Debug, Args)]
+#[command(after_long_help = ENV_AFTER_LONG_HELP)]
 struct Env {
-    /// The directory or file to check for environment manager configuration
-    #[arg(default_value = ".")]
+    /// The directory to check for environment manager configuration
+    ///
+    /// Searches this directory and all parent directories for configuration files.
+    /// Configuration files include devbox.json, mise.toml, pixi.toml, and pyproject.toml.
+    #[arg(default_value = ".", value_name = "PATH")]
     path: PathBuf,
 }
+
+pub static ENV_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Check current directory for environment configuration</dim>
+  <blue>></blue> stencila tools env
+
+  <dim># Check a specific project directory</dim>
+  <blue>></blue> stencila tools env /path/to/project
+
+  <dim># Check parent directory</dim>
+  <blue>></blue> stencila tools env ..
+"
+);
 
 impl Env {
     #[allow(clippy::print_stderr)]
@@ -209,38 +300,78 @@ impl Env {
     }
 }
 
-/// Run a command through environment manager detection
+/// Run a command with automatic environment detection and setup
+///
+/// Mainly for testing configurations. Executes a command within the appropriate
+/// development environment by automatically detecting and configuring
+/// environment managers. This ensures commands run with the correct tool
+/// versions and dependencies as specified in the project configuration.
+///
+/// The command automatically detects and chains environment managers:
+/// (1) Environment managers (e.g devbox, mise, pixi) - for tool version management
+/// (2) Package managers (e.g uv) - for language-specific dependencies
 #[derive(Debug, Args)]
+#[command(after_long_help = RUN_AFTER_LONG_HELP)]
 struct Run {
     /// Working directory for the command
-    #[arg(long, short = 'C')]
+    ///
+    /// Environment detection will be performed relative to this directory.
+    /// If not specified, uses the current working directory.
+    #[arg(long, short = 'C', value_name = "DIR")]
     cwd: Option<PathBuf>,
 
-    /// The command and arguments to run (after --)
-    #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
-    args: Vec<String>,
+    /// The command and arguments to run (specify after --)
+    ///
+    /// All arguments after '--' are passed directly to the command.
+    /// This allows commands with arguments that start with hyphens.
+    #[arg(
+        trailing_var_arg = true,
+        allow_hyphen_values = true,
+        value_name = "COMMAND"
+    )]
+    command: Vec<String>,
 }
+
+pub static RUN_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Note</blue></bold>
+  Use '--' to separate the run command options from the command to execute.
+  This prevents argument parsing conflicts
+  
+<bold><blue>Examples</blue></bold>
+  <dim># Run Python script with automatic environment detection</dim>
+  <blue>></blue> stencila tools run -- python script.py
+
+  <dim># Run Python code</dim>
+  <blue>></blue> stencila tools run -- python -c \"print('hello')\"
+
+  <dim># Run from a different directory</dim>
+  <blue>></blue> stencila tools run -C /path/to/project -- npm test
+
+  <dim># Run a complex command with multiple arguments</dim>
+  <blue>></blue> stencila tools run -- pandoc input.md -o output.pdf --pdf-engine=xelatex
+"
+);
 
 impl Run {
     async fn run(self) -> Result<()> {
-        if self.args.is_empty() {
+        if self.command.is_empty() {
             bail!("No command specified. Use -- to separate command from options, e.g.: stencila tools run -- pandoc --version");
         }
 
-        let command = &self.args[0];
-        let args = &self.args[1..];
+        let cmd = &self.command[0];
+        let args = &self.command[1..];
 
-        let mut cmd = crate::EnvironmentCommand::new(command);
-        cmd.args(args);
+        let mut command = crate::EnvironmentCommand::new(cmd);
+        command.args(args);
 
         if let Some(cwd) = &self.cwd {
             if !cwd.exists() {
                 bail!("Working directory does not exist: {}", cwd.display());
             }
-            cmd.current_dir(cwd);
+            command.current_dir(cwd);
         }
 
-        let status = cmd.status()?;
+        let status = command.status()?;
         if !status.success() {
             if let Some(code) = status.code() {
                 exit(code);

@@ -248,7 +248,7 @@ macro_rules! json_map {
 ///
 /// This wrapper can automatically nest tools to provide both
 /// tool version management and package management. For example:
-/// 
+///
 /// `python script.py` with mise + uv becomes `mise exec -- uv run python script.py`
 #[derive(Debug, Deref, DerefMut)]
 pub struct EnvironmentCommand {
