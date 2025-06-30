@@ -26,9 +26,9 @@ impl Tool for Devbox {
     }
 
     fn exec_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
-        let Some(path) = self.path() else { return None };
+        self.path()?;
 
-        let mut command = Command::new(path);
+        let mut command = Command::new(self.executable_name());
         command.args(["run", "--", cmd]).args(args);
         Some(command)
     }
@@ -63,46 +63,9 @@ impl Tool for Mise {
     }
 
     fn exec_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
-        let Some(path) = self.path() else { return None };
+        self.path()?;
 
-        let mut command = Command::new(path);
-        command.args(["exec", "--", cmd]).args(args);
-        Some(command)
-    }
-}
-
-pub struct Npm;
-
-impl Tool for Npm {
-    fn name(&self) -> &'static str {
-        "npm"
-    }
-
-    fn url(&self) -> &'static str {
-        "https://www.npmjs.com/"
-    }
-
-    fn description(&self) -> &'static str {
-        "Node.js package and environment manager"
-    }
-
-    fn r#type(&self) -> ToolType {
-        ToolType::Environments
-    }
-
-    fn config_files(&self) -> Vec<&'static str> {
-        vec!["package.json"]
-    }
-
-    fn exec_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
-        // Only wrap node/nodejs commands
-        if cmd != "node" && cmd != "nodejs" {
-            return None;
-        }
-
-        let Some(path) = self.path() else { return None };
-
-        let mut command = Command::new(path);
+        let mut command = Command::new(self.executable_name());
         command.args(["exec", "--", cmd]).args(args);
         Some(command)
     }
@@ -132,46 +95,9 @@ impl Tool for Pixi {
     }
 
     fn exec_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
-        let Some(path) = self.path() else { return None };
+        self.path()?;
 
-        let mut command = Command::new(path);
-        command.args(["run", cmd]).args(args);
-        Some(command)
-    }
-}
-
-pub struct Uv;
-
-impl Tool for Uv {
-    fn name(&self) -> &'static str {
-        "uv"
-    }
-
-    fn url(&self) -> &'static str {
-        "https://docs.astral.sh/uv/"
-    }
-
-    fn description(&self) -> &'static str {
-        "Python package and environment manager"
-    }
-
-    fn r#type(&self) -> ToolType {
-        ToolType::Environments
-    }
-
-    fn config_files(&self) -> Vec<&'static str> {
-        vec!["pyproject.toml"]
-    }
-
-    fn exec_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
-        // Only wrap python/python3 commands
-        if cmd != "python" && cmd != "python3" {
-            return None;
-        }
-
-        let Some(path) = self.path() else { return None };
-
-        let mut command = Command::new(path);
+        let mut command = Command::new(self.executable_name());
         command.args(["run", cmd]).args(args);
         Some(command)
     }

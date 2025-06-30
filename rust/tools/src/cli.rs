@@ -1,4 +1,8 @@
-use std::{fs::canonicalize, path::PathBuf, process::exit};
+use std::{
+    fs::canonicalize,
+    path::{Path, PathBuf},
+    process::exit,
+};
 
 use cli_utils::{
     format::Format,
@@ -14,7 +18,7 @@ use common::{
 };
 use directories::UserDirs;
 
-use crate::ToolType;
+use crate::{detect_all_managers, ToolType};
 
 /// Manage tools used by Stencila
 #[derive(Debug, Parser)]
@@ -179,23 +183,27 @@ impl Env {
 
         let path = canonicalize(&self.path).unwrap_or(self.path);
 
-        let Some((manager, config_path)) = super::detect_environment_manager(&path) else {
+        let managers = detect_all_managers(&path);
+
+        if managers.is_empty() {
             eprintln!(
-                "🔍 No environment manager configuration found for directory: {}",
+                "🔍 No environment or package manager configuration found for directory {}",
                 strip_home_dir(&path)
             );
             exit(1)
         };
 
-        let env = json!({
-            "Environment manager": manager.name(),
-            "Config file": strip_home_dir(&config_path)
-        });
-        Code::new_from(Format::Yaml, &env)?.to_stdout();
+        for (tool, config_path) in detect_all_managers(&path) {
+            let env = json!({
+                "Tool": tool.name(),
+                "Config file": strip_home_dir(&config_path)
+            });
+            Code::new_from(Format::Yaml, &env)?.to_stdout();
 
-        let content = std::fs::read_to_string(&config_path)?;
-        let format = Format::from_path(&config_path);
-        Code::new(format, &content).to_stdout();
+            let content = std::fs::read_to_string(&config_path)?;
+            let format = Format::from_path(&config_path);
+            Code::new(format, &content).to_stdout();
+        }
 
         Ok(())
     }
@@ -246,14 +254,14 @@ impl Run {
 }
 
 /// Strip the home directory from a path and replace it with `~`
-fn strip_home_dir(path: &PathBuf) -> String {
+fn strip_home_dir(path: &Path) -> String {
     static HOME: Lazy<Option<PathBuf>> =
         Lazy::new(|| UserDirs::new().map(|dirs| dirs.home_dir().to_path_buf()));
 
     if let Some(rest) = HOME.as_ref().and_then(|home| path.strip_prefix(home).ok()) {
         PathBuf::from("~").join(rest)
     } else {
-        path.clone()
+        path.to_path_buf()
     }
     .to_string_lossy()
     .to_string()
