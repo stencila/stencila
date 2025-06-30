@@ -958,6 +958,7 @@ dependencies = [
 name = "cli-utils"
 version = "0.0.0"
 dependencies = [
+ "color-print",
  "comfy-table",
  "common",
  "format",
@@ -5576,7 +5577,6 @@ dependencies = [
  "codec",
  "codec-swb",
  "codec-text",
- "color-print",
  "common",
  "common-dev",
  "document",
