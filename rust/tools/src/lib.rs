@@ -11,6 +11,7 @@ use common::{
     regex::Regex,
     serde::Serialize,
     strum::Display,
+    tokio::{self, process::Command as AsyncCommand},
     tracing,
 };
 use derive_more::{Deref, DerefMut};
@@ -342,6 +343,125 @@ impl EnvironmentCommand {
 
                 // Replace inner command with wrapped version
                 self.inner = wrapped_cmd;
+            }
+        }
+
+        &mut self.inner
+    }
+}
+
+/// An async wrapper around `tokio::process::Command` that automatically runs commands
+/// through detected environment and package managers with support for nested environments.
+///
+/// This wrapper can automatically nest tools to provide both
+/// tool version management and package management. For example:
+///
+/// `python script.py` with mise + uv becomes `mise exec -- uv run python script.py`
+#[derive(Debug, Deref, DerefMut)]
+pub struct AsyncEnvironmentCommand {
+    #[deref]
+    #[deref_mut]
+    inner: AsyncCommand,
+}
+
+impl AsyncEnvironmentCommand {
+    /// Creates a new `AsyncEnvironmentCommand` for the given program.
+    ///
+    /// The program and arguments will be executed through an environment manager
+    /// if one is detected in the current working directory.
+    pub fn new<S: AsRef<std::ffi::OsStr>>(program: S) -> Self {
+        Self {
+            inner: AsyncCommand::new(program),
+        }
+    }
+
+    /// Executes the command as a child process, waiting for it to finish and
+    /// collecting all of its output.
+    ///
+    /// If an environment manager is detected, the command will be wrapped
+    /// to run within that environment.
+    pub async fn output(&mut self) -> io::Result<std::process::Output> {
+        self.wrap_if_needed().await.output().await
+    }
+
+    /// Executes the command as a child process, waiting for it to finish and
+    /// collecting its status.
+    ///
+    /// If an environment manager is detected, the command will be wrapped
+    /// to run within that environment.
+    pub async fn status(&mut self) -> io::Result<std::process::ExitStatus> {
+        self.wrap_if_needed().await.status().await
+    }
+
+    /// Executes the command as a child process, returning a handle to it.
+    ///
+    /// If an environment manager is detected, the command will be wrapped
+    /// to run within that environment.
+    pub async fn spawn(&mut self) -> io::Result<tokio::process::Child> {
+        self.wrap_if_needed().await.spawn()
+    }
+
+    /// Wraps the command with environment managers if detected
+    async fn wrap_if_needed(&mut self) -> &mut AsyncCommand {
+        // Get the current directory for environment detection
+        let cwd = self
+            .inner
+            .as_std()
+            .get_current_dir()
+            .map(|p| p.to_path_buf())
+            .or_else(|| std::env::current_dir().ok());
+
+        if let Some(cwd) = cwd {
+            // Get the program and args from the original command
+            let program = self
+                .inner
+                .as_std()
+                .get_program()
+                .to_string_lossy()
+                .to_string();
+            let args: Vec<String> = self
+                .inner
+                .as_std()
+                .get_args()
+                .map(|arg| arg.to_string_lossy().to_string())
+                .collect();
+
+            // Build nested environment command
+            if let Some(wrapped_cmd) = build_nested_environment_command(&program, &args, &cwd) {
+                // Extract the wrapped command details
+                let wrapped_program = wrapped_cmd.get_program().to_string_lossy().to_string();
+                let wrapped_args: Vec<String> = wrapped_cmd
+                    .get_args()
+                    .map(|arg| arg.to_string_lossy().to_string())
+                    .collect();
+
+                // Create new async command with wrapped details
+                let mut new_async_cmd = AsyncCommand::new(&wrapped_program);
+                new_async_cmd.args(&wrapped_args);
+
+                // Copy over important properties from the original command
+                if let Some(dir) = self.inner.as_std().get_current_dir() {
+                    new_async_cmd.current_dir(dir);
+                }
+
+                // Copy environment variables
+                for (key, value) in self.inner.as_std().get_envs() {
+                    if let (Some(key), Some(value)) = (key.to_str(), value) {
+                        new_async_cmd.env(key, value);
+                    }
+                }
+
+                // Log the wrapped command
+                tracing::debug!(
+                    "AsyncEnvironmentCommand wrapped: {} {} -> {} {}",
+                    program,
+                    args.join(" "),
+                    wrapped_program,
+                    wrapped_args.join(" ")
+                );
+
+                // Replace inner command with wrapped version
+                self.inner = new_async_cmd;
             }
         }
 

@@ -361,7 +361,7 @@ impl Run {
         let cmd = &self.command[0];
         let args = &self.command[1..];
 
-        let mut command = crate::EnvironmentCommand::new(cmd);
+        let mut command = crate::AsyncEnvironmentCommand::new(cmd);
         command.args(args);
 
         if let Some(cwd) = &self.cwd {
@@ -371,7 +371,7 @@ impl Run {
             command.current_dir(cwd);
         }
 
-        let status = command.status()?;
+        let status = command.status().await?;
         if !status.success() {
             if let Some(code) = status.code() {
                 exit(code);
