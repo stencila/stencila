@@ -252,14 +252,14 @@ macro_rules! json_map {
 ///
 /// `python script.py` with mise + uv becomes `mise exec -- uv run python script.py`
 #[derive(Debug, Deref, DerefMut)]
-pub struct EnvironmentCommand {
+pub struct ToolCommand {
     #[deref]
     #[deref_mut]
     inner: Command,
 }
 
-impl EnvironmentCommand {
-    /// Creates a new `EnvironmentCommand` for the given program.
+impl ToolCommand {
+    /// Creates a new `ToolCommand` for the given program.
     ///
     /// The program and arguments will be executed through an environment manager
     /// if one is detected in the current working directory.
@@ -334,7 +334,7 @@ impl EnvironmentCommand {
                     .map(|arg| arg.to_string_lossy().to_string())
                     .collect();
                 tracing::debug!(
-                    "EnvironmentCommand wrapped: {} {} -> {} {}",
+                    "ToolCommand wrapped: {} {} -> {} {}",
                     program,
                     args.join(" "),
                     wrapped_program,
@@ -358,14 +358,14 @@ impl EnvironmentCommand {
 ///
 /// `python script.py` with mise + uv becomes `mise exec -- uv run python script.py`
 #[derive(Debug, Deref, DerefMut)]
-pub struct AsyncEnvironmentCommand {
+pub struct AsyncToolCommand {
     #[deref]
     #[deref_mut]
     inner: AsyncCommand,
 }
 
-impl AsyncEnvironmentCommand {
-    /// Creates a new `AsyncEnvironmentCommand` for the given program.
+impl AsyncToolCommand {
+    /// Creates a new `AsyncToolCommand` for the given program.
     ///
     /// The program and arguments will be executed through an environment manager
     /// if one is detected in the current working directory.
@@ -453,7 +453,7 @@ impl AsyncEnvironmentCommand {
 
                 // Log the wrapped command
                 tracing::debug!(
-                    "AsyncEnvironmentCommand wrapped: {} {} -> {} {}",
+                    "AsyncToolCommand wrapped: {} {} -> {} {}",
                     program,
                     args.join(" "),
                     wrapped_program,

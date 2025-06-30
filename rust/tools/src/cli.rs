@@ -361,7 +361,7 @@ impl Run {
         let cmd = &self.command[0];
         let args = &self.command[1..];
 
-        let mut command = crate::AsyncEnvironmentCommand::new(cmd);
+        let mut command = crate::AsyncToolCommand::new(cmd);
         command.args(args);
 
         if let Some(cwd) = &self.cwd {
