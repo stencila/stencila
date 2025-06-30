@@ -37,6 +37,10 @@ impl Tool for Uv {
         "https://docs.astral.sh/uv/"
     }
 
+    fn install_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
+        Some(("https://astral.sh/uv/install.sh", vec![]))
+    }
+
     fn description(&self) -> &'static str {
         "Python package and environment manager"
     }

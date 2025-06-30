@@ -42,6 +42,9 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Show details about a specific tool</dim>
   <blue>></blue> stencila tools show python
 
+  <dim># Install a tool</dim>
+  <blue>></blue> stencila tools install mise
+
   <dim># Detect environment configuration in current directory</dim>
   <blue>></blue> stencila tools env
 
@@ -54,6 +57,7 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 enum Command {
     List(List),
     Show(Show),
+    Install(Install),
     Env(Env),
     Run(Run),
 }
@@ -67,6 +71,7 @@ impl Cli {
         match command {
             Command::List(list) => list.run().await,
             Command::Show(show) => show.run().await,
+            Command::Install(install) => install.run().await,
             Command::Env(detect) => detect.run().await,
             Command::Run(run) => run.run().await,
         }
@@ -84,11 +89,17 @@ struct List {
     #[arg(short, long)]
     r#type: Option<ToolType>,
 
-    /// Only list tools that are available (installed) on the current machine
+    /// Only list tools that are installed
     ///
     /// This filters out tools that are not installed or cannot be found in PATH
     #[arg(long)]
-    available: bool,
+    installed: bool,
+
+    /// Only list tools that can be installed automatically
+    ///
+    /// This filters to only show tools that have installation scripts available
+    #[arg(long)]
+    installable: bool,
 
     /// Output format for tool specifications
     ///
@@ -104,8 +115,11 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
   <dim># List all tools</dim>
   <blue>></blue> stencila tools list
 
-  <dim># List only available (installed) tools</dim>
-  <blue>></blue> stencila tools list --available
+  <dim># List only installed tools</dim>
+  <blue>></blue> stencila tools list --installed
+
+  <dim># List only installable tools</dim>
+  <blue>></blue> stencila tools list --installable
 
   <dim># List only execution tools (programming languages)</dim>
   <blue>></blue> stencila tools list --type execution
@@ -123,7 +137,11 @@ impl List {
         let list = super::list();
 
         let list = list.into_iter().filter(|tool| {
-            if self.available && tool.path().is_none() {
+            if self.installed && !tool.is_installed() {
+                return false;
+            }
+
+            if self.installable && !tool.is_installable() {
                 return false;
             }
 
@@ -151,9 +169,13 @@ impl List {
             let version = tool
                 .version_available()
                 .map_or_else(|| "-".into(), |version| version.to_string());
-            let path = tool
-                .path()
-                .map_or_else(|| "-".into(), |path| strip_home_dir(&path));
+            let path = if let Some(path) = tool.path() {
+                Cell::new(strip_home_dir(&path))
+            } else if tool.is_installable() {
+                Cell::new("installable").fg(Color::Yellow)
+            } else {
+                Cell::new("not installed").fg(Color::DarkRed)
+            };
 
             table.add_row([
                 Cell::new(name).add_attribute(Attribute::Bold),
@@ -167,7 +189,7 @@ impl List {
                     ToolType::Collaboration => Cell::new(r#type.to_string()).fg(Color::Red),
                 },
                 Cell::new(version).set_alignment(CellAlignment::Right),
-                Cell::new(path),
+                path,
             ]);
         }
 
@@ -219,6 +241,105 @@ impl Show {
         });
 
         Code::new_from(Format::Yaml, &tool)?.to_stdout();
+
+        Ok(())
+    }
+}
+
+/// Install a tool
+///
+/// Downloads and executes the official installation script for supported tools.
+///
+/// Installation scripts are executed with appropriate permissions and cleaned up
+/// after execution. Note that some tools may require sudo permissions.
+#[derive(Debug, Args)]
+#[command(after_long_help = INSTALL_AFTER_LONG_HELP)]
+struct Install {
+    /// The name of the tool to install
+    #[arg(value_name = "TOOL")]
+    name: String,
+
+    /// Force installation even if the tool is already installed
+    #[arg(short, long)]
+    force: bool,
+}
+
+pub static INSTALL_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Install mise (tool version manager)</dim>
+  <blue>></blue> stencila tools install mise
+
+  <dim># Install uv (Python package manager)</dim>
+  <blue>></blue> stencila tools install uv
+
+  <dim># Install ruff (Python linter)</dim>
+  <blue>></blue> stencila tools install ruff
+
+  <dim># Force reinstall an already installed tool</dim>
+  <blue>></blue> stencila tools install --force ruff
+
+<bold><blue>Supported tools</blue></bold>
+  <dim># See which tools can be installed</dim>
+  <blue>></blue> stencila tools list --installable
+"
+);
+
+impl Install {
+    #[allow(clippy::print_stdout, clippy::print_stderr)]
+    async fn run(self) -> Result<()> {
+        let Some(tool) = super::get(&self.name) else {
+            eprintln!("🔍 No tool with name `{}`", self.name);
+            exit(1)
+        };
+
+        // Check if already installed (unless --force is used)
+        if let Some(path) = tool.path() {
+            if !self.force {
+                eprintln!(
+                    "👍 {} is already installed at {}",
+                    tool.name(),
+                    strip_home_dir(&path)
+                );
+                return Ok(());
+            } else {
+                eprintln!(
+                    "🔄 {} is already installed at {}, but forcing reinstallation",
+                    tool.name(),
+                    strip_home_dir(&path)
+                );
+            }
+        }
+
+        // Check if installation is supported
+        if !tool.is_installable() {
+            eprintln!("❌ {} does not support automated installation", tool.name());
+            eprintln!(
+                "   Please visit {} for installation instructions",
+                tool.url()
+            );
+            exit(1)
+        }
+
+        println!("📥 Installing {}...", tool.name());
+
+        match super::install(tool.as_ref()).await {
+            Ok(()) => {
+                println!("✅ {} installed successfully", tool.name());
+
+                // Verify installation
+                if let Some(path) = tool.path() {
+                    println!("   Path: {}", strip_home_dir(&path));
+                    if let Some(version) = tool.version_available() {
+                        println!("   Version: {}", version);
+                    }
+                }
+            }
+            Err(e) => {
+                eprintln!("❌ Failed to install {}: {}", tool.name(), e);
+                eprintln!("   Please visit {} for manual installation", tool.url());
+                exit(1)
+            }
+        }
 
         Ok(())
     }

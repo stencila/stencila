@@ -13,6 +13,11 @@ impl Tool for Devbox {
         "https://www.jetpack.io/devbox/"
     }
 
+    fn install_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
+        // Use the --force argument to avoid waiting for interactive inputs
+        Some(("https://get.jetify.com/devbox", vec!["--force"]))
+    }
+
     fn description(&self) -> &'static str {
         "Isolated development environments with Nix"
     }
@@ -45,6 +50,10 @@ impl Tool for Mise {
         "https://mise.jdx.dev/"
     }
 
+    fn install_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
+        Some(("https://mise.run", vec![]))
+    }
+
     fn description(&self) -> &'static str {
         "Polyglot tool version manager and task runner"
     }
@@ -71,7 +80,6 @@ impl Tool for Mise {
     }
 }
 
-
 pub struct Nix;
 
 impl Tool for Nix {
@@ -81,6 +89,10 @@ impl Tool for Nix {
 
     fn url(&self) -> &'static str {
         "https://nixos.org/"
+    }
+
+    fn install_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
+        Some(("https://nixos.org/nix/install", vec![]))
     }
 
     fn description(&self) -> &'static str {
@@ -155,6 +167,10 @@ impl Tool for Pixi {
 
     fn url(&self) -> &'static str {
         "https://pixi.sh/"
+    }
+
+    fn install_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
+        Some(("https://pixi.sh/install.sh", vec![]))
     }
 
     fn description(&self) -> &'static str {

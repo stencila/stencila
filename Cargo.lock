@@ -7687,6 +7687,7 @@ dependencies = [
  "directories",
  "mcp-types",
  "semver",
+ "version",
  "which",
 ]
 

@@ -7,13 +7,18 @@ use std::{
 
 use common::{
     clap::{self, ValueEnum},
+    eyre::{bail, OptionExt, Result},
     once_cell::sync::Lazy,
     regex::Regex,
+    reqwest,
     serde::Serialize,
     strum::Display,
-    tokio::{self, process::Command as AsyncCommand},
+    tempfile::env::temp_dir,
+    tokio::{self, fs::write, process::Command as AsyncCommand},
     tracing,
 };
+use version::STENCILA_VERSION;
+
 use derive_more::{Deref, DerefMut};
 use mcp_types::{Tool as McpTool, ToolInputSchema as McpToolInputSchema};
 pub use semver::{Version, VersionReq};
@@ -129,6 +134,8 @@ pub trait Tool {
 
         let unknown = Version::new(0, 0, 0);
 
+        // TODO: instead of returning early here, try to call the tool with the "version"
+        // command as a callback
         let Ok(output) = Command::new(path).arg("--version").output() else {
             return Some(unknown);
         };
@@ -214,6 +221,87 @@ pub trait Tool {
     /// Returns `None` if this tool doesn't provide environment management.
     fn exec_command(&self, _cmd: &str, _args: &[String]) -> Option<Command> {
         None
+    }
+
+    /// Get the installation script details for this tool
+    ///
+    /// Returns `None` if the tool doesn't support script-based installation.
+    /// Returns a tuple of (url, arguments) where arguments are passed to the script.
+    fn install_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
+        None
+    }
+
+    /// Check if the tool is installed (available on the system)
+    fn is_installed(&self) -> bool {
+        self.path().is_some()
+    }
+
+    /// Check if the tool can be installed automatically via script
+    fn is_installable(&self) -> bool {
+        self.install_script().is_some()
+    }
+}
+
+/// Install the tool using its installation script
+///
+/// Downloads and executes the installation script. Returns an error if
+/// installation is not supported or fails.
+async fn install(tool: &dyn Tool) -> Result<()> {
+    let (url, script_args) = tool
+        .install_script()
+        .ok_or_eyre("This tool does not support automated installation")?;
+
+    // Create a client that follows redirects and sets user agent to avoid 403s
+    let client = reqwest::Client::builder()
+        .redirect(reqwest::redirect::Policy::limited(10))
+        .user_agent(format!("stencila/{STENCILA_VERSION}"))
+        .build()?;
+
+    // Download the installation script
+    let response = client.get(url).send().await?;
+
+    // Check if the response was successful
+    if !response.status().is_success() {
+        bail!(
+            "Failed to download installation script: HTTP {}",
+            response.status()
+        );
+    }
+
+    let script = response.text().await?;
+
+    // Validate that we got script content (not HTML error page)
+    if script.trim().is_empty() || script.starts_with("<!DOCTYPE") || script.starts_with("<html") {
+        bail!("Downloaded content does not appear to be a valid installation script");
+    }
+
+    // Create a temporary file for the script
+    let temp_dir = temp_dir();
+    let script_path = temp_dir.join("install.sh");
+    write(&script_path, script).await?;
+
+    // Make the script executable
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let mut perms = std::fs::metadata(&script_path)?.permissions();
+        perms.set_mode(0o755);
+        std::fs::set_permissions(&script_path, perms)?;
+    }
+
+    // Execute the installation script with bash (many install scripts require bash features)
+    // Use the script-specific arguments provided by the tool
+    let mut command = Command::new("bash");
+    command.arg(&script_path);
+    command.args(script_args);
+    let output = command.output()?;
+
+    if output.status.success() {
+        Ok(())
+    } else {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        bail!("Installation script failed:\n\n{stdout}\n\n{stderr}")
     }
 }
 

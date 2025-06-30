@@ -11,6 +11,10 @@ impl Tool for Ruff {
         "https://docs.astral.sh/ruff/"
     }
 
+    fn install_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
+        Some(("https://astral.sh/ruff/install.sh", vec![]))
+    }
+
     fn description(&self) -> &'static str {
         "Python linter and code formatter"
     }
