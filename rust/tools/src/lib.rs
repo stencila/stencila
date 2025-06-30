@@ -22,7 +22,6 @@ use conversion::*;
 use environments::*;
 use execution::*;
 use linting::*;
-use packages::*;
 
 pub mod cli;
 mod collaboration;
@@ -30,7 +29,6 @@ mod conversion;
 mod environments;
 mod execution;
 mod linting;
-mod packages;
 
 /// Get a list of tools used by Stencila
 pub fn list() -> Vec<Box<dyn Tool>> {
@@ -38,10 +36,9 @@ pub fn list() -> Vec<Box<dyn Tool>> {
         // Environments
         Box::new(Devbox) as Box<dyn Tool>,
         Box::new(Mise) as Box<dyn Tool>,
+        Box::new(Npm) as Box<dyn Tool>,
         Box::new(Pixi) as Box<dyn Tool>,
         Box::new(Uv) as Box<dyn Tool>,
-        // Packages
-        Box::new(Npm) as Box<dyn Tool>,
         // Execution
         Box::new(Bash) as Box<dyn Tool>,
         Box::new(Node) as Box<dyn Tool>,
@@ -363,13 +360,14 @@ fn find_config_in_ancestors(start_path: &Path, config_files: &[&str]) -> Option<
 ///
 /// Searches up the directory tree from the given path (or its parent directory if
 /// the path is a file) looking for environment manager config files in the priority
-/// order: devbox, pixi, mise.
+/// order: uv, devbox, npm, pixi, mise.
 /// Returns the detected environment manager tool and the path to its config file.
 fn detect_environment_manager(path: &Path) -> Option<(Box<dyn Tool>, PathBuf)> {
     // Define priority order (only managers that support exec/run commands)
     let managers: Vec<Box<dyn Tool>> = vec![
         Box::new(Uv),
         Box::new(Devbox),
+        Box::new(Npm),
         Box::new(Pixi),
         Box::new(Mise),
     ];

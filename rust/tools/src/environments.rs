@@ -71,6 +71,43 @@ impl Tool for Mise {
     }
 }
 
+pub struct Npm;
+
+impl Tool for Npm {
+    fn name(&self) -> &'static str {
+        "npm"
+    }
+
+    fn url(&self) -> &'static str {
+        "https://www.npmjs.com/"
+    }
+
+    fn description(&self) -> &'static str {
+        "Node.js package and environment manager"
+    }
+
+    fn r#type(&self) -> ToolType {
+        ToolType::Environments
+    }
+
+    fn config_files(&self) -> Vec<&'static str> {
+        vec!["package.json"]
+    }
+
+    fn exec_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
+        // Only wrap node/nodejs commands
+        if cmd != "node" && cmd != "nodejs" {
+            return None;
+        }
+
+        let Some(path) = self.path() else { return None };
+
+        let mut command = Command::new(path);
+        command.args(["exec", "--", cmd]).args(args);
+        Some(command)
+    }
+}
+
 pub struct Pixi;
 
 impl Tool for Pixi {
@@ -115,7 +152,7 @@ impl Tool for Uv {
     }
 
     fn description(&self) -> &'static str {
-        "Python package installer and environment manager"
+        "Python package and environment manager"
     }
 
     fn r#type(&self) -> ToolType {
