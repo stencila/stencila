@@ -7,6 +7,7 @@ use std::fmt::Display;
 
 use std::io::IsTerminal;
 
+pub use format;
 pub use rpassword;
 
 mod code;
