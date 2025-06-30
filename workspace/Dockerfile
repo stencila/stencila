@@ -45,8 +45,13 @@ RUN mkdir -p /usr/local/lib/R/site-library && \
 # (e.g. when they install new packages)
 USER openvscode-server
 
+# Install mise (tool version manager)
+RUN curl -LsSf https://mise.run/install.sh | sh
+
 # Install uv
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Update PATH for above installs
 ENV PATH="/home/workspace/.local/bin:$PATH"
 
 # Install Python and tools using uv

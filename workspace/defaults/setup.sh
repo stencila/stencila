@@ -100,9 +100,23 @@ if [[ -n "${REPO_SUBDIR:-}" ]]; then
     cd "$REPO_SUBDIR" || exit
 fi
 
+# Install tools from mise.toml if present
+if [[ -f "mise.toml" ]]; then
+    echo "🔧 Installing tools from mise.toml"
+    if ! command -v mise &> /dev/null; then
+        echo "❌ Error: mise is not installed"
+        exit 1
+    fi
+    if ! mise install; then
+        echo "❌ Error: Failed to install tools from mise.toml"
+        exit 1
+    fi
+    echo
+fi
+
 # Install any Python dependencies
 if [[ -f "pyproject.toml" ]]; then
-    echo "📦 Installing dependencies from pyproject.toml"
+    echo "🐍 Installing dependencies from pyproject.toml"
     if ! (uv venv && uv sync); then
         echo "❌ Error: Failed to install Python dependencies from pyproject.toml"
         exit 1
@@ -110,7 +124,7 @@ if [[ -f "pyproject.toml" ]]; then
     echo
     PYTHON_DEPS=true
 elif [[ -f "requirements.txt" ]]; then
-    echo "📦 Installing dependencies from requirements.txt"
+    echo "🐍 Installing dependencies from requirements.txt"
     if ! (uv venv && uv pip install -r requirements.txt); then
         echo "❌ Error: Failed to install Python dependencies from requirements.txt"
         exit 1
@@ -140,7 +154,7 @@ fi
 
 # If no R or Python dependencies, then install default Python dependencies
 if [[ -z "${PYTHON_DEPS:-}" && -z "${R_DEPS:-}" ]]; then
-    echo "📦 Installing Python packages in default pyproject.toml"
+    echo "🐍 Installing Python packages in default pyproject.toml"
     if ! cp /home/workspace/stencila/defaults/pyproject.toml ./; then
         echo "❌ Error: Failed to copy default pyproject.toml"
         exit 1
