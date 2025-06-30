@@ -2,30 +2,6 @@ use std::process::Command;
 
 use crate::{Tool, ToolType};
 
-pub struct Asdf;
-
-impl Tool for Asdf {
-    fn name(&self) -> &'static str {
-        "asdf"
-    }
-
-    fn url(&self) -> &'static str {
-        "https://asdf-vm.com/"
-    }
-
-    fn description(&self) -> &'static str {
-        "Extensible version manager for multiple languages"
-    }
-
-    fn r#type(&self) -> ToolType {
-        ToolType::Environments
-    }
-
-    fn config_files(&self) -> Vec<&'static str> {
-        vec![".tool-versions"]
-    }
-}
-
 pub struct Devbox;
 
 impl Tool for Devbox {

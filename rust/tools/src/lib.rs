@@ -36,7 +36,6 @@ mod packages;
 pub fn list() -> Vec<Box<dyn Tool>> {
     vec![
         // Environments
-        Box::new(Asdf) as Box<dyn Tool>,
         Box::new(Devbox) as Box<dyn Tool>,
         Box::new(Mise) as Box<dyn Tool>,
         Box::new(Pixi) as Box<dyn Tool>,
@@ -365,15 +364,14 @@ fn find_config_in_ancestors(start_path: &Path, config_files: &[&str]) -> Option<
 ///
 /// Searches up the directory tree from the given path (or its parent directory if
 /// the path is a file) looking for environment manager config files in the priority 
-/// order: devbox, pixi, mise, asdf.
+/// order: devbox, pixi, mise.
 /// Returns the detected environment manager tool and the path to its config file.
 fn detect_environment_manager(path: &Path) -> Option<(Box<dyn Tool>, PathBuf)> {
-    // Define priority order
+    // Define priority order (only managers that support exec/run commands)
     let managers: Vec<Box<dyn Tool>> = vec![
         Box::new(Devbox),
         Box::new(Pixi),
         Box::new(Mise),
-        Box::new(Asdf),
     ];
 
     for manager in managers {
