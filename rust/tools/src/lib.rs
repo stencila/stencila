@@ -39,9 +39,9 @@ pub fn list() -> Vec<Box<dyn Tool>> {
         Box::new(Devbox) as Box<dyn Tool>,
         Box::new(Mise) as Box<dyn Tool>,
         Box::new(Pixi) as Box<dyn Tool>,
+        Box::new(Uv) as Box<dyn Tool>,
         // Packages
         Box::new(Npm) as Box<dyn Tool>,
-        Box::new(Uv) as Box<dyn Tool>,
         // Execution
         Box::new(Bash) as Box<dyn Tool>,
         Box::new(Node) as Box<dyn Tool>,
@@ -331,11 +331,10 @@ impl EnvironmentCommand {
     }
 }
 
-
 /// Find a config file in the given path or any of its ancestor directories
 ///
 /// Searches up the directory tree from the given path (or its parent directory if
-/// the path is a file) looking for any of the specified config files. 
+/// the path is a file) looking for any of the specified config files.
 /// Returns the path to the first matching config file found.
 fn find_config_in_ancestors(start_path: &Path, config_files: &[&str]) -> Option<PathBuf> {
     let mut current = if start_path.is_file() {
@@ -363,12 +362,13 @@ fn find_config_in_ancestors(start_path: &Path, config_files: &[&str]) -> Option<
 /// Detect which environment manager is configured for a given path
 ///
 /// Searches up the directory tree from the given path (or its parent directory if
-/// the path is a file) looking for environment manager config files in the priority 
+/// the path is a file) looking for environment manager config files in the priority
 /// order: devbox, pixi, mise.
 /// Returns the detected environment manager tool and the path to its config file.
 fn detect_environment_manager(path: &Path) -> Option<(Box<dyn Tool>, PathBuf)> {
     // Define priority order (only managers that support exec/run commands)
     let managers: Vec<Box<dyn Tool>> = vec![
+        Box::new(Uv),
         Box::new(Devbox),
         Box::new(Pixi),
         Box::new(Mise),

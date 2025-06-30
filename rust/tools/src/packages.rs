@@ -1,3 +1,5 @@
+use std::process::Command;
+
 use crate::{Tool, ToolType};
 
 pub struct Npm;
@@ -20,22 +22,3 @@ impl Tool for Npm {
     }
 }
 
-pub struct Uv;
-
-impl Tool for Uv {
-    fn name(&self) -> &'static str {
-        "uv"
-    }
-
-    fn url(&self) -> &'static str {
-        "https://docs.astral.sh/uv/"
-    }
-
-    fn description(&self) -> &'static str {
-        "Python package installer and resolver"
-    }
-
-    fn r#type(&self) -> ToolType {
-        ToolType::Packages
-    }
-}
