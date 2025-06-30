@@ -62,7 +62,7 @@ impl List {
         let list = super::list();
 
         let list = list.into_iter().filter(|tool| {
-            if self.available && !tool.path().is_some() {
+            if self.available && tool.path().is_none() {
                 return false;
             }
 

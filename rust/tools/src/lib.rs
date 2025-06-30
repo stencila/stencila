@@ -54,13 +54,7 @@ pub fn list() -> Vec<Box<dyn Tool>> {
 
 /// Get a tool by name
 pub fn get(name: &str) -> Option<Box<dyn Tool>> {
-    for tool in list() {
-        if tool.name() == name {
-            return Some(tool);
-        }
-    }
-
-    None
+    list().into_iter().find(|tool| tool.name() == name)
 }
 
 /// The type of a kernel
@@ -123,9 +117,7 @@ pub trait Tool {
     /// minor and patch versions of 0 is necessary. As such the version returned here
     /// may not exactly match the string returned by the tool.
     fn version_available(&self) -> Option<Version> {
-        let Some(path) = self.path() else {
-            return None;
-        };
+        let path = self.path()?;
 
         let unknown = Version::new(0, 0, 0);
 
