@@ -161,7 +161,7 @@ where
             level.as_str()
         };
 
-        write!(writer, "\n{} ", prefix)?;
+        write!(writer, "{} ", prefix)?;
         ctx.field_format().format_fields(writer.by_ref(), event)?;
         writeln!(writer)
     }
