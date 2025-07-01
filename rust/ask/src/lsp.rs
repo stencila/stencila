@@ -28,32 +28,7 @@ impl<C: LspClient> LspProvider<C> {
 
 #[async_trait]
 impl<C: LspClient> Ask for LspProvider<C> {
-    async fn ask(&self, question: &str) -> Result<Answer> {
-        let params = ShowMessageRequestParams {
-            typ: MessageType::INFO,
-            message: question.into(),
-            actions: Some(vec![
-                MessageActionItem {
-                    title: "Yes".to_string(),
-                    properties: HashMap::new(),
-                },
-                MessageActionItem {
-                    title: "No".to_string(),
-                    properties: HashMap::new(),
-                },
-            ]),
-        };
-
-        let result = self.client.show_message_request(params).await?;
-
-        match result {
-            Some(action) if action.title == "Yes" => Ok(Answer::Yes),
-            Some(_) => Ok(Answer::No),
-            None => Ok(Answer::Cancel),
-        }
-    }
-
-    async fn ask_with_options(&self, question: &str, options: AskOptions) -> Result<Answer> {
+    async fn ask(&self, question: &str, options: AskOptions) -> Result<Answer> {
         let yes_text = options.yes_text.unwrap_or_else(|| "Yes".to_string());
         let no_text = options.no_text.unwrap_or_else(|| "No".to_string());
 

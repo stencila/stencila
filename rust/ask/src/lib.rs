@@ -6,84 +6,11 @@
 //! manipulation library can ask for user confirmation before destructive
 //! operations without needing to know whether it's being used in a CLI tool or
 //! within a code editor via LSP.
-//!
-//! ## Basic Usage
-//!
-//! ### CLI Applications
-//!
-//! ```rust
-//! use ask::{setup_cli, ask, Answer};
-//!
-//! #[tokio::main]
-//! async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//!     // Initialize for CLI usage
-//!     setup_cli()?;
-//!     
-//!     match ask("Delete this file?").await? {
-//!         Answer::Yes => println!("Deleting file..."),
-//!         Answer::No => println!("File kept"),
-//!         Answer::Cancel => println!("Operation cancelled"),
-//!     }
-//!     
-//!     Ok(())
-//! }
-//! ```
-//!
-//! ### LSP Server Integration
-//!
-//! ```rust
-//! use ask::{setup_lsp, ask, Answer, LspClient};
-//! use common::{async_trait::async_trait, eyre::Result};
-//!
-//! struct MyLspClient {
-//!     // LSP client implementation
-//! }
-//!
-//! #[async_trait]
-//! impl LspClient for MyLspClient {
-//!     async fn show_message_request(
-//!         &self,
-//!         message: &str,
-//!         actions: Vec<ask::MessageActionItem>
-//!     ) -> Result<Option<ask::MessageActionItem>> {
-//!         // Send window/showMessageRequest to LSP client
-//!         todo!()
-//!     }
-//! }
-//!
-//! async fn handle_rename_request(client: MyLspClient) -> Result<()> {
-//!     setup_lsp(client)?;
-//!     
-//!     match ask("Rename will affect 42 files. Continue?").await? {
-//!         Answer::Yes => println!("Renaming files..."),
-//!         Answer::No | Answer::Cancel => println!("Rename cancelled"),
-//!     }
-//!     
-//!     Ok(())
-//! }
-//! ```
-//!
-//! ### Advanced Options
-//!
-//! ```rust
-//! use ask::{ask_with_options, AskOptions, Answer};
-//!
-//! let options = AskOptions {
-//!     title: Some("Destructive Operation".to_string()),
-//!     default: Some(false), // Default to "No"
-//!     yes_text: Some("Delete".to_string()),
-//!     no_text: Some("Keep".to_string()),
-//!     cancel_allowed: true,
-//!     ..Default::default()
-//! };
-//!
-//! match ask_with_options("Really delete all files?", options).await? {
-//!     Answer::Yes => println!("Deleting..."),
-//!     Answer::No => println!("Keeping files"),
-//!     Answer::Cancel => println!("Cancelled"),
-//! }
-//! ```
-use common::{async_trait::async_trait, eyre::Result, once_cell::sync::Lazy, tokio::sync::Mutex};
+
+use common::{
+    async_trait::async_trait, eyre::Result, once_cell::sync::Lazy, strum::Display,
+    tokio::sync::Mutex,
+};
 
 pub use crate::lsp::LspClient;
 use crate::{cli::CliProvider, lsp::LspProvider};
@@ -91,38 +18,55 @@ use crate::{cli::CliProvider, lsp::LspProvider};
 mod cli;
 mod lsp;
 
-/// Initialize with CLI provider
+/// Setup with CLI provider
 pub async fn setup_cli() -> Result<()> {
     global_context(AskContext::with_cli_provider()).await
 }
 
-/// Initialize with LSP provider
+/// Setup with LSP provider
 pub async fn setup_lsp<C: LspClient + 'static>(client: C) -> Result<()> {
     global_context(AskContext::with_lsp_provider(client)).await
 }
 
-/// Ask a simple yes/no question using the global context
+/// Ask a question
 pub async fn ask(question: &str) -> Result<Answer> {
-    let guard = GLOBAL_CONTEXT.lock().await;
-    match guard.as_ref() {
-        Some(ctx) => ctx.ask(question).await,
-        None => {
-            drop(guard);
-            let ctx = AskContext::new();
-            ctx.ask(question).await
-        }
-    }
+    ask_with(question, AskOptions::default()).await
 }
 
-/// Ask a question with options using the global context
-pub async fn ask_with_options(question: &str, options: AskOptions) -> Result<Answer> {
+/// Ask a question with default answer
+pub async fn ask_with_default(question: &str, default: Answer) -> Result<Answer> {
+    ask_with(
+        question,
+        AskOptions {
+            default: Some(default),
+            ..Default::default()
+        },
+    )
+    .await
+}
+
+/// Ask a question with default answer and cancel allowed
+pub async fn ask_with_default_and_cancel(question: &str, default: Answer) -> Result<Answer> {
+    ask_with(
+        question,
+        AskOptions {
+            default: Some(default),
+            cancel_allowed: true,
+            ..Default::default()
+        },
+    )
+    .await
+}
+
+/// Ask a question with options
+pub async fn ask_with(question: &str, options: AskOptions) -> Result<Answer> {
     let guard = GLOBAL_CONTEXT.lock().await;
     match guard.as_ref() {
-        Some(ctx) => ctx.ask_with_options(question, options).await,
+        Some(ctx) => ctx.ask(question, options).await,
         None => {
             drop(guard);
-            let ctx = AskContext::new();
-            ctx.ask_with_options(question, options).await
+            let ctx = AskContext::default();
+            ctx.ask(question, options).await
         }
     }
 }
@@ -131,36 +75,33 @@ pub async fn ask_with_options(question: &str, options: AskOptions) -> Result<Ans
 /// This abstraction allows different UI backends to provide user confirmation dialogs.
 #[async_trait]
 trait Ask: Send + Sync {
-    /// Ask a simple yes/no question and get the user's answer.
-    async fn ask(&self, question: &str) -> Result<Answer>;
-
     /// Ask a question with additional customization options like custom button text,
     /// default selection, and whether cancellation is allowed.
-    async fn ask_with_options(&self, question: &str, options: AskOptions) -> Result<Answer>;
+    async fn ask(&self, question: &str, options: AskOptions) -> Result<Answer>;
 }
 
 /// Configuration options for customizing confirmation dialogs.
 /// All fields are optional and providers should use sensible defaults when not specified.
 #[derive(Default)]
 pub struct AskOptions {
-    /// Optional title for the dialog (mainly useful for GUI/LSP contexts)
+    /// Optional title for the dialog (only used for GUI/LSP contexts)
     pub title: Option<String>,
 
-    /// Default answer if the user just presses Enter (CLI) or closes the dialog (LSP)
-    pub default: Option<bool>,
-
-    /// Custom text for the "Yes" button/option
+    /// Custom text for the "Yes" button (only used for GUI/LSP contexts)
     pub yes_text: Option<String>,
 
-    /// Custom text for the "No" button/option
+    /// Custom text for the "No" button (only used for GUI/LSP contexts)
     pub no_text: Option<String>,
+
+    /// Default answer if the user just presses Enter (CLI) or closes the dialog (LSP)
+    pub default: Option<Answer>,
 
     /// Whether the user can cancel/dismiss without answering
     pub cancel_allowed: bool,
 }
 
 /// The user's response to a question.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq)]
 pub enum Answer {
     Yes,
     No,
@@ -190,12 +131,14 @@ pub struct AskContext {
     provider: Box<dyn Ask>,
 }
 
-impl AskContext {
-    pub fn new() -> Self {
+impl Default for AskContext {
+    fn default() -> Self {
         // Always default to CLI, require explicit LSP setup
         Self::with_cli_provider()
     }
+}
 
+impl AskContext {
     pub fn with_cli_provider() -> Self {
         Self {
             provider: Box::new(CliProvider),
@@ -208,19 +151,15 @@ impl AskContext {
         }
     }
 
-    pub async fn ask(&self, message: &str) -> Result<Answer> {
-        self.provider.ask(message).await
-    }
-
-    pub async fn ask_with_options(&self, message: &str, options: AskOptions) -> Result<Answer> {
-        self.provider.ask_with_options(message, options).await
+    pub async fn ask(&self, message: &str, options: AskOptions) -> Result<Answer> {
+        self.provider.ask(message, options).await
     }
 }
 
 /// Global context
 static GLOBAL_CONTEXT: Lazy<Mutex<Option<AskContext>>> = Lazy::new(|| Mutex::new(None));
 
-/// Initialize the global confirmation context
+/// Setup the global confirmation context
 async fn global_context(context: AskContext) -> Result<()> {
     *GLOBAL_CONTEXT.lock().await = Some(context);
     Ok(())
