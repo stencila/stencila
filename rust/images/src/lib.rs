@@ -87,6 +87,7 @@ pub fn data_uri_to_file(data_uri: &str, images_dir: &Path) -> Result<String> {
         "image/png" => "png",
         "image/gif" => "gif",
         "image/webp" => "webp",
+        "image/svg+xml" => "svg",
         _ => bail!("Unsupported image format: {}", mime_type),
     };
 
