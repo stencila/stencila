@@ -2,6 +2,8 @@ use common::{eyre::Result, tokio};
 
 use ask::{Answer, ask, ask_with_default, ask_with_default_and_cancel};
 
+/// As little CLI for manually testing this crate
+/// Run it using `cargo run -p ask`
 #[tokio::main]
 async fn main() -> Result<()> {
     let got = ask("No default").await?;
