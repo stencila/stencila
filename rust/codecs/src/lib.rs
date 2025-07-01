@@ -528,7 +528,7 @@ pub async fn merge(
             continue;
         }
 
-        let edited_format = Format::from_path(&edited_path);
+        let edited_format = Format::from_path(edited_path);
         if edited_format.is_audio() || edited_format.is_image() || edited_format.is_video() {
             continue;
         }
