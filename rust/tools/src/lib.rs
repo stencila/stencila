@@ -45,26 +45,26 @@ mod packages;
 pub fn list() -> Vec<Box<dyn Tool>> {
     vec![
         // Environments
-        Box::new(Devbox) as Box<dyn Tool>,
-        Box::new(Mise) as Box<dyn Tool>,
-        Box::new(Nix) as Box<dyn Tool>,
-        Box::new(Pixi) as Box<dyn Tool>,
+        Box::new(Devbox),
+        Box::new(Mise),
+        Box::new(Nix),
+        Box::new(Pixi),
+        Box::new(Rig),
         // Packages
-        Box::new(Npm) as Box<dyn Tool>,
-        Box::new(Rig) as Box<dyn Tool>,
-        Box::new(Uv) as Box<dyn Tool>,
+        Box::new(Npm),
+        Box::new(Uv),
         // Execution
-        Box::new(Bash) as Box<dyn Tool>,
-        Box::new(Node) as Box<dyn Tool>,
-        Box::new(Python) as Box<dyn Tool>,
-        Box::new(R) as Box<dyn Tool>,
+        Box::new(Bash),
+        Box::new(Node),
+        Box::new(Python),
+        Box::new(R),
         // Linting
-        Box::new(Ruff) as Box<dyn Tool>,
+        Box::new(Ruff),
         // Conversion
-        Box::new(Pandoc) as Box<dyn Tool>,
-        Box::new(Xelatex) as Box<dyn Tool>,
+        Box::new(Pandoc),
+        Box::new(Xelatex),
         // Collaboration
-        Box::new(Git) as Box<dyn Tool>,
+        Box::new(Git),
     ]
 }
 
@@ -526,7 +526,7 @@ impl ToolCommand {
                 .collect();
 
             // Build nested environment command
-            if let Some(mut wrapped_cmd) = build_nested_environment_command(&program, &args, &cwd) {
+            if let Some(mut wrapped_cmd) = build_nested_command(&program, &args, &cwd) {
                 // Copy over important properties from the original command
                 if let Some(dir) = self.inner.get_current_dir() {
                     wrapped_cmd.current_dir(dir);
@@ -656,7 +656,7 @@ impl AsyncToolCommand {
                 .collect();
 
             // Build nested environment command
-            if let Some(wrapped_cmd) = build_nested_environment_command(&program, &args, &cwd) {
+            if let Some(wrapped_cmd) = build_nested_command(&program, &args, &cwd) {
                 // Extract the wrapped command details
                 let wrapped_program = wrapped_cmd.get_program().to_string_lossy().to_string();
                 let wrapped_args: Vec<String> = wrapped_cmd
@@ -738,6 +738,7 @@ fn detect_all_managers(path: &Path) -> Vec<(Box<dyn Tool>, PathBuf)> {
         Box::new(Nix),
         Box::new(NixShell),
         Box::new(Pixi),
+        Box::new(Rig),
         Box::new(Uv),
     ];
 
@@ -751,68 +752,54 @@ fn detect_all_managers(path: &Path) -> Vec<(Box<dyn Tool>, PathBuf)> {
     detected
 }
 
-/// Build a nested environment command for the given command and path
+/// Build a nested tool command for the given command and path
 ///
-/// This function detects all applicable environment managers and creates a nested
+/// This function detects all applicable environment and package managers and creates a nested
 /// command structure. For example:
 ///
 /// `python script.py` with mise + uv becomes `mise exec -- uv run python script.py`
-fn build_nested_environment_command(
-    command: &str,
-    args: &[String],
-    path: &Path,
-) -> Option<Command> {
-    let all_managers = detect_all_managers(path);
-    if all_managers.is_empty() {
+fn build_nested_command(command: &str, args: &[String], path: &Path) -> Option<Command> {
+    // Find all capable managers in order
+    let mut capable_managers: Vec<Box<dyn Tool>> = Vec::new();
+
+    // First, check for specialized package managers (Rig for R, Uv for Python)
+    let package_managers: Vec<Box<dyn Tool>> = vec![Box::new(Rig), Box::new(Uv)];
+    for manager in package_managers {
+        if manager.is_installed() && manager.exec_command(command, args).is_some() {
+            capable_managers.push(manager);
+        }
+    }
+
+    // Then check for environment managers with config files in the project
+    let detected_env_managers = detect_all_managers(path);
+    for (manager, _config_path) in detected_env_managers {
+        if manager.is_installed() && manager.exec_command(command, args).is_some() {
+            capable_managers.push(manager);
+        }
+    }
+
+    // If no capable managers found, return None
+    if capable_managers.is_empty() {
         return None;
     }
 
-    // Separate managers by type
-    let mut environment_manager = None;
-    let mut package_manager = None;
+    // Build nested command from innermost to outermost
+    // Package managers (like rig, uv) should be innermost, environment managers (like mise) outermost
+    let mut current_cmd = command.to_string();
+    let mut current_args = args.to_vec();
 
-    for (manager, _config_path) in all_managers {
-        match manager.r#type() {
-            ToolType::Environments => {
-                // Take the first environment manager found (prioritize by order in detect function)
-                if environment_manager.is_none() {
-                    environment_manager = Some(manager);
-                }
-            }
-            ToolType::Packages => {
-                // Only use package manager if it supports this command
-                if manager.exec_command(command, args).is_some() {
-                    package_manager = Some(manager);
-                }
-            }
-            _ => {}
+    for manager in capable_managers.iter() {
+        if let Some(wrapped_cmd) = manager.exec_command(&current_cmd, &current_args) {
+            current_cmd = wrapped_cmd.get_program().to_string_lossy().to_string();
+            current_args = wrapped_cmd
+                .get_args()
+                .map(|arg| arg.to_string_lossy().to_string())
+                .collect();
         }
     }
 
-    match (environment_manager, package_manager) {
-        // Both environment manager and package manager detected
-        (Some(env_mgr), Some(pkg_mgr)) => {
-            // Create inner command: package_manager exec command args
-            if let Some(inner_cmd) = pkg_mgr.exec_command(command, args) {
-                // Get the command and args from the inner command
-                let inner_program = inner_cmd.get_program().to_string_lossy().to_string();
-                let inner_args: Vec<String> = inner_cmd
-                    .get_args()
-                    .map(|arg| arg.to_string_lossy().to_string())
-                    .collect();
-
-                // Create outer command: environment_manager exec -- inner_command inner_args
-                env_mgr.exec_command(&inner_program, &inner_args)
-            } else {
-                // Package manager doesn't support this command, just use environment manager
-                env_mgr.exec_command(command, args)
-            }
-        }
-        // Only environment manager detected
-        (Some(env_mgr), None) => env_mgr.exec_command(command, args),
-        // Only package manager detected
-        (None, Some(pkg_mgr)) => pkg_mgr.exec_command(command, args),
-        // No managers detected (shouldn't happen since we checked above)
-        (None, None) => None,
-    }
+    // Return the final wrapped command
+    let mut final_cmd = Command::new(current_cmd);
+    final_cmd.args(current_args);
+    Some(final_cmd)
 }
