@@ -7,14 +7,15 @@ use std::{ops::ControlFlow, process};
 use async_lsp::{
     lsp_types::{
         CodeLensOptions, CompletionOptions, DocumentSymbolOptions, ExecuteCommandOptions,
-        HoverProviderCapability, InitializeResult, InitializedParams, MessageType, OneOf,
-        ServerCapabilities, ServerInfo, ShowMessageParams, TextDocumentSyncCapability,
-        TextDocumentSyncKind, WorkDoneProgressOptions,
+        HoverProviderCapability, InitializeResult, InitializedParams, MessageActionItem,
+        MessageType, OneOf, ServerCapabilities, ServerInfo, ShowMessageParams,
+        ShowMessageRequestParams, TextDocumentSyncCapability, TextDocumentSyncKind,
+        WorkDoneProgressOptions,
     },
-    Error, LanguageClient, ResponseError,
+    ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
 
-use common::serde_json;
+use common::{async_trait::async_trait, eyre::Result, serde_json, tokio::sync::Mutex};
 
 use crate::{commands, ServerState, ServerStatus};
 
@@ -34,7 +35,11 @@ pub(super) fn initialize_options(state: &mut ServerState, options: serde_json::V
 }
 
 /// Initialize the language server and respond with its capabilities
-pub(super) async fn initialize() -> Result<InitializeResult, ResponseError> {
+pub(super) async fn initialize(client: ClientSocket) -> Result<InitializeResult, ResponseError> {
+    ask::setup_lsp(AskClient::new(client))
+        .await
+        .map_err(|error| ResponseError::new(ErrorCode::INTERNAL_ERROR, error.to_string()))?;
+
     Ok(InitializeResult {
         server_info: Some(ServerInfo {
             name: "Stencila Language Server".to_string(),
@@ -106,4 +111,32 @@ pub(super) fn exit(state: &mut ServerState) -> ControlFlow<Result<(), Error>> {
 
     #[allow(unreachable_code)]
     ControlFlow::Break(Ok(()))
+}
+
+/// Client for asking user questions in the editor
+struct AskClient {
+    client: Mutex<ClientSocket>,
+}
+
+impl AskClient {
+    fn new(client: ClientSocket) -> Self {
+        Self {
+            client: Mutex::new(client),
+        }
+    }
+}
+
+#[async_trait]
+impl ask::LspClient for AskClient {
+    async fn show_message_request(
+        &self,
+        params: ShowMessageRequestParams,
+    ) -> Result<Option<MessageActionItem>> {
+        Ok(self
+            .client
+            .lock()
+            .await
+            .show_message_request(params)
+            .await?)
+    }
 }

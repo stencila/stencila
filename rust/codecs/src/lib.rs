@@ -1,7 +1,9 @@
-use std::io::{self, Write};
-use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::{
+    path::{Path, PathBuf},
+    process::Command,
+};
 
+use ask::ask;
 use cli_utils::{Code, ToStdout};
 use codec::common::eyre::Context;
 use codec::common::inflector::Inflector;
@@ -470,7 +472,7 @@ pub async fn merge(
     // If a commit is available then check the status of the file relative to the path
     if let Some(commit) = commit {
         if commit != "untracked" && commit != "dirty" {
-            check_git_status(&original, &commit, false)?;
+            check_git_status(&original, &commit, false).await?;
         }
     }
 
@@ -545,7 +547,12 @@ pub async fn merge(
             continue;
         }
 
-        let original = read_to_string(&original_path).await?;
+        let original = read_to_string(&original_path).await.wrap_err_with(|| {
+            eyre!(
+                "Could not find original file `{}` to merge into",
+                original_path.display()
+            )
+        })?;
 
         tracing::debug!("Rebasing `{}`", relative_path.display());
         let rebased = rebase_edits(&original, &unedited, &edited);
@@ -589,9 +596,8 @@ pub async fn merge(
 ///
 /// * `Ok(())` - Operation completed successfully (including early exits)
 /// * `Err(_)` - Git operations failed or user input could not be read
-#[allow(clippy::print_stdout)]
 #[tracing::instrument]
-fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> {
+async fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> {
     let path_ = path.display();
     let commit_short = &commit[..8.min(commit.len())];
 
@@ -618,19 +624,8 @@ fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> {
         tracing::debug!("Force mode enabled, will create branch");
         true
     } else {
-        println!("Original source file `{path_}` has changed since the edited file was generated from it.");
-        print!("Would you like to create a new branch at commit `{commit_short}` so edits can be applied correctly? (y/N): ");
-        io::stdout().flush()?;
-
-        let mut input = String::new();
-        io::stdin()
-            .read_line(&mut input)
-            .wrap_err("Failed to read user input")?;
-
-        let input = input.trim().to_lowercase();
-        let result = input == "y" || input == "yes";
-        tracing::debug!("User input: '{}', will create branch: {}", input, result);
-        result
+        let create_branch = ask(&format!("Original source file `{path_}` has changed since the edited file was generated from it. Would you like to create a new branch at commit `{commit_short}` so edits can be applied correctly?")).await?;
+        create_branch.is_yes()
     };
 
     if !should_create_branch {
@@ -656,19 +651,9 @@ fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> {
         tracing::debug!("File {path_} has uncommitted changes that conflict with target commit");
 
         if !force {
-            println!("File `{path_}` has uncommitted changes.");
-            print!("Would you like to stash changes before creating branch? (y/N): ");
-            io::stdout().flush()?;
-
-            let mut input = String::new();
-            io::stdin()
-                .read_line(&mut input)
-                .wrap_err("Failed to read user input")?;
-
-            let input = input.trim().to_lowercase();
-            let should_stash = input == "y" || input == "yes";
-            if !should_stash {
-                println!("Please commit your changes first, then run this command again.");
+            let should_stash = ask(&format!("File `{path_}` has uncommitted changes. Would you like to stash changes before creating branch?")).await?;
+            if should_stash.is_no_or_cancel() {
+                tracing::info!("Please commit your changes first, then run this command again.");
                 return Ok(());
             }
         }

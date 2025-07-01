@@ -26,6 +26,7 @@ async fn main() -> Result<()> {
     } else {
         errors::setup(error_details, cli.error_link)?;
         logging::setup(log_level, &cli.log_filter, log_format)?;
+        ask::setup_cli().await?;
 
         let skip_upgrade = matches!(cli.command, Command::Upgrade(..));
         if !skip_upgrade {

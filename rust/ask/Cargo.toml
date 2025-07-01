@@ -1,0 +1,12 @@
+[package]
+name = "ask"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+common = { path = "../common" }
+lsp-types = { version = "0.95.1" }
+textwrap = { version = "0.16.2", features = ["terminal_size"] }
+
+[lints]
+workspace = true
