@@ -18,7 +18,7 @@ use common::{eyre::Result, serde_json};
 
 use crate::{
     code_lens,
-    commands::{self, INSERT_CLONES, INSERT_INSTRUCTION},
+    commands::{self, INSERT_CLONES, INSERT_INSTRUCTION, MERGE_DOC},
     completion, content, dom, formatting, hover, kernels_, lifecycle, logging, models_, node_ids,
     prompts_, symbols, text_document, ServerState, ServerStatus,
 };
@@ -40,7 +40,8 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) -> Result<()> {
                 if let Some(options) = params.initialization_options {
                     lifecycle::initialize_options(state, options);
                 }
-                async move { lifecycle::initialize().await }
+                let client = state.client.clone();
+                async move { lifecycle::initialize(client).await }
             })
             .notification::<notification::Initialized>(lifecycle::initialized);
 
@@ -118,22 +119,26 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) -> Result<()> {
 
         router
             .request::<request::ExecuteCommand, _>(|state, params| {
-                let doc_props = params
-                    .arguments
-                    .first()
-                    .and_then(|value| serde_json::from_value(value.clone()).ok())
-                    .and_then(|uri| {
-                        state.documents.get(&uri).map(|text_doc| {
-                            (
-                                text_doc.author.clone(),
-                                text_doc.format.clone(),
-                                text_doc.source.clone(),
-                                text_doc.root.clone(),
-                                text_doc.doc.clone(),
-                                text_doc.sync_state().clone(),
-                            )
+                let doc_props = if matches!(params.command.as_str(), MERGE_DOC) {
+                    None
+                } else {
+                    params
+                        .arguments
+                        .first()
+                        .and_then(|value| serde_json::from_value(value.clone()).ok())
+                        .and_then(|uri| {
+                            state.documents.get(&uri).map(|text_doc| {
+                                (
+                                    text_doc.author.clone(),
+                                    text_doc.format.clone(),
+                                    text_doc.source.clone(),
+                                    text_doc.root.clone(),
+                                    text_doc.doc.clone(),
+                                    text_doc.sync_state().clone(),
+                                )
+                            })
                         })
-                    });
+                };
 
                 let source_doc =
                     if matches!(params.command.as_str(), INSERT_CLONES | INSERT_INSTRUCTION) {
@@ -153,19 +158,23 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) -> Result<()> {
 
                 let client = state.client.clone();
                 async move {
-                    match doc_props {
-                        Some((author, format, source, root, doc, sync_state)) => {
-                            commands::execute_command(
-                                params, author, format, source, root, doc, sync_state, source_doc,
-                                client,
-                            )
-                            .await
-                        }
-                        None => Err(ResponseError::new(
+                    match params.command.as_str() {
+                        MERGE_DOC => return commands::merge_doc(params, client).await,
+                        _ => {}
+                    }
+
+                    let Some(doc_props) = doc_props else {
+                        return Err(ResponseError::new(
                             ErrorCode::INVALID_PARAMS,
                             "Invalid document URI",
-                        )),
-                    }
+                        ));
+                    };
+
+                    let (author, format, source, root, doc, sync_state) = doc_props;
+                    commands::execute_command(
+                        params, author, format, source, root, doc, sync_state, source_doc, client,
+                    )
+                    .await
                 }
             })
             .notification::<notification::WorkDoneProgressCancel>(commands::cancel_progress);

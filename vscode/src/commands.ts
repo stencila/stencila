@@ -325,6 +325,27 @@ nodeTypes: []
     })
   );
 
+  // Merge document command which requires user entered file path
+  // so must be invoked from here
+  context.subscriptions.push(
+    vscode.commands.registerCommand("stencila.invoke.merge-doc", async () => {
+      const fileUri = await vscode.window.showOpenDialog({
+        canSelectFiles: true,
+        canSelectFolders: false,
+        canSelectMany: false,
+        openLabel: "Merge",
+        title: "Select file to merge into document"
+      });
+
+      if (!fileUri || fileUri.length === 0) {
+        return;
+      }
+
+      const path = fileUri[0].fsPath;
+      vscode.commands.executeCommand(`stencila.merge-doc`, path);
+    })
+  );
+
   // Document preview panel
   context.subscriptions.push(
     vscode.commands.registerCommand(

@@ -469,6 +469,13 @@
         "icon": "$(export)"
       },
       {
+        "command": "stencila.invoke.merge-doc",
+        "category": "Stencila",
+        "title": "Merge document",
+        "shortTitle": "Merge doc",
+        "icon": "$(merge)"
+      },
+      {
         "command": "stencila.setup.refresh",
         "category": "Stencila",
         "title": "Refresh setup checklist",
@@ -796,6 +803,9 @@
         {
           "command": "stencila.invoke.export-doc",
           "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/"
+        },
+        {
+          "command": "stencila.invoke.merge-doc"
         },
         {
           "command": "stencila.walkthroughs.expand",

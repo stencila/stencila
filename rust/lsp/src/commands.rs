@@ -21,7 +21,7 @@ use async_lsp::{
     ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
 
-use codecs::{EncodeOptions, Format};
+use codecs::{DecodeOptions, EncodeOptions, Format};
 use common::{
     eyre::{OptionExt, Result},
     itertools::Itertools,
@@ -88,6 +88,7 @@ pub(super) const DELETE_NODE: &str = "stencila.delete-node";
 pub(super) const CREATE_CHAT: &str = "stencila.create-chat";
 
 pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
+pub(super) const MERGE_DOC: &str = "stencila.merge-doc";
 
 /// Get the list of commands that the language server supports
 pub(super) fn commands() -> Vec<String> {
@@ -122,6 +123,7 @@ pub(super) fn commands() -> Vec<String> {
         DELETE_NODE,
         CREATE_CHAT,
         EXPORT_DOC,
+        MERGE_DOC,
     ]
     .into_iter()
     .map(String::from)
@@ -1194,4 +1196,47 @@ pub(crate) fn cancel_progress(
     // TODO: Cancel the task associated with the token
 
     ControlFlow::Continue(())
+}
+
+/// Handle the merge-doc command
+pub(super) async fn merge_doc(
+    params: ExecuteCommandParams,
+    mut client: ClientSocket,
+) -> Result<Option<Value>, ResponseError> {
+    let mut args = params.arguments.into_iter();
+    let edited_path = path_buf_arg(args.next())?;
+
+    match codecs::merge(
+        &edited_path,
+        None,
+        None,
+        None,
+        DecodeOptions::default(),
+        EncodeOptions::default(),
+        None,
+    )
+    .await
+    {
+        Ok(()) => {
+            client
+                .show_message(ShowMessageParams {
+                    typ: MessageType::INFO,
+                    message: format!(
+                        "Successfully merged document from {}",
+                        edited_path.display()
+                    ),
+                })
+                .ok();
+            Ok(None)
+        }
+        Err(error) => {
+            client
+                .show_message(ShowMessageParams {
+                    typ: MessageType::ERROR,
+                    message: format!("Failed to merge document: {error}"),
+                })
+                .ok();
+            Ok(None)
+        }
+    }
 }
