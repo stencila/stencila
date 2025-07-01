@@ -1211,6 +1211,7 @@ pub(super) async fn merge_doc(
         None,
         None,
         None,
+        true,
         DecodeOptions::default(),
         EncodeOptions::default(),
         None,

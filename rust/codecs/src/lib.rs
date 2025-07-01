@@ -3,13 +3,12 @@ use std::{
     process::Command,
 };
 
-use ask::ask;
+use ask::{ask_with_default, Answer};
 use cli_utils::{Code, ToStdout};
-use codec::common::eyre::Context;
-use codec::common::inflector::Inflector;
 use codec::{
     common::{
-        eyre::{bail, eyre, OptionExt, Result},
+        eyre::{bail, eyre, Context, OptionExt, Result},
+        inflector::Inflector,
         reqwest::Client,
         tempfile::tempdir,
         tokio::fs::{read_to_string, write},
@@ -431,6 +430,7 @@ pub async fn merge(
     original: Option<&Path>,
     unedited: Option<&Path>,
     commit: Option<&str>,
+    rebase: bool,
     decode_options: DecodeOptions,
     mut encode_options: EncodeOptions,
     workdir: Option<PathBuf>,
@@ -442,6 +442,8 @@ pub async fn merge(
     } else {
         tempdir.path()
     };
+
+    let unedited_provided = unedited.is_some();
 
     // Decode the edited file because it may contain information on the
     // original source & commit not supplied as an argument
@@ -526,7 +528,18 @@ pub async fn merge(
             continue;
         }
 
-        let edited = read_to_string(edited_path).await?;
+        let edited_format = Format::from_path(&edited_path);
+        if edited_format.is_audio() || edited_format.is_image() || edited_format.is_video() {
+            continue;
+        }
+
+        let edited_string = match read_to_string(edited_path).await {
+            Ok(content) => content,
+            Err(error) => {
+                tracing::debug!("Unable to read `{}`: {error}", edited_path.display());
+                continue;
+            }
+        };
 
         let relative_path = edited_path
             .strip_prefix(&edited_dir)
@@ -536,26 +549,34 @@ pub async fn merge(
 
         // If a file exists in the edited dir but not in the unedited then just
         // write it to the original dir (no rebasing to do)
-        if !unedited_path.exists() {
-            write(original_path, edited).await?;
+        if !rebase || !unedited_path.exists() {
+            write(original_path, edited_string).await?;
             continue;
         }
 
-        let unedited = read_to_string(unedited_path).await?;
-        if edited == unedited {
+        let unedited_string = read_to_string(unedited_path).await?;
+        if edited_string == unedited_string {
             tracing::trace!("No changes, skipping `{}`", relative_path.display());
             continue;
         }
 
-        let original = read_to_string(&original_path).await.wrap_err_with(|| {
+        let original_string = read_to_string(&original_path).await.wrap_err_with(|| {
             eyre!(
                 "Could not find original file `{}` to merge into",
                 original_path.display()
             )
         })?;
 
-        tracing::debug!("Rebasing `{}`", relative_path.display());
-        let rebased = rebase_edits(&original, &unedited, &edited);
+        tracing::info!(
+            "Rebasing edits for `{}` using unedited version {}",
+            relative_path.display(),
+            if unedited_provided {
+                "provided".to_string()
+            } else {
+                format!("embedded in `{}`", edited.display())
+            }
+        );
+        let rebased = rebase_edits(&original_string, &unedited_string, &edited_string);
 
         write(original_path, rebased).await?;
     }
@@ -624,12 +645,14 @@ async fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> 
         tracing::debug!("Force mode enabled, will create branch");
         true
     } else {
-        let create_branch = ask(&format!("Original source file `{path_}` has changed since the edited file was generated from it. Would you like to create a new branch at commit `{commit_short}` so edits can be applied correctly?")).await?;
-        create_branch.is_yes()
+        ask_with_default(
+            &format!("Original source file `{path_}` has changed since the edited file was generated from it. Would you like to create a new branch at commit `{commit_short}` so edits can be applied correctly?"),
+            Answer::Yes
+        ).await?.is_yes()
     };
 
     if !should_create_branch {
-        tracing::info!("Branch creation cancelled");
+        tracing::info!("Branch creation skipped");
         return Ok(());
     }
 
@@ -651,7 +674,10 @@ async fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> 
         tracing::debug!("File {path_} has uncommitted changes that conflict with target commit");
 
         if !force {
-            let should_stash = ask(&format!("File `{path_}` has uncommitted changes. Would you like to stash changes before creating branch?")).await?;
+            let should_stash = ask_with_default(
+                &format!("File `{path_}` has uncommitted changes. Would you like to stash changes before creating branch?"),
+                Answer::Yes
+            ).await?;
             if should_stash.is_no_or_cancel() {
                 tracing::info!("Please commit your changes first, then run this command again.");
                 return Ok(());

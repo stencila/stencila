@@ -31,6 +31,10 @@ pub struct Cli {
     #[arg(long)]
     commit: Option<String>,
 
+    /// Do not rebase edits using the unedited version of the document
+    #[arg(long)]
+    no_rebase: bool,
+
     #[command(flatten)]
     decode_options: DecodeOptions,
 
@@ -48,34 +52,26 @@ pub struct Cli {
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
-        let Self {
-            edited,
-            original,
-            unedited,
-            commit,
-            workdir,
-            ..
-        } = self;
-
         let decode_options = self
             .decode_options
-            .build(Some(&edited), StripOptions::default());
+            .build(Some(&self.edited), StripOptions::default());
 
         let encode_options = self.encode_options.build(
-            Some(&edited),
-            original.as_deref(),
+            Some(&self.edited),
+            self.original.as_deref(),
             Format::Markdown,
             StripOptions::default(),
         );
 
         codecs::merge(
-            &edited,
-            original.as_deref(),
-            unedited.as_deref(),
-            commit.as_deref(),
+            &self.edited,
+            self.original.as_deref(),
+            self.unedited.as_deref(),
+            self.commit.as_deref(),
+            !self.no_rebase,
             decode_options,
             encode_options,
-            workdir,
+            self.workdir,
         )
         .await
     }
