@@ -136,6 +136,7 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl List {
+    #[allow(clippy::print_stdout)]
     async fn run(self) -> Result<()> {
         let list = super::list();
 

@@ -1,4 +1,7 @@
-use crate::{environments::{Mise, Devbox}, Tool, ToolType};
+use crate::{
+    environments::{Devbox, Mise},
+    Tool, ToolType,
+};
 
 pub struct Ruff;
 
