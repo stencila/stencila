@@ -167,9 +167,9 @@ impl List {
             let description = tool.description();
             let r#type = tool.r#type();
             let version = tool
-                .version_available()
+                .version_available_in_env()
                 .map_or_else(|| "-".into(), |version| version.to_string());
-            let path = if let Some(path) = tool.path() {
+            let path = if let Some(path) = tool.path_in_env() {
                 Cell::new(strip_home_dir(&path))
             } else if tool.is_installable() {
                 Cell::new("installable").fg(Color::Yellow)
@@ -238,8 +238,8 @@ impl Show {
             "URL": tool.url(),
             "Description": tool.description(),
             "Version required": tool.version_required(),
-            "Version available": tool.version_available().map_or_else(|| "None".into(), |version| version.to_string()),
-            "Path": tool.path().map_or_else(|| "None".into(), |path| strip_home_dir(&path)),
+            "Version available": tool.version_available_in_env().map_or_else(|| "None".into(), |version| version.to_string()),
+            "Path": tool.path_in_env().map_or_else(|| "None".into(), |path| strip_home_dir(&path)),
         });
 
         Code::new_from(Format::Yaml, &tool)?.to_stdout();
@@ -295,7 +295,7 @@ impl Install {
         };
 
         // Check if already installed (unless --force is used)
-        if let Some(path) = tool.path() {
+        if let Some(path) = tool.path_in_env() {
             if !self.force {
                 eprintln!(
                     "👍 {} is already installed at {}",
@@ -329,9 +329,9 @@ impl Install {
                 println!("✅ {} installed successfully", tool.name());
 
                 // Verify installation
-                if let Some(path) = tool.path() {
+                if let Some(path) = tool.path_in_env() {
                     println!("   Path: {}", strip_home_dir(&path));
-                    if let Some(version) = tool.version_available() {
+                    if let Some(version) = tool.version_available_in_env() {
                         println!("   Version: {}", version);
                     }
                 }

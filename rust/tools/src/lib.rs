@@ -116,6 +116,36 @@ pub trait Tool: Sync + Send {
         which(self.executable_name()).ok()
     }
 
+    /// Get the path to the tool within environment managers (if any)
+    ///
+    /// This method checks if environment managers are configured and uses them to find the tool.
+    /// Falls back to the regular `path()` method if no environment managers are detected.
+    fn path_in_env(&self) -> Option<PathBuf> {
+        let cwd = std::env::current_dir().ok()?;
+        let detected_managers = detect_all_managers(&cwd);
+
+        for (manager, _config_path) in detected_managers {
+            if manager.is_installed() {
+                if let Some(mut command) =
+                    manager.exec_command("which", &[self.executable_name().to_string()])
+                {
+                    if let Ok(output) = command.output() {
+                        if output.status.success() {
+                            let path_str =
+                                String::from_utf8_lossy(&output.stdout).trim().to_string();
+                            if !path_str.is_empty() {
+                                return Some(PathBuf::from(path_str));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Fall back to system path
+        self.path()
+    }
+
     /// Check if the tool is installed (available on the system)
     fn is_installed(&self) -> bool {
         self.path().is_some()
@@ -148,18 +178,56 @@ pub trait Tool: Sync + Send {
     fn version_available(&self) -> Option<Version> {
         let path = self.path()?;
 
-        let unknown = Version::new(0, 0, 0);
-
         let version_args = self.version_command();
         let Ok(output) = Command::new(path).args(version_args).output() else {
-            return Some(unknown);
+            return Some(Version::new(0, 0, 0));
         };
 
-        let output = String::from_utf8_lossy(&output.stdout);
+        let output_str = String::from_utf8_lossy(&output.stdout);
+        self.parse_version(&output_str)
+            .or(Some(Version::new(0, 0, 0)))
+    }
 
-        let Some(line) = output.lines().next() else {
-            return Some(unknown);
-        };
+    /// Get the version available within environment managers (if any)
+    ///
+    /// This method checks if environment managers are configured and uses them to get the tool version.
+    /// Falls back to the regular `version_available()` method if no environment managers are detected.
+    fn version_available_in_env(&self) -> Option<Version> {
+        let cwd = std::env::current_dir().ok()?;
+        let detected_managers = detect_all_managers(&cwd);
+
+        for (manager, _config_path) in detected_managers {
+            if manager.is_installed() {
+                let version_args: Vec<String> = self
+                    .version_command()
+                    .iter()
+                    .map(|s| s.to_string())
+                    .collect();
+                if let Some(mut command) =
+                    manager.exec_command(self.executable_name(), &version_args)
+                {
+                    if let Ok(output) = command.output() {
+                        if output.status.success() {
+                            let output_str = String::from_utf8_lossy(&output.stdout);
+                            if let Some(version) = self.parse_version(&output_str) {
+                                return Some(version);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Fall back to system version
+        self.version_available()
+    }
+
+    /// Parse version string output into a Version
+    ///
+    /// Takes the stdout output from a version command and extracts the version number.
+    /// Handles various version string formats by normalizing hyphens to dots.
+    fn parse_version(&self, output: &str) -> Option<Version> {
+        let line = output.lines().next()?;
 
         // Some tools have a version string like `3.141592653-2.6` or `2025-05-09` so
         // replace hyphens with dots so that we can extract as many parts as possible.
@@ -168,9 +236,7 @@ pub trait Tool: Sync + Send {
         static REGEX: Lazy<Regex> =
             Lazy::new(|| Regex::new(r"(\d+)(?:\.(\d+))?(?:\.(\d+))?").expect("invalid regex"));
 
-        let Some(captures) = REGEX.captures(&line) else {
-            return Some(unknown);
-        };
+        let captures = REGEX.captures(&line)?;
 
         let part = |index| {
             captures
