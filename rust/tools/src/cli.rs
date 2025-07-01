@@ -18,6 +18,7 @@ use common::{
     serde_json::json,
 };
 use directories::UserDirs;
+use pathdiff::diff_paths;
 
 use crate::{detect_all_managers, ToolType};
 
@@ -81,7 +82,9 @@ impl Cli {
 /// List available tools and their installation status
 ///   
 /// Displays a table of all tools that Stencila can manage, including their type,
-/// required version, available version, and installation path.
+/// required version, available version, and installation path. The versions and paths
+/// shown reflect the currently active environment managers (devbox, mise, etc.) if
+/// configured in the current directory, otherwise system-wide installations.
 #[derive(Debug, Default, Args)]
 #[command(after_long_help = LIST_AFTER_LONG_HELP)]
 struct List {
@@ -195,6 +198,29 @@ impl List {
 
         table.to_stdout();
 
+        // Display active environment manager config files
+        let cwd = std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from("."));
+        let detected_managers = detect_all_managers(&cwd);
+
+        if !detected_managers.is_empty() {
+            println!();
+            print!("Active environment config files: ");
+
+            let config_paths: Vec<String> = detected_managers
+                .into_iter()
+                .map(|(_, config_path)| {
+                    let relative_path = make_relative_with_dot(&cwd, &config_path)
+                        .unwrap_or(config_path)
+                        .display()
+                        .to_string();
+
+                    format!("\x1b[35m{}\x1b[0m", relative_path) // Magenta color
+                })
+                .collect();
+
+            println!("{}", config_paths.join(", "));
+        }
+
         Ok(())
     }
 }
@@ -203,6 +229,9 @@ impl List {
 ///
 /// Displays information about a tool including its name, URL,
 /// description, version requirements, installation status, and file path.
+/// The version and path shown reflect the currently active environment
+/// managers (devbox, mise, etc.) if configured in the current directory,
+/// otherwise system-wide installation.
 #[derive(Debug, Default, Args)]
 #[command(after_long_help = SHOW_AFTER_LONG_HELP)]
 struct Show {
@@ -510,4 +539,15 @@ fn strip_home_dir(path: &Path) -> String {
     }
     .to_string_lossy()
     .to_string()
+}
+
+/// Make the target path relative to the base
+fn make_relative_with_dot(base: &Path, target: &Path) -> Option<PathBuf> {
+    diff_paths(target, base).map(|path| {
+        if path.starts_with("..") {
+            path
+        } else {
+            Path::new(".").join(path)
+        }
+    })
 }

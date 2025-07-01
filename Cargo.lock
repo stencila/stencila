@@ -7686,6 +7686,7 @@ dependencies = [
  "derive_more",
  "directories",
  "mcp-types",
+ "pathdiff",
  "semver",
  "version",
  "which",
