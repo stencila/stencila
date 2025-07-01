@@ -1,4 +1,4 @@
-use crate::{Tool, ToolType};
+use crate::{environments::Devbox, Tool, ToolType};
 
 pub struct Git;
 
@@ -17,5 +17,9 @@ impl Tool for Git {
 
     fn r#type(&self) -> ToolType {
         ToolType::Collaboration
+    }
+
+    fn install_tools(&self) -> Vec<Box<dyn Tool>> {
+        vec![Box::new(Devbox)]
     }
 }

@@ -1,5 +1,5 @@
 use crate::{
-    environments::Mise,
+    environments::{Devbox, Mise},
     packages::{Rig, Uv},
     Tool, ToolType, VersionReq,
 };
@@ -21,6 +21,10 @@ impl Tool for Bash {
 
     fn r#type(&self) -> ToolType {
         ToolType::Execution
+    }
+
+    fn install_tools(&self) -> Vec<Box<dyn Tool>> {
+        vec![Box::new(Devbox)]
     }
 }
 
@@ -44,7 +48,7 @@ impl Tool for Node {
     }
 
     fn install_tools(&self) -> Vec<Box<dyn Tool>> {
-        vec![Box::new(Mise)]
+        vec![Box::new(Mise), Box::new(Devbox)]
     }
 }
 
@@ -76,7 +80,7 @@ impl Tool for Python {
     }
 
     fn install_tools(&self) -> Vec<Box<dyn Tool>> {
-        vec![Box::new(Uv), Box::new(Mise)]
+        vec![Box::new(Uv), Box::new(Mise), Box::new(Devbox)]
     }
 }
 
@@ -106,6 +110,6 @@ impl Tool for R {
     fn install_tools(&self) -> Vec<Box<dyn Tool>> {
         // At time of writing, `mise use asdf:r` is possible but involves a source compile
         // which is slow and error prone (many dev dependencies) so do not include Mise here
-        vec![Box::new(Rig)]
+        vec![Box::new(Rig), Box::new(Devbox)]
     }
 }

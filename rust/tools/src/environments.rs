@@ -1,6 +1,6 @@
-use std::process::Command;
+use std::{env, process::Command};
 
-use crate::{Tool, ToolType};
+use crate::{find_config_in_ancestors, Tool, ToolType};
 
 pub struct Devbox;
 
@@ -10,7 +10,7 @@ impl Tool for Devbox {
     }
 
     fn url(&self) -> &'static str {
-        "https://www.jetpack.io/devbox/"
+        "https://www.jetify.com/devbox/"
     }
 
     fn install_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
@@ -40,6 +40,32 @@ impl Tool for Devbox {
         let mut command = Command::new(self.executable_name());
         command.args(["run", "--", cmd]).args(args);
         Some(command)
+    }
+
+    fn install_command(&self, tool: &dyn Tool) -> Option<Command> {
+        self.path()?;
+
+        let pkg = match tool.name() {
+            "node" => "nodejs",
+            "r" => "R",
+            "xelatex" => "texlivePackages.xelatex-dev",
+            name => name,
+        };
+
+        // Check if devbox.json exists in current directory or ancestors
+        let current_dir = env::current_dir().ok()?;
+        let has_config = find_config_in_ancestors(&current_dir, &self.config_files()).is_some();
+
+        if !has_config {
+            // Use shell to run both commands sequentially
+            let mut command = Command::new("sh");
+            command.args(["-c", &format!("devbox init && devbox add {}", pkg)]);
+            Some(command)
+        } else {
+            let mut command = Command::new(self.executable_name());
+            command.args(["add", pkg]);
+            Some(command)
+        }
     }
 }
 

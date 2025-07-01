@@ -1,5 +1,5 @@
 use crate::{
-    environments::{Mise, Nix},
+    environments::{Devbox, Mise},
     Tool, ToolType, VersionReq,
 };
 
@@ -27,7 +27,7 @@ impl Tool for Pandoc {
     }
 
     fn install_tools(&self) -> Vec<Box<dyn Tool>> {
-        vec![Box::new(Mise), Box::new(Nix)]
+        vec![Box::new(Mise), Box::new(Devbox)]
     }
 }
 
@@ -48,5 +48,9 @@ impl Tool for Xelatex {
 
     fn r#type(&self) -> ToolType {
         ToolType::Conversion
+    }
+
+    fn install_tools(&self) -> Vec<Box<dyn Tool>> {
+        vec![Box::new(Devbox)]
     }
 }

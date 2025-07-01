@@ -703,7 +703,7 @@ impl AsyncToolCommand {
 /// Searches up the directory tree from the given path (or its parent directory if
 /// the path is a file) looking for any of the specified config files.
 /// Returns the path to the first matching config file found.
-fn find_config_in_ancestors(start_path: &Path, config_files: &[&str]) -> Option<PathBuf> {
+pub fn find_config_in_ancestors(start_path: &Path, config_files: &[&str]) -> Option<PathBuf> {
     let mut current = if start_path.is_file() {
         start_path.parent()?.to_path_buf()
     } else {

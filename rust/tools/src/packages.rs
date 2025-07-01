@@ -3,7 +3,11 @@ use std::{fs::read_dir, path::PathBuf, process::Command};
 use directories::UserDirs;
 use which::which;
 
-use crate::{environments::Mise, execution::Python, Tool, ToolType};
+use crate::{
+    environments::{Devbox, Mise},
+    execution::Python,
+    Tool, ToolType,
+};
 
 pub struct Npm;
 
@@ -142,16 +146,20 @@ impl Tool for Uv {
         "https://docs.astral.sh/uv/"
     }
 
-    fn install_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
-        Some(("https://astral.sh/uv/install.sh", vec![]))
-    }
-
     fn description(&self) -> &'static str {
         "Python package and environment manager"
     }
 
     fn r#type(&self) -> ToolType {
         ToolType::Packages
+    }
+
+    fn install_tools(&self) -> Vec<Box<dyn Tool>> {
+        vec![Box::new(Devbox)]
+    }
+
+    fn install_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
+        Some(("https://astral.sh/uv/install.sh", vec![]))
     }
 
     fn config_files(&self) -> Vec<&'static str> {

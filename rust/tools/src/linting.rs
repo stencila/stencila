@@ -1,4 +1,4 @@
-use crate::{environments::{Mise, Nix}, Tool, ToolType};
+use crate::{environments::{Mise, Devbox}, Tool, ToolType};
 
 pub struct Ruff;
 
@@ -24,6 +24,6 @@ impl Tool for Ruff {
     }
 
     fn install_tools(&self) -> Vec<Box<dyn Tool>> {
-        vec![Box::new(Mise), Box::new(Nix)]
+        vec![Box::new(Mise), Box::new(Devbox)]
     }
 }
