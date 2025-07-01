@@ -86,14 +86,19 @@ impl Tool for Mise {
     fn install_command(&self, tool: &dyn Tool) -> Option<Command> {
         self.path()?;
 
-        let tool = match tool.name() {
-            "r" => "asdf:r",
-            name => name,
-        };
-
-        // Use `use` here so that a mise.toml get created or added to
         let mut command = Command::new(self.executable_name());
-        command.args(["use", tool]);
+        match tool.name() {
+            "rig" => {
+                // Use `install --global` for rig because it is more of a system dependency
+                // rather than a project dependency
+                command.args(["install", "ubi:r-lib/rig"]);
+            }
+            _ => {
+                // For other tools, use the "use" command to add tool to mise.toml
+                command.args(["use", tool.name()]);
+            }
+        }
+
         Some(command)
     }
 }

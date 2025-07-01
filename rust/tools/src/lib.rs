@@ -51,6 +51,7 @@ pub fn list() -> Vec<Box<dyn Tool>> {
         Box::new(Pixi) as Box<dyn Tool>,
         // Packages
         Box::new(Npm) as Box<dyn Tool>,
+        Box::new(Rig) as Box<dyn Tool>,
         Box::new(Uv) as Box<dyn Tool>,
         // Execution
         Box::new(Bash) as Box<dyn Tool>,
@@ -306,11 +307,6 @@ async fn install_with_depth(tool: &dyn Tool, depth: u32, force: bool) -> Result<
         // Find the first available installer tool
         for installer in &install_tools {
             if installer.is_installed() {
-                tracing::debug!(
-                    "Installing `{}` using available installer `{}`",
-                    tool.name(),
-                    installer.name()
-                );
                 return install_via_installer(installer.as_ref(), tool).await;
             }
         }
@@ -318,7 +314,7 @@ async fn install_with_depth(tool: &dyn Tool, depth: u32, force: bool) -> Result<
         // No installer is available, try to install the first one
         let first_installer = install_tools.first().expect("checked is_empty above");
         tracing::debug!(
-            "Installing installer `{}` first for `{}`",
+            "Installing installer `{}` to install `{}`",
             first_installer.name(),
             tool.name()
         );

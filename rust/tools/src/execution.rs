@@ -1,4 +1,8 @@
-use crate::{environments::Mise, packages::Uv, Tool, ToolType, VersionReq};
+use crate::{
+    environments::Mise,
+    packages::{Rig, Uv},
+    Tool, ToolType, VersionReq,
+};
 
 pub struct Bash;
 
@@ -100,6 +104,8 @@ impl Tool for R {
     }
 
     fn install_tools(&self) -> Vec<Box<dyn Tool>> {
-        vec![Box::new(Mise)]
+        // At time of writing, `mise use asdf:r` is possible but involves a source compile
+        // which is slow and error prone (many dev dependencies) so do not include Mise here
+        vec![Box::new(Rig)]
     }
 }
