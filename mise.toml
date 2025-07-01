@@ -1,0 +1,6 @@
+[tools]
+node = "22"
+pandoc = "3"
+ruff = "latest"
+shellcheck = "latest"
+uv = "latest"
