@@ -171,7 +171,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) -> Result<()> {
                     };
 
                     let (author, format, source, root, doc, sync_state) = doc_props;
-                    commands::execute_command(
+                    commands::doc_command(
                         params, author, format, source, root, doc, sync_state, source_doc, client,
                     )
                     .await

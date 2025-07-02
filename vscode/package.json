@@ -466,14 +466,14 @@
         "category": "Stencila",
         "title": "Export document",
         "shortTitle": "Export doc",
-        "icon": "$(export)"
+        "icon": "$(files)"
       },
       {
         "command": "stencila.invoke.merge-doc",
         "category": "Stencila",
         "title": "Merge document",
         "shortTitle": "Merge doc",
-        "icon": "$(merge)"
+        "icon": "$(git-pull-request-go-to-changes)"
       },
       {
         "command": "stencila.setup.refresh",
@@ -805,7 +805,8 @@
           "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/"
         },
         {
-          "command": "stencila.invoke.merge-doc"
+          "command": "stencila.invoke.merge-doc",
+          "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/"
         },
         {
           "command": "stencila.walkthroughs.expand",
@@ -828,14 +829,19 @@
           "group": "000-Stencila@2"
         },
         {
-          "command": "stencila.invoke.export-doc",
+          "command": "stencila.chat-doc",
           "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/",
           "group": "000-Stencila@3"
         },
         {
-          "command": "stencila.chat-doc",
+          "command": "stencila.invoke.export-doc",
           "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/",
           "group": "000-Stencila@4"
+        },
+        {
+          "command": "stencila.invoke.merge-doc",
+          "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/",
+          "group": "000-Stencila@5"
         }
       ],
       "editor/context": [

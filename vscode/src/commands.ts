@@ -329,20 +329,98 @@ nodeTypes: []
   // so must be invoked from here
   context.subscriptions.push(
     vscode.commands.registerCommand("stencila.invoke.merge-doc", async () => {
+      const editor = vscode.window.activeTextEditor ?? lastTextEditor;
+      if (!editor) {
+        vscode.window.showErrorMessage("No active editor");
+        return;
+      }
+
+      // Save the document if it has unsaved changes
+      if (editor.document.isDirty) {
+        const saved = await editor.document.save();
+        if (!saved) {
+          vscode.window.showInformationMessage(
+            "Document merge cancelled: document must be saved first."
+          );
+          return;
+        }
+      }
+
+      const original = editor.document.uri.fsPath;
+
       const fileUri = await vscode.window.showOpenDialog({
         canSelectFiles: true,
         canSelectFolders: false,
         canSelectMany: false,
         openLabel: "Merge",
-        title: "Select file to merge into document"
+        title: "Select file to merge into document",
       });
 
       if (!fileUri || fileUri.length === 0) {
         return;
       }
 
-      const path = fileUri[0].fsPath;
-      vscode.commands.executeCommand(`stencila.merge-doc`, path);
+      const edited = fileUri[0].fsPath;
+
+      event("doc_merge");
+
+      const filesModified: string[] = await vscode.commands.executeCommand(
+        `stencila.merge-doc`,
+        // Note that this order is correct as per the Rust function `codecs::merge`
+        edited,
+        original
+      );
+
+      // Handle the results
+      if (!filesModified || filesModified.length === 0) {
+        vscode.window.showInformationMessage(
+          "Files merged successfully but no changes were detected."
+        );
+        return;
+      }
+
+      // Track files that couldn't be opened
+      const failedFiles: string[] = [];
+
+      // Open each modified file to show git diff in the editor
+      for (const filePath of filesModified) {
+        try {
+          const fileUri = vscode.Uri.file(filePath);
+
+          // Check if file exists
+          try {
+            await vscode.workspace.fs.stat(fileUri);
+          } catch {
+            failedFiles.push(filePath);
+            continue;
+          }
+
+          // Open the file - VSCode will automatically show git decorations
+          // and the user can use the Source Control view or gutter indicators
+          // to see the changes
+          await vscode.window.showTextDocument(fileUri, {
+            preview: false,
+            preserveFocus: false,
+          });
+        } catch (error) {
+          failedFiles.push(filePath);
+        }
+      }
+
+      // Show success message with count
+      const successCount = filesModified.length - failedFiles.length;
+      if (successCount > 0) {
+        vscode.window.showInformationMessage(
+          `Merge completed. ${successCount} file${successCount === 1 ? "" : "s"} modified.`
+        );
+      }
+
+      // Show warning for files that couldn't be opened
+      if (failedFiles.length > 0) {
+        vscode.window.showWarningMessage(
+          `${failedFiles.length} file${failedFiles.length === 1 ? " was" : "s were"} modified but could not be opened for diff view: ${failedFiles.join(", ")}`
+        );
+      }
     })
   );
 

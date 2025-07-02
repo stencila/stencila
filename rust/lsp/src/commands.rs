@@ -130,9 +130,9 @@ pub(super) fn commands() -> Vec<String> {
     .collect()
 }
 
-/// Execute a command
+/// Execute a [`document::Command`]
 #[allow(clippy::too_many_arguments)]
-pub(super) async fn execute_command(
+pub(super) async fn doc_command(
     ExecuteCommandParams {
         command, arguments, ..
     }: ExecuteCommandParams,
@@ -145,6 +145,8 @@ pub(super) async fn execute_command(
     source_doc: Option<Arc<RwLock<Document>>>,
     mut client: ClientSocket,
 ) -> Result<Option<Value>, ResponseError> {
+    // TODO: This function has grown organically and is ripe for refactoring.
+
     let command = command.as_str();
 
     // Before running command wait for document to be in sync.
@@ -1070,6 +1072,47 @@ pub(super) async fn execute_command(
     Ok(return_value)
 }
 
+/// Handle the merge-doc command
+///
+/// This is a separate function to [`doc_command`] because it does not perform a
+/// command on the in-memory document, but rather operates directly on file paths
+pub(super) async fn merge_doc(
+    params: ExecuteCommandParams,
+    mut client: ClientSocket,
+) -> Result<Option<Value>, ResponseError> {
+    let mut args = params.arguments.into_iter();
+
+    let edited_path = path_buf_arg(args.next())?;
+    let original_path = path_buf_arg(args.next())?;
+
+    match codecs::merge(
+        &edited_path,
+        Some(&original_path),
+        None,
+        None,
+        true,
+        DecodeOptions::default(),
+        EncodeOptions::default(),
+        None,
+    )
+    .await
+    {
+        Ok(modified) => {
+            let modified = serde_json::to_value(&modified).map_err(internal_error)?;
+            Ok(Some(modified))
+        }
+        Err(error) => {
+            client
+                .show_message(ShowMessageParams {
+                    typ: MessageType::ERROR,
+                    message: format!("Failed to merge document: {error}"),
+                })
+                .ok();
+            Ok(None)
+        }
+    }
+}
+
 /// Create an invalid request error
 fn invalid_request<T: Display>(value: T) -> ResponseError {
     ResponseError::new(ErrorCode::INVALID_REQUEST, value.to_string())
@@ -1196,48 +1239,4 @@ pub(crate) fn cancel_progress(
     // TODO: Cancel the task associated with the token
 
     ControlFlow::Continue(())
-}
-
-/// Handle the merge-doc command
-pub(super) async fn merge_doc(
-    params: ExecuteCommandParams,
-    mut client: ClientSocket,
-) -> Result<Option<Value>, ResponseError> {
-    let mut args = params.arguments.into_iter();
-    let edited_path = path_buf_arg(args.next())?;
-
-    match codecs::merge(
-        &edited_path,
-        None,
-        None,
-        None,
-        true,
-        DecodeOptions::default(),
-        EncodeOptions::default(),
-        None,
-    )
-    .await
-    {
-        Ok(()) => {
-            client
-                .show_message(ShowMessageParams {
-                    typ: MessageType::INFO,
-                    message: format!(
-                        "Successfully merged document from {}",
-                        edited_path.display()
-                    ),
-                })
-                .ok();
-            Ok(None)
-        }
-        Err(error) => {
-            client
-                .show_message(ShowMessageParams {
-                    typ: MessageType::ERROR,
-                    message: format!("Failed to merge document: {error}"),
-                })
-                .ok();
-            Ok(None)
-        }
-    }
 }
