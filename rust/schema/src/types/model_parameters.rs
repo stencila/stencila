@@ -83,7 +83,7 @@ pub struct ModelParameters {
 }
 
 impl ModelParameters {
-    const NICK: [u8; 3] = [109, 100, 112];
+    const NICK: [u8; 3] = *b"mdp";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ModelParameters

@@ -115,7 +115,7 @@ pub struct ListItemOptions {
 }
 
 impl ListItem {
-    const NICK: [u8; 3] = [108, 115, 105];
+    const NICK: [u8; 3] = *b"lsi";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ListItem

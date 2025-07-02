@@ -207,7 +207,7 @@ pub struct InstructionBlockOptions {
 }
 
 impl InstructionBlock {
-    const NICK: [u8; 3] = [105, 115, 98];
+    const NICK: [u8; 3] = *b"isb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::InstructionBlock

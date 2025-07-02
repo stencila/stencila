@@ -75,7 +75,7 @@ pub struct SuggestionInline {
 }
 
 impl SuggestionInline {
-    const NICK: [u8; 3] = [115, 103, 105];
+    const NICK: [u8; 3] = *b"sgi";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::SuggestionInline

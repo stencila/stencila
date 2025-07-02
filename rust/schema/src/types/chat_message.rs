@@ -166,7 +166,7 @@ pub struct ChatMessageOptions {
 }
 
 impl ChatMessage {
-    const NICK: [u8; 3] = [99, 104, 109];
+    const NICK: [u8; 3] = *b"chm";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ChatMessage

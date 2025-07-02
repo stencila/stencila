@@ -319,7 +319,7 @@ pub struct TableOptions {
 }
 
 impl Table {
-    const NICK: [u8; 3] = [116, 98, 108];
+    const NICK: [u8; 3] = *b"tbl";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Table

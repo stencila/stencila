@@ -70,7 +70,7 @@ pub struct Link {
 }
 
 impl Link {
-    const NICK: [u8; 3] = [108, 105, 110];
+    const NICK: [u8; 3] = *b"lin";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Link

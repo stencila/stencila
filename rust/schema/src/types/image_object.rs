@@ -314,7 +314,7 @@ pub struct ImageObjectOptions {
 }
 
 impl ImageObject {
-    const NICK: [u8; 3] = [105, 109, 103];
+    const NICK: [u8; 3] = *b"img";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ImageObject

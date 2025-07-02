@@ -73,7 +73,7 @@ pub struct Section {
 }
 
 impl Section {
-    const NICK: [u8; 3] = [115, 101, 99];
+    const NICK: [u8; 3] = *b"sec";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Section

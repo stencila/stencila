@@ -47,7 +47,7 @@ pub struct Strikeout {
 }
 
 impl Strikeout {
-    const NICK: [u8; 3] = [115, 116, 107];
+    const NICK: [u8; 3] = *b"stk";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Strikeout

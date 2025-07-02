@@ -118,7 +118,7 @@ pub struct OrganizationOptions {
 }
 
 impl Organization {
-    const NICK: [u8; 3] = [111, 114, 103];
+    const NICK: [u8; 3] = *b"org";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Organization

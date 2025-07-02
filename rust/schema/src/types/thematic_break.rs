@@ -33,7 +33,7 @@ pub struct ThematicBreak {
 }
 
 impl ThematicBreak {
-    const NICK: [u8; 3] = [116, 104, 98];
+    const NICK: [u8; 3] = *b"thb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ThematicBreak

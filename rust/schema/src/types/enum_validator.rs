@@ -33,7 +33,7 @@ pub struct EnumValidator {
 }
 
 impl EnumValidator {
-    const NICK: [u8; 3] = [101, 110, 118];
+    const NICK: [u8; 3] = *b"env";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::EnumValidator

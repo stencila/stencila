@@ -32,7 +32,7 @@ pub struct Config {
 }
 
 impl Config {
-    const NICK: [u8; 3] = [99, 102, 103];
+    const NICK: [u8; 3] = *b"cfg";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Config

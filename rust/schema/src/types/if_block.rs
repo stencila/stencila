@@ -169,7 +169,7 @@ pub struct IfBlockOptions {
 }
 
 impl IfBlock {
-    const NICK: [u8; 3] = [105, 102, 98];
+    const NICK: [u8; 3] = *b"ifb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::IfBlock

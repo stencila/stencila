@@ -42,7 +42,7 @@ pub struct DurationValidator {
 }
 
 impl DurationValidator {
-    const NICK: [u8; 3] = [100, 117, 118];
+    const NICK: [u8; 3] = *b"duv";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DurationValidator

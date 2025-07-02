@@ -43,7 +43,7 @@ pub struct Annotation {
 }
 
 impl Annotation {
-    const NICK: [u8; 3] = [97, 110, 110];
+    const NICK: [u8; 3] = *b"ann";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Annotation

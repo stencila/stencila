@@ -186,7 +186,7 @@ pub struct IncludeBlockOptions {
 }
 
 impl IncludeBlock {
-    const NICK: [u8; 3] = [105, 110, 99];
+    const NICK: [u8; 3] = *b"inc";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::IncludeBlock

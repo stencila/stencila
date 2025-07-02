@@ -79,7 +79,7 @@ pub struct BrandOptions {
 }
 
 impl Brand {
-    const NICK: [u8; 3] = [98, 114, 97];
+    const NICK: [u8; 3] = *b"bra";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Brand

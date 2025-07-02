@@ -193,7 +193,7 @@ pub struct ParameterOptions {
 }
 
 impl Parameter {
-    const NICK: [u8; 3] = [112, 97, 114];
+    const NICK: [u8; 3] = *b"par";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Parameter

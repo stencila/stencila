@@ -71,7 +71,7 @@ pub struct List {
 }
 
 impl List {
-    const NICK: [u8; 3] = [108, 115, 116];
+    const NICK: [u8; 3] = *b"lst";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::List

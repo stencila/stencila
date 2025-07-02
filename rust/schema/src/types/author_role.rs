@@ -44,7 +44,7 @@ pub struct AuthorRole {
 }
 
 impl AuthorRole {
-    const NICK: [u8; 3] = [97, 117, 116];
+    const NICK: [u8; 3] = *b"aut";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::AuthorRole

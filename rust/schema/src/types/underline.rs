@@ -47,7 +47,7 @@ pub struct Underline {
 }
 
 impl Underline {
-    const NICK: [u8; 3] = [117, 110, 100];
+    const NICK: [u8; 3] = *b"und";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Underline

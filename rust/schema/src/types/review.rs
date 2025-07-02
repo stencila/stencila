@@ -262,7 +262,7 @@ pub struct ReviewOptions {
 }
 
 impl Review {
-    const NICK: [u8; 3] = [114, 101, 118];
+    const NICK: [u8; 3] = *b"rev";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Review

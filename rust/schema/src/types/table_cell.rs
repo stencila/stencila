@@ -96,7 +96,7 @@ pub struct TableCellOptions {
 }
 
 impl TableCell {
-    const NICK: [u8; 3] = [116, 98, 99];
+    const NICK: [u8; 3] = *b"tbc";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::TableCell

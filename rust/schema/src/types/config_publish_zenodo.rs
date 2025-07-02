@@ -39,7 +39,7 @@ pub struct ConfigPublishZenodo {
 }
 
 impl ConfigPublishZenodo {
-    const NICK: [u8; 3] = [99, 112, 122];
+    const NICK: [u8; 3] = *b"cpz";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Config

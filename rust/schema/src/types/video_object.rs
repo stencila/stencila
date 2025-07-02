@@ -338,7 +338,7 @@ pub struct VideoObjectOptions {
 }
 
 impl VideoObject {
-    const NICK: [u8; 3] = [118, 105, 100];
+    const NICK: [u8; 3] = *b"vid";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::VideoObject

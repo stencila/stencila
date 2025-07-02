@@ -177,7 +177,7 @@ pub struct PromptBlockOptions {
 }
 
 impl PromptBlock {
-    const NICK: [u8; 3] = [112, 114, 98];
+    const NICK: [u8; 3] = *b"prb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::PromptBlock

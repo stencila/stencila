@@ -42,7 +42,7 @@ pub struct Text {
 }
 
 impl Text {
-    const NICK: [u8; 3] = [116, 120, 116];
+    const NICK: [u8; 3] = *b"txt";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Text

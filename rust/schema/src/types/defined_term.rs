@@ -75,7 +75,7 @@ pub struct DefinedTermOptions {
 }
 
 impl DefinedTerm {
-    const NICK: [u8; 3] = [100, 101, 102];
+    const NICK: [u8; 3] = *b"def";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DefinedTerm

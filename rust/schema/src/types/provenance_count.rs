@@ -40,7 +40,7 @@ pub struct ProvenanceCount {
 }
 
 impl ProvenanceCount {
-    const NICK: [u8; 3] = [112, 114, 99];
+    const NICK: [u8; 3] = *b"prc";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ProvenanceCount

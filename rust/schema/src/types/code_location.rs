@@ -46,7 +46,7 @@ pub struct CodeLocation {
 }
 
 impl CodeLocation {
-    const NICK: [u8; 3] = [99, 100, 108];
+    const NICK: [u8; 3] = *b"cdl";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CodeLocation

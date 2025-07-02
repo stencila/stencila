@@ -83,7 +83,7 @@ pub struct GrantOptions {
 }
 
 impl Grant {
-    const NICK: [u8; 3] = [103, 114, 97];
+    const NICK: [u8; 3] = *b"gra";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Grant

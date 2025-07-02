@@ -254,7 +254,7 @@ pub struct CollectionOptions {
 }
 
 impl Collection {
-    const NICK: [u8; 3] = [99, 111, 108];
+    const NICK: [u8; 3] = *b"col";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Collection

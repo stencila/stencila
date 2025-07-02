@@ -384,7 +384,7 @@ pub struct PromptOptions {
 }
 
 impl Prompt {
-    const NICK: [u8; 3] = [112, 114, 111];
+    const NICK: [u8; 3] = *b"pro";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Prompt

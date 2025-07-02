@@ -58,7 +58,7 @@ pub struct ArrayValidator {
 }
 
 impl ArrayValidator {
-    const NICK: [u8; 3] = [97, 114, 118];
+    const NICK: [u8; 3] = *b"arv";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ArrayValidator

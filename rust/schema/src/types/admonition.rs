@@ -96,7 +96,7 @@ pub struct Admonition {
 }
 
 impl Admonition {
-    const NICK: [u8; 3] = [97, 100, 109];
+    const NICK: [u8; 3] = *b"adm";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Admonition

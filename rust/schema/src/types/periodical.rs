@@ -269,7 +269,7 @@ pub struct PeriodicalOptions {
 }
 
 impl Periodical {
-    const NICK: [u8; 3] = [112, 100, 108];
+    const NICK: [u8; 3] = *b"pdl";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Periodical

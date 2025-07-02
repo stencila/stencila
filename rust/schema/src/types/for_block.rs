@@ -251,7 +251,7 @@ pub struct ForBlockOptions {
 }
 
 impl ForBlock {
-    const NICK: [u8; 3] = [102, 114, 98];
+    const NICK: [u8; 3] = *b"frb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ForBlock

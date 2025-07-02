@@ -30,7 +30,7 @@ pub struct StringHint {
 }
 
 impl StringHint {
-    const NICK: [u8; 3] = [115, 116, 104];
+    const NICK: [u8; 3] = *b"sth";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::StringHint

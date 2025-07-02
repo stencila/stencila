@@ -41,7 +41,7 @@ pub struct ObjectHint {
 }
 
 impl ObjectHint {
-    const NICK: [u8; 3] = [111, 98, 104];
+    const NICK: [u8; 3] = *b"obh";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ObjectHint

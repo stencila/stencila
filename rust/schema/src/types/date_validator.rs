@@ -35,7 +35,7 @@ pub struct DateValidator {
 }
 
 impl DateValidator {
-    const NICK: [u8; 3] = [100, 97, 118];
+    const NICK: [u8; 3] = *b"dav";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DateValidator

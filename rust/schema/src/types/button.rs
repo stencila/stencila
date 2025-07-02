@@ -189,7 +189,7 @@ pub struct ButtonOptions {
 }
 
 impl Button {
-    const NICK: [u8; 3] = [98, 117, 116];
+    const NICK: [u8; 3] = *b"but";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Button

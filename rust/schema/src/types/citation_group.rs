@@ -36,7 +36,7 @@ pub struct CitationGroup {
 }
 
 impl CitationGroup {
-    const NICK: [u8; 3] = [99, 116, 103];
+    const NICK: [u8; 3] = *b"ctg";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CitationGroup

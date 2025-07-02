@@ -69,7 +69,7 @@ pub struct Heading {
 }
 
 impl Heading {
-    const NICK: [u8; 3] = [104, 101, 97];
+    const NICK: [u8; 3] = *b"hea";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Heading

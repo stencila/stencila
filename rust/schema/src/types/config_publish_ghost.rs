@@ -48,7 +48,7 @@ pub struct ConfigPublishGhost {
 }
 
 impl ConfigPublishGhost {
-    const NICK: [u8; 3] = [99, 112, 103];
+    const NICK: [u8; 3] = *b"cpg";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Config

@@ -50,7 +50,7 @@ pub struct IntegerValidator {
 }
 
 impl IntegerValidator {
-    const NICK: [u8; 3] = [105, 110, 118];
+    const NICK: [u8; 3] = *b"inv";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::IntegerValidator

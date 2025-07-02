@@ -71,7 +71,7 @@ pub struct ThingOptions {
 }
 
 impl Thing {
-    const NICK: [u8; 3] = [116, 104, 105];
+    const NICK: [u8; 3] = *b"thi";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Thing

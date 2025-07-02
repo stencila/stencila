@@ -55,7 +55,7 @@ pub struct Excerpt {
 }
 
 impl Excerpt {
-    const NICK: [u8; 3] = [101, 120, 99];
+    const NICK: [u8; 3] = *b"exc";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Excerpt

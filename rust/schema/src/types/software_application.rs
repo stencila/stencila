@@ -267,7 +267,7 @@ pub struct SoftwareApplicationOptions {
 }
 
 impl SoftwareApplication {
-    const NICK: [u8; 3] = [115, 97, 112];
+    const NICK: [u8; 3] = *b"sap";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::SoftwareApplication

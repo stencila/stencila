@@ -254,7 +254,7 @@ pub struct CreativeWorkOptions {
 }
 
 impl CreativeWork {
-    const NICK: [u8; 3] = [99, 114, 101];
+    const NICK: [u8; 3] = *b"cre";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CreativeWork

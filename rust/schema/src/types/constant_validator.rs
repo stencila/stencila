@@ -31,7 +31,7 @@ pub struct ConstantValidator {
 }
 
 impl ConstantValidator {
-    const NICK: [u8; 3] = [99, 111, 118];
+    const NICK: [u8; 3] = *b"cov";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ConstantValidator

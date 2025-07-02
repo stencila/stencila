@@ -215,7 +215,7 @@ pub struct CodeExpressionOptions {
 }
 
 impl CodeExpression {
-    const NICK: [u8; 3] = [99, 100, 101];
+    const NICK: [u8; 3] = *b"cde";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CodeExpression

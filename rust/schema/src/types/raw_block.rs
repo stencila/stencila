@@ -84,7 +84,7 @@ pub struct RawBlock {
 }
 
 impl RawBlock {
-    const NICK: [u8; 3] = [114, 97, 119];
+    const NICK: [u8; 3] = *b"raw";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::RawBlock

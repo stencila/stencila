@@ -42,7 +42,7 @@ pub struct Duration {
 }
 
 impl Duration {
-    const NICK: [u8; 3] = [100, 117, 114];
+    const NICK: [u8; 3] = *b"dur";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Duration

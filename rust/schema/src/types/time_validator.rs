@@ -35,7 +35,7 @@ pub struct TimeValidator {
 }
 
 impl TimeValidator {
-    const NICK: [u8; 3] = [116, 109, 118];
+    const NICK: [u8; 3] = *b"tmv";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::TimeValidator

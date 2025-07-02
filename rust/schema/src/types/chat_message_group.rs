@@ -35,7 +35,7 @@ pub struct ChatMessageGroup {
 }
 
 impl ChatMessageGroup {
-    const NICK: [u8; 3] = [99, 109, 103];
+    const NICK: [u8; 3] = *b"cmg";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ChatMessageGroup

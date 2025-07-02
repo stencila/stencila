@@ -270,7 +270,7 @@ pub struct PublicationIssueOptions {
 }
 
 impl PublicationIssue {
-    const NICK: [u8; 3] = [112, 98, 105];
+    const NICK: [u8; 3] = *b"pbi";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::PublicationIssue

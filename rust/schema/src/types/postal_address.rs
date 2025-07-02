@@ -111,7 +111,7 @@ pub struct PostalAddressOptions {
 }
 
 impl PostalAddress {
-    const NICK: [u8; 3] = [112, 111, 115];
+    const NICK: [u8; 3] = *b"pos";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::PostalAddress

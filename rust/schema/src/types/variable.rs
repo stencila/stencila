@@ -53,7 +53,7 @@ pub struct Variable {
 }
 
 impl Variable {
-    const NICK: [u8; 3] = [118, 97, 114];
+    const NICK: [u8; 3] = *b"var";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Variable

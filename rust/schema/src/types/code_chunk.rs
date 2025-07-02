@@ -266,7 +266,7 @@ pub struct CodeChunkOptions {
 }
 
 impl CodeChunk {
-    const NICK: [u8; 3] = [99, 100, 99];
+    const NICK: [u8; 3] = *b"cdc";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CodeChunk

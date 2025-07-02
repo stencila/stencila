@@ -34,7 +34,7 @@ pub struct InlinesBlock {
 }
 
 impl InlinesBlock {
-    const NICK: [u8; 3] = [105, 110, 98];
+    const NICK: [u8; 3] = *b"inb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::InlinesBlock

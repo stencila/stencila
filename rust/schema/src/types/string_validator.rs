@@ -41,7 +41,7 @@ pub struct StringValidator {
 }
 
 impl StringValidator {
-    const NICK: [u8; 3] = [115, 116, 118];
+    const NICK: [u8; 3] = *b"stv";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::StringValidator

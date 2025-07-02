@@ -54,7 +54,7 @@ pub struct Note {
 }
 
 impl Note {
-    const NICK: [u8; 3] = [110, 111, 116];
+    const NICK: [u8; 3] = *b"not";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Note

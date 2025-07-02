@@ -35,7 +35,7 @@ pub struct ConfigModels {
 }
 
 impl ConfigModels {
-    const NICK: [u8; 3] = [99, 102, 109];
+    const NICK: [u8; 3] = *b"cfm";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Config

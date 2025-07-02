@@ -482,7 +482,7 @@ pub struct ArticleOptions {
 }
 
 impl Article {
-    const NICK: [u8; 3] = [97, 114, 116];
+    const NICK: [u8; 3] = *b"art";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Article

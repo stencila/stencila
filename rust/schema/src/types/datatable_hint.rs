@@ -36,7 +36,7 @@ pub struct DatatableHint {
 }
 
 impl DatatableHint {
-    const NICK: [u8; 3] = [100, 116, 104];
+    const NICK: [u8; 3] = *b"dth";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DatatableHint

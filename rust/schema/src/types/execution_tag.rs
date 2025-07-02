@@ -37,7 +37,7 @@ pub struct ExecutionTag {
 }
 
 impl ExecutionTag {
-    const NICK: [u8; 3] = [101, 120, 116];
+    const NICK: [u8; 3] = *b"ext";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ExecutionTag

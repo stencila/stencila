@@ -312,7 +312,7 @@ pub struct FigureOptions {
 }
 
 impl Figure {
-    const NICK: [u8; 3] = [102, 105, 103];
+    const NICK: [u8; 3] = *b"fig";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Figure

@@ -38,7 +38,7 @@ pub struct Time {
 }
 
 impl Time {
-    const NICK: [u8; 3] = [116, 109, 101];
+    const NICK: [u8; 3] = *b"tme";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Time

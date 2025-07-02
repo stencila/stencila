@@ -334,7 +334,7 @@ pub struct AudioObjectOptions {
 }
 
 impl AudioObject {
-    const NICK: [u8; 3] = [97, 117, 100];
+    const NICK: [u8; 3] = *b"aud";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::AudioObject

@@ -79,7 +79,7 @@ pub struct PropertyValueOptions {
 }
 
 impl PropertyValue {
-    const NICK: [u8; 3] = [112, 114, 118];
+    const NICK: [u8; 3] = *b"prv";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::PropertyValue

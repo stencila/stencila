@@ -95,7 +95,7 @@ pub struct CitationOptions {
 }
 
 impl Citation {
-    const NICK: [u8; 3] = [99, 105, 116];
+    const NICK: [u8; 3] = *b"cit";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Citation

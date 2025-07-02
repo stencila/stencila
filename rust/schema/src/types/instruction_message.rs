@@ -54,7 +54,7 @@ pub struct InstructionMessage {
 }
 
 impl InstructionMessage {
-    const NICK: [u8; 3] = [105, 109, 101];
+    const NICK: [u8; 3] = *b"ime";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::InstructionMessage

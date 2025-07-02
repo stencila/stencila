@@ -270,7 +270,7 @@ pub struct PublicationVolumeOptions {
 }
 
 impl PublicationVolume {
-    const NICK: [u8; 3] = [112, 98, 118];
+    const NICK: [u8; 3] = *b"pbv";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::PublicationVolume

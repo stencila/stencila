@@ -127,7 +127,7 @@ pub struct PersonOptions {
 }
 
 impl Person {
-    const NICK: [u8; 3] = [112, 101, 114];
+    const NICK: [u8; 3] = *b"per";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Person

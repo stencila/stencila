@@ -69,7 +69,7 @@ pub struct CodeBlock {
 }
 
 impl CodeBlock {
-    const NICK: [u8; 3] = [99, 100, 98];
+    const NICK: [u8; 3] = *b"cdb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CodeBlock

@@ -41,7 +41,7 @@ pub struct Walkthrough {
 }
 
 impl Walkthrough {
-    const NICK: [u8; 3] = [119, 107, 116];
+    const NICK: [u8; 3] = *b"wkt";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Walkthrough

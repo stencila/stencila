@@ -199,7 +199,7 @@ pub struct CallBlockOptions {
 }
 
 impl CallBlock {
-    const NICK: [u8; 3] = [99, 108, 98];
+    const NICK: [u8; 3] = *b"clb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CallBlock

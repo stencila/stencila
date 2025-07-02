@@ -38,7 +38,7 @@ pub struct DateTime {
 }
 
 impl DateTime {
-    const NICK: [u8; 3] = [100, 116, 105];
+    const NICK: [u8; 3] = *b"dti";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DateTime

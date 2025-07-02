@@ -121,7 +121,7 @@ pub struct MathBlockOptions {
 }
 
 impl MathBlock {
-    const NICK: [u8; 3] = [109, 116, 98];
+    const NICK: [u8; 3] = *b"mtb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::MathBlock

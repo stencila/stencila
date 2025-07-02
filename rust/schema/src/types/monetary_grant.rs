@@ -92,7 +92,7 @@ pub struct MonetaryGrantOptions {
 }
 
 impl MonetaryGrant {
-    const NICK: [u8; 3] = [109, 111, 110];
+    const NICK: [u8; 3] = *b"mon";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::MonetaryGrant

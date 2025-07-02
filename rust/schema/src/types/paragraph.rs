@@ -63,7 +63,7 @@ pub struct Paragraph {
 }
 
 impl Paragraph {
-    const NICK: [u8; 3] = [112, 103, 104];
+    const NICK: [u8; 3] = *b"pgh";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Paragraph

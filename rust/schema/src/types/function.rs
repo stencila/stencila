@@ -39,7 +39,7 @@ pub struct Function {
 }
 
 impl Function {
-    const NICK: [u8; 3] = [102, 117, 110];
+    const NICK: [u8; 3] = *b"fun";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Function

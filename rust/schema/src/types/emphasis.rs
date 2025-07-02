@@ -47,7 +47,7 @@ pub struct Emphasis {
 }
 
 impl Emphasis {
-    const NICK: [u8; 3] = [101, 109, 112];
+    const NICK: [u8; 3] = *b"emp";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Emphasis

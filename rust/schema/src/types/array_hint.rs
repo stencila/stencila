@@ -45,7 +45,7 @@ pub struct ArrayHint {
 }
 
 impl ArrayHint {
-    const NICK: [u8; 3] = [97, 114, 104];
+    const NICK: [u8; 3] = *b"arh";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ArrayHint

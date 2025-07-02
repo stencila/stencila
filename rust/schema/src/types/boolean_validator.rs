@@ -26,7 +26,7 @@ pub struct BooleanValidator {
 }
 
 impl BooleanValidator {
-    const NICK: [u8; 3] = [98, 111, 118];
+    const NICK: [u8; 3] = *b"bov";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::BooleanValidator

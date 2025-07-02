@@ -39,7 +39,7 @@ pub struct DatatableColumn {
 }
 
 impl DatatableColumn {
-    const NICK: [u8; 3] = [100, 116, 99];
+    const NICK: [u8; 3] = *b"dtc";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DatatableColumn

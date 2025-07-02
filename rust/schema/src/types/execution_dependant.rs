@@ -41,7 +41,7 @@ pub struct ExecutionDependant {
 }
 
 impl ExecutionDependant {
-    const NICK: [u8; 3] = [101, 120, 100];
+    const NICK: [u8; 3] = *b"exd";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ExecutionDependant

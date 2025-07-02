@@ -1019,15 +1019,14 @@ pub struct {title}Options {{
             ""
         };
 
-        let nick = match &schema.nick {
+        let nick: String = match &schema.nick {
             Some(nick) => nick.to_lowercase(),
             None => title.to_lowercase(),
-        };
-        let nick = nick.as_bytes();
-        let nick = format!(
-            "const NICK: [u8; 3] = [{}, {}, {}];",
-            nick[0], nick[1], nick[2]
-        );
+        }
+        .chars()
+        .take(3)
+        .collect();
+        let nick = format!("const NICK: [u8; 3] = *b\"{nick}\";");
 
         let fn_node_type = if schema.is_config() {
             "pub fn node_type(&self) -> NodeType {

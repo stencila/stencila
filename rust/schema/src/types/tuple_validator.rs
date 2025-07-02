@@ -33,7 +33,7 @@ pub struct TupleValidator {
 }
 
 impl TupleValidator {
-    const NICK: [u8; 3] = [116, 117, 118];
+    const NICK: [u8; 3] = *b"tuv";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::TupleValidator

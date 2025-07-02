@@ -34,7 +34,7 @@ pub struct Sentence {
 }
 
 impl Sentence {
-    const NICK: [u8; 3] = [115, 101, 110];
+    const NICK: [u8; 3] = *b"sen";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Sentence

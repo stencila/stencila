@@ -110,7 +110,7 @@ pub struct MathInlineOptions {
 }
 
 impl MathInline {
-    const NICK: [u8; 3] = [109, 116, 105];
+    const NICK: [u8; 3] = *b"mti";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::MathInline

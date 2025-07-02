@@ -67,7 +67,7 @@ pub struct QuoteBlock {
 }
 
 impl QuoteBlock {
-    const NICK: [u8; 3] = [113, 116, 98];
+    const NICK: [u8; 3] = *b"qtb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::QuoteBlock

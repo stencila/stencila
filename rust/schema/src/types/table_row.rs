@@ -51,7 +51,7 @@ pub struct TableRow {
 }
 
 impl TableRow {
-    const NICK: [u8; 3] = [116, 98, 114];
+    const NICK: [u8; 3] = *b"tbr";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::TableRow

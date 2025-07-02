@@ -209,7 +209,7 @@ pub struct CallArgumentOptions {
 }
 
 impl CallArgument {
-    const NICK: [u8; 3] = [99, 108, 97];
+    const NICK: [u8; 3] = *b"cla";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CallArgument

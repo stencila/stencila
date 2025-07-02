@@ -113,7 +113,7 @@ pub struct StyledBlockOptions {
 }
 
 impl StyledBlock {
-    const NICK: [u8; 3] = [115, 116, 98];
+    const NICK: [u8; 3] = *b"stb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::StyledBlock

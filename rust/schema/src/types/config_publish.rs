@@ -27,7 +27,7 @@ pub struct ConfigPublish {
 }
 
 impl ConfigPublish {
-    const NICK: [u8; 3] = [99, 102, 112];
+    const NICK: [u8; 3] = *b"cfp";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Config

@@ -277,7 +277,7 @@ pub struct MediaObjectOptions {
 }
 
 impl MediaObject {
-    const NICK: [u8; 3] = [109, 101, 100];
+    const NICK: [u8; 3] = *b"med";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::MediaObject

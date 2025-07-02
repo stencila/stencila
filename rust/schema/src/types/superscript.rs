@@ -47,7 +47,7 @@ pub struct Superscript {
 }
 
 impl Superscript {
-    const NICK: [u8; 3] = [115, 117, 112];
+    const NICK: [u8; 3] = *b"sup";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Superscript

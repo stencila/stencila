@@ -42,7 +42,7 @@ pub struct Timestamp {
 }
 
 impl Timestamp {
-    const NICK: [u8; 3] = [116, 115, 116];
+    const NICK: [u8; 3] = *b"tst";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Timestamp

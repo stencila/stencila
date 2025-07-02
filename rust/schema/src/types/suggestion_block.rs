@@ -75,7 +75,7 @@ pub struct SuggestionBlock {
 }
 
 impl SuggestionBlock {
-    const NICK: [u8; 3] = [115, 103, 98];
+    const NICK: [u8; 3] = *b"sgb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::SuggestionBlock

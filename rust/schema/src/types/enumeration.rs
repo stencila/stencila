@@ -71,7 +71,7 @@ pub struct EnumerationOptions {
 }
 
 impl Enumeration {
-    const NICK: [u8; 3] = [101, 110, 117];
+    const NICK: [u8; 3] = *b"enu";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Enumeration

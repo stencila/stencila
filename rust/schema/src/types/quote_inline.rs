@@ -51,7 +51,7 @@ pub struct QuoteInline {
 }
 
 impl QuoteInline {
-    const NICK: [u8; 3] = [113, 116, 105];
+    const NICK: [u8; 3] = *b"qti";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::QuoteInline

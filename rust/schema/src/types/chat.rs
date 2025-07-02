@@ -384,7 +384,7 @@ pub struct ChatOptions {
 }
 
 impl Chat {
-    const NICK: [u8; 3] = [99, 104, 116];
+    const NICK: [u8; 3] = *b"cht";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Chat

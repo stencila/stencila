@@ -26,7 +26,7 @@ pub struct Unknown {
 }
 
 impl Unknown {
-    const NICK: [u8; 3] = [117, 110, 107];
+    const NICK: [u8; 3] = *b"unk";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Unknown

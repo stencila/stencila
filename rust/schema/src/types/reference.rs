@@ -67,7 +67,7 @@ pub struct Reference {
 }
 
 impl Reference {
-    const NICK: [u8; 3] = [114, 101, 102];
+    const NICK: [u8; 3] = *b"ref";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Reference

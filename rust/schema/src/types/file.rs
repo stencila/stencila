@@ -62,7 +62,7 @@ pub struct FileOptions {
 }
 
 impl File {
-    const NICK: [u8; 3] = [102, 105, 108];
+    const NICK: [u8; 3] = *b"fil";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::File

@@ -283,7 +283,7 @@ pub struct SoftwareSourceCodeOptions {
 }
 
 impl SoftwareSourceCode {
-    const NICK: [u8; 3] = [115, 115, 99];
+    const NICK: [u8; 3] = *b"ssc";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::SoftwareSourceCode

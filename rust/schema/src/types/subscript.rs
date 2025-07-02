@@ -47,7 +47,7 @@ pub struct Subscript {
 }
 
 impl Subscript {
-    const NICK: [u8; 3] = [115, 117, 98];
+    const NICK: [u8; 3] = *b"sub";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Subscript

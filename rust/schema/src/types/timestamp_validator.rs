@@ -42,7 +42,7 @@ pub struct TimestampValidator {
 }
 
 impl TimestampValidator {
-    const NICK: [u8; 3] = [116, 115, 118];
+    const NICK: [u8; 3] = *b"tsv";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::TimestampValidator

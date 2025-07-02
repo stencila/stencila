@@ -38,7 +38,7 @@ pub struct Date {
 }
 
 impl Date {
-    const NICK: [u8; 3] = [100, 97, 101];
+    const NICK: [u8; 3] = *b"dae";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Date

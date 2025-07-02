@@ -44,7 +44,7 @@ pub struct DatatableColumnHint {
 }
 
 impl DatatableColumnHint {
-    const NICK: [u8; 3] = [100, 99, 104];
+    const NICK: [u8; 3] = *b"dch";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DatatableColumnHint

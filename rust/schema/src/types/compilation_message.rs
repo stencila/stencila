@@ -43,7 +43,7 @@ pub struct CompilationMessage {
 }
 
 impl CompilationMessage {
-    const NICK: [u8; 3] = [99, 109, 101];
+    const NICK: [u8; 3] = *b"cme";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CompilationMessage

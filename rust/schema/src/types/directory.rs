@@ -39,7 +39,7 @@ pub struct Directory {
 }
 
 impl Directory {
-    const NICK: [u8; 3] = [100, 105, 114];
+    const NICK: [u8; 3] = *b"dir";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Directory

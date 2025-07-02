@@ -69,7 +69,7 @@ pub struct CodeInline {
 }
 
 impl CodeInline {
-    const NICK: [u8; 3] = [99, 100, 105];
+    const NICK: [u8; 3] = *b"cdi";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CodeInline

@@ -47,7 +47,7 @@ pub struct ExecutionMessage {
 }
 
 impl ExecutionMessage {
-    const NICK: [u8; 3] = [101, 109, 101];
+    const NICK: [u8; 3] = *b"eme";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ExecutionMessage

@@ -69,7 +69,7 @@ pub struct Island {
 }
 
 impl Island {
-    const NICK: [u8; 3] = [105, 115, 108];
+    const NICK: [u8; 3] = *b"isl";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Island

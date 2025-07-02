@@ -50,7 +50,7 @@ pub struct NumberValidator {
 }
 
 impl NumberValidator {
-    const NICK: [u8; 3] = [110, 117, 118];
+    const NICK: [u8; 3] = *b"nuv";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::NumberValidator

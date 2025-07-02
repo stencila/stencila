@@ -47,7 +47,7 @@ pub struct CompilationDigest {
 }
 
 impl CompilationDigest {
-    const NICK: [u8; 3] = [99, 109, 100];
+    const NICK: [u8; 3] = *b"cmd";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CompilationDigest

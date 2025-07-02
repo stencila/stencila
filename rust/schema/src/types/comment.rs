@@ -268,7 +268,7 @@ pub struct CommentOptions {
 }
 
 impl Comment {
-    const NICK: [u8; 3] = [99, 111, 109];
+    const NICK: [u8; 3] = *b"com";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Comment

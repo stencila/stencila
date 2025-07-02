@@ -241,7 +241,7 @@ pub struct DatatableOptions {
 }
 
 impl Datatable {
-    const NICK: [u8; 3] = [100, 116, 98];
+    const NICK: [u8; 3] = *b"dtb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Datatable
