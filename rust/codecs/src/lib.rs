@@ -3,7 +3,7 @@ use std::{
     process::Command,
 };
 
-use ask::{ask_with_default, Answer};
+use ask::{ask_with, Answer, AskLevel, AskOptions};
 use cli_utils::{Code, ToStdout};
 use codec::{
     common::{
@@ -425,7 +425,8 @@ pub async fn convert(
 /// Usually the edited document is in a different format to the
 /// original.
 ///
-/// Returns a vector of paths that were modified during the merge.
+/// Returns a vector of paths that were modified during the merge or
+/// `None` is the merge was cancelled.
 #[tracing::instrument]
 pub async fn merge(
     edited: &Path,
@@ -436,7 +437,7 @@ pub async fn merge(
     decode_options: DecodeOptions,
     mut encode_options: EncodeOptions,
     workdir: Option<PathBuf>,
-) -> Result<Vec<PathBuf>> {
+) -> Result<Option<Vec<PathBuf>>> {
     // Create, or use specified, working directory
     let tempdir = tempdir()?;
     let workdir = if let Some(workdir) = &workdir {
@@ -476,7 +477,11 @@ pub async fn merge(
     // If a commit is available then check the status of the file relative to the path
     if let Some(commit) = commit {
         if commit != "untracked" && commit != "dirty" {
-            check_git_status(&original, &commit, false).await?;
+            let should_continue = check_git_status(&original, &commit, &edited, false).await?;
+            if !should_continue {
+                tracing::debug!("Merge cancelled");
+                return Ok(None);
+            }
         }
     }
 
@@ -573,7 +578,7 @@ pub async fn merge(
             )
         })?;
 
-        tracing::info!(
+        tracing::debug!(
             "Rebasing edits for `{}` using unedited version {}",
             relative_path.display(),
             if unedited_provided {
@@ -588,7 +593,7 @@ pub async fn merge(
         modified_files.push(original_path);
     }
 
-    Ok(modified_files)
+    Ok(Some(modified_files))
 }
 
 /// Check if a file has changed since a specific commit and optionally create a branch
@@ -622,11 +627,17 @@ pub async fn merge(
 ///
 /// # Returns
 ///
-/// * `Ok(())` - Operation completed successfully (including early exits)
+/// * `Ok(true)` - Completed successfully
+/// * `Ok(false)` - Completed successfully but user cancelled the calling operation
 /// * `Err(_)` - Git operations failed or user input could not be read
 #[tracing::instrument]
-async fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> {
+#[must_use]
+async fn check_git_status(path: &Path, commit: &str, other: &Path, force: bool) -> Result<bool> {
     let path_ = path.display();
+    let file_ = path
+        .file_name()
+        .map(|name| name.to_string_lossy())
+        .unwrap_or_else(|| path.to_string_lossy());
     let commit_short = &commit[..8.min(commit.len())];
 
     // Check if file has changed since the specified commit
@@ -641,27 +652,37 @@ async fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> 
 
     if diff_output.stdout.is_empty() {
         tracing::debug!("No changes detected in {path_} since commit {commit}");
-        return Ok(());
+        return Ok(true);
     } else {
         tracing::debug!("File {path_} has changed since commit {commit}");
     }
 
     // Determine if we should create a branch
     tracing::debug!("File has changes, determining whether to create branch");
-    let should_create_branch = if force {
+    if force {
         tracing::debug!("Force mode enabled, will create branch");
-        true
     } else {
-        ask_with_default(
-            &format!("Original source file `{path_}` has changed since the edited file was generated from it. Would you like to create a new branch at commit `{commit_short}` so edits can be applied correctly?"),
-            Answer::Yes
-        ).await?.is_yes()
-    };
+        let other = other
+            .file_name()
+            .map(|name| name.to_string_lossy())
+            .unwrap_or_else(|| other.to_string_lossy());
 
-    if !should_create_branch {
-        tracing::info!("Branch creation skipped");
-        return Ok(());
-    }
+        match ask_with(
+            &format!("Source file `{file_}` has changed since `{other}` was generated from it. Would you like to create a new branch at commit `{commit_short}` so edits can be applied correctly?"),
+            AskOptions {
+                level: AskLevel::Warning,
+                default: Some(Answer::Yes),
+                title: Some("Source has changed".into()),
+                yes_text: Some("Yes, create a Git branch".into()),
+                no_text: Some("No, just continue".into()),
+                cancel_allowed: true
+            }
+        ).await? {
+            Answer::Yes => {}, // continue below
+            Answer::No => return Ok(true),
+            Answer::Cancel => return Ok(false)
+        }
+    };
 
     // Check if the file has uncommitted changes
     tracing::debug!("Checking if file {path_} has uncommitted changes");
@@ -681,18 +702,25 @@ async fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> 
         tracing::debug!("File {path_} has uncommitted changes that conflict with target commit");
 
         if !force {
-            let should_stash = ask_with_default(
-                &format!("File `{path_}` has uncommitted changes. Would you like to stash changes before creating branch?"),
-                Answer::Yes
-            ).await?;
-            if should_stash.is_no_or_cancel() {
-                tracing::info!("Please commit your changes first, then run this command again.");
-                return Ok(());
+            match ask_with(
+                &format!("Source file `{file_}` has uncommitted changes. Would you like to stash changes before creating branch?"),
+                AskOptions {
+                    level: AskLevel::Warning,
+                    default: Some(Answer::Yes),
+                    title: Some("Uncommitted changes to source".into()),
+                    yes_text: Some("Yes, create a Git stash".into()),
+                    no_text: Some("No, I'll deal with conflicts".into()),
+                    cancel_allowed: true
+                }
+            ).await? {
+                Answer::Yes => {} // continue below
+                Answer::No => return Ok(true),
+                Answer::Cancel => return Ok(false)
             }
         }
 
         // Stash the changes
-        tracing::info!("Stashing uncommitted changes");
+        tracing::debug!("Stashing uncommitted changes");
         let stash_output = Command::new("git")
             .args([
                 "stash",
@@ -715,7 +743,6 @@ async fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> 
 
     // Create and checkout the new branch at the specified commit
     tracing::debug!("Executing git checkout -b {} {}", branch_name, commit);
-    tracing::info!("Creating branch '{}' at commit {}", branch_name, commit);
     let branch_result = Command::new("git")
         .args(["checkout", "-b", &branch_name, commit])
         .status()
@@ -734,7 +761,7 @@ async fn check_git_status(path: &Path, commit: &str, force: bool) -> Result<()> 
         "Successfully created and switched to branch '{}'",
         branch_name
     );
-    Ok(())
+    Ok(true)
 }
 
 /// A visitor that implements the `--recurse` encoding option by walking over

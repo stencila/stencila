@@ -76,14 +76,18 @@ impl Cli {
         )
         .await?;
 
-        eprintln!(
-            "📝 Merge completed successfully, {}",
-            match modified_files.len() {
-                0 => "no changes detected".to_string(),
-                1 => "1 file modified".to_string(),
-                count => format!("{count} files modified"),
-            }
-        );
+        if let Some(modified_files) = modified_files {
+            eprintln!(
+                "📝 Merge completed successfully, {}",
+                match modified_files.len() {
+                    0 => "no changes detected".to_string(),
+                    1 => "1 file modified".to_string(),
+                    count => format!("{count} files modified"),
+                }
+            );
+        } else {
+            eprintln!("🚫 Merge cancelled");
+        }
 
         Ok(())
     }

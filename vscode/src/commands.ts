@@ -372,9 +372,13 @@ nodeTypes: []
       );
 
       // Handle the results
-      if (!filesModified || filesModified.length === 0) {
+      if (filesModified === null) {
+        vscode.window.showInformationMessage("Merge cancelled.");
+        return;
+      }
+      if (filesModified.length === 0) {
         vscode.window.showInformationMessage(
-          "Files merged successfully but no changes were detected."
+          "File merged successfully but no changes were detected."
         );
         return;
       }
