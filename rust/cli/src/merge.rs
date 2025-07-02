@@ -8,7 +8,7 @@ use format::Format;
 
 use crate::options::{DecodeOptions, EncodeOptions, StripOptions};
 
-/// Reverse changes from an edited document into the original
+/// Merge changes an edited document into the original
 #[derive(Debug, Parser)]
 pub struct Cli {
     /// The edited version of the document
