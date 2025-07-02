@@ -594,7 +594,7 @@ fn code_chunk_to_pandoc(
     context: &mut PandocEncodeContext,
 ) -> Vec<pandoc::Block> {
     if context.render {
-        let attrs = if context.highlight {
+        let link_attrs = if context.highlight {
             Attr {
                 attributes: vec![("custom-style".to_string(), "Code Chunk".to_string())],
                 ..Default::default()
@@ -603,13 +603,16 @@ fn code_chunk_to_pandoc(
             attrs_empty()
         };
 
+        let link_content = vec![pandoc::Inline::Str("[Code Chunk]".into())];
+
         let Some(outputs) = &code_chunk.outputs else {
             if context.reproducible {
                 let link = context.reproducible_link(
                     NodeType::CodeChunk,
                     code_chunk,
-                    attrs,
-                    vec![pandoc::Inline::Str("Code Chunk".into())],
+                    None,
+                    link_attrs,
+                    link_content,
                 );
 
                 return vec![pandoc::Block::Para(vec![link])];
@@ -628,15 +631,29 @@ fn code_chunk_to_pandoc(
         };
 
         let inline = if context.reproducible {
-            context.reproducible_link(NodeType::CodeChunk, code_chunk, attrs, vec![inline])
+            // If no outputs then just a repro-link
+            context.reproducible_link(
+                NodeType::CodeChunk,
+                code_chunk,
+                None,
+                link_attrs,
+                vec![inline],
+            )
         } else if context.highlight {
-            pandoc::Inline::Span(attrs, vec![inline])
+            pandoc::Inline::Span(link_attrs, vec![inline])
         } else {
             inline
         };
 
         return vec![pandoc::Block::Para(vec![inline])];
     }
+
+    // If not render mode, and if these formats, then encode nothing
+    if matches!(context.format, Format::Docx | Format::Odt) {
+        return Vec::new();
+    }
+
+    // Otherwise, render a static code block..
 
     let mut classes = code_chunk
         .programming_language
@@ -964,6 +981,60 @@ fn include_block_to_pandoc(
     block: &IncludeBlock,
     context: &mut PandocEncodeContext,
 ) -> pandoc::Block {
+    if context.render {
+        let link_attrs = if context.highlight {
+            Attr {
+                attributes: vec![("custom-style".to_string(), "Include Block".to_string())],
+                ..Default::default()
+            }
+        } else {
+            attrs_empty()
+        };
+
+        let source = &block.source;
+
+        if let Some(content) = &block.content {
+            let mut blocks = Vec::new();
+
+            if context.reproducible {
+                blocks.push(pandoc::Block::Para(vec![context.reproducible_link(
+                    NodeType::IncludeBlock,
+                    block,
+                    Some(NodePosition::Begin),
+                    link_attrs.clone(),
+                    vec![pandoc::Inline::Str(format!("[Begin {source}]"))],
+                )]));
+            }
+
+            blocks.append(&mut blocks_to_pandoc(
+                NodeProperty::Content,
+                content,
+                context,
+            ));
+
+            if context.reproducible {
+                blocks.push(pandoc::Block::Para(vec![context.reproducible_link(
+                    NodeType::IncludeBlock,
+                    block,
+                    Some(NodePosition::End),
+                    link_attrs,
+                    vec![pandoc::Inline::Str(format!("[End {source}]"))],
+                )]));
+            }
+
+            return pandoc::Block::Div(attrs_empty(), blocks);
+        } else {
+            return pandoc::Block::Para(vec![context.reproducible_link(
+                NodeType::IncludeBlock,
+                block,
+                None,
+                link_attrs,
+                vec![pandoc::Inline::Str(format!("[Include {source}]"))],
+            )]);
+        }
+    }
+
+    // If LaTeX, encode as an input command
     if matches!(context.format, Format::Latex | Format::Rnw) {
         return pandoc::Block::RawBlock(
             pandoc::Format("latex".into()),
@@ -971,6 +1042,7 @@ fn include_block_to_pandoc(
         );
     }
 
+    // Otherwise encode as a div with class "include"
     let mut attributes = vec![("source".into(), block.source.clone())];
     if let Some(media) = &block.media_type {
         attributes.push(("media".into(), media.to_string().clone()));

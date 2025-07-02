@@ -46,7 +46,7 @@ pub struct NodeUrl {
 }
 
 /// The position in the node that the URL relates to
-#[derive(Debug, EnumString, Display, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, EnumString, Display, PartialEq, Eq)]
 #[strum(
     ascii_case_insensitive,
     serialize_all = "lowercase",

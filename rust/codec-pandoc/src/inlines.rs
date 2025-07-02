@@ -428,7 +428,7 @@ fn code_expression_to_pandoc(
         };
 
         return if context.reproducible {
-            context.reproducible_link(NodeType::CodeExpression, expr, attrs, vec![inline])
+            context.reproducible_link(NodeType::CodeExpression, expr, None, attrs, vec![inline])
         } else if context.highlight {
             pandoc::Inline::Span(attrs, vec![inline])
         } else {
@@ -436,6 +436,12 @@ fn code_expression_to_pandoc(
         };
     }
 
+    // If not render mode, and if these formats, then encode empty span
+    if matches!(context.format, Format::Docx | Format::Odt) {
+        return pandoc::Inline::Span(attrs_empty(), Vec::new());
+    }
+
+    // If LaTeX, encode as special command
     if matches!(context.format, Format::Latex | Format::Rnw) {
         let begin = if matches!(context.format, Format::Rnw) {
             "\\Sexpr{"
@@ -448,6 +454,7 @@ fn code_expression_to_pandoc(
         );
     }
 
+    // Otherwise, encode as static inline code
     let mut lang = expr.programming_language.clone().unwrap_or_default();
     lang.push_str("exec");
 

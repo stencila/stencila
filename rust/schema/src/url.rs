@@ -5,13 +5,19 @@ use common::{
 use node_path::NodePath;
 use node_strip::{StripNode, StripScope, StripTargets};
 use node_type::NodeType;
-use node_url::NodeUrl;
+
+pub use node_url::{NodePosition, NodeUrl};
 
 /// Create a [`NodeUrl`] with the path to the node (in a cache) to allow reconstitution
-pub fn node_url_path(node_type: NodeType, path: NodePath) -> NodeUrl {
+pub fn node_url_path(
+    node_type: NodeType,
+    path: NodePath,
+    position: Option<NodePosition>,
+) -> NodeUrl {
     NodeUrl {
         r#type: Some(node_type),
         path: Some(path),
+        position,
         ..Default::default()
     }
 }
@@ -21,7 +27,11 @@ pub fn node_url_path(node_type: NodeType, path: NodePath) -> NodeUrl {
 /// If the URL is more than 16k in length will successively strip
 /// properties (starting with output, which tend to be large)
 /// until the URL is below that.
-pub fn node_url_jzb64<T>(node_type: NodeType, node: &T) -> Result<NodeUrl>
+pub fn node_url_jzb64<T>(
+    node_type: NodeType,
+    node: &T,
+    position: Option<NodePosition>,
+) -> Result<NodeUrl>
 where
     T: Serialize + Clone + StripNode,
 {
@@ -32,6 +42,7 @@ where
     let mut url = NodeUrl {
         r#type: Some(node_type),
         jzb64: Some(NodeUrl::to_jzb64(node)?),
+        position,
         ..Default::default()
     };
     if url.to_string().len() < MAX_LENGTH {

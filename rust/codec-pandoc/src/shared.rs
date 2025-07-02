@@ -1,7 +1,7 @@
 use codec::{
     common::{inflector::Inflector, serde::Serialize, tracing},
     format::Format,
-    schema::{node_url_jzb64, node_url_path, NodePath, NodeSlot, StripNode},
+    schema::{node_url_jzb64, node_url_path, NodePath, NodePosition, NodeSlot, StripNode},
     Losses, NodeProperty, NodeType,
 };
 use pandoc_types::definition::{self as pandoc, Attr, Target};
@@ -74,6 +74,7 @@ impl PandocEncodeContext {
         &mut self,
         node_type: NodeType,
         node: &T,
+        position: Option<NodePosition>,
         attrs: Attr,
         content: Vec<pandoc::Inline>,
     ) -> pandoc::Inline
@@ -81,15 +82,15 @@ impl PandocEncodeContext {
         T: Serialize + Clone + StripNode,
     {
         let url = if matches!(self.format, Format::GDocx) {
-            match node_url_jzb64(node_type, node) {
+            match node_url_jzb64(node_type, node, position) {
                 Ok(url) => url,
                 Err(error) => {
                     tracing::error!("While encoding node url: {error}");
-                    node_url_path(node_type, self.node_path.clone())
+                    node_url_path(node_type, self.node_path.clone(), position)
                 }
             }
         } else {
-            node_url_path(node_type, self.node_path.clone())
+            node_url_path(node_type, self.node_path.clone(), position)
         };
 
         let url = url.to_string();
