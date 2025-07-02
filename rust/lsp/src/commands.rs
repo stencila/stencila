@@ -984,11 +984,22 @@ pub(super) async fn doc_command(
         }
         EXPORT_DOC => {
             let path = path_buf_arg(args.next())?;
+            let format = Some(Format::from_name(&string_arg(args.next())?));
+            let render = Some(bool_arg(args.next())?);
+            let reproducible = Some(bool_arg(args.next())?);
 
             let doc = doc.read().await;
-            doc.export(&path, Some(EncodeOptions::default()))
-                .await
-                .map_err(internal_error)?;
+            doc.export(
+                &path,
+                Some(EncodeOptions {
+                    format,
+                    render,
+                    reproducible,
+                    ..Default::default()
+                }),
+            )
+            .await
+            .map_err(internal_error)?;
 
             return Ok(None);
         }
@@ -1161,6 +1172,18 @@ fn position_arg(arg: Option<Value>) -> Result<Position, ResponseError> {
 fn range_arg(arg: Option<Value>) -> Result<Range, ResponseError> {
     arg.and_then(|value| serde_json::from_value(value).ok())
         .ok_or_else(|| invalid_request("Range argument missing or invalid"))
+}
+
+/// Extract a `bool` from a command arg
+fn bool_arg(arg: Option<Value>) -> Result<bool, ResponseError> {
+    arg.and_then(|value| serde_json::from_value(value).ok())
+        .ok_or_else(|| invalid_request("Boolean argument missing or invalid"))
+}
+
+/// Extract a `String` from a command arg
+fn string_arg(arg: Option<Value>) -> Result<String, ResponseError> {
+    arg.and_then(|value| serde_json::from_value(value).ok())
+        .ok_or_else(|| invalid_request("String argument missing or invalid"))
 }
 
 /// Extract a `PathBuf` from a command arg

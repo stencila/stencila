@@ -5,6 +5,50 @@ import * as vscode from "vscode";
 import { event } from "./events";
 import { createNodeViewPanel, createDocumentViewPanel } from "./webviews";
 
+class Format {
+  constructor(
+    public description: string,
+    public format: string,
+    public render = false,
+    public reproducible = false
+  ) {}
+}
+
+const FORMATS = {
+  "repro-docx": new Format("Reproducible Microsoft Word", "docx", true, true),
+  _1: null,
+  docx: new Format("Microsoft Word", "docx"),
+  odt: new Format("Open Document Text", "odt"),
+  pdf: new Format("Adobe Portable Document Format", "pdf"),
+  _2: null,
+  tex: new Format("LaTeX", "latex"),
+  myst: new Format("MyST Markdown", "myst"),
+  qmd: new Format("Quarto Markdown", "qmd"),
+  smd: new Format("Stencila Markdown", "smd"),
+  _3: null,
+  json: new Format("Stencila Schema JSON", "json"),
+  jsonld: new Format("Schema.org JSON Linked Data", "jsonld"),
+  yaml: new Format("Stencila Schema YAML", "yaml"),
+};
+
+function formatQuickPickItems() {
+  return Object.entries(FORMATS).map(([label, format]) =>
+    format
+      ? {
+          label,
+          description: format.description,
+        }
+      : {
+          label: "",
+          kind: vscode.QuickPickItemKind.Separator,
+        }
+  );
+}
+
+function getFormat(label: keyof typeof FORMATS) {
+  return FORMATS[label];
+}
+
 /**
  * Register document related commands provided by the extension
  */
@@ -269,44 +313,25 @@ nodeTypes: []
         return;
       }
 
-      const formats = {
-        docx: "Microsoft Word",
-        odt: "Open Document Text",
-        pdf: "PDF",
-        _1: null,
-        latex: "LaTeX",
-        myst: "MyST Markdown",
-        qmd: "Quarto Markdown",
-        smd: "Stencila Markdown",
-        _2: null,
-        json: "Stencila Schema JSON",
-        jsonld: "Schema.org JSON Linked Data",
-        yaml: "Stencila Schema YAML",
-      };
-      const items = Object.entries(formats).map(([format, desc]) =>
-        desc
-          ? {
-              label: format,
-              description: desc,
-            }
-          : {
-              label: "",
-              kind: vscode.QuickPickItemKind.Separator,
-            }
-      );
-
-      const format = await vscode.window.showQuickPick(items, {
+      const item = await vscode.window.showQuickPick(formatQuickPickItems(), {
         title: "Export Format",
         placeHolder: "Select a format to export the document to",
         matchOnDescription: true,
       });
+
+      if (!item) {
+        vscode.window.showInformationMessage("Document conversion cancelled.");
+        return;
+      }
+
+      const options = getFormat(item.label as keyof typeof FORMATS)!;
 
       const filename = editor.document.fileName;
       const saveUri = await vscode.window.showSaveDialog({
         title: "Export Document",
         saveLabel: "Export",
         defaultUri: vscode.Uri.file(
-          `${filename.substring(0, filename.lastIndexOf("."))}.${format?.label}`
+          `${filename.substring(0, filename.lastIndexOf("."))}.${options.format}`
         ),
       });
 
@@ -315,12 +340,15 @@ nodeTypes: []
         return;
       }
 
-      event("doc_export", { format: format?.label });
+      event("doc_export", options);
 
       vscode.commands.executeCommand(
         `stencila.export-doc`,
         editor.document.uri.toString(),
-        saveUri.fsPath
+        saveUri.fsPath,
+        options.format,
+        options.render,
+        options.reproducible
       );
     })
   );
