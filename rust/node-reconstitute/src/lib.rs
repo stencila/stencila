@@ -21,6 +21,14 @@ pub fn reconstitute(node: &mut Node, cache: Option<Node>) {
     Janitor.walk(node);
 }
 
+/// A block with its original path information begin and end pairing
+/// and iteration detection
+#[derive(Debug, Clone)]
+struct BlockWithPath {
+    block: Block,
+    path: Option<String>,
+}
+
 /// Reconstitutes nodes from a cache node
 #[derive(Default)]
 struct Reconstituter {
@@ -28,7 +36,26 @@ struct Reconstituter {
     cache: Option<Node>,
 
     /// Stack of blocks collected between (potentially nested) `begin` and `end` links
-    blocks: Vec<Vec<Block>>,
+    blocks: Vec<Vec<BlockWithPath>>,
+}
+
+impl Reconstituter {
+    /// Check if a node path represents a ForBlock iteration
+    fn is_iteration_path(path: &str) -> bool {
+        // Check if path contains iterations/ and the part after is a number
+        let iterations_pattern = "iterations/";
+        if let Some(iterations_pos) = path.find(iterations_pattern) {
+            let after_iterations = &path[iterations_pos + iterations_pattern.len()..];
+            // Check if what follows is just a number (possibly followed by more path)
+            if let Some(next_slash) = after_iterations.find('/') {
+                after_iterations[..next_slash].parse::<usize>().is_ok()
+            } else {
+                after_iterations.parse::<usize>().is_ok()
+            }
+        } else {
+            false
+        }
+    }
 }
 
 impl VisitorMut for Reconstituter {
@@ -40,7 +67,10 @@ impl VisitorMut for Reconstituter {
         let Block::Paragraph(Paragraph { content, .. }) = block else {
             // If blocks being collected then add to them
             if let Some(blocks) = self.blocks.last_mut() {
-                blocks.push(block.clone());
+                blocks.push(BlockWithPath {
+                    block: block.clone(),
+                    path: None, // No path for non-reconstituted blocks
+                });
                 *block = delete();
             }
 
@@ -52,7 +82,10 @@ impl VisitorMut for Reconstituter {
         let Some(Inline::Link(Link { target, .. })) = content.last() else {
             // If blocks being collected then add to them
             if let Some(blocks) = self.blocks.last_mut() {
-                blocks.push(block.clone());
+                blocks.push(BlockWithPath {
+                    block: block.clone(),
+                    path: None, // No path for non-reconstituted blocks
+                });
                 *block = delete();
             }
 
@@ -63,7 +96,10 @@ impl VisitorMut for Reconstituter {
         let Some(node_url) = NodeUrl::from_str(target).ok() else {
             // If blocks are currently being collected then add to them
             if let Some(blocks) = self.blocks.last_mut() {
-                blocks.push(block.clone());
+                blocks.push(BlockWithPath {
+                    block: block.clone(),
+                    path: None, // No path for non-reconstituted blocks
+                });
                 *block = delete();
             }
             return WalkControl::Continue;
@@ -78,12 +114,18 @@ impl VisitorMut for Reconstituter {
         {
             // If blocks are currently being collected then add to them
             if let Some(blocks) = self.blocks.last_mut() {
-                blocks.push(block.clone());
+                blocks.push(BlockWithPath {
+                    block: block.clone(),
+                    path: None, // No path for non-reconstituted blocks
+                });
                 *block = delete();
             }
 
             return WalkControl::Continue;
         }
+
+        // Capture path as string before it gets moved
+        let path_string = node_url.path.as_ref().map(|p| p.to_string());
 
         // ...that may be a `begin` or `end` marker
         let mut begin = false;
@@ -126,7 +168,10 @@ impl VisitorMut for Reconstituter {
         } else {
             // If blocks being collected then add to them
             if let Some(blocks) = self.blocks.last_mut() {
-                blocks.push(block.clone());
+                blocks.push(BlockWithPath {
+                    block: block.clone(),
+                    path: None, // No path for non-reconstituted blocks
+                });
                 *block = delete();
             }
 
@@ -146,37 +191,43 @@ impl VisitorMut for Reconstituter {
             // Mark the begin block for deletion (it will be reconstituted by the `:end` block)
             *block = delete();
         } else if mid {
-            // Push the reconstituted block to the current list of blocks and
-            // mark for deletion
+            // Push the reconstituted block with path information and mark for deletion
             if let Some(blocks) = self.blocks.last_mut() {
-                blocks.push(block_node);
+                blocks.push(BlockWithPath {
+                    block: block_node,
+                    path: path_string.clone(),
+                });
             }
             *block = delete();
         } else if end {
             // Pop off the collected blocks and assign them to the content of the reconstituted block
-            let blocks = self.blocks.pop();
+            let blocks_with_path = self.blocks.pop();
             match &mut block_node {
-                Block::IncludeBlock(node) => node.content = blocks,
+                Block::IncludeBlock(node) => {
+                    node.content = blocks_with_path
+                        .map(|blocks| blocks.into_iter().map(|bwp| bwp.block).collect())
+                }
                 Block::ForBlock(ForBlock {
                     content,
                     iterations,
                     ..
                 }) => {
-                    // For ForBlock, separate content from iterations
-                    if let Some(blocks) = blocks {
+                    // For ForBlock, separate content from iterations based on path information
+                    if let Some(blocks_with_path) = blocks_with_path {
                         let mut content_blocks = Vec::new();
                         let mut iteration_blocks = Vec::new();
 
-                        let mut in_iterations = false;
-                        for block in blocks {
-                            if matches!(block, Block::Section(_)) {
-                                in_iterations = true;
-                            }
+                        for block_with_path in blocks_with_path {
+                            let is_iteration = block_with_path
+                                .path
+                                .as_ref()
+                                .map(|p| Self::is_iteration_path(p))
+                                .unwrap_or(false);
 
-                            if in_iterations {
-                                iteration_blocks.push(block);
+                            if is_iteration {
+                                iteration_blocks.push(block_with_path.block);
                             } else {
-                                content_blocks.push(block);
+                                content_blocks.push(block_with_path.block);
                             }
                         }
 
@@ -193,14 +244,19 @@ impl VisitorMut for Reconstituter {
                 }
                 Block::Section(Section { content, .. })
                 | Block::StyledBlock(StyledBlock { content, .. }) => {
-                    *content = blocks.unwrap_or_default()
+                    *content = blocks_with_path
+                        .map(|blocks| blocks.into_iter().map(|bwp| bwp.block).collect())
+                        .unwrap_or_default()
                 }
                 _ => {}
             }
             // If there is a list of blocks (ie this is nested)
             // then push there, otherwise overwrite
             if let Some(blocks) = self.blocks.last_mut() {
-                blocks.push(block_node);
+                blocks.push(BlockWithPath {
+                    block: block_node,
+                    path: path_string.clone(),
+                });
                 *block = delete();
             } else {
                 *block = block_node;
@@ -374,6 +430,24 @@ mod tests {
         Article, Block, ForBlock, Inline, NodePath, NodeType, RawBlock, node_url_path,
         shortcuts::{art, cb, cc, ce, em, fig, frb, inb, lnk, p, qb, sec, stb, stg, t},
     };
+
+    #[test]
+    fn test_is_iteration_path() {
+        // Should detect iteration paths
+        assert!(Reconstituter::is_iteration_path("content/0/iterations/0"));
+        assert!(Reconstituter::is_iteration_path("content/0/iterations/1"));
+        assert!(Reconstituter::is_iteration_path("some/path/iterations/5"));
+        assert!(Reconstituter::is_iteration_path("iterations/0"));
+
+        // Should not detect non-iteration paths
+        assert!(!Reconstituter::is_iteration_path("content/0"));
+        assert!(!Reconstituter::is_iteration_path("content/0/section"));
+        assert!(!Reconstituter::is_iteration_path("content/0/iterations"));
+        assert!(!Reconstituter::is_iteration_path(
+            "content/0/iterations/abc"
+        ));
+        assert!(!Reconstituter::is_iteration_path("some/path"));
+    }
 
     fn node_link_begin(node_type: NodeType, path: &str) -> Result<Inline> {
         Ok(lnk(
@@ -985,6 +1059,88 @@ mod tests {
         assert_eq!(
             for_block.iterations, None,
             "ForBlock should have no iterations"
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn for_block_with_section_in_content() -> Result<()> {
+        let original = art([frb(
+            "item",
+            "[1, 2, 3]",
+            vec![
+                p([t("Original content")]),
+                sec([p([t("Original section content")])]),
+            ],
+        )]);
+
+        let mut edited = art([
+            p([node_link_begin(NodeType::ForBlock, "content/0")?]),
+            p([t("Content before section")]),
+            // This section should go to content since path doesn't contain /iterations/
+            p([node_link_begin(NodeType::Section, "content/0/content/1")?]),
+            p([t("This is a content section header")]),
+            p([t("This is content within the section")]),
+            p([node_link_end(NodeType::Section, "content/0/content/1")?]),
+            p([t("Content after section")]),
+            p([node_link_end(NodeType::ForBlock, "content/0")?]),
+        ]);
+
+        reconstitute(&mut edited, Some(original));
+
+        let Node::Article(Article { content, .. }) = edited else {
+            bail!("Node should be an article");
+        };
+
+        let Block::ForBlock(for_block) = &content[0] else {
+            bail!("Block should be a for block");
+        };
+
+        // Content should have 3 blocks: paragraph, section, paragraph
+        assert_eq!(
+            for_block.content.len(),
+            3,
+            "ForBlock content should have 3 blocks: paragraph, section, paragraph"
+        );
+
+        // Check first content paragraph
+        let Block::Paragraph(para) = &for_block.content[0] else {
+            bail!("First content block should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "Content before section");
+
+        // Check section (should be in content, not iterations, because path doesn't contain /iterations/)
+        let Block::Section(section) = &for_block.content[1] else {
+            bail!("Second content block should be a section");
+        };
+        assert_eq!(section.content.len(), 2, "Section should have 2 paragraphs");
+
+        // Check section content
+        let Block::Paragraph(para) = &section.content[0] else {
+            bail!("Section should contain paragraphs");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Section paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "This is a content section header");
+
+        // Check third content paragraph
+        let Block::Paragraph(para) = &for_block.content[2] else {
+            bail!("Third content block should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "Content after section");
+
+        // No iterations since there were no /iterations/ paths
+        assert_eq!(
+            for_block.iterations, None,
+            "ForBlock should have no iterations since no /iterations/ paths were used"
         );
 
         Ok(())
