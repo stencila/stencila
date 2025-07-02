@@ -1113,6 +1113,208 @@ mod tests {
     }
 
     #[test]
+    fn for_blocks_nested_three_levels_deep() -> Result<()> {
+        let original = art([frb(
+            "x",
+            "[1, 2, 3]",
+            vec![
+                p([t("Outer ForBlock content")]),
+                frb(
+                    "y",
+                    "[4, 5, 6]",
+                    vec![
+                        p([t("Middle ForBlock content")]),
+                        frb("z", "[7, 8, 9]", vec![p([t("Inner ForBlock content")])]),
+                        p([t("After inner ForBlock")]),
+                    ],
+                ),
+                p([t("After middle ForBlock")]),
+            ],
+        )]);
+
+        let mut edited = art([
+            // Outer ForBlock
+            p([node_link_begin(NodeType::ForBlock, "content/0")?]),
+            p([t("Outer ForBlock content - edited")]),
+            p([t("New outer content")]),
+            // Middle ForBlock
+            p([node_link_begin(NodeType::ForBlock, "content/0/content/1")?]),
+            p([t("Middle ForBlock content - edited")]),
+            p([t("New middle content")]),
+            // Inner ForBlock
+            p([node_link_begin(
+                NodeType::ForBlock,
+                "content/0/content/1/content/1",
+            )?]),
+            p([t("Inner ForBlock content - edited")]),
+            p([t("New inner content")]),
+            p([node_link_end(
+                NodeType::ForBlock,
+                "content/0/content/1/content/1",
+            )?]),
+            p([t("After inner ForBlock - edited")]),
+            p([t("New content after inner")]),
+            p([node_link_end(NodeType::ForBlock, "content/0/content/1")?]),
+            p([t("After middle ForBlock - edited")]),
+            p([t("New content after middle")]),
+            p([node_link_end(NodeType::ForBlock, "content/0")?]),
+        ]);
+
+        reconstitute(&mut edited, Some(original));
+
+        let Node::Article(Article { content, .. }) = edited else {
+            bail!("Node should be an article");
+        };
+
+        assert_eq!(content.len(), 1, "Should have 1 outer for block");
+
+        // Check outer ForBlock
+        let Block::ForBlock(outer_for_block) = &content[0] else {
+            bail!("Block should be a for block");
+        };
+
+        assert_eq!(outer_for_block.variable.as_str(), "x");
+        assert_eq!(outer_for_block.code.as_str(), "[1, 2, 3]");
+        assert_eq!(
+            outer_for_block.content.len(),
+            5,
+            "Outer ForBlock should have 5 content blocks"
+        );
+
+        // Check outer ForBlock first paragraph
+        let Block::Paragraph(para) = &outer_for_block.content[0] else {
+            bail!("First block in outer ForBlock should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "Outer ForBlock content - edited");
+
+        // Check new outer content
+        let Block::Paragraph(para) = &outer_for_block.content[1] else {
+            bail!("Second block in outer ForBlock should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "New outer content");
+
+        // Check middle ForBlock
+        let Block::ForBlock(middle_for_block) = &outer_for_block.content[2] else {
+            bail!("Third block in outer ForBlock should be a middle for block");
+        };
+
+        assert_eq!(middle_for_block.variable.as_str(), "y");
+        assert_eq!(middle_for_block.code.as_str(), "[4, 5, 6]");
+        assert_eq!(
+            middle_for_block.content.len(),
+            5,
+            "Middle ForBlock should have 5 content blocks"
+        );
+
+        // Check middle ForBlock first paragraph
+        let Block::Paragraph(para) = &middle_for_block.content[0] else {
+            bail!("First block in middle ForBlock should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "Middle ForBlock content - edited");
+
+        // Check new middle content
+        let Block::Paragraph(para) = &middle_for_block.content[1] else {
+            bail!("Second block in middle ForBlock should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "New middle content");
+
+        // Check inner ForBlock
+        let Block::ForBlock(inner_for_block) = &middle_for_block.content[2] else {
+            bail!("Third block in middle ForBlock should be an inner for block");
+        };
+
+        assert_eq!(inner_for_block.variable.as_str(), "z");
+        assert_eq!(inner_for_block.code.as_str(), "[7, 8, 9]");
+        assert_eq!(
+            inner_for_block.content.len(),
+            2,
+            "Inner ForBlock should have 2 content blocks"
+        );
+
+        // Check inner ForBlock content
+        let Block::Paragraph(para) = &inner_for_block.content[0] else {
+            bail!("First block in inner ForBlock should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "Inner ForBlock content - edited");
+
+        // Check new inner content
+        let Block::Paragraph(para) = &inner_for_block.content[1] else {
+            bail!("Second block in inner ForBlock should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "New inner content");
+
+        // Check content after inner ForBlock in middle ForBlock
+        let Block::Paragraph(para) = &middle_for_block.content[3] else {
+            bail!("Fourth block in middle ForBlock should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "After inner ForBlock - edited");
+
+        // Check new content after inner in middle ForBlock
+        let Block::Paragraph(para) = &middle_for_block.content[4] else {
+            bail!("Fifth block in middle ForBlock should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "New content after inner");
+
+        // Check content after middle ForBlock in outer ForBlock
+        let Block::Paragraph(para) = &outer_for_block.content[3] else {
+            bail!("Fourth block in outer ForBlock should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "After middle ForBlock - edited");
+
+        // Check new content after middle in outer ForBlock
+        let Block::Paragraph(para) = &outer_for_block.content[4] else {
+            bail!("Fifth block in outer ForBlock should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "New content after middle");
+
+        // Verify no iterations for any ForBlock (since no /iterations/ paths were used)
+        assert_eq!(
+            outer_for_block.iterations, None,
+            "Outer ForBlock should have no iterations"
+        );
+        assert_eq!(
+            middle_for_block.iterations, None,
+            "Middle ForBlock should have no iterations"
+        );
+        assert_eq!(
+            inner_for_block.iterations, None,
+            "Inner ForBlock should have no iterations"
+        );
+
+        Ok(())
+    }
+
+    #[test]
     fn for_block_with_section_in_content() -> Result<()> {
         let original = art([frb(
             "item",
@@ -1256,6 +1458,160 @@ mod tests {
             bail!("Third paragraph should contain text");
         };
         assert_eq!(text.value.as_str(), "New paragraph added to section");
+
+        Ok(())
+    }
+
+    #[test]
+    fn sections_nested_three_levels_deep() -> Result<()> {
+        let original = art([sec([
+            p([t("Level 1 content")]),
+            sec([
+                p([t("Level 2 content")]),
+                sec([p([t("Level 3 content")]), p([t("More level 3 content")])]),
+                p([t("More level 2 content")]),
+            ]),
+            p([t("More level 1 content")]),
+        ])]);
+
+        let mut edited = art([
+            p([node_link_begin(NodeType::Section, "content/0")?]),
+            p([t("Level 1 content - edited")]),
+            p([node_link_begin(NodeType::Section, "content/0/content/1")?]),
+            p([t("Level 2 content - edited")]),
+            p([node_link_begin(
+                NodeType::Section,
+                "content/0/content/1/content/1",
+            )?]),
+            p([t("Level 3 content - edited")]),
+            p([t("More level 3 content - edited")]),
+            p([t("New level 3 content")]),
+            p([node_link_end(
+                NodeType::Section,
+                "content/0/content/1/content/1",
+            )?]),
+            p([t("More level 2 content - edited")]),
+            p([t("New level 2 content")]),
+            p([node_link_end(NodeType::Section, "content/0/content/1")?]),
+            p([t("More level 1 content - edited")]),
+            p([t("New level 1 content")]),
+            p([node_link_end(NodeType::Section, "content/0")?]),
+        ]);
+
+        reconstitute(&mut edited, Some(original));
+
+        let Node::Article(Article { content, .. }) = edited else {
+            bail!("Node should be an article");
+        };
+
+        assert_eq!(content.len(), 1, "Should have 1 top-level section");
+
+        // Check level 1 section
+        let Block::Section(level1_section) = &content[0] else {
+            bail!("Block should be a section");
+        };
+        assert_eq!(
+            level1_section.content.len(),
+            4,
+            "Level 1 section should have 4 blocks"
+        );
+
+        // Check level 1 content
+        let Block::Paragraph(para) = &level1_section.content[0] else {
+            bail!("First block in level 1 section should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "Level 1 content - edited");
+
+        // Check level 2 section
+        let Block::Section(level2_section) = &level1_section.content[1] else {
+            bail!("Second block in level 1 section should be a nested section");
+        };
+        assert_eq!(
+            level2_section.content.len(),
+            4,
+            "Level 2 section should have 4 blocks"
+        );
+
+        // Check level 2 content
+        let Block::Paragraph(para) = &level2_section.content[0] else {
+            bail!("First block in level 2 section should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Level 2 paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "Level 2 content - edited");
+
+        // Check level 3 section
+        let Block::Section(level3_section) = &level2_section.content[1] else {
+            bail!("Second block in level 2 section should be a nested section");
+        };
+        assert_eq!(
+            level3_section.content.len(),
+            3,
+            "Level 3 section should have 3 blocks"
+        );
+
+        // Check level 3 content
+        let Block::Paragraph(para) = &level3_section.content[0] else {
+            bail!("First block in level 3 section should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Level 3 paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "Level 3 content - edited");
+
+        let Block::Paragraph(para) = &level3_section.content[1] else {
+            bail!("Second block in level 3 section should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Level 3 paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "More level 3 content - edited");
+
+        let Block::Paragraph(para) = &level3_section.content[2] else {
+            bail!("Third block in level 3 section should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Level 3 paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "New level 3 content");
+
+        // Check remaining level 2 content
+        let Block::Paragraph(para) = &level2_section.content[2] else {
+            bail!("Third block in level 2 section should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Level 2 paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "More level 2 content - edited");
+
+        let Block::Paragraph(para) = &level2_section.content[3] else {
+            bail!("Fourth block in level 2 section should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Level 2 paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "New level 2 content");
+
+        // Check remaining level 1 content
+        let Block::Paragraph(para) = &level1_section.content[2] else {
+            bail!("Third block in level 1 section should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Level 1 paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "More level 1 content - edited");
+
+        let Block::Paragraph(para) = &level1_section.content[3] else {
+            bail!("Fourth block in level 1 section should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Level 1 paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "New level 1 content");
 
         Ok(())
     }
