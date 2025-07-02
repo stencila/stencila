@@ -34,6 +34,7 @@ impl<C: LspClient> Ask for LspProvider<C> {
             .clone()
             .unwrap_or_else(|| "Yes".to_string());
         let no_text = options.no_text.clone().unwrap_or_else(|| "No".to_string());
+        let cancel_text = "Cancel";
 
         let mut actions = vec![
             MessageActionItem {
@@ -47,7 +48,7 @@ impl<C: LspClient> Ask for LspProvider<C> {
         ];
         if options.cancel_enabled() {
             actions.push(MessageActionItem {
-                title: "Cancel".into(),
+                title: cancel_text.into(),
                 properties: HashMap::new(),
             });
         }
@@ -64,17 +65,18 @@ impl<C: LspClient> Ask for LspProvider<C> {
 
         let result = self.client.show_message_request(params).await?;
 
-        match result {
-            Some(action) if action.title == yes_text => Ok(Answer::Yes),
-            Some(action) if action.title == no_text => Ok(Answer::No),
-            Some(_) => Ok(Answer::No),
+        Ok(match result {
+            Some(action) if action.title == yes_text => Answer::Yes,
+            Some(action) if action.title == no_text => Answer::No,
+            Some(action) if action.title == cancel_text => Answer::Cancel,
+            Some(_) => Answer::No,
             None => {
-                if options.cancel_allowed {
-                    Ok(Answer::Cancel)
+                if options.cancel_enabled() {
+                    Answer::Cancel
                 } else {
-                    Ok(Answer::No)
+                    Answer::No
                 }
             }
-        }
+        })
     }
 }
