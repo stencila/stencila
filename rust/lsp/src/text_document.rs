@@ -14,6 +14,7 @@ use async_lsp::{
     ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
 
+use codec_utils::reproducible_info;
 use codecs::{
     DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Format, LossesResponse, MessageLevel,
     Messages,
@@ -28,7 +29,7 @@ use common::{
 };
 use document::{Document, Update};
 use schema::{
-    Author, AuthorRole, AuthorRoleName, CompilationMessage, Duration, ExecutionBounds,
+    Article, Author, AuthorRole, AuthorRoleName, CompilationMessage, Duration, ExecutionBounds,
     ExecutionMessage, ExecutionMode, ExecutionRequired, ExecutionStatus, Node, NodeId, NodeType,
     Person, ProvenanceCount, Timestamp, Visitor,
 };
@@ -499,12 +500,25 @@ impl TextDocument {
     ) -> Result<Self, Report> {
         // Get path without percent encodings (e.g. for spaces)
         let path = percent_encoding::percent_decode_str(uri.path()).decode_utf8_lossy();
-
         let path = PathBuf::from(path.as_ref());
+
+        // Create a root so that we can set repro info on it
+        // TODO: this needs to detect the type of node from the source/format/path
+        let mut root = Article::default();
+
+        // If this is not done the documents generated from this one using convert and render
+        // will not have info needed for proper merges.
+        if let Ok((source, commit)) = reproducible_info(&path) {
+            root.options.source = source;
+            root.options.commit = commit;
+        }
+
+        let root = Node::Article(root);
+
         let Some(home) = path.parent() else {
             bail!("File does not have a parent dir")
         };
-        let doc = Document::init(home.into(), Some(path), None, None, Some(node_type))?;
+        let doc = Document::init(home.into(), Some(path), None, Some(root), Some(node_type))?;
 
         let format = Format::from_name(&format);
 

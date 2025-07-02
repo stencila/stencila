@@ -3978,6 +3978,7 @@ dependencies = [
  "async-lsp",
  "codec-markdown-trait",
  "codec-text-trait",
+ "codec-utils",
  "codecs",
  "common",
  "document",
