@@ -9,7 +9,7 @@
 
 use common::{
     async_trait::async_trait, eyre::Result, once_cell::sync::Lazy, strum::Display,
-    tokio::sync::Mutex,
+    tokio::sync::Mutex, tracing,
 };
 
 pub use crate::lsp::LspClient;
@@ -19,8 +19,8 @@ mod cli;
 mod lsp;
 
 /// Setup with CLI provider
-pub async fn setup_cli() -> Result<()> {
-    global_context(AskContext::with_cli_provider()).await
+pub async fn setup_cli(assume: Option<Answer>) -> Result<()> {
+    global_context(AskContext::with_cli_provider(assume)).await
 }
 
 /// Setup with LSP provider
@@ -62,7 +62,12 @@ pub async fn ask_with_default_and_cancel(question: &str, default: Answer) -> Res
 pub async fn ask_with(question: &str, options: AskOptions) -> Result<Answer> {
     let guard = GLOBAL_CONTEXT.lock().await;
     match guard.as_ref() {
-        Some(ctx) => ctx.ask(question, options).await,
+        Some(ctx) => {
+            if let Some(answer) = ctx.assume {
+                return Ok(answer);
+            }
+            ctx.ask(question, options).await
+        }
         None => {
             drop(guard);
             let ctx = AskContext::default();
@@ -105,7 +110,7 @@ pub struct AskOptions {
 
 impl AskOptions {
     /// Is a "Cancel" answer enabled?
-    /// 
+    ///
     /// Returns `true` if `cancelled_allowed` or [`Answer::Cancel`] is the default
     pub fn cancel_enabled(&self) -> bool {
         self.cancel_allowed || matches!(self.default, Some(Answer::Cancel))
@@ -151,25 +156,35 @@ impl Answer {
 
 /// Context for managing providers
 pub struct AskContext {
+    /// The answer to assume
+    assume: Option<Answer>,
+
+    /// The asking provider
     provider: Box<dyn Ask>,
 }
 
 impl Default for AskContext {
     fn default() -> Self {
         // Always default to CLI, require explicit LSP setup
-        Self::with_cli_provider()
+        Self::with_cli_provider(None)
     }
 }
 
 impl AskContext {
-    pub fn with_cli_provider() -> Self {
+    pub fn with_cli_provider(assume: Option<Answer>) -> Self {
+        if let Some(answer) = assume {
+            tracing::debug!("Assuming answer `{answer}` for all interactive prompts");
+        }
+
         Self {
+            assume,
             provider: Box::new(CliProvider),
         }
     }
 
     pub fn with_lsp_provider<C: LspClient + 'static>(client: C) -> Self {
         Self {
+            assume: None,
             provider: Box::new(LspProvider::new(client)),
         }
     }

@@ -1,3 +1,4 @@
+use ask::Answer;
 use common::{
     clap::{self, Parser, Subcommand},
     eyre::{bail, Result},
@@ -14,15 +15,78 @@ use crate::{
 
 /// CLI subcommands and global options
 #[derive(Debug, Parser)]
-#[command(name = "stencila", author, version = STENCILA_VERSION, about, long_about, styles = Cli::styles())]
+#[command(
+    name = "stencila",
+    author,
+    version = STENCILA_VERSION,
+    about,
+    long_about,
+    disable_help_flag = true, // Grouped into global options below
+    styles = Cli::styles()
+)]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Command,
 
+    /// Print help: `-h` for brief help, `--help` for more details.
+    #[arg(
+        short, long,
+        action = clap::ArgAction::Help,
+        global = true,
+        help_heading = "Global Options",
+        display_order = 100
+    )]
+    help: Option<bool>,
+
+    /// Assume the answer `yes` to any interactive prompts
+    ///
+    /// The options `--no` and `--cancel` (and corresponding env vars) are also available
+    /// (but but for brevity not listed).
+    #[arg(
+        long,
+        short,
+        global = true,
+        help_heading = "Global Options",
+        display_order = 110,
+        conflicts_with = "no",
+        conflicts_with = "cancel",
+        env = "ASSUME_YES"
+    )]
+    pub yes: bool,
+
+    /// Assume the answer `no` to any interactive prompts
+    #[arg(
+        long,
+        short,
+        global = true,
+        hide = true,
+        conflicts_with = "yes",
+        conflicts_with = "cancel",
+        env = "ASSUME_NO"
+    )]
+    pub no: bool,
+
+    /// Assume the answer `cancel` to any interactive prompts
+    #[arg(
+        long,
+        short,
+        global = true,
+        hide = true,
+        conflicts_with = "yes",
+        conflicts_with = "no",
+        env = "ASSUME_CANCEL"
+    )]
+    pub cancel: bool,
+
     /// Display debug level logging and detailed error reports
+    ///
+    /// For trace level logging, --trace is also available (but for brevity not listed).
+    /// See documentation for other logging options --log-level, --log-format, log-filter.
     #[arg(
         long,
         global = true,
+        help_heading = "Global Options",
+        display_order = 120,
         conflicts_with = "trace",
         conflicts_with = "log_level",
         conflicts_with = "log_format",
@@ -88,6 +152,18 @@ impl Cli {
             .invalid(AnsiColor::Yellow.on_default())
             .error(AnsiColor::Red.on_default().bold())
             .placeholder(AnsiColor::Green.on_default())
+    }
+
+    pub fn assume_answer(&self) -> Option<Answer> {
+        if self.yes {
+            Some(Answer::Yes)
+        } else if self.no {
+            Some(Answer::No)
+        } else if self.cancel {
+            Some(Answer::Cancel)
+        } else {
+            None
+        }
     }
 }
 
