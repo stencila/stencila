@@ -84,6 +84,9 @@ trait Ask: Send + Sync {
 /// All fields are optional and providers should use sensible defaults when not specified.
 #[derive(Default)]
 pub struct AskOptions {
+    /// The type of question being asked
+    pub level: AskLevel,
+
     /// Optional title for the dialog (only used for GUI/LSP contexts)
     pub title: Option<String>,
 
@@ -98,6 +101,26 @@ pub struct AskOptions {
 
     /// Whether the user can cancel/dismiss without answering
     pub cancel_allowed: bool,
+}
+
+impl AskOptions {
+    /// Is a "Cancel" answer enabled?
+    /// 
+    /// Returns `true` if `cancelled_allowed` or [`Answer::Cancel`] is the default
+    pub fn cancel_enabled(&self) -> bool {
+        self.cancel_allowed || matches!(self.default, Some(Answer::Cancel))
+    }
+}
+
+/// The type of question being asked
+///
+/// Mirrors logging levels
+#[derive(Debug, Default, Display, Clone, Copy, PartialEq, Eq)]
+pub enum AskLevel {
+    #[default]
+    Info,
+    Warning,
+    Error,
 }
 
 /// The user's response to a question.

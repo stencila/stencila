@@ -4,7 +4,7 @@ use lsp_types::{MessageActionItem, MessageType, ShowMessageRequestParams};
 
 use common::{async_trait::async_trait, eyre::Result};
 
-use crate::{Answer, Ask, AskOptions};
+use crate::{Answer, Ask, AskLevel, AskOptions};
 
 /// Trait for LSP client implementations
 #[async_trait]
@@ -29,22 +29,37 @@ impl<C: LspClient> LspProvider<C> {
 #[async_trait]
 impl<C: LspClient> Ask for LspProvider<C> {
     async fn ask(&self, question: &str, options: AskOptions) -> Result<Answer> {
-        let yes_text = options.yes_text.unwrap_or_else(|| "Yes".to_string());
-        let no_text = options.no_text.unwrap_or_else(|| "No".to_string());
+        let yes_text = options
+            .yes_text
+            .clone()
+            .unwrap_or_else(|| "Yes".to_string());
+        let no_text = options.no_text.clone().unwrap_or_else(|| "No".to_string());
+
+        let mut actions = vec![
+            MessageActionItem {
+                title: yes_text.clone(),
+                properties: HashMap::new(),
+            },
+            MessageActionItem {
+                title: no_text.clone(),
+                properties: HashMap::new(),
+            },
+        ];
+        if options.cancel_enabled() {
+            actions.push(MessageActionItem {
+                title: "Cancel".into(),
+                properties: HashMap::new(),
+            });
+        }
 
         let params = ShowMessageRequestParams {
-            typ: MessageType::INFO,
+            typ: match options.level {
+                AskLevel::Info => MessageType::INFO,
+                AskLevel::Warning => MessageType::WARNING,
+                AskLevel::Error => MessageType::ERROR,
+            },
             message: question.into(),
-            actions: Some(vec![
-                MessageActionItem {
-                    title: yes_text.clone(),
-                    properties: HashMap::new(),
-                },
-                MessageActionItem {
-                    title: no_text.clone(),
-                    properties: HashMap::new(),
-                },
-            ]),
+            actions: Some(actions),
         };
 
         let result = self.client.show_message_request(params).await?;

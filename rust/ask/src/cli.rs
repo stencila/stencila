@@ -5,7 +5,7 @@ use textwrap::wrap;
 
 use common::{async_trait::async_trait, eyre::Result};
 
-use crate::{Answer, Ask, AskOptions};
+use crate::{Answer, Ask, AskLevel, AskOptions};
 
 /// CLI provider
 pub struct CliProvider;
@@ -13,9 +13,6 @@ pub struct CliProvider;
 #[async_trait]
 impl Ask for CliProvider {
     async fn ask(&self, question: &str, options: AskOptions) -> Result<Answer> {
-        let cancel_enabled =
-            options.cancel_allowed || matches!(options.default, Some(Answer::Cancel));
-
         let yes = match options.default {
             Some(Answer::Yes) => format!(
                 "{}{}",
@@ -41,15 +38,22 @@ impl Ask for CliProvider {
             _ => format!("{}{}", "c".blue().bold(), "ancel".blue()),
         };
 
-        let prompt = if cancel_enabled {
+        let prompt = if options.cancel_enabled() {
             format!("{question} [{yes}/{no}/{cancel}]: ")
         } else {
             format!("{question} [{yes}/{no}]: ")
         };
+
+        let initial_indent = match options.level {
+            AskLevel::Info => "❔ ",
+            AskLevel::Warning => "⚠️  ",
+            AskLevel::Error => "🟥 ",
+        };
+
         let prompt = wrap(
             &prompt,
             textwrap::Options::new(100)
-                .initial_indent("❔ ")
+                .initial_indent(initial_indent)
                 .subsequent_indent("   "),
         )
         .join("\n");
