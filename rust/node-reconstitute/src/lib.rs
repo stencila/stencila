@@ -3,8 +3,9 @@ use std::str::FromStr;
 use common::tracing;
 use node_url::{NodePosition, NodeUrl};
 use schema::{
-    Article, Block, ForBlock, IfBlockClause, IncludeBlock, Inline, Link, Node, NodeSet, Paragraph,
-    RawBlock, Section, StyledBlock, VisitorMut, WalkControl, get,
+    Article, Block, ForBlock, IfBlockClause, IncludeBlock, Inline, Link, Node, NodePath,
+    NodeProperty, NodeSet, NodeSlot, Paragraph, RawBlock, Section, StyledBlock, VisitorMut,
+    WalkControl, get,
 };
 
 /// Reconstitute a node from a cache
@@ -21,12 +22,11 @@ pub fn reconstitute(node: &mut Node, cache: Option<Node>) {
     Janitor.walk(node);
 }
 
-/// A block with its original path information begin and end pairing
-/// and iteration detection
+/// A block with its original path information for iteration detection
 #[derive(Debug, Clone)]
 struct BlockWithPath {
     block: Block,
-    path: Option<String>,
+    path: Option<NodePath>,
 }
 
 /// Reconstitutes nodes from a cache node
@@ -41,20 +41,22 @@ struct Reconstituter {
 
 impl Reconstituter {
     /// Check if a node path represents a ForBlock iteration
-    fn is_iteration_path(path: &str) -> bool {
-        // Check if path contains iterations/ and the part after is a number
-        let iterations_pattern = "iterations/";
-        if let Some(iterations_pos) = path.find(iterations_pattern) {
-            let after_iterations = &path[iterations_pos + iterations_pattern.len()..];
-            // Check if what follows is just a number (possibly followed by more path)
-            if let Some(next_slash) = after_iterations.find('/') {
-                after_iterations[..next_slash].parse::<usize>().is_ok()
-            } else {
-                after_iterations.parse::<usize>().is_ok()
+    /// This looks for paths ending with: Property(Iterations) followed by Index(_)
+    fn is_iteration_path(path: &NodePath) -> bool {
+        let slots: Vec<_> = path.iter().collect();
+
+        // Check if path ends with: iterations/index
+        if slots.len() >= 2 {
+            if let [
+                NodeSlot::Property(NodeProperty::Iterations),
+                NodeSlot::Index(_),
+            ] = &slots[slots.len() - 2..]
+            {
+                return true;
             }
-        } else {
-            false
         }
+
+        false
     }
 }
 
@@ -124,8 +126,8 @@ impl VisitorMut for Reconstituter {
             return WalkControl::Continue;
         }
 
-        // Capture path as string before it gets moved
-        let path_string = node_url.path.as_ref().map(|p| p.to_string());
+        // Capture path before it gets moved
+        let node_path = node_url.path.clone();
 
         // ...that may be a `begin` or `end` marker
         let mut begin = false;
@@ -195,7 +197,7 @@ impl VisitorMut for Reconstituter {
             if let Some(blocks) = self.blocks.last_mut() {
                 blocks.push(BlockWithPath {
                     block: block_node,
-                    path: path_string.clone(),
+                    path: node_path.clone(),
                 });
             }
             *block = delete();
@@ -221,7 +223,7 @@ impl VisitorMut for Reconstituter {
                             let is_iteration = block_with_path
                                 .path
                                 .as_ref()
-                                .map(|p| Self::is_iteration_path(p))
+                                .map(Self::is_iteration_path)
                                 .unwrap_or(false);
 
                             if is_iteration {
@@ -255,7 +257,7 @@ impl VisitorMut for Reconstituter {
             if let Some(blocks) = self.blocks.last_mut() {
                 blocks.push(BlockWithPath {
                     block: block_node,
-                    path: path_string.clone(),
+                    path: node_path.clone(),
                 });
                 *block = delete();
             } else {
@@ -432,21 +434,67 @@ mod tests {
     };
 
     #[test]
-    fn test_is_iteration_path() {
+    fn test_is_iteration_path() -> Result<()> {
         // Should detect iteration paths
-        assert!(Reconstituter::is_iteration_path("content/0/iterations/0"));
-        assert!(Reconstituter::is_iteration_path("content/0/iterations/1"));
-        assert!(Reconstituter::is_iteration_path("some/path/iterations/5"));
-        assert!(Reconstituter::is_iteration_path("iterations/0"));
+        assert!(Reconstituter::is_iteration_path(&NodePath::from_str(
+            "content/0/iterations/0"
+        )?));
+        assert!(Reconstituter::is_iteration_path(&NodePath::from_str(
+            "content/0/iterations/1"
+        )?));
+        assert!(Reconstituter::is_iteration_path(&NodePath::from_str(
+            "content/5/iterations/3"
+        )?));
+        assert!(Reconstituter::is_iteration_path(&NodePath::from_str(
+            "iterations/0"
+        )?));
 
         // Should not detect non-iteration paths
-        assert!(!Reconstituter::is_iteration_path("content/0"));
-        assert!(!Reconstituter::is_iteration_path("content/0/section"));
-        assert!(!Reconstituter::is_iteration_path("content/0/iterations"));
-        assert!(!Reconstituter::is_iteration_path(
-            "content/0/iterations/abc"
-        ));
-        assert!(!Reconstituter::is_iteration_path("some/path"));
+        assert!(!Reconstituter::is_iteration_path(&NodePath::from_str(
+            "content/0"
+        )?));
+        assert!(!Reconstituter::is_iteration_path(&NodePath::from_str(
+            "content/0/content/1"
+        )?));
+        assert!(!Reconstituter::is_iteration_path(&NodePath::from_str(
+            "content/0/iterations"
+        )?));
+        assert!(!Reconstituter::is_iteration_path(&NodePath::from_str(
+            "content/1/content/2"
+        )?));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_is_iteration_path_edge_cases() -> Result<()> {
+        // Test edge cases with just "iterations" property (no index)
+        assert!(!Reconstituter::is_iteration_path(&NodePath::from_str(
+            "content/0/iterations"
+        )?));
+
+        // Test nested iterations paths - only true if ends with iterations/index
+        assert!(Reconstituter::is_iteration_path(&NodePath::from_str(
+            "content/0/content/5/iterations/2"
+        )?));
+
+        // Test iterations at the beginning
+        assert!(Reconstituter::is_iteration_path(&NodePath::from_str(
+            "iterations/0"
+        )?));
+
+        // Test paths that have iterations/index but NOT at the end - should be false
+        assert!(!Reconstituter::is_iteration_path(&NodePath::from_str(
+            "iterations/0/content/1"
+        )?));
+        assert!(!Reconstituter::is_iteration_path(&NodePath::from_str(
+            "content/0/iterations/1/content/2"
+        )?));
+        assert!(!Reconstituter::is_iteration_path(&NodePath::from_str(
+            "iterations/0/content"
+        )?));
+
+        Ok(())
     }
 
     fn node_link_begin(node_type: NodeType, path: &str) -> Result<Inline> {
