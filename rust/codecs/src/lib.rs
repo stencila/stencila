@@ -7,8 +7,8 @@ use ask::{ask_with, Answer, AskLevel, AskOptions};
 use cli_utils::{Code, ToStdout};
 use codec::{
     common::{
+        chrono::Local,
         eyre::{bail, eyre, Context, OptionExt, Result},
-        inflector::Inflector,
         reqwest::Client,
         tempfile::tempdir,
         tokio::fs::{read_to_string, write},
@@ -634,11 +634,17 @@ pub async fn merge(
 #[must_use]
 async fn check_git_status(path: &Path, commit: &str, other: &Path, force: bool) -> Result<bool> {
     let path_ = path.display();
-    let file_ = path
+    let file = path
         .file_name()
         .map(|name| name.to_string_lossy())
         .unwrap_or_else(|| path.to_string_lossy());
+
     let commit_short = &commit[..8.min(commit.len())];
+
+    let other_file = other
+        .file_name()
+        .map(|name| name.to_string_lossy())
+        .unwrap_or_else(|| other.to_string_lossy());
 
     // Check if file has changed since the specified commit
     tracing::debug!("Checking git diff for {path_} against commit {commit}");
@@ -662,13 +668,8 @@ async fn check_git_status(path: &Path, commit: &str, other: &Path, force: bool) 
     if force {
         tracing::debug!("Force mode enabled, will create branch");
     } else {
-        let other = other
-            .file_name()
-            .map(|name| name.to_string_lossy())
-            .unwrap_or_else(|| other.to_string_lossy());
-
         match ask_with(
-            &format!("Source file `{file_}` has changed since `{other}` was generated from it. Would you like to create a new branch at commit `{commit_short}` so edits can be applied correctly?"),
+            &format!("Source file `{file}` has changed since `{other_file}` was generated from it. Would you like to create a new branch at commit `{commit_short}` so edits can be applied correctly?"),
             AskOptions {
                 level: AskLevel::Warning,
                 default: Some(Answer::Yes),
@@ -703,7 +704,7 @@ async fn check_git_status(path: &Path, commit: &str, other: &Path, force: bool) 
 
         if !force {
             match ask_with(
-                &format!("Source file `{file_}` has uncommitted changes. Would you like to stash changes before creating branch?"),
+                &format!("Source file `{file}` has uncommitted changes. Would you like to stash changes before creating branch?"),
                 AskOptions {
                     level: AskLevel::Warning,
                     default: Some(Answer::Yes),
@@ -737,9 +738,9 @@ async fn check_git_status(path: &Path, commit: &str, other: &Path, force: bool) 
         stashed = true;
     }
 
-    // Generate a branch name based on the path and the commit hash
-    let path_kebab = path.to_string_lossy().to_kebab_case();
-    let branch_name = format!("reverse-{path_kebab}-{commit_short}");
+    // Generate a unique branch name (in case this function is run twice)
+    let datetime = Local::now().format("%Y-%m-%d-%H-%M-%S").to_string();
+    let branch_name = format!("merge-{other_file}-{datetime}");
 
     // Create and checkout the new branch at the specified commit
     tracing::debug!("Executing git checkout -b {} {}", branch_name, commit);
