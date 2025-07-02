@@ -1,6 +1,6 @@
 use std::{
     path::{Path, PathBuf},
-    process::Command,
+    process::{Command, Stdio},
 };
 
 use ask::{ask_with, Answer, AskLevel, AskOptions};
@@ -745,6 +745,8 @@ async fn check_git_status(path: &Path, commit: &str, other: &Path, force: bool) 
     tracing::debug!("Executing git checkout -b {} {}", branch_name, commit);
     let branch_result = Command::new("git")
         .args(["checkout", "-b", &branch_name, commit])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
         .status()
         .wrap_err("Failed to execute git checkout")?;
 
@@ -752,7 +754,11 @@ async fn check_git_status(path: &Path, commit: &str, other: &Path, force: bool) 
         // If we stashed changes, try to restore them
         if stashed {
             tracing::debug!("Branch creation failed, attempting to restore stashed changes");
-            let _ = Command::new("git").args(["stash", "pop"]).status();
+            let _ = Command::new("git")
+                .args(["stash", "pop"])
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .status();
         }
         bail!("Failed to create branch. The commit may not exist");
     }
