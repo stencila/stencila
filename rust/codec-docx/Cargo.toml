@@ -13,6 +13,7 @@ media-embed = { path = "../media-embed" }
 node-reconstitute = { path = "../node-reconstitute" }
 roxmltree = "0.20.0"
 rust-embed = { version = "8.7.2", features = ["interpolate-folder-path", "include-exclude"] }
+version = { path = "../version" }
 zip = { workspace = true }
 
 [dev-dependencies]

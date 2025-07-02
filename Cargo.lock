@@ -1047,6 +1047,7 @@ dependencies = [
  "node-reconstitute",
  "roxmltree",
  "rust-embed",
+ "version",
  "zip",
 ]
 

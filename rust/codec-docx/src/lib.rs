@@ -24,6 +24,7 @@ use codec_pandoc::{
     coarse_to_path, pandoc_availability, pandoc_from_format, pandoc_to_format, root_from_pandoc,
     root_to_pandoc,
 };
+use version::STENCILA_VERSION;
 
 mod decode;
 mod encode;
@@ -249,7 +250,7 @@ impl Codec for DocxCodec {
         }
 
         // Collect custom properties
-        let mut properties = Vec::new();
+        let mut properties = vec![("generator".into(), format!("Stencila {STENCILA_VERSION}"))];
         if let Node::Article(article) = node {
             if let Some(source) = &article.options.source {
                 properties.push(("source".into(), source.clone()));
