@@ -424,6 +424,8 @@ pub async fn convert(
 ///
 /// Usually the edited document is in a different format to the
 /// original.
+///
+/// Returns a vector of paths that were modified during the merge.
 #[tracing::instrument]
 pub async fn merge(
     edited: &Path,
@@ -434,7 +436,7 @@ pub async fn merge(
     decode_options: DecodeOptions,
     mut encode_options: EncodeOptions,
     workdir: Option<PathBuf>,
-) -> Result<()> {
+) -> Result<Vec<PathBuf>> {
     // Create, or use specified, working directory
     let tempdir = tempdir()?;
     let workdir = if let Some(workdir) = &workdir {
@@ -490,6 +492,9 @@ pub async fn merge(
     // TODO: Warn user if their settings have been ignored
     encode_options.recurse = Some(true);
     encode_options.render = Some(false);
+
+    // Track modified files
+    let mut modified_files = Vec::new();
 
     // Convert the edited node into the original format
     let edited_dir = workdir.join("edited");
@@ -550,7 +555,8 @@ pub async fn merge(
         // If a file exists in the edited dir but not in the unedited then just
         // write it to the original dir (no rebasing to do)
         if !rebase || !unedited_path.exists() {
-            write(original_path, edited_string).await?;
+            write(&original_path, edited_string).await?;
+            modified_files.push(original_path);
             continue;
         }
 
@@ -578,10 +584,11 @@ pub async fn merge(
         );
         let rebased = rebase_edits(&original_string, &unedited_string, &edited_string);
 
-        write(original_path, rebased).await?;
+        write(&original_path, rebased).await?;
+        modified_files.push(original_path);
     }
 
-    Ok(())
+    Ok(modified_files)
 }
 
 /// Check if a file has changed since a specific commit and optionally create a branch

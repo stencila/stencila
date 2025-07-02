@@ -51,6 +51,7 @@ pub struct Cli {
 }
 
 impl Cli {
+    #[allow(clippy::print_stderr)]
     pub async fn run(self) -> Result<()> {
         let decode_options = self
             .decode_options
@@ -63,7 +64,7 @@ impl Cli {
             StripOptions::default(),
         );
 
-        codecs::merge(
+        let modified_files = codecs::merge(
             &self.edited,
             self.original.as_deref(),
             self.unedited.as_deref(),
@@ -73,6 +74,17 @@ impl Cli {
             encode_options,
             self.workdir,
         )
-        .await
+        .await?;
+
+        eprintln!(
+            "📝 Merge completed successfully, {}",
+            match modified_files.len() {
+                0 => "no changes detected".to_string(),
+                1 => "1 file modified".to_string(),
+                count => format!("{count} files modified"),
+            }
+        );
+
+        Ok(())
     }
 }
