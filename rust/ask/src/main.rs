@@ -2,6 +2,7 @@ use common::{eyre::Result, tokio};
 
 use ask::{
     Answer, AskLevel, AskOptions, ask, ask_with, ask_with_default, ask_with_default_and_cancel,
+    setup_cli,
 };
 
 /// As little CLI for manually testing this crate
@@ -9,6 +10,9 @@ use ask::{
 #[allow(clippy::print_stderr)]
 #[tokio::main]
 async fn main() -> Result<()> {
+    // Setup up CLI provider
+    setup_cli(None).await?;
+
     let got = ask("No default").await?;
     eprintln!("=> {got}");
 

@@ -13,9 +13,10 @@ use common::{
 };
 
 pub use crate::lsp::LspClient;
-use crate::{cli::CliProvider, lsp::LspProvider};
+use crate::{cli::CliProvider, default::DefaultProvider, lsp::LspProvider};
 
 mod cli;
+mod default;
 mod lsp;
 
 /// Setup with CLI provider
@@ -165,8 +166,10 @@ pub struct AskContext {
 
 impl Default for AskContext {
     fn default() -> Self {
-        // Always default to CLI, require explicit LSP setup
-        Self::with_cli_provider(None)
+        Self {
+            assume: None,
+            provider: Box::new(DefaultProvider),
+        }
     }
 }
 
