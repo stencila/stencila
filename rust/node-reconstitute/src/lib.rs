@@ -3,7 +3,7 @@ use std::str::FromStr;
 use common::tracing;
 use node_url::{NodePosition, NodeUrl};
 use schema::{
-    Article, Block, ForBlock, IfBlockClause, IncludeBlock, Inline, Link, Node, NodePath,
+    Article, Block, ForBlock, IfBlock, IfBlockClause, IncludeBlock, Inline, Link, Node, NodePath,
     NodeProperty, NodeSet, NodeSlot, Paragraph, RawBlock, Section, StyledBlock, VisitorMut,
     WalkControl, get,
 };
@@ -215,6 +215,21 @@ impl VisitorMut for Reconstituter {
                         *iterations = None;
                     }
                 }
+                Block::IfBlock(IfBlock { clauses, .. }) => {
+                    // Find the active clause and set its content to all collected blocks
+                    if let Some(blocks_with_path) = blocks_with_path {
+                        let collected_blocks: Vec<Block> =
+                            blocks_with_path.into_iter().map(|bwp| bwp.block).collect();
+
+                        // Find the first active clause
+                        if let Some(active_clause) = clauses
+                            .iter_mut()
+                            .find(|clause| clause.is_active == Some(true))
+                        {
+                            active_clause.content = collected_blocks;
+                        }
+                    }
+                }
                 Block::Section(Section { content, .. })
                 | Block::StyledBlock(StyledBlock { content, .. }) => {
                     *content = blocks_with_path
@@ -401,7 +416,7 @@ mod tests {
     use common::eyre::{Result, bail};
     use schema::{
         Article, Block, ForBlock, Inline, NodePath, NodeType, RawBlock, node_url_path,
-        shortcuts::{art, cb, cc, ce, em, fig, frb, inb, lnk, p, qb, sec, stb, stg, t},
+        shortcuts::{art, cb, cc, ce, em, fig, frb, ibc, ifb, inb, lnk, p, qb, sec, stb, stg, t},
     };
 
     #[test]
@@ -1362,6 +1377,285 @@ mod tests {
         assert_eq!(
             for_block.iterations, None,
             "ForBlock should have no iterations since no /iterations/ paths were used"
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn if_block_with_single_active_clause() -> Result<()> {
+        // Create an IfBlock with a single active clause
+        let mut if_clause = ibc("x > 0", Some("python"), vec![p([t("Original if content")])]);
+        if_clause.is_active = Some(true);
+        let original = art([ifb(vec![if_clause])]);
+
+        let mut edited = art([
+            p([node_link_begin(NodeType::IfBlock, "content/0")?]),
+            p([t("Edited if content")]),
+            p([t("Additional content added")]),
+            p([node_link_end(NodeType::IfBlock, "content/0")?]),
+        ]);
+
+        reconstitute(&mut edited, Some(original));
+
+        let Node::Article(Article { content, .. }) = edited else {
+            bail!("Node should be an article");
+        };
+
+        assert_eq!(content.len(), 1, "Should have 1 if block");
+
+        let Block::IfBlock(if_block) = &content[0] else {
+            bail!("Block should be an if block");
+        };
+
+        assert_eq!(if_block.clauses.len(), 1, "Should have 1 clause");
+
+        let clause = &if_block.clauses[0];
+        assert_eq!(clause.code.as_str(), "x > 0");
+        assert_eq!(clause.programming_language.as_deref(), Some("python"));
+        assert_eq!(clause.is_active, Some(true));
+
+        // Check that content was updated
+        assert_eq!(clause.content.len(), 2, "Clause should have 2 blocks");
+
+        let Block::Paragraph(para) = &clause.content[0] else {
+            bail!("First block should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "Edited if content");
+
+        let Block::Paragraph(para) = &clause.content[1] else {
+            bail!("Second block should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "Additional content added");
+
+        Ok(())
+    }
+
+    #[test]
+    fn if_block_with_if_else_clauses() -> Result<()> {
+        // Create an IfBlock with if and else, where else is active
+        let mut if_clause = ibc("x > 0", Some("python"), vec![p([t("If content")])]);
+        if_clause.is_active = Some(false);
+
+        let mut else_clause = ibc("", None::<String>, vec![p([t("Original else content")])]);
+        else_clause.is_active = Some(true);
+
+        let original = art([ifb(vec![if_clause, else_clause])]);
+
+        let mut edited = art([
+            p([node_link_begin(NodeType::IfBlock, "content/0")?]),
+            p([t("Edited else content")]),
+            cb("// Some code in else", Some("javascript")),
+            p([t("More else content")]),
+            p([node_link_end(NodeType::IfBlock, "content/0")?]),
+        ]);
+
+        reconstitute(&mut edited, Some(original));
+
+        let Node::Article(Article { content, .. }) = edited else {
+            bail!("Node should be an article");
+        };
+
+        let Block::IfBlock(if_block) = &content[0] else {
+            bail!("Block should be an if block");
+        };
+
+        assert_eq!(if_block.clauses.len(), 2, "Should have 2 clauses");
+
+        // Check if clause (should be inactive with original content)
+        let if_clause = &if_block.clauses[0];
+        assert_eq!(if_clause.code.as_str(), "x > 0");
+        assert_eq!(if_clause.is_active, Some(false));
+        assert_eq!(
+            if_clause.content.len(),
+            1,
+            "If clause should have original content"
+        );
+
+        // Check else clause (should be active with edited content)
+        let else_clause = &if_block.clauses[1];
+        assert_eq!(else_clause.code.as_str(), "");
+        assert_eq!(else_clause.is_active, Some(true));
+        assert_eq!(
+            else_clause.content.len(),
+            3,
+            "Else clause should have 3 blocks"
+        );
+
+        // Verify edited content in else clause
+        let Block::Paragraph(para) = &else_clause.content[0] else {
+            bail!("First block should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "Edited else content");
+
+        let Block::CodeBlock(code_block) = &else_clause.content[1] else {
+            bail!("Second block should be a code block");
+        };
+        assert_eq!(code_block.code.as_str(), "// Some code in else");
+        assert_eq!(
+            code_block.programming_language.as_deref(),
+            Some("javascript")
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn if_block_with_elif_clauses() -> Result<()> {
+        // Create an IfBlock with if, elif, and else, where elif is active
+        let mut if_clause = ibc("x > 0", Some("python"), vec![p([t("If content")])]);
+        if_clause.is_active = Some(false);
+
+        let mut elif_clause = ibc(
+            "x == 0",
+            Some("python"),
+            vec![p([t("Original elif content")])],
+        );
+        elif_clause.is_active = Some(true);
+
+        let mut else_clause = ibc("", None::<String>, vec![p([t("Else content")])]);
+        else_clause.is_active = Some(false);
+
+        let original = art([ifb(vec![if_clause, elif_clause, else_clause])]);
+
+        let mut edited = art([
+            p([node_link_begin(NodeType::IfBlock, "content/0")?]),
+            p([t("Edited elif content")]),
+            qb([p([t("Quote in elif")])]),
+            p([node_link_end(NodeType::IfBlock, "content/0")?]),
+        ]);
+
+        reconstitute(&mut edited, Some(original));
+
+        let Node::Article(Article { content, .. }) = edited else {
+            bail!("Node should be an article");
+        };
+
+        let Block::IfBlock(if_block) = &content[0] else {
+            bail!("Block should be an if block");
+        };
+
+        assert_eq!(if_block.clauses.len(), 3, "Should have 3 clauses");
+
+        // Check elif clause (should be active with edited content)
+        let elif_clause = &if_block.clauses[1];
+        assert_eq!(elif_clause.code.as_str(), "x == 0");
+        assert_eq!(elif_clause.is_active, Some(true));
+        assert_eq!(
+            elif_clause.content.len(),
+            2,
+            "Elif clause should have 2 blocks"
+        );
+
+        // Verify other clauses remain unchanged
+        assert_eq!(if_block.clauses[0].is_active, Some(false));
+        assert_eq!(if_block.clauses[0].content.len(), 1);
+        assert_eq!(if_block.clauses[2].is_active, Some(false));
+        assert_eq!(if_block.clauses[2].content.len(), 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn if_block_nested_in_section() -> Result<()> {
+        // Create an IfBlock nested in a section
+        let mut if_clause = ibc(
+            "condition",
+            Some("javascript"),
+            vec![p([t("Nested if content")])],
+        );
+        if_clause.is_active = Some(true);
+
+        let original = art([sec([
+            p([t("Section header")]),
+            ifb(vec![if_clause]),
+            p([t("After if block")]),
+        ])]);
+
+        let mut edited = art([
+            p([node_link_begin(NodeType::Section, "content/0")?]),
+            p([t("Section header - edited")]),
+            p([node_link_begin(NodeType::IfBlock, "content/0/content/1")?]),
+            p([t("Nested if content - edited")]),
+            p([t("New nested content")]),
+            p([node_link_end(NodeType::IfBlock, "content/0/content/1")?]),
+            p([t("After if block - edited")]),
+            p([node_link_end(NodeType::Section, "content/0")?]),
+        ]);
+
+        reconstitute(&mut edited, Some(original));
+
+        let Node::Article(Article { content, .. }) = edited else {
+            bail!("Node should be an article");
+        };
+
+        let Block::Section(section) = &content[0] else {
+            bail!("Block should be a section");
+        };
+
+        assert_eq!(section.content.len(), 3, "Section should have 3 blocks");
+
+        let Block::IfBlock(if_block) = &section.content[1] else {
+            bail!("Second block in section should be an if block");
+        };
+
+        let clause = &if_block.clauses[0];
+        assert_eq!(clause.is_active, Some(true));
+        assert_eq!(
+            clause.content.len(),
+            2,
+            "Active clause should have 2 blocks"
+        );
+
+        // Verify edited content
+        let Block::Paragraph(para) = &clause.content[0] else {
+            bail!("First block should be a paragraph");
+        };
+        let Some(Inline::Text(text)) = para.content.first() else {
+            bail!("Paragraph should contain text");
+        };
+        assert_eq!(text.value.as_str(), "Nested if content - edited");
+
+        Ok(())
+    }
+
+    #[test]
+    fn if_block_empty_content() -> Result<()> {
+        // Create an IfBlock where active clause has empty content after editing
+        let mut if_clause = ibc("true", Some("python"), vec![p([t("Will be removed")])]);
+        if_clause.is_active = Some(true);
+        let original = art([ifb(vec![if_clause])]);
+
+        let mut edited = art([
+            p([node_link_begin(NodeType::IfBlock, "content/0")?]),
+            p([node_link_end(NodeType::IfBlock, "content/0")?]),
+        ]);
+
+        reconstitute(&mut edited, Some(original));
+
+        let Node::Article(Article { content, .. }) = edited else {
+            bail!("Node should be an article");
+        };
+
+        let Block::IfBlock(if_block) = &content[0] else {
+            bail!("Block should be an if block");
+        };
+
+        let clause = &if_block.clauses[0];
+        assert_eq!(clause.is_active, Some(true));
+        assert_eq!(
+            clause.content.len(),
+            0,
+            "Active clause should have empty content"
         );
 
         Ok(())
