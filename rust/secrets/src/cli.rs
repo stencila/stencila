@@ -1,7 +1,7 @@
 use std::io::{stdin, IsTerminal, Read};
 
+use ask::ask_for_password;
 use cli_utils::{
-    rpassword::prompt_password,
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
     ToStdout,
 };
@@ -62,11 +62,12 @@ impl Cli {
             Command::List => list_cli()?,
             Command::Set(Set { name }) => {
                 let value = if !stdin().is_terminal() {
+                    // This allows piping in secrets which can be useful
                     let mut input = String::new();
                     stdin().read_to_string(&mut input)?;
                     input
                 } else {
-                    prompt_password("Enter secret: ")?
+                    ask_for_password(&format!("Enter your {name}")).await?
                 };
                 set(&name, &value)?
             }
