@@ -79,9 +79,12 @@ impl VisitorMut for Reconstituter {
             return WalkControl::Continue;
         };
 
-        // ...where the last inline is a link (may be single link, or have other inline nodes,
-        // such as an anchor (bookmark) in front of it)
-        let Some(Inline::Link(Link { target, .. })) = content.last() else {
+        // ...that has a link anywhere in it (may be single link, or have other inline nodes,
+        // such as an invisible  anchor (bookmark) before or after it)
+        let Some(target) = content.iter().find_map(|inline| match inline {
+            Inline::Link(Link { target, .. }) => Some(target),
+            _ => None,
+        }) else {
             // If blocks being collected then add to them
             if let Some(blocks) = self.blocks.last_mut() {
                 blocks.push(BlockWithPath {
