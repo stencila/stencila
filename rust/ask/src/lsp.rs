@@ -79,4 +79,8 @@ impl<C: LspClient> Ask for LspProvider<C> {
             }
         })
     }
+
+    async fn password(&self, _prompt: &str) -> Result<String> {
+        todo!("Password input via LSP is not yet implemented")
+    }
 }

@@ -1,11 +1,12 @@
 //! # Cross-Platform Confirmation Prompts
 //!
 //! This crate provides a unified abstraction for prompting users for
-//! confirmation across different interfaces. The primary goal is to enable
-//! library authors to write interface-agnostic code. For example, a file
-//! manipulation library can ask for user confirmation before destructive
-//! operations without needing to know whether it's being used in a CLI tool or
-//! within a code editor via LSP.
+//! confirmation across different interfaces.
+//! 
+//! The primary goal is to enable library authors to write interface-agnostic
+//! code. For example, a file manipulation library can ask for user confirmation
+//! before destructive operations without needing to know whether it's being
+//! used in a CLI tool or within a code editor via LSP.
 
 use common::{
     async_trait::async_trait, eyre::Result, once_cell::sync::Lazy, strum::Display,
@@ -77,6 +78,19 @@ pub async fn ask_with(question: &str, options: AskOptions) -> Result<Answer> {
     }
 }
 
+/// Ask for a password
+pub async fn ask_for_password(prompt: &str) -> Result<String> {
+    let guard = GLOBAL_CONTEXT.lock().await;
+    match guard.as_ref() {
+        Some(ctx) => ctx.password(prompt).await,
+        None => {
+            drop(guard);
+            let ctx = AskContext::default();
+            ctx.password(prompt).await
+        }
+    }
+}
+
 /// Core trait that all confirmation providers must implement.
 /// This abstraction allows different UI backends to provide user confirmation dialogs.
 #[async_trait]
@@ -84,6 +98,10 @@ trait Ask: Send + Sync {
     /// Ask a question with additional customization options like custom button text,
     /// default selection, and whether cancellation is allowed.
     async fn ask(&self, question: &str, options: AskOptions) -> Result<Answer>;
+
+    /// Prompt for a password.
+    /// The password should be masked/hidden from display.
+    async fn password(&self, prompt: &str) -> Result<String>;
 }
 
 /// Configuration options for customizing confirmation dialogs.
@@ -194,6 +212,10 @@ impl AskContext {
 
     pub async fn ask(&self, message: &str, options: AskOptions) -> Result<Answer> {
         self.provider.ask(message, options).await
+    }
+
+    pub async fn password(&self, prompt: &str) -> Result<String> {
+        self.provider.password(prompt).await
     }
 }
 

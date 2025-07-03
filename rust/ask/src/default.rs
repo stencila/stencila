@@ -1,4 +1,8 @@
-use common::{async_trait::async_trait, eyre::Result, tracing};
+use common::{
+    async_trait::async_trait,
+    eyre::{Result, bail},
+    tracing,
+};
 
 use crate::{Answer, Ask, AskLevel, AskOptions};
 
@@ -23,5 +27,9 @@ impl Ask for DefaultProvider {
         }
 
         Ok(answer)
+    }
+
+    async fn password(&self, _prompt: &str) -> Result<String> {
+        bail!("Password input is not available in non-interactive contexts")
     }
 }

@@ -1,27 +1,30 @@
 //! Utility functions and types for command line interfaces
 //!
-//! This little crate exists as a place to put CLI related things we
-//! want to re-use in sibling crates for both convenience and consistency.
+//! This crate exists as a place to put CLI related things we want to re-use in
+//! sibling crates for both convenience and consistency.
+//! 
+//! See also the sibling `ask` crate for getting user inputs from the CLI.
 
 use std::fmt::Display;
 use std::io::IsTerminal;
 
-// Modules for inputs from stdin
-// (see also the sibling `ask` crate)
+// Modules for parsing CLI arguments
 
 mod parsers;
 pub use parsers::*;
 
-pub use rpassword;
-
 // Modules for diagnostics to stderr
-// (consider using `tracing` instead)
+// Consider using `tracing::warn!` and `tracing::error` instead for
+// modules that are not specifically CLI related.
 
-mod hint;
-pub use hint::*;
-
+// TODO: Create a ToStderr trait for outputting `Messages` and
+// use instead of the various `eprintln!` usages in CLI related modules
 mod message;
 pub use message::*;
+
+// TODO: use `ask` or `tracing` instead and remove hint
+mod hint;
+pub use hint::*;
 
 // Modules for outputs to stdout
 // These implement the `ToStdout` trait (below)

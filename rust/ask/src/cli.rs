@@ -1,7 +1,8 @@
 use std::io::{IsTerminal, Write, stderr, stdin};
 
 use owo_colors::OwoColorize;
-use textwrap::wrap;
+use rpassword::read_password;
+use textwrap::{wrap, termwidth};
 
 use common::{
     async_trait::async_trait,
@@ -53,9 +54,10 @@ impl Ask for CliProvider {
             AskLevel::Error => "🟥 ",
         };
 
+        let width = termwidth().min(120); // Cap at 120 for readability
         let prompt = wrap(
             &prompt,
-            textwrap::Options::new(100)
+            textwrap::Options::new(width)
                 .initial_indent(initial_indent)
                 .subsequent_indent("   "),
         )
@@ -94,5 +96,37 @@ impl Ask for CliProvider {
             _ if options.cancel_allowed => Answer::Cancel,
             _ => options.default.unwrap_or(Answer::No),
         })
+    }
+
+    async fn password(&self, prompt: &str) -> Result<String> {
+        // Blank line to separate from logs or other questions
+        eprintln!();
+
+        let prompt = format!("{}: ", prompt);
+        let width = termwidth().min(120); // Cap at 120 for readability
+        let prompt = wrap(
+            &prompt,
+            textwrap::Options::new(width)
+                .initial_indent("🔒 ")
+                .subsequent_indent("   "),
+        )
+        .join("\n");
+
+        eprint!("{prompt}");
+        stderr().flush()?;
+
+        // If stdin is not a TTY then bail because otherwise we'll wait forever
+        if !stdin().is_terminal() {
+            bail!(
+                "Non-interactive environment detected. Password input requires an interactive terminal."
+            );
+        }
+
+        let password = read_password()?;
+
+        // Blank line to separate from logs or other questions
+        eprintln!();
+
+        Ok(password)
     }
 }

@@ -8,7 +8,6 @@ comfy-table = "7.1.4"
 common = { path = "../common" }
 derive_more = { workspace = true }
 format = { path = "../format" }
-rpassword = "7.4.0"
 schema = { path = "../schema" }
 syntect = "5.2.0"
 url = { workspace = true }
