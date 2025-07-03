@@ -1,6 +1,34 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, Note, NoteType};
+use crate::{prelude::*, Inline, Note, NoteType};
+
+impl LatexCodec for Note {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        let command = match self.note_type {
+            NoteType::Footnote => "footnote",
+            NoteType::Endnote => "endnote",
+            NoteType::Sidenote => "sidenote",
+        };
+
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .command_begin(command)
+            .property_fn(NodeProperty::Content, |context| {
+                // Convert the block content of the note to inlines. If this is not done, all sorts
+                // of broken LaTeX is generated, in particular paragraphs in the notes will cause
+                // the context's paragraph content (used for line wrapping) to be reset.
+                // Usually there will be just one para, but this puts spaces between blocks
+                for (index, block) in self.content.iter().enumerate() {
+                    if index > 0 {
+                        context.char(' ');
+                    }
+                    Vec::<Inline>::from(block.clone()).to_latex(context)
+                }
+            })
+            .command_end()
+            .exit_node();
+    }
+}
 
 impl MarkdownCodec for Note {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {

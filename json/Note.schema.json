@@ -15,6 +15,9 @@
       "fn-type": "custom"
     }
   },
+  "latex": {
+    "derive": false
+  },
   "markdown": {
     "derive": false
   },
