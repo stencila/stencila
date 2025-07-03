@@ -153,6 +153,25 @@ pub enum NodeType {
     Config
 }
 
+impl NodeType {
+    /// Is the node type a block content type?
+    pub fn is_block(&self) -> bool {
+        use NodeType::*;
+        matches!(self, Admonition|AudioObject|CallBlock|Chat|ChatMessage|ChatMessageGroup|Claim|CodeBlock|CodeChunk|Excerpt|Figure|File|ForBlock|Form|Heading|IfBlock|ImageObject|IncludeBlock|InlinesBlock|InstructionBlock|Island|List|MathBlock|Paragraph|PromptBlock|QuoteBlock|RawBlock|Section|StyledBlock|SuggestionBlock|Table|ThematicBreak|VideoObject|Walkthrough)
+    }
+
+    /// Is the node type an inline content type?
+    pub fn is_inline(&self) -> bool {
+        use NodeType::*;
+        matches!(self, Annotation|AudioObject|Button|Citation|CitationGroup|CodeExpression|CodeInline|Date|DateTime|Duration|Emphasis|ImageObject|InstructionInline|Link|MathInline|MediaObject|Note|Parameter|QuoteInline|Sentence|StyledInline|Strikeout|Strong|Subscript|SuggestionInline|Superscript|Text|Time|Timestamp|Underline|VideoObject|Null|Boolean|Integer|UnsignedInteger|Number)
+    }
+
+    /// Is the node type a primitive type?
+    pub fn is_primitive(&self) -> bool {
+        use NodeType::*;
+        matches!(self, Null|Boolean|Integer|UnsignedInteger|Number|String|Array|Object)
+    }
+}
 
 impl TryFrom<&NodeId> for NodeType {
     type Error = Report;

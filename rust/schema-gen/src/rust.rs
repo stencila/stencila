@@ -191,6 +191,33 @@ impl Schemas {
             .map(|title| format!("    {title},"))
             .join("\n");
 
+        let block_types = self
+            .schemas
+            .get("Block")
+            .and_then(|schema| schema.any_of.as_ref())
+            .expect("should always exist")
+            .iter()
+            .filter_map(|schema| schema.r#ref.as_ref())
+            .join("|");
+
+        let inline_types = self
+            .schemas
+            .get("Inline")
+            .and_then(|schema| schema.any_of.as_ref())
+            .expect("should always exist")
+            .iter()
+            .filter_map(|schema| schema.r#ref.as_ref())
+            .join("|");
+
+        let primitive_types = self
+            .schemas
+            .get("Primitive")
+            .and_then(|schema| schema.any_of.as_ref())
+            .expect("should always exist")
+            .iter()
+            .filter_map(|schema| schema.r#ref.as_ref())
+            .join("|");
+
         let nodes = nodes
             .iter()
             .filter_map(|schema| schema.r#ref.clone())
@@ -233,6 +260,25 @@ pub enum NodeType {{
     Config
 }}
 
+impl NodeType {{
+    /// Is the node type a block content type?
+    pub fn is_block(&self) -> bool {{
+        use NodeType::*;
+        matches!(self, {block_types})
+    }}
+
+    /// Is the node type an inline content type?
+    pub fn is_inline(&self) -> bool {{
+        use NodeType::*;
+        matches!(self, {inline_types})
+    }}
+
+    /// Is the node type a primitive type?
+    pub fn is_primitive(&self) -> bool {{
+        use NodeType::*;
+        matches!(self, {primitive_types})
+    }}
+}}
 
 impl TryFrom<&NodeId> for NodeType {{
     type Error = Report;

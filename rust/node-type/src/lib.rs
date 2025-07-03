@@ -34,41 +34,6 @@ impl NodeType {
         })
     }
 
-    /// Is the node type a block?
-    pub fn is_block(&self) -> bool {
-        use NodeType::*;
-        matches!(
-            self,
-            Admonition
-                | CallBlock
-                | Chat
-                | ChatMessage
-                | ChatMessageGroup
-                | Claim
-                | CodeBlock
-                | CodeChunk
-                | Excerpt
-                | Figure
-                | ForBlock
-                | Form
-                | Heading
-                | IfBlock
-                | IncludeBlock
-                | InstructionBlock
-                | List
-                | MathBlock
-                | Paragraph
-                | PromptBlock
-                | QuoteBlock
-                | Section
-                | StyledBlock
-                | SuggestionBlock
-                | Table
-                | ThematicBreak
-                | Walkthrough
-        )
-    }
-
     /// Can the node type be executed?
     ///
     /// Should only include node types which can be executed "manually"
