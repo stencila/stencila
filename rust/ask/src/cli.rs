@@ -1,9 +1,12 @@
-use std::io::{Write, stdin, stdout};
+use std::io::{IsTerminal, Write, stdin, stdout};
 
 use owo_colors::OwoColorize;
 use textwrap::wrap;
 
-use common::{async_trait::async_trait, eyre::Result};
+use common::{
+    async_trait::async_trait,
+    eyre::{Result, bail},
+};
 
 use crate::{Answer, Ask, AskLevel, AskOptions};
 
@@ -63,6 +66,14 @@ impl Ask for CliProvider {
 
         print!("{prompt}");
         stdout().flush()?;
+
+        // If stdin is not a TTY and we have got here (because neither --yes or
+        // ASSUME_YES=true) then bail because otherwise we'll wait forever
+        if !stdin().is_terminal() {
+            bail!(
+                "Non-interactive environment detected. Use `--yes`, `--no` or `--cancel` option or environment variable equivalent (ASSUME_YES etc)."
+            );
+        }
 
         let mut answer = String::new();
         stdin().read_line(&mut answer)?;
