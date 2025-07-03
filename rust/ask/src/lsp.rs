@@ -13,6 +13,18 @@ pub trait LspClient: Send + Sync {
         &self,
         params: ShowMessageRequestParams,
     ) -> Result<Option<MessageActionItem>>;
+
+    /// Request password input from the user
+    ///
+    /// This is not part of the standard LSP spec, but many LSP clients (like VS
+    /// Code) support custom requests for input dialogs. Implementations should:
+    /// 
+    /// - Use the client's password input capability if available (e.g.,
+    ///   vscode.window.showInputBox with password: true)
+    /// - Fall back to a regular input box with a warning if password input
+    ///   isn't supported
+    /// - Return an error if no input capability is available
+    async fn request_password_input(&self, prompt: &str) -> Result<Option<String>>;
 }
 
 /// LSP confirmation provider
@@ -80,7 +92,29 @@ impl<C: LspClient> Ask for LspProvider<C> {
         })
     }
 
-    async fn password(&self, _prompt: &str) -> Result<String> {
-        todo!("Password input via LSP is not yet implemented")
+    async fn password(&self, prompt: &str) -> Result<String> {
+        // Try to get password input through the LSP client
+        match self.client.request_password_input(prompt).await {
+            Ok(Some(password)) => Ok(password),
+            Ok(None) => Err(common::eyre::eyre!("Password input cancelled by user")),
+            Err(error) => {
+                // If the client doesn't support password input, show a warning and explain the limitation
+                let params = ShowMessageRequestParams {
+                    typ: MessageType::ERROR,
+                    message: format!(
+                        "Password input is not supported by this editor: {}\n\nPlease use the CLI interface for password-protected operations.",
+                        error
+                    ),
+                    actions: Some(vec![MessageActionItem {
+                        title: "OK".to_string(),
+                        properties: HashMap::new(),
+                    }]),
+                };
+
+                self.client.show_message_request(params).await?;
+
+                Err(error)
+            }
+        }
     }
 }

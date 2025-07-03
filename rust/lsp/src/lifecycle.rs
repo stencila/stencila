@@ -15,7 +15,12 @@ use async_lsp::{
     ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
 
-use common::{async_trait::async_trait, eyre::Result, serde_json, tokio::sync::Mutex};
+use common::{
+    async_trait::async_trait,
+    eyre::{bail, Result},
+    serde_json,
+    tokio::sync::Mutex,
+};
 
 use crate::{commands, ServerState, ServerStatus};
 
@@ -138,5 +143,10 @@ impl ask::LspClient for AskClient {
             .await
             .show_message_request(params)
             .await?)
+    }
+
+    async fn request_password_input(&self, _prompt: &str) -> Result<Option<String>> {
+        // TODO: VSCode extension to handle custom notification/request for password input
+        bail!("Password input via editor is not yet implemented.")
     }
 }
