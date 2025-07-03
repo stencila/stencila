@@ -1,4 +1,4 @@
-use std::io::{IsTerminal, Write, stdin, stdout};
+use std::io::{IsTerminal, Write, stderr, stdin};
 
 use owo_colors::OwoColorize;
 use textwrap::wrap;
@@ -62,10 +62,10 @@ impl Ask for CliProvider {
         .join("\n");
 
         // Blank line to separate from logs or other questions
-        println!();
+        eprintln!();
 
-        print!("{prompt}");
-        stdout().flush()?;
+        eprint!("{prompt}");
+        stderr().flush()?;
 
         // If stdin is not a TTY and we have got here (because neither --yes or
         // ASSUME_YES=true) then bail because otherwise we'll wait forever
@@ -80,7 +80,7 @@ impl Ask for CliProvider {
         let answer = answer.trim().to_lowercase();
 
         // Blank line to separate from logs or other questions
-        println!();
+        eprintln!();
 
         if answer.is_empty() {
             if let Some(default) = options.default {
