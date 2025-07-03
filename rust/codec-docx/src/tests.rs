@@ -13,6 +13,7 @@ use codec::{
     Codec, EncodeOptions,
 };
 use common_dev::pretty_assertions::assert_eq;
+use version::STENCILA_VERSION;
 
 use crate::DocxCodec;
 
@@ -32,6 +33,7 @@ async fn roundtrip_basic() -> Result<()> {
             source: Some("source".into()),
             commit: Some("commit".into()),
             extra: Some(Object(IndexMap::from([
+                ("generator".into(), Primitive::String(format!("Stencila {STENCILA_VERSION}"))),
                 ("boolean".into(), Primitive::Boolean(true)),
                 ("integer".into(), Primitive::Integer(123)),
                 ("number".into(), Primitive::Number(1.23)),
