@@ -2,7 +2,7 @@
 
 use std::{path::PathBuf, str::FromStr};
 
-use cli_utils::{cli_hint, hint, message, parse_host, ToStdout};
+use cli_utils::parse_host;
 
 use codec::schema::ConfigPublishZenodoAccessRight;
 use common::{
@@ -373,14 +373,8 @@ impl Cli {
 
         // Open and compile document
         let Ok(doc) = Document::open(&self.path, None).await else {
-            tracing::error!("Document root is not an Article");
-            hint!("Attempt to re-render a standalone document and retry.").to_stdout();
-            cli_hint!(
-                "If you built the file with `stencila render`, try adding the `--standalone` flag."
-            )
-            .to_stdout();
             bail!(
-                "Unable to create a Document from file at {}",
+                "Unable to open file {} as a Stencila document",
                 self.path.display()
             );
         };
@@ -388,8 +382,7 @@ impl Cli {
 
         // Pre-check: ensure that we have an Article
         let Node::Article(_) = &doc.root().await else {
-            tracing::info!("Internal error: Document root is not an Article");
-            bail!("Document root is not an Article");
+            bail!("Document in file {} is not an `Article`. Attempt to re-render as a standalone document and retry.", self.path.display());
         };
 
         // Determine server URL
@@ -508,7 +501,7 @@ impl Cli {
                     access_right
                 );
                 if access_right != Some(ConfigPublishZenodoAccessRight::Embargoed) {
-                    message!("Note: An embargo date ({}) has been provided, but access right is set to {:?}. Replacing access right to `embargoed`.", embargo_date, access_right);
+                    tracing::info!("Note: An embargo date ({}) has been provided, but access right is set to {:?}. Replacing access right to `embargoed`.", embargo_date, access_right);
                 }
                 deposit["metadata"]["embargo_date"] = json!(embargo_date);
                 deposit["metadata"]["access_right"] = json!("embargoed");
@@ -578,11 +571,10 @@ impl Cli {
                     if cfg!(debug_assertions) {
                         panic!("should be impossible to reserve a DOI and also provide one");
                     }
-                    message!(
+                    tracing::info!(
                         "Using DOI provided ({}), rather than pre-reserving another one.",
                         from_cli
-                    )
-                    .to_stdout();
+                    );
                     doi = Some(from_cli)
                 }
             }
@@ -649,7 +641,7 @@ impl Cli {
                 embargo_date, self.access_right
             );
             if &self.access_right != "embargoed" {
-                message!("Note: An embargo date ({}) has been provided, but access right is set to {}. Replacing access right to `embargoed`.", embargo_date, self.access_right);
+                tracing::info!("Note: An embargo date ({}) has been provided, but access right is set to {}. Replacing access right to `embargoed`.", embargo_date, self.access_right);
             }
             deposit["metadata"]["embargo_date"] = json!(embargo_date);
             deposit["metadata"]["access_right"] = json!("embargoed");
@@ -684,7 +676,7 @@ impl Cli {
         tracing::debug!(metadata_provided = ?deposit, "Creating deposit");
 
         if self.dry_run {
-            message!("🏁🏃‍♀️ Dry run completed").to_stdout();
+            tracing::info!("Dry run completed successfully");
             return Ok(());
         }
 
@@ -706,12 +698,11 @@ impl Cli {
             let mut msg =
                 String::from("Check that the access token is correct and has the necessary scope");
             if self.force {
-                msg.push_str("s (`deposit:actions` and `deposit:write`) enabled.");
+                msg.push_str("s (`deposit:actions` and `deposit:write`)");
             } else {
-                msg.push_str(" (`deposit:actions`) enabled.");
+                msg.push_str(" (`deposit:actions`)");
             }
-            hint!("{}", msg).to_stdout();
-            hint!("Check that the access token is provided by the Zenodo server that you're uploading to ({})", server_url).to_stdout();
+            bail!("{msg} enabled and is provided by the Zenodo server that you're uploading to ({server_url})");
         }
 
         if !&deposition_response.status().is_success() {
@@ -747,9 +738,7 @@ impl Cli {
                         "metadata.description" => {
                             for message in messages.iter().filter_map(|msg| msg.as_str()) {
                                 if message == "Field may not be null." {
-                                    tracing::error!("Description missing from article.");
-                                    cli_hint!("Provide a description with the --description flag.")
-                                        .to_stdout();
+                                    tracing::error!("Description missing from article. If using Stencila CLI, provide a description with the --description flag.");
                                 } else {
                                     tracing::error!("Problem with description: {:?}", message)
                                 }
@@ -758,8 +747,7 @@ impl Cli {
                         "metadata.title" => {
                             for message in messages.iter().filter_map(|msg| msg.as_str()) {
                                 if message == "Field may not be null." {
-                                    tracing::error!("Title missing from article.");
-                                    cli_hint!("Provide a title with the --title flag.").to_stdout();
+                                    tracing::error!("Title missing from article. If using Stencila CLI, provide a title with the --title flag.");
                                 } else {
                                     tracing::error!("Problem with title: {:?}", message)
                                 }
@@ -768,10 +756,9 @@ impl Cli {
                         "metadata.license" => {
                             for message in messages.iter().filter_map(|msg| msg.as_str()) {
                                 if message.starts_with("Invalid license") {
-                                    tracing::error!("Invalid license identifier provided.");
-                                    hint!("Check that you are using an identifier, rather than the license's full name. Many identifiers are available in human-readable form at <https://spdx.org/licenses/>. Zenodo's full list of supported licenses is provided programmatically at <https://zenodo.org/api/vocabularies/licenses>.").to_stdout();
+                                    tracing::error!("Invalid license identifier provided. Check that you are using an identifier, rather than the license's full name. Many identifiers are available in human-readable form at <https://spdx.org/licenses/>. Zenodo's full list of supported licenses is provided programmatically at https://zenodo.org/api/vocabularies/licenses.");
                                 } else {
-                                    tracing::error!("Problem with title: {:?}", message)
+                                    tracing::error!("Problem with license: {:?}", message)
                                 }
                             }
                         }
@@ -856,27 +843,24 @@ impl Cli {
                 );
             }
 
-            cli_utils::message!("🎉 Deposition published").to_stdout();
-            cli_utils::message!("🌐 URL: {}", deposition_url).to_stdout();
+            eprintln!("🎉 Deposition published");
+            eprintln!("🌐 URL: {}", deposition_url);
         } else {
-            cli_utils::message!("🎉 Draft deposition submitted").to_stdout();
-            cli_utils::message!(
+            eprintln!("🎉 Draft deposition submitted");
+            eprintln!(
                 "🌐 URL: {} (visit to check details and publish)",
                 deposition_url
-            )
-            .to_stdout();
+            );
 
             if let Some(doi) = reserved_doi {
-                cli_utils::message!("📑 DOI: {}", doi).to_stdout();
+                eprintln!("📑 DOI: {}", doi);
             }
 
             if self.sandbox {
-                cli_utils::message!("Note: This deposit has been submitted to the Zenodo Sandbox.")
-                    .to_stdout();
-                cli_utils::message!(
+                eprintln!("Note: This deposit has been submitted to the Zenodo Sandbox.");
+                eprintln!(
                     "Note: Use the --zenodo flag to resubmit to the production Zenodo server."
-                )
-                .to_stdout();
+                );
             }
         }
 

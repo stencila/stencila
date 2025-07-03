@@ -22,10 +22,6 @@ pub use parsers::*;
 mod message;
 pub use message::*;
 
-// TODO: use `ask` or `tracing` instead and remove hint
-mod hint;
-pub use hint::*;
-
 // Modules for outputs to stdout
 // These implement the `ToStdout` trait (below)
 
