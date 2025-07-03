@@ -84,7 +84,7 @@ CLI subcommands and global options
 * `rebuild` — Rebuild a workspace database
 * `query` — Query a workspace database
 * `convert` — Convert a document to another format
-* `merge` — Reverse changes from an edited document into the original
+* `merge` — Merge changes from another format
 * `sync` — Synchronize a document between formats
 * `compile` — Compile a document
 * `lint` — Lint one or more documents
@@ -105,7 +105,16 @@ CLI subcommands and global options
 
 ###### **Options:**
 
+* `-h`, `--help` — Print help: `-h` for brief help, `--help` for more details
+
+  Possible values: `true`, `false`
+
+* `-y`, `--yes` — Assume the answer `yes` to any interactive prompts
+
+   The options `--no` and `--cancel` (and corresponding env vars) are also available (but but for brevity not listed).
 * `--debug` — Display debug level logging and detailed error reports
+
+   For trace level logging, --trace is also available (but for brevity not listed). See documentation for other logging options --log-level, --log-format, log-filter.
 
 
 
@@ -416,7 +425,7 @@ Convert a document to another format
 
 ## `stencila merge`
 
-Reverse changes from an edited document into the original
+Merge changes from another format
 
 **Usage:** `stencila merge [OPTIONS] <EDITED>`
 
@@ -433,6 +442,7 @@ Reverse changes from an edited document into the original
 
    This file should be in the same format as the edited version.
 * `--commit <COMMIT>` — The commit at which the edited document was generated from the original
+* `--no-rebase` — Do not rebase edits using the unedited version of the document
 * `-f`, `--from <FROM>` — The format of the input/s
 
    If not supplied, and inputting from a file, is inferred from the extension. See `stencila formats list` for available formats.
