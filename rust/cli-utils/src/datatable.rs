@@ -3,11 +3,11 @@ use comfy_table::{Cell, CellAlignment, Color, Row};
 use common::{itertools::Itertools, serde_json};
 use schema::{Datatable, Primitive, Validator};
 
-use crate::{table, ToStdout};
+use crate::{Tabulated, ToStdout};
 
 impl ToStdout for Datatable {
     fn to_terminal(&self) -> impl std::fmt::Display {
-        let mut table = table::new();
+        let mut table = Tabulated::new();
 
         let header = self
             .columns

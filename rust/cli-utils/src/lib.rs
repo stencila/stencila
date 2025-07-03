@@ -31,16 +31,17 @@ pub use code::*;
 
 mod datatable;
 
-pub mod table;
+pub mod tabulated;
+pub use tabulated::Tabulated;
 
 /// A trait for displaying an object to stdout
 pub trait ToStdout: Display {
     /// Print the object to stdout
-    /// 
+    ///
     /// This is intended to be the only function in this workspace
     /// that can print to stdout. It allows us to be more intentional
     /// about the use of stdout (e.g. by searching for use of this method).
-    /// 
+    ///
     /// This is important in the context of protocols such as LSP and MCP
     /// where the protocol involves communication over stdin/stdout and
     /// randomly printing to stdout can break that.

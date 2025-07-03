@@ -1,5 +1,5 @@
 use cli_utils::{
-    table::{self, Attribute, Cell, CellAlignment, Color},
+    tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
     AsFormat, Code, ToStdout,
 };
 use model::{
@@ -68,7 +68,7 @@ impl List {
             return Ok(());
         }
 
-        let mut table = table::new();
+        let mut table = Tabulated::new();
         table.set_header([
             "Id",
             "Type",

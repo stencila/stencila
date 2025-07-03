@@ -1,5 +1,5 @@
 use cli_utils::{
-    table::{self, Attribute, Cell, Color},
+    tabulated::{Attribute, Cell, Color, Tabulated},
     AsFormat, Code, ToStdout,
 };
 use codecs::{EncodeOptions, Format};
@@ -64,7 +64,7 @@ impl List {
             return Ok(());
         }
 
-        let mut table = table::new();
+        let mut table = Tabulated::new();
         table.set_header(["Name", "Description", "Version"]);
 
         for prompt in list {

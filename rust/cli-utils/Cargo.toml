@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 comfy-table = "7.1.4"
 common = { path = "../common" }
+derive_more = { workspace = true }
 format = { path = "../format" }
 rpassword = "7.4.0"
 schema = { path = "../schema" }

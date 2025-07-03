@@ -3,7 +3,7 @@ use std::{
     time::Duration,
 };
 
-use cli_utils::table::{self, Attribute, Cell, Color, Table};
+use cli_utils::tabulated::{Attribute, Cell, Color, Tabulated};
 use common::{
     clap::{self, Args},
     eyre::Result,
@@ -156,10 +156,10 @@ pub struct ListArgs {
 }
 
 impl ListArgs {
-    pub async fn run(self) -> Result<Table> {
+    pub async fn run(self) -> Result<Tabulated> {
         let list = list(self).await?;
 
-        let mut table = table::new();
+        let mut table = Tabulated::new();
         table.set_header(["Name", "Description", "Home", "Version", "Enabled"]);
 
         for plugin in list {

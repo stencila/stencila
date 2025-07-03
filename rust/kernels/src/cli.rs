@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use cli_utils::{
-    table::{self, Attribute, Cell, CellAlignment, Color},
+    tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
     AsFormat, Code, ToStdout,
 };
 use kernel::{
@@ -91,7 +91,7 @@ impl List {
             return Ok(());
         }
 
-        let mut table = table::new();
+        let mut table = Tabulated::new();
         table.set_header([
             "Name",
             "Type",
@@ -222,7 +222,7 @@ impl Packages {
             })
             .sorted_by(|a, b| a.name.cmp(&b.name));
 
-        let mut table = table::new();
+        let mut table = Tabulated::new();
         table.set_header(["Package", "Version"]);
 
         for package in packages {

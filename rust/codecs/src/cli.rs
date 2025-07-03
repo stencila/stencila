@@ -1,6 +1,6 @@
 use cli_utils::{
-    table::{self, Attribute, Cell, Color},
-    AsFormat, Code, ToStdout,
+    tabulated::{Attribute, Cell, Color},
+    AsFormat, Code, Tabulated, ToStdout,
 };
 use codec::{
     common::{
@@ -95,7 +95,7 @@ impl List {
             return Ok(());
         }
 
-        let mut table = table::new();
+        let mut table = Tabulated::new();
         table.set_header(["Name", "Default Extension", "From", "To", "Lossless"]);
 
         for format in formats {

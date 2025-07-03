@@ -2,7 +2,7 @@ use std::io::{stdin, IsTerminal, Read};
 
 use cli_utils::{
     rpassword::prompt_password,
-    table::{self, Attribute, Cell, CellAlignment, Color},
+    tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
     ToStdout,
 };
 use common::{
@@ -80,7 +80,7 @@ impl Cli {
 fn list_cli() -> Result<()> {
     let list = list()?;
 
-    let mut table = table::new();
+    let mut table = Tabulated::new();
     table.set_header(["Name", "Description", "Value"]);
     for secret in list {
         table.add_row([
