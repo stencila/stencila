@@ -427,6 +427,7 @@ pub async fn convert(
 ///
 /// Returns a vector of paths that were modified during the merge or
 /// `None` is the merge was cancelled.
+#[allow(clippy::too_many_arguments)]
 #[tracing::instrument]
 pub async fn merge(
     edited: &Path,
@@ -477,7 +478,7 @@ pub async fn merge(
     // If a commit is available then check the status of the file relative to the path
     if let Some(commit) = commit {
         if commit != "untracked" && commit != "dirty" {
-            let should_continue = check_git_status(&original, &commit, &edited, false).await?;
+            let should_continue = check_git_status(&original, &commit, edited, false).await?;
             if !should_continue {
                 tracing::debug!("Merge cancelled");
                 return Ok(None);

@@ -158,6 +158,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) -> Result<()> {
 
                 let client = state.client.clone();
                 async move {
+                    #[allow(clippy::single_match)]
                     match params.command.as_str() {
                         MERGE_DOC => return commands::merge_doc(params, client).await,
                         _ => {}
