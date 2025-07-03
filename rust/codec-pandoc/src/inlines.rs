@@ -252,11 +252,12 @@ fn link_from_pandoc(
 
     // Some software will URL encode the target (e.g. LibreOffice for DOCX). This can break
     // internal links using ids like `fig:xxx` and `tab:xxx` as used in LaTeX documents so
-    // revert these.
-    if target.starts_with("#tab%3A") {
-        target = target.replacen("#tab%3A", "tab:", 1);
-    } else if target.starts_with("#fig%3A") {
-        target = target.replacen("#fig%3A", "fig:", 1);
+    // revert these. Some software also places a %20 at the start of the URL.
+    target = target.trim_start_matches("%20").to_string();
+    if let Some(rest) = target.strip_prefix("#tab%3A") {
+        target = format!("tab:{rest}");
+    } else if let Some(rest) = target.strip_prefix("#fig%3A") {
+        target = format!("fig:{rest}");
     }
 
     let label_only = if !target.starts_with("https://") && !target.starts_with("http://") {
