@@ -58,6 +58,18 @@ impl Reconstituter {
 
         false
     }
+
+    /// Helper method to add blocks to collection if they're being collected
+    fn collect_block_if_necessary(&mut self, block: &mut Block) -> WalkControl {
+        if let Some(blocks) = self.blocks.last_mut() {
+            blocks.push(BlockWithPath {
+                block: block.clone(),
+                path: None, // No path for non-reconstituted blocks
+            });
+            *block = Block::RawBlock(RawBlock::new(String::new(), "".into()));
+        }
+        WalkControl::Continue
+    }
 }
 
 impl VisitorMut for Reconstituter {
@@ -67,16 +79,7 @@ impl VisitorMut for Reconstituter {
 
         // Only reconstitute paragraphs...
         let Block::Paragraph(Paragraph { content, .. }) = block else {
-            // If blocks being collected then add to them
-            if let Some(blocks) = self.blocks.last_mut() {
-                blocks.push(BlockWithPath {
-                    block: block.clone(),
-                    path: None, // No path for non-reconstituted blocks
-                });
-                *block = delete();
-            }
-
-            return WalkControl::Continue;
+            return self.collect_block_if_necessary(block);
         };
 
         // ...that has a link anywhere in it (may be single link, or have other inline nodes,
@@ -85,29 +88,12 @@ impl VisitorMut for Reconstituter {
             Inline::Link(Link { target, .. }) => Some(target),
             _ => None,
         }) else {
-            // If blocks being collected then add to them
-            if let Some(blocks) = self.blocks.last_mut() {
-                blocks.push(BlockWithPath {
-                    block: block.clone(),
-                    path: None, // No path for non-reconstituted blocks
-                });
-                *block = delete();
-            }
-
-            return WalkControl::Continue;
+            return self.collect_block_if_necessary(block);
         };
 
         // ...that has a Stencila node URL
         let Some(node_url) = NodeUrl::from_str(target).ok() else {
-            // If blocks are currently being collected then add to them
-            if let Some(blocks) = self.blocks.last_mut() {
-                blocks.push(BlockWithPath {
-                    block: block.clone(),
-                    path: None, // No path for non-reconstituted blocks
-                });
-                *block = delete();
-            }
-            return WalkControl::Continue;
+            return self.collect_block_if_necessary(block);
         };
 
         // ...that is for a block node (avoids links for inline nodes, such as
@@ -117,16 +103,7 @@ impl VisitorMut for Reconstituter {
             .map(|typ| typ.is_block())
             .unwrap_or_default()
         {
-            // If blocks are currently being collected then add to them
-            if let Some(blocks) = self.blocks.last_mut() {
-                blocks.push(BlockWithPath {
-                    block: block.clone(),
-                    path: None, // No path for non-reconstituted blocks
-                });
-                *block = delete();
-            }
-
-            return WalkControl::Continue;
+            return self.collect_block_if_necessary(block);
         }
 
         // Capture path before it gets moved
@@ -171,16 +148,7 @@ impl VisitorMut for Reconstituter {
                 }
             }
         } else {
-            // If blocks being collected then add to them
-            if let Some(blocks) = self.blocks.last_mut() {
-                blocks.push(BlockWithPath {
-                    block: block.clone(),
-                    path: None, // No path for non-reconstituted blocks
-                });
-                *block = delete();
-            }
-
-            return WalkControl::Continue;
+            return self.collect_block_if_necessary(block);
         };
 
         // ...and is a block node.
