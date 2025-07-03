@@ -608,7 +608,7 @@ mod tests {
     macro_rules! skip_on_windows_ci {
         () => {
             if cfg!(target_os = "windows") && std::env::var("CI").is_ok() {
-                println!("Skipping test on Windows CI");
+                eprintln!("Skipping test on Windows CI");
                 return Ok(());
             }
         };

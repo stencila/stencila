@@ -16,13 +16,14 @@ pub fn uninstall() -> Result<()> {
 pub struct Cli {}
 
 impl Cli {
+    #[allow(clippy::print_stderr)]
     pub fn run(self) -> Result<()> {
         if !confirm("Are you sure you want to uninstall Stencila CLI?")? {
             return Ok(());
         }
 
         uninstall()?;
-        println!("😢 Successfully uninstalled");
+        eprintln!("😢 Successfully uninstalled");
 
         Ok(())
     }

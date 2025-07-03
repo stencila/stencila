@@ -234,22 +234,23 @@ pub struct Cli {
 }
 
 impl Cli {
+    #[allow(clippy::print_stderr)]
     pub async fn run(self) -> Result<()> {
         if self.check {
             match check(true).await? {
                 Some(version) => {
-                    println!("🎂 Upgrade available: {STENCILA_VERSION} → {version}");
+                    eprintln!("🎂 Upgrade available: {STENCILA_VERSION} → {version}");
                 }
                 None => {
-                    println!(
+                    eprintln!(
                         "👍 No upgrade needed: current version {STENCILA_VERSION} is the latest"
                     );
                 }
             }
         } else if let Some(version) = upgrade(self.force).await? {
-            println!("🍰 Successfully upgraded to version {version}");
+            eprintln!("🍰 Successfully upgraded to version {version}");
         } else {
-            println!(
+            eprintln!(
                 "🙌 Current version {STENCILA_VERSION} is the latest (use --force to override)"
             );
         }

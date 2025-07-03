@@ -152,15 +152,15 @@ struct Infer {
 }
 
 impl Infer {
-    #[allow(clippy::print_stdout)]
+    #[allow(clippy::print_stderr)]
     async fn run(self) -> Result<()> {
         let node_types = self
             .node_types
             .map(|value| value.split(",").map(String::from).collect_vec());
 
         match super::infer(&self.instruction_type, &node_types, &self.query.as_deref()).await {
-            Some(prompt) => println!("{}", prompt.name),
-            None => println!("Unable to infer prompt"),
+            Some(prompt) => eprintln!("{}", prompt.name),
+            None => eprintln!("Unable to infer prompt"),
         };
 
         Ok(())

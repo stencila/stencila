@@ -172,13 +172,13 @@ struct Info {
 }
 
 impl Info {
-    #[allow(clippy::print_stdout)]
+    #[allow(clippy::print_stderr)]
     async fn run(self) -> Result<()> {
         let mut kernels = Kernels::new_here(ExecutionBounds::Main);
         let instance = kernels.create_instance(Some(&self.name)).await?;
 
         let info = instance.lock().await.info().await?;
-        println!(
+        eprintln!(
             "Name: {}\nVersion: {}\nOperating system: {}\n",
             info.name,
             info.options.software_version.as_deref().unwrap_or("?"),
@@ -266,7 +266,6 @@ struct Execute {
 }
 
 impl Execute {
-    #[allow(clippy::print_stdout)]
     async fn run(self) -> Result<()> {
         let bounds = if self.r#box {
             ExecutionBounds::Box
@@ -302,7 +301,6 @@ struct Evaluate {
 }
 
 impl Evaluate {
-    #[allow(clippy::print_stdout)]
     async fn run(self) -> Result<()> {
         let mut kernels = Kernels::new_here(ExecutionBounds::Main);
 
@@ -368,7 +366,7 @@ struct Lint {
 }
 
 impl Lint {
-    #[allow(clippy::print_stdout)]
+    #[allow(clippy::print_stderr)]
     async fn run(self) -> Result<()> {
         let format = Format::from_path(&self.file);
         let code = read_to_string(&self.file).await?;
@@ -391,22 +389,22 @@ impl Lint {
         .await?;
 
         if let Some(code) = code {
-            println!("Formatted and/or fixed code:\n");
+            eprintln!("Formatted and/or fixed code:\n");
             Code::new(format.clone(), &code).to_stdout();
         }
 
         if let Some(output) = output {
-            println!("Diagnostic output:\n");
+            eprintln!("Diagnostic output:\n");
             Code::new(format, &output).to_stdout();
         }
 
         if let Some(messages) = messages {
-            println!("Diagnostic messages:\n");
+            eprintln!("Diagnostic messages:\n");
             Code::new(Format::Yaml, &serde_yaml::to_string(&messages)?).to_stdout();
         }
 
         if let Some(authors) = authors {
-            println!("Contributors:\n");
+            eprintln!("Contributors:\n");
             Code::new(Format::Yaml, &serde_yaml::to_string(&authors)?).to_stdout();
         }
 

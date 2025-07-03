@@ -250,7 +250,7 @@ mod tests {
     macro_rules! skip_on_ci {
         () => {
             if std::env::var("CI").is_ok() {
-                println!("Skipping test on CI");
+                eprintln!("Skipping test on CI");
                 return Ok(());
             }
         };
