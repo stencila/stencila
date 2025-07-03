@@ -200,6 +200,44 @@ fn section_to_pandoc(section: &Section, context: &mut PandocEncodeContext) -> pa
     };
     let class = ["section-", &section_type].concat();
 
+    // Handle reproducible rendering for Iteration sections
+    if context.render && context.reproducible && section_type == "iteration" {
+        let link_attrs = if context.highlight {
+            Attr {
+                attributes: vec![("custom-style".to_string(), "Iteration Section".to_string())],
+                ..Default::default()
+            }
+        } else {
+            attrs_empty()
+        };
+
+        let mut blocks = Vec::new();
+
+        blocks.push(pandoc::Block::Para(vec![context.reproducible_link(
+            NodeType::Section,
+            section,
+            Some(NodePosition::Begin),
+            link_attrs.clone(),
+            vec![pandoc::Inline::Str("[Begin Iteration]".to_string())],
+        )]));
+
+        blocks.append(&mut blocks_to_pandoc(
+            NodeProperty::Content,
+            &section.content,
+            context,
+        ));
+
+        blocks.push(pandoc::Block::Para(vec![context.reproducible_link(
+            NodeType::Section,
+            section,
+            Some(NodePosition::End),
+            link_attrs,
+            vec![pandoc::Inline::Str("[End Iteration]".to_string())],
+        )]));
+
+        return pandoc::Block::Div(attrs_empty(), blocks);
+    }
+
     let attrs = pandoc::Attr {
         classes: vec![class],
         ..attrs_empty()
@@ -872,6 +910,70 @@ fn admonition_to_pandoc(admon: &Admonition, context: &mut PandocEncodeContext) -
 }
 
 fn if_block_to_pandoc(block: &IfBlock, context: &mut PandocEncodeContext) -> pandoc::Block {
+    if context.render {
+        // In render mode, only render the active clause's content
+        if let Some(active_clause) = block
+            .clauses
+            .iter()
+            .find(|clause| clause.is_active == Some(true))
+        {
+            let link_attrs = if context.highlight {
+                Attr {
+                    attributes: vec![("custom-style".to_string(), "If Block".to_string())],
+                    ..Default::default()
+                }
+            } else {
+                attrs_empty()
+            };
+
+            let mut blocks = Vec::new();
+
+            if context.reproducible {
+                blocks.push(pandoc::Block::Para(vec![context.reproducible_link(
+                    NodeType::IfBlock,
+                    block,
+                    Some(NodePosition::Begin),
+                    link_attrs.clone(),
+                    vec![pandoc::Inline::Str("[Begin If Block]".to_string())],
+                )]));
+            }
+
+            blocks.append(&mut blocks_to_pandoc(
+                NodeProperty::Content,
+                &active_clause.content,
+                context,
+            ));
+
+            if context.reproducible {
+                blocks.push(pandoc::Block::Para(vec![context.reproducible_link(
+                    NodeType::IfBlock,
+                    block,
+                    Some(NodePosition::End),
+                    link_attrs,
+                    vec![pandoc::Inline::Str("[End If Block]".to_string())],
+                )]));
+            }
+
+            return pandoc::Block::Div(attrs_empty(), blocks);
+        } else {
+            // No active clause, return empty div or a placeholder
+            return if context.reproducible {
+                pandoc::Block::Para(vec![context.reproducible_link(
+                    NodeType::IfBlock,
+                    block,
+                    None,
+                    attrs_empty(),
+                    vec![pandoc::Inline::Str(
+                        "[If Block: no active clause]".to_string(),
+                    )],
+                )])
+            } else {
+                pandoc::Block::Div(attrs_empty(), Vec::new())
+            };
+        }
+    }
+
+    // Non-render mode: encode all clauses with metadata
     let attrs = pandoc::Attr {
         classes: vec!["if".into()],
         ..attrs_empty()
@@ -1184,6 +1286,58 @@ fn excerpt_to_pandoc(block: &Excerpt, context: &mut PandocEncodeContext) -> pand
 }
 
 fn for_block_to_pandoc(block: &ForBlock, context: &mut PandocEncodeContext) -> pandoc::Block {
+    if context.render {
+        let link_attrs = if context.highlight {
+            Attr {
+                attributes: vec![("custom-style".to_string(), "For Block".to_string())],
+                ..Default::default()
+            }
+        } else {
+            attrs_empty()
+        };
+
+        let mut blocks = Vec::new();
+
+        if context.reproducible {
+            blocks.push(pandoc::Block::Para(vec![context.reproducible_link(
+                NodeType::ForBlock,
+                block,
+                Some(NodePosition::Begin),
+                link_attrs.clone(),
+                vec![pandoc::Inline::Str("[Begin For Block]".to_string())],
+            )]));
+        }
+
+        // Include content before iterations
+        blocks.append(&mut blocks_to_pandoc(
+            NodeProperty::Content,
+            &block.content,
+            context,
+        ));
+
+        // Include all iterations
+        if let Some(iterations) = &block.iterations {
+            blocks.append(&mut blocks_to_pandoc(
+                NodeProperty::Iterations,
+                iterations,
+                context,
+            ));
+        }
+
+        if context.reproducible {
+            blocks.push(pandoc::Block::Para(vec![context.reproducible_link(
+                NodeType::ForBlock,
+                block,
+                Some(NodePosition::End),
+                link_attrs,
+                vec![pandoc::Inline::Str("[End For Block]".to_string())],
+            )]));
+        }
+
+        return pandoc::Block::Div(attrs_empty(), blocks);
+    }
+
+    // Non-render mode: encode with metadata
     let mut attributes = vec![
         ("variable".into(), block.variable.clone()),
         ("code".into(), block.code.to_string()),
