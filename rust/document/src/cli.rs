@@ -4,8 +4,8 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
+use ask::{ask_with_default, Answer};
 use cli_utils::{
-    confirm,
     table::{self, Attribute, Cell, Color},
     AsFormat, Code, ToStdout,
 };
@@ -435,7 +435,12 @@ impl Move {
     pub async fn run(self) -> Result<()> {
         if self.to.exists()
             && !self.force
-            && !confirm("Destination path already exists, overwrite it?")?
+            && !ask_with_default(
+                "Destination path already exists, overwrite it?",
+                Answer::Yes,
+            )
+            .await?
+            .is_yes()
         {
             return Ok(());
         }

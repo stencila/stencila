@@ -4,18 +4,18 @@
 //! want to re-use in sibling crates for both convenience and consistency.
 
 use std::fmt::Display;
-
 use std::io::IsTerminal;
+
+// Modules for inputs from stdin
+// (see also the sibling `ask` crate)
+
+mod parsers;
+pub use parsers::*;
 
 pub use rpassword;
 
-mod code;
-pub use code::*;
-
-mod confirm;
-pub use confirm::*;
-
-mod datatable;
+// Modules for diagnostics to stderr
+// (consider using `tracing` instead)
 
 mod hint;
 pub use hint::*;
@@ -23,8 +23,13 @@ pub use hint::*;
 mod message;
 pub use message::*;
 
-mod parsers;
-pub use parsers::*;
+// Modules for outputs to stdout
+// These implement the `ToStdout` trait (below)
+
+mod code;
+pub use code::*;
+
+mod datatable;
 
 pub mod table;
 

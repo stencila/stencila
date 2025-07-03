@@ -1,4 +1,4 @@
-use cli_utils::confirm;
+use ask::{ask_with_default, Answer};
 use common::{
     clap::{self, Parser},
     eyre::Result,
@@ -17,8 +17,14 @@ pub struct Cli {}
 
 impl Cli {
     #[allow(clippy::print_stderr)]
-    pub fn run(self) -> Result<()> {
-        if !confirm("Are you sure you want to uninstall Stencila CLI?")? {
+    pub async fn run(self) -> Result<()> {
+        if !ask_with_default(
+            "Are you sure you want to uninstall Stencila CLI?",
+            Answer::Yes,
+        )
+        .await?
+        .is_yes()
+        {
             return Ok(());
         }
 

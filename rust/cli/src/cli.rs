@@ -259,7 +259,7 @@ impl Cli {
             Command::Secrets(secrets) => secrets.run().await?,
 
             Command::Upgrade(upgrade) => upgrade.run().await?,
-            Command::Uninstall(uninstall) => uninstall.run()?,
+            Command::Uninstall(uninstall) => uninstall.run().await?,
 
             // Handled before this function
             Command::Lsp => bail!("The LSP command should already been run"),
