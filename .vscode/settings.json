@@ -110,6 +110,7 @@
         "openai",
         "orcid",
         "pandoc",
+        "pixi",
         "plotly",
         "pmcoa",
         "poshmap",

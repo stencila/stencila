@@ -2,7 +2,7 @@
 
 use std::{path::PathBuf, str::FromStr};
 
-use cli_utils::parse_host;
+use cli_utils::{cli_hint, color_print::cstr, hint, message, parse_host, ToStdout};
 
 use codec::schema::ConfigPublishZenodoAccessRight;
 use common::{
@@ -17,8 +17,6 @@ use common::{
     serde_json::{json, Value},
     tokio, tracing,
 };
-
-use color_print::cstr;
 use document::{schema, schema::Node, Document};
 
 mod metadata_extraction;

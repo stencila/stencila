@@ -8,7 +8,8 @@
 use std::fmt::Display;
 use std::io::IsTerminal;
 
-// Modules for parsing CLI arguments
+pub use color_print;
+pub use format;
 
 mod parsers;
 pub use parsers::*;

@@ -1,3 +1,7 @@
+# Linting checks
+lint:
+	shellcheck defaults/setup.sh
+
 # Build the image
 build:
 	docker build --platform linux/amd64 --tag stencila/workspace .

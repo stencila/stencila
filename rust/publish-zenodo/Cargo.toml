@@ -8,7 +8,6 @@ cli-utils = { path = "../cli-utils" }
 codec = { path = "../codec" }
 codec-swb = { path = "../codec-swb" }
 codec-text = { path = "../codec-text" }
-color-print = "0.3"
 common = { "path" = "../common" }
 document = { path = "../document" }
 url = { workspace = true }
