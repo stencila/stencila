@@ -2,7 +2,10 @@ use std::collections::HashMap;
 
 use lsp_types::{MessageActionItem, MessageType, ShowMessageRequestParams};
 
-use common::{async_trait::async_trait, eyre::Result};
+use common::{
+    async_trait::async_trait,
+    eyre::{Result, bail},
+};
 
 use crate::{Answer, Ask, AskLevel, AskOptions};
 
@@ -18,7 +21,7 @@ pub trait LspClient: Send + Sync {
     ///
     /// This is not part of the standard LSP spec, but many LSP clients (like VS
     /// Code) support custom requests for input dialogs. Implementations should:
-    /// 
+    ///
     /// - Use the client's password input capability if available (e.g.,
     ///   vscode.window.showInputBox with password: true)
     /// - Fall back to a regular input box with a warning if password input
@@ -93,10 +96,9 @@ impl<C: LspClient> Ask for LspProvider<C> {
     }
 
     async fn password(&self, prompt: &str) -> Result<String> {
-        // Try to get password input through the LSP client
         match self.client.request_password_input(prompt).await {
             Ok(Some(password)) => Ok(password),
-            Ok(None) => Err(common::eyre::eyre!("Password input cancelled by user")),
+            Ok(None) => bail!("Password input cancelled by user"),
             Err(error) => {
                 // If the client doesn't support password input, show a warning and explain the limitation
                 let params = ShowMessageRequestParams {
