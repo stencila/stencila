@@ -28,7 +28,7 @@ pub(super) struct PandocEncodeContext {
     pub losses: Losses,
 
     /// The path to the current node
-    node_path: NodePath,
+    pub node_path: NodePath,
 }
 
 impl PandocEncodeContext {

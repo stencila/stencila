@@ -201,14 +201,22 @@ fn section_to_pandoc(section: &Section, context: &mut PandocEncodeContext) -> pa
     let class = ["section-", &section_type].concat();
 
     // Handle reproducible rendering for Iteration sections
-    if context.render && context.reproducible && section_type == "iteration" {
+    if context.render
+        && context.reproducible
+        && matches!(section.section_type, Some(SectionType::Iteration))
+    {
         let link_attrs = if context.highlight {
             Attr {
-                attributes: vec![("custom-style".to_string(), "Iteration Section".to_string())],
+                attributes: vec![("custom-style".to_string(), "Iteration".to_string())],
                 ..Default::default()
             }
         } else {
             attrs_empty()
+        };
+
+        let number = match context.node_path.back() {
+            Some(NodeSlot::Index(index)) => format!(" #{}", index + 1),
+            _ => String::new(),
         };
 
         let mut blocks = Vec::new();
@@ -218,7 +226,7 @@ fn section_to_pandoc(section: &Section, context: &mut PandocEncodeContext) -> pa
             section,
             Some(NodePosition::Begin),
             link_attrs.clone(),
-            vec![pandoc::Inline::Str("[Begin Iteration]".to_string())],
+            vec![pandoc::Inline::Str(format!("[Begin Iteration{number}]"))],
         )]));
 
         blocks.append(&mut blocks_to_pandoc(
@@ -232,7 +240,7 @@ fn section_to_pandoc(section: &Section, context: &mut PandocEncodeContext) -> pa
             section,
             Some(NodePosition::End),
             link_attrs,
-            vec![pandoc::Inline::Str("[End Iteration]".to_string())],
+            vec![pandoc::Inline::Str(format!("[End Iteration{number}]"))],
         )]));
 
         return pandoc::Block::Div(attrs_empty(), blocks);
