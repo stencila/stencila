@@ -112,12 +112,6 @@ pub struct EncodeOptions {
     #[arg(long)]
     template: Option<PathBuf>,
 
-    /// Highlight the rendered outputs of executable nodes
-    ///
-    /// Only supported by some formats (e.g. DOCX and ODT).
-    #[arg(long)]
-    highlight: bool,
-
     /// Encode executable nodes so that they are reproducible
     ///
     /// Encode links to the source of executable nodes so that edits made
@@ -127,9 +121,21 @@ pub struct EncodeOptions {
     #[arg(long, alias = "repro")]
     reproducible: bool,
 
-    /// Do not encode executable nodes so that they are reproducible
-    #[arg(long, alias = "not-repro", conflicts_with = "reproducible")]
-    not_reproducible: bool,
+    /// Highlight the rendered outputs of executable nodes
+    ///
+    /// Only supported by some formats (e.g. DOCX and ODT).
+    /// Defaults to `true` when `--reproducible` flag is used.
+    #[arg(long)]
+    highlight: bool,
+
+    /// Do not highlight the rendered outputs of executable nodes.
+    #[arg(
+        long,
+        alias = "not-highlight",
+        alias = "dont-highlight",
+        conflicts_with = "highlight"
+    )]
+    no_highlight: bool,
 
     /// Encode as a standalone document
     #[arg(long, conflicts_with = "not_standalone")]
@@ -192,12 +198,12 @@ impl EncodeOptions {
             .then_some(true)
             .or(self.pretty.then_some(false));
 
-        let highlight = self.highlight.then_some(true);
+        let reproducible = self.reproducible.then_some(true);
 
-        let reproducible = self
-            .reproducible
+        let highlight = self
+            .highlight
             .then_some(true)
-            .or(self.not_reproducible.then_some(false));
+            .or(self.no_highlight.then_some(false));
 
         let template = self.template.clone();
 

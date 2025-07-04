@@ -164,6 +164,11 @@ impl Codec for DocxCodec {
         let format = options.format.clone().unwrap_or(Format::Docx);
         let reproducible = options.reproducible.unwrap_or_default();
 
+        // Default to highlighting if reproducible
+        if reproducible && options.highlight.is_none() {
+            options.highlight = Some(true);
+        }
+
         // Default to using builtin template by extracting it to cache
         if options.template.is_none() {
             use dirs::{get_app_dir, DirType};
