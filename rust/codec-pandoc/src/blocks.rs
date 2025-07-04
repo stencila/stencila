@@ -1248,14 +1248,14 @@ fn for_block_to_pandoc(block: &ForBlock, context: &mut PandocEncodeContext) -> p
                 Some(NodePosition::Begin),
                 pandoc::Inline::Str("[Begin For Block]".to_string()),
             )]));
-        }
 
-        // Include content before iterations
-        blocks.append(&mut blocks_to_pandoc(
-            NodeProperty::Content,
-            &block.content,
-            context,
-        ));
+            // Include content before iterations so that it can be edited
+            blocks.append(&mut blocks_to_pandoc(
+                NodeProperty::Content,
+                &block.content,
+                context,
+            ));
+        }
 
         // Include all iterations
         if let Some(iterations) = &block.iterations {
