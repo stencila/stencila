@@ -1049,7 +1049,9 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "docx",
+          "odt"
         ]
       },
       "serde": {

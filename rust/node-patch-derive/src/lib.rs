@@ -147,6 +147,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             let formats = field_attr.formats.iter().fold(TokenStream::new(), |mut tokens, format| {
                 let format = Format::from_name(format);
                 if let Some(format) = match format {
+                    Format::Docx => Some(quote!(Format::Docx)),
                     Format::Ipynb => Some(quote!(Format::Ipynb)),
                     Format::Koenig => Some(quote!(Format::Koenig)),
                     Format::Latex => Some(quote!(Format::Latex)),

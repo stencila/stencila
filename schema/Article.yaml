@@ -129,7 +129,7 @@ properties:
       flatten: true
       deserializeWith: empty_object_is_none
     patch:
-      formats: [md, smd, myst, ipynb, qmd]
+      formats: [md, smd, myst, ipynb, qmd, docx]
     dom:
       skip: true
   source:

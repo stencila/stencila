@@ -465,7 +465,7 @@ pub struct ArticleOptions {
     /// Additional metadata for the article.
     #[serde(flatten, deserialize_with = "empty_object_is_none")]
     #[strip(metadata)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "docx", format = "odt")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(skip)]
     pub extra: Option<Object>,
