@@ -14,7 +14,7 @@ use codec::{
         tokio::fs::write,
     },
     format::Format,
-    schema::{strip_non_content, Node, Object, Primitive},
+    schema::{strip_non_content, Article, Node, Object, Primitive},
     status::Status,
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     NodeType,
@@ -156,12 +156,48 @@ impl Codec for DocxCodec {
     ) -> Result<EncodeInfo> {
         let mut options = options.unwrap_or_default();
 
+        let mut re_encoding = false;
+
+        // Re-use any encoding options previously set and in `extra`s
+        // This may be the case, for example, when saving a DOCX previously
+        // rendered, and then saving it again after execution.
+        if let Node::Article(Article {
+            options: article_options,
+            ..
+        }) = node
+        {
+            if let Some(Primitive::Object(previous_options)) = article_options
+                .extra
+                .as_ref()
+                .and_then(|extra| extra.get("encoding"))
+            {
+                re_encoding = true;
+
+                if options.render.is_none() {
+                    if let Some(Primitive::Boolean(render)) = previous_options.get("render") {
+                        options.render = Some(*render);
+                    }
+                }
+                if options.reproducible.is_none() {
+                    if let Some(Primitive::Boolean(reproducible)) =
+                        previous_options.get("reproducible")
+                    {
+                        options.reproducible = Some(*reproducible);
+                    }
+                }
+                if options.highlight.is_none() {
+                    if let Some(Primitive::Boolean(highlight)) = previous_options.get("highlight") {
+                        options.highlight = Some(*highlight);
+                    }
+                }
+            }
+        }
+
         // Default to render
         if options.render.is_none() {
             options.render = Some(true);
         }
 
-        let format = options.format.clone().unwrap_or(Format::Docx);
         let reproducible = options.reproducible.unwrap_or_default();
 
         // Default to highlighting if reproducible
@@ -169,19 +205,28 @@ impl Codec for DocxCodec {
             options.highlight = Some(true);
         }
 
-        // Default to using builtin template by extracting it to cache
         if options.template.is_none() {
-            use dirs::{get_app_dir, DirType};
-            let template = get_app_dir(DirType::Templates, true)?.join(DEFAULT_TEMPLATE);
-            if !template.exists() {
-                let file =
-                    Templates::get(DEFAULT_TEMPLATE).ok_or_eyre("template does not exist")?;
-                write(&template, file.data).await?;
+            if re_encoding {
+                // Use the document itself as the template so that any styling
+                // changes are maintained
+                options.template = Some(path.into());
+            } else {
+                // Default to using builtin template by extracting it to cache
+                use dirs::{get_app_dir, DirType};
+                let template = get_app_dir(DirType::Templates, true)?.join(DEFAULT_TEMPLATE);
+                if cfg!(debug_assertions) || !template.exists() {
+                    let file =
+                        Templates::get(DEFAULT_TEMPLATE).ok_or_eyre("template does not exist")?;
+                    write(&template, file.data).await?;
+                }
+                options.template = Some(template);
             }
-            options.template = Some(template);
         }
 
         let info = 'to_path: {
+            let format = options.format.clone().unwrap_or(Format::Docx);
+            let options = Some(options.clone());
+
             // If a "coarse" article then encode directly from that format
             if let Node::Article(article) = node {
                 if article.is_coarse(&Format::Latex) {
@@ -190,14 +235,13 @@ impl Codec for DocxCodec {
                         Format::Latex,
                         Format::Docx,
                         path,
-                        Some(options),
+                        options,
                     )
                     .await;
                 }
             }
 
             // Delegate to Pandoc
-            let options = Some(options);
             let (pandoc, info) = root_to_pandoc(node, format.clone(), &options)?;
             pandoc_to_format(
                 &pandoc,
@@ -261,6 +305,19 @@ impl Codec for DocxCodec {
 
         // Collect custom properties
         let mut properties = vec![("generator".into(), format!("Stencila {STENCILA_VERSION}"))];
+
+        // Store encoding options excluding those that are not used and which may
+        // have local paths in them
+        if let Ok(encoding) = serde_json::to_string(&EncodeOptions {
+            format: options.format,
+            render: options.render,
+            reproducible: options.reproducible,
+            highlight: options.highlight,
+            ..Default::default()
+        }) {
+            properties.push(("encoding".into(), encoding));
+        }
+
         if let Node::Article(article) = node {
             if let Some(source) = &article.options.source {
                 properties.push(("source".into(), source.clone()));

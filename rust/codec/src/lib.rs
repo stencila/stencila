@@ -584,6 +584,7 @@ pub struct EncodeOptions {
     pub tool: Option<String>,
 
     /// Additional arguments to pass through to the tool delegated to for encoding
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub tool_args: Vec<String>,
 }
 
