@@ -20,6 +20,12 @@ pub struct Tabulated {
     inner: ComfyTable,
 }
 
+impl Default for Tabulated {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Tabulated {
     pub fn new() -> Self {
         let mut inner = ComfyTable::new();

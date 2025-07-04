@@ -642,7 +642,7 @@ impl Document {
     ///
     /// By default the format is inferred from the extension of the `dest` file
     /// but this can be overridden by providing the `format` option.
-    /// 
+    ///
     /// Returns a boolean indicating whether the export was completed or not.
     #[tracing::instrument(skip(self))]
     pub async fn export(&self, dest: &Path, options: Option<EncodeOptions>) -> Result<bool> {

@@ -2,7 +2,7 @@
 //!
 //! This crate provides a unified abstraction for prompting users for
 //! confirmation across different interfaces.
-//! 
+//!
 //! The primary goal is to enable library authors to write interface-agnostic
 //! code. For example, a file manipulation library can ask for user confirmation
 //! before destructive operations without needing to know whether it's being

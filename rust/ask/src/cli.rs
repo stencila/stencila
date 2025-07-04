@@ -2,7 +2,7 @@ use std::io::{IsTerminal, Write, stderr, stdin};
 
 use owo_colors::OwoColorize;
 use rpassword::read_password;
-use textwrap::{wrap, termwidth};
+use textwrap::{termwidth, wrap};
 
 use common::{
     async_trait::async_trait,

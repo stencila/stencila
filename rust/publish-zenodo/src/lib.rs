@@ -824,6 +824,7 @@ impl Cli {
             .as_str()
             .ok_or_eyre("No deposit URL provided by Zenodo.")?;
 
+        #[allow(clippy::print_stderr)]
         if self.force {
             let publish_url = format!(
                 "{}/api/deposit/depositions/{}/actions/publish",

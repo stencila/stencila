@@ -106,6 +106,7 @@ impl Cli {
                     )
                     .await?;
 
+                    #[allow(clippy::print_stderr)]
                     if completed {
                         eprintln!(
                             "📑 Successfully converted `{}` to `{}`",

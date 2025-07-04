@@ -2,7 +2,7 @@
 //!
 //! This crate exists as a place to put CLI related things we want to re-use in
 //! sibling crates for both convenience and consistency.
-//! 
+//!
 //! See also the sibling `ask` crate for getting user inputs from the CLI.
 
 use std::fmt::Display;
