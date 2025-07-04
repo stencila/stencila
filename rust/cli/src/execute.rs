@@ -51,7 +51,7 @@ impl Cli {
         }
 
         let input = self.input.display();
-        
+
         #[allow(clippy::print_stderr)]
         if errors > 0 {
             eprintln!("💥  Errors while executing `{input}`");
