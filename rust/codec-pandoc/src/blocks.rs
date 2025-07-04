@@ -636,7 +636,10 @@ fn code_chunk_to_pandoc(
                     NodeType::CodeChunk,
                     chunk,
                     None,
-                    pandoc::Inline::Str("[Code Chunk: no outputs]".into()),
+                    // Previously, this was labelled "[Code Chunk: no outputs]" but this is confusing when,
+                    // for instance, the chunk is within the the content of the for loop
+                    // and has no content, simply because it has not been executed.
+                    pandoc::Inline::Str("[Code Chunk]".into()),
                 );
                 vec![pandoc::Block::Para(vec![link])]
             } else {
