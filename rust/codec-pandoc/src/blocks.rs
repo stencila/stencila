@@ -1,6 +1,6 @@
 use std::{any::type_name_of_val, str::FromStr};
 
-use pandoc_types::definition::{self as pandoc, Attr};
+use pandoc_types::definition::{self as pandoc};
 
 use codec::{format::Format, schema::*};
 use codec_text_trait::to_text;
@@ -205,15 +205,6 @@ fn section_to_pandoc(section: &Section, context: &mut PandocEncodeContext) -> pa
         && context.reproducible
         && matches!(section.section_type, Some(SectionType::Iteration))
     {
-        let link_attrs = if context.highlight {
-            Attr {
-                attributes: vec![("custom-style".to_string(), "Iteration".to_string())],
-                ..Default::default()
-            }
-        } else {
-            attrs_empty()
-        };
-
         let number = match context.node_path.back() {
             Some(NodeSlot::Index(index)) => format!(" #{}", index + 1),
             _ => String::new(),
@@ -225,8 +216,7 @@ fn section_to_pandoc(section: &Section, context: &mut PandocEncodeContext) -> pa
             NodeType::Section,
             section,
             Some(NodePosition::Begin),
-            link_attrs.clone(),
-            vec![pandoc::Inline::Str(format!("[Begin Iteration{number}]"))],
+            pandoc::Inline::Str(format!("[Begin Iteration{number}]")),
         )]));
 
         blocks.append(&mut blocks_to_pandoc(
@@ -239,8 +229,7 @@ fn section_to_pandoc(section: &Section, context: &mut PandocEncodeContext) -> pa
             NodeType::Section,
             section,
             Some(NodePosition::End),
-            link_attrs,
-            vec![pandoc::Inline::Str(format!("[End Iteration{number}]"))],
+            pandoc::Inline::Str(format!("[End Iteration{number}]")),
         )]));
 
         return pandoc::Block::Div(attrs_empty(), blocks);
@@ -636,59 +625,40 @@ fn code_block_from_pandoc(
 }
 
 fn code_chunk_to_pandoc(
-    code_chunk: &CodeChunk,
+    chunk: &CodeChunk,
     context: &mut PandocEncodeContext,
 ) -> Vec<pandoc::Block> {
     if context.render {
-        let link_attrs = if context.highlight {
-            Attr {
-                attributes: vec![("custom-style".to_string(), "Code Chunk".to_string())],
-                ..Default::default()
-            }
-        } else {
-            attrs_empty()
-        };
-
-        let link_content = vec![pandoc::Inline::Str("[Code Chunk]".into())];
-
-        let Some(outputs) = &code_chunk.outputs else {
-            if context.reproducible {
+        let Some(outputs) = &chunk.outputs else {
+            return if context.reproducible {
+                // If no outputs and reproducible then just a repro-link
                 let link = context.reproducible_link(
                     NodeType::CodeChunk,
-                    code_chunk,
+                    chunk,
                     None,
-                    link_attrs,
-                    link_content,
+                    pandoc::Inline::Str("[Code Chunk: no outputs]".into()),
                 );
-
-                return vec![pandoc::Block::Para(vec![link])];
+                vec![pandoc::Block::Para(vec![link])]
             } else {
-                return Vec::new();
-            }
+                // If no outputs and not reproducible then nothing
+                Vec::new()
+            };
         };
 
+        // TODO: handle multiple outputs
         let inline = if let Some(output) = outputs.first() {
             match output {
                 Node::ImageObject(image) => image_to_pandoc(image, context),
                 _ => pandoc::Inline::Str(to_text(output)),
             }
         } else {
-            pandoc::Inline::Str(String::new())
+            pandoc::Inline::Str("".into())
         };
 
         let inline = if context.reproducible {
-            // If no outputs then just a repro-link
-            context.reproducible_link(
-                NodeType::CodeChunk,
-                code_chunk,
-                None,
-                link_attrs,
-                vec![inline],
-            )
-        } else if context.highlight {
-            pandoc::Inline::Span(link_attrs, vec![inline])
+            context.reproducible_link(NodeType::CodeChunk, chunk, None, inline)
         } else {
-            inline
+            context.output_span(inline)
         };
 
         return vec![pandoc::Block::Para(vec![inline])];
@@ -701,23 +671,23 @@ fn code_chunk_to_pandoc(
 
     // Otherwise, render a static code block..
 
-    let mut classes = code_chunk
+    let mut classes = chunk
         .programming_language
         .as_ref()
         .map_or(Vec::new(), |lang| vec![lang.to_string()]);
     classes.push("exec".into());
-    if let Some(mode) = &code_chunk.execution_mode {
+    if let Some(mode) = &chunk.execution_mode {
         classes.push(mode.to_string().to_lowercase())
     }
 
     let mut attributes = Vec::new();
-    if let Some(label_type) = &code_chunk.label_type {
+    if let Some(label_type) = &chunk.label_type {
         attributes.push(("label-type".into(), label_type.to_string()));
     }
-    if let Some(label) = &code_chunk.label {
+    if let Some(label) = &chunk.label {
         attributes.push(("label".into(), label.into()));
     }
-    if let Some(caption) = &code_chunk.caption {
+    if let Some(caption) = &chunk.caption {
         attributes.push(("caption".into(), to_text(caption)));
     }
 
@@ -726,7 +696,7 @@ fn code_chunk_to_pandoc(
         attributes,
         ..Default::default()
     };
-    vec![pandoc::Block::CodeBlock(attrs, code_chunk.code.to_string())]
+    vec![pandoc::Block::CodeBlock(attrs, chunk.code.to_string())]
 }
 
 fn math_block_to_pandoc(
@@ -925,15 +895,6 @@ fn if_block_to_pandoc(block: &IfBlock, context: &mut PandocEncodeContext) -> pan
             .iter()
             .find(|clause| clause.is_active == Some(true))
         {
-            let link_attrs = if context.highlight {
-                Attr {
-                    attributes: vec![("custom-style".to_string(), "If Block".to_string())],
-                    ..Default::default()
-                }
-            } else {
-                attrs_empty()
-            };
-
             let mut blocks = Vec::new();
 
             if context.reproducible {
@@ -941,8 +902,7 @@ fn if_block_to_pandoc(block: &IfBlock, context: &mut PandocEncodeContext) -> pan
                     NodeType::IfBlock,
                     block,
                     Some(NodePosition::Begin),
-                    link_attrs.clone(),
-                    vec![pandoc::Inline::Str("[Begin If Block]".to_string())],
+                    pandoc::Inline::Str("[Begin If Block]".to_string()),
                 )]));
             }
 
@@ -957,8 +917,7 @@ fn if_block_to_pandoc(block: &IfBlock, context: &mut PandocEncodeContext) -> pan
                     NodeType::IfBlock,
                     block,
                     Some(NodePosition::End),
-                    link_attrs,
-                    vec![pandoc::Inline::Str("[End If Block]".to_string())],
+                    pandoc::Inline::Str("[End If Block]".to_string()),
                 )]));
             }
 
@@ -970,10 +929,7 @@ fn if_block_to_pandoc(block: &IfBlock, context: &mut PandocEncodeContext) -> pan
                     NodeType::IfBlock,
                     block,
                     None,
-                    attrs_empty(),
-                    vec![pandoc::Inline::Str(
-                        "[If Block: no active clause]".to_string(),
-                    )],
+                    pandoc::Inline::Str("[If Block: no active clause]".to_string()),
                 )])
             } else {
                 pandoc::Block::Div(attrs_empty(), Vec::new())
@@ -1092,15 +1048,6 @@ fn include_block_to_pandoc(
     context: &mut PandocEncodeContext,
 ) -> pandoc::Block {
     if context.render {
-        let link_attrs = if context.highlight {
-            Attr {
-                attributes: vec![("custom-style".to_string(), "Include Block".to_string())],
-                ..Default::default()
-            }
-        } else {
-            attrs_empty()
-        };
-
         let source = &block.source;
 
         if let Some(content) = &block.content {
@@ -1111,8 +1058,7 @@ fn include_block_to_pandoc(
                     NodeType::IncludeBlock,
                     block,
                     Some(NodePosition::Begin),
-                    link_attrs.clone(),
-                    vec![pandoc::Inline::Str(format!("[Begin {source}]"))],
+                    pandoc::Inline::Str(format!("[Begin {source}]")),
                 )]));
             }
 
@@ -1127,8 +1073,7 @@ fn include_block_to_pandoc(
                     NodeType::IncludeBlock,
                     block,
                     Some(NodePosition::End),
-                    link_attrs,
-                    vec![pandoc::Inline::Str(format!("[End {source}]"))],
+                    pandoc::Inline::Str(format!("[End {source}]")),
                 )]));
             }
 
@@ -1138,8 +1083,7 @@ fn include_block_to_pandoc(
                 NodeType::IncludeBlock,
                 block,
                 None,
-                link_attrs,
-                vec![pandoc::Inline::Str(format!("[Include {source}]"))],
+                pandoc::Inline::Str(format!("[Include {source}]")),
             )]);
         }
     }
@@ -1295,15 +1239,6 @@ fn excerpt_to_pandoc(block: &Excerpt, context: &mut PandocEncodeContext) -> pand
 
 fn for_block_to_pandoc(block: &ForBlock, context: &mut PandocEncodeContext) -> pandoc::Block {
     if context.render {
-        let link_attrs = if context.highlight {
-            Attr {
-                attributes: vec![("custom-style".to_string(), "For Block".to_string())],
-                ..Default::default()
-            }
-        } else {
-            attrs_empty()
-        };
-
         let mut blocks = Vec::new();
 
         if context.reproducible {
@@ -1311,8 +1246,7 @@ fn for_block_to_pandoc(block: &ForBlock, context: &mut PandocEncodeContext) -> p
                 NodeType::ForBlock,
                 block,
                 Some(NodePosition::Begin),
-                link_attrs.clone(),
-                vec![pandoc::Inline::Str("[Begin For Block]".to_string())],
+                pandoc::Inline::Str("[Begin For Block]".to_string()),
             )]));
         }
 
@@ -1337,8 +1271,7 @@ fn for_block_to_pandoc(block: &ForBlock, context: &mut PandocEncodeContext) -> p
                 NodeType::ForBlock,
                 block,
                 Some(NodePosition::End),
-                link_attrs,
-                vec![pandoc::Inline::Str("[End For Block]".to_string())],
+                pandoc::Inline::Str("[End For Block]".to_string()),
             )]));
         }
 

@@ -410,30 +410,27 @@ fn code_expression_to_pandoc(
     context: &mut PandocEncodeContext,
 ) -> pandoc::Inline {
     if context.render {
-        let content = if let Some(output) = &expr.output {
-            to_text(output)
-        } else {
-            // Need to have some content for reversibility
-            "-".into()
+        let Some(output) = &expr.output else {
+            return if context.reproducible {
+                // If no output and reproducible then just a repro-link
+                context.reproducible_link(
+                    NodeType::CodeExpression,
+                    expr,
+                    None,
+                    pandoc::Inline::Str("[Code Expression]".into()),
+                )
+            } else {
+                // If no output and not reproducible then nothing
+                pandoc::Inline::Str("".into())
+            };
         };
 
-        let inline = pandoc::Inline::Str(content);
-
-        let attrs = if context.highlight {
-            Attr {
-                attributes: vec![("custom-style".to_string(), "Code Expression".to_string())],
-                ..Default::default()
-            }
-        } else {
-            attrs_empty()
-        };
+        let inline = pandoc::Inline::Str(to_text(output));
 
         return if context.reproducible {
-            context.reproducible_link(NodeType::CodeExpression, expr, None, attrs, vec![inline])
-        } else if context.highlight {
-            pandoc::Inline::Span(attrs, vec![inline])
+            context.reproducible_link(NodeType::CodeExpression, expr, None, inline)
         } else {
-            inline
+            context.output_span(inline)
         };
     }
 

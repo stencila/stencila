@@ -4,7 +4,7 @@ use codec::{
     schema::{node_url_jzb64, node_url_path, NodePath, NodePosition, NodeSlot, StripNode},
     Losses, NodeProperty, NodeType,
 };
-use pandoc_types::definition::{self as pandoc, Attr, Target};
+use pandoc_types::definition::{self as pandoc, Target};
 
 /// The context for encoding to Pandoc AST
 pub(super) struct PandocEncodeContext {
@@ -69,18 +69,27 @@ impl PandocEncodeContext {
         result
     }
 
-    /// Create a Pandoc link with a [`NodeUrl`] allowing the node to be reconstituted at a later time
+    /// Create a [`pandoc::Inline::Link`] with a [`NodeUrl`] allowing the node to be reconstituted at a later time
     pub fn reproducible_link<T>(
         &mut self,
         node_type: NodeType,
         node: &T,
         position: Option<NodePosition>,
-        attrs: Attr,
-        content: Vec<pandoc::Inline>,
+        content: pandoc::Inline,
     ) -> pandoc::Inline
     where
         T: Serialize + Clone + StripNode,
     {
+        let style = match self.highlight {
+            true => "Reproducible Highlighted",
+            false => "Reproducible",
+        };
+
+        let span = pandoc::Inline::Span(
+            attrs_attributes(vec![("custom-style".into(), style.into())]),
+            vec![content],
+        );
+
         let url = if matches!(self.format, Format::GDocx) {
             match node_url_jzb64(node_type, node, position) {
                 Ok(url) => url,
@@ -96,7 +105,20 @@ impl PandocEncodeContext {
         let url = url.to_string();
         let title = node_type.to_string().to_sentence_case();
 
-        pandoc::Inline::Link(attrs, content, Target { url, title })
+        pandoc::Inline::Link(attrs_empty(), vec![span], Target { url, title })
+    }
+
+    /// Create a [`pandoc::Inline::Span`] for an output
+    pub fn output_span(&self, content: pandoc::Inline) -> pandoc::Inline {
+        let style = match self.highlight {
+            true => "Output Highlighted",
+            false => "Output",
+        };
+
+        pandoc::Inline::Span(
+            attrs_attributes(vec![("custom-style".into(), style.into())]),
+            vec![content],
+        )
     }
 }
 
