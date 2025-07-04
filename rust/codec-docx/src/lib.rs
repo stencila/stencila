@@ -11,7 +11,7 @@ use codec::{
         eyre::{OptionExt, Result},
         serde_json,
         tempfile::{tempdir, NamedTempFile},
-        tokio::fs::write,
+        tokio::fs::{create_dir_all, write},
     },
     format::Format,
     schema::{strip_non_content, Article, Node, Object, Primitive},
@@ -212,9 +212,16 @@ impl Codec for DocxCodec {
                 options.template = Some(path.into());
             } else {
                 // Default to using builtin template by extracting it to cache
+                // The cache path includes the Stencila version so that it is cache-busted
+                // for each new version
                 use dirs::{get_app_dir, DirType};
-                let template = get_app_dir(DirType::Templates, true)?.join(DEFAULT_TEMPLATE);
+                let template = get_app_dir(DirType::Templates, false)?
+                    .join(STENCILA_VERSION)
+                    .join(DEFAULT_TEMPLATE);
                 if cfg!(debug_assertions) || !template.exists() {
+                    if let Some(parent) = template.parent() {
+                        create_dir_all(parent).await?;
+                    }
                     let file =
                         Templates::get(DEFAULT_TEMPLATE).ok_or_eyre("template does not exist")?;
                     write(&template, file.data).await?;
