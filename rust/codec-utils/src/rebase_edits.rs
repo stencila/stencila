@@ -56,11 +56,16 @@ pub fn rebase_edits(original: &str, unedited: &str, edited: &str) -> String {
     let unedited = unedited.chars().collect_vec();
     let edited = edited.chars().collect_vec();
 
+    // TODO: use objective, reproducible methods to evaluate suitability of alternative diff
+    // algorithms. Currently using Myers for both
+    // diffs as ad-hoc testing found it produced fewer conflicts that Myers+Patience. Also
+    // Patience can take a very long time on large document.
+
     let o2u_ops = capture_diff_slices(Algorithm::Myers, &original, &unedited);
 
     let (.., u2o_prefixes, u2o_chars) = build_maps(&o2u_ops);
 
-    let u2e_ops = capture_diff_slices(Algorithm::Patience, &unedited, &edited);
+    let u2e_ops = capture_diff_slices(Algorithm::Myers, &unedited, &edited);
 
     // Calculate patch
     let mut patch: Vec<PatchOp> = Vec::new();
