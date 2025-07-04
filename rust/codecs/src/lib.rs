@@ -627,15 +627,15 @@ pub async fn check_git_for_to_path(
     let message = if let Some(source) = source {
         if commit.is_none() {
             format!(
-                "file `{source}` whose Git commit is unknown. You may need to specify the commit when merging changes"
+                "file `{source}` whose Git commit is unknown. You may need to specify the commit when merging changes later"
             )
         } else if matches!(commit.as_deref(), Some("untracked")) {
             format!(
-                "file `{source}` which is in a Git repository but not tracked. Consider committing this file to be able to merge changes correctly"
+                "file `{source}` which is in a Git repository but is not tracked. Consider committing this file first to be able to merge changes correctly later"
             )
         } else if matches!(commit.as_deref(), Some("dirty")) {
             format!(
-                "file `{source}` which is has uncommitted changes. Consider committing these changes to be able to merge changes correctly"
+                "file `{source}` which has uncommitted changes. Consider committing these changes first to be able to merge changes correctly later"
             )
         } else {
             return Ok(true);
@@ -651,7 +651,7 @@ pub async fn check_git_for_to_path(
             default: Some(Answer::Yes),
             title: Some("Reproducible document creation".into()),
             yes_text: Some("Yes".into()),
-            no_text: Some("No, abort".into()),
+            no_text: Some("No".into()),
             ..Default::default()
         },
     )
