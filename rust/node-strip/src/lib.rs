@@ -19,7 +19,7 @@ where
 }
 
 /// Strip all non-content properties from a node and its descendants
-/// 
+///
 /// Does not strip [`StripScope::Content`] or [`StripScope::Code`].
 pub fn strip_non_content<T>(node: &mut T)
 where

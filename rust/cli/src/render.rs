@@ -187,23 +187,21 @@ impl Cli {
         if errors > 0 {
             if self.ignore_errors {
                 eprintln!("▶️  Ignoring execution errors")
+            } else if ask_with(
+                &format!("Errors while executing `{input_display}`. Continue rendering?"),
+                AskOptions {
+                    level: AskLevel::Warning,
+                    default: Some(Answer::Yes),
+                    ..Default::default()
+                },
+            )
+            .await?
+            .is_yes()
+            {
+                eprintln!("▶️  You can use `--ignore-errors` to continue without being asked")
             } else {
-                if ask_with(
-                    &format!("Errors while executing `{input_display}`. Continue rendering?"),
-                    AskOptions {
-                        level: AskLevel::Warning,
-                        default: Some(Answer::Yes),
-                        ..Default::default()
-                    },
-                )
-                .await?
-                .is_yes()
-                {
-                    eprintln!("▶️  You can use `--ignore-errors` to continue without being asked")
-                } else {
-                    eprintln!("🛑 Stopping due to execution errors (you can use `--ignore-errors` to continue without being asked)");
-                    exit(1)
-                };
+                eprintln!("🛑 Stopping due to execution errors (you can use `--ignore-errors` to continue without being asked)");
+                exit(1)
             }
         }
 
