@@ -651,7 +651,7 @@ impl Document {
         codecs::to_path(&root, dest, options).await
     }
 
-    /// Save the document
+    /// Save the document to its source file
     #[tracing::instrument(skip(self))]
     pub async fn save(&self) -> Result<()> {
         tracing::trace!("Saving document");
@@ -669,8 +669,6 @@ impl Document {
             }),
         )
         .await?;
-
-        self.store().await?;
 
         Ok(())
     }
