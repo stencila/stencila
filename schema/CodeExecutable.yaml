@@ -65,8 +65,11 @@ properties:
   executionBounds:
     '@id': stencila:executionBounds
     description: The environment in which code should be executed.
+    $comment: |
+      This property is in the `code` strip scope, and is allowed to be patched by some formats,
+      because it is not a byproduct of execution and can be part of the source of the document.
     $ref: ExecutionBounds
-    strip: [execution]
+    strip: [code]
     patch:
       formats: [md, smd, myst, ipynb, qmd, latex]
   executionBounded:

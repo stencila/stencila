@@ -32,13 +32,13 @@ properties:
     jats:
       attr: language
   executionMode:
+    '@id': stencila:executionMode
+    description: Under which circumstances the code should be executed.
     $comment: |
       This is an override of the property spec from `Executable` which is necessary
       because `patch.formats` should not include 'myst' (because MyST does not support options on "roles").
-    '@id': stencila:executionMode
-    description: Under which circumstances the code should be executed.
     $ref: ExecutionMode
-    strip: [execution]
+    strip: [code]
     patch:
       formats: [smd]
   output:

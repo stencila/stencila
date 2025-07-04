@@ -44,7 +44,7 @@ pub struct CodeExpression {
 
     /// Under which circumstances the code should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
-    #[strip(execution)]
+    #[strip(code)]
     #[patch(format = "smd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
@@ -69,7 +69,7 @@ pub struct CodeExpression {
 
     /// The environment in which code should be executed.
     #[serde(alias = "execution-bounds", alias = "execution_bounds")]
-    #[strip(execution)]
+    #[strip(code)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_bounds: Option<ExecutionBounds>,

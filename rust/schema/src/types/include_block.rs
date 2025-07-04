@@ -38,7 +38,7 @@ pub struct IncludeBlock {
 
     /// Under which circumstances the node should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
-    #[strip(execution)]
+    #[strip(code)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,

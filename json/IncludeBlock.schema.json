@@ -49,12 +49,13 @@
     "executionMode": {
       "@id": "stencila:executionMode",
       "description": "Under which circumstances the node should be executed.",
+      "$comment": "This property is in the `code` strip scope, and is allowed to be patched by some formats,\nbecause it is not a byproduct of execution and can be part of the source of the document.\n",
       "aliases": [
         "execution-mode",
         "execution_mode"
       ],
       "strip": [
-        "execution"
+        "code"
       ],
       "patch": {
         "formats": [
