@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{io::Write, path::Path};
 
 use codec_json::JsonCodec;
 use media_embed::embed_media;
@@ -10,11 +10,11 @@ use codec::{
         async_trait::async_trait,
         eyre::{OptionExt, Result},
         serde_json,
-        tempfile::tempdir,
+        tempfile::{tempdir, NamedTempFile},
         tokio::fs::write,
     },
     format::Format,
-    schema::{Node, Object, Primitive},
+    schema::{strip_non_content, Node, Object, Primitive},
     status::Status,
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     NodeType,
@@ -219,11 +219,28 @@ impl Codec for DocxCodec {
                     }),
                 )
                 .await?;
-            data.push(("cache.json".into(), cache));
+            data.push(("cache.json".into(), cache.clone()));
 
-            // Decode the DOCX (before adding cache) so that have a snapshot
-            // of unedited, but backed out version of root node for rebasing
-            let (unedited, ..) = DocxCodec.from_path(path, None).await?;
+            // Decode the DOCX so that we have a snapshot of the unedited (but reconstituted)
+            // version of the root node for rebasing. The cache options require a path to the
+            // cache (not the node itself) so write a temporary file.
+            let mut temp_file = NamedTempFile::with_suffix("json")?;
+            temp_file.write_all(cache.as_bytes())?;
+            let (mut unedited, ..) = DocxCodec
+                .from_path(
+                    path,
+                    Some(DecodeOptions {
+                        cache: Some(temp_file.path().into()),
+                        ..Default::default()
+                    }),
+                )
+                .await?;
+
+            // Do avoid unnecessary duplication of data, that will be in the cache, remove
+            // non-content properties that are not needed when reconstituted
+            strip_non_content(&mut unedited);
+
+            // Embed the unedited file into the document
             let (unedited, ..) = JsonCodec
                 .to_string(
                     &unedited,

@@ -28,7 +28,7 @@ pub mod transforms;
 
 pub use node_id::NodeId;
 pub use node_path::{NodePath, NodeSlot};
-pub use node_strip::StripNode;
+pub use node_strip::{strip, strip_non_content, StripNode, StripScope, StripTargets};
 pub use node_type::{ContentType, NodeProperty, NodeType};
 
 pub mod cord_provenance;

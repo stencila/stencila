@@ -10,12 +10,34 @@ use common::{
 
 pub use node_strip_derive::StripNode;
 
-/// Strip properties from a node and its children
+/// Strip properties from a node and its descendants
 pub fn strip<T>(node: &mut T, targets: StripTargets)
 where
     T: StripNode,
 {
     node.strip(&targets);
+}
+
+/// Strip all non-content properties from a node and its descendants
+/// 
+/// Does not strip [`StripScope::Content`] or [`StripScope::Code`].
+pub fn strip_non_content<T>(node: &mut T)
+where
+    T: StripNode,
+{
+    strip(
+        node,
+        StripTargets::scopes(vec![
+            StripScope::Authors,
+            StripScope::Provenance,
+            StripScope::Metadata,
+            StripScope::Archive,
+            StripScope::Temporary,
+            StripScope::Compilation,
+            StripScope::Execution,
+            StripScope::Output,
+        ]),
+    );
 }
 
 /// Predefined scopes for properties to be stripped across node types
