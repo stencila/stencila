@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use codec_utils::{reproducible_info, reproducible_warnings};
+use codec_utils::reproducible_info;
 use common::{
     async_trait::async_trait,
     eyre::{bail, Result},
@@ -345,12 +345,6 @@ pub trait Codec: Sync + Send {
             to_path: Some(path.to_path_buf()),
             ..options.unwrap_or_default()
         };
-
-        if options.reproducible.unwrap_or_default() {
-            if let Node::Article(Article { options, .. }) = &node {
-                reproducible_warnings(&options.source, &options.commit)
-            }
-        }
 
         if let Some(parent) = path.parent() {
             create_dir_all(parent).await?;

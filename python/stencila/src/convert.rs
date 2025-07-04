@@ -142,7 +142,9 @@ fn to_path(
 
         codecs::to_path(&node, &path, options)
             .await
-            .map_err(runtime_error)
+            .map_err(runtime_error)?;
+
+        Ok(())
     })
 }
 

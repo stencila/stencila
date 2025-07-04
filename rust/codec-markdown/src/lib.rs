@@ -7,7 +7,7 @@ use codec::{
         tokio::fs::{create_dir_all, write},
     },
     format::Format,
-    schema::{Article, Node, NodeType},
+    schema::{Node, NodeType},
     status::Status,
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
@@ -15,7 +15,6 @@ use codec::{
 pub use codec_markdown_trait::{to_markdown, to_markdown_flavor};
 
 mod decode;
-use codec_utils::reproducible_warnings;
 pub use decode::decode;
 pub use decode::decode_frontmatter;
 pub use decode::preprocess;
@@ -132,12 +131,6 @@ impl Codec for MarkdownCodec {
             options.standalone = Some(true);
         }
         options.to_path = Some(path.to_path_buf());
-
-        if options.reproducible.unwrap_or_default() {
-            if let Node::Article(Article { options, .. }) = &node {
-                reproducible_warnings(&options.source, &options.commit)
-            }
-        }
 
         let (md, info) = if !options.compact.unwrap_or_default() {
             // Need to create a mutable copy so that any dataURIs can be altered

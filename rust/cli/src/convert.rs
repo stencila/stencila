@@ -95,7 +95,7 @@ impl Cli {
                     )
                     .await?;
                 } else {
-                    codecs::to_path(
+                    let completed = codecs::to_path(
                         &node,
                         &output,
                         Some(
@@ -105,6 +105,16 @@ impl Cli {
                         ),
                     )
                     .await?;
+
+                    if completed {
+                        eprintln!(
+                            "📑 Successfully converted `{}` to `{}`",
+                            input_path.display(),
+                            output.display()
+                        )
+                    } else {
+                        eprintln!("⏭️  Skipped converting `{}`", input_path.display())
+                    }
                 }
             }
         }

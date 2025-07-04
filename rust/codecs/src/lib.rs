@@ -324,8 +324,23 @@ pub async fn to_string_with_info(
 }
 
 /// Encode a Stencila Schema node to a file system path
+///
+/// Returns `Ok(true)` if the file was encoded successfully and `Ok(false)` if
+/// the user answered No to a prompt asking if they wanted to continue.
 #[tracing::instrument(skip(node))]
-pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<()> {
+pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<bool> {
+    if options
+        .as_ref()
+        .and_then(|opts| opts.reproducible)
+        .unwrap_or_default()
+    {
+        if let Node::Article(Article { options, .. }) = &node {
+            if !check_git_for_to_path(&options.source, &options.commit).await? {
+                return Ok(false);
+            }
+        }
+    }
+
     let EncodeInfo { losses, .. } = to_path_with_info(node, path, options.clone()).await?;
 
     if !losses.is_empty() {
@@ -347,7 +362,7 @@ pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -
         node.clone().walk_async(&mut recurser).await?;
     }
 
-    Ok(())
+    Ok(true)
 }
 
 /// Encode a Stencila Schema node to a file system path with losses
@@ -478,7 +493,7 @@ pub async fn merge(
     // If a commit is available then check the status of the file relative to the path
     if let Some(commit) = commit {
         if commit != "untracked" && commit != "dirty" {
-            let should_continue = check_git_status(&original, &commit, edited, false).await?;
+            let should_continue = check_git_for_merge(&original, &commit, edited, false).await?;
             if !should_continue {
                 tracing::debug!("Merge cancelled");
                 return Ok(None);
@@ -525,7 +540,7 @@ pub async fn merge(
     } else if let Some(unedited_node) = unedited_node {
         // If un unedited node was embedded in the edited file, encode it to the
         // original format
-        to_path(&unedited_node, &unedited_file, Some(encode_options)).await?
+        to_path(&unedited_node, &unedited_file, Some(encode_options)).await?;
     }
 
     // Apply edits for each file in the `edited` directory.
@@ -597,6 +612,54 @@ pub async fn merge(
     Ok(Some(modified_files))
 }
 
+/// Generate warnings if a node is being encoded with the `--reproducible` option but
+/// does not have necessary metadata
+///
+/// # Returns
+///
+/// * `Ok(true)` - User answered yes to continuing
+/// * `Ok(false)` - User answered no to continuing
+/// * `Err(_)` - User input could not be read
+pub async fn check_git_for_to_path(
+    source: &Option<String>,
+    commit: &Option<String>,
+) -> Result<bool> {
+    let message = if let Some(source) = source {
+        if commit.is_none() {
+            format!(
+                "file `{source}` whose Git commit is unknown. You may need to specify the commit when merging changes"
+            )
+        } else if matches!(commit.as_deref(), Some("untracked")) {
+            format!(
+                "file `{source}` which is in a Git repository but not tracked. Consider committing this file to be able to merge changes correctly"
+            )
+        } else if matches!(commit.as_deref(), Some("dirty")) {
+            format!(
+                "file `{source}` which is has uncommitted changes. Consider committing these changes to be able to merge changes correctly"
+            )
+        } else {
+            return Ok(true);
+        }
+    } else {
+        "a file that does not appear to be within a Git repository. This may make it harder to resolve conflicts when merging changes".into()
+    };
+
+    let answer = ask_with(
+        &format!("Creating reproducible document from {message}. Do you want to continue?"),
+        AskOptions {
+            level: AskLevel::Warning,
+            default: Some(Answer::Yes),
+            title: Some("Reproducible document creation".into()),
+            yes_text: Some("Yes".into()),
+            no_text: Some("No, abort".into()),
+            ..Default::default()
+        },
+    )
+    .await?;
+
+    Ok(answer.is_yes())
+}
+
 /// Check if a file has changed since a specific commit and optionally create a branch
 ///
 /// This function compares a file's current state against a specified commit. If the file
@@ -633,7 +696,7 @@ pub async fn merge(
 /// * `Err(_)` - Git operations failed or user input could not be read
 #[tracing::instrument]
 #[must_use]
-async fn check_git_status(path: &Path, commit: &str, other: &Path, force: bool) -> Result<bool> {
+async fn check_git_for_merge(path: &Path, commit: &str, other: &Path, force: bool) -> Result<bool> {
     let path_ = path.display();
     let file = path
         .file_name()

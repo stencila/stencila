@@ -147,7 +147,9 @@ pub async fn to_path(json: String, path: String, options: Option<EncodeOptions>)
 
     codecs::to_path(&node, &path, options)
         .await
-        .map_err(generic_failure)
+        .map_err(generic_failure)?;
+
+    Ok(())
 }
 
 /// Convert a document from one format to another

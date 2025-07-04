@@ -1,7 +1,6 @@
 use std::path::Path;
 
 use codec_json::JsonCodec;
-use codec_utils::reproducible_warnings;
 use media_embed::embed_media;
 use node_reconstitute::reconstitute;
 use rust_embed::RustEmbed;
@@ -15,7 +14,7 @@ use codec::{
         tokio::fs::write,
     },
     format::Format,
-    schema::{Article, Node, Object, Primitive},
+    schema::{Node, Object, Primitive},
     status::Status,
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     NodeType,
@@ -162,19 +161,8 @@ impl Codec for DocxCodec {
             options.render = Some(true);
         }
 
-        // Default to reproducible
-        if options.reproducible.is_none() {
-            options.reproducible = Some(true)
-        }
-
         let format = options.format.clone().unwrap_or(Format::Docx);
-
         let reproducible = options.reproducible.unwrap_or_default();
-        if reproducible {
-            if let Node::Article(Article { options, .. }) = &node {
-                reproducible_warnings(&options.source, &options.commit)
-            }
-        }
 
         // Default to using builtin template by extracting it to cache
         if options.template.is_none() {

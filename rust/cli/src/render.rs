@@ -222,23 +222,29 @@ impl Cli {
         }
 
         for output in outputs {
-            doc.export(
-                output,
-                Some(codecs::EncodeOptions {
-                    render: Some(true),
-                    ..self.encode_options.build(
-                        input.as_deref(),
-                        Some(output),
-                        Format::Markdown,
-                        self.strip_options.clone(),
-                    )
-                }),
-            )
-            .await?;
-            eprintln!(
-                "📑 Successfully rendered `{input_display}` to `{}`",
-                output.display()
-            )
+            let completed = doc
+                .export(
+                    output,
+                    Some(codecs::EncodeOptions {
+                        render: Some(true),
+                        ..self.encode_options.build(
+                            input.as_deref(),
+                            Some(output),
+                            Format::Markdown,
+                            self.strip_options.clone(),
+                        )
+                    }),
+                )
+                .await?;
+
+            if completed {
+                eprintln!(
+                    "📑 Successfully rendered `{input_display}` to `{}`",
+                    output.display()
+                )
+            } else {
+                eprintln!("⏭️  Skipped rendering `{input_display}`")
+            }
         }
 
         Ok(())
