@@ -1,8 +1,9 @@
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     fmt::Debug,
     path::{Path, PathBuf},
     process::{Command, ExitStatus, Output, Stdio},
+    sync::Mutex,
 };
 
 use ask::{ask_with, Answer, AskLevel, AskOptions};
@@ -126,17 +127,16 @@ pub trait Tool: Sync + Send {
         let detected_managers = detect_managers(&cwd, &[ToolType::Environments]);
 
         for (manager, _config_path) in detected_managers {
-            if manager.is_installed() {
-                if let Some(mut command) =
-                    manager.exec_command("which", &[self.executable_name().to_string()])
-                {
-                    if let Ok(output) = command.output() {
-                        if output.status.success() {
-                            let path_str =
-                                String::from_utf8_lossy(&output.stdout).trim().to_string();
-                            if !path_str.is_empty() {
-                                return Some(PathBuf::from(path_str));
-                            }
+            // Skip the is_installed() check to avoid recursion and
+            // because we'll try the command anyway
+            if let Some(mut command) =
+                manager.exec_command("which", &[self.executable_name().to_string()])
+            {
+                if let Ok(output) = command.output() {
+                    if output.status.success() {
+                        let path_str = String::from_utf8_lossy(&output.stdout).trim().to_string();
+                        if !path_str.is_empty() {
+                            return Some(PathBuf::from(path_str));
                         }
                     }
                 }
@@ -149,10 +149,22 @@ pub trait Tool: Sync + Send {
 
     /// Check if the tool is installed (available on the system)
     fn is_installed(&self) -> bool {
-        if self.path().is_none() {
+        // For the trait method, use a simpler version that doesn't use the cache
+        // The cache will be used when calling the public is_tool_installed function
+
+        // For environment tools, use regular path() to avoid recursion
+        // For other tools, use path_in_env() to check environment managers first
+        let path = if matches!(self.r#type(), ToolType::Environments) {
+            self.path()
+        } else {
+            self.path_in_env()
+        };
+
+        if path.is_none() {
             return false;
         }
 
+        // Check version requirements
         if matches!(self.r#type(), ToolType::Environments) {
             // Use `version_available` for environments to avoid recursion
             if let Some(version) = self.version_available() {
@@ -372,6 +384,87 @@ impl Debug for dyn Tool {
     }
 }
 
+/// Global cache of tools that have been installed and verified in this process
+/// This helps avoid repeated installation attempts when environment managers
+/// install tools that aren't immediately visible in the current process PATH
+/// Key format: "tool_name@version_req" (e.g., "pandoc@^2.0.0")
+static INSTALLED_TOOLS_CACHE: Lazy<Mutex<HashSet<String>>> =
+    Lazy::new(|| Mutex::new(HashSet::new()));
+
+/// Clear the installed tools cache
+///
+/// This can be useful for testing or when tools are manually uninstalled
+/// and you want to force re-detection of tool availability.
+pub fn clear_installed_cache() {
+    if let Ok(mut cache) = INSTALLED_TOOLS_CACHE.lock() {
+        cache.clear();
+    }
+}
+
+/// Generate a cache key for a tool that includes version requirements
+fn tool_cache_key(tool: &dyn Tool) -> String {
+    let version_req = tool.version_required();
+    if version_req == VersionReq::STAR {
+        // If no specific version is required, just use the tool name
+        tool.name().to_string()
+    } else {
+        // Include version requirement in the key
+        format!("{}@{}", tool.name(), version_req)
+    }
+}
+
+/// Check if a tool is installed, with version-aware caching
+/// This function works with trait objects and manages the cache
+pub fn is_installed(tool: &dyn Tool) -> bool {
+    let cache_key = tool_cache_key(tool);
+
+    // Check the cache first to avoid repeated PATH lookups for recently installed tools
+    if let Ok(cache) = INSTALLED_TOOLS_CACHE.lock() {
+        if cache.contains(&cache_key) {
+            return true;
+        }
+    }
+
+    // For environment tools, use regular path() to avoid recursion
+    // For other tools, use path_in_env() to check environment managers first
+    let path = if matches!(tool.r#type(), ToolType::Environments) {
+        tool.path()
+    } else {
+        tool.path_in_env()
+    };
+
+    if path.is_none() {
+        return false;
+    }
+
+    // Check version requirements
+    let version_satisfied = if matches!(tool.r#type(), ToolType::Environments) {
+        // Use `version_available` for environments to avoid recursion
+        if let Some(version) = tool.version_available() {
+            tool.version_required().matches(&version)
+        } else {
+            // If version is unknown, assume it's satisfied for best effort
+            true
+        }
+    } else if let Some(version) = tool.version_available_in_env() {
+        tool.version_required().matches(&version)
+    } else {
+        // If version is unknown, assume it's satisfied for best effort
+        true
+    };
+
+    if !version_satisfied {
+        return false;
+    }
+
+    // Add to cache only if both path and version requirements are satisfied
+    if let Ok(mut cache) = INSTALLED_TOOLS_CACHE.lock() {
+        cache.insert(cache_key);
+    }
+
+    true
+}
+
 /// Install the tool using its installation script or dependency
 ///
 /// Automatically resolves dependencies and installs tools. Returns an error if
@@ -394,7 +487,7 @@ async fn install_with_depth(tool: &dyn Tool, depth: u32, force: bool) -> Result<
     }
 
     // Check if already installed
-    if !force && tool.is_installed() {
+    if !force && is_installed(tool) {
         return Ok(());
     }
 
@@ -430,6 +523,11 @@ async fn install_via_installer(installer: &dyn Tool, tool: &dyn Tool) -> Result<
 
         let output = command.output()?;
         if output.status.success() {
+            // Add to cache since we just installed it
+            // Use the tool's cache key which includes version requirements
+            if let Ok(mut cache) = INSTALLED_TOOLS_CACHE.lock() {
+                cache.insert(tool_cache_key(tool));
+            }
             Ok(())
         } else {
             let stdout = String::from_utf8_lossy(&output.stdout);
@@ -505,6 +603,11 @@ async fn install_via_script(tool: &dyn Tool) -> Result<()> {
     let output = command.output()?;
 
     if output.status.success() {
+        // Add to cache since we just installed it
+        // Use the tool's cache key which includes version requirements
+        if let Ok(mut cache) = INSTALLED_TOOLS_CACHE.lock() {
+            cache.insert(tool_cache_key(tool));
+        }
         Ok(())
     } else {
         let stdout = String::from_utf8_lossy(&output.stdout);
@@ -891,7 +994,7 @@ impl AsyncToolCommand {
 
         // Auto-install tool if it's a known tool and not yet installed
         if let Some(tool) = get(&program) {
-            if !tool.is_installed() {
+            if !is_installed(tool.as_ref()) {
                 let name = tool.name();
                 let name_ver = tool.name_and_version_required();
 
