@@ -49,7 +49,6 @@ impl Tool for Rig {
         ToolType::Packages
     }
 
-
     fn install_tools(&self) -> Vec<Box<dyn Tool>> {
         vec![Box::new(Mise)]
     }

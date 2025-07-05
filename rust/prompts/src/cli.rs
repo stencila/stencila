@@ -69,7 +69,7 @@ impl Cli {
 }
 
 /// List the prompts available
-/// 
+///
 /// Shows all available prompts with their names, descriptions, and versions.
 #[derive(Default, Debug, Args)]
 #[command(after_long_help = LIST_AFTER_LONG_HELP)]
@@ -227,7 +227,7 @@ impl Infer {
 }
 
 /// Update builtin prompts
-/// 
+///
 /// Downloads the latest versions of builtin prompts from the Stencila prompts
 /// repository. This adds new prompts and updates existing ones while preserving
 /// any custom modifications you may have made.
