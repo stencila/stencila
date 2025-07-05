@@ -110,8 +110,12 @@ impl Codec for DocxCodec {
         let (data, mut properties) = decode::data_and_properties(path)?;
 
         if let Node::Article(article) = &mut node {
-            if let Some(Primitive::String(source)) = properties.shift_remove("source") {
-                article.options.source = Some(source);
+            if let Some(Primitive::String(repository)) = properties.shift_remove("repository") {
+                article.options.repository = Some(repository);
+            }
+
+            if let Some(Primitive::String(path)) = properties.shift_remove("path") {
+                article.options.path = Some(path);
             }
 
             if let Some(Primitive::String(commit)) = properties.shift_remove("commit") {
@@ -326,8 +330,12 @@ impl Codec for DocxCodec {
         }
 
         if let Node::Article(article) = node {
-            if let Some(source) = &article.options.source {
-                properties.push(("source".into(), source.clone()));
+            if let Some(repository) = &article.options.repository {
+                properties.push(("repository".into(), repository.clone()));
+            }
+
+            if let Some(path) = &article.options.path {
+                properties.push(("path".into(), path.clone()));
             }
 
             if let Some(commit) = &article.options.commit {

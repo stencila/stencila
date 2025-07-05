@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use codec_utils::reproducible_info;
+use codec_utils::git_info;
 use common::{
     async_trait::async_trait,
     eyre::{bail, Result},
@@ -274,9 +274,10 @@ pub trait Codec: Sync + Send {
 
         if reproducible {
             if let Node::Article(Article { options, .. }) = &mut node {
-                let (source, commit) = reproducible_info(path)?;
-                options.source = source;
-                options.commit = commit;
+                let git_info = git_info(path)?;
+                options.repository = git_info.origin;
+                options.path = git_info.path;
+                options.commit = git_info.commit;
             }
         }
 

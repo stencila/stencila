@@ -335,7 +335,7 @@ pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -
         .unwrap_or_default()
     {
         if let Node::Article(Article { options, .. }) = &node {
-            if !check_git_for_to_path(&options.source, &options.commit).await? {
+            if !check_git_for_to_path(&options.path, &options.commit).await? {
                 return Ok(false);
             }
         }
@@ -472,7 +472,7 @@ pub async fn merge(
     let mut original = original.map(|path| path.to_path_buf());
     if original.is_none() {
         if let Node::Article(Article { options, .. }) = &edited_node {
-            if let Some(source) = &options.source {
+            if let Some(source) = &options.path {
                 original = Some(PathBuf::from(source));
             }
         }

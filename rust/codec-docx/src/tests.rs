@@ -30,7 +30,8 @@ async fn roundtrip_basic() -> Result<()> {
         ],
         options: Box::new(ArticleOptions {
             // Things that are placed in custom properties
-            source: Some("source".into()),
+            repository: Some("repository".into()),
+            path: Some("path".into()),
             commit: Some("commit".into()),
             extra: Some(Object(IndexMap::from([
                 (

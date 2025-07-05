@@ -5,6 +5,19 @@ use std::{
 
 use common::eyre::{OptionExt, Result, bail};
 
+/// Information about a file within a Git repository
+#[derive(Debug, Clone)]
+pub struct GitInfo {
+    /// The remote origin URL of the repository
+    pub origin: Option<String>,
+
+    /// The relative path of the file within the repository
+    pub path: Option<String>,
+
+    /// The commit SHA, or "untracked"/"dirty" for uncommitted changes
+    pub commit: Option<String>,
+}
+
 /// Determine the relative path and commit of a file within a Git repository
 ///
 /// Used by codecs within implementations of `Codecs::from_path` to set the `source`
@@ -12,16 +25,20 @@ use common::eyre::{OptionExt, Result, bail};
 ///
 /// # Returns
 ///
-/// * If `path` is not in a Git repo → `(None, None)`
-/// * If `git` is not available  → `(Some(relative_path), None)`
-/// * If the file is untracked → `(Some(relative_path), Some("untracked"))`
-/// * If the file is dirty → `(Some(relative_path), Some("dirty")))`
-/// * Otherwise → `(Some(relative_path), Some(head_commit_sha))`
-pub fn reproducible_info(path: &Path) -> Result<(Option<String>, Option<String>)> {
+/// * If `path` is not in a Git repo → `GitInfo` with all `None` values
+/// * If `git` is not available  → `GitInfo` with relative_path only
+/// * If the file is untracked → `GitInfo` with relative_path and commit="untracked"
+/// * If the file is dirty → `GitInfo` with relative_path and commit="dirty"
+/// * Otherwise → `GitInfo` with origin, relative_path, and commit SHA
+pub fn git_info(path: &Path) -> Result<GitInfo> {
     let path = path.canonicalize()?;
 
     let Ok(repo_root) = closest_git_repo(&path) else {
-        return Ok((None, None));
+        return Ok(GitInfo {
+            origin: None,
+            path: None,
+            commit: None,
+        });
     };
 
     let relative_path = path
@@ -32,7 +49,11 @@ pub fn reproducible_info(path: &Path) -> Result<(Option<String>, Option<String>)
 
     // Is git available?
     if which::which("git").is_err() {
-        return Ok((Some(relative_path), None));
+        return Ok(GitInfo {
+            origin: None,
+            path: Some(relative_path),
+            commit: None,
+        });
     }
 
     // Is the file tracked?
@@ -47,7 +68,11 @@ pub fn reproducible_info(path: &Path) -> Result<(Option<String>, Option<String>)
         .success();
 
     if !tracked {
-        return Ok((Some(relative_path), Some("untracked".into())));
+        return Ok(GitInfo {
+            origin: get_git_origin(&repo_root),
+            path: Some(relative_path),
+            commit: Some("untracked".into()),
+        });
     }
 
     // Is the file clean (no staged / unstaged changes)?
@@ -62,7 +87,11 @@ pub fn reproducible_info(path: &Path) -> Result<(Option<String>, Option<String>)
         .is_empty();
 
     if !clean {
-        return Ok((Some(relative_path), Some("dirty".into())));
+        return Ok(GitInfo {
+            origin: get_git_origin(&repo_root),
+            path: Some(relative_path),
+            commit: Some("dirty".into()),
+        });
     }
 
     // File is tracked *and* clean – return the current HEAD commit SHA.
@@ -79,7 +108,11 @@ pub fn reproducible_info(path: &Path) -> Result<(Option<String>, Option<String>)
 
     let commit = String::from_utf8(head_out.stdout)?.trim().to_string();
 
-    Ok((Some(relative_path), Some(commit)))
+    Ok(GitInfo {
+        origin: get_git_origin(&repo_root),
+        path: Some(relative_path),
+        commit: Some(commit),
+    })
 }
 
 /// Get the path of the closest Git repository to a path
@@ -106,4 +139,22 @@ pub fn closest_git_repo(path: &Path) -> Result<PathBuf> {
     }
 
     bail!("Path is not within a Git repository: {}", path.display())
+}
+
+/// Get the git remote origin URL for a repository
+fn get_git_origin(repo_root: &Path) -> Option<String> {
+    let output = Command::new("git")
+        .arg("-C")
+        .arg(repo_root)
+        .args(["remote", "get-url", "origin"])
+        .output()
+        .ok()?;
+
+    if output.status.success() {
+        String::from_utf8(output.stdout)
+            .ok()
+            .map(|s| s.trim().to_string())
+    } else {
+        None
+    }
 }

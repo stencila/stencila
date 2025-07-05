@@ -14,7 +14,7 @@ use async_lsp::{
     ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
 
-use codec_utils::reproducible_info;
+use codec_utils::git_info;
 use codecs::{
     DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Format, LossesResponse, MessageLevel,
     Messages,
@@ -508,9 +508,10 @@ impl TextDocument {
 
         // If this is not done the documents generated from this one using convert and render
         // will not have info needed for proper merges.
-        if let Ok((source, commit)) = reproducible_info(&path) {
-            root.options.source = source;
-            root.options.commit = commit;
+        if let Ok(git_info) = git_info(&path) {
+            root.options.repository = git_info.origin;
+            root.options.path = git_info.path;
+            root.options.commit = git_info.commit;
         }
 
         let root = Node::Article(root);
