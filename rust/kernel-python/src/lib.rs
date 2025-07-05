@@ -1,6 +1,8 @@
-use std::{cmp::Ordering, env, fs::read_to_string, io::Write, path::Path, process::Command};
+use std::{cmp::Ordering, env, fs::read_to_string, io::Write, path::Path};
 
 use which::which;
+
+use tools::ToolCommand;
 
 use kernel_micro::{
     common::{eyre::Result, serde::Deserialize, serde_json, tempfile::NamedTempFile, tracing},
@@ -82,17 +84,20 @@ impl KernelLint for PythonKernel {
     ) -> Result<KernelLintingOutput> {
         tracing::trace!("Linting Python code");
 
-        // Write the code to a temporary file. Add necessary imports:
-        // - Any: needed for `ForBlock` variable declarations
+        // Write the code to a temporary file. Avoid temptation to add any import
+        // before the code as that mucks up line numbers using for matching
         let mut temp_file = NamedTempFile::new()?;
-        write!(temp_file, "from typing import Any\n\n{}", code)?;
+        write!(temp_file, "{}", code)?;
         let temp_path = temp_file.path();
 
         let mut authors: Vec<AuthorRole> = Vec::new();
 
         // Format code if specified
         if options.format {
-            let result = Command::new("ruff").arg("format").arg(temp_path).output();
+            let result = ToolCommand::new("ruff")
+                .arg("format")
+                .arg(temp_path)
+                .output();
 
             if let Ok(output) = result {
                 let stdout = String::from_utf8_lossy(&output.stdout).to_string();
@@ -110,7 +115,7 @@ impl KernelLint for PythonKernel {
         }
 
         // Run Ruff with JSON output for parsing of diagnostic to messages
-        let mut cmd = Command::new("ruff");
+        let mut cmd = ToolCommand::new("ruff");
         cmd.arg("check").arg("--output-format=json").arg(temp_path);
         if options.fix {
             cmd.arg("--fix");
@@ -131,7 +136,7 @@ impl KernelLint for PythonKernel {
             #[derive(Deserialize)]
             #[serde(crate = "kernel_micro::common::serde")]
             struct RuffMessage {
-                code: String,
+                code: Option<String>,
                 message: String,
                 location: Option<RuffLocation>,
                 end_location: Option<RuffLocation>,
@@ -149,12 +154,19 @@ impl KernelLint for PythonKernel {
                 .filter(|message| {
                     // Ignore some messages which make no sense when concatenating code chunks
                     // E402: Module level import not at top of file
-                    !matches!(message.code.as_str(), "E402")
+                    !matches!(message.code.as_deref(), Some("E402"))
                 })
                 .map(|message| CompilationMessage {
                     error_type: Some("Linting warning".into()),
                     level: MessageLevel::Warning,
-                    message: format!("{} (Ruff {})", message.message, message.code),
+                    message: format!(
+                        "{}{}",
+                        message.message,
+                        message
+                            .code
+                            .map(|code| format!(" (Ruff {code})"))
+                            .unwrap_or_default()
+                    ),
                     code_location: Some(CodeLocation {
                         // Note that Ruff provides 1-based row and column indices
                         start_line: message
@@ -184,7 +196,7 @@ impl KernelLint for PythonKernel {
 
         // Run Pyright with JSON output to parse into messages
         // See https://github.com/Microsoft/pyright/blob/main/docs/command-line.md
-        let mut pyright = Command::new("pyright");
+        let mut pyright = ToolCommand::new("pyright");
         pyright.arg("--outputjson");
         if let Ok(python_path) = env::var("PYTHON_PATH") {
             // Use the PYTHON_PATH provided
