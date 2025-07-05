@@ -7,7 +7,7 @@ use std::{
 use cli_utils::{
     color_print::cstr,
     format::Format,
-    table::{self, Attribute, Cell, CellAlignment, Color},
+    tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
     AsFormat, Code, ToStdout,
 };
 use common::{
@@ -163,7 +163,7 @@ impl List {
             return Ok(());
         }
 
-        let mut table = table::new();
+        let mut table = Tabulated::new();
         table.set_header(["Name", "Description", "Type", "Version", "Path"]);
 
         for tool in list {

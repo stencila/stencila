@@ -2,7 +2,7 @@
 
 use std::{path::PathBuf, str::FromStr};
 
-use cli_utils::{cli_hint, color_print::cstr, hint, message, parse_host, ToStdout};
+use cli_utils::{color_print::cstr, parse_host};
 
 use codec::schema::ConfigPublishZenodoAccessRight;
 use common::{

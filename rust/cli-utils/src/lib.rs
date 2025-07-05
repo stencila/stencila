@@ -8,11 +8,13 @@
 use std::fmt::Display;
 use std::io::IsTerminal;
 
-pub use color_print;
-pub use format;
+// Modules for parsing CLI arguments and printing extended help messages
 
 mod parsers;
 pub use parsers::*;
+
+pub use color_print;
+pub use format;
 
 // Modules for diagnostics to stderr
 // Consider using `tracing::warn!` and `tracing::error` instead for
