@@ -10,6 +10,7 @@ use std::{
 use flate2::read::GzDecoder;
 use zip::ZipArchive;
 
+use cli_utils::color_print::cstr;
 use common::{
     clap::{self, Parser},
     eyre::{bail, Report, Result},
@@ -223,6 +224,7 @@ impl GithubRelease {
 
 /// Upgrade to the latest version
 #[derive(Debug, Parser)]
+#[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     /// Perform upgrade even if the current version is the latest
     #[arg(long, short)]
@@ -232,6 +234,23 @@ pub struct Cli {
     #[arg(long, short)]
     check: bool,
 }
+
+pub static CLI_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Upgrade to the latest version</dim>
+  <blue>></blue> stencila upgrade
+
+  <dim># Check if an upgrade is available without installing</dim>
+  <blue>></blue> stencila upgrade --check
+
+  <dim># Force upgrade even if current version is latest</dim>
+  <blue>></blue> stencila upgrade --force
+
+<bold><blue>Note</blue></bold>
+  Upgrade downloads the latest release from GitHub and replaces
+  the current binary.
+"
+);
 
 impl Cli {
     #[allow(clippy::print_stderr)]
