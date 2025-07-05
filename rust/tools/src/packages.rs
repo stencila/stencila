@@ -1,7 +1,4 @@
-use std::{fs::read_dir, path::PathBuf, process::Command};
-
-use directories::UserDirs;
-use which::which;
+use std::process::Command;
 
 use crate::{
     environments::{Devbox, Mise},
@@ -52,50 +49,6 @@ impl Tool for Rig {
         ToolType::Packages
     }
 
-    fn path(&self) -> Option<PathBuf> {
-        // First try standard PATH lookup
-        if let Ok(path) = which(self.executable_name()) {
-            return Some(path);
-        }
-
-        // Check mise installation directories
-        // This is necessary where we have just installed Rig (and potentially also Mise) in the same
-        // process and so they may not yet be on the path.
-        // Look for rig in ~/.local/share/mise/installs/ubi-r-lib-rig/*/bin/rig
-        let home = UserDirs::new().map(|usr| usr.home_dir().to_path_buf())?;
-        let mise_base = home.join(".local/share/mise/installs");
-
-        // Check ubi-r-lib-rig directory
-        let rig_dir = mise_base.join("ubi-r-lib-rig");
-        if rig_dir.exists() {
-            // Try latest directory first
-            let latest_path = rig_dir.join("latest/rig");
-            if latest_path.exists() {
-                return Some(latest_path);
-            }
-
-            // Find version directories
-            if let Ok(entries) = read_dir(&rig_dir) {
-                for entry in entries.flatten() {
-                    let version_dir = entry.path();
-
-                    // Try bin/rig first
-                    let bin_path = version_dir.join("bin/rig");
-                    if bin_path.exists() {
-                        return Some(bin_path);
-                    }
-
-                    // Try rig directly in version directory (for ubi tools)
-                    let direct_path = version_dir.join("rig");
-                    if direct_path.exists() {
-                        return Some(direct_path);
-                    }
-                }
-            }
-        }
-
-        None
-    }
 
     fn install_tools(&self) -> Vec<Box<dyn Tool>> {
         vec![Box::new(Mise)]
