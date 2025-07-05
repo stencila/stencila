@@ -317,7 +317,7 @@ pub static INSTALL_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl Install {
-    #[allow(clippy::print_stdout, clippy::print_stderr)]
+    #[allow(clippy::print_stderr)]
     async fn run(self) -> Result<()> {
         let Some(tool) = super::get(&self.name) else {
             eprintln!("🔍 No tool with name `{}`", self.name);
@@ -352,17 +352,17 @@ impl Install {
             exit(1)
         }
 
-        println!("📥 Installing {}...", tool.name());
+        eprintln!("📥 Installing {}...", tool.name());
 
         match super::install(tool.as_ref(), self.force).await {
             Ok(()) => {
-                println!("✅ {} installed successfully", tool.name());
+                eprintln!("✅ {} installed successfully", tool.name());
 
                 // Verify installation
                 if let Some(path) = tool.path_in_env() {
-                    println!("   Path: {}", strip_home_dir(&path));
+                    eprintln!("   Path: {}", strip_home_dir(&path));
                     if let Some(version) = tool.version_available_in_env() {
-                        println!("   Version: {}", version);
+                        eprintln!("   Version: {}", version);
                     }
                 }
             }
