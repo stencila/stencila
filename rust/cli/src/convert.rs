@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use cli_utils::color_print::cstr;
 use common::{
     clap::{self, Parser},
     eyre::Result,
@@ -10,6 +11,7 @@ use crate::options::{DecodeOptions, EncodeOptions, StripOptions};
 
 /// Convert a document to another format
 #[derive(Debug, Parser)]
+#[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     /// The path of the input file
     ///
@@ -46,6 +48,31 @@ pub struct Cli {
     #[arg(last = true, allow_hyphen_values = true)]
     tool_args: Vec<String>,
 }
+
+pub static CLI_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Convert Stencila Markdown to MyST MArkdown</dim>
+  <blue>></blue> stencila convert document.smd document.myst
+
+  <dim># Convert to multiple output formats</dim>
+  <blue>></blue> stencila convert input.smd output.html output.pdf output.docx
+
+  <dim># Specify input and output formats explicitly</dim>
+  <blue>></blue> stencila convert input.txt output.json --from plain --to json
+
+  <dim># Convert with specific codec options</dim>
+  <blue>></blue> stencila convert doc.md doc.html --standalone
+
+  <dim># Use an external tool like Pandoc</dim>
+  <blue>></blue> stencila convert doc.md doc.tex --tool pandoc
+
+  <dim># Pass arguments to external tool</dim>
+  <blue>></blue> stencila convert doc.md doc.pdf --tool pandoc -- --pdf-engine=xelatex
+
+  <dim># Convert from stdin to stdout (defaults to JSON)</dim>
+  <blue>></blue> echo \"# Hello\" | stencila convert
+"
+);
 
 impl Cli {
     pub async fn run(self) -> Result<()> {

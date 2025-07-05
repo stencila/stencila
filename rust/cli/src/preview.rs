@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use cli_utils::color_print::cstr;
 use common::{
     clap::{self, Parser},
     eyre::{bail, OptionExt, Result},
@@ -17,6 +18,7 @@ use server::{get_access_token, ServeOptions};
 /// When `--sync=in` (the default) the preview will update when
 /// the document is changed and saved to disk.
 #[derive(Debug, Parser)]
+#[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     /// The path to the document or parent folder
     ///
@@ -28,6 +30,21 @@ pub struct Cli {
     #[arg(long, default_value = "in")]
     sync: SyncDirection,
 }
+
+pub static CLI_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Preview a specific document</dim>
+  <blue>></blue> stencila preview document.md
+
+  <dim># Preview from current directory (finds index/main/readme)</dim>
+  <blue>></blue> stencila preview
+
+  <dim># Preview a document in a specific folder</dim>
+  <blue>></blue> stencila preview docs/
+
+  <dim># Preview without syncing (static preview)</dim>
+  <blue>></blue> stencila preview report.pdf --sync none"
+);
 
 impl Cli {
     pub fn new(path: PathBuf) -> Self {

@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use cli_utils::color_print::cstr;
 use common::{
     clap::{self, Parser},
     eyre::Result,
@@ -10,6 +11,7 @@ use crate::options::{DecodeOptions, EncodeOptions, StripOptions};
 
 /// Merge changes from another format
 #[derive(Debug, Parser)]
+#[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     /// The edited version of the document
     edited: PathBuf,
@@ -49,6 +51,22 @@ pub struct Cli {
     #[arg(long, hide = true)]
     workdir: Option<PathBuf>,
 }
+
+pub static CLI_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Merge changes from an edited DOCX back to Stencila Markdown</dim>
+  <blue>></blue> stencila merge edited.docx --original document.smd
+
+  <dim># Merge with both original and unedited versions specified</dim>
+  <blue>></blue> stencila merge edited.docx --original source.qmd --unedited generated.docx
+
+  <dim># Merge changes from a specific Git commit</dim>
+  <blue>></blue> stencila merge edited.docx --original document.myst --commit abc123
+
+  <dim># Merge with custom working directory for inspection</dim>
+  <blue>></blue> stencila merge edited.docx --original document.md --workdir ./merge-work
+"
+);
 
 impl Cli {
     #[allow(clippy::print_stderr)]

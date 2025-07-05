@@ -1,5 +1,6 @@
 use std::{path::PathBuf, process::exit};
 
+use cli_utils::color_print::cstr;
 use common::{
     clap::{self, Parser},
     eyre::Result,
@@ -11,7 +12,7 @@ use crate::options::{DecodeOptions, StripOptions};
 
 /// Execute a document
 #[derive(Debug, Parser)]
-#[command(alias = "exec")]
+#[command(alias = "exec", after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     /// The path of the document to execute
     input: PathBuf,
@@ -30,6 +31,22 @@ pub struct Cli {
     #[clap(flatten)]
     execute_options: ExecuteOptions,
 }
+
+pub static CLI_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Execute a Stencila Markdown document</dim>
+  <blue>></blue> stencila execute report.smd
+
+  <dim># Execute without updating the document store</dim>
+  <blue>></blue> stencila execute temp.md --no-store
+
+  <dim># Force re-execution of all code</dim>
+  <blue>></blue> stencila execute cached.ipynb --force-all
+
+  <dim># Execute using the shorthand alias</dim>
+  <blue>></blue> stencila exec script.r
+"
+);
 
 impl Cli {
     pub async fn run(self) -> Result<()> {

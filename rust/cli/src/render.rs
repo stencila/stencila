@@ -1,7 +1,7 @@
 use std::{path::PathBuf, process::exit};
 
 use ask::{ask_with, Answer, AskLevel, AskOptions};
-use cli_utils::{Code, ToStdout};
+use cli_utils::{color_print::cstr, Code, ToStdout};
 use common::{
     clap::{self, Parser},
     eyre::{bail, eyre, Result},
@@ -17,6 +17,7 @@ use crate::{
 
 /// Render a document
 #[derive(Debug, Parser)]
+#[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     /// The path of the document to render
     ///
@@ -65,6 +66,31 @@ pub struct Cli {
     #[arg(last = true, allow_hyphen_values = true)]
     arguments: Vec<String>,
 }
+
+pub static CLI_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Render a document and preview in browser</dim>
+  <blue>></blue> stencila render document.smd
+
+  <dim># Render to a specific output format</dim>
+  <blue>></blue> stencila render report.md report.docx
+
+  <dim># Render to multiple formats</dim>
+  <blue>></blue> stencila render analysis.md output.html output.pdf
+
+  <dim># Render from stdin to stdout</dim>
+  <blue>></blue> echo \"# Hello\" | stencila render --to html
+
+  <dim># Render with document parameters</dim>
+  <blue>></blue> stencila render template.md output.html -- --name=\"John\" --year=2024
+
+  <dim># Render ignoring execution errors</dim>
+  <blue>></blue> stencila render notebook.md report.pdf --ignore-errors
+
+  <dim># Render without updating the document store</dim>
+  <blue>></blue> stencila render temp.md output.html --no-store
+"
+);
 
 impl Cli {
     /// Parse document arguments into name/value pairs

@@ -1,4 +1,5 @@
 use ask::Answer;
+use cli_utils::color_print::cstr;
 use common::{
     clap::{self, Parser, Subcommand},
     eyre::{bail, Result},
@@ -22,7 +23,8 @@ use crate::{
     about,
     long_about,
     disable_help_flag = true, // Grouped into global options below
-    styles = Cli::styles()
+    styles = Cli::styles(),
+    after_long_help = CLI_AFTER_LONG_HELP
 )]
 pub struct Cli {
     #[command(subcommand)]
@@ -140,6 +142,28 @@ pub struct Cli {
     #[arg(long, global = true, hide = true)]
     pub error_link: bool,
 }
+
+pub static CLI_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Get help on all available commands</dim>
+  <blue>></blue> stencila --help
+
+  <dim># Create a new document</dim>
+  <blue>></blue> stencila new article.md
+
+  <dim># Convert a document to another format</dim>
+  <blue>></blue> stencila convert input.md output.pdf
+
+  <dim># Check available formats</dim>
+  <blue>></blue> stencila formats list
+
+  <dim># Execute a document</dim>
+  <blue>></blue> stencila execute notebook.myst
+
+  <dim># Preview a document with hot reloading</dim>
+  <blue>></blue> stencila preview document.md
+"
+);
 
 impl Cli {
     pub fn styles() -> clap::builder::Styles {

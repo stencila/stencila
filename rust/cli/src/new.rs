@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use cli_utils::color_print::cstr;
 use common::{
     clap::{self, Parser, ValueEnum},
     eyre::Result,
@@ -9,6 +10,7 @@ use schema::NodeType;
 
 /// Create a new, tracked, document
 #[derive(Debug, Parser)]
+#[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     /// The path of the document to create
     path: PathBuf,
@@ -21,6 +23,25 @@ pub struct Cli {
     #[arg(long, short, default_value = "article")]
     r#type: RootType,
 }
+
+pub static CLI_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Create a new article (default)</dim>
+  <blue>></blue> stencila new my-article.md
+
+  <dim># Create a new chat document</dim>
+  <blue>></blue> stencila new conversation.md --type chat
+
+  <dim># Create a new AI prompt</dim>
+  <blue>></blue> stencila new template.md --type prompt
+
+  <dim># Create a document in a subdirectory</dim>
+  <blue>></blue> stencila new docs/report.md
+
+  <dim># Overwrite an existing document</dim>
+  <blue>></blue> stencila new existing.md --force
+"
+);
 
 #[derive(Debug, Clone, ValueEnum)]
 pub enum RootType {

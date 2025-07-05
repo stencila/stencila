@@ -1,5 +1,6 @@
 use std::path::{Path, PathBuf};
 
+use cli_utils::color_print::cstr;
 use common::{
     clap::{self, Parser},
     eyre::Result,
@@ -19,6 +20,7 @@ use crate::options::{DecodeOptions, EncodeOptions, StripOptions};
 /// - `:out` only sync outgoing changes to the file
 /// - `:io` sync incoming and outgoing changes (default)
 #[derive(Debug, Parser)]
+#[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     /// The path of the document to synchronize
     doc: PathBuf,
@@ -35,6 +37,37 @@ pub struct Cli {
     #[command(flatten)]
     strip_options: StripOptions,
 }
+
+pub static CLI_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Sync a Markdown document with HTML (bidirectional)</dim>
+  <blue>></blue> stencila sync document.md preview.html
+
+  <dim># Sync with multiple formats</dim>
+  <blue>></blue> stencila sync source.md output.html output.pdf
+
+  <dim># Sync only incoming changes from HTML</dim>
+  <blue>></blue> stencila sync document.md edited.html:in
+
+  <dim># Sync only outgoing changes to PDF</dim>
+  <blue>></blue> stencila sync document.md output.pdf:out
+
+  <dim># Mixed sync directions</dim>
+  <blue>></blue> stencila sync main.md preview.html:out edits.docx:in
+
+  <dim># Sync with custom encoding options</dim>
+  <blue>></blue> stencila sync doc.md output.html --standalone
+
+<bold><blue>Sync Directions</blue></bold>
+  • <blue>:in</blue> - Only accept incoming changes from the file
+  • <blue>:out</blue> - Only push outgoing changes to the file
+  • <blue>:io</blue> - Bidirectional sync (default)
+
+<bold><blue>Note</blue></bold>
+  The sync command runs continuously, watching for changes.
+  Press Ctrl+C to stop synchronization.
+"
+);
 
 impl Cli {
     pub async fn run(self) -> Result<()> {

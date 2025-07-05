@@ -1,6 +1,6 @@
 use std::{path::PathBuf, process::exit};
 
-use cli_utils::{AsFormat, Code, ToStdout};
+use cli_utils::{color_print::cstr, AsFormat, Code, ToStdout};
 use common::{
     clap::{self, Parser},
     eyre::Result,
@@ -9,6 +9,7 @@ use document::Document;
 
 /// Lint one or more documents
 #[derive(Debug, Parser)]
+#[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     /// The files to lint
     files: Vec<PathBuf>,
@@ -33,6 +34,25 @@ pub struct Cli {
     #[arg(long, short)]
     r#as: Option<AsFormat>,
 }
+
+pub static CLI_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Lint a single document</dim>
+  <blue>></blue> stencila lint document.smd
+
+  <dim># Lint multiple documents</dim>
+  <blue>></blue> stencila lint *.qmd docs/*
+
+  <dim># Auto-format documents during linting</dim>
+  <blue>></blue> stencila lint report.myst --format
+
+  <dim># Auto-fix linting issues</dim>
+  <blue>></blue> stencila lint article.smd --fix
+
+  <dim># Output diagnostics as YAML</dim>
+  <blue>></blue> stencila lint article.myst --as yaml
+"
+);
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
