@@ -793,7 +793,7 @@ impl Executor {
                 }
             }
 
-            // If there are any messages then map them back to the nodes by find the
+            // If there are any messages then map them back to the nodes by finding the
             // BEGIN line immediately before the location of the message
             if let Some(messages) = output.messages {
                 let lines = code.lines().collect_vec();
@@ -804,12 +804,13 @@ impl Executor {
                         .as_ref()
                         .and_then(|loc| loc.start_line)
                     else {
+                        tracing::trace!("Message has no start line");
                         continue;
                     };
 
                     // Find the BEGIN line for the message
                     let mut node_begin_line = None;
-                    let start_line = start_line as usize;
+                    let start_line = (start_line as usize).min(lines.len().saturating_sub(1));
                     for line_index in (0..start_line).rev() {
                         let Some(line) = lines.get(line_index) else {
                             continue;
@@ -835,6 +836,7 @@ impl Executor {
 
                         // If not able to parse a node id form last part, continue
                         let Ok(node_id) = NodeId::from_str(node_id) else {
+                            tracing::debug!("Invalid node id: {node_id}");
                             continue;
                         };
 
@@ -844,8 +846,8 @@ impl Executor {
                     }
 
                     // Adjust line numbers so that they are relative to BEGIN line
-                    // Note that if no BEGIN line was found then the message will be
-                    // added - this is intentional.
+                    // Note that if no BEGIN line was found then the message will
+                    // NOT be included since we can not associate it with a node.
                     if let Some((node_id, line_index)) = node_begin_line {
                         if let Some(loc) = message.code_location.as_mut() {
                             if let Some(start_line) = loc.start_line.as_mut() {
@@ -860,6 +862,8 @@ impl Executor {
                         }
 
                         node_messages.entry(node_id).or_default().push(message);
+                    } else {
+                        tracing::debug!("No {BEGIN} line for message");
                     }
                 }
             }
