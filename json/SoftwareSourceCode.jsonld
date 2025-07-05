@@ -616,11 +616,16 @@
     {
       "@id": "schema:codeRepository",
       "@type": "rdfs:Property",
-      "rdfs:label": "codeRepository",
-      "rdfs:comment": "Link to the repository where the un-compiled, human readable code and related code is located.",
-      "schema:domainIncludes": {
-        "@id": "schema:SoftwareSourceCode"
-      },
+      "rdfs:label": "repository",
+      "rdfs:comment": "URL of the repository where the un-compiled, human readable code and related code is located.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "schema:SoftwareSourceCode"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }

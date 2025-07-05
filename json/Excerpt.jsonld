@@ -24,9 +24,6 @@
       "rdfs:comment": "A `Reference` to the `CreativeWork` that the excerpt was taken from.",
       "schema:domainIncludes": [
         {
-          "@id": "schema:Article"
-        },
-        {
           "@id": "stencila:CodeLocation"
         },
         {

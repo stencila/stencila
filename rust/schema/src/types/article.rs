@@ -462,23 +462,27 @@ pub struct ArticleOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub pagination: Option<String>,
 
-    /// Additional metadata for the article.
-    #[serde(flatten, deserialize_with = "empty_object_is_none")]
-    #[strip(metadata)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "docx", format = "odt")]
+    /// URL of the repository where the un-compiled, human readable source of the article is located.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(skip)]
-    pub extra: Option<Object>,
+    pub repository: Option<String>,
 
-    /// The filesystem path of the source of the creative work.
+    /// The filesystem path of the source of the article.
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub source: Option<String>,
+    pub path: Option<String>,
 
-    /// The commit hash (or similar) of the source of the creative work.
+    /// The commit hash (or similar) of the source of the article.
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub commit: Option<String>,
+
+    /// Additional metadata for the article.
+    #[serde(flatten, deserialize_with = "empty_object_is_none")]
+    #[strip(metadata)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "docx")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(skip)]
+    pub extra: Option<Object>,
 }
 
 impl Article {

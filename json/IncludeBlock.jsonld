@@ -232,9 +232,6 @@
       "rdfs:comment": "The external source of the content, a file path or URL.",
       "schema:domainIncludes": [
         {
-          "@id": "schema:Article"
-        },
-        {
           "@id": "stencila:CodeLocation"
         },
         {

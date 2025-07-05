@@ -1036,6 +1036,30 @@
         "$ref": "Node.schema.json"
       }
     },
+    "repository": {
+      "@id": "schema:codeRepository",
+      "description": "URL of the repository where the un-compiled, human readable source of the article is located.",
+      "type": "string",
+      "format": "uri"
+    },
+    "path": {
+      "@id": "stencila:path",
+      "description": "The filesystem path of the source of the article.",
+      "$comment": "Usually only used when the article is within a Git (or other version control) repository,\nand then is usually relative to the repository root.\n",
+      "strip": [
+        "metadata"
+      ],
+      "type": "string"
+    },
+    "commit": {
+      "@id": "stencila:commit",
+      "description": "The commit hash (or similar) of the source of the article.",
+      "$comment": "Only used when the article's source file is within a Git (or other version control) repository.\n",
+      "strip": [
+        "metadata"
+      ],
+      "type": "string"
+    },
     "extra": {
       "@id": "stencila:extra",
       "description": "Additional metadata for the article.",
@@ -1050,8 +1074,7 @@
           "myst",
           "ipynb",
           "qmd",
-          "docx",
-          "odt"
+          "docx"
         ]
       },
       "serde": {
@@ -1062,24 +1085,6 @@
         "skip": true
       },
       "type": "object"
-    },
-    "source": {
-      "@id": "stencila:source",
-      "description": "The filesystem path of the source of the creative work.",
-      "$comment": "Usually only used when the source file is within a Git (or other version control) repository,\nand then is usually relative to the repository root.\n",
-      "strip": [
-        "metadata"
-      ],
-      "type": "string"
-    },
-    "commit": {
-      "@id": "stencila:commit",
-      "description": "The commit hash (or similar) of the source of the creative work.",
-      "$comment": "Only used when the source file is within a Git (or other version control) repository.\n",
-      "strip": [
-        "metadata"
-      ],
-      "type": "string"
     }
   }
 }

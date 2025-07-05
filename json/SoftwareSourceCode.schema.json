@@ -17,7 +17,7 @@
   "core": [
     "id",
     "doi",
-    "codeRepository",
+    "repository",
     "targetProducts",
     "version"
   ],
@@ -630,13 +630,9 @@
       ],
       "type": "string"
     },
-    "codeRepository": {
+    "repository": {
       "@id": "schema:codeRepository",
-      "description": "Link to the repository where the un-compiled, human readable code and related code is located.",
-      "aliases": [
-        "code-repository",
-        "code_repository"
-      ],
+      "description": "URL of the repository where the un-compiled, human readable code and related code is located.",
       "type": "string",
       "format": "uri"
     },

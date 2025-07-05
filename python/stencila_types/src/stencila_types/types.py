@@ -1137,14 +1137,17 @@ class Article(CreativeWork, Executable):
     archive: list[Node] | None = None
     """Nodes, usually from within `content` of the article, that have been archived."""
 
-    extra: Object | None = None
-    """Additional metadata for the article."""
+    repository: str | None = None
+    """URL of the repository where the un-compiled, human readable source of the article is located."""
 
-    source: str | None = None
-    """The filesystem path of the source of the creative work."""
+    path: str | None = None
+    """The filesystem path of the source of the article."""
 
     commit: str | None = None
-    """The commit hash (or similar) of the source of the creative work."""
+    """The commit hash (or similar) of the source of the article."""
+
+    extra: Object | None = None
+    """Additional metadata for the article."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2802,8 +2805,8 @@ class SoftwareSourceCode(CreativeWork):
     programming_language: str
     """The computer programming language."""
 
-    code_repository: str | None = None
-    """Link to the repository where the un-compiled, human readable code and related code is located."""
+    repository: str | None = None
+    """URL of the repository where the un-compiled, human readable code and related code is located."""
 
     code_sample_type: str | None = None
     """What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template."""

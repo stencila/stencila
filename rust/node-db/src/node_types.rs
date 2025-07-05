@@ -115,6 +115,8 @@ impl DatabaseNode for Article {
             (NodeProperty::ExecutionDuration, self.options.execution_duration.to_kuzu_type(), self.options.execution_duration.to_kuzu_value()),
             (NodeProperty::Pagination, self.options.pagination.to_kuzu_type(), self.options.pagination.to_kuzu_value()),
             (NodeProperty::Frontmatter, self.frontmatter.to_kuzu_type(), self.frontmatter.to_kuzu_value()),
+            (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
+            (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
             (NodeProperty::Title, LogicalType::String, to_text(&self.title).to_kuzu_value()),
             (NodeProperty::Abstract, LogicalType::String, to_text(&self.r#abstract).to_kuzu_value()),
             (embeddings_property(), embeddings_type(), Null.to_kuzu_value())

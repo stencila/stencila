@@ -55,9 +55,8 @@ pub struct SoftwareSourceCode {
     #[serde(alias = "programming-language", alias = "programming_language")]
     pub programming_language: String,
 
-    /// Link to the repository where the un-compiled, human readable code and related code is located.
-    #[serde(alias = "code-repository", alias = "code_repository")]
-    pub code_repository: Option<String>,
+    /// URL of the repository where the un-compiled, human readable code and related code is located.
+    pub repository: Option<String>,
 
     /// Target operating system or product to which the code applies.
     #[serde(alias = "target-products", alias = "target_products", alias = "targetProduct", alias = "target-product", alias = "target_product")]

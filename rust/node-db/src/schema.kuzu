@@ -39,6 +39,8 @@ CREATE NODE TABLE IF NOT EXISTS `Article` (
   `executionDuration` INTERVAL,
   `pagination` STRING,
   `frontmatter` STRING,
+  `repository` STRING,
+  `path` STRING,
   `title` STRING,
   `abstract` STRING,
   `embeddings` FLOAT[384],

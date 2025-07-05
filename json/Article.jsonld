@@ -1047,37 +1047,36 @@
       }
     },
     {
-      "@id": "stencila:extra",
+      "@id": "schema:codeRepository",
       "@type": "rdfs:Property",
-      "rdfs:label": "extra",
-      "rdfs:comment": "Additional metadata for the article.",
-      "schema:domainIncludes": {
-        "@id": "schema:Article"
-      }
-    },
-    {
-      "@id": "stencila:source",
-      "@type": "rdfs:Property",
-      "rdfs:label": "source",
-      "rdfs:comment": "The filesystem path of the source of the creative work.",
+      "rdfs:label": "repository",
+      "rdfs:comment": "URL of the repository where the un-compiled, human readable source of the article is located.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Article"
         },
         {
-          "@id": "stencila:CodeLocation"
+          "@id": "schema:SoftwareSourceCode"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:path",
+      "@type": "rdfs:Property",
+      "rdfs:label": "path",
+      "rdfs:comment": "The filesystem path of the source of the article.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
         },
         {
-          "@id": "stencila:Excerpt"
+          "@id": "stencila:Directory"
         },
         {
-          "@id": "stencila:IncludeBlock"
-        },
-        {
-          "@id": "stencila:QuoteBlock"
-        },
-        {
-          "@id": "stencila:QuoteInline"
+          "@id": "stencila:File"
         }
       ],
       "schema:rangeIncludes": {
@@ -1088,12 +1087,21 @@
       "@id": "stencila:commit",
       "@type": "rdfs:Property",
       "rdfs:label": "commit",
-      "rdfs:comment": "The commit hash (or similar) of the source of the creative work.",
+      "rdfs:comment": "The commit hash (or similar) of the source of the article.",
       "schema:domainIncludes": {
         "@id": "schema:Article"
       },
       "schema:rangeIncludes": {
         "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:extra",
+      "@type": "rdfs:Property",
+      "rdfs:label": "extra",
+      "rdfs:comment": "Additional metadata for the article.",
+      "schema:domainIncludes": {
+        "@id": "schema:Article"
       }
     }
   ]
