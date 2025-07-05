@@ -31,7 +31,7 @@ pub fn setup(details: &str, link: bool) -> Result<()> {
         _ => details.split(',').collect_vec(),
     };
 
-    let mut builder = color_eyre::config::HookBuilder::default()
+    let mut builder = color_eyre::config::HookBuilder::blank()
         .display_location_section(details.contains(&"location"))
         .display_env_section(details.contains(&"env"));
 
