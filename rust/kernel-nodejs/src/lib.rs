@@ -1,8 +1,9 @@
 use std::{
     fs::{read_to_string, write},
     path::Path,
-    process::{Command, Stdio},
 };
+
+use tools::ToolCommand;
 
 use kernel_micro::{
     common::{eyre::Result, serde::Deserialize, serde_json, tempfile, tracing},
@@ -45,21 +46,19 @@ impl Kernel for NodeJsKernel {
         // currently disabled
         return KernelLinting::No;
 
-        let format = Command::new("npx")
+        let format = ToolCommand::new("npx")
             .arg("--no") // Do not install prettier if not already
             .arg("--")
             .arg("prettier")
             .arg("--version") // Smaller output than without
-            .stdout(Stdio::null())
             .status()
             .is_ok_and(|status| status.success());
 
-        let fix = Command::new("npx")
+        let fix = ToolCommand::new("npx")
             .arg("--no") // Do not install eslint if not already
             .arg("--")
             .arg("eslint")
             .arg("--version") // To prevent eslint waiting for input
-            .stdout(Stdio::null())
             .status()
             .is_ok_and(|status| status.success());
 
@@ -120,7 +119,7 @@ impl KernelLint for NodeJsKernel {
         // Format code if specified
         // Does this optimistically with no error if it fails
         if options.format {
-            let result = Command::new("npx")
+            let result = ToolCommand::new("npx")
                 .arg("--no") // Do not install prettier if not already
                 .arg("--")
                 .arg("prettier")
@@ -158,7 +157,7 @@ export default [
         let config_path_str = config_path.to_string_lossy();
 
         // Run eslint to get diagnostics and output as JSON
-        let mut cmd = Command::new("npx");
+        let mut cmd = ToolCommand::new("npx");
         cmd.arg("eslint")
             .arg("--format=json")
             .arg("--config")

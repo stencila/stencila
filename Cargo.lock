@@ -3612,6 +3612,7 @@ dependencies = [
  "common-dev",
  "kernel-micro",
  "test-log",
+ "tools",
 ]
 
 [[package]]
