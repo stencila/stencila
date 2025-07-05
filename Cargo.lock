@@ -1319,6 +1319,7 @@ dependencies = [
  "codec-latex-trait",
  "codec-text-trait",
  "pandoc_types",
+ "tools",
  "which",
 ]
 
@@ -7718,6 +7719,7 @@ dependencies = [
 name = "tools"
 version = "0.0.0"
 dependencies = [
+ "ask",
  "cli-utils",
  "common",
  "derive_more",

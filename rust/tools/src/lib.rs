@@ -1,11 +1,11 @@
 use std::{
     collections::HashMap,
     fmt::Debug,
-    io,
     path::{Path, PathBuf},
     process::{Command, ExitStatus, Output, Stdio},
 };
 
+use ask::{ask_with, Answer, AskLevel, AskOptions};
 use common::{
     async_recursion::async_recursion,
     clap::{self, ValueEnum},
@@ -123,7 +123,7 @@ pub trait Tool: Sync + Send {
     /// Falls back to the regular `path()` method if no environment managers are detected.
     fn path_in_env(&self) -> Option<PathBuf> {
         let cwd = std::env::current_dir().ok()?;
-        let detected_managers = detect_all_managers(&cwd);
+        let detected_managers = detect_managers(&cwd, &[ToolType::Environments]);
 
         for (manager, _config_path) in detected_managers {
             if manager.is_installed() {
@@ -149,7 +149,26 @@ pub trait Tool: Sync + Send {
 
     /// Check if the tool is installed (available on the system)
     fn is_installed(&self) -> bool {
-        self.path().is_some()
+        if self.path().is_none() {
+            return false;
+        }
+
+        if matches!(self.r#type(), ToolType::Environments) {
+            // Use `version_available` for environments to avoid recursion
+            if let Some(version) = self.version_available() {
+                if !self.version_required().matches(&version) {
+                    return false;
+                }
+            }
+        } else if let Some(version) = self.version_available_in_env() {
+            if !self.version_required().matches(&version) {
+                return false;
+            }
+        }
+
+        // If is installed but version is not known, return true
+        // for best effort use
+        true
     }
 
     /// The version required by Stencila
@@ -157,6 +176,16 @@ pub trait Tool: Sync + Send {
     /// Defaults to any version and should be overridden if a
     fn version_required(&self) -> VersionReq {
         VersionReq::STAR
+    }
+
+    /// Get the name and semver requirements of the tool
+    fn name_and_version_required(&self) -> String {
+        let mut result = self.name().to_string();
+        let version_required = self.version_required();
+        if version_required != VersionReq::STAR {
+            result.push_str(&version_required.to_string());
+        }
+        result
     }
 
     /// Get the command arguments to retrieve the version of this tool
@@ -195,7 +224,7 @@ pub trait Tool: Sync + Send {
     /// Falls back to the regular `version_available()` method if no environment managers are detected.
     fn version_available_in_env(&self) -> Option<Version> {
         let cwd = std::env::current_dir().ok()?;
-        let detected_managers = detect_all_managers(&cwd);
+        let detected_managers = detect_managers(&cwd, &[ToolType::Environments]);
 
         for (manager, _config_path) in detected_managers {
             if manager.is_installed() {
@@ -637,8 +666,8 @@ impl ToolCommand {
     ///
     /// If an environment manager is detected, the command will be wrapped
     /// to run within that environment.
-    pub fn output(&mut self) -> io::Result<Output> {
-        self.wrap_if_needed().output()
+    pub fn output(&mut self) -> Result<Output> {
+        Ok(self.wrap_if_needed()?.output()?)
     }
 
     /// Executes the command as a child process, waiting for it to finish and
@@ -646,27 +675,30 @@ impl ToolCommand {
     ///
     /// If an environment manager is detected, the command will be wrapped
     /// to run within that environment.
-    pub fn status(&mut self) -> io::Result<ExitStatus> {
-        self.wrap_if_needed().status()
+    pub fn status(&mut self) -> Result<ExitStatus> {
+        Ok(self.wrap_if_needed()?.status()?)
     }
 
     /// Executes the command as a child process, returning a handle to it.
     ///
     /// If an environment manager is detected, the command will be wrapped
     /// to run within that environment.
-    pub fn spawn(&mut self) -> io::Result<std::process::Child> {
-        self.wrap_if_needed().spawn()
+    pub fn spawn(&mut self) -> Result<std::process::Child> {
+        Ok(self.wrap_if_needed()?.spawn()?)
     }
 
     /// Wraps the command with environment managers if detected
-    fn wrap_if_needed(&mut self) -> &mut Command {
-        // Check if tool needs auto-installation (sync version cannot install)
+    fn wrap_if_needed(&mut self) -> Result<&mut Command> {
         let program = self.inner.get_program().to_string_lossy().to_string();
+
+        // Check if tool needs auto-installation (sync version cannot install)
         if let Some(tool) = get(&program) {
+            let name = tool.name();
+            let name_ver = tool.name_and_version_required();
+
             if !tool.is_installed() {
-                tracing::warn!(
-                    "Tool {} is not installed and cannot be auto-installed in sync context. Use AsyncToolCommand or install manually.", 
-                    tool.name()
+                bail!(
+                    "{name_ver} is required for this operation but is not installed and cannot be auto-installed. Please install {name_ver} (e.g. using `stencila tools install {name}`) and try again"
                 );
             }
         }
@@ -679,8 +711,7 @@ impl ToolCommand {
             .or_else(|| std::env::current_dir().ok());
 
         if let Some(cwd) = cwd {
-            // Get the program and args from the original command
-            let program = self.inner.get_program().to_string_lossy().to_string();
+            // Get the args from the original command
             let args: Vec<String> = self
                 .inner
                 .get_args()
@@ -723,7 +754,7 @@ impl ToolCommand {
             }
         }
 
-        &mut self.inner
+        Ok(&mut self.inner)
     }
 }
 
@@ -828,8 +859,8 @@ impl AsyncToolCommand {
     ///
     /// If an environment manager is detected, the command will be wrapped
     /// to run within that environment.
-    pub async fn output(&mut self) -> io::Result<std::process::Output> {
-        self.wrap_if_needed().await.output().await
+    pub async fn output(&mut self) -> Result<std::process::Output> {
+        Ok(self.wrap_if_needed().await?.output().await?)
     }
 
     /// Executes the command as a child process, waiting for it to finish and
@@ -837,32 +868,51 @@ impl AsyncToolCommand {
     ///
     /// If an environment manager is detected, the command will be wrapped
     /// to run within that environment.
-    pub async fn status(&mut self) -> io::Result<std::process::ExitStatus> {
-        self.wrap_if_needed().await.status().await
+    pub async fn status(&mut self) -> Result<std::process::ExitStatus> {
+        Ok(self.wrap_if_needed().await?.status().await?)
     }
 
     /// Executes the command as a child process, returning a handle to it.
     ///
     /// If an environment manager is detected, the command will be wrapped
     /// to run within that environment.
-    pub async fn spawn(&mut self) -> io::Result<tokio::process::Child> {
-        self.wrap_if_needed().await.spawn()
+    pub async fn spawn(&mut self) -> Result<tokio::process::Child> {
+        Ok(self.wrap_if_needed().await?.spawn()?)
     }
 
     /// Wraps the command with environment managers if detected
-    async fn wrap_if_needed(&mut self) -> &mut AsyncCommand {
-        // Auto-install tool if it's a known tool and not installed
+    async fn wrap_if_needed(&mut self) -> Result<&mut AsyncCommand> {
         let program = self
             .inner
             .as_std()
             .get_program()
             .to_string_lossy()
             .to_string();
+
+        // Auto-install tool if it's a known tool and not yet installed
         if let Some(tool) = get(&program) {
             if !tool.is_installed() {
-                tracing::info!("Auto-installing missing tool: {}", tool.name());
-                if let Err(e) = install(tool.as_ref(), false).await {
-                    tracing::warn!("Failed to auto-install {}: {}", tool.name(), e);
+                let name = tool.name();
+                let name_ver = tool.name_and_version_required();
+
+                let answer = ask_with(
+                    &format!("{name_ver} is required for this operation but is not yet installed. Would you like to install it now?"),
+                    AskOptions {
+                        level: AskLevel::Warning,
+                        default: Some(Answer::Yes),
+                        ..Default::default()
+                    },
+                )
+                .await
+                .unwrap_or(Answer::No);
+
+                if answer.is_yes() {
+                    tracing::info!("Installing `{name}`");
+                    if let Err(error) = install(tool.as_ref(), false).await {
+                        tracing::warn!("Failed to install {name}: {error}");
+                    }
+                } else {
+                    bail!(format!("Please install {name_ver} (e.g. using `stencila tools install {name}`) and try again"));
                 }
             }
         }
@@ -876,13 +926,7 @@ impl AsyncToolCommand {
             .or_else(|| std::env::current_dir().ok());
 
         if let Some(cwd) = cwd {
-            // Get the program and args from the original command
-            let program = self
-                .inner
-                .as_std()
-                .get_program()
-                .to_string_lossy()
-                .to_string();
+            // Get the args from the original command
             let args: Vec<String> = self
                 .inner
                 .as_std()
@@ -934,7 +978,7 @@ impl AsyncToolCommand {
             }
         }
 
-        &mut self.inner
+        Ok(&mut self.inner)
     }
 }
 
@@ -971,19 +1015,12 @@ pub fn find_config_in_ancestors(start_path: &Path, config_files: &[&str]) -> Opt
 /// Searches up the directory tree from the given path (or its parent directory if
 /// the path is a file) looking for manager config files.
 /// Returns all detected managers and their config file paths.
-fn detect_all_managers(path: &Path) -> Vec<(Box<dyn Tool>, PathBuf)> {
-    let managers: Vec<Box<dyn Tool>> = vec![
-        Box::new(Devbox),
-        Box::new(Mise),
-        Box::new(Nix),
-        Box::new(NixShell),
-        Box::new(Pixi),
-        Box::new(Rig),
-        Box::new(Uv),
-    ];
-
+fn detect_managers(path: &Path, types: &[ToolType]) -> Vec<(Box<dyn Tool>, PathBuf)> {
     let mut detected = Vec::new();
-    for manager in managers {
+    for manager in list()
+        .into_iter()
+        .filter(|tool| types.contains(&tool.r#type()))
+    {
         let config_files = manager.config_files();
         if let Some(config_path) = find_config_in_ancestors(path, &config_files) {
             detected.push((manager, config_path));
@@ -1002,17 +1039,17 @@ fn build_nested_command(command: &str, args: &[String], path: &Path) -> Option<C
     // Find all capable managers in order
     let mut capable_managers: Vec<Box<dyn Tool>> = Vec::new();
 
-    // First, check for specialized package managers (Rig for R, Uv for Python)
-    let package_managers: Vec<Box<dyn Tool>> = vec![Box::new(Rig), Box::new(Uv)];
-    for manager in package_managers {
+    // First, check for package managers with config files in the project
+    let detected_package_managers = detect_managers(path, &[ToolType::Packages]);
+    for (manager, ..) in detected_package_managers {
         if manager.is_installed() && manager.exec_command(command, args).is_some() {
             capable_managers.push(manager);
         }
     }
 
-    // Then check for environment managers with config files in the project
-    let detected_env_managers = detect_all_managers(path);
-    for (manager, _config_path) in detected_env_managers {
+    // Then, check for environment managers with config files in the project
+    let detected_env_managers = detect_managers(path, &[ToolType::Environments]);
+    for (manager, ..) in detected_env_managers {
         if manager.is_installed() && manager.exec_command(command, args).is_some() {
             capable_managers.push(manager);
         }

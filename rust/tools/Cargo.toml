@@ -4,6 +4,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+ask = { path = "../ask" }
 cli-utils = { path = "../cli-utils" }
 common = { path = "../common" }
 directories = { workspace = true }

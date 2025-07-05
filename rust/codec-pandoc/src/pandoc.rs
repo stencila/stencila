@@ -14,29 +14,21 @@
 //! then this semver requirement will need to be updated (i.e. be given an upper bound
 //! or `pandoc_types` crate updated and the lower bound raised)
 
-use std::{path::Path, process::Stdio};
+use std::path::Path;
+
+use pandoc_types::definition::Pandoc;
 
 use codec::{
     common::{
         eyre::{bail, Result},
         serde_json,
-        tokio::{io::AsyncWriteExt, process::Command},
+        tokio::io::AsyncWriteExt,
         tracing,
     },
     format::Format,
     DecodeOptions, EncodeOptions,
 };
-use pandoc_types::definition::Pandoc;
-use which::which;
-
-/// Check that Pandoc is available
-fn pandoc_available() -> Result<()> {
-    if which("pandoc").is_err() {
-        bail!("Pandoc is not available on $PATH. Perhaps it needs to be installed?")
-    }
-
-    Ok(())
-}
+use tools::{AsyncToolCommand, ToolStdio};
 
 /// Call Pandoc binary to convert some input content to Pandoc JSON.
 #[tracing::instrument(skip(input))]
@@ -49,7 +41,6 @@ pub async fn pandoc_from_format(
     let json = if format == "pandoc" {
         input.to_string()
     } else {
-        pandoc_available()?;
         tracing::debug!("Spawning pandoc to parse `{format}`");
 
         let mut args = options
@@ -61,20 +52,20 @@ pub async fn pandoc_from_format(
         // instead of the default decoding so remove that.
         args.retain(|arg| arg != "--pandoc");
 
-        let mut command = Command::new("pandoc");
+        let mut command = AsyncToolCommand::new("pandoc");
         command
             .args(["--from", format, "--to", "json"])
             .args(args)
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped());
+            .stdout(ToolStdio::Piped)
+            .stderr(ToolStdio::Piped);
 
         let child = if let Some(path) = path {
             if !path.exists() {
                 bail!("File does not exists: {}", path.to_string_lossy())
             }
-            command.arg(path).spawn()?
+            command.arg(path).spawn().await?
         } else {
-            let mut child = command.stdin(Stdio::piped()).spawn()?;
+            let mut child = command.stdin(ToolStdio::Piped).spawn().await?;
             if let Some(mut stdin) = child.stdin.take() {
                 stdin.write_all(input.as_ref()).await?;
             }
@@ -109,7 +100,6 @@ pub async fn pandoc_to_format(
         return Ok(json.to_string());
     }
 
-    pandoc_available()?;
     tracing::debug!("Spawning pandoc to generate `{format}`");
 
     let options = options.clone().unwrap_or_default();
@@ -123,7 +113,7 @@ pub async fn pandoc_to_format(
     if let Some(template) = options.template {
         args.push(format!("--reference-doc={}", template.to_string_lossy()));
     }
-    let mut command = Command::new("pandoc");
+    let mut command = AsyncToolCommand::new("pandoc");
     command.args(args);
     command.args(["--from", "json", "--to", format]);
     if let Some(path) = &path {
@@ -131,10 +121,11 @@ pub async fn pandoc_to_format(
     }
 
     let mut child = command
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .stdin(Stdio::piped())
-        .spawn()?;
+        .stdout(ToolStdio::Piped)
+        .stderr(ToolStdio::Piped)
+        .stdin(ToolStdio::Piped)
+        .spawn()
+        .await?;
     if let Some(mut stdin) = child.stdin.take() {
         stdin.write_all(json.as_ref()).await?;
     }
@@ -163,7 +154,6 @@ pub(crate) async fn format_to_path(
     path: &Path,
     options: &Option<EncodeOptions>,
 ) -> Result<()> {
-    pandoc_available()?;
     tracing::debug!("Spawning pandoc to create {}", path.display());
 
     let options = options.clone().unwrap_or_default();
@@ -174,7 +164,7 @@ pub(crate) async fn format_to_path(
         args.push(format!("--reference-doc={}", template.to_string_lossy()));
     }
 
-    let mut command = Command::new("pandoc");
+    let mut command = AsyncToolCommand::new("pandoc");
     command.args(args);
     command.args([
         "--from",
@@ -186,10 +176,11 @@ pub(crate) async fn format_to_path(
     ]);
 
     let mut child = command
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .stdin(Stdio::piped())
-        .spawn()?;
+        .stdout(ToolStdio::Piped)
+        .stderr(ToolStdio::Piped)
+        .stdin(ToolStdio::Piped)
+        .spawn()
+        .await?;
     if let Some(mut stdin) = child.stdin.take() {
         stdin.write_all(content.as_ref()).await?;
     }

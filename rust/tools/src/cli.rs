@@ -20,7 +20,7 @@ use common::{
 use directories::UserDirs;
 use pathdiff::diff_paths;
 
-use crate::{detect_all_managers, ToolType};
+use crate::{detect_managers, ToolType};
 
 /// Manage tools and environments used by Stencila
 ///
@@ -201,7 +201,8 @@ impl List {
 
         // Display active environment manager config files
         let cwd = std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from("."));
-        let detected_managers = detect_all_managers(&cwd);
+        let detected_managers =
+            detect_managers(&cwd, &[ToolType::Environments, ToolType::Packages]);
 
         if !detected_managers.is_empty() {
             println!();
@@ -417,8 +418,7 @@ impl Env {
         }
 
         let path = canonicalize(&self.path).unwrap_or(self.path);
-
-        let managers = detect_all_managers(&path);
+        let managers = detect_managers(&path, &[ToolType::Environments, ToolType::Packages]);
 
         if managers.is_empty() {
             eprintln!(
@@ -428,7 +428,7 @@ impl Env {
             exit(1)
         };
 
-        for (tool, config_path) in detect_all_managers(&path) {
+        for (tool, config_path) in managers {
             let env = json!({
                 "Tool": tool.name(),
                 "Config file": strip_home_dir(&config_path)
