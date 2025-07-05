@@ -989,17 +989,41 @@ pub(super) async fn doc_command(
             let reproducible = Some(bool_arg(args.next())?);
 
             let doc = doc.read().await;
-            doc.export(
-                &path,
-                Some(EncodeOptions {
-                    format,
-                    render,
-                    reproducible,
-                    ..Default::default()
-                }),
-            )
-            .await
-            .map_err(internal_error)?;
+            match doc
+                .export(
+                    &path,
+                    Some(EncodeOptions {
+                        format,
+                        render,
+                        reproducible,
+                        ..Default::default()
+                    }),
+                )
+                .await
+            {
+                Ok(completed) => {
+                    if completed {
+                        let filename = path
+                            .file_name()
+                            .unwrap_or_else(|| path.as_os_str())
+                            .to_string_lossy();
+                        client
+                            .show_message(ShowMessageParams {
+                                typ: MessageType::INFO,
+                                message: format!("Successfully exported to {filename}"),
+                            })
+                            .ok();
+                    }
+                }
+                Err(error) => {
+                    client
+                        .show_message(ShowMessageParams {
+                            typ: MessageType::ERROR,
+                            message: error.to_string(),
+                        })
+                        .ok();
+                }
+            };
 
             return Ok(None);
         }
