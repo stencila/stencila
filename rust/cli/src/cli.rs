@@ -46,7 +46,6 @@ pub struct Cli {
     /// (but but for brevity not listed).
     #[arg(
         long,
-        short,
         global = true,
         help_heading = "Global Options",
         display_order = 110,
@@ -59,7 +58,6 @@ pub struct Cli {
     /// Assume the answer `no` to any interactive prompts
     #[arg(
         long,
-        short,
         global = true,
         hide = true,
         conflicts_with = "yes",
@@ -71,7 +69,6 @@ pub struct Cli {
     /// Assume the answer `cancel` to any interactive prompts
     #[arg(
         long,
-        short,
         global = true,
         hide = true,
         conflicts_with = "yes",
