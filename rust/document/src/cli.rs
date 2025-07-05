@@ -6,6 +6,7 @@ use std::{
 
 use ask::{ask_with_default, Answer};
 use cli_utils::{
+    color_print::cstr,
     tabulated::{Attribute, Cell, Color, Tabulated},
     AsFormat, Code, ToStdout,
 };
@@ -36,6 +37,7 @@ use super::{track::DocumentTrackingStatus, Document};
 
 /// Initialize a workspace
 #[derive(Debug, Parser)]
+#[command(after_long_help = INIT_AFTER_LONG_HELP)]
 pub struct Init {
     /// The workspace directory to initialize
     ///
@@ -47,6 +49,24 @@ pub struct Init {
     #[arg(long)]
     no_gitignore: bool,
 }
+
+pub static INIT_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Initialize current directory as a Stencila workspace</dim>
+  <blue>></blue> stencila init
+
+  <dim># Initialize a specific directory</dim>
+  <blue>></blue> stencila init ./my-project
+
+  <dim># Initialize without creating .gitignore</dim>
+  <blue>></blue> stencila init --no-gitignore
+
+<bold><blue>Note</blue></bold>
+  This creates a .stencila directory for workspace configuration
+  and document tracking. A .gitignore file is created by default
+  to exclude tracking and cache files.
+"
+);
 
 impl Init {
     #[tracing::instrument]
@@ -75,6 +95,7 @@ impl Init {
 
 /// Rebuild a workspace database
 #[derive(Debug, Parser)]
+#[command(after_long_help = REBUILD_AFTER_LONG_HELP)]
 pub struct Rebuild {
     /// The workspace directory to rebuild the database for
     ///
@@ -82,6 +103,21 @@ pub struct Rebuild {
     #[arg(default_value = ".")]
     dir: PathBuf,
 }
+
+pub static REBUILD_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Rebuild database for current workspace</dim>
+  <blue>></blue> stencila rebuild
+
+  <dim># Rebuild database for specific workspace</dim>
+  <blue>></blue> stencila rebuild ./my-project
+
+<bold><blue>Note</blue></bold>
+  This recreates the workspace database from scratch,
+  re-scanning all tracked documents and their metadata.
+  Use this if the database becomes corrupted or outdated.
+"
+);
 
 impl Rebuild {
     #[tracing::instrument]
@@ -92,6 +128,7 @@ impl Rebuild {
 
 /// Query a workspace database
 #[derive(Debug, Parser)]
+#[command(after_long_help = QUERY_AFTER_LONG_HELP)]
 pub struct Query {
     /// The document, or document database, to query
     ///
@@ -154,6 +191,22 @@ pub struct Query {
     #[arg(long, short, conflicts_with = "compact")]
     pretty: bool,
 }
+
+pub static QUERY_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Query the workspace database</dim>
+  <blue>></blue> stencila query \"workspace.paragraphs()\"
+
+  <dim># Query a specific document</dim>
+  <blue>></blue> stencila query article.qmd \"paragraphs().sample(3)\"
+
+  <dim># Query with output to file</dim>
+  <blue>></blue> stencila query report.myst \"headings(.level == 1)\" headings.md
+
+  <dim># Use Cypher query language</dim>
+  <blue>></blue> stencila query doc.ipynb --cypher \"MATCH (h:Heading) WHERE h.level = 1 RETURN h\"
+"
+);
 
 impl Query {
     #[tracing::instrument]
@@ -278,10 +331,23 @@ impl Query {
 
 /// Display the configuration for a document
 #[derive(Debug, Parser)]
+#[command(after_long_help = CONFIG_AFTER_LONG_HELP)]
 pub struct Config {
     /// The path to the document to resolve
     file: PathBuf,
 }
+
+pub static CONFIG_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Show configuration for a document</dim>
+  <blue>></blue> stencila config document.md
+
+<bold><blue>Note</blue></bold>
+  Shows both the configuration sources (from workspace,
+  user, and document-specific configs) and the final
+  merged configuration that will be used for the document.
+"
+);
 
 impl Config {
     #[tracing::instrument]
@@ -302,6 +368,7 @@ impl Config {
 
 /// Start tracking a document
 #[derive(Debug, Parser)]
+#[command(after_long_help = TRACK_AFTER_LONG_HELP)]
 pub struct Track {
     /// The path to the local file to track
     file: PathBuf,
@@ -309,6 +376,24 @@ pub struct Track {
     /// The URL of the remote to track
     url: Option<Url>,
 }
+
+pub static TRACK_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Start tracking a local document</dim>
+  <blue>></blue> stencila track document.md
+
+  <dim># Track a document with remote URL</dim>
+  <blue>></blue> stencila track document.md https://example.com/api/docs/123
+
+  <dim># Track multiple documents</dim>
+  <blue>></blue> stencila track *.md
+
+<bold><blue>Note</blue></bold>
+  Tracking enables version control, synchronization,
+  and change detection for documents. Remote URLs allow
+  syncing with external systems.
+"
+);
 
 impl Track {
     #[tracing::instrument]
@@ -345,6 +430,7 @@ impl Track {
 
 /// Stop tracking a document
 #[derive(Debug, Parser)]
+#[command(after_long_help = UNTRACK_AFTER_LONG_HELP)]
 pub struct Untrack {
     /// The path of the file to stop tracking
     ///
@@ -354,6 +440,24 @@ pub struct Untrack {
     /// The URL of the remote to stop tracking
     url: Option<Url>,
 }
+
+pub static UNTRACK_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Stop tracking a document</dim>
+  <blue>></blue> stencila untrack document.md
+
+  <dim># Stop tracking a remote URL for a document</dim>
+  <blue>></blue> stencila untrack document.md https://example.com/api/docs/123
+
+  <dim># Stop tracking all deleted files</dim>
+  <blue>></blue> stencila untrack deleted
+
+<bold><blue>Note</blue></bold>
+  This removes the document from tracking but does not
+  delete the file itself. Use 'deleted' to clean up
+  tracking for files that no longer exist.
+"
+);
 
 impl Untrack {
     #[tracing::instrument]
@@ -375,10 +479,29 @@ impl Untrack {
 
 /// Add documents to the workspace database
 #[derive(Debug, Parser)]
+#[command(after_long_help = ADD_AFTER_LONG_HELP)]
 pub struct Add {
     /// The files to add
     files: Vec<PathBuf>,
 }
+
+pub static ADD_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Add a single document to workspace database</dim>
+  <blue>></blue> stencila add document.md
+
+  <dim># Add multiple documents</dim>
+  <blue>></blue> stencila add *.md docs/*.md
+
+  <dim># Add all Markdown files recursively</dim>
+  <blue>></blue> stencila add **/*.md
+
+<bold><blue>Note</blue></bold>
+  This adds documents to the workspace database for
+  indexing and querying. Files must be within the
+  workspace directory to be added.
+"
+);
 
 impl Add {
     #[tracing::instrument]
@@ -395,10 +518,29 @@ impl Add {
 /// Remove documents from the workspace database
 #[derive(Debug, Parser)]
 #[clap(alias = "rm")]
+#[command(after_long_help = REMOVE_AFTER_LONG_HELP)]
 pub struct Remove {
     /// The files to remove
     files: Vec<PathBuf>,
 }
+
+pub static REMOVE_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Remove a document from workspace database</dim>
+  <blue>></blue> stencila remove document.md
+
+  <dim># Remove multiple documents</dim>
+  <blue>></blue> stencila remove *.md docs/*.md
+
+  <dim># Use the rm alias</dim>
+  <blue>></blue> stencila rm old-document.md
+
+<bold><blue>Note</blue></bold>
+  This removes documents from the workspace database
+  but does not delete the actual files. The files
+  will no longer be indexed or queryable.
+"
+);
 
 impl Remove {
     #[tracing::instrument]
@@ -418,6 +560,7 @@ impl Remove {
 /// old path) and updates any tracking information.
 #[derive(Debug, Parser)]
 #[clap(alias = "mv")]
+#[command(after_long_help = MOVE_AFTER_LONG_HELP)]
 pub struct Move {
     /// The old path of the file
     from: PathBuf,
@@ -429,6 +572,27 @@ pub struct Move {
     #[arg(long, short)]
     force: bool,
 }
+
+pub static MOVE_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Move a tracked document</dim>
+  <blue>></blue> stencila move old-name.md new-name.md
+
+  <dim># Move to a different directory</dim>
+  <blue>></blue> stencila move document.md docs/document.md
+
+  <dim># Force overwrite if destination exists</dim>
+  <blue>></blue> stencila move source.md target.md --force
+
+  <dim># Use the mv alias</dim>
+  <blue>></blue> stencila mv old.md new.md
+
+<bold><blue>Note</blue></bold>
+  This updates both the file system and tracking
+  information. If the destination already exists,
+  you'll be prompted unless --force is used.
+"
+);
 
 impl Move {
     #[tracing::instrument]
@@ -451,6 +615,7 @@ impl Move {
 
 /// Get the tracking status of documents
 #[derive(Debug, Parser)]
+#[command(after_long_help = STATUS_AFTER_LONG_HELP)]
 pub struct Status {
     /// The paths of the files to get status for
     files: Vec<PathBuf>,
@@ -459,6 +624,23 @@ pub struct Status {
     #[arg(long, short)]
     r#as: Option<AsFormat>,
 }
+
+pub static STATUS_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Show status of all tracked documents</dim>
+  <blue>></blue> stencila status
+
+  <dim># Show status of specific documents</dim>
+  <blue>></blue> stencila status document.md report.md
+
+  <dim># Output status as JSON</dim>
+  <blue>></blue> stencila status --as json
+
+<bold><blue>Status Information</blue></bold>
+  Shows modification times, storage status, and sync
+  information for tracked documents and their remotes.
+"
+);
 
 impl Status {
     #[tracing::instrument]
