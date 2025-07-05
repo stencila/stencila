@@ -3,13 +3,14 @@ use std::{
     fmt::Debug,
     io,
     path::{Path, PathBuf},
-    process::{Command, ExitStatus, Output},
+    process::{Command, ExitStatus, Output, Stdio},
 };
 
 use common::{
     async_recursion::async_recursion,
     clap::{self, ValueEnum},
     eyre::{bail, OptionExt, Result},
+    itertools::Itertools,
     once_cell::sync::Lazy,
     regex::Regex,
     reqwest,
@@ -511,6 +512,30 @@ macro_rules! json_map {
     };
 }
 
+/// The stdio config to use with one of the tools streams
+///
+/// It is necessary for us to implement this because [`Stdio`] is not gettable
+/// from the underlying command nor clone-able and so we are unable to take the
+/// same approach to setting these on wrapped commands as we do for environment
+/// variables etc.
+#[derive(Default, Debug, Clone, Copy)]
+pub enum ToolStdio {
+    #[default]
+    Inherit,
+    Piped,
+    Null,
+}
+
+impl From<ToolStdio> for Stdio {
+    fn from(value: ToolStdio) -> Self {
+        match value {
+            ToolStdio::Inherit => Stdio::inherit(),
+            ToolStdio::Piped => Stdio::piped(),
+            ToolStdio::Null => Stdio::null(),
+        }
+    }
+}
+
 /// A wrapper around `std::process::Command` that automatically runs commands
 /// through detected environment and package managers with support for nested environments.
 ///
@@ -523,6 +548,10 @@ pub struct ToolCommand {
     #[deref]
     #[deref_mut]
     inner: Command,
+
+    stdin: ToolStdio,
+    stdout: ToolStdio,
+    stderr: ToolStdio,
 }
 
 impl ToolCommand {
@@ -533,7 +562,74 @@ impl ToolCommand {
     pub fn new<S: AsRef<std::ffi::OsStr>>(program: S) -> Self {
         Self {
             inner: Command::new(program),
+            stdin: ToolStdio::default(),
+            stdout: ToolStdio::default(),
+            stderr: ToolStdio::default(),
         }
+    }
+
+    /// Adds an argument to pass to the program.
+    pub fn arg<S: AsRef<std::ffi::OsStr>>(&mut self, arg: S) -> &mut Self {
+        self.inner.arg(arg);
+        self
+    }
+
+    /// Adds multiple arguments to pass to the program.
+    pub fn args<I, S>(&mut self, args: I) -> &mut Self
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<std::ffi::OsStr>,
+    {
+        self.inner.args(args);
+        self
+    }
+
+    /// Sets the standard input (stdin) configuration for the child process.
+    pub fn stdin(&mut self, cfg: ToolStdio) -> &mut Self {
+        self.inner.stdin(Stdio::from(cfg));
+        self.stdin = cfg;
+        self
+    }
+
+    /// Sets the standard output (stdout) configuration for the child process.
+    pub fn stdout(&mut self, cfg: ToolStdio) -> &mut Self {
+        self.inner.stdout(Stdio::from(cfg));
+        self.stdout = cfg;
+        self
+    }
+
+    /// Sets the standard error (stderr) configuration for the child process.
+    pub fn stderr(&mut self, cfg: ToolStdio) -> &mut Self {
+        self.inner.stderr(Stdio::from(cfg));
+        self.stderr = cfg;
+        self
+    }
+
+    /// Sets the working directory for the child process.
+    pub fn current_dir<P: AsRef<Path>>(&mut self, dir: P) -> &mut Self {
+        self.inner.current_dir(dir);
+        self
+    }
+
+    /// Inserts or updates an environment variable mapping.
+    pub fn env<K, V>(&mut self, key: K, val: V) -> &mut Self
+    where
+        K: AsRef<std::ffi::OsStr>,
+        V: AsRef<std::ffi::OsStr>,
+    {
+        self.inner.env(key, val);
+        self
+    }
+
+    /// Adds or updates multiple environment variable mappings.
+    pub fn envs<I, K, V>(&mut self, vars: I) -> &mut Self
+    where
+        I: IntoIterator<Item = (K, V)>,
+        K: AsRef<std::ffi::OsStr>,
+        V: AsRef<std::ffi::OsStr>,
+    {
+        self.inner.envs(vars);
+        self
     }
 
     /// Executes the command as a child process, waiting for it to finish and
@@ -593,7 +689,19 @@ impl ToolCommand {
 
             // Build nested environment command
             if let Some(mut wrapped_cmd) = build_nested_command(&program, &args, &cwd) {
-                // Copy over important properties from the original command
+                // Log the wrapped command
+                tracing::debug!(
+                    "ToolCommand wrapped: {} {} -> {} {}",
+                    program,
+                    args.join(" "),
+                    wrapped_cmd.get_program().to_string_lossy(),
+                    wrapped_cmd
+                        .get_args()
+                        .map(|arg| arg.to_string_lossy().to_string())
+                        .join(" ")
+                );
+
+                // Copy over cwd
                 if let Some(dir) = self.inner.get_current_dir() {
                     wrapped_cmd.current_dir(dir);
                 }
@@ -605,19 +713,10 @@ impl ToolCommand {
                     }
                 }
 
-                // Log the wrapped command
-                let wrapped_program = wrapped_cmd.get_program().to_string_lossy();
-                let wrapped_args: Vec<String> = wrapped_cmd
-                    .get_args()
-                    .map(|arg| arg.to_string_lossy().to_string())
-                    .collect();
-                tracing::debug!(
-                    "ToolCommand wrapped: {} {} -> {} {}",
-                    program,
-                    args.join(" "),
-                    wrapped_program,
-                    wrapped_args.join(" ")
-                );
+                // Set stdio configs
+                wrapped_cmd.stdin(Stdio::from(self.stdin));
+                wrapped_cmd.stdout(Stdio::from(self.stdout));
+                wrapped_cmd.stderr(Stdio::from(self.stderr));
 
                 // Replace inner command with wrapped version
                 self.inner = wrapped_cmd;
@@ -640,6 +739,10 @@ pub struct AsyncToolCommand {
     #[deref]
     #[deref_mut]
     inner: AsyncCommand,
+
+    stdin: ToolStdio,
+    stdout: ToolStdio,
+    stderr: ToolStdio,
 }
 
 impl AsyncToolCommand {
@@ -650,7 +753,74 @@ impl AsyncToolCommand {
     pub fn new<S: AsRef<std::ffi::OsStr>>(program: S) -> Self {
         Self {
             inner: AsyncCommand::new(program),
+            stdin: ToolStdio::default(),
+            stdout: ToolStdio::default(),
+            stderr: ToolStdio::default(),
         }
+    }
+
+    /// Adds an argument to pass to the program.
+    pub fn arg<S: AsRef<std::ffi::OsStr>>(&mut self, arg: S) -> &mut Self {
+        self.inner.arg(arg);
+        self
+    }
+
+    /// Adds multiple arguments to pass to the program.
+    pub fn args<I, S>(&mut self, args: I) -> &mut Self
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<std::ffi::OsStr>,
+    {
+        self.inner.args(args);
+        self
+    }
+
+    /// Sets the standard input (stdin) configuration for the child process.
+    pub fn stdin(&mut self, cfg: ToolStdio) -> &mut Self {
+        self.inner.stdin(Stdio::from(cfg));
+        self.stdin = cfg;
+        self
+    }
+
+    /// Sets the standard output (stdout) configuration for the child process.
+    pub fn stdout(&mut self, cfg: ToolStdio) -> &mut Self {
+        self.inner.stdout(Stdio::from(cfg));
+        self.stdout = cfg;
+        self
+    }
+
+    /// Sets the standard error (stderr) configuration for the child process.
+    pub fn stderr(&mut self, cfg: ToolStdio) -> &mut Self {
+        self.inner.stderr(Stdio::from(cfg));
+        self.stderr = cfg;
+        self
+    }
+
+    /// Sets the working directory for the child process.
+    pub fn current_dir<P: AsRef<Path>>(&mut self, dir: P) -> &mut Self {
+        self.inner.current_dir(dir);
+        self
+    }
+
+    /// Inserts or updates an environment variable mapping.
+    pub fn env<K, V>(&mut self, key: K, val: V) -> &mut Self
+    where
+        K: AsRef<std::ffi::OsStr>,
+        V: AsRef<std::ffi::OsStr>,
+    {
+        self.inner.env(key, val);
+        self
+    }
+
+    /// Adds or updates multiple environment variable mappings.
+    pub fn envs<I, K, V>(&mut self, vars: I) -> &mut Self
+    where
+        I: IntoIterator<Item = (K, V)>,
+        K: AsRef<std::ffi::OsStr>,
+        V: AsRef<std::ffi::OsStr>,
+    {
+        self.inner.envs(vars);
+        self
     }
 
     /// Executes the command as a child process, waiting for it to finish and
@@ -688,7 +858,6 @@ impl AsyncToolCommand {
             .get_program()
             .to_string_lossy()
             .to_string();
-
         if let Some(tool) = get(&program) {
             if !tool.is_installed() {
                 tracing::info!("Auto-installing missing tool: {}", tool.name());
@@ -730,22 +899,6 @@ impl AsyncToolCommand {
                     .map(|arg| arg.to_string_lossy().to_string())
                     .collect();
 
-                // Create new async command with wrapped details
-                let mut new_async_cmd = AsyncCommand::new(&wrapped_program);
-                new_async_cmd.args(&wrapped_args);
-
-                // Copy over important properties from the original command
-                if let Some(dir) = self.inner.as_std().get_current_dir() {
-                    new_async_cmd.current_dir(dir);
-                }
-
-                // Copy environment variables
-                for (key, value) in self.inner.as_std().get_envs() {
-                    if let (Some(key), Some(value)) = (key.to_str(), value) {
-                        new_async_cmd.env(key, value);
-                    }
-                }
-
                 // Log the wrapped command
                 tracing::debug!(
                     "AsyncToolCommand wrapped: {} {} -> {} {}",
@@ -755,8 +908,29 @@ impl AsyncToolCommand {
                     wrapped_args.join(" ")
                 );
 
+                // Create new async command with wrapped details
+                let mut wrapped_cmd = AsyncCommand::new(&wrapped_program);
+                wrapped_cmd.args(&wrapped_args);
+
+                // Copy over cwd
+                if let Some(dir) = self.inner.as_std().get_current_dir() {
+                    wrapped_cmd.current_dir(dir);
+                }
+
+                // Copy environment variables
+                for (key, value) in self.inner.as_std().get_envs() {
+                    if let (Some(key), Some(value)) = (key.to_str(), value) {
+                        wrapped_cmd.env(key, value);
+                    }
+                }
+
+                // Set stdio configs
+                wrapped_cmd.stdin(Stdio::from(self.stdin));
+                wrapped_cmd.stdout(Stdio::from(self.stdout));
+                wrapped_cmd.stderr(Stdio::from(self.stderr));
+
                 // Replace inner command with wrapped version
-                self.inner = new_async_cmd;
+                self.inner = wrapped_cmd;
             }
         }
 
