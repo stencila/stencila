@@ -652,9 +652,9 @@ macro_rules! json_map {
 /// variables etc.
 #[derive(Default, Debug, Clone, Copy)]
 pub enum ToolStdio {
-    #[default]
     Inherit,
     Piped,
+    #[default]
     Null,
 }
 
@@ -770,6 +770,9 @@ impl ToolCommand {
     /// If an environment manager is detected, the command will be wrapped
     /// to run within that environment.
     pub fn output(&mut self) -> Result<Output> {
+        // Set stdout and stderr to piped for output capture
+        self.stdout = ToolStdio::Piped;
+        self.stderr = ToolStdio::Piped;
         Ok(self.wrap_if_needed()?.output()?)
     }
 
@@ -963,6 +966,9 @@ impl AsyncToolCommand {
     /// If an environment manager is detected, the command will be wrapped
     /// to run within that environment.
     pub async fn output(&mut self) -> Result<std::process::Output> {
+        // Set stdout and stderr to piped for output capture
+        self.stdout = ToolStdio::Piped;
+        self.stderr = ToolStdio::Piped;
         Ok(self.wrap_if_needed().await?.output().await?)
     }
 
