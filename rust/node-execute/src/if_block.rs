@@ -1,5 +1,5 @@
 use node_contains::contains;
-use schema::{CompilationDigest, IfBlock, IfBlockClause};
+use schema::{CompilationDigest, ExecutionMode, IfBlock, IfBlockClause};
 
 use crate::{interrupt_impl, prelude::*};
 
@@ -49,7 +49,8 @@ impl Executable for IfBlock {
         if let Some(status) = executor.node_execution_status(
             self.node_type(),
             &node_id,
-            &self.execution_mode,
+            // Until dependency analysis is implemented, defaults to always executing
+            &self.execution_mode.or(Some(ExecutionMode::Always)),
             &self.options.execution_required,
         ) {
             self.options.execution_status = Some(status);

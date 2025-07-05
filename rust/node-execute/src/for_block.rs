@@ -1,5 +1,5 @@
 use codec_cbor::r#trait::CborCodec;
-use schema::{replicate, Block, ForBlock, Section, SectionType};
+use schema::{replicate, Block, ExecutionMode, ForBlock, Section, SectionType};
 
 use crate::{interrupt_impl, prelude::*};
 
@@ -65,7 +65,8 @@ impl Executable for ForBlock {
         if let Some(status) = executor.node_execution_status(
             self.node_type(),
             &node_id,
-            &self.execution_mode,
+            // Until dependency analysis is implemented, defaults to always executing
+            &self.execution_mode.or(Some(ExecutionMode::Always)),
             &self.options.execution_required,
         ) {
             self.options.execution_status = Some(status);

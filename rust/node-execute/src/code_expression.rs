@@ -46,6 +46,7 @@ impl Executable for CodeExpression {
         if let Some(status) = executor.node_execution_status(
             self.node_type(),
             &node_id,
+            // Defaults to always executing
             &self.execution_mode.or(Some(ExecutionMode::Always)),
             &self.options.execution_required,
         ) {
