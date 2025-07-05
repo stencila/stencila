@@ -355,7 +355,7 @@ impl MarkdownCodec for CodeChunk {
                 output.to_markdown(context);
             }
 
-            context.exit_node();
+            context.push_str("\n\n").exit_node();
 
             return;
         }
