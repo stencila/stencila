@@ -77,6 +77,8 @@ pub(crate) const GLOBAL_NAMES: &[&str] = &[
     "admonitions",
     "claim",
     "claims",
+    "heading",
+    "headings",
     "list",
     "lists",
     "paragraph",
@@ -1667,6 +1669,7 @@ pub(super) fn add_document_functions(env: &mut Environment, document: Arc<Query>
         // Containers
         ("admonition", NodeType::Admonition),
         ("claim", NodeType::Claim),
+        ("heading", NodeType::Heading),
         ("list", NodeType::List),
         ("paragraph", NodeType::Paragraph),
         ("section", NodeType::Section),
