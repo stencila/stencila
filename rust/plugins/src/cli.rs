@@ -1,4 +1,4 @@
-use cli_utils::ToStdout;
+use cli_utils::{color_print::cstr, ToStdout};
 use common::{
     clap::{self, Parser, Subcommand},
     eyre::Result,
@@ -11,6 +11,7 @@ use crate::{
 
 /// Manage plugins
 #[derive(Debug, Parser)]
+#[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     #[command(subcommand)]
     command: Option<Command>,
@@ -49,3 +50,35 @@ impl Cli {
         Ok(())
     }
 }
+
+pub static CLI_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># List all available plugins</dim>
+  <blue>></blue> stencila plugins
+
+  <dim># Install a plugin from a URL</dim>
+  <blue>></blue> stencila plugins install https://github.com/user/plugin.git
+
+  <dim># Install a plugin from a local directory</dim>
+  <blue>></blue> stencila plugins install ./my-plugin
+
+  <dim># Show details about a plugin</dim>
+  <blue>></blue> stencila plugins show my-plugin
+
+  <dim># Enable a plugin</dim>
+  <blue>></blue> stencila plugins enable my-plugin
+
+  <dim># Disable a plugin</dim>
+  <blue>></blue> stencila plugins disable my-plugin
+
+  <dim># Check plugin health</dim>
+  <blue>></blue> stencila plugins check my-plugin
+
+  <dim># Uninstall a plugin</dim>
+  <blue>></blue> stencila plugins uninstall my-plugin
+
+<bold><blue>Plugin Management</blue></bold>
+  Plugins can extend Stencila's functionality by adding support for
+  new formats, kernels, models, and other features.
+"
+);

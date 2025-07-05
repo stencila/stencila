@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use cli_utils::{
+    color_print::cstr,
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
     AsFormat, Code, ToStdout,
 };
@@ -24,10 +25,30 @@ use crate::Kernels;
 
 /// Manage execution kernels
 #[derive(Debug, Parser)]
+#[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     #[command(subcommand)]
     command: Option<Command>,
 }
+
+pub static CLI_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># List all available kernels</dim>
+  <blue>></blue> stencila kernels
+
+  <dim># Get information about a specific kernel</dim>
+  <blue>></blue> stencila kernels info python
+
+  <dim># List packages available to a kernel</dim>
+  <blue>></blue> stencila kernels packages r
+
+  <dim># Execute code in a kernel</dim>
+  <blue>></blue> stencila kernels execute python \"print('Hello')\"
+
+  <dim># Lint code using a kernel's linting tool integrations</dim>
+  <blue>></blue> stencila kernels lint script.py
+"
+);
 
 #[derive(Debug, Subcommand)]
 enum Command {
@@ -58,6 +79,7 @@ impl Cli {
 
 /// List the kernels available
 #[derive(Debug, Default, Args)]
+#[command(after_long_help = LIST_AFTER_LONG_HELP)]
 struct List {
     /// Only list kernels of a particular type
     #[arg(short, long)]
@@ -161,11 +183,25 @@ impl List {
     }
 }
 
+pub static LIST_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># List all available kernels</dim>
+  <blue>></blue> stencila kernels list
+
+  <dim># List only math kernels</dim>
+  <blue>></blue> stencila kernels list --type math
+
+  <dim># Output kernel list as YAML</dim>
+  <blue>></blue> stencila kernels list --as yaml
+"
+);
+
 /// Get information about a kernel
 ///
 /// Mainly used to check the version of the kernel runtime and
 /// operating system for debugging purpose.
 #[derive(Debug, Args)]
+#[command(after_long_help = INFO_AFTER_LONG_HELP)]
 struct Info {
     /// The name of the kernel to get information for
     name: String,
@@ -189,11 +225,25 @@ impl Info {
     }
 }
 
+pub static INFO_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Get information about the Python kernel</dim>
+  <blue>></blue> stencila kernels info python
+
+  <dim># Get information about the R kernel</dim>
+  <blue>></blue> stencila kernels info r
+
+  <dim># Get information about the JavaScript kernel</dim>
+  <blue>></blue> stencila kernels info javascript
+"
+);
+
 /// List packages available to a kernel
 ///
 /// Mainly used to check libraries available to a kernel
 /// for debugging purpose.
 #[derive(Debug, Args)]
+#[command(after_long_help = PACKAGES_AFTER_LONG_HELP)]
 struct Packages {
     /// The name of the kernel to list packages for
     name: String,
@@ -242,6 +292,19 @@ impl Packages {
     }
 }
 
+pub static PACKAGES_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># List all packages available to Python kernel</dim>
+  <blue>></blue> stencila kernels packages python
+
+  <dim># Filter packages by name (case insensitive)</dim>
+  <blue>></blue> stencila kernels packages python numpy
+
+  <dim># List R packages containing 'plot'</dim>
+  <blue>></blue> stencila kernels packages r plot
+"
+);
+
 /// Execute code in a kernel
 ///
 /// Creates a temporary kernel instance, executes one or more lines of code,
@@ -250,6 +313,7 @@ impl Packages {
 /// Mainly intended for quick testing of kernels during development.
 #[derive(Debug, Args)]
 #[clap(alias = "exec")]
+#[command(after_long_help = EXECUTE_AFTER_LONG_HELP)]
 struct Execute {
     /// The name of the kernel to execute code in
     name: String,
@@ -284,6 +348,22 @@ impl Execute {
     }
 }
 
+pub static EXECUTE_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Execute Python code</dim>
+  <blue>></blue> stencila kernels execute python \"print('Hello World')\"
+
+  <dim># Execute multi-line code with escaped newlines</dim>
+  <blue>></blue> stencila kernels execute python \"x = 5\\nprint(x * 2)\"
+
+  <dim># Execute code in a sandboxed environment</dim>
+  <blue>></blue> stencila kernels execute python \"import os\\nprint(os.environ)\" --box
+
+  <dim># Use the exec alias</dim>
+  <blue>></blue> stencila kernels exec r \"print(mean(c(1,2,3,4,5)))\"
+"
+);
+
 /// Evaluate a code expression in a kernel
 ///
 /// Creates a temporary kernel instance, evaluates the expression in it,
@@ -292,6 +372,7 @@ impl Execute {
 /// Mainly intended for quick testing of kernels during development.
 #[derive(Debug, Args)]
 #[clap(alias = "eval")]
+#[command(after_long_help = EVALUATE_AFTER_LONG_HELP)]
 struct Evaluate {
     /// The name of the kernel to evaluate code in
     name: String,
@@ -311,6 +392,22 @@ impl Evaluate {
         display(NodeType::CodeExpression, self.code, messages, vec![output])
     }
 }
+
+pub static EVALUATE_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Evaluate a Python expression</dim>
+  <blue>></blue> stencila kernels evaluate python \"2 + 2\"
+
+  <dim># Evaluate an R expression</dim>
+  <blue>></blue> stencila kernels evaluate r \"sqrt(16)\"
+
+  <dim># Evaluate a JavaScript expression</dim>
+  <blue>></blue> stencila kernels evaluate javascript \"Math.PI * 2\"
+
+  <dim># Use the eval alias</dim>
+  <blue>></blue> stencila kernels eval python \"sum([1, 2, 3, 4, 5])\"
+"
+);
 
 fn display(
     node_type: NodeType,
@@ -352,6 +449,7 @@ fn display(
 /// Mainly intended for testing of linting by kernels during
 /// development of Stencila.
 #[derive(Debug, Args)]
+#[command(after_long_help = LINT_AFTER_LONG_HELP)]
 struct Lint {
     /// The file to lint
     file: PathBuf,
@@ -411,3 +509,19 @@ impl Lint {
         Ok(())
     }
 }
+
+pub static LINT_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Lint a Python file</dim>
+  <blue>></blue> stencila kernels lint script.py
+
+  <dim># Lint and format a JavaScript file</dim>
+  <blue>></blue> stencila kernels lint app.js --format
+
+  <dim># Lint and fix issues where possible</dim>
+  <blue>></blue> stencila kernels lint code.r --fix
+
+  <dim># Lint with both formatting and fixing</dim>
+  <blue>></blue> stencila kernels lint style.css --format --fix
+"
+);

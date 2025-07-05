@@ -1,4 +1,5 @@
 use cli_utils::{
+    color_print::cstr,
     tabulated::{Attribute, Cell, Color},
     AsFormat, Code, Tabulated, ToStdout,
 };
@@ -15,10 +16,26 @@ use codec::{
 
 /// List the support for formats
 #[derive(Debug, Parser)]
+#[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     #[command(subcommand)]
     command: Option<Command>,
 }
+
+pub static CLI_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># List all supported formats</dim>
+  <blue>></blue> stencila formats list
+
+  <dim># Output formats as JSON</dim>
+  <blue>></blue> stencila formats list --as json
+
+<bold><blue>Format Support</blue></bold>
+  • <blue>From</blue>: Whether the format can be read/imported
+  • <blue>To</blue>: Whether the format can be written/exported
+  • <blue>Lossless</blue>: Whether conversion preserves all data
+"
+);
 
 #[derive(Debug, Subcommand)]
 enum Command {
@@ -42,11 +59,29 @@ impl Cli {
 
 /// List the support for formats
 #[derive(Default, Debug, Args)]
+#[command(after_long_help = LIST_AFTER_LONG_HELP)]
 struct List {
     /// Output the list as JSON or YAML
     #[arg(long, short)]
     r#as: Option<AsFormat>,
 }
+
+pub static LIST_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># List all supported formats in table format</dim>
+  <blue>></blue> stencila formats list
+
+  <dim># Export format information as JSON</dim>
+  <blue>></blue> stencila formats list --as json
+
+<bold><blue>Columns</blue></bold>
+  • <blue>Name</blue>: The format name
+  • <blue>Extension</blue>: Default file extension
+  • <blue>From</blue>: Can read/import this format
+  • <blue>To</blue>: Can write/export this format
+  • <blue>Lossless</blue>: Whether conversion preserves all data
+"
+);
 
 /// Specifications for a format
 #[derive(Serialize)]

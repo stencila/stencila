@@ -1,4 +1,5 @@
 use cli_utils::{
+    color_print::cstr,
     tabulated::{Attribute, Cell, Color, Tabulated},
     AsFormat, Code, ToStdout,
 };
@@ -14,10 +15,30 @@ use model::{
 
 /// Manage prompts
 #[derive(Debug, Parser)]
+#[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     #[command(subcommand)]
     command: Option<Command>,
 }
+
+pub static CLI_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># List all available prompts</dim>
+  <blue>></blue> stencila prompts
+
+  <dim># Show details about a specific prompt</dim>
+  <blue>></blue> stencila prompts show edit-text
+
+  <dim># Infer which prompt would be used for a query</dim>
+  <blue>></blue> stencila prompts infer --instruction-type create \"Make a table\"
+
+  <dim># Update builtin prompts from remote</dim>
+  <blue>></blue> stencila prompts update
+
+  <dim># Reset prompts to embedded defaults</dim>
+  <blue>></blue> stencila prompts reset
+"
+);
 
 #[derive(Debug, Subcommand)]
 enum Command {
@@ -48,12 +69,25 @@ impl Cli {
 }
 
 /// List the prompts available
+/// 
+/// Shows all available prompts with their names, descriptions, and versions.
 #[derive(Default, Debug, Args)]
+#[command(after_long_help = LIST_AFTER_LONG_HELP)]
 struct List {
     /// Output the list as JSON or YAML
     #[arg(long, short)]
     r#as: Option<AsFormat>,
 }
+
+pub static LIST_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># List all prompts in table format</dim>
+  <blue>></blue> stencila prompts list
+
+  <dim># Output prompts as JSON</dim>
+  <blue>></blue> stencila prompts list --as json
+"
+);
 
 impl List {
     async fn run(self) -> Result<()> {
@@ -104,7 +138,11 @@ impl List {
 }
 
 /// Show a prompt
+///
+/// Displays the full content and metadata of a specific prompt in the requested
+/// format.
 #[derive(Debug, Args)]
+#[command(after_long_help = SHOW_AFTER_LONG_HELP)]
 struct Show {
     /// The name of the prompt to show
     name: String,
@@ -113,6 +151,16 @@ struct Show {
     #[arg(long, short, default_value = "md")]
     to: Format,
 }
+
+pub static SHOW_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Show a prompt as Markdown</dim>
+  <blue>></blue> stencila prompts show edit-text
+
+  <dim># Show a prompt as JSON</dim>
+  <blue>></blue> stencila prompts show create-table --to json
+"
+);
 
 impl Show {
     async fn run(self) -> Result<()> {
@@ -135,9 +183,10 @@ impl Show {
 
 /// Infer a prompt from a query
 ///
-/// Useful for checking which prompt will be matched to a given
-/// instruction type, node types, and/or query
+/// Useful for checking which prompt will be matched to a given instruction
+/// type, node types, and/or query
 #[derive(Debug, Args)]
+#[command(after_long_help = INFER_AFTER_LONG_HELP)]
 struct Infer {
     /// The instruction type
     #[arg(short, long)]
@@ -150,6 +199,16 @@ struct Infer {
     /// The query
     query: Option<String>,
 }
+
+pub static INFER_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Infer prompt with a specific query</dim>
+  <blue>></blue> stencila prompts infer \"Update this paragraph based on latest data\"
+
+  <dim># Infer for a specific instruction type</dim>
+  <blue>></blue> stencila prompts infer --instruction-type create \"list of top regions\"
+"
+);
 
 impl Infer {
     #[allow(clippy::print_stderr)]
@@ -168,8 +227,20 @@ impl Infer {
 }
 
 /// Update builtin prompts
+/// 
+/// Downloads the latest versions of builtin prompts from the Stencila prompts
+/// repository. This adds new prompts and updates existing ones while preserving
+/// any custom modifications you may have made.
 #[derive(Debug, Args)]
+#[command(after_long_help = UPDATE_AFTER_LONG_HELP)]
 struct Update {}
+
+pub static UPDATE_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Update builtin prompts from https://github.com/stencila/stencila</dim>
+  <blue>></blue> stencila prompts update
+"
+);
 
 impl Update {
     async fn run(self) -> Result<()> {
@@ -182,7 +253,20 @@ impl Update {
 /// Re-initializes the builtin prompts directory to those prompts
 /// embedded in this version of Stencila
 #[derive(Debug, Args)]
+#[command(after_long_help = RESET_AFTER_LONG_HELP)]
 struct Reset {}
+
+pub static RESET_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Reset prompts to embedded defaults</dim>
+  <blue>></blue> stencila prompts reset
+
+<bold><blue>Warning</blue></bold>
+  This will overwrite any custom modifications you have
+  made to builtin prompts, restoring them to the versions
+  embedded in this Stencila release.
+"
+);
 
 impl Reset {
     async fn run(self) -> Result<()> {

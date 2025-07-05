@@ -1,4 +1,5 @@
 use cli_utils::{
+    color_print::cstr,
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
     AsFormat, Code, ToStdout,
 };
@@ -18,10 +19,37 @@ use crate::select;
 
 /// Manage generative models
 #[derive(Debug, Parser)]
+#[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
     #[command(subcommand)]
     command: Option<Command>,
 }
+
+pub static CLI_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># List all available models</dim>
+  <blue>></blue> stencila models
+
+  <dim># List models as JSON</dim>
+  <blue>></blue> stencila models list --as json
+
+  <dim># Test a model with a prompt</dim>
+  <blue>></blue> stencila models run \"Explain photosynthesis\"
+
+  <dim># Test a specific model</dim>
+  <blue>></blue> stencila models run \"Write a poem\" --model gpt-4o
+
+  <dim># Dry run to see task construction</dim>
+  <blue>></blue> stencila models run \"Hello\" --dry-run
+
+<bold><blue>Model Types</blue></bold>
+  • <blue>builtin</blue> - Built into Stencila
+  • <blue>local</blue> - Running locally (e.g. Ollama)
+  • <blue>remote</blue> - Cloud-based APIs
+  • <blue>router</blue> - Routes to other models
+  • <blue>plugin</blue> - Provided by plugins
+"
+);
 
 #[derive(Debug, Subcommand)]
 enum Command {
@@ -47,11 +75,22 @@ impl Cli {
 
 /// List the models available
 #[derive(Default, Debug, Args)]
+#[command(after_long_help = LIST_AFTER_LONG_HELP)]
 struct List {
     /// Output the list as JSON or YAML
     #[arg(long, short)]
     r#as: Option<AsFormat>,
 }
+
+pub static LIST_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># List all models in table format</dim>
+  <blue>></blue> stencila models list
+
+  <dim># Output models as YAML</dim>
+  <blue>></blue> stencila models list --as yaml
+"
+);
 
 impl List {
     async fn run(self) -> Result<()> {
@@ -145,6 +184,7 @@ impl List {
 /// returned from it.
 #[derive(Debug, Args)]
 #[clap(alias = "execute")]
+#[command(after_long_help = RUN_AFTER_LONG_HELP)]
 struct Run {
     prompt: String,
 
@@ -156,6 +196,25 @@ struct Run {
     #[arg(long)]
     dry_run: bool,
 }
+
+pub static RUN_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Run with automatic model selection</dim>
+  <blue>></blue> stencila models run \"Explain quantum computing\"
+
+  <dim># Run with a specific model</dim>
+  <blue>></blue> stencila models run \"Write a haiku\" --model gpt-3.5-turbo
+
+  <dim># Run a dry run to see task construction</dim>
+  <blue>></blue> stencila models run \"Hello world\" --dry-run
+
+  <dim># Use the execute alias</dim>
+  <blue>></blue> stencila models execute \"Summarize this text\"
+
+<bold><blue>Note</blue></bold>
+  This command is primarily for testing model routing and selection.
+"
+);
 
 impl Run {
     async fn run(self) -> Result<()> {
