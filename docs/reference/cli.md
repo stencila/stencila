@@ -364,15 +364,15 @@ Convert a document to another format
 * `--template <TEMPLATE>` — The template document to use
 
    Only supported by some formats (e.g. DOCX).
-* `--highlight` — Highlight the rendered outputs of executable nodes
-
-   Only supported by some formats (e.g. DOCX and ODT).
 * `--reproducible` — Encode executable nodes so that they are reproducible
 
    Encode links to the source of executable nodes so that edits made to rendered documents can be merged back to the source document.
 
    Only supported by some formats, and may be the default for those.
-* `--not-reproducible` — Do not encode executable nodes so that they are reproducible
+* `--highlight` — Highlight the rendered outputs of executable nodes
+
+   Only supported by some formats (e.g. DOCX and ODT). Defaults to `true` when `--reproducible` flag is used.
+* `--no-highlight` — Do not highlight the rendered outputs of executable nodes
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `--recursive` — Recursively encode the content of `IncludeBlock`s to their source file
@@ -468,15 +468,15 @@ Merge changes from another format
 * `--template <TEMPLATE>` — The template document to use
 
    Only supported by some formats (e.g. DOCX).
-* `--highlight` — Highlight the rendered outputs of executable nodes
-
-   Only supported by some formats (e.g. DOCX and ODT).
 * `--reproducible` — Encode executable nodes so that they are reproducible
 
    Encode links to the source of executable nodes so that edits made to rendered documents can be merged back to the source document.
 
    Only supported by some formats, and may be the default for those.
-* `--not-reproducible` — Do not encode executable nodes so that they are reproducible
+* `--highlight` — Highlight the rendered outputs of executable nodes
+
+   Only supported by some formats (e.g. DOCX and ODT). Defaults to `true` when `--reproducible` flag is used.
+* `--no-highlight` — Do not highlight the rendered outputs of executable nodes
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `--recursive` — Recursively encode the content of `IncludeBlock`s to their source file
@@ -538,15 +538,15 @@ The direction of synchronization can be specified by appending the to the file p
 * `--template <TEMPLATE>` — The template document to use
 
    Only supported by some formats (e.g. DOCX).
-* `--highlight` — Highlight the rendered outputs of executable nodes
-
-   Only supported by some formats (e.g. DOCX and ODT).
 * `--reproducible` — Encode executable nodes so that they are reproducible
 
    Encode links to the source of executable nodes so that edits made to rendered documents can be merged back to the source document.
 
    Only supported by some formats, and may be the default for those.
-* `--not-reproducible` — Do not encode executable nodes so that they are reproducible
+* `--highlight` — Highlight the rendered outputs of executable nodes
+
+   Only supported by some formats (e.g. DOCX and ODT). Defaults to `true` when `--reproducible` flag is used.
+* `--no-highlight` — Do not highlight the rendered outputs of executable nodes
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `--recursive` — Recursively encode the content of `IncludeBlock`s to their source file
@@ -606,6 +606,7 @@ Compile a document
 
 ###### **Options:**
 
+* `--no-save` — Do not save the document after compiling it
 * `--no-store` — Do not store the document after compiling it
 * `-f`, `--from <FROM>` — The format of the input/s
 
@@ -643,6 +644,9 @@ Lint one or more documents
 
 * `--format` — Format the file if necessary
 * `--fix` — Fix any linting issues
+* `--no-store` — Do not store the document after formatting and/or fixing it
+
+   Only applies when using `--format` or `--fix`, both of which will write a modified version of the source document back to disk and by default, a new cache of the document to the store. This flag prevent the store being updated.
 * `-a`, `--as <AS>` — Output any linting diagnostics as JSON or YAML
 
   Possible values: `json`, `yaml`
@@ -662,6 +666,7 @@ Execute a document
 
 ###### **Options:**
 
+* `--no-save` — Do not save the document after executing it
 * `--no-store` — Do not store the document after executing it
 * `-f`, `--from <FROM>` — The format of the input/s
 
@@ -776,15 +781,15 @@ Render a document
 * `--template <TEMPLATE>` — The template document to use
 
    Only supported by some formats (e.g. DOCX).
-* `--highlight` — Highlight the rendered outputs of executable nodes
-
-   Only supported by some formats (e.g. DOCX and ODT).
 * `--reproducible` — Encode executable nodes so that they are reproducible
 
    Encode links to the source of executable nodes so that edits made to rendered documents can be merged back to the source document.
 
    Only supported by some formats, and may be the default for those.
-* `--not-reproducible` — Do not encode executable nodes so that they are reproducible
+* `--highlight` — Highlight the rendered outputs of executable nodes
+
+   Only supported by some formats (e.g. DOCX and ODT). Defaults to `true` when `--reproducible` flag is used.
+* `--no-highlight` — Do not highlight the rendered outputs of executable nodes
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `--recursive` — Recursively encode the content of `IncludeBlock`s to their source file
