@@ -1,3 +1,11 @@
+//! Unified tool management.
+//!
+//! This crate provides an interface for managing various development tools
+//! including environment managers (e.g. devbox, mise, nix), programming language runtimes
+//! (e.g. python, node, r), package managers (e.g. uv, npm), linters (e.g. ruff), and conversion tools
+//! (e.g. pandoc, xelatex). It supports automatic tool discovery, installation, version
+//! management, and nested environment orchestration.
+
 use std::{
     collections::{HashMap, HashSet},
     fmt::Debug,
@@ -1124,7 +1132,7 @@ pub fn find_config_in_ancestors(start_path: &Path, config_files: &[&str]) -> Opt
 /// Searches up the directory tree from the given path (or its parent directory if
 /// the path is a file) looking for manager config files.
 /// Returns all detected managers and their config file paths.
-fn detect_managers(path: &Path, types: &[ToolType]) -> Vec<(Box<dyn Tool>, PathBuf)> {
+pub fn detect_managers(path: &Path, types: &[ToolType]) -> Vec<(Box<dyn Tool>, PathBuf)> {
     let mut detected = Vec::new();
     for manager in list()
         .into_iter()

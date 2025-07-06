@@ -20,7 +20,7 @@ use common::{
 use directories::UserDirs;
 use pathdiff::diff_paths;
 
-use crate::{detect_managers, ToolType};
+use crate::{detect_managers, AsyncToolCommand, ToolStdio, ToolType};
 
 /// Manage tools and environments used by Stencila
 ///
@@ -45,6 +45,12 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Install a tool</dim>
   <blue>></blue> stencila tools install mise
+
+  <dim># Install multiple tools</dim>
+  <blue>></blue> stencila tools install mise uv ruff
+
+  <dim># Install all dependencies from config files</dim>
+  <blue>></blue> stencila tools install
 
   <dim># Detect environment configuration in current directory</dim>
   <blue>></blue> stencila tools env
@@ -279,37 +285,75 @@ impl Show {
     }
 }
 
-/// Install a tool
+/// Install a tool or setup development environment
 ///
-/// Downloads and executes the official installation script for supported tools.
-///
-/// Installation scripts are executed with appropriate permissions and cleaned up
-/// after execution. Note that some tools may require sudo permissions.
+/// When provided with one or more tool names as arguments, installs those tools.
+/// When run without arguments, automatically detects and installs environment managers,
+/// tools, and dependencies based on configuration files found in the project directory.
 #[derive(Debug, Args)]
 #[command(after_long_help = INSTALL_AFTER_LONG_HELP)]
 struct Install {
-    /// The name of the tool to install
+    /// The name(s) of the tool(s) to install (if not provided, installs all dependencies from config files)
     #[arg(value_name = "TOOL")]
-    name: String,
+    names: Vec<String>,
+
+    /// The directory to setup when installing from config files (defaults to current directory)
+    #[arg(long, short = 'C', value_name = "DIR")]
+    path: Option<PathBuf>,
+
+    /// Skip environment manager tool installation (only when installing from configs)
+    #[arg(long)]
+    skip_env: bool,
+
+    /// Skip Python dependency installation (only when installing from configs)
+    #[arg(long)]
+    skip_python: bool,
+
+    /// Skip R dependency installation (only when installing from configs)
+    #[arg(long)]
+    skip_r: bool,
 
     /// Force installation even if the tool is already installed
     #[arg(short, long)]
     force: bool,
+
+    /// Show what would be done without executing (only when installing from configs)
+    #[arg(long)]
+    dry_run: bool,
 }
 
 pub static INSTALL_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><blue>Tool Installation Examples</blue></bold>
   <dim># Install mise (tool version manager)</dim>
   <blue>></blue> stencila tools install mise
 
   <dim># Install uv (Python package manager)</dim>
   <blue>></blue> stencila tools install uv
 
-  <dim># Install ruff (Python linter)</dim>
-  <blue>></blue> stencila tools install ruff
+  <dim># Install multiple tools at once</dim>
+  <blue>></blue> stencila tools install mise uv ruff
 
   <dim># Force reinstall an already installed tool</dim>
   <blue>></blue> stencila tools install --force ruff
+
+<bold><blue>Environment Setup Examples</blue></bold>
+  <dim># Install all dependencies from config files in current directory</dim>
+  <blue>></blue> stencila tools install
+
+  <dim># Install dependencies from config files in specific directory</dim>
+  <blue>></blue> stencila tools install -C /path/to/project
+
+  <dim># Show what would be installed without executing</dim>
+  <blue>></blue> stencila tools install --dry-run
+
+  <dim># Skip Python dependencies during setup</dim>
+  <blue>></blue> stencila tools install --skip-python
+
+<bold><blue>Setup phases (when no tool specified)</blue></bold>
+  1. Install environment managers (mise, devbox, etc.) if needed
+  2. Install tools from environment manager configs
+  3. Setup Python dependencies (pyproject.toml, requirements.txt)
+  4. Setup R dependencies (renv.lock, DESCRIPTION)
 
 <bold><blue>Supported tools</blue></bold>
   <dim># See which tools can be installed</dim>
@@ -320,8 +364,25 @@ pub static INSTALL_AFTER_LONG_HELP: &str = cstr!(
 impl Install {
     #[allow(clippy::print_stderr)]
     async fn run(self) -> Result<()> {
-        let Some(tool) = super::get(&self.name) else {
-            eprintln!("🔍 No tool with name `{}`", self.name);
+        if !self.names.is_empty() {
+            // Install specific tools
+            self.install_tools(&self.names).await
+        } else {
+            // Install from config files (setup mode)
+            self.install_from_configs().await
+        }
+    }
+
+    async fn install_tools(&self, names: &[String]) -> Result<()> {
+        for name in names {
+            self.install_tool(name).await?;
+        }
+        Ok(())
+    }
+
+    async fn install_tool(&self, name: &str) -> Result<()> {
+        let Some(tool) = super::get(name) else {
+            eprintln!("🔍 No tool with name `{}`", name);
             exit(1)
         };
 
@@ -371,6 +432,192 @@ impl Install {
                 eprintln!("❌ Failed to install {}: {}", tool.name(), e);
                 eprintln!("   Please visit {} for manual installation", tool.url());
                 exit(1)
+            }
+        }
+
+        Ok(())
+    }
+
+    async fn install_from_configs(&self) -> Result<()> {
+        let path = if let Some(path) = &self.path {
+            if !path.exists() {
+                bail!("Path does not exist: {}", path.display());
+            }
+            canonicalize(path).unwrap_or_else(|_| path.clone())
+        } else {
+            std::env::current_dir()?
+        };
+
+        eprintln!(
+            "🔧 Installing dependencies from config files in {}",
+            strip_home_dir(&path)
+        );
+
+        if !self.skip_env {
+            self.install_environment_managers(&path).await?;
+        }
+
+        if !self.skip_python {
+            self.install_python_dependencies(&path).await?;
+        }
+
+        if !self.skip_r {
+            self.install_r_dependencies(&path).await?;
+        }
+
+        eprintln!("🎉 Installation complete!");
+        Ok(())
+    }
+
+    async fn install_environment_managers(&self, path: &Path) -> Result<()> {
+        let managers = detect_managers(path, &[ToolType::Environments]);
+
+        if managers.is_empty() {
+            if self.dry_run {
+                eprintln!("📋 Would check for environment managers (none found)");
+            }
+            return Ok(());
+        }
+
+        for (manager, config_path) in managers {
+            if self.dry_run {
+                eprintln!(
+                    "📋 Would install tools from {} using {}",
+                    strip_home_dir(&config_path),
+                    manager.name()
+                );
+                continue;
+            }
+
+            eprintln!(
+                "🔧 Installing tools from {} using {}",
+                strip_home_dir(&config_path),
+                manager.name()
+            );
+
+            // Install the environment manager if needed
+            if !manager.is_installed() {
+                eprintln!("📥 Installing {}", manager.name());
+                super::install(manager.as_ref(), self.force).await?;
+            }
+
+            // Install tools from the environment manager config
+            let status = AsyncToolCommand::new(manager.executable_name())
+                .arg("install")
+                .current_dir(path)
+                .stdout(ToolStdio::Inherit)
+                .stderr(ToolStdio::Inherit)
+                .status()
+                .await?;
+            if !status.success() {
+                bail!(
+                    "Failed to install tools from {}",
+                    strip_home_dir(&config_path)
+                );
+            }
+        }
+
+        Ok(())
+    }
+
+    async fn install_python_dependencies(&self, path: &Path) -> Result<()> {
+        let pyproject_path = path.join("pyproject.toml");
+        let requirements_path = path.join("requirements.txt");
+
+        if pyproject_path.exists() {
+            if self.dry_run {
+                eprintln!("📋 Would install Python dependencies from pyproject.toml");
+                return Ok(());
+            }
+
+            eprintln!("🐍 Installing dependencies from pyproject.toml");
+
+            // Install dependencies (creates venv automatically if needed)
+            let status = AsyncToolCommand::new("uv")
+                .arg("sync")
+                .current_dir(path)
+                .stdout(ToolStdio::Inherit)
+                .stderr(ToolStdio::Inherit)
+                .status()
+                .await?;
+            if !status.success() {
+                bail!("Failed to install Python dependencies from pyproject.toml");
+            }
+        } else if requirements_path.exists() {
+            if self.dry_run {
+                eprintln!("📋 Would install Python dependencies from requirements.txt");
+                return Ok(());
+            }
+
+            eprintln!("🐍 Installing dependencies from requirements.txt");
+
+            // Create virtual environment first (uv pip requires it)
+            let status = AsyncToolCommand::new("uv")
+                .arg("venv")
+                .current_dir(path)
+                .stdout(ToolStdio::Inherit)
+                .stderr(ToolStdio::Inherit)
+                .status()
+                .await?;
+            if !status.success() {
+                bail!("Failed to create Python virtual environment");
+            }
+
+            // Install dependencies
+            let status = AsyncToolCommand::new("uv")
+                .args(&["pip", "install", "-r", "requirements.txt"])
+                .current_dir(path)
+                .stdout(ToolStdio::Inherit)
+                .stderr(ToolStdio::Inherit)
+                .status()
+                .await?;
+            if !status.success() {
+                bail!("Failed to install Python dependencies from requirements.txt");
+            }
+        }
+
+        Ok(())
+    }
+
+    async fn install_r_dependencies(&self, path: &Path) -> Result<()> {
+        let renv_path = path.join("renv.lock");
+        let description_path = path.join("DESCRIPTION");
+
+        if renv_path.exists() {
+            if self.dry_run {
+                eprintln!("📋 Would install R dependencies from renv.lock");
+                return Ok(());
+            }
+
+            eprintln!("📦 Installing dependencies from renv.lock");
+
+            let status = AsyncToolCommand::new("Rscript")
+                .args(&["-e", "invisible(renv::restore())"])
+                .current_dir(path)
+                .stdout(ToolStdio::Inherit)
+                .stderr(ToolStdio::Inherit)
+                .status()
+                .await?;
+            if !status.success() {
+                bail!("Failed to install R dependencies from renv.lock");
+            }
+        } else if description_path.exists() {
+            if self.dry_run {
+                eprintln!("📋 Would install R dependencies from DESCRIPTION");
+                return Ok(());
+            }
+
+            eprintln!("📦 Installing dependencies from DESCRIPTION file");
+
+            let status = AsyncToolCommand::new("Rscript")
+                .args(&["-e", "invisible(renv::install())"])
+                .current_dir(path)
+                .stdout(ToolStdio::Inherit)
+                .stderr(ToolStdio::Inherit)
+                .status()
+                .await?;
+            if !status.success() {
+                bail!("Failed to install R dependencies from DESCRIPTION file");
             }
         }
 
@@ -505,7 +752,7 @@ impl Run {
         let cmd = &self.command[0];
         let args = &self.command[1..];
 
-        let mut command = crate::AsyncToolCommand::new(cmd);
+        let mut command = AsyncToolCommand::new(cmd);
         command.args(args);
 
         if let Some(cwd) = &self.cwd {
