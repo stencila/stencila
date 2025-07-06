@@ -107,22 +107,7 @@ class EncodeContext {
     if (value === null || value === undefined) return ''
     const attrName = this.toKebabCase(name)
     const attrValue = this.escapeAttributeValue(value)
-
-    // Smart quote style matching expected HTML output:
-    // - Empty strings use single quotes: attr=''
-    // - Simple alphanumeric values and URLs use no quotes: attr=value
-    // - Complex values use double quotes: attr="complex value"
-    if (attrValue === '') {
-      return ` ${attrName}=''`
-    } else if (
-      /^[A-Za-z][A-Za-z0-9._-]*$/.test(attrValue) ||
-      /^\d+$/.test(attrValue) ||
-      /^https?:\/\/[A-Za-z0-9._-]+$/.test(attrValue)
-    ) {
-      return ` ${attrName}=${attrValue}`
-    } else {
-      return ` ${attrName}="${attrValue}"`
-    }
+    return ` ${attrName}="${attrValue}"`
   }
 
   /**
@@ -284,10 +269,10 @@ interface FieldSchema {
 const NODE_SCHEMAS: Partial<Record<NodeType, NodeSchema>> = {
   Admonition: {
     fields: {
-      content: { element: 'aside' }, // Semantic aside element
-      title: { element: 'p' }, // Title in p element
       admonitionType: { attribute: 'admonition-type' }, // Custom attribute name
       isFolded: { attribute: 'is-folded' }, // Boolean attribute
+      title: { element: 'p' }, // Title in p element
+      content: { element: 'aside' }, // Semantic aside element
     },
   },
 

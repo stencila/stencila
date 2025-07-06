@@ -10,12 +10,10 @@ import { encode } from './html'
 // Path to the examples/conversion directory
 const EXAMPLES_PATH = resolve(__dirname, '../../../examples/conversion')
 
-// Helper to normalize HTML for comparison
+// Helper to normalize HTML for comparison and make it easier to
+// see differences
 async function normalizeHtml(html: string): Promise<string> {
-  const normalized = html
-    // Normalize all id attributes to xxx
-    .replace(/\bid="[^"]*"/g, 'id=xxx')
-
+  const normalized = html.replace(/\bid="[^"]*"/g, 'id=xxx')
   return await format(normalized, {
     parser: 'html',
     printWidth: 80,
