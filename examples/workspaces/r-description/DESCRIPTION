@@ -1,0 +1,15 @@
+Package: example-package
+Title: Example R Package
+Version: 0.1.0
+Description: An example R package with dependencies.
+Depends: 
+    R (>= 4.1.0)
+Imports:
+    ggplot2,
+    dplyr,
+    readr
+Suggests:
+    testthat (>= 3.0.0)
+License: MIT
+Encoding: UTF-8
+RoxygenNote: 7.2.3
