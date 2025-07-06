@@ -16,6 +16,7 @@ fix: install
 # Run linting checks
 lint: install
 	npm run lint
+	npm run typecheck
 
 # Run tests
 test: install

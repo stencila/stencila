@@ -54,7 +54,10 @@
     "audit": "better-npm-audit audit",
     "fix": "eslint --fix 'src/**/*.ts' && prettier --write .",
     "lint": "eslint 'src/**/*.ts' && prettier --check .",
-    "test": "tsc --skipLibCheck --noEmit",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "typecheck": "tsc --skipLibCheck --noEmit",
     "e2e": "playwright test",
     "start": "parcel watch",
     "build": "cross-env NODE_ENV=production parcel build --target default --no-scope-hoist",
@@ -118,6 +121,9 @@
     "glob": "11.0.3",
     "parcel": "2.15.4",
     "postcss-import": "16.1.1",
-    "tsx": "4.20.3"
+    "tsx": "4.20.3",
+    "vitest": "^1.6.0",
+    "@vitest/ui": "^1.6.0",
+    "@vitest/coverage-v8": "^1.6.0"
   }
 }
