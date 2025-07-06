@@ -42,6 +42,7 @@ use environments::*;
 use execution::*;
 use linting::*;
 use packages::*;
+pub use packages::{ensure_package_installed, get_package, Package};
 
 pub mod cli;
 mod collaboration;

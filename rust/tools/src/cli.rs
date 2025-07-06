@@ -20,7 +20,9 @@ use common::{
 use directories::UserDirs;
 use pathdiff::diff_paths;
 
-use crate::{detect_managers, AsyncToolCommand, ToolStdio, ToolType};
+use crate::{
+    detect_managers, ensure_package_installed, get_package, AsyncToolCommand, ToolStdio, ToolType,
+};
 
 /// Manage tools and environments used by Stencila
 ///
@@ -591,6 +593,11 @@ impl Install {
 
             eprintln!("📦 Installing dependencies from renv.lock");
 
+            // Ensure renv is installed before using it
+            if let Some(renv_package) = get_package("renv") {
+                ensure_package_installed(renv_package.as_ref()).await?;
+            }
+
             let status = AsyncToolCommand::new("Rscript")
                 .args(&["-e", "invisible(renv::restore())"])
                 .current_dir(path)
@@ -608,6 +615,11 @@ impl Install {
             }
 
             eprintln!("📦 Installing dependencies from DESCRIPTION file");
+
+            // Ensure renv is installed before using it
+            if let Some(renv_package) = get_package("renv") {
+                ensure_package_installed(renv_package.as_ref()).await?;
+            }
 
             let status = AsyncToolCommand::new("Rscript")
                 .args(&["-e", "invisible(renv::install())"])
