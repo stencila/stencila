@@ -252,8 +252,9 @@ impl DomEncodeContext {
 
     /// Push an attribute value onto the current element
     fn push_attr_value(&mut self, value: &str) {
-        if value.is_empty() || value.contains(['"', '\'', ' ', '\t', '\n', '>', '<']) {
-            // Use single quoting (more terse for JSON attributes) only if necessary
+        if value.is_empty() || value.contains(['"', '\'', ' ', '\t', '\n', '\\', '/', '>', '<']) {
+            // Use single quoting (more terse for JSON attributes because inner double
+            // quotes do not need escaping)
             let escaped = encode_single_quoted_attribute(value);
             self.content.push('\'');
             self.content.push_str(&escaped);
@@ -327,6 +328,16 @@ impl DomEncodeContext {
             self.content.push_str(&name);
             self.content.push('>');
         };
+
+        self
+    }
+
+    /// Exit a "void" HTML element e.g <img/>
+    pub fn exit_elem_void(&mut self) -> &mut Self {
+        if let Some(..) = self.elements.pop() {
+            self.content.pop();
+            self.content.push_str("/>");
+        }
 
         self
     }

@@ -215,7 +215,10 @@ impl DomCodec for ImageObject {
                     None => self.content_url.to_string(),
                 };
 
-                context.enter_elem("img").push_attr("src", &src).exit_elem();
+                context
+                    .enter_elem("img")
+                    .push_attr("src", &src)
+                    .exit_elem_void();
 
                 // If the document image is not set yet, then set it
                 if context.image().is_none() {
@@ -226,7 +229,7 @@ impl DomCodec for ImageObject {
                 context
                     .enter_elem("img")
                     .push_attr("src", &self.content_url)
-                    .exit_elem();
+                    .exit_elem_void();
             }
         }
 

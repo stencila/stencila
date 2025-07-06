@@ -8,7 +8,7 @@
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>This is a paragraph with</stencila-text>
-        <stencila-audio-object id=xxx depth=2 ancestors=Article.Paragraph content-url=https://example.org/cat.mp3 caption='[{"type":"Text","value":{"string":"audio"}}]'>
+        <stencila-audio-object id=xxx depth=2 ancestors=Article.Paragraph content-url='https://example.org/cat.mp3' caption='[{"type":"Text","value":{"string":"audio"}}]'>
         </stencila-audio-object>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
         <stencila-code-expression id=xxx depth=2 ancestors=Article.Paragraph code='code expression'>
@@ -24,16 +24,15 @@
           </em>
         </stencila-emphasis>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
-        <stencila-image-object id=xxx depth=2 ancestors=Article.Paragraph content-url=https://example.org/cat.jpg>
-          <img src=https://example.org/cat.jpg>
-          </img>
+        <stencila-image-object id=xxx depth=2 ancestors=Article.Paragraph content-url='https://example.org/cat.jpg'>
+          <img src='https://example.org/cat.jpg'/>
           <span slot=caption>
             <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.ImageObject>image</stencila-text>
           </span>
         </stencila-image-object>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
-        <stencila-link id=xxx depth=2 ancestors=Article.Paragraph target=https://example.org>
-          <a href=https://example.org>
+        <stencila-link id=xxx depth=2 ancestors=Article.Paragraph target='https://example.org'>
+          <a href='https://example.org'>
             <span slot=content>
               <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.Link>link</stencila-text>
             </span>
@@ -98,12 +97,12 @@
           </u>
         </stencila-underline>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
-        <stencila-video-object id=xxx depth=2 ancestors=Article.Paragraph content-url=https://example.org/cat.mp4 caption='[{"type":"Text","value":{"string":"video"}}]'>
+        <stencila-video-object id=xxx depth=2 ancestors=Article.Paragraph content-url='https://example.org/cat.mp4' caption='[{"type":"Text","value":{"string":"video"}}]'>
         </stencila-video-object>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>.</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-call-block id=xxx depth=1 ancestors=Article source=this/is/a/call>
+    <stencila-call-block id=xxx depth=1 ancestors=Article source='this/is/a/call'>
     </stencila-call-block>
     <stencila-claim id=xxx depth=1 ancestors=Article claim-type=Statement>
       <aside slot=content>
@@ -164,7 +163,7 @@
         </stencila-if-block-clause>
       </div>
     </stencila-if-block>
-    <stencila-include-block id=xxx depth=1 ancestors=Article source=this/is/an/include>
+    <stencila-include-block id=xxx depth=1 ancestors=Article source='this/is/an/include'>
     </stencila-include-block>
     <stencila-list id=xxx depth=1 ancestors=Article order=Unordered>
       <ul slot=items>
