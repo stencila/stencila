@@ -10,9 +10,9 @@ fn example_workspace_path(name: &str) -> PathBuf {
     let manifest_dir = env!("CARGO_MANIFEST_DIR");
     PathBuf::from(manifest_dir)
         .parent()
-        .unwrap()
+        .expect("should exist")
         .parent()
-        .unwrap()
+        .expect("should exist")
         .join("examples")
         .join("workspaces")
         .join(name)
@@ -56,7 +56,7 @@ async fn test_install_dry_run_all_workspaces() -> Result<()> {
             "install",
             "--dry-run",
             "-C",
-            workspace_path.to_str().unwrap(),
+            workspace_path.to_str().expect("to be ok"),
         ])?;
 
         // Should not crash
@@ -81,7 +81,7 @@ async fn test_install_with_skip_flags() -> Result<()> {
         "--dry-run",
         "--skip-python",
         "-C",
-        workspace_path.to_str().unwrap(),
+        workspace_path.to_str().expect("to be ok"),
     ])?;
     cli.run().await?;
 
@@ -92,7 +92,7 @@ async fn test_install_with_skip_flags() -> Result<()> {
         "--dry-run",
         "--skip-r",
         "-C",
-        workspace_path.to_str().unwrap(),
+        workspace_path.to_str().expect("to be ok"),
     ])?;
     cli.run().await?;
 
@@ -103,7 +103,7 @@ async fn test_install_with_skip_flags() -> Result<()> {
         "--dry-run",
         "--skip-env",
         "-C",
-        workspace_path.to_str().unwrap(),
+        workspace_path.to_str().expect("to be ok"),
     ])?;
     cli.run().await?;
 
@@ -121,7 +121,7 @@ async fn test_install_with_force_flag() -> Result<()> {
         "--dry-run",
         "--force",
         "-C",
-        workspace_path.to_str().unwrap(),
+        workspace_path.to_str().expect("to be ok"),
     ])?;
 
     cli.run().await?;
@@ -163,7 +163,7 @@ fn test_detect_mise_manager() {
 
 /// Test that devbox.json detection works correctly
 #[test]
-fn test_detect_devbox_manager() {
+fn test_detect_devbox_manager() -> Result<()> {
     let workspace_path = example_workspace_path("devbox-python-r");
     let managers = detect_managers(&workspace_path, &[ToolType::Environments]);
 
@@ -178,11 +178,13 @@ fn test_detect_devbox_manager() {
         "Should detect devbox as a manager"
     );
 
-    let (_, config_path) = devbox_manager.unwrap();
+    let (_, config_path) = devbox_manager.expect("to be ok");
     assert!(
         config_path.ends_with("devbox.json"),
         "Config path should be devbox.json"
     );
+
+    Ok(())
 }
 
 /// Test that environment manager detection from parent directories works correctly
@@ -251,17 +253,16 @@ fn test_no_language_dependencies() {
 
 /// Test install behavior in workspace with multiple config types
 #[test]
-fn test_mixed_workspace_detection() {
-    let temp_dir = TempDir::new().unwrap();
+fn test_mixed_workspace_detection() -> Result<()> {
+    let temp_dir = TempDir::new()?;
     let temp_path = temp_dir.path();
 
     // Create multiple config files
     std::fs::write(
         temp_path.join("pyproject.toml"),
         "[project]\nname = \"test\"",
-    )
-    .unwrap();
-    std::fs::write(temp_path.join("mise.toml"), "[tools]\npython = \"3.11\"").unwrap();
+    )?;
+    std::fs::write(temp_path.join("mise.toml"), "[tools]\npython = \"3.11\"")?;
 
     // Test environment manager detection
     let env_managers = detect_managers(temp_path, &[ToolType::Environments]);
@@ -277,6 +278,8 @@ fn test_mixed_workspace_detection() {
         has_language_dependencies_helper(temp_path),
         "Should detect Python dependencies"
     );
+
+    Ok(())
 }
 
 /// Test language dependency detection for determining setup behavior
@@ -320,7 +323,7 @@ async fn test_install_multiple_tools() -> Result<()> {
 
     // Should not crash when installing multiple tools
     let result = cli.run().await;
-    
+
     // The install might fail if tools don't support dry-run mode, but it shouldn't crash
     // We just check that the command parsing and basic execution works
     match result {
@@ -375,64 +378,64 @@ fn test_comprehensive_setup_plan() {
 
 /// Test that detection works correctly for different file types
 #[test]
-fn test_file_type_detection_specificity() {
-    let temp_dir = TempDir::new().unwrap();
+fn test_file_type_detection_specificity() -> Result<()> {
+    let temp_dir = TempDir::new()?;
     let temp_path = temp_dir.path();
 
     // Test each Python file type individually
     std::fs::write(
         temp_path.join("pyproject.toml"),
         "[project]\nname = \"test\"",
-    )
-    .unwrap();
+    )?;
     assert!(
         has_language_dependencies_helper(temp_path),
         "Should detect pyproject.toml"
     );
-    std::fs::remove_file(temp_path.join("pyproject.toml")).unwrap();
+    std::fs::remove_file(temp_path.join("pyproject.toml"))?;
 
-    std::fs::write(temp_path.join("requirements.txt"), "requests").unwrap();
+    std::fs::write(temp_path.join("requirements.txt"), "requests")?;
     assert!(
         has_language_dependencies_helper(temp_path),
         "Should detect requirements.txt"
     );
-    std::fs::remove_file(temp_path.join("requirements.txt")).unwrap();
+    std::fs::remove_file(temp_path.join("requirements.txt"))?;
 
     // Test each R file type individually
-    std::fs::write(temp_path.join("renv.lock"), "{}").unwrap();
+    std::fs::write(temp_path.join("renv.lock"), "{}")?;
     assert!(
         has_language_dependencies_helper(temp_path),
         "Should detect renv.lock"
     );
-    std::fs::remove_file(temp_path.join("renv.lock")).unwrap();
+    std::fs::remove_file(temp_path.join("renv.lock"))?;
 
-    std::fs::write(temp_path.join("DESCRIPTION"), "Package: test").unwrap();
+    std::fs::write(temp_path.join("DESCRIPTION"), "Package: test")?;
     assert!(
         has_language_dependencies_helper(temp_path),
         "Should detect DESCRIPTION"
     );
-    std::fs::remove_file(temp_path.join("DESCRIPTION")).unwrap();
+    std::fs::remove_file(temp_path.join("DESCRIPTION"))?;
 
     // Verify empty directory has no deps
     assert!(
         !has_language_dependencies_helper(temp_path),
         "Empty directory should have no deps"
     );
+
+    Ok(())
 }
 
 /// Test environment manager detection with multiple configs
 #[test]
-fn test_multiple_environment_managers() {
-    let temp_dir = TempDir::new().unwrap();
+fn test_multiple_environment_managers() -> Result<()> {
+    let temp_dir = TempDir::new()?;
     let temp_path = temp_dir.path();
 
     // Create configs for multiple environment managers
-    std::fs::write(temp_path.join("mise.toml"), "[tools]\npython = \"3.11\"").unwrap();
+    std::fs::write(temp_path.join("mise.toml"), "[tools]\npython = \"3.11\"")?;
     std::fs::write(
         temp_path.join("devbox.json"),
         r#"{"packages": ["python@3.11"]}"#,
-    )
-    .unwrap();
+    )?;
 
     let managers = detect_managers(temp_path, &[ToolType::Environments]);
 
@@ -441,4 +444,6 @@ fn test_multiple_environment_managers() {
     let manager_names: Vec<&str> = managers.iter().map(|(m, _)| m.name()).collect();
     assert!(manager_names.contains(&"mise"), "Should detect mise");
     assert!(manager_names.contains(&"devbox"), "Should detect devbox");
+
+    Ok(())
 }

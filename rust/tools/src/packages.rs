@@ -54,6 +54,7 @@ pub fn get_package(name: &str) -> Option<Box<dyn Package>> {
 ///
 /// This is a convenience function that checks if the package is installed and
 /// installs it if not, with proper error handling and progress output.
+#[allow(clippy::print_stderr)]
 pub async fn ensure_package_installed(package: &dyn Package) -> Result<()> {
     if !package.is_installed() {
         eprintln!("📥 Installing {}...", package.name());
@@ -230,7 +231,7 @@ impl Package for Renv {
 
     fn is_installed(&self) -> bool {
         std::process::Command::new("Rscript")
-            .args(&["-e", "library(renv)"])
+            .args(["-e", "library(renv)"])
             .output()
             .map(|output| output.status.success())
             .unwrap_or(false)
@@ -238,7 +239,7 @@ impl Package for Renv {
 
     fn install_tool_command(&self) -> Option<AsyncToolCommand> {
         let mut command = AsyncToolCommand::new("Rscript");
-        command.args(&[
+        command.args([
             "-e",
             "install.packages(c('pak', 'renv'), repos='https://cran.rstudio.com/')",
         ]);

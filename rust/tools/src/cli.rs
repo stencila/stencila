@@ -364,7 +364,6 @@ pub static INSTALL_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl Install {
-    #[allow(clippy::print_stderr)]
     async fn run(self) -> Result<()> {
         if !self.names.is_empty() {
             // Install specific tools
@@ -382,6 +381,7 @@ impl Install {
         Ok(())
     }
 
+    #[allow(clippy::print_stderr)]
     async fn install_tool(&self, name: &str) -> Result<()> {
         let Some(tool) = super::get(name) else {
             eprintln!("🔍 No tool with name `{}`", name);
@@ -440,6 +440,7 @@ impl Install {
         Ok(())
     }
 
+    #[allow(clippy::print_stderr)]
     async fn install_from_configs(&self) -> Result<()> {
         let path = if let Some(path) = &self.path {
             if !path.exists() {
@@ -471,6 +472,7 @@ impl Install {
         Ok(())
     }
 
+    #[allow(clippy::print_stderr)]
     async fn install_environment_managers(&self, path: &Path) -> Result<()> {
         let managers = detect_managers(path, &[ToolType::Environments]);
 
@@ -522,6 +524,7 @@ impl Install {
         Ok(())
     }
 
+    #[allow(clippy::print_stderr)]
     async fn install_python_dependencies(&self, path: &Path) -> Result<()> {
         let pyproject_path = path.join("pyproject.toml");
         let requirements_path = path.join("requirements.txt");
@@ -567,7 +570,7 @@ impl Install {
 
             // Install dependencies
             let status = AsyncToolCommand::new("uv")
-                .args(&["pip", "install", "-r", "requirements.txt"])
+                .args(["pip", "install", "-r", "requirements.txt"])
                 .current_dir(path)
                 .stdout(ToolStdio::Inherit)
                 .stderr(ToolStdio::Inherit)
@@ -581,6 +584,7 @@ impl Install {
         Ok(())
     }
 
+    #[allow(clippy::print_stderr)]
     async fn install_r_dependencies(&self, path: &Path) -> Result<()> {
         let renv_path = path.join("renv.lock");
         let description_path = path.join("DESCRIPTION");
@@ -599,7 +603,7 @@ impl Install {
             }
 
             let status = AsyncToolCommand::new("Rscript")
-                .args(&["-e", "invisible(renv::restore())"])
+                .args(["-e", "invisible(renv::restore())"])
                 .current_dir(path)
                 .stdout(ToolStdio::Inherit)
                 .stderr(ToolStdio::Inherit)
@@ -622,7 +626,7 @@ impl Install {
             }
 
             let status = AsyncToolCommand::new("Rscript")
-                .args(&["-e", "invisible(renv::install())"])
+                .args(["-e", "invisible(renv::install())"])
                 .current_dir(path)
                 .stdout(ToolStdio::Inherit)
                 .stderr(ToolStdio::Inherit)
