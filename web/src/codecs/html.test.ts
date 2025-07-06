@@ -2,6 +2,7 @@ import { readFileSync, readdirSync, existsSync } from 'fs'
 import { resolve, join } from 'path'
 
 import { Node } from '@stencila/types'
+import { format } from 'prettier'
 import { describe, it, expect } from 'vitest'
 
 import { encode } from './html'
@@ -10,16 +11,19 @@ import { encode } from './html'
 const EXAMPLES_PATH = resolve(__dirname, '../../../examples/conversion')
 
 // Helper to normalize HTML for comparison
-function normalizeHtml(html: string): string {
-  return (
-    html
-      // Normalize all id attributes to xxx
-      .replace(/\bid="[^"]*"/g, 'id=xxx')
-      // Normalize whitespace
-      .replace(/\s+/g, ' ')
-      .replace(/>\s+</g, '><')
-      .trim()
-  )
+async function normalizeHtml(html: string): Promise<string> {
+  const normalized = html
+    // Normalize all id attributes to xxx
+    .replace(/\bid="[^"]*"/g, 'id=xxx')
+
+  return await format(normalized, {
+    parser: 'html',
+    printWidth: 80,
+    tabWidth: 2,
+    useTabs: false,
+    htmlWhitespaceSensitivity: 'ignore',
+    bracketSameLine: false,
+  })
 }
 
 // Helper to read JSON file as a Stencila Node
@@ -71,10 +75,10 @@ describe('encode:golden', () => {
   const testCases = getTestCases()
 
   testCases.forEach(({ name, jsonPath, htmlPath }) => {
-    it(`should correctly encode ${name}`, () => {
+    it(`encode:golden:${name}`, async () => {
       const jsonNode = readJson(jsonPath)
-      const expectedHtml = normalizeHtml(readHtml(htmlPath))
-      const actualHtml = normalizeHtml(encode(jsonNode))
+      const expectedHtml = await normalizeHtml(readHtml(htmlPath))
+      const actualHtml = await normalizeHtml(encode(jsonNode))
       expect(actualHtml).toBe(expectedHtml)
     })
   })

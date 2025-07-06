@@ -33,22 +33,7 @@
  * 4. Update corresponding TypeScript schemas and encoders
  */
 
-import type {
-  Admonition,
-  Article,
-  Emphasis,
-  Heading,
-  Link,
-  Node,
-  NodeType,
-  Paragraph,
-  Strikeout,
-  Strong,
-  Subscript,
-  Superscript,
-  Text,
-  Underline,
-} from '@stencila/types'
+import type { Heading, Link, Node, NodeType, Text } from '@stencila/types'
 
 /**
  * Context for DOM encoding that tracks HTML generation state
@@ -81,7 +66,10 @@ class EncodeContext {
 
     // Always add a default ID (will be normalized in tests)
     const id = nodeId || 'xxx'
-    let attrs = this.formatAttribute('id', id) + this.formatAttribute('depth', this.ancestors.length) + this.formatAttribute('ancestors', this.ancestors.join('.'))
+    let attrs =
+      this.formatAttribute('id', id) +
+      this.formatAttribute('depth', this.ancestors.length) +
+      this.formatAttribute('ancestors', this.ancestors.join('.'))
     if (this.ancestors.length === 0) {
       attrs += ' root'
     }
@@ -119,14 +107,18 @@ class EncodeContext {
     if (value === null || value === undefined) return ''
     const attrName = this.toKebabCase(name)
     const attrValue = this.escapeAttributeValue(value)
-    
+
     // Smart quote style matching expected HTML output:
     // - Empty strings use single quotes: attr=''
-    // - Simple alphanumeric values use no quotes: attr=value
+    // - Simple alphanumeric values and URLs use no quotes: attr=value
     // - Complex values use double quotes: attr="complex value"
     if (attrValue === '') {
       return ` ${attrName}=''`
-    } else if (/^[A-Za-z][A-Za-z0-9._-]*$/.test(attrValue) || /^\d+$/.test(attrValue)) {
+    } else if (
+      /^[A-Za-z][A-Za-z0-9._-]*$/.test(attrValue) ||
+      /^\d+$/.test(attrValue) ||
+      /^https?:\/\/[A-Za-z0-9._-]+$/.test(attrValue)
+    ) {
       return ` ${attrName}=${attrValue}`
     } else {
       return ` ${attrName}="${attrValue}"`
@@ -285,51 +277,78 @@ interface FieldSchema {
  * These schemas are primarily derived from the Rust struct definitions in
  * `../../rust/schema/src/types/*.rs`.
  * When updating, check for new `#[dom(...)]` attributes there.
+ *
+ * PREFERRED APPROACH: Most node types should use schema-driven encoding here.
+ * This mimics the Rust derive macro behavior and is easier to maintain.
  */
-const NODE_SCHEMAS: Record<NodeType, NodeSchema> = {
-  // Block-level container nodes
-  Article: {
-    fields: {
-      authors: { element: 'span' },
-      content: { element: null }, // Direct content, no wrapper
-      title: { element: 'h1' },
-      abstract: { element: 'section' },
-      references: { element: 'section' },
-      compilationDigest: { skip: true },
-      executionDigest: { skip: true },
-      $schema: {}, // Becomes attribute
-    },
-  },
-
-  // Admonition with semantic aside element
+const NODE_SCHEMAS: Partial<Record<NodeType, NodeSchema>> = {
   Admonition: {
     fields: {
-      content: { element: 'aside' },
-      title: { element: 'p' },
-      admonitionType: { attribute: 'admonition-type' },
-      isFolded: { attribute: 'is-folded' },
+      content: { element: 'aside' }, // Semantic aside element
+      title: { element: 'p' }, // Title in p element
+      admonitionType: { attribute: 'admonition-type' }, // Custom attribute name
+      isFolded: { attribute: 'is-folded' }, // Boolean attribute
     },
   },
 
-  // Paragraph with semantic p element
+  Article: {
+    fields: {
+      $schema: { skip: true },
+      abstract: { element: 'section' },
+      authors: { element: 'span' },
+      compilationDigest: { skip: true },
+      content: { element: 'section' },
+      executionDigest: { skip: true },
+      references: { element: 'section' },
+      title: { element: 'h1' },
+    },
+  },
+
+  Emphasis: {
+    element: 'em',
+    fields: {
+      content: { element: 'none' },
+    },
+  },
+
   Paragraph: {
     fields: {
       content: { element: 'p' },
     },
   },
 
-  // Text nodes render directly without wrapper
-  Text: {
+  Strikeout: {
+    element: 's',
     fields: {
-      value: { element: null },
+      content: { element: 'none' },
     },
   },
 
-  // Headings with level-based elements
-  Heading: {
+  Strong: {
+    element: 'strong',
     fields: {
-      content: { element: null }, // Will be wrapped in h1-h6 based on level
-      level: {},
+      content: { element: 'none' },
+    },
+  },
+
+  Subscript: {
+    element: 'sub',
+    fields: {
+      content: { element: 'none' },
+    },
+  },
+
+  Superscript: {
+    element: 'sup',
+    fields: {
+      content: { element: 'none' },
+    },
+  },
+
+  Underline: {
+    element: 'u',
+    fields: {
+      content: { element: 'none' },
     },
   },
 }
@@ -337,123 +356,15 @@ const NODE_SCHEMAS: Record<NodeType, NodeSchema> = {
 /**
  * Manual encoders for node types that need custom logic
  *
- * These mirror the manual `impl DomCodec` implementations in Rust
- * found in `../../rust/schema/src/implem/*.rs`.
+ * ONLY USE WHEN NECESSARY: These should only exist if there is a corresponding
+ * manual `impl DomCodec for <NodeType>` in `../../rust/schema/src/implem/*.rs`.
+ * Most node types should use schema-driven encoding in NODE_SCHEMAS instead.
  */
 const MANUAL_ENCODERS: Partial<
   Record<NodeType, (node: Node, context: EncodeContext) => void>
 > = {
   /**
-   * Text node encoder - renders text directly
-   *
-   * Mirrors the Text implementation in `../../rust/schema/src/implem/text.rs`
-   */
-  Text: (node: Text, context: EncodeContext) => {
-    context.enterNode('Text' as NodeType)
-
-    let text = node.value || ''
-
-    // Handle Cord type - extract string value
-    if (typeof text === 'object' && text !== null && 'string' in text) {
-      text = text.string
-    }
-
-    // Ensure we have a string value
-    context.pushText(typeof text === 'string' ? text : String(text))
-    context.exitNode()
-  },
-
-  /**
-   * Paragraph encoder - wraps content in semantic p element
-   *
-   * Based on Paragraph patterns in Rust manual implementations
-   */
-  Paragraph: (node: Paragraph, context: EncodeContext) => {
-    context.enterNode('Paragraph' as NodeType)
-    if (node.content) {
-      const content = Array.isArray(node.content)
-        ? node.content
-            .map((item: Node) =>
-              encode(item, [...context.ancestors, 'Paragraph'])
-            )
-            .join('')
-        : encode(node.content, [...context.ancestors, 'Paragraph'])
-      context.pushSlot('p', 'content', content)
-    }
-    context.exitNode()
-  },
-
-  /**
-   * Article encoder - creates semantic document structure
-   *
-   * Mirrors the Article implementation patterns in Rust manual implementations
-   */
-  Article: (node: Article, context: EncodeContext) => {
-    // Skip $schema attribute as per Rust implementation behavior
-    context.enterNode('Article' as NodeType)
-
-    // Authors slot
-    if (node.authors && node.authors.length > 0) {
-      const authorsContent = node.authors
-        .map((author: Node) =>
-          encode(author, [...context.ancestors, 'Article'])
-        )
-        .join('')
-      context.pushSlot('span', 'authors', authorsContent)
-    }
-
-    // Main content in section
-    if (node.content && node.content.length > 0) {
-      const content = node.content
-        .map((item: Node) => encode(item, [...context.ancestors, 'Article']))
-        .join('')
-      context.pushSlot('section', 'content', content)
-    }
-
-    context.exitNode()
-  },
-
-  /**
-   * Admonition encoder - creates semantic aside structure
-   *
-   * Based on Admonition patterns observed in golden test examples
-   */
-  Admonition: (node: Admonition, context: EncodeContext) => {
-    // Prepare attributes
-    const attrs: Record<string, unknown> = {}
-    if (node.admonitionType) {
-      attrs['admonition-type'] = node.admonitionType
-    }
-    if (node.isFolded !== undefined) {
-      attrs['is-folded'] = node.isFolded
-    }
-
-    context.enterNode('Admonition' as NodeType, undefined, attrs)
-
-    // Title slot if present
-    if (node.title && node.title.length > 0) {
-      const titleContent = node.title
-        .map((item: Node) => encode(item, [...context.ancestors, 'Admonition']))
-        .join('')
-      context.pushSlot('p', 'title', titleContent)
-    }
-
-    // Content in aside element
-    if (node.content && node.content.length > 0) {
-      const content = node.content
-        .map((item: Node) => encode(item, [...context.ancestors, 'Admonition']))
-        .join('')
-      context.pushSlot('aside', 'content', content)
-    }
-
-    context.exitNode()
-  },
-
-  /**
-   * Heading encoder - creates level-based heading elements
-   *
-   * Mirrors heading patterns in Rust manual implementations.
-   * Wraps content in appropriate h1-h6 elements based on level.
+   * Mirrors implementation in `../../rust/schema/src/implem/heading.rs`
    */
   Heading: (node: Heading, context: EncodeContext) => {
     // Prepare attributes
@@ -478,119 +389,7 @@ const MANUAL_ENCODERS: Partial<
   },
 
   /**
-   * Emphasis encoder - creates em element with nested content
-   *
-   * Mirrors inline mark patterns in Rust manual implementations
-   */
-  Emphasis: (node: Emphasis, context: EncodeContext) => {
-    context.enterNode('Emphasis' as NodeType)
-
-    if (node.content && node.content.length > 0) {
-      const content = node.content
-        .map((item: Node) => encode(item, [...context.ancestors, 'Emphasis']))
-        .join('')
-      context.html += `<em>${content}</em>`
-    }
-
-    context.exitNode()
-  },
-
-  /**
-   * Strong encoder - creates strong element with nested content
-   *
-   * Mirrors inline mark patterns in Rust manual implementations
-   */
-  Strong: (node: Strong, context: EncodeContext) => {
-    context.enterNode('Strong' as NodeType)
-
-    if (node.content && node.content.length > 0) {
-      const content = node.content
-        .map((item: Node) => encode(item, [...context.ancestors, 'Strong']))
-        .join('')
-      context.html += `<strong>${content}</strong>`
-    }
-
-    context.exitNode()
-  },
-
-  /**
-   * Underline encoder - creates u element with nested content
-   *
-   * Mirrors inline mark patterns in Rust manual implementations
-   */
-  Underline: (node: Underline, context: EncodeContext) => {
-    context.enterNode('Underline' as NodeType)
-
-    if (node.content && node.content.length > 0) {
-      const content = node.content
-        .map((item: Node) => encode(item, [...context.ancestors, 'Underline']))
-        .join('')
-      context.html += `<u>${content}</u>`
-    }
-
-    context.exitNode()
-  },
-
-  /**
-   * Subscript encoder - creates sub element with nested content
-   *
-   * Mirrors inline mark patterns in Rust manual implementations
-   */
-  Subscript: (node: Subscript, context: EncodeContext) => {
-    context.enterNode('Subscript' as NodeType)
-
-    if (node.content && node.content.length > 0) {
-      const content = node.content
-        .map((item: Node) => encode(item, [...context.ancestors, 'Subscript']))
-        .join('')
-      context.html += `<sub>${content}</sub>`
-    }
-
-    context.exitNode()
-  },
-
-  /**
-   * Superscript encoder - creates sup element with nested content
-   *
-   * Mirrors inline mark patterns in Rust manual implementations
-   */
-  Superscript: (node: Superscript, context: EncodeContext) => {
-    context.enterNode('Superscript' as NodeType)
-
-    if (node.content && node.content.length > 0) {
-      const content = node.content
-        .map((item: Node) =>
-          encode(item, [...context.ancestors, 'Superscript'])
-        )
-        .join('')
-      context.html += `<sup>${content}</sup>`
-    }
-
-    context.exitNode()
-  },
-
-  /**
-   * Strikeout encoder - creates s element with nested content
-   *
-   * Mirrors inline mark patterns in Rust manual implementations
-   */
-  Strikeout: (node: Strikeout, context: EncodeContext) => {
-    context.enterNode('Strikeout' as NodeType)
-
-    if (node.content && node.content.length > 0) {
-      const content = node.content
-        .map((item: Node) => encode(item, [...context.ancestors, 'Strikeout']))
-        .join('')
-      context.html += `<s>${content}</s>`
-    }
-
-    context.exitNode()
-  },
-
-  /**
-   * Link encoder - creates a element with href and optional title
-   *
-   * Mirrors link patterns in Rust manual implementations
+   * Mirrors implementation in `../../rust/schema/src/implem/link.rs`
    */
   Link: (node: Link, context: EncodeContext) => {
     // Prepare attributes
@@ -617,6 +416,26 @@ const MANUAL_ENCODERS: Partial<
       context.html += `<a ${anchorAttrs}></a>`
     }
 
+    context.exitNode()
+  },
+
+  /**
+   * Mirrors implementation in `../../rust/schema/src/implem/text.rs`
+   */
+  Text: (node: Text, context: EncodeContext) => {
+    context.enterNode('Text' as NodeType)
+
+    let text = node.value || ''
+
+    // Handle Cord type - extract string value
+    if (typeof text === 'object' && text !== null && 'string' in text) {
+      text = text.string
+    }
+
+    // Ensure we have a string value and trim whitespace to match Rust implementation
+    const textValue =
+      typeof text === 'string' ? text.trim() : String(text).trim()
+    context.pushText(textValue)
     context.exitNode()
   },
 }
@@ -702,42 +521,72 @@ function encodeDerived(
   const nodeType = node.type as NodeType
   context.enterNode(nodeType)
 
-  // Process each field according to its schema
-  for (const [fieldName, fieldSchema] of Object.entries(schema.fields)) {
-    const value = node[fieldName]
-    if (value === undefined || value === null || fieldSchema.skip) {
-      continue
+  // If schema has a top-level element (e.g., 'em', 'strong'), create that semantic HTML element
+  if (schema.element) {
+    let elementContent = ''
+
+    // Process fields to build content for the semantic element
+    for (const [fieldName, fieldSchema] of Object.entries(schema.fields)) {
+      const value = node[fieldName]
+      if (value === undefined || value === null || fieldSchema.skip) {
+        continue
+      }
+
+      if (fieldSchema.element === 'none') {
+        // Direct content without wrapper - goes directly into the semantic element
+        const content = Array.isArray(value)
+          ? value
+              .map((item: Node) =>
+                encode(item, [...context.ancestors, nodeType])
+              )
+              .join('')
+          : encode(value as Node, [...context.ancestors, nodeType])
+        elementContent += content
+      }
+      // Note: For inline marks, we typically only have content fields with element: 'none'
+      // Other field types would need additional handling here if needed
     }
 
-    if (
-      fieldSchema.attribute !== undefined ||
-      (!fieldSchema.element && !fieldSchema.skip)
-    ) {
-      // Field becomes an attribute
-      const attrName = fieldSchema.attribute || fieldName
-      context.pushAttribute(attrName, value)
-    } else if (fieldSchema.element !== undefined) {
-      // Field becomes a slot
-      if (fieldSchema.element === 'none') {
-        // Direct content without wrapper
-        const content = Array.isArray(value)
-          ? value
-              .map((item: Node) =>
-                encode(item, [...context.ancestors, nodeType])
-              )
-              .join('')
-          : encode(value as Node, [...context.ancestors, nodeType])
-        context.pushSlot(null, fieldName, content)
-      } else {
-        // Content with wrapper element
-        const content = Array.isArray(value)
-          ? value
-              .map((item: Node) =>
-                encode(item, [...context.ancestors, nodeType])
-              )
-              .join('')
-          : encode(value as Node, [...context.ancestors, nodeType])
-        context.pushSlot(fieldSchema.element, fieldName, content)
+    // Create the semantic HTML element with the content
+    context.html += `<${schema.element}>${elementContent}</${schema.element}>`
+  } else {
+    // No top-level element - process fields as normal slots/attributes
+    for (const [fieldName, fieldSchema] of Object.entries(schema.fields)) {
+      const value = node[fieldName]
+      if (value === undefined || value === null || fieldSchema.skip) {
+        continue
+      }
+
+      if (
+        fieldSchema.attribute !== undefined ||
+        (!fieldSchema.element && !fieldSchema.skip)
+      ) {
+        // Field becomes an attribute
+        const attrName = fieldSchema.attribute || fieldName
+        context.pushAttribute(attrName, value)
+      } else if (fieldSchema.element !== undefined) {
+        // Field becomes a slot
+        if (fieldSchema.element === 'none') {
+          // Direct content without wrapper
+          const content = Array.isArray(value)
+            ? value
+                .map((item: Node) =>
+                  encode(item, [...context.ancestors, nodeType])
+                )
+                .join('')
+            : encode(value as Node, [...context.ancestors, nodeType])
+          context.pushSlot(null, fieldName, content)
+        } else {
+          // Content with wrapper element
+          const content = Array.isArray(value)
+            ? value
+                .map((item: Node) =>
+                  encode(item, [...context.ancestors, nodeType])
+                )
+                .join('')
+            : encode(value as Node, [...context.ancestors, nodeType])
+          context.pushSlot(fieldSchema.element, fieldName, content)
+        }
       }
     }
   }
@@ -790,20 +639,20 @@ export function encode(node: Node, ancestors: string[] = []): string {
   const nodeType = node.type as NodeType
   const context = new EncodeContext(ancestors)
 
-  // Check for manual encoder first (mirrors Rust manual implementations)
-  if (MANUAL_ENCODERS[nodeType]) {
-    MANUAL_ENCODERS[nodeType](node, context)
-    return context.getHtml()
-  }
-
-  // Fall back to schema-driven encoding (mirrors Rust derive macro)
+  // Prefer schema-driven encoding first (mirrors Rust derive macro behavior)
   const schema = NODE_SCHEMAS[nodeType]
   if (schema) {
     encodeDerived(node as Record<string, unknown>, schema, context)
     return context.getHtml()
   }
 
-  // Fallback for unknown node types - use minimal encoding
+  // Fall back to manual encoders only when necessary (mirrors Rust manual implementations)
+  if (MANUAL_ENCODERS[nodeType]) {
+    MANUAL_ENCODERS[nodeType](node, context)
+    return context.getHtml()
+  }
+
+  // Final fallback for unknown node types - use minimal encoding
   encodeFallback(node as Record<string, unknown>, context)
   return context.getHtml()
 }
