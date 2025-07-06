@@ -100,71 +100,35 @@ if [[ -n "${REPO_SUBDIR:-}" ]]; then
     cd "$REPO_SUBDIR" || exit
 fi
 
-# Install tools from mise.toml if present
-if [[ -f "mise.toml" ]]; then
-    echo "🔧 Installing tools from mise.toml"
-    if ! command -v mise &> /dev/null; then
-        echo "❌ Error: mise is not installed"
-        exit 1
-    fi
-    if ! mise install; then
-        echo "❌ Error: Failed to install tools from mise.toml"
-        exit 1
-    fi
-    echo
-fi
+# Check if there are any Python or R dependencies
+PYTHON_DEPS=false
+R_DEPS=false
 
-# Install any Python dependencies
-if [[ -f "pyproject.toml" ]]; then
-    echo "🐍 Installing dependencies from pyproject.toml"
-    if ! (uv venv && uv sync); then
-        echo "❌ Error: Failed to install Python dependencies from pyproject.toml"
-        exit 1
-    fi
-    echo
-    PYTHON_DEPS=true
-elif [[ -f "requirements.txt" ]]; then
-    echo "🐍 Installing dependencies from requirements.txt"
-    if ! (uv venv && uv pip install -r requirements.txt); then
-        echo "❌ Error: Failed to install Python dependencies from requirements.txt"
-        exit 1
-    fi
-    echo
+if [[ -f "pyproject.toml" || -f "requirements.txt" ]]; then
     PYTHON_DEPS=true
 fi
 
-# Install any R dependencies
-if [[ -f "renv.lock" ]]; then
-    echo "📦 Installing dependencies from renv.lock"
-    if ! Rscript -e "invisible(renv::restore())"; then
-        echo "❌ Error: Failed to install R dependencies from renv.lock"
-        exit 1
-    fi
-    echo
-    R_DEPS=true
-elif [[ -f "DESCRIPTION" ]]; then
-    echo "📦 Installing dependencies from DESCRIPTION file"
-    if ! Rscript -e "invisible(renv::install())"; then
-        echo "❌ Error: Failed to install R dependencies from DESCRIPTION file"
-        exit 1
-    fi
-    echo
+if [[ -f "renv.lock" || -f "DESCRIPTION" ]]; then
     R_DEPS=true
 fi
 
-# If no R or Python dependencies, then install default Python dependencies
-if [[ -z "${PYTHON_DEPS:-}" && -z "${R_DEPS:-}" ]]; then
-    echo "🐍 Installing Python packages in default pyproject.toml"
+# If no R or Python dependencies, then copy over default Python dependencies
+if [[ "$PYTHON_DEPS" = false && "$R_DEPS" = false ]]; then
+    echo "🐍 No language dependencies detected, creating default Python environment"
     if ! cp /home/workspace/stencila/defaults/pyproject.toml ./; then
         echo "❌ Error: Failed to copy default pyproject.toml"
         exit 1
     fi
-    if ! (uv venv && uv sync); then
-        echo "❌ Error: Failed to install default Python dependencies"
-        exit 1
-    fi
     echo
 fi
+
+# Run stencila tools install to install everything
+echo "🔧 Running Stencila tools install"
+if ! stencila tools install; then
+    echo "❌ Error: Failed to run stencila tools install"
+    exit 1
+fi
+echo
 
 # Setup a `.stencila` folder so that tracked files are visible to the user
 if ! mkdir -p .stencila; then
