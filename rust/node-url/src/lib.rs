@@ -9,7 +9,7 @@ use flate2::{read::ZlibDecoder, write::ZlibEncoder, Compression};
 use url::Url;
 
 use common::{
-    eyre::{bail, Report, Result},
+    eyre::{Report, Result},
     serde::{de::DeserializeOwned, Serialize},
     serde_json,
     strum::{Display, EnumString},
@@ -18,8 +18,7 @@ use node_id::NodeId;
 use node_path::NodePath;
 use node_type::NodeType;
 
-const DOMAIN: &str = "stencila.io";
-const PATH: &str = "/node";
+const BASE_URL: &str = "https://stencila.link";
 
 /// A URL describing a Stencila Schema node
 ///
@@ -64,7 +63,7 @@ impl NodeUrl {
     /// ensure that it is URL safe. The overhead of compression is small. For example, the URL for
     /// an empty string (the smallest possible node to encode) is:
     ///
-    /// https://stencila.io/node?jzb64=eNpTUgIAAGgARQ
+    /// https://stencila.link?jzb64=eNpTUgIAAGgARQ
     pub fn to_jzb64<T>(node: T) -> Result<String>
     where
         T: Serialize,
@@ -102,14 +101,6 @@ impl FromStr for NodeUrl {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let url = Url::from_str(s)?;
 
-        if !matches!(url.domain(), Some(DOMAIN)) {
-            bail!("Domain is invalid for a Stencila node URL")
-        }
-
-        if !matches!(url.path(), PATH) {
-            bail!("Path is invalid for a Stencila node URL")
-        }
-
         let mut node_url = NodeUrl::default();
 
         for (name, value) in url.query_pairs() {
@@ -129,7 +120,7 @@ impl FromStr for NodeUrl {
 
 impl Display for NodeUrl {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "https://{DOMAIN}{PATH}")?;
+        write!(f, "{}", BASE_URL)?;
         let mut pairs = Vec::new();
         if let Some(t) = &self.r#type {
             pairs.push(format!("type={}", t));
@@ -167,7 +158,7 @@ mod tests {
         let url = NodeUrl::default();
 
         let s = url.to_string();
-        assert_eq!(s, format!("https://{DOMAIN}{PATH}"));
+        assert_eq!(s, BASE_URL);
         assert_eq!(NodeUrl::from_str(&s)?, url);
 
         Ok(())
@@ -210,8 +201,9 @@ mod tests {
 
     #[test]
     fn parse_full_url() -> Result<()> {
-        let s = "https://stencila.io/node?type=CodeChunk&id=cdc_abc123&path=content/1/item/4&position=begin";
-        let url = NodeUrl::from_str(s)?;
+        let s =
+            format!("{BASE_URL}?type=CodeChunk&id=cdc_abc123&path=content/1/item/4&position=begin");
+        let url = NodeUrl::from_str(&s)?;
         assert_eq!(url.r#type, Some(NodeType::CodeChunk));
         assert_eq!(url.id, Some(NodeId::from_str("cdc_abc123")?));
         assert_eq!(url.path, Some(NodePath::from_str("content/1/item/4")?));

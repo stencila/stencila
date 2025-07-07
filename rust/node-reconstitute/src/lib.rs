@@ -10,7 +10,7 @@ use schema::{
 
 /// Reconstitute a node from a cache
 ///
-/// Walks over the node an when it encounters a `https://stencila.io/node` link, replaces it with
+/// Walks over the node an when it encounters a `https://stencila.link`, replaces it with
 /// the node in the cache at the `path` query param, or with the self-contained `jzb64` query param.
 pub fn reconstitute(node: &mut Node, cache: Option<Node>) {
     Reconstituter {

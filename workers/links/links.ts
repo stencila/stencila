@@ -1,5 +1,5 @@
 /**
- * Cloudflare Worker to serve https://stencila/node
+ * Cloudflare Worker to serve https://stencila.link
  */
 
 import { Request } from "@cloudflare/workers-types";
