@@ -1428,7 +1428,10 @@ fn div_from_pandoc(
 ) -> Block {
     let classes = &attrs.classes;
 
-    if classes.iter().any(|class| class == "appendix-break") {
+    if classes
+        .iter()
+        .any(|class| class == "appendix" || class == "appendix-break")
+    {
         return appendix_break_from_pandoc(attrs, blocks, context);
     };
 

@@ -1,0 +1,9 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: info.mapping
+---
+start     end        offsets   node_type+property                   authorship
+     0     10        (0, 10)   AppendixBreak
+    11     21       (11, 11)   AppendixBreak
+     0     22       (-11, 1)   Article.content
+     0     22         (0, 0)   Article

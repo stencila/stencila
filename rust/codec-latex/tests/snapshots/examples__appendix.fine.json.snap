@@ -1,0 +1,18 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: article
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "AppendixBreak"
+    },
+    {
+      "type": "AppendixBreak"
+    }
+  ],
+  "repository": "git@github.com:stencila/stencila",
+  "path": "rust/codec-latex/tests/examples/appendix.tex",
+  "commit": "redacted"
+}

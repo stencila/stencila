@@ -56,15 +56,9 @@ async fn examples() -> Result<()> {
             .await?;
         assert_json_snapshot!(format!("{name}.fine.json"), article, {".commit" => "redacted"});
 
-        // Using Pandoc encoding of fine article
+        // Using built-in encoding of fine article
         let (latex, ..) = LatexCodec
-            .to_string(
-                &article,
-                Some(EncodeOptions {
-                    tool: Some("pandoc".into()),
-                    ..Default::default()
-                }),
-            )
+            .to_string(&article, Some(EncodeOptions::default()))
             .await?;
         assert_snapshot!(format!("{name}.fine.tex"), &latex);
     }

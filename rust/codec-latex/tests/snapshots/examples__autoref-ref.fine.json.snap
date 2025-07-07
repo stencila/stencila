@@ -11,7 +11,25 @@ expression: article
         {
           "type": "Text",
           "value": {
-            "string": "An autoref ."
+            "string": "An autoref "
+          }
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "[tab:one]"
+              }
+            }
+          ],
+          "target": "#tab:one"
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "."
           }
         }
       ]
@@ -22,7 +40,25 @@ expression: article
         {
           "type": "Text",
           "value": {
-            "string": "A ref ."
+            "string": "A ref "
+          }
+        },
+        {
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "[tab:one]"
+              }
+            }
+          ],
+          "target": "#tab:one"
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "."
           }
         }
       ]

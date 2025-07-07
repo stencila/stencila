@@ -8,7 +8,7 @@ $comment: |
   Similar to a LaTeX \appendix command, this node causes figure and table numbering to switch
   to be prefixed by 'A' (for the first appendix), 'B', and so on.
 latex:
-  command: appendix
+  derive: false
 markdown:
-  template: '::: appendix\n\n'
+  derive: false
 proptest: {}

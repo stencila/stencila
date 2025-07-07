@@ -2,6 +2,6 @@
 source: rust/codec-latex/tests/examples.rs
 expression: "&latex"
 ---
-An autoref .
+An autoref \autoref{tab:one}.
 
-A ref .
+A ref \autoref{tab:one}.

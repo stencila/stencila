@@ -1,6 +1,7 @@
 //! Implementations of traits for types
 
 mod admonition;
+mod appendix_break;
 mod array;
 mod article;
 mod author;

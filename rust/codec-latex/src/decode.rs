@@ -4,12 +4,11 @@ use codec::{
         itertools::Itertools,
         once_cell::sync::Lazy,
         regex::{Captures, Regex},
-        tracing,
     },
     format::Format,
     schema::{
-        Article, Block, CodeChunk, CodeExpression, ForBlock, IfBlock, IfBlockClause, IncludeBlock,
-        Inline, InlinesBlock, Island, LabelType, Link, Node, RawBlock,
+        AppendixBreak, Article, Block, CodeChunk, CodeExpression, ForBlock, IfBlock, IfBlockClause,
+        IncludeBlock, Inline, InlinesBlock, Island, LabelType, Link, Node, RawBlock,
     },
     DecodeInfo, DecodeOptions,
 };
@@ -43,7 +42,9 @@ static RE: Lazy<Regex> = Lazy::new(|| {
 
       | \\(auto)?ref\{(?P<ref>[^}]*)\}
 
-      | \\input\{(?P<input>[^}]*)\}\n?
+      | \\input\{(?P<input>[^}]*)\}\s*\n?
+
+      | (?P<appendix>\\appendix)\s*\n?
 
       | \\begin\{chunk\} \s*
           (?:\[(?P<chunk_opts>[^\]]*?)\])? \s* 
@@ -81,7 +82,7 @@ pub(super) async fn fine(
                 // Transform to lstinline expression
                 ["\\lstinline[language=exec]{", mat.as_str(), "}"].concat()
             } else if let Some(mat) = captures.name("input") {
-                // Transform \input to an "" environment environment with source as the content
+                // Transform \input to an include environment with source as the content
                 // because pandoc does not allow for args on unknown environments.
                 // If we do not do this then Pandoc will attempt to do the transclusion itself
                 let mut source = mat.as_str().to_string();
@@ -89,6 +90,10 @@ pub(super) async fn fine(
                     source.push_str(".tex");
                 }
                 ["\\begin{include}", &source, "\\end{include}"].concat()
+            } else if captures.name("appendix").is_some() {
+                // Pandoc will consume \appendix and not produce a node so
+                // to preserve this, create an empty custom env
+                ["\\begin{appendix}\\end{appendix}"].concat()
             } else if let Some(mat) = captures.name("chunk") {
                 // Transform to lstlisting environment
                 [
@@ -143,8 +148,8 @@ pub(super) async fn fine(
                 ]
                 .concat()
             } else {
-                tracing::error!("Unreachable branch reached");
-                String::from("")
+                // Pass through things that do not need to be transformed (e.g. ref, autoref)
+                captures[0].to_string()
             }
         })
         .to_string()
@@ -244,6 +249,8 @@ fn latex_to_blocks(latex: &str, island_style: &Option<String>) -> Vec<Block> {
             }
 
             blocks.push(Block::IncludeBlock(IncludeBlock::new(source)));
+        } else if captures.name("appendix").is_some() {
+            blocks.push(Block::AppendixBreak(AppendixBreak::new()));
         } else if let Some(mat) = captures.name("chunk") {
             let code = mat.as_str().to_string();
 

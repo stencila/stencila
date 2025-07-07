@@ -6,17 +6,16 @@ One plus two equals \expr{1 + 2}.
 
 No language or other options:
 
-\begin{lstlisting}
+\begin{chunk}
 3 + 1
-\end{lstlisting}
+\end{chunk}
 
 With lang and options:
 
-\begin{lstlisting}
+\begin{chunk}
 x <- 3
 3 + 2
-\end{lstlisting}
-
-\begin{lstlisting}
+\end{chunk}
+\begin{chunk}
 plot(1:10)
-\end{lstlisting}
+\end{chunk}
