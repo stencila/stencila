@@ -16,5 +16,5 @@ start     end        offsets   node_type+property                   authorship
    464    482       (39, 30)   Paragraph
    405    487       (-59, 5)   ForBlock
    489    532       (84, 45)   Paragraph
-   534    567       (45, 35)   ForBlock
-     0    568      (-534, 1)   Article
+   534    557       (45, 25)   ForBlock
+     0    558      (-534, 1)   Article

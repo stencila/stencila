@@ -142,8 +142,7 @@
       "type": "ForBlock",
       "variable": "item",
       "code": "[]",
-      "content": [],
-      "otherwise": []
+      "content": []
     }
   ]
 }

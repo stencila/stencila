@@ -42,6 +42,4 @@ With no content in 'content' or 'otherwise'
 
 :::{for} item in []
 
-:::{else}
-
 :::

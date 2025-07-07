@@ -141,8 +141,7 @@
       type: "ForBlock",
       code: { string: "[]" },
       variable: "item",
-      content: [],
-      otherwise: []
+      content: []
     }
   ]
 }

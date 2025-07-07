@@ -68,7 +68,6 @@ start     end        offsets   node_type+property                   authorship
    542    546       (53, 13)   ForBlock.variable
    550    552         (8, 6)   ForBlock.code
    554    554         (4, 2)   ForBlock.content
-   564    564       (10, 10)   ForBlock.otherwise
-   534    568       (-30, 4)   ForBlock
-     0    569      (-534, 1)   Article.content
-     0    569         (0, 0)   Article
+   534    558       (-20, 4)   ForBlock
+     0    559      (-534, 1)   Article.content
+     0    559         (0, 0)   Article
