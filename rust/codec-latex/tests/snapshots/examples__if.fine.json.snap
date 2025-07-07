@@ -30,6 +30,7 @@ expression: article
       ]
     }
   ],
-  "source": "rust/codec-latex/tests/examples/if.tex",
+  "repository": "git@github.com:stencila/stencila",
+  "path": "rust/codec-latex/tests/examples/if.tex",
   "commit": "redacted"
 }

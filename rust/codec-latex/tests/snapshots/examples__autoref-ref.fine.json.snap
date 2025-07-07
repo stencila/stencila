@@ -35,6 +35,7 @@ expression: article
       "content": []
     }
   ],
-  "source": "rust/codec-latex/tests/examples/autoref-ref.tex",
+  "repository": "git@github.com:stencila/stencila",
+  "path": "rust/codec-latex/tests/examples/autoref-ref.tex",
   "commit": "redacted"
 }

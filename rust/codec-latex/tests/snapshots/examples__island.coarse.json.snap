@@ -128,6 +128,7 @@ expression: article
       }
     }
   ],
-  "source": "rust/codec-latex/tests/examples/island.tex",
+  "repository": "git@github.com:stencila/stencila",
+  "path": "rust/codec-latex/tests/examples/island.tex",
   "commit": "redacted"
 }

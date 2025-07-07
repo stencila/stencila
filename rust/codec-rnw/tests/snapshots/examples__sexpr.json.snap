@@ -85,6 +85,7 @@ expression: article
       }
     }
   ],
-  "source": "rust/codec-rnw/tests/examples/sexpr.rnw",
+  "repository": "git@github.com:stencila/stencila",
+  "path": "rust/codec-rnw/tests/examples/sexpr.rnw",
   "commit": "redacted"
 }

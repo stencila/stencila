@@ -61,6 +61,7 @@ expression: article
       "programmingLanguage": "r"
     }
   ],
-  "source": "rust/codec-rnw/tests/examples/chunk.rnw",
+  "repository": "git@github.com:stencila/stencila",
+  "path": "rust/codec-rnw/tests/examples/chunk.rnw",
   "commit": "redacted"
 }

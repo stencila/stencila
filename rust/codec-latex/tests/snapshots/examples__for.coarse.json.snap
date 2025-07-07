@@ -40,6 +40,7 @@ expression: article
       ]
     }
   ],
-  "source": "rust/codec-latex/tests/examples/for.tex",
+  "repository": "git@github.com:stencila/stencila",
+  "path": "rust/codec-latex/tests/examples/for.tex",
   "commit": "redacted"
 }
