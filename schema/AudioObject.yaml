@@ -3,6 +3,8 @@ title: AudioObject
 extends: MediaObject
 category: works
 description: An audio file.
+dom:
+  derive: false
 html:
   elem: audio
   special: true

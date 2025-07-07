@@ -129,6 +129,19 @@ impl AudioObject {
     }
 }
 
+impl DomCodec for AudioObject {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .push_attr("content-url", &self.content_url)
+            .enter_elem("audio")
+            .push_attr("src", &self.content_url)
+            .push_attr_boolean("controls")
+            .exit_elem()
+            .exit_node();
+    }
+}
+
 impl MarkdownCodec for AudioObject {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         to_markdown!(self, context, lost_options!(self.options, transcript))
@@ -305,6 +318,19 @@ impl VideoObject {
             elem("inline-media", attrs, jats_content!(self)),
             Losses::todo(),
         )
+    }
+}
+
+impl DomCodec for VideoObject {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .push_attr("content-url", &self.content_url)
+            .enter_elem("video")
+            .push_attr("src", &self.content_url)
+            .push_attr_boolean("controls")
+            .exit_elem()
+            .exit_node();
     }
 }
 

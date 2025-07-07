@@ -265,6 +265,16 @@ impl DomEncodeContext {
         }
     }
 
+    /// Push a boolean attribute onto the current element
+    pub fn push_attr_boolean(&mut self, name: &str) -> &mut Self {
+        self.content.pop();
+        self.content.push(' ');
+        self.content.push_str(name);
+        self.content.push('>');
+
+        self
+    }
+
     /// Push the `id`` property of `Entity` nodes
     ///
     /// Uses `_id` as the attribute to avoid conflict with `id` which is

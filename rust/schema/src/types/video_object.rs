@@ -25,7 +25,7 @@ use super::thing_type::ThingType;
 /// A video file.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -55,7 +55,6 @@ pub struct VideoObject {
     #[walk]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,
 
     /// URL for the actual bytes of the media object, for example the image file or video file.
@@ -94,7 +93,7 @@ pub struct VideoObject {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct VideoObjectOptions {
@@ -146,7 +145,6 @@ pub struct VideoObjectOptions {
     #[strip(metadata)]
     #[walk]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub r#abstract: Option<Vec<Block>>,
 
     /// The authors of the `CreativeWork`.
@@ -154,14 +152,12 @@ pub struct VideoObjectOptions {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(authors)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub authors: Option<Vec<Author>>,
 
     /// A summary of the provenance of the content within the work.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(provenance)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "div")]
     pub provenance: Option<Vec<ProvenanceCount>>,
 
     /// A secondary contributor to the `CreativeWork`.
@@ -169,7 +165,6 @@ pub struct VideoObjectOptions {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub contributors: Option<Vec<Author>>,
 
     /// People who edited the `CreativeWork`.
@@ -177,7 +172,6 @@ pub struct VideoObjectOptions {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub editors: Option<Vec<Person>>,
 
     /// The maintainers of the `CreativeWork`.
@@ -185,7 +179,6 @@ pub struct VideoObjectOptions {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub maintainers: Option<Vec<PersonOrOrganization>>,
 
     /// Comments about this creative work.
@@ -193,7 +186,6 @@ pub struct VideoObjectOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub comments: Option<Vec<Comment>>,
 
     /// Date/time of creation.
@@ -201,7 +193,6 @@ pub struct VideoObjectOptions {
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(with = "Date::to_dom_attr")]
     pub date_created: Option<Date>,
 
     /// Date/time that work was received.
@@ -209,7 +200,6 @@ pub struct VideoObjectOptions {
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(with = "Date::to_dom_attr")]
     pub date_received: Option<Date>,
 
     /// Date/time of acceptance.
@@ -217,7 +207,6 @@ pub struct VideoObjectOptions {
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(with = "Date::to_dom_attr")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of most recent modification.
@@ -225,7 +214,6 @@ pub struct VideoObjectOptions {
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(with = "Date::to_dom_attr")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
@@ -233,7 +221,6 @@ pub struct VideoObjectOptions {
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(with = "Date::to_dom_attr")]
     pub date_published: Option<Date>,
 
     /// People or organizations that funded the `CreativeWork`.
@@ -241,7 +228,6 @@ pub struct VideoObjectOptions {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub funders: Option<Vec<PersonOrOrganization>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
@@ -249,7 +235,6 @@ pub struct VideoObjectOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub funded_by: Option<Vec<GrantOrMonetaryGrant>>,
 
     /// Genre of the creative work, broadcast channel or group.
@@ -278,7 +263,6 @@ pub struct VideoObjectOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub licenses: Option<Vec<CreativeWorkTypeOrText>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
@@ -286,14 +270,12 @@ pub struct VideoObjectOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(content)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub parts: Option<Vec<CreativeWorkType>>,
 
     /// A publisher of the CreativeWork.
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub publisher: Option<PersonOrOrganization>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
@@ -301,7 +283,6 @@ pub struct VideoObjectOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub references: Option<Vec<Reference>>,
 
     /// The textual content of this creative work.
