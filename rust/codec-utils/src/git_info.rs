@@ -3,7 +3,10 @@ use std::{
     process::{Command, Stdio},
 };
 
-use common::eyre::{OptionExt, Result, bail};
+use common::{
+    eyre::{OptionExt, Result, bail},
+    reqwest::Url,
+};
 
 /// Information about a file within a Git repository
 #[derive(Debug, Clone)]
@@ -153,8 +156,150 @@ fn get_git_origin(repo_root: &Path) -> Option<String> {
     if output.status.success() {
         String::from_utf8(output.stdout)
             .ok()
-            .map(|s| s.trim().to_string())
+            .and_then(|origin| normalize_git_url(&origin))
     } else {
         None
+    }
+}
+
+/// Normalize a git URL to a consistent format while removing credentials
+///
+/// Converts various git URL formats to normalized https:// or file:// URLs
+/// and removes any embedded credentials (username:password@).
+fn normalize_git_url(url: &str) -> Option<String> {
+    let url = url.trim();
+
+    // Handle SCP-style SSH URLs (git@host:path)
+    if url.contains('@')
+        && url.contains(':')
+        && !url.starts_with("http")
+        && !url.starts_with("ssh://")
+        && !url.starts_with("file://")
+    {
+        if let Some(at_pos) = url.find('@') {
+            if let Some(colon_pos) = url[at_pos..].find(':') {
+                let host = &url[at_pos + 1..at_pos + colon_pos];
+                let path = &url[at_pos + colon_pos + 1..];
+                let path = path.strip_suffix(".git").unwrap_or(path);
+                return Some(format!("https://{}/{}", host, path));
+            }
+        }
+    }
+
+    // Try to parse as a proper URL
+    let mut parsed_url = Url::parse(url).ok()?;
+
+    // Remove credentials
+    parsed_url.set_username("").ok();
+    parsed_url.set_password(None).ok();
+
+    // Convert HTTP to HTTPS for web URLs
+    if parsed_url.scheme() == "http" {
+        parsed_url.set_scheme("https").ok();
+    }
+
+    // Convert SSH to HTTPS for web URLs
+    if parsed_url.scheme() == "ssh" {
+        let host = parsed_url.host_str().unwrap_or("");
+        let path = parsed_url.path();
+        let path = path.strip_suffix(".git").unwrap_or(path);
+        return Some(format!("https://{}{}", host, path));
+    }
+
+    // Remove query parameters and fragments
+    parsed_url.set_query(None);
+    parsed_url.set_fragment(None);
+
+    let url = parsed_url.to_string();
+
+    // Remove .git suffix from path
+    if let Some(result) = url.strip_suffix(".git") {
+        Some(result.into())
+    } else {
+        Some(url)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_normalize_git_url() {
+        // HTTPS URLs
+        assert_eq!(
+            normalize_git_url("https://github.com/owner/repo").expect("should parse"),
+            "https://github.com/owner/repo"
+        );
+        assert_eq!(
+            normalize_git_url("https://github.com/owner/repo.git").expect("should parse"),
+            "https://github.com/owner/repo"
+        );
+
+        // HTTPS URLs with credentials
+        assert_eq!(
+            normalize_git_url("https://user:pass@github.com/owner/repo").expect("should parse"),
+            "https://github.com/owner/repo"
+        );
+        assert_eq!(
+            normalize_git_url("https://alice@github.com/owner/repo").expect("should parse"),
+            "https://github.com/owner/repo"
+        );
+
+        // HTTP URLs (should convert to HTTPS)
+        assert_eq!(
+            normalize_git_url("http://github.com/owner/repo").expect("should parse"),
+            "https://github.com/owner/repo"
+        );
+
+        // HTTPS URLs with query parameters or fragments
+        assert_eq!(
+            normalize_git_url("https://github.com/owner/repo?tab=readme").expect("should parse"),
+            "https://github.com/owner/repo"
+        );
+        assert_eq!(
+            normalize_git_url("https://github.com/owner/repo#readme").expect("should parse"),
+            "https://github.com/owner/repo"
+        );
+
+        // SSH URLs
+        assert_eq!(
+            normalize_git_url("ssh://git@github.com/owner/repo").expect("should parse"),
+            "https://github.com/owner/repo"
+        );
+        assert_eq!(
+            normalize_git_url("ssh://alice@github.com/owner/repo").expect("should parse"),
+            "https://github.com/owner/repo"
+        );
+        assert_eq!(
+            normalize_git_url("ssh://user:pass@github.com/owner/repo.git").expect("should parse"),
+            "https://github.com/owner/repo"
+        );
+
+        // SCP-style SSH URLs
+        assert_eq!(
+            normalize_git_url("git@github.com:owner/repo").expect("should parse"),
+            "https://github.com/owner/repo"
+        );
+        assert_eq!(
+            normalize_git_url("git@github.com:owner/repo.git").expect("should parse"),
+            "https://github.com/owner/repo"
+        );
+
+        // Other SSH formats
+        assert_eq!(
+            normalize_git_url("user@gitlab.com:group/project").expect("should parse"),
+            "https://gitlab.com/group/project"
+        );
+
+        // File URLs - should remain unchanged
+        assert_eq!(
+            normalize_git_url("file:///local/repo.git").expect("should parse"),
+            "file:///local/repo"
+        );
+        assert_eq!(
+            normalize_git_url("file:///home/user/repos/project").expect("should parse"),
+            "file:///home/user/repos/project"
+        );
     }
 }
