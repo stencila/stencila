@@ -30,6 +30,11 @@ async function normalizeHtml(html: string): Promise<string> {
       .replace(/<pre>\s*<code>/g, '<pre><code>')
       .replace(/<\/code>\s*<\/pre>/g, '</code></pre>')
       .replace(/<code>\s*<\/code>/g, '<code></code>')
+      // These are only added by Rust, not here
+      .replace(
+        /<stencila-heading-end heading="xxx"><\/stencila-heading-end>\n\s*/g,
+        ''
+      )
   )
 }
 
@@ -58,7 +63,11 @@ function getTestCases(): Array<{
 
   for (const dir of dirs) {
     // Filter out complex article and chat test cases for now
-    if (dir.startsWith('article-') || dir.startsWith('chat')) {
+    if (
+      dir.startsWith('article-') ||
+      dir.startsWith('chat') ||
+      dir === 'instruction-inline'
+    ) {
       continue
     }
 

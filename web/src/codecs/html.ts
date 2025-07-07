@@ -34,25 +34,27 @@
  */
 
 import type {
+  Figure,
   AudioObject,
   Block,
   CodeBlock,
   CodeInline,
+  Cord,
   Entity,
   Heading,
   ImageObject,
   Inline,
+  InstructionMessage,
   Link,
   List,
   ListItem,
   Node,
   NodeType,
+  StyledBlock,
+  StyledInline,
   Table,
   Text,
   VideoObject,
-  Cord,
-  StyledBlock,
-  StyledInline,
 } from '@stencila/types'
 
 type Attrs = Record<string, unknown>
@@ -66,9 +68,9 @@ type Attrs = Record<string, unknown>
 class EncodeContext {
   public html: string = ''
   private nodeStack: string[] = []
-  public ancestors: string[]
+  public ancestors: NodeType[]
 
-  constructor(ancestors: string[] = []) {
+  constructor(ancestors: NodeType[] = []) {
     this.ancestors = [...ancestors]
   }
 
@@ -246,6 +248,9 @@ interface FieldSchema {
   /** Skip this field in DOM encoding */
   skip?: boolean
 
+  /** Force this field to be of this type in DOM encoding even if value is undefined or array empty */
+  force?: NodeType
+
   /** HTML element to wrap field content ("section", "div", "span", "none", null) */
   element?: string | null
 
@@ -347,6 +352,20 @@ const NODE_SCHEMAS: Partial<Record<NodeType, NodeSchema>> = {
     },
   },
 
+  InstructionBlock: {
+    fields: {
+      prompt: { element: 'div', force: 'PromptBlock', position: -30 },
+      message: { element: 'div', force: 'InstructionMessage', position: -20 },
+      modelParameters: {
+        element: 'div',
+        force: 'ModelParameters',
+        position: -10,
+      },
+      content: { element: 'div' },
+      suggestions: { element: 'div' },
+    },
+  },
+
   MathBlock: {
     fields: {
       code: { attribute: 'code', position: 10 },
@@ -430,6 +449,12 @@ const NODE_SCHEMAS: Partial<Record<NodeType, NodeSchema>> = {
     },
   },
 
+  SuggestionBlock: {
+    fields: {
+      content: { element: 'div' },
+    },
+  },
+
   Subscript: {
     element: 'sub',
     fields: {
@@ -508,6 +533,45 @@ const MANUAL_ENCODERS: Partial<
     context.exitNode()
   },
 
+  Figure: (node: Figure, context: EncodeContext) => {
+    context.enterNode('Figure', {
+      label: node.label,
+      'label-automatically': node.labelAutomatically,
+    })
+
+    if (node.authors) {
+      context.pushSlot(
+        'span',
+        'authors',
+        encodeNodes(node.authors, [...context.ancestors, 'Figure'])
+      )
+    }
+
+    if (node.provenance) {
+      context.pushSlot(
+        'span',
+        'provenance',
+        encodeNodes(node.provenance, [...context.ancestors, 'Figure'])
+      )
+    }
+
+    context.html +=
+      '<figure slot="content">' +
+      encodeBlocks(node.content, [...context.ancestors, 'Figure'])
+
+    if (node.caption) {
+      context.pushSlot(
+        'figcaption',
+        'caption',
+        encodeCaption(node.caption, 'Figure', node.label, context.ancestors)
+      )
+    }
+
+    context.html += '</figure>'
+
+    context.exitNode()
+  },
+
   Heading: (node: Heading, context: EncodeContext) => {
     context.enterNode('Heading', { level: node.level })
 
@@ -544,6 +608,38 @@ const MANUAL_ENCODERS: Partial<
         'caption',
         encodeInlines(node.caption, [...context.ancestors, 'ImageObject'])
       )
+    }
+
+    context.exitNode()
+  },
+
+  InstructionMessage: (node: InstructionMessage, context: EncodeContext) => {
+    context.enterNode('InstructionMessage', { role: node.role })
+
+    if (node.parts && node.parts.length > 0) {
+      let parts = ''
+      for (const part of node.parts) {
+        let type
+        let value
+        if (part.type == 'Text') {
+          type = 'text'
+          value = cordToString(part.value)
+        } else if (part.type == 'AudioObject') {
+          type = 'audio'
+          value = part.contentUrl
+        } else if (part.type == 'ImageObject') {
+          type = 'image'
+          value = part.contentUrl
+        } else if (part.type == 'VideoObject') {
+          type = 'video'
+          value = part.contentUrl
+        }
+
+        if (type && value) {
+          parts += `<stencila-message-part type=${type} value="${context.escapeHtml(value)}"></stencila-message-part>`
+        }
+      }
+      context.pushSlot('div', 'parts', parts)
     }
 
     context.exitNode()
@@ -674,18 +770,12 @@ const MANUAL_ENCODERS: Partial<
       'label-automatically': node.labelAutomatically,
     })
 
-    // Add caption if present
     if (node.caption) {
-      const captionContent = node.caption
-        .map((item) => {
-          // Add label span before first paragraph if label exists
-          if (node.label && item.type === 'Paragraph') {
-            return `<stencila-paragraph id="${item.id || 'xxx'}" depth="${context.ancestors.length + 1}" ancestors="${[...context.ancestors, 'Table'].join('.')}"><p slot="content"><span class="table-label">Table ${node.label}</span>${item.content.map((c) => encode(c, [...context.ancestors, 'Table', 'Paragraph'])).join('')}</p></stencila-paragraph>`
-          }
-          return encode(item, [...context.ancestors, 'Table'])
-        })
-        .join('')
-      context.pushSlot('div', 'caption', captionContent)
+      context.pushSlot(
+        'div',
+        'caption',
+        encodeCaption(node.caption, 'Table', node.label, context.ancestors)
+      )
     }
 
     if (node.rows && node.rows.length > 0) {
@@ -773,7 +863,10 @@ const MANUAL_ENCODERS: Partial<
  * Returns HTML string for primitives, or null if not a primitive type.
  * Mirrors the primitive handling patterns in Rust implementation.
  */
-function encodePrimitive(node: Node, ancestors: string[] = []): string | null {
+function encodePrimitive(
+  node: Node,
+  ancestors: NodeType[] = []
+): string | null {
   // Handle `Null` nodes - primitive case
   if (node === null) {
     return '<stencila-null>null</stencila-null>'
@@ -897,10 +990,12 @@ function encodeDerived(
 
     // Process fields to build content for the semantic element
     for (const fieldName of sortedFields) {
-      if (SKIP_FIELDS.includes(fieldName)) continue
+      if (SKIP_FIELDS.includes(fieldName)) {
+        continue
+      }
 
       const value = node[fieldName]
-      if (value === undefined || value === null) {
+      if (value === undefined) {
         continue
       }
 
@@ -925,42 +1020,38 @@ function encodeDerived(
   } else {
     // No top-level element - process fields as slots (attributes already handled)
     for (const fieldName of sortedFields) {
-      if (SKIP_FIELDS.includes(fieldName)) continue
-
-      const value = node[fieldName]
-      if (value === undefined || value === null) {
+      if (SKIP_FIELDS.includes(fieldName)) {
         continue
       }
 
       const fieldSchema = schema.fields[fieldName] || {}
-      if (fieldSchema.skip) {
+      if (fieldSchema.skip || fieldSchema.element == undefined) {
         continue
       }
 
-      // Only process slots (attributes already handled above)
-      if (fieldSchema.element !== undefined) {
-        // Field becomes a slot
-        if (fieldSchema.element === 'none') {
-          // Direct content without wrapper
-          const content = Array.isArray(value)
-            ? encodeNodes(value, [...context.ancestors, nodeType])
-            : encode(value as Node, [...context.ancestors, nodeType])
-          if (content) {
-            context.pushSlot(null, fieldName, content)
-          }
+      let value = node[fieldName]
+      if (value == undefined) {
+        if (fieldSchema.force) {
+          value = { type: fieldSchema.force }
         } else {
-          // Content with wrapper element
-          const content = Array.isArray(value)
-            ? value
-                .map((item: Node) =>
-                  encode(item, [...context.ancestors, nodeType])
-                )
-                .join('')
-            : encode(value as Node, [...context.ancestors, nodeType])
-          if (content) {
-            context.pushSlot(fieldSchema.element, fieldName, content)
-          }
+          continue
         }
+      }
+      if (Array.isArray(value) && value.length == 0) {
+        continue
+      }
+
+      const content = Array.isArray(value)
+        ? encodeNodes(value, [...context.ancestors, nodeType])
+        : encode(value as Node, [...context.ancestors, nodeType])
+
+      // Field becomes a slot
+      if (fieldSchema.element === 'none') {
+        // Direct content without wrapper
+        context.pushSlot(null, fieldName, content)
+      } else {
+        // Content with wrapper element
+        context.pushSlot(fieldSchema.element, fieldName, content)
       }
     }
   }
@@ -1017,7 +1108,7 @@ function cordToString(cord: Cord | string): string {
  * Mirrors the dispatch logic in the Rust implementation where some types have
  * manual `impl DomCodec` and others use the derive macro.
  */
-export function encode(node: Node, ancestors: string[] = []): string {
+export function encode(node: Node, ancestors: NodeType[] = []): string {
   // Try primitive encoding first - early return if it's a primitive type
   const primitiveResult = encodePrimitive(node, ancestors)
   if (primitiveResult !== null) {
@@ -1048,14 +1139,39 @@ export function encode(node: Node, ancestors: string[] = []): string {
   return context.getHtml()
 }
 
-function encodeNodes(nodes: Node[], ancestors: string[] = []): string {
+function encodeNodes(nodes: Node[], ancestors: NodeType[] = []): string {
   return nodes.map((block) => encode(block, ancestors)).join('')
 }
 
-function encodeBlocks(blocks: Block[], ancestors: string[] = []): string {
+function encodeBlocks(blocks: Block[], ancestors: NodeType[] = []): string {
   return encodeNodes(blocks, ancestors)
 }
 
-function encodeInlines(inlines: Inline[], ancestors: string[] = []): string {
+function encodeInlines(inlines: Inline[], ancestors: NodeType[] = []): string {
   return encodeNodes(inlines, ancestors)
+}
+
+function encodeCaption(
+  blocks: Block[],
+  type: 'Table' | 'Figure',
+  label: string | undefined,
+  ancestors: NodeType[] = []
+): string {
+  const ancestorsExtended = [...ancestors, type]
+
+  return blocks
+    .map((block, index) => {
+      if (index == 0 && block.type === 'Paragraph') {
+        return (
+          `<stencila-paragraph id=xxx depth="${ancestorsExtended.length}" ancestors="${ancestorsExtended.join('.')}">` +
+          `<p slot="content">` +
+          `<span class="${type.toLowerCase()}-label">${type}${label ? ` ${label}` : ''}</span>` +
+          encodeInlines(block.content, [...ancestorsExtended, 'Paragraph']) +
+          `</p></stencila-paragraph>`
+        )
+      } else {
+        return encode(block, ancestorsExtended)
+      }
+    })
+    .join('')
 }
