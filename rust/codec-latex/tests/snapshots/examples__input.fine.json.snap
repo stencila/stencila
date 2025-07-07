@@ -22,7 +22,7 @@ expression: article
       "source": "discussion.tex"
     }
   ],
-  "repository": "git@github.com:stencila/stencila",
+  "repository": "https://github.com/stencila/stencila",
   "path": "rust/codec-latex/tests/examples/input.tex",
   "commit": "redacted"
 }

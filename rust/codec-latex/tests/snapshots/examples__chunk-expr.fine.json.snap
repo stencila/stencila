@@ -77,7 +77,7 @@ expression: article
       }
     }
   ],
-  "repository": "git@github.com:stencila/stencila",
+  "repository": "https://github.com/stencila/stencila",
   "path": "rust/codec-latex/tests/examples/chunk-expr.tex",
   "commit": "redacted"
 }

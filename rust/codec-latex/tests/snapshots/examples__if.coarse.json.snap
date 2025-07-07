@@ -26,7 +26,7 @@ expression: article
       ]
     }
   ],
-  "repository": "git@github.com:stencila/stencila",
+  "repository": "https://github.com/stencila/stencila",
   "path": "rust/codec-latex/tests/examples/if.tex",
   "commit": "redacted"
 }

@@ -12,7 +12,7 @@ expression: article
       "type": "AppendixBreak"
     }
   ],
-  "repository": "git@github.com:stencila/stencila",
+  "repository": "https://github.com/stencila/stencila",
   "path": "rust/codec-latex/tests/examples/appendix.tex",
   "commit": "redacted"
 }
