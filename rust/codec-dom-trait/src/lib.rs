@@ -346,7 +346,7 @@ impl DomEncodeContext {
 
     /// Exit a "void" HTML element e.g <img/>
     pub fn exit_elem_void(&mut self) -> &mut Self {
-        if let Some(..) = self.elements.pop() {
+        if self.elements.pop().is_some() {
             self.content.pop();
             self.content.push_str("/>");
         }
