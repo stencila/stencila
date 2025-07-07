@@ -51,6 +51,8 @@ import type {
   Text,
   VideoObject,
   Cord,
+  StyledBlock,
+  StyledInline,
 } from '@stencila/types'
 
 type Attrs = Record<string, unknown>
@@ -112,18 +114,42 @@ class EncodeContext {
   /**
    * Format an attribute name-value pair for HTML
    *
-   * Helper method to consistently format attributes with kebab-case names
-   * and escaped values. Uses smart quote style: no quotes for simple values,
-   * single quotes for empty strings, double quotes for complex values.
-   * Used by both enterNode and pushAttribute methods.
+   * Helper method to consistently format attributes with kebab-case names and
+   * escaped values. Uses smart quote style: no quotes for simple values, single
+   * quotes for empty strings, double quotes for complex values.
+   *
+   * This single quoting and escaping behavior is consistent with the
+   * `DomEncodeContext.push_attr_value` method.
    */
   private formatAttribute(name: string, value: unknown): string {
     if (value === null || value === undefined) return ''
+
     const attrName = this.toKebabCase(name)
-    const attrValue = this.escapeAttributeValue(value)
-    const quote =
-      attrValue.startsWith('"') && attrValue.endsWith('"') ? "'" : '"'
-    return ` ${attrName}=${quote}${attrValue}${quote}`
+
+    let attrValue: string
+    if (typeof value === 'object' && value !== null) {
+      // Handle Cord type (extract string value)
+      if ('string' in value && typeof value.string === 'string') {
+        attrValue = value.string
+      } else {
+        // Serialize complex objects as JSON
+        attrValue = JSON.stringify(value)
+      }
+    } else {
+      attrValue = String(value)
+    }
+
+    if (attrValue.length == 0 || /["' \t\n\\/><]/g.test(attrValue)) {
+      // Use single quoting escaping (more terse for JSON attributes because inner double
+      // quotes do not need escaping)
+      attrValue = attrValue
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/'/g, '&#x27;')
+    }
+
+    return ` ${attrName}='${attrValue}'`
   }
 
   /**
@@ -132,23 +158,22 @@ class EncodeContext {
    * Mirrors `context.push_slot_fn()` used in Rust manual implementations.
    * Creates semantic HTML structure with proper slot attributes.
    */
-  pushSlot(tagName: string | null, slotName: string, content: string): void {
+  pushSlot(
+    tagName: string | null,
+    slotName: string,
+    content: string,
+    attrs: Attrs = {}
+  ): void {
     if (tagName === null) {
       this.html += content
     } else {
       const slot = this.toKebabCase(slotName)
       const slotAttr = this.formatAttribute('slot', slot)
-      this.html += `<${tagName}${slotAttr}>${content}</${tagName}>`
+      const extraAttrs = Object.entries(attrs)
+        .map(([name, value]) => this.formatAttribute(name, value))
+        .join('')
+      this.html += `<${tagName}${slotAttr}${extraAttrs}>${content}</${tagName}>`
     }
-  }
-
-  /**
-   * Add plain text content, escaping HTML entities
-   *
-   * Mirrors `context.push_text()` in Rust implementations.
-   */
-  pushText(text: string): void {
-    this.html += this.escapeHtml(text)
   }
 
   /**
@@ -179,40 +204,17 @@ class EncodeContext {
 
   /**
    * Escape HTML entities in text content
+   *
+   * This is consistent with the `html_escape::encode_safe` function used in Rust.
    */
   escapeHtml(text: string): string {
     return text
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
-  }
-
-  /**
-   * Escape HTML entities in attribute values
-   *
-   * Mirrors attribute value escaping in Rust implementation.
-   */
-  private escapeAttributeValue(value: unknown): string {
-    let str: string
-
-    if (typeof value === 'object' && value !== null) {
-      // Handle Cord type (extract string value)
-      if ('string' in value && typeof value.string === 'string') {
-        str = value.string
-      } else {
-        // Serialize complex objects as JSON
-        str = JSON.stringify(value)
-      }
-    } else {
-      str = String(value)
-    }
-
-    return str
-      .replace(/&/g, '&amp;')
       .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
+      .replace(/'/g, '&#x27;')
+      .replace(/\//g, '&#x2F;')
   }
 }
 
@@ -338,30 +340,58 @@ const NODE_SCHEMAS: Partial<Record<NodeType, NodeSchema>> = {
     },
   },
 
+  IncludeBlock: {
+    fields: {
+      executionMode: { attribute: 'execution-mode', position: -10 },
+      content: { element: 'div' },
+    },
+  },
+
   MathBlock: {
     fields: {
-      mathLanguage: { attribute: 'math-language' },
-      code: { element: 'pre' },
+      code: { attribute: 'code', position: 10 },
+      mathLanguage: { attribute: 'math-language', position: 20 },
+      compilationMessages: { element: 'div' },
+      authors: { element: 'div' },
+      provenance: { element: 'div' },
+      mathml: { element: 'div' },
+      images: { element: 'div' },
     },
   },
 
   MathInline: {
-    element: 'code',
     fields: {
-      mathLanguage: { attribute: 'math-language' },
-      code: { element: 'none' },
+      code: { attribute: 'code', position: 10 },
+      mathLanguage: { attribute: 'math-language', position: 20 },
+      compilationMessages: { element: 'span' },
+      authors: { element: 'span' },
+      provenance: { element: 'span' },
+      mathml: { element: 'span' },
+      images: { element: 'span' },
     },
   },
 
   Note: {
     fields: {
-      content: { element: 'div' },
+      content: { element: 'aside' },
     },
   },
 
   Paragraph: {
     fields: {
       content: { element: 'p' },
+    },
+  },
+
+  Parameter: {
+    fields: {
+      value: { attribute: 'value', encoder: (value) => JSON.stringify(value) },
+      default: {
+        attribute: 'default',
+        encoder: (value) => JSON.stringify(value),
+        position: 10,
+      },
+      validator: { element: 'span' },
     },
   },
 
@@ -412,10 +442,6 @@ const NODE_SCHEMAS: Partial<Record<NodeType, NodeSchema>> = {
     fields: {
       content: { element: 'none' },
     },
-  },
-
-  ThematicBreak: {
-    fields: {},
   },
 
   Underline: {
@@ -576,6 +602,72 @@ const MANUAL_ENCODERS: Partial<
     context.exitNode()
   },
 
+  StyledBlock: (node: StyledBlock, context: EncodeContext) => {
+    context.enterNode('StyledBlock', {
+      code: node.code,
+      'style-language': node.styleLanguage,
+      css: node.css,
+    })
+
+    if (node.authors) {
+      context.pushSlot(
+        'div',
+        'authors',
+        encodeNodes(node.authors, [...context.ancestors, 'StyledBlock'])
+      )
+    }
+
+    if (node.provenance) {
+      context.pushSlot(
+        'div',
+        'provenance',
+        encodeNodes(node.provenance, [...context.ancestors, 'StyledBlock'])
+      )
+    }
+
+    context.pushSlot(
+      'div',
+      'content',
+      encodeNodes(node.content, [...context.ancestors, 'StyledBlock']),
+      { class: node.classList }
+    )
+
+    context.exitNode()
+  },
+
+  StyledInline: (node: StyledInline, context: EncodeContext) => {
+    context.enterNode('StyledInline', {
+      code: node.code,
+      'style-language': node.styleLanguage,
+      css: node.css,
+    })
+
+    if (node.authors) {
+      context.pushSlot(
+        'span',
+        'authors',
+        encodeNodes(node.authors, [...context.ancestors, 'StyledInline'])
+      )
+    }
+
+    if (node.provenance) {
+      context.pushSlot(
+        'span',
+        'provenance',
+        encodeNodes(node.provenance, [...context.ancestors, 'StyledInline'])
+      )
+    }
+
+    context.pushSlot(
+      'span',
+      'content',
+      encodeNodes(node.content, [...context.ancestors, 'StyledInline']),
+      { class: node.classList }
+    )
+
+    context.exitNode()
+  },
+
   Table: (node: Table, context: EncodeContext) => {
     context.enterNode('Table', {
       label: node.label,
@@ -644,7 +736,8 @@ const MANUAL_ENCODERS: Partial<
     // Ensure we have a string value and trim whitespace to match Rust implementation
     const textValue =
       typeof text === 'string' ? text.trim() : String(text).trim()
-    context.pushText(textValue)
+    context.html += context.escapeHtml(textValue)
+
     context.exitNode()
   },
 
@@ -819,11 +912,7 @@ function encodeDerived(
       if (fieldSchema.element === 'none') {
         // Direct content without wrapper - goes directly into the semantic element
         const content = Array.isArray(value)
-          ? value
-              .map((item: Node) =>
-                encode(item, [...context.ancestors, nodeType])
-              )
-              .join('')
+          ? encodeNodes(value, [...context.ancestors, nodeType])
           : encode(value as Node, [...context.ancestors, nodeType])
         elementContent += content
       }
@@ -854,11 +943,7 @@ function encodeDerived(
         if (fieldSchema.element === 'none') {
           // Direct content without wrapper
           const content = Array.isArray(value)
-            ? value
-                .map((item: Node) =>
-                  encode(item, [...context.ancestors, nodeType])
-                )
-                .join('')
+            ? encodeNodes(value, [...context.ancestors, nodeType])
             : encode(value as Node, [...context.ancestors, nodeType])
           if (content) {
             context.pushSlot(null, fieldName, content)
@@ -901,14 +986,6 @@ function encodeFallback(node: Entity, context: EncodeContext): void {
 
   context.enterNode(node.type as NodeType, attrs)
   context.exitNode()
-}
-
-function encodeBlocks(blocks: Block[], ancestors: string[] = []): string {
-  return blocks.map((block) => encode(block, ancestors)).join('')
-}
-
-function encodeInlines(inlines: Inline[], ancestors: string[] = []): string {
-  return inlines.map((inline) => encode(inline, ancestors)).join('')
 }
 
 /**
@@ -969,4 +1046,16 @@ export function encode(node: Node, ancestors: string[] = []): string {
   // Final fallback for unknown node types - use minimal encoding
   encodeFallback(entity, context)
   return context.getHtml()
+}
+
+function encodeNodes(nodes: Node[], ancestors: string[] = []): string {
+  return nodes.map((block) => encode(block, ancestors)).join('')
+}
+
+function encodeBlocks(blocks: Block[], ancestors: string[] = []): string {
+  return encodeNodes(blocks, ancestors)
+}
+
+function encodeInlines(inlines: Inline[], ancestors: string[] = []): string {
+  return encodeNodes(inlines, ancestors)
 }

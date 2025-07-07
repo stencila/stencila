@@ -25,9 +25,6 @@ async function normalizeHtml(html: string): Promise<string> {
   return (
     prettified
       .replace(/\bid="[^"]*"/g, 'id=xxx')
-      // Differences in how single quotes are escaped (is at all)
-      .replaceAll('&#x27;', "'")
-      .replaceAll('&#39;', "'")
       // These are necessary due to differences indenting <pre> elems in the examples
       // and by prettier
       .replace(/<pre>\s*<code>/g, '<pre><code>')
