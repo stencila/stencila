@@ -34,13 +34,14 @@
  */
 
 import type {
-  Figure,
   AudioObject,
   Block,
   CodeBlock,
+  CodeChunk,
   CodeInline,
   Cord,
   Entity,
+  Figure,
   Heading,
   ImageObject,
   Inline,
@@ -141,7 +142,7 @@ class EncodeContext {
       attrValue = String(value)
     }
 
-    if (attrValue.length == 0 || /["' \t\n\\/><]/g.test(attrValue)) {
+    if (attrValue.length == 0 || /["' \t\n\\/><=]/g.test(attrValue)) {
       // Use single quoting escaping (more terse for JSON attributes because inner double
       // quotes do not need escaping)
       attrValue = attrValue
@@ -251,6 +252,9 @@ interface FieldSchema {
   /** Force this field to be of this type in DOM encoding even if value is undefined or array empty */
   force?: NodeType
 
+  /** Whether this should be treated as a single node */
+  singular?: boolean
+
   /** HTML element to wrap field content ("section", "div", "span", "none", null) */
   element?: string | null
 
@@ -316,6 +320,14 @@ const NODE_SCHEMAS: Partial<Record<NodeType, NodeSchema>> = {
     },
   },
 
+  CodeExpression: {
+    fields: {
+      executionMode: { attribute: 'execution-mode', position: -20 },
+      code: { attribute: 'code', position: -10 },
+      output: { element: 'span', singular: true },
+    },
+  },
+
   Emphasis: {
     element: 'em',
     fields: {
@@ -326,8 +338,8 @@ const NODE_SCHEMAS: Partial<Record<NodeType, NodeSchema>> = {
   ForBlock: {
     fields: {
       code: { attribute: 'code', position: 10 },
-      programmingLanguage: { attribute: 'programming-language', position: 30 },
-      variable: { attribute: 'variable', position: 40 },
+      programmingLanguage: { attribute: 'programming-language', position: 20 },
+      variable: { attribute: 'variable', position: 30 },
       content: { element: 'div' },
       otherwise: { element: 'div' },
     },
@@ -1041,9 +1053,10 @@ function encodeDerived(
         continue
       }
 
-      const content = Array.isArray(value)
-        ? encodeNodes(value, [...context.ancestors, nodeType])
-        : encode(value as Node, [...context.ancestors, nodeType])
+      const content =
+        Array.isArray(value) && !fieldSchema.singular
+          ? encodeNodes(value, [...context.ancestors, nodeType])
+          : encode(value as Node, [...context.ancestors, nodeType])
 
       // Field becomes a slot
       if (fieldSchema.element === 'none') {
