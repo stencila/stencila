@@ -24,6 +24,9 @@ where
 impl DomCodec for Text {
     fn to_dom(&self, context: &mut DomEncodeContext) {
         context.enter_node(self.node_type(), self.node_id());
+        // This intentionally uses `Cord::to_dom`, rather than `context.push_text` so that
+        // authorship information is encoded if available. `Cord::to_dom` calls `context.push_text`
+        // in both cases
         self.value.to_dom(context);
         context.exit_node();
     }

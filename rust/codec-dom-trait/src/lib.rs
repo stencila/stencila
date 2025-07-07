@@ -260,7 +260,7 @@ impl DomEncodeContext {
             self.content.push_str(&escaped);
             self.content.push('\'');
         } else {
-            // Value does not contain quotes etc so does not need quoting
+            // Value does not contain special chars so does not need quoting
             self.content.push_str(value)
         }
     }
