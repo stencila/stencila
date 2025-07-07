@@ -1,0 +1,45 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A paragraph before first appendix break."
+        }
+      ]
+    },
+    {
+      "type": "AppendixBreak"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A paragraph after first appendix break."
+        }
+      ]
+    },
+    {
+      "type": "AppendixBreak"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "Two consecutive appendix breaks follow this paragraph."
+        }
+      ]
+    },
+    {
+      "type": "AppendixBreak"
+    },
+    {
+      "type": "AppendixBreak"
+    }
+  ]
+}

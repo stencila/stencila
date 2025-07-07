@@ -1,0 +1,21 @@
+{
+  "@id": "https://stencila.org/AppendixBreak",
+  "name": "AppendixBreak",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:AppendixBreak",
+      "@type": "rdfs:Class",
+      "rdfs:label": "AppendixBreak",
+      "rdfs:comment": "A break in a document indicating the start of a new appendix.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    }
+  ]
+}

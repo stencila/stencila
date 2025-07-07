@@ -39,6 +39,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Admonition.prototype);
     case "Annotation":
       return Object.setPrototypeOf(value, types.Annotation.prototype);
+    case "AppendixBreak":
+      return Object.setPrototypeOf(value, types.AppendixBreak.prototype);
     case "ArrayHint":
       return Object.setPrototypeOf(value, types.ArrayHint.prototype);
     case "ArrayValidator":

@@ -13,6 +13,7 @@
     "Admonition": "stencila:Admonition",
     "AdmonitionType": "stencila:AdmonitionType",
     "Annotation": "stencila:Annotation",
+    "AppendixBreak": "stencila:AppendixBreak",
     "Array": "stencila:Array",
     "ArrayHint": "stencila:ArrayHint",
     "ArrayValidator": "stencila:ArrayValidator",

@@ -1,0 +1,36 @@
+{
+  type: "Article",
+  content: [
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: { string: "A paragraph before first appendix break." }
+        }
+      ]
+    },
+    { type: "AppendixBreak" },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: { string: "A paragraph after first appendix break." }
+        }
+      ]
+    },
+    { type: "AppendixBreak" },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: { string: "Two consecutive appendix breaks follow this paragraph." }
+        }
+      ]
+    },
+    { type: "AppendixBreak" },
+    { type: "AppendixBreak" }
+  ]
+}

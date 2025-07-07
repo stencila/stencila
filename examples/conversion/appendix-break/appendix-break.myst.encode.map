@@ -1,0 +1,19 @@
+start     end        offsets   node_type+property                   authorship
+     0     40        (0, 40)   Text.value
+     0     40         (0, 0)   Text
+     0     40         (0, 0)   Paragraph.content
+     0     41         (0, 1)   Paragraph
+    42     55       (42, 14)   AppendixBreak
+    56     95       (14, 40)   Text.value
+    56     95         (0, 0)   Text
+    56     95         (0, 0)   Paragraph.content
+    56     96         (0, 1)   Paragraph
+    97    110       (41, 14)   AppendixBreak
+   111    165       (14, 55)   Text.value
+   111    165         (0, 0)   Text
+   111    165         (0, 0)   Paragraph.content
+   111    166         (0, 1)   Paragraph
+   167    180       (56, 14)   AppendixBreak
+   181    194       (14, 14)   AppendixBreak
+     0    195      (-181, 1)   Article.content
+     0    195         (0, 0)   Article

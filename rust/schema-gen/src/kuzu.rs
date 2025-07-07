@@ -143,6 +143,7 @@ impl Schemas {
 
         let skip_types = [
             // Object types for which tables are not created
+            "AppendixBreak",
             "Brand",
             "Button",
             "CallArgument",

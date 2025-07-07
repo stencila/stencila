@@ -14,6 +14,12 @@ anyOf:
         description: Generate `Admonition` nodes in block content.
         skip: false
 
+  - $ref: AppendixBreak
+    proptest:
+      min:
+        description: Do not generate `AppendixBreak` nodes in block content.
+        skip: true
+
   - $ref: AudioObject
     proptest:
       min:

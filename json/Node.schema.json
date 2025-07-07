@@ -30,6 +30,9 @@
       "$ref": "Annotation.schema.json"
     },
     {
+      "$ref": "AppendixBreak.schema.json"
+    },
+    {
       "$ref": "ArrayHint.schema.json"
     },
     {

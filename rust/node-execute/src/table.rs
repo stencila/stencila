@@ -8,13 +8,10 @@ impl Executable for Table {
         let node_id = self.node_id();
         tracing::trace!("Compiling Table {node_id}");
 
-        executor.table_count += 1;
+        let label = executor.table_label();
 
-        if self.label_automatically.unwrap_or(true) {
-            let label = executor.table_count.to_string();
-            if Some(&label) != self.label.as_ref() {
-                executor.patch(&node_id, [set(NodeProperty::Label, label)]);
-            }
+        if self.label_automatically.unwrap_or(true) && Some(&label) != self.label.as_ref() {
+            executor.patch(&node_id, [set(NodeProperty::Label, label)]);
         }
 
         WalkControl::Continue

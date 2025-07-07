@@ -10,6 +10,7 @@ export type NodeType =
   | "Array"
   | "Admonition"
   | "Annotation"
+  | "AppendixBreak"
   | "ArrayHint"
   | "ArrayValidator"
   | "Article"
@@ -148,6 +149,7 @@ export const NodeTypeList = [
   "Array",
   "Admonition",
   "Annotation",
+  "AppendixBreak",
   "ArrayHint",
   "ArrayValidator",
   "Article",

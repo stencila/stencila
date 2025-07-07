@@ -22,6 +22,15 @@
     {
       "proptest": {
         "min": {
+          "description": "Do not generate `AppendixBreak` nodes in block content.",
+          "skip": true
+        }
+      },
+      "$ref": "AppendixBreak.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
           "description": "Do not generate `AudioObject` nodes in block content.",
           "skip": true
         }

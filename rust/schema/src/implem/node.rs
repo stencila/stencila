@@ -15,6 +15,7 @@ impl Node {
         variants!(
             Admonition,
             Annotation,
+            AppendixBreak,
             Array,
             ArrayHint,
             ArrayValidator,
@@ -174,6 +175,7 @@ impl Node {
         variants!(
             Admonition,
             Annotation,
+            AppendixBreak,
             ArrayHint,
             ArrayValidator,
             Article,
@@ -367,6 +369,7 @@ impl ReadNode for Node {
         load_map_variants!(
             Admonition,
             Annotation,
+            AppendixBreak,
             ArrayHint,
             ArrayValidator,
             Article,
@@ -579,6 +582,7 @@ impl From<Block> for Node {
 
         variants!(
             Admonition,
+            AppendixBreak,
             AudioObject,
             CallBlock,
             Chat,

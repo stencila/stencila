@@ -1,0 +1,54 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@type": "Article",
+  "stencila:content": [
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "A paragraph before first appendix break."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:AppendixBreak"
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "A paragraph after first appendix break."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:AppendixBreak"
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Two consecutive appendix breaks follow this paragraph."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:AppendixBreak"
+    },
+    {
+      "@type": "stencila:AppendixBreak"
+    }
+  ]
+}

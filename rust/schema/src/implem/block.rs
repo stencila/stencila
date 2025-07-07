@@ -12,6 +12,7 @@ impl Block {
 
         variants!(
             Admonition,
+            AppendixBreak,
             AudioObject,
             CallBlock,
             Chat,
@@ -59,6 +60,7 @@ impl Block {
 
         variants!(
             Admonition,
+            AppendixBreak,
             AudioObject,
             CallBlock,
             Chat,
@@ -174,6 +176,7 @@ impl TryFrom<Node> for Block {
         }
         blocks!(
             Admonition,
+            AppendixBreak,
             CallBlock,
             Chat,
             ChatMessage,

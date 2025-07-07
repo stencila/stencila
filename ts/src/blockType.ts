@@ -2,6 +2,7 @@
 
 export type BlockType =
   | "Admonition"
+  | "AppendixBreak"
   | "AudioObject"
   | "CallBlock"
   | "Chat"
@@ -38,6 +39,7 @@ export type BlockType =
 
 export const BlockTypeList = [
   "Admonition",
+  "AppendixBreak",
   "AudioObject",
   "CallBlock",
   "Chat",

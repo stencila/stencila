@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::admonition::Admonition;
+use super::appendix_break::AppendixBreak;
 use super::audio_object::AudioObject;
 use super::call_block::CallBlock;
 use super::chat::Chat;
@@ -44,6 +45,12 @@ use super::walkthrough::Walkthrough;
 pub enum Block {
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Admonition(Admonition),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    AppendixBreak(AppendixBreak),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]

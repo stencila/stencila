@@ -1,0 +1,13 @@
+A paragraph before first appendix break.
+
+::: appendix
+
+A paragraph after first appendix break.
+
+::: appendix
+
+Two consecutive appendix breaks follow this paragraph.
+
+::: appendix
+
+::: appendix

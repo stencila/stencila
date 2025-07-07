@@ -1,0 +1,14 @@
+title: AppendixBreak
+'@id': stencila:AppendixBreak
+nick: apb
+extends: Entity
+category: prose
+description: A break in a document indicating the start of a new appendix.
+$comment: |
+  Similar to a LaTeX \appendix command, this node causes figure and table numbering to switch
+  to be prefixed by 'A' (for the first appendix), 'B', and so on.
+latex:
+  command: appendix
+markdown:
+  template: '::: appendix\n\n'
+proptest: {}

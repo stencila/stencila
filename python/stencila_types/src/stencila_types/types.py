@@ -1055,6 +1055,15 @@ class Annotation(Mark):
 
 
 @dataclass(kw_only=True, repr=False)
+class AppendixBreak(Entity):
+    """
+    A break in a document indicating the start of a new appendix.
+    """
+
+    type: Literal["AppendixBreak"] = "AppendixBreak"
+
+
+@dataclass(kw_only=True, repr=False)
 class ArrayHint(Entity):
     """
     A hint to the content of an `Array`.
@@ -3219,6 +3228,7 @@ Union type for things that can be an author in `AuthorRole`.
 
 Block = Union[
     Admonition,
+    AppendixBreak,
     AudioObject,
     CallBlock,
     Chat,
@@ -3394,6 +3404,7 @@ Node = Union[
     Array,
     Admonition,
     Annotation,
+    AppendixBreak,
     ArrayHint,
     ArrayValidator,
     Article,
@@ -3607,6 +3618,7 @@ TYPES = [
     Suggestion,
     Admonition,
     Annotation,
+    AppendixBreak,
     ArrayHint,
     ArrayValidator,
     Article,

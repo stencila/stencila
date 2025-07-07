@@ -1,0 +1,3 @@
+compact.jats.xml:
+  decode:
+    skip: true

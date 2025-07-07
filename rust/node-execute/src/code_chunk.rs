@@ -11,15 +11,10 @@ impl Executable for CodeChunk {
         // Update label if necessary
         if let Some(label_type) = &self.label_type {
             let label = match label_type {
-                LabelType::FigureLabel => {
-                    executor.figure_count += 1;
-                    executor.figure_count.to_string()
-                }
-                LabelType::TableLabel => {
-                    executor.table_count += 1;
-                    executor.table_count.to_string()
-                }
+                LabelType::FigureLabel => executor.figure_label(),
+                LabelType::TableLabel => executor.table_label(),
             };
+
             if self.label_automatically.unwrap_or(true) && Some(&label) != self.label.as_ref() {
                 executor.patch(&node_id, [set(NodeProperty::Label, label)]);
             }

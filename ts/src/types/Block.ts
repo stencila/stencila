@@ -3,6 +3,7 @@
 import { hydrate } from "../hydrate.js";
 
 import { type Admonition } from "./Admonition.js";
+import { type AppendixBreak } from "./AppendixBreak.js";
 import { type AudioObject } from "./AudioObject.js";
 import { type CallBlock } from "./CallBlock.js";
 import { type Chat } from "./Chat.js";
@@ -42,6 +43,7 @@ import { type Walkthrough } from "./Walkthrough.js";
  */
 export type Block =
   Admonition |
+  AppendixBreak |
   AudioObject |
   CallBlock |
   Chat |
@@ -82,6 +84,7 @@ export type Block =
 export function block(other: Block): Block {
   switch(other.type) {
     case "Admonition":
+    case "AppendixBreak":
     case "AudioObject":
     case "CallBlock":
     case "Chat":

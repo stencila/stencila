@@ -141,6 +141,7 @@ impl Visitor for Inspector<'_, '_> {
         }
         variants!(
             Admonition,
+            AppendixBreak,
             AudioObject,
             CallBlock,
             Chat,
@@ -801,6 +802,7 @@ macro_rules! default {
 default!(
     // Blocks
     Admonition,
+    AppendixBreak,
     Claim,
     CodeBlock,
     Excerpt,

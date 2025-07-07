@@ -17,13 +17,14 @@ use codec::{
     },
     format::Format,
     schema::{
-        Admonition, AdmonitionType, Author, Block, CallArgument, CallBlock, Chat, ChatMessage,
-        ChatMessageGroup, ChatMessageOptions, Claim, CodeBlock, CodeChunk, CodeExpression,
-        ExecutionBounds, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
-        ImageObject, IncludeBlock, Inline, InstructionBlock, InstructionMessage, LabelType, List,
-        ListItem, ListOrder, MathBlock, Node, Paragraph, PromptBlock, QuoteBlock, RawBlock,
-        Section, SoftwareApplication, StyledBlock, SuggestionBlock, SuggestionStatus, Table,
-        TableCell, TableRow, TableRowType, Text, ThematicBreak, Walkthrough, WalkthroughStep,
+        Admonition, AdmonitionType, AppendixBreak, Author, Block, CallArgument, CallBlock, Chat,
+        ChatMessage, ChatMessageGroup, ChatMessageOptions, Claim, CodeBlock, CodeChunk,
+        CodeExpression, ExecutionBounds, ExecutionMode, Figure, ForBlock, Heading, IfBlock,
+        IfBlockClause, ImageObject, IncludeBlock, Inline, InstructionBlock, InstructionMessage,
+        LabelType, List, ListItem, ListOrder, MathBlock, Node, Paragraph, PromptBlock, QuoteBlock,
+        RawBlock, Section, SoftwareApplication, StyledBlock, SuggestionBlock, SuggestionStatus,
+        Table, TableCell, TableRow, TableRowType, Text, ThematicBreak, Walkthrough,
+        WalkthroughStep,
     },
 };
 
@@ -237,7 +238,10 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                     } else {
                         !matches!(
                             block,
-                            Block::IncludeBlock(..) | Block::CallBlock(..) | Block::PromptBlock(..)
+                            Block::AppendixBreak(..)
+                                | Block::IncludeBlock(..)
+                                | Block::CallBlock(..)
+                                | Block::PromptBlock(..)
                         )
                     };
 
@@ -497,6 +501,7 @@ fn block(input: &mut Located<&str>) -> ModalResult<Block> {
             (take_while(3.., ':'), space0),
             alt((
                 admonition_qmd,
+                appendix_break,
                 call_block,
                 include_block,
                 prompt_block,
@@ -558,6 +563,13 @@ fn admonition_qmd(input: &mut Located<&str>) -> ModalResult<Block> {
         })
     })
     .parse_next(input)
+}
+
+/// Parse a [`AppendixBreak`] node
+fn appendix_break(input: &mut Located<&str>) -> ModalResult<Block> {
+    ("appendix", multispace0)
+        .map(|_| Block::AppendixBreak(AppendixBreak::default()))
+        .parse_next(input)
 }
 
 /// Parse an argument to a `CallBlock`.

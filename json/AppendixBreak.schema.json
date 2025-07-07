@@ -1,0 +1,46 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/AppendixBreak.schema.json",
+  "@id": "stencila:AppendixBreak",
+  "title": "AppendixBreak",
+  "nick": "apb",
+  "extends": [
+    "Entity"
+  ],
+  "category": "prose",
+  "description": "A break in a document indicating the start of a new appendix.",
+  "$comment": "Similar to a LaTeX \\appendix command, this node causes figure and table numbering to switch\nto be prefixed by 'A' (for the first appendix), 'B', and so on.\n",
+  "latex": {
+    "command": "appendix"
+  },
+  "markdown": {
+    "template": "::: appendix\\n\\n"
+  },
+  "proptest": {},
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    }
+  }
+}

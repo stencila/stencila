@@ -69,6 +69,7 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> Vec<
 
         // Other
         Block::Admonition(block) => admonition_to_pandoc(block, context),
+        Block::AppendixBreak(block) => appendix_break_to_pandoc(block, context),
         Block::Claim(block) => claim_to_pandoc(block, context),
         Block::CallBlock(block) => call_block_to_pandoc(block, context),
         Block::ChatMessage(block) => chat_message_to_pandoc(block, context),
@@ -890,6 +891,24 @@ fn admonition_to_pandoc(admon: &Admonition, context: &mut PandocEncodeContext) -
     )
 }
 
+fn appendix_break_to_pandoc(
+    _appendix: &AppendixBreak,
+    context: &mut PandocEncodeContext,
+) -> pandoc::Block {
+    pandoc::Block::Div(
+        attrs_classes(vec!["appendix-break".into()]),
+        blocks_to_pandoc(NodeProperty::Content, &[], context),
+    )
+}
+
+fn appendix_break_from_pandoc(
+    _attrs: pandoc::Attr,
+    _blocks: Vec<pandoc::Block>,
+    _context: &mut PandocDecodeContext,
+) -> Block {
+    Block::AppendixBreak(AppendixBreak::default())
+}
+
 fn if_block_to_pandoc(block: &IfBlock, context: &mut PandocEncodeContext) -> pandoc::Block {
     if context.render {
         // In render mode, only render the active clause's content
@@ -1408,6 +1427,10 @@ fn div_from_pandoc(
     context: &mut PandocDecodeContext,
 ) -> Block {
     let classes = &attrs.classes;
+
+    if classes.iter().any(|class| class == "appendix-break") {
+        return appendix_break_from_pandoc(attrs, blocks, context);
+    };
 
     if classes.iter().any(|class| class == "include") {
         return include_block_from_pandoc(attrs, blocks, context);
