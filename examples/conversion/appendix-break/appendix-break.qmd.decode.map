@@ -1,9 +1,5 @@
 start     end        offsets   node_type+property                   authorship
      0     40        (0, 40)   Paragraph
-    42     54       (42, 14)   AppendixBreak
-    56     95       (14, 41)   Paragraph
-    97    109       (41, 14)   AppendixBreak
-   111    165       (14, 56)   Paragraph
-   167    179       (56, 14)   AppendixBreak
-   181    193       (14, 14)   AppendixBreak
-     0    194      (-181, 1)   Article
+    42     81       (42, 41)   Paragraph
+    83    137       (41, 56)   Paragraph
+     0    138       (-83, 1)   Article

@@ -1,3 +1,22 @@
+# Strip decoding appendix breaks for Markdown flavours that
+# do not support them
+
 compact.jats.xml:
   decode:
-    skip: true
+    strip-types:
+      - AppendixBreak
+
+llmd:
+  decode:
+    strip-types:
+      - AppendixBreak
+
+myst:
+  decode:
+    strip-types:
+      - AppendixBreak
+
+qmd:
+  decode:
+    strip-types:
+      - AppendixBreak
