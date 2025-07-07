@@ -33,7 +33,27 @@
  * 4. Update corresponding TypeScript schemas and encoders
  */
 
-import type { Heading, Link, Node, NodeType, Text } from '@stencila/types'
+import type {
+  AudioObject,
+  Block,
+  CodeBlock,
+  CodeInline,
+  Entity,
+  Heading,
+  ImageObject,
+  Inline,
+  Link,
+  List,
+  ListItem,
+  Node,
+  NodeType,
+  Table,
+  Text,
+  VideoObject,
+  Cord,
+} from '@stencila/types'
+
+type Attrs = Record<string, unknown>
 
 /**
  * Context for DOM encoding that tracks HTML generation state
@@ -56,18 +76,12 @@ class EncodeContext {
    * Mirrors `context.enter_node()` in Rust.
    * Generates the opening tag with depth, ancestors, and root attributes.
    */
-  enterNode(
-    nodeType: NodeType,
-    nodeId?: string,
-    extraAttrs: Record<string, unknown> = {}
-  ): void {
+  enterNode(nodeType: NodeType, extraAttrs: Attrs = {}): void {
     this.nodeStack.push(nodeType)
     const tagName = this.getTagName(nodeType)
 
-    // Always add a default ID (will be normalized in tests)
-    const id = nodeId || 'xxx'
     let attrs =
-      this.formatAttribute('id', id) +
+      this.formatAttribute('id', 'xxx') +
       this.formatAttribute('depth', this.ancestors.length) +
       this.formatAttribute('ancestors', this.ancestors.join('.'))
     if (this.ancestors.length === 0) {
@@ -90,7 +104,7 @@ class EncodeContext {
   exitNode(): void {
     const nodeType = this.nodeStack.pop()
     if (nodeType) {
-      const tagName = this.getTagName(nodeType)
+      const tagName = this.getTagName(nodeType as NodeType)
       this.html += `</${tagName}>`
     }
   }
@@ -107,26 +121,9 @@ class EncodeContext {
     if (value === null || value === undefined) return ''
     const attrName = this.toKebabCase(name)
     const attrValue = this.escapeAttributeValue(value)
-    return ` ${attrName}="${attrValue}"`
-  }
-
-  /**
-   * Add an attribute to the current node
-   *
-   * Mirrors attribute handling in the Rust derive macro.
-   * Converts camelCase to kebab-case and escapes HTML entities.
-   */
-  pushAttribute(name: string, value: unknown): void {
-    if (value === null || value === undefined) return
-
-    const attrString = this.formatAttribute(name, value)
-
-    // Insert attribute before the closing >
-    const lastTagStart = this.html.lastIndexOf('<')
-    const lastTagEnd = this.html.lastIndexOf('>')
-    if (lastTagStart > lastTagEnd) {
-      this.html += attrString
-    }
+    const quote =
+      attrValue.startsWith('"') && attrValue.endsWith('"') ? "'" : '"'
+    return ` ${attrName}=${quote}${attrValue}${quote}`
   }
 
   /**
@@ -244,18 +241,24 @@ interface NodeSchema {
  * - `#[dom(with = "function")]` -> `encoder: "function"`
  */
 interface FieldSchema {
+  /** Skip this field in DOM encoding */
+  skip?: boolean
+
   /** HTML element to wrap field content ("section", "div", "span", "none", null) */
   element?: string | null
 
   /** Custom attribute name (defaults to kebab-case field name) */
   attribute?: string
 
-  /** Skip this field in DOM encoding */
-  skip?: boolean
+  /** If an attribute its position */
+  position?: number
 
   /** Custom encoder function name */
-  encoder?: string
+  encoder?: (value: unknown) => string
 }
+
+// Common fields that should be skipped by default
+const SKIP_FIELDS = ['type', 'compilationDigest', 'executionDigest', '$schema']
 
 /**
  * Node schema definitions based on Rust schema `#[dom(...)]` attributes
@@ -285,10 +288,24 @@ const NODE_SCHEMAS: Partial<Record<NodeType, NodeSchema>> = {
     },
   },
 
+  CallBlock: {
+    fields: {
+      arguments: { element: 'div' },
+      content: { element: 'div' },
+    },
+  },
+
+  CallArgument: {
+    fields: {
+      value: { attribute: 'value', encoder: (value) => JSON.stringify(value) },
+      code: { attribute: 'code', position: 10 },
+    },
+  },
+
   Claim: {
     fields: {
       claimType: { attribute: 'claim-type' },
-      content: { element: 'div' },
+      content: { element: 'aside' },
     },
   },
 
@@ -296,6 +313,28 @@ const NODE_SCHEMAS: Partial<Record<NodeType, NodeSchema>> = {
     element: 'em',
     fields: {
       content: { element: 'none' },
+    },
+  },
+
+  ForBlock: {
+    fields: {
+      code: { attribute: 'code', position: 10 },
+      programmingLanguage: { attribute: 'programming-language', position: 30 },
+      variable: { attribute: 'variable', position: 40 },
+      content: { element: 'div' },
+      otherwise: { element: 'div' },
+    },
+  },
+
+  IfBlock: {
+    fields: {
+      clauses: { element: 'div' },
+    },
+  },
+
+  IfBlockClause: {
+    fields: {
+      content: { element: 'div' },
     },
   },
 
@@ -361,23 +400,6 @@ const NODE_SCHEMAS: Partial<Record<NodeType, NodeSchema>> = {
     },
   },
 
-  StyledBlock: {
-    fields: {
-      content: { element: 'div' },
-      styleLanguage: { attribute: 'style-language' },
-      code: { element: 'style' },
-    },
-  },
-
-  StyledInline: {
-    element: 'span',
-    fields: {
-      content: { element: 'none' },
-      styleLanguage: { attribute: 'style-language' },
-      code: { skip: true }, // Inline styles are applied differently
-    },
-  },
-
   Subscript: {
     element: 'sub',
     fields: {
@@ -414,96 +436,57 @@ const NODE_SCHEMAS: Partial<Record<NodeType, NodeSchema>> = {
 const MANUAL_ENCODERS: Partial<
   Record<NodeType, (node: Node, context: EncodeContext) => void>
 > = {
-  AudioObject: (node: Record<string, unknown>, context: EncodeContext) => {
-    const attrs: Record<string, unknown> = {}
-    if (node.contentUrl) {
-      attrs['content-url'] = node.contentUrl
-    }
+  AudioObject: (node: AudioObject, context: EncodeContext) => {
+    context.enterNode('AudioObject', { 'content-url': node.contentUrl })
 
-    context.enterNode('AudioObject' as NodeType, undefined, attrs)
+    context.html += `<audio src="${node.contentUrl}" controls></audio>`
 
-    // Generate audio element
-    if (node.contentUrl) {
-      context.html += `<audio src="${node.contentUrl}" controls></audio>`
-    }
-
-    // Add title and caption similar to ImageObject
     if (node.title) {
-      const title = Array.isArray(node.title)
-        ? (node.title as Node[])
-            .map((item: Node) =>
-              encode(item, [...context.ancestors, 'AudioObject'])
-            )
-            .join('')
-        : encode(node.title as Node, [...context.ancestors, 'AudioObject'])
-      context.pushSlot('span', 'title', title)
+      context.pushSlot(
+        'span',
+        'title',
+        encodeInlines(node.title, [...context.ancestors, 'AudioObject'])
+      )
     }
 
     if (node.caption) {
-      const caption = Array.isArray(node.caption)
-        ? (node.caption as Node[])
-            .map((item: Node) =>
-              encode(item, [...context.ancestors, 'AudioObject'])
-            )
-            .join('')
-        : encode(node.caption as Node, [...context.ancestors, 'AudioObject'])
-      context.pushSlot('span', 'caption', caption)
+      context.pushSlot(
+        'span',
+        'caption',
+        encodeInlines(node.caption, [...context.ancestors, 'AudioObject'])
+      )
     }
 
     context.exitNode()
   },
 
-  CodeBlock: (node: Record<string, unknown>, context: EncodeContext) => {
-    const attrs: Record<string, unknown> = {}
-    if (node.code !== undefined) {
-      attrs.code = node.code
-    }
-    if (node.programmingLanguage) {
-      attrs['programming-language'] = node.programmingLanguage
-    }
+  CodeBlock: (node: CodeBlock, context: EncodeContext) => {
+    context.enterNode('CodeBlock', {
+      code: node.code,
+      'programming-language': node.programmingLanguage,
+    })
 
-    context.enterNode('CodeBlock' as NodeType, undefined, attrs)
-
-    // Generate pre > code element structure
-    const code = String(node.code || '')
-    if (code.trim() === '') {
-      // Empty or whitespace-only code
-      context.html += `<pre><code></code></pre>`
-    } else {
-      // Non-empty code
-      context.html += `<pre><code>${context.escapeHtml(code)}</code></pre>`
-    }
+    context.html += `<pre><code>${context.escapeHtml(cordToString(node.code))}</code></pre>`
 
     context.exitNode()
   },
 
-  CodeInline: (node: Record<string, unknown>, context: EncodeContext) => {
-    const attrs: Record<string, unknown> = {}
-    attrs.code = node.code
-    if (node.programmingLanguage) {
-      attrs['programming-language'] = node.programmingLanguage
-    }
+  CodeInline: (node: CodeInline, context: EncodeContext) => {
+    context.enterNode('CodeInline', {
+      code: node.code,
+      'programming-language': node.programmingLanguage,
+    })
 
-    context.enterNode('CodeInline' as NodeType, undefined, attrs)
-
-    // Generate code element directly
-    context.html += `<code>${context.escapeHtml(String(node.code || ''))}</code>`
+    context.html += `<code>${context.escapeHtml(String(cordToString(node.code)))}</code>`
 
     context.exitNode()
   },
 
   Heading: (node: Heading, context: EncodeContext) => {
-    // Prepare attributes
-    const attrs: Record<string, unknown> = {}
-    if (node.level !== undefined) {
-      attrs.level = node.level
-    }
+    context.enterNode('Heading', { level: node.level })
 
-    context.enterNode('Heading' as NodeType, undefined, attrs)
-
-    // Content in appropriate heading element
     if (node.content && node.content.length > 0) {
-      const level = Math.max(1, Math.min(6, node.level || 1)) // Clamp to 1-6
+      const level = Math.max(1, Math.min(6, node.level)) // Clamp to 1-6
       const headingTag = `h${level}`
       const content = node.content
         .map((item: Node) => encode(item, [...context.ancestors, 'Heading']))
@@ -514,54 +497,34 @@ const MANUAL_ENCODERS: Partial<
     context.exitNode()
   },
 
-  ImageObject: (node: Record<string, unknown>, context: EncodeContext) => {
-    const attrs: Record<string, unknown> = {}
-    if (node.contentUrl) {
-      attrs['content-url'] = node.contentUrl
-    }
+  ImageObject: (node: ImageObject, context: EncodeContext) => {
+    context.enterNode('ImageObject', {
+      'content-url': node.contentUrl,
+    })
 
-    context.enterNode('ImageObject' as NodeType, undefined, attrs)
+    context.html += `<img src="${node.contentUrl}" />`
 
-    // Generate img element
-    if (node.contentUrl) {
-      context.html += `<img src="${node.contentUrl}" />`
-    }
-
-    // Add title if present
     if (node.title) {
-      const title = Array.isArray(node.title)
-        ? (node.title as Node[])
-            .map((item: Node) =>
-              encode(item, [...context.ancestors, 'ImageObject'])
-            )
-            .join('')
-        : encode(node.title as Node, [...context.ancestors, 'ImageObject'])
-      context.pushSlot('span', 'title', title)
+      context.pushSlot(
+        'span',
+        'title',
+        encodeInlines(node.title, [...context.ancestors, 'ImageObject'])
+      )
     }
 
-    // Add caption if present
     if (node.caption) {
-      const caption = Array.isArray(node.caption)
-        ? (node.caption as Node[])
-            .map((item: Node) =>
-              encode(item, [...context.ancestors, 'ImageObject'])
-            )
-            .join('')
-        : encode(node.caption as Node, [...context.ancestors, 'ImageObject'])
-      context.pushSlot('span', 'caption', caption)
+      context.pushSlot(
+        'span',
+        'caption',
+        encodeInlines(node.caption, [...context.ancestors, 'ImageObject'])
+      )
     }
 
     context.exitNode()
   },
 
   Link: (node: Link, context: EncodeContext) => {
-    // Prepare attributes
-    const attrs: Record<string, unknown> = {}
-    if (node.target) {
-      attrs.target = node.target
-    }
-
-    context.enterNode('Link' as NodeType, undefined, attrs)
+    context.enterNode('Link', { target: node.target })
 
     // Create anchor element with href and optional title
     let anchorAttrs = `href="${node.target || ''}"`
@@ -572,7 +535,7 @@ const MANUAL_ENCODERS: Partial<
     // Content wrapped in span with slot
     if (node.content && node.content.length > 0) {
       const content = node.content
-        .map((item: Node) => encode(item, [...context.ancestors, 'Link']))
+        .map((item) => encode(item, [...context.ancestors, 'Link']))
         .join('')
       context.html += `<a ${anchorAttrs}><span slot=content>${content}</span></a>`
     } else {
@@ -582,21 +545,16 @@ const MANUAL_ENCODERS: Partial<
     context.exitNode()
   },
 
-  List: (node: Record<string, unknown>, context: EncodeContext) => {
-    const attrs: Record<string, unknown> = {}
-    if (node.order) {
-      attrs.order = node.order
-    }
-
-    context.enterNode('List' as NodeType, undefined, attrs)
+  List: (node: List, context: EncodeContext) => {
+    context.enterNode('List', { order: node.order })
 
     // Generate ul or ol based on order
-    const items = node.items as Node[]
+    const items = node.items
     if (items && items.length > 0) {
       const tag =
         node.order === 'Ascending' || node.order === 'Descending' ? 'ol' : 'ul'
       const content = items
-        .map((item: Node) => encode(item, [...context.ancestors, 'List']))
+        .map((item) => encode(item, [...context.ancestors, 'List']))
         .join('')
       context.pushSlot(tag, 'items', content)
     }
@@ -604,47 +562,33 @@ const MANUAL_ENCODERS: Partial<
     context.exitNode()
   },
 
-  ListItem: (node: Record<string, unknown>, context: EncodeContext) => {
-    const attrs: Record<string, unknown> = {}
-    if (node.isChecked !== undefined) {
-      attrs['is-checked'] = node.isChecked
-    }
+  ListItem: (node: ListItem, context: EncodeContext) => {
+    context.enterNode('ListItem', { 'is-checked': node.isChecked })
 
-    context.enterNode('ListItem' as NodeType, undefined, attrs)
-
-    // Generate li element for content
-    const content = node.content as Node[]
-    if (content && content.length > 0) {
-      const encoded = content
-        .map((item: Node) => encode(item, [...context.ancestors, 'ListItem']))
-        .join('')
-      context.pushSlot('li', 'content', encoded)
+    if (node.content) {
+      context.pushSlot(
+        'li',
+        'content',
+        encodeBlocks(node.content, [...context.ancestors, 'ListItem'])
+      )
     }
 
     context.exitNode()
   },
 
-  Table: (node: Record<string, unknown>, context: EncodeContext) => {
-    const attrs: Record<string, unknown> = {}
-    if (node.label !== undefined) {
-      attrs.label = node.label
-    }
-    if (node.labelAutomatically !== undefined) {
-      attrs['label-automatically'] = node.labelAutomatically
-    }
-
-    context.enterNode('Table' as NodeType, undefined, attrs)
+  Table: (node: Table, context: EncodeContext) => {
+    context.enterNode('Table', {
+      label: node.label,
+      'label-automatically': node.labelAutomatically,
+    })
 
     // Add caption if present
     if (node.caption) {
-      const captionArray = Array.isArray(node.caption)
-        ? (node.caption as Node[])
-        : [node.caption as Node]
-      const captionContent = captionArray
-        .map((item: Node) => {
+      const captionContent = node.caption
+        .map((item) => {
           // Add label span before first paragraph if label exists
           if (node.label && item.type === 'Paragraph') {
-            return `<stencila-paragraph id="${item.id || 'xxx'}" depth="${context.ancestors.length + 1}" ancestors="${[...context.ancestors, 'Table'].join('.')}"><p slot="content"><span class="table-label">Table ${node.label}</span>${(item.content as Node[]).map((c: Node) => encode(c, [...context.ancestors, 'Table', 'Paragraph'])).join('')}</p></stencila-paragraph>`
+            return `<stencila-paragraph id="${item.id || 'xxx'}" depth="${context.ancestors.length + 1}" ancestors="${[...context.ancestors, 'Table'].join('.')}"><p slot="content"><span class="table-label">Table ${node.label}</span>${item.content.map((c) => encode(c, [...context.ancestors, 'Table', 'Paragraph'])).join('')}</p></stencila-paragraph>`
           }
           return encode(item, [...context.ancestors, 'Table'])
         })
@@ -652,17 +596,12 @@ const MANUAL_ENCODERS: Partial<
       context.pushSlot('div', 'caption', captionContent)
     }
 
-    // Add rows
-    const rows = node.rows as Record<string, unknown>[]
-    if (rows && rows.length > 0) {
-      const rowsContent = rows
-        .map((row: Record<string, unknown>) => {
-          // Encode TableRow
-          const cells = row.cells as Record<string, unknown>[]
-          const cellsContent = cells
-            .map((cell: Record<string, unknown>) => {
-              // Encode TableCell
-              const cellContent = ((cell.content as Node[]) || [])
+    if (node.rows && node.rows.length > 0) {
+      const rowsContent = node.rows
+        .map((row) => {
+          const rowContent = row.cells
+            .map((cell) => {
+              const cellContent = (cell.content || [])
                 .map((item: Node) =>
                   encode(item, [
                     ...context.ancestors,
@@ -675,28 +614,25 @@ const MANUAL_ENCODERS: Partial<
               return `<td id="${cell.id || 'xxx'}" depth="${context.ancestors.length + 2}" ancestors="${[...context.ancestors, 'Table', 'TableRow'].join('.')}">${cellContent}</td>`
             })
             .join('')
-          return `<tr id="${row.id || 'xxx'}" depth="${context.ancestors.length + 1}" ancestors="${[...context.ancestors, 'Table'].join('.')}">${cellsContent}</tr>`
+          return `<tr id="${row.id || 'xxx'}" depth="${context.ancestors.length + 1}" ancestors="${[...context.ancestors, 'Table'].join('.')}">${rowContent}</tr>`
         })
         .join('')
       context.pushSlot('table', 'rows', rowsContent)
     }
 
-    // Add notes if present
     if (node.notes) {
-      const notesArray = Array.isArray(node.notes)
-        ? (node.notes as Node[])
-        : [node.notes as Node]
-      const notesContent = notesArray
-        .map((item: Node) => encode(item, [...context.ancestors, 'Table']))
-        .join('')
-      context.pushSlot('aside', 'notes', notesContent)
+      context.pushSlot(
+        'aside',
+        'notes',
+        encodeBlocks(node.notes, [...context.ancestors, 'Table'])
+      )
     }
 
     context.exitNode()
   },
 
   Text: (node: Text, context: EncodeContext) => {
-    context.enterNode('Text' as NodeType)
+    context.enterNode('Text')
 
     let text = node.value || ''
 
@@ -712,40 +648,25 @@ const MANUAL_ENCODERS: Partial<
     context.exitNode()
   },
 
-  VideoObject: (node: Record<string, unknown>, context: EncodeContext) => {
-    const attrs: Record<string, unknown> = {}
-    if (node.contentUrl) {
-      attrs['content-url'] = node.contentUrl
-    }
+  VideoObject: (node: VideoObject, context: EncodeContext) => {
+    context.enterNode('VideoObject', { 'content-url': node.contentUrl })
 
-    context.enterNode('VideoObject' as NodeType, undefined, attrs)
+    context.html += `<video src="${node.contentUrl}" controls></video>`
 
-    // Generate video element
-    if (node.contentUrl) {
-      context.html += `<video src="${node.contentUrl}" controls></video>`
-    }
-
-    // Add title and caption similar to ImageObject
     if (node.title) {
-      const title = Array.isArray(node.title)
-        ? (node.title as Node[])
-            .map((item: Node) =>
-              encode(item, [...context.ancestors, 'VideoObject'])
-            )
-            .join('')
-        : encode(node.title as Node, [...context.ancestors, 'VideoObject'])
-      context.pushSlot('span', 'title', title)
+      context.pushSlot(
+        'span',
+        'title',
+        encodeInlines(node.title, [...context.ancestors, 'VideoObject'])
+      )
     }
 
     if (node.caption) {
-      const caption = Array.isArray(node.caption)
-        ? (node.caption as Node[])
-            .map((item: Node) =>
-              encode(item, [...context.ancestors, 'VideoObject'])
-            )
-            .join('')
-        : encode(node.caption as Node, [...context.ancestors, 'VideoObject'])
-      context.pushSlot('span', 'caption', caption)
+      context.pushSlot(
+        'span',
+        'caption',
+        encodeInlines(node.caption, [...context.ancestors, 'VideoObject'])
+      )
     }
 
     context.exitNode()
@@ -835,19 +756,25 @@ function encodeDerived(
 ): void {
   const nodeType = node.type as NodeType
 
-  // Common fields that should be skipped by default
-  const skipFields = ['type', 'compilationDigest', 'executionDigest', '$schema']
-
   // Process all fields that exist on the node, not just those in the schema
   const allFields = new Set([
     ...Object.keys(node),
     ...Object.keys(schema.fields),
   ])
 
+  // Sort fields according to any `position` corresponding field schema (if any)
+  const sortedFields = Array.from(allFields).sort((a, b) => {
+    const aSchema = schema.fields[a] || {}
+    const bSchema = schema.fields[b] || {}
+    const aPosition = aSchema.position ?? 0
+    const bPosition = bSchema.position ?? 0
+    return aPosition - bPosition
+  })
+
   // Collect attributes to pass to enterNode
-  const extraAttrs: Record<string, unknown> = {}
-  for (const fieldName of allFields) {
-    if (skipFields.includes(fieldName)) continue
+  const attrs: Attrs = {}
+  for (const fieldName of sortedFields) {
+    if (SKIP_FIELDS.includes(fieldName)) continue
 
     const value = node[fieldName]
     if (value === undefined || value === null) {
@@ -855,7 +782,7 @@ function encodeDerived(
     }
 
     const fieldSchema = schema.fields[fieldName] || {}
-    if (fieldSchema.skip) {
+    if (fieldSchema.skip || fieldSchema.element !== undefined) {
       continue
     }
 
@@ -865,19 +792,19 @@ function encodeDerived(
     ) {
       // Field becomes an attribute
       const attrName = fieldSchema.attribute || context.toKebabCase(fieldName)
-      extraAttrs[attrName] = value
+      attrs[attrName] = fieldSchema.encoder ? fieldSchema.encoder(value) : value
     }
   }
 
-  context.enterNode(nodeType, undefined, extraAttrs)
+  context.enterNode(nodeType, attrs)
 
   // If schema has a top-level element (e.g., 'em', 'strong'), create that semantic HTML element
   if (schema.element) {
     let elementContent = ''
 
     // Process fields to build content for the semantic element
-    for (const fieldName of allFields) {
-      if (skipFields.includes(fieldName)) continue
+    for (const fieldName of sortedFields) {
+      if (SKIP_FIELDS.includes(fieldName)) continue
 
       const value = node[fieldName]
       if (value === undefined || value === null) {
@@ -908,8 +835,8 @@ function encodeDerived(
     context.html += `<${schema.element}>${elementContent}</${schema.element}>`
   } else {
     // No top-level element - process fields as slots (attributes already handled)
-    for (const fieldName of allFields) {
-      if (skipFields.includes(fieldName)) continue
+    for (const fieldName of sortedFields) {
+      if (SKIP_FIELDS.includes(fieldName)) continue
 
       const value = node[fieldName]
       if (value === undefined || value === null) {
@@ -962,23 +889,46 @@ function encodeDerived(
  * Provides minimal encoding by adding node attributes and skipping metadata fields.
  * Used when no manual encoder or schema is available for a node type.
  */
-function encodeFallback(
-  node: Record<string, unknown>,
-  context: EncodeContext
-): void {
-  const nodeType = node.type as NodeType
-  context.enterNode(nodeType)
+function encodeFallback(node: Entity, context: EncodeContext): void {
+  const attrs: Attrs = {}
 
-  // Add common attributes, skip known metadata fields
-  const skipFields = ['type', 'compilationDigest', 'executionDigest']
   for (const [key, value] of Object.entries(node)) {
-    if (skipFields.includes(key) || value === undefined || value === null) {
+    if (SKIP_FIELDS.includes(key) || value === undefined || value === null) {
       continue
     }
-    context.pushAttribute(key, value)
+    attrs[key] = value
   }
 
+  context.enterNode(node.type as NodeType, attrs)
   context.exitNode()
+}
+
+function encodeBlocks(blocks: Block[], ancestors: string[] = []): string {
+  return blocks.map((block) => encode(block, ancestors)).join('')
+}
+
+function encodeInlines(inlines: Inline[], ancestors: string[] = []): string {
+  return inlines.map((inline) => encode(inline, ancestors)).join('')
+}
+
+/**
+ * Encode a `Cord` as a string
+ *
+ * This is necessary because cords may be serialized to JSON as
+ * a plain string or a Cord object (with `string` and possibly `authorship` properties)
+ */
+function cordToString(cord: Cord | string): string {
+  if (typeof cord == 'string') {
+    return cord
+  }
+
+  if (typeof cord === 'object' && cord !== null) {
+    if ('string' in cord && typeof cord.string === 'string') {
+      return cord.string
+    }
+  }
+
+  return String(cord)
 }
 
 /**
@@ -997,8 +947,10 @@ export function encode(node: Node, ancestors: string[] = []): string {
     return primitiveResult
   }
 
+  const entity = node as unknown as Entity
+
   // Handle typed nodes
-  const nodeType = node.type as NodeType
+  const nodeType = entity.type as NodeType
   const context = new EncodeContext(ancestors)
 
   // Prefer schema-driven encoding first (mirrors Rust derive macro behavior)
@@ -1015,6 +967,6 @@ export function encode(node: Node, ancestors: string[] = []): string {
   }
 
   // Final fallback for unknown node types - use minimal encoding
-  encodeFallback(node as Record<string, unknown>, context)
+  encodeFallback(entity, context)
   return context.getHtml()
 }

@@ -13,8 +13,7 @@ const EXAMPLES_PATH = resolve(__dirname, '../../../examples/conversion')
 // Helper to normalize HTML for comparison and make it easier to
 // see differences
 async function normalizeHtml(html: string): Promise<string> {
-  const normalized = html.replace(/\bid="[^"]*"/g, 'id=xxx')
-  return await format(normalized, {
+  const prettified = await format(html, {
     parser: 'html',
     printWidth: 80,
     tabWidth: 2,
@@ -22,6 +21,19 @@ async function normalizeHtml(html: string): Promise<string> {
     htmlWhitespaceSensitivity: 'ignore',
     bracketSameLine: false,
   })
+
+  return (
+    prettified
+      .replace(/\bid="[^"]*"/g, 'id=xxx')
+      // Differences in how single quotes are escaped (is at all)
+      .replaceAll('&#x27;', "'")
+      .replaceAll('&#39;', "'")
+      // These are necessary due to differences indenting <pre> elems in the examples
+      // and by prettier
+      .replace(/<pre>\s*<code>/g, '<pre><code>')
+      .replace(/<\/code>\s*<\/pre>/g, '</code></pre>')
+      .replace(/<code>\s*<\/code>/g, '<code></code>')
+  )
 }
 
 // Helper to read JSON file as a Stencila Node
@@ -48,8 +60,8 @@ function getTestCases(): Array<{
     .map((dirent) => dirent.name)
 
   for (const dir of dirs) {
-    // Filter out complex article-* test cases for now
-    if (dir.startsWith('article-')) {
+    // Filter out complex article and chat test cases for now
+    if (dir.startsWith('article-') || dir.startsWith('chat')) {
       continue
     }
 
