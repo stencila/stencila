@@ -252,7 +252,9 @@ impl DomEncodeContext {
 
     /// Push an attribute value onto the current element
     fn push_attr_value(&mut self, value: &str) {
-        if value.is_empty() || value.contains(['"', '\'', ' ', '\t', '\n', '\\', '/', '>', '<']) {
+        if value.is_empty()
+            || value.contains(['"', '\'', ' ', '\t', '\n', '\\', '/', '>', '<', '='])
+        {
             // Use single quoting (more terse for JSON attributes because inner double
             // quotes do not need escaping)
             let escaped = encode_single_quoted_attribute(value);
