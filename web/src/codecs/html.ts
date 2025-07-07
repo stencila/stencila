@@ -292,7 +292,8 @@ const NODE_SCHEMAS: Partial<Record<NodeType, NodeSchema>> = {
   Article: {
     fields: {
       title: { element: 'h1' },
-      authors: { element: 'span' },
+      authors: { element: 'section' },
+      provenance: { element: 'div' },
       abstract: { element: 'section' },
       content: { element: 'section' },
       references: { element: 'section' },
@@ -317,6 +318,8 @@ const NODE_SCHEMAS: Partial<Record<NodeType, NodeSchema>> = {
     fields: {
       claimType: { attribute: 'claim-type' },
       content: { element: 'aside' },
+      authors: { element: 'div' },
+      provenance: { element: 'div' },
     },
   },
 
@@ -504,19 +507,17 @@ const MANUAL_ENCODERS: Partial<
 
     context.html += `<audio src="${node.contentUrl}" controls></audio>`
 
+    const ancestors = [...context.ancestors, 'AudioObject' as NodeType]
+
     if (node.title) {
-      context.pushSlot(
-        'span',
-        'title',
-        encodeInlines(node.title, [...context.ancestors, 'AudioObject'])
-      )
+      context.pushSlot('span', 'title', encodeInlines(node.title, ancestors))
     }
 
     if (node.caption) {
       context.pushSlot(
         'span',
         'caption',
-        encodeInlines(node.caption, [...context.ancestors, 'AudioObject'])
+        encodeInlines(node.caption, ancestors)
       )
     }
 
@@ -529,6 +530,20 @@ const MANUAL_ENCODERS: Partial<
       'programming-language': node.programmingLanguage,
     })
 
+    const ancestors = [...context.ancestors, 'CodeBlock' as NodeType]
+
+    if (node.authors) {
+      context.pushSlot('div', 'authors', encodeNodes(node.authors, ancestors))
+    }
+
+    if (node.provenance) {
+      context.pushSlot(
+        'div',
+        'provenance',
+        encodeNodes(node.provenance, ancestors)
+      )
+    }
+
     context.html += `<pre><code>${context.escapeHtml(cordToString(node.code))}</code></pre>`
 
     context.exitNode()
@@ -540,7 +555,87 @@ const MANUAL_ENCODERS: Partial<
       'programming-language': node.programmingLanguage,
     })
 
+    const ancestors = [...context.ancestors, 'CodeInline' as NodeType]
+
+    if (node.authors) {
+      context.pushSlot('span', 'authors', encodeNodes(node.authors, ancestors))
+    }
+
+    if (node.provenance) {
+      context.pushSlot(
+        'span',
+        'provenance',
+        encodeNodes(node.provenance, ancestors)
+      )
+    }
+
     context.html += `<code>${context.escapeHtml(String(cordToString(node.code)))}</code>`
+
+    context.exitNode()
+  },
+
+  CodeChunk: (node: CodeChunk, context: EncodeContext) => {
+    context.enterNode('CodeChunk', {
+      'execution-mode': node.executionMode,
+      'execution-bounds': node.executionBounds,
+      code: node.code,
+      'programming-language': node.programmingLanguage,
+      'label-type': node.labelType,
+      label: node.label,
+      'label-automatically': node.labelAutomatically,
+      'is-echoed': node.isEchoed,
+      'is-hidden': node.isHidden,
+      'execution-ended': node.executionEnded,
+      'execution-duration': node.executionDuration,
+    })
+
+    const ancestors = [...context.ancestors, 'CodeChunk' as NodeType]
+
+    if (node.compilationMessages) {
+      context.pushSlot(
+        'div',
+        'compilation-messages',
+        encodeNodes(node.compilationMessages, ancestors)
+      )
+    }
+
+    if (node.executionMessages) {
+      context.pushSlot(
+        'div',
+        'execution-messages',
+        encodeNodes(node.executionMessages, ancestors)
+      )
+    }
+
+    if (node.authors) {
+      context.pushSlot('div', 'authors', encodeNodes(node.authors, ancestors))
+    }
+
+    if (node.provenance) {
+      context.pushSlot(
+        'div',
+        'provenance',
+        encodeNodes(node.provenance, ancestors)
+      )
+    }
+
+    if (node.labelType == 'TableLabel') {
+      context.pushSlot(
+        'div',
+        'caption',
+        encodeCaption(node.caption, 'Table', node.label, ancestors)
+      )
+    }
+
+    // Outputs
+
+    if (node.labelType == 'FigureLabel') {
+      context.pushSlot(
+        'div',
+        'caption',
+        encodeCaption(node.caption, 'Figure', node.label, ancestors)
+      )
+    }
 
     context.exitNode()
   },
@@ -551,31 +646,28 @@ const MANUAL_ENCODERS: Partial<
       'label-automatically': node.labelAutomatically,
     })
 
+    const ancestors = [...context.ancestors, 'Figure' as NodeType]
+
     if (node.authors) {
-      context.pushSlot(
-        'span',
-        'authors',
-        encodeNodes(node.authors, [...context.ancestors, 'Figure'])
-      )
+      context.pushSlot('div', 'authors', encodeNodes(node.authors, ancestors))
     }
 
     if (node.provenance) {
       context.pushSlot(
-        'span',
+        'div',
         'provenance',
-        encodeNodes(node.provenance, [...context.ancestors, 'Figure'])
+        encodeNodes(node.provenance, ancestors)
       )
     }
 
     context.html +=
-      '<figure slot="content">' +
-      encodeBlocks(node.content, [...context.ancestors, 'Figure'])
+      '<figure slot="content">' + encodeBlocks(node.content, ancestors)
 
     if (node.caption) {
       context.pushSlot(
         'figcaption',
         'caption',
-        encodeCaption(node.caption, 'Figure', node.label, context.ancestors)
+        encodeCaption(node.caption, 'Figure', node.label, ancestors)
       )
     }
 
@@ -596,6 +688,20 @@ const MANUAL_ENCODERS: Partial<
       context.pushSlot(headingTag, 'content', content)
     }
 
+    const ancestors = [...context.ancestors, 'Heading' as NodeType]
+
+    if (node.authors) {
+      context.pushSlot('div', 'authors', encodeNodes(node.authors, ancestors))
+    }
+
+    if (node.provenance) {
+      context.pushSlot(
+        'div',
+        'provenance',
+        encodeNodes(node.provenance, ancestors)
+      )
+    }
+
     context.exitNode()
   },
 
@@ -606,19 +712,17 @@ const MANUAL_ENCODERS: Partial<
 
     context.html += `<img src="${node.contentUrl}" />`
 
+    const ancestors = [...context.ancestors, 'ImageObject' as NodeType]
+
     if (node.title) {
-      context.pushSlot(
-        'span',
-        'title',
-        encodeInlines(node.title, [...context.ancestors, 'ImageObject'])
-      )
+      context.pushSlot('span', 'title', encodeInlines(node.title, ancestors))
     }
 
     if (node.caption) {
       context.pushSlot(
         'span',
         'caption',
-        encodeInlines(node.caption, [...context.ancestors, 'ImageObject'])
+        encodeInlines(node.caption, ancestors)
       )
     }
 
@@ -717,28 +821,23 @@ const MANUAL_ENCODERS: Partial<
       css: node.css,
     })
 
+    const ancestors = [...context.ancestors, 'StyledBlock' as NodeType]
+
     if (node.authors) {
-      context.pushSlot(
-        'div',
-        'authors',
-        encodeNodes(node.authors, [...context.ancestors, 'StyledBlock'])
-      )
+      context.pushSlot('div', 'authors', encodeNodes(node.authors, ancestors))
     }
 
     if (node.provenance) {
       context.pushSlot(
         'div',
         'provenance',
-        encodeNodes(node.provenance, [...context.ancestors, 'StyledBlock'])
+        encodeNodes(node.provenance, ancestors)
       )
     }
 
-    context.pushSlot(
-      'div',
-      'content',
-      encodeNodes(node.content, [...context.ancestors, 'StyledBlock']),
-      { class: node.classList }
-    )
+    context.pushSlot('div', 'content', encodeNodes(node.content, ancestors), {
+      class: node.classList,
+    })
 
     context.exitNode()
   },
@@ -750,28 +849,23 @@ const MANUAL_ENCODERS: Partial<
       css: node.css,
     })
 
+    const ancestors = [...context.ancestors, 'StyledInline' as NodeType]
+
     if (node.authors) {
-      context.pushSlot(
-        'span',
-        'authors',
-        encodeNodes(node.authors, [...context.ancestors, 'StyledInline'])
-      )
+      context.pushSlot('span', 'authors', encodeNodes(node.authors, ancestors))
     }
 
     if (node.provenance) {
       context.pushSlot(
         'span',
         'provenance',
-        encodeNodes(node.provenance, [...context.ancestors, 'StyledInline'])
+        encodeNodes(node.provenance, ancestors)
       )
     }
 
-    context.pushSlot(
-      'span',
-      'content',
-      encodeNodes(node.content, [...context.ancestors, 'StyledInline']),
-      { class: node.classList }
-    )
+    context.pushSlot('span', 'content', encodeNodes(node.content, ancestors), {
+      class: node.classList,
+    })
 
     context.exitNode()
   },
@@ -782,11 +876,25 @@ const MANUAL_ENCODERS: Partial<
       'label-automatically': node.labelAutomatically,
     })
 
+    const ancestors = [...context.ancestors, 'Table' as NodeType]
+
+    if (node.authors) {
+      context.pushSlot('div', 'authors', encodeNodes(node.authors, ancestors))
+    }
+
+    if (node.provenance) {
+      context.pushSlot(
+        'div',
+        'provenance',
+        encodeNodes(node.provenance, ancestors)
+      )
+    }
+
     if (node.caption) {
       context.pushSlot(
         'div',
         'caption',
-        encodeCaption(node.caption, 'Table', node.label, context.ancestors)
+        encodeCaption(node.caption, 'Table', node.label, ancestors)
       )
     }
 
@@ -805,21 +913,17 @@ const MANUAL_ENCODERS: Partial<
                   ])
                 )
                 .join('')
-              return `<td id="${cell.id || 'xxx'}" depth="${context.ancestors.length + 2}" ancestors="${[...context.ancestors, 'Table', 'TableRow'].join('.')}">${cellContent}</td>`
+              return `<td id="${cell.id || 'xxx'}" depth="${context.ancestors.length + 2}" ancestors="${[...ancestors, 'TableRow'].join('.')}">${cellContent}</td>`
             })
             .join('')
-          return `<tr id="${row.id || 'xxx'}" depth="${context.ancestors.length + 1}" ancestors="${[...context.ancestors, 'Table'].join('.')}">${rowContent}</tr>`
+          return `<tr id="${row.id || 'xxx'}" depth="${context.ancestors.length + 1}" ancestors="${ancestors.join('.')}">${rowContent}</tr>`
         })
         .join('')
       context.pushSlot('table', 'rows', rowsContent)
     }
 
     if (node.notes) {
-      context.pushSlot(
-        'aside',
-        'notes',
-        encodeBlocks(node.notes, [...context.ancestors, 'Table'])
-      )
+      context.pushSlot('aside', 'notes', encodeBlocks(node.notes, ancestors))
     }
 
     context.exitNode()
@@ -848,19 +952,17 @@ const MANUAL_ENCODERS: Partial<
 
     context.html += `<video src="${node.contentUrl}" controls></video>`
 
+    const ancestors = [...context.ancestors, 'VideoObject' as NodeType]
+
     if (node.title) {
-      context.pushSlot(
-        'span',
-        'title',
-        encodeInlines(node.title, [...context.ancestors, 'VideoObject'])
-      )
+      context.pushSlot('span', 'title', encodeInlines(node.title, ancestors))
     }
 
     if (node.caption) {
       context.pushSlot(
         'span',
         'caption',
-        encodeInlines(node.caption, [...context.ancestors, 'VideoObject'])
+        encodeInlines(node.caption, ancestors)
       )
     }
 
@@ -1170,20 +1272,18 @@ function encodeCaption(
   label: string | undefined,
   ancestors: NodeType[] = []
 ): string {
-  const ancestorsExtended = [...ancestors, type]
-
   return blocks
     .map((block, index) => {
       if (index == 0 && block.type === 'Paragraph') {
         return (
-          `<stencila-paragraph id=xxx depth="${ancestorsExtended.length}" ancestors="${ancestorsExtended.join('.')}">` +
+          `<stencila-paragraph id=xxx depth="${ancestors.length}" ancestors="${ancestors.join('.')}">` +
           `<p slot="content">` +
           `<span class="${type.toLowerCase()}-label">${type}${label ? ` ${label}` : ''}</span>` +
-          encodeInlines(block.content, [...ancestorsExtended, 'Paragraph']) +
+          encodeInlines(block.content, [...ancestors, 'Paragraph']) +
           `</p></stencila-paragraph>`
         )
       } else {
-        return encode(block, ancestorsExtended)
+        return encode(block, ancestors)
       }
     })
     .join('')
