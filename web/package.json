@@ -52,8 +52,8 @@
   ],
   "scripts": {
     "audit": "better-npm-audit audit",
-    "fix": "eslint --fix 'src/**/*.ts' && prettier --write .",
-    "lint": "eslint 'src/**/*.ts' && prettier --check .",
+    "fix": "eslint --fix 'src/**/*.ts'",
+    "lint": "eslint 'src/**/*.ts'",
     "test": "vitest run",
     "test:watch": "vitest",
     "cover": "vitest run --coverage",
