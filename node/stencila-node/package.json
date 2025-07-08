@@ -51,10 +51,10 @@
     "pubcheck": "attw --pack . && publint",
     "compress": "node compress.cjs",
     "install": "node install.cjs",
-    "test": "jest",
-    "cover": "npm test -- --collectCoverage --coverageReports=cobertura",
+    "test": "vitest run",
+    "cover": "vitest run --coverage",
     "bench": "tsup --entry.index src/bench.ts --external ../stencila.node --format cjs --out-dir bench --clean && node bench/index.cjs | tee bench/results.txt",
-    "unused": "depcheck --quiet --ignores @napi-rs/cli,@types/jest,benchmark,tmp --ignore-patterns 'eslint.config.js'"
+    "unused": "depcheck --quiet --ignores @napi-rs/cli,benchmark,tmp --ignore-patterns 'eslint.config.js'"
   },
   "engines": {
     "node": ">=16"
@@ -62,20 +62,6 @@
   "napi": {
     "name": "stencila",
     "triples": {}
-  },
-  "jest": {
-    "preset": "ts-jest/presets/default-esm",
-    "moduleNameMapper": {
-      "^(\\.{1,2}/.*)\\.js$": "$1"
-    },
-    "transform": {
-      "^.+\\.ts$": [
-        "ts-jest",
-        {
-          "useESM": true
-        }
-      ]
-    }
   },
   "tsup": {
     "entry": [

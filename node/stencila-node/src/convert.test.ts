@@ -1,5 +1,6 @@
 import { Article, Paragraph, Strong, Text } from "@stencila/types";
 import * as tmp from "tmp";
+import { test, expect } from "vitest";
 
 // eslint-disable-next-line import/no-unresolved
 import { toPath, toString, fromPath, fromString, fromTo } from "./convert.js";

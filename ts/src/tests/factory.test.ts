@@ -1,3 +1,5 @@
+import { test, expect } from "vitest";
+
 import {
   Article,
   Organization,
@@ -50,6 +52,6 @@ test("new block", () => {
 
   // @ts-expect-error because it is intentional - it is what we're testing
   expect(() => block(subscript([]))).toThrowErrorMatchingInlineSnapshot(
-    `"Unexpected type for Block: Subscript"`,
+    `[Error: Unexpected type for Block: Subscript]`,
   );
 });

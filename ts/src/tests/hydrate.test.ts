@@ -1,3 +1,5 @@
+import { test, expect } from "vitest";
+
 import { hydrate } from "../hydrate.js";
 import { CreativeWork, Article, Paragraph, Text, Thing } from "../index.js";
 

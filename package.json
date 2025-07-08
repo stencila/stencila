@@ -18,7 +18,6 @@
     "@eslint/js": "9.29.0",
     "@prettier/plugin-xml": "3.4.1",
     "@types/benchmark": "2.1.5",
-    "@types/jest": "30.0.0",
     "@types/node": "22.13.13",
     "@types/tmp": "0.2.6",
     "@typescript-eslint/parser": "8.34.1",
@@ -31,16 +30,15 @@
     "eslint-plugin-import": "2.31.0",
     "eslint-plugin-lit": "2.1.1",
     "eslint-plugin-wc": "3.0.1",
-    "jest": "30.0.1",
     "prettier": "3.5.3",
     "process": "0.11.10",
     "publint": "0.3.12",
     "svgo": "3.3.2",
     "tmp": "0.2.3",
-    "ts-jest": "29.4.0",
     "tsup": "8.5.0",
     "typescript": "5.8.3",
     "typescript-eslint": "8.34.1",
+    "vitest": "1.6.0",
     "wrangler": "4.20.3"
   }
 }
