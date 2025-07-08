@@ -6,6 +6,8 @@ description: Indicates how a block (usually a `CodeChunk`) should be automatical
 proptest: {}
 default: FigureLabel
 anyOf:
+  - const: AppendixLabel
+    "@id": stencila:AppendixLabel
   - const: FigureLabel
     "@id": stencila:FigureLabel
   - const: TableLabel

@@ -13,6 +13,7 @@ impl Executable for Link {
                 let label_type = match label_type {
                     LabelType::TableLabel => "Table",
                     LabelType::FigureLabel => "Figure",
+                    LabelType::AppendixLabel => "Appendix",
                 };
 
                 let content = if self.label_only.unwrap_or_default() {

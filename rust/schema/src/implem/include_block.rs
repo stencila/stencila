@@ -5,14 +5,6 @@ use crate::{prelude::*, IncludeBlock};
 
 impl LatexCodec for IncludeBlock {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
-        if self.source.ends_with("prelude.tex")
-            && matches!(context.format, Format::Docx | Format::Odt)
-        {
-            // The \input{prelude} is treated specially. It is not passed on to pandoc, so it
-            // can be used for LaTeX that is needed in the document but which Pandoc baulks at
-            return;
-        }
-
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, media_type, select, execution_mode))

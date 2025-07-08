@@ -2,9 +2,10 @@
 
 use crate::prelude::*;
 
+use super::compilation_message::CompilationMessage;
 use super::string::String;
 
-/// A break in a document indicating the start of a new appendix.
+/// A break in a document indicating the start one or more appendices.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
@@ -23,10 +24,30 @@ pub struct AppendixBreak {
     #[html(attr = "id")]
     pub id: Option<String>,
 
+    /// Non-core optional fields
+    #[serde(flatten)]
+    #[html(flatten)]
+    #[jats(flatten)]
+    pub options: Box<AppendixBreakOptions>,
+
     /// A unique identifier for a node within a document
     #[serde(skip)]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub uid: NodeUid
+}
+
+#[skip_serializing_none]
+#[serde_as]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[cfg_attr(feature = "proptest", derive(Arbitrary))]
+pub struct AppendixBreakOptions {
+    /// Messages generated while compiling the appendix break.
+    #[serde(alias = "compilation-messages", alias = "compilation_messages", alias = "compilationMessage", alias = "compilation-message", alias = "compilation_message")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(compilation)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub compilation_messages: Option<Vec<CompilationMessage>>,
 }
 
 impl AppendixBreak {

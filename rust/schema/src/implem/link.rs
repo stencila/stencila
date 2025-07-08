@@ -41,7 +41,7 @@ impl LatexCodec for Link {
             } else {
                 "href"
             }
-        } else if matches!(context.format, Format::Docx | Format::Odt) {
+        } else if context.has_format_via_pandoc() {
             // Pandoc’s built-in LaTeX reader doesn’t implement Hyperref’s \autoref prefix logic,
             // so both \ref and \autoref get treated as “just the label number” when you go to DOCX.
             // See https://github.com/jgm/pandoc/issues/7463.

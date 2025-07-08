@@ -602,6 +602,8 @@ impl DatabaseNode for Heading {
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
+            (NodeProperty::LabelType, self.label_type.to_kuzu_type(), self.label_type.to_kuzu_value()),
+            (NodeProperty::Label, self.label.to_kuzu_type(), self.label.to_kuzu_value()),
             (NodeProperty::Level, self.level.to_kuzu_type(), self.level.to_kuzu_value())
         ]
     }

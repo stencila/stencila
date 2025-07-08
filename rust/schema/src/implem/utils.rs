@@ -2,7 +2,7 @@ use codec_dom_trait::{DomCodec, DomEncodeContext};
 
 use crate::Block;
 
-/// Encode the `caption` of a `Figure`, `Table` of `CodeChunk` to DOM HTML
+/// Encode the `caption` of a `Figure`, `Table` or `CodeChunk` to DOM HTML
 ///
 /// Injects a `<span>` for the label into the first paragraph.
 pub(super) fn caption_to_dom(

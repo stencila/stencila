@@ -8,6 +8,8 @@ use crate::prelude::*;
 #[strum(ascii_case_insensitive, crate = "common::strum")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub enum LabelType {
+    AppendixLabel,
+
     #[default]
     FigureLabel,
 

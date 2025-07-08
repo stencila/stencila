@@ -24,9 +24,27 @@ required:
   - level
   - content
 core:
+  - labelType
+  - label
   - authors
   - provenance
 properties:
+  labelType:
+    "@id": stencila:labelType
+    description: The type of the label for the appendix (if present, should be `AppendixLabel`).
+    $ref: LabelType
+    proptest:
+      min:
+        description: No label type
+        value: None
+  label:
+    "@id": stencila:label
+    description: A short label for the heading.
+    type: string
+    proptest:
+      min:
+        description: No label
+        value: None
   level:
     '@id': stencila:level
     description: The level of the heading.

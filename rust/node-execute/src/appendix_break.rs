@@ -1,4 +1,4 @@
-use schema::AppendixBreak;
+use schema::{AppendixBreak, CompilationMessage};
 
 use crate::prelude::*;
 
@@ -8,10 +8,20 @@ impl Executable for AppendixBreak {
         let node_id = self.node_id();
         tracing::trace!("Compiling AppendixBreak {node_id}");
 
-        executor.appendix_count += 1;
-        executor.figure_count = 0;
-        executor.table_count = 0;
-        executor.equation_count = 0;
+        if executor.appendix_count.is_none() {
+            executor.appendix_count = Some(0);
+
+            if self.options.compilation_messages.is_some() {
+                executor.patch(&node_id, [none(NodeProperty::CompilationMessages)]);
+            }
+        } else if self.options.compilation_messages.is_none() {
+            let messages = Some(vec![CompilationMessage {
+                level: MessageLevel::Warning,
+                message: "Extra appendix break; will be ignored".to_string(),
+                ..Default::default()
+            }]);
+            executor.patch(&node_id, [set(NodeProperty::CompilationMessages, messages)]);
+        }
 
         WalkControl::Continue
     }

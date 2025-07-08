@@ -475,7 +475,7 @@ impl Inspect for CodeChunk {
         let name = match &self.label_type {
             Some(LabelType::FigureLabel) => "Figure",
             Some(LabelType::TableLabel) => "Table",
-            None => "CodeChunk",
+            _ => "CodeChunk",
         }
         .to_string();
 

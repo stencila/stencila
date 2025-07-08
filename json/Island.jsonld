@@ -158,6 +158,9 @@
           "@id": "stencila:CodeChunk"
         },
         {
+          "@id": "stencila:Heading"
+        },
+        {
           "@id": "stencila:Island"
         }
       ],
@@ -185,6 +188,9 @@
         },
         {
           "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:Heading"
         },
         {
           "@id": "stencila:Island"

@@ -3,6 +3,7 @@
  * Indicates how a block (usually a `CodeChunk`) should be automatically labelled.
  */
 export type LabelType =
+  'AppendixLabel' |
   'FigureLabel' |
   'TableLabel';
 

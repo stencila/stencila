@@ -361,6 +361,7 @@ class LabelType(StrEnum):
     Indicates how a block (usually a `CodeChunk`) should be automatically labelled.
     """
 
+    AppendixLabel = "AppendixLabel"
     FigureLabel = "FigureLabel"
     TableLabel = "TableLabel"
 
@@ -1057,10 +1058,13 @@ class Annotation(Mark):
 @dataclass(kw_only=True, repr=False)
 class AppendixBreak(Entity):
     """
-    A break in a document indicating the start of a new appendix.
+    A break in a document indicating the start one or more appendices.
     """
 
     type: Literal["AppendixBreak"] = "AppendixBreak"
+
+    compilation_messages: list[CompilationMessage] | None = None
+    """Messages generated while compiling the appendix break."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2009,6 +2013,12 @@ class Heading(Entity):
     """
 
     type: Literal["Heading"] = "Heading"
+
+    label_type: LabelType | None = None
+    """The type of the label for the appendix (if present, should be `AppendixLabel`)."""
+
+    label: str | None = None
+    """A short label for the heading."""
 
     level: int = 0
     """The level of the heading."""

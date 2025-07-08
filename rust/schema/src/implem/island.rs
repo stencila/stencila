@@ -7,7 +7,7 @@ impl LatexCodec for Island {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
         context.enter_node(self.node_type(), self.node_id());
 
-        if matches!(context.format, Format::Docx | Format::Odt) {
+        if context.has_format_via_pandoc() {
             let (mut latex, ..) = to_latex(
                 &self.content,
                 Format::Svg,
@@ -18,19 +18,64 @@ impl LatexCodec for Island {
                 context.prelude.clone(),
             );
 
-            if let (Some(label_type), Some(number)) = (
-                self.label_type,
-                self.label
-                    .as_ref()
-                    .and_then(|label| label.parse::<u32>().ok()),
-            ) {
-                let label_type = match label_type {
-                    LabelType::FigureLabel => "figure",
-                    LabelType::TableLabel => "table",
-                };
-                let counter = number.saturating_sub(1);
+            // Set figure or table counter within the island's LaTeX
+            if let (Some(label_type), Some(label)) = (self.label_type, &self.label) {
+                if let Some(label_type) = match label_type {
+                    LabelType::FigureLabel => Some("figure"),
+                    LabelType::TableLabel => Some("table"),
+                    // This should not usually happen
+                    LabelType::AppendixLabel => None,
+                } {
+                    // For islands within appendices (label starts with uppercase number) we need
+                    // to derive a counter for the appendix as well as for the figure or table
+                    let (appendix_counter, label_type_counter): (Option<u32>, Option<u32>) = {
+                        // Split label into uppercase prefix and numeric suffix
+                        let prefix: String = label
+                            .chars()
+                            .take_while(|c| c.is_ascii_uppercase())
+                            .collect();
+                        let suffix: String = label
+                            .chars()
+                            .skip_while(|c| c.is_ascii_uppercase())
+                            .collect();
 
-                latex.insert_str(0, &format!(r"\setcounter{{{label_type}}}{{{counter}}}"));
+                        // Parse appendix counter from first uppercase letter (A=1, B=2, etc.)
+                        let appendix = prefix
+                            .chars()
+                            .next()
+                            .and_then(|c| Some(c as u32 - 'A' as u32 + 1));
+
+                        // Parse label counter and subtract 1 (because the figure itself will increment the counter)
+                        let label_counter = suffix.parse::<u32>().ok().and_then(|n| {
+                            if n > 0 {
+                                Some(n - 1)
+                            } else {
+                                None
+                            }
+                        });
+
+                        (appendix, label_counter)
+                    };
+
+                    let mut counters = String::new();
+
+                    if let Some(appendix_counter) = appendix_counter {
+                        counters.push_str("\\appendix\n");
+                        counters.push_str("\\setcounter{section}{");
+                        counters.push_str(&appendix_counter.to_string());
+                        counters.push_str("}\n");
+                    }
+
+                    if let Some(label_type_counter) = label_type_counter {
+                        counters.push_str("\\setcounter{");
+                        counters.push_str(label_type);
+                        counters.push_str("}{");
+                        counters.push_str(&label_type_counter.to_string());
+                        counters.push_str("}\n");
+                    }
+
+                    latex.insert_str(0, &counters);
+                }
             }
 
             let path = context.temp_dir.join(format!("{}.svg", self.node_id()));
@@ -89,6 +134,11 @@ impl LatexCodec for Island {
                                         self.label_type,
                                         None | Some(LabelType::FigureLabel)
                                     )
+                                || id.starts_with("app:")
+                                    && matches!(
+                                        self.label_type,
+                                        None | Some(LabelType::AppendixLabel)
+                                    )
                             {
                                 return None;
                             }
@@ -100,6 +150,7 @@ impl LatexCodec for Island {
                                 match lt {
                                     LabelType::FigureLabel => "fig",
                                     LabelType::TableLabel => "tab",
+                                    LabelType::AppendixLabel => "app",
                                 },
                             ]
                             .concat(),

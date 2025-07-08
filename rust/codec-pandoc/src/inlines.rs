@@ -258,6 +258,10 @@ fn link_from_pandoc(
         target = format!("tab:{rest}");
     } else if let Some(rest) = target.strip_prefix("#fig%3A") {
         target = format!("fig:{rest}");
+    } else if let Some(rest) = target.strip_prefix("#equ%3A") {
+        target = format!("equ:{rest}");
+    } else if let Some(rest) = target.strip_prefix("#app%3A") {
+        target = format!("app:{rest}");
     }
 
     let label_only = if !target.starts_with("https://") && !target.starts_with("http://") {

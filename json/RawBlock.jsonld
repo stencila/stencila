@@ -183,6 +183,9 @@
       "rdfs:comment": "Messages generated while parsing and transpiling the `content` into the `css` property.",
       "schema:domainIncludes": [
         {
+          "@id": "stencila:AppendixBreak"
+        },
+        {
           "@id": "stencila:Citation"
         },
         {

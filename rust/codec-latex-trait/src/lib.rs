@@ -462,6 +462,14 @@ impl LatexEncodeContext {
         }
     }
 
+    /// Whether encoding to LaTeX for a final target format that is generated using Pandoc
+    ///
+    /// Used when encoding "coarse" documents to alter encoding to that which is handled
+    /// by Pandoc.
+    pub fn has_format_via_pandoc(&self) -> bool {
+        matches!(self.format, Format::Docx | Format::Odt)
+    }
+
     /// Get the current insertion position (i.e. the number of characters in the content)
     fn char_index(&self) -> usize {
         self.content.chars().count()

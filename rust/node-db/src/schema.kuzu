@@ -258,6 +258,8 @@ CREATE NODE TABLE IF NOT EXISTS `Function` (
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Heading` (
+  `labelType` STRING,
+  `label` STRING,
   `level` INT64,
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,

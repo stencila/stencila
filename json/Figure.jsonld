@@ -606,6 +606,9 @@
           "@id": "stencila:Figure"
         },
         {
+          "@id": "stencila:Heading"
+        },
+        {
           "@id": "stencila:Island"
         },
         {

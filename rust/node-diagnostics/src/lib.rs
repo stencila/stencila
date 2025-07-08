@@ -380,6 +380,7 @@ impl Visitor for Collector {
     #[rustfmt::skip]
     fn visit_node(&mut self, node: &Node) -> WalkControl {
         match node {
+            Node::AppendixBreak(node) => cms!(self, node, None, None),
             Node::Article(node) => cms_ems!(self, node, None, None),
             Node::CallBlock(node) => cms_ems!(self, node, None, None),
             Node::Chat(node) => cms_ems!(self, node, None, None),
@@ -402,6 +403,7 @@ impl Visitor for Collector {
     #[rustfmt::skip]
     fn visit_block(&mut self, block: &schema::Block) -> WalkControl {
         match block {
+            Block::AppendixBreak(block) => cms!(self, block, None, None),
             Block::CallBlock(block) => cms_ems!(self, block, None, None),
             Block::ChatMessage(block) => cms_ems!(self, block, None, None),
             Block::CodeChunk(block) => cms_ems!(self, block, block.programming_language.as_deref(), Some(&block.code)),

@@ -18,6 +18,64 @@
       }
     },
     {
+      "@id": "stencila:labelType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "labelType",
+      "rdfs:comment": "The type of the label for the appendix (if present, should be `AppendixLabel`).",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:Island"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:LabelType"
+      }
+    },
+    {
+      "@id": "stencila:label",
+      "@type": "rdfs:Property",
+      "rdfs:label": "label",
+      "rdfs:comment": "A short label for the heading.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:Table"
+        },
+        {
+          "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:Island"
+        },
+        {
+          "@id": "stencila:MathBlock"
+        },
+        {
+          "@id": "stencila:Parameter"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:level",
       "@type": "rdfs:Property",
       "rdfs:label": "level",

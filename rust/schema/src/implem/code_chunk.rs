@@ -157,7 +157,7 @@ impl LatexCodec for CodeChunk {
 
                 context.property_fn(NodeProperty::Outputs, |context| {
                     for output in outputs {
-                        if matches!(context.format, Format::Docx | Format::Odt) {
+                        if context.has_format_via_pandoc() {
                             // Encode output to LaTeX
                             let (latex, ..) = to_latex(
                                 output,
@@ -418,6 +418,8 @@ impl MarkdownCodec for CodeChunk {
                                 match label_type {
                                     LabelType::FigureLabel => "figure",
                                     LabelType::TableLabel => "table",
+                                    // Should be unreachable, but in case it is reached..
+                                    LabelType::AppendixLabel => "chunk",
                                 },
                             );
                         }
@@ -504,6 +506,8 @@ impl MarkdownCodec for CodeChunk {
                         context.push_str(match label_type {
                             LabelType::FigureLabel => " figure",
                             LabelType::TableLabel => " table",
+                            // Should be unreachable, but in case it is reached..
+                            LabelType::AppendixLabel => " chunk",
                         });
                     } else {
                         context.push_str(" chunk");

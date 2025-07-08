@@ -5,6 +5,7 @@ use crate::prelude::*;
 use super::author::Author;
 use super::inline::Inline;
 use super::integer::Integer;
+use super::label_type::LabelType;
 use super::provenance_count::ProvenanceCount;
 use super::string::String;
 
@@ -29,6 +30,21 @@ pub struct Heading {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,
+
+    /// The type of the label for the appendix (if present, should be `AppendixLabel`).
+    #[serde(alias = "label-type", alias = "label_type")]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(value = r#"None"#))]
+    pub label_type: Option<LabelType>,
+
+    /// A short label for the heading.
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(value = r#"None"#))]
+    pub label: Option<String>,
 
     /// The level of the heading.
     #[default = 0]

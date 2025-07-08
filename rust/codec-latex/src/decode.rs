@@ -7,8 +7,9 @@ use codec::{
     },
     format::Format,
     schema::{
-        AppendixBreak, Article, Block, CodeChunk, CodeExpression, ForBlock, IfBlock, IfBlockClause,
-        IncludeBlock, Inline, InlinesBlock, Island, LabelType, Link, Node, RawBlock,
+        AppendixBreak, Article, Block, CodeChunk, CodeExpression, ForBlock, Heading, IfBlock,
+        IfBlockClause, IncludeBlock, Inline, InlinesBlock, Island, LabelType, Link, Node, RawBlock,
+        Text,
     },
     DecodeInfo, DecodeOptions,
 };
@@ -45,6 +46,8 @@ static RE: Lazy<Regex> = Lazy::new(|| {
       | \\input\{(?P<input>[^}]*)\}\s*\n?
 
       | (?P<appendix>\\appendix)\s*\n?
+
+      | \\section\{(?P<section>[^}]*)\}\s*\n?
 
       | \\begin\{chunk\} \s*
           (?:\[(?P<chunk_opts>[^\]]*?)\])? \s* 
@@ -251,6 +254,11 @@ fn latex_to_blocks(latex: &str, island_style: &Option<String>) -> Vec<Block> {
             blocks.push(Block::IncludeBlock(IncludeBlock::new(source)));
         } else if captures.name("appendix").is_some() {
             blocks.push(Block::AppendixBreak(AppendixBreak::new()));
+        } else if let Some(section) = captures.name("section") {
+            blocks.push(Block::Heading(Heading::new(
+                1,
+                vec![Inline::Text(Text::from(section.as_str()))],
+            )));
         } else if let Some(mat) = captures.name("chunk") {
             let code = mat.as_str().to_string();
 

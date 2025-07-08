@@ -12,9 +12,38 @@
       "@id": "stencila:AppendixBreak",
       "@type": "rdfs:Class",
       "rdfs:label": "AppendixBreak",
-      "rdfs:comment": "A break in a document indicating the start of a new appendix.",
+      "rdfs:comment": "A break in a document indicating the start one or more appendices.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "stencila:compilationMessages",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compilationMessages",
+      "rdfs:comment": "Messages generated while compiling the appendix break.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:AppendixBreak"
+        },
+        {
+          "@id": "stencila:Citation"
+        },
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationMessage"
       }
     }
   ]

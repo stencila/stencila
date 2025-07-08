@@ -132,19 +132,84 @@ pub fn block_from_pandoc(block: pandoc::Block, context: &mut PandocDecodeContext
 }
 
 fn heading_to_pandoc(heading: &Heading, context: &mut PandocEncodeContext) -> pandoc::Block {
-    pandoc::Block::Header(
-        heading.level as i32,
-        attrs_empty(),
-        inlines_to_pandoc(NodeProperty::Content, &heading.content, context),
-    )
+    let mut inlines = inlines_to_pandoc(NodeProperty::Content, &heading.content, context);
+
+    if context.render
+        && (matches!(heading.label_type, Some(LabelType::AppendixLabel)) || heading.label.is_some())
+    {
+        let mut prefix = if matches!(heading.label_type, Some(LabelType::AppendixLabel)) {
+            "Appendix ".into()
+        } else {
+            String::new()
+        };
+
+        if let Some(label) = &heading.label {
+            prefix.push_str(&label);
+            prefix.push(' ');
+        }
+
+        inlines.insert(0, context.output_span(pandoc::Inline::Str(prefix)));
+    }
+
+    pandoc::Block::Header(heading.level as i32, attrs_empty(), inlines)
 }
 
 fn heading_from_pandoc(
     level: i32,
     _attrs: pandoc::Attr,
-    inlines: Vec<pandoc::Inline>,
+    mut inlines: Vec<pandoc::Inline>,
     context: &mut PandocDecodeContext,
 ) -> Block {
+    if matches!(context.format, Format::Docx | Format::Odt) {
+        // For word processor formats, strip the appendix label that may have been
+        // added during rendering. We can not rely on the custom-style=Output still
+        // being on the label so we need to do this (including Strong etc if output was highlighted)...
+        if let Some(pandoc::Inline::Str(first)) = inlines.first() {
+            if first == "Appendix" {
+                inlines.remove(0);
+                if matches!(inlines.first(), Some(pandoc::Inline::Space)) {
+                    inlines.remove(0);
+                }
+                if let Some(pandoc::Inline::Str(next)) = inlines.first() {
+                    if next.len() == 1 {
+                        inlines.remove(0);
+                    }
+                }
+                if matches!(inlines.first(), Some(pandoc::Inline::Space)) {
+                    inlines.remove(0);
+                }
+            }
+        } else if let Some(
+            pandoc::Inline::Emph(inners)
+            | pandoc::Inline::Strong(inners)
+            | pandoc::Inline::Underline(inners),
+        ) = inlines.first_mut()
+        {
+            if let Some(pandoc::Inline::Str(first)) = inners.first() {
+                if first == "Appendix" {
+                    inners.remove(0);
+                    if matches!(inners.first(), Some(pandoc::Inline::Space)) {
+                        inners.remove(0);
+                    }
+                    if let Some(pandoc::Inline::Str(next)) = inners.first() {
+                        if next.len() == 1 {
+                            inners.remove(0);
+                        }
+                    }
+                    if matches!(inners.first(), Some(pandoc::Inline::Space)) {
+                        inners.remove(0);
+                    }
+                }
+            }
+            if inners.is_empty() {
+                inlines.remove(0);
+            }
+            while matches!(inlines.first(), Some(pandoc::Inline::Space)) {
+                inlines.remove(0);
+            }
+        }
+    }
+
     Block::Heading(Heading::new(
         level as i64,
         inlines_from_pandoc(inlines, context),

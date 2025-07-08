@@ -222,8 +222,8 @@ pub struct Executor {
     /// Information on the headings in the document
     headings: Vec<HeadingInfo>,
 
-    /// The count of `AppendixBreak`s
-    appendix_count: u32,
+    /// The count of level 1 `Heading`s after the first `AppendixBreak`
+    appendix_count: Option<u32>,
 
     /// The count of `Table`s and `CodeChunk`s with a table `labelType`
     table_count: u32,
@@ -449,7 +449,7 @@ impl Executor {
             document_context: DocumentContext::default(),
             instruction_context: None,
             headings: Vec::new(),
-            appendix_count: 0,
+            appendix_count: None,
             table_count: 0,
             figure_count: 0,
             equation_count: 0,
@@ -533,7 +533,7 @@ impl Executor {
     /// Run [`Phase::Compile`]
     async fn compile<N: WalkNode + PatchNode + Debug>(&mut self, root: &mut N) -> Result<()> {
         self.phase = Phase::Compile;
-        self.appendix_count = 0;
+        self.appendix_count = None;
         self.table_count = 0;
         self.figure_count = 0;
         self.equation_count = 0;
@@ -998,14 +998,14 @@ impl Executor {
         self.programming_language.clone()
     }
 
-    /// Get the current appendix label or an empty string is no appendix is currently active
+    /// Get the current appendix label or an empty string if appendices are not currently active
     pub fn appendix_label(&self) -> String {
         match self.appendix_count {
-            0 => String::new(),
-            n => {
+            None => String::new(),
+            Some(index) => {
                 // Convert number to alphabetic label (A, B, C... Z, AA, AB...)
                 let mut label = String::new();
-                let mut num = n;
+                let mut num = index;
 
                 while num > 0 {
                     let remainder = (num - 1) % 26;
@@ -1018,21 +1018,21 @@ impl Executor {
         }
     }
 
-    /// Updates the figure count and returns the the current figure label
+    /// Updates the figure count and returns the current figure label
     pub fn figure_label(&mut self) -> String {
         self.figure_count += 1;
 
         [self.appendix_label(), self.figure_count.to_string()].concat()
     }
 
-    /// Updates the table count and returns the the current table label
+    /// Updates the table count and returns the current table label
     pub fn table_label(&mut self) -> String {
         self.table_count += 1;
 
         [self.appendix_label(), self.table_count.to_string()].concat()
     }
 
-    /// Updates the equation count and returns the the current equation label
+    /// Updates the equation count and returns the current equation label
     pub fn equation_label(&mut self) -> String {
         self.equation_count += 1;
 

@@ -33,6 +33,8 @@
   ],
   "core": [
     "id",
+    "labelType",
+    "label",
     "authors",
     "provenance"
   ],
@@ -52,6 +54,32 @@
       ],
       "html": {
         "attr": "id"
+      },
+      "type": "string"
+    },
+    "labelType": {
+      "@id": "stencila:labelType",
+      "description": "The type of the label for the appendix (if present, should be `AppendixLabel`).",
+      "aliases": [
+        "label-type",
+        "label_type"
+      ],
+      "proptest": {
+        "min": {
+          "description": "No label type",
+          "value": "None"
+        }
+      },
+      "$ref": "LabelType.schema.json"
+    },
+    "label": {
+      "@id": "stencila:label",
+      "description": "A short label for the heading.",
+      "proptest": {
+        "min": {
+          "description": "No label",
+          "value": "None"
+        }
       },
       "type": "string"
     },

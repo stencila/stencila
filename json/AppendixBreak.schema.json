@@ -8,8 +8,8 @@
     "Entity"
   ],
   "category": "prose",
-  "description": "A break in a document indicating the start of a new appendix.",
-  "$comment": "Similar to a LaTeX \\appendix command, this node causes figure and table numbering to switch\nto be prefixed by 'A' (for the first appendix), 'B', and so on.\n",
+  "description": "A break in a document indicating the start one or more appendices.",
+  "$comment": "Similar to a LaTeX `\\appendix` command, this node causes level one headings to\nhave an appendix label and figure and table numbering to switch to be prefixed\nby 'A' (for the first appendix), 'B', and so on. A document should only have\none `AppendixBreak`.\n",
   "latex": {
     "derive": false
   },
@@ -41,6 +41,24 @@
         "attr": "id"
       },
       "type": "string"
+    },
+    "compilationMessages": {
+      "@id": "stencila:compilationMessages",
+      "description": "Messages generated while compiling the appendix break.",
+      "aliases": [
+        "compilation-messages",
+        "compilation_messages",
+        "compilationMessage",
+        "compilation-message",
+        "compilation_message"
+      ],
+      "strip": [
+        "compilation"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "CompilationMessage.schema.json"
+      }
     }
   }
 }

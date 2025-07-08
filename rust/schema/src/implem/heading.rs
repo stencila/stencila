@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, Heading};
+use crate::{prelude::*, Heading, LabelType};
 
 impl Heading {
     pub fn to_jats_special(&self) -> (String, Losses) {
@@ -38,7 +38,24 @@ impl DomCodec for Heading {
             .push_slot_fn(
                 &["h", &self.level.clamp(1, 6).to_string()].concat(),
                 "content",
-                |context| self.content.to_dom(context),
+                |context| {
+                    if matches!(self.label_type, Some(LabelType::AppendixLabel))
+                        || self.label.is_some()
+                    {
+                        context.enter_elem_attrs("span", [("class", "heading-label")]);
+
+                        if self.label.is_some() {
+                            context.push_text("Appendix ");
+                        }
+
+                        if let Some(label) = &self.label {
+                            context.push_text(label).push_text(" ");
+                        }
+
+                        context.exit_elem();
+                    }
+                    self.content.to_dom(context)
+                },
             );
 
         if let Some(authors) = &self.authors {
@@ -55,10 +72,6 @@ impl DomCodec for Heading {
 
 impl LatexCodec for Heading {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
-        context
-            .ensure_blankline()
-            .enter_node(self.node_type(), self.node_id());
-
         let command = match self.level {
             1 => "section",
             2 => "subsection",
@@ -68,7 +81,23 @@ impl LatexCodec for Heading {
         };
 
         context
-            .command_begin(command)
+            .ensure_blankline()
+            .enter_node(self.node_type(), self.node_id())
+            .command_begin(command);
+
+        if self.level == 1
+            && matches!(self.label_type, Some(LabelType::AppendixLabel))
+            && context.has_format_via_pandoc()
+        {
+            if self.label_type.is_some() {
+                context.str("Appendix ");
+            }
+            if let Some(label) = &self.label {
+                context.str(label).char(' ');
+            }
+        }
+
+        context
             .property_fn(NodeProperty::Content, |context| {
                 self.content.to_latex(context)
             })
@@ -88,7 +117,22 @@ impl MarkdownCodec for Heading {
                 NodeProperty::Level,
                 &"#".repeat(self.level.clamp(1, 6) as usize),
             )
-            .push_str(" ")
+            .push_str(" ");
+
+        if context.render {
+            if matches!(self.label_type, Some(LabelType::AppendixLabel)) {
+                context
+                    .push_prop_str(NodeProperty::LabelType, "Appendix")
+                    .push_str(" ");
+            }
+            if let Some(label) = &self.label {
+                context
+                    .push_prop_str(NodeProperty::Label, label)
+                    .push_str(" ");
+            }
+        }
+
+        context
             .push_prop_fn(NodeProperty::Content, |context| {
                 self.content.to_markdown(context)
             })

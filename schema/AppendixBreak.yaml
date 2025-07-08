@@ -1,14 +1,24 @@
 title: AppendixBreak
-'@id': stencila:AppendixBreak
+"@id": stencila:AppendixBreak
 nick: apb
 extends: Entity
 category: prose
-description: A break in a document indicating the start of a new appendix.
+description: A break in a document indicating the start one or more appendices.
 $comment: |
-  Similar to a LaTeX \appendix command, this node causes figure and table numbering to switch
-  to be prefixed by 'A' (for the first appendix), 'B', and so on.
+  Similar to a LaTeX `\appendix` command, this node causes level one headings to
+  have an appendix label and figure and table numbering to switch to be prefixed
+  by 'A' (for the first appendix), 'B', and so on. A document should only have
+  one `AppendixBreak`.
 latex:
   derive: false
 markdown:
   derive: false
 proptest: {}
+properties:
+  compilationMessages:
+    "@id": stencila:compilationMessages
+    description: Messages generated while compiling the appendix break.
+    strip: [compilation]
+    type: array
+    items:
+      $ref: CompilationMessage

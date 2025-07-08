@@ -44,6 +44,9 @@
       "rdfs:comment": "Messages generated while resolving the target if the citation.",
       "schema:domainIncludes": [
         {
+          "@id": "stencila:AppendixBreak"
+        },
+        {
           "@id": "stencila:Citation"
         },
         {

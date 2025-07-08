@@ -64,6 +64,9 @@
       "rdfs:comment": "Messages generated while compiling the code.",
       "schema:domainIncludes": [
         {
+          "@id": "stencila:AppendixBreak"
+        },
+        {
           "@id": "stencila:Citation"
         },
         {
@@ -428,6 +431,9 @@
           "@id": "stencila:CodeChunk"
         },
         {
+          "@id": "stencila:Heading"
+        },
+        {
           "@id": "stencila:Island"
         }
       ],
@@ -455,6 +461,9 @@
         },
         {
           "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:Heading"
         },
         {
           "@id": "stencila:Island"

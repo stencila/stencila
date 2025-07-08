@@ -13,6 +13,7 @@ impl Executable for Island {
             let label = match label_type {
                 LabelType::FigureLabel => executor.figure_label(),
                 LabelType::TableLabel => executor.table_label(),
+                LabelType::AppendixLabel => executor.appendix_label(),
             };
 
             if self.label_automatically.unwrap_or(true) && Some(&label) != self.label.as_ref() {
@@ -21,7 +22,7 @@ impl Executable for Island {
             }
         }
 
-        // If has is, label type and label may be a link target so register
+        // If has id, label type and label may be a link target so register
         if let (Some(id), Some(label_type), Some(label)) = (&self.id, &self.label_type, &self.label)
         {
             executor

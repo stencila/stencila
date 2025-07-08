@@ -270,7 +270,7 @@ impl LatexCodec for ImageObject {
                 images::data_uri_to_file(&self.content_url, &images_dir).unwrap_or_default();
             let path = images_dir.join(image_name);
 
-            if context.highlight && matches!(context.format, Format::Docx | Format::Odt) {
+            if context.highlight && context.has_format_via_pandoc() {
                 if let Err(error) = highlight_image(&path) {
                     tracing::error!("While highlighting image object: {error}");
                 }
