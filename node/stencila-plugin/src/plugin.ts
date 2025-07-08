@@ -1,8 +1,8 @@
 /* eslint-disable import/no-unresolved */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import http from "http";
-import readline from "readline";
+import http from 'http'
+import readline from 'readline'
 
 import {
   ExecutionMessage,
@@ -10,11 +10,11 @@ import {
   SoftwareApplication,
   SoftwareSourceCode,
   Variable,
-} from "@stencila/types";
+} from '@stencila/types'
 
-import { Codec, CodecName, DecodeInfo, EncodeInfo } from "./codec.js";
-import { KernelInstanceName, KernelName, Kernel } from "./kernel.js";
-import { Model, ModelName, ModelOutput, ModelTask } from "./model.js";
+import { Codec, CodecName, DecodeInfo, EncodeInfo } from './codec.js'
+import { KernelInstanceName, KernelName, Kernel } from './kernel.js'
+import { Model, ModelName, ModelOutput, ModelTask } from './model.js'
 
 /**
  * A base plugin class for Stencila plugins built with Node.js
@@ -26,22 +26,22 @@ export class Plugin {
   /**
    * The codecs the plugin provides
    */
-  codecs: Record<CodecName, Codec> = {};
+  codecs: Record<CodecName, Codec> = {}
 
   /**
    * The kernels the plugin provides
    */
-  kernels: Record<KernelName, new () => Kernel> = {};
+  kernels: Record<KernelName, new () => Kernel> = {}
 
   /**
    * The instances of kernels create by the plugin
    */
-  kernelInstances: Record<KernelInstanceName, Kernel> = {};
+  kernelInstances: Record<KernelInstanceName, Kernel> = {}
 
   /**
    * The models the plugin provides
    */
-  models: Record<ModelName, Model> = {};
+  models: Record<ModelName, Model> = {}
 
   /**
    * Get the health of the plugin
@@ -53,8 +53,8 @@ export class Plugin {
   protected async health() {
     return {
       timestamp: Math.floor(Date.now() / 1000),
-      status: "OK",
-    };
+      status: 'OK',
+    }
   }
 
   /**
@@ -73,12 +73,12 @@ export class Plugin {
     content: string;
     codec: CodecName;
   }): Promise<[Node, DecodeInfo]> {
-    const instance = this.codecs[codec];
+    const instance = this.codecs[codec]
     if (instance === undefined) {
-      throw new Error(`No codec named '${codec}'`);
+      throw new Error(`No codec named '${codec}'`)
     }
 
-    return instance.fromString(content);
+    return instance.fromString(content)
   }
 
   /**
@@ -97,12 +97,12 @@ export class Plugin {
     node: Node;
     codec: CodecName;
   }): Promise<[string, EncodeInfo]> {
-    const instance = this.codecs[codec];
+    const instance = this.codecs[codec]
     if (instance === undefined) {
-      throw new Error(`No codec named '${codec}'`);
+      throw new Error(`No codec named '${codec}'`)
     }
 
-    return instance.toString(node);
+    return instance.toString(node)
   }
 
   /**
@@ -117,18 +117,18 @@ export class Plugin {
   protected async kernel_start({ kernel }: { kernel: KernelName }): Promise<{
     instance: KernelInstanceName;
   }> {
-    const Kernel = this.kernels[kernel];
+    const Kernel = this.kernels[kernel]
     if (Kernel === undefined) {
-      throw new Error(`No kernel named '${kernel}'`);
+      throw new Error(`No kernel named '${kernel}'`)
     }
 
-    const instance = new Kernel();
-    instance.start();
+    const instance = new Kernel()
+    instance.start()
 
-    const instanceName = `${kernel}-${this.kernels.length}`;
-    this.kernelInstances[instanceName] = instance;
+    const instanceName = `${kernel}-${this.kernels.length}`
+    this.kernelInstances[instanceName] = instance
 
-    return { instance: instanceName };
+    return { instance: instanceName }
   }
 
   /**
@@ -142,7 +142,7 @@ export class Plugin {
   }: {
     instance: KernelInstanceName;
   }): Promise<void> {
-    return await this.kernelInstances[instance].stop();
+    return await this.kernelInstances[instance].stop()
   }
 
   /**
@@ -156,7 +156,7 @@ export class Plugin {
   }: {
     instance: KernelInstanceName;
   }): Promise<SoftwareApplication> {
-    return await this.kernelInstances[instance].info();
+    return await this.kernelInstances[instance].info()
   }
 
   /**
@@ -170,7 +170,7 @@ export class Plugin {
   }: {
     instance: KernelInstanceName;
   }): Promise<SoftwareSourceCode[]> {
-    return await this.kernelInstances[instance].packages();
+    return await this.kernelInstances[instance].packages()
   }
 
   /**
@@ -194,7 +194,7 @@ export class Plugin {
     outputs: Node[];
     messages: ExecutionMessage[];
   }> {
-    return await this.kernelInstances[instance].execute(code);
+    return await this.kernelInstances[instance].execute(code)
   }
 
   /**
@@ -218,7 +218,7 @@ export class Plugin {
     output: Node;
     messages: ExecutionMessage[];
   }> {
-    return await this.kernelInstances[instance].evaluate(code);
+    return await this.kernelInstances[instance].evaluate(code)
   }
 
   /**
@@ -232,7 +232,7 @@ export class Plugin {
   }: {
     instance: KernelInstanceName;
   }): Promise<Variable[]> {
-    return await this.kernelInstances[instance].list();
+    return await this.kernelInstances[instance].list()
   }
 
   /**
@@ -249,7 +249,7 @@ export class Plugin {
     name: string;
     instance: KernelInstanceName;
   }): Promise<Variable | null> {
-    return await this.kernelInstances[instance].get(name);
+    return await this.kernelInstances[instance].get(name)
   }
 
   /**
@@ -269,7 +269,7 @@ export class Plugin {
     value: Node;
     instance: KernelInstanceName;
   }): Promise<void> {
-    return await this.kernelInstances[instance].set(name, value);
+    return await this.kernelInstances[instance].set(name, value)
   }
 
   /**
@@ -286,7 +286,7 @@ export class Plugin {
     name: string;
     instance: KernelInstanceName;
   }): Promise<void> {
-    return await this.kernelInstances[instance].remove(name);
+    return await this.kernelInstances[instance].remove(name)
   }
 
   /**
@@ -305,45 +305,45 @@ export class Plugin {
     task: ModelTask;
     model: ModelName;
   }): Promise<ModelOutput> {
-    const instance = this.models[model];
+    const instance = this.models[model]
     if (instance === undefined) {
-      throw new Error(`No model named '${model}'`);
+      throw new Error(`No model named '${model}'`)
     }
 
-    return await instance.performTask(task);
+    return await instance.performTask(task)
   }
 
   /**
    * Handle a JSON-RPC request and return a JSON-RPC response
    */
   private async handleRequest(requestJson: string): Promise<string> {
-    let request;
+    let request
     try {
-      request = JSON.parse(requestJson);
+      request = JSON.parse(requestJson)
     } catch (error) {
       // Generate parsing error
-      return errorResponse(null, -32700, "Parse error");
+      return errorResponse(null, -32700, 'Parse error')
     }
 
-    const { id, method, params } = request;
+    const { id, method, params } = request
 
     // Check if the method exists and is callable
     // @ts-expect-error because indexing this by string
-    const func = this[method];
-    if (typeof func === "function") {
+    const func = this[method]
+    if (typeof func === 'function') {
       try {
-        const result = await func.call(this, params);
-        return successResponse(id, result);
+        const result = await func.call(this, params)
+        return successResponse(id, result)
       } catch (error) {
-        return errorResponse(id, -32603, `Internal error: ${error}`);
+        return errorResponse(id, -32603, `Internal error: ${error}`)
       }
     } else {
-      return errorResponse(id, -32601, `Method \`${method}\` not found`);
+      return errorResponse(id, -32601, `Method \`${method}\` not found`)
     }
 
     function successResponse(id: string, result: unknown): string {
       // Result must always be defined (i.e. not `undefined`) for success responses
-      return JSON.stringify({ jsonrpc: "2.0", id, result: result ?? null });
+      return JSON.stringify({ jsonrpc: '2.0', id, result: result ?? null })
     }
 
     function errorResponse(
@@ -351,7 +351,7 @@ export class Plugin {
       code: number,
       message: string,
     ): string {
-      return JSON.stringify({ jsonrpc: "2.0", id, error: { code, message } });
+      return JSON.stringify({ jsonrpc: '2.0', id, error: { code, message } })
     }
   }
 
@@ -363,12 +363,12 @@ export class Plugin {
       input: process.stdin,
       output: process.stdout,
       terminal: false,
-    });
+    })
 
-    rl.on("line", async (requestJson) => {
-      const responseJson = await this.handleRequest(requestJson);
-      console.log(responseJson);
-    });
+    rl.on('line', async (requestJson) => {
+      const responseJson = await this.handleRequest(requestJson)
+      console.log(responseJson)
+    })
   }
 
   /**
@@ -378,77 +378,77 @@ export class Plugin {
     const server = http.createServer(async (req, res) => {
       // Check the request is from localhost
       if (
-        req.socket.remoteAddress === "127.0.0.1" ||
-        req.socket.remoteAddress === "::1"
+        req.socket.remoteAddress === '127.0.0.1' ||
+        req.socket.remoteAddress === '::1'
       ) {
-        res.writeHead(403);
-        res.end("Access denied");
-        return;
+        res.writeHead(403)
+        res.end('Access denied')
+        return
       }
 
       // Check for the bearer token in the Authorization header
-      const authHeader = req.headers["authorization"];
+      const authHeader = req.headers['authorization']
       const receivedToken =
-        authHeader && authHeader.split(" ")[0] === "Bearer"
-          ? authHeader.split(" ")[1]
-          : null;
+        authHeader && authHeader.split(' ')[0] === 'Bearer'
+          ? authHeader.split(' ')[1]
+          : null
       if (!receivedToken || receivedToken !== token) {
-        res.writeHead(401);
-        res.end("Invalid or missing token");
-        return;
+        res.writeHead(401)
+        res.end('Invalid or missing token')
+        return
       }
 
       if (
-        req.method === "POST" &&
-        req.headers["content-type"] === "application/json"
+        req.method === 'POST' &&
+        req.headers['content-type'] === 'application/json'
       ) {
         // Handle the request
-        let body = "";
-        req.on("data", (chunk) => {
-          body += chunk.toString();
-        });
-        req.on("end", async () => {
+        let body = ''
+        req.on('data', (chunk) => {
+          body += chunk.toString()
+        })
+        req.on('end', async () => {
           try {
-            const responseJson = await this.handleRequest(body);
-            res.setHeader("Content-Type", "application/json");
-            res.writeHead(200);
-            res.end(responseJson);
+            const responseJson = await this.handleRequest(body)
+            res.setHeader('Content-Type', 'application/json')
+            res.writeHead(200)
+            res.end(responseJson)
           } catch (error) {
             // Handle any errors not handled in `handleRequest`
-            res.writeHead(500);
+            res.writeHead(500)
             res.end(
               JSON.stringify({
-                jsonrpc: "2.0",
-                error: { code: -32603, message: "Internal error" },
+                jsonrpc: '2.0',
+                error: { code: -32603, message: 'Internal error' },
                 id: null,
               }),
-            );
+            )
           }
-        });
+        })
       } else {
         // Respond with 405 Method Not Allowed if not a POST request and JSON payload
-        res.writeHead(405);
-        res.end();
+        res.writeHead(405)
+        res.end()
       }
-    });
+    })
 
-    server.listen(port);
+    server.listen(port)
   }
 
   /**
    * Run the plugin based on environment variables
    */
   public async run(): Promise<void> {
-    const protocol = process.env.STENCILA_TRANSPORT ?? "stdio";
-    if (protocol == "stdio") {
-      this.listenStdio();
-    } else if (protocol == "http") {
+    const protocol = process.env.STENCILA_TRANSPORT ?? 'stdio'
+    if (protocol == 'stdio') {
+      this.listenStdio()
+    } else if (protocol == 'http') {
       this.listenHttp(
         parseInt(process.env.STENCILA_PORT!),
         process.env.STENCILA_TOKEN!,
-      );
+      )
     } else {
-      throw Error(`Unknown protocol: ${protocol}`);
+      throw Error(`Unknown protocol: ${protocol}`)
     }
   }
 }

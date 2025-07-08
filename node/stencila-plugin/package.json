@@ -41,14 +41,13 @@
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
   "scripts": {
-    "audit": "better-npm-audit audit",
-    "fix": "eslint --fix 'src/**/*.ts' && prettier --write .",
-    "lint": "eslint 'src/**/*.ts' && prettier --check .",
+    "fix": "eslint --fix 'src/**/*.ts'",
+    "lint": "eslint 'src/**/*.ts'",
     "test": "vitest run",
     "cover": "vitest run --coverage",
     "build": "tsup",
     "pubcheck": "attw --pack . && publint",
-    "unused": "depcheck --quiet --ignore-patterns 'eslint.config.js'"
+    "unused": "depcheck --quiet --ignore-patterns 'vitest.config.ts'"
   },
   "engines": {
     "node": ">=16"

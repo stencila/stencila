@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { AuthorRole, InstructionMessage } from "@stencila/types";
+import { AuthorRole, InstructionMessage } from '@stencila/types'
 
 /**
  * The type for the name of an model
@@ -14,7 +14,7 @@ export interface ModelTask {
   /**
    * The kind of task
    */
-  kind: "message-generation" | "image-generation";
+  kind: 'message-generation' | 'image-generation';
 
   /**
    * The messages of the task
@@ -49,7 +49,7 @@ export interface ModelOutput {
    * Used by Stencila to determine how to handle the `content` before
    * decoding it into nodes.
    */
-  kind: "text" | "url";
+  kind: 'text' | 'url';
 
   /**
    * The format of the generated content
@@ -74,7 +74,7 @@ export abstract class Model {
    */
   async performTask(task: ModelTask): Promise<ModelOutput> {
     throw new Error(
-      "Method `performTask` must be implemented by plugins that provide a model",
-    );
+      'Method `performTask` must be implemented by plugins that provide a model',
+    )
   }
 }

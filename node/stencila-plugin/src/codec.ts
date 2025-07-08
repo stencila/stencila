@@ -1,4 +1,4 @@
-import { Node, NodeType } from "@stencila/types";
+import { Node, NodeType } from '@stencila/types'
 
 export type NodeId = string;
 
@@ -71,7 +71,7 @@ export abstract class Codec {
    * string with no decoding information.
    */
   fromString(content: string): [Node, DecodeInfo] {
-    return [content, {}];
+    return [content, {}]
   }
 
   /**
@@ -81,6 +81,6 @@ export abstract class Codec {
    * node as JSON.
    */
   toString(node: Node): [string, EncodeInfo] {
-    return [JSON.stringify(node, null, "  "), {}];
+    return [JSON.stringify(node, null, '  '), {}]
   }
 }

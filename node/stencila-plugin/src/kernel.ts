@@ -6,7 +6,7 @@ import {
   SoftwareApplication,
   SoftwareSourceCode,
   Variable,
-} from "@stencila/types";
+} from '@stencila/types'
 
 /**
  * The type for the name of a kernel
@@ -54,8 +54,8 @@ export abstract class Kernel {
    */
   async info(): Promise<SoftwareApplication> {
     throw Error(
-      "Method `kernelInfo` must be overridden by plugins that provide one or more kernels",
-    );
+      'Method `kernelInfo` must be overridden by plugins that provide one or more kernels',
+    )
   }
 
   /**
@@ -70,7 +70,7 @@ export abstract class Kernel {
    * This default implementation returns an empty list.
    */
   async packages(): Promise<SoftwareSourceCode[]> {
-    return [];
+    return []
   }
 
   /**
@@ -96,7 +96,7 @@ export abstract class Kernel {
     return {
       outputs: [],
       messages: [],
-    };
+    }
   }
 
   /**
@@ -123,7 +123,7 @@ export abstract class Kernel {
     return {
       output: [],
       messages: [],
-    };
+    }
   }
 
   /**
@@ -139,7 +139,7 @@ export abstract class Kernel {
    * This default implementation returns an empty list.
    */
   async list(): Promise<Variable[]> {
-    return [];
+    return []
   }
 
   /**
@@ -156,7 +156,7 @@ export abstract class Kernel {
    * @param name The name of the variable
    */
   async get(name: string): Promise<Variable | null> {
-    return null;
+    return null
   }
 
   /**

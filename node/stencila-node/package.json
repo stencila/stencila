@@ -42,7 +42,6 @@
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
   "scripts": {
-    "audit": "better-npm-audit audit",
     "fix": "eslint --fix --ignore-pattern 'src/bindings.d.ts'",
     "lint": "eslint --ignore-pattern 'src/bindings.d.ts'",
     "build:debug": "napi build --js false --dts src/bindings.d.ts",
@@ -54,7 +53,7 @@
     "test": "vitest run",
     "cover": "vitest run --coverage",
     "bench": "tsup --entry.index src/bench.ts --external ../stencila.node --format cjs --out-dir bench --clean && node bench/index.cjs | tee bench/results.txt",
-    "unused": "depcheck --quiet --ignores @napi-rs/cli,benchmark,tmp --ignore-patterns 'eslint.config.js'"
+    "unused": "depcheck --quiet --ignores @napi-rs/cli,benchmark,tmp --ignore-patterns 'vitest.config.ts,*.test.ts'"
   },
   "engines": {
     "node": ">=16"
