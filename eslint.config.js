@@ -82,6 +82,27 @@ export default [
       '**/*.config.ts',
     ],
   },
+  // CommonJS files configuration
+  {
+    files: ['**/*.cjs'],
+    languageOptions: {
+      sourceType: 'commonjs',
+      globals: {
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        require: 'readonly',
+        module: 'readonly',
+        exports: 'readonly',
+        process: 'readonly',
+        console: 'readonly',
+        Buffer: 'readonly',
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+      '@typescript-eslint/no-var-requires': 'off',
+    },
+  },
   // Web component rules for web workspace
   {
     files: ['web/**/*.ts', 'web/**/*.js'],
@@ -107,6 +128,7 @@ export default [
       curly: 'warn',
       eqeqeq: 'warn',
       'no-throw-literal': 'warn',
+      'import/no-unresolved': ['error', { ignore: ['vscode'] }],
     },
   },
 ]

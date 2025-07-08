@@ -1,11 +1,11 @@
-import path from "path";
+import path from 'path'
 
-import * as vscode from "vscode";
-import { LanguageClient } from "vscode-languageclient/node";
+import * as vscode from 'vscode'
+import { LanguageClient } from 'vscode-languageclient/node'
 
-import { resetDom, subscribeToDom, unsubscribeFromDom } from "./extension";
-import { ScrollSyncer } from "./scroll-syncer";
-import { statusBar } from "./status-bar";
+import { resetDom, subscribeToDom, unsubscribeFromDom } from './extension'
+import { ScrollSyncer } from './scroll-syncer'
+import { statusBar } from './status-bar'
 
 /**
  * A map of document view panels used to ensure that only one
@@ -16,13 +16,13 @@ import { statusBar } from "./status-bar";
  * multiple panels to be opened for the same node. Therefore
  * this now used the stringified URL.
  */
-const documentViewPanels = new Map<string, vscode.WebviewPanel>();
+const documentViewPanels = new Map<string, vscode.WebviewPanel>()
 
 /**
  * A map of the "disposables" for each document that can be disposed of when
  * the view is closed
  */
-const documentViewHandlers = new Map<string, vscode.Disposable[]>();
+const documentViewHandlers = new Map<string, vscode.Disposable[]>()
 
 export interface DomPatch {
   // Indicated that the node, or document, has been deleted
@@ -35,7 +35,7 @@ export interface DomPatch {
  * document's DOM HTML
  */
 export const documentPatchHandlers: Record<string, (patch: DomPatch) => void> =
-  {};
+  {}
 
 /**
  * Register a handler for "stencila/publishDom" notifications that forwards
@@ -46,7 +46,7 @@ export function registerSubscriptionNotifications(
   client: LanguageClient
 ) {
   const handler = client.onNotification(
-    "stencila/publishDom",
+    'stencila/publishDom',
     ({
       subscriptionId,
       patch,
@@ -54,15 +54,15 @@ export function registerSubscriptionNotifications(
       subscriptionId: string;
       patch: DomPatch;
     }) => {
-      const handler = documentPatchHandlers[subscriptionId];
+      const handler = documentPatchHandlers[subscriptionId]
       if (!handler) {
-        console.error(`No handler for subscription ${subscriptionId}`);
+        console.error(`No handler for subscription ${subscriptionId}`)
       } else {
-        handler(patch);
+        handler(patch)
       }
     }
-  );
-  context.subscriptions.push(handler);
+  )
+  context.subscriptions.push(handler)
 }
 
 type ReceivedMessage =
@@ -73,25 +73,25 @@ type ReceivedMessage =
   | SystemDataReceivedMessage;
 
 interface ClientReadyMessage {
-  type: "client-ready";
+  type: 'client-ready';
 }
 
 interface SystemDataReceivedMessage {
-  type: "system-data-received";
+  type: 'system-data-received';
 }
 
 interface DomResetMessage {
-  type: "dom-reset";
+  type: 'dom-reset';
 }
 
 interface CommandMessage {
-  type: "command";
+  type: 'command';
   command: string;
   args?: string[];
 }
 
 interface ScrollSyncMessage {
-  type: "scroll-sync";
+  type: 'scroll-sync';
   startId?: string;
   endId?: string;
   cursorId?: string;
@@ -110,58 +110,58 @@ export async function createDocumentViewPanel(
   nodeId?: string,
   expandAuthors?: boolean,
   viewColumn: vscode.ViewColumn = vscode.ViewColumn.Beside,
-  titlePrefix = "Preview"
+  titlePrefix = 'Preview'
 ): Promise<vscode.WebviewPanel> {
-  const uriString = documentUri.toString();
+  const uriString = documentUri.toString()
 
   if (documentViewPanels.has(uriString)) {
     // If there is already a panel open for this document, reveal it
-    const panel = documentViewPanels.get(uriString) as vscode.WebviewPanel;
-    panel.reveal();
+    const panel = documentViewPanels.get(uriString) as vscode.WebviewPanel
+    panel.reveal()
 
     // If `nodeId` param is defined, scroll webview to target node.
     if (nodeId) {
       panel.webview.postMessage({
-        type: "view-node",
+        type: 'view-node',
         nodeId,
         expandAuthors,
-      });
+      })
     }
 
-    return panel;
+    return panel
   }
 
-  const title = `${titlePrefix} ${path.basename(documentUri.fsPath)}`;
+  const title = `${titlePrefix} ${path.basename(documentUri.fsPath)}`
 
-  const workspaceFolder = getWorkspaceFolder(documentUri);
+  const workspaceFolder = getWorkspaceFolder(documentUri)
 
   // Create the panel
   const panel = vscode.window.createWebviewPanel(
-    "document-view",
+    'document-view',
     title,
     viewColumn,
     {
       enableScripts: true,
       retainContextWhenHidden: true,
       localResourceRoots: [
-        vscode.Uri.joinPath(context.extensionUri, "out", "web"),
+        vscode.Uri.joinPath(context.extensionUri, 'out', 'web'),
         workspaceFolder,
       ],
     }
-  );
+  )
 
-  initializeWebViewPanel(context, documentUri, panel, workspaceFolder, editor);
+  initializeWebViewPanel(context, documentUri, panel, workspaceFolder, editor)
 
   // If `nodeId` param is defined, scroll webview panel to target node.
   if (nodeId) {
     panel.webview.postMessage({
-      type: "view-node",
+      type: 'view-node',
       nodeId,
       expandAuthors,
-    });
+    })
   }
 
-  return panel;
+  return panel
 }
 
 /**
@@ -175,77 +175,77 @@ export async function createNodeViewPanel(
   nodeId: string,
   expandAuthors: boolean = false
 ): Promise<vscode.WebviewPanel> {
-  const uri = documentUri.with({ fragment: nodeId });
+  const uri = documentUri.with({ fragment: nodeId })
 
-  const uriKey = uri.toString();
+  const uriKey = uri.toString()
 
   if (documentViewPanels.has(uriKey)) {
-    const panel = documentViewPanels.get(uriKey) as vscode.WebviewPanel;
-    panel.reveal();
+    const panel = documentViewPanels.get(uriKey) as vscode.WebviewPanel
+    panel.reveal()
 
-    return panel;
+    return panel
   }
 
   const title = position
     ? `${nodeType} at ${path.basename(uri.fsPath)}:${position.line + 1}`
-    : `${nodeType} in ${path.basename(uri.fsPath)}`;
+    : `${nodeType} in ${path.basename(uri.fsPath)}`
 
-  const workspaceFolder = getWorkspaceFolder(documentUri);
+  const workspaceFolder = getWorkspaceFolder(documentUri)
 
   const panel = vscode.window.createWebviewPanel(
-    "node-view",
+    'node-view',
     title,
     vscode.ViewColumn.Beside,
     {
       enableScripts: true,
       retainContextWhenHidden: true,
       localResourceRoots: [
-        vscode.Uri.joinPath(context.extensionUri, "out", "web"),
+        vscode.Uri.joinPath(context.extensionUri, 'out', 'web'),
         workspaceFolder,
       ],
     }
-  );
+  )
 
-  initializeWebViewPanel(context, uri, panel, workspaceFolder);
+  initializeWebViewPanel(context, uri, panel, workspaceFolder)
 
   if (expandAuthors) {
     panel.webview.postMessage({
-      type: "view-node",
+      type: 'view-node',
       nodeId,
       expandAuthors,
-    });
+    })
   }
 
-  if (nodeType.toLowerCase().includes("chat") || nodeId.startsWith("cht")) {
+  if (nodeType.toLowerCase().includes('chat') || nodeId.startsWith('cht')) {
     panel.onDidDispose(async () => {
       await vscode.commands.executeCommand(
-        "stencila.delete-node",
+        'stencila.delete-node',
         documentUri.toString(),
-        "Chat",
+        'Chat',
         nodeId
-      );
-    });
+      )
+    })
   }
 
-  return panel;
+  return panel
 }
 
 /**
  * Get the workspace folder for a document, falling back to the first workspace
  */
 function getWorkspaceFolder(documentUri: vscode.Uri): vscode.Uri {
-  let workspaceFolder;
-  const folder = vscode.workspace.getWorkspaceFolder(documentUri);
+  let workspaceFolder
+  const folder = vscode.workspace.getWorkspaceFolder(documentUri)
   if (folder) {
-    workspaceFolder = folder.uri.fsPath;
+    workspaceFolder = folder.uri.fsPath
   } else {
-    const workspaceFolders = vscode.workspace.workspaceFolders;
+    const workspaceFolders = vscode.workspace.workspaceFolders
     if (workspaceFolders && workspaceFolders.length > 0) {
-      workspaceFolder = workspaceFolders[0].uri.fsPath;
+      workspaceFolder = workspaceFolders[0].uri.fsPath
     }
   }
 
-  return vscode.Uri.file(workspaceFolder ?? ".");
+  return vscode.Uri.file(workspaceFolder ?? '.')
 }
 
 /**
@@ -258,56 +258,56 @@ export async function initializeWebViewPanel(
   workspaceFolder: vscode.Uri,
   editor?: vscode.TextEditor
 ) {
-  const uriString = uri.toString();
+  const uriString = uri.toString()
 
   // Set the icon of the panel
   // TODO: use a different icon for articles, prompts and chats
   panel.iconPath = vscode.Uri.joinPath(
     context.extensionUri,
-    "icons",
-    "stencila-128.png"
-  );
+    'icons',
+    'stencila-128.png'
+  )
 
   // Subscribe to updates of DOM HTML for document
-  let clientIsReady = false;
-  const patchBuffer: DomPatch[] = [];
+  let clientIsReady = false
+  const patchBuffer: DomPatch[] = []
   const [subscriptionId, themeName, viewHtml] = await subscribeToDom(
     uri,
     (patch) => {
       // Dispose of the panel if the document or node has been deleted
       if (patch.deleted) {
-        return panel.dispose();
+        return panel.dispose()
       }
 
       // Buffer the patch in case the client is not ready
-      patchBuffer.push(patch);
+      patchBuffer.push(patch)
 
       // If client is ready forward all patches in the order received
       if (clientIsReady) {
         while (patchBuffer.length > 0) {
           panel.webview.postMessage({
-            type: "dom-patch",
+            type: 'dom-patch',
             patch: patchBuffer.shift(),
-          });
+          })
         }
       }
     }
-  );
+  )
 
   // Folder containing bundled JS and other assets for the web view
-  const webDist = vscode.Uri.joinPath(context.extensionUri, "out", "web");
+  const webDist = vscode.Uri.joinPath(context.extensionUri, 'out', 'web')
   const themeCss = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(webDist, "themes", `${themeName}.css`)
-  );
+    vscode.Uri.joinPath(webDist, 'themes', `${themeName}.css`)
+  )
   const viewCss = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(webDist, "views", "vscode.css")
-  );
+    vscode.Uri.joinPath(webDist, 'views', 'vscode.css')
+  )
   const viewJs = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(webDist, "views", "vscode.js")
-  );
+    vscode.Uri.joinPath(webDist, 'views', 'vscode.js')
+  )
 
   // Convert workspace folder filesystem path to a URI
-  const workspaceUri = panel.webview.asWebviewUri(workspaceFolder);
+  const workspaceUri = panel.webview.asWebviewUri(workspaceFolder)
 
   // The order of the <script>s is important:
   //
@@ -396,101 +396,101 @@ export async function initializeWebViewPanel(
         </script>
       </body>
     </html>
-  `;
+  `
   // Send system data to the webview until the `system-data-received` message is received
   // This is necessary because the webview may not be ready to receive the message initially
   // and so the first messages may be ignored.
-  const kernels = await vscode.commands.executeCommand("stencila.kernels.list");
-  const prompts = await vscode.commands.executeCommand("stencila.prompts.list");
-  const models = await vscode.commands.executeCommand("stencila.models.list");
+  const kernels = await vscode.commands.executeCommand('stencila.kernels.list')
+  const prompts = await vscode.commands.executeCommand('stencila.prompts.list')
+  const models = await vscode.commands.executeCommand('stencila.models.list')
   const sendSystemData = async () => {
     await panel.webview.postMessage({
-      type: "system-data",
+      type: 'system-data',
       kernels,
       prompts,
       models,
-    });
-  };
-  await sendSystemData();
-  const sendSystemDataInterval = setInterval(sendSystemData, 500);
+    })
+  }
+  await sendSystemData()
+  const sendSystemDataInterval = setInterval(sendSystemData, 500)
 
-  const disposables: vscode.Disposable[] = [];
+  const disposables: vscode.Disposable[] = []
 
   if (editor) {
     // Create a scroller sync for the view
-    const scrollSync = new ScrollSyncer(editor, panel);
-    disposables.push(scrollSync);
+    const scrollSync = new ScrollSyncer(editor, panel)
+    disposables.push(scrollSync)
   }
 
   // Listen to the view state changes of the webview panel to update status bar
   panel.onDidChangeViewState(
     (e) => {
-      statusBar.updateForDocumentView(e.webviewPanel.active);
+      statusBar.updateForDocumentView(e.webviewPanel.active)
     },
     null,
     disposables
-  );
+  )
 
   // Handle when the webview is disposed
   panel.onDidDispose(
     () => {
       // Unsubscribe from updates to DOM HTML
-      unsubscribeFromDom(subscriptionId);
+      unsubscribeFromDom(subscriptionId)
 
       // Remove from list of panels
-      documentViewPanels.delete(uriString);
+      documentViewPanels.delete(uriString)
 
       // Dispose handlers and remove from lists
       documentViewHandlers
         .get(uriString)
-        ?.forEach((handler) => handler.dispose());
-      documentViewHandlers.delete(uriString);
+        ?.forEach((handler) => handler.dispose())
+      documentViewHandlers.delete(uriString)
     },
     null,
     disposables
-  );
+  )
 
   // Handle messages from the webview
   // It is necessary to translate the names of the Stencila document
   // command to the command and argument convention that the LSP uses
-  const documentUri = uri.with({ fragment: "" }).toString();
+  const documentUri = uri.with({ fragment: '' }).toString()
   panel.webview.onDidReceiveMessage(
     (message: ReceivedMessage) => {
-      if (message.type === "client-ready") {
-        clientIsReady = true;
-        return;
+      if (message.type === 'client-ready') {
+        clientIsReady = true
+        return
       }
 
-      if (message.type === "system-data-received") {
-        clearInterval(sendSystemDataInterval);
-        return;
+      if (message.type === 'system-data-received') {
+        clearInterval(sendSystemDataInterval)
+        return
       }
 
-      if (message.type === "dom-reset") {
-        resetDom(subscriptionId);
-        return;
+      if (message.type === 'dom-reset') {
+        resetDom(subscriptionId)
+        return
       }
 
-      if (message.type !== "command") {
+      if (message.type !== 'command') {
         // Skip messages handled elsewhere
-        return;
+        return
       }
 
       vscode.commands.executeCommand(
         `stencila.${message.command}`,
         documentUri,
         ...(message.args ?? [])
-      );
+      )
     },
     null,
     disposables
-  );
+  )
 
   // Track the webview by adding it to the map
-  documentViewPanels.set(uriString, panel);
-  documentViewHandlers.set(uriString, disposables);
+  documentViewPanels.set(uriString, panel)
+  documentViewHandlers.set(uriString, disposables)
 
-  return panel;
+  return panel
 }
 
 /**
@@ -501,14 +501,14 @@ export async function initializeWebViewPanel(
  */
 export function closeDocumentViewPanels() {
   if (documentViewPanels.size > 0) {
-    vscode.window.showInformationMessage("Closing document view panels");
+    vscode.window.showInformationMessage('Closing document view panels')
   } else {
-    return;
+    return
   }
 
   for (const panel of documentViewPanels.values()) {
-    panel.dispose();
+    panel.dispose()
   }
 
-  documentViewPanels.clear();
+  documentViewPanels.clear()
 }

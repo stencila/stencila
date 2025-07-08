@@ -1267,8 +1267,8 @@
     ]
   },
   "scripts": {
-    "fix": "eslint 'src/**/*.ts' --fix",
-    "lint": "eslint 'src/**/*.ts' && tsc --noEmit",
+    "fix": "eslint 'src/**/*.ts' --fix --ignore-pattern 'src/node-colours.ts'",
+    "lint": "eslint 'src/**/*.ts' --ignore-pattern 'src/node-colours.ts'  && tsc --noEmit",
     "compile:web": "cd ../web/ && npm run build:vscode",
     "fetch:cypher": "node syntaxes/cypher/fetch.js",
     "fetch:myst": "node syntaxes/myst/fetch.js",

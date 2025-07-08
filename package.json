@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "workspaces": [
     "node/stencila-node",
     "node/stencila-plugin",

@@ -1,6 +1,6 @@
-import * as vscode from "vscode";
+import { PythonExtension } from '@vscode/python-extension'
+import * as vscode from 'vscode'
 
-import { PythonExtension } from "@vscode/python-extension";
 
 /**
  * Register a listener to restart the LSP server if the Python environment is changed
@@ -8,14 +8,14 @@ import { PythonExtension } from "@vscode/python-extension";
 export async function registerPythonExtensionListener(
   context: vscode.ExtensionContext
 ) {
-  const pythonApi: PythonExtension = await PythonExtension.api();
+  const pythonApi: PythonExtension = await PythonExtension.api()
 
   const listener = pythonApi.environments.onDidChangeActiveEnvironmentPath(
     () => {
-      vscode.commands.executeCommand("stencila.lsp-server.restart");
+      vscode.commands.executeCommand('stencila.lsp-server.restart')
     }
-  );
-  context.subscriptions.push(listener);
+  )
+  context.subscriptions.push(listener)
 }
 
 /**
@@ -24,8 +24,8 @@ export async function registerPythonExtensionListener(
  * PYTHON_PATH: the path to the Python interpreter selected via, or recommended by, the `ms-python.python` extension
  */
 export async function getPythonEnvVars(): Promise<Record<string, string>> {
-  const pythonApi: PythonExtension = await PythonExtension.api();
-  const environmentPath = pythonApi.environments.getActiveEnvironmentPath();
+  const pythonApi: PythonExtension = await PythonExtension.api()
+  const environmentPath = pythonApi.environments.getActiveEnvironmentPath()
 
-  return environmentPath ? { PYTHON_PATH: environmentPath.path } : {};
+  return environmentPath ? { PYTHON_PATH: environmentPath.path } : {}
 }

@@ -1,9 +1,9 @@
-import * as vscode from "vscode";
+import * as vscode from 'vscode'
 
-const unexecuted = "0deg";
-const unexecutedMid = `hsl(${unexecuted} 0% 50%)`;
-const unexecutedLight = `hsl(${unexecuted} 0% 95%)`;
-const unexecutedDark = `hsl(${unexecuted} 0% 5%)`;
+const unexecuted = '0deg'
+const unexecutedMid = `hsl(${unexecuted} 0% 50%)`
+const unexecutedLight = `hsl(${unexecuted} 0% 95%)`
+const unexecutedDark = `hsl(${unexecuted} 0% 5%)`
 
 export const unexecutedDecoration =
   vscode.window.createTextEditorDecorationType({
@@ -21,12 +21,12 @@ export const unexecutedDecoration =
         backgroundColor: unexecutedDark,
       },
     },
-  });
+  })
 
-const stale = "45deg";
-const staleMid = `hsl(${stale} 100% 50%)`;
-const staleLight = `hsl(${stale} 100% 95%)`;
-const staleDark = `hsl(${stale} 100% 5%)`;
+const stale = '45deg'
+const staleMid = `hsl(${stale} 100% 50%)`
+const staleLight = `hsl(${stale} 100% 95%)`
+const staleDark = `hsl(${stale} 100% 5%)`
 
 export const staleDecoration = vscode.window.createTextEditorDecorationType({
   overviewRulerColor: staleMid,
@@ -43,12 +43,12 @@ export const staleDecoration = vscode.window.createTextEditorDecorationType({
       backgroundColor: staleDark,
     },
   },
-});
+})
 
-const pending = "180deg";
-const pendingMid = `hsl(${pending} 100% 30%)`;
-const pendingLight = `hsl(${pending} 100% 95%)`;
-const pendingDark = `hsl(${pending} 100% 5%)`;
+const pending = '180deg'
+const pendingMid = `hsl(${pending} 100% 30%)`
+const pendingLight = `hsl(${pending} 100% 95%)`
+const pendingDark = `hsl(${pending} 100% 5%)`
 
 export const pendingDecoration = vscode.window.createTextEditorDecorationType({
   overviewRulerColor: pendingMid,
@@ -65,12 +65,12 @@ export const pendingDecoration = vscode.window.createTextEditorDecorationType({
       backgroundColor: pendingDark,
     },
   },
-});
+})
 
-const running = "230deg";
-const runningMid = `hsl(${running} 100% 50%)`;
-const runningLight = `hsl(${running} 100% 95%)`;
-const runningDark = `hsl(${running} 100% 5%)`;
+const running = '230deg'
+const runningMid = `hsl(${running} 100% 50%)`
+const runningLight = `hsl(${running} 100% 95%)`
+const runningDark = `hsl(${running} 100% 5%)`
 
 export const runningDecoration = vscode.window.createTextEditorDecorationType({
   overviewRulerColor: runningMid,
@@ -87,12 +87,12 @@ export const runningDecoration = vscode.window.createTextEditorDecorationType({
       backgroundColor: runningDark,
     },
   },
-});
+})
 
-const skipped = "170deg";
-const skippedMid = `hsl(${skipped} 100% 30%)`;
-const skippedLight = `hsl(${skipped} 100% 95%)`;
-const skippedDark = `hsl(${skipped} 100% 5%)`;
+const skipped = '170deg'
+const skippedMid = `hsl(${skipped} 100% 30%)`
+const skippedLight = `hsl(${skipped} 100% 95%)`
+const skippedDark = `hsl(${skipped} 100% 5%)`
 
 export const skippedDecoration = vscode.window.createTextEditorDecorationType({
   overviewRulerColor: skippedMid,
@@ -109,12 +109,12 @@ export const skippedDecoration = vscode.window.createTextEditorDecorationType({
       backgroundColor: skippedDark,
     },
   },
-});
+})
 
-const succeeded = "120deg";
-const succeededMid = `hsl(${succeeded} 100% 30%)`;
-const succeededLight = `hsl(${succeeded} 100% 95%)`;
-const succeededDark = `hsl(${succeeded} 100% 5%)`;
+const succeeded = '120deg'
+const succeededMid = `hsl(${succeeded} 100% 30%)`
+const succeededLight = `hsl(${succeeded} 100% 95%)`
+const succeededDark = `hsl(${succeeded} 100% 5%)`
 
 export const succeededDecoration = vscode.window.createTextEditorDecorationType(
   {
@@ -133,12 +133,12 @@ export const succeededDecoration = vscode.window.createTextEditorDecorationType(
       },
     },
   }
-);
+)
 
-const succeededFork = "160deg";
-const succeededForkMid = `hsl(${succeededFork} 90% 30%)`;
-const succeededForkLight = `hsl(${succeededFork} 90% 95%)`;
-const succeededForkDark = `hsl(${succeededFork} 90% 5%)`;
+const succeededFork = '160deg'
+const succeededForkMid = `hsl(${succeededFork} 90% 30%)`
+const succeededForkLight = `hsl(${succeededFork} 90% 95%)`
+const succeededForkDark = `hsl(${succeededFork} 90% 5%)`
 
 export const succeededForkDecoration =
   vscode.window.createTextEditorDecorationType({
@@ -156,12 +156,12 @@ export const succeededForkDecoration =
         backgroundColor: succeededForkDark,
       },
     },
-  });
+  })
 
-const succeededBox = "180deg";
-const succeededBoxMid = `hsl(${succeededBox} 90% 30%)`;
-const succeededBoxLight = `hsl(${succeededBox} 90% 95%)`;
-const succeededBoxDark = `hsl(${succeededBox} 90% 5%)`;
+const succeededBox = '180deg'
+const succeededBoxMid = `hsl(${succeededBox} 90% 30%)`
+const succeededBoxLight = `hsl(${succeededBox} 90% 95%)`
+const succeededBoxDark = `hsl(${succeededBox} 90% 5%)`
 
 export const succeededBoxDecoration =
   vscode.window.createTextEditorDecorationType({
@@ -179,10 +179,10 @@ export const succeededBoxDecoration =
         backgroundColor: succeededBoxDark,
       },
     },
-  });
+  })
 
-const failed = "0deg";
-const failedMid = `hsl(${failed} 100% 80%)`;
+const failed = '0deg'
+const failedMid = `hsl(${failed} 100% 80%)`
 
 export const failedDecoration = vscode.window.createTextEditorDecorationType({
   overviewRulerColor: failedMid,
@@ -199,10 +199,10 @@ export const failedDecoration = vscode.window.createTextEditorDecorationType({
       backgroundColor: `hsl(${failed} 100% 50% / 30%)`,
     },
   },
-});
+})
 
-const active = "260deg";
-const activeMid = `hsl(${active} 100% 80%)`;
+const active = '260deg'
+const activeMid = `hsl(${active} 100% 80%)`
 
 export const activeDecoration = vscode.window.createTextEditorDecorationType({
   overviewRulerColor: activeMid,
@@ -219,4 +219,4 @@ export const activeDecoration = vscode.window.createTextEditorDecorationType({
       backgroundColor: `hsl(${active} 100% 50% / 30%)`,
     },
   },
-});
+})

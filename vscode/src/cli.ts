@@ -1,9 +1,9 @@
-import { spawn } from "child_process";
-import * as fs from "fs";
-import * as os from "os";
-import * as path from "path";
+import { spawn } from 'child_process'
+import * as fs from 'fs'
+import * as os from 'os'
+import * as path from 'path'
 
-import * as vscode from "vscode";
+import * as vscode from 'vscode'
 
 /**
  * Get the path to the `stencila` CLI
@@ -14,16 +14,16 @@ export function cliPath(context: vscode.ExtensionContext): string {
   switch (context.extensionMode) {
     case vscode.ExtensionMode.Development:
     case vscode.ExtensionMode.Test:
-      return path.join(__dirname, "..", "..", "target", "debug", "stencila");
+      return path.join(__dirname, '..', '..', 'target', 'debug', 'stencila')
     case vscode.ExtensionMode.Production: {
       // Attempt to obtain from the `cli` sub-dir of the extension, falling back to
       // searching for `stencila` on the path
       const cli = path.join(
         context.extensionPath,
-        "cli",
-        os.platform() === "win32" ? "stencila.exe" : "stencila"
-      );
-      return fs.existsSync(cli) ? cli : "stencila";
+        'cli',
+        os.platform() === 'win32' ? 'stencila.exe' : 'stencila'
+      )
+      return fs.existsSync(cli) ? cli : 'stencila'
     }
   }
 }
@@ -39,29 +39,29 @@ export async function runCli(
   stdin?: string
 ) {
   return new Promise((resolve, reject) => {
-    const process = spawn(cliPath(context), args);
+    const process = spawn(cliPath(context), args)
 
-    let stdout = "";
-    process.stdout.on("data", (data) => {
-      stdout += data;
-    });
+    let stdout = ''
+    process.stdout.on('data', (data) => {
+      stdout += data
+    })
 
-    let stderr = "";
-    process.stderr.on("data", (data) => {
-      stderr += data;
-    });
+    let stderr = ''
+    process.stderr.on('data', (data) => {
+      stderr += data
+    })
 
     if (stdin) {
-      process.stdin.write(stdin);
-      process.stdin.end();
+      process.stdin.write(stdin)
+      process.stdin.end()
     }
 
-    process.on("close", (code) => {
+    process.on('close', (code) => {
       if (code !== 0) {
-        reject(new Error(stderr));
+        reject(new Error(stderr))
       } else {
-        resolve({ stdout, stderr });
+        resolve({ stdout, stderr })
       }
-    });
-  });
+    })
+  })
 }

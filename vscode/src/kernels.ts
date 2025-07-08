@@ -1,75 +1,75 @@
-import * as vscode from "vscode";
-import { LanguageClient } from "vscode-languageclient/node";
+import * as vscode from 'vscode'
+import { LanguageClient } from 'vscode-languageclient/node'
 
-import { event } from "./events";
+import { event } from './events'
 
 export function registerKernelsView(
   context: vscode.ExtensionContext,
   client: LanguageClient
 ) {
-  const treeDataProvider = new KernelTreeProvider(context, client);
+  const treeDataProvider = new KernelTreeProvider(context, client)
 
-  const treeView = vscode.window.createTreeView("stencila-kernels", {
+  const treeView = vscode.window.createTreeView('stencila-kernels', {
     treeDataProvider,
-  });
+  })
 
   const list = vscode.commands.registerCommand(
-    "stencila.kernels.list",
+    'stencila.kernels.list',
     async () => {
       if (treeDataProvider.list.length === 0) {
-        await treeDataProvider.refresh();
+        await treeDataProvider.refresh()
       }
-      return treeDataProvider.list;
+      return treeDataProvider.list
     }
-  );
+  )
 
   const refresh = vscode.commands.registerCommand(
-    "stencila.kernels.refresh",
+    'stencila.kernels.refresh',
     () => treeDataProvider.refresh()
-  );
+  )
 
   const use = vscode.commands.registerCommand(
-    "stencila.kernels.use",
+    'stencila.kernels.use',
     (item: KernelTreeItem) => {
-      event("kernels_use", { name: item.kernel?.name });
+      event('kernels_use', { name: item.kernel?.name })
 
-      const editor = vscode.window.activeTextEditor;
+      const editor = vscode.window.activeTextEditor
       if (editor) {
-        const selection = editor.selection;
+        const selection = editor.selection
 
-        const format = editor.document.languageId;
-        let snippet;
-        if (format === "myst") {
-          snippet = mystSnippet(item.kernel!);
-        } else if (format === "qmd") {
-          snippet = qmdSnippet(item.kernel!);
+        const format = editor.document.languageId
+        let snippet
+        if (format === 'myst') {
+          snippet = mystSnippet(item.kernel!)
+        } else if (format === 'qmd') {
+          snippet = qmdSnippet(item.kernel!)
         } else {
-          snippet = smdSnippet(item.kernel!);
+          snippet = smdSnippet(item.kernel!)
         }
-        editor.insertSnippet(new vscode.SnippetString(snippet), selection);
+        editor.insertSnippet(new vscode.SnippetString(snippet), selection)
       } else {
-        vscode.window.showWarningMessage("No active text editor found");
+        vscode.window.showWarningMessage('No active text editor found')
       }
     }
-  );
+  )
 
-  context.subscriptions.push(treeView, list, refresh, use);
+  context.subscriptions.push(treeView, list, refresh, use)
 
-  return treeDataProvider;
+  return treeDataProvider
 }
 
 type KernelType =
-  | "Programming"
-  | "Diagrams"
-  | "Templating"
-  | "Math"
-  | "Styling";
+  | 'Programming'
+  | 'Diagrams'
+  | 'Templating'
+  | 'Math'
+  | 'Styling';
 
 type KernelAvailability =
-  | "Available"
-  | "Installable"
-  | "Unavailable"
-  | "Disabled";
+  | 'Available'
+  | 'Installable'
+  | 'Unavailable'
+  | 'Disabled';
 
 interface Kernel {
   name: string;
@@ -82,19 +82,19 @@ interface Kernel {
  * Create a Stencila Markdown snippet to use the kernel
  */
 function smdSnippet(kernel: Kernel): string {
-  if (kernel.name === "tex") {
-    return "$$\n${0}\n$$\n";
+  if (kernel.name === 'tex') {
+    return '$$\n${0}\n$$\n'
   }
 
-  if (kernel.name === "style") {
-    return "::: style ${1}\n\n${2}\n\n:::\n";
+  if (kernel.name === 'style') {
+    return '::: style ${1}\n\n${2}\n\n:::\n'
   }
 
   switch (kernel.type) {
-    case "Math":
-      return "```" + kernel.name + "\n${0}\n```\n";
+    case 'Math':
+      return '```' + kernel.name + '\n${0}\n```\n'
     default:
-      return "```" + kernel.name + " exec\n${0}\n```\n";
+      return '```' + kernel.name + ' exec\n${0}\n```\n'
   }
 }
 
@@ -102,26 +102,26 @@ function smdSnippet(kernel: Kernel): string {
  * Create a MyST snippet to use the kernel
  */
 function mystSnippet(kernel: Kernel): string {
-  if (kernel.name === "tex") {
-    return "$$\n${0}\n$$\n";
+  if (kernel.name === 'tex') {
+    return '$$\n${0}\n$$\n'
   }
 
-  if (kernel.name === "mermaid") {
-    return "```{mermaid}\n${0}\n```\n";
+  if (kernel.name === 'mermaid') {
+    return '```{mermaid}\n${0}\n```\n'
   }
 
-  return "```{code-cell} " + kernel.name + "\n${0}\n```\n";
+  return '```{code-cell} ' + kernel.name + '\n${0}\n```\n'
 }
 
 /**
  * Create a QMD snippet to use the kernel
  */
 function qmdSnippet(kernel: Kernel): string {
-  if (kernel.name === "tex") {
-    return "$$\n${0}\n$$\n";
+  if (kernel.name === 'tex') {
+    return '$$\n${0}\n$$\n'
   }
 
-  return "```{" + kernel.name + "}\n${0}\n```\n";
+  return '```{' + kernel.name + '}\n${0}\n```\n'
 }
 
 class KernelTreeItem extends vscode.TreeItem {
@@ -130,11 +130,11 @@ class KernelTreeItem extends vscode.TreeItem {
     public readonly type: KernelType | null,
     public readonly kernel?: Kernel
   ) {
-    let label = "";
+    let label = ''
     if (type) {
-      label = type;
+      label = type
     } else if (kernel) {
-      label = kernel.name;
+      label = kernel.name
     }
 
     super(
@@ -142,39 +142,39 @@ class KernelTreeItem extends vscode.TreeItem {
       type
         ? vscode.TreeItemCollapsibleState.Expanded
         : vscode.TreeItemCollapsibleState.None
-    );
+    )
 
     const icon = (() => {
       if (type) {
         switch (type) {
-          case "Programming":
-            return "zap";
-          case "Math":
-            return "symbol-operator";
-          case "Diagrams":
-            return "symbol-misc";
-          case "Templating":
-            return "bracket";
-          case "Styling":
-            return "symbol-color";
+          case 'Programming':
+            return 'zap'
+          case 'Math':
+            return 'symbol-operator'
+          case 'Diagrams':
+            return 'symbol-misc'
+          case 'Templating':
+            return 'bracket'
+          case 'Styling':
+            return 'symbol-color'
           default:
-            return "circle-large-outline";
+            return 'circle-large-outline'
         }
       } else {
-        return "circle-large-outline";
+        return 'circle-large-outline'
       }
-    })();
+    })()
 
-    this.iconPath = icon.includes(".")
-      ? vscode.Uri.joinPath(context.extensionUri, "icons", icon)
-      : new vscode.ThemeIcon(icon);
+    this.iconPath = icon.includes('.')
+      ? vscode.Uri.joinPath(context.extensionUri, 'icons', icon)
+      : new vscode.ThemeIcon(icon)
 
     // Set the context value to allow filtering commands by the item type
     this.contextValue = type
-      ? "type"
-      : kernel?.availability === "Available"
-        ? "kernel"
-        : "unavailable";
+      ? 'type'
+      : kernel?.availability === 'Available'
+        ? 'kernel'
+        : 'unavailable'
   }
 }
 
@@ -182,71 +182,71 @@ class KernelTreeProvider implements vscode.TreeDataProvider<KernelTreeItem> {
   /**
    * The VSCode extension context used for resolving icon paths
    */
-  context: vscode.ExtensionContext;
+  context: vscode.ExtensionContext
 
   /**
    * The LSP client used to fetch the list of kernels
    */
-  client: LanguageClient;
+  client: LanguageClient
 
   /**
    * The list of kernels obtained from the LSP
    */
-  list: Kernel[];
+  list: Kernel[]
 
   /**
    * The unique kernel types from the list of kernels
    */
-  types: KernelType[];
+  types: KernelType[]
 
   private _onDidChangeTreeData: vscode.EventEmitter<
     KernelTreeItem | undefined | null | void
-  > = new vscode.EventEmitter<KernelTreeItem | undefined | null | void>();
+  > = new vscode.EventEmitter<KernelTreeItem | undefined | null | void>()
   readonly onDidChangeTreeData: vscode.Event<
     KernelTreeItem | undefined | null | void
-  > = this._onDidChangeTreeData.event;
+  > = this._onDidChangeTreeData.event
 
   constructor(context: vscode.ExtensionContext, client: LanguageClient) {
-    this.context = context;
-    this.client = client;
-    this.list = [];
-    this.types = [];
+    this.context = context
+    this.client = client
+    this.list = []
+    this.types = []
   }
 
   async refresh(client?: LanguageClient): Promise<void> {
-    event("kernels_refresh");
+    event('kernels_refresh')
 
     if (client) {
-      this.client = client;
+      this.client = client
     }
 
     this.list = (
-      (await this.client.sendRequest("stencila/listKernels")) as Kernel[]
-    ).filter((kernel) => kernel.availability === "Available");
-    this.types = [...new Set(this.list.map((kernel) => kernel.type))];
+      (await this.client.sendRequest('stencila/listKernels')) as Kernel[]
+    ).filter((kernel) => kernel.availability === 'Available')
+    this.types = [...new Set(this.list.map((kernel) => kernel.type))]
 
-    this._onDidChangeTreeData.fire();
+    this._onDidChangeTreeData.fire()
   }
 
   getTreeItem(item: KernelTreeItem): vscode.TreeItem {
-    return item;
+    return item
   }
 
   async getChildren(item?: KernelTreeItem): Promise<KernelTreeItem[]> {
     if (this.list.length === 0) {
-      await this.refresh();
+      await this.refresh()
     }
 
     if (!item) {
-      return this.types.map((type) => new KernelTreeItem(this.context, type));
+      return this.types.map((type) => new KernelTreeItem(this.context, type))
     }
 
     if (item.type) {
       return this.list
         .filter((kernel) => kernel.type === item.type)
-        .map((kernel) => new KernelTreeItem(this.context, null, kernel));
+        .map((kernel) => new KernelTreeItem(this.context, null, kernel))
     }
 
-    return [];
+    return []
   }
 }

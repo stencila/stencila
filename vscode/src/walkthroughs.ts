@@ -1,137 +1,137 @@
-import fs from "fs";
-import path from "path";
+import fs from 'fs'
+import path from 'path'
 
-import * as vscode from "vscode";
+import * as vscode from 'vscode'
 
-import { event } from "./events";
+import { event } from './events'
 
 export function registerWalkthroughCommands(context: vscode.ExtensionContext) {
   const open = vscode.commands.registerCommand(
-    "stencila.walkthroughs.open",
+    'stencila.walkthroughs.open',
     async (name, ...formats) => {
       // If necessary, ask the user to choose a format for the walkthrough
-      let format;
+      let format
       if (formats.length === 1) {
-        format = formats[0];
+        format = formats[0]
       } else {
         formats = formats.map((format) => {
           const label = (() => {
             switch (format) {
-              case "smd":
-                return "Stencila Markdown";
-              case "myst":
-                return "MyST Markdown";
-              case "qmd":
-                return "Quarto Markdown";
+              case 'smd':
+                return 'Stencila Markdown'
+              case 'myst':
+                return 'MyST Markdown'
+              case 'qmd':
+                return 'Quarto Markdown'
               default:
-                return format.toUpperCase();
+                return format.toUpperCase()
             }
-          })();
+          })()
 
           return {
             label,
             format,
-          };
-        });
+          }
+        })
         format = (
           await vscode.window.showQuickPick(formats, {
-            placeHolder: "Please select a format for the walkthrough",
-            title: "Walkthrough Format",
+            placeHolder: 'Please select a format for the walkthrough',
+            title: 'Walkthrough Format',
           })
-        ).format;
+        ).format
       }
 
-      event("walkthrough_open", { name, format });
+      event('walkthrough_open', { name, format })
 
       // Read the walkthrough content
       const filePath = path.join(
         context.extensionPath,
-        "walkthroughs",
+        'walkthroughs',
         `${name}.${format}`
-      );
-      const content = fs.readFileSync(filePath, "utf8");
+      )
+      const content = fs.readFileSync(filePath, 'utf8')
 
       // Create an untitled document with the content
       const doc = await vscode.workspace.openTextDocument({
         content,
         language: format,
-      });
+      })
 
       // TODO: This necessary so that document has a walkthrough node
       // in memory before we send command to collapse it. There should be
       // a better way to do this. e.g. queuing commands, signal that do is ready etc.
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000))
 
       // Open the document
-      const editor = await vscode.window.showTextDocument(doc);
+      const editor = await vscode.window.showTextDocument(doc)
 
       // Find the first line that equals '...'
-      let walkthroughStart = new vscode.Position(0, 0);
+      let walkthroughStart = new vscode.Position(0, 0)
       for (let i = 0; i < doc.lineCount; i++) {
-        const lineText = doc.lineAt(i).text.trim();
-        if (lineText === "...") {
-          walkthroughStart = new vscode.Position(i, 0);
-          break;
+        const lineText = doc.lineAt(i).text.trim()
+        if (lineText === '...') {
+          walkthroughStart = new vscode.Position(i, 0)
+          break
         }
       }
 
       // Collapse the walkthrough
       await vscode.commands.executeCommand(
-        "stencila.patch-value",
+        'stencila.patch-value',
         editor.document.uri.toString(),
-        "Walkthrough",
+        'Walkthrough',
         walkthroughStart,
-        "isCollapsed",
+        'isCollapsed',
         true
-      );
+      )
 
       // Open the preview for the document
       // For rationale for doing this, see https://github.com/stencila/stencila/issues/2423
-      await vscode.commands.executeCommand("stencila.view-doc");
+      await vscode.commands.executeCommand('stencila.view-doc')
     }
-  );
+  )
 
   // Collapse the current walkthrough and reset each of the steps to inactive state
   const collapse = vscode.commands.registerCommand(
-    "stencila.walkthroughs.collapse",
+    'stencila.walkthroughs.collapse',
     async () => {
-      const editor = vscode.window.activeTextEditor;
+      const editor = vscode.window.activeTextEditor
       if (!editor) {
-        vscode.window.showErrorMessage("No active editor");
-        return;
+        vscode.window.showErrorMessage('No active editor')
+        return
       }
 
       vscode.commands.executeCommand(
-        "stencila.patch-value",
+        'stencila.patch-value',
         editor.document.uri.toString(),
-        "Walkthrough",
+        'Walkthrough',
         editor.selection.active,
-        "isCollapsed",
+        'isCollapsed',
         true
-      );
+      )
     }
-  );
+  )
 
   // Expand the current walkthrough so it can be edited
   const expand = vscode.commands.registerCommand(
-    "stencila.walkthroughs.expand",
+    'stencila.walkthroughs.expand',
     async () => {
-      const editor = vscode.window.activeTextEditor;
+      const editor = vscode.window.activeTextEditor
       if (!editor) {
-        vscode.window.showErrorMessage("No active editor");
-        return;
+        vscode.window.showErrorMessage('No active editor')
+        return
       }
 
       vscode.commands.executeCommand(
-        "stencila.patch-value",
+        'stencila.patch-value',
         editor.document.uri.toString(),
-        "Walkthrough",
+        'Walkthrough',
         editor.selection.active,
-        "isCollapsed",
+        'isCollapsed',
         false
-      );
+      )
     }
-  );
+  )
 
-  context.subscriptions.push(open, collapse, expand);
+  context.subscriptions.push(open, collapse, expand)
 }

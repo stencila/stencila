@@ -1,67 +1,67 @@
-import { execSync } from "child_process";
-import * as path from "path";
-import * as os from "os";
+import { execSync } from 'child_process'
+import * as os from 'os'
+import * as path from 'path'
 
-import * as vscode from "vscode";
+import * as vscode from 'vscode'
 
-import { cliPath } from "./cli";
+import { cliPath } from './cli'
 
 /**
  * Register a command to open a shell with the Stencila CLI used by
  * VSCode on its PATH.
  */
 export function registerStencilaShell(context: vscode.ExtensionContext) {
-  const disposable = vscode.commands.registerCommand("stencila.shell", () => {
+  const disposable = vscode.commands.registerCommand('stencila.shell', () => {
     // Get the path to the directory containing the CLI binary
-    const cliDir = path.dirname(cliPath(context));
+    const cliDir = path.dirname(cliPath(context))
 
     // Get the user's default shell
-    const [shellPath, ...shellArgs] = getDefaultShell();
+    const [shellPath, ...shellArgs] = getDefaultShell()
 
     // Create the environment variables for the terminal
     const env = Object.assign({}, process.env, {
       PATH: `${cliDir}${path.delimiter}${process.env.PATH}`,
-    });
+    })
 
     // Create terminal with modified PATH
     const terminal = vscode.window.createTerminal({
-      name: "Stencila Shell",
+      name: 'Stencila Shell',
       message:
-        "This shell uses the same version of Stencila CLI as used by Visual Studio Code. Use `stencila -h` to get a list of commands.\n",
+        'This shell uses the same version of Stencila CLI as used by Visual Studio Code. Use `stencila -h` to get a list of commands.\n',
       shellPath,
       shellArgs,
       env,
-    });
+    })
 
-    terminal.show();
-  });
+    terminal.show()
+  })
 
-  context.subscriptions.push(disposable);
+  context.subscriptions.push(disposable)
 }
 
 /**
  * Get the user's default shell, including any arguments
  */
 function getDefaultShell(): string[] {
-  const platform = os.platform();
+  const platform = os.platform()
 
   // Windows
-  if (platform === "win32") {
+  if (platform === 'win32') {
     // Try to use PowerShell Core first, fall back to Windows PowerShell
-    const powershellPath = process.env.PWSHPATH || "pwsh.exe";
+    const powershellPath = process.env.PWSHPATH || 'pwsh.exe'
     if (hasCommand(powershellPath)) {
-      return [powershellPath, "-NoLogo"];
+      return [powershellPath, '-NoLogo']
     }
 
     // Fall back to Command Prompt if PowerShell is not available
-    return [process.env.COMSPEC || "cmd.exe"];
+    return [process.env.COMSPEC || 'cmd.exe']
   }
 
   // MacOS / Linux
   return [
-    process.env.SHELL || "/bin/bash",
-    "-l", // Login shell to ensure profile is loaded
-  ];
+    process.env.SHELL || '/bin/bash',
+    '-l', // Login shell to ensure profile is loaded
+  ]
 }
 
 /**
@@ -69,9 +69,9 @@ function getDefaultShell(): string[] {
  */
 function hasCommand(command: string): boolean {
   try {
-    execSync(`${command} --version`, { stdio: "ignore" });
-    return true;
+    execSync(`${command} --version`, { stdio: 'ignore' })
+    return true
   } catch {
-    return false;
+    return false
   }
 }
