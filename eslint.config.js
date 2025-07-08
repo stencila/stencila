@@ -5,14 +5,14 @@ import wcPlugin from 'eslint-plugin-wc'
 import tseslint from 'typescript-eslint'
 
 export default [
+  // Base configurations
   ...tseslint.config(
     js.configs.recommended,
     tseslint.configs.recommended,
     importPlugin.flatConfigs.recommended,
-    importPlugin.flatConfigs.typescript,
-    wcPlugin.configs['flat/recommended'],
-    litPlugin.configs['flat/recommended']
+    importPlugin.flatConfigs.typescript
   ),
+  // Global configuration for all workspaces
   {
     languageOptions: {
       globals: {
@@ -24,11 +24,6 @@ export default [
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
-      },
-    },
-    settings: {
-      wc: {
-        elementBaseClasses: ['LitElement'], // Recognize `LitElement` as a Custom Element base class
       },
     },
     rules: {
@@ -69,6 +64,49 @@ export default [
         },
       ],
     },
-    ignores: ['.prettierrc'],
+  },
+  // Ignore patterns
+  {
+    ignores: [
+      '.prettierrc',
+      'out',
+      'dist',
+      '**/*.d.ts',
+      '**/node_modules/**',
+      '**/coverage/**',
+      '**/build/**',
+      '**/.next/**',
+      '**/public/**',
+      '**/*.config.js',
+      '**/*.config.mjs',
+      '**/*.config.ts',
+    ],
+  },
+  // Web component rules for web workspace
+  {
+    files: ['web/**/*.ts', 'web/**/*.js'],
+    ...wcPlugin.configs['flat/recommended'],
+    ...litPlugin.configs['flat/recommended'],
+    settings: {
+      wc: {
+        elementBaseClasses: ['LitElement'], // Recognize `LitElement` as a Custom Element base class
+      },
+    },
+  },
+  // Rules for vscode workspace
+  {
+    files: ['vscode/**/*.ts', 'vscode/**/*.js'],
+    rules: {
+      '@typescript-eslint/naming-convention': [
+        'warn',
+        {
+          selector: 'import',
+          format: ['camelCase', 'PascalCase'],
+        },
+      ],
+      curly: 'warn',
+      eqeqeq: 'warn',
+      'no-throw-literal': 'warn',
+    },
   },
 ]
