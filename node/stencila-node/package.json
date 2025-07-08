@@ -43,8 +43,8 @@
   "types": "./dist/index.d.cts",
   "scripts": {
     "audit": "better-npm-audit audit",
-    "fix": "eslint --fix --ignore-pattern 'src/bindings.d.ts' 'src/**/*.ts' && prettier --write .",
-    "lint": "eslint --ignore-pattern 'src/bindings.d.ts' 'src/**/*.ts' && prettier --check .",
+    "fix": "eslint --fix --ignore-pattern 'src/bindings.d.ts'",
+    "lint": "eslint --ignore-pattern 'src/bindings.d.ts'",
     "build:debug": "napi build --js false --dts src/bindings.d.ts",
     "build:addon": "napi build --platform --release --js false --dts src/bindings.d.ts && npm run compress",
     "build:dist": "tsup --external ../stencila.node",

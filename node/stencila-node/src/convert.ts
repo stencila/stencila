@@ -1,11 +1,11 @@
-import { type Node, node } from "@stencila/types";
+import { type Node, node } from '@stencila/types'
 
 // eslint-disable-next-line import/no-unresolved
-import { type DecodeOptions, type EncodeOptions } from "./bindings.d.js";
+import { type DecodeOptions, type EncodeOptions } from './bindings.d.js'
 // eslint-disable-next-line import/no-unresolved
-import * as bindings from "./bindings.js";
+import * as bindings from './bindings.js'
 
-export { DecodeOptions, EncodeOptions };
+export { DecodeOptions, EncodeOptions }
 
 /**
  * Decode a Stencila Schema node from a string
@@ -18,7 +18,7 @@ export async function fromString<T = Node>(
   string: string,
   options?: DecodeOptions,
 ): Promise<T> {
-  return node(JSON.parse(await bindings.fromString(string, options))) as T;
+  return node(JSON.parse(await bindings.fromString(string, options))) as T
 }
 
 /**
@@ -32,7 +32,7 @@ export async function fromPath<T = Node>(
   string: string,
   options?: DecodeOptions,
 ): Promise<T> {
-  return node(JSON.parse(await bindings.fromPath(string, options))) as T;
+  return node(JSON.parse(await bindings.fromPath(string, options))) as T
 }
 
 /**
@@ -49,7 +49,7 @@ export async function toString(
   node: Node,
   options?: EncodeOptions,
 ): Promise<string> {
-  return bindings.toString(JSON.stringify(node), options);
+  return bindings.toString(JSON.stringify(node), options)
 }
 
 /**
@@ -64,7 +64,7 @@ export async function toPath(
   path: string,
   options?: EncodeOptions,
 ): Promise<void> {
-  return bindings.toPath(JSON.stringify(node), path, options);
+  return bindings.toPath(JSON.stringify(node), path, options)
 }
 
 /**
@@ -80,5 +80,5 @@ export async function fromTo(
   decodeOptions?: DecodeOptions,
   encodeOptions?: EncodeOptions,
 ): Promise<string> {
-  return bindings.fromTo(input, output, decodeOptions, encodeOptions);
+  return bindings.fromTo(input, output, decodeOptions, encodeOptions)
 }
