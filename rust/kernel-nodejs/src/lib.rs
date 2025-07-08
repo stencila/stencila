@@ -281,7 +281,7 @@ mod tests {
     // Pro-tip! Use get logs for these tests use:
     //
     // ```sh
-    // RUST_LOG=trace cargo test -p kernel-node -- --nocapture
+    // RUST_LOG=trace cargo test -p kernel-nodejs -- --nocapture
     // ```
 
     /// Standard kernel test for execution of code
