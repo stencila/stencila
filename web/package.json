@@ -64,7 +64,7 @@
     "build:vscode": "cross-env NODE_ENV=production parcel build --target vscode --config .parcelrc-vscode --no-source-maps --no-cache",
     "build:ghost": "cross-env NODE_ENV=production parcel build --target ghost --no-source-maps --no-cache",
     "export:vscode": "tsx scripts/export-to-vscode.ts",
-    "unused": "depcheck --quiet --ignores '@parcel/*,parcel-*,postcss-*' --ignore-patterns 'eslint.config.js'"
+    "unused": "depcheck --quiet --ignores '@parcel/*,parcel-*,postcss-*' --ignore-patterns 'eslint.config.js,**/*.test.ts'"
   },
   "dependencies": {
     "@codemirror/commands": "6.8.1",
@@ -123,7 +123,6 @@
     "postcss-import": "16.1.1",
     "tsx": "4.20.3",
     "vitest": "^1.6.0",
-    "@vitest/ui": "^1.6.0",
-    "@vitest/coverage-v8": "^1.6.0"
+    "@vitest/ui": "^1.6.0"
   }
 }
