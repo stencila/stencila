@@ -38,7 +38,7 @@
     "tsup": "8.5.0",
     "typescript": "5.8.3",
     "typescript-eslint": "8.34.1",
-    "vitest": "1.6.0",
+    "vitest": "3.2.4",
     "wrangler": "4.20.3"
   }
 }

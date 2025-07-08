@@ -1,4 +1,5 @@
 {
-  "1105772": {"notes": "moderate severity, mermaid dep"},
-  "1102341": {"notes": "moderate severity, dev dep"}
+  "1105772": {
+    "notes": "moderate severity, mermaid dep"
+  }
 }
