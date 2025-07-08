@@ -481,8 +481,8 @@
           "value": "None"
         },
         "low": {
-          "description": "Generate an arbitrary label type",
-          "strategy": "option::of(LabelType::arbitrary())"
+          "description": "Generate either FigureLabel or TableLabel",
+          "strategy": "option::of(prop_oneof![Just(LabelType::FigureLabel), Just(LabelType::TableLabel)])"
         }
       },
       "$ref": "LabelType.schema.json"

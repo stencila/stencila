@@ -97,9 +97,9 @@ pub struct CodeChunk {
     #[serde(alias = "label-type", alias = "label_type")]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "ipynb")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(LabelType::arbitrary())"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(LabelType::arbitrary())"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(LabelType::arbitrary())"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(prop_oneof![Just(LabelType::FigureLabel), Just(LabelType::TableLabel)])"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(prop_oneof![Just(LabelType::FigureLabel), Just(LabelType::TableLabel)])"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(prop_oneof![Just(LabelType::FigureLabel), Just(LabelType::TableLabel)])"#))]
     #[jats(attr = "label-type")]
     pub label_type: Option<LabelType>,
 
