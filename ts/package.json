@@ -46,7 +46,7 @@
     "test": "vitest run",
     "build": "tsup",
     "pubcheck": "attw --pack . && publint",
-    "unused": "depcheck --quiet --ignore-patterns 'eslint.config.js'"
+    "unused": "depcheck --quiet --ignore-patterns 'eslint.config.js,vitest.config.ts,**/*.test.ts'"
   },
   "tsup": {
     "entry": [
