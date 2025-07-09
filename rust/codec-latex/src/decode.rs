@@ -47,7 +47,7 @@ static RE: Lazy<Regex> = Lazy::new(|| {
 
       | (?P<appendix>\\appendix)\s*\n?
 
-      | \\section\{(?P<section>[^}]*)\}\s*\n?
+      | (?:\\label\{(?P<label_before>[^}]*)\}\s*)?\\section\{(?P<section>[^}]*)\}\s*(?:\\label\{(?P<label_after>[^}]*)\}\s*)?\n?
 
       | \\begin\{chunk\} \s*
           (?:\[(?P<chunk_opts>[^\]]*?)\])? \s* 
@@ -255,10 +255,17 @@ fn latex_to_blocks(latex: &str, island_style: &Option<String>) -> Vec<Block> {
         } else if captures.name("appendix").is_some() {
             blocks.push(Block::AppendixBreak(AppendixBreak::new()));
         } else if let Some(section) = captures.name("section") {
-            blocks.push(Block::Heading(Heading::new(
-                1,
-                vec![Inline::Text(Text::from(section.as_str()))],
-            )));
+            let id = captures
+                .name("label_before")
+                .or(captures.name("label_after"))
+                .map(|cap| cap.as_str().to_string());
+
+            blocks.push(Block::Heading(Heading {
+                id,
+                level: 1,
+                content: vec![Inline::Text(Text::from(section.as_str()))],
+                ..Default::default()
+            }));
         } else if let Some(mat) = captures.name("chunk") {
             let code = mat.as_str().to_string();
 

@@ -1,0 +1,27 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: "&latex"
+---
+\section{Introduction}
+
+This is a section without a label.
+
+\section{Methodology}
+
+This section has a label after it.
+
+
+
+\section{Results}
+
+This section has a label before it.
+
+\section{Discussion}
+
+Another section with label after.
+
+
+
+\section{Conclusion}
+
+Final section with label before.

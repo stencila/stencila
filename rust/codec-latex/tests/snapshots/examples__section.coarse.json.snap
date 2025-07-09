@@ -1,0 +1,118 @@
+---
+source: rust/codec-latex/tests/examples.rs
+expression: article
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "\\documentclass{article}\n\n\\begin{document}\n\n"
+      }
+    },
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Introduction"
+          }
+        }
+      ]
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "This is a section without a label.\n\n"
+      }
+    },
+    {
+      "type": "Heading",
+      "id": "sec:methodology",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Methodology"
+          }
+        }
+      ]
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "This section has a label after it.\n\n"
+      }
+    },
+    {
+      "type": "Heading",
+      "id": "sec:results",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Results"
+          }
+        }
+      ]
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "This section has a label before it.\n\n"
+      }
+    },
+    {
+      "type": "Heading",
+      "id": "sec:discussion",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Discussion"
+          }
+        }
+      ]
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "Another section with label after.\n\n  "
+      }
+    },
+    {
+      "type": "Heading",
+      "id": "sec:conclusion",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Conclusion"
+          }
+        }
+      ]
+    },
+    {
+      "type": "RawBlock",
+      "format": "latex",
+      "content": {
+        "string": "Final section with label before.\n\n\\end{document}"
+      }
+    }
+  ],
+  "repository": "https://github.com/stencila/stencila",
+  "path": "rust/codec-latex/tests/examples/section.tex",
+  "commit": "redacted"
+}
