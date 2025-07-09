@@ -9,6 +9,12 @@ install:
 	make -C web -B install
 	make -C vscode -B install
 
+# Install tools needed for running tests
+# This uses Stencila itself to install the tools defined in mise.toml etc
+# As such it also acts as a test of that functionality.
+install-tools:
+	cargo run -p cli tools install --debug
+
 # Make formatting and linting fixes
 fix:
 	make -C rust fix

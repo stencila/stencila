@@ -30,6 +30,7 @@ jobs:
     outputs:
       main: ${{ steps.changes.outputs.main }}
       ts: ${{ steps.changes.outputs.ts }}
+      vscode: ${{ steps.changes.outputs.vscode }}
       web: ${{ steps.changes.outputs.web }}
 
     steps:
@@ -100,16 +101,9 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
-      - name: Setup R
-        uses: r-lib/actions/setup-r@v2
-
-      - name: Setup Chrome
+      - name: Setup Chrome for web e2e tests
         uses: browser-actions/setup-chrome@v1
       - run: which chrome
-
-      - name: Setup Pandoc
-        uses: pandoc/actions/setup@v1
-      - run: which pandoc
 
       - name: Show disk usage
         run: df -h && du -hd1
@@ -131,6 +125,11 @@ jobs:
       - name: Run linting
         run: make lint
 
+      - name: Install tools required for tests
+        run: make install-tools
+        env:
+          ASSUME_YES: true
+
       - name: Run tests with coverage
         run: make cover
 
@@ -145,7 +144,7 @@ jobs:
       #  env:
       #    ARGOS_TOKEN: ${{ secrets.ARGOS_TOKEN }}
       #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #  run: make -C web e2e  
+      #  run: make -C web e2e
 
       - name: Run accessibility checks
         run: make a11y
