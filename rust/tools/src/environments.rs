@@ -114,8 +114,11 @@ impl Tool for Mise {
 
         let mut command = Command::new(self.executable_name());
         match tool.name() {
+            "agg" => {
+                command.args(["use", "ubi:asciinema/agg"]);
+            }
             "rig" => {
-                // Use `install --global` for rig because it is more of a system dependency
+                // Use `install` for rig because it is more of a system dependency
                 // rather than a project dependency
                 command.args(["install", "ubi:r-lib/rig"]);
             }

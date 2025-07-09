@@ -72,6 +72,7 @@ pub fn list() -> Vec<Box<dyn Tool>> {
         // Linting
         Box::new(Ruff),
         // Conversion
+        Box::new(Agg),
         Box::new(Pandoc),
         Box::new(Xelatex),
         // Collaboration

@@ -3,6 +3,30 @@ use crate::{
     Tool, ToolType, VersionReq,
 };
 
+pub struct Agg;
+
+impl Tool for Agg {
+    fn name(&self) -> &'static str {
+        "agg"
+    }
+
+    fn url(&self) -> &'static str {
+        "https://github.com/asciinema/agg"
+    }
+
+    fn description(&self) -> &'static str {
+        "A command-line tool for generating animated GIFs and MP4 videos from asciicast recordings"
+    }
+
+    fn r#type(&self) -> ToolType {
+        ToolType::Conversion
+    }
+
+    fn install_tools(&self) -> Vec<Box<dyn Tool>> {
+        vec![Box::new(Mise)]
+    }
+}
+
 pub struct Pandoc;
 
 impl Tool for Pandoc {
