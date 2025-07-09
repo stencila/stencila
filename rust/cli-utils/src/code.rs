@@ -93,11 +93,14 @@ impl ToStdout for Code {
             }
         };
 
-        let syntax = SYNTAXES.find_syntax_by_extension(&ext).unwrap_or_else(|| {
-            SYNTAXES
-                .find_syntax_by_extension("txt")
-                .expect("should always be a txt theme")
-        });
+        let syntax = SYNTAXES
+            .find_syntax_by_extension(&ext)
+            .or(SYNTAXES.find_syntax_by_name(&self.format.name()))
+            .unwrap_or_else(|| {
+                SYNTAXES
+                    .find_syntax_by_extension("txt")
+                    .expect("should always be a txt theme")
+            });
 
         let mut highlighted = String::new();
         let mut highlighter = HighlightLines::new(syntax, &THEMES.themes["Solarized (light)"]);
