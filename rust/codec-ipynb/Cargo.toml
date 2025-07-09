@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 codec = { path = "../codec" }
 codec-markdown = { path = "../codec-markdown" }
-jupyter-protocol = "0.8.0"
+jupyter-protocol = "0.8.1"
 nbformat = "0.12.0"
 
 [lints]

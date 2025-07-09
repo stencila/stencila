@@ -7,7 +7,7 @@ edition = "2024"
 common = { path = "../common" }
 dirs = { path = "../dirs" }
 # Ensure that rustls is used to avoid adding a dependence on OpenSSL
-fastembed = { version = "4.8.1", default-features = false, features = [
+fastembed = { version = "5.0.0", default-features = false, features = [
     "hf-hub-rustls-tls",
     "ort-download-binaries",
 ] }

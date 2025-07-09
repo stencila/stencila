@@ -22,7 +22,7 @@ node-first = { path = "../node-first" }
 node-map = { path = "../node-map" }
 node-sentencize = { path = "../node-sentencize" }
 node-strip = { path = "../node-strip" }
-notify = { version = "8.0.0", default-features = false, features = ["macos_kqueue"] }
+notify = { version = "8.1.0", default-features = false, features = ["macos_kqueue"] }
 schema = { path = "../schema" }
 url = { workspace = true }
 

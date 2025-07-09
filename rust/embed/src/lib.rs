@@ -10,7 +10,7 @@ fn embed(texts: Vec<String>) -> Result<Vec<Vec<f32>>> {
         .with_cache_dir(get_app_dir(DirType::Models, true)?)
         .with_show_download_progress(false);
 
-    let model = TextEmbedding::try_new(options).map_err(|error| eyre!(error))?;
+    let mut model = TextEmbedding::try_new(options).map_err(|error| eyre!(error))?;
 
     let vecs = model.embed(texts, None).map_err(|error| eyre!(error))?;
     Ok(vecs)
