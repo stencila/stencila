@@ -40,7 +40,9 @@ test-log = { version = "0.2.17", default-features = false, features = ["trace"] 
 time = { version = "0.3.41", features = ["formatting"] }
 url = { version = "2.5.4", features = ["serde"] }
 which = "8.0.0"
-zip = "2.3.0"
+# To reduce dependencies avoid bzip2, lzma, xz, and zstd compression which are rare for zip archive.
+# Reinstate those if necessary
+zip = { version = "2.3.0", default-features = false, features = ["deflate", "time"] }
 
 [workspace.lints.rust]
 unsafe_code = "deny"
