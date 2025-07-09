@@ -40,10 +40,7 @@ impl LatexCodec for Island {
                             .collect();
 
                         // Parse appendix counter from first uppercase letter (A=1, B=2, etc.)
-                        let appendix = prefix
-                            .chars()
-                            .next()
-                            .and_then(|c| Some(c as u32 - 'A' as u32 + 1));
+                        let appendix = prefix.chars().next().map(|c| c as u32 - 'A' as u32 + 1);
 
                         // Parse label counter and subtract 1 (because the figure itself will increment the counter)
                         let label_counter = suffix.parse::<u32>().ok().and_then(|n| {

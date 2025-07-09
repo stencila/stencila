@@ -144,7 +144,7 @@ fn heading_to_pandoc(heading: &Heading, context: &mut PandocEncodeContext) -> pa
         };
 
         if let Some(label) = &heading.label {
-            prefix.push_str(&label);
+            prefix.push_str(label);
             prefix.push(' ');
         }
 

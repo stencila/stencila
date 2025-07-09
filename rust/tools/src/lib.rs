@@ -1188,7 +1188,7 @@ fn build_nested_command(command: &str, args: &[String], path: &Path) -> Option<C
         if manager.executable_name() == current_cmd {
             continue;
         }
-        
+
         if let Some(wrapped_cmd) = manager.exec_command(&current_cmd, &current_args) {
             current_cmd = wrapped_cmd.get_program().to_string_lossy().to_string();
             current_args = wrapped_cmd
