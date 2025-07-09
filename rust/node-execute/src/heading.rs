@@ -23,6 +23,10 @@ impl Executable for Heading {
                 if !matches!(self.label_type, Some(LabelType::AppendixLabel))
                     || self.label.as_ref() != Some(&label)
                 {
+                    // Must be set locally for is and label registration (below)
+                    self.label_type = Some(LabelType::AppendixLabel);
+                    self.label = Some(label.clone());
+
                     executor.patch(
                         &self.node_id(),
                         [
