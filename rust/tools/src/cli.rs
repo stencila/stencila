@@ -769,7 +769,10 @@ impl Run {
         let args = &self.command[1..];
 
         let mut command = AsyncToolCommand::new(cmd);
-        command.args(args);
+        command
+            .args(args)
+            .stdout(ToolStdio::Inherit)
+            .stderr(ToolStdio::Inherit);
 
         if let Some(cwd) = &self.cwd {
             if !cwd.exists() {
