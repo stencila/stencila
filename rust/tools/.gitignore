@@ -1,0 +1,6 @@
+# Ignore tool config files that may be generated during tests
+/.devbox
+/devbox.json
+/devbox.lock
+/mise.toml
+/pixi.toml
