@@ -44,8 +44,9 @@ impl WalkControl {
 #[allow(unused_variables)]
 pub trait Visitor: Sized {
     /// Walk over a node
-    fn walk<T: WalkNode>(&mut self, node: &T) {
-        node.walk(self)
+    fn walk<T: WalkNode>(&mut self, node: &T) -> &mut Self {
+        node.walk(self);
+        self
     }
 
     /// Visit a `Node` node type
@@ -140,8 +141,9 @@ pub trait Visitor: Sized {
 #[allow(unused_variables)]
 pub trait VisitorMut: Sized {
     /// Walk over, and potentially mutate, a node
-    fn walk<T: WalkNode>(&mut self, node: &mut T) {
-        node.walk_mut(self)
+    fn walk<T: WalkNode>(&mut self, node: &mut T) -> &mut Self {
+        node.walk_mut(self);
+        self
     }
 
     /// Visit, and potentially mutate, a `Node` node type
