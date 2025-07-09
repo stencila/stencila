@@ -91,8 +91,8 @@ impl Codec for PandocCodec {
 }
 
 pub fn pandoc_availability() -> CodecAvailability {
-    match which::which("pandoc") {
-        Ok(..) => CodecAvailability::Available,
-        Err(..) => CodecAvailability::Installable("pandoc".into()),
+    match tools::is_installed("pandoc") {
+        Ok(true) => CodecAvailability::Available,
+        _ => CodecAvailability::Installable("pandoc".into()),
     }
 }

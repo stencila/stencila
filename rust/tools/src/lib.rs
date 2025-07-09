@@ -84,6 +84,14 @@ pub fn get(name: &str) -> Option<Box<dyn Tool>> {
     list().into_iter().find(|tool| tool.name() == name)
 }
 
+/// Find out if a tool is installed in the current environment
+///
+/// Errors if the tool is unknown.
+pub fn is_installed(name: &str) -> Result<bool> {
+    let tool = get(name).ok_or_eyre("Unknown tool")?;
+    Ok(tool_is_installed(tool.as_ref()))
+}
+
 /// The type of a kernel
 #[derive(Debug, Clone, PartialEq, Eq, Display, Serialize, ValueEnum)]
 #[serde(crate = "common::serde")]
@@ -424,7 +432,7 @@ fn tool_cache_key(tool: &dyn Tool) -> String {
 
 /// Check if a tool is installed, with version-aware caching
 /// This function works with trait objects and manages the cache
-pub fn is_installed(tool: &dyn Tool) -> bool {
+fn tool_is_installed(tool: &dyn Tool) -> bool {
     let cache_key = tool_cache_key(tool);
 
     // Check the cache first to avoid repeated PATH lookups for recently installed tools
@@ -478,7 +486,7 @@ pub fn is_installed(tool: &dyn Tool) -> bool {
 ///
 /// Automatically resolves dependencies and installs tools. Returns an error if
 /// installation is not supported or fails.
-pub async fn install(tool: &dyn Tool, force: bool) -> Result<()> {
+pub(crate) async fn install(tool: &dyn Tool, force: bool) -> Result<()> {
     install_with_depth(tool, 0, force).await
 }
 
@@ -496,7 +504,7 @@ async fn install_with_depth(tool: &dyn Tool, depth: u32, force: bool) -> Result<
     }
 
     // Check if already installed
-    if !force && is_installed(tool) {
+    if !force && tool_is_installed(tool) {
         return Ok(());
     }
 
@@ -1009,7 +1017,7 @@ impl AsyncToolCommand {
 
         // Auto-install tool if it's a known tool and not yet installed
         if let Some(tool) = get(&program) {
-            if !is_installed(tool.as_ref()) {
+            if !tool_is_installed(tool.as_ref()) {
                 let name = tool.name();
                 let name_ver = tool.name_and_version_required();
 
