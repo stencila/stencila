@@ -1184,6 +1184,11 @@ fn build_nested_command(command: &str, args: &[String], path: &Path) -> Option<C
     let mut current_args = args.to_vec();
 
     for manager in capable_managers.iter() {
+        // Skip if the manager would wrap itself (e.g., mise wrapping "mise install")
+        if manager.executable_name() == current_cmd {
+            continue;
+        }
+        
         if let Some(wrapped_cmd) = manager.exec_command(&current_cmd, &current_args) {
             current_cmd = wrapped_cmd.get_program().to_string_lossy().to_string();
             current_args = wrapped_cmd
