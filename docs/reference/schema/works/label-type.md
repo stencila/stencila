@@ -17,6 +17,7 @@ config:
 
 The `LabelType` type has these members:
 
+- `AppendixLabel`
 - `FigureLabel`
 - `TableLabel`
 

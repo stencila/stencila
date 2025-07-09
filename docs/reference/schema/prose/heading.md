@@ -23,13 +23,15 @@ Analogues of `Heading` in other schemas include:
 
 The `Heading` type has these properties:
 
-| Name         | Description                                                    | Type                                                                                   | Inherited from                                                     | `JSON-LD @id`                                | Aliases  |
-| ------------ | -------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------- | -------- |
-| `id`         | The identifier for this item.                                  | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                     | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id)         | -        |
-| `level`      | The level of the heading.                                      | [`Integer`](https://stencila.ghost.io/docs/reference/schema/integer)                   | -                                                                  | `stencila:level`                             | -        |
-| `content`    | Content of the heading.                                        | [`Inline`](https://stencila.ghost.io/docs/reference/schema/inline)*                    | -                                                                  | `stencila:content`                           | -        |
-| `authors`    | The authors of the heading.                                    | [`Author`](https://stencila.ghost.io/docs/reference/schema/author)*                    | -                                                                  | [`schema:author`](https://schema.org/author) | `author` |
-| `provenance` | A summary of the provenance of the content within the heading. | [`ProvenanceCount`](https://stencila.ghost.io/docs/reference/schema/provenance-count)* | -                                                                  | `stencila:provenance`                        | -        |
+| Name         | Description                                                                     | Type                                                                                   | Inherited from                                                     | `JSON-LD @id`                                | Aliases                    |
+| ------------ | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------- | -------------------------- |
+| `id`         | The identifier for this item.                                                   | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                     | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id)         | -                          |
+| `labelType`  | The type of the label for the appendix (if present, should be `AppendixLabel`). | [`LabelType`](https://stencila.ghost.io/docs/reference/schema/label-type)              | -                                                                  | `stencila:labelType`                         | `label-type`, `label_type` |
+| `label`      | A short label for the heading.                                                  | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                     | -                                                                  | `stencila:label`                             | -                          |
+| `level`      | The level of the heading.                                                       | [`Integer`](https://stencila.ghost.io/docs/reference/schema/integer)                   | -                                                                  | `stencila:level`                             | -                          |
+| `content`    | Content of the heading.                                                         | [`Inline`](https://stencila.ghost.io/docs/reference/schema/inline)*                    | -                                                                  | `stencila:content`                           | -                          |
+| `authors`    | The authors of the heading.                                                     | [`Author`](https://stencila.ghost.io/docs/reference/schema/author)*                    | -                                                                  | [`schema:author`](https://schema.org/author) | `author`                   |
+| `provenance` | A summary of the provenance of the content within the heading.                  | [`ProvenanceCount`](https://stencila.ghost.io/docs/reference/schema/provenance-count)* | -                                                                  | `stencila:provenance`                        | -                          |
 
 # Related
 
@@ -92,16 +94,18 @@ The `Heading` type is represented in:
 
 During property-based (a.k.a generative) testing, the properties of the `Heading` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
-| Property  | Complexity | Description                                                                     | Strategy                                      |
-| --------- | ---------- | ------------------------------------------------------------------------------- | --------------------------------------------- |
-| `level`   | Min+       | Fixed value of 1                                                                | `1`                                           |
-|           | Low+       | Generate values between 1 and 6                                                 | `1..=6i64`                                    |
-|           | High+      | Generate values between 0 and 6                                                 | `0..=6i64`                                    |
-|           | Max        | Generate an arbitrary value                                                     | `i64::arbitrary()`                            |
-| `content` | Min+       | Generate a single arbitrary inline node                                         | `vec_inlines(1)`                              |
-|           | Low+       | Generate up to two arbitrary inline nodes                                       | `vec_inlines(2)`                              |
-|           | High+      | Generate up to four arbitrary inline nodes                                      | `vec_inlines(4)`                              |
-|           | Max        | Generate up to eight arbitrary inline nodes without restrictions on their order | `vec(Inline::arbitrary(), size_range(0..=8))` |
+| Property    | Complexity | Description                                                                     | Strategy                                      |
+| ----------- | ---------- | ------------------------------------------------------------------------------- | --------------------------------------------- |
+| `labelType` | Min+       | No label type                                                                   | `None`                                        |
+| `label`     | Min+       | No label                                                                        | `None`                                        |
+| `level`     | Min+       | Fixed value of 1                                                                | `1`                                           |
+|             | Low+       | Generate values between 1 and 6                                                 | `1..=6i64`                                    |
+|             | High+      | Generate values between 0 and 6                                                 | `0..=6i64`                                    |
+|             | Max        | Generate an arbitrary value                                                     | `i64::arbitrary()`                            |
+| `content`   | Min+       | Generate a single arbitrary inline node                                         | `vec_inlines(1)`                              |
+|             | Low+       | Generate up to two arbitrary inline nodes                                       | `vec_inlines(2)`                              |
+|             | High+      | Generate up to four arbitrary inline nodes                                      | `vec_inlines(4)`                              |
+|             | Max        | Generate up to eight arbitrary inline nodes without restrictions on their order | `vec(Inline::arbitrary(), size_range(0..=8))` |
 
 # Source
 

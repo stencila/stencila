@@ -18,6 +18,7 @@ config:
 The `Block` type has these members:
 
 - [`Admonition`](https://stencila.ghost.io/docs/reference/schema/admonition)
+- [`AppendixBreak`](https://stencila.ghost.io/docs/reference/schema/appendix-break)
 - [`AudioObject`](https://stencila.ghost.io/docs/reference/schema/audio-object)
 - [`CallBlock`](https://stencila.ghost.io/docs/reference/schema/call-block)
 - [`Chat`](https://stencila.ghost.io/docs/reference/schema/chat)
@@ -70,6 +71,7 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 | ------------------ | ---------- | ---------------------------------------------------------- | ----------------- |
 | `Admonition`       | Min+       | Do not generate `Admonition` nodes in block content.       | -                 |
 |                    | Low+       | Generate `Admonition` nodes in block content.              | Default for level |
+| `AppendixBreak`    | Min+       | Do not generate `AppendixBreak` nodes in block content.    | -                 |
 | `AudioObject`      | Min+       | Do not generate `AudioObject` nodes in block content.      | -                 |
 | `CallBlock`        | Min+       | Do not generate `CallBlock` nodes in block content.        | -                 |
 |                    | Low+       | Generate `CallBlock` nodes in block content.               | Default for level |

@@ -26,6 +26,7 @@ The `Node` type has these members:
 - [`Array`](https://stencila.ghost.io/docs/reference/schema/array)
 - [`Admonition`](https://stencila.ghost.io/docs/reference/schema/admonition)
 - [`Annotation`](https://stencila.ghost.io/docs/reference/schema/annotation)
+- [`AppendixBreak`](https://stencila.ghost.io/docs/reference/schema/appendix-break)
 - [`ArrayHint`](https://stencila.ghost.io/docs/reference/schema/array-hint)
 - [`ArrayValidator`](https://stencila.ghost.io/docs/reference/schema/array-validator)
 - [`Article`](https://stencila.ghost.io/docs/reference/schema/article)

@@ -80,6 +80,7 @@ Support and degree of loss by node type:
 | **Prose**                                                                                    |
 | [Admonition](https://stencila.ghost.io/docs/reference/schema/admonition)                     | 🟢 No loss |          | Encoded as [`<aside>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside)                            |
 | [Annotation](https://stencila.ghost.io/docs/reference/schema/annotation)                     | 🟢 No loss |          |                                                                                                                    |
+| [AppendixBreak](https://stencila.ghost.io/docs/reference/schema/appendix_break)              | 🟢 No loss |          |                                                                                                                    |
 | [Citation](https://stencila.ghost.io/docs/reference/schema/citation)                         | 🟢 No loss |          |                                                                                                                    |
 | [CitationGroup](https://stencila.ghost.io/docs/reference/schema/citation_group)              | 🟢 No loss |          |                                                                                                                    |
 | [DefinedTerm](https://stencila.ghost.io/docs/reference/schema/defined_term)                  | 🟢 No loss |          |                                                                                                                    |

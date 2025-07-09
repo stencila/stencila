@@ -75,6 +75,7 @@ Support and degree of loss by node type:
 | **Prose**                                                                                    |
 | [Admonition](https://stencila.ghost.io/docs/reference/schema/admonition)                     | 🔷 Low loss | 🔷 Low loss |       |
 | [Annotation](https://stencila.ghost.io/docs/reference/schema/annotation)                     | 🔷 Low loss | 🔷 Low loss |       |
+| [AppendixBreak](https://stencila.ghost.io/docs/reference/schema/appendix_break)              | 🔷 Low loss | 🔷 Low loss |       |
 | [Citation](https://stencila.ghost.io/docs/reference/schema/citation)                         | 🔷 Low loss | 🔷 Low loss |       |
 | [CitationGroup](https://stencila.ghost.io/docs/reference/schema/citation_group)              | 🔷 Low loss | 🔷 Low loss |       |
 | [DefinedTerm](https://stencila.ghost.io/docs/reference/schema/defined_term)                  | 🔷 Low loss | 🔷 Low loss |       |
