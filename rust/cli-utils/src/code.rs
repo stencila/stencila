@@ -80,6 +80,7 @@ impl ToStdout for Code {
         let ext = match self.format {
             Format::Dom => "html".to_string(),
             Format::Json5 => "js".to_string(),
+            Format::Shell => "bash".to_string(),
             _ => {
                 if self.format.is_json_flavor() {
                     "json".to_string()
