@@ -59,19 +59,39 @@ export class WalkthroughStep extends Entity {
 
     // Set `isNext: true` on the first step
     const previous = this.previousElementSibling as WalkthroughStep
-    if (!previous) {
+    if ((!previous || !previous.isCollapsed) && this.isCollapsed) {
       this.isNext = true
+    } else {
+      this.isNext = false
     }
   }
 
   override updated(changedProperties: PropertyValues): void {
     super.updated(changedProperties)
 
-    // Update `isNext` on the next step
-    if (!this.isCollapsed) {
-      const next = this.nextElementSibling as WalkthroughStep
-      if (next) {
-        next.isNext = true
+    // Update `isNext` on adjacent steps when collapsed state changes
+    if (changedProperties.has('isCollapsed')) {
+      if (!this.isCollapsed) {
+        // When expanding, update the next collapsed step to be isNext
+        const next = this.nextElementSibling as WalkthroughStep
+        if (next && next.isCollapsed) {
+          next.isNext = true
+        }
+        
+        // Also check if any previous collapsed step should no longer be isNext
+        let prev = this.previousElementSibling as WalkthroughStep
+        while (prev) {
+          if (prev.isNext) {
+            prev.isNext = false
+          }
+          prev = prev.previousElementSibling as WalkthroughStep
+        }
+      } else {
+        // When collapsing, check if this should become isNext
+        const previous = this.previousElementSibling as WalkthroughStep
+        if (!previous || !previous.isCollapsed) {
+          this.isNext = true
+        }
       }
     }
   }
@@ -92,16 +112,16 @@ export class WalkthroughStep extends Entity {
 
   protected renderStepActions() {
     const actionsStyle = apply(
-      'flex gap-4 my-4 font-sans text-sm',
+      'flex gap-4 my-4 font-sans text-xs',
       'transition-all duration-500 ease-in-out',
-      this.isNext ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
+      this.isCollapsed && this.isNext ? 'max-h-20em opacity-100 cursor-pointer' : 'max-h-0 opacity-0'
     )
 
     return html`
       <div class=${actionsStyle}>
         <sl-tooltip content="Expand next step">
           <span
-            class="flex gap-2 items-center opacity-50"
+            class="flex gap-1 items-center opacity-50"
             @click=${(e: Event) => this.expand(e)}
           >
             <stencila-ui-icon-button
@@ -112,7 +132,7 @@ export class WalkthroughStep extends Entity {
         </sl-tooltip>
         <sl-tooltip content="Expand all steps">
           <span
-            class="flex gap-2 items-center opacity-50"
+            class="flex gap-1 items-center opacity-50"
             @click=${(e: Event) => this.expandAll(e)}
           >
             <stencila-ui-icon-button
