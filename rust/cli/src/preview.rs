@@ -32,18 +32,18 @@ pub struct Cli {
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Preview a specific document</dim>
-  <blue>></blue> stencila preview document.md
+  <b>stencila preview</b> <g>document.md</g>
 
   <dim># Preview from current directory (finds index/main/readme)</dim>
-  <blue>></blue> stencila preview
+  <b>stencila preview</b>
 
   <dim># Preview a document in a specific folder</dim>
-  <blue>></blue> stencila preview docs/
+  <b>stencila preview</b> <g>docs/</g>
 
   <dim># Preview without syncing (static preview)</dim>
-  <blue>></blue> stencila preview report.pdf --sync none"
+  <b>stencila preview</b> <g>report.pdf</g> <c>--sync</c> <g>none</g>"
 );
 
 impl Cli {

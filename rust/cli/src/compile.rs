@@ -29,14 +29,14 @@ pub struct Cli {
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Compile a document to check for errors</dim>
-  <blue>></blue> stencila compile document.md
+  <b>stencila compile</> <g>document.md</>
 
   <dim># Compile without updating in document store</dim>
-  <blue>></blue> stencila compile temp.md --no-store
+  <b>stencila compile</> <g>temp.md</> <c>--no-store</>
 
-<bold><blue>Note</blue></bold>
+<bold><b>Note</b></bold>
   Compiling a document checks for source path errors in
   include and call blocks and prepares the document for
   execution without actually running any code.

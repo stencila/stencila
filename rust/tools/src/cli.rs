@@ -38,27 +38,27 @@ pub struct Cli {
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># List all available tools</dim>
-  <blue>></blue> stencila tools
+  <b>stencila tools</>
 
   <dim># Show details about a specific tool</dim>
-  <blue>></blue> stencila tools show python
+  <b>stencila tools show</> <g>python</>
 
   <dim># Install a tool</dim>
-  <blue>></blue> stencila tools install mise
+  <b>stencila tools install</> <g>mise</>
 
   <dim># Install multiple tools</dim>
-  <blue>></blue> stencila tools install mise uv ruff
+  <b>stencila tools install</> <g>mise</> <g>uv</> <g>ruff</>
 
   <dim># Install all dependencies from config files</dim>
-  <blue>></blue> stencila tools install
+  <b>stencila tools install</>
 
   <dim># Detect environment configuration in current directory</dim>
-  <blue>></blue> stencila tools env
+  <b>stencila tools env</>
 
   <dim># Run a command with automatic environment detection</dim>
-  <blue>></blue> stencila tools run -- python script.py
+  <b>stencila tools run</> <c>--</> <g>python script.py</>
 "
 );
 
@@ -122,24 +122,24 @@ struct List {
 }
 
 pub static LIST_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># List all tools</dim>
-  <blue>></blue> stencila tools list
+  <b>stencila tools list</>
 
   <dim># List only installed tools</dim>
-  <blue>></blue> stencila tools list --installed
+  <b>stencila tools list</> <c>--installed</>
 
   <dim># List only installable tools</dim>
-  <blue>></blue> stencila tools list --installable
+  <b>stencila tools list</> <c>--installable</>
 
   <dim># List only execution tools (programming languages)</dim>
-  <blue>></blue> stencila tools list --type execution
+  <b>stencila tools list</> <c>--type</> <g>execution</>
 
   <dim># Export tool list as Model Context Protocol tool specifications</dim>
-  <blue>></blue> stencila tools list --as json
+  <b>stencila tools list</> <c>--as</> <g>json</>
 
   <dim># Display tool list as YAML</dim>
-  <blue>></blue> stencila tools list --as yaml
+  <b>stencila tools list</> <c>--as</> <g>yaml</>
 "
 );
 
@@ -251,16 +251,16 @@ struct Show {
 }
 
 pub static SHOW_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Show details about Pandoc</dim>
-  <blue>></blue> stencila tools show pandoc
+  <b>stencila tools show</> <g>pandoc</>
 
   <dim># Show details about uv</dim>
-  <blue>></blue> stencila tools show uv
+  <b>stencila tools show</> <g>uv</>
 
-<bold><blue>Supported tools</blue></bold>
+<bold><b>Supported tools</b></bold>
   <dim># See which tools are installed</dim>
-  <blue>></blue> stencila tools list --installed
+  <b>stencila tools list</> <c>--installed</>
 "
 );
 
@@ -325,41 +325,41 @@ struct Install {
 }
 
 pub static INSTALL_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Tool Installation Examples</blue></bold>
+    "<bold><b>Tool Installation Examples</b></bold>
   <dim># Install mise (tool version manager)</dim>
-  <blue>></blue> stencila tools install mise
+  <b>stencila tools install</> <g>mise</>
 
   <dim># Install uv (Python package manager)</dim>
-  <blue>></blue> stencila tools install uv
+  <b>stencila tools install</> <g>uv</>
 
   <dim># Install multiple tools at once</dim>
-  <blue>></blue> stencila tools install mise uv ruff
+  <b>stencila tools install</> <g>mise</> <g>uv</> <g>ruff</>
 
   <dim># Force reinstall an already installed tool</dim>
-  <blue>></blue> stencila tools install --force ruff
+  <b>stencila tools install</> <c>--force</> <g>ruff</>
 
-<bold><blue>Environment Setup Examples</blue></bold>
+<bold><b>Environment Setup Examples</b></bold>
   <dim># Install all dependencies from config files in current directory</dim>
-  <blue>></blue> stencila tools install
+  <b>stencila tools install</>
 
   <dim># Install dependencies from config files in specific directory</dim>
-  <blue>></blue> stencila tools install -C /path/to/project
+  <b>stencila tools install</> <c>-C</> <g>/path/to/project</>
 
   <dim># Show what would be installed without executing</dim>
-  <blue>></blue> stencila tools install --dry-run
+  <b>stencila tools install</> <c>--dry-run</>
 
   <dim># Skip Python dependencies during setup</dim>
-  <blue>></blue> stencila tools install --skip-python
+  <b>stencila tools install</> <c>--skip-python</>
 
-<bold><blue>Setup phases (when no tool specified)</blue></bold>
+<bold><b>Setup phases (when no tool specified)</b></bold>
   1. Install environment managers (mise, devbox, etc.) if needed
   2. Install tools from environment manager configs
   3. Setup Python dependencies (pyproject.toml, requirements.txt)
   4. Setup R dependencies (renv.lock, DESCRIPTION)
 
-<bold><blue>Supported tools</blue></bold>
+<bold><b>Supported tools</b></bold>
   <dim># See which tools can be installed</dim>
-  <blue>></blue> stencila tools list --installable
+  <b>stencila tools list</> <c>--installable</>
 "
 );
 
@@ -661,15 +661,15 @@ struct Env {
 }
 
 pub static ENV_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Check current directory for environment configuration</dim>
-  <blue>></blue> stencila tools env
+  <b>stencila tools env</>
 
   <dim># Check a specific project directory</dim>
-  <blue>></blue> stencila tools env /path/to/project
+  <b>stencila tools env</> <g>/path/to/project</>
 
   <dim># Check parent directory</dim>
-  <blue>></blue> stencila tools env ..
+  <b>stencila tools env</> <g>..</>
 "
 );
 
@@ -740,22 +740,22 @@ struct Run {
 }
 
 pub static RUN_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Note</blue></bold>
+    "<bold><b>Note</b></bold>
   Use '--' to separate the run command options from the command to execute.
   This prevents argument parsing conflicts
   
-<bold><blue>Examples</blue></bold>
+<bold><b>Examples</b></bold>
   <dim># Run Python script with automatic environment detection</dim>
-  <blue>></blue> stencila tools run -- python script.py
+  <b>stencila tools run</> <c>--</> <g>python script.py</>
 
   <dim># Run Python code</dim>
-  <blue>></blue> stencila tools run -- python -c \"print('hello')\"
+  <b>stencila tools run</> <c>--</> <g>python</> <c>-c</> <y>\"print('hello')\"</>
 
   <dim># Run from a different directory</dim>
-  <blue>></blue> stencila tools run -C /path/to/project -- npm test
+  <b>stencila tools run</> <c>-C</> <g>/path/to/project</> <c>--</> <g>npm test</>
 
   <dim># Run a complex command with multiple arguments</dim>
-  <blue>></blue> stencila tools run -- pandoc input.md -o output.pdf --pdf-engine=xelatex
+  <b>stencila tools run</> <c>--</> <g>pandoc input.md</> <c>-o</> <g>output.pdf</> <c>--pdf-engine=</><g>xelatex</>
 "
 );
 

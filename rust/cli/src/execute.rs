@@ -33,18 +33,18 @@ pub struct Cli {
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Execute a Stencila Markdown document</dim>
-  <blue>></blue> stencila execute report.smd
+  <b>stencila execute</b> <g>report.smd</g>
 
   <dim># Execute without updating the document store</dim>
-  <blue>></blue> stencila execute temp.md --no-store
+  <b>stencila execute</b> <g>temp.md</g> <c>--no-store</c>
 
   <dim># Force re-execution of all code</dim>
-  <blue>></blue> stencila execute cached.ipynb --force-all
+  <b>stencila execute</b> <g>cached.ipynb</g> <c>--force-all</c>
 
   <dim># Execute using the shorthand alias</dim>
-  <blue>></blue> stencila exec script.r
+  <b>stencila exec</b> <g>script.r</g>
 "
 );
 

@@ -50,27 +50,27 @@ pub struct Cli {
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
-  <dim># Convert Stencila Markdown to MyST MArkdown</dim>
-  <blue>></blue> stencila convert document.smd document.myst
+    "<bold><b>Examples</b></bold>
+  <dim># Convert Stencila Markdown to MyST Markdown</dim>
+  <b>stencila convert</> <g>document.smd</> <g>document.myst</>
 
   <dim># Convert to multiple output formats</dim>
-  <blue>></blue> stencila convert input.smd output.html output.pdf output.docx
+  <b>stencila convert</> <g>input.smd</> <g>output.html</> <g>output.pdf</> <g>output.docx</>
 
   <dim># Specify input and output formats explicitly</dim>
-  <blue>></blue> stencila convert input.txt output.json --from plain --to json
+  <b>stencila convert</> <g>input.txt</> <g>output.json</> <c>--from</> <g>plain</> <c>--to</> <g>json</>
 
   <dim># Convert with specific codec options</dim>
-  <blue>></blue> stencila convert doc.md doc.html --standalone
+  <b>stencila convert</> <g>doc.md</> <g>doc.html</> <c>--standalone</>
 
   <dim># Use an external tool like Pandoc</dim>
-  <blue>></blue> stencila convert doc.md doc.tex --tool pandoc
+  <b>stencila convert</> <g>doc.md</> <g>doc.tex</> <c>--tool</> <g>pandoc</>
 
   <dim># Pass arguments to external tool</dim>
-  <blue>></blue> stencila convert doc.md doc.pdf --tool pandoc -- --pdf-engine=xelatex
+  <b>stencila convert</> <g>doc.md</> <g>doc.pdf</> <c>--tool</> <g>pandoc</> <c>--</> <c>--pdf-engine=</><g>xelatex</>
 
   <dim># Convert from stdin to stdout (defaults to JSON)</dim>
-  <blue>></blue> echo \"# Hello\" | stencila convert
+  <y>echo \"# Hello\"</> <b>|</> <b>stencila convert</>
 "
 );
 

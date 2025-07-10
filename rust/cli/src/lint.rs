@@ -36,21 +36,21 @@ pub struct Cli {
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Lint a single document</dim>
-  <blue>></blue> stencila lint document.smd
+  <b>stencila lint</> <g>document.smd</>
 
   <dim># Lint multiple documents</dim>
-  <blue>></blue> stencila lint *.qmd docs/*
+  <b>stencila lint</> <g>*.qmd</> <g>docs/*</>
 
   <dim># Auto-format documents during linting</dim>
-  <blue>></blue> stencila lint report.myst --format
+  <b>stencila lint</> <g>report.myst</> <c>--format</>
 
   <dim># Auto-fix linting issues</dim>
-  <blue>></blue> stencila lint article.smd --fix
+  <b>stencila lint</> <g>article.smd</> <c>--fix</>
 
   <dim># Output diagnostics as YAML</dim>
-  <blue>></blue> stencila lint article.myst --as yaml
+  <b>stencila lint</> <g>article.myst</> <c>--as</> <g>yaml</>
 "
 );
 

@@ -32,21 +32,21 @@ pub struct Cli {
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># List all available kernels</dim>
-  <blue>></blue> stencila kernels
+  <b>stencila kernels</b>
 
   <dim># Get information about a specific kernel</dim>
-  <blue>></blue> stencila kernels info python
+  <b>stencila kernels info</b> <g>python</g>
 
   <dim># List packages available to a kernel</dim>
-  <blue>></blue> stencila kernels packages r
+  <b>stencila kernels packages</b> <g>r</g>
 
   <dim># Execute code in a kernel</dim>
-  <blue>></blue> stencila kernels execute python \"print('Hello')\"
+  <b>stencila kernels execute</b> <g>python</g> <y>\"print('Hello')\"</y>
 
   <dim># Lint code using a kernel's linting tool integrations</dim>
-  <blue>></blue> stencila kernels lint script.py
+  <b>stencila kernels lint</b> <g>script.py</g>
 "
 );
 
@@ -184,15 +184,15 @@ impl List {
 }
 
 pub static LIST_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># List all available kernels</dim>
-  <blue>></blue> stencila kernels list
+  <b>stencila kernels list</b>
 
   <dim># List only math kernels</dim>
-  <blue>></blue> stencila kernels list --type math
+  <b>stencila kernels list</b> <c>--type</c> <g>math</g>
 
   <dim># Output kernel list as YAML</dim>
-  <blue>></blue> stencila kernels list --as yaml
+  <b>stencila kernels list</b> <c>--as</c> <g>yaml</g>
 "
 );
 
@@ -226,15 +226,15 @@ impl Info {
 }
 
 pub static INFO_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Get information about the Python kernel</dim>
-  <blue>></blue> stencila kernels info python
+  <b>stencila kernels info</b> <g>python</g>
 
   <dim># Get information about the R kernel</dim>
-  <blue>></blue> stencila kernels info r
+  <b>stencila kernels info</b> <g>r</g>
 
   <dim># Get information about the JavaScript kernel</dim>
-  <blue>></blue> stencila kernels info javascript
+  <b>stencila kernels info</b> <g>javascript</g>
 "
 );
 
@@ -293,15 +293,15 @@ impl Packages {
 }
 
 pub static PACKAGES_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># List all packages available to Python kernel</dim>
-  <blue>></blue> stencila kernels packages python
+  <b>stencila kernels packages</b> <g>python</g>
 
   <dim># Filter packages by name (case insensitive)</dim>
-  <blue>></blue> stencila kernels packages python numpy
+  <b>stencila kernels packages</b> <g>python</g> <g>numpy</g>
 
   <dim># List R packages containing 'plot'</dim>
-  <blue>></blue> stencila kernels packages r plot
+  <b>stencila kernels packages</b> <g>r</g> <g>plot</g>
 "
 );
 
@@ -349,18 +349,18 @@ impl Execute {
 }
 
 pub static EXECUTE_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Execute Python code</dim>
-  <blue>></blue> stencila kernels execute python \"print('Hello World')\"
+  <b>stencila kernels execute</b> <g>python</g> <y>\"print('Hello World')\"</y>
 
   <dim># Execute multi-line code with escaped newlines</dim>
-  <blue>></blue> stencila kernels execute python \"x = 5\\nprint(x * 2)\"
+  <b>stencila kernels execute</b> <g>python</g> <y>\"x = 5\\nprint(x * 2)\"</y>
 
   <dim># Execute code in a sandboxed environment</dim>
-  <blue>></blue> stencila kernels execute python \"import os\\nprint(os.environ)\" --box
+  <b>stencila kernels execute</b> <g>python</g> <y>\"import os\\nprint(os.environ)\"</y> <c>--box</c>
 
   <dim># Use the exec alias</dim>
-  <blue>></blue> stencila kernels exec r \"print(mean(c(1,2,3,4,5)))\"
+  <b>stencila kernels exec</b> <g>r</g> <y>\"print(mean(c(1,2,3,4,5)))\"</y>
 "
 );
 
@@ -394,18 +394,18 @@ impl Evaluate {
 }
 
 pub static EVALUATE_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Evaluate a Python expression</dim>
-  <blue>></blue> stencila kernels evaluate python \"2 + 2\"
+  <b>stencila kernels evaluate</b> <g>python</g> <y>\"2 + 2\"</y>
 
   <dim># Evaluate an R expression</dim>
-  <blue>></blue> stencila kernels evaluate r \"sqrt(16)\"
+  <b>stencila kernels evaluate</b> <g>r</g> <y>\"sqrt(16)\"</y>
 
   <dim># Evaluate a JavaScript expression</dim>
-  <blue>></blue> stencila kernels evaluate javascript \"Math.PI * 2\"
+  <b>stencila kernels evaluate</b> <g>javascript</g> <y>\"Math.PI * 2\"</y>
 
   <dim># Use the eval alias</dim>
-  <blue>></blue> stencila kernels eval python \"sum([1, 2, 3, 4, 5])\"
+  <b>stencila kernels eval</b> <g>python</g> <y>\"sum([1, 2, 3, 4, 5])\"</y>
 "
 );
 
@@ -511,17 +511,17 @@ impl Lint {
 }
 
 pub static LINT_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Lint a Python file</dim>
-  <blue>></blue> stencila kernels lint script.py
+  <b>stencila kernels lint</b> <g>script.py</g>
 
   <dim># Lint and format a JavaScript file</dim>
-  <blue>></blue> stencila kernels lint app.js --format
+  <b>stencila kernels lint</b> <g>app.js</g> <c>--format</c>
 
   <dim># Lint and fix issues where possible</dim>
-  <blue>></blue> stencila kernels lint code.r --fix
+  <b>stencila kernels lint</b> <g>code.r</g> <c>--fix</c>
 
   <dim># Lint with both formatting and fixing</dim>
-  <blue>></blue> stencila kernels lint style.css --format --fix
+  <b>stencila kernels lint</b> <g>style.css</g> <c>--format</c> <c>--fix</c>
 "
 );

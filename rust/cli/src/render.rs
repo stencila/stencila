@@ -68,27 +68,27 @@ pub struct Cli {
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Render a document and preview in browser</dim>
-  <blue>></blue> stencila render document.smd
+  <b>stencila render</b> <g>document.smd</g>
 
   <dim># Render to a specific output format</dim>
-  <blue>></blue> stencila render report.md report.docx
+  <b>stencila render</b> <g>report.md</g> <g>report.docx</g>
 
   <dim># Render to multiple formats</dim>
-  <blue>></blue> stencila render analysis.md output.html output.pdf
+  <b>stencila render</b> <g>analysis.md</g> <g>output.html</g> <g>output.pdf</g>
 
   <dim># Render from stdin to stdout</dim>
-  <blue>></blue> echo \"# Hello\" | stencila render --to html
+  <b>echo</b> <y>\"# Hello\"</y> | <b>stencila render</b> <c>--to</c> <g>html</g>
 
   <dim># Render with document parameters</dim>
-  <blue>></blue> stencila render template.md output.html -- --name=\"John\" --year=2024
+  <b>stencila render</b> <g>template.md</g> <g>output.html</g> -- <c>--name</c>=<y>\"John\"</y> <c>--year</c>=<g>2024</g>
 
   <dim># Render ignoring execution errors</dim>
-  <blue>></blue> stencila render notebook.md report.pdf --ignore-errors
+  <b>stencila render</b> <g>notebook.md</g> <g>report.pdf</g> <c>--ignore-errors</c>
 
   <dim># Render without updating the document store</dim>
-  <blue>></blue> stencila render temp.md output.html --no-store
+  <b>stencila render</b> <g>temp.md</g> <g>output.html</g> <c>--no-store</c>
 "
 );
 

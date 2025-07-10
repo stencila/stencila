@@ -141,24 +141,24 @@ pub struct Cli {
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Get help on all available commands</dim>
-  <blue>></blue> stencila --help
+  <b>stencila</> <c>--help</>
 
   <dim># Create a new document</dim>
-  <blue>></blue> stencila new article.md
+  <b>stencila new</> <g>article.md</>
 
   <dim># Convert a document to another format</dim>
-  <blue>></blue> stencila convert input.md output.pdf
+  <b>stencila convert</> <g>input.md</> <g>output.pdf</>
 
   <dim># Check available formats</dim>
-  <blue>></blue> stencila formats list
+  <b>stencila formats list</>
 
   <dim># Execute a document</dim>
-  <blue>></blue> stencila execute notebook.myst
+  <b>stencila execute</> <g>notebook.myst</>
 
   <dim># Preview a document with hot reloading</dim>
-  <blue>></blue> stencila preview document.md
+  <b>stencila preview</> <g>document.md</>
 "
 );
 

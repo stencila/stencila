@@ -18,11 +18,11 @@ pub fn uninstall() -> Result<()> {
 pub struct Cli {}
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Uninstall Stencila CLI (with confirmation prompt)</dim>
-  <blue>></blue> stencila uninstall
+  <b>stencila uninstall</b>
 
-<bold><blue>Note</blue></bold>
+<bold><b>Note</b></bold>
   This will permanently remove the Stencila CLI binary from your system.
   Your documents and data will not be affected, only the CLI tool itself.
   You can reinstall Stencila at any time from https://stencila.io or GitHub.

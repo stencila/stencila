@@ -26,28 +26,28 @@ pub struct Cli {
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># List all available models</dim>
-  <blue>></blue> stencila models
+  <b>stencila models</b>
 
   <dim># List models as JSON</dim>
-  <blue>></blue> stencila models list --as json
+  <b>stencila models list</b> <c>--as</c> <g>json</g>
 
   <dim># Test a model with a prompt</dim>
-  <blue>></blue> stencila models run \"Explain photosynthesis\"
+  <b>stencila models run</b> <y>\"Explain photosynthesis\"</y>
 
   <dim># Test a specific model</dim>
-  <blue>></blue> stencila models run \"Write a poem\" --model gpt-4o
+  <b>stencila models run</b> <y>\"Write a poem\"</y> <c>--model</c> <g>gpt-4o</g>
 
   <dim># Dry run to see task construction</dim>
-  <blue>></blue> stencila models run \"Hello\" --dry-run
+  <b>stencila models run</b> <y>\"Hello\"</y> <c>--dry-run</c>
 
-<bold><blue>Model Types</blue></bold>
-  • <blue>builtin</blue> - Built into Stencila
-  • <blue>local</blue> - Running locally (e.g. Ollama)
-  • <blue>remote</blue> - Cloud-based APIs
-  • <blue>router</blue> - Routes to other models
-  • <blue>plugin</blue> - Provided by plugins
+<bold><b>Model Types</b></bold>
+  • <g>builtin</g> - Built into Stencila
+  • <g>local</g> - Running locally (e.g. Ollama)
+  • <g>remote</g> - Cloud-based APIs
+  • <g>router</g> - Routes to other models
+  • <g>plugin</g> - Provided by plugins
 "
 );
 
@@ -83,12 +83,12 @@ struct List {
 }
 
 pub static LIST_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># List all models in table format</dim>
-  <blue>></blue> stencila models list
+  <b>stencila models list</b>
 
   <dim># Output models as YAML</dim>
-  <blue>></blue> stencila models list --as yaml
+  <b>stencila models list</b> <c>--as</c> <g>yaml</g>
 "
 );
 
@@ -198,20 +198,20 @@ struct Run {
 }
 
 pub static RUN_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Run with automatic model selection</dim>
-  <blue>></blue> stencila models run \"Explain quantum computing\"
+  <b>stencila models run</b> <y>\"Explain quantum computing\"</y>
 
   <dim># Run with a specific model</dim>
-  <blue>></blue> stencila models run \"Write a haiku\" --model gpt-3.5-turbo
+  <b>stencila models run</b> <y>\"Write a haiku\"</y> <c>--model</c> <g>gpt-3.5-turbo</g>
 
   <dim># Run a dry run to see task construction</dim>
-  <blue>></blue> stencila models run \"Hello world\" --dry-run
+  <b>stencila models run</b> <y>\"Hello world\"</y> <c>--dry-run</c>
 
   <dim># Use the execute alias</dim>
-  <blue>></blue> stencila models execute \"Summarize this text\"
+  <b>stencila models execute</b> <y>\"Summarize this text\"</y>
 
-<bold><blue>Note</blue></bold>
+<bold><b>Note</b></bold>
   This command is primarily for testing model routing and selection.
 "
 );

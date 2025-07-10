@@ -52,32 +52,32 @@ impl Cli {
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># List all available plugins</dim>
-  <blue>></blue> stencila plugins
+  <b>stencila plugins</>
 
   <dim># Install a plugin from a URL</dim>
-  <blue>></blue> stencila plugins install https://github.com/user/plugin.git
+  <b>stencila plugins install</> <g>https://github.com/user/plugin.git</>
 
   <dim># Install a plugin from a local directory</dim>
-  <blue>></blue> stencila plugins install ./my-plugin
+  <b>stencila plugins install</> <g>./my-plugin</>
 
   <dim># Show details about a plugin</dim>
-  <blue>></blue> stencila plugins show my-plugin
+  <b>stencila plugins show</> <g>my-plugin</>
 
   <dim># Enable a plugin</dim>
-  <blue>></blue> stencila plugins enable my-plugin
+  <b>stencila plugins enable</> <g>my-plugin</>
 
   <dim># Disable a plugin</dim>
-  <blue>></blue> stencila plugins disable my-plugin
+  <b>stencila plugins disable</> <g>my-plugin</>
 
   <dim># Check plugin health</dim>
-  <blue>></blue> stencila plugins check my-plugin
+  <b>stencila plugins check</> <g>my-plugin</>
 
   <dim># Uninstall a plugin</dim>
-  <blue>></blue> stencila plugins uninstall my-plugin
+  <b>stencila plugins uninstall</> <g>my-plugin</>
 
-<bold><blue>Plugin Management</blue></bold>
+<bold><b>Plugin Management</b></bold>
   Plugins can extend Stencila's functionality by adding support for
   new formats, kernels, models, and other features.
 "

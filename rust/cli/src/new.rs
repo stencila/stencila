@@ -25,21 +25,21 @@ pub struct Cli {
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Create a new article (default)</dim>
-  <blue>></blue> stencila new my-article.md
+  <b>stencila new</> <g>my-article.md</>
 
   <dim># Create a new chat document</dim>
-  <blue>></blue> stencila new conversation.md --type chat
+  <b>stencila new</> <g>conversation.md</> <c>--type</> <g>chat</>
 
   <dim># Create a new AI prompt</dim>
-  <blue>></blue> stencila new template.md --type prompt
+  <b>stencila new</> <g>template.md</> <c>--type</> <g>prompt</>
 
   <dim># Create a document in a subdirectory</dim>
-  <blue>></blue> stencila new docs/report.md
+  <b>stencila new</> <g>docs/report.md</>
 
   <dim># Overwrite an existing document</dim>
-  <blue>></blue> stencila new existing.md --force
+  <b>stencila new</> <g>existing.md</> <c>--force</>
 "
 );
 

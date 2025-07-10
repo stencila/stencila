@@ -53,18 +53,18 @@ pub struct Cli {
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Merge changes from an edited DOCX back to Stencila Markdown</dim>
-  <blue>></blue> stencila merge edited.docx --original document.smd
+  <b>stencila merge</b> <g>edited.docx</g> <c>--original</c> <g>document.smd</g>
 
   <dim># Merge with both original and unedited versions specified</dim>
-  <blue>></blue> stencila merge edited.docx --original source.qmd --unedited generated.docx
+  <b>stencila merge</b> <g>edited.docx</g> <c>--original</c> <g>source.qmd</g> <c>--unedited</c> <g>generated.docx</g>
 
   <dim># Merge changes from a specific Git commit</dim>
-  <blue>></blue> stencila merge edited.docx --original document.myst --commit abc123
+  <b>stencila merge</b> <g>edited.docx</g> <c>--original</c> <g>document.myst</g> <c>--commit</c> <g>abc123</g>
 
   <dim># Merge with custom working directory for inspection</dim>
-  <blue>></blue> stencila merge edited.docx --original document.md --workdir ./merge-work
+  <b>stencila merge</b> <g>edited.docx</g> <c>--original</c> <g>document.md</g> <c>--workdir</c> <g>./merge-work</g>
 "
 );
 

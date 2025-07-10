@@ -22,21 +22,21 @@ pub struct Cli {
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># List all available prompts</dim>
-  <blue>></blue> stencila prompts
+  <b>stencila prompts</>
 
   <dim># Show details about a specific prompt</dim>
-  <blue>></blue> stencila prompts show edit-text
+  <b>stencila prompts show</> <g>edit-text</>
 
   <dim># Infer which prompt would be used for a query</dim>
-  <blue>></blue> stencila prompts infer --instruction-type create \"Make a table\"
+  <b>stencila prompts infer</> <c>--instruction-type</> <g>create</> <y>\"Make a table\"</>
 
   <dim># Update builtin prompts from remote</dim>
-  <blue>></blue> stencila prompts update
+  <b>stencila prompts update</>
 
   <dim># Reset prompts to embedded defaults</dim>
-  <blue>></blue> stencila prompts reset
+  <b>stencila prompts reset</>
 "
 );
 
@@ -80,12 +80,12 @@ struct List {
 }
 
 pub static LIST_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># List all prompts in table format</dim>
-  <blue>></blue> stencila prompts list
+  <b>stencila prompts list</>
 
   <dim># Output prompts as JSON</dim>
-  <blue>></blue> stencila prompts list --as json
+  <b>stencila prompts list</> <c>--as</> <g>json</>
 "
 );
 
@@ -153,12 +153,12 @@ struct Show {
 }
 
 pub static SHOW_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Show a prompt as Markdown</dim>
-  <blue>></blue> stencila prompts show edit-text
+  <b>stencila prompts show</> <g>edit-text</>
 
   <dim># Show a prompt as JSON</dim>
-  <blue>></blue> stencila prompts show create-table --to json
+  <b>stencila prompts show</> <g>create-table</> <c>--to</> <g>json</>
 "
 );
 
@@ -201,12 +201,12 @@ struct Infer {
 }
 
 pub static INFER_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Infer prompt with a specific query</dim>
-  <blue>></blue> stencila prompts infer \"Update this paragraph based on latest data\"
+  <b>stencila prompts infer</> <y>\"Update this paragraph based on latest data\"</>
 
   <dim># Infer for a specific instruction type</dim>
-  <blue>></blue> stencila prompts infer --instruction-type create \"list of top regions\"
+  <b>stencila prompts infer</> <c>--instruction-type</> <g>create</> <y>\"list of top regions\"</>
 "
 );
 
@@ -236,9 +236,9 @@ impl Infer {
 struct Update {}
 
 pub static UPDATE_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Update builtin prompts from https://github.com/stencila/stencila</dim>
-  <blue>></blue> stencila prompts update
+  <b>stencila prompts update</>
 "
 );
 
@@ -257,11 +257,11 @@ impl Update {
 struct Reset {}
 
 pub static RESET_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Reset prompts to embedded defaults</dim>
-  <blue>></blue> stencila prompts reset
+  <b>stencila prompts reset</>
 
-<bold><blue>Warning</blue></bold>
+<bold><b>Warning</b></bold>
   This will overwrite any custom modifications you have
   made to builtin prompts, restoring them to the versions
   embedded in this Stencila release.

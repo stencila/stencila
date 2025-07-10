@@ -39,31 +39,31 @@ pub struct Cli {
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Sync a Markdown document with HTML (bidirectional)</dim>
-  <blue>></blue> stencila sync document.md preview.html
+  <b>stencila sync</b> <g>document.md</g> <g>preview.html</g>
 
   <dim># Sync with multiple formats</dim>
-  <blue>></blue> stencila sync source.md output.html output.pdf
+  <b>stencila sync</b> <g>source.md</g> <g>output.html</g> <g>output.pdf</g>
 
   <dim># Sync only incoming changes from HTML</dim>
-  <blue>></blue> stencila sync document.md edited.html:in
+  <b>stencila sync</b> <g>document.md</g> <g>edited.html:in</g>
 
   <dim># Sync only outgoing changes to PDF</dim>
-  <blue>></blue> stencila sync document.md output.pdf:out
+  <b>stencila sync</b> <g>document.md</g> <g>output.pdf:out</g>
 
   <dim># Mixed sync directions</dim>
-  <blue>></blue> stencila sync main.md preview.html:out edits.docx:in
+  <b>stencila sync</b> <g>main.md</g> <g>preview.html:out</g> <g>edits.docx:in</g>
 
   <dim># Sync with custom encoding options</dim>
-  <blue>></blue> stencila sync doc.md output.html --standalone
+  <b>stencila sync</b> <g>doc.md</g> <g>output.html</g> <c>--standalone</c>
 
-<bold><blue>Sync Directions</blue></bold>
-  • <blue>:in</blue> - Only accept incoming changes from the file
-  • <blue>:out</blue> - Only push outgoing changes to the file
-  • <blue>:io</blue> - Bidirectional sync (default)
+<bold><b>Sync Directions</b></bold>
+  • <c>:in</c> - Only accept incoming changes from the file
+  • <c>:out</c> - Only push outgoing changes to the file
+  • <c>:io</c> - Bidirectional sync (default)
 
-<bold><blue>Note</blue></bold>
+<bold><b>Note</b></bold>
   The sync command runs continuously, watching for changes.
   Press Ctrl+C to stop synchronization.
 "

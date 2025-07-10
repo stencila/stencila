@@ -22,24 +22,24 @@ pub struct Cli {
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># List all configured secrets</dim>
-  <blue>></blue> stencila secrets
+  <b>stencila secrets</>
 
   <dim># Set a secret interactively (prompts for value)</dim>
-  <blue>></blue> stencila secrets set STENCILA_API_TOKEN
+  <b>stencila secrets set</> <g>STENCILA_API_TOKEN</>
 
   <dim># Set a secret from stdin (pipe the value)</dim>
-  <blue>></blue> echo \"sk-abc123...\" | stencila secrets set OPENAI_API_KEY
+  <y>echo \"sk-abc123...\"</> <b>|</> <b>stencila secrets set</> <g>OPENAI_API_KEY</>
 
   <dim># Delete a secret</dim>
-  <blue>></blue> stencila secrets delete ANTHROPIC_API_KEY
+  <b>stencila secrets delete</> <g>ANTHROPIC_API_KEY</>
 
   <dim># Use the add/remove aliases</dim>
-  <blue>></blue> stencila secrets add MY_SECRET
-  <blue>></blue> stencila secrets remove MY_SECRET
+  <b>stencila secrets add</> <g>MY_SECRET</>
+  <b>stencila secrets remove</> <g>MY_SECRET</>
 
-<bold><blue>Security</blue></bold>
+<bold><b>Security</b></bold>
   Secrets are stored securely using your system's keyring.
   They are used to authenticate with external services like
   AI model providers and cloud platforms.
@@ -47,22 +47,22 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 );
 
 pub static SET_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Set a secret interactively (you'll be prompted)</dim>
-  <blue>></blue> stencila secrets set OPENAI_API_KEY
+  <b>stencila secrets set</> <g>OPENAI_API_KEY</>
 
   <dim># Set a secret from stdin</dim>
-  <blue>></blue> echo \"sk-abc123...\" | stencila secrets set OPENAI_API_KEY
+  <y>echo \"sk-abc123...\"</> <b>|</> <b>stencila secrets set</> <g>OPENAI_API_KEY</>
 
   <dim># Set API tokens for different services</dim>
-  <blue>></blue> stencila secrets set ANTHROPIC_API_KEY
-  <blue>></blue> stencila secrets set GOOGLE_API_KEY
-  <blue>></blue> stencila secrets set STENCILA_API_TOKEN
+  <b>stencila secrets set</> <g>ANTHROPIC_API_KEY</>
+  <b>stencila secrets set</> <g>GOOGLE_API_KEY</>
+  <b>stencila secrets set</> <g>STENCILA_API_TOKEN</>
 
   <dim># Use the add alias</dim>
-  <blue>></blue> stencila secrets add MY_SECRET
+  <b>stencila secrets add</> <g>MY_SECRET</>
 
-<bold><blue>Security</blue></bold>
+<bold><b>Security</b></bold>
   When setting secrets interactively, your input will be
   hidden. When piping from stdin, ensure your shell history
   doesn't record the command with the secret value.
@@ -70,18 +70,18 @@ pub static SET_AFTER_LONG_HELP: &str = cstr!(
 );
 
 pub static DELETE_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Delete a specific secret</dim>
-  <blue>></blue> stencila secrets delete OPENAI_API_KEY
+  <b>stencila secrets delete</> <g>OPENAI_API_KEY</>
 
   <dim># Delete API tokens</dim>
-  <blue>></blue> stencila secrets delete ANTHROPIC_API_KEY
-  <blue>></blue> stencila secrets delete GOOGLE_API_KEY
+  <b>stencila secrets delete</> <g>ANTHROPIC_API_KEY</>
+  <b>stencila secrets delete</> <g>GOOGLE_API_KEY</>
 
   <dim># Use the remove alias</dim>
-  <blue>></blue> stencila secrets remove MY_SECRET
+  <b>stencila secrets remove</> <g>MY_SECRET</>
 
-<bold><blue>Warning</blue></bold>
+<bold><b>Warning</b></bold>
   This permanently removes the secret from your system's
   keyring. You'll need to set it again if you want to use
   it in the future.

@@ -51,17 +51,17 @@ pub struct Init {
 }
 
 pub static INIT_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold></bold>
   <dim># Initialize current directory as a Stencila workspace</dim>
-  <blue>></blue> stencila init
+  <b>stencila init</>
 
   <dim># Initialize a specific directory</dim>
-  <blue>></blue> stencila init ./my-project
+  <b>stencila init</> <g>./my-project</>
 
   <dim># Initialize without creating .gitignore</dim>
-  <blue>></blue> stencila init --no-gitignore
+  <b>stencila init</> <c>--no-gitignore</>
 
-<bold><blue>Note</blue></bold>
+<bold><b>Note</b></bold>
   This creates a .stencila directory for workspace configuration
   and document tracking. A .gitignore file is created by default
   to exclude tracking and cache files.
@@ -105,14 +105,14 @@ pub struct Rebuild {
 }
 
 pub static REBUILD_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Rebuild database for current workspace</dim>
-  <blue>></blue> stencila rebuild
+  <b>stencila rebuild</>
 
   <dim># Rebuild database for specific workspace</dim>
-  <blue>></blue> stencila rebuild ./my-project
+  <b>stencila rebuild</> <g>./my-project</>
 
-<bold><blue>Note</blue></bold>
+<bold><b>Note</b></bold>
   This recreates the workspace database from scratch,
   re-scanning all tracked documents and their metadata.
   Use this if the database becomes corrupted or outdated.
@@ -193,18 +193,18 @@ pub struct Query {
 }
 
 pub static QUERY_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Query the workspace database</dim>
-  > <b>stencila query</> <y>\"workspace.paragraphs()\"</>
+  <b>stencila query</> <y>\"workspace.paragraphs()\"</>
 
   <dim># Query a specific document</dim>
-  > <b>stencila query</> <g>article.qmd </><y>\"paragraphs().sample(3)\"</>
+  <b>stencila query</> <g>article.qmd </><y>\"paragraphs().sample(3)\"</>
 
   <dim># Query with output to file</dim>
-  > <b>stencila query</> <g>report.myst</> <y>\"headings(.level == 1)\"</> <g>headings.md</>
+  <b>stencila query</> <g>report.myst</> <y>\"headings(.level == 1)\"</> <g>headings.md</>
 
   <dim># Use Cypher query language</dim>
-  > <b>stencila query</> <g>doc.ipynb</> <c>--cypher</> <y>\"MATCH (h:Heading) WHERE h.level = 1 RETURN h\"</>
+  <b>stencila query</> <g>doc.ipynb</> <c>--cypher</> <y>\"MATCH (h:Heading) WHERE h.level = 1 RETURN h\"</>
 "
 );
 
@@ -349,27 +349,27 @@ impl Demo {
 }
 
 pub static DEMO_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Demo a document in the terminal</dim>
-  > <b>stencila demo</> <g>document.md</>
+  <b>stencila demo</> <g>document.md</>
 
   <dim># Record a demo to an animated GIF</dim>
-  > <b>stencila demo</> <g>document.md</> <g>demo.gif</>
+  <b>stencila demo</> <g>document.md</> <g>demo.gif</>
 
   <dim># Demo with custom typing speed (words per minute)</dim>
-  > <b>stencila demo</> <g>document.md</> <c>--speed</> <g>150</>
+  <b>stencila demo</> <g>document.md</> <c>--speed</> <g>150</>
 
   <dim># Add typing variations for more realistic effect</dim>
-  > <b>stencila demo</> <g>document.md</> <c>--speed-variance</> <g>0.5</> <c>--hesitation-rate</> <g>0.1</>
+  <b>stencila demo</> <g>document.md</> <c>--speed-variance</> <g>0.5</> <c>--hesitation-rate</> <g>0.1</>
 
   <dim># Include typos for authenticity</dim>
-  > <b>stencila demo</> <g>document.md</> <c>--typo-rate</> <g>0.05</> <c>--typo-pause-ms</> <g>800</>
+  <b>stencila demo</> <g>document.md</> <c>--typo-rate</> <g>0.05</> <c>--typo-pause-ms</> <g>800</>
 
   <dim># Control spinner duration for executable nodes</dim>
-  > <b>stencila demo</> <g>document.md</> <c>--min-running</> <g>1000</> <c>--max-running</> <g>3000</>
+  <b>stencila demo</> <g>document.md</> <c>--min-running</> <g>1000</> <c>--max-running</> <g>3000</>
 
   <dim># Disable syntax highlighting for code blocks</dim>
-  > <b>stencila demo</> <g>document.md</> <c>--no-highlighting</>
+  <b>stencila demo</> <g>document.md</> <c>--no-highlighting</>
 "
 );
 
@@ -382,11 +382,11 @@ pub struct Config {
 }
 
 pub static CONFIG_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Show configuration for a document</dim>
-  <blue>></blue> stencila config document.md
+  <b>stencila config</> <g>document.md</>
 
-<bold><blue>Note</blue></bold>
+<bold><b>Note</b></bold>
   Shows both the configuration sources (from workspace,
   user, and document-specific configs) and the final
   merged configuration that will be used for the document.
@@ -422,17 +422,17 @@ pub struct Track {
 }
 
 pub static TRACK_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Start tracking a local document</dim>
-  <blue>></blue> stencila track document.md
+  <b>stencila track</> <g>document.md</>
 
   <dim># Track a document with remote URL</dim>
-  <blue>></blue> stencila track document.md https://example.com/api/docs/123
+  <b>stencila track</> <g>document.md</> <g>https://example.com/api/docs/123</>
 
   <dim># Track multiple documents</dim>
-  <blue>></blue> stencila track *.md
+  <b>stencila track</> <g>*.md</>
 
-<bold><blue>Note</blue></bold>
+<bold><b>Note</b></bold>
   Tracking enables version control, synchronization,
   and change detection for documents. Remote URLs allow
   syncing with external systems.
@@ -486,17 +486,17 @@ pub struct Untrack {
 }
 
 pub static UNTRACK_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Stop tracking a document</dim>
-  <blue>></blue> stencila untrack document.md
+  <b>stencila untrack</> <g>document.md</>
 
   <dim># Stop tracking a remote URL for a document</dim>
-  <blue>></blue> stencila untrack document.md https://example.com/api/docs/123
+  <b>stencila untrack</> <g>document.md</> <g>https://example.com/api/docs/123</>
 
   <dim># Stop tracking all deleted files</dim>
-  <blue>></blue> stencila untrack deleted
+  <b>stencila untrack</> <g>deleted</>
 
-<bold><blue>Note</blue></bold>
+<bold><b>Note</b></bold>
   This removes the document from tracking but does not
   delete the file itself. Use 'deleted' to clean up
   tracking for files that no longer exist.
@@ -530,17 +530,17 @@ pub struct Add {
 }
 
 pub static ADD_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Add a single document to workspace database</dim>
-  <blue>></blue> stencila add document.md
+  <b>stencila add</> <g>document.md</>
 
   <dim># Add multiple documents</dim>
-  <blue>></blue> stencila add *.md docs/*.md
+  <b>stencila add</> <g>*.md</> <g>docs/*.md</>
 
   <dim># Add all Markdown files recursively</dim>
-  <blue>></blue> stencila add **/*.md
+  <b>stencila add</> <g>**/*.md</>
 
-<bold><blue>Note</blue></bold>
+<bold><b>Note</b></bold>
   This adds documents to the workspace database for
   indexing and querying. Files must be within the
   workspace directory to be added.
@@ -569,17 +569,17 @@ pub struct Remove {
 }
 
 pub static REMOVE_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Remove a document from workspace database</dim>
-  <blue>></blue> stencila remove document.md
+  <b>stencila remove</> <g>document.md</>
 
   <dim># Remove multiple documents</dim>
-  <blue>></blue> stencila remove *.md docs/*.md
+  <b>stencila remove</> <g>*.md</> <g>docs/*.md</>
 
   <dim># Use the rm alias</dim>
-  <blue>></blue> stencila rm old-document.md
+  <b>stencila rm</> <g>old-document.md</>
 
-<bold><blue>Note</blue></bold>
+<bold><b>Note</b></bold>
   This removes documents from the workspace database
   but does not delete the actual files. The files
   will no longer be indexed or queryable.
@@ -618,20 +618,20 @@ pub struct Move {
 }
 
 pub static MOVE_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Move a tracked document</dim>
-  <blue>></blue> stencila move old-name.md new-name.md
+  <b>stencila move</> <g>old-name.md</> <g>new-name.md</>
 
   <dim># Move to a different directory</dim>
-  <blue>></blue> stencila move document.md docs/document.md
+  <b>stencila move</> <g>document.md</> <g>docs/document.md</>
 
   <dim># Force overwrite if destination exists</dim>
-  <blue>></blue> stencila move source.md target.md --force
+  <b>stencila move</> <g>source.md</> <g>target.md</> <c>--force</>
 
   <dim># Use the mv alias</dim>
-  <blue>></blue> stencila mv old.md new.md
+  <b>stencila mv</> <g>old.md</> <g>new.md</>
 
-<bold><blue>Note</blue></bold>
+<bold><b>Note</b></bold>
   This updates both the file system and tracking
   information. If the destination already exists,
   you'll be prompted unless --force is used.
@@ -670,17 +670,17 @@ pub struct Status {
 }
 
 pub static STATUS_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Show status of all tracked documents</dim>
-  <blue>></blue> stencila status
+  <b>stencila status</>
 
   <dim># Show status of specific documents</dim>
-  <blue>></blue> stencila status document.md report.md
+  <b>stencila status</> <g>document.md</> <g>report.md</>
 
   <dim># Output status as JSON</dim>
-  <blue>></blue> stencila status --as json
+  <b>stencila status</> <c>--as</> <g>json</>
 
-<bold><blue>Status Information</blue></bold>
+<bold><b>Status Information</b></bold>
   Shows modification times, storage status, and sync
   information for tracked documents and their remotes.
 "

@@ -236,17 +236,17 @@ pub struct Cli {
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold><b>Examples</b></bold>
   <dim># Upgrade to the latest version</dim>
-  <blue>></blue> stencila upgrade
+  <b>stencila upgrade</b>
 
   <dim># Check if an upgrade is available without installing</dim>
-  <blue>></blue> stencila upgrade --check
+  <b>stencila upgrade</b> <c>--check</c>
 
   <dim># Force upgrade even if current version is latest</dim>
-  <blue>></blue> stencila upgrade --force
+  <b>stencila upgrade</b> <c>--force</c>
 
-<bold><blue>Note</blue></bold>
+<bold><b>Note</b></bold>
   Upgrade downloads the latest release from GitHub and replaces
   the current binary.
 "

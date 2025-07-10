@@ -23,17 +23,17 @@ pub struct Cli {
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold></bold>
   <dim># List all supported formats</dim>
-  <blue>></blue> stencila formats list
+  <b>stencila formats list</b>
 
   <dim># Output formats as JSON</dim>
-  <blue>></blue> stencila formats list --as json
+  <b>stencila formats list</b> <c>--as</c> <g>json</g>
 
-<bold><blue>Format Support</blue></bold>
-  • <blue>From</blue>: Whether the format can be read/imported
-  • <blue>To</blue>: Whether the format can be written/exported
-  • <blue>Lossless</blue>: Whether conversion preserves all data
+<bold><b>Format Support</b></bold>
+  • <g>From</g>: Whether the format can be read/imported
+  • <g>To</g>: Whether the format can be written/exported
+  • <g>Lossless</g>: Whether conversion preserves all data
 "
 );
 
@@ -67,19 +67,19 @@ struct List {
 }
 
 pub static LIST_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><blue>Examples</blue></bold>
+    "<bold></bold>
   <dim># List all supported formats in table format</dim>
-  <blue>></blue> stencila formats list
+  <b>stencila formats list</b>
 
   <dim># Export format information as JSON</dim>
-  <blue>></blue> stencila formats list --as json
+  <b>stencila formats list</b> <c>--as</c> <g>json</g>
 
-<bold><blue>Columns</blue></bold>
-  • <blue>Name</blue>: The format name
-  • <blue>Extension</blue>: Default file extension
-  • <blue>From</blue>: Can read/import this format
-  • <blue>To</blue>: Can write/export this format
-  • <blue>Lossless</blue>: Whether conversion preserves all data
+<bold><b>Columns</b></bold>
+  • <g>Name</g>: The format name
+  • <g>Extension</g>: Default file extension
+  • <g>From</g>: Can read/import this format
+  • <g>To</g>: Can write/export this format
+  • <g>Lossless</g>: Whether conversion preserves all data
 "
 );
 
