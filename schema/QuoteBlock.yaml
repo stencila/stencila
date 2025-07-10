@@ -8,6 +8,8 @@ jats:
   elem: disp-quote 
 html:
   elem: blockquote
+latex:
+  derive: false
 markdown:
   derive: false
 proptest: {}

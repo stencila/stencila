@@ -2,6 +2,24 @@ use codec_info::lost_options;
 
 use crate::{prelude::*, QuoteBlock};
 
+impl LatexCodec for QuoteBlock {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        const ENVIRON: &str = "quote";
+
+        context
+            .ensure_blankline()
+            .enter_node(self.node_type(), self.node_id())
+            .environ_begin(ENVIRON)
+            .property_fn(NodeProperty::Content, |context| {
+                self.content.to_latex(context)
+            })
+            .environ_end(ENVIRON)
+            .newline()
+            .exit_node()
+            .newline();
+    }
+}
+
 impl MarkdownCodec for QuoteBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context

@@ -15,6 +15,9 @@
   "jats": {
     "elem": "disp-quote"
   },
+  "latex": {
+    "derive": false
+  },
   "markdown": {
     "derive": false
   },
