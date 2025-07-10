@@ -4,7 +4,7 @@ extends: Mark
 category: prose
 description: Emphasized content.
 $comment: |
-  Analogues of `Delete` in other schema include:
+  Analogues of `Emphasis` in other schema include:
     - HTML [`<em>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/em)
     - JATS XML [`<italic>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/italic.html)
     - MDAST [`Emphasis`](https://github.com/syntax-tree/mdast#emphasis)
