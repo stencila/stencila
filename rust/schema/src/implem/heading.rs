@@ -102,9 +102,14 @@ impl LatexCodec for Heading {
                 self.content.to_latex(context)
             })
             .command_end()
-            .newline()
-            .exit_node()
             .newline();
+
+        // Add id (if any) as a label to that cross links work
+        if let Some(id) = &self.id {
+            context.str(r"\label{").str(id).str("}\n");
+        }
+
+        context.exit_node().newline();
     }
 }
 
