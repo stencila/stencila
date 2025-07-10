@@ -1,4 +1,7 @@
-use std::fmt::Display;
+use std::{
+    env::{var, var_os},
+    fmt::Display,
+};
 
 use comfy_table::{
     modifiers::UTF8_ROUND_CORNERS, presets::UTF8_BORDERS_ONLY, ContentArrangement,
@@ -33,6 +36,16 @@ impl Tabulated {
             .load_preset(UTF8_BORDERS_ONLY)
             .apply_modifier(UTF8_ROUND_CORNERS)
             .set_content_arrangement(ContentArrangement::Dynamic);
+
+        if let Some(cols) = var("COLUMNS").ok().and_then(|s| s.parse().ok()) {
+            inner.set_width(cols);
+        }
+
+        if var_os("NO_COLOR").is_some() {
+            inner.force_no_tty(); // disable styling
+        } else if var_os("FORCE_COLOR").is_some() {
+            inner.enforce_styling(); // force colours even when piped
+        }
 
         Self { inner }
     }
