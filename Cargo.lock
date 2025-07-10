@@ -2206,6 +2206,7 @@ dependencies = [
  "ask",
  "cli-utils",
  "codec-json",
+ "codec-text",
  "codecs",
  "common",
  "common-dev",
@@ -2223,7 +2224,9 @@ dependencies = [
  "node-sentencize",
  "node-strip",
  "notify",
+ "rand 0.9.1",
  "schema",
+ "tools",
  "url",
 ]
 

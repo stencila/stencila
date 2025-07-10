@@ -204,6 +204,7 @@ pub enum Command {
     Rebuild(document::cli::Rebuild),
 
     Query(document::cli::Query),
+    Demo(document::cli::Demo),
 
     Convert(convert::Cli),
     Merge(merge::Cli),
@@ -258,6 +259,7 @@ impl Cli {
             Command::Rebuild(rebuild) => rebuild.run().await?,
 
             Command::Query(query) => query.run().await?,
+            Command::Demo(demo) => demo.run().await?,
 
             Command::Convert(convert) => convert.run().await?,
             Command::Merge(merge) => merge.run().await?,

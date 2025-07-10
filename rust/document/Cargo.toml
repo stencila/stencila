@@ -7,6 +7,7 @@ edition = "2021"
 ask = { path = "../ask" }
 cli-utils = { path = "../cli-utils" }
 codec-json = { path = "../codec-json" }
+codec-text = { path = "../codec-text" }
 codecs = { path = "../codecs" }
 common = { path = "../common" }
 dirs = { path = "../dirs" }
@@ -23,7 +24,9 @@ node-map = { path = "../node-map" }
 node-sentencize = { path = "../node-sentencize" }
 node-strip = { path = "../node-strip" }
 notify = { version = "8.1.0", default-features = false, features = ["macos_kqueue"] }
+rand = { workspace = true }
 schema = { path = "../schema" }
+tools = { path = "../tools" }
 url = { workspace = true }
 
 [dev-dependencies]

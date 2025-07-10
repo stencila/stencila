@@ -31,7 +31,7 @@ use kernels::Kernels;
 use node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
 use schema::{Article, Block, ExecutionBounds, Node, NodeId, NodeType};
 
-use crate::track::DocumentRemote;
+use crate::{demo::DemoOptions, track::DocumentRemote};
 
 use super::{track::DocumentTrackingStatus, Document};
 
@@ -328,6 +328,33 @@ impl Query {
         Ok(())
     }
 }
+
+/// Run a terminal demonstration from a document
+#[derive(Debug, Parser)]
+#[command(after_long_help = DEMO_AFTER_LONG_HELP)]
+pub struct Demo {
+    /// The path of the document to demo
+    input: PathBuf,
+
+    #[clap(flatten)]
+    options: DemoOptions,
+}
+
+impl Demo {
+    #[tracing::instrument]
+    pub async fn run(self) -> Result<()> {
+        let doc = Document::open(&self.input, None).await?;
+        doc.demo(self.options).await
+    }
+}
+
+pub static DEMO_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><blue>Examples</blue></bold>
+  <dim># Demo a document </dim>
+  <blue>></blue> stencila demo document.md
+"
+);
+
 
 /// Display the configuration for a document
 #[derive(Debug, Parser)]
