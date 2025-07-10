@@ -36,6 +36,12 @@ mod datatable;
 pub mod tabulated;
 pub use tabulated::Tabulated;
 
+// Utilities
+pub use terminal_size;
+
+mod utils;
+pub use utils::*;
+
 /// A trait for displaying an object to stdout
 pub trait ToStdout: Display {
     /// Print the object to stdout

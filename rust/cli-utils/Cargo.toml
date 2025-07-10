@@ -11,6 +11,7 @@ derive_more = { workspace = true }
 format = { path = "../format" }
 schema = { path = "../schema" }
 syntect = "5.2.0"
+terminal_size = "0.4.2"
 url = { workspace = true }
 
 [lints]
