@@ -573,6 +573,7 @@ impl Visitor for Walker {
                     .control(FG_CYAN)
                     .typing(&lang)
                     .control(RESET)
+                    .newline()
                     .typing(&code);
                 if !(code.ends_with("\n") || code.ends_with(&["\n", RESET].concat())) {
                     self.newline();
@@ -610,12 +611,12 @@ impl Visitor for Walker {
                     .as_ref()
                     .map(|duration| duration.to_milliseconds())
                     .unwrap_or_default() as u64;
-                
+
                 // Clamp duration between min and max running time
                 let clamped_duration = duration
                     .max(self.options.min_running)
                     .min(self.options.max_running);
-                
+
                 self.spinner(clamped_duration, "Running");
 
                 // Continue walk over outputs
