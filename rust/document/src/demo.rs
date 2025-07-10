@@ -76,6 +76,20 @@ pub(super) struct DemoOptions {
     #[arg(long, alias = "no-highlight")]
     no_highlighting: bool,
 
+    /// Minimum duration for running spinner in milliseconds
+    ///
+    /// The execution duration of executable nodes will be used for the
+    /// spinner duration, but will be clamped to this minimum value.
+    #[arg(long, default_value = "500")]
+    min_running: u64,
+
+    /// Maximum duration for running spinner in milliseconds
+    ///
+    /// The execution duration of executable nodes will be used for the
+    /// spinner duration, but will be clamped to this maximum value.
+    #[arg(long, default_value = "5000")]
+    max_running: u64,
+
     /// Arguments to pass through to `agg` when recoding to GIF
     ///
     /// See `agg --help`, or `stencila tools run agg --help`
@@ -590,7 +604,19 @@ impl Visitor for Walker {
                 }
                 self.typing(cstr!("<dim>```")).newlines(2);
 
-                self.spinner(1000, "Running");
+                let duration = block
+                    .options
+                    .execution_duration
+                    .as_ref()
+                    .map(|duration| duration.to_milliseconds())
+                    .unwrap_or_default() as u64;
+                
+                // Clamp duration between min and max running time
+                let clamped_duration = duration
+                    .max(self.options.min_running)
+                    .min(self.options.max_running);
+                
+                self.spinner(clamped_duration, "Running");
 
                 // Continue walk over outputs
                 return WalkControl::Continue;

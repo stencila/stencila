@@ -195,16 +195,16 @@ pub struct Query {
 pub static QUERY_AFTER_LONG_HELP: &str = cstr!(
     "<bold><blue>Examples</blue></bold>
   <dim># Query the workspace database</dim>
-  <blue>></blue> stencila query \"workspace.paragraphs()\"
+  > <b>stencila query</> <y>\"workspace.paragraphs()\"</>
 
   <dim># Query a specific document</dim>
-  <blue>></blue> stencila query article.qmd \"paragraphs().sample(3)\"
+  > <b>stencila query</> <g>article.qmd </><y>\"paragraphs().sample(3)\"</>
 
   <dim># Query with output to file</dim>
-  <blue>></blue> stencila query report.myst \"headings(.level == 1)\" headings.md
+  > <b>stencila query</> <g>report.myst</> <y>\"headings(.level == 1)\"</> <g>headings.md</>
 
   <dim># Use Cypher query language</dim>
-  <blue>></blue> stencila query doc.ipynb --cypher \"MATCH (h:Heading) WHERE h.level = 1 RETURN h\"
+  > <b>stencila query</> <g>doc.ipynb</> <c>--cypher</> <y>\"MATCH (h:Heading) WHERE h.level = 1 RETURN h\"</>
 "
 );
 
@@ -350,11 +350,28 @@ impl Demo {
 
 pub static DEMO_AFTER_LONG_HELP: &str = cstr!(
     "<bold><blue>Examples</blue></bold>
-  <dim># Demo a document </dim>
-  <blue>></blue> stencila demo document.md
+  <dim># Demo a document in the terminal</dim>
+  > <b>stencila demo</> <g>document.md</>
+
+  <dim># Record a demo to an animated GIF</dim>
+  > <b>stencila demo</> <g>document.md</> <g>demo.gif</>
+
+  <dim># Demo with custom typing speed (words per minute)</dim>
+  > <b>stencila demo</> <g>document.md</> <c>--speed</> <g>150</>
+
+  <dim># Add typing variations for more realistic effect</dim>
+  > <b>stencila demo</> <g>document.md</> <c>--speed-variance</> <g>0.5</> <c>--hesitation-rate</> <g>0.1</>
+
+  <dim># Include typos for authenticity</dim>
+  > <b>stencila demo</> <g>document.md</> <c>--typo-rate</> <g>0.05</> <c>--typo-pause-ms</> <g>800</>
+
+  <dim># Control spinner duration for executable nodes</dim>
+  > <b>stencila demo</> <g>document.md</> <c>--min-running</> <g>1000</> <c>--max-running</> <g>3000</>
+
+  <dim># Disable syntax highlighting for code blocks</dim>
+  > <b>stencila demo</> <g>document.md</> <c>--no-highlighting</>
 "
 );
-
 
 /// Display the configuration for a document
 #[derive(Debug, Parser)]
