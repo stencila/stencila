@@ -27,6 +27,25 @@ impl Duration {
         )
     }
 
+    /// Get the duration as milliseconds
+    pub fn to_milliseconds(&self) -> i64 {
+        match &self.time_unit {
+            TimeUnit::Year => self.value.saturating_mul(365 * 24 * 60 * 60 * 1000),
+            TimeUnit::Month => self.value.saturating_mul(30 * 24 * 60 * 60 * 1000),
+            TimeUnit::Week => self.value.saturating_mul(7 * 24 * 60 * 60 * 1000),
+            TimeUnit::Day => self.value.saturating_mul(24 * 60 * 60 * 1000),
+            TimeUnit::Hour => self.value.saturating_mul(60 * 60 * 1000),
+            TimeUnit::Minute => self.value.saturating_mul(60 * 1000),
+            TimeUnit::Second => self.value.saturating_mul(1000),
+            TimeUnit::Millisecond => self.value,
+            TimeUnit::Microsecond => self.value / 1000,
+            TimeUnit::Nanosecond => self.value / 1_000_000,
+            TimeUnit::Picosecond => self.value / 1_000_000_000,
+            TimeUnit::Femtosecond => self.value / 1_000_000_000_000,
+            TimeUnit::Attosecond => self.value / 1_000_000_000_000_000,
+        }
+    }
+
     /// Encode a duration as a DOM HTML attribute
     ///
     /// This is lossy with respect to the `timeUnit` of the duration but produces
