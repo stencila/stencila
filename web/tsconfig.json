@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2022",
+    "target": "es6",
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "outDir": "dist",
