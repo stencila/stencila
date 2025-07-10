@@ -95,7 +95,7 @@ impl ToStdout for Code {
 
         let syntax = SYNTAXES
             .find_syntax_by_extension(&ext)
-            .or(SYNTAXES.find_syntax_by_name(&self.format.name()))
+            .or(SYNTAXES.find_syntax_by_name(self.format.name()))
             .unwrap_or_else(|| {
                 SYNTAXES
                     .find_syntax_by_extension("txt")
