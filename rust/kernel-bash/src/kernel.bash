@@ -32,10 +32,13 @@ else
   END=$(printf "\U10CB40")
 fi
 
-# Regular expression to match variable assignment
-stencila_assign_regex="^\s*((export|eval|(declare(\s+\-[-aAilnrtux])?))\s+)?[a-zA-Z_][a-zA-Z0-9_]*=.*$"
+# Enable alias expansion in non-interactive shells
+shopt -s expand_aliases
 
-# Define the 'print' function for outputing one or more Stencila Schema nodes
+# Regular expression to match variable assignment or alias declaration
+stencila_assign_regex="^\s*((export|eval|alias|(declare(\s+\-[-aAilnrtux])?))\s+)?[a-zA-Z_][a-zA-Z0-9_]*=.*$"
+
+# Define the 'print' function for outputting one or more Stencila Schema nodes
 print() {
   for arg in "$@"; do
     printf "$arg$END\n"

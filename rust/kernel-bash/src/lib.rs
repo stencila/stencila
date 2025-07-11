@@ -120,6 +120,19 @@ export c=3",
                     vec![],
                     vec![],
                 ),
+                // Aliases defined in one chunk are available in the next
+                (
+                    "
+alias greet='echo Hello'",
+                    vec![],
+                    vec![],
+                ),
+                (
+                    "
+greet World",
+                    vec![Node::String("Hello World\n".to_string())],
+                    vec![],
+                ),
                 (
                     "
 print $a $b $c",
