@@ -1,7 +1,9 @@
 use std::{
     collections::{btree_map::Entry, BTreeMap},
     env::current_dir,
+    fs::read_dir,
     path::{Path, PathBuf},
+    str::FromStr,
     time::UNIX_EPOCH,
 };
 
@@ -30,7 +32,6 @@ use dirs::{
     closest_stencila_dir, stencila_db_dir, stencila_docs_file, stencila_store_dir, workspace_dir,
     workspace_relative_path, DB_DIR, DOCS_FILE, STORE_DIR,
 };
-use format::Format;
 
 use crate::Document;
 
@@ -110,13 +111,7 @@ pub struct DocumentTracking {
     /// The tracking id for the document
     pub id: NodeId,
 
-    /// The format of the file
-    ///
-    /// Mainly used so that the stored file can end in `.<EXT>.json`
-    /// so that the user can use `.gitignore` patterns based on the extension.
-    pub format: Format,
-
-    /// The last time the document was stored
+    /// The last time the document was stored in the `store` directory
     pub stored_at: Option<u64>,
 
     /// The last time the document was upserted into database
@@ -130,7 +125,6 @@ impl Default for DocumentTracking {
     fn default() -> Self {
         Self {
             id: new_id(),
-            format: Default::default(),
             stored_at: Default::default(),
             upserted_at: Default::default(),
             remotes: Default::default(),
@@ -363,11 +357,9 @@ impl Document {
             Entry::Vacant(vacant_entry) => {
                 // Create a new entry
                 let id = new_id();
-                let format = Format::from_path(path);
 
                 let entry = DocumentTracking {
                     id: id.clone(),
-                    format,
                     stored_at,
                     upserted_at,
                     ..Default::default()
@@ -429,18 +421,14 @@ impl Document {
             ),
         };
 
-        let format = Format::from_path(path);
-
         // Update tracking file
         entries
             .entry(relative_path)
             .and_modify(|entry| {
-                entry.format = format.clone();
                 entry.remotes = remotes.clone();
             })
             .or_insert_with(|| DocumentTracking {
                 id,
-                format,
                 remotes,
                 ..Default::default()
             });
@@ -546,36 +534,26 @@ impl Document {
         };
         let relative_path = workspace_relative_path(&stencila_dir, path, false)?;
 
-        let mut doc_id = None;
-        let mut storage_file = None;
-        entries.retain(|path, entry| {
-            if path == &relative_path {
-                doc_id = Some(entry.id.clone());
-                storage_file = Some(entry.store_file());
-                false
-            } else {
-                true
-            }
-        });
+        // Remove from entries
+        let Some(entry) = entries.remove(&relative_path) else {
+            tracing::warn!("Path is not being tracked: {}", path.display());
+            return Ok(());
+        };
+        write_entries(&stencila_dir, &entries).await?;
 
-        if let Some(doc_id) = doc_id {
+        // Remove from database
+        if entry.upserted_at.is_some() {
             let db_path = stencila_db_dir(&stencila_dir, false).await?;
             if db_path.exists() {
                 let mut db = NodeDatabase::new(&db_path)?;
-                db.delete(&doc_id)?;
+                db.delete(&entry.id)?;
             }
         }
 
-        if let Some(storage_file) = storage_file {
-            let stored_path = stencila_dir.join(storage_file);
-            if stored_path.exists() {
-                remove_file(stored_path).await?;
-            }
-
-            // Update tracking file
-            write_entries(&stencila_dir, &entries).await?;
-        } else {
-            tracing::warn!("Path is not being tracked: {}", path.display());
+        // Remove store file
+        let store_path = entry.store_path(&stencila_dir);
+        if store_path.exists() {
+            remove_file(store_path).await?;
         }
 
         Ok(())
@@ -621,8 +599,8 @@ impl Document {
         Ok(())
     }
 
-    /// Untrack all paths that have been deleted
-    pub async fn untrack_deleted(dir: &Path) -> Result<()> {
+    /// Untrack all paths currently tracked files
+    pub async fn untrack_all(dir: &Path) -> Result<()> {
         let statuses = match Document::tracking_all(dir).await? {
             Some(statuses) => statuses,
             None => {
@@ -630,14 +608,8 @@ impl Document {
                 return Ok(());
             }
         };
-
-        let stencila_dir = closest_stencila_dir(dir, false).await?;
-        let workspace_dir = workspace_dir(&stencila_dir)?;
-
-        for (path, tracking) in statuses {
-            if let (DocumentTrackingStatus::Deleted, ..) = tracking.status(&workspace_dir, &path) {
-                Document::untrack_path(&path).await?;
-            }
+        for (path, ..) in statuses {
+            Document::untrack_path(&path).await?;
         }
 
         Ok(())
@@ -672,6 +644,47 @@ impl Document {
 
         // Otherwise, if `from` is not being tracked already, then just track `to`
         Document::track_path(to, None, None).await?;
+
+        Ok(())
+    }
+
+    /// Untrack all files that have been deleted and ensure no unneeded cache file stored
+    pub async fn clean(dir: &Path) -> Result<()> {
+        let statuses = match Document::tracking_all(dir).await? {
+            Some(statuses) => statuses,
+            None => {
+                tracing::warn!("Current folder is not being tracked by Stencila");
+                return Ok(());
+            }
+        };
+
+        let stencila_dir = closest_stencila_dir(dir, false).await?;
+        let workspace_dir = workspace_dir(&stencila_dir)?;
+
+        // Untrack all deleted paths
+        for (path, tracking) in statuses {
+            if let (DocumentTrackingStatus::Deleted, ..) = tracking.status(&workspace_dir, &path) {
+                Document::untrack_path(&path).await?;
+            }
+        }
+
+        // Remove all store files that do not have an entry for some reason
+        let store_dir = stencila_store_dir(&stencila_dir, false).await?;
+        let entries = read_entries(&stencila_dir).await?;
+        for path in read_dir(store_dir)?.flatten() {
+            let path = path.path();
+            let Some(id) = path
+                .file_stem()
+                .and_then(|id| id.to_str())
+                .and_then(|id| NodeId::from_str(id).ok())
+            else {
+                continue;
+            };
+
+            if !entries.iter().any(|(.., entry)| entry.id == id) {
+                remove_file(path).await?;
+            }
+        }
 
         Ok(())
     }

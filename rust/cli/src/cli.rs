@@ -195,16 +195,16 @@ pub enum Command {
     Init(document::cli::Init),
     Config(document::cli::Config),
 
+    Status(document::cli::Status),
     Add(document::cli::Add),
     Remove(document::cli::Remove),
     Move(document::cli::Move),
     Track(document::cli::Track),
     Untrack(document::cli::Untrack),
-    Status(document::cli::Status),
-    Rebuild(document::cli::Rebuild),
+    Clean(document::cli::Clean),
 
+    Rebuild(document::cli::Rebuild),
     Query(document::cli::Query),
-    Demo(document::cli::Demo),
 
     Convert(convert::Cli),
     Merge(merge::Cli),
@@ -217,6 +217,7 @@ pub enum Command {
 
     Preview(preview::Cli),
     Publish(publish::Cli),
+    Demo(document::cli::Demo),
 
     Serve(ServeOptions),
     /// Run the Language Server Protocol server
@@ -250,16 +251,16 @@ impl Cli {
             Command::Init(init) => init.run().await?,
             Command::Config(config) => config.run().await?,
 
+            Command::Status(status) => status.run().await?,
             Command::Add(add) => add.run().await?,
             Command::Remove(remove) => remove.run().await?,
             Command::Move(mov) => mov.run().await?,
             Command::Track(track) => track.run().await?,
             Command::Untrack(untrack) => untrack.run().await?,
-            Command::Status(status) => status.run().await?,
-            Command::Rebuild(rebuild) => rebuild.run().await?,
+            Command::Clean(clean) => clean.run().await?,
 
+            Command::Rebuild(rebuild) => rebuild.run().await?,
             Command::Query(query) => query.run().await?,
-            Command::Demo(demo) => demo.run().await?,
 
             Command::Convert(convert) => convert.run().await?,
             Command::Merge(merge) => merge.run().await?,
@@ -272,6 +273,7 @@ impl Cli {
 
             Command::Preview(preview) => preview.run().await?,
             Command::Publish(publish) => publish.run().await?,
+            Command::Demo(demo) => demo.run().await?,
 
             Command::Serve(options) => server::serve(options).await?,
 

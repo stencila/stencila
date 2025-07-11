@@ -11,7 +11,9 @@ use rand::{rng, rngs::ThreadRng, Rng};
 
 use cli_utils::{
     color_print::cstr,
+    strip_ansi_escapes,
     tabulated::{Cell, Tabulated},
+    terminal_size::terminal_size,
     Code, ToStdout,
 };
 use codec_text::to_text;
@@ -125,7 +127,40 @@ struct Walker {
 
     /// Start time for recording
     start_time: SystemTime,
+
+    /// The terminal size
+    terminal_size: (u16, u16),
 }
+
+const RESET: &str = "\x1b[0m";
+const BOLD: &str = "\x1b[1m";
+const DIM: &str = "\x1b[2m";
+const ITALIC: &str = "\x1b[3m";
+const UNDERLINE: &str = "\x1b[4m";
+// const BLINK: &str = "\x1b[5m";
+// const REVERSE: &str = "\x1b[7m";
+const STRIKETHROUGH: &str = "\x1b[9m";
+
+// const FG_BLACK: &str = "\x1b[30m";
+const FG_RED: &str = "\x1b[31m";
+// const FG_GREEN: &str = "\x1b[32m";
+const FG_YELLOW: &str = "\x1b[33m";
+// const FG_BLUE: &str = "\x1b[34m";
+// const FG_MAGENTA: &str = "\x1b[35m";
+const FG_CYAN: &str = "\x1b[36m";
+// const FG_WHITE: &str = "\x1b[37m";
+// const FG_DEFAULT: &str = "\x1b[39m";
+
+const SHOW_CURSOR: &str = "\x1b[?25h";
+const HIDE_CURSOR: &str = "\x1b[?25l";
+
+// Unicode box-drawing characters
+const TOP_LEFT: &str = "╭";
+const TOP_RIGHT: &str = "╮";
+const BOTTOM_LEFT: &str = "╰";
+const BOTTOM_RIGHT: &str = "╯";
+const HORIZONTAL: &str = "─";
+const VERTICAL: &str = "│";
 
 impl Walker {
     /// Create a new walker
@@ -133,6 +168,21 @@ impl Walker {
         let rng = rng();
 
         let start_time = SystemTime::now();
+
+        let terminal_size = terminal_size()
+            .map(|(width, height)| (width.0, height.0))
+            .unwrap_or_else(|| {
+                // Fall back to environment variables if terminal size detection fails
+                let width = std::env::var("COLUMNS")
+                    .ok()
+                    .and_then(|s| s.parse::<u16>().ok())
+                    .unwrap_or(80);
+                let height = std::env::var("LINES")
+                    .ok()
+                    .and_then(|s| s.parse::<u16>().ok())
+                    .unwrap_or(24);
+                (width, height)
+            });
 
         let (output, asciicast_path, output_path, output_format) =
             if let Some(path) = &options.output {
@@ -173,11 +223,14 @@ impl Walker {
                 let mut writer = BufWriter::new(file);
 
                 // Write AsciiCast v2 header
+                // Setting width is important because crates like comfy-table use that to determine
+                // column widths.
                 // See https://docs.asciinema.org/manual/asciicast/v2/
+                let (width, height) = terminal_size;
                 let header = common::serde_json::json!({
                     "version": 2,
-                    "width": 80,  // Default terminal width
-                    "height": 24, // Default terminal height
+                    "width": width,
+                    "height": height
                 });
                 writeln!(&mut writer, "{}", header).wrap_err("Failed to write asciicast header")?;
 
@@ -199,6 +252,7 @@ impl Walker {
             output_path,
             output_format,
             start_time,
+            terminal_size,
         })
     }
 
@@ -335,6 +389,48 @@ impl Walker {
         self
     }
 
+    /// Wrap content with a dim border and rounded unicode corners
+    fn boxed(&mut self, content: &str) -> &mut Self {
+        let width = self.terminal_size.0 as usize;
+        let lines: Vec<&str> = content.lines().collect();
+        let mut boxed = String::new();
+
+        // Top border
+        boxed.push_str(TOP_LEFT);
+        boxed.push_str(&HORIZONTAL.repeat(width.saturating_sub(2)));
+        boxed.push_str(TOP_RIGHT);
+        boxed.push_str(RESET);
+        boxed.push('\n');
+
+        // Content lines with side borders
+        for line in &lines {
+            boxed.push_str(VERTICAL);
+            boxed.push_str(RESET);
+            boxed.push(' ');
+            boxed.push_str(line);
+
+            // Calculate visible length (excluding ANSI escape sequences)
+            let visible_len = strip_ansi_escapes(line).chars().count() + 3; // +3 for left border, space, and right space
+
+            // Pad to width
+            if visible_len < width {
+                boxed.push_str(&" ".repeat(width - visible_len));
+            }
+            boxed.push_str(RESET);
+            boxed.push_str(VERTICAL);
+            boxed.push('\n');
+        }
+
+        // Bottom border
+        boxed.push_str(RESET);
+        boxed.push_str(BOTTOM_LEFT);
+        boxed.push_str(&HORIZONTAL.repeat(width.saturating_sub(2)));
+        boxed.push_str(BOTTOM_RIGHT);
+        boxed.push_str(RESET);
+
+        self.write(&boxed)
+    }
+
     /// Simulate manual typing
     fn typing(&mut self, text: &str) -> &mut Self {
         let DemoOptions {
@@ -458,33 +554,63 @@ impl Walker {
     }
 }
 
-const RESET: &str = "\x1b[0m";
-const BOLD: &str = "\x1b[1m";
-const DIM: &str = "\x1b[2m";
-const ITALIC: &str = "\x1b[3m";
-const UNDERLINE: &str = "\x1b[4m";
-// const BLINK: &str = "\x1b[5m";
-// const REVERSE: &str = "\x1b[7m";
-const STRIKETHROUGH: &str = "\x1b[9m";
-
-// const FG_BLACK: &str = "\x1b[30m";
-const FG_RED: &str = "\x1b[31m";
-// const FG_GREEN: &str = "\x1b[32m";
-const FG_YELLOW: &str = "\x1b[33m";
-// const FG_BLUE: &str = "\x1b[34m";
-// const FG_MAGENTA: &str = "\x1b[35m";
-const FG_CYAN: &str = "\x1b[36m";
-// const FG_WHITE: &str = "\x1b[37m";
-// const FG_DEFAULT: &str = "\x1b[39m";
-
-const SHOW_CURSOR: &str = "\x1b[?25h";
-const HIDE_CURSOR: &str = "\x1b[?25l";
-
 impl Visitor for Walker {
     fn visit_node(&mut self, node: &schema::Node) -> WalkControl {
-        if let Node::Datatable(node) = node {
-            node.to_stdout()
+        // Just continue walk for root level nodes
+        if matches!(node, Node::Article(..)) {
+            return WalkControl::Continue;
         }
+
+        // Node types that are commonly output from code chunks
+        match node {
+            Node::Datatable(node) => self.write(&node.to_terminal().to_string()),
+            Node::String(string) => {
+                // Unless the string looks like like it already has a box around
+                // it (has >=10 horizontals on first and last lines) then box it
+                let lines: Vec<&str> = string.trim().lines().collect();
+                let has_box = if lines.len() >= 2 {
+                    // Count horizontal box characters in first and last lines
+                    let first_horizontals = lines
+                        .first()
+                        .unwrap_or(&"")
+                        .chars()
+                        .filter(|&c| c == '─' || c == '━' || c == '-' || c == '═')
+                        .count();
+                    let last_horizontals = lines
+                        .last()
+                        .unwrap_or(&"")
+                        .chars()
+                        .filter(|&c| c == '─' || c == '━' || c == '-' || c == '═')
+                        .count();
+
+                    first_horizontals >= 10 && last_horizontals >= 10
+                } else {
+                    false
+                };
+
+                if has_box {
+                    self.write(&string)
+                } else {
+                    self.boxed(&string)
+                }
+            }
+            _ => {
+                let node_type = node.node_type();
+                if node_type.is_primitive() {
+                    self.boxed(&Code::new_from(Format::Json, node).map_or_else(
+                        |_| String::from("??"),
+                        |code| {
+                            code.to_terminal()
+                                .to_string()
+                                .trim_end_matches(&["\n", RESET].concat())
+                                .to_string()
+                        },
+                    ))
+                } else {
+                    self.boxed(&["[", &node_type.to_string(), "]"].concat())
+                }
+            }
+        };
 
         WalkControl::Continue
     }
@@ -569,7 +695,7 @@ impl Visitor for Walker {
                         .to_string()
                 };
 
-                self.typing(cstr!("<dim>```"))
+                self.typing("```")
                     .control(FG_CYAN)
                     .typing(&lang)
                     .control(RESET)
@@ -578,7 +704,7 @@ impl Visitor for Walker {
                 if !(code.ends_with("\n") || code.ends_with(&["\n", RESET].concat())) {
                     self.newline();
                 }
-                self.typing(cstr!("<dim>```")).newlines(2);
+                self.typing("```").newlines(2);
 
                 return WalkControl::Break;
             }
@@ -594,16 +720,22 @@ impl Visitor for Walker {
                         .to_string()
                 };
 
-                self.typing(cstr!("<dim>```"))
+                self.typing("```")
                     .control(FG_CYAN)
                     .typing(&lang)
                     .control(RESET)
-                    .typing(cstr!(" <bold,magenta>exec\n"))
-                    .typing(&code);
+                    .typing(cstr!(" <bold,magenta>exec"));
+
+                let is_hidden = block.is_hidden.unwrap_or(false);
+                if is_hidden {
+                    self.typing(cstr!(" <bold,magenta>hide"));
+                }
+
+                self.newline().typing(&code);
                 if !(code.ends_with("\n") || code.ends_with(&["\n", RESET].concat())) {
                     self.newline();
                 }
-                self.typing(cstr!("<dim>```")).newlines(2);
+                self.typing("```").newlines(2);
 
                 let duration = block
                     .options
@@ -617,10 +749,16 @@ impl Visitor for Walker {
                     .max(self.options.min_running)
                     .min(self.options.max_running);
 
-                self.spinner(clamped_duration, "Running");
+                self.spinner(clamped_duration, "");
 
-                // Continue walk over outputs
-                return WalkControl::Continue;
+                // Display outputs if not hidden with blank line between them
+                if let (false, Some(outputs)) = (is_hidden, &block.outputs) {
+                    for output in outputs {
+                        self.walk(output).newlines(2);
+                    }
+                }
+
+                return WalkControl::Break;
             }
 
             Block::Table(table) => {

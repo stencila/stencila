@@ -493,22 +493,21 @@ pub static UNTRACK_AFTER_LONG_HELP: &str = cstr!(
   <dim># Stop tracking a remote URL for a document</dim>
   <b>stencila untrack</> <g>document.md</> <g>https://example.com/api/docs/123</>
 
-  <dim># Stop tracking all deleted files</dim>
-  <b>stencila untrack</> <g>deleted</>
+  <dim># Stop tracking all tracked files</dim>
+  <b>stencila untrack <g>all</>
 
 <bold><b>Note</b></bold>
   This removes the document from tracking but does not
-  delete the file itself. Use 'deleted' to clean up
-  tracking for files that no longer exist.
+  delete the file itself.
 "
 );
 
 impl Untrack {
     #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
-        if self.file == PathBuf::from("deleted") {
-            Document::untrack_deleted(&current_dir()?).await?;
-            eprintln!("🟥 Stopped tracking all deleted files");
+        if self.file == PathBuf::from("all") {
+            Document::untrack_all(&current_dir()?).await?;
+            eprintln!("🟥 Stopped tracking all tracked files");
         } else if let Some(url) = self.url {
             Document::untrack_remote(&self.file, &url).await?;
             eprintln!("🟥 Stopped tracking {url} for `{}`", self.file.display());
@@ -654,6 +653,28 @@ impl Move {
         }
 
         Document::move_path(&self.from, &self.to).await
+    }
+}
+
+/// Clean the current workspace
+///
+/// Untracks any deleted files and removes any unnecessary files from the
+/// .stencila folder in the current workspace.
+#[derive(Debug, Parser)]
+#[command(after_long_help = CLEAN_AFTER_LONG_HELP)]
+pub struct Clean;
+
+pub static CLEAN_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Clean the .stencila folder for the current workspace</dim>
+  <b>stencila clean</>
+"
+);
+
+impl Clean {
+    #[tracing::instrument]
+    pub async fn run(self) -> Result<()> {
+        Document::clean(&current_dir()?).await
     }
 }
 
