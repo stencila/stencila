@@ -35,8 +35,7 @@ impl Document {
     pub async fn demo(&self, options: DemoOptions) -> Result<()> {
         let root = &*self.root.read().await;
 
-        // Clear the terminal which may have messages from
-        // execution on it.
+        // Clear the terminal which may have messages from execution on it.
         clear_terminal();
 
         let mut walker = Walker::new(options)?;
@@ -781,7 +780,8 @@ impl Visitor for Walker {
                     .flatten()
                     .filter(|msg| msg.level >= MessageLevel::Info)
                 {
-                    self.write(&msg(message.level, &message.message));
+                    self.boxed(&msg(message.level, &message.message))
+                        .newlines(2);
                 }
                 for message in block
                     .options
@@ -790,7 +790,8 @@ impl Visitor for Walker {
                     .flatten()
                     .filter(|msg| msg.level >= MessageLevel::Info)
                 {
-                    self.write(&msg(message.level, &message.message));
+                    self.boxed(&msg(message.level, &message.message))
+                        .newlines(2);
                 }
 
                 // Display outputs if not hidden with blank line between them
