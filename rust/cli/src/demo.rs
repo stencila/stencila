@@ -65,23 +65,23 @@ impl Demo {
 
 pub static DEMO_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
-  <dim># Demo a document in the terminal</dim>
+  <dim># Demo a document in the terminal (uses natural preset by default)</dim>
   <b>stencila demo</> <g>document.md</>
 
   <dim># Record a demo to an animated GIF</dim>
   <b>stencila demo</> <g>document.md</> <g>demo.gif</>
 
-  <dim># Demo with custom typing speed (words per minute)</dim>
-  <b>stencila demo</> <g>document.md</> <c>--speed</> <g>150</>
+  <dim># Use fast preset for quick, smooth typing</dim>
+  <b>stencila demo</> <g>document.md</> <c>--preset</> <g>fast</>
 
-  <dim># Add typing variations for more realistic effect</dim>
-  <b>stencila demo</> <g>document.md</> <c>--speed-variance</> <g>0.5</> <c>--hesitation-rate</> <g>0.1</>
+  <dim># Use fast preset but add some typing variance</dim>
+  <b>stencila demo</> <g>document.md</> <c>--preset</> <g>fast</> <c>--speed-variance</> <g>0.2</>
 
-  <dim># Include typos for authenticity</dim>
-  <b>stencila demo</> <g>document.md</> <c>--typo-rate</> <g>0.05</> <c>--typo-pause-ms</> <g>800</>
+  <dim># Use fast preset but slow down the execution timing</dim>
+  <b>stencila demo</> <g>document.md</> <c>--preset</> <g>fast</> <c>--min-running</> <g>2000</> <c>--max-running</> <g>4000</>
 
-  <dim># Control spinner duration for executable nodes</dim>
-  <b>stencila demo</> <g>document.md</> <c>--min-running</> <g>1000</> <c>--max-running</> <g>3000</>
+  <dim># Use instant preset for immediate results</dim>
+  <b>stencila demo</> <g>document.md</> <c>--preset</> <g>instant</>
 
   <dim># Disable syntax highlighting for code blocks</dim>
   <b>stencila demo</> <g>document.md</> <c>--no-highlighting</>
