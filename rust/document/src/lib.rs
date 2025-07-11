@@ -33,7 +33,7 @@ use schema::{
 pub mod cli;
 
 mod config;
-mod demo;
+pub mod demo;
 mod files;
 mod sync_directory;
 mod sync_dom;

@@ -5,6 +5,7 @@ pub use crate::cli::{Cli, Command};
 
 mod compile;
 mod convert;
+mod demo;
 pub mod errors;
 mod execute;
 mod lint;

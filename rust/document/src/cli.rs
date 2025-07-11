@@ -31,7 +31,7 @@ use kernels::Kernels;
 use node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
 use schema::{Article, Block, ExecutionBounds, Node, NodeId, NodeType};
 
-use crate::{demo::DemoOptions, track::DocumentRemote};
+use crate::track::DocumentRemote;
 
 use super::{track::DocumentTrackingStatus, Document};
 
@@ -328,50 +328,6 @@ impl Query {
         Ok(())
     }
 }
-
-/// Run a terminal demonstration from a document
-#[derive(Debug, Parser)]
-#[command(after_long_help = DEMO_AFTER_LONG_HELP)]
-pub struct Demo {
-    /// The path of the document to demo
-    input: PathBuf,
-
-    #[clap(flatten)]
-    options: DemoOptions,
-}
-
-impl Demo {
-    #[tracing::instrument]
-    pub async fn run(self) -> Result<()> {
-        let doc = Document::open(&self.input, None).await?;
-        doc.demo(self.options).await
-    }
-}
-
-pub static DEMO_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><b>Examples</b></bold>
-  <dim># Demo a document in the terminal</dim>
-  <b>stencila demo</> <g>document.md</>
-
-  <dim># Record a demo to an animated GIF</dim>
-  <b>stencila demo</> <g>document.md</> <g>demo.gif</>
-
-  <dim># Demo with custom typing speed (words per minute)</dim>
-  <b>stencila demo</> <g>document.md</> <c>--speed</> <g>150</>
-
-  <dim># Add typing variations for more realistic effect</dim>
-  <b>stencila demo</> <g>document.md</> <c>--speed-variance</> <g>0.5</> <c>--hesitation-rate</> <g>0.1</>
-
-  <dim># Include typos for authenticity</dim>
-  <b>stencila demo</> <g>document.md</> <c>--typo-rate</> <g>0.05</> <c>--typo-pause-ms</> <g>800</>
-
-  <dim># Control spinner duration for executable nodes</dim>
-  <b>stencila demo</> <g>document.md</> <c>--min-running</> <g>1000</> <c>--max-running</> <g>3000</>
-
-  <dim># Disable syntax highlighting for code blocks</dim>
-  <b>stencila demo</> <g>document.md</> <c>--no-highlighting</>
-"
-);
 
 /// Display the configuration for a document
 #[derive(Debug, Parser)]
