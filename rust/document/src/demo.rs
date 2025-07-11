@@ -49,8 +49,9 @@ impl Document {
 // Default values for demo options
 const SPEED_DEFAULT: f64 = 100.0;
 const SPEED_VARIANCE_DEFAULT: f64 = 0.3;
+const PUNCTUATION_PAUSE_DEFAULT: u64 = 200;
 const TYPO_RATE_DEFAULT: f64 = 0.0;
-const TYPO_PAUSE_MS_DEFAULT: u64 = 500;
+const TYPO_PAUSE_DEFAULT: u64 = 500;
 const HESITATION_RATE_DEFAULT: f64 = 0.0;
 const HESITATION_DURATION_DEFAULT: u64 = 100;
 const MIN_RUNNING_DEFAULT: u64 = 500;
@@ -88,13 +89,17 @@ pub struct DemoOptions {
     #[arg(long, default_value_t = SPEED_VARIANCE_DEFAULT)]
     speed_variance: f64,
 
+    /// How long to pause after punctuation (milliseconds)
+    #[arg(long, default_value_t = PUNCTUATION_PAUSE_DEFAULT)]
+    punctuation_pause: u64,
+
     /// Probability of making a typo (0.0 to 1.0)
     #[arg(long, default_value_t = TYPO_RATE_DEFAULT)]
     typo_rate: f64,
 
-    /// How long to pause after typos before correcting
-    #[arg(long, default_value_t = TYPO_PAUSE_MS_DEFAULT)]
-    typo_pause_ms: u64,
+    /// How long to pause after typos before correcting (milliseconds)
+    #[arg(long, default_value_t = TYPO_PAUSE_DEFAULT)]
+    typo_pause: u64,
 
     /// Probability of brief hesitation (0.0 to 1.0)
     #[arg(long, default_value_t = HESITATION_RATE_DEFAULT)]
@@ -205,11 +210,14 @@ impl Walker {
                 if options.speed_variance == SPEED_VARIANCE_DEFAULT {
                     options.speed_variance = 0.4;
                 }
+                if options.punctuation_pause == PUNCTUATION_PAUSE_DEFAULT {
+                    options.punctuation_pause = 300;
+                }
                 if options.typo_rate == TYPO_RATE_DEFAULT {
                     options.typo_rate = 0.05;
                 }
-                if options.typo_pause_ms == TYPO_PAUSE_MS_DEFAULT {
-                    options.typo_pause_ms = 600;
+                if options.typo_pause == TYPO_PAUSE_DEFAULT {
+                    options.typo_pause = 600;
                 }
                 if options.hesitation_rate == HESITATION_RATE_DEFAULT {
                     options.hesitation_rate = 0.1;
@@ -232,11 +240,14 @@ impl Walker {
                 if options.speed_variance == SPEED_VARIANCE_DEFAULT {
                     options.speed_variance = 0.3;
                 }
+                if options.punctuation_pause == PUNCTUATION_PAUSE_DEFAULT {
+                    options.punctuation_pause = 250;
+                }
                 if options.typo_rate == TYPO_RATE_DEFAULT {
                     options.typo_rate = 0.02;
                 }
-                if options.typo_pause_ms == TYPO_PAUSE_MS_DEFAULT {
-                    options.typo_pause_ms = 500;
+                if options.typo_pause == TYPO_PAUSE_DEFAULT {
+                    options.typo_pause = 500;
                 }
                 if options.hesitation_rate == HESITATION_RATE_DEFAULT {
                     options.hesitation_rate = 0.05;
@@ -259,11 +270,14 @@ impl Walker {
                 if options.speed_variance == SPEED_VARIANCE_DEFAULT {
                     options.speed_variance = 0.0;
                 }
+                if options.punctuation_pause == PUNCTUATION_PAUSE_DEFAULT {
+                    options.punctuation_pause = 200;
+                }
                 if options.typo_rate == TYPO_RATE_DEFAULT {
                     options.typo_rate = 0.0;
                 }
-                if options.typo_pause_ms == TYPO_PAUSE_MS_DEFAULT {
-                    options.typo_pause_ms = 0;
+                if options.typo_pause == TYPO_PAUSE_DEFAULT {
+                    options.typo_pause = 0;
                 }
                 if options.hesitation_rate == HESITATION_RATE_DEFAULT {
                     options.hesitation_rate = 0.0;
@@ -283,14 +297,17 @@ impl Walker {
                 if options.speed == SPEED_DEFAULT {
                     options.speed = f64::MAX;
                 }
+                if options.punctuation_pause == PUNCTUATION_PAUSE_DEFAULT {
+                    options.punctuation_pause = 0;
+                }
                 if options.speed_variance == SPEED_VARIANCE_DEFAULT {
                     options.speed_variance = 0.0;
                 }
                 if options.typo_rate == TYPO_RATE_DEFAULT {
                     options.typo_rate = 0.0;
                 }
-                if options.typo_pause_ms == TYPO_PAUSE_MS_DEFAULT {
-                    options.typo_pause_ms = 0;
+                if options.typo_pause == TYPO_PAUSE_DEFAULT {
+                    options.typo_pause = 0;
                 }
                 if options.hesitation_rate == HESITATION_RATE_DEFAULT {
                     options.hesitation_rate = 0.0;
@@ -586,7 +603,8 @@ impl Walker {
             speed: wpm,
             speed_variance,
             typo_rate,
-            typo_pause_ms,
+            typo_pause,
+            punctuation_pause,
             hesitation_rate,
             hesitation_duration,
             ..
@@ -636,7 +654,7 @@ impl Walker {
                 self.write(&typo_ch);
 
                 // Pause to "notice" the mistake
-                thread::sleep(Duration::from_millis(typo_pause_ms));
+                thread::sleep(Duration::from_millis(typo_pause));
 
                 // Backspace and correct
                 self.write(&format!("\x08 \x08{}", ch));
@@ -645,6 +663,11 @@ impl Walker {
             }
 
             stdout().flush().ok();
+
+            // Pause after punctuation
+            if matches!(ch, ',' | '.' | '!' | '?' | ';' | ':') && punctuation_pause > 0 {
+                thread::sleep(Duration::from_millis(punctuation_pause));
+            }
 
             // Maybe hesitate
             if self.rng.random::<f64>() < hesitation_rate {

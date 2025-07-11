@@ -77,7 +77,7 @@ pub static DEMO_AFTER_LONG_HELP: &str = cstr!(
   <dim># Use fast preset but add some typing variance</dim>
   <b>stencila demo</> <g>document.md</> <c>--preset</> <g>fast</> <c>--speed-variance</> <g>0.2</>
 
-  <dim># Use fast preset but slow down the execution timing</dim>
+  <dim># Use fast preset but extend the maximum duration of running times</dim>
   <b>stencila demo</> <g>document.md</> <c>--preset</> <g>fast</> <c>--min-running</> <g>2000</> <c>--max-running</> <g>4000</>
 
   <dim># Use instant preset for immediate results</dim>
