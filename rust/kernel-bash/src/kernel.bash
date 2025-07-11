@@ -5,6 +5,11 @@
 #     DEV=true bash rust/kernel-bash/src/kernel.bash
 #
 # Use Ctrl+D to quit, since Ctrl+C is trapped for interrupting kernel tasks.
+#
+# IMPORTANT: When making changes to this file, especially adding or removing lines
+# before the eval commands, make sure to update the stencila_base_line variables
+# in the error processing section (around lines 102 and 105) to maintain correct
+# line number calculation for error messages.
 
 if [ "$DEV" == "true" ]; then
   READY="READY"
@@ -71,17 +76,59 @@ do
         fi
       done
       printf -v stencila_code "%s\n" "${stencila_lines[@]:1}"
+      # Create a temporary file for stderr
+      stencila_stderr_tmp=$(mktemp)
       if [[ "$stencila_assigns" == true ]]; then
         # Execute remaining lines, at least one containing an assignment or function declaration, here
-        eval "$stencila_code"
+        eval "$stencila_code" 2>"$stencila_stderr_tmp"
       else
         # Execute remaining lines in background so the task can be interrupted
-        eval "$stencila_code" &
+        eval "$stencila_code" 2>"$stencila_stderr_tmp" &
         trap "kill -SIGTERM $!" SIGINT
         wait $!
         trap "" SIGINT
       fi
-      unset stencila_assigns stencila_code BASH_REMATCH
+      # Process and output any errors as JSON
+      if [[ -s "$stencila_stderr_tmp" ]]; then
+        # Count the number of lines in the code to help with line number adjustment
+        stencila_code_lines=$(echo -n "$stencila_code" | grep -c '^' || echo 1)
+        # Read stderr and process line by line
+        while IFS= read -r stencila_error_line; do
+          # Replace kernel path with "line" and adjust line numbers
+          stencila_error_line="${stencila_error_line//$0: line/line}"
+          # Extract the line number and message from the error
+          if [[ "$stencila_error_line" =~ line\ ([0-9]+):\ (.+)$ ]]; then
+            stencila_kernel_line="${BASH_REMATCH[1]}"
+            stencila_error_msg="${BASH_REMATCH[2]}"
+            # For multi-line code, bash counts from the eval line
+            # We need to calculate the offset based on where eval was called
+            # and adjust for the actual line in user's code
+            if [[ "$stencila_assigns" == true ]]; then
+              # eval is on line 78
+              stencila_base_line=78
+            else
+              # eval is on line 81
+              stencila_base_line=81
+            fi
+            # Calculate user line: kernel_line - base_line (0-based)
+            stencila_user_line=$((stencila_kernel_line - stencila_base_line))
+            # Ensure line number is within valid range (0-based)
+            if [[ $stencila_user_line -lt 0 ]]; then
+              stencila_user_line=0
+            elif [[ $stencila_user_line -ge $stencila_code_lines ]]; then
+              stencila_user_line=$((stencila_code_lines - 1))
+            fi
+            printf '{"type":"ExecutionMessage","level":"Error","message":"%s","codeLocation":{"type":"CodeLocation","startLine":%d}}\n' \
+              "${stencila_error_msg//\"/\\\"}" "$stencila_user_line" >&2
+          else
+            # If we can't parse the line number, output without code location
+            printf '{"type":"ExecutionMessage","level":"Error","message":"%s"}\n' \
+              "${stencila_error_line//\"/\\\"}" >&2
+          fi
+        done < "$stencila_stderr_tmp"
+      fi
+      rm -f "$stencila_stderr_tmp"
+      unset stencila_assigns stencila_code stencila_stderr_tmp stencila_error_line stencila_kernel_line stencila_user_line stencila_code_lines stencila_base_line stencila_error_msg BASH_REMATCH
       ;;
     "$EVAL")
       # Evaluate second line (integer expressions only)

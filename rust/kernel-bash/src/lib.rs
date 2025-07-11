@@ -63,7 +63,7 @@ mod tests {
     use common_dev::{ntest::timeout, pretty_assertions::assert_eq};
     use kernel_micro::{
         common::{eyre::bail, tokio},
-        schema::{Node, Null, Variable},
+        schema::{MessageLevel, Node, Null, Variable},
         tests::{create_instance, start_instance},
     };
 
@@ -236,15 +236,60 @@ echo $value",
 
         let (outputs, messages) = instance.execute("if").await?;
         assert_eq!(messages.len(), 1);
-        assert!(messages[0]
-            .message
-            .ends_with("syntax error: unexpected end of file\n"));
+        assert_eq!(messages[0].message, "syntax error: unexpected end of file");
+        assert!(messages[0].code_location.is_some());
+        assert_eq!(messages[0].code_location.as_ref().unwrap().start_line, Some(0));
         assert_eq!(outputs, vec![]);
 
         let (outputs, messages) = instance.execute("foo").await?;
         assert_eq!(messages.len(), 1);
-        assert!(messages[0].message.ends_with("foo: command not found\n"));
+        assert_eq!(messages[0].message, "foo: command not found");
+        assert_eq!(messages[0].level, MessageLevel::Error);
+        
+        // Check code location
+        assert!(messages[0].code_location.is_some());
+        let loc = messages[0].code_location.as_ref().unwrap();
+        assert_eq!(loc.start_line, Some(0));
         assert_eq!(outputs, vec![]);
+
+        // Test multi-line code with error on specific line
+        let (outputs, messages) = instance.execute("echo line1\nFOO\necho line3").await?;
+        assert_eq!(messages.len(), 1);
+        assert_eq!(messages[0].message, "FOO: command not found");
+        assert!(messages[0].code_location.is_some());
+        let loc = messages[0].code_location.as_ref().unwrap();
+        assert_eq!(loc.start_line, Some(1));
+        // Should have output from echo commands
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(outputs[0], Node::String("line1\nline3\n".to_string()));
+
+        // Test error on last line of multi-line code
+        let (outputs, messages) = instance.execute("echo start\necho middle\nBADCMD").await?;
+        assert_eq!(messages.len(), 1);
+        assert_eq!(messages[0].message, "BADCMD: command not found");
+        assert!(messages[0].code_location.is_some());
+        assert_eq!(messages[0].code_location.as_ref().unwrap().start_line, Some(2));
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(outputs[0], Node::String("start\nmiddle\n".to_string()));
+
+        // Test multiple errors (bash stops on first error in non-background execution)
+        let (outputs, messages) = instance.execute("BADCMD1 || echo recovered\necho hello").await?;
+        assert_eq!(messages.len(), 1);
+        assert_eq!(messages[0].message, "BADCMD1: command not found");
+        assert!(messages[0].code_location.is_some());
+        assert_eq!(messages[0].code_location.as_ref().unwrap().start_line, Some(0));
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(outputs[0], Node::String("recovered\nhello\n".to_string()));
+
+        // Test error in function or alias execution should also be clean
+        let (outputs, messages) = instance.execute("alias badtest='NOTFOUND'").await?;
+        assert_eq!(outputs, vec![]);
+        assert_eq!(messages, vec![]);
+        
+        let (_outputs, messages) = instance.execute("badtest").await?;
+        assert_eq!(messages.len(), 1);
+        assert_eq!(messages[0].message, "NOTFOUND: command not found");
+        // Note: errors from aliases might not have line numbers since they're expanded inline
 
         Ok(())
     }
