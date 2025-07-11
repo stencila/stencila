@@ -81,17 +81,25 @@ do
       if [[ "$stencila_assigns" == true ]]; then
         # Execute remaining lines, at least one containing an assignment or function declaration, here
         eval "$stencila_code" 2>"$stencila_stderr_tmp"
+        stencila_exit_code=$?
       else
         # Execute remaining lines in background so the task can be interrupted
         eval "$stencila_code" 2>"$stencila_stderr_tmp" &
         trap "kill -SIGTERM $!" SIGINT
         wait $!
+        stencila_exit_code=$?
         trap "" SIGINT
       fi
-      # Process and output any errors as JSON
+      # Process and output any stderr content as JSON
       if [[ -s "$stencila_stderr_tmp" ]]; then
         # Count the number of lines in the code to help with line number adjustment
         stencila_code_lines=$(echo -n "$stencila_code" | grep -c '^' || echo 1)
+        # Determine the message level based on exit code
+        if [[ $stencila_exit_code -ne 0 ]]; then
+          stencila_message_level="Error"
+        else
+          stencila_message_level="Info"
+        fi
         # Read stderr and process line by line
         while IFS= read -r stencila_error_line; do
           # Replace kernel path with "line" and adjust line numbers
@@ -104,11 +112,11 @@ do
             # We need to calculate the offset based on where eval was called
             # and adjust for the actual line in user's code
             if [[ "$stencila_assigns" == true ]]; then
-              # eval is on line 78
-              stencila_base_line=78
+              # eval is on line 83
+              stencila_base_line=83
             else
-              # eval is on line 81
-              stencila_base_line=81
+              # eval is on line 87
+              stencila_base_line=87
             fi
             # Calculate user line: kernel_line - base_line (0-based)
             stencila_user_line=$((stencila_kernel_line - stencila_base_line))
@@ -118,17 +126,17 @@ do
             elif [[ $stencila_user_line -ge $stencila_code_lines ]]; then
               stencila_user_line=$((stencila_code_lines - 1))
             fi
-            printf '{"type":"ExecutionMessage","level":"Error","message":"%s","codeLocation":{"type":"CodeLocation","startLine":%d}}\n' \
-              "${stencila_error_msg//\"/\\\"}" "$stencila_user_line" >&2
+            printf '{"type":"ExecutionMessage","level":"%s","message":"%s","codeLocation":{"type":"CodeLocation","startLine":%d}}\n' \
+              "$stencila_message_level" "${stencila_error_msg//\"/\\\"}" "$stencila_user_line" >&2
           else
             # If we can't parse the line number, output without code location
-            printf '{"type":"ExecutionMessage","level":"Error","message":"%s"}\n' \
-              "${stencila_error_line//\"/\\\"}" >&2
+            printf '{"type":"ExecutionMessage","level":"%s","message":"%s"}\n' \
+              "$stencila_message_level" "${stencila_error_line//\"/\\\"}" >&2
           fi
         done < "$stencila_stderr_tmp"
       fi
       rm -f "$stencila_stderr_tmp"
-      unset stencila_assigns stencila_code stencila_stderr_tmp stencila_error_line stencila_kernel_line stencila_user_line stencila_code_lines stencila_base_line stencila_error_msg BASH_REMATCH
+      unset stencila_assigns stencila_code stencila_stderr_tmp stencila_error_line stencila_kernel_line stencila_user_line stencila_code_lines stencila_base_line stencila_error_msg stencila_exit_code stencila_message_level BASH_REMATCH
       ;;
     "$EVAL")
       # Evaluate second line (integer expressions only)

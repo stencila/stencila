@@ -291,6 +291,25 @@ echo $value",
         assert_eq!(messages[0].message, "NOTFOUND: command not found");
         // Note: errors from aliases might not have line numbers since they're expanded inline
 
+        // Test stderr output with zero exit code should be Info level
+        let (_outputs, messages) = instance.execute("echo 'a message' >&2").await?;
+        assert_eq!(messages.len(), 1);
+        assert_eq!(messages[0].message, "a message");
+        assert_eq!(messages[0].level, MessageLevel::Info);
+
+        // Test stderr output with non-zero exit code should be Error level
+        let (_outputs, messages) = instance.execute("echo 'error message' >&2; exit 1").await?;
+        assert_eq!(messages.len(), 1);
+        assert_eq!(messages[0].message, "error message");
+        assert_eq!(messages[0].level, MessageLevel::Error);
+
+        // Test stderr output with successful command that produces stderr should be Info
+        let (_outputs, messages) = instance.execute("ls /nonexistent 2>&1 || echo 'handled'").await?;
+        // This should succeed (exit 0) because of the || echo, so stderr should be Info
+        if !messages.is_empty() {
+            assert_eq!(messages[0].level, MessageLevel::Info);
+        }
+
         Ok(())
     }
 
