@@ -824,6 +824,10 @@ impl Visitor for Walker {
                 return WalkControl::Break;
             }
 
+            Block::ThematicBreak(..) => {
+                clear_terminal();
+            }
+
             _ => {}
         }
 
