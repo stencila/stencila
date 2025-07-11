@@ -19,7 +19,7 @@ use cli_utils::{
 };
 use codec_text::to_text;
 use common::{
-    clap::{self, Args},
+    clap::{self, Args, ValueEnum},
     eyre::{bail, Context, Result},
     itertools::Itertools,
     serde_json::json,
@@ -46,6 +46,28 @@ impl Document {
     }
 }
 
+// Default values for demo options
+const SPEED_DEFAULT: f64 = 100.0;
+const SPEED_VARIANCE_DEFAULT: f64 = 0.3;
+const TYPO_RATE_DEFAULT: f64 = 0.0;
+const TYPO_PAUSE_MS_DEFAULT: u64 = 500;
+const HESITATION_RATE_DEFAULT: f64 = 0.0;
+const HESITATION_DURATION_DEFAULT: u64 = 100;
+const MIN_RUNNING_DEFAULT: u64 = 500;
+const MAX_RUNNING_DEFAULT: u64 = 5000;
+
+#[derive(Debug, Clone, Copy, PartialEq, ValueEnum)]
+enum DemoPreset {
+    /// Slower typing with some typos and hesitation
+    Slow,
+    /// Average WPM, typo and hesitation rate
+    Natural,
+    /// 200 WPM, no hesitation, no typos, consistent code running time
+    Fast,
+    /// Very high WPM and zero code running times
+    Instant,
+}
+
 #[derive(Debug, Args)]
 pub struct DemoOptions {
     /// The path of the recording to generate
@@ -54,28 +76,32 @@ pub struct DemoOptions {
     /// determined from the file extension.
     output: Option<PathBuf>,
 
+    /// Preset for demo style
+    #[arg(long, value_enum, default_value_t = DemoPreset::Natural)]
+    preset: DemoPreset,
+
     /// Typing speed in words per minute
-    #[arg(long, default_value = "100")]
+    #[arg(long, default_value_t = SPEED_DEFAULT)]
     speed: f64,
 
     /// Variance in typing speed (0.0 to 1.0)
-    #[arg(long, default_value = "0.3")]
+    #[arg(long, default_value_t = SPEED_VARIANCE_DEFAULT)]
     speed_variance: f64,
 
     /// Probability of making a typo (0.0 to 1.0)
-    #[arg(long, default_value = "0")]
+    #[arg(long, default_value_t = TYPO_RATE_DEFAULT)]
     typo_rate: f64,
 
     /// How long to pause after typos before correcting
-    #[arg(long, default_value = "500")]
+    #[arg(long, default_value_t = TYPO_PAUSE_MS_DEFAULT)]
     typo_pause_ms: u64,
 
     /// Probability of brief hesitation (0.0 to 1.0)
-    #[arg(long, default_value = "0")]
+    #[arg(long, default_value_t = HESITATION_RATE_DEFAULT)]
     hesitation_rate: f64,
 
     /// Hesitation duration in milliseconds
-    #[arg(long, default_value = "100")]
+    #[arg(long, default_value_t = HESITATION_DURATION_DEFAULT)]
     hesitation_duration: u64,
 
     /// Do not apply syntax highlighting to code
@@ -86,14 +112,14 @@ pub struct DemoOptions {
     ///
     /// The execution duration of executable nodes will be used for the
     /// spinner duration, but will be clamped to this minimum value.
-    #[arg(long, default_value = "500")]
+    #[arg(long, default_value_t = MIN_RUNNING_DEFAULT)]
     min_running: u64,
 
     /// Maximum duration for running spinner in milliseconds
     ///
     /// The execution duration of executable nodes will be used for the
     /// spinner duration, but will be clamped to this maximum value.
-    #[arg(long, default_value = "5000")]
+    #[arg(long, default_value_t = MAX_RUNNING_DEFAULT)]
     max_running: u64,
 
     /// Arguments to pass through to `agg` when recoding to GIF
@@ -168,7 +194,126 @@ const VERTICAL: &str = "│";
 
 impl Walker {
     /// Create a new walker
-    fn new(options: DemoOptions) -> Result<Self> {
+    fn new(mut options: DemoOptions) -> Result<Self> {
+        // Apply preset defaults if specified
+        match options.preset {
+            DemoPreset::Slow => {
+                // Slow typing with some typos and hesitation
+                if options.speed == SPEED_DEFAULT {
+                    options.speed = 80.0;
+                }
+                if options.speed_variance == SPEED_VARIANCE_DEFAULT {
+                    options.speed_variance = 0.4;
+                }
+                if options.typo_rate == TYPO_RATE_DEFAULT {
+                    options.typo_rate = 0.05;
+                }
+                if options.typo_pause_ms == TYPO_PAUSE_MS_DEFAULT {
+                    options.typo_pause_ms = 600;
+                }
+                if options.hesitation_rate == HESITATION_RATE_DEFAULT {
+                    options.hesitation_rate = 0.1;
+                }
+                if options.hesitation_duration == HESITATION_DURATION_DEFAULT {
+                    options.hesitation_duration = 200;
+                }
+                if options.min_running == MIN_RUNNING_DEFAULT {
+                    options.min_running = 800;
+                }
+                if options.max_running == MAX_RUNNING_DEFAULT {
+                    options.max_running = 6000;
+                }
+            }
+            DemoPreset::Natural => {
+                // Average typing speed with occasional typos and hesitation
+                if options.speed == SPEED_DEFAULT {
+                    options.speed = 100.0;
+                }
+                if options.speed_variance == SPEED_VARIANCE_DEFAULT {
+                    options.speed_variance = 0.3;
+                }
+                if options.typo_rate == TYPO_RATE_DEFAULT {
+                    options.typo_rate = 0.02;
+                }
+                if options.typo_pause_ms == TYPO_PAUSE_MS_DEFAULT {
+                    options.typo_pause_ms = 500;
+                }
+                if options.hesitation_rate == HESITATION_RATE_DEFAULT {
+                    options.hesitation_rate = 0.05;
+                }
+                if options.hesitation_duration == HESITATION_DURATION_DEFAULT {
+                    options.hesitation_duration = 150;
+                }
+                if options.min_running == MIN_RUNNING_DEFAULT {
+                    options.min_running = 500;
+                }
+                if options.max_running == MAX_RUNNING_DEFAULT {
+                    options.max_running = 5000;
+                }
+            }
+            DemoPreset::Fast => {
+                // Fast typing with no typos or hesitation
+                if options.speed == SPEED_DEFAULT {
+                    options.speed = 200.0;
+                }
+                if options.speed_variance == SPEED_VARIANCE_DEFAULT {
+                    options.speed_variance = 0.0;
+                }
+                if options.typo_rate == TYPO_RATE_DEFAULT {
+                    options.typo_rate = 0.0;
+                }
+                if options.typo_pause_ms == TYPO_PAUSE_MS_DEFAULT {
+                    options.typo_pause_ms = 0;
+                }
+                if options.hesitation_rate == HESITATION_RATE_DEFAULT {
+                    options.hesitation_rate = 0.0;
+                }
+                if options.hesitation_duration == HESITATION_DURATION_DEFAULT {
+                    options.hesitation_duration = 0;
+                }
+                if options.min_running == MIN_RUNNING_DEFAULT {
+                    options.min_running = 1000;
+                }
+                if options.max_running == MAX_RUNNING_DEFAULT {
+                    options.max_running = 1000;
+                }
+            }
+            DemoPreset::Instant => {
+                // Very fast typing with minimal running time
+                if options.speed == SPEED_DEFAULT {
+                    options.speed = f64::MAX;
+                }
+                if options.speed_variance == SPEED_VARIANCE_DEFAULT {
+                    options.speed_variance = 0.0;
+                }
+                if options.typo_rate == TYPO_RATE_DEFAULT {
+                    options.typo_rate = 0.0;
+                }
+                if options.typo_pause_ms == TYPO_PAUSE_MS_DEFAULT {
+                    options.typo_pause_ms = 0;
+                }
+                if options.hesitation_rate == HESITATION_RATE_DEFAULT {
+                    options.hesitation_rate = 0.0;
+                }
+                if options.hesitation_duration == HESITATION_DURATION_DEFAULT {
+                    options.hesitation_duration = 0;
+                }
+                if options.min_running == MIN_RUNNING_DEFAULT {
+                    options.min_running = 0;
+                }
+                if options.max_running == MAX_RUNNING_DEFAULT {
+                    options.max_running = 0;
+                }
+            }
+        }
+
+        // Clamp option values to ensure valid values and prevent random sampling panics
+        options.speed = options.speed.max(1.0); // Minimum 1 WPM
+        options.speed_variance = options.speed_variance.clamp(0.0, 1.0);
+        options.typo_rate = options.typo_rate.clamp(0.0, 1.0);
+        options.hesitation_rate = options.hesitation_rate.clamp(0.0, 1.0);
+        options.max_running = options.max_running.max(options.min_running);
+
         let rng = rng();
 
         let start_time = SystemTime::now();
@@ -477,7 +622,11 @@ impl Walker {
             }
 
             // Random variance in typing speed
-            let variance = self.rng.random_range(-speed_variance..speed_variance);
+            let variance = if speed_variance > 0.0 {
+                self.rng.random_range(-speed_variance..speed_variance)
+            } else {
+                0.0
+            };
             let delay_ms = ((base_delay_ms as f64) * (1.0 + variance)) as u64;
 
             // Maybe make a typo
@@ -761,7 +910,9 @@ impl Visitor for Walker {
                     .max(self.options.min_running)
                     .min(self.options.max_running);
 
-                self.spinner(clamped_duration, "");
+                if clamped_duration > 0 {
+                    self.spinner(clamped_duration, "");
+                }
 
                 // Show any messages
                 let msg = |level: MessageLevel, message: &str| match level {
