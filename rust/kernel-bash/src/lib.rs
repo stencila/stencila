@@ -133,6 +133,25 @@ greet World",
                     vec![Node::String("Hello World\n".to_string())],
                     vec![],
                 ),
+                // Functions defined in one chunk are available in the next
+                (
+                    "
+greet_func() {
+    echo \"Hello from function: $1\"
+}
+add_numbers() {
+    echo $(($1 + $2))
+}",
+                    vec![],
+                    vec![],
+                ),
+                (
+                    "
+greet_func World
+add_numbers 5 3",
+                    vec![Node::String("Hello from function: World\n8\n".to_string())],
+                    vec![],
+                ),
                 (
                     "
 print $a $b $c",

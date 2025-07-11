@@ -38,6 +38,9 @@ shopt -s expand_aliases
 # Regular expression to match variable assignment or alias declaration
 stencila_assign_regex="^\s*((export|eval|alias|(declare(\s+\-[-aAilnrtux])?))\s+)?[a-zA-Z_][a-zA-Z0-9_]*=.*$"
 
+# Regular expression to match function declaration
+stencila_function_regex="^\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\(\s*\)\s*\{?\s*$"
+
 # Define the 'print' function for outputting one or more Stencila Schema nodes
 print() {
   for arg in "$@"; do
@@ -62,14 +65,14 @@ do
   case "${stencila_lines[0]}" in 
     "$EXEC")
       for stencila_line in "${stencila_lines[@]:1}"; do
-        if [[ "$stencila_line" =~ $stencila_assign_regex ]]; then
+        if [[ "$stencila_line" =~ $stencila_assign_regex ]] || [[ "$stencila_line" =~ $stencila_function_regex ]]; then
           stencila_assigns=true
           break
         fi
       done
       printf -v stencila_code "%s\n" "${stencila_lines[@]:1}"
       if [[ "$stencila_assigns" == true ]]; then
-        # Execute remaining lines, at least one containing an assignment, here
+        # Execute remaining lines, at least one containing an assignment or function declaration, here
         eval "$stencila_code"
       else
         # Execute remaining lines in background so the task can be interrupted
