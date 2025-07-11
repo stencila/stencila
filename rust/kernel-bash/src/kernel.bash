@@ -100,40 +100,53 @@ do
         else
           stencila_message_level="Info"
         fi
-        # Read stderr and process line by line
-        while IFS= read -r stencila_error_line; do
-          # Replace kernel path with "line" and adjust line numbers
-          stencila_error_line="${stencila_error_line//$0: line/line}"
-          # Extract the line number and message from the error
-          if [[ "$stencila_error_line" =~ line\ ([0-9]+):\ (.+)$ ]]; then
-            stencila_kernel_line="${BASH_REMATCH[1]}"
-            stencila_error_msg="${BASH_REMATCH[2]}"
-            # For multi-line code, bash counts from the eval line
-            # We need to calculate the offset based on where eval was called
-            # and adjust for the actual line in user's code
-            if [[ "$stencila_assigns" == true ]]; then
-              # eval is on line 83
-              stencila_base_line=83
-            else
-              # eval is on line 87
-              stencila_base_line=87
-            fi
-            # Calculate user line: kernel_line - base_line (0-based)
-            stencila_user_line=$((stencila_kernel_line - stencila_base_line))
-            # Ensure line number is within valid range (0-based)
-            if [[ $stencila_user_line -lt 0 ]]; then
-              stencila_user_line=0
-            elif [[ $stencila_user_line -ge $stencila_code_lines ]]; then
-              stencila_user_line=$((stencila_code_lines - 1))
-            fi
-            printf '{"type":"ExecutionMessage","level":"%s","message":"%s","codeLocation":{"type":"CodeLocation","startLine":%d}}\n' \
-              "$stencila_message_level" "${stencila_error_msg//\"/\\\"}" "$stencila_user_line" >&2
+        
+        # Read entire stderr content
+        stencila_stderr_content=$(<"$stencila_stderr_tmp")
+        
+        # Check if this is a bash error with line number
+        # Handle various error formats:
+        # - /path/to/script: line 123: error message
+        # - /path/to/script: eval: line 123: error message  
+        # - line 123: error message
+        if [[ "$stencila_stderr_content" =~ :\ line\ ([0-9]+):\ (.+) ]] || [[ "$stencila_stderr_content" =~ ^line\ ([0-9]+):\ (.+) ]]; then
+          # This is a bash error - extract line number and message
+          stencila_kernel_line="${BASH_REMATCH[1]}"
+          stencila_error_msg="${BASH_REMATCH[2]}"
+          
+          # For multi-line code, bash counts from the eval line
+          # We need to calculate the offset based on where eval was called
+          # and adjust for the actual line in user's code
+          if [[ "$stencila_assigns" == true ]]; then
+            # eval is on line 83
+            stencila_base_line=83
           else
-            # If we can't parse the line number, output without code location
-            printf '{"type":"ExecutionMessage","level":"%s","message":"%s"}\n' \
-              "$stencila_message_level" "${stencila_error_line//\"/\\\"}" >&2
+            # eval is on line 87
+            stencila_base_line=87
           fi
-        done < "$stencila_stderr_tmp"
+          # Calculate user line: kernel_line - base_line (0-based)
+          stencila_user_line=$((stencila_kernel_line - stencila_base_line))
+          # Ensure line number is within valid range (0-based)
+          if [[ $stencila_user_line -lt 0 ]]; then
+            stencila_user_line=0
+          elif [[ $stencila_user_line -ge $stencila_code_lines ]]; then
+            stencila_user_line=$((stencila_code_lines - 1))
+          fi
+          # Escape quotes and newlines for JSON
+          stencila_error_msg="${stencila_error_msg//\\/\\\\}"
+          stencila_error_msg="${stencila_error_msg//\"/\\\"}"
+          stencila_error_msg="${stencila_error_msg//$'\n'/\\n}"
+          printf '{"type":"ExecutionMessage","level":"%s","message":"%s","codeLocation":{"type":"CodeLocation","startLine":%d}}%s\n' \
+            "$stencila_message_level" "$stencila_error_msg" "$stencila_user_line" "$END" >&2
+        else
+          # Not a bash error - output the entire message as-is
+          # Escape quotes and newlines for JSON
+          stencila_stderr_content="${stencila_stderr_content//\\/\\\\}"
+          stencila_stderr_content="${stencila_stderr_content//\"/\\\"}"
+          stencila_stderr_content="${stencila_stderr_content//$'\n'/\\n}"
+          printf '{"type":"ExecutionMessage","level":"%s","message":"%s"}%s\n' \
+            "$stencila_message_level" "$stencila_stderr_content" "$END" >&2
+        fi
       fi
       rm -f "$stencila_stderr_tmp"
       unset stencila_assigns stencila_code stencila_stderr_tmp stencila_error_line stencila_kernel_line stencila_user_line stencila_code_lines stencila_base_line stencila_error_msg stencila_exit_code stencila_message_level BASH_REMATCH

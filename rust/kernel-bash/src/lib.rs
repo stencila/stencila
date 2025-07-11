@@ -238,14 +238,17 @@ echo $value",
         assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].message, "syntax error: unexpected end of file");
         assert!(messages[0].code_location.is_some());
-        assert_eq!(messages[0].code_location.as_ref().unwrap().start_line, Some(0));
+        assert_eq!(
+            messages[0].code_location.as_ref().unwrap().start_line,
+            Some(0)
+        );
         assert_eq!(outputs, vec![]);
 
         let (outputs, messages) = instance.execute("foo").await?;
         assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].message, "foo: command not found");
         assert_eq!(messages[0].level, MessageLevel::Error);
-        
+
         // Check code location
         assert!(messages[0].code_location.is_some());
         let loc = messages[0].code_location.as_ref().unwrap();
@@ -268,16 +271,24 @@ echo $value",
         assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].message, "BADCMD: command not found");
         assert!(messages[0].code_location.is_some());
-        assert_eq!(messages[0].code_location.as_ref().unwrap().start_line, Some(2));
+        assert_eq!(
+            messages[0].code_location.as_ref().unwrap().start_line,
+            Some(2)
+        );
         assert_eq!(outputs.len(), 1);
         assert_eq!(outputs[0], Node::String("start\nmiddle\n".to_string()));
 
         // Test multiple errors (bash stops on first error in non-background execution)
-        let (outputs, messages) = instance.execute("BADCMD1 || echo recovered\necho hello").await?;
+        let (outputs, messages) = instance
+            .execute("BADCMD1 || echo recovered\necho hello")
+            .await?;
         assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].message, "BADCMD1: command not found");
         assert!(messages[0].code_location.is_some());
-        assert_eq!(messages[0].code_location.as_ref().unwrap().start_line, Some(0));
+        assert_eq!(
+            messages[0].code_location.as_ref().unwrap().start_line,
+            Some(0)
+        );
         assert_eq!(outputs.len(), 1);
         assert_eq!(outputs[0], Node::String("recovered\nhello\n".to_string()));
 
@@ -285,7 +296,7 @@ echo $value",
         let (outputs, messages) = instance.execute("alias badtest='NOTFOUND'").await?;
         assert_eq!(outputs, vec![]);
         assert_eq!(messages, vec![]);
-        
+
         let (_outputs, messages) = instance.execute("badtest").await?;
         assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].message, "NOTFOUND: command not found");
@@ -304,11 +315,48 @@ echo $value",
         assert_eq!(messages[0].level, MessageLevel::Error);
 
         // Test stderr output with successful command that produces stderr should be Info
-        let (_outputs, messages) = instance.execute("ls /nonexistent 2>&1 || echo 'handled'").await?;
+        let (_outputs, messages) = instance
+            .execute("ls /nonexistent 2>&1 || echo 'handled'")
+            .await?;
         // This should succeed (exit 0) because of the || echo, so stderr should be Info
         if !messages.is_empty() {
             assert_eq!(messages[0].level, MessageLevel::Info);
         }
+
+        // Test multiline stderr output
+        let (_outputs, messages) = instance
+            .execute("echo -e 'line 1\\nline 2\\nline 3' >&2")
+            .await?;
+        assert_eq!(messages.len(), 1);
+        assert_eq!(messages[0].message, "line 1\nline 2\nline 3");
+        assert_eq!(messages[0].level, MessageLevel::Info);
+
+        // Test JSON escaping in stderr messages - quotes
+        let (_outputs, messages) = instance
+            .execute(r#"echo 'Test "quoted" message' >&2"#)
+            .await?;
+        assert_eq!(messages.len(), 1);
+        assert_eq!(messages[0].message, r#"Test "quoted" message"#);
+
+        // Test JSON escaping in stderr messages - backslashes
+        let (_outputs, messages) = instance
+            .execute(r#"echo 'Test \backslash\ message' >&2"#)
+            .await?;
+        assert_eq!(messages.len(), 1);
+        assert_eq!(messages[0].message, r#"Test \backslash\ message"#);
+
+        // Test complex multiline stderr with quotes and newlines
+        let (_outputs, messages) = instance
+            .execute(
+                r#"echo -e 'Error: "something"\nDetails:\n  - item 1\n  - item 2' >&2; exit 1"#,
+            )
+            .await?;
+        assert_eq!(messages.len(), 1);
+        assert_eq!(
+            messages[0].message,
+            "Error: \"something\"\nDetails:\n  - item 1\n  - item 2"
+        );
+        assert_eq!(messages[0].level, MessageLevel::Error);
 
         Ok(())
     }
