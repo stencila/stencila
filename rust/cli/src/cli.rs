@@ -140,7 +140,14 @@ pub struct Cli {
     pub error_link: bool,
 
     /// Do not color any output
-    #[arg(long, global = true, conflicts_with = "force_color", env = "NO_COLOR")]
+    #[arg(
+        long,
+        global = true,
+        help_heading = "Global Options",
+        display_order = 140,
+        conflicts_with = "force_color",
+        env = "NO_COLOR"
+    )]
     pub no_color: bool,
 
     /// Force color in outputs, even when piping to non-TTY devices
