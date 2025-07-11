@@ -715,32 +715,40 @@ impl Visitor for Walker {
             }
 
             Block::CodeChunk(block) => {
-                let lang = block.programming_language.clone().unwrap_or_default();
-
-                let code = if self.options.no_highlighting {
-                    block.code.to_string()
-                } else {
-                    Code::new(Format::from_name(&lang), &block.code)
-                        .to_terminal()
-                        .to_string()
-                };
-
-                self.typing("```")
-                    .control(FG_CYAN)
-                    .typing(&lang)
-                    .control(RESET)
-                    .typing(cstr!(" <bold,magenta>exec"));
-
+                let is_echoed = block.is_echoed.unwrap_or(false);
                 let is_hidden = block.is_hidden.unwrap_or(false);
-                if is_hidden {
-                    self.typing(cstr!(" <bold,magenta>hide"));
+
+                if is_echoed {
+                    let lang = block.programming_language.clone().unwrap_or_default();
+
+                    let code = if self.options.no_highlighting {
+                        block.code.to_string()
+                    } else {
+                        Code::new(Format::from_name(&lang), &block.code)
+                            .to_terminal()
+                            .to_string()
+                    };
+
+                    self.typing("```")
+                        .control(FG_CYAN)
+                        .typing(&lang)
+                        .control(RESET)
+                        .typing(cstr!(" <bold,magenta>exec"));
+
+                    if is_hidden {
+                        self.typing(cstr!(" <bold,magenta>hide"));
+                    }
+
+                    self.newline().typing(&code);
+                    if !(code.ends_with("\n") || code.ends_with(&["\n", RESET].concat())) {
+                        self.newline();
+                    }
+                    self.typing("```").newlines(2);
                 }
 
-                self.newline().typing(&code);
-                if !(code.ends_with("\n") || code.ends_with(&["\n", RESET].concat())) {
-                    self.newline();
+                if is_hidden {
+                    return WalkControl::Break;
                 }
-                self.typing("```").newlines(2);
 
                 let duration = block
                     .options
