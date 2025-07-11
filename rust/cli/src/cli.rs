@@ -9,7 +9,7 @@ use server::{self, ServeOptions};
 use version::STENCILA_VERSION;
 
 use crate::{
-    compile, convert, execute, lint,
+    compile, convert, demo, execute, lint,
     logging::{LoggingFormat, LoggingLevel},
     merge, new, preview, render, sync, uninstall, upgrade,
 };
@@ -138,6 +138,20 @@ pub struct Cli {
     /// Output a link to more easily report an issue
     #[arg(long, global = true, hide = true)]
     pub error_link: bool,
+
+    /// Do not color any output
+    #[arg(long, global = true, conflicts_with = "force_color", env = "NO_COLOR")]
+    pub no_color: bool,
+
+    /// Force color in outputs, even when piping to non-TTY devices
+    #[arg(
+        long,
+        global = true,
+        hide = true,
+        conflicts_with = "no_color",
+        env = "FORCE_COLOR"
+    )]
+    pub force_color: bool,
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
@@ -217,7 +231,7 @@ pub enum Command {
 
     Preview(preview::Cli),
     Publish(publish::Cli),
-    Demo(document::cli::Demo),
+    Demo(demo::Demo),
 
     Serve(ServeOptions),
     /// Run the Language Server Protocol server

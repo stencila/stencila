@@ -1,5 +1,7 @@
 #![recursion_limit = "256"]
 
+use std::env::set_var;
+
 use common::{clap::Parser, eyre::Result, tokio};
 
 use cli::{
@@ -12,6 +14,12 @@ use cli::{
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
+
+    if cli.no_color {
+        set_var("NO_COLOR", "1");
+    } else if cli.force_color {
+        set_var("FORCE_COLOR", "1");
+    }
 
     let (log_level, log_format, error_details) = if cli.debug {
         (LoggingLevel::Debug, LoggingFormat::Pretty, "all")
