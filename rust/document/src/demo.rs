@@ -10,6 +10,7 @@ use format::Format;
 use rand::{rng, rngs::ThreadRng, Rng};
 
 use cli_utils::{
+    clear_terminal,
     color_print::cstr,
     strip_ansi_escapes,
     tabulated::{Cell, Tabulated},
@@ -24,15 +25,19 @@ use common::{
     serde_json::json,
     tracing,
 };
-use schema::{Block, Inline, ListItem, Node, Visitor, WalkControl, WalkthroughStep};
+use schema::{Block, Inline, ListItem, MessageLevel, Node, Visitor, WalkControl, WalkthroughStep};
 use tools::{AsyncToolCommand, ToolStdio};
 
 use crate::Document;
 
 impl Document {
     /// Demonstrate the document in the terminal
-    pub(super) async fn demo(&self, options: DemoOptions) -> Result<()> {
+    pub async fn demo(&self, options: DemoOptions) -> Result<()> {
         let root = &*self.root.read().await;
+
+        // Clear the terminal which may have messages from
+        // execution on it.
+        clear_terminal();
 
         let mut walker = Walker::new(options)?;
         walker.walk(root);
@@ -43,7 +48,7 @@ impl Document {
 }
 
 #[derive(Debug, Args)]
-pub(super) struct DemoOptions {
+pub struct DemoOptions {
     /// The path of the recording to generate
     ///
     /// Supported output formats are GIF, MP4 and ASCIICast and will be
@@ -143,10 +148,10 @@ const STRIKETHROUGH: &str = "\x1b[9m";
 
 // const FG_BLACK: &str = "\x1b[30m";
 const FG_RED: &str = "\x1b[31m";
-// const FG_GREEN: &str = "\x1b[32m";
+const FG_GREEN: &str = "\x1b[32m";
 const FG_YELLOW: &str = "\x1b[33m";
-// const FG_BLUE: &str = "\x1b[34m";
-// const FG_MAGENTA: &str = "\x1b[35m";
+//const FG_BLUE: &str = "\x1b[34m";
+const FG_MAGENTA: &str = "\x1b[35m";
 const FG_CYAN: &str = "\x1b[36m";
 // const FG_WHITE: &str = "\x1b[37m";
 // const FG_DEFAULT: &str = "\x1b[39m";
@@ -750,6 +755,35 @@ impl Visitor for Walker {
                     .min(self.options.max_running);
 
                 self.spinner(clamped_duration, "");
+
+                // Show any messages
+                let msg = |level: MessageLevel, message: &str| match level {
+                    MessageLevel::Info => format!("{FG_GREEN}Info{RESET}: {message}"),
+                    MessageLevel::Warning => format!("{FG_YELLOW}Warning{RESET}: {message}"),
+                    MessageLevel::Error => format!("{FG_RED}Error{RESET}: {message}"),
+                    MessageLevel::Exception => {
+                        format!("{FG_MAGENTA}Exception{RESET}: {message}")
+                    }
+                    _ => String::new(),
+                };
+                for message in block
+                    .options
+                    .compilation_messages
+                    .iter()
+                    .flatten()
+                    .filter(|msg| msg.level >= MessageLevel::Info)
+                {
+                    self.write(&msg(message.level, &message.message));
+                }
+                for message in block
+                    .options
+                    .execution_messages
+                    .iter()
+                    .flatten()
+                    .filter(|msg| msg.level >= MessageLevel::Info)
+                {
+                    self.write(&msg(message.level, &message.message));
+                }
 
                 // Display outputs if not hidden with blank line between them
                 if let (false, Some(outputs)) = (is_hidden, &block.outputs) {

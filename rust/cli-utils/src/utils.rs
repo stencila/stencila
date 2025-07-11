@@ -1,3 +1,12 @@
+use std::io::{stdout, Write};
+
+/// Clear the terminal
+#[allow(clippy::print_stdout)]
+pub fn clear_terminal() {
+    print!("\x1B[2J\x1B[1;1H");
+    stdout().flush().ok();
+}
+
 /// Strip ANSI escape sequences from a string
 pub fn strip_ansi_escapes(s: &str) -> String {
     let mut result = String::new();
