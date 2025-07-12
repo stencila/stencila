@@ -54,6 +54,7 @@ pub fn list() -> Vec<Box<dyn Tool>> {
         // Conversion
         Box::new(Agg),
         Box::new(MarkerPdf),
+        Box::new(MinerU),
         Box::new(Pandoc),
         Box::new(Xelatex),
         // Collaboration

@@ -43,7 +43,7 @@ impl Tool for MarkerPdf {
     }
 
     fn url(&self) -> &'static str {
-        "https://pypi.org/project/marker-pdf/"
+        "https://github.com/datalab-to/marker"
     }
 
     fn description(&self) -> &'static str {
@@ -67,6 +67,30 @@ impl Tool for MarkerPdf {
 
     fn version_available_in_env(&self) -> Option<Version> {
         Some(Version::new(0, 0, 0))
+    }
+}
+
+pub struct MinerU;
+
+impl Tool for MinerU {
+    fn name(&self) -> &'static str {
+        "mineru"
+    }
+
+    fn url(&self) -> &'static str {
+        "https://github.com/opendatalab/MinerU/"
+    }
+
+    fn description(&self) -> &'static str {
+        "Converts PDF into machine-readable formats"
+    }
+
+    fn r#type(&self) -> ToolType {
+        ToolType::Conversion
+    }
+
+    fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
+        vec![Box::new(Uv)]
     }
 }
 

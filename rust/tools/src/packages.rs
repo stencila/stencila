@@ -4,7 +4,8 @@ use crate::{
     command::AsyncToolCommand,
     environments::{Devbox, Mise},
     execution::{Python, R},
-    tool::{Tool, ToolType, PACKAGE}, ToolCommand,
+    tool::{Tool, ToolType, PACKAGE},
+    ToolCommand,
 };
 
 pub struct Npm;
@@ -178,7 +179,8 @@ impl Tool for Uv {
 
         // Install as a tool if possible
         if let Some((tool, options)) = match name {
-            "marker" => Some(("marker-pdf", &["--with", "psutil"])),
+            "marker" => Some(("marker-pdf", vec!["--with", "psutil"])),
+            "mineru" => Some(("mineru[core]", vec![])),
             _ => None,
         } {
             let mut command = AsyncToolCommand::new(self.executable_name());
