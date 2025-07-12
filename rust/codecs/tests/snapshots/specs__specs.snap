@@ -283,7 +283,9 @@ expression: specs
   },
   "pdf": {
     "status": "beta",
-    "supports_from_formats": {},
+    "supports_from_formats": {
+      "pdf": "HighLoss"
+    },
     "supports_from_bytes": false,
     "supports_from_string": false,
     "supports_from_path": true,
