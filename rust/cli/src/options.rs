@@ -13,15 +13,15 @@ use node_strip::StripScope;
 #[derive(Debug, Default, Clone, Args)]
 pub struct StripOptions {
     /// Scopes defining which properties of nodes should be stripped
-    #[arg(long)]
+    #[arg(long, help_heading = "Stripping Options")]
     strip_scopes: Vec<StripScope>,
 
     /// A list of node types to strip
-    #[arg(long)]
+    #[arg(long, help_heading = "Stripping Options")]
     strip_types: Vec<String>,
 
     /// A list of node properties to strip
-    #[arg(long)]
+    #[arg(long, help_heading = "Stripping Options")]
     strip_props: Vec<String>,
 }
 
@@ -32,14 +32,14 @@ pub struct DecodeOptions {
     ///
     /// If not supplied, and inputting from a file, is inferred from the extension.
     /// See `stencila formats list` for available formats.
-    #[arg(long, short)]
+    #[arg(long, short, help_heading = "Decoding Options")]
     pub from: Option<String>,
 
     /// Use fine decoding if available for input format
     ///
     /// Use this flag to decode content to the finest level of granularity
     /// supported by the format. This is the default for most formats.
-    #[arg(long, conflicts_with = "coarse")]
+    #[arg(long, conflicts_with = "coarse", help_heading = "Decoding Options")]
     fine: bool,
 
     /// Use coarse decoding if available for input format
@@ -47,7 +47,7 @@ pub struct DecodeOptions {
     /// Use this flag to decode content to the coarsest level of granularity
     /// supported by the format. Useful for decoding formats that are not fully
     /// supported to avoid loss of structure.
-    #[arg(long, conflicts_with = "fine")]
+    #[arg(long, conflicts_with = "fine", help_heading = "Decoding Options")]
     coarse: bool,
 
     /// Reconstitute nodes from a cache
@@ -58,14 +58,14 @@ pub struct DecodeOptions {
     ///
     /// Only supported for some formats (.e.g DOCX, ODT).
     /// At present, the cache must be the path to a JSON file.
-    #[arg(long)]
+    #[arg(long, help_heading = "Decoding Options")]
     cache: Option<PathBuf>,
 
     /// Action when there are losses decoding from input files
     ///
     /// Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or
     /// a filename to write the losses to (only `json` or `yaml` file extensions are supported).
-    #[arg(long, default_value_t = codecs::LossesResponse::Debug)]
+    #[arg(long, default_value_t = codecs::LossesResponse::Debug, help_heading = "Decoding Options")]
     input_losses: codecs::LossesResponse,
 }
 
@@ -103,13 +103,13 @@ pub struct EncodeOptions {
     ///
     /// If not supplied, and outputting to a file, is inferred from the extension.
     /// See `stencila formats list` for available formats.
-    #[arg(long, short)]
+    #[arg(long, short, help_heading = "Encoding Options")]
     pub to: Option<String>,
 
     /// The template document to use
     ///
     /// Only supported by some formats (e.g. DOCX).
-    #[arg(long)]
+    #[arg(long, help_heading = "Encoding Options")]
     template: Option<PathBuf>,
 
     /// Encode executable nodes so that they are reproducible
@@ -118,14 +118,14 @@ pub struct EncodeOptions {
     /// to rendered documents can be merged back to the source document.
     ///
     /// Only supported by some formats, and may be the default for those.
-    #[arg(long, alias = "repro")]
+    #[arg(long, alias = "repro", help_heading = "Encoding Options")]
     reproducible: bool,
 
     /// Highlight the rendered outputs of executable nodes
     ///
     /// Only supported by some formats (e.g. DOCX and ODT).
     /// Defaults to `true` when `--reproducible` flag is used.
-    #[arg(long)]
+    #[arg(long, help_heading = "Encoding Options")]
     highlight: bool,
 
     /// Do not highlight the rendered outputs of executable nodes.
@@ -133,22 +133,27 @@ pub struct EncodeOptions {
         long,
         alias = "not-highlight",
         alias = "dont-highlight",
-        conflicts_with = "highlight"
+        conflicts_with = "highlight",
+        help_heading = "Encoding Options"
     )]
     no_highlight: bool,
 
     /// Encode as a standalone document
-    #[arg(long, conflicts_with = "not_standalone")]
+    #[arg(
+        long,
+        conflicts_with = "not_standalone",
+        help_heading = "Encoding Options"
+    )]
     standalone: bool,
 
     /// Do not encode as a standalone document when writing to file
-    #[arg(long, conflicts_with = "standalone")]
+    #[arg(long, conflicts_with = "standalone", help_heading = "Encoding Options")]
     not_standalone: bool,
 
     /// Recursively encode the content of `IncludeBlock`s to their source file
     ///
     /// Only supported when encoding to a path.
-    #[arg(long)]
+    #[arg(long, help_heading = "Encoding Options")]
     recursive: bool,
 
     /// Use a compact form of encoding if available
@@ -157,20 +162,20 @@ pub struct EncodeOptions {
     /// For formats such as JSON and HTML, this usually means no indentation.
     /// For Markdown-based formats, this means that embedded Base64 media will NOT
     /// be written to separate files in a media folder (the default behavior).
-    #[arg(long, conflicts_with = "pretty")]
+    #[arg(long, conflicts_with = "pretty", help_heading = "Encoding Options")]
     compact: bool,
 
     /// Use a "pretty" form of encoding if available
     ///
     /// Use this flag to produce pretty forms of encoding (e.g. indentation)
     /// which are supported by some formats (e.g. JSON, HTML).
-    #[arg(long, conflicts_with = "compact")]
+    #[arg(long, conflicts_with = "compact", help_heading = "Encoding Options")]
     pretty: bool,
 
     /// Action when there are losses encoding to output files
     ///
     /// See help for `--input-losses` for details.
-    #[arg(long, default_value_t = codecs::LossesResponse::Debug)]
+    #[arg(long, default_value_t = codecs::LossesResponse::Debug, help_heading = "Encoding Options")]
     output_losses: codecs::LossesResponse,
 }
 

@@ -361,21 +361,21 @@ pub struct LintOptions {
 #[serde(default, crate = "common::serde")]
 pub struct ExecuteOptions {
     /// Re-execute all node types regardless of current state
-    #[arg(long)]
+    #[arg(long, help_heading = "Execution Options")]
     pub force_all: bool,
 
     /// Skip executing code
     ///
     /// By default, code-based nodes in the document (e.g. `CodeChunk`, `CodeExpression`, `ForBlock`)
     /// nodes will be executed if they are stale. Use this flag to skip executing all code-based nodes.
-    #[arg(long)]
+    #[arg(long, help_heading = "Execution Options")]
     pub skip_code: bool,
 
     /// Skip executing instructions
     ///
     /// By default, instructions with no suggestions, or with suggestions that have
     /// been rejected will be executed. Use this flag to skip executing all instructions.
-    #[arg(long, alias = "skip-inst")]
+    #[arg(long, alias = "skip-inst", help_heading = "Execution Options")]
     pub skip_instructions: bool,
 
     /// Retain existing suggestions for instructions
@@ -383,7 +383,7 @@ pub struct ExecuteOptions {
     /// By default, when you execute an instruction, the existing suggestions for the instruction
     /// are deleted. Use this flag to retain existing suggestions, for example, so that you can
     /// use a previous one if a revision is worse.
-    #[arg(long)]
+    #[arg(long, help_heading = "Execution Options")]
     pub retain_suggestions: bool,
 
     /// Re-execute instructions with suggestions that have not yet been reviewed
@@ -391,28 +391,28 @@ pub struct ExecuteOptions {
     /// By default, an instruction that has a suggestion that has not yet be reviewed
     /// (i.e. has a suggestion status that is empty) will not be re-executed. Use this
     /// flag to force these instructions to be re-executed.
-    #[arg(long)]
+    #[arg(long, help_heading = "Execution Options")]
     pub force_unreviewed: bool,
 
     /// Re-execute instructions with suggestions that have been accepted.
     ///
     /// By default, an instruction that has a suggestion that has been accepted, will
     /// not be re-executed. Use this flag to force these instructions to be re-executed.
-    #[arg(long)]
+    #[arg(long, help_heading = "Execution Options")]
     pub force_accepted: bool,
 
     /// Skip re-executing instructions with suggestions that have been rejected
     ///
     /// By default, instructions that have a suggestion that has been rejected, will be
     /// re-executed. Use this flag to skip re-execution of these instructions.
-    #[arg(long)]
+    #[arg(long, help_heading = "Execution Options")]
     pub skip_rejected: bool,
 
     /// Prepare, but do not actually perform, execution tasks
     ///
     /// Currently only supported by instructions where it is useful for debugging the
     /// rendering of prompts without making a potentially slow generative model API request.
-    #[arg(long)]
+    #[arg(long, help_heading = "Execution Options")]
     pub dry_run: bool,
 }
 
