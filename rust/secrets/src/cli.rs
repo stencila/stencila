@@ -36,8 +36,8 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila secrets delete</> <g>ANTHROPIC_API_KEY</>
 
   <dim># Use the add/remove aliases</dim>
-  <b>stencila secrets add</> <g>MY_SECRET</>
-  <b>stencila secrets remove</> <g>MY_SECRET</>
+  <b>stencila secrets add</> <g>STENCILA_API_TOKEN</>
+  <b>stencila secrets remove</> <g>STENCILA_API_TOKEN</>
 
 <bold><b>Security</b></bold>
   Secrets are stored securely using your system's keyring.
@@ -56,11 +56,11 @@ pub static SET_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Set API tokens for different services</dim>
   <b>stencila secrets set</> <g>ANTHROPIC_API_KEY</>
-  <b>stencila secrets set</> <g>GOOGLE_API_KEY</>
+  <b>stencila secrets set</> <g>GOOGLE_AI_API_KEY</>
   <b>stencila secrets set</> <g>STENCILA_API_TOKEN</>
 
   <dim># Use the add alias</dim>
-  <b>stencila secrets add</> <g>MY_SECRET</>
+  <b>stencila secrets add</> <g>STENCILA_API_TOKEN</>
 
 <bold><b>Security</b></bold>
   When setting secrets interactively, your input will be
@@ -76,10 +76,10 @@ pub static DELETE_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Delete API tokens</dim>
   <b>stencila secrets delete</> <g>ANTHROPIC_API_KEY</>
-  <b>stencila secrets delete</> <g>GOOGLE_API_KEY</>
+  <b>stencila secrets delete</> <g>GOOGLE_AI_API_KEY</>
 
   <dim># Use the remove alias</dim>
-  <b>stencila secrets remove</> <g>MY_SECRET</>
+  <b>stencila secrets remove</> <g>GOOGLE_AI_API_KEY</>
 
 <bold><b>Warning</b></bold>
   This permanently removes the secret from your system's
