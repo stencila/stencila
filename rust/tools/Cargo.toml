@@ -15,5 +15,8 @@ semver = { workspace = true }
 which = { workspace = true }
 version = { path = "../version" }
 
+[dev-dependencies]
+test-log = { workspace = true }
+
 [lints]
 workspace = true

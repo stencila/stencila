@@ -3,7 +3,10 @@ use std::{
     fmt::Debug,
     path::{Path, PathBuf},
     process::Command,
-    sync::Mutex,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Mutex,
+    },
 };
 
 use mcp_types::{Tool as McpTool, ToolInputSchema as McpToolInputSchema};
@@ -355,6 +358,19 @@ fn tool_cache_key(tool: &dyn Tool) -> String {
     }
 }
 
+/// Global flag to indicate dry run mode for tool installations
+static DRY_RUN: AtomicBool = AtomicBool::new(false);
+
+/// Set the dry run mode for tool installations
+pub fn set_dry_run(dry_run: bool) {
+    DRY_RUN.store(dry_run, Ordering::Relaxed);
+}
+
+/// Check if we're in dry run mode
+pub fn is_dry_run() -> bool {
+    DRY_RUN.load(Ordering::Relaxed)
+}
+
 /// Check if a tool is installed, with version-aware caching
 /// This function works with trait objects and manages the cache
 pub(crate) fn is_installed(tool: &dyn Tool) -> bool {
@@ -493,6 +509,16 @@ async fn install_via_tool(
     if let Some(mut command) = installer.install_tool(tool, force) {
         tracing::debug!("Installing `{}` using `{}`", tool.name(), installer.name());
 
+        // Check if in dry run mode
+        if is_dry_run() {
+            tracing::info!(
+                "Dry run mode, skipping install of `{}` with `{}`",
+                tool.name(),
+                installer.name()
+            );
+            return Ok(());
+        }
+
         if display {
             let status = command
                 .stdout(ToolStdio::Inherit)
@@ -543,6 +569,15 @@ async fn install_via_script(tool: &dyn Tool, display: bool) -> Result<()> {
         .ok_or_eyre("This tool does not support automated installation")?;
 
     tracing::debug!("Installing `{}` using install script", tool.name());
+
+    // Check if in dry run mode
+    if is_dry_run() {
+        tracing::info!(
+            "Dry run mode, skipping install of `{}` using installation script",
+            tool.name()
+        );
+        return Ok(());
+    }
 
     // Create a client that follows redirects and sets user agent to avoid 403s
     let client = reqwest::Client::builder()

@@ -27,11 +27,17 @@ fn has_language_dependencies_helper(path: &std::path::Path) -> bool {
     python_files.iter().any(|p| p.exists()) || r_files.iter().any(|p| p.exists())
 }
 
+// Pro-tip! To get logs for some of these tests use:
+//
+// ```sh
+// RUST_LOG=trace cargo test -p tools -- --nocapture
+// ```
+
 /// Test install command with dry-run on all example workspaces
 ///
 /// This test simply verifies that the install command does not crash when run
 /// with --dry-run (no tool specified) on various example workspace configurations.
-#[tokio::test]
+#[test_log::test(tokio::test)]
 async fn test_install_dry_run_all_workspaces() -> Result<()> {
     let workspace_names = [
         "no-dependencies",
@@ -70,7 +76,7 @@ async fn test_install_dry_run_all_workspaces() -> Result<()> {
 }
 
 /// Test install command with skip flags
-#[tokio::test]
+#[test_log::test(tokio::test)]
 async fn test_install_with_skip_flags() -> Result<()> {
     let workspace_path = example_workspace_path("pyproject-toml");
 
@@ -111,7 +117,7 @@ async fn test_install_with_skip_flags() -> Result<()> {
 }
 
 /// Test install command with force flag
-#[tokio::test]
+#[test_log::test(tokio::test)]
 async fn test_install_with_force_flag() -> Result<()> {
     let workspace_path = example_workspace_path("no-dependencies");
 
@@ -129,7 +135,7 @@ async fn test_install_with_force_flag() -> Result<()> {
 }
 
 /// Test install command with non-existent directory
-#[tokio::test]
+#[test_log::test(tokio::test)]
 async fn test_install_non_existent_directory() -> Result<()> {
     let cli = Cli::try_parse_from(["stencila", "install", "-C", "/path/that/does/not/exist"])?;
 
@@ -308,7 +314,7 @@ fn test_language_dependency_detection_logic() {
 }
 
 /// Test installing multiple tools at once
-#[tokio::test]
+#[test_log::test(tokio::test)]
 async fn test_install_multiple_tools() -> Result<()> {
     // Test installing multiple tools with dry-run
     let cli = Cli::try_parse_from([

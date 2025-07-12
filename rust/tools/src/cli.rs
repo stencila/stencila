@@ -25,7 +25,7 @@ use crate::{
     command::{AsyncToolCommand, ToolStdio},
     get, list,
     packages::Renv,
-    tool::{detect_managers, install_tool, is_installed, ToolType},
+    tool::{detect_managers, install_tool, is_installed, set_dry_run, ToolType},
 };
 
 /// Manage tools and environments used by Stencila
@@ -324,7 +324,7 @@ struct Install {
     #[arg(short, long)]
     force: bool,
 
-    /// Show what would be done without executing (only when installing from configs)
+    /// Show which tools would be installed without actually installing them
     #[arg(long)]
     dry_run: bool,
 }
@@ -350,7 +350,7 @@ pub static INSTALL_AFTER_LONG_HELP: &str = cstr!(
   <dim># Install dependencies from config files in specific directory</dim>
   <b>stencila tools install</> <c>-C</> <g>/path/to/project</>
 
-  <dim># Show what would be installed without executing</dim>
+  <dim># Show what would be installed without actually installing</dim>
   <b>stencila tools install</> <c>--dry-run</>
 
   <dim># Skip Python dependencies during setup</dim>
@@ -370,6 +370,9 @@ pub static INSTALL_AFTER_LONG_HELP: &str = cstr!(
 
 impl Install {
     async fn run(self) -> Result<()> {
+        // Set the dry run mode globally
+        set_dry_run(self.dry_run);
+        
         if !self.names.is_empty() {
             // Install specific tools
             self.install_tools(&self.names).await

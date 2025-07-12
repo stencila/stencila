@@ -16,7 +16,7 @@ use common::{
 
 use crate::{
     get,
-    tool::{detect_managers, install_tool, is_installed, Tool, ToolType},
+    tool::{detect_managers, install_tool, is_dry_run, is_installed, Tool, ToolType},
 };
 
 /// The stdio config to use with one of the tools streams
@@ -376,6 +376,14 @@ impl AsyncToolCommand {
         // Auto-install tool if it's a known tool and not yet installed
         if let Some(tool) = get(&program) {
             if !is_installed(tool.as_ref()) {
+                // Skip auto-install in dry run mode
+                if is_dry_run() {
+                    bail!(
+                        "Tool `{}` would be installed but skipping in dry run mode",
+                        program
+                    );
+                }
+
                 let name = tool.name();
                 let name_ver = tool.name_and_version_required();
 
