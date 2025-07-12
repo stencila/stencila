@@ -21,7 +21,9 @@ use directories::UserDirs;
 use pathdiff::diff_paths;
 
 use crate::{
-    detect_managers, ensure_package_installed, get_package, AsyncToolCommand, ToolStdio, ToolType,
+    command::{AsyncToolCommand, ToolStdio},
+    package::{ensure_package, get_package},
+    tool::{detect_managers, get_tool, install_tool, list_tools, ToolType},
 };
 
 /// Manage tools and environments used by Stencila
@@ -146,7 +148,7 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
 impl List {
     #[allow(clippy::print_stdout)]
     async fn run(self) -> Result<()> {
-        let list = super::list();
+        let list = list_tools();
 
         let list = list.into_iter().filter(|tool| {
             if self.installed && !tool.is_installed() {
@@ -267,7 +269,7 @@ pub static SHOW_AFTER_LONG_HELP: &str = cstr!(
 impl Show {
     #[allow(clippy::print_stderr)]
     async fn run(self) -> Result<()> {
-        let Some(tool) = super::get(&self.name) else {
+        let Some(tool) = get_tool(&self.name) else {
             eprintln!("🔍 No tool with name `{}`", self.name);
             exit(1)
         };
@@ -383,7 +385,7 @@ impl Install {
 
     #[allow(clippy::print_stderr)]
     async fn install_tool(&self, name: &str) -> Result<()> {
-        let Some(tool) = super::get(name) else {
+        let Some(tool) = get_tool(name) else {
             eprintln!("🔍 No tool with name `{}`", name);
             exit(1)
         };
@@ -418,7 +420,7 @@ impl Install {
 
         eprintln!("📥 Installing {}...", tool.name());
 
-        match super::install(tool.as_ref(), self.force).await {
+        match install_tool(tool.as_ref(), self.force).await {
             Ok(()) => {
                 eprintln!("✅ {} installed successfully", tool.name());
 
@@ -502,7 +504,7 @@ impl Install {
             // Install the environment manager if needed
             if !manager.is_installed() {
                 eprintln!("📥 Installing {}", manager.name());
-                super::install(manager.as_ref(), self.force).await?;
+                install_tool(manager.as_ref(), self.force).await?;
             }
 
             // Install tools from the environment manager config
@@ -599,7 +601,7 @@ impl Install {
 
             // Ensure renv is installed before using it
             if let Some(renv_package) = get_package("renv") {
-                ensure_package_installed(renv_package.as_ref()).await?;
+                ensure_package(renv_package.as_ref()).await?;
             }
 
             let status = AsyncToolCommand::new("Rscript")
@@ -622,7 +624,7 @@ impl Install {
 
             // Ensure renv is installed before using it
             if let Some(renv_package) = get_package("renv") {
-                ensure_package_installed(renv_package.as_ref()).await?;
+                ensure_package(renv_package.as_ref()).await?;
             }
 
             let status = AsyncToolCommand::new("Rscript")

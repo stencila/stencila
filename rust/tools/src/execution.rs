@@ -1,7 +1,9 @@
 use crate::{
+    command::AsyncToolCommand,
     environments::{Devbox, Mise},
     packages::{Rig, Uv},
-    Tool, ToolType, VersionReq,
+    tool::{Tool, ToolType},
+    VersionReq,
 };
 
 pub struct Bash;
@@ -23,7 +25,7 @@ impl Tool for Bash {
         ToolType::Execution
     }
 
-    fn install_tools(&self) -> Vec<Box<dyn Tool>> {
+    fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
         vec![Box::new(Devbox)]
     }
 }
@@ -47,7 +49,7 @@ impl Tool for Node {
         ToolType::Execution
     }
 
-    fn install_tools(&self) -> Vec<Box<dyn Tool>> {
+    fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
         vec![Box::new(Mise), Box::new(Devbox)]
     }
 }
@@ -79,7 +81,7 @@ impl Tool for Python {
         VersionReq::parse("3").expect("invalid semver")
     }
 
-    fn install_tools(&self) -> Vec<Box<dyn Tool>> {
+    fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
         vec![Box::new(Uv), Box::new(Mise), Box::new(Devbox)]
     }
 }
@@ -107,9 +109,18 @@ impl Tool for R {
         "Rscript"
     }
 
-    fn install_tools(&self) -> Vec<Box<dyn Tool>> {
+    fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
         // At time of writing, `mise use asdf:r` is possible but involves a source compile
         // which is slow and error prone (many dev dependencies) so do not include Mise here
         vec![Box::new(Rig), Box::new(Devbox)]
+    }
+
+    fn install_package(&self, package: &str) -> Option<AsyncToolCommand> {
+        let mut command = AsyncToolCommand::new(self.executable_name());
+        command.args([
+            "-e",
+            &format!("install.packages('{package}', repos='https://cran.rstudio.com/')"),
+        ]);
+        Some(command)
     }
 }

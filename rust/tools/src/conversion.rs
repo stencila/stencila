@@ -1,6 +1,7 @@
 use crate::{
     environments::{Devbox, Mise},
-    Tool, ToolType, VersionReq,
+    tool::{Tool, ToolType},
+    VersionReq,
 };
 
 pub struct Agg;
@@ -22,7 +23,7 @@ impl Tool for Agg {
         ToolType::Conversion
     }
 
-    fn install_tools(&self) -> Vec<Box<dyn Tool>> {
+    fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
         vec![Box::new(Mise)]
     }
 }
@@ -50,7 +51,7 @@ impl Tool for Pandoc {
         VersionReq::parse("3").expect("invalid semver")
     }
 
-    fn install_tools(&self) -> Vec<Box<dyn Tool>> {
+    fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
         vec![Box::new(Mise), Box::new(Devbox)]
     }
 }
@@ -74,7 +75,7 @@ impl Tool for Xelatex {
         ToolType::Conversion
     }
 
-    fn install_tools(&self) -> Vec<Box<dyn Tool>> {
+    fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
         vec![Box::new(Devbox)]
     }
 }

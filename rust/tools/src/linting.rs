@@ -1,6 +1,6 @@
 use crate::{
     environments::{Devbox, Mise},
-    Tool, ToolType,
+    tool::{Tool, ToolType},
 };
 
 pub struct Ruff;
@@ -14,7 +14,11 @@ impl Tool for Ruff {
         "https://docs.astral.sh/ruff/"
     }
 
-    fn install_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
+    fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
+        vec![Box::new(Mise), Box::new(Devbox)]
+    }
+
+    fn installation_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
         Some(("https://astral.sh/ruff/install.sh", vec![]))
     }
 
@@ -24,9 +28,5 @@ impl Tool for Ruff {
 
     fn r#type(&self) -> ToolType {
         ToolType::Linting
-    }
-
-    fn install_tools(&self) -> Vec<Box<dyn Tool>> {
-        vec![Box::new(Mise), Box::new(Devbox)]
     }
 }

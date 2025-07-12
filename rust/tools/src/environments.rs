@@ -1,6 +1,6 @@
 use std::{env, process::Command};
 
-use crate::{find_config_in_ancestors, Tool, ToolType};
+use crate::tool::{find_config_in_ancestors, Tool, ToolType};
 
 pub struct Devbox;
 
@@ -13,7 +13,7 @@ impl Tool for Devbox {
         "https://www.jetify.com/devbox/"
     }
 
-    fn install_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
+    fn installation_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
         // Use the --force argument to avoid waiting for interactive inputs
         Some(("https://get.jetify.com/devbox", vec!["--force"]))
     }
@@ -34,7 +34,7 @@ impl Tool for Devbox {
         vec!["devbox.json"]
     }
 
-    fn exec_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
+    fn execute_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
         self.path()?;
 
         let mut command = Command::new(self.executable_name());
@@ -42,7 +42,7 @@ impl Tool for Devbox {
         Some(command)
     }
 
-    fn install_command(&self, tool: &dyn Tool) -> Option<Command> {
+    fn install_tool(&self, tool: &dyn Tool) -> Option<Command> {
         self.path()?;
 
         let pkg = match tool.name() {
@@ -80,7 +80,7 @@ impl Tool for Mise {
         "https://mise.jdx.dev/"
     }
 
-    fn install_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
+    fn installation_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
         Some(("https://mise.run", vec![]))
     }
 
@@ -101,7 +101,7 @@ impl Tool for Mise {
         ]
     }
 
-    fn exec_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
+    fn execute_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
         self.path()?;
 
         let mut command = Command::new(self.executable_name());
@@ -109,7 +109,7 @@ impl Tool for Mise {
         Some(command)
     }
 
-    fn install_command(&self, tool: &dyn Tool) -> Option<Command> {
+    fn install_tool(&self, tool: &dyn Tool) -> Option<Command> {
         self.path()?;
 
         let mut command = Command::new(self.executable_name());
@@ -143,7 +143,7 @@ impl Tool for Nix {
         "https://nixos.org/"
     }
 
-    fn install_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
+    fn installation_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
         Some(("https://nixos.org/nix/install", vec![]))
     }
 
@@ -159,7 +159,7 @@ impl Tool for Nix {
         vec!["flake.nix"]
     }
 
-    fn exec_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
+    fn execute_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
         self.path()?;
 
         let mut command = Command::new(self.executable_name());
@@ -201,7 +201,7 @@ impl Tool for NixShell {
         vec!["shell.nix", "default.nix"]
     }
 
-    fn exec_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
+    fn execute_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
         self.path()?;
 
         let mut command = Command::new(self.executable_name());
@@ -221,7 +221,7 @@ impl Tool for Pixi {
         "https://pixi.sh/"
     }
 
-    fn install_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
+    fn installation_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
         Some(("https://pixi.sh/install.sh", vec![]))
     }
 
@@ -237,7 +237,7 @@ impl Tool for Pixi {
         vec!["pixi.toml"]
     }
 
-    fn exec_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
+    fn execute_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
         self.path()?;
 
         let mut command = Command::new(self.executable_name());
