@@ -16,14 +16,16 @@ use common::{
     itertools::Itertools,
     once_cell::sync::Lazy,
     serde_json::json,
+    tracing,
 };
 use directories::UserDirs;
 use pathdiff::diff_paths;
 
 use crate::{
     command::{AsyncToolCommand, ToolStdio},
-    package::{ensure_package, get_package},
-    tool::{detect_managers, get_tool, install_tool, list_tools, ToolType},
+    get, list,
+    packages::Renv,
+    tool::{detect_managers, install_tool, is_installed, ToolType},
 };
 
 /// Manage tools and environments used by Stencila
@@ -148,10 +150,10 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
 impl List {
     #[allow(clippy::print_stdout)]
     async fn run(self) -> Result<()> {
-        let list = list_tools();
+        let list = list();
 
         let list = list.into_iter().filter(|tool| {
-            if self.installed && !tool.is_installed() {
+            if self.installed && !is_installed(tool.as_ref()) {
                 return false;
             }
 
@@ -269,7 +271,7 @@ pub static SHOW_AFTER_LONG_HELP: &str = cstr!(
 impl Show {
     #[allow(clippy::print_stderr)]
     async fn run(self) -> Result<()> {
-        let Some(tool) = get_tool(&self.name) else {
+        let Some(tool) = get(&self.name) else {
             eprintln!("🔍 No tool with name `{}`", self.name);
             exit(1)
         };
@@ -279,6 +281,7 @@ impl Show {
             "URL": tool.url(),
             "Description": tool.description(),
             "Version required": tool.version_required(),
+            "Installed": is_installed(tool.as_ref()),
             "Version available": tool.version_available_in_env().map_or_else(|| "None".into(), |version| version.to_string()),
             "Path": tool.path_in_env().map_or_else(|| "None".into(), |path| strip_home_dir(&path)),
         });
@@ -384,9 +387,10 @@ impl Install {
     }
 
     #[allow(clippy::print_stderr)]
+    #[tracing::instrument(skip(self))]
     async fn install_tool(&self, name: &str) -> Result<()> {
-        let Some(tool) = get_tool(name) else {
-            eprintln!("🔍 No tool with name `{}`", name);
+        let Some(tool) = get(name) else {
+            eprintln!("🔍 No known tool with name `{}`", name);
             exit(1)
         };
 
@@ -394,7 +398,7 @@ impl Install {
         if let Some(path) = tool.path_in_env() {
             if !self.force {
                 eprintln!(
-                    "👍 {} is already installed at {}",
+                    "👍 {} is already installed at {} (use `--force` to reinstall)",
                     tool.name(),
                     strip_home_dir(&path)
                 );
@@ -420,7 +424,7 @@ impl Install {
 
         eprintln!("📥 Installing {}...", tool.name());
 
-        match install_tool(tool.as_ref(), self.force).await {
+        match install_tool(tool.as_ref(), self.force, true).await {
             Ok(()) => {
                 eprintln!("✅ {} installed successfully", tool.name());
 
@@ -443,6 +447,7 @@ impl Install {
     }
 
     #[allow(clippy::print_stderr)]
+    #[tracing::instrument(skip(self))]
     async fn install_from_configs(&self) -> Result<()> {
         let path = if let Some(path) = &self.path {
             if !path.exists() {
@@ -475,6 +480,7 @@ impl Install {
     }
 
     #[allow(clippy::print_stderr)]
+    #[tracing::instrument(skip(self))]
     async fn install_environment_managers(&self, path: &Path) -> Result<()> {
         let managers = detect_managers(path, &[ToolType::Environments]);
 
@@ -502,9 +508,9 @@ impl Install {
             );
 
             // Install the environment manager if needed
-            if !manager.is_installed() {
+            if !is_installed(manager.as_ref()) {
                 eprintln!("📥 Installing {}", manager.name());
-                install_tool(manager.as_ref(), self.force).await?;
+                install_tool(manager.as_ref(), self.force, true).await?;
             }
 
             // Install tools from the environment manager config
@@ -527,6 +533,7 @@ impl Install {
     }
 
     #[allow(clippy::print_stderr)]
+    #[tracing::instrument(skip(self))]
     async fn install_python_dependencies(&self, path: &Path) -> Result<()> {
         let pyproject_path = path.join("pyproject.toml");
         let requirements_path = path.join("requirements.txt");
@@ -587,6 +594,7 @@ impl Install {
     }
 
     #[allow(clippy::print_stderr)]
+    #[tracing::instrument(skip(self))]
     async fn install_r_dependencies(&self, path: &Path) -> Result<()> {
         let renv_path = path.join("renv.lock");
         let description_path = path.join("DESCRIPTION");
@@ -600,9 +608,7 @@ impl Install {
             eprintln!("📦 Installing dependencies from renv.lock");
 
             // Ensure renv is installed before using it
-            if let Some(renv_package) = get_package("renv") {
-                ensure_package(renv_package.as_ref()).await?;
-            }
+            install_tool(&Renv, false, true).await?;
 
             let status = AsyncToolCommand::new("Rscript")
                 .args(["-e", "invisible(renv::restore())"])
@@ -623,9 +629,7 @@ impl Install {
             eprintln!("📦 Installing dependencies from DESCRIPTION file");
 
             // Ensure renv is installed before using it
-            if let Some(renv_package) = get_package("renv") {
-                ensure_package(renv_package.as_ref()).await?;
-            }
+            install_tool(&Renv, false, true).await?;
 
             let status = AsyncToolCommand::new("Rscript")
                 .args(["-e", "invisible(renv::install())"])

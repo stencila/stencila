@@ -3,7 +3,7 @@ use crate::{
     environments::{Devbox, Mise},
     packages::{Rig, Uv},
     tool::{Tool, ToolType},
-    VersionReq,
+    ToolCommand, VersionReq,
 };
 
 pub struct Bash;
@@ -115,12 +115,20 @@ impl Tool for R {
         vec![Box::new(Rig), Box::new(Devbox)]
     }
 
-    fn install_package(&self, package: &str) -> Option<AsyncToolCommand> {
+    fn install_tool(&self, tool: &dyn Tool, _force: bool) -> Option<AsyncToolCommand> {
+        let package = tool.name();
         let mut command = AsyncToolCommand::new(self.executable_name());
         command.args([
             "-e",
-            &format!("install.packages('{package}', repos='https://cran.rstudio.com/')"),
+            &format!("install.packages('{package}', repos='https://cloud.r-project.org')"),
         ]);
+        Some(command)
+    }
+
+    fn is_package_installed(&self, tool: &dyn Tool) -> Option<ToolCommand> {
+        let package = tool.name();
+        let mut command = ToolCommand::new(self.executable_name());
+        command.args(["-e", &format!("library({package})")]);
         Some(command)
     }
 }

@@ -4,8 +4,7 @@ use crate::{
     command::AsyncToolCommand,
     environments::{Devbox, Mise},
     execution::{Python, R},
-    package::Package,
-    tool::{Tool, ToolType},
+    tool::{Tool, ToolType, PACKAGE}, ToolCommand,
 };
 
 pub struct Npm;
@@ -29,6 +28,38 @@ impl Tool for Npm {
 
     fn config_files(&self) -> Vec<&'static str> {
         vec!["package.json"]
+    }
+}
+
+pub struct Renv;
+
+impl Tool for Renv {
+    fn name(&self) -> &'static str {
+        "renv"
+    }
+
+    fn url(&self) -> &'static str {
+        "https://rstudio.github.io/renv/"
+    }
+
+    fn description(&self) -> &'static str {
+        "R package management and environment isolation"
+    }
+
+    fn r#type(&self) -> ToolType {
+        ToolType::Packages
+    }
+
+    fn config_files(&self) -> Vec<&'static str> {
+        vec!["renv.lock", "DESCRIPTION"]
+    }
+
+    fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
+        vec![Box::new(R)]
+    }
+
+    fn executable_name(&self) -> &'static str {
+        PACKAGE
     }
 }
 
@@ -77,12 +108,12 @@ impl Tool for Rig {
         Some(command)
     }
 
-    fn install_tool(&self, tool: &dyn Tool) -> Option<Command> {
+    fn install_tool(&self, tool: &dyn Tool, _force: bool) -> Option<AsyncToolCommand> {
         if tool.name() != "r" {
             return None;
         }
 
-        let mut command = Command::new(self.executable_name());
+        let mut command = AsyncToolCommand::new(self.executable_name());
         // Add the latest release
         command.args(["add", "release"]);
         Some(command)
@@ -133,23 +164,33 @@ impl Tool for Uv {
         Some(command)
     }
 
-    fn install_tool(&self, tool: &dyn Tool) -> Option<Command> {
-        // Only install Python itself
-        if tool.name() != Python.name() {
-            return None;
+    fn install_tool(&self, tool: &dyn Tool, force: bool) -> Option<AsyncToolCommand> {
+        self.path()?;
+
+        let name = tool.name();
+
+        // Install Python
+        if name == Python.name() {
+            let mut command = AsyncToolCommand::new(self.executable_name());
+            command.args(["python", "install"]);
+            return Some(command);
         }
 
-        self.path()?;
+        // Install as a tool if possible
+        if let Some((tool, options)) = match name {
+            "marker" => Some(("marker-pdf", &["--with", "psutil"])),
+            _ => None,
+        } {
+            let mut command = AsyncToolCommand::new(self.executable_name());
+            command.args(["tool", "install", tool]);
+            command.args(options);
+            if force {
+                command.arg("--force");
+            }
+            return Some(command);
+        }
 
-        let mut command = Command::new(self.executable_name());
-        command.args(["python", "install"]);
-
-        Some(command)
-    }
-
-    fn install_package(&self, package: &str) -> Option<AsyncToolCommand> {
-        self.path()?;
-
+        // Fallback to installing as a package
         // Check if pyproject.toml exists, if not create it with uv init
         let current_dir = std::env::current_dir().ok()?;
         let pyproject_path = current_dir.join("pyproject.toml");
@@ -157,50 +198,20 @@ impl Tool for Uv {
         let mut command = AsyncToolCommand::new(self.executable_name());
 
         if !pyproject_path.exists() {
-            // Use bash to run both uv init and uv add in sequence
-            command = AsyncToolCommand::new("bash");
-            command.args([
-                "-c",
-                &format!("uv init --no-readme --no-pin-python && uv add {package}"),
-            ]);
+            // Use shell to run both uv init and uv add in sequence
+            command = AsyncToolCommand::new("sh");
+            command.args(["-c", &format!("uv init --bare && uv add {name}")]);
         } else {
-            command.args(["add", package]);
+            command.args(["add", name]);
         }
 
         Some(command)
     }
-}
 
-pub struct Renv;
-
-impl Package for Renv {
-    fn name(&self) -> &'static str {
-        "renv"
-    }
-
-    fn url(&self) -> &'static str {
-        "https://rstudio.github.io/renv/"
-    }
-
-    fn description(&self) -> &'static str {
-        "R package management and environment isolation"
-    }
-
-    fn config_files(&self) -> Vec<&'static str> {
-        vec!["renv.lock", "DESCRIPTION"]
-    }
-
-    fn package_manager(&self) -> Box<dyn Tool> {
-        Box::new(R)
-    }
-
-    fn install(&self) -> Option<AsyncToolCommand> {
-        // Custom implementation to also install 'pak'
-        let mut command = AsyncToolCommand::new("Rscript");
-        command.args([
-            "-e",
-            "install.packages(c('pak', 'renv'), repos='https://cran.rstudio.com/')",
-        ]);
+    fn is_package_installed(&self, tool: &dyn Tool) -> Option<ToolCommand> {
+        let package = tool.name();
+        let mut command = ToolCommand::new(self.executable_name());
+        command.args(["-e", &format!("import {package}")]);
         Some(command)
     }
 }

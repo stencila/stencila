@@ -6,6 +6,8 @@
 //! (e.g. pandoc, xelatex). It supports automatic tool discovery, installation, version
 //! management, and nested environment orchestration.
 
+use common::eyre::{OptionExt, Result};
+
 pub mod cli;
 mod collaboration;
 mod command;
@@ -13,14 +15,64 @@ mod conversion;
 mod environments;
 mod execution;
 mod linting;
-mod package;
 mod packages;
 mod tool;
 
 /// Re-exports for consuming crates
 pub use command::{AsyncToolCommand, ToolCommand, ToolStdio};
 pub use semver::{Version, VersionReq};
-pub use tool::{detect_managers, is_installed, ToolType};
+pub use tool::{detect_managers, ToolType};
+
+use crate::collaboration::*;
+use crate::conversion::*;
+use crate::environments::*;
+use crate::execution::*;
+use crate::linting::*;
+use crate::packages::*;
+use crate::tool::Tool;
+
+/// Get a list of tools used by Stencila
+pub fn list() -> Vec<Box<dyn Tool>> {
+    vec![
+        // Environments
+        Box::new(Devbox),
+        Box::new(Mise),
+        Box::new(Nix),
+        Box::new(Pixi),
+        Box::new(Rig),
+        // Packages
+        Box::new(Npm),
+        Box::new(Uv),
+        Box::new(Renv),
+        // Execution
+        Box::new(Bash),
+        Box::new(Node),
+        Box::new(Python),
+        Box::new(R),
+        // Linting
+        Box::new(Ruff),
+        // Conversion
+        Box::new(Agg),
+        Box::new(MarkerPdf),
+        Box::new(Pandoc),
+        Box::new(Xelatex),
+        // Collaboration
+        Box::new(Git),
+    ]
+}
+
+/// Get a tool by name
+pub fn get(name: &str) -> Option<Box<dyn Tool>> {
+    list().into_iter().find(|tool| tool.name() == name)
+}
+
+/// Find out if a tool is installed in the current environment
+///
+/// Errors if the tool is unknown.
+pub fn is_installed(name: &str) -> Result<bool> {
+    let tool = get(name).ok_or_eyre("Unknown tool")?;
+    Ok(tool::is_installed(tool.as_ref()))
+}
 
 /// Macro to create a [`serde_json::Map`] needed within MCP tool definition
 #[macro_export]

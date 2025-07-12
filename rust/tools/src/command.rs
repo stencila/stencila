@@ -14,7 +14,10 @@ use common::{
     tracing,
 };
 
-use crate::tool::{detect_managers, get_tool, install_tool, tool_is_installed, Tool, ToolType};
+use crate::{
+    get,
+    tool::{detect_managers, install_tool, is_installed, Tool, ToolType},
+};
 
 /// The stdio config to use with one of the tools streams
 ///
@@ -170,11 +173,11 @@ impl ToolCommand {
         let program = self.inner.get_program().to_string_lossy().to_string();
 
         // Check if tool needs auto-installation (sync version cannot install)
-        if let Some(tool) = get_tool(&program) {
+        if let Some(tool) = get(&program) {
             let name = tool.name();
             let name_ver = tool.name_and_version_required();
 
-            if !tool.is_installed() {
+            if !is_installed(tool.as_ref()) {
                 bail!(
                     "{name_ver} is required for this operation but is not installed and cannot be auto-installed. Please install {name_ver} (e.g. using `stencila tools install {name}`) and try again"
                 );
@@ -371,8 +374,8 @@ impl AsyncToolCommand {
             .to_string();
 
         // Auto-install tool if it's a known tool and not yet installed
-        if let Some(tool) = get_tool(&program) {
-            if !tool_is_installed(tool.as_ref()) {
+        if let Some(tool) = get(&program) {
+            if !is_installed(tool.as_ref()) {
                 let name = tool.name();
                 let name_ver = tool.name_and_version_required();
 
@@ -389,7 +392,7 @@ impl AsyncToolCommand {
 
                 if answer.is_yes() {
                     tracing::info!("Installing `{name}`");
-                    if let Err(error) = install_tool(tool.as_ref(), false).await {
+                    if let Err(error) = install_tool(tool.as_ref(), false, false).await {
                         tracing::warn!("Failed to install {name}: {error}");
                     }
                 } else {
@@ -426,7 +429,7 @@ impl AsyncToolCommand {
 
                 // Log the wrapped command
                 tracing::debug!(
-                    "AsyncToolCommand wrapped: {} {} -> {} {}",
+                    "AsyncToolCommand wrapped `{} {}` into `{} {}`",
                     program,
                     args.join(" "),
                     wrapped_program,
@@ -476,7 +479,7 @@ fn build_nested_command(command: &str, args: &[String], path: &Path) -> Option<C
     // First, check for package managers with config files in the project
     let detected_package_managers = detect_managers(path, &[ToolType::Packages]);
     for (manager, ..) in detected_package_managers {
-        if manager.is_installed() && manager.execute_command(command, args).is_some() {
+        if is_installed(manager.as_ref()) && manager.execute_command(command, args).is_some() {
             capable_managers.push(manager);
         }
     }
@@ -484,7 +487,7 @@ fn build_nested_command(command: &str, args: &[String], path: &Path) -> Option<C
     // Then, check for environment managers with config files in the project
     let detected_env_managers = detect_managers(path, &[ToolType::Environments]);
     for (manager, ..) in detected_env_managers {
-        if manager.is_installed() && manager.execute_command(command, args).is_some() {
+        if is_installed(manager.as_ref()) && manager.execute_command(command, args).is_some() {
             capable_managers.push(manager);
         }
     }

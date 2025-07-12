@@ -1,6 +1,9 @@
 use std::{env, process::Command};
 
-use crate::tool::{find_config_in_ancestors, Tool, ToolType};
+use crate::{
+    tool::{find_config_in_ancestors, Tool, ToolType},
+    AsyncToolCommand,
+};
 
 pub struct Devbox;
 
@@ -42,7 +45,7 @@ impl Tool for Devbox {
         Some(command)
     }
 
-    fn install_tool(&self, tool: &dyn Tool) -> Option<Command> {
+    fn install_tool(&self, tool: &dyn Tool, _force: bool) -> Option<AsyncToolCommand> {
         self.path()?;
 
         let pkg = match tool.name() {
@@ -58,11 +61,11 @@ impl Tool for Devbox {
 
         if !has_config {
             // Use shell to run both commands sequentially
-            let mut command = Command::new("sh");
+            let mut command = AsyncToolCommand::new("sh");
             command.args(["-c", &format!("devbox init && devbox add {}", pkg)]);
             Some(command)
         } else {
-            let mut command = Command::new(self.executable_name());
+            let mut command = AsyncToolCommand::new(self.executable_name());
             command.args(["add", pkg]);
             Some(command)
         }
@@ -109,10 +112,10 @@ impl Tool for Mise {
         Some(command)
     }
 
-    fn install_tool(&self, tool: &dyn Tool) -> Option<Command> {
+    fn install_tool(&self, tool: &dyn Tool, _force: bool) -> Option<AsyncToolCommand> {
         self.path()?;
 
-        let mut command = Command::new(self.executable_name());
+        let mut command = AsyncToolCommand::new(self.executable_name());
         match tool.name() {
             "agg" => {
                 command.args(["use", "ubi:asciinema/agg"]);
