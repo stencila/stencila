@@ -4,8 +4,10 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+codec-utils = { path = "../codec-utils" }
 common = { path = "../common" }
 tools = { path = "../tools" }
+rand = { workspace = true }
 
 [lints]
 workspace = true

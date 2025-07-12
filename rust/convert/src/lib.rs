@@ -5,5 +5,8 @@
 //! representation of documents as do the `Codec` implementations and leans
 //! heavily on external tools.
 
+mod latex_to_pdf;
+pub use latex_to_pdf::*;
+
 mod pdf_to_md;
 pub use pdf_to_md::*;
