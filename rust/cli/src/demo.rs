@@ -36,6 +36,7 @@ pub struct Demo {
 }
 
 impl Demo {
+    #[allow(clippy::print_stderr)]
     #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
         let doc = Document::open(&self.input, None).await?;

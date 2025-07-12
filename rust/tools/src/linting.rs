@@ -16,7 +16,12 @@ impl Tool for Ruff {
     }
 
     fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
-        vec![Box::new(Uv), Box::new(Mise), Box::new(Devbox), Box::new(Apt)]
+        vec![
+            Box::new(Uv),
+            Box::new(Mise),
+            Box::new(Devbox),
+            Box::new(Apt),
+        ]
     }
 
     fn installation_script(&self) -> Option<(&'static str, Vec<&'static str>)> {

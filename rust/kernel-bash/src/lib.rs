@@ -238,10 +238,8 @@ echo $value",
         assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].message, "syntax error: unexpected end of file");
         assert!(messages[0].code_location.is_some());
-        assert_eq!(
-            messages[0].code_location.as_ref().unwrap().start_line,
-            Some(0)
-        );
+        let loc = messages[0].code_location.as_ref().expect("should be some");
+        assert_eq!(loc.start_line, Some(0));
         assert_eq!(outputs, vec![]);
 
         let (outputs, messages) = instance.execute("foo").await?;
@@ -251,7 +249,7 @@ echo $value",
 
         // Check code location
         assert!(messages[0].code_location.is_some());
-        let loc = messages[0].code_location.as_ref().unwrap();
+        let loc = messages[0].code_location.as_ref().expect("should be some");
         assert_eq!(loc.start_line, Some(0));
         assert_eq!(outputs, vec![]);
 
@@ -260,7 +258,7 @@ echo $value",
         assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].message, "FOO: command not found");
         assert!(messages[0].code_location.is_some());
-        let loc = messages[0].code_location.as_ref().unwrap();
+        let loc = messages[0].code_location.as_ref().expect("should be some");
         assert_eq!(loc.start_line, Some(1));
         // Should have output from echo commands
         assert_eq!(outputs.len(), 1);
@@ -271,10 +269,8 @@ echo $value",
         assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].message, "BADCMD: command not found");
         assert!(messages[0].code_location.is_some());
-        assert_eq!(
-            messages[0].code_location.as_ref().unwrap().start_line,
-            Some(2)
-        );
+        let loc = messages[0].code_location.as_ref().expect("should be some");
+        assert_eq!(loc.start_line, Some(2));
         assert_eq!(outputs.len(), 1);
         assert_eq!(outputs[0], Node::String("start\nmiddle\n".to_string()));
 
@@ -285,10 +281,8 @@ echo $value",
         assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].message, "BADCMD1: command not found");
         assert!(messages[0].code_location.is_some());
-        assert_eq!(
-            messages[0].code_location.as_ref().unwrap().start_line,
-            Some(0)
-        );
+        let loc = messages[0].code_location.as_ref().expect("should be some");
+        assert_eq!(loc.start_line, Some(0));
         assert_eq!(outputs.len(), 1);
         assert_eq!(outputs[0], Node::String("recovered\nhello\n".to_string()));
 
