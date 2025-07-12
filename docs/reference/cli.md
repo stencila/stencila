@@ -8,12 +8,13 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila new`↴](#stencila-new)
 * [`stencila init`↴](#stencila-init)
 * [`stencila config`↴](#stencila-config)
+* [`stencila status`↴](#stencila-status)
 * [`stencila add`↴](#stencila-add)
 * [`stencila remove`↴](#stencila-remove)
 * [`stencila move`↴](#stencila-move)
 * [`stencila track`↴](#stencila-track)
 * [`stencila untrack`↴](#stencila-untrack)
-* [`stencila status`↴](#stencila-status)
+* [`stencila clean`↴](#stencila-clean)
 * [`stencila rebuild`↴](#stencila-rebuild)
 * [`stencila query`↴](#stencila-query)
 * [`stencila convert`↴](#stencila-convert)
@@ -28,6 +29,7 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila publish zenodo`↴](#stencila-publish-zenodo)
 * [`stencila publish ghost`↴](#stencila-publish-ghost)
 * [`stencila publish stencila`↴](#stencila-publish-stencila)
+* [`stencila demo`↴](#stencila-demo)
 * [`stencila serve`↴](#stencila-serve)
 * [`stencila lsp`↴](#stencila-lsp)
 * [`stencila prompts`↴](#stencila-prompts)
@@ -78,22 +80,22 @@ CLI subcommands and global options
 
 Examples
   # Get help on all available commands
-  > stencila --help
+  stencila --help
 
   # Create a new document
-  > stencila new article.md
+  stencila new article.md
 
   # Convert a document to another format
-  > stencila convert input.md output.pdf
+  stencila convert input.md output.pdf
 
   # Check available formats
-  > stencila formats list
+  stencila formats list
 
   # Execute a document
-  > stencila execute notebook.myst
+  stencila execute notebook.myst
 
   # Preview a document with hot reloading
-  > stencila preview document.md
+  stencila preview document.md
 
 
 ###### **Subcommands:**
@@ -101,12 +103,13 @@ Examples
 * `new` — Create a new, tracked, document
 * `init` — Initialize a workspace
 * `config` — Display the configuration for a document
+* `status` — Get the tracking status of documents
 * `add` — Add documents to the workspace database
 * `remove` — Remove documents from the workspace database
 * `move` — Move a tracked document
 * `track` — Start tracking a document
 * `untrack` — Stop tracking a document
-* `status` — Get the tracking status of documents
+* `clean` — Clean the current workspace
 * `rebuild` — Rebuild a workspace database
 * `query` — Query a workspace database
 * `convert` — Convert a document to another format
@@ -118,6 +121,7 @@ Examples
 * `render` — Render a document
 * `preview` — Preview a document
 * `publish` — Publish one or more documents
+* `demo` — Run a terminal demonstration from a document
 * `serve` — Run the HTTP/Websocket server
 * `lsp` — Run the Language Server Protocol server
 * `prompts` — Manage prompts
@@ -142,6 +146,7 @@ Examples
 * `--debug` — Display debug level logging and detailed error reports
 
    For trace level logging, --trace is also available (but for brevity not listed). See documentation for other logging options --log-level, --log-format, log-filter.
+* `--no-color` — Do not color any output
 
 
 
@@ -153,19 +158,19 @@ Create a new, tracked, document
 
 Examples
   # Create a new article (default)
-  > stencila new my-article.md
+  stencila new my-article.md
 
   # Create a new chat document
-  > stencila new conversation.md --type chat
+  stencila new conversation.md --type chat
 
   # Create a new AI prompt
-  > stencila new template.md --type prompt
+  stencila new template.md --type prompt
 
   # Create a document in a subdirectory
-  > stencila new docs/report.md
+  stencila new docs/report.md
 
   # Overwrite an existing document
-  > stencila new existing.md --force
+  stencila new existing.md --force
 
 
 ###### **Arguments:**
@@ -190,15 +195,15 @@ Initialize a workspace
 
 **Usage:** `stencila init [OPTIONS] [DIR]`
 
-Examples
+
   # Initialize current directory as a Stencila workspace
-  > stencila init
+  stencila init
 
   # Initialize a specific directory
-  > stencila init ./my-project
+  stencila init ./my-project
 
   # Initialize without creating .gitignore
-  > stencila init --no-gitignore
+  stencila init --no-gitignore
 
 Note
   This creates a .stencila directory for workspace configuration
@@ -228,7 +233,7 @@ Display the configuration for a document
 
 Examples
   # Show configuration for a document
-  > stencila config document.md
+  stencila config document.md
 
 Note
   Shows both the configuration sources (from workspace,
@@ -242,6 +247,40 @@ Note
 
 
 
+## `stencila status`
+
+Get the tracking status of documents
+
+**Usage:** `stencila status [OPTIONS] [FILES]...`
+
+Examples
+  # Show status of all tracked documents
+  stencila status
+
+  # Show status of specific documents
+  stencila status document.md report.md
+
+  # Output status as JSON
+  stencila status --as json
+
+Status Information
+  Shows modification times, storage status, and sync
+  information for tracked documents and their remotes.
+
+
+###### **Arguments:**
+
+* `<FILES>` — The paths of the files to get status for
+
+###### **Options:**
+
+* `-a`, `--as <AS>` — Output the status as JSON or YAML
+
+  Possible values: `json`, `yaml`
+
+
+
+
 ## `stencila add`
 
 Add documents to the workspace database
@@ -250,13 +289,13 @@ Add documents to the workspace database
 
 Examples
   # Add a single document to workspace database
-  > stencila add document.md
+  stencila add document.md
 
   # Add multiple documents
-  > stencila add *.md docs/*.md
+  stencila add *.md docs/*.md
 
   # Add all Markdown files recursively
-  > stencila add **/*.md
+  stencila add **/*.md
 
 Note
   This adds documents to the workspace database for
@@ -278,13 +317,13 @@ Remove documents from the workspace database
 
 Examples
   # Remove a document from workspace database
-  > stencila remove document.md
+  stencila remove document.md
 
   # Remove multiple documents
-  > stencila remove *.md docs/*.md
+  stencila remove *.md docs/*.md
 
   # Use the rm alias
-  > stencila rm old-document.md
+  stencila rm old-document.md
 
 Note
   This removes documents from the workspace database
@@ -308,16 +347,16 @@ Moves the document file to the new path (if it still exists at the old path) and
 
 Examples
   # Move a tracked document
-  > stencila move old-name.md new-name.md
+  stencila move old-name.md new-name.md
 
   # Move to a different directory
-  > stencila move document.md docs/document.md
+  stencila move document.md docs/document.md
 
   # Force overwrite if destination exists
-  > stencila move source.md target.md --force
+  stencila move source.md target.md --force
 
   # Use the mv alias
-  > stencila mv old.md new.md
+  stencila mv old.md new.md
 
 Note
   This updates both the file system and tracking
@@ -344,13 +383,13 @@ Start tracking a document
 
 Examples
   # Start tracking a local document
-  > stencila track document.md
+  stencila track document.md
 
   # Track a document with remote URL
-  > stencila track document.md https://example.com/api/docs/123
+  stencila track document.md https://example.com/api/docs/123
 
   # Track multiple documents
-  > stencila track *.md
+  stencila track *.md
 
 Note
   Tracking enables version control, synchronization,
@@ -373,18 +412,17 @@ Stop tracking a document
 
 Examples
   # Stop tracking a document
-  > stencila untrack document.md
+  stencila untrack document.md
 
   # Stop tracking a remote URL for a document
-  > stencila untrack document.md https://example.com/api/docs/123
+  stencila untrack document.md https://example.com/api/docs/123
 
-  # Stop tracking all deleted files
-  > stencila untrack deleted
+  # Stop tracking all tracked files
+  stencila untrack all
 
 Note
   This removes the document from tracking but does not
-  delete the file itself. Use 'deleted' to clean up
-  tracking for files that no longer exist.
+  delete the file itself.
 
 
 ###### **Arguments:**
@@ -396,36 +434,17 @@ Note
 
 
 
-## `stencila status`
+## `stencila clean`
 
-Get the tracking status of documents
+Clean the current workspace
 
-**Usage:** `stencila status [OPTIONS] [FILES]...`
+Untracks any deleted files and removes any unnecessary files from the .stencila folder in the current workspace.
+
+**Usage:** `stencila clean`
 
 Examples
-  # Show status of all tracked documents
-  > stencila status
-
-  # Show status of specific documents
-  > stencila status document.md report.md
-
-  # Output status as JSON
-  > stencila status --as json
-
-Status Information
-  Shows modification times, storage status, and sync
-  information for tracked documents and their remotes.
-
-
-###### **Arguments:**
-
-* `<FILES>` — The paths of the files to get status for
-
-###### **Options:**
-
-* `-a`, `--as <AS>` — Output the status as JSON or YAML
-
-  Possible values: `json`, `yaml`
+  # Clean the .stencila folder for the current workspace
+  stencila clean
 
 
 
@@ -438,10 +457,10 @@ Rebuild a workspace database
 
 Examples
   # Rebuild database for current workspace
-  > stencila rebuild
+  stencila rebuild
 
   # Rebuild database for specific workspace
-  > stencila rebuild ./my-project
+  stencila rebuild ./my-project
 
 Note
   This recreates the workspace database from scratch,
@@ -467,16 +486,16 @@ Query a workspace database
 
 Examples
   # Query the workspace database
-  > stencila query "workspace.paragraphs()"
+  stencila query "workspace.paragraphs()"
 
   # Query a specific document
-  > stencila query article.qmd "paragraphs().sample(3)"
+  stencila query article.qmd "paragraphs().sample(3)"
 
   # Query with output to file
-  > stencila query report.myst "headings(.level == 1)" headings.md
+  stencila query report.myst "headings(.level == 1)" headings.md
 
   # Use Cypher query language
-  > stencila query doc.ipynb --cypher "MATCH (h:Heading) WHERE h.level = 1 RETURN h"
+  stencila query doc.ipynb --cypher "MATCH (h:Heading) WHERE h.level = 1 RETURN h"
 
 
 ###### **Arguments:**
@@ -521,26 +540,26 @@ Convert a document to another format
 **Usage:** `stencila convert [OPTIONS] [INPUT] [OUTPUTS]... [-- <TOOL_ARGS>...]`
 
 Examples
-  # Convert Stencila Markdown to MyST MArkdown
-  > stencila convert document.smd document.myst
+  # Convert Stencila Markdown to MyST Markdown
+  stencila convert document.smd document.myst
 
   # Convert to multiple output formats
-  > stencila convert input.smd output.html output.pdf output.docx
+  stencila convert input.smd output.html output.pdf output.docx
 
   # Specify input and output formats explicitly
-  > stencila convert input.txt output.json --from plain --to json
+  stencila convert input.txt output.json --from plain --to json
 
   # Convert with specific codec options
-  > stencila convert doc.md doc.html --standalone
+  stencila convert doc.md doc.html --standalone
 
   # Use an external tool like Pandoc
-  > stencila convert doc.md doc.tex --tool pandoc
+  stencila convert doc.md doc.tex --tool pandoc
 
   # Pass arguments to external tool
-  > stencila convert doc.md doc.pdf --tool pandoc -- --pdf-engine=xelatex
+  stencila convert doc.md doc.pdf --tool pandoc -- --pdf-engine=xelatex
 
   # Convert from stdin to stdout (defaults to JSON)
-  > echo "# Hello" | stencila convert
+  echo "# Hello" | stencila convert
 
 
 ###### **Arguments:**
@@ -649,16 +668,16 @@ Merge changes from another format
 
 Examples
   # Merge changes from an edited DOCX back to Stencila Markdown
-  > stencila merge edited.docx --original document.smd
+  stencila merge edited.docx --original document.smd
 
   # Merge with both original and unedited versions specified
-  > stencila merge edited.docx --original source.qmd --unedited generated.docx
+  stencila merge edited.docx --original source.qmd --unedited generated.docx
 
   # Merge changes from a specific Git commit
-  > stencila merge edited.docx --original document.myst --commit abc123
+  stencila merge edited.docx --original document.myst --commit abc123
 
   # Merge with custom working directory for inspection
-  > stencila merge edited.docx --original document.md --workdir ./merge-work
+  stencila merge edited.docx --original document.md --workdir ./merge-work
 
 
 ###### **Arguments:**
@@ -740,22 +759,22 @@ The direction of synchronization can be specified by appending the to the file p
 
 Examples
   # Sync a Markdown document with HTML (bidirectional)
-  > stencila sync document.md preview.html
+  stencila sync document.md preview.html
 
   # Sync with multiple formats
-  > stencila sync source.md output.html output.pdf
+  stencila sync source.md output.html output.pdf
 
   # Sync only incoming changes from HTML
-  > stencila sync document.md edited.html:in
+  stencila sync document.md edited.html:in
 
   # Sync only outgoing changes to PDF
-  > stencila sync document.md output.pdf:out
+  stencila sync document.md output.pdf:out
 
   # Mixed sync directions
-  > stencila sync main.md preview.html:out edits.docx:in
+  stencila sync main.md preview.html:out edits.docx:in
 
   # Sync with custom encoding options
-  > stencila sync doc.md output.html --standalone
+  stencila sync doc.md output.html --standalone
 
 Sync Directions
   • :in - Only accept incoming changes from the file
@@ -863,10 +882,10 @@ Compile a document
 
 Examples
   # Compile a document to check for errors
-  > stencila compile document.md
+  stencila compile document.md
 
   # Compile without updating in document store
-  > stencila compile temp.md --no-store
+  stencila compile temp.md --no-store
 
 Note
   Compiling a document checks for source path errors in
@@ -912,19 +931,19 @@ Lint one or more documents
 
 Examples
   # Lint a single document
-  > stencila lint document.smd
+  stencila lint document.smd
 
   # Lint multiple documents
-  > stencila lint *.qmd docs/*
+  stencila lint *.qmd docs/*
 
   # Auto-format documents during linting
-  > stencila lint report.myst --format
+  stencila lint report.myst --format
 
   # Auto-fix linting issues
-  > stencila lint article.smd --fix
+  stencila lint article.smd --fix
 
   # Output diagnostics as YAML
-  > stencila lint article.myst --as yaml
+  stencila lint article.myst --as yaml
 
 
 ###### **Arguments:**
@@ -953,16 +972,16 @@ Execute a document
 
 Examples
   # Execute a Stencila Markdown document
-  > stencila execute report.smd
+  stencila execute report.smd
 
   # Execute without updating the document store
-  > stencila execute temp.md --no-store
+  stencila execute temp.md --no-store
 
   # Force re-execution of all code
-  > stencila execute cached.ipynb --force-all
+  stencila execute cached.ipynb --force-all
 
   # Execute using the shorthand alias
-  > stencila exec script.r
+  stencila exec script.r
 
 
 ###### **Arguments:**
@@ -1025,25 +1044,25 @@ Render a document
 
 Examples
   # Render a document and preview in browser
-  > stencila render document.smd
+  stencila render document.smd
 
   # Render to a specific output format
-  > stencila render report.md report.docx
+  stencila render report.md report.docx
 
   # Render to multiple formats
-  > stencila render analysis.md output.html output.pdf
+  stencila render analysis.md output.html output.pdf
 
   # Render from stdin to stdout
-  > echo "# Hello" | stencila render --to html
+  echo "# Hello" | stencila render --to html
 
   # Render with document parameters
-  > stencila render template.md output.html -- --name="John" --year=2024
+  stencila render template.md output.html -- --name="John" --year=2024
 
   # Render ignoring execution errors
-  > stencila render notebook.md report.pdf --ignore-errors
+  stencila render notebook.md report.pdf --ignore-errors
 
   # Render without updating the document store
-  > stencila render temp.md output.html --no-store
+  stencila render temp.md output.html --no-store
 
 
 ###### **Arguments:**
@@ -1177,16 +1196,16 @@ When `--sync=in` (the default) the preview will update when the document is chan
 
 Examples
   # Preview a specific document
-  > stencila preview document.md
+  stencila preview document.md
 
   # Preview from current directory (finds index/main/readme)
-  > stencila preview
+  stencila preview
 
   # Preview a document in a specific folder
-  > stencila preview docs/
+  stencila preview docs/
 
   # Preview without syncing (static preview)
-  > stencila preview report.pdf --sync none
+  stencila preview report.pdf --sync none
 
 ###### **Arguments:**
 
@@ -1458,6 +1477,121 @@ Publish to Stencila Cloud
 
 
 
+## `stencila demo`
+
+Run a terminal demonstration from a document
+
+**Usage:** `stencila demo [OPTIONS] <INPUT> [OUTPUT] [-- <AGG_ARGS>...]`
+
+Examples
+  # Demo a document in the terminal (uses natural preset by default)
+  stencila demo document.md
+
+  # Record a demo to an animated GIF
+  stencila demo document.md demo.gif
+
+  # Use fast preset for quick, smooth typing
+  stencila demo document.md --preset fast
+
+  # Use fast preset but add some typing variance
+  stencila demo document.md --preset fast --speed-variance 0.2
+
+  # Use fast preset but extend the maximum duration of running times
+  stencila demo document.md --preset fast --min-running 2000 --max-running 4000
+
+  # Use instant preset for immediate results
+  stencila demo document.md --preset instant
+
+  # Disable syntax highlighting for code blocks
+  stencila demo document.md --no-highlighting
+
+
+###### **Arguments:**
+
+* `<INPUT>` — The path of the document to demo
+* `<OUTPUT>` — The path of the recording to generate
+
+   Supported output formats are GIF, MP4 and ASCIICast and will be determined from the file extension.
+* `<AGG_ARGS>` — Arguments to pass through to `agg` when recoding to GIF
+
+   See `agg --help`, or `stencila tools run agg --help`
+
+###### **Options:**
+
+* `--preset <PRESET>` — Preset for demo style
+
+  Default value: `natural`
+
+  Possible values:
+  - `slow`:
+    Slower typing with some typos and hesitation
+  - `natural`:
+    Average WPM, typo and hesitation rate
+  - `fast`:
+    200 WPM, no hesitation, no typos, consistent code running time
+  - `instant`:
+    Very high WPM and zero code running times
+
+* `--speed <SPEED>` — Typing speed in words per minute
+
+  Default value: `100`
+* `--speed-variance <SPEED_VARIANCE>` — Variance in typing speed (0.0 to 1.0)
+
+  Default value: `0.3`
+* `--punctuation-pause <PUNCTUATION_PAUSE>` — How long to pause after punctuation (milliseconds)
+
+  Default value: `200`
+* `--typo-rate <TYPO_RATE>` — Probability of making a typo (0.0 to 1.0)
+
+  Default value: `0`
+* `--typo-pause <TYPO_PAUSE>` — How long to pause after typos before correcting (milliseconds)
+
+  Default value: `500`
+* `--hesitation-rate <HESITATION_RATE>` — Probability of brief hesitation (0.0 to 1.0)
+
+  Default value: `0`
+* `--hesitation-duration <HESITATION_DURATION>` — Hesitation duration in milliseconds
+
+  Default value: `100`
+* `--no-highlighting` — Do not apply syntax highlighting to code
+* `--min-running <MIN_RUNNING>` — Minimum duration for running spinner in milliseconds
+
+   The execution duration of executable nodes will be used for the spinner duration, but will be clamped to this minimum value.
+
+  Default value: `500`
+* `--max-running <MAX_RUNNING>` — Maximum duration for running spinner in milliseconds
+
+   The execution duration of executable nodes will be used for the spinner duration, but will be clamped to this maximum value.
+
+  Default value: `5000`
+* `--ignore-errors` — Ignore any errors while executing document
+* `--no-execute` — Do not execute the document before running the demo
+* `--no-store` — Do not store the document after executing it
+* `--force-all` — Re-execute all node types regardless of current state
+* `--skip-code` — Skip executing code
+
+   By default, code-based nodes in the document (e.g. `CodeChunk`, `CodeExpression`, `ForBlock`) nodes will be executed if they are stale. Use this flag to skip executing all code-based nodes.
+* `--skip-instructions` — Skip executing instructions
+
+   By default, instructions with no suggestions, or with suggestions that have been rejected will be executed. Use this flag to skip executing all instructions.
+* `--retain-suggestions` — Retain existing suggestions for instructions
+
+   By default, when you execute an instruction, the existing suggestions for the instruction are deleted. Use this flag to retain existing suggestions, for example, so that you can use a previous one if a revision is worse.
+* `--force-unreviewed` — Re-execute instructions with suggestions that have not yet been reviewed
+
+   By default, an instruction that has a suggestion that has not yet be reviewed (i.e. has a suggestion status that is empty) will not be re-executed. Use this flag to force these instructions to be re-executed.
+* `--force-accepted` — Re-execute instructions with suggestions that have been accepted.
+
+   By default, an instruction that has a suggestion that has been accepted, will not be re-executed. Use this flag to force these instructions to be re-executed.
+* `--skip-rejected` — Skip re-executing instructions with suggestions that have been rejected
+
+   By default, instructions that have a suggestion that has been rejected, will be re-executed. Use this flag to skip re-execution of these instructions.
+* `--dry-run` — Prepare, but do not actually perform, execution tasks
+
+   Currently only supported by instructions where it is useful for debugging the rendering of prompts without making a potentially slow generative model API request.
+
+
+
 ## `stencila serve`
 
 Run the HTTP/Websocket server
@@ -1516,19 +1650,19 @@ Manage prompts
 
 Examples
   # List all available prompts
-  > stencila prompts
+  stencila prompts
 
   # Show details about a specific prompt
-  > stencila prompts show edit-text
+  stencila prompts show edit-text
 
   # Infer which prompt would be used for a query
-  > stencila prompts infer --instruction-type create "Make a table"
+  stencila prompts infer --instruction-type create "Make a table"
 
   # Update builtin prompts from remote
-  > stencila prompts update
+  stencila prompts update
 
   # Reset prompts to embedded defaults
-  > stencila prompts reset
+  stencila prompts reset
 
 
 ###### **Subcommands:**
@@ -1551,10 +1685,10 @@ Shows all available prompts with their names, descriptions, and versions.
 
 Examples
   # List all prompts in table format
-  > stencila prompts list
+  stencila prompts list
 
   # Output prompts as JSON
-  > stencila prompts list --as json
+  stencila prompts list --as json
 
 
 ###### **Options:**
@@ -1576,10 +1710,10 @@ Displays the full content and metadata of a specific prompt in the requested for
 
 Examples
   # Show a prompt as Markdown
-  > stencila prompts show edit-text
+  stencila prompts show edit-text
 
   # Show a prompt as JSON
-  > stencila prompts show create-table --to json
+  stencila prompts show create-table --to json
 
 
 ###### **Arguments:**
@@ -1604,10 +1738,10 @@ Useful for checking which prompt will be matched to a given instruction type, no
 
 Examples
   # Infer prompt with a specific query
-  > stencila prompts infer "Update this paragraph based on latest data"
+  stencila prompts infer "Update this paragraph based on latest data"
 
   # Infer for a specific instruction type
-  > stencila prompts infer --instruction-type create "list of top regions"
+  stencila prompts infer --instruction-type create "list of top regions"
 
 
 ###### **Arguments:**
@@ -1631,7 +1765,7 @@ Downloads the latest versions of builtin prompts from the Stencila prompts repos
 
 Examples
   # Update builtin prompts from https://github.com/stencila/stencila
-  > stencila prompts update
+  stencila prompts update
 
 
 
@@ -1646,7 +1780,7 @@ Re-initializes the builtin prompts directory to those prompts embedded in this v
 
 Examples
   # Reset prompts to embedded defaults
-  > stencila prompts reset
+  stencila prompts reset
 
 Warning
   This will overwrite any custom modifications you have
@@ -1664,19 +1798,19 @@ Manage generative models
 
 Examples
   # List all available models
-  > stencila models
+  stencila models
 
   # List models as JSON
-  > stencila models list --as json
+  stencila models list --as json
 
   # Test a model with a prompt
-  > stencila models run "Explain photosynthesis"
+  stencila models run "Explain photosynthesis"
 
   # Test a specific model
-  > stencila models run "Write a poem" --model gpt-4o
+  stencila models run "Write a poem" --model gpt-4o
 
   # Dry run to see task construction
-  > stencila models run "Hello" --dry-run
+  stencila models run "Hello" --dry-run
 
 Model Types
   • builtin - Built into Stencila
@@ -1701,10 +1835,10 @@ List the models available
 
 Examples
   # List all models in table format
-  > stencila models list
+  stencila models list
 
   # Output models as YAML
-  > stencila models list --as yaml
+  stencila models list --as yaml
 
 
 ###### **Options:**
@@ -1726,16 +1860,16 @@ Mainly intended for testing of model selection and routing. Displays the task se
 
 Examples
   # Run with automatic model selection
-  > stencila models run "Explain quantum computing"
+  stencila models run "Explain quantum computing"
 
   # Run with a specific model
-  > stencila models run "Write a haiku" --model gpt-3.5-turbo
+  stencila models run "Write a haiku" --model gpt-3.5-turbo
 
   # Run a dry run to see task construction
-  > stencila models run "Hello world" --dry-run
+  stencila models run "Hello world" --dry-run
 
   # Use the execute alias
-  > stencila models execute "Summarize this text"
+  stencila models execute "Summarize this text"
 
 Note
   This command is primarily for testing model routing and selection.
@@ -1760,19 +1894,19 @@ Manage execution kernels
 
 Examples
   # List all available kernels
-  > stencila kernels
+  stencila kernels
 
   # Get information about a specific kernel
-  > stencila kernels info python
+  stencila kernels info python
 
   # List packages available to a kernel
-  > stencila kernels packages r
+  stencila kernels packages r
 
   # Execute code in a kernel
-  > stencila kernels execute python "print('Hello')"
+  stencila kernels execute python "print('Hello')"
 
   # Lint code using a kernel's linting tool integrations
-  > stencila kernels lint script.py
+  stencila kernels lint script.py
 
 
 ###### **Subcommands:**
@@ -1794,13 +1928,13 @@ List the kernels available
 
 Examples
   # List all available kernels
-  > stencila kernels list
+  stencila kernels list
 
   # List only math kernels
-  > stencila kernels list --type math
+  stencila kernels list --type math
 
   # Output kernel list as YAML
-  > stencila kernels list --as yaml
+  stencila kernels list --as yaml
 
 
 ###### **Options:**
@@ -1826,13 +1960,13 @@ Mainly used to check the version of the kernel runtime and operating system for 
 
 Examples
   # Get information about the Python kernel
-  > stencila kernels info python
+  stencila kernels info python
 
   # Get information about the R kernel
-  > stencila kernels info r
+  stencila kernels info r
 
   # Get information about the JavaScript kernel
-  > stencila kernels info javascript
+  stencila kernels info javascript
 
 
 ###### **Arguments:**
@@ -1851,13 +1985,13 @@ Mainly used to check libraries available to a kernel for debugging purpose.
 
 Examples
   # List all packages available to Python kernel
-  > stencila kernels packages python
+  stencila kernels packages python
 
   # Filter packages by name (case insensitive)
-  > stencila kernels packages python numpy
+  stencila kernels packages python numpy
 
   # List R packages containing 'plot'
-  > stencila kernels packages r plot
+  stencila kernels packages r plot
 
 
 ###### **Arguments:**
@@ -1881,16 +2015,16 @@ Mainly intended for quick testing of kernels during development.
 
 Examples
   # Execute Python code
-  > stencila kernels execute python "print('Hello World')"
+  stencila kernels execute python "print('Hello World')"
 
   # Execute multi-line code with escaped newlines
-  > stencila kernels execute python "x = 5\nprint(x * 2)"
+  stencila kernels execute python "x = 5\nprint(x * 2)"
 
   # Execute code in a sandboxed environment
-  > stencila kernels execute python "import os\nprint(os.environ)" --box
+  stencila kernels execute python "import os\nprint(os.environ)" --box
 
   # Use the exec alias
-  > stencila kernels exec r "print(mean(c(1,2,3,4,5)))"
+  stencila kernels exec r "print(mean(c(1,2,3,4,5)))"
 
 
 ###### **Arguments:**
@@ -1918,16 +2052,16 @@ Mainly intended for quick testing of kernels during development.
 
 Examples
   # Evaluate a Python expression
-  > stencila kernels evaluate python "2 + 2"
+  stencila kernels evaluate python "2 + 2"
 
   # Evaluate an R expression
-  > stencila kernels evaluate r "sqrt(16)"
+  stencila kernels evaluate r "sqrt(16)"
 
   # Evaluate a JavaScript expression
-  > stencila kernels evaluate javascript "Math.PI * 2"
+  stencila kernels evaluate javascript "Math.PI * 2"
 
   # Use the eval alias
-  > stencila kernels eval python "sum([1, 2, 3, 4, 5])"
+  stencila kernels eval python "sum([1, 2, 3, 4, 5])"
 
 
 ###### **Arguments:**
@@ -1949,16 +2083,16 @@ Mainly intended for testing of linting by kernels during development of Stencila
 
 Examples
   # Lint a Python file
-  > stencila kernels lint script.py
+  stencila kernels lint script.py
 
   # Lint and format a JavaScript file
-  > stencila kernels lint app.js --format
+  stencila kernels lint app.js --format
 
   # Lint and fix issues where possible
-  > stencila kernels lint code.r --fix
+  stencila kernels lint code.r --fix
 
   # Lint with both formatting and fixing
-  > stencila kernels lint style.css --format --fix
+  stencila kernels lint style.css --format --fix
 
 
 ###### **Arguments:**
@@ -1978,12 +2112,12 @@ List the support for formats
 
 **Usage:** `stencila formats [COMMAND]`
 
-Examples
+
   # List all supported formats
-  > stencila formats list
+  stencila formats list
 
   # Output formats as JSON
-  > stencila formats list --as json
+  stencila formats list --as json
 
 Format Support
   • From: Whether the format can be read/imported
@@ -2003,12 +2137,12 @@ List the support for formats
 
 **Usage:** `stencila formats list [OPTIONS]`
 
-Examples
+
   # List all supported formats in table format
-  > stencila formats list
+  stencila formats list
 
   # Export format information as JSON
-  > stencila formats list --as json
+  stencila formats list --as json
 
 Columns
   • Name: The format name
@@ -2035,28 +2169,28 @@ Manage plugins
 
 Examples
   # List all available plugins
-  > stencila plugins
+  stencila plugins
 
   # Install a plugin from a URL
-  > stencila plugins install https://github.com/user/plugin.git
+  stencila plugins install https://github.com/user/plugin.git
 
   # Install a plugin from a local directory
-  > stencila plugins install ./my-plugin
+  stencila plugins install ./my-plugin
 
   # Show details about a plugin
-  > stencila plugins show my-plugin
+  stencila plugins show my-plugin
 
   # Enable a plugin
-  > stencila plugins enable my-plugin
+  stencila plugins enable my-plugin
 
   # Disable a plugin
-  > stencila plugins disable my-plugin
+  stencila plugins disable my-plugin
 
   # Check plugin health
-  > stencila plugins check my-plugin
+  stencila plugins check my-plugin
 
   # Uninstall a plugin
-  > stencila plugins uninstall my-plugin
+  stencila plugins uninstall my-plugin
 
 Plugin Management
   Plugins can extend Stencila's functionality by adding support for
@@ -2192,20 +2326,20 @@ Manage secrets
 
 Examples
   # List all configured secrets
-  > stencila secrets
+  stencila secrets
 
   # Set a secret interactively (prompts for value)
-  > stencila secrets set STENCILA_API_TOKEN
+  stencila secrets set STENCILA_API_TOKEN
 
   # Set a secret from stdin (pipe the value)
-  > echo "sk-abc123..." | stencila secrets set OPENAI_API_KEY
+  echo "sk-abc123..." | stencila secrets set OPENAI_API_KEY
 
   # Delete a secret
-  > stencila secrets delete ANTHROPIC_API_KEY
+  stencila secrets delete ANTHROPIC_API_KEY
 
   # Use the add/remove aliases
-  > stencila secrets add MY_SECRET
-  > stencila secrets remove MY_SECRET
+  stencila secrets add MY_SECRET
+  stencila secrets remove MY_SECRET
 
 Security
   Secrets are stored securely using your system's keyring.
@@ -2239,18 +2373,18 @@ You will be prompted for the secret. Alternatively, you can echo the password in
 
 Examples
   # Set a secret interactively (you'll be prompted)
-  > stencila secrets set OPENAI_API_KEY
+  stencila secrets set OPENAI_API_KEY
 
   # Set a secret from stdin
-  > echo "sk-abc123..." | stencila secrets set OPENAI_API_KEY
+  echo "sk-abc123..." | stencila secrets set OPENAI_API_KEY
 
   # Set API tokens for different services
-  > stencila secrets set ANTHROPIC_API_KEY
-  > stencila secrets set GOOGLE_API_KEY
-  > stencila secrets set STENCILA_API_TOKEN
+  stencila secrets set ANTHROPIC_API_KEY
+  stencila secrets set GOOGLE_API_KEY
+  stencila secrets set STENCILA_API_TOKEN
 
   # Use the add alias
-  > stencila secrets add MY_SECRET
+  stencila secrets add MY_SECRET
 
 Security
   When setting secrets interactively, your input will be
@@ -2272,14 +2406,14 @@ Delete a secret previously set using Stencila
 
 Examples
   # Delete a specific secret
-  > stencila secrets delete OPENAI_API_KEY
+  stencila secrets delete OPENAI_API_KEY
 
   # Delete API tokens
-  > stencila secrets delete ANTHROPIC_API_KEY
-  > stencila secrets delete GOOGLE_API_KEY
+  stencila secrets delete ANTHROPIC_API_KEY
+  stencila secrets delete GOOGLE_API_KEY
 
   # Use the remove alias
-  > stencila secrets remove MY_SECRET
+  stencila secrets remove MY_SECRET
 
 Warning
   This permanently removes the secret from your system's
@@ -2303,25 +2437,25 @@ Provides a unified interface for managing various tools including programming la
 
 Examples
   # List all available tools
-  > stencila tools
+  stencila tools
 
   # Show details about a specific tool
-  > stencila tools show python
+  stencila tools show python
 
   # Install a tool
-  > stencila tools install mise
+  stencila tools install mise
 
   # Install multiple tools
-  > stencila tools install mise uv ruff
+  stencila tools install mise uv ruff
 
   # Install all dependencies from config files
-  > stencila tools install
+  stencila tools install
 
   # Detect environment configuration in current directory
-  > stencila tools env
+  stencila tools env
 
   # Run a command with automatic environment detection
-  > stencila tools run -- python script.py
+  stencila tools run -- python script.py
 
 
 ###### **Subcommands:**
@@ -2344,22 +2478,22 @@ Displays a table of all tools that Stencila can manage, including their type, re
 
 Examples
   # List all tools
-  > stencila tools list
+  stencila tools list
 
   # List only installed tools
-  > stencila tools list --installed
+  stencila tools list --installed
 
   # List only installable tools
-  > stencila tools list --installable
+  stencila tools list --installable
 
   # List only execution tools (programming languages)
-  > stencila tools list --type execution
+  stencila tools list --type execution
 
   # Export tool list as Model Context Protocol tool specifications
-  > stencila tools list --as json
+  stencila tools list --as json
 
   # Display tool list as YAML
-  > stencila tools list --as yaml
+  stencila tools list --as yaml
 
 
 ###### **Options:**
@@ -2393,14 +2527,14 @@ Displays information about a tool including its name, URL, description, version 
 
 Examples
   # Show details about Pandoc
-  > stencila tools show pandoc
+  stencila tools show pandoc
 
   # Show details about uv
-  > stencila tools show uv
+  stencila tools show uv
 
 Supported tools
   # See which tools are installed
-  > stencila tools list --installed
+  stencila tools list --installed
 
 
 ###### **Arguments:**
@@ -2419,29 +2553,29 @@ When provided with one or more tool names as arguments, installs those tools. Wh
 
 Tool Installation Examples
   # Install mise (tool version manager)
-  > stencila tools install mise
+  stencila tools install mise
 
   # Install uv (Python package manager)
-  > stencila tools install uv
+  stencila tools install uv
 
   # Install multiple tools at once
-  > stencila tools install mise uv ruff
+  stencila tools install mise uv ruff
 
   # Force reinstall an already installed tool
-  > stencila tools install --force ruff
+  stencila tools install --force ruff
 
 Environment Setup Examples
   # Install all dependencies from config files in current directory
-  > stencila tools install
+  stencila tools install
 
   # Install dependencies from config files in specific directory
-  > stencila tools install -C /path/to/project
+  stencila tools install -C /path/to/project
 
-  # Show what would be installed without executing
-  > stencila tools install --dry-run
+  # Show what would be installed without actually installing
+  stencila tools install --dry-run
 
   # Skip Python dependencies during setup
-  > stencila tools install --skip-python
+  stencila tools install --skip-python
 
 Setup phases (when no tool specified)
   1. Install environment managers (mise, devbox, etc.) if needed
@@ -2451,7 +2585,7 @@ Setup phases (when no tool specified)
 
 Supported tools
   # See which tools can be installed
-  > stencila tools list --installable
+  stencila tools list --installable
 
 
 ###### **Arguments:**
@@ -2465,7 +2599,7 @@ Supported tools
 * `--skip-python` — Skip Python dependency installation (only when installing from configs)
 * `--skip-r` — Skip R dependency installation (only when installing from configs)
 * `-f`, `--force` — Force installation even if the tool is already installed
-* `--dry-run` — Show what would be done without executing (only when installing from configs)
+* `--dry-run` — Show which tools would be installed without actually installing them
 
 
 
@@ -2481,13 +2615,13 @@ Displays both the manager information and the content of the configuration files
 
 Examples
   # Check current directory for environment configuration
-  > stencila tools env
+  stencila tools env
 
   # Check a specific project directory
-  > stencila tools env /path/to/project
+  stencila tools env /path/to/project
 
   # Check parent directory
-  > stencila tools env ..
+  stencila tools env ..
 
 
 ###### **Arguments:**
@@ -2516,16 +2650,16 @@ Note
   
 Examples
   # Run Python script with automatic environment detection
-  > stencila tools run -- python script.py
+  stencila tools run -- python script.py
 
   # Run Python code
-  > stencila tools run -- python -c "print('hello')"
+  stencila tools run -- python -c "print('hello')"
 
   # Run from a different directory
-  > stencila tools run -C /path/to/project -- npm test
+  stencila tools run -C /path/to/project -- npm test
 
   # Run a complex command with multiple arguments
-  > stencila tools run -- pandoc input.md -o output.pdf --pdf-engine=xelatex
+  stencila tools run -- pandoc input.md -o output.pdf --pdf-engine=xelatex
 
 
 ###### **Arguments:**
@@ -2550,13 +2684,13 @@ Upgrade to the latest version
 
 Examples
   # Upgrade to the latest version
-  > stencila upgrade
+  stencila upgrade
 
   # Check if an upgrade is available without installing
-  > stencila upgrade --check
+  stencila upgrade --check
 
   # Force upgrade even if current version is latest
-  > stencila upgrade --force
+  stencila upgrade --force
 
 Note
   Upgrade downloads the latest release from GitHub and replaces
@@ -2578,7 +2712,7 @@ Uninstall this command line tool
 
 Examples
   # Uninstall Stencila CLI (with confirmation prompt)
-  > stencila uninstall
+  stencila uninstall
 
 Note
   This will permanently remove the Stencila CLI binary from your system.
