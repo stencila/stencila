@@ -30,6 +30,11 @@ impl Tool for Npm {
     fn config_files(&self) -> Vec<&'static str> {
         vec!["package.json"]
     }
+
+    fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
+        // Intentionally empty because npm is usually installed alongside nodejs
+        vec![]
+    }
 }
 
 pub struct Renv;
@@ -141,7 +146,7 @@ impl Tool for Uv {
     }
 
     fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
-        vec![Box::new(Devbox)]
+        vec![Box::new(Mise), Box::new(Devbox)]
     }
 
     fn installation_script(&self) -> Option<(&'static str, Vec<&'static str>)> {
