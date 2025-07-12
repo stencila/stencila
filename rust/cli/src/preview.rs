@@ -40,10 +40,8 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila preview</b>
 
   <dim># Preview a document in a specific folder</dim>
-  <b>stencila preview</b> <g>docs/</g>
-
-  <dim># Preview without syncing (static preview)</dim>
-  <b>stencila preview</b> <g>report.pdf</g> <c>--sync</c> <g>none</g>"
+  <b>stencila preview</b> <g>report/main.smd</g>
+"
 );
 
 impl Cli {
