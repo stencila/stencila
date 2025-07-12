@@ -372,7 +372,7 @@ impl Install {
     async fn run(self) -> Result<()> {
         // Set the dry run mode globally
         set_dry_run(self.dry_run);
-        
+
         if !self.names.is_empty() {
             // Install specific tools
             self.install_tools(&self.names).await
@@ -429,6 +429,11 @@ impl Install {
 
         match install_tool(tool.as_ref(), self.force, true).await {
             Ok(()) => {
+                if self.dry_run {
+                    eprintln!("📋 Would have installed {}", tool.name());
+                    return Ok(());
+                }
+
                 eprintln!("✅ {} installed successfully", tool.name());
 
                 // Verify installation
@@ -488,9 +493,6 @@ impl Install {
         let managers = detect_managers(path, &[ToolType::Environments]);
 
         if managers.is_empty() {
-            if self.dry_run {
-                eprintln!("📋 Would check for environment managers (none found)");
-            }
             return Ok(());
         }
 
