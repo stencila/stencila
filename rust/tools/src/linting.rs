@@ -1,5 +1,5 @@
 use crate::{
-    environments::{Devbox, Mise},
+    environments::{Apt, Devbox, Mise},
     packages::Uv,
     tool::{Tool, ToolType},
 };
@@ -16,7 +16,7 @@ impl Tool for Ruff {
     }
 
     fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
-        vec![Box::new(Uv), Box::new(Mise), Box::new(Devbox)]
+        vec![Box::new(Uv), Box::new(Mise), Box::new(Devbox), Box::new(Apt)]
     }
 
     fn installation_script(&self) -> Option<(&'static str, Vec<&'static str>)> {

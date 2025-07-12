@@ -2,7 +2,7 @@ use std::process::Command;
 
 use crate::{
     command::AsyncToolCommand,
-    environments::{Devbox, Mise},
+    environments::{Apt, Devbox, Mise},
     execution::{Python, R},
     tool::{Tool, ToolType, PACKAGE},
     ToolCommand,
@@ -146,7 +146,7 @@ impl Tool for Uv {
     }
 
     fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
-        vec![Box::new(Mise), Box::new(Devbox)]
+        vec![Box::new(Mise), Box::new(Devbox), Box::new(Apt)]
     }
 
     fn installation_script(&self) -> Option<(&'static str, Vec<&'static str>)> {

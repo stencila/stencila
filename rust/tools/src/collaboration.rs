@@ -1,5 +1,5 @@
 use crate::{
-    environments::Devbox,
+    environments::{Apt, Devbox},
     tool::{Tool, ToolType},
 };
 
@@ -23,6 +23,6 @@ impl Tool for Git {
     }
 
     fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
-        vec![Box::new(Devbox)]
+        vec![Box::new(Devbox), Box::new(Apt)]
     }
 }

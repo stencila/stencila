@@ -1,7 +1,7 @@
 use semver::Version;
 
 use crate::{
-    environments::{Devbox, Mise},
+    environments::{Apt, Devbox, Mise},
     packages::Uv,
     tool::{Tool, ToolType},
     VersionReq,
@@ -118,7 +118,7 @@ impl Tool for Pandoc {
     }
 
     fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
-        vec![Box::new(Mise), Box::new(Devbox)]
+        vec![Box::new(Mise), Box::new(Devbox), Box::new(Apt)]
     }
 }
 
@@ -142,6 +142,6 @@ impl Tool for Xelatex {
     }
 
     fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
-        vec![Box::new(Devbox)]
+        vec![Box::new(Devbox), Box::new(Apt)]
     }
 }

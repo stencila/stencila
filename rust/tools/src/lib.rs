@@ -35,14 +35,15 @@ use crate::tool::Tool;
 pub fn list() -> Vec<Box<dyn Tool>> {
     vec![
         // Environments
-        Box::new(Devbox),
         Box::new(Mise),
+        Box::new(Devbox),
         Box::new(Nix),
         Box::new(Pixi),
-        Box::new(Rig),
+        Box::new(Apt),
         // Packages
         Box::new(Npm),
         Box::new(Uv),
+        Box::new(Rig),
         Box::new(Renv),
         // Execution
         Box::new(Bash),

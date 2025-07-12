@@ -1,6 +1,6 @@
 use crate::{
     command::AsyncToolCommand,
-    environments::{Devbox, Mise},
+    environments::{Apt, Devbox, Mise},
     packages::{Rig, Uv},
     tool::{Tool, ToolType},
     ToolCommand, VersionReq,
@@ -26,7 +26,7 @@ impl Tool for Bash {
     }
 
     fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
-        vec![Box::new(Devbox)]
+        vec![Box::new(Devbox), Box::new(Apt)]
     }
 }
 
@@ -50,7 +50,7 @@ impl Tool for Node {
     }
 
     fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
-        vec![Box::new(Mise), Box::new(Devbox)]
+        vec![Box::new(Mise), Box::new(Devbox), Box::new(Apt)]
     }
 }
 
@@ -82,7 +82,12 @@ impl Tool for Python {
     }
 
     fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
-        vec![Box::new(Uv), Box::new(Mise), Box::new(Devbox)]
+        vec![
+            Box::new(Uv),
+            Box::new(Mise),
+            Box::new(Devbox),
+            Box::new(Apt),
+        ]
     }
 }
 
@@ -112,7 +117,7 @@ impl Tool for R {
     fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
         // At time of writing, `mise use asdf:r` is possible but involves a source compile
         // which is slow and error prone (many dev dependencies) so do not include Mise here
-        vec![Box::new(Rig), Box::new(Devbox)]
+        vec![Box::new(Rig), Box::new(Devbox), Box::new(Apt)]
     }
 
     fn install_tool(&self, tool: &dyn Tool, _force: bool) -> Option<AsyncToolCommand> {

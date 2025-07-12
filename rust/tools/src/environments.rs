@@ -5,6 +5,53 @@ use crate::{
     AsyncToolCommand,
 };
 
+pub struct Apt;
+
+impl Tool for Apt {
+    fn name(&self) -> &'static str {
+        "apt"
+    }
+
+    fn url(&self) -> &'static str {
+        "https://wiki.debian.org/Apt"
+    }
+
+    fn description(&self) -> &'static str {
+        "Package manager for Ubuntu and Debian systems"
+    }
+
+    fn r#type(&self) -> ToolType {
+        ToolType::Environments
+    }
+
+    fn executable_name(&self) -> &'static str {
+        "apt-get"
+    }
+
+    fn install_tool(&self, tool: &dyn Tool, force: bool) -> Option<AsyncToolCommand> {
+        self.path()?;
+
+        let pkg = match tool.name() {
+            "xelatex" => "texlive",
+            "node" => "nodejs",
+            "python" => "python3",
+            "pip" => "python3-pip",
+            "r" => "r-base",
+            "make" => "build-essential",
+            name => name,
+        };
+
+        let mut command = AsyncToolCommand::new("sudo");
+        command.args(["apt-get", "install", "-y"]);
+        if force {
+            command.arg("--force-yes");
+        }
+        command.arg(pkg);
+
+        Some(command)
+    }
+}
+
 pub struct Devbox;
 
 impl Tool for Devbox {
