@@ -765,9 +765,9 @@ impl Visitor for Walker {
                 };
 
                 if has_box {
-                    self.write(&string)
+                    self.write(string)
                 } else {
-                    self.boxed(&string)
+                    self.boxed(string)
                 }
             }
             _ => {

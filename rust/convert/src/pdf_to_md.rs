@@ -31,17 +31,13 @@ pub async fn pdf_to_md(pdf: &Path) -> Result<PathBuf> {
 
     let out_dir = tempdir()?.keep();
 
-    let mut command = AsyncToolCommand::new(&tool.to_string());
+    let mut command = AsyncToolCommand::new(tool.to_string());
 
     match tool {
-        Tool::Mineru => command
-            .arg("--path")
-            .arg(&pdf)
-            .arg("--output")
-            .arg(&out_dir),
+        Tool::Mineru => command.arg("--path").arg(pdf).arg("--output").arg(&out_dir),
 
         Tool::Marker => command
-            .arg(&pdf)
+            .arg(pdf)
             .args(vec!["--output_format", "markdown", "--output_dir"])
             .arg(&out_dir),
     };
