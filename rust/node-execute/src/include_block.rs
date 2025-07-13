@@ -3,13 +3,14 @@ use std::path::PathBuf;
 use codecs::DecodeOptions;
 use schema::{Article, Block, CompilationMessage, IncludeBlock};
 
-use crate::{interrupt_impl, prelude::*};
+use crate::prelude::*;
 
 impl Executable for IncludeBlock {
     #[tracing::instrument(skip_all)]
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         // Return early if no source, or already has content
         if self.source.trim().is_empty() || self.content.is_some() {
+            // Continue walk to compile any existing `content`
             return WalkControl::Continue;
         }
 
@@ -58,104 +59,29 @@ impl Executable for IncludeBlock {
     }
 
     #[tracing::instrument(skip_all)]
-    async fn prepare(&mut self, executor: &mut Executor) -> WalkControl {
+    async fn prepare(&mut self, _executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
         tracing::trace!("Preparing IncludeBlock {node_id}");
 
-        // Set execution status
-        if let Some(status) = executor.node_execution_status(
-            self.node_type(),
-            &node_id,
-            &self.execution_mode,
-            &self.options.execution_required,
-        ) {
-            self.options.execution_status = Some(status);
-            executor.patch(&node_id, [set(NodeProperty::ExecutionStatus, status)]);
-        }
-
-        // Continue to mark executable nodes in `content` as pending
+        // Continue walk to prepare nodes in `content`
         WalkControl::Continue
     }
 
     #[tracing::instrument(skip_all)]
-    async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
+    async fn execute(&mut self, _executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-
-        if !matches!(
-            self.options.execution_status,
-            Some(ExecutionStatus::Pending)
-        ) {
-            tracing::trace!("Skipping IncludeBlock {node_id}: {}", self.source);
-            return WalkControl::Break;
-        }
-
         tracing::debug!("Executing IncludeBlock {node_id}: {}", self.source);
 
-        executor.patch(
-            &node_id,
-            [
-                set(NodeProperty::ExecutionStatus, ExecutionStatus::Running),
-                none(NodeProperty::ExecutionMessages),
-            ],
-        );
-
-        // Include the source (if it is not empty)
-        if self.content.is_some() {
-            let mut messages = Vec::new();
-            let started = Timestamp::now();
-
-            // Execute the content
-            if let Err(error) = self.content.walk_async(executor).await {
-                messages.push(error_to_execution_message("While executing content", error));
-            }
-
-            let messages = (!messages.is_empty()).then_some(messages);
-
-            let ended = Timestamp::now();
-
-            let status = execution_status(&messages);
-            let required = execution_required_status(&status);
-            let duration = execution_duration(&started, &ended);
-            let count = self.options.execution_count.unwrap_or_default() + 1;
-
-            // Set properties that may be using in rendering
-            self.options.execution_messages = messages.clone();
-
-            executor.patch(
-                &node_id,
-                [
-                    set(NodeProperty::ExecutionStatus, status),
-                    set(NodeProperty::ExecutionRequired, required),
-                    set(NodeProperty::ExecutionMessages, messages),
-                    set(NodeProperty::ExecutionDuration, duration),
-                    set(NodeProperty::ExecutionEnded, ended),
-                    set(NodeProperty::ExecutionCount, count),
-                ],
-            );
-        } else {
-            executor.patch(
-                &node_id,
-                [
-                    set(NodeProperty::ExecutionStatus, ExecutionStatus::Empty),
-                    set(NodeProperty::ExecutionRequired, ExecutionRequired::No),
-                    none(NodeProperty::ExecutionDuration),
-                    none(NodeProperty::ExecutionEnded),
-                ],
-            );
-        }
-
-        // Break walk because already executed `content`
-        WalkControl::Break
+        // Continue walk to execute nodes in `content`
+        WalkControl::Continue
     }
 
     #[tracing::instrument(skip_all)]
-    async fn interrupt(&mut self, executor: &mut Executor) -> WalkControl {
+    async fn interrupt(&mut self, _executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
         tracing::debug!("Interrupting IncludeBlock {node_id}");
 
-        interrupt_impl!(self, executor, &node_id);
-
-        // Continue to interrupt executable nodes in `content`
+        // Continue walk to interrupt nodes in `content`
         WalkControl::Continue
     }
 }
