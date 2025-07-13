@@ -42,6 +42,7 @@ impl Demo {
         let doc = Document::open(&self.input, None).await?;
 
         if !self.no_execute {
+            doc.compile().await?;
             doc.execute(self.execute_options).await?;
 
             let (errors, ..) = doc.diagnostics_print().await?;
