@@ -421,6 +421,9 @@ impl Walker {
     /// Finish the recording by flushing the output and if necessary and, if the
     /// output is GIF, convert using `agg` tool.
     async fn finish(&mut self) -> Result<()> {
+        // Always ensure cursor is visible when finishing
+        self.controls(&[SHOW_CURSOR, RESET]);
+
         if let Some(ref mut asciicast_file) = self.asciicast_file {
             asciicast_file
                 .flush()
@@ -726,6 +729,15 @@ impl Walker {
     }
 }
 
+impl Drop for Walker {
+    #[allow(clippy::print_stdout)]
+    fn drop(&mut self) {
+        // Always restore cursor visibility when Walker is dropped
+        // This handles cleanup even when interrupted (e.g., Ctrl+C)
+        self.controls(&[SHOW_CURSOR, RESET]);
+    }
+}
+
 impl Visitor for Walker {
     fn visit_node(&mut self, node: &schema::Node) -> WalkControl {
         // Just continue walk for root level nodes
@@ -1027,7 +1039,7 @@ impl Visitor for Walker {
     }
 
     fn visit_walkthrough_step(&mut self, _step: &WalkthroughStep) -> WalkControl {
-        // Show cursor to indicate that waiting
+        // Ensure cursor is showing to indicate that waiting
         self.control(SHOW_CURSOR);
 
         // Wait for input
@@ -1036,9 +1048,6 @@ impl Visitor for Walker {
 
         // Add a marker for the asciicast
         self.marker("");
-
-        // Hide cursor again
-        self.control(HIDE_CURSOR);
 
         WalkControl::Continue
     }
