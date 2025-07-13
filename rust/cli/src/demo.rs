@@ -87,5 +87,11 @@ pub static DEMO_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Disable syntax highlighting for code blocks</dim>
   <b>stencila demo</> <g>document.md</> <c>--no-highlighting</>
+
+  <dim># Demo only specific slides (slides are delimited by ***)</dim>
+  <b>stencila demo</> <g>document.md</> <c>--slides</> <g>2-4</>
+
+  <dim># Demo multiple slide ranges</dim>
+  <b>stencila demo</> <g>document.md</> <c>--slides</> <g>\"1,3-5,7-\"</>
 "
 );

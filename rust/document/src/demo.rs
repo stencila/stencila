@@ -35,10 +35,13 @@ impl Document {
     pub async fn demo(&self, options: DemoOptions) -> Result<()> {
         let root = &*self.root.read().await;
 
-        // Clear the terminal which may have messages from execution on it.
-        clear_terminal();
-
         let mut walker = Walker::new(options)?;
+
+        // Clear the terminal if we're starting from the first slide or no slides specified
+        if walker.in_active_slide {
+            clear_terminal();
+        }
+
         walker.walk(root);
         walker.finish().await?;
 
@@ -132,12 +135,118 @@ pub struct DemoOptions {
     /// See `agg --help`, or `stencila tools run agg --help`
     #[arg(last = true, allow_hyphen_values = true)]
     agg_args: Vec<String>,
+
+    /// Specify which slides to demo
+    ///
+    /// Slides are delimited by thematic breaks (---). Examples:
+    /// - "2" - only slide 2
+    /// - "2-4" - slides 2 through 4
+    /// - "2-" - slide 2 to the end
+    /// - "-3" - slides 1 through 3
+    /// - "1,3-5,7-" - slides 1, 3 through 5, and 7 to the end
+    #[arg(long)]
+    slides: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum OutputFormat {
     Asciicast,
     Gif,
+}
+
+/// Represents which slides should be included in the demo
+#[derive(Debug, Clone)]
+struct SlideRanges {
+    ranges: Vec<SlideRange>,
+}
+
+#[derive(Debug, Clone)]
+enum SlideRange {
+    Single(usize),
+    Range(usize, usize),
+    From(usize),
+    To(usize),
+}
+
+impl SlideRanges {
+    /// Parse a slide range string like "1,3-5,7-"
+    fn parse(input: &str) -> Result<Self> {
+        let mut ranges = Vec::new();
+
+        for part in input.split(',') {
+            let part = part.trim();
+            if part.is_empty() {
+                continue;
+            }
+
+            if let Some((start, end)) = part.split_once('-') {
+                let start = start.trim();
+                let end = end.trim();
+
+                if start.is_empty() && end.is_empty() {
+                    bail!("Invalid range: '-' without numbers");
+                } else if start.is_empty() {
+                    // "-N" format
+                    let n = end
+                        .parse::<usize>()
+                        .wrap_err_with(|| format!("Invalid slide number: {}", end))?;
+                    if n == 0 {
+                        bail!("Slide numbers start from 1");
+                    }
+                    ranges.push(SlideRange::To(n));
+                } else if end.is_empty() {
+                    // "N-" format
+                    let n = start
+                        .parse::<usize>()
+                        .wrap_err_with(|| format!("Invalid slide number: {}", start))?;
+                    if n == 0 {
+                        bail!("Slide numbers start from 1");
+                    }
+                    ranges.push(SlideRange::From(n));
+                } else {
+                    // "N-M" format
+                    let start_num = start
+                        .parse::<usize>()
+                        .wrap_err_with(|| format!("Invalid slide number: {}", start))?;
+                    let end_num = end
+                        .parse::<usize>()
+                        .wrap_err_with(|| format!("Invalid slide number: {}", end))?;
+                    if start_num == 0 || end_num == 0 {
+                        bail!("Slide numbers start from 1");
+                    }
+                    if start_num > end_num {
+                        bail!("Invalid range: {} > {}", start_num, end_num);
+                    }
+                    ranges.push(SlideRange::Range(start_num, end_num));
+                }
+            } else {
+                // Single slide number
+                let n = part
+                    .parse::<usize>()
+                    .wrap_err_with(|| format!("Invalid slide number: {}", part))?;
+                if n == 0 {
+                    bail!("Slide numbers start from 1");
+                }
+                ranges.push(SlideRange::Single(n));
+            }
+        }
+
+        if ranges.is_empty() {
+            bail!("No valid slide ranges specified");
+        }
+
+        Ok(Self { ranges })
+    }
+
+    /// Check if a slide number is included in the ranges
+    fn contains(&self, slide: usize) -> bool {
+        self.ranges.iter().any(|range| match range {
+            SlideRange::Single(n) => *n == slide,
+            SlideRange::Range(start, end) => slide >= *start && slide <= *end,
+            SlideRange::From(start) => slide >= *start,
+            SlideRange::To(end) => slide <= *end,
+        })
+    }
 }
 
 /// A visitor that walks over the document and demos it to the terminal
@@ -165,6 +274,15 @@ struct Walker {
 
     /// The terminal size
     terminal_size: (u16, u16),
+
+    /// Parsed slide ranges to demo
+    slide_ranges: Option<SlideRanges>,
+
+    /// Current slide number (starts at 1)
+    current_slide: usize,
+
+    /// Whether we're currently in an active slide that should be shown
+    in_active_slide: bool,
 }
 
 const RESET: &str = "\x1b[0m";
@@ -406,6 +524,19 @@ impl Walker {
                 (None, None, None, OutputFormat::Asciicast)
             };
 
+        // Parse slide ranges if provided
+        let slide_ranges = if let Some(ref slides_str) = options.slides {
+            Some(SlideRanges::parse(slides_str)?)
+        } else {
+            None
+        };
+
+        // Check if we should start in an active slide
+        let in_active_slide = slide_ranges
+            .as_ref()
+            .map(|ranges| ranges.contains(1))
+            .unwrap_or(true);
+
         Ok(Self {
             options,
             rng,
@@ -415,6 +546,9 @@ impl Walker {
             output_format,
             start_time,
             terminal_size,
+            slide_ranges,
+            current_slide: 1,
+            in_active_slide,
         })
     }
 
@@ -462,6 +596,11 @@ impl Walker {
     /// Write text to stdout and record to asciicast if configured
     #[allow(clippy::print_stdout)]
     fn write(&mut self, text: &str) -> &mut Self {
+        // Only write if we're in an active slide
+        if !self.in_active_slide {
+            return self;
+        }
+
         // Print to stdout
         print!("{}", text);
         stdout().flush().ok();
@@ -522,6 +661,11 @@ impl Walker {
 
     /// Display a spinner for a given duration in milliseconds
     fn spinner(&mut self, duration_ms: u64, message: &str) -> &mut Self {
+        // Skip spinner if not in active slide
+        if !self.in_active_slide {
+            return self;
+        }
+
         // Hide cursor and dim during spinner
         self.controls(&[HIDE_CURSOR, DIM]);
 
@@ -734,7 +878,9 @@ impl Drop for Walker {
     fn drop(&mut self) {
         // Always restore cursor visibility when Walker is dropped
         // This handles cleanup even when interrupted (e.g., Ctrl+C)
-        self.controls(&[SHOW_CURSOR, RESET]);
+        // Note: We bypass the in_active_slide check here to ensure cleanup
+        print!("{}{}", SHOW_CURSOR, RESET);
+        stdout().flush().ok();
     }
 }
 
@@ -1024,7 +1170,21 @@ impl Visitor for Walker {
             }
 
             Block::ThematicBreak(..) => {
-                clear_terminal();
+                // Move to next slide
+                self.current_slide += 1;
+
+                // Update active slide status
+                let was_active = self.in_active_slide;
+                self.in_active_slide = self
+                    .slide_ranges
+                    .as_ref()
+                    .map(|ranges| ranges.contains(self.current_slide))
+                    .unwrap_or(true);
+
+                // Only clear terminal if we're entering an active slide
+                if self.in_active_slide && (!was_active || self.slide_ranges.is_none()) {
+                    clear_terminal();
+                }
             }
 
             _ => {}
@@ -1039,6 +1199,11 @@ impl Visitor for Walker {
     }
 
     fn visit_walkthrough_step(&mut self, _step: &WalkthroughStep) -> WalkControl {
+        // Skip waiting for input if not in active slide
+        if !self.in_active_slide {
+            return WalkControl::Continue;
+        }
+
         // Ensure cursor is showing to indicate that waiting
         self.control(SHOW_CURSOR);
 
