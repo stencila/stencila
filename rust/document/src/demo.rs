@@ -741,9 +741,11 @@ impl Visitor for Walker {
         match node {
             Node::Datatable(node) => self.write(&node.to_terminal().to_string()),
             Node::String(string) => {
+                let string = string.trim();
+
                 // Unless the string looks like like it already has a box around
                 // it (has >=10 horizontals on first and last lines) then box it
-                let lines: Vec<&str> = string.trim().lines().collect();
+                let lines: Vec<&str> = string.lines().collect();
                 let has_box = if lines.len() >= 2 {
                     // Count horizontal box characters in first and last lines
                     let first_horizontals = lines
