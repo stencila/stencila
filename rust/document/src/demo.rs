@@ -180,7 +180,7 @@ const STRIKETHROUGH: &str = "\x1b[9m";
 const FG_RED: &str = "\x1b[31m";
 const FG_GREEN: &str = "\x1b[32m";
 const FG_YELLOW: &str = "\x1b[33m";
-//const FG_BLUE: &str = "\x1b[34m";
+const FG_BLUE: &str = "\x1b[34m";
 const FG_MAGENTA: &str = "\x1b[35m";
 const FG_CYAN: &str = "\x1b[36m";
 // const FG_WHITE: &str = "\x1b[37m";
@@ -814,6 +814,21 @@ impl Visitor for Walker {
 
             Inline::MathInline(math) => {
                 self.control(FG_CYAN).typing(&math.code).control(RESET);
+                return WalkControl::Break;
+            }
+
+            Inline::Link(link) => {
+                if link.target == to_text(&link.content) {
+                    self.control(FG_BLUE).typing(&link.target).control(RESET);
+                } else {
+                    self.write("[")
+                        .walk(&link.content)
+                        .write("](")
+                        .control(FG_BLUE)
+                        .typing(&link.target)
+                        .control(RESET)
+                        .write(")");
+                }
                 return WalkControl::Break;
             }
 
