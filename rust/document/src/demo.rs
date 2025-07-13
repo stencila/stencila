@@ -172,19 +172,15 @@ const BOLD: &str = "\x1b[1m";
 const DIM: &str = "\x1b[2m";
 const ITALIC: &str = "\x1b[3m";
 const UNDERLINE: &str = "\x1b[4m";
-// const BLINK: &str = "\x1b[5m";
-// const REVERSE: &str = "\x1b[7m";
 const STRIKETHROUGH: &str = "\x1b[9m";
 
-// const FG_BLACK: &str = "\x1b[30m";
 const FG_RED: &str = "\x1b[31m";
 const FG_GREEN: &str = "\x1b[32m";
 const FG_YELLOW: &str = "\x1b[33m";
 const FG_BLUE: &str = "\x1b[34m";
 const FG_MAGENTA: &str = "\x1b[35m";
 const FG_CYAN: &str = "\x1b[36m";
-// const FG_WHITE: &str = "\x1b[37m";
-// const FG_DEFAULT: &str = "\x1b[39m";
+const FG_ORANGE: &str = "\x1b[38;5;208m"; // Orange using 256-color palette
 
 const SHOW_CURSOR: &str = "\x1b[?25h";
 const HIDE_CURSOR: &str = "\x1b[?25l";
@@ -854,7 +850,7 @@ impl Visitor for Walker {
                 if block.level == 1 {
                     self.marker(&to_text(&block.content));
                 }
-                self.controls(&[BOLD, FG_YELLOW])
+                self.controls(&[BOLD, FG_ORANGE])
                     .typing(&"#".repeat(block.level as usize))
                     .typing(" ")
                     .walk(&block.content)
