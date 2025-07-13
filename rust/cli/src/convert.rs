@@ -13,10 +13,10 @@ use crate::options::{DecodeOptions, EncodeOptions, StripOptions};
 #[derive(Debug, Parser)]
 #[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
-    /// The path of the input file
+    /// The path, URL or other identifier for the input file
     ///
     /// If not supplied, or if "-", the input content is read from `stdin`.
-    input: Option<PathBuf>,
+    input: Option<String>,
 
     /// The paths of desired output files
     ///
@@ -86,21 +86,27 @@ impl Cli {
             tool_args,
         } = self;
 
-        let decode_options = decode_options.build(input.as_deref(), strip_options.clone());
+        let input_path = input
+            .as_ref()
+            .map(PathBuf::from)
+            .and_then(|path| path.exists().then_some(path));
 
-        let input_path = input.clone().unwrap_or_else(|| PathBuf::from("-"));
-        let node = if input_path == PathBuf::from("-") {
-            codecs::from_stdin(Some(decode_options)).await?
-        } else {
-            codecs::from_path(&input_path, Some(decode_options)).await?
-        };
+        let input = input.as_deref().unwrap_or("-");
+
+        let decode_options = decode_options.build(input_path.as_deref(), strip_options.clone());
+        let node = codecs::from_identifier(&input, Some(decode_options)).await?;
 
         if outputs.is_empty() || outputs.iter().all(|path| path.to_string_lossy() == "-") {
             codecs::to_stdout(
                 &node,
                 Some(
                     encode_options
-                        .build(input.as_deref(), None, Format::Json, strip_options.clone())
+                        .build(
+                            input_path.as_deref(),
+                            None,
+                            Format::Json,
+                            strip_options.clone(),
+                        )
                         .with_tool(tool, tool_args),
                 ),
             )
@@ -116,7 +122,7 @@ impl Cli {
                         &node,
                         Some(
                             encode_options
-                                .build(input.as_deref(), None, Format::Json, strip_options)
+                                .build(input_path.as_deref(), None, Format::Json, strip_options)
                                 .with_tool(tool, tool_args),
                         ),
                     )
@@ -127,7 +133,12 @@ impl Cli {
                         &output,
                         Some(
                             encode_options
-                                .build(input.as_deref(), Some(&output), Format::Json, strip_options)
+                                .build(
+                                    input_path.as_deref(),
+                                    Some(&output),
+                                    Format::Json,
+                                    strip_options,
+                                )
                                 .with_tool(tool, tool_args),
                         ),
                     )
@@ -136,12 +147,11 @@ impl Cli {
                     #[allow(clippy::print_stderr)]
                     if completed {
                         eprintln!(
-                            "📑 Successfully converted `{}` to `{}`",
-                            input_path.display(),
+                            "📑 Successfully converted `{input}` to `{}`",
                             output.display()
                         )
                     } else {
-                        eprintln!("⏭️  Skipped converting `{}`", input_path.display())
+                        eprintln!("⏭️  Skipped converting `{input}`")
                     }
                 }
             }

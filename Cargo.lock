@@ -1420,6 +1420,7 @@ dependencies = [
  "common-dev",
  "json_value_merge",
  "node-strip",
+ "url",
  "walkdir",
 ]
 

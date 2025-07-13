@@ -3,6 +3,9 @@ use std::{
     process::{Command, Stdio},
 };
 
+use url::Url;
+use walkdir::WalkDir;
+
 use ask::{ask_with, Answer, AskLevel, AskOptions};
 use cli_utils::{Code, ToStdout};
 use codec::{
@@ -23,7 +26,6 @@ pub use codec::{
 };
 use codec_utils::rebase_edits;
 use node_strip::{StripNode, StripTargets};
-use walkdir::WalkDir;
 
 pub mod cli;
 
@@ -164,6 +166,18 @@ pub async fn from_str_with_info(
         .await
 }
 
+/// Decode a Stencila Schema node from an identifier
+#[tracing::instrument]
+pub async fn from_identifier(identifier: &str, options: Option<DecodeOptions>) -> Result<Node> {
+    if identifier == "-" {
+        from_stdin(options).await
+    } else if let Ok(url) = Url::parse(identifier) {
+        from_url(url, options).await
+    } else {
+        from_path(&PathBuf::from(identifier), options).await
+    }
+}
+
 /// Decode a Stencila Schema node from a file system path
 #[tracing::instrument]
 pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<Node> {
@@ -181,30 +195,37 @@ pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<No
 
 /// Decode a Stencila Schema node from a URL (http://, https://, or file://)
 #[tracing::instrument]
-pub async fn from_url(url: &str, options: Option<DecodeOptions>) -> Result<Node> {
-    if url.starts_with("https://") || url.starts_with("http://") {
-        // TODO: If a format or media type is specified in options than
-        // use that, otherwise use the `Content-Type` header, otherwise
-        // (or maybe if plain text / octet stream) then use path.
-        // This is just a temporary hack
-        let options = Some(DecodeOptions {
-            format: Some(Format::Markdown),
-            ..options.unwrap_or_default()
-        });
+pub async fn from_url(url: Url, options: Option<DecodeOptions>) -> Result<Node> {
+    match url.scheme() {
+        "http" | "https" => {
+            // TODO: If a format or media type is specified in options than
+            // use that, otherwise use the `Content-Type` header, otherwise
+            // (or maybe if plain text / octet stream) then use path.
+            // This is just a temporary hack
+            let options = Some(DecodeOptions {
+                format: Some(Format::Markdown),
+                ..options.unwrap_or_default()
+            });
 
-        // TODO: Enable HTTP caching to avoid unnecessary requests
-        let response = Client::new().get(url).send().await?;
-        if let Err(error) = response.error_for_status_ref() {
-            let message = response.text().await?;
-            bail!("{error}: {message}")
+            // TODO: Enable HTTP caching to avoid unnecessary requests
+            let response = Client::new().get(url.as_str()).send().await?;
+            if let Err(error) = response.error_for_status_ref() {
+                let message = response.text().await?;
+                bail!("{error}: {message}")
+            }
+
+            let text = response.text().await?;
+            from_str(&text, options).await
         }
-
-        let text = response.text().await?;
-        from_str(&text, options).await
-    } else if let Some(path) = url.strip_prefix("file://") {
-        from_path(&PathBuf::from(path), options).await
-    } else {
-        bail!("unknown URL protocol: {url}")
+        "file" => {
+            let path = url
+                .to_file_path()
+                .map_err(|_| eyre!("Invalid file URL: {}", url))?;
+            from_path(&path, options).await
+        }
+        scheme => {
+            bail!("Unsupported URL scheme: {scheme}")
+        }
     }
 }
 

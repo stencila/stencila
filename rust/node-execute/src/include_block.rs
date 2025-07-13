@@ -119,7 +119,7 @@ async fn source_to_content(
     };
 
     // Decode the URL
-    let content: Option<Vec<Block>> = match codecs::from_url(
+    let content: Option<Vec<Block>> = match codecs::from_identifier(
         &url,
         Some(DecodeOptions {
             media_type: media_type.clone(),
