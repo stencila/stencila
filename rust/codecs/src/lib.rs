@@ -178,8 +178,11 @@ pub async fn from_identifier(identifier: &str, options: Option<DecodeOptions>) -
         from_stdin(options).await
     } else if PmcOaCodec::supports_identifier(identifier) {
         Ok(PmcOaCodec::from_identifier(identifier, options).await?.0)
-    } else if let Ok(url) = Url::parse(identifier) {
-        from_url(url, options).await
+    } else if identifier.starts_with("https://")
+        || identifier.starts_with("https://")
+        || identifier.starts_with("file://")
+    {
+        from_url(identifier, options).await
     } else {
         from_path(&PathBuf::from(identifier), options).await
     }
@@ -202,7 +205,14 @@ pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<No
 
 /// Decode a Stencila Schema node from a URL (http://, https://, or file://)
 #[tracing::instrument]
-pub async fn from_url(url: Url, options: Option<DecodeOptions>) -> Result<Node> {
+pub async fn from_url(input: &str, options: Option<DecodeOptions>) -> Result<Node> {
+    if let Some(path) = input.strip_prefix("file://") {
+        // URL:parse will remove any leading `../` etc so avoid that and do it
+        // this way 
+        return from_path(&PathBuf::from(path), options).await;
+    }
+
+    let url = Url::parse(input)?;
     match url.scheme() {
         "http" | "https" => {
             // TODO: Enable HTTP caching to avoid unnecessary requests
@@ -265,12 +275,6 @@ pub async fn from_url(url: Url, options: Option<DecodeOptions>) -> Result<Node> 
 
                 from_path(&temp_file, options).await
             }
-        }
-        "file" => {
-            let path = url
-                .to_file_path()
-                .map_err(|_| eyre!("Invalid file URL: {}", url))?;
-            from_path(&path, options).await
         }
         scheme => {
             bail!("Unsupported URL scheme: {scheme}")
