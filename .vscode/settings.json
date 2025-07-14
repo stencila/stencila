@@ -112,6 +112,7 @@
         "pandoc",
         "pixi",
         "plotly",
+        "pmcid",
         "pmcoa",
         "poshmap",
         "proptest",

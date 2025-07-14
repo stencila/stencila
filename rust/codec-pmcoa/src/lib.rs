@@ -1,7 +1,10 @@
 use std::path::Path;
 
 use codec::{
-    common::{async_trait::async_trait, eyre::Result},
+    common::{
+        async_trait::async_trait,
+        eyre::{bail, Result},
+    },
     format::Format,
     schema::Node,
     status::Status,
@@ -51,5 +54,22 @@ impl Codec for PmcOaCodec {
         options: Option<DecodeOptions>,
     ) -> Result<(Node, Option<Node>, DecodeInfo)> {
         decode::decode_path(path, options).await
+    }
+}
+
+impl PmcOaCodec {
+    pub fn supports_identifier(identifier: &str) -> bool {
+        decode::extract_pmcid(identifier).is_some()
+    }
+
+    pub async fn from_identifier(
+        identifier: &str,
+        options: Option<DecodeOptions>,
+    ) -> Result<(Node, DecodeInfo)> {
+        let Some(pmcid) = decode::extract_pmcid(identifier) else {
+            bail!("Not a recognized PubMed Central id")
+        };
+
+        decode::decode_pmcid(&pmcid, options).await
     }
 }

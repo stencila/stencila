@@ -1,5 +1,8 @@
 use std::path::{Path, PathBuf};
 
+use flate2::read::GzDecoder;
+use url::Url;
+
 use codec::{
     common::{
         eyre::{bail, ContextCompat, OptionExt, Result},
@@ -19,8 +22,43 @@ use codec::{
     Codec, DecodeInfo, DecodeOptions,
 };
 use codec_jats::JatsCodec;
-use flate2::read::GzDecoder;
 use media_embed::embed_media;
+
+/// Extract and PMCID from an identifier
+pub(super) fn extract_pmcid(identifier: &str) -> Option<String> {
+    // Match PMC IDs like "PMC1234567" (at least 4 digits)
+    if identifier.len() >= 7 && identifier.starts_with("PMC") {
+        let number_part = &identifier[3..];
+        if number_part.len() >= 4 && number_part.chars().all(|c| c.is_ascii_digit()) {
+            return Some(identifier.to_string());
+        }
+    }
+
+    // Match PMC URLs like "https://pmc.ncbi.nlm.nih.gov/articles/PMC1234567/"
+    if let Ok(url) = Url::parse(identifier) {
+        if url.host_str() == Some("pmc.ncbi.nlm.nih.gov") && url.path().starts_with("/articles/PMC")
+        {
+            // Extract PMC ID from the URL path
+            let path = url.path();
+            if let Some(pmc_start) = path.find("PMC") {
+                let pmc_part = &path[pmc_start..];
+                // Find the end of the PMC ID (either end of string or next slash)
+                let pmc_end = pmc_part.find('/').unwrap_or(pmc_part.len());
+                let pmcid = &pmc_part[..pmc_end];
+
+                // Validate it's a proper PMC ID (PMC + at least 4 digits)
+                if pmcid.len() >= 7 && pmcid.starts_with("PMC") {
+                    let number_part = &pmcid[3..];
+                    if number_part.len() >= 4 && number_part.chars().all(|c| c.is_ascii_digit()) {
+                        return Some(pmcid.to_string());
+                    }
+                }
+            }
+        }
+    }
+
+    None
+}
 
 /// Decode a PMCID to a Stencila [`Node`]
 #[tracing::instrument]

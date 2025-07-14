@@ -1310,6 +1310,7 @@ dependencies = [
  "common-dev",
  "flate2",
  "media-embed",
+ "url",
 ]
 
 [[package]]

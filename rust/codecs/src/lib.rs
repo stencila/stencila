@@ -28,6 +28,7 @@ pub use codec::{
     EncodeOptions, Losses, LossesResponse, Mapping, MappingEntry, Message, MessageLevel, Messages,
     PoshMap, Position16, Position8, Positions, Range16, Range8,
 };
+use codec_pmcoa::PmcOaCodec;
 use codec_utils::rebase_edits;
 use node_strip::{StripNode, StripTargets};
 
@@ -175,6 +176,8 @@ pub async fn from_str_with_info(
 pub async fn from_identifier(identifier: &str, options: Option<DecodeOptions>) -> Result<Node> {
     if identifier == "-" {
         from_stdin(options).await
+    } else if PmcOaCodec::supports_identifier(identifier) {
+        Ok(PmcOaCodec::from_identifier(identifier, options).await?.0)
     } else if let Ok(url) = Url::parse(identifier) {
         from_url(url, options).await
     } else {
