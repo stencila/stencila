@@ -42,7 +42,7 @@ pub async fn pdf_to_md(pdf: &Path) -> Result<PathBuf> {
             .arg(&out_dir),
     };
 
-    tracing::debug!("Running `{tool}`");
+    tracing::info!("Converting PDF to Markdown using `{tool}`; this may take some time");
     let output = command.output().await?;
     if !output.status.success() {
         let stdout = String::from_utf8_lossy(&output.stdout);
@@ -58,8 +58,12 @@ pub async fn pdf_to_md(pdf: &Path) -> Result<PathBuf> {
     let mut file_name = file_stem.clone();
     file_name.push(".md");
 
-    Ok(match tool {
+    let path = match tool {
         Tool::Mineru => out_dir.join(file_stem).join("auto").join(file_name),
         Tool::Marker => out_dir.join(file_stem).join(file_name),
-    })
+    };
+
+    tracing::debug!("Converted PDF to {}", path.display());
+
+    Ok(path)
 }
