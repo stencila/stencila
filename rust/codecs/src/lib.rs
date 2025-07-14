@@ -12,9 +12,13 @@ use codec::{
     common::{
         chrono::Local,
         eyre::{bail, eyre, Context, OptionExt, Result},
+        futures::StreamExt,
         reqwest::Client,
         tempfile::tempdir,
-        tokio::fs::{read_to_string, write},
+        tokio::{
+            fs::{read_to_string, write, File},
+            io::AsyncWriteExt,
+        },
         tracing,
     },
     schema::{Article, Block, IncludeBlock, Node, VisitorAsync, WalkControl, WalkNode},
@@ -198,24 +202,66 @@ pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<No
 pub async fn from_url(url: Url, options: Option<DecodeOptions>) -> Result<Node> {
     match url.scheme() {
         "http" | "https" => {
-            // TODO: If a format or media type is specified in options than
-            // use that, otherwise use the `Content-Type` header, otherwise
-            // (or maybe if plain text / octet stream) then use path.
-            // This is just a temporary hack
-            let options = Some(DecodeOptions {
-                format: Some(Format::Markdown),
-                ..options.unwrap_or_default()
-            });
-
             // TODO: Enable HTTP caching to avoid unnecessary requests
+            tracing::info!("Fetching {url}");
             let response = Client::new().get(url.as_str()).send().await?;
             if let Err(error) = response.error_for_status_ref() {
                 let message = response.text().await?;
                 bail!("{error}: {message}")
             }
 
-            let text = response.text().await?;
-            from_str(&text, options).await
+            // Determine format based on options, Content-Type header, or URL path
+            let format = options
+                .as_ref()
+                .and_then(|opts| opts.format.clone())
+                .or_else(|| {
+                    // Try to determine format from Content-Type header
+                    response
+                        .headers()
+                        .get("content-type")
+                        .and_then(|ct| ct.to_str().ok())
+                        .and_then(|ct| Format::from_media_type(ct).ok())
+                })
+                .unwrap_or_else(|| {
+                    // Fall back to determining format from URL path
+                    Format::from_path(&PathBuf::from(url.path()))
+                });
+
+            // Check there is a codec that supports the format
+            let codec = get(None, Some(&format), Some(CodecDirection::Decode))?;
+
+            let options = Some(DecodeOptions {
+                format: Some(format.clone()),
+                ..options.unwrap_or_default()
+            });
+
+            // If the content is small and the codec supports `from_str` then no need to
+            // touch the filesystem. Otherwise, download to a temporary file and decode that.
+            let content_length = response.content_length();
+            const MAX_IN_MEMORY_SIZE: u64 = 10 * 1024 * 1024; // 10MB
+
+            if codec.supports_from_string()
+                && content_length.map_or(false, |len| len <= MAX_IN_MEMORY_SIZE)
+            {
+                let text = response.text().await?;
+                from_str(&text, options).await
+            } else {
+                let temp_dir = tempdir()?;
+                let temp_file = temp_dir
+                    .path()
+                    .join(format!("download.{}", format.extension()));
+
+                let mut file = File::create(&temp_file).await?;
+                let mut stream = response.bytes_stream();
+                while let Some(chunk_result) = stream.next().await {
+                    let chunk = chunk_result?;
+                    file.write_all(&chunk).await?;
+                }
+                file.flush().await?;
+                drop(file);
+
+                from_path(&temp_file, options).await
+            }
         }
         "file" => {
             let path = url
