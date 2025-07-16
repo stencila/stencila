@@ -399,6 +399,18 @@ impl Format {
         }
     }
 
+    /// Resolve a [`Format`] from a HTTP `Content-Type` header
+    pub fn from_content_type<S: AsRef<str>>(string: S) -> Result<Self> {
+        let content_type = string.as_ref();
+        // Strip suffixes like "; charset=utf-8" from content type
+        let media_type = content_type
+            .split(';')
+            .next()
+            .unwrap_or(content_type)
+            .trim();
+        Format::from_media_type(media_type)
+    }
+
     /// Get the media type of the format
     pub fn media_type(&self) -> String {
         // This is home grown implementation avoids depending on the `mime_guess`
@@ -546,6 +558,64 @@ mod test {
             Format::Other("foo".to_string())
         );
         assert_eq!(Format::from_url("foo"), Format::Other("foo".to_string()));
+    }
+
+    #[test]
+    fn from_content_type() -> Result<()> {
+        // Test basic content types
+        assert_eq!(Format::from_content_type("application/json")?, Format::Json);
+        assert_eq!(Format::from_content_type("text/plain")?, Format::Text);
+        assert_eq!(
+            Format::from_content_type("text/markdown")?,
+            Format::Markdown
+        );
+        assert_eq!(Format::from_content_type("text/jats+xml")?, Format::Jats);
+
+        // Test content types with charset suffix
+        assert_eq!(
+            Format::from_content_type("application/json; charset=utf-8")?,
+            Format::Json
+        );
+        assert_eq!(
+            Format::from_content_type("text/plain; charset=UTF-8")?,
+            Format::Text
+        );
+        assert_eq!(
+            Format::from_content_type("text/html; charset=utf-8")?,
+            Format::Html
+        );
+
+        // Test content types with multiple parameters
+        assert_eq!(
+            Format::from_content_type("text/html; charset=utf-8; boundary=something")?,
+            Format::Html
+        );
+
+        // Test content types with no space after semicolon
+        assert_eq!(
+            Format::from_content_type("text/html;charset=utf-8")?,
+            Format::Html
+        );
+        assert_eq!(
+            Format::from_content_type("application/json;charset=UTF-8")?,
+            Format::Json
+        );
+
+        // Test edge cases
+        assert_eq!(Format::from_content_type("text/html;")?, Format::Html);
+        assert_eq!(
+            Format::from_content_type("  text/html  ; charset=utf-8")?,
+            Format::Html
+        );
+
+        // Test unknown content types
+        assert_eq!(
+            Format::from_content_type("application/octet-stream")?,
+            Format::Other("octet-stream".to_string())
+        );
+        assert_eq!(Format::from_content_type("application/pdf")?, Format::Pdf);
+
+        Ok(())
     }
 
     #[test]
