@@ -980,6 +980,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-arxiv"
+version = "0.0.0"
+dependencies = [
+ "base64 0.22.1",
+ "codec",
+ "codec-latex",
+ "codec-pdf",
+ "common-dev",
+ "flate2",
+ "tl",
+ "url",
+]
+
+[[package]]
 name = "codec-cbor"
 version = "0.0.0"
 dependencies = [
@@ -1392,6 +1406,7 @@ dependencies = [
  "ask",
  "cli-utils",
  "codec",
+ "codec-arxiv",
  "codec-cbor",
  "codec-debug",
  "codec-directory",

@@ -3,6 +3,7 @@ use std::{
     process::{Command, Stdio},
 };
 
+use codec_arxiv::ArxivCodec;
 use url::Url;
 use walkdir::WalkDir;
 
@@ -176,6 +177,8 @@ pub async fn from_str_with_info(
 pub async fn from_identifier(identifier: &str, options: Option<DecodeOptions>) -> Result<Node> {
     if identifier == "-" {
         from_stdin(options).await
+    } else if ArxivCodec::supports_identifier(identifier) {
+        Ok(ArxivCodec::from_identifier(identifier, options).await?.0)
     } else if PmcOaCodec::supports_identifier(identifier) {
         Ok(PmcOaCodec::from_identifier(identifier, options).await?.0)
     } else if identifier.starts_with("https://")
@@ -208,7 +211,7 @@ pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<No
 pub async fn from_url(input: &str, options: Option<DecodeOptions>) -> Result<Node> {
     if let Some(path) = input.strip_prefix("file://") {
         // URL:parse will remove any leading `../` etc so avoid that and do it
-        // this way 
+        // this way
         return from_path(&PathBuf::from(path), options).await;
     }
 
@@ -233,7 +236,7 @@ pub async fn from_url(input: &str, options: Option<DecodeOptions>) -> Result<Nod
                         .headers()
                         .get("content-type")
                         .and_then(|ct| ct.to_str().ok())
-                        .and_then(|ct| Format::from_media_type(ct).ok())
+                        .and_then(|ct| Format::from_content_type(ct).ok())
                 })
                 .unwrap_or_else(|| {
                     // Fall back to determining format from URL path

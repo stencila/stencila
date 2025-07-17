@@ -13,6 +13,7 @@ proptest-max = ["codec/proptest-max"]
 ask = { path = "../ask" }
 cli-utils = { path = "../cli-utils" }
 codec = { path = "../codec" }
+codec-arxiv = { path = "../codec-arxiv" }
 codec-cbor = { path = "../codec-cbor" }
 codec-debug = { path = "../codec-debug" }
 codec-directory = { path = "../codec-directory" }
