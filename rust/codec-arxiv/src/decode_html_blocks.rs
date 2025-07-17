@@ -146,8 +146,8 @@ pub fn decode_div(parser: &Parser, tag: &HTMLTag, context: &mut ArxivDecodeConte
     if class.contains("ltx_para") {
         // ltx_para is just a paragraph wrapper, decode children directly
         decode_blocks(parser, tag, context)
-    } else if class.contains("ltx_theorem") {
-        vec![decode_theorem(parser, tag, context)]
+    } else if class.contains("ltx_theorem") || class.contains("ltx_proof") {
+        vec![decode_theorem_or_proof(parser, tag, context)]
     } else if class.contains("ltx_listing") {
         vec![decode_code_block(parser, tag, context)]
     } else {
@@ -921,8 +921,12 @@ fn extract_number_from_theorem_title(text: &str) -> Option<String> {
     None
 }
 
-/// Decode a div.ltx_theorem into a Claim object
-pub fn decode_theorem(parser: &Parser, tag: &HTMLTag, context: &mut ArxivDecodeContext) -> Block {
+/// Decode a div.ltx_theorem or div.ltx_proof into a Stencila [`Claim`]
+pub fn decode_theorem_or_proof(
+    parser: &Parser,
+    tag: &HTMLTag,
+    context: &mut ArxivDecodeContext,
+) -> Block {
     let class = tag
         .attributes()
         .class()
