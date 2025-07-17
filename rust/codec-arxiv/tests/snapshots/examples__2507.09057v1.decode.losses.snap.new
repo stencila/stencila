@@ -1,0 +1,27 @@
+---
+source: rust/codec-arxiv/tests/examples.rs
+assertion_line: 48
+expression: info.losses
+---
+"<annotation-xml>": 17
+"<annotation>": 34
+"<apply>": 28
+"<br class=\"ltx_break\">": 2
+"<ci>": 15
+"<cn>": 30
+"<csymbol>": 15
+"<div class=\"ltx_flex_break\">": 5
+"<div class=\"ltx_flex_cell ltx_flex_size_1\">": 8
+"<div class=\"ltx_pagination ltx_role_newpage\">": 1
+"<eq>": 1
+"<mi>": 13
+"<minus>": 8
+"<mn>": 30
+"<mo>": 24
+"<mover>": 3
+"<mrow>": 15
+"<msub>": 1
+"<msubsup>": 5
+"<semantics>": 17
+"<times>": 3
+"<vector>": 1

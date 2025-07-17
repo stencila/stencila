@@ -1,0 +1,11 @@
+---
+source: rust/codec-arxiv/tests/examples.rs
+assertion_line: 48
+expression: info.losses
+---
+"<annotation-xml>": 1
+"<annotation>": 2
+"<ci>": 1
+"<div class=\"ltx_pagination ltx_role_newpage\">": 3
+"<mi>": 1
+"<semantics>": 1
