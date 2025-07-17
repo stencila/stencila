@@ -38,6 +38,7 @@ smart-default = "0.7.1"
 syn = "2.0.103"
 test-log = { version = "0.2.17", default-features = false, features = ["trace"] }
 time = { version = "0.3.41", features = ["formatting"] }
+tl = "0.7.8"
 url = { version = "2.5.4", features = ["serde"] }
 which = "8.0.0"
 # To reduce dependencies avoid bzip2, lzma, xz, and zstd compression which are rare for zip archive.
