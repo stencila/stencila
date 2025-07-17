@@ -23,7 +23,10 @@ impl Executable for MathInline {
 
         tracing::trace!("Compiling MathInline {node_id}");
 
-        if !self.code.trim().is_empty() {
+        if self.options.compilation_digest.is_none() && self.options.mathml.is_some() {
+            // If this has not been compiled but still has MathML then it must have
+            // been generated externally (e.g. from LaTeX by LaTeXML in arxiv HML) so do not touch it
+        } else if !self.code.trim().is_empty() {
             let lang = self
                 .math_language
                 .as_ref()
