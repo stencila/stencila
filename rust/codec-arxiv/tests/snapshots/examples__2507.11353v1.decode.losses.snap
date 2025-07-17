@@ -1,6 +1,5 @@
 ---
 source: rust/codec-arxiv/tests/examples.rs
-assertion_line: 48
 expression: info.losses
 ---
 "<div class=\"ltx_proof\">": 2

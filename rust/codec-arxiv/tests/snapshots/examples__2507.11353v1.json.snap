@@ -1,6 +1,5 @@
 ---
 source: rust/codec-arxiv/tests/examples.rs
-assertion_line: 35
 expression: article
 ---
 {
