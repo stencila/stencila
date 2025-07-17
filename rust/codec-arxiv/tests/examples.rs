@@ -33,16 +33,9 @@ async fn examples() -> Result<()> {
 
         // Redact inlined image dataURIs and mathml which can be very large
         assert_json_snapshot!(format!("{id}.json"), article, {
-            ".content[].contentUrl" => "redacted",
-            ".content[].content[].contentUrl" => "redacted",
-            ".content[].content[].content[].contentUrl" => "redacted",
-            ".content[].content[].content[].content[].contentUrl" => "redacted",
-            ".content[].content[].content[].content[].content[].contentUrl" => "redacted",
-            ".content[].mathml" => "redacted",
-            ".content[].content[].mathml" => "redacted",
-            ".content[].content[].content[].mathml" => "redacted",
-            ".content[].content[].content[].content[].mathml" => "redacted",
-            ".content[].content[].content[].content[].content[].mathml" => "redacted"
+            ".**.contentUrl" => "redacted",
+            ".**.mathml" => "redacted",
+            ".commit" => "redacted"
         });
 
         assert_yaml_snapshot!(format!("{id}.decode.losses"), info.losses);

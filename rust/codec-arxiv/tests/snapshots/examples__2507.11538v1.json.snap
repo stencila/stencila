@@ -4158,7 +4158,7 @@ expression: article
                         "string": "N"
                       },
                       "mathLanguage": "latex",
-                      "mathml": "<math alttext=\"N\" display=\"inline\" id=\"S3.I1.i1.p1.1.m1.1\" class=\"ltx_Math\"><semantics id=\"S3.I1.i1.p1.1.m1.1a\"><mi xref=\"S3.I1.i1.p1.1.m1.1.1.cmml\" id=\"S3.I1.i1.p1.1.m1.1.1\">N</mi><annotation-xml encoding=\"MathML-Content\" id=\"S3.I1.i1.p1.1.m1.1b\"><ci xref=\"S3.I1.i1.p1.1.m1.1.1\" id=\"S3.I1.i1.p1.1.m1.1.1.cmml\">𝑁</ci></annotation-xml><annotation encoding=\"application/x-tex\" id=\"S3.I1.i1.p1.1.m1.1c\">N</annotation><annotation encoding=\"application/x-llamapun\" id=\"S3.I1.i1.p1.1.m1.1d\">italic_N</annotation></semantics></math>"
+                      "mathml": "redacted"
                     },
                     {
                       "type": "Text",
@@ -4222,7 +4222,7 @@ expression: article
                         "string": "\\geq"
                       },
                       "mathLanguage": "latex",
-                      "mathml": "<math alttext=\"\\geq\" display=\"inline\" id=\"S3.I1.i2.p1.1.m1.1\" class=\"ltx_Math\"><semantics id=\"S3.I1.i2.p1.1.m1.1a\"><mo xref=\"S3.I1.i2.p1.1.m1.1.1.cmml\" id=\"S3.I1.i2.p1.1.m1.1.1\">≥</mo><annotation-xml encoding=\"MathML-Content\" id=\"S3.I1.i2.p1.1.m1.1b\"><geq xref=\"S3.I1.i2.p1.1.m1.1.1\" id=\"S3.I1.i2.p1.1.m1.1.1.cmml\"></geq></annotation-xml><annotation encoding=\"application/x-tex\" id=\"S3.I1.i2.p1.1.m1.1c\">\\geq</annotation><annotation encoding=\"application/x-llamapun\" id=\"S3.I1.i2.p1.1.m1.1d\">≥</annotation></semantics></math>"
+                      "mathml": "redacted"
                     },
                     {
                       "type": "Text",
@@ -4236,7 +4236,7 @@ expression: article
                         "string": "&lt;"
                       },
                       "mathLanguage": "latex",
-                      "mathml": "<math alttext=\"&lt;\" display=\"inline\" id=\"S3.I1.i2.p1.2.m2.1\" class=\"ltx_Math\"><semantics id=\"S3.I1.i2.p1.2.m2.1a\"><mo xref=\"S3.I1.i2.p1.2.m2.1.1.cmml\" id=\"S3.I1.i2.p1.2.m2.1.1\">&lt;</mo><annotation-xml encoding=\"MathML-Content\" id=\"S3.I1.i2.p1.2.m2.1b\"><lt xref=\"S3.I1.i2.p1.2.m2.1.1\" id=\"S3.I1.i2.p1.2.m2.1.1.cmml\"></lt></annotation-xml><annotation encoding=\"application/x-tex\" id=\"S3.I1.i2.p1.2.m2.1c\">&lt;</annotation><annotation encoding=\"application/x-llamapun\" id=\"S3.I1.i2.p1.2.m2.1d\">&lt;</annotation></semantics></math>"
+                      "mathml": "redacted"
                     },
                     {
                       "type": "Text",
@@ -20356,5 +20356,5 @@ expression: article
   ],
   "repository": "https://github.com/stencila/stencila",
   "path": "rust/codec-arxiv/tests/examples/2507.11538v1.html",
-  "commit": "untracked"
+  "commit": "redacted"
 }
