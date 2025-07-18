@@ -375,6 +375,66 @@ fn decode_authors(parser: &Parser, tag: &HTMLTag) -> Vec<Author> {
     authors
 }
 
+/// Decode a ltx_personname element that may contain authors and affiliations separated by <br> tags
+fn decode_personname_element(parser: &Parser, tag: &HTMLTag) -> Vec<Author> {
+    let mut authors = Vec::new();
+    let mut current_author_parts = Vec::new();
+
+    // Iterate through child nodes to separate author names from affiliations
+    for child in tag
+        .children()
+        .top()
+        .iter()
+        .flat_map(|handle| handle.get(parser))
+    {
+        if let Some(child_tag) = child.as_tag() {
+            let tag_name = child_tag.name().as_utf8_str().to_lowercase();
+
+            if tag_name == "br" {
+                // <br> tag indicates separation between author name and affiliation,
+                // or between different affiliation lines
+                if !current_author_parts.is_empty() {
+                    // We have author name parts, process them as potentially multiple authors
+                    let author_text = current_author_parts.join(" ");
+                    let mut parsed_authors = decode_authors_from_text(&author_text);
+                    authors.append(&mut parsed_authors);
+                    current_author_parts.clear();
+                }
+                // After <br>, following content is likely affiliation, skip it for now
+                // TODO: In future, associate affiliations with authors
+            } else {
+                // Extract text from other elements (like <a> tags for author names)
+                let element_text = get_text(parser, child_tag);
+                if !element_text.trim().is_empty() {
+                    current_author_parts.push(element_text);
+                }
+            }
+        } else if let Some(text) = child.as_raw() {
+            if let Some(text_str) = text.try_as_utf8_str() {
+                let decoded_text = decode_html_entities(text_str).trim().to_string();
+                if !decoded_text.is_empty() && decoded_text != "&" {
+                    current_author_parts.push(decoded_text);
+                }
+            }
+        }
+    }
+
+    // Process any remaining author parts
+    if !current_author_parts.is_empty() {
+        let author_text = current_author_parts.join(" ");
+        let mut parsed_authors = decode_authors_from_text(&author_text);
+        authors.append(&mut parsed_authors);
+    }
+
+    // If no authors found through structure parsing, fall back to text-based parsing
+    if authors.is_empty() {
+        let full_text = get_text(parser, tag);
+        authors = decode_authors_from_text(&full_text);
+    }
+
+    authors
+}
+
 /// Decode authors from a span.ltx_creator element
 fn decode_author_from_creator(parser: &Parser, tag: &HTMLTag) -> Vec<Author> {
     // Look for ltx_personname within the creator
@@ -392,9 +452,8 @@ fn decode_author_from_creator(parser: &Parser, tag: &HTMLTag) -> Vec<Author> {
                 .unwrap_or_default();
 
             if child_class.contains("ltx_personname") {
-                // Extract the name from the personname element
-                let name_text = get_text(parser, child_tag);
-                return decode_authors_from_text(&name_text);
+                // Parse authors and affiliations from the personname element
+                return decode_personname_element(parser, child_tag);
             }
         }
     }
@@ -406,32 +465,91 @@ fn decode_author_from_creator(parser: &Parser, tag: &HTMLTag) -> Vec<Author> {
 
 /// Parse multiple authors from a text string using Person::from_str for each
 pub fn decode_authors_from_text(text: &str) -> Vec<Author> {
-    // Split by various separators
+    // First try standard separators
     static SPLIT_BY: Lazy<Regex> =
         Lazy::new(|| Regex::new(r",|&|\band\b|\n").expect("invalid regex"));
-    let authors: Vec<String> = SPLIT_BY
-        .split(text)
-        .map(|s| s.trim())
-        .filter(|s| !s.is_empty())
-        .filter(|s| !is_email_address(s)) // Filter out email addresses
-        .filter(|s| !is_organization_name(s)) // Filter out organization names
-        .map(|s| s.to_string())
-        .collect();
+    let standard_parts: Vec<&str> = SPLIT_BY.split(text).collect();
 
-    // Create Person objects from each author string
-    authors
-        .into_iter()
-        .map(|author| {
-            Person::from_str(&author).unwrap_or_else(|_| Person {
-                options: Box::new(PersonOptions {
-                    name: Some(author.to_string()),
+    // If standard separators worked, use them
+    if standard_parts.len() > 1 {
+        let authors: Vec<String> = standard_parts
+            .into_iter()
+            .map(|s| s.trim())
+            .filter(|s| !s.is_empty())
+            .filter(|s| !is_email_address(s)) // Filter out email addresses
+            .filter(|s| !is_organization_name(s)) // Filter out organization names
+            .map(|s| s.to_string())
+            .collect();
+
+        return authors
+            .into_iter()
+            .map(|author| {
+                Person::from_str(&author).unwrap_or_else(|_| Person {
+                    options: Box::new(PersonOptions {
+                        name: Some(author.to_string()),
+                        ..Default::default()
+                    }),
                     ..Default::default()
-                }),
-                ..Default::default()
+                })
             })
-        })
-        .map(Author::Person)
-        .collect()
+            .map(Author::Person)
+            .collect();
+    }
+
+    // If no standard separators, try to detect superscript-separated names
+    // Pattern: "FirstName LastName 1  NextFirst NextLast 1  ..."
+    if let Some(sup_authors) = parse_superscript_separated_authors(text) {
+        if sup_authors.len() > 1 {
+            return sup_authors;
+        }
+    }
+
+    // Fallback: treat as single author
+    let trimmed = text.trim();
+    if !trimmed.is_empty() && !is_email_address(trimmed) && !is_organization_name(trimmed) {
+        if let Ok(person) = Person::from_str(trimmed) {
+            return vec![Author::Person(person)];
+        }
+    }
+
+    vec![]
+}
+
+/// Try to parse authors separated by superscript numbers
+fn parse_superscript_separated_authors(text: &str) -> Option<Vec<Author>> {
+    // Pattern to detect: "Name1 Number  Name2 Number  ..."
+    // Look for digit followed by 2+ spaces pattern
+    static SUP_PATTERN: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"\d+\s{2,}").expect("invalid regex"));
+
+    // Check if text contains the pattern
+    if !SUP_PATTERN.is_match(text) {
+        return None;
+    }
+
+    // Split by "digit + multiple spaces"
+    let parts: Vec<&str> = SUP_PATTERN.split(text).collect();
+
+    // Clean up each part and try to parse as author
+    let mut authors = Vec::new();
+    for part in parts {
+        let cleaned = part
+            .trim()
+            .trim_end_matches(char::is_numeric) // Remove trailing numbers
+            .trim();
+
+        if !cleaned.is_empty() && !is_email_address(cleaned) && !is_organization_name(cleaned) {
+            if let Ok(person) = Person::from_str(cleaned) {
+                authors.push(Author::Person(person));
+            }
+        }
+    }
+
+    if authors.len() > 1 {
+        Some(authors)
+    } else {
+        None
+    }
 }
 
 /// Decode abstract from div.ltx_abstract

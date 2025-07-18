@@ -55,16 +55,6 @@ expression: article
     {
       "type": "Person",
       "familyNames": [
-        "De",
-        "Raedt"
-      ],
-      "givenNames": [
-        "Luc"
-      ]
-    },
-    {
-      "type": "Person",
-      "familyNames": [
         "Leuven"
       ]
     },
