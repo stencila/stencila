@@ -6,7 +6,7 @@ pub fn message(message: &str, icon: Option<&str>) {
     let initial_indent = icon.map(|icon| [icon, "  "].concat());
     let subsequent_indent = initial_indent
         .as_ref()
-        .map(|indent| " ".repeat(indent.len()));
+        .map(|indent| " ".repeat(indent.chars().count()));
 
     let options = if let (Some(initial_indent), Some(subsequent_indent)) =
         (&initial_indent, &subsequent_indent)
