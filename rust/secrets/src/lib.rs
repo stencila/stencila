@@ -136,25 +136,45 @@ pub fn list() -> Result<Vec<Secret>> {
 /// Redact a secret
 ///
 /// Returns a string with the same number of characters as the secret but all
-/// but the last three characters redacted. If the secret is less than 6 characters
-/// then all characters will be redacted.
-fn redact(value: String) -> String {
-    let chars = value.chars();
-    let chars_count = chars.clone().count();
+/// but any prefix (e.g `api-` or `gho_` up to four chars) and last three
+/// characters redacted. If the suffix is less than 6 characters then all
+/// characters will be redacted.
+pub fn redact(value: String) -> String {
+    let chars_count = value.chars().count();
 
     const CLEAR_CHARS_AT_END: usize = 3;
+    const MAX_PREFIX_CHARS: usize = 4;
 
     if chars_count <= CLEAR_CHARS_AT_END * 2 {
         "●".repeat(chars_count)
     } else {
+        // Find prefix length (letters followed by - or _, up to 4 chars)
+        let prefix_len = value
+            .chars()
+            .take(MAX_PREFIX_CHARS)
+            .take_while(|c| c.is_ascii_alphabetic())
+            .count()
+            .min(MAX_PREFIX_CHARS - 1); // Leave room for separator
+
+        let prefix_len = if prefix_len > 0 && prefix_len < value.chars().count() {
+            let separator = value.chars().nth(prefix_len);
+            if separator == Some('-') || separator == Some('_') {
+                prefix_len + 1 // Include the separator
+            } else {
+                0 // No valid prefix pattern found
+            }
+        } else {
+            0
+        };
+
+        let prefix_len = prefix_len.min(chars_count - CLEAR_CHARS_AT_END);
+        let chars: Vec<char> = value.chars().collect();
+
         [
-            "●".repeat(chars_count - CLEAR_CHARS_AT_END),
-            chars
-                .rev()
-                .take(CLEAR_CHARS_AT_END)
-                .collect::<String>()
-                .chars()
-                .rev()
+            chars[0..prefix_len].iter().collect::<String>(),
+            "●".repeat(chars_count - prefix_len - CLEAR_CHARS_AT_END),
+            chars[chars_count - CLEAR_CHARS_AT_END..]
+                .iter()
                 .collect::<String>(),
         ]
         .concat()
@@ -238,5 +258,32 @@ mod tests {
         assert!(get(name).is_err());
 
         Ok(())
+    }
+
+    #[test]
+    fn test_redact() {
+        // Test with prefix patterns
+        assert_eq!(redact("api-1234567890".to_string()), "api-●●●●●●●890"); // 14 chars: api-(4) + ●●●●●●●(7) + 890(3)
+        assert_eq!(redact("gho_abcdefghijk".to_string()), "gho_●●●●●●●●ijk"); // 15 chars: gho_(4) + ●●●●●●●●(8) + ijk(3)
+        assert_eq!(redact("sk-1234567890".to_string()), "sk-●●●●●●●890"); // 13 chars: sk-(3) + ●●●●●●●(7) + 890(3)
+
+        // Test without prefix patterns
+        assert_eq!(redact("1234567890".to_string()), "●●●●●●●890"); // 10 chars: ●●●●●●●(7) + 890(3)
+        assert_eq!(redact("abcdefghijk".to_string()), "●●●●●●●●ijk"); // 11 chars: ●●●●●●●●(8) + ijk(3)
+
+        // Test short strings (all redacted)
+        assert_eq!(redact("abc".to_string()), "●●●");
+        assert_eq!(redact("12345".to_string()), "●●●●●");
+        assert_eq!(redact("123456".to_string()), "●●●●●●");
+
+        // Test edge cases
+        assert_eq!(redact("a-123".to_string()), "●●●●●"); // Too short for prefix
+        assert_eq!(redact("ab_1234567".to_string()), "ab_●●●●567"); // 10 chars: ab_(3) + ●●●●(4) + 567(3)
+        assert_eq!(redact("abc-1234567".to_string()), "abc-●●●●567"); // 11 chars: abc-(4) + ●●●●(4) + 567(3)
+        assert_eq!(redact("abcd_1234567".to_string()), "●●●●●●●●●567"); // 12 chars: abcd_(5) exceeds max 4, so no prefix + ●●●●●●●●●(9) + 567(3)
+
+        // Test without valid separators
+        assert_eq!(redact("abc1234567".to_string()), "●●●●●●●567"); // 10 chars: ●●●●●●●(7) + 567(3)
+        assert_eq!(redact("api1234567".to_string()), "●●●●●●●567"); // 10 chars: ●●●●●●●(7) + 567(3)
     }
 }
