@@ -183,6 +183,72 @@ fn is_email_address(text: &str) -> bool {
     false
 }
 
+/// Check if a text string is an organization/institution name
+fn is_organization_name(text: &str) -> bool {
+    let trimmed = text.trim().to_lowercase();
+
+    // Skip very short strings (likely abbreviations or names)
+    if trimmed.len() < 3 {
+        return false;
+    }
+
+    // Check for exact organizational patterns (more precise)
+    if trimmed.starts_with("department of")
+        || trimmed.starts_with("university of")
+        || trimmed.starts_with("institute of")
+        || trimmed.starts_with("school of")
+        || trimmed.starts_with("college of")
+        || trimmed.starts_with("center of")
+        || trimmed.starts_with("centre of")
+        || trimmed == "department"
+        || trimmed == "university"
+        || trimmed == "institute"
+        || trimmed == "college"
+        || trimmed == "school"
+        || trimmed == "laboratory"
+        || trimmed == "research"
+        || trimmed == "foundation"
+        || trimmed == "organization"
+        || trimmed == "organisation"
+        || trimmed == "company"
+        || trimmed == "corporation"
+    {
+        return true;
+    }
+
+    // Check for clear organizational endings (more specific)
+    if trimmed.ends_with(" university")
+        || trimmed.ends_with(" institute")
+        || trimmed.ends_with(" college")
+        || trimmed.ends_with(" laboratory")
+        || trimmed.ends_with(" foundation")
+        || trimmed.ends_with(" research")
+        || trimmed.ends_with(" inc.")
+        || trimmed.ends_with(" llc")
+        || trimmed.ends_with(" ltd.")
+        || trimmed.ends_with(" corp.")
+        || trimmed.ends_with(" corporation")
+        || (trimmed.ends_with(" ai") && trimmed.len() > 5)
+    // Avoid filtering short names like "Ai"
+    {
+        return true;
+    }
+
+    // Check for multi-word department/institutional patterns
+    if trimmed.contains(" department")
+        || trimmed.contains(" university")
+        || trimmed.contains(" institute")
+        || trimmed.contains(" college")
+        || trimmed.contains(" laboratory")
+        || trimmed.contains(" hospital")
+        || trimmed.contains(" medical center")
+    {
+        return true;
+    }
+
+    false
+}
+
 /// Extract text content from an HTML element
 pub fn get_text(parser: &Parser, tag: &HTMLTag) -> String {
     let mut text_parts = Vec::new();
@@ -348,6 +414,7 @@ pub fn decode_authors_from_text(text: &str) -> Vec<Author> {
         .map(|s| s.trim())
         .filter(|s| !s.is_empty())
         .filter(|s| !is_email_address(s)) // Filter out email addresses
+        .filter(|s| !is_organization_name(s)) // Filter out organization names
         .map(|s| s.to_string())
         .collect();
 

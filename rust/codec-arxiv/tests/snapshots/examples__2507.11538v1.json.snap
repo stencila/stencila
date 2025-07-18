@@ -66,15 +66,6 @@ expression: article
     },
     {
       "type": "Person",
-      "familyNames": [
-        "Ai"
-      ],
-      "givenNames": [
-        "Distyl"
-      ]
-    },
-    {
-      "type": "Person",
       "givenNames": [
         "{daniel"
       ]

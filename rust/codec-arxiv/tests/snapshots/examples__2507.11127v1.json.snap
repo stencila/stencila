@@ -43,17 +43,6 @@ expression: article
     {
       "type": "Person",
       "familyNames": [
-        "Science"
-      ],
-      "givenNames": [
-        "Department",
-        "Of",
-        "Computer"
-      ]
-    },
-    {
-      "type": "Person",
-      "familyNames": [
         "Leuven"
       ]
     },
@@ -76,17 +65,6 @@ expression: article
     {
       "type": "Person",
       "familyNames": [
-        "Science"
-      ],
-      "givenNames": [
-        "Department",
-        "Of",
-        "Computer"
-      ]
-    },
-    {
-      "type": "Person",
-      "familyNames": [
         "Leuven"
       ]
     },
@@ -94,15 +72,6 @@ expression: article
       "type": "Person",
       "givenNames": [
         "Belgium"
-      ]
-    },
-    {
-      "type": "Person",
-      "familyNames": [
-        "University"
-      ],
-      "givenNames": [
-        "Örebro"
       ]
     },
     {

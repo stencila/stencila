@@ -90,16 +90,6 @@ expression: article
     },
     {
       "type": "Person",
-      "familyNames": [
-        "Statistics"
-      ],
-      "givenNames": [
-        "Department",
-        "Of"
-      ]
-    },
-    {
-      "type": "Person",
       "givenNames": [
         "Texas A"
       ]
@@ -113,37 +103,10 @@ expression: article
     {
       "type": "Person",
       "familyNames": [
-        "University"
-      ]
-    },
-    {
-      "type": "Person",
-      "familyNames": [
-        "Industrial"
-      ],
-      "givenNames": [
-        "Department",
-        "Of"
-      ]
-    },
-    {
-      "type": "Person",
-      "familyNames": [
         "Engineering"
       ],
       "givenNames": [
         "Management"
-      ]
-    },
-    {
-      "type": "Person",
-      "familyNames": [
-        "Science"
-      ],
-      "givenNames": [
-        "Pohang",
-        "University",
-        "Of"
       ]
     },
     {
@@ -156,46 +119,6 @@ expression: article
       "type": "Person",
       "givenNames": [
         "Technology"
-      ]
-    },
-    {
-      "type": "Person",
-      "familyNames": [
-        "Statistics"
-      ],
-      "givenNames": [
-        "Department",
-        "Of"
-      ]
-    },
-    {
-      "type": "Person",
-      "familyNames": [
-        "Wisconsin–Madison"
-      ],
-      "givenNames": [
-        "University",
-        "Of"
-      ]
-    },
-    {
-      "type": "Person",
-      "familyNames": [
-        "Biostatistics"
-      ],
-      "givenNames": [
-        "Department",
-        "Of"
-      ]
-    },
-    {
-      "type": "Person",
-      "familyNames": [
-        "University"
-      ],
-      "givenNames": [
-        "Virginia",
-        "Commonwealth"
       ]
     }
   ],

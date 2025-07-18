@@ -1213,16 +1213,6 @@ expression: article
           "givenNames": [
             "Extensions (2nd edition)"
           ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "University"
-          ],
-          "givenNames": [
-            "Cambridge"
-          ],
-          "honorificSuffix": "Press."
         }
       ]
     },
