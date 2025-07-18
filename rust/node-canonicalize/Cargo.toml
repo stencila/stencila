@@ -10,8 +10,8 @@ codec-text = { path = "../codec-text" }
 common = { path = "../common" }
 governor = {version = "0.10.0", default-features = false, features = ["std"]}
 human_name = "2.0.3"
-reqwest-middleware = "0.4.2"
-reqwest-ratelimit = "0.4.1"
+reqwest-middleware = { workspace = true }
+reqwest-ratelimit = { workspace = true }
 schema = { path = "../schema" }
 
 [dev-dependencies]
