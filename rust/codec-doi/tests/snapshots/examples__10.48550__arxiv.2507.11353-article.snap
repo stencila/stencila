@@ -1,0 +1,71 @@
+---
+source: rust/codec-doi/tests/examples.rs
+expression: article
+---
+{
+  "type": "Article",
+  "abstract": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "We introduce a new mean-field game framework to analyze the impact of carbon pricing in a multi-sector economy with defaultable firms. Each sector produces a homogeneous good, with its price endogenously determined through market clearing. Firms act as price takers and maximize profits by choosing an optimal allocation of inputs-including labor, emissions, and intermediate goods from other sectors-while interacting through the endogenous sectoral price. Firms also choose their default timing to maximize shareholder value.\n Formally, we model the economy as an optimal stopping mean-field game within each sector. The resulting system of coupled mean-field games admits a linear programming formulation that characterizes Nash equilibria in terms of population measure flows. We prove the existence of a linear programming Nash equilibrium and establish uniqueness of the associated price system.\n Numerical illustrations are presented for firms with constant elasticity of substitution (CES) production functions. In a stylized single-sector economy, carbon price shocks induce substitution between emissions and labor. In a three-sector economy, the manufacturing sector faces consumer demand and requires inputs from a brown sector, which can be increasingly replaced by green-sector goods as carbon prices rise. These experiments reveal that carbon price shocks can generate substantial spillover effects along the value chain, underscoring the importance of sectoral interdependencies in shaping effective decarbonization pathways."
+          }
+        }
+      ]
+    }
+  ],
+  "authors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Grbac"
+      ],
+      "givenNames": [
+        "Zorana"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Pavarana"
+      ],
+      "givenNames": [
+        "Simone"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Schmidt"
+      ],
+      "givenNames": [
+        "Thorsten"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Tankov"
+      ],
+      "givenNames": [
+        "Peter"
+      ]
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2025"
+  },
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Propagation of carbon price shocks through the value chain: the mean-field game of defaults"
+      }
+    }
+  ],
+  "content": []
+}
