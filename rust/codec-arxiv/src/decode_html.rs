@@ -150,6 +150,18 @@ pub fn get_href_target(tag: &HTMLTag) -> Option<String> {
     })
 }
 
+/// Decode common HTML entities
+pub fn decode_html_entities(text: &str) -> String {
+    text.replace("&amp;", "&")
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&quot;", "\"")
+        .replace("&#x27;", "'")
+        .replace("&#39;", "'")
+        .replace("&apos;", "'")
+        .replace("&nbsp;", " ")
+}
+
 /// Extract text content from an HTML element
 pub fn get_text(parser: &Parser, tag: &HTMLTag) -> String {
     let mut text_parts = Vec::new();
@@ -164,7 +176,7 @@ pub fn get_text(parser: &Parser, tag: &HTMLTag) -> String {
             text_parts.push(get_text(parser, child_tag));
         } else if let Some(text) = child.as_raw() {
             if let Some(text_str) = text.try_as_utf8_str() {
-                text_parts.push(text_str.to_string());
+                text_parts.push(decode_html_entities(text_str));
             }
         }
     }

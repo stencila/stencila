@@ -107,22 +107,13 @@ expression: article
     {
       "type": "Person",
       "givenNames": [
-        "amp;  \\"
-      ]
-    },
-    {
-      "type": "Person",
-      "givenNames": [
-        "amp;"
+        "\\"
       ]
     },
     {
       "type": "Person",
       "familyNames": [
         "University"
-      ],
-      "givenNames": [
-        "Amp;"
       ]
     },
     {
@@ -158,22 +149,13 @@ expression: article
     {
       "type": "Person",
       "givenNames": [
-        "amp;  \\"
+        "\\"
       ]
     },
     {
       "type": "Person",
       "givenNames": [
-        "amp;"
-      ]
-    },
-    {
-      "type": "Person",
-      "familyNames": [
         "Technology"
-      ],
-      "givenNames": [
-        "Amp;"
       ]
     },
     {
@@ -4024,7 +4006,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "S_{ij}(t)=k,\\quad\\textrm{if}\\quad T_{ij}^{\\,(k)}\\leq t&lt;T_{ij}^{\\,(k+1)},\\quad k%\n=0,1,\\ldots,K."
+            "string": "S_{ij}(t)=k,\\quad\\textrm{if}\\quad T_{ij}^{\\,(k)}\\leq t<T_{ij}^{\\,(k+1)},\\quad k%\n=0,1,\\ldots,K."
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -5201,7 +5183,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "S_{ij}(C_{ij})=k\\quad\\textrm{if}\\quad{T_{ij}}\\sum_{l=0}^{k}{R_{ij}^{\\,(l)}}%\n\\leq{C_{ij}}&lt;{T_{ij}}\\sum_{l=0}^{k+1}{R_{ij}^{\\,(l)}},\\quad k=0,1,\\ldots,K."
+            "string": "S_{ij}(C_{ij})=k\\quad\\textrm{if}\\quad{T_{ij}}\\sum_{l=0}^{k}{R_{ij}^{\\,(l)}}%\n\\leq{C_{ij}}<{T_{ij}}\\sum_{l=0}^{k+1}{R_{ij}^{\\,(l)}},\\quad k=0,1,\\ldots,K."
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -14524,7 +14506,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "\\text{Var}(y_{ij})=(\\Sigma_{y})_{jj}=\\begin{cases}\\sigma_{b,j}^{2}+\\sigma_{%\n\\epsilon}^{2},&amp;\\text{if }1\\leq j\\leq\\frac{m}{2}\\\\\n\\sigma_{b,m-j+1}^{2}+\\sigma_{\\epsilon}^{2},&amp;\\text{if }\\frac{m}{2}&lt;j\\leq m\\end{cases}"
+            "string": "\\text{Var}(y_{ij})=(\\Sigma_{y})_{jj}=\\begin{cases}\\sigma_{b,j}^{2}+\\sigma_{%\n\\epsilon}^{2},&\\text{if }1\\leq j\\leq\\frac{m}{2}\\\\\n\\sigma_{b,m-j+1}^{2}+\\sigma_{\\epsilon}^{2},&\\text{if }\\frac{m}{2}<j\\leq m\\end{cases}"
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -14557,7 +14539,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "\\text{Cov}(y_{ij},y_{ij^{\\prime}})=(\\Sigma_{y})_{jj^{\\prime}}=\\begin{cases}%\n\\sigma_{b,jj^{\\prime}},&amp;\\text{if }1\\leq j&lt;j^{\\prime}\\leq\\frac{m}{2};\\ j^{%\n\\prime}\\neq m-j+1\\\\\n\\sigma_{b,(m-j+1)(m-j^{\\prime}+1)},&amp;\\text{if }\\frac{m}{2}&lt;j&lt;j^{\\prime}\\leq m;%\n\\ j^{\\prime}\\neq m-j+1\\\\\n\\sigma_{b,j(m-j^{\\prime}+1)},&amp;\\text{if }1\\leq j\\leq\\frac{m}{2}&lt;j^{\\prime}\\leq m%\n\\\\\n\\sigma_{b,j}^{2},&amp;\\text{if }j^{\\prime}=m-j+1\\end{cases}"
+            "string": "\\text{Cov}(y_{ij},y_{ij^{\\prime}})=(\\Sigma_{y})_{jj^{\\prime}}=\\begin{cases}%\n\\sigma_{b,jj^{\\prime}},&\\text{if }1\\leq j<j^{\\prime}\\leq\\frac{m}{2};\\ j^{%\n\\prime}\\neq m-j+1\\\\\n\\sigma_{b,(m-j+1)(m-j^{\\prime}+1)},&\\text{if }\\frac{m}{2}<j<j^{\\prime}\\leq m;%\n\\ j^{\\prime}\\neq m-j+1\\\\\n\\sigma_{b,j(m-j^{\\prime}+1)},&\\text{if }1\\leq j\\leq\\frac{m}{2}<j^{\\prime}\\leq m%\n\\\\\n\\sigma_{b,j}^{2},&\\text{if }j^{\\prime}=m-j+1\\end{cases}"
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -15371,7 +15353,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "S(c)=k\\quad\\textrm{if}\\quad{T}\\sum_{l=0}^{k}{R^{\\,(l)}}\\leq{c}&lt;{T}\\sum_{l=0}^{%\nk+1}{R^{\\,(l)}},\\quad k=0,1,\\ldots,K\\,,"
+            "string": "S(c)=k\\quad\\textrm{if}\\quad{T}\\sum_{l=0}^{k}{R^{\\,(l)}}\\leq{c}<{T}\\sum_{l=0}^{%\nk+1}{R^{\\,(l)}},\\quad k=0,1,\\ldots,K\\,,"
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -15917,7 +15899,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "\\begin{split}0&amp;=h(z_{1})-h(z_{2})\\\\\n&amp;=\\int_{\\mathbb{R}}F\\left(\\text{log }c-b_{1}-z_{1}\\right)\\frac{1}{\\sigma_{b}}%\n\\phi\\left(\\frac{b_{1}}{\\sigma_{b}}\\right)\\ db_{1}-\\int_{\\mathbb{R}}F\\left(%\n\\text{log }c-b_{1}-z_{2}\\right)\\frac{1}{\\sigma_{b}}\\phi\\left(\\frac{b_{1}}{%\n\\sigma_{b}}\\right)\\ db_{1}\\\\\n&amp;=\\int_{\\mathbb{R}}F\\left(y\\right)\\frac{1}{\\sigma_{b}}\\left[\\phi\\left(\\frac{y+%\nz_{1}-\\text{log }c}{\\sigma_{b}}\\right)-\\phi\\left(\\frac{y+z_{2}-\\text{log }c}{%\n\\sigma_{b}}\\right)\\right]dy\\\\\n&amp;=\\int_{\\mathbb{R}}F(y)\\ \\psi(y)\\ dy\\\\\n&amp;=\\int_{-\\infty}^{z^{*}}F(y)\\ \\psi(y)\\ dy\\ +\\ \\int_{z^{*}}^{\\infty}F(y)\\ \\psi(%\ny)\\ dy\\\\\n&amp;=\\int_{-\\infty}^{z^{*}}\\{F(y)-F(2z^{*}-y)\\}\\,\\psi(y)\\,dy,\\quad\\qquad\\text{%\nsince }\\psi(2z^{*}-y)=-\\psi(y)\\\\\n&amp;=\\int_{0}^{\\infty}\\{F(z^{*}+y)-F(z^{*}-y)\\}\\ \\psi(z^{*}+y)\\ dy,\\qquad\\quad%\n\\text{using }\\eqref{eq:psi_1}\\,.\\end{split}"
+            "string": "\\begin{split}0&=h(z_{1})-h(z_{2})\\\\\n&=\\int_{\\mathbb{R}}F\\left(\\text{log }c-b_{1}-z_{1}\\right)\\frac{1}{\\sigma_{b}}%\n\\phi\\left(\\frac{b_{1}}{\\sigma_{b}}\\right)\\ db_{1}-\\int_{\\mathbb{R}}F\\left(%\n\\text{log }c-b_{1}-z_{2}\\right)\\frac{1}{\\sigma_{b}}\\phi\\left(\\frac{b_{1}}{%\n\\sigma_{b}}\\right)\\ db_{1}\\\\\n&=\\int_{\\mathbb{R}}F\\left(y\\right)\\frac{1}{\\sigma_{b}}\\left[\\phi\\left(\\frac{y+%\nz_{1}-\\text{log }c}{\\sigma_{b}}\\right)-\\phi\\left(\\frac{y+z_{2}-\\text{log }c}{%\n\\sigma_{b}}\\right)\\right]dy\\\\\n&=\\int_{\\mathbb{R}}F(y)\\ \\psi(y)\\ dy\\\\\n&=\\int_{-\\infty}^{z^{*}}F(y)\\ \\psi(y)\\ dy\\ +\\ \\int_{z^{*}}^{\\infty}F(y)\\ \\psi(%\ny)\\ dy\\\\\n&=\\int_{-\\infty}^{z^{*}}\\{F(y)-F(2z^{*}-y)\\}\\,\\psi(y)\\,dy,\\quad\\qquad\\text{%\nsince }\\psi(2z^{*}-y)=-\\psi(y)\\\\\n&=\\int_{0}^{\\infty}\\{F(z^{*}+y)-F(z^{*}-y)\\}\\ \\psi(z^{*}+y)\\ dy,\\qquad\\quad%\n\\text{using }\\eqref{eq:psi_1}\\,.\\end{split}"
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -18095,7 +18077,7 @@ expression: article
                 {
                   "type": "MathBlock",
                   "code": {
-                    "string": "\\pi^{\\prime}_{h}\\mid\\ldots\\sim\\text{Beta}\\,\\big{(}n_{h}+1,\\gamma+\\sum_{l&gt;h}n_{%\nl}\\big{)},"
+                    "string": "\\pi^{\\prime}_{h}\\mid\\ldots\\sim\\text{Beta}\\,\\big{(}n_{h}+1,\\gamma+\\sum_{l>h}n_{%\nl}\\big{)},"
                   },
                   "mathLanguage": "latex",
                   "mathml": "redacted"
@@ -18307,7 +18289,7 @@ expression: article
                 {
                   "type": "MathBlock",
                   "code": {
-                    "string": "\\gamma\\mid\\ldots\\sim\\mathcal{G}\\bigg{(}a_{\\gamma}+H-1,\\,b_{\\gamma}-\\sum_{h&lt;H}%\n\\text{log }(1-\\pi^{\\prime}_{h})\\bigg{)}."
+                    "string": "\\gamma\\mid\\ldots\\sim\\mathcal{G}\\bigg{(}a_{\\gamma}+H-1,\\,b_{\\gamma}-\\sum_{h<H}%\n\\text{log }(1-\\pi^{\\prime}_{h})\\bigg{)}."
                   },
                   "mathLanguage": "latex",
                   "mathml": "redacted"
@@ -18476,7 +18458,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "\\mathcal{C}_{\\text{log }T_{ij}}=\\left\\{\\text{log }T_{ij}\\in{\\mathbb{R}}:\\ %\n\\frac{c_{ij}}{\\sum_{l=1}^{s_{ij}+1}R_{ij}^{\\,(l)}}\\ &lt;\\ T_{ij}\\ \\leq\\ \\frac{c_{%\nij}}{\\sum_{l=1}^{s_{ij}}R_{ij}^{\\,(l)}}\\right\\}."
+            "string": "\\mathcal{C}_{\\text{log }T_{ij}}=\\left\\{\\text{log }T_{ij}\\in{\\mathbb{R}}:\\ %\n\\frac{c_{ij}}{\\sum_{l=1}^{s_{ij}+1}R_{ij}^{\\,(l)}}\\ <\\ T_{ij}\\ \\leq\\ \\frac{c_{%\nij}}{\\sum_{l=1}^{s_{ij}}R_{ij}^{\\,(l)}}\\right\\}."
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -18570,7 +18552,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "\\mathcal{C}_{\\bm{R}_{ij}}=\\left\\{\\bm{R}_{ij}\\in\\mathbb{S}_{K-1}:\\ \\frac{c_{ij}%\n}{\\sum_{l=1}^{s_{ij}+1}R_{ij}^{\\,(l)}}\\ &lt;\\ T_{ij}\\ \\leq\\ \\frac{c_{ij}}{\\sum_{l%\n=1}^{s_{ij}}R_{ij}^{\\,(l)}}\\right\\},"
+            "string": "\\mathcal{C}_{\\bm{R}_{ij}}=\\left\\{\\bm{R}_{ij}\\in\\mathbb{S}_{K-1}:\\ \\frac{c_{ij}%\n}{\\sum_{l=1}^{s_{ij}+1}R_{ij}^{\\,(l)}}\\ <\\ T_{ij}\\ \\leq\\ \\frac{c_{ij}}{\\sum_{l%\n=1}^{s_{ij}}R_{ij}^{\\,(l)}}\\right\\},"
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -20155,7 +20137,7 @@ expression: article
     {
       "type": "MathBlock",
       "code": {
-        "string": "\\eta_{k}(t\\,;\\,T,\\bm{R})=\\begin{cases}\\mathds{1}\\left(t\\ &lt;T\\,R^{(1)}\\right),&amp;k%\n=0\\\\\n\\mathds{1}\\left(T\\,\\sum_{l=1}^{k}{R^{(l)}}\\leq\\ t\\ &lt;T\\,\\sum_{l=1}^{k+1}R^{(l)}%\n\\right),&amp;k=1,\\ldots,K-1\\\\\n\\mathds{1}\\left(T\\leq t\\right),&amp;k=K\\end{cases}"
+        "string": "\\eta_{k}(t\\,;\\,T,\\bm{R})=\\begin{cases}\\mathds{1}\\left(t\\ <T\\,R^{(1)}\\right),&k%\n=0\\\\\n\\mathds{1}\\left(T\\,\\sum_{l=1}^{k}{R^{(l)}}\\leq\\ t\\ <T\\,\\sum_{l=1}^{k+1}R^{(l)}%\n\\right),&k=1,\\ldots,K-1\\\\\n\\mathds{1}\\left(T\\leq t\\right),&k=K\\end{cases}"
       },
       "mathLanguage": "latex",
       "mathml": "redacted"

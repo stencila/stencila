@@ -76,7 +76,6 @@ expression: article
         "Raedt"
       ],
       "givenNames": [
-        "Amp;",
         "Luc"
       ]
     },
@@ -1045,7 +1044,7 @@ expression: article
         "type": "PublicationVolume",
         "isPartOf": {
           "type": "Periodical",
-          "name": "Morgan &amp; Claypool Publishers"
+          "name": "Morgan & Claypool Publishers"
         },
         "volumeNumber": "2016."
       }
@@ -3455,7 +3454,7 @@ expression: article
         "type": "PublicationVolume",
         "isPartOf": {
           "type": "Periodical",
-          "name": "Springer Science &amp; Business Media"
+          "name": "Springer Science & Business Media"
         },
         "volumeNumber": "2010."
       }
@@ -5599,7 +5598,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "\\displaystyle\\omega(s)=\\begin{cases}1\\qquad&amp;\\text{if }s\\in\\left\\{\\texttt{h},%\n\\texttt{c}\\right\\},\\\\\n0\\qquad&amp;\\text{otherwise}.\\end{cases}"
+            "string": "\\displaystyle\\omega(s)=\\begin{cases}1\\qquad&\\text{if }s\\in\\left\\{\\texttt{h},%\n\\texttt{c}\\right\\},\\\\\n0\\qquad&\\text{otherwise}.\\end{cases}"
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -5805,7 +5804,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "\\displaystyle\\omega(s)=\\begin{cases}0.5\\qquad&amp;\\text{if }s\\in\\left\\{\\texttt{c},%\n\\texttt{p}\\right\\},\\\\\n1\\qquad&amp;\\text{otherwise}.\\end{cases}"
+            "string": "\\displaystyle\\omega(s)=\\begin{cases}0.5\\qquad&\\text{if }s\\in\\left\\{\\texttt{c},%\n\\texttt{p}\\right\\},\\\\\n1\\qquad&\\text{otherwise}.\\end{cases}"
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -5889,7 +5888,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "\\displaystyle\\texttt{h = 1}\\Rightarrow\\texttt{(c + p &gt;= 0)},"
+            "string": "\\displaystyle\\texttt{h = 1}\\Rightarrow\\texttt{(c + p >= 0)},"
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -11532,7 +11531,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "\\displaystyle\\mathbbm{1}_{S}(\\bm{x})=\\begin{cases}1\\qquad&amp;\\text{if }\\bm{x}\\in S%\n,\\\\\n0\\qquad&amp;\\text{otherwise}.\\end{cases}"
+            "string": "\\displaystyle\\mathbbm{1}_{S}(\\bm{x})=\\begin{cases}1\\qquad&\\text{if }\\bm{x}\\in S%\n,\\\\\n0\\qquad&\\text{otherwise}.\\end{cases}"
           },
           "mathLanguage": "latex",
           "mathml": "redacted"

@@ -5608,7 +5608,7 @@ expression: article
                     {
                       "type": "MathBlock",
                       "code": {
-                        "string": "F_{i}(\\mathbf{q},E,L)\\leq c_{i}L\\quad\\text{for some constant $c_{i}&lt;\\infty$}."
+                        "string": "F_{i}(\\mathbf{q},E,L)\\leq c_{i}L\\quad\\text{for some constant $c_{i}<\\infty$}."
                       },
                       "mathLanguage": "latex",
                       "mathml": "redacted"
@@ -5744,7 +5744,7 @@ expression: article
             {
               "type": "MathBlock",
               "code": {
-                "string": "F_{i}(\\mathbf{q}_{i},E_{i},L_{i})=A_{i}\\left(\\sum_{j=1}^{N}\\alpha_{ij}q_{ij}^{%\n-\\rho_{i}}+\\alpha_{iE}E_{i}^{-\\rho_{i}}+\\alpha_{iL}L_{i}^{-\\rho_{i}}\\right)^{-%\n\\frac{k_{i}}{\\rho_{i}}},\\quad\\rho_{i}&gt;0,\\;k_{i}\\in(0,1],"
+                "string": "F_{i}(\\mathbf{q}_{i},E_{i},L_{i})=A_{i}\\left(\\sum_{j=1}^{N}\\alpha_{ij}q_{ij}^{%\n-\\rho_{i}}+\\alpha_{iE}E_{i}^{-\\rho_{i}}+\\alpha_{iL}L_{i}^{-\\rho_{i}}\\right)^{-%\n\\frac{k_{i}}{\\rho_{i}}},\\quad\\rho_{i}>0,\\;k_{i}\\in(0,1],"
               },
               "mathLanguage": "latex",
               "mathml": "redacted"
@@ -7076,7 +7076,7 @@ expression: article
             {
               "type": "MathBlock",
               "code": {
-                "string": "F_{i}(\\mathbf{q}_{i},E_{i},L_{i})=A_{i}\\left(\\sum_{j=1}^{N}\\alpha_{ij}q_{ij}^{%\n-\\rho_{i}}+\\alpha_{iE}E_{i}^{-\\rho_{i}}+\\alpha_{iL}L_{i}^{-\\rho_{i}}\\right)^{-%\n\\frac{1}{\\rho_{i}}},\\quad\\text{with }\\rho_{i}&gt;0."
+                "string": "F_{i}(\\mathbf{q}_{i},E_{i},L_{i})=A_{i}\\left(\\sum_{j=1}^{N}\\alpha_{ij}q_{ij}^{%\n-\\rho_{i}}+\\alpha_{iE}E_{i}^{-\\rho_{i}}+\\alpha_{iL}L_{i}^{-\\rho_{i}}\\right)^{-%\n\\frac{1}{\\rho_{i}}},\\quad\\text{with }\\rho_{i}>0."
               },
               "mathLanguage": "latex",
               "mathml": "redacted"
@@ -7685,7 +7685,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "D_{i}(P)=a_{i}P^{-\\epsilon_{i}}-b_{i},\\quad\\text{with }a_{i},\\epsilon_{i}&gt;0,%\n\\quad b_{i}\\geq 0,"
+            "string": "D_{i}(P)=a_{i}P^{-\\epsilon_{i}}-b_{i},\\quad\\text{with }a_{i},\\epsilon_{i}>0,%\n\\quad b_{i}\\geq 0,"
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -7743,7 +7743,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "D_{i}(P)=a_{i}P^{-\\epsilon_{i}}-b_{i}P^{\\delta_{i}},\\quad\\text{with }a_{i},%\n\\epsilon_{i},\\delta_{i}&gt;0,\\quad b_{i}\\geq 0."
+            "string": "D_{i}(P)=a_{i}P^{-\\epsilon_{i}}-b_{i}P^{\\delta_{i}},\\quad\\text{with }a_{i},%\n\\epsilon_{i},\\delta_{i}>0,\\quad b_{i}\\geq 0."
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -8971,7 +8971,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "\\overline{P}_{i}F_{i}(\\overline{\\mathbf{q}}_{i},\\overline{E}_{i},\\overline{L}_%\n{i})-\\sum_{j=1}^{N}\\overline{P}_{j}\\overline{q}_{ij}&gt;0."
+            "string": "\\overline{P}_{i}F_{i}(\\overline{\\mathbf{q}}_{i},\\overline{E}_{i},\\overline{L}_%\n{i})-\\sum_{j=1}^{N}\\overline{P}_{j}\\overline{q}_{ij}>0."
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -10100,7 +10100,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "\\Delta_{i}(P)\\leq C^{\\prime}+\\varepsilon P,\\quad\\text{for all }P&gt;0."
+            "string": "\\Delta_{i}(P)\\leq C^{\\prime}+\\varepsilon P,\\quad\\text{for all }P>0."
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -10709,7 +10709,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "\\mathcal{L}(\\mathbf{P}^{*}(h),\\mathcal{Q},\\mathbf{E},\\mathbf{L})&lt;\\mathcal{L}(%\n\\mathbf{P}^{*},\\mathcal{Q},\\mathbf{E},\\mathbf{L}),"
+            "string": "\\mathcal{L}(\\mathbf{P}^{*}(h),\\mathcal{Q},\\mathbf{E},\\mathbf{L})<\\mathcal{L}(%\n\\mathbf{P}^{*},\\mathcal{Q},\\mathbf{E},\\mathbf{L}),"
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -11769,7 +11769,7 @@ expression: article
             {
               "type": "MathBlock",
               "code": {
-                "string": "\\sup_{t\\in[0,T]}\\mathbb{E}\\big{[}\\lvert X^{i}_{t}\\rvert^{p}\\big{]}&lt;\\infty,%\n\\quad\\mathbb{P}(\\tau_{{\\mathcal{O}}_{i}}&gt;T)=1,"
+                "string": "\\sup_{t\\in[0,T]}\\mathbb{E}\\big{[}\\lvert X^{i}_{t}\\rvert^{p}\\big{]}<\\infty,%\n\\quad\\mathbb{P}(\\tau_{{\\mathcal{O}}_{i}}>T)=1,"
               },
               "mathLanguage": "latex",
               "mathml": "redacted"
@@ -12063,7 +12063,7 @@ expression: article
             {
               "type": "MathBlock",
               "code": {
-                "string": "dX^{i}_{t}=\\alpha_{i}(\\theta_{i}-X^{i}_{t})\\,dt+\\sigma_{i}\\sqrt{X^{i}_{t}}\\,dW%\n^{i}_{t},\\quad X^{i}_{0}=x^{i}\\in\\mathbb{R}_{&gt;0},\\quad t\\in[0,T],"
+                "string": "dX^{i}_{t}=\\alpha_{i}(\\theta_{i}-X^{i}_{t})\\,dt+\\sigma_{i}\\sqrt{X^{i}_{t}}\\,dW%\n^{i}_{t},\\quad X^{i}_{0}=x^{i}\\in\\mathbb{R}_{>0},\\quad t\\in[0,T],"
               },
               "mathLanguage": "latex",
               "mathml": "redacted"
@@ -12121,7 +12121,7 @@ expression: article
             {
               "type": "MathBlock",
               "code": {
-                "string": "2\\alpha_{i}\\theta_{i}&gt;\\sigma_{i}^{2}."
+                "string": "2\\alpha_{i}\\theta_{i}>\\sigma_{i}^{2}."
               },
               "mathLanguage": "latex",
               "mathml": "redacted"
@@ -12172,7 +12172,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "P_{i}\\colon[0,T]\\to\\mathbb{R}_{\\geq 0},\\quad P_{E}\\colon[0,T]\\to\\mathbb{R}_{&gt;0}."
+            "string": "P_{i}\\colon[0,T]\\to\\mathbb{R}_{\\geq 0},\\quad P_{E}\\colon[0,T]\\to\\mathbb{R}_{>0}."
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -13898,7 +13898,7 @@ expression: article
                     {
                       "type": "MathBlock",
                       "code": {
-                        "string": "\\int_{0}^{T}\\int_{\\overline{{\\mathcal{O}}}}(1+x^{p})\\,m_{t}(dx)dt&lt;\\infty."
+                        "string": "\\int_{0}^{T}\\int_{\\overline{{\\mathcal{O}}}}(1+x^{p})\\,m_{t}(dx)dt<\\infty."
                       },
                       "mathLanguage": "latex",
                       "mathml": "redacted"
@@ -14763,7 +14763,7 @@ expression: article
             {
               "type": "MathBlock",
               "code": {
-                "string": "\\begin{split}\\int_{0}^{T}\\int_{\\overline{\\mathcal{O}}_{i}}u(t,x)\\,\\mu(dt,dx)&amp;=%\n\\int_{{\\mathcal{O}}_{i}}u(0,x)\\,m_{0}(dx)\\\\\n&amp;\\quad+\\int_{0}^{T}\\int_{\\overline{\\mathcal{O}}_{i}}\\left\\{\\frac{\\partial u}{%\n\\partial t}(t,x)+{\\mathscr{L}}_{i}u(t,x)\\right\\}\\,m_{t}(dx)dt,\\end{split}"
+                "string": "\\begin{split}\\int_{0}^{T}\\int_{\\overline{\\mathcal{O}}_{i}}u(t,x)\\,\\mu(dt,dx)&=%\n\\int_{{\\mathcal{O}}_{i}}u(0,x)\\,m_{0}(dx)\\\\\n&\\quad+\\int_{0}^{T}\\int_{\\overline{\\mathcal{O}}_{i}}\\left\\{\\frac{\\partial u}{%\n\\partial t}(t,x)+{\\mathscr{L}}_{i}u(t,x)\\right\\}\\,m_{t}(dx)dt,\\end{split}"
               },
               "mathLanguage": "latex",
               "mathml": "redacted"
@@ -14996,7 +14996,7 @@ expression: article
             {
               "type": "MathBlock",
               "code": {
-                "string": "\\int_{{\\mathcal{O}}_{i}}(1+x^{p^{\\prime}})\\,m_{0}(dx)&lt;\\infty\\quad\\text{for %\nsome }p^{\\prime}&gt;p."
+                "string": "\\int_{{\\mathcal{O}}_{i}}(1+x^{p^{\\prime}})\\,m_{0}(dx)<\\infty\\quad\\text{for %\nsome }p^{\\prime}>p."
               },
               "mathLanguage": "latex",
               "mathml": "redacted"
@@ -15129,7 +15129,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "\\begin{split}\\max_{(m^{i},\\mu^{i})\\in{\\mathcal{R}}^{i}(m^{i}_{0})}&amp;\\int_{0}^{T%\n}\\int_{\\overline{{\\mathcal{O}}}_{i}}e^{-rt}\\left\\{\\overline{\\Pi}_{i}(\\mathbf{P%\n}(t),P_{E}(t),x)-\\kappa_{i}\\right\\}m^{i}_{t}(dx)\\,dt\\\\\n&amp;-\\int_{0}^{T}\\int_{\\overline{{\\mathcal{O}}}_{i}}K_{i}e^{-(r+\\gamma_{i})t}\\mu^%\n{i}(dt,dx).\\end{split}"
+            "string": "\\begin{split}\\max_{(m^{i},\\mu^{i})\\in{\\mathcal{R}}^{i}(m^{i}_{0})}&\\int_{0}^{T%\n}\\int_{\\overline{{\\mathcal{O}}}_{i}}e^{-rt}\\left\\{\\overline{\\Pi}_{i}(\\mathbf{P%\n}(t),P_{E}(t),x)-\\kappa_{i}\\right\\}m^{i}_{t}(dx)\\,dt\\\\\n&-\\int_{0}^{T}\\int_{\\overline{{\\mathcal{O}}}_{i}}K_{i}e^{-(r+\\gamma_{i})t}\\mu^%\n{i}(dt,dx).\\end{split}"
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -16230,7 +16230,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "\\begin{split}\\mathcal{L}(\\mathbf{P},\\mathbf{m},\\bm{\\mu})&amp;\\coloneqq\\sum_{i=1}^{%\nN}\\int_{0}^{T}\\int_{\\overline{\\mathcal{O}}_{i}}e^{-rt}\\left\\{\\overline{\\Pi}_{i%\n}(\\mathbf{P}(t),P_{E}(t),x)-\\kappa_{i}\\right\\}m^{i}_{t}(dx)\\,dt\\\\\n&amp;\\quad-\\int_{0}^{T}\\int_{\\overline{\\mathcal{O}}_{i}}K_{i}e^{-(r+\\gamma_{i})t}%\n\\mu^{i}(dt,dx)-\\int_{0}^{T}e^{-rt}\\Delta_{i}(t,P^{i}(t))\\,dt,\\end{split}"
+            "string": "\\begin{split}\\mathcal{L}(\\mathbf{P},\\mathbf{m},\\bm{\\mu})&\\coloneqq\\sum_{i=1}^{%\nN}\\int_{0}^{T}\\int_{\\overline{\\mathcal{O}}_{i}}e^{-rt}\\left\\{\\overline{\\Pi}_{i%\n}(\\mathbf{P}(t),P_{E}(t),x)-\\kappa_{i}\\right\\}m^{i}_{t}(dx)\\,dt\\\\\n&\\quad-\\int_{0}^{T}\\int_{\\overline{\\mathcal{O}}_{i}}K_{i}e^{-(r+\\gamma_{i})t}%\n\\mu^{i}(dt,dx)-\\int_{0}^{T}e^{-rt}\\Delta_{i}(t,P^{i}(t))\\,dt,\\end{split}"
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -17046,7 +17046,7 @@ expression: article
             {
               "type": "MathBlock",
               "code": {
-                "string": "\\int_{{\\mathcal{O}}_{i}}(1+x^{p^{\\prime}})\\,m_{0}(dx)&lt;\\infty,\\quad\\text{for %\nsome $p^{\\prime}&gt;p$}."
+                "string": "\\int_{{\\mathcal{O}}_{i}}(1+x^{p^{\\prime}})\\,m_{0}(dx)<\\infty,\\quad\\text{for %\nsome $p^{\\prime}>p$}."
               },
               "mathLanguage": "latex",
               "mathml": "redacted"
@@ -17705,7 +17705,7 @@ expression: article
             {
               "type": "MathBlock",
               "code": {
-                "string": "\\Delta_{i}(t,P)\\leq\\varepsilon P+C,\\quad\\text{for all $P&gt;0$}."
+                "string": "\\Delta_{i}(t,P)\\leq\\varepsilon P+C,\\quad\\text{for all $P>0$}."
               },
               "mathLanguage": "latex",
               "mathml": "redacted"
@@ -19106,7 +19106,7 @@ expression: article
             {
               "type": "MathBlock",
               "code": {
-                "string": "\\overline{P}_{i}F_{i}(\\overline{\\mathbf{q}}_{i},\\overline{E}_{i},1)-\\sum_{j=1}%\n^{N}\\overline{P}_{j}\\overline{q}_{ij}&gt;0,\\quad\\text{for all }i=1,\\dots,N."
+                "string": "\\overline{P}_{i}F_{i}(\\overline{\\mathbf{q}}_{i},\\overline{E}_{i},1)-\\sum_{j=1}%\n^{N}\\overline{P}_{j}\\overline{q}_{ij}>0,\\quad\\text{for all }i=1,\\dots,N."
               },
               "mathLanguage": "latex",
               "mathml": "redacted"
@@ -19158,7 +19158,7 @@ expression: article
             {
               "type": "MathBlock",
               "code": {
-                "string": "\\begin{split}\\max_{\\mathbf{m},\\bm{\\mu}}\\mathcal{L}(\\mathbf{P},\\mathbf{m},\\bm{%\n\\mu})&amp;\\geq\\int_{0}^{T}\\int_{\\overline{\\mathcal{O}}_{k(t)}}e^{-rt}\\left\\{W^{*}_%\n{k(t)}\\left(\\widetilde{\\Pi}_{k(t)}(\\mathbf{P}(t))-x\\right)-\\kappa_{k(t)}\\right%\n\\}m^{k(t)}_{0}(dx)dt\\\\\n&amp;\\quad-\\sum^{N}_{i=1}\\int^{T}_{0}e^{-rt}\\Delta_{i}(t,P_{i}(t))\\,dt,\\end{split}"
+                "string": "\\begin{split}\\max_{\\mathbf{m},\\bm{\\mu}}\\mathcal{L}(\\mathbf{P},\\mathbf{m},\\bm{%\n\\mu})&\\geq\\int_{0}^{T}\\int_{\\overline{\\mathcal{O}}_{k(t)}}e^{-rt}\\left\\{W^{*}_%\n{k(t)}\\left(\\widetilde{\\Pi}_{k(t)}(\\mathbf{P}(t))-x\\right)-\\kappa_{k(t)}\\right%\n\\}m^{k(t)}_{0}(dx)dt\\\\\n&\\quad-\\sum^{N}_{i=1}\\int^{T}_{0}e^{-rt}\\Delta_{i}(t,P_{i}(t))\\,dt,\\end{split}"
               },
               "mathLanguage": "latex",
               "mathml": "redacted"
@@ -19436,7 +19436,7 @@ expression: article
             {
               "type": "MathBlock",
               "code": {
-                "string": "\\int_{\\overline{{\\mathcal{O}}}_{j}}m^{j}_{0}(dx)&gt;K,\\quad\\text{for all }j=1,%\n\\dots,N,"
+                "string": "\\int_{\\overline{{\\mathcal{O}}}_{j}}m^{j}_{0}(dx)>K,\\quad\\text{for all }j=1,%\n\\dots,N,"
               },
               "mathLanguage": "latex",
               "mathml": "redacted"
@@ -19783,7 +19783,7 @@ expression: article
             {
               "type": "MathBlock",
               "code": {
-                "string": "\\sum^{N}_{i=1}\\int_{0}^{T}e^{-rt}\\Delta_{i}(t,P_{i}(t))\\,dt&lt;C^{\\prime}-%\n\\varepsilon^{\\prime}\\|\\mathbf{P}\\|^{q}_{L^{q}},\\quad\\text{whenever }\\|\\mathbf{%\nP}\\|_{L^{q}}\\geq c^{\\prime}."
+                "string": "\\sum^{N}_{i=1}\\int_{0}^{T}e^{-rt}\\Delta_{i}(t,P_{i}(t))\\,dt<C^{\\prime}-%\n\\varepsilon^{\\prime}\\|\\mathbf{P}\\|^{q}_{L^{q}},\\quad\\text{whenever }\\|\\mathbf{%\nP}\\|_{L^{q}}\\geq c^{\\prime}."
               },
               "mathLanguage": "latex",
               "mathml": "redacted"
@@ -19802,7 +19802,7 @@ expression: article
             {
               "type": "MathBlock",
               "code": {
-                "string": "\\begin{split}\\max_{\\mathbf{m},\\bm{\\mu}}\\mathcal{L}(\\mathbf{P},\\mathbf{m},\\bm{%\n\\mu})&amp;\\geq\\sum^{N}_{i=1}\\int_{0}^{T}\\int_{\\overline{{\\mathcal{O}}}_{i}}e^{-rt}%\n\\left\\{W^{*}_{i}\\left(\\widetilde{\\Pi}_{i}(\\mathbf{P}(t))-x\\right)-\\kappa_{i}%\n\\right\\}m^{i}_{0}(dx)dt\\\\\n&amp;\\quad+\\varepsilon^{\\prime}\\|\\mathbf{P}\\|^{q}_{L^{q}}-C^{\\prime}.\\end{split}"
+                "string": "\\begin{split}\\max_{\\mathbf{m},\\bm{\\mu}}\\mathcal{L}(\\mathbf{P},\\mathbf{m},\\bm{%\n\\mu})&\\geq\\sum^{N}_{i=1}\\int_{0}^{T}\\int_{\\overline{{\\mathcal{O}}}_{i}}e^{-rt}%\n\\left\\{W^{*}_{i}\\left(\\widetilde{\\Pi}_{i}(\\mathbf{P}(t))-x\\right)-\\kappa_{i}%\n\\right\\}m^{i}_{0}(dx)dt\\\\\n&\\quad+\\varepsilon^{\\prime}\\|\\mathbf{P}\\|^{q}_{L^{q}}-C^{\\prime}.\\end{split}"
               },
               "mathLanguage": "latex",
               "mathml": "redacted"
@@ -20518,7 +20518,7 @@ expression: article
             {
               "type": "MathBlock",
               "code": {
-                "string": "P^{h}_{i}(t)=\\begin{cases}P^{*}_{i}(t),&amp;t\\in[0,T]\\setminus B,\\\\\nh,&amp;t\\in B.\\end{cases}"
+                "string": "P^{h}_{i}(t)=\\begin{cases}P^{*}_{i}(t),&t\\in[0,T]\\setminus B,\\\\\nh,&t\\in B.\\end{cases}"
               },
               "mathLanguage": "latex",
               "mathml": "redacted"
@@ -20694,7 +20694,7 @@ expression: article
             {
               "type": "MathBlock",
               "code": {
-                "string": "\\begin{split}\\int_{B}\\frac{\\delta}{\\delta P_{i}}\\mathcal{L}(\\mathbf{v}^{h},%\n\\mathbf{m}^{*},\\bm{\\mu}^{*})(t)\\,dt&amp;=\\sum_{j=1}^{N}\\int_{B}\\int_{\\overline{{%\n\\mathcal{O}}}_{j}}e^{-rt}\\frac{\\partial}{\\partial P_{i}}\\overline{\\Pi}_{j}(%\n\\mathbf{v}^{h}(t),x)\\,m^{j,*}_{t}(dx)\\,dt\\\\\n&amp;\\quad-\\int_{B}e^{-rt}D_{i}(t,v^{h}_{i}(t))\\,dt.\\end{split}"
+                "string": "\\begin{split}\\int_{B}\\frac{\\delta}{\\delta P_{i}}\\mathcal{L}(\\mathbf{v}^{h},%\n\\mathbf{m}^{*},\\bm{\\mu}^{*})(t)\\,dt&=\\sum_{j=1}^{N}\\int_{B}\\int_{\\overline{{%\n\\mathcal{O}}}_{j}}e^{-rt}\\frac{\\partial}{\\partial P_{i}}\\overline{\\Pi}_{j}(%\n\\mathbf{v}^{h}(t),x)\\,m^{j,*}_{t}(dx)\\,dt\\\\\n&\\quad-\\int_{B}e^{-rt}D_{i}(t,v^{h}_{i}(t))\\,dt.\\end{split}"
               },
               "mathLanguage": "latex",
               "mathml": "redacted"
@@ -21200,7 +21200,7 @@ expression: article
             {
               "type": "MathBlock",
               "code": {
-                "string": "\\int_{B}\\frac{\\delta}{\\delta P_{i}(t)}\\mathcal{L}(\\mathbf{v}^{h},\\mathbf{m}^{*%\n},\\bm{\\mu}^{*})\\,dt&lt;0."
+                "string": "\\int_{B}\\frac{\\delta}{\\delta P_{i}(t)}\\mathcal{L}(\\mathbf{v}^{h},\\mathbf{m}^{*%\n},\\bm{\\mu}^{*})\\,dt<0."
               },
               "mathLanguage": "latex",
               "mathml": "redacted"
@@ -21238,7 +21238,7 @@ expression: article
             {
               "type": "MathBlock",
               "code": {
-                "string": "\\mathcal{L}(\\mathbf{P}^{h},\\mathbf{m}^{*},\\bm{\\mu}^{*})&lt;\\mathcal{L}(\\mathbf{P}%\n^{*},\\mathbf{m}^{*},\\bm{\\mu}^{*}),"
+                "string": "\\mathcal{L}(\\mathbf{P}^{h},\\mathbf{m}^{*},\\bm{\\mu}^{*})<\\mathcal{L}(\\mathbf{P}%\n^{*},\\mathbf{m}^{*},\\bm{\\mu}^{*}),"
               },
               "mathLanguage": "latex",
               "mathml": "redacted"
@@ -22880,7 +22880,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "\\liminf_{L\\to\\infty}\\frac{W_{i}(L)}{L}&gt;0."
+            "string": "\\liminf_{L\\to\\infty}\\frac{W_{i}(L)}{L}>0."
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -24707,7 +24707,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "\\phi_{k}(x)\\coloneqq\\left(1+x^{q}f\\left(\\frac{x}{k}\\right)\\right){\\mathds{1}}_%\n{x\\leq k}+\\left(1+k^{3}f(1)\\right){\\mathds{1}}_{x&gt;k},\\quad q\\leq p^{\\prime},"
+            "string": "\\phi_{k}(x)\\coloneqq\\left(1+x^{q}f\\left(\\frac{x}{k}\\right)\\right){\\mathds{1}}_%\n{x\\leq k}+\\left(1+k^{3}f(1)\\right){\\mathds{1}}_{x>k},\\quad q\\leq p^{\\prime},"
           },
           "mathLanguage": "latex",
           "mathml": "redacted"
@@ -25156,7 +25156,7 @@ expression: article
         {
           "type": "MathBlock",
           "code": {
-            "string": "\\sup_{n\\geq 1}\\int_{0}^{T}\\int_{\\overline{\\mathcal{O}}_{i}}(1+x^{p^{\\prime}})%\n\\,m^{n}_{t}(dx)dt&lt;\\infty,"
+            "string": "\\sup_{n\\geq 1}\\int_{0}^{T}\\int_{\\overline{\\mathcal{O}}_{i}}(1+x^{p^{\\prime}})%\n\\,m^{n}_{t}(dx)dt<\\infty,"
           },
           "mathLanguage": "latex",
           "mathml": "redacted"

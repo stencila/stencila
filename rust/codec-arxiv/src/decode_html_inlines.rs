@@ -271,13 +271,17 @@ fn clean_citation_text_in_group(text: &str, index: usize, total_count: usize) ->
 
 /// Get text content from an HTML tag
 fn get_text_content(parser: &Parser, tag: &HTMLTag) -> String {
+    use crate::decode_html::decode_html_entities;
+
     tag.children()
         .top()
         .iter()
         .flat_map(|handle| handle.get(parser))
         .filter_map(|node| {
             if let Some(text) = node.as_raw() {
-                Some(text.try_as_utf8_str().unwrap_or_default().to_string())
+                Some(decode_html_entities(
+                    text.try_as_utf8_str().unwrap_or_default(),
+                ))
             } else {
                 node.as_tag()
                     .map(|child_tag| get_text_content(parser, child_tag))
