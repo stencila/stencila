@@ -48,9 +48,7 @@ expression: article
     },
     {
       "type": "Person",
-      "givenNames": [
-        "Belgium"
-      ]
+      "name": "Belgium"
     },
     {
       "type": "Person",
@@ -60,15 +58,11 @@ expression: article
     },
     {
       "type": "Person",
-      "givenNames": [
-        "Belgium"
-      ]
+      "name": "Belgium"
     },
     {
       "type": "Person",
-      "givenNames": [
-        "Sweden"
-      ]
+      "name": "Sweden"
     }
   ],
   "references": [
@@ -116,8 +110,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Vergari"
+          ],
           "givenNames": [
-            "Antonio Vergari."
+            "Antonio"
           ]
         }
       ],
@@ -192,8 +189,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Getoor"
+          ],
           "givenNames": [
-            "Lise Getoor."
+            "Lise"
           ]
         }
       ],
@@ -229,8 +229,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Marquis"
+          ],
           "givenNames": [
-            "Pierre Marquis."
+            "Pierre"
           ]
         }
       ],
@@ -266,8 +269,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Hitzler"
+          ],
           "givenNames": [
-            "Pascal Hitzler."
+            "Pascal"
           ]
         }
       ],
@@ -322,8 +328,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Spranger"
+          ],
           "givenNames": [
-            "Michael Spranger."
+            "Michael"
           ]
         }
       ],
@@ -382,8 +391,8 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "et al."
+          "familyNames": [
+            "Al"
           ]
         }
       ],
@@ -531,8 +540,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Zaverucha"
+          ],
           "givenNames": [
-            "Gerson Zaverucha."
+            "Gerson"
           ]
         }
       ],
@@ -568,8 +580,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Darwiche"
+          ],
           "givenNames": [
-            "Adnan Darwiche."
+            "Adnan"
           ]
         }
       ],
@@ -620,12 +635,12 @@ expression: article
           "type": "Person",
           "familyNames": [
             "Van",
-            "Den"
+            "Den",
+            "Broeck"
           ],
           "givenNames": [
             "Guy"
-          ],
-          "honorificSuffix": "Broeck."
+          ]
         }
       ],
       "title": [
@@ -651,8 +666,11 @@ expression: article
       "authors": [
         {
           "type": "Person",
+          "familyNames": [
+            "Choquet"
+          ],
           "givenNames": [
-            "Gustave Choquet."
+            "Gustave"
           ]
         }
       ],
@@ -698,12 +716,12 @@ expression: article
         {
           "type": "Person",
           "familyNames": [
-            "Rivard"
+            "Mazaitis"
           ],
           "givenNames": [
-            "Kathryn"
-          ],
-          "honorificSuffix": "Mazaitis."
+            "Kathryn",
+            "Rivard"
+          ]
         }
       ],
       "title": [
@@ -759,8 +777,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Srinivasan"
+          ],
           "givenNames": [
-            "Ashwin Srinivasan."
+            "Ashwin"
           ]
         }
       ],
@@ -833,8 +854,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Tran"
+          ],
           "givenNames": [
-            "Son N. Tran."
+            "Son"
           ]
         }
       ],
@@ -871,8 +895,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Favorito"
+          ],
           "givenNames": [
-            "Marco Favorito."
+            "Marco"
           ]
         }
       ],
@@ -918,8 +945,8 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "et al."
+          "familyNames": [
+            "Al"
           ]
         }
       ],
@@ -974,8 +1001,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Poole"
+          ],
           "givenNames": [
-            "David Poole."
+            "David"
           ]
         }
       ],
@@ -1030,8 +1060,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Marra"
+          ],
           "givenNames": [
-            "Giuseppe Marra."
+            "Giuseppe"
           ]
         }
       ],
@@ -1107,12 +1140,12 @@ expression: article
         {
           "type": "Person",
           "familyNames": [
-            "De"
+            "De",
+            "Readt"
           ],
           "givenNames": [
             "Luc"
-          ],
-          "honorificSuffix": "Readt."
+          ]
         }
       ],
       "title": [
@@ -1178,8 +1211,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Fleuriot"
+          ],
           "givenNames": [
-            "Jacques D Fleuriot."
+            "Jacques"
           ]
         }
       ],
@@ -1224,8 +1260,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Saccà"
+          ],
           "givenNames": [
-            "Claudio Saccà."
+            "Claudio"
           ]
         }
       ],
@@ -1297,8 +1336,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Zhou"
+          ],
           "givenNames": [
-            "Denny Zhou."
+            "Denny"
           ]
         }
       ],
@@ -1346,8 +1388,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Kimmig"
+          ],
           "givenNames": [
-            "Angelika Kimmig."
+            "Angelika"
           ]
         }
       ],
@@ -1395,8 +1440,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Prade"
+          ],
           "givenNames": [
-            "Henri Prade."
+            "Henri"
           ]
         }
       ],
@@ -1468,8 +1516,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Vechev"
+          ],
           "givenNames": [
-            "Martin Vechev."
+            "Martin"
           ]
         }
       ],
@@ -1506,8 +1557,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Lamb"
+          ],
           "givenNames": [
-            "Luís C. Lamb."
+            "Luís"
           ]
         }
       ],
@@ -1597,9 +1651,12 @@ expression: article
         {
           "type": "Person",
           "familyNames": [
+            "Zaverucha"
+          ],
+          "givenNames": [
             "Gerson"
           ],
-          "honorificSuffix": "Zaverucha."
+          "honorificPrefix": "Coppe."
         }
       ],
       "title": [
@@ -1634,8 +1691,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Lifschitz"
+          ],
           "givenNames": [
-            "Vladimir Lifschitz."
+            "Vladimir"
           ]
         }
       ],
@@ -1671,9 +1731,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "J11043360726 Qi."
-          ]
+          "name": "J11043360726 Qi"
         }
       ],
       "title": [
@@ -1725,9 +1783,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "editors."
-          ]
+          "name": "editors"
         }
       ],
       "title": [
@@ -1753,8 +1809,11 @@ expression: article
       "authors": [
         {
           "type": "Person",
+          "familyNames": [
+            "Hochreiter"
+          ],
           "givenNames": [
-            "Sepp Hochreiter."
+            "Sepp"
           ]
         }
       ],
@@ -1807,8 +1866,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Marra"
+          ],
           "givenNames": [
-            "Giuseppe Marra."
+            "Giuseppe"
           ]
         }
       ],
@@ -1835,8 +1897,11 @@ expression: article
       "authors": [
         {
           "type": "Person",
+          "familyNames": [
+            "Kautz"
+          ],
           "givenNames": [
-            "Henry A. Kautz."
+            "Henry"
           ]
         }
       ],
@@ -1891,12 +1956,12 @@ expression: article
         {
           "type": "Person",
           "familyNames": [
-            "De"
+            "De",
+            "Raedt"
           ],
           "givenNames": [
             "Luc"
-          ],
-          "honorificSuffix": "Raedt."
+          ]
         }
       ],
       "title": [
@@ -1943,8 +2008,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Broda"
+          ],
           "givenNames": [
-            "Krysia Broda."
+            "Krysia"
           ]
         }
       ],
@@ -1989,8 +2057,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Naik"
+          ],
           "givenNames": [
-            "Mayur Naik."
+            "Mayur"
           ]
         }
       ],
@@ -2033,8 +2104,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Tarski"
+          ],
           "givenNames": [
-            "Alfred Tarski."
+            "Alfred"
           ]
         }
       ],
@@ -2071,12 +2145,12 @@ expression: article
         {
           "type": "Person",
           "familyNames": [
-            "De"
+            "De",
+            "Raedt"
           ],
           "givenNames": [
             "Luc"
-          ],
-          "honorificSuffix": "Raedt."
+          ]
         }
       ],
       "title": [
@@ -2124,12 +2198,12 @@ expression: article
         {
           "type": "Person",
           "familyNames": [
-            "De"
+            "De",
+            "Raedt"
           ],
           "givenNames": [
             "Luc"
-          ],
-          "honorificSuffix": "Raedt."
+          ]
         }
       ],
       "title": [
@@ -2192,12 +2266,12 @@ expression: article
         {
           "type": "Person",
           "familyNames": [
-            "De"
+            "De",
+            "Raedt"
           ],
           "givenNames": [
             "Luc"
-          ],
-          "honorificSuffix": "Raedt."
+          ]
         }
       ],
       "title": [
@@ -2260,12 +2334,12 @@ expression: article
         {
           "type": "Person",
           "familyNames": [
-            "De"
+            "De",
+            "Raedt"
           ],
           "givenNames": [
             "Luc"
-          ],
-          "honorificSuffix": "Raedt."
+          ]
         }
       ],
       "title": [
@@ -2303,8 +2377,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Kuželka"
+          ],
           "givenNames": [
-            "Ondřej Kuželka."
+            "Ondřej"
           ]
         }
       ],
@@ -2358,8 +2435,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Gori"
+          ],
           "givenNames": [
-            "Marco Gori."
+            "Marco"
           ]
         }
       ],
@@ -2414,12 +2494,12 @@ expression: article
         {
           "type": "Person",
           "familyNames": [
-            "De"
+            "De",
+            "Raedt"
           ],
           "givenNames": [
             "Luc"
-          ],
-          "honorificSuffix": "Raedt."
+          ]
         }
       ],
       "title": [
@@ -2455,12 +2535,12 @@ expression: article
         {
           "type": "Person",
           "familyNames": [
-            "D’Avila"
+            "Garcez"
           ],
           "givenNames": [
-            "Artur"
-          ],
-          "honorificSuffix": "Garcez."
+            "Artur",
+            "D’Avila"
+          ]
         }
       ],
       "title": [
@@ -2534,8 +2614,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Getoor"
+          ],
           "givenNames": [
-            "Lise Getoor."
+            "Lise"
           ]
         }
       ],
@@ -2571,8 +2654,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Riedel"
+          ],
           "givenNames": [
-            "Sebastian Riedel."
+            "Sebastian"
           ]
         }
       ],
@@ -2599,8 +2685,11 @@ expression: article
       "authors": [
         {
           "type": "Person",
+          "familyNames": [
+            "Ruspini"
+          ],
           "givenNames": [
-            "Enrique H Ruspini."
+            "Enrique"
           ]
         }
       ],
@@ -2644,12 +2733,12 @@ expression: article
         {
           "type": "Person",
           "familyNames": [
-            "D’Avila"
+            "Garcez"
           ],
           "givenNames": [
-            "Artur"
-          ],
-          "honorificSuffix": "Garcez."
+            "Artur",
+            "D’Avila"
+          ]
         }
       ],
       "title": [
@@ -2729,8 +2818,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Kersting"
+          ],
           "givenNames": [
-            "Kristian Kersting."
+            "Kristian"
           ]
         }
       ],
@@ -2785,8 +2877,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Kersting"
+          ],
           "givenNames": [
-            "Kristian Kersting."
+            "Kristian"
           ]
         }
       ],
@@ -2857,8 +2952,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Kersting"
+          ],
           "givenNames": [
-            "Kristian Kersting."
+            "Kristian"
           ]
         }
       ],
@@ -2921,8 +3019,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Stark"
+          ],
           "givenNames": [
-            "Kathrin Stark."
+            "Kathrin"
           ]
         }
       ],
@@ -2985,8 +3086,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Kuzelka"
+          ],
           "givenNames": [
-            "Ondrej Kuzelka."
+            "Ondrej"
           ]
         }
       ],
@@ -3025,8 +3129,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Giunchiglia"
+          ],
           "givenNames": [
-            "Eleonora Giunchiglia."
+            "Eleonora"
           ]
         }
       ],
@@ -3053,8 +3160,11 @@ expression: article
       "authors": [
         {
           "type": "Person",
+          "familyNames": [
+            "Sugeno"
+          ],
           "givenNames": [
-            "Michio Sugeno."
+            "Michio"
           ]
         }
       ],
@@ -3097,8 +3207,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Shoukry"
+          ],
           "givenNames": [
-            "Yasser Shoukry."
+            "Yasser"
           ]
         }
       ],
@@ -3143,8 +3256,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Michael"
+          ],
           "givenNames": [
-            "Loizos Michael."
+            "Loizos"
           ]
         }
       ],
@@ -3211,12 +3327,12 @@ expression: article
         {
           "type": "Person",
           "familyNames": [
-            "Ten"
+            "Teije"
           ],
           "givenNames": [
-            "Annette"
-          ],
-          "honorificSuffix": "Teije."
+            "Annette",
+            "Ten"
+          ]
         }
       ],
       "title": [
@@ -3253,12 +3369,12 @@ expression: article
         {
           "type": "Person",
           "familyNames": [
-            "Ten"
+            "Teije"
           ],
           "givenNames": [
-            "Annette"
-          ],
-          "honorificSuffix": "Teije."
+            "Annette",
+            "Ten"
+          ]
         }
       ],
       "title": [
@@ -3319,8 +3435,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Giunchiglia"
+          ],
           "givenNames": [
-            "Eleonora Giunchiglia."
+            "Eleonora"
           ]
         }
       ],
@@ -3347,8 +3466,11 @@ expression: article
       "authors": [
         {
           "type": "Person",
+          "familyNames": [
+            "Vardi"
+          ],
           "givenNames": [
-            "Moshe Y Vardi."
+            "Moshe"
           ]
         }
       ],
@@ -3384,8 +3506,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Klir"
+          ],
           "givenNames": [
-            "George J Klir."
+            "George"
           ]
         }
       ],
@@ -3448,8 +3573,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Rocktäschel"
+          ],
           "givenNames": [
-            "Tim Rocktäschel."
+            "Tim"
           ]
         }
       ],
@@ -3504,12 +3632,12 @@ expression: article
         {
           "type": "Person",
           "familyNames": [
-            "De"
+            "De",
+            "Raedt"
           ],
           "givenNames": [
             "Luc"
-          ],
-          "honorificSuffix": "Raedt."
+          ]
         }
       ],
       "title": [
@@ -3563,12 +3691,12 @@ expression: article
         {
           "type": "Person",
           "familyNames": [
-            "De"
+            "De",
+            "Raedt"
           ],
           "givenNames": [
             "Luc"
-          ],
-          "honorificSuffix": "Raedt."
+          ]
         }
       ],
       "title": [
@@ -3632,12 +3760,12 @@ expression: article
           "type": "Person",
           "familyNames": [
             "Van",
-            "Den"
+            "Den",
+            "Broeck"
           ],
           "givenNames": [
             "Guy"
-          ],
-          "honorificSuffix": "Broeck."
+          ]
         }
       ],
       "title": [
@@ -3681,8 +3809,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Cohen"
+          ],
           "givenNames": [
-            "William W Cohen."
+            "William"
           ]
         }
       ],
@@ -3737,12 +3868,12 @@ expression: article
         {
           "type": "Person",
           "familyNames": [
-            "De"
+            "De",
+            "Raedt"
           ],
           "givenNames": [
             "Luc"
-          ],
-          "honorificSuffix": "Raedt."
+          ]
         }
       ],
       "title": [
@@ -3786,8 +3917,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Lee"
+          ],
           "givenNames": [
-            "Joohyung Lee."
+            "Joohyung"
           ]
         }
       ],
@@ -3814,8 +3948,11 @@ expression: article
       "authors": [
         {
           "type": "Person",
+          "familyNames": [
+            "Zadeh"
+          ],
           "givenNames": [
-            "Lotfi A Zadeh."
+            "Lotfi"
           ]
         }
       ],
@@ -3843,12 +3980,12 @@ expression: article
         {
           "type": "Person",
           "familyNames": [
-            "Asker"
+            "Zadeh"
           ],
           "givenNames": [
-            "Lotfi"
-          ],
-          "honorificSuffix": "Zadeh."
+            "Lotfi",
+            "Asker"
+          ]
         }
       ],
       "title": [

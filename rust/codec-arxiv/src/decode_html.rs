@@ -280,6 +280,39 @@ pub fn get_text(parser: &Parser, tag: &HTMLTag) -> String {
     text_parts.join(" ").trim().to_string()
 }
 
+/// Get text content excluding superscript elements (for author names)
+pub fn get_text_excluding_superscripts(parser: &Parser, tag: &HTMLTag) -> String {
+    let mut text_parts = Vec::new();
+
+    for child in tag
+        .children()
+        .top()
+        .iter()
+        .flat_map(|handle| handle.get(parser))
+    {
+        if let Some(child_tag) = child.as_tag() {
+            let child_class = child_tag
+                .attributes()
+                .class()
+                .map(|cls| cls.as_utf8_str())
+                .unwrap_or_default();
+
+            // Skip superscript elements
+            if child_tag.name().as_utf8_str() == "sup" || child_class.contains("ltx_sup") {
+                continue;
+            }
+
+            text_parts.push(get_text_excluding_superscripts(parser, child_tag));
+        } else if let Some(text) = child.as_raw() {
+            if let Some(text_str) = text.try_as_utf8_str() {
+                text_parts.push(decode_html_entities(text_str));
+            }
+        }
+    }
+
+    text_parts.join(" ").trim().to_string()
+}
+
 /// Decode the root <article> element into aa Stencila [`Article`]
 fn decode_article(parser: &Parser, article: &HTMLTag, context: &mut ArxivDecodeContext) -> Article {
     let mut title = None;
@@ -377,7 +410,7 @@ fn decode_authors(parser: &Parser, tag: &HTMLTag) -> Vec<Author> {
 
     // If no individual creators found, fall back to extracting all text and parsing
     if authors.is_empty() {
-        let full_text = get_text(parser, tag);
+        let full_text = get_text_excluding_superscripts(parser, tag);
         authors = decode_authors_from_text(&full_text);
     }
 
@@ -413,7 +446,8 @@ fn decode_personname_element(parser: &Parser, tag: &HTMLTag) -> Vec<Author> {
                 // TODO: In future, associate affiliations with authors
             } else {
                 // Extract text from other elements (like <a> tags for author names)
-                let element_text = get_text(parser, child_tag);
+                // Use the function that excludes superscripts for cleaner author names
+                let element_text = get_text_excluding_superscripts(parser, child_tag);
                 if !element_text.trim().is_empty() {
                     current_author_parts.push(element_text);
                 }
@@ -437,7 +471,7 @@ fn decode_personname_element(parser: &Parser, tag: &HTMLTag) -> Vec<Author> {
 
     // If no authors found through structure parsing, fall back to text-based parsing
     if authors.is_empty() {
-        let full_text = get_text(parser, tag);
+        let full_text = get_text_excluding_superscripts(parser, tag);
         authors = decode_authors_from_text(&full_text);
     }
 
@@ -468,13 +502,14 @@ fn decode_author_from_creator(parser: &Parser, tag: &HTMLTag) -> Vec<Author> {
     }
 
     // Fallback: extract all text from creator
-    let creator_text = get_text(parser, tag);
+    let creator_text = get_text_excluding_superscripts(parser, tag);
     decode_authors_from_text(&creator_text)
 }
 
 /// Parse multiple authors from a text string using Person::from_str for each
 pub fn decode_authors_from_text(text: &str) -> Vec<Author> {
-    // First try standard separators
+    let text = text.trim().trim_end_matches(['.', ',', ';']);
+
     static SPLIT_BY: Lazy<Regex> =
         Lazy::new(|| Regex::new(r",|&|\band\b|\n").expect("invalid regex"));
     let standard_parts: Vec<&str> = SPLIT_BY.split(text).collect();
@@ -492,15 +527,7 @@ pub fn decode_authors_from_text(text: &str) -> Vec<Author> {
 
         return authors
             .into_iter()
-            .map(|author| {
-                Person::from_str(&author).unwrap_or_else(|_| Person {
-                    options: Box::new(PersonOptions {
-                        name: Some(author.to_string()),
-                        ..Default::default()
-                    }),
-                    ..Default::default()
-                })
-            })
+            .map(|author| Person::from_str(&author).unwrap_or_default())
             .map(Author::Person)
             .collect();
     }
@@ -860,6 +887,7 @@ fn parse_author_block(text: &str) -> (Vec<Author>, Option<Date>) {
     // Extract year from the end - simple string parsing instead of regex
     let mut date = None;
     let mut author_text = text;
+    let author_text_string: String;
 
     // Look for year pattern like "(2023)" at the end
     if let Some(open_paren) = text.rfind('(') {
@@ -875,21 +903,29 @@ fn parse_author_block(text: &str) -> (Vec<Author>, Option<Date>) {
         }
     }
 
-    // If no parentheses, look for 4-digit year at the end
+    // If no parentheses, look for 4-digit year embedded in the text
     if date.is_none() {
-        let words: Vec<&str> = text.split_whitespace().collect();
-        if let Some(last_word) = words.last() {
-            let clean_last = last_word.trim_end_matches('.');
-            if clean_last.len() == 4 && clean_last.chars().all(|c| c.is_ascii_digit()) {
+        // Split by commas first to handle cases like "Author1, Author2, 2010, Journal"
+        let parts: Vec<&str> = text.split(',').map(|s| s.trim()).collect();
+
+        // Find the first part that's a 4-digit year
+        let mut year_index = None;
+        for (i, part) in parts.iter().enumerate() {
+            let clean_part = part.trim_end_matches('.');
+            if clean_part.len() == 4 && clean_part.chars().all(|c| c.is_ascii_digit()) {
                 date = Some(Date {
-                    value: clean_last.to_string(),
+                    value: clean_part.to_string(),
                     ..Default::default()
                 });
-                // Remove the year from the author text
-                if let Some(pos) = text.rfind(last_word) {
-                    author_text = &text[..pos];
-                }
+                year_index = Some(i);
+                break;
             }
+        }
+
+        // If we found a year, only take the parts before it as authors
+        if let Some(idx) = year_index {
+            author_text_string = parts[..idx].join(", ");
+            author_text = &author_text_string;
         }
     }
 

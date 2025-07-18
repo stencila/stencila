@@ -96,93 +96,63 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Acharya"
-          ]
+          "name": "Acharya"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "V. V."
-          ]
+          "name": "V. V."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Berner"
-          ]
+          "name": "Berner"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "R."
-          ]
+          "name": "R."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Engle"
-          ]
+          "name": "Engle"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "R."
-          ]
+          "name": "R."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Jung"
-          ]
+          "name": "Jung"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "H."
-          ]
+          "name": "H."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Stroebel"
-          ]
+          "name": "Stroebel"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "J."
-          ]
+          "name": "J."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Zeng"
-          ]
+          "name": "Zeng"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "X."
-          ]
+          "name": "X."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Zhao"
-          ]
+          "name": "Zhao"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Y. (2023)"
-          ]
+          "name": "Y. (2023)"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "‘Climate"
-          ]
+          "name": "‘Climate"
         },
         {
           "type": "Person",
@@ -207,9 +177,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "291–326."
-          ]
+          "name": "291–326"
         }
       ]
     },
@@ -219,39 +187,27 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Achdou"
-          ]
+          "name": "Achdou"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Y."
-          ]
+          "name": "Y."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Carlier"
-          ]
+          "name": "Carlier"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "G."
-          ]
+          "name": "G."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Tonon"
-          ]
+          "name": "Tonon"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "D."
-          ]
+          "name": "D"
         }
       ],
       "date": {
@@ -265,75 +221,51 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Achdou"
-          ]
+          "name": "Achdou"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Y."
-          ]
+          "name": "Y."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Han"
-          ]
+          "name": "Han"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "J."
-          ]
+          "name": "J."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Lasry"
-          ]
+          "name": "Lasry"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "J.-M."
-          ]
+          "name": "J.-M."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Lions"
-          ]
+          "name": "Lions"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "P.-L."
-          ]
+          "name": "P.-L."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Moll"
-          ]
+          "name": "Moll"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "B."
-          ]
+          "name": "B."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "(2022)"
-          ]
+          "name": "(2022)"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "‘Income"
-          ]
+          "name": "‘Income"
         },
         {
           "type": "Person",
@@ -368,15 +300,11 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "89 (1)"
-          ]
+          "name": "89 (1)"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "45–86."
-          ]
+          "name": "45–86"
         }
       ]
     },
@@ -386,9 +314,7 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "ACPR"
-          ]
+          "name": "ACPR"
         }
       ],
       "date": {
@@ -402,51 +328,35 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Adenot"
-          ]
+          "name": "Adenot"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "T."
-          ]
+          "name": "T."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Briere"
-          ]
+          "name": "Briere"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "M."
-          ]
+          "name": "M."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Counathe"
-          ]
+          "name": "Counathe"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "P."
-          ]
+          "name": "P."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Jouanneau"
-          ]
+          "name": "Jouanneau"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "M."
-          ]
+          "name": "M."
         },
         {
           "type": "Person",
@@ -459,9 +369,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "T."
-          ]
+          "name": "T."
         },
         {
           "type": "Person",
@@ -474,9 +382,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "T."
-          ]
+          "name": "T"
         }
       ],
       "date": {
@@ -498,27 +404,19 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Agliardi"
-          ]
+          "name": "Agliardi"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "E."
-          ]
+          "name": "E."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Agliardi"
-          ]
+          "name": "Agliardi"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "R."
-          ]
+          "name": "R"
         }
       ],
       "date": {
@@ -532,39 +430,27 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Aïd"
-          ]
+          "name": "Aïd"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "R."
-          ]
+          "name": "R."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Dumitrescu"
-          ]
+          "name": "Dumitrescu"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "R."
-          ]
+          "name": "R."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Tankov"
-          ]
+          "name": "Tankov"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "P. (2021)"
-          ]
+          "name": "P. (2021)"
         },
         {
           "type": "Person",
@@ -609,15 +495,11 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Games   8 (4)"
-          ]
+          "name": "Games   8 (4)"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "331–358."
-          ]
+          "name": "331–358"
         }
       ]
     },
@@ -627,39 +509,27 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Alvarez"
-          ]
+          "name": "Alvarez"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "F. E."
-          ]
+          "name": "F. E."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Lippi"
-          ]
+          "name": "Lippi"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "F."
-          ]
+          "name": "F."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Souganidis"
-          ]
+          "name": "Souganidis"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "P. (2023)"
-          ]
+          "name": "P. (2023)"
         },
         {
           "type": "Person",
@@ -686,15 +556,11 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Econometrica   91 (6)"
-          ]
+          "name": "Econometrica   91 (6)"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "2005–2039."
-          ]
+          "name": "2005–2039"
         }
       ]
     },
@@ -704,57 +570,39 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Arrow"
-          ]
+          "name": "Arrow"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "K. J."
-          ]
+          "name": "K. J."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Chenery"
-          ]
+          "name": "Chenery"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "H. B."
-          ]
+          "name": "H. B."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Minhas"
-          ]
+          "name": "Minhas"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "B. S."
-          ]
+          "name": "B. S."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Solow"
-          ]
+          "name": "Solow"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "R. M."
-          ]
+          "name": "R. M."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "(1961)"
-          ]
+          "name": "(1961)"
         },
         {
           "type": "Person",
@@ -787,15 +635,11 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Statistics   43 (3)"
-          ]
+          "name": "Statistics   43 (3)"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "225–250."
-          ]
+          "name": "225–250"
         }
       ]
     },
@@ -849,39 +693,27 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Bassiére"
-          ]
+          "name": "Bassiére"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "A."
-          ]
+          "name": "A."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Dumitrescu"
-          ]
+          "name": "Dumitrescu"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "R."
-          ]
+          "name": "R."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Tankov"
-          ]
+          "name": "Tankov"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "P."
-          ]
+          "name": "P"
         }
       ],
       "date": {
@@ -895,63 +727,43 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Battiston"
-          ]
+          "name": "Battiston"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "S."
-          ]
+          "name": "S."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Mandel"
-          ]
+          "name": "Mandel"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "A."
-          ]
+          "name": "A."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Monasterolo"
-          ]
+          "name": "Monasterolo"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "I."
-          ]
+          "name": "I."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Schütze"
-          ]
+          "name": "Schütze"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "F."
-          ]
+          "name": "F."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Visentin"
-          ]
+          "name": "Visentin"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "G. (2017)"
-          ]
+          "name": "G. (2017)"
         },
         {
           "type": "Person",
@@ -984,9 +796,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "283–288."
-          ]
+          "name": "283–288"
         }
       ]
     },
@@ -996,39 +806,27 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Bélanger"
-          ]
+          "name": "Bélanger"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "A."
-          ]
+          "name": "A."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Shreve"
-          ]
+          "name": "Shreve"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "S. E."
-          ]
+          "name": "S. E."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Wong"
-          ]
+          "name": "Wong"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "D. (2004)"
-          ]
+          "name": "D. (2004)"
         },
         {
           "type": "Person",
@@ -1059,9 +857,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Statistics"
-          ]
+          "name": "Statistics"
         },
         {
           "type": "Person",
@@ -1074,9 +870,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "317–350."
-          ]
+          "name": "317–350"
         }
       ]
     },
@@ -1086,39 +880,27 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Bensoussan"
-          ]
+          "name": "Bensoussan"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "A."
-          ]
+          "name": "A."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Frehse"
-          ]
+          "name": "Frehse"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "J."
-          ]
+          "name": "J."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Yam"
-          ]
+          "name": "Yam"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "P."
-          ]
+          "name": "P"
         }
       ],
       "date": {
@@ -1132,15 +914,11 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Bertsekas"
-          ]
+          "name": "Bertsekas"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "D. P."
-          ]
+          "name": "D. P"
         }
       ],
       "date": {
@@ -1154,15 +932,11 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Bertucci"
-          ]
+          "name": "Bertucci"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "C."
-          ]
+          "name": "C"
         }
       ],
       "date": {
@@ -1176,27 +950,19 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Blair"
-          ]
+          "name": "Blair"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "P. D."
-          ]
+          "name": "P. D."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Miller"
-          ]
+          "name": "Miller"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "R. E. (2009)"
-          ]
+          "name": "R. E. (2009)"
         },
         {
           "type": "Person",
@@ -1210,9 +976,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Extensions (2nd edition)"
-          ]
+          "name": "Extensions (2nd edition)"
         }
       ]
     },
@@ -1222,15 +986,11 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Borkar"
-          ]
+          "name": "Borkar"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "V."
-          ]
+          "name": "V."
         },
         {
           "type": "Person",
@@ -1243,9 +1003,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "K. (2010)"
-          ]
+          "name": "K. (2010)"
         },
         {
           "type": "Person",
@@ -1270,15 +1028,11 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Applications   28 (5)"
-          ]
+          "name": "Applications   28 (5)"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "884–906."
-          ]
+          "name": "884–906"
         }
       ]
     },
@@ -1288,15 +1042,11 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Bouchet"
-          ]
+          "name": "Bouchet"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "V."
-          ]
+          "name": "V."
         },
         {
           "type": "Person",
@@ -1309,9 +1059,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "T."
-          ]
+          "name": "T"
         }
       ],
       "date": {
@@ -1333,63 +1081,43 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Bouveret"
-          ]
+          "name": "Bouveret"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "G."
-          ]
+          "name": "G."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Chassagneux"
-          ]
+          "name": "Chassagneux"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "J.-F."
-          ]
+          "name": "J.-F."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Ibbou"
-          ]
+          "name": "Ibbou"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "S."
-          ]
+          "name": "S."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Jacquier"
-          ]
+          "name": "Jacquier"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "A."
-          ]
+          "name": "A."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Sopgoui"
-          ]
+          "name": "Sopgoui"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "L."
-          ]
+          "name": "L"
         }
       ],
       "date": {
@@ -1411,39 +1139,27 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Bouveret"
-          ]
+          "name": "Bouveret"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "G."
-          ]
+          "name": "G."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Dumitrescu"
-          ]
+          "name": "Dumitrescu"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "R."
-          ]
+          "name": "R."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Tankov"
-          ]
+          "name": "Tankov"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "P. (2020)"
-          ]
+          "name": "P. (2020)"
         },
         {
           "type": "Person",
@@ -1480,15 +1196,11 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Optimization   58 (4)"
-          ]
+          "name": "Optimization   58 (4)"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "1795–1821."
-          ]
+          "name": "1795–1821"
         }
       ]
     },
@@ -1498,81 +1210,55 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Campiglio"
-          ]
+          "name": "Campiglio"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "E."
-          ]
+          "name": "E."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Dafermos"
-          ]
+          "name": "Dafermos"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Y."
-          ]
+          "name": "Y."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Monnin"
-          ]
+          "name": "Monnin"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "P."
-          ]
+          "name": "P."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Ryan-Collins"
-          ]
+          "name": "Ryan-Collins"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "J."
-          ]
+          "name": "J."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Schotten"
-          ]
+          "name": "Schotten"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "G."
-          ]
+          "name": "G."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Tanaka"
-          ]
+          "name": "Tanaka"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "M. (2018)"
-          ]
+          "name": "M. (2018)"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "‘Climate"
-          ]
+          "name": "‘Climate"
         },
         {
           "type": "Person",
@@ -1597,9 +1283,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Nature"
-          ]
+          "name": "Nature"
         },
         {
           "type": "Person",
@@ -1612,9 +1296,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "462–468."
-          ]
+          "name": "462–468"
         }
       ]
     },
@@ -1624,39 +1306,27 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Capasso"
-          ]
+          "name": "Capasso"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "G."
-          ]
+          "name": "G."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Gianfrate"
-          ]
+          "name": "Gianfrate"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "G."
-          ]
+          "name": "G."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Spinelli"
-          ]
+          "name": "Spinelli"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "M."
-          ]
+          "name": "M"
         }
       ],
       "date": {
@@ -1670,27 +1340,19 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Carmona"
-          ]
+          "name": "Carmona"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "R."
-          ]
+          "name": "R."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Delarue"
-          ]
+          "name": "Delarue"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "F. (2015)"
-          ]
+          "name": "F. (2015)"
         },
         {
           "type": "Person",
@@ -1705,9 +1367,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "controlled"
-          ]
+          "name": "controlled"
         },
         {
           "type": "Person",
@@ -1730,9 +1390,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "2647–2700."
-          ]
+          "name": "2647–2700"
         }
       ]
     },
@@ -1742,27 +1400,19 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Carmona"
-          ]
+          "name": "Carmona"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "R."
-          ]
+          "name": "R."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Delarue"
-          ]
+          "name": "Delarue"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "F. (2018 a )"
-          ]
+          "name": "F. (2018 a )"
         },
         {
           "type": "Person",
@@ -1791,15 +1441,11 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Control"
-          ]
+          "name": "Control"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Games"
-          ]
+          "name": "Games"
         },
         {
           "type": "Person",
@@ -1821,9 +1467,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Springer."
-          ]
+          "name": "Springer"
         }
       ]
     },
@@ -1833,27 +1477,19 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Carmona"
-          ]
+          "name": "Carmona"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "R."
-          ]
+          "name": "R."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Delarue"
-          ]
+          "name": "Delarue"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "F. (2018 b )"
-          ]
+          "name": "F. (2018 b )"
         },
         {
           "type": "Person",
@@ -1912,9 +1548,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Springer."
-          ]
+          "name": "Springer"
         }
       ]
     },
@@ -1924,27 +1558,19 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Considine"
-          ]
+          "name": "Considine"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "T. J."
-          ]
+          "name": "T. J."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Larson"
-          ]
+          "name": "Larson"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "D. F. (2006)"
-          ]
+          "name": "D. F. (2006)"
         },
         {
           "type": "Person",
@@ -1972,15 +1598,11 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "management   52 (3)"
-          ]
+          "name": "management   52 (3)"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "645–662."
-          ]
+          "name": "645–662"
         }
       ]
     },
@@ -1990,15 +1612,11 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Conway"
-          ]
+          "name": "Conway"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "J. B."
-          ]
+          "name": "J. B"
         }
       ],
       "date": {
@@ -2012,39 +1630,27 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Dumitrescu"
-          ]
+          "name": "Dumitrescu"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "R."
-          ]
+          "name": "R."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Leutscher"
-          ]
+          "name": "Leutscher"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "M."
-          ]
+          "name": "M."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Tankov"
-          ]
+          "name": "Tankov"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "P."
-          ]
+          "name": "P"
         }
       ],
       "date": {
@@ -2058,39 +1664,27 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Dumitrescu"
-          ]
+          "name": "Dumitrescu"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "R."
-          ]
+          "name": "R."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Leutscher"
-          ]
+          "name": "Leutscher"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "M."
-          ]
+          "name": "M."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Tankov"
-          ]
+          "name": "Tankov"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "P. (2023)"
-          ]
+          "name": "P. (2023)"
         },
         {
           "type": "Person",
@@ -2120,15 +1714,11 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "absorption’"
-          ]
+          "name": "absorption’"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "ESAIM:"
-          ]
+          "name": "ESAIM:"
         },
         {
           "type": "Person",
@@ -2150,9 +1740,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "953–990."
-          ]
+          "name": "953–990"
         }
       ]
     },
@@ -2162,27 +1750,19 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Ebert"
-          ]
+          "name": "Ebert"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "U."
-          ]
+          "name": "U."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Welsch"
-          ]
+          "name": "Welsch"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "H. (2007)"
-          ]
+          "name": "H. (2007)"
         },
         {
           "type": "Person",
@@ -2227,9 +1807,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "287–293."
-          ]
+          "name": "287–293"
         }
       ]
     },
@@ -2239,27 +1817,19 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Ekeland"
-          ]
+          "name": "Ekeland"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "I."
-          ]
+          "name": "I."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Témam"
-          ]
+          "name": "Témam"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "R. (1999)"
-          ]
+          "name": "R. (1999)"
         },
         {
           "type": "Person",
@@ -2291,9 +1861,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Mathematics"
-          ]
+          "name": "Mathematics"
         },
         {
           "type": "Person",
@@ -2316,9 +1884,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Philadephia."
-          ]
+          "name": "Philadephia"
         }
       ]
     },
@@ -2328,39 +1894,27 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Escribe"
-          ]
+          "name": "Escribe"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "C."
-          ]
+          "name": "C."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Garnier"
-          ]
+          "name": "Garnier"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "J."
-          ]
+          "name": "J."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Gobet"
-          ]
+          "name": "Gobet"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "E."
-          ]
+          "name": "E"
         }
       ],
       "date": {
@@ -2374,15 +1928,11 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Frankovic"
-          ]
+          "name": "Frankovic"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "I. (2024)"
-          ]
+          "name": "I. (2024)"
         },
         {
           "type": "Person",
@@ -2413,9 +1963,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "germany’"
-          ]
+          "name": "germany’"
         },
         {
           "type": "Person",
@@ -2430,9 +1978,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "887–907."
-          ]
+          "name": "887–907"
         }
       ]
     },
@@ -2442,27 +1988,19 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Frey"
-          ]
+          "name": "Frey"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "R."
-          ]
+          "name": "R."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Schmidt"
-          ]
+          "name": "Schmidt"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "T. (2009)"
-          ]
+          "name": "T. (2009)"
         },
         {
           "type": "Person",
@@ -2489,9 +2027,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "403–421."
-          ]
+          "name": "403–421"
         }
       ]
     },
@@ -2501,57 +2037,39 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Golosov"
-          ]
+          "name": "Golosov"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "M."
-          ]
+          "name": "M."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Hassler"
-          ]
+          "name": "Hassler"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "J."
-          ]
+          "name": "J."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Krusell"
-          ]
+          "name": "Krusell"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "P."
-          ]
+          "name": "P."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Tsyvinski"
-          ]
+          "name": "Tsyvinski"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "A."
-          ]
+          "name": "A."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "(2014)"
-          ]
+          "name": "(2014)"
         },
         {
           "type": "Person",
@@ -2577,15 +2095,11 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Econometrica   82 (1)"
-          ]
+          "name": "Econometrica   82 (1)"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "41–88."
-          ]
+          "name": "41–88"
         }
       ]
     },
@@ -2595,39 +2109,27 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Guéant"
-          ]
+          "name": "Guéant"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "O."
-          ]
+          "name": "O."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Lasry"
-          ]
+          "name": "Lasry"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "J.-M."
-          ]
+          "name": "J.-M."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Lions"
-          ]
+          "name": "Lions"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "P.-L."
-          ]
+          "name": "P.-L"
         }
       ],
       "date": {
@@ -2641,39 +2143,27 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Jeanblanc"
-          ]
+          "name": "Jeanblanc"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "M."
-          ]
+          "name": "M."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Yor"
-          ]
+          "name": "Yor"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "M."
-          ]
+          "name": "M."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Chesney"
-          ]
+          "name": "Chesney"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "M."
-          ]
+          "name": "M"
         }
       ],
       "date": {
@@ -2687,39 +2177,27 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Krueger"
-          ]
+          "name": "Krueger"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "P."
-          ]
+          "name": "P."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Sautner"
-          ]
+          "name": "Sautner"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Z."
-          ]
+          "name": "Z."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Starks"
-          ]
+          "name": "Starks"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "L. T. (2020)"
-          ]
+          "name": "L. T. (2020)"
         },
         {
           "type": "Person",
@@ -2737,9 +2215,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "investors’"
-          ]
+          "name": "investors’"
         },
         {
           "type": "Person",
@@ -2755,9 +2231,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "1067–1111."
-          ]
+          "name": "1067–1111"
         }
       ]
     },
@@ -2767,27 +2241,19 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Lasry"
-          ]
+          "name": "Lasry"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "J.-M."
-          ]
+          "name": "J.-M."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Lions"
-          ]
+          "name": "Lions"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "P.-L. (2007)"
-          ]
+          "name": "P.-L. (2007)"
         },
         {
           "type": "Person",
@@ -2812,9 +2278,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "229–260."
-          ]
+          "name": "229–260"
         }
       ]
     },
@@ -2833,21 +2297,15 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "T."
-          ]
+          "name": "T."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Tankov"
-          ]
+          "name": "Tankov"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "P."
-          ]
+          "name": "P"
         }
       ],
       "date": {
@@ -2861,27 +2319,19 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Leland"
-          ]
+          "name": "Leland"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "H. E."
-          ]
+          "name": "H. E."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Toft"
-          ]
+          "name": "Toft"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "K. B. (1996)"
-          ]
+          "name": "K. B. (1996)"
         },
         {
           "type": "Person",
@@ -2935,9 +2385,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "987–1019."
-          ]
+          "name": "987–1019"
         }
       ]
     },
@@ -2947,27 +2395,19 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Liang"
-          ]
+          "name": "Liang"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Z."
-          ]
+          "name": "Z."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Zhang"
-          ]
+          "name": "Zhang"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "K."
-          ]
+          "name": "K"
         }
       ],
       "date": {
@@ -2981,51 +2421,35 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Löschenbrand"
-          ]
+          "name": "Löschenbrand"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "S."
-          ]
+          "name": "S."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Maier"
-          ]
+          "name": "Maier"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "M."
-          ]
+          "name": "M."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Millischer"
-          ]
+          "name": "Millischer"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "L."
-          ]
+          "name": "L."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Resch"
-          ]
+          "name": "Resch"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "F."
-          ]
+          "name": "F"
         }
       ],
       "date": {
@@ -3047,27 +2471,19 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Mardones"
-          ]
+          "name": "Mardones"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "C."
-          ]
+          "name": "C."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Mena"
-          ]
+          "name": "Mena"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "C."
-          ]
+          "name": "C"
         }
       ],
       "date": {
@@ -3081,27 +2497,19 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Mardones"
-          ]
+          "name": "Mardones"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "C."
-          ]
+          "name": "C."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Muñoz"
-          ]
+          "name": "Muñoz"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "T."
-          ]
+          "name": "T"
         }
       ],
       "date": {
@@ -3115,39 +2523,27 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Mas-Colell"
-          ]
+          "name": "Mas-Colell"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "A."
-          ]
+          "name": "A."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Whinston"
-          ]
+          "name": "Whinston"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "M. D."
-          ]
+          "name": "M. D."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Green"
-          ]
+          "name": "Green"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "J. R."
-          ]
+          "name": "J. R"
         }
       ],
       "date": {
@@ -3161,39 +2557,27 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Matsumura"
-          ]
+          "name": "Matsumura"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "K."
-          ]
+          "name": "K."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Naka"
-          ]
+          "name": "Naka"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "T."
-          ]
+          "name": "T."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Sudo"
-          ]
+          "name": "Sudo"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "N."
-          ]
+          "name": "N"
         }
       ],
       "date": {
@@ -3207,15 +2591,11 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Merton"
-          ]
+          "name": "Merton"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "R. C. (1974)"
-          ]
+          "name": "R. C. (1974)"
         },
         {
           "type": "Person",
@@ -3254,15 +2634,11 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Finance   29 (2)"
-          ]
+          "name": "Finance   29 (2)"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "449–470."
-          ]
+          "name": "449–470"
         }
       ]
     },
@@ -3272,15 +2648,11 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Miao"
-          ]
+          "name": "Miao"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "J. (2005)"
-          ]
+          "name": "J. (2005)"
         },
         {
           "type": "Person",
@@ -3314,9 +2686,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "2621–2659."
-          ]
+          "name": "2621–2659"
         }
       ]
     },
@@ -3326,27 +2696,19 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Neuhoff"
-          ]
+          "name": "Neuhoff"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "K."
-          ]
+          "name": "K."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Ritz"
-          ]
+          "name": "Ritz"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "R. (2019)"
-          ]
+          "name": "R. (2019)"
         },
         {
           "type": "Person",
@@ -3373,15 +2735,11 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "40 (1)"
-          ]
+          "name": "40 (1)"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "157–189."
-          ]
+          "name": "157–189"
         }
       ]
     },
@@ -3391,27 +2749,19 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Reinders"
-          ]
+          "name": "Reinders"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "H. J."
-          ]
+          "name": "H. J."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Schoenmaker"
-          ]
+          "name": "Schoenmaker"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "D."
-          ]
+          "name": "D."
         },
         {
           "type": "Person",
@@ -3424,9 +2774,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "M."
-          ]
+          "name": "M"
         }
       ],
       "date": {
@@ -3440,15 +2788,11 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Rockafellar"
-          ]
+          "name": "Rockafellar"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "R. T."
-          ]
+          "name": "R. T"
         }
       ],
       "date": {
@@ -3462,27 +2806,19 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Schmidt"
-          ]
+          "name": "Schmidt"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "T."
-          ]
+          "name": "T."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Novikov"
-          ]
+          "name": "Novikov"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "A. (2008)"
-          ]
+          "name": "A. (2008)"
         },
         {
           "type": "Person",
@@ -3499,9 +2835,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Applied"
-          ]
+          "name": "Applied"
         },
         {
           "type": "Person",
@@ -3514,9 +2848,7 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "183–203."
-          ]
+          "name": "183–203"
         }
       ]
     },
@@ -3526,15 +2858,11 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Uzawa"
-          ]
+          "name": "Uzawa"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "H. (1962)"
-          ]
+          "name": "H. (1962)"
         },
         {
           "type": "Person",
@@ -3569,15 +2897,11 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Statistics   29 (4)"
-          ]
+          "name": "Statistics   29 (4)"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "291–299."
-          ]
+          "name": "291–299"
         }
       ]
     },
@@ -3597,21 +2921,15 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "F."
-          ]
+          "name": "F."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Rezai"
-          ]
+          "name": "Rezai"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "A."
-          ]
+          "name": "A"
         }
       ],
       "date": {
@@ -3625,15 +2943,11 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Varian"
-          ]
+          "name": "Varian"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "H."
-          ]
+          "name": "H"
         }
       ],
       "date": {
@@ -3647,63 +2961,43 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Wang"
-          ]
+          "name": "Wang"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "J."
-          ]
+          "name": "J."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Qiang"
-          ]
+          "name": "Qiang"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "H."
-          ]
+          "name": "H."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Liang"
-          ]
+          "name": "Liang"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Y."
-          ]
+          "name": "Y."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Huang"
-          ]
+          "name": "Huang"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "X."
-          ]
+          "name": "X."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Zhong"
-          ]
+          "name": "Zhong"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "W."
-          ]
+          "name": "W"
         }
       ],
       "date": {
@@ -3717,27 +3011,19 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "Wei"
-          ]
+          "name": "Wei"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "T."
-          ]
+          "name": "T."
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Aaheim"
-          ]
+          "name": "Aaheim"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "A. (2023)"
-          ]
+          "name": "A. (2023)"
         },
         {
           "type": "Person",
@@ -3779,15 +3065,11 @@ expression: article
         },
         {
           "type": "Person",
-          "givenNames": [
-            "Management   15 (4)"
-          ]
+          "name": "Management   15 (4)"
         },
         {
           "type": "Person",
-          "givenNames": [
-            "561–576."
-          ]
+          "name": "561–576"
         }
       ]
     }

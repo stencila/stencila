@@ -142,7 +142,10 @@ impl FromStr for Person {
             }
         } else {
             Self {
-                given_names: Some(vec![string.to_string()]),
+                options: Box::new(PersonOptions {
+                    name: Some(string.to_string()),
+                    ..Default::default()
+                }),
                 ..Default::default()
             }
         })

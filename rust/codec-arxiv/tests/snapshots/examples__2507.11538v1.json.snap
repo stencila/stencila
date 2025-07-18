@@ -66,21 +66,15 @@ expression: article
     },
     {
       "type": "Person",
-      "givenNames": [
-        "{daniel"
-      ]
+      "name": "{daniel"
     },
     {
       "type": "Person",
-      "givenNames": [
-        "brendan"
-      ]
+      "name": "brendan"
     },
     {
       "type": "Person",
-      "givenNames": [
-        "parth"
-      ]
+      "name": "parth"
     }
   ],
   "references": [
@@ -117,8 +111,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Huang"
+          ],
           "givenNames": [
-            "Hen-Hsen Huang."
+            "Hen-Hsen"
           ]
         }
       ],
@@ -181,8 +178,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Ozcan"
+          ],
           "givenNames": [
-            "Fatma Ozcan."
+            "Fatma"
           ]
         }
       ],
@@ -220,8 +220,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Kang"
+          ],
           "givenNames": [
-            "Dongyeop Kang."
+            "Dongyeop"
           ]
         }
       ],
@@ -240,9 +243,7 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "DeepSeek-AI."
-          ]
+          "name": "DeepSeek-AI"
         }
       ],
       "title": [
@@ -269,8 +270,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Vosoughi"
+          ],
           "givenNames": [
-            "Soroush Vosoughi."
+            "Soroush"
           ]
         }
       ],
@@ -452,8 +456,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Wang"
+          ],
           "givenNames": [
-            "Sinong Wang."
+            "Sinong"
           ]
         }
       ],
@@ -481,8 +488,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Plonsky"
+          ],
           "givenNames": [
-            "Ori Plonsky."
+            "Ori"
           ]
         }
       ],
@@ -546,8 +556,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Jung"
+          ],
           "givenNames": [
-            "Kyomin Jung."
+            "Kyomin"
           ]
         }
       ],
@@ -647,8 +660,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Wang"
+          ],
           "givenNames": [
-            "Wei Wang."
+            "Wei"
           ]
         }
       ],
@@ -721,8 +737,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Xiong"
+          ],
           "givenNames": [
-            "Deyi Xiong."
+            "Deyi"
           ]
         }
       ],
@@ -741,8 +760,11 @@ expression: article
       "authors": [
         {
           "type": "Person",
+          "familyNames": [
+            "Kulkarni"
+          ],
           "givenNames": [
-            "Mandar Kulkarni."
+            "Mandar"
           ]
         }
       ],
@@ -824,8 +846,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Cohan"
+          ],
           "givenNames": [
-            "Arman Cohan."
+            "Arman"
           ]
         }
       ],
@@ -877,8 +902,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Yin"
+          ],
           "givenNames": [
-            "Wenpeng Yin."
+            "Wenpeng"
           ]
         }
       ],
@@ -924,8 +952,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Mhedhbi"
+          ],
           "givenNames": [
-            "Amine Mhedhbi."
+            "Amine"
           ]
         }
       ],
@@ -1080,8 +1111,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Clark"
+          ],
           "givenNames": [
-            "Peter Clark."
+            "Peter"
           ]
         }
       ],
@@ -1127,8 +1161,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Hajishirzi"
+          ],
           "givenNames": [
-            "Hannaneh Hajishirzi."
+            "Hannaneh"
           ]
         }
       ],
@@ -1147,9 +1184,7 @@ expression: article
       "authors": [
         {
           "type": "Person",
-          "givenNames": [
-            "OpenAI."
-          ]
+          "name": "OpenAI"
         }
       ],
       "title": [
@@ -1338,8 +1373,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Lowe"
+          ],
           "givenNames": [
-            "Ryan Lowe."
+            "Ryan"
           ]
         }
       ],
@@ -1439,8 +1477,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Yu"
+          ],
           "givenNames": [
-            "Dong Yu."
+            "Dong"
           ]
         }
       ],
@@ -1839,8 +1880,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Rush"
+          ],
           "givenNames": [
-            "Alexander M. Rush."
+            "Alexander"
           ]
         }
       ],
@@ -1904,8 +1948,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Zhang"
+          ],
           "givenNames": [
-            "Yue Zhang."
+            "Yue"
           ]
         }
       ],
@@ -1924,8 +1971,11 @@ expression: article
       "authors": [
         {
           "type": "Person",
+          "familyNames": [
+            "Team"
+          ],
           "givenNames": [
-            "Gemini Team."
+            "Gemini"
           ]
         }
       ],
@@ -2301,8 +2351,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Khashabi"
+          ],
           "givenNames": [
-            "Daniel Khashabi."
+            "Daniel"
           ]
         }
       ],
@@ -2394,8 +2447,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Le"
+          ],
           "givenNames": [
-            "Quoc V. Le."
+            "Quoc"
           ]
         }
       ],
@@ -2531,8 +2587,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Huang"
+          ],
           "givenNames": [
-            "Minlie Huang."
+            "Minlie"
           ]
         }
       ],
@@ -2578,8 +2637,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Tsang"
+          ],
           "givenNames": [
-            "Ivor W. Tsang."
+            "Ivor"
           ]
         }
       ],
@@ -2651,8 +2713,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Zhang"
+          ],
           "givenNames": [
-            "Yongfeng Zhang."
+            "Yongfeng"
           ]
         }
       ],
@@ -2734,8 +2799,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Yu"
+          ],
           "givenNames": [
-            "Fei Yu."
+            "Fei"
           ]
         }
       ],
@@ -2799,8 +2867,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Chen"
+          ],
           "givenNames": [
-            "Danqi Chen."
+            "Danqi"
           ]
         }
       ],
@@ -2855,8 +2926,11 @@ expression: article
         },
         {
           "type": "Person",
+          "familyNames": [
+            "Mao"
+          ],
           "givenNames": [
-            "Kezhi Mao."
+            "Kezhi"
           ]
         }
       ],
