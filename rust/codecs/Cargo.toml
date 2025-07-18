@@ -15,9 +15,11 @@ cli-utils = { path = "../cli-utils" }
 codec = { path = "../codec" }
 codec-arxiv = { path = "../codec-arxiv" }
 codec-cbor = { path = "../codec-cbor" }
+codec-csl = { path = "../codec-csl" }
 codec-debug = { path = "../codec-debug" }
 codec-directory = { path = "../codec-directory" }
 codec-docx = { path = "../codec-docx" }
+codec-doi = { path = "../codec-doi" }
 codec-dom = { path = "../codec-dom" }
 codec-gdocx = { path = "../codec-gdocx" }
 codec-html = { path = "../codec-html" }

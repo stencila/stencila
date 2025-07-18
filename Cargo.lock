@@ -1003,6 +1003,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-csl"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "common-dev",
+]
+
+[[package]]
 name = "codec-debug"
 version = "0.0.0"
 dependencies = [
@@ -1034,6 +1042,16 @@ dependencies = [
  "rust-embed",
  "version",
  "zip",
+]
+
+[[package]]
+name = "codec-doi"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-csl",
+ "url",
+ "version",
 ]
 
 [[package]]
@@ -1408,9 +1426,11 @@ dependencies = [
  "codec",
  "codec-arxiv",
  "codec-cbor",
+ "codec-csl",
  "codec-debug",
  "codec-directory",
  "codec-docx",
+ "codec-doi",
  "codec-dom",
  "codec-gdocx",
  "codec-html",

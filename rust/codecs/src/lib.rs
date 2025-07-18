@@ -3,7 +3,6 @@ use std::{
     process::{Command, Stdio},
 };
 
-use codec_arxiv::ArxivCodec;
 use url::Url;
 use walkdir::WalkDir;
 
@@ -29,6 +28,8 @@ pub use codec::{
     EncodeOptions, Losses, LossesResponse, Mapping, MappingEntry, Message, MessageLevel, Messages,
     PoshMap, Position16, Position8, Positions, Range16, Range8,
 };
+use codec_arxiv::ArxivCodec;
+use codec_doi::DoiCodec;
 use codec_pmcoa::PmcOaCodec;
 use codec_utils::rebase_edits;
 use node_strip::{StripNode, StripTargets};
@@ -39,6 +40,7 @@ pub mod cli;
 pub fn list() -> Vec<Box<dyn Codec>> {
     let codecs = vec![
         Box::new(codec_cbor::CborCodec) as Box<dyn Codec>,
+        Box::new(codec_csl::CslCodec) as Box<dyn Codec>,
         Box::new(codec_debug::DebugCodec),
         Box::new(codec_docx::DocxCodec),
         // DomCodec supports to HTML and because listed here before HtmlCodec
@@ -181,6 +183,8 @@ pub async fn from_identifier(identifier: &str, options: Option<DecodeOptions>) -
         Ok(ArxivCodec::from_identifier(identifier, options).await?.0)
     } else if PmcOaCodec::supports_identifier(identifier) {
         Ok(PmcOaCodec::from_identifier(identifier, options).await?.0)
+    } else if DoiCodec::supports_identifier(identifier) {
+        Ok(DoiCodec::from_identifier(identifier, options).await?.0)
     } else if identifier.starts_with("https://")
         || identifier.starts_with("https://")
         || identifier.starts_with("file://")
