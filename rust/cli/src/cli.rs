@@ -42,8 +42,8 @@ pub struct Cli {
 
     /// Assume the answer `yes` to any interactive prompts
     ///
-    /// The options `--no` and `--cancel` (and corresponding env vars) are also available
-    /// (but but for brevity not listed).
+    /// The unlisted options `--no` and `--cancel` (and corresponding env vars)
+    /// are also available.
     #[arg(
         long,
         global = true,
@@ -79,8 +79,9 @@ pub struct Cli {
 
     /// Display debug level logging and detailed error reports
     ///
-    /// For trace level logging, --trace is also available (but for brevity not listed).
-    /// See documentation for other logging options --log-level, --log-format, log-filter.
+    /// For trace level logging, use the unlisted --trace option. See
+    /// documentation for other unlisted logging options --log-level,
+    /// --log-format, log-filter.
     #[arg(
         long,
         global = true,
