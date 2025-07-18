@@ -28,7 +28,7 @@ use super::decode_src::decode_arxiv_src;
 ///
 /// - an arXiv DOI URL e.g. https://doi.org/10.48550/arXiv.2507.11254
 pub(super) fn extract_arxiv_id(identifier: &str) -> Option<String> {
-    let identifier = identifier.trim();
+    let identifier = identifier.trim().to_lowercase();
 
     static ARXIV_URL_REGEX: Lazy<Regex> = Lazy::new(|| {
         Regex::new(r"^/(?:abs|pdf|src|html|format)/([0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?)$")
@@ -36,23 +36,23 @@ pub(super) fn extract_arxiv_id(identifier: &str) -> Option<String> {
     });
 
     static DOI_URL_REGEX: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"^/10\.48550/arXiv\.([0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?)$")
+        Regex::new(r"^/10\.48550/arxiv\.([0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?)$")
             .expect("invalid regex")
     });
 
     static ARXIV_ID_REGEX: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"^arXiv:([0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?)$").expect("invalid regex")
+        Regex::new(r"^arxiv:([0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?)$").expect("invalid regex")
     });
 
     static DOI_REGEX: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"^10\.48550/arXiv\.([0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?)$").expect("invalid regex")
+        Regex::new(r"^10\.48550/arxiv\.([0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?)$").expect("invalid regex")
     });
 
     static BARE_ID_REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new(r"^[0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?$").expect("invalid regex"));
 
     // Try to parse as URL first
-    if let Ok(url) = Url::parse(identifier) {
+    if let Ok(url) = Url::parse(&identifier) {
         match url.host_str() {
             Some("arxiv.org") | Some("export.arxiv.org") => {
                 let path = url.path();
@@ -71,17 +71,17 @@ pub(super) fn extract_arxiv_id(identifier: &str) -> Option<String> {
     }
 
     // Try to match bare arXiv id (e.g., arXiv:2507.11254)
-    if let Some(captures) = ARXIV_ID_REGEX.captures(identifier) {
+    if let Some(captures) = ARXIV_ID_REGEX.captures(&identifier) {
         return Some(captures.get(1)?.as_str().to_string());
     }
 
-    // Try to match DOI (e.g., 10.48550/arXiv.2507.11254)
-    if let Some(captures) = DOI_REGEX.captures(identifier) {
+    // Try to match DOI (e.g., 10.48550/arxiv.2507.11254)
+    if let Some(captures) = DOI_REGEX.captures(&identifier) {
         return Some(captures.get(1)?.as_str().to_string());
     }
 
     // Try to match just the ID (e.g., 2507.11254)
-    if BARE_ID_REGEX.is_match(identifier) {
+    if BARE_ID_REGEX.is_match(&identifier) {
         return Some(identifier.to_string());
     }
 
@@ -214,7 +214,7 @@ mod tests {
     fn test_extract_arxiv_id_from_doi_urls() {
         // Test DOI URLs
         assert_eq!(
-            extract_arxiv_id("https://doi.org/10.48550/arXiv.2507.11254"),
+            extract_arxiv_id("https://doi.org/10.48550/arxiv.2507.11254"),
             Some("2507.11254".to_string())
         );
         assert_eq!(
@@ -231,7 +231,7 @@ mod tests {
             Some("2507.11254".to_string())
         );
         assert_eq!(
-            extract_arxiv_id("arXiv:2507.11254v1"),
+            extract_arxiv_id("arxiv:2507.11254v1"),
             Some("2507.11254v1".to_string())
         );
         assert_eq!(
@@ -244,7 +244,7 @@ mod tests {
     fn test_extract_arxiv_id_from_dois() {
         // Test DOI strings
         assert_eq!(
-            extract_arxiv_id("10.48550/arXiv.2507.11254"),
+            extract_arxiv_id("10.48550/arxiv.2507.11254"),
             Some("2507.11254".to_string())
         );
         assert_eq!(
@@ -290,7 +290,6 @@ mod tests {
         assert_eq!(extract_arxiv_id(""), None);
         assert_eq!(extract_arxiv_id("not-an-arxiv-id"), None);
         assert_eq!(extract_arxiv_id("https://example.com/2507.11254"), None);
-        assert_eq!(extract_arxiv_id("arxiv:2507.11254"), None); // lowercase
         assert_eq!(extract_arxiv_id("2507.112"), None); // too short
         assert_eq!(extract_arxiv_id("2507.112540"), None); // too long
         assert_eq!(extract_arxiv_id("25072.11254"), None); // wrong year format
