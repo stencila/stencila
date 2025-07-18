@@ -74,7 +74,7 @@ impl Model for StencilaModel {
     }
 
     fn availability(&self) -> ModelAvailability {
-        cloud::api_key()
+        cloud::api_token()
             .as_ref()
             .map(|_| ModelAvailability::Available)
             .unwrap_or(ModelAvailability::RequiresKey)
@@ -101,7 +101,7 @@ impl Model for StencilaModel {
     }
 
     async fn perform_task(&self, task: &ModelTask) -> Result<ModelOutput> {
-        let token = cloud::api_key().ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or key chain entry found. Get one at https://stencila.cloud/."))?;
+        let token = cloud::api_token().ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or key chain entry found. Get one at https://stencila.cloud/."))?;
 
         if task.dry_run {
             return ModelOutput::empty(self);
@@ -190,7 +190,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_router() -> Result<()> {
-        if cloud::api_key().is_none() {
+        if cloud::api_token().is_none() {
             return Ok(());
         }
 
@@ -207,7 +207,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_anthropic() -> Result<()> {
-        if cloud::api_key().is_none() {
+        if cloud::api_token().is_none() {
             return Ok(());
         }
 
@@ -224,7 +224,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_google() -> Result<()> {
-        if cloud::api_key().is_none() {
+        if cloud::api_token().is_none() {
             return Ok(());
         }
 
@@ -241,7 +241,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_mistral() -> Result<()> {
-        if cloud::api_key().is_none() {
+        if cloud::api_token().is_none() {
             return Ok(());
         }
 
@@ -258,7 +258,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_openai() -> Result<()> {
-        if cloud::api_key().is_none() {
+        if cloud::api_token().is_none() {
             return Ok(());
         }
 

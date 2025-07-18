@@ -14,29 +14,29 @@ pub fn base_url() -> String {
     env::var("STENCILA_API_URL").unwrap_or_else(|_| BASE_URL.to_string())
 }
 
-/// The name of the env var or secret for the API key
-const API_KEY_NAME: &str = "STENCILA_API_TOKEN";
+/// The name of the env var or secret for the Stencila API token
+const API_TOKEN_NAME: &str = "STENCILA_API_TOKEN";
 
-/// The API key value.
+/// The API token value.
 ///
 /// Stored to on first successful get to avoid repeated access
 /// to secrets (which is relatively slow). Note that this means
-/// that if the key is changed in the secrets store that the
+/// that if the token is changed in the secrets store that the
 /// process will need to be restarted for changes to take effect.
-static API_KEY: OnceLock<String> = OnceLock::new();
+static API_TOKEN: OnceLock<String> = OnceLock::new();
 
-/// Get the API key for the Stencila Cloud API
+/// Get the API token for the Stencila Cloud API
 ///
-/// This function is cached (with short TTL) to avoid repeated attempts to get the
-/// secret if not set. Otherwise this function is called for each model in the
-/// list of models to calculate the `availability` method.
-#[cached(time = 15, name = "API_KEY_GET")]
+/// This function is cached (with short TTL) to avoid repeated attempts to get
+/// the secret if not set. Otherwise ,this function would be called for each
+/// model in the list of models to calculate the `availability` method.
+#[cached(time = 15, name = "API_TOKEN_GET")]
 #[tracing::instrument]
-pub fn api_key() -> Option<String> {
-    API_KEY.get().cloned().or_else(|| {
-        secrets::env_or_get(API_KEY_NAME).ok().inspect(|key| {
-            // If we successfully retrieved the key, store it for future use
-            API_KEY.set(key.clone()).ok();
+pub fn api_token() -> Option<String> {
+    API_TOKEN.get().cloned().or_else(|| {
+        secrets::env_or_get(API_TOKEN_NAME).ok().inspect(|token| {
+            // If we successfully retrieved the token, store it for future use
+            API_TOKEN.set(token.clone()).ok();
         })
     })
 }
