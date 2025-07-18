@@ -9,8 +9,8 @@ use codec::{
         serde_with::skip_serializing_none,
     },
     schema::{
-        Article, Author, CreativeWorkType, Date, IntegerOrString, Periodical, Person,
-        PublicationIssue, PublicationVolume,
+        Article, Author, CreativeWorkType, Date, IntegerOrString, Organization, Periodical, Person,
+        PersonOrOrganization, PublicationIssue, PublicationVolume,
         shortcuts::{p, t},
     },
 };
@@ -44,6 +44,7 @@ pub struct CslItem {
     pub publisher_place: Option<String>,
     #[serde(rename = "abstract")]
     pub abstract_text: Option<String>,
+    pub language: Option<String>,
 
     // Catch-all for other fields
     // Uses `IndexMap` so that order is deterministic
@@ -107,6 +108,7 @@ impl CslItem {
 
         let doi = self.doi.clone();
         let url = self.url.clone();
+        let publisher = self.publisher.clone();
 
         let is_part_of = self.container_title.as_ref().and_then(|container| {
             create_publication_info(
@@ -131,6 +133,12 @@ impl CslItem {
         }
         if let Some(is_part_of_value) = is_part_of {
             article.options.is_part_of = Some(*is_part_of_value);
+        }
+        if let Some(publisher_name) = publisher {
+            article.options.publisher = Some(PersonOrOrganization::Organization(Organization {
+                name: Some(publisher_name),
+                ..Default::default()
+            }));
         }
 
         Ok(article)

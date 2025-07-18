@@ -67,5 +67,9 @@ expression: node
       }
     }
   ],
-  "content": []
+  "content": [],
+  "publisher": {
+    "type": "Organization",
+    "name": "arXiv"
+  }
 }

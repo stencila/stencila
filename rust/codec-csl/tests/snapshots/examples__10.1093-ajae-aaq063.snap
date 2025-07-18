@@ -72,5 +72,9 @@ expression: node
     "issueNumber": "5",
     "pageStart": "1324",
     "pageEnd": "1338"
+  },
+  "publisher": {
+    "type": "Organization",
+    "name": "Wiley"
   }
 }

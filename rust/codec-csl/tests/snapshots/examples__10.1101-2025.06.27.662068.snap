@@ -107,5 +107,9 @@ expression: node
   "isPartOf": {
     "type": "Periodical",
     "name": ""
+  },
+  "publisher": {
+    "type": "Organization",
+    "name": "Cold Spring Harbor Laboratory"
   }
 }
