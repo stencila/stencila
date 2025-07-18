@@ -7600,28 +7600,12 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "Ω"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "Ω"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
+              "type": "MathInline",
+              "code": {
                 "string": "\\Omega"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "roman_Ω"
-              }
+              },
+              "mathLanguage": "latex",
+              "mathml": "redacted"
             },
             {
               "type": "Text",
@@ -7711,10 +7695,17 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "3.3"
-              }
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "3.3"
+                  }
+                }
+              ],
+              "target": "S3.Thmtheorem3",
+              "title": "Definition 3.3 (Neurosymbolic Inference). ‣ 3 Towards Neurosymbolic Models and Inference ‣ Defining neurosymbolic AI"
             },
             {
               "type": "Text",
@@ -7723,29 +7714,17 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "[Choi et al., "
-              }
-            },
-            {
-              "type": "Link",
+              "type": "Citation",
+              "target": "bib.bib9",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "2020"
+                    "string": "Choi et al., 2020"
                   }
                 }
-              ],
-              "target": "bib.bib9",
-              "title": ""
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "]"
-              }
+              ]
             },
             {
               "type": "Text",

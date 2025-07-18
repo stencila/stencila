@@ -7,6 +7,8 @@ use codec::schema::{
     TableCellType, TableRow, TableRowType,
 };
 
+use crate::decode_html_inlines::decode_inline;
+
 use super::decode_html::{
     extract_latex_and_mathml, get_attr, get_class, get_text, ArxivDecodeContext,
 };
@@ -160,13 +162,13 @@ pub fn decode_div(parser: &Parser, tag: &HTMLTag, context: &mut ArxivDecodeConte
 /// Extract label and caption content from a figure caption, handling ltx_tag_figure spans
 fn extract_figure_label_and_caption(
     parser: &Parser,
-    figcaption_tag: &HTMLTag,
+    figcaption: &HTMLTag,
     context: &mut ArxivDecodeContext,
 ) -> (Option<String>, Vec<Block>) {
     let mut label = None;
     let mut caption_inlines = Vec::new();
 
-    for child in figcaption_tag
+    for child in figcaption
         .children()
         .top()
         .iter()
@@ -186,7 +188,7 @@ fn extract_figure_label_and_caption(
                 // Don't include this in caption content
             } else {
                 // Include all other content in caption
-                caption_inlines.extend(decode_inlines(parser, child_tag, context));
+                caption_inlines.extend(decode_inline(parser, child_tag, context));
             }
         } else if let Some(text) = child.as_raw() {
             let text_content = text.try_as_utf8_str().unwrap_or_default();
@@ -313,7 +315,7 @@ fn extract_table_label_and_caption(
                 // Don't include this in caption content
             } else {
                 // Include all other content in caption
-                caption_inlines.extend(decode_inlines(parser, child_tag, context));
+                caption_inlines.extend(decode_inline(parser, child_tag, context));
             }
         } else if let Some(text) = child.as_raw() {
             let text_content = text.try_as_utf8_str().unwrap_or_default();
@@ -373,14 +375,13 @@ pub fn decode_figure_table(
         .flat_map(|handle| handle.get(parser))
     {
         if let Some(child_tag) = child.as_tag() {
-            let child_name = child_tag.name().as_utf8_str();
             let child_class = child_tag
                 .attributes()
                 .class()
                 .map(|cls| cls.as_utf8_str())
                 .unwrap_or_default();
 
-            if child_name == "figcaption" && child_class.contains("ltx_caption") {
+            if child_class.contains("ltx_caption") {
                 let (extracted_label, caption_content) =
                     extract_table_label_and_caption(parser, child_tag, context);
                 label = extracted_label;

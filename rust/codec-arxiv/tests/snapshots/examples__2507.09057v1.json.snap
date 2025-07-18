@@ -4186,94 +4186,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "("
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "1"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "16"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "17"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "32"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ")"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "1"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "16"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "17"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "32"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "(1,16,17,32)"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "( 1 , 16 , 17 , 32 )"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -4282,46 +4200,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "2"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "−"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "16"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "2"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "16"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "2-16"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "2 - 16"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -4330,46 +4214,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "18"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "−"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "31"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "18"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "31"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "18-31"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "18 - 31"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -4378,46 +4228,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "1"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "−"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "14"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "1"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "14"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "1-14"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "1 - 14"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -4426,46 +4242,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "15"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "−"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "28"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "15"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "28"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "15-28"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "15 - 28"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -9725,40 +9507,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "95"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "%"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "percent"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "95"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "95\\%"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "95 %"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -10345,40 +10099,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "95"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "%"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "percent"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "95"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "95\\%"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "95 %"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -10387,46 +10113,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "10"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "−"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "80"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "10"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "80"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "10-80"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "10 - 80"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -10447,190 +10139,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "u"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "^"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "i"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "⁢"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "j"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "="
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝒙"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "i"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "⁢"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "j"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "⊤"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "⁢"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "^"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "⁢"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝜷"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "^"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑢"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑖"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑗"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "superscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝒙"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑖"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑗"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "top"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "^"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "absent"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝜷"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "\\hat{u}_{ij}=\\bm{x}_{ij}^{\\top}\\hat{}\\mbox{\\boldmath$\\beta$}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "over^ start_ARG italic_u end_ARG start_POSTSUBSCRIPT italic_i italic_j end_POSTSUBSCRIPT = bold_italic_x start_POSTSUBSCRIPT italic_i italic_j end_POSTSUBSCRIPT start_POSTSUPERSCRIPT ⊤ end_POSTSUPERSCRIPT over^ start_ARG end_ARG bold_italic_β"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -10639,40 +10153,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝜷"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "^"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "^"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝜷"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "\\hat{\\mbox{\\boldmath$\\beta$}}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "over^ start_ARG bold_italic_β end_ARG"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -10695,46 +10181,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "0"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "−"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "1"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "0"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "1"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "0-1"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "0 - 1"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -10743,46 +10195,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "1"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "−"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "2"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "1"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "2"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "1-2"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "1 - 2"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -10791,46 +10209,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "2"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "−"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "3"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "2"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "3"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "2-3"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "2 - 3"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -12662,64 +12046,12 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "g"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "1"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "0"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "superscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "subscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑔"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "1"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "0"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
+              "type": "MathInline",
+              "code": {
                 "string": "g_{1}^{0}"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "italic_g start_POSTSUBSCRIPT 1 end_POSTSUBSCRIPT start_POSTSUPERSCRIPT 0 end_POSTSUPERSCRIPT"
-              }
+              },
+              "mathLanguage": "latex",
+              "mathml": "redacted"
             },
             {
               "type": "Text",
@@ -12759,64 +12091,12 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "g"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "1"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "0"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "superscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "subscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑔"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "1"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "0"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
+              "type": "MathInline",
+              "code": {
                 "string": "g_{1}^{0}"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "italic_g start_POSTSUBSCRIPT 1 end_POSTSUBSCRIPT start_POSTSUPERSCRIPT 0 end_POSTSUPERSCRIPT"
-              }
+              },
+              "mathLanguage": "latex",
+              "mathml": "redacted"
             },
             {
               "type": "Text",
@@ -21114,64 +20394,12 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "g"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "2"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "0"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "superscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "subscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑔"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "2"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "0"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
+              "type": "MathInline",
+              "code": {
                 "string": "g_{2}^{0}"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "italic_g start_POSTSUBSCRIPT 2 end_POSTSUBSCRIPT start_POSTSUPERSCRIPT 0 end_POSTSUPERSCRIPT"
-              }
+              },
+              "mathLanguage": "latex",
+              "mathml": "redacted"
             },
             {
               "type": "Text",
@@ -21211,64 +20439,12 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "g"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "2"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "0"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "superscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "subscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑔"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "2"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "0"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
+              "type": "MathInline",
+              "code": {
                 "string": "g_{2}^{0}"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "italic_g start_POSTSUBSCRIPT 2 end_POSTSUBSCRIPT start_POSTSUPERSCRIPT 0 end_POSTSUPERSCRIPT"
-              }
+              },
+              "mathLanguage": "latex",
+              "mathml": "redacted"
             },
             {
               "type": "Text",

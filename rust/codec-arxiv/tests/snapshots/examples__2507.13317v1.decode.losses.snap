@@ -2,30 +2,4 @@
 source: rust/codec-arxiv/tests/examples.rs
 expression: info.losses
 ---
-"<and>": 5
-"<annotation-xml>": 55
-"<annotation>": 112
-"<apply>": 115
-"<ci>": 141
-"<cn>": 24
-"<csymbol>": 60
 "<div class=\"ltx_flex_cell ltx_flex_size_3\">": 6
-"<divide>": 5
-"<eq>": 6
-"<leq>": 4
-"<log>": 2
-"<lt>": 5
-"<mi class=\"ltx_font_mathcaligraphic\">": 2
-"<mi>": 135
-"<minus>": 2
-"<mn>": 25
-"<mo>": 111
-"<mrow>": 73
-"<msub>": 53
-"<msup>": 3
-"<mtext>": 8
-"<plus>": 3
-"<semantics>": 56
-"<set>": 3
-"<share>": 5
-"<times>": 25

@@ -6060,10 +6060,15 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "extended"
-                  }
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "extended"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -6072,10 +6077,15 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "†"
-                  }
+                  "type": "Superscript",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "†"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -6084,10 +6094,15 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "six-parameter"
-                  }
+                  "type": "Emphasis",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "six-parameter"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -6096,46 +6111,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "α"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "smooth"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝛼"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "smooth"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "\\alpha_{\\rm smooth}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_α start_POSTSUBSCRIPT roman_smooth end_POSTSUBSCRIPT"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -13278,10 +13259,15 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Left to right:"
-                  }
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Left to right:"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -13290,10 +13276,15 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Top to bottom:"
-                  }
+                  "type": "Strong",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Top to bottom:"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -13302,76 +13293,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "{"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "α"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "T"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "w"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝛼"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑇"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "w"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "\\{\\alpha,T_{\\text{w}}\\}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "{ italic_α , italic_T start_POSTSUBSCRIPT w end_POSTSUBSCRIPT }"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -13380,76 +13307,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "P"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "mm"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "⁢"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "("
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "k"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ")"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑃"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "mm"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑘"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "P_{\\rm mm}(k)"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_P start_POSTSUBSCRIPT roman_mm end_POSTSUBSCRIPT ( italic_k )"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -13458,76 +13321,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "P"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "ee"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "⁢"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "("
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "k"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ")"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑃"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "ee"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑘"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "P_{\\rm ee}(k)"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_P start_POSTSUBSCRIPT roman_ee end_POSTSUBSCRIPT ( italic_k )"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -13536,94 +13335,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "{"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "α"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "nt"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "γ"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "nt"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝛼"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "nt"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝛾"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "nt"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "\\{\\alpha_{\\text{nt}},\\gamma_{\\text{nt}}\\}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "{ italic_α start_POSTSUBSCRIPT nt end_POSTSUBSCRIPT , italic_γ start_POSTSUBSCRIPT nt end_POSTSUBSCRIPT }"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -13632,94 +13349,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "{"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "A"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "th"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "T"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "w"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝐴"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "th"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑇"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "w"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "\\{A_{\\rm th},T_{\\text{w}}\\}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "{ italic_A start_POSTSUBSCRIPT roman_th end_POSTSUBSCRIPT , italic_T start_POSTSUBSCRIPT w end_POSTSUBSCRIPT }"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -13759,46 +13394,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "P"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "mm"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑃"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "mm"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "P_{\\rm mm}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_P start_POSTSUBSCRIPT roman_mm end_POSTSUBSCRIPT"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -13807,46 +13408,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "P"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "ee"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑃"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "ee"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "P_{\\rm ee}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_P start_POSTSUBSCRIPT roman_ee end_POSTSUBSCRIPT"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -13855,46 +13422,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "P"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "mp"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑃"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "mp"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "P_{\\rm mp}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_P start_POSTSUBSCRIPT roman_mp end_POSTSUBSCRIPT"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -17247,46 +16780,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "z"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "="
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "0.25"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑧"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "0.25"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "z=0.25"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_z = 0.25"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -17295,46 +16794,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "R"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "mm"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑅"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "mm"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "R_{\\rm mm}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_R start_POSTSUBSCRIPT roman_mm end_POSTSUBSCRIPT"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -17343,46 +16808,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "R"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "mp"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑅"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "mp"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "R_{\\rm mp}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_R start_POSTSUBSCRIPT roman_mp end_POSTSUBSCRIPT"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -17391,46 +16822,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "R"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "ee"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑅"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "ee"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "R_{\\rm ee}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_R start_POSTSUBSCRIPT roman_ee end_POSTSUBSCRIPT"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -17439,46 +16836,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "f"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "BG"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑓"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "BG"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "f_{\\rm BG}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_f start_POSTSUBSCRIPT roman_BG end_POSTSUBSCRIPT"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -17487,46 +16850,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "f"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "star"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑓"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "star"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "f_{\\rm star}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_f start_POSTSUBSCRIPT roman_star end_POSTSUBSCRIPT"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -17535,10 +16864,17 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "1"
-                  }
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1"
+                      }
+                    }
+                  ],
+                  "target": "S2.T1",
+                  "title": "Table 1 ‣ 2.1 Mead20+ ‣ 2 Halo Model Implementations ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
                 },
                 {
                   "type": "Text",
@@ -19063,28 +18399,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "†"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "†"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "\\dagger"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "†"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -19093,10 +18413,17 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "1"
-                  }
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1"
+                      }
+                    }
+                  ],
+                  "target": "S2.T1",
+                  "title": "Table 1 ‣ 2.1 Mead20+ ‣ 2 Halo Model Implementations ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
                 },
                 {
                   "type": "Text",
@@ -19105,46 +18432,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝒫"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "e"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝒫"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "e"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "\\mathcal{P}_{\\rm e}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "caligraphic_P start_POSTSUBSCRIPT roman_e end_POSTSUBSCRIPT"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -19153,46 +18446,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "T"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "e"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑇"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "e"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "T_{\\rm e}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_T start_POSTSUBSCRIPT roman_e end_POSTSUBSCRIPT"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -19201,46 +18460,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "n"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "e"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑛"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "e"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "n_{\\rm e}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_n start_POSTSUBSCRIPT roman_e end_POSTSUBSCRIPT"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -19249,118 +18474,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "0.12"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "&lt;"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "r"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "/"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "r"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "200"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "⁢"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "c"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "≤"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "1"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "0.12"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑟"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑟"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "200"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "c"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "1"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "0.12&lt;r/r_{\\rm 200c}\\leq 1"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "0.12 &lt; italic_r / italic_r start_POSTSUBSCRIPT 200 roman_c end_POSTSUBSCRIPT ≤ 1"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -19369,118 +18488,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "0.25"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "&lt;"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "r"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "/"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "r"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "200"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "⁢"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "c"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "≤"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "1"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "0.25"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑟"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑟"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "200"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "c"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "1"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "0.25&lt;r/r_{\\rm 200c}\\leq 1"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "0.25 &lt; italic_r / italic_r start_POSTSUBSCRIPT 200 roman_c end_POSTSUBSCRIPT ≤ 1"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -20411,76 +19424,12 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "R"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "mm"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "⁢"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "("
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "k"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": ")"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "subscript"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "𝑅"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "mm"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "𝑘"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
+                      "type": "MathInline",
+                      "code": {
                         "string": "R_{\\rm mm}(k)"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "italic_R start_POSTSUBSCRIPT roman_mm end_POSTSUBSCRIPT ( italic_k )"
-                      }
+                      },
+                      "mathLanguage": "latex",
+                      "mathml": "redacted"
                     },
                     {
                       "type": "Text",
@@ -20489,76 +19438,12 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "R"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "mp"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "⁢"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "("
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "k"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": ")"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "subscript"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "𝑅"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "mp"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "𝑘"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
+                      "type": "MathInline",
+                      "code": {
                         "string": "R_{\\rm mp}(k)"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "italic_R start_POSTSUBSCRIPT roman_mp end_POSTSUBSCRIPT ( italic_k )"
-                      }
+                      },
+                      "mathLanguage": "latex",
+                      "mathml": "redacted"
                     },
                     {
                       "type": "Text",
@@ -20579,46 +19464,12 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "z"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "="
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "0.25"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "𝑧"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "0.25"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
+                      "type": "MathInline",
+                      "code": {
                         "string": "z=0.25"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "italic_z = 0.25"
-                      }
+                      },
+                      "mathLanguage": "latex",
+                      "mathml": "redacted"
                     },
                     {
                       "type": "Text",
@@ -20627,28 +19478,12 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "†"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "†"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
+                      "type": "MathInline",
+                      "code": {
                         "string": "\\dagger"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "†"
-                      }
+                      },
+                      "mathLanguage": "latex",
+                      "mathml": "redacted"
                     },
                     {
                       "type": "Text",
@@ -20657,10 +19492,17 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "1"
-                      }
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "1"
+                          }
+                        }
+                      ],
+                      "target": "S2.T1",
+                      "title": "Table 1 ‣ 2.1 Mead20+ ‣ 2 Halo Model Implementations ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
                     },
                     {
                       "type": "Text",
@@ -20669,10 +19511,15 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "Left:"
-                      }
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Left:"
+                          }
+                        }
+                      ]
                     },
                     {
                       "type": "Text",
@@ -20681,10 +19528,15 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "Right:"
-                      }
+                      "type": "Strong",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Right:"
+                          }
+                        }
+                      ]
                     },
                     {
                       "type": "Text",
@@ -20693,82 +19545,12 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "16"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "th"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "−"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "84"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "th"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "superscript"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "16"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "th"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "superscript"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "84"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "th"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
+                      "type": "MathInline",
+                      "code": {
                         "string": "16^{\\rm th}-84^{\\rm th}"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "16 start_POSTSUPERSCRIPT roman_th end_POSTSUPERSCRIPT - 84 start_POSTSUPERSCRIPT roman_th end_POSTSUPERSCRIPT"
-                      }
+                      },
+                      "mathLanguage": "latex",
+                      "mathml": "redacted"
                     },
                     {
                       "type": "Text",
@@ -20777,130 +19559,12 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "x"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "="
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "("
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "R"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "/"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "R"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "200"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "⁢"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "c"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": ")"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "="
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "0.1"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "𝑥"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "𝑅"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "subscript"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "𝑅"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "200"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "c"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "0.1"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
+                      "type": "MathInline",
+                      "code": {
                         "string": "x=(R/R_{\\rm 200c})=0.1"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "italic_x = ( italic_R / italic_R start_POSTSUBSCRIPT 200 roman_c end_POSTSUBSCRIPT ) = 0.1"
-                      }
+                      },
+                      "mathLanguage": "latex",
+                      "mathml": "redacted"
                     },
                     {
                       "type": "Text",
@@ -20909,106 +19573,12 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "k"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "&lt;"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "4"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "⁢"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Mpc"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "−"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "1"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "⁢"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "h"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "𝑘"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "4"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "superscript"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Mpc"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "1"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "ℎ"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
+                      "type": "MathInline",
+                      "code": {
                         "string": "k&lt;4\\,{\\rm Mpc}^{-1}h"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "italic_k &lt; 4 roman_Mpc start_POSTSUPERSCRIPT - 1 end_POSTSUPERSCRIPT italic_h"
-                      }
+                      },
+                      "mathLanguage": "latex",
+                      "mathml": "redacted"
                     },
                     {
                       "type": "Text",
@@ -21017,52 +19587,12 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "x"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "≳"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "0.25"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "greater-than-or-equivalent-to"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "𝑥"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "0.25"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
+                      "type": "MathInline",
+                      "code": {
                         "string": "x\\gtrsim 0.25"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "italic_x ≳ 0.25"
-                      }
+                      },
+                      "mathLanguage": "latex",
+                      "mathml": "redacted"
                     },
                     {
                       "type": "Text",
@@ -21071,178 +19601,12 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "13"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "≤"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "log"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "⁡"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "("
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "M"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "200"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "⁢"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "c"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "⁢"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "h"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "/"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "M"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "⊙"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": ")"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "&lt;"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "13.5"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "13"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "subscript"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "𝑀"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "200"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "c"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "ℎ"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "subscript"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "M"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "direct-product"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "13.5"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
+                      "type": "MathInline",
+                      "code": {
                         "string": "13\\leq\\log(M_{\\rm 200c}h/\\mathrm{M}_{\\odot})&lt;13.5"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "13 ≤ roman_log ( italic_M start_POSTSUBSCRIPT 200 roman_c end_POSTSUBSCRIPT italic_h / roman_M start_POSTSUBSCRIPT ⊙ end_POSTSUBSCRIPT ) &lt; 13.5"
-                      }
+                      },
+                      "mathLanguage": "latex",
+                      "mathml": "redacted"
                     },
                     {
                       "type": "Text",
@@ -21251,52 +19615,12 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "x"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "≳"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "0.12"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "greater-than-or-equivalent-to"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "𝑥"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "0.12"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
+                      "type": "MathInline",
+                      "code": {
                         "string": "x\\gtrsim 0.12"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "italic_x ≳ 0.12"
-                      }
+                      },
+                      "mathLanguage": "latex",
+                      "mathml": "redacted"
                     },
                     {
                       "type": "Text",
@@ -21305,178 +19629,12 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "14.5"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "≤"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "log"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "⁡"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "("
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "M"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "200"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "⁢"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "c"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "⁢"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "h"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "/"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "M"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "⊙"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": ")"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "&lt;"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "15"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "14.5"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "subscript"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "𝑀"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "200"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "c"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "ℎ"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "subscript"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "M"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "direct-product"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "15"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
+                      "type": "MathInline",
+                      "code": {
                         "string": "14.5\\leq\\log(M_{\\rm 200c}h/\\mathrm{M}_{\\odot})&lt;15"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "14.5 ≤ roman_log ( italic_M start_POSTSUBSCRIPT 200 roman_c end_POSTSUBSCRIPT italic_h / roman_M start_POSTSUBSCRIPT ⊙ end_POSTSUBSCRIPT ) &lt; 15"
-                      }
+                      },
+                      "mathLanguage": "latex",
+                      "mathml": "redacted"
                     },
                     {
                       "type": "Text",
@@ -21485,34 +19643,12 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "≳"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "10"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "×"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
+                      "type": "MathInline",
+                      "code": {
                         "string": "\\gtrsim 10\\times"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "≳ 10 ×"
-                      }
+                      },
+                      "mathLanguage": "latex",
+                      "mathml": "redacted"
                     },
                     {
                       "type": "Text",
@@ -21521,10 +19657,17 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "6.1.1"
-                      }
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "6.1.1"
+                          }
+                        }
+                      ],
+                      "target": "S6.SS1.SSS1",
+                      "title": "6.1.1 Six-parameter set ‣ 6.1 Matter and electron pressure ‣ 6 Results ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
                     },
                     {
                       "type": "Text",
@@ -21564,10 +19707,17 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "4"
-                      }
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "4"
+                          }
+                        }
+                      ],
+                      "target": "S6.F4",
+                      "title": "Figure 4 ‣ 6.1.1 Six-parameter set ‣ 6.1 Matter and electron pressure ‣ 6 Results ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
                     },
                     {
                       "type": "Text",
@@ -21576,76 +19726,12 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "R"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "mm"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "⁢"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "("
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "k"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": ")"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "subscript"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "𝑅"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "mm"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "𝑘"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
+                      "type": "MathInline",
+                      "code": {
                         "string": "R_{\\rm mm}(k)"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "italic_R start_POSTSUBSCRIPT roman_mm end_POSTSUBSCRIPT ( italic_k )"
-                      }
+                      },
+                      "mathLanguage": "latex",
+                      "mathml": "redacted"
                     },
                     {
                       "type": "Text",
@@ -21654,76 +19740,12 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "R"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "mp"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "⁢"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "("
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "k"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": ")"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "subscript"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "𝑅"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "mp"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "𝑘"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
+                      "type": "MathInline",
+                      "code": {
                         "string": "R_{\\rm mp}(k)"
-                      }
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "italic_R start_POSTSUBSCRIPT roman_mp end_POSTSUBSCRIPT ( italic_k )"
-                      }
+                      },
+                      "mathLanguage": "latex",
+                      "mathml": "redacted"
                     },
                     {
                       "type": "Text",
@@ -21744,10 +19766,17 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "1"
-                      }
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "1"
+                          }
+                        }
+                      ],
+                      "target": "S2.T1",
+                      "title": "Table 1 ‣ 2.1 Mead20+ ‣ 2 Halo Model Implementations ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
                     },
                     {
                       "type": "Text",
@@ -21756,10 +19785,17 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "6.1.2"
-                      }
+                      "type": "Link",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "6.1.2"
+                          }
+                        }
+                      ],
+                      "target": "S6.SS1.SSS2",
+                      "title": "6.1.2 Extended parameter set ‣ 6.1 Matter and electron pressure ‣ 6 Results ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
                     },
                     {
                       "type": "Text",
@@ -22349,10 +20385,17 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "4"
-                  }
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4"
+                      }
+                    }
+                  ],
+                  "target": "S6.F4",
+                  "title": "Figure 4 ‣ 6.1.1 Six-parameter set ‣ 6.1 Matter and electron pressure ‣ 6 Results ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
                 },
                 {
                   "type": "Text",
@@ -22361,76 +20404,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "R"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "mm"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "⁢"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "("
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "k"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ")"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑅"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "mm"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑘"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "R_{\\rm mm}(k)"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_R start_POSTSUBSCRIPT roman_mm end_POSTSUBSCRIPT ( italic_k )"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -22439,76 +20418,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "R"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "mp"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "⁢"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "("
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "k"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ")"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑅"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "mp"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑘"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "R_{\\rm mp}(k)"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_R start_POSTSUBSCRIPT roman_mp end_POSTSUBSCRIPT ( italic_k )"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -22517,46 +20432,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "f"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "BG"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑓"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "BG"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "f_{\\rm BG}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_f start_POSTSUBSCRIPT roman_BG end_POSTSUBSCRIPT"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -22565,46 +20446,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "f"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "star"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑓"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "star"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "f_{\\rm star}"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_f start_POSTSUBSCRIPT roman_star end_POSTSUBSCRIPT"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -22613,10 +20460,17 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "1"
-                  }
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1"
+                      }
+                    }
+                  ],
+                  "target": "S2.T1",
+                  "title": "Table 1 ‣ 2.1 Mead20+ ‣ 2 Halo Model Implementations ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
                 },
                 {
                   "type": "Text",
@@ -22625,10 +20479,17 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "6.2"
-                  }
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "6.2"
+                      }
+                    }
+                  ],
+                  "target": "S6.SS2",
+                  "title": "6.2 Matter, electron pressure, and mass fractions ‣ 6 Results ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
                 },
                 {
                   "type": "Text",
@@ -23191,10 +21052,17 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "4"
-                  }
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "4"
+                      }
+                    }
+                  ],
+                  "target": "S6.F4",
+                  "title": "Figure 4 ‣ 6.1.1 Six-parameter set ‣ 6.1 Matter and electron pressure ‣ 6 Results ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
                 },
                 {
                   "type": "Text",
@@ -23203,76 +21071,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "R"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "mm"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "⁢"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "("
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "k"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ")"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑅"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "mm"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑘"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "R_{\\rm mm}(k)"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_R start_POSTSUBSCRIPT roman_mm end_POSTSUBSCRIPT ( italic_k )"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -23281,76 +21085,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "R"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "mp"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "⁢"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "("
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "k"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ")"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑅"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "mp"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑘"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "R_{\\rm mp}(k)"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_R start_POSTSUBSCRIPT roman_mp end_POSTSUBSCRIPT ( italic_k )"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -23359,76 +21099,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "R"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "ee"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "⁢"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "("
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "k"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": ")"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "subscript"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑅"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "ee"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "𝑘"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "R_{\\rm ee}(k)"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "italic_R start_POSTSUBSCRIPT roman_ee end_POSTSUBSCRIPT ( italic_k )"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -23437,10 +21113,17 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "1"
-                  }
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "1"
+                      }
+                    }
+                  ],
+                  "target": "S2.T1",
+                  "title": "Table 1 ‣ 2.1 Mead20+ ‣ 2 Halo Model Implementations ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
                 },
                 {
                   "type": "Text",
@@ -23449,10 +21132,17 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "6.3"
-                  }
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "6.3"
+                      }
+                    }
+                  ],
+                  "target": "S6.SS3",
+                  "title": "6.3 Matter, electron pressure, and electron density ‣ 6 Results ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
                 },
                 {
                   "type": "Text",
@@ -30026,82 +27716,12 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "R"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "mm"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "+"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "R"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "mp"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "subscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑅"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "mm"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "subscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑅"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "mp"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
+              "type": "MathInline",
+              "code": {
                 "string": "R_{\\rm mm}+R_{\\rm mp}"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "italic_R start_POSTSUBSCRIPT roman_mm end_POSTSUBSCRIPT + italic_R start_POSTSUBSCRIPT roman_mp end_POSTSUBSCRIPT"
-              }
+              },
+              "mathLanguage": "latex",
+              "mathml": "redacted"
             },
             {
               "type": "Text",
@@ -30110,10 +27730,17 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "6.1.1"
-              }
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "6.1.1"
+                  }
+                }
+              ],
+              "target": "S6.SS1.SSS1",
+              "title": "6.1.1 Six-parameter set ‣ 6.1 Matter and electron pressure ‣ 6 Results ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
             },
             {
               "type": "Text",
@@ -30122,82 +27749,12 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "R"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "mm"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "+"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "R"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "mp"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "subscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑅"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "mm"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "subscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑅"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "mp"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
+              "type": "MathInline",
+              "code": {
                 "string": "R_{\\rm mm}+R_{\\rm mp}"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "italic_R start_POSTSUBSCRIPT roman_mm end_POSTSUBSCRIPT + italic_R start_POSTSUBSCRIPT roman_mp end_POSTSUBSCRIPT"
-              }
+              },
+              "mathLanguage": "latex",
+              "mathml": "redacted"
             },
             {
               "type": "Text",
@@ -30206,10 +27763,17 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "6.1.2"
-              }
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "6.1.2"
+                  }
+                }
+              ],
+              "target": "S6.SS1.SSS2",
+              "title": "6.1.2 Extended parameter set ‣ 6.1 Matter and electron pressure ‣ 6 Results ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
             },
             {
               "type": "Text",
@@ -30218,118 +27782,12 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "R"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "mm"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "+"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "R"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "mp"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "+"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "R"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "ee"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "subscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑅"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "mm"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "subscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑅"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "mp"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "subscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑅"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "ee"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
+              "type": "MathInline",
+              "code": {
                 "string": "R_{\\rm mm}+R_{\\rm mp}+R_{\\rm ee}"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "italic_R start_POSTSUBSCRIPT roman_mm end_POSTSUBSCRIPT + italic_R start_POSTSUBSCRIPT roman_mp end_POSTSUBSCRIPT + italic_R start_POSTSUBSCRIPT roman_ee end_POSTSUBSCRIPT"
-              }
+              },
+              "mathLanguage": "latex",
+              "mathml": "redacted"
             },
             {
               "type": "Text",
@@ -30338,10 +27796,17 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "6.3"
-              }
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "6.3"
+                  }
+                }
+              ],
+              "target": "S6.SS3",
+              "title": "6.3 Matter, electron pressure, and electron density ‣ 6 Results ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
             },
             {
               "type": "Text",
@@ -30505,10 +27970,17 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "4"
-              }
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "4"
+                  }
+                }
+              ],
+              "target": "S6.F4",
+              "title": "Figure 4 ‣ 6.1.1 Six-parameter set ‣ 6.1 Matter and electron pressure ‣ 6 Results ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
             },
             {
               "type": "Text",
@@ -30517,76 +27989,12 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "R"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "mm"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "⁢"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "("
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "k"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": ")"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "subscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑅"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "mm"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑘"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
+              "type": "MathInline",
+              "code": {
                 "string": "R_{\\rm mm}(k)"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "italic_R start_POSTSUBSCRIPT roman_mm end_POSTSUBSCRIPT ( italic_k )"
-              }
+              },
+              "mathLanguage": "latex",
+              "mathml": "redacted"
             },
             {
               "type": "Text",
@@ -30595,76 +28003,12 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "R"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "mp"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "⁢"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "("
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "k"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": ")"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "subscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑅"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "mp"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑘"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
+              "type": "MathInline",
+              "code": {
                 "string": "R_{\\rm mp}(k)"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "italic_R start_POSTSUBSCRIPT roman_mp end_POSTSUBSCRIPT ( italic_k )"
-              }
+              },
+              "mathLanguage": "latex",
+              "mathml": "redacted"
             },
             {
               "type": "Text",
@@ -30673,76 +28017,12 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "R"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "ee"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "⁢"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "("
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "k"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": ")"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "subscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑅"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "ee"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑘"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
+              "type": "MathInline",
+              "code": {
                 "string": "R_{\\rm ee}(k)"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "italic_R start_POSTSUBSCRIPT roman_ee end_POSTSUBSCRIPT ( italic_k )"
-              }
+              },
+              "mathLanguage": "latex",
+              "mathml": "redacted"
             },
             {
               "type": "Text",
@@ -30751,46 +28031,12 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "f"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "BG"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "subscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑓"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "BG"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
+              "type": "MathInline",
+              "code": {
                 "string": "f_{\\rm BG}"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "italic_f start_POSTSUBSCRIPT roman_BG end_POSTSUBSCRIPT"
-              }
+              },
+              "mathLanguage": "latex",
+              "mathml": "redacted"
             },
             {
               "type": "Text",
@@ -30799,46 +28045,12 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "f"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "star"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "subscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑓"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "star"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
+              "type": "MathInline",
+              "code": {
                 "string": "f_{\\rm star}"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "italic_f start_POSTSUBSCRIPT roman_star end_POSTSUBSCRIPT"
-              }
+              },
+              "mathLanguage": "latex",
+              "mathml": "redacted"
             },
             {
               "type": "Text",
@@ -30847,76 +28059,12 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "𝒫"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "e"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "⁢"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "("
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "r"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": ")"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "subscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝒫"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "e"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑟"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
+              "type": "MathInline",
+              "code": {
                 "string": "\\mathcal{P}_{\\rm e}(r)"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "caligraphic_P start_POSTSUBSCRIPT roman_e end_POSTSUBSCRIPT ( italic_r )"
-              }
+              },
+              "mathLanguage": "latex",
+              "mathml": "redacted"
             },
             {
               "type": "Text",
@@ -30925,76 +28073,12 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "T"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "e"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "⁢"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "("
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "r"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": ")"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "subscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑇"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "e"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑟"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
+              "type": "MathInline",
+              "code": {
                 "string": "T_{\\rm e}(r)"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "italic_T start_POSTSUBSCRIPT roman_e end_POSTSUBSCRIPT ( italic_r )"
-              }
+              },
+              "mathLanguage": "latex",
+              "mathml": "redacted"
             },
             {
               "type": "Text",
@@ -31003,76 +28087,12 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "ρ"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "e"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "⁢"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "("
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "r"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": ")"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "subscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝜌"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "e"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑟"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
+              "type": "MathInline",
+              "code": {
                 "string": "\\rho_{\\rm e}(r)"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "italic_ρ start_POSTSUBSCRIPT roman_e end_POSTSUBSCRIPT ( italic_r )"
-              }
+              },
+              "mathLanguage": "latex",
+              "mathml": "redacted"
             },
             {
               "type": "Text",
@@ -31081,46 +28101,12 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "f"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "star"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "subscript"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑓"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "star"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
+              "type": "MathInline",
+              "code": {
                 "string": "f_{\\rm star}"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "italic_f start_POSTSUBSCRIPT roman_star end_POSTSUBSCRIPT"
-              }
+              },
+              "mathLanguage": "latex",
+              "mathml": "redacted"
             },
             {
               "type": "Text",
@@ -31653,10 +28639,15 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "Magneticum"
-              }
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Magneticum"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -31665,46 +28656,12 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "z"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "="
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "0.25"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑧"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "0.25"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
+              "type": "MathInline",
+              "code": {
                 "string": "z=0.25"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "italic_z = 0.25"
-              }
+              },
+              "mathLanguage": "latex",
+              "mathml": "redacted"
             },
             {
               "type": "Text",
@@ -31713,10 +28670,17 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "3"
-              }
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "3"
+                  }
+                }
+              ],
+              "target": "A5.T3",
+              "title": "Table 3 ‣ Appendix E Parameter posteriors ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
             },
             {
               "type": "Text",
@@ -31756,10 +28720,17 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "10"
-              }
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "10"
+                  }
+                }
+              ],
+              "target": "A5.F10",
+              "title": "Figure 10 ‣ Appendix E Parameter posteriors ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
             },
             {
               "type": "Text",
@@ -31799,10 +28770,17 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "10"
-              }
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "10"
+                  }
+                }
+              ],
+              "target": "A5.F10",
+              "title": "Figure 10 ‣ Appendix E Parameter posteriors ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
             },
             {
               "type": "Text",
@@ -31854,46 +28832,12 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "z"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "="
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "0.25"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "𝑧"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "0.25"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
+              "type": "MathInline",
+              "code": {
                 "string": "z=0.25"
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "italic_z = 0.25"
-              }
+              },
+              "mathLanguage": "latex",
+              "mathml": "redacted"
             },
             {
               "type": "Text",
@@ -31902,10 +28846,17 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "1"
-              }
+              "type": "Link",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "1"
+                  }
+                }
+              ],
+              "target": "S2.T1",
+              "title": "Table 1 ‣ 2.1 Mead20+ ‣ 2 Halo Model Implementations ‣ Testing halo models for constraining astrophysical feedback with multi-probe modeling: I. 3D Power spectra and mass fractions"
             },
             {
               "type": "Text",

@@ -2,13 +2,4 @@
 source: rust/codec-arxiv/tests/examples.rs
 expression: info.losses
 ---
-"<annotation-xml>": 1
-"<annotation>": 2
-"<apply>": 1
-"<cn>": 1
-"<csymbol>": 1
 "<figcaption class=\"ltx_caption ltx_centering\">": 1
-"<mn>": 1
-"<mo>": 1
-"<mrow>": 1
-"<semantics>": 1

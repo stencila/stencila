@@ -4541,40 +4541,12 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "±"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "1"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "plus-or-minus"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "1"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
+                  "type": "MathInline",
+                  "code": {
                     "string": "\\pm 1"
-                  }
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "± 1"
-                  }
+                  },
+                  "mathLanguage": "latex",
+                  "mathml": "redacted"
                 },
                 {
                   "type": "Text",
@@ -20016,8 +19988,8 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
+                  "type": "CodeInline",
+                  "code": {
                     "string": "llama-4-maverick"
                   }
                 },
@@ -20078,8 +20050,8 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
+                  "type": "CodeInline",
+                  "code": {
                     "string": "o3"
                   }
                 },
@@ -20090,8 +20062,8 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
+                  "type": "CodeInline",
+                  "code": {
                     "string": "o4-mini"
                   }
                 },
@@ -20102,8 +20074,8 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
+                  "type": "CodeInline",
+                  "code": {
                     "string": "gemini-2.5-pro"
                   }
                 },
@@ -20214,8 +20186,8 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
+                  "type": "CodeInline",
+                  "code": {
                     "string": "o3"
                   }
                 },
@@ -20226,8 +20198,8 @@ expression: article
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
+                  "type": "CodeInline",
+                  "code": {
                     "string": "o4-mini"
                   }
                 },
@@ -20310,14 +20282,14 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
+                      "type": "CodeInline",
+                      "code": {
                         "string": "o3"
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
+                      "type": "CodeInline",
+                      "code": {
                         "string": "o4-mini"
                       }
                     },
@@ -20328,8 +20300,8 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
+                      "type": "CodeInline",
+                      "code": {
                         "string": "grok-3"
                       }
                     },
@@ -20340,8 +20312,8 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
+                      "type": "CodeInline",
+                      "code": {
                         "string": "Claude"
                       }
                     },
@@ -20352,8 +20324,8 @@ expression: article
                       }
                     },
                     {
-                      "type": "Text",
-                      "value": {
+                      "type": "CodeInline",
+                      "code": {
                         "string": "gemini-pro-2.5"
                       }
                     },

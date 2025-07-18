@@ -24,48 +24,7 @@ pub fn decode_inlines(
         .flat_map(|handle| handle.get(parser))
     {
         if let Some(tag) = child.as_tag() {
-            let tag_name = tag.name().as_utf8_str();
-            let _tag_class = tag
-                .attributes()
-                .class()
-                .map(|cls| cls.as_utf8_str())
-                .unwrap_or_default();
-
-            match tag_name.as_ref() {
-                "cite" => {
-                    if _tag_class.contains("ltx_cite") {
-                        inlines.push(decode_citation(parser, tag, &_tag_class, context));
-                    } else {
-                        inlines.append(&mut decode_inlines(parser, tag, context));
-                        context.add_loss(tag);
-                    }
-                }
-                "math" => {
-                    inlines.push(decode_math_inline(parser, tag, context));
-                }
-                "em" | "i" | "strong" | "bold" | "u" | "sub" | "sup" | "s" => {
-                    inlines.push(decode_mark(parser, tag, &tag_name, context))
-                }
-                "a" => inlines.push(decode_a(parser, tag, context)),
-                "img" => inlines.push(decode_img(parser, tag, context)),
-                "svg" => {
-                    if _tag_class.contains("ltx_picture") {
-                        inlines.push(decode_svg_picture_inline(parser, tag, context));
-                    } else {
-                        // Handle other SVG elements as needed
-                        inlines.append(&mut decode_inlines(parser, tag, context));
-                        context.add_loss(tag);
-                    }
-                }
-                "span" => {
-                    inlines.append(&mut decode_span(parser, tag, context));
-                }
-                _ => {
-                    // Unhandled tag: just decode children into inlines but record loss
-                    inlines.append(&mut decode_inlines(parser, tag, context));
-                    context.add_loss(tag);
-                }
-            }
+            inlines.extend(decode_inline(parser, tag, context));
         } else if let Some(text) = child.as_raw() {
             let text_content = text.try_as_utf8_str().unwrap_or_default();
 
@@ -101,6 +60,60 @@ pub fn decode_inlines(
             }
         }
     }
+    inlines
+}
+
+/// Decode an inline element
+pub fn decode_inline(
+    parser: &Parser,
+    tag: &HTMLTag,
+    context: &mut ArxivDecodeContext,
+) -> Vec<Inline> {
+    let mut inlines = Vec::new();
+
+    let tag_name = tag.name().as_utf8_str();
+    let _tag_class = tag
+        .attributes()
+        .class()
+        .map(|cls| cls.as_utf8_str())
+        .unwrap_or_default();
+
+    match tag_name.as_ref() {
+        "cite" => {
+            if _tag_class.contains("ltx_cite") {
+                inlines.push(decode_citation(parser, tag, &_tag_class, context));
+            } else {
+                inlines.append(&mut decode_inlines(parser, tag, context));
+                context.add_loss(tag);
+            }
+        }
+        "math" => {
+            inlines.push(decode_math_inline(parser, tag, context));
+        }
+        "em" | "i" | "strong" | "bold" | "u" | "sub" | "sup" | "s" => {
+            inlines.push(decode_mark(parser, tag, &tag_name, context))
+        }
+        "a" => inlines.push(decode_a(parser, tag, context)),
+        "img" => inlines.push(decode_img(parser, tag, context)),
+        "svg" => {
+            if _tag_class.contains("ltx_picture") {
+                inlines.push(decode_svg_picture_inline(parser, tag, context));
+            } else {
+                // Handle other SVG elements as needed
+                inlines.append(&mut decode_inlines(parser, tag, context));
+                context.add_loss(tag);
+            }
+        }
+        "span" => {
+            inlines.append(&mut decode_span(parser, tag, context));
+        }
+        _ => {
+            // Unhandled tag: just decode children into inlines but record loss
+            inlines.append(&mut decode_inlines(parser, tag, context));
+            context.add_loss(tag);
+        }
+    }
+
     inlines
 }
 
