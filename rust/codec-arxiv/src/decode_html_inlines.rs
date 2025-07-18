@@ -333,8 +333,8 @@ fn extract_citation_text_for_link(
 
     // Collect all text from start_idx to target_idx
     let mut text_parts = Vec::new();
-    for i in start_idx..target_idx {
-        if let CitationNode::Text(text) = &nodes[i] {
+    for node in nodes.iter().take(target_idx).skip(start_idx) {
+        if let CitationNode::Text(text) = node {
             text_parts.push(text.clone());
         }
     }

@@ -760,15 +760,15 @@ fn parse_volume_and_issue_info(volume_info: &str, periodical: Periodical) -> Box
     Box::new(CreativeWorkType::PublicationVolume(publication_volume))
 }
 
-/// Parse publication block to extract venue information and page range
-fn parse_publication_block(
-    text: &str,
-) -> Option<(
+type PublicationInfo = (
     Box<CreativeWorkType>,
     Option<IntegerOrString>,
     Option<IntegerOrString>,
     Option<String>,
-)> {
+);
+
+/// Parse publication block to extract venue information and page range
+fn parse_publication_block(text: &str) -> Option<PublicationInfo> {
     // Check for arXiv preprint pattern - simple string parsing
     if text.contains("arXiv") {
         // Find arXiv: pattern
@@ -832,10 +832,13 @@ fn parse_publication_block(
             let (page_start, page_end, pagination) = if let Some(pages) = page_info {
                 let (start, end) = parse_page_range(pages);
                 // Check if we got a clean range (both start and end are integers)
-                let is_clean_range = match (&start, &end) {
-                    (Some(IntegerOrString::Integer(_)), Some(IntegerOrString::Integer(_))) => true,
-                    _ => false,
-                };
+                let is_clean_range = matches!(
+                    (&start, &end),
+                    (
+                        Some(IntegerOrString::Integer(_)),
+                        Some(IntegerOrString::Integer(_))
+                    )
+                );
 
                 if is_clean_range {
                     // Clean numeric range, use page_start and page_end

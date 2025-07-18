@@ -630,20 +630,18 @@ fn decode_list_item_blocks(
         } else {
             // Try to strip list number from the beginning of the first paragraph
             if let Block::Paragraph(ref mut paragraph) = &mut blocks[0] {
-                if let Some(first_inline) = paragraph.content.first_mut() {
-                    if let Inline::Text(ref mut text_node) = first_inline {
-                        let text = &text_node.value;
-                        if let Some(content_start) = find_content_after_list_number(text) {
-                            if content_start < text.len() {
-                                // Update the text content, removing the list number
-                                text_node.value = text[content_start..].to_string().into();
-                            } else {
-                                // The text was only a number, remove this text node entirely
-                                paragraph.content.remove(0);
-                                // If paragraph is now empty, remove it too
-                                if paragraph.content.is_empty() {
-                                    blocks.remove(0);
-                                }
+                if let Some(Inline::Text(ref mut text_node)) = paragraph.content.first_mut() {
+                    let text = &text_node.value;
+                    if let Some(content_start) = find_content_after_list_number(text) {
+                        if content_start < text.len() {
+                            // Update the text content, removing the list number
+                            text_node.value = text[content_start..].to_string().into();
+                        } else {
+                            // The text was only a number, remove this text node entirely
+                            paragraph.content.remove(0);
+                            // If paragraph is now empty, remove it too
+                            if paragraph.content.is_empty() {
+                                blocks.remove(0);
                             }
                         }
                     }
