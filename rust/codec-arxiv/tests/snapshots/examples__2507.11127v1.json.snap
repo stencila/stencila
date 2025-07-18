@@ -65,12 +65,6 @@ expression: article
     },
     {
       "type": "Person",
-      "givenNames": [
-        "lennert.desmet@kuleuven.be"
-      ]
-    },
-    {
-      "type": "Person",
       "familyNames": [
         "De",
         "Raedt"
@@ -115,12 +109,6 @@ expression: article
       "type": "Person",
       "givenNames": [
         "Sweden"
-      ]
-    },
-    {
-      "type": "Person",
-      "givenNames": [
-        "luc.deraedt@kuleuven.be"
       ]
     }
   ],

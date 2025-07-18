@@ -162,6 +162,27 @@ pub fn decode_html_entities(text: &str) -> String {
         .replace("&nbsp;", " ")
 }
 
+/// Check if a text string is an email address or contains email pattern
+fn is_email_address(text: &str) -> bool {
+    let trimmed = text.trim();
+
+    // Check for @ symbol
+    if !trimmed.contains('@') {
+        return false;
+    }
+
+    // Find @ position
+    if let Some(at_pos) = trimmed.find('@') {
+        let after_at = &trimmed[at_pos + 1..];
+        // Must have a dot after @ and reasonable length
+        if after_at.contains('.') && after_at.len() > 3 {
+            return true;
+        }
+    }
+
+    false
+}
+
 /// Extract text content from an HTML element
 pub fn get_text(parser: &Parser, tag: &HTMLTag) -> String {
     let mut text_parts = Vec::new();
@@ -326,6 +347,7 @@ pub fn decode_authors_from_text(text: &str) -> Vec<Author> {
         .split(text)
         .map(|s| s.trim())
         .filter(|s| !s.is_empty())
+        .filter(|s| !is_email_address(s)) // Filter out email addresses
         .map(|s| s.to_string())
         .collect();
 

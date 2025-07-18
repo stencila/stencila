@@ -90,12 +90,6 @@ expression: article
       "givenNames": [
         "parth"
       ]
-    },
-    {
-      "type": "Person",
-      "givenNames": [
-        "karime}@distyl.ai"
-      ]
     }
   ],
   "references": [
