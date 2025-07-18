@@ -88,6 +88,20 @@ pub(super) fn extract_arxiv_id(identifier: &str) -> Option<String> {
     None
 }
 
+/// Convert an arXiv id to a DOI
+///
+/// Strips any version suffix and adds the arXiv DOI prefix.
+pub fn arxiv_id_to_doi(arxiv_id: &str) -> String {
+    // Strip version suffix (e.g., v1, v2) from the ID
+    let id_without_version = if let Some(pos) = arxiv_id.find('v') {
+        &arxiv_id[..pos]
+    } else {
+        arxiv_id
+    };
+
+    ["10.48550/arxiv.", id_without_version].concat()
+}
+
 /// Decode an arXiv id to a Stencila [`Node`]
 ///
 /// Tries to fetch content from arXiv in the following order:
@@ -124,7 +138,9 @@ pub(super) async fn decode_arxiv_id(
                 tracing::debug!("Successfully fetched `{format}` for `{arxiv_id}`",);
 
                 let result = match format {
-                    "html" => decode_arxiv_html(&response.text().await?, options.clone()).await,
+                    "html" => {
+                        decode_arxiv_html(arxiv_id, &response.text().await?, options.clone()).await
+                    }
                     "src" => decode_arxiv_src(arxiv_id, response, options.clone()).await,
                     "pdf" => decode_arxiv_pdf(arxiv_id, response, options.clone()).await,
                     _ => unreachable!(),

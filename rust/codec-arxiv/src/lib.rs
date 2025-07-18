@@ -44,7 +44,7 @@ impl Codec for ArxivCodec {
         str: &str,
         options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
-        decode_html::decode_arxiv_html(str, options).await
+        decode_html::decode_arxiv_html("", str, options).await
     }
 }
 

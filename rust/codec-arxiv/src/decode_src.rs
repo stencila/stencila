@@ -12,6 +12,8 @@ use codec::{
 };
 use codec_latex::LatexCodec;
 
+use super::decode::arxiv_id_to_doi;
+
 /// Decode the response from an arXiv `src` URL to a Stencila [`Node`]
 #[tracing::instrument(skip(options, response))]
 pub(super) async fn decode_arxiv_src(
@@ -71,7 +73,7 @@ pub(super) async fn decode_arxiv_src(
         bail!("Retrieved LaTeX content is empty")
     }
 
-    LatexCodec
+    let (mut node, .., info) = LatexCodec
         .from_str(
             &latex,
             Some(DecodeOptions {
@@ -79,5 +81,14 @@ pub(super) async fn decode_arxiv_src(
                 ..options.unwrap_or_default()
             }),
         )
-        .await
+        .await?;
+
+    // Set doi, and other metadata
+    if let Node::Article(article) = &mut node {
+        article.doi = Some(arxiv_id_to_doi(arxiv_id));
+        article.options.repository = Some("https://arxiv.org".into());
+        article.options.path = Some(["src/", arxiv_id].concat());
+    }
+
+    Ok((node, info))
 }

@@ -16,6 +16,7 @@ use codec::{
     DecodeInfo, DecodeOptions, Losses,
 };
 
+use super::decode::arxiv_id_to_doi;
 use super::decode_html_blocks::*;
 use super::decode_html_inlines::*;
 
@@ -25,6 +26,7 @@ use super::decode_html_inlines::*;
 /// generated.
 #[tracing::instrument(skip(_options))]
 pub(super) async fn decode_arxiv_html(
+    arxiv_id: &str,
     html: &str,
     _options: Option<DecodeOptions>,
 ) -> Result<(Node, DecodeInfo)> {
@@ -56,10 +58,17 @@ pub(super) async fn decode_arxiv_html(
 
     // Decode article
     let mut context = ArxivDecodeContext::new(base_href);
-    let article = decode_article(parser, article, &mut context);
+    let mut article = decode_article(parser, article, &mut context);
+
+    // Set doi, and other metadata
+    if !arxiv_id.is_empty() {
+        article.doi = Some(arxiv_id_to_doi(arxiv_id));
+        article.options.repository = Some("https://arxiv.org".into());
+        article.options.path = Some(["html/", arxiv_id].concat());
+    }
 
     Ok((
-        article,
+        Node::Article(article),
         DecodeInfo {
             losses: context.losses,
             ..Default::default()
@@ -272,7 +281,7 @@ pub fn get_text(parser: &Parser, tag: &HTMLTag) -> String {
 }
 
 /// Decode the root <article> element into aa Stencila [`Article`]
-fn decode_article(parser: &Parser, article: &HTMLTag, context: &mut ArxivDecodeContext) -> Node {
+fn decode_article(parser: &Parser, article: &HTMLTag, context: &mut ArxivDecodeContext) -> Article {
     let mut title = None;
     let mut authors = Vec::new();
     let mut abstract_ = None;
@@ -320,14 +329,14 @@ fn decode_article(parser: &Parser, article: &HTMLTag, context: &mut ArxivDecodeC
         }
     }
 
-    Node::Article(Article {
+    Article {
         title,
         authors: (!authors.is_empty()).then_some(authors),
         r#abstract: abstract_,
         references: (!references.is_empty()).then_some(references),
         content,
         ..Default::default()
-    })
+    }
 }
 
 /// Extract plain text from a vector of inlines

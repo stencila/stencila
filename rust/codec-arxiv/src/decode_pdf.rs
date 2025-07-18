@@ -12,6 +12,8 @@ use codec::{
 };
 use codec_pdf::PdfCodec;
 
+use super::decode::arxiv_id_to_doi;
+
 /// Decode the response from an arXiv `pdf` URL to a Stencila [`Node`]
 #[tracing::instrument(skip(options, response))]
 pub(super) async fn decode_arxiv_pdf(
@@ -31,6 +33,14 @@ pub(super) async fn decode_arxiv_pdf(
     file.flush().await?;
     drop(file);
 
-    let (node, .., info) = PdfCodec.from_path(&temp_file, options).await?;
+    let (mut node, .., info) = PdfCodec.from_path(&temp_file, options).await?;
+
+    // Set doi, and other metadata
+    if let Node::Article(article) = &mut node {
+        article.doi = Some(arxiv_id_to_doi(arxiv_id));
+        article.options.repository = Some("https://arxiv.org".into());
+        article.options.path = Some(["pdf/", arxiv_id].concat());
+    }
+
     Ok((node, info))
 }
