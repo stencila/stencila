@@ -526,8 +526,6 @@ fn decode_table_cell(
     tag: &HTMLTag,
     context: &mut ArxivDecodeContext,
 ) -> TableCell {
-    let cell_content = decode_blocks(parser, tag, context);
-
     // Determine cell type based on tag name
     let cell_type = match tag.name().as_utf8_str().as_ref() {
         "th" => Some(TableCellType::HeaderCell),
@@ -537,7 +535,6 @@ fn decode_table_cell(
 
     // Extract horizontal alignment from class attributes
     let class = get_class(tag);
-
     let horizontal_alignment = if class.contains("ltx_align_center") {
         Some(HorizontalAlignment::AlignCenter)
     } else if class.contains("ltx_align_left") {
@@ -548,10 +545,17 @@ fn decode_table_cell(
         None
     };
 
+    let content = decode_inlines(parser, tag, context);
+    let content = if content.is_empty() {
+        Vec::new()
+    } else {
+        vec![p(content)]
+    };
+
     TableCell {
-        content: cell_content,
         cell_type,
         horizontal_alignment,
+        content,
         ..Default::default()
     }
 }

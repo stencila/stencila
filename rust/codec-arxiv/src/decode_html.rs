@@ -11,7 +11,7 @@ use codec::{
     },
     schema::{
         shortcuts::t, Article, Author, Block, CreativeWorkType, Date, Inline, IntegerOrString,
-        Node, Periodical, Person, PersonOptions, PublicationIssue, PublicationVolume, Reference,
+        Node, Periodical, Person, PublicationIssue, PublicationVolume, Reference,
     },
     DecodeInfo, DecodeOptions, Losses,
 };
