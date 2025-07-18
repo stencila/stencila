@@ -20,8 +20,6 @@ pub use format;
 // Consider using `tracing::warn!` and `tracing::error` instead for
 // modules that are not specifically CLI related.
 
-// TODO: Create a ToStderr trait for outputting `Messages` and
-// use instead of the various `eprintln!` usages in CLI related modules
 mod message;
 pub use message::*;
 

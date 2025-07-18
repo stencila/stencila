@@ -12,6 +12,7 @@ format = { path = "../format" }
 schema = { path = "../schema" }
 syntect = "5.2.0"
 terminal_size = "0.4.2"
+textwrap = { version = "0.16.2", features = ["terminal_size"] }
 url = { workspace = true }
 
 [lints]

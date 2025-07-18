@@ -1,33 +1,33 @@
-use std::fmt::Display;
+use textwrap::{termwidth, wrap, Options};
 
-use common::serde::Serialize;
+/// Create a wrapped user message on the terminal
+#[allow(clippy::print_stderr)]
+pub fn message(message: &str, icon: Option<&str>) {
+    let initial_indent = icon.map(|icon| [icon, "  "].concat());
+    let subsequent_indent = initial_indent
+        .as_ref()
+        .map(|indent| " ".repeat(indent.len()));
 
-use crate::ToStdout;
+    let options = if let (Some(initial_indent), Some(subsequent_indent)) =
+        (&initial_indent, &subsequent_indent)
+    {
+        Options::new(termwidth())
+            .initial_indent(initial_indent)
+            .subsequent_indent(subsequent_indent)
+    } else {
+        Options::new(termwidth())
+    };
 
-/// A message for a user
-#[derive(Serialize)]
-#[serde(crate = "common::serde")]
-pub struct Message(pub String);
+    eprintln!("{}", wrap(message, options,).join("\n"));
+}
 
 #[macro_export]
 macro_rules! message {
     ($str:literal, $($arg:tt)*) => {
-        cli_utils::Message(format!($str, $($arg)*))
+        cli_utils::message(&format!($str, $($arg)*), None)
     };
 
     ($str:literal) => {
-        cli_utils::Message($str.to_string())
+        cli_utils::message($str, None)
     };
-}
-
-impl Display for Message {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "{}", self.0)
-    }
-}
-
-impl ToStdout for Message {
-    fn to_terminal(&self) -> impl std::fmt::Display {
-        &self.0
-    }
 }
