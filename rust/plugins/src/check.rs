@@ -1,4 +1,4 @@
-use cli_utils::{message, Message};
+use cli_utils::message;
 use codec::schema::{shortcuts, ExecutionBounds};
 use common::{
     clap::{self, Args},
@@ -20,7 +20,7 @@ pub async fn check(
     skip_codecs: bool,
     skip_kernels: bool,
     skip_models: bool,
-) -> Result<Message> {
+) -> Result<Plugin> {
     tracing::info!("Checking plugin `{name}`");
 
     let plugin = Plugin::read_manifest(name)?;
@@ -120,16 +120,12 @@ pub async fn check(
         model.perform_task(&task).await?;
     }
 
-    Ok(message!(
-        "💯 Successfully checked plugin `{}` version `{}`",
-        plugin.name,
-        plugin.version
-    ))
+    Ok(plugin)
 }
 
 /// Check a plugin
 #[derive(Debug, Default, Args)]
-pub struct CheckArgs {
+pub struct Check {
     /// The name of the plugin to install
     pub name: String,
 
@@ -146,14 +142,22 @@ pub struct CheckArgs {
     pub skip_models: bool,
 }
 
-impl CheckArgs {
-    pub async fn run(self) -> Result<Message> {
-        check(
+impl Check {
+    pub async fn run(self) -> Result<()> {
+        let plugin = check(
             &self.name,
             self.skip_codecs,
             self.skip_kernels,
             self.skip_models,
         )
-        .await
+        .await?;
+
+        message!(
+            "💯 Successfully checked plugin `{}` version `{}`",
+            plugin.name,
+            plugin.version
+        );
+
+        Ok(())
     }
 }

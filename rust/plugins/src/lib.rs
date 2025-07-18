@@ -41,7 +41,7 @@ use model::Model;
 
 use codecs::PluginCodec;
 use kernels::PluginKernel;
-use list::{list, ListArgs};
+use list::{list, List};
 use models::PluginModel;
 
 mod check;
@@ -419,6 +419,8 @@ impl Plugin {
 
     /// Disable the plugin on the current machine
     pub fn disable(name: &str) -> Result<()> {
+        tracing::debug!("Disabling plugin `{name}`");
+
         let path = Plugin::plugin_dir(name, true)?.join(DISABLED_FILENAME);
         File::create(path)?;
 
@@ -427,6 +429,8 @@ impl Plugin {
 
     /// Enable the plugin on the current machine
     pub fn enable(name: &str) -> Result<()> {
+        tracing::debug!("Enabling plugin `{name}`");
+
         let path = Plugin::plugin_dir(name, true)?.join(DISABLED_FILENAME);
         remove_file(path)?;
 
@@ -790,7 +794,7 @@ pub enum PluginEnabled {
 /// Intended for modules in this crate to be able to infallibly
 /// get a list of plugins (to avoid breaking some other functionality)
 async fn plugins() -> Vec<Plugin> {
-    match list(ListArgs::default()).await {
+    match list(List::default()).await {
         Ok(plugins) => plugins,
         Err(error) => {
             // This error can happen if offline, so just keep at debug level

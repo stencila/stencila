@@ -1,4 +1,4 @@
-use cli_utils::{message, Message};
+use cli_utils::message;
 use common::{
     clap::{self, Args},
     eyre::{bail, Result},
@@ -10,7 +10,7 @@ use crate::{Plugin, MANIFEST_FILENAME};
 
 /// Install a plugin
 #[tracing::instrument]
-pub async fn install(name: &str) -> Result<Message> {
+pub async fn install(name: &str) -> Result<Plugin> {
     tracing::debug!("Installing plugin `{name}`");
 
     // Get the latest manifest for the plugin
@@ -55,16 +55,12 @@ pub async fn install(name: &str) -> Result<Message> {
     let manifest = dir.join(MANIFEST_FILENAME);
     write(&manifest, toml::to_string(&plugin)?).await?;
 
-    Ok(message!(
-        "🚀 Successfully installed plugin `{}` version `{}`",
-        plugin.name,
-        plugin.version
-    ))
+    Ok(plugin)
 }
 
 /// Install a plugin
 #[derive(Debug, Default, Args)]
-pub struct InstallArgs {
+pub struct Install {
     /// The name or URL of the plugin to install
     ///
     /// If a URL is supplied it should be a URL to the manifest TOML file of the plugin.
@@ -72,8 +68,16 @@ pub struct InstallArgs {
     pub name: String,
 }
 
-impl InstallArgs {
-    pub async fn run(self) -> Result<Message> {
-        install(&self.name).await
+impl Install {
+    pub async fn run(self) -> Result<()> {
+        let plugin = install(&self.name).await?;
+
+        message!(
+            "🚀 Successfully installed plugin `{}` version `{}`",
+            plugin.name,
+            plugin.version
+        );
+
+        Ok(())
     }
 }

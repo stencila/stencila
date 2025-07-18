@@ -1,31 +1,24 @@
-use cli_utils::{message, Message};
+use cli_utils::message;
 use common::{
     clap::{self, Args},
     eyre::Result,
-    tracing,
 };
 
 use crate::Plugin;
 
 /// Enable a plugin
-#[tracing::instrument]
-pub async fn enable(name: &str) -> Result<Message> {
-    tracing::debug!("Enabling plugin `{name}`");
-
-    Plugin::enable(name)?;
-
-    Ok(message!("✅ Successfully enabled plugin `{}`", name))
-}
-
-/// Enable a plugin
 #[derive(Debug, Default, Args)]
-pub struct EnableArgs {
+pub struct Enable {
     /// The name of the plugin to enable
     pub name: String,
 }
 
-impl EnableArgs {
-    pub async fn run(self) -> Result<Message> {
-        enable(&self.name).await
+impl Enable {
+    pub async fn run(self) -> Result<()> {
+        Plugin::enable(&self.name)?;
+
+        message!("✅ Successfully enabled plugin `{}`", self.name);
+
+        Ok(())
     }
 }

@@ -1,12 +1,12 @@
-use cli_utils::{color_print::cstr, ToStdout};
+use cli_utils::color_print::cstr;
 use common::{
     clap::{self, Parser, Subcommand},
     eyre::Result,
 };
 
 use crate::{
-    check::CheckArgs, disable::DisableArgs, enable::EnableArgs, install::InstallArgs,
-    link::LinkArgs, list::ListArgs, show::ShowArgs, uninstall::UninstallArgs,
+    check::Check, disable::Disable, enable::Enable, install::Install, link::Link, list::List,
+    show::Show, uninstall::Uninstall,
 };
 
 /// Manage plugins
@@ -19,32 +19,32 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Command {
-    List(ListArgs),
-    Install(InstallArgs),
-    Uninstall(UninstallArgs),
-    Link(LinkArgs),
-    Enable(EnableArgs),
-    Disable(DisableArgs),
-    Show(ShowArgs),
-    Check(CheckArgs),
+    List(List),
+    Install(Install),
+    Uninstall(Uninstall),
+    Link(Link),
+    Enable(Enable),
+    Disable(Disable),
+    Show(Show),
+    Check(Check),
 }
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
         let Some(command) = self.command else {
-            ListArgs::default().run().await?.to_stdout();
+            List::default().run().await?;
             return Ok(());
         };
 
         match command {
-            Command::List(args) => args.run().await?.to_stdout(),
-            Command::Install(args) => args.run().await?.to_stdout(),
-            Command::Uninstall(args) => args.run().await?.to_stdout(),
-            Command::Link(args) => args.run().await?.to_stdout(),
-            Command::Enable(args) => args.run().await?.to_stdout(),
-            Command::Disable(args) => args.run().await?.to_stdout(),
-            Command::Show(args) => args.run().await?.to_stdout(),
-            Command::Check(args) => args.run().await?.to_stdout(),
+            Command::List(args) => args.run().await?,
+            Command::Install(args) => args.run().await?,
+            Command::Uninstall(args) => args.run().await?,
+            Command::Link(args) => args.run().await?,
+            Command::Enable(args) => args.run().await?,
+            Command::Disable(args) => args.run().await?,
+            Command::Show(args) => args.run().await?,
+            Command::Check(args) => args.run().await?,
         }
 
         Ok(())

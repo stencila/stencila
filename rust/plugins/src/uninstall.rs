@@ -1,4 +1,4 @@
-use cli_utils::{message, Message};
+use cli_utils::{message};
 use common::{
     clap::{self, Args},
     eyre::Result,
@@ -10,29 +10,29 @@ use crate::Plugin;
 
 /// Uninstall a plugin
 #[tracing::instrument]
-pub async fn uninstall(name: &str) -> Result<Message> {
+pub async fn uninstall(name: &str) -> Result<()> {
     tracing::debug!("Uninstalling plugin `{}`", name);
 
     let dir = Plugin::plugin_dir(name, false)?;
-    let message = if dir.exists() {
+    if dir.exists() {
         remove_dir_all(dir).await?;
         message!("🗑️ Successfully uninstalled plugin `{}`", name)
     } else {
         message!("Plugin `{}` does not appear to be installed", name)
     };
 
-    Ok(message)
+    Ok(())
 }
 
 /// Uninstall a plugin
 #[derive(Debug, Default, Args)]
-pub struct UninstallArgs {
+pub struct Uninstall {
     /// The name of the plugin to uninstall
     pub name: String,
 }
 
-impl UninstallArgs {
-    pub async fn run(self) -> Result<Message> {
+impl Uninstall {
+    pub async fn run(self) -> Result<()> {
         uninstall(&self.name).await
     }
 }

@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use cli_utils::{message, Message};
+use cli_utils::message;
 use common::{
     clap::{self, Args},
     eyre::{bail, Result},
@@ -12,7 +12,7 @@ use crate::{Plugin, MANIFEST_FILENAME};
 
 /// Link a local directory as a plugin
 #[tracing::instrument]
-pub async fn link(target: &Path) -> Result<Message> {
+pub async fn link(target: &Path) -> Result<Plugin> {
     tracing::debug!("Linking plugin directory `{}`", target.display());
 
     if !target.exists() {
@@ -53,22 +53,26 @@ pub async fn link(target: &Path) -> Result<Message> {
         symlink_dir(&target, link)?;
     }
 
-    Ok(message!(
-        "🔗 Successfully linked directory `{}` as plugin `{}`",
-        target.display(),
-        plugin.name
-    ))
+    Ok(plugin)
 }
 
 /// Link to a local plugin
 #[derive(Debug, Default, Args)]
-pub struct LinkArgs {
+pub struct Link {
     /// The directory to link to
     pub directory: PathBuf,
 }
 
-impl LinkArgs {
-    pub async fn run(self) -> Result<Message> {
-        link(&self.directory).await
+impl Link {
+    pub async fn run(self) -> Result<()> {
+        let plugin = link(&self.directory).await?;
+
+        message!(
+            "🔗 Successfully linked directory `{}` as plugin `{}`",
+            self.directory.display(),
+            plugin.name
+        );
+
+        Ok(())
     }
 }

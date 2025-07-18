@@ -3,7 +3,10 @@ use std::{
     time::Duration,
 };
 
-use cli_utils::tabulated::{Attribute, Cell, Color, Tabulated};
+use cli_utils::{
+    tabulated::{Attribute, Cell, Color, Tabulated},
+    ToStdout,
+};
 use common::{
     clap::{self, Args},
     eyre::Result,
@@ -31,7 +34,7 @@ const CACHE_EXPIRY_SECS: u64 = 6 * 60 * 60;
 ///
 /// Filtering the list is possible, currently only using `options.installed`
 /// (but in the future may allow for text matching "search" filtering)
-pub async fn list(args: ListArgs) -> Result<Vec<Plugin>> {
+pub async fn list(args: List) -> Result<Vec<Plugin>> {
     let plugins_dir = get_app_dir(DirType::Plugins, true)?;
     let cache = plugins_dir.join("manifests.json");
 
@@ -133,7 +136,7 @@ pub async fn list(args: ListArgs) -> Result<Vec<Plugin>> {
 
 /// List plugins
 #[derive(Debug, Default, Args)]
-pub struct ListArgs {
+pub struct List {
     /// Force refresh of plugin manifests
     #[arg(long, short)]
     refresh: bool,
@@ -155,8 +158,8 @@ pub struct ListArgs {
     enabled: bool,
 }
 
-impl ListArgs {
-    pub async fn run(self) -> Result<Tabulated> {
+impl List {
+    pub async fn run(self) -> Result<()> {
         let list = list(self).await?;
 
         let mut table = Tabulated::new();
@@ -200,6 +203,8 @@ impl ListArgs {
             ]);
         }
 
-        Ok(table)
+        table.to_stdout();
+
+        Ok(())
     }
 }
