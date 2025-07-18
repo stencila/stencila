@@ -3,6 +3,7 @@
 mod cli;
 pub use crate::cli::{Cli, Command};
 
+mod cloud;
 mod compile;
 mod convert;
 mod demo;
@@ -117,7 +118,7 @@ mod tests {
             ("kernels::execute", kernels::cli::EXECUTE_AFTER_LONG_HELP),
             ("kernels::evaluate", kernels::cli::EVALUATE_AFTER_LONG_HELP),
             ("kernels::lint", kernels::cli::LINT_AFTER_LONG_HELP),
-            // Formats/Codecs module help strings
+            // Codecs module help strings
             ("formats::cli", codecs::cli::CLI_AFTER_LONG_HELP),
             ("formats::list", codecs::cli::LIST_AFTER_LONG_HELP),
             // Plugins module help strings
@@ -133,6 +134,11 @@ mod tests {
             ("tools::install", tools::cli::INSTALL_AFTER_LONG_HELP),
             ("tools::env", tools::cli::ENV_AFTER_LONG_HELP),
             ("tools::run", tools::cli::RUN_AFTER_LONG_HELP),
+            // Cloud module help strings
+            ("cloud::cli", crate::cloud::CLI_AFTER_LONG_HELP),
+            ("cloud::signin", crate::cloud::SIGNIN_AFTER_LONG_HELP),
+            ("cloud::signout", crate::cloud::SIGNOUT_AFTER_LONG_HELP),
+            ("cloud::status", crate::cloud::STATUS_AFTER_LONG_HELP),
         ]
     }
 

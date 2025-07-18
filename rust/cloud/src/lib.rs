@@ -2,7 +2,12 @@ use std::{env, sync::OnceLock};
 
 use cached::proc_macro::cached;
 
-use common::{serde::Deserialize, tracing};
+use common::{
+    eyre::{eyre, Result},
+    serde::Deserialize,
+    strum::Display,
+    tracing,
+};
 
 /// The base URL for the Stencila Cloud API
 ///
@@ -39,6 +44,69 @@ pub fn api_token() -> Option<String> {
             API_TOKEN.set(token.clone()).ok();
         })
     })
+}
+
+/// Sign in to Stencila Cloud
+///
+/// Sets the API token on the keyring;
+pub fn signin(token: &str) -> Result<Status> {
+    secrets::set(API_TOKEN_NAME, token)?;
+    API_TOKEN.set(token.into()).map_err(|error| eyre!(error))?;
+
+    Ok(status())
+}
+
+/// Sign out from Stencila Cloud
+///
+/// Removes the API token from the keyring or removes it as an env var. Returns
+/// the status BEFORE removal so the user can be provided with appropriate
+/// messaging.
+pub fn signout() -> Result<Status> {
+    let status = status();
+    match status.token_source {
+        Some(TokenSource::Keyring) => secrets::delete(API_TOKEN_NAME)?,
+        Some(TokenSource::EnvVar) => env::remove_var(API_TOKEN_NAME),
+        None => {}
+    }
+    Ok(status)
+}
+
+/// Get the Stencila Cloud authentication status
+pub fn status() -> Status {
+    let token = env::var(API_TOKEN_NAME).ok().map(secrets::redact);
+    if token.is_some() {
+        return Status {
+            token,
+            token_source: Some(TokenSource::EnvVar),
+        };
+    }
+
+    let token = secrets::get(API_TOKEN_NAME).ok().map(secrets::redact);
+    if token.is_some() {
+        return Status {
+            token,
+            token_source: Some(TokenSource::Keyring),
+        };
+    }
+
+    Status::default()
+}
+
+#[derive(Default)]
+pub struct Status {
+    /// The current Stencila Cloud API token (partially redacted)
+    pub token: Option<String>,
+
+    /// The source of the API token
+    pub token_source: Option<TokenSource>,
+}
+
+#[derive(Display)]
+pub enum TokenSource {
+    #[strum(serialize = "keyring")]
+    Keyring,
+    #[strum(serialize = "environment variable")]
+    EnvVar,
 }
 
 /// An error response from Stencila Cloud

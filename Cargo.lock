@@ -896,6 +896,7 @@ version = "0.0.0"
 dependencies = [
  "ask",
  "cli-utils",
+ "cloud",
  "codecs",
  "color-eyre",
  "common",
@@ -945,6 +946,7 @@ dependencies = [
  "schema",
  "syntect",
  "terminal_size",
+ "textwrap",
  "url",
 ]
 

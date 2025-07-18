@@ -14,6 +14,7 @@ tokio-console = ["console-subscriber"]
 [dependencies]
 ask = { path = "../ask" }
 cli-utils = { path = "../cli-utils" }
+cloud = { path = "../cloud" }
 codecs = { path = "../codecs" }
 color-eyre = { version = "0.6.5", features = ["issue-url"] }
 common = { path = "../common" }

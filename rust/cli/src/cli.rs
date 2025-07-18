@@ -253,6 +253,10 @@ pub enum Command {
     Secrets(secrets::cli::Cli),
     Tools(tools::cli::Cli),
 
+    Cloud(crate::cloud::Cli),
+    Signin(crate::cloud::Signin),
+    Signout(crate::cloud::Signout),
+
     Upgrade(upgrade::Cli),
     Uninstall(uninstall::Cli),
 }
@@ -306,6 +310,10 @@ impl Cli {
             Command::Plugins(plugins) => plugins.run().await?,
             Command::Secrets(secrets) => secrets.run().await?,
             Command::Tools(tools) => tools.run().await?,
+
+            Command::Cloud(cloud) => cloud.run().await?,
+            Command::Signin(signin) => signin.run().await?,
+            Command::Signout(signout) => signout.run().await?,
 
             Command::Upgrade(upgrade) => upgrade.run().await?,
             Command::Uninstall(uninstall) => uninstall.run().await?,
