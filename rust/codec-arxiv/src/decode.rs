@@ -31,7 +31,7 @@ pub(super) fn extract_arxiv_id(identifier: &str) -> Option<String> {
     let identifier = identifier.trim().to_lowercase();
 
     static ARXIV_URL_REGEX: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"^/(?:abs|pdf|src|html|format)/([0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?)$")
+        Regex::new(r"^/(?:(?:abs|pdf|src|html|format)/)?([0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?)$")
             .expect("invalid regex")
     });
 
@@ -223,6 +223,17 @@ mod tests {
         assert_eq!(
             extract_arxiv_id("https://export.arxiv.org/src/2507.11254v3"),
             Some("2507.11254v3".to_string())
+        );
+
+        // Test URLs without path prefix. These are not (currently) valid but
+        // respect the intent of the user
+        assert_eq!(
+            extract_arxiv_id("https://arxiv.org/2507.11254"),
+            Some("2507.11254".to_string())
+        );
+        assert_eq!(
+            extract_arxiv_id("https://export.arxiv.org/2507.11254v1"),
+            Some("2507.11254v1".to_string())
         );
     }
 
