@@ -5,11 +5,9 @@ edition = "2024"
 
 [dependencies]
 codec = { path = "../codec" }
+codec-csl = { path = "../codec-csl" }
 url = { workspace = true }
 version = { path = "../version" }
-
-[dev-dependencies]
-common-dev = { path = "../common-dev" }
 
 [lints]
 workspace = true

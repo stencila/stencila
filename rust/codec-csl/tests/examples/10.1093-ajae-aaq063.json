@@ -1,0 +1,294 @@
+{
+  "indexed": {
+    "date-parts": [[2025, 7, 16]],
+    "date-time": "2025-07-16T22:05:06Z",
+    "timestamp": 1752703506379,
+    "version": "3.40.5"
+  },
+  "reference-count": 24,
+  "publisher": "Wiley",
+  "issue": "5",
+  "license": [
+    {
+      "start": {
+        "date-parts": [[2010, 7, 19]],
+        "date-time": "2010-07-19T00:00:00Z",
+        "timestamp": 1279497600000
+      },
+      "content-version": "vor",
+      "delay-in-days": 0,
+      "URL": "http:\/\/onlinelibrary.wiley.com\/termsAndConditions#vor"
+    }
+  ],
+  "funder": [
+    { "name": "USDA NRI", "award": ["144-QS50"] },
+    { "name": "USDA CSERRS Hatch", "award": ["WIS01345"] }
+  ],
+  "content-domain": { "domain": [], "crossmark-restriction": false },
+  "published-print": { "date-parts": [[2010, 10]] },
+  "abstract": "<jats:p>We investigate the pricing of traits in the U.S. corn seed market under imperfect competition. In a multiproduct context, we examine how substitution\/complementarity relationships among products can affect pricing. This is used to motivate generalizations of the Herfindahl\u2010Hirschman index capturing cross\u2010market effects of imperfect competition on pricing. The model is applied to pricing of U.S. conventional and biotech seeds from 2000 to 2007. We reject the standard component pricing in biotech traits in favor of subadditive bundle pricing. The econometric estimates show how changes in market structure (as measured by both own\u2010 and cross\u2010Herfindahl indexes) affect U.S. corn seed prices.<\/jats:p>",
+  "DOI": "10.1093\/ajae\/aaq063",
+  "type": "journal-article",
+  "created": {
+    "date-parts": [[2010, 7, 20]],
+    "date-time": "2010-07-20T01:11:23Z",
+    "timestamp": 1279588283000
+  },
+  "page": "1324-1338",
+  "source": "Crossref",
+  "is-referenced-by-count": 34,
+  "title": "An Analysis of the Pricing of Traits in the U.S. Corn Seed Market",
+  "prefix": "10.1111",
+  "volume": "92",
+  "author": [
+    {
+      "given": "Guanming",
+      "family": "Shi",
+      "sequence": "first",
+      "affiliation": [
+        {
+          "name": "Department of Agricultural and Applied Economics University of Wisconsin"
+        }
+      ]
+    },
+    {
+      "given": "Jean-paul",
+      "family": "Chavas",
+      "sequence": "additional",
+      "affiliation": [
+        {
+          "name": "Department of Agricultural and Applied Economics University of Wisconsin"
+        }
+      ]
+    },
+    {
+      "given": "Kyle",
+      "family": "Stiegert",
+      "sequence": "additional",
+      "affiliation": [
+        {
+          "name": "Department of Agricultural and Applied Economics University of Wisconsin"
+        }
+      ]
+    }
+  ],
+  "member": "311",
+  "published-online": { "date-parts": [[2010, 7, 19]] },
+  "reference": [
+    {
+      "key": "e_1_2_11_2_1",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.2307\/1886045"
+    },
+    {
+      "key": "e_1_2_11_3_1",
+      "doi-asserted-by": "crossref",
+      "DOI": "10.1093\/oso\/9780195169508.001.0001",
+      "volume-title": "The Hope, Hype and Reality of Genetic Engineering: Remarkable Stories from Agriculture, Industry, Medicine, and the Environment",
+      "author": "Avise J. C.",
+      "year": "2004"
+    },
+    {
+      "volume-title": "Contestable Markets and the Theory of Industry Structure",
+      "year": "1982",
+      "author": "Baumol W. J.",
+      "key": "e_1_2_11_4_1"
+    },
+    {
+      "issue": "292",
+      "key": "e_1_2_11_5_1",
+      "first-page": "650",
+      "article-title": "Problems with Instrumental Variables Estimation When the Correlation Between the Instruments and the Endogenous Explanatory Variable Is Weak",
+      "volume": "55",
+      "author": "Bound J.",
+      "year": "1995",
+      "journal-title": "Journal of the American Statistical Association"
+    },
+    {
+      "key": "e_1_2_11_6_1",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1111\/j.1756-2171.2006.tb00065.x"
+    },
+    {
+      "volume-title": "The Seed Industry in U.S. Agriculture: An Exploration of Data and Information on Crop Seed Markets, Regulation, Industry Structure, and Research and Development",
+      "year": "2004",
+      "author": "Fernandez-Cornejo J.",
+      "key": "e_1_2_11_7_1"
+    },
+    {
+      "issue": "2",
+      "key": "e_1_2_11_8_1",
+      "first-page": "137",
+      "article-title": "Agricultural Biotechnology and Industry Structure",
+      "volume": "4",
+      "author": "Fulton M.",
+      "year": "2001",
+      "journal-title": "The Journal of Agrobiotechnology Management & Economics"
+    },
+    {
+      "key": "e_1_2_11_9_1",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1162\/003465303765299864"
+    },
+    {
+      "key": "e_1_2_11_10_1",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1126\/science.132.3422.275"
+    },
+    {
+      "volume-title": "Econometrics",
+      "year": "2000",
+      "author": "Hayashi F.",
+      "key": "e_1_2_11_11_1"
+    },
+    {
+      "volume-title": "Value and Capital: An Inquiry into Some Fundamental Principles of Economic Theory",
+      "year": "1939",
+      "author": "Hicks J. R.",
+      "key": "e_1_2_11_12_1"
+    },
+    {
+      "key": "e_1_2_11_13_1",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.2307\/1349890"
+    },
+    {
+      "key": "e_1_2_11_14_1",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1016\/j.jeconom.2005.02.011"
+    },
+    {
+      "key": "e_1_2_11_15_1",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.2307\/3003636"
+    },
+    {
+      "key": "e_1_2_11_16_1",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.2307\/2937852"
+    },
+    {
+      "key": "e_1_2_11_17_1",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1080\/07311768308800039"
+    },
+    {
+      "key": "e_1_2_11_18_1",
+      "first-page": "79",
+      "article-title": "Factors Affecting the Likelihood of Corn Rootworm Bt Seed Adoption",
+      "volume": "6",
+      "author": "Payne J.",
+      "year": "2003",
+      "journal-title": "The Journal of Agrobiotechnology Management & Economics"
+    },
+    {
+      "key": "e_1_2_11_19_1",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1086\/260169"
+    },
+    {
+      "key": "e_1_2_11_20_1",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1162\/rest.1997.79.2.348"
+    },
+    {
+      "key": "e_1_2_11_21_1",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1111\/j.1467-8276.2008.01174.x"
+    },
+    {
+      "key": "e_1_2_11_22_1",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.2307\/2171753"
+    },
+    {
+      "key": "e_1_2_11_23_1",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1017\/CBO9780511614491.006"
+    },
+    {
+      "key": "e_1_2_11_24_1",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1086\/367748"
+    },
+    {
+      "volume-title": "Lectures in Antitrust Economics",
+      "year": "2008",
+      "author": "Whinston M. D.",
+      "key": "e_1_2_11_25_1"
+    }
+  ],
+  "container-title": "American Journal of Agricultural Economics",
+  "original-title": [],
+  "language": "en",
+  "link": [
+    {
+      "URL": "https:\/\/api.wiley.com\/onlinelibrary\/tdm\/v1\/articles\/10.1093%2Fajae%2Faaq063",
+      "content-type": "application\/pdf",
+      "content-version": "vor",
+      "intended-application": "text-mining"
+    },
+    {
+      "URL": "https:\/\/onlinelibrary.wiley.com\/doi\/pdf\/10.1093\/ajae\/aaq063",
+      "content-type": "application\/pdf",
+      "content-version": "vor",
+      "intended-application": "text-mining"
+    },
+    {
+      "URL": "https:\/\/onlinelibrary.wiley.com\/doi\/full-xml\/10.1093\/ajae\/aaq063",
+      "content-type": "application\/xml",
+      "content-version": "vor",
+      "intended-application": "text-mining"
+    },
+    {
+      "URL": "https:\/\/onlinelibrary.wiley.com\/doi\/pdf\/10.1093\/ajae\/aaq063",
+      "content-type": "unspecified",
+      "content-version": "vor",
+      "intended-application": "similarity-checking"
+    }
+  ],
+  "deposited": {
+    "date-parts": [[2024, 3, 28]],
+    "date-time": "2024-03-28T14:42:01Z",
+    "timestamp": 1711636921000
+  },
+  "score": 1,
+  "resource": {
+    "primary": {
+      "URL": "https:\/\/onlinelibrary.wiley.com\/doi\/10.1093\/ajae\/aaq063"
+    }
+  },
+  "subtitle": [],
+  "short-title": [],
+  "issued": { "date-parts": [[2010, 7, 19]] },
+  "references-count": 24,
+  "journal-issue": {
+    "issue": "5",
+    "published-print": { "date-parts": [[2010, 10]] }
+  },
+  "alternative-id": ["10.1093\/ajae\/aaq063"],
+  "URL": "http:\/\/dx.doi.org\/10.1093\/ajae\/aaq063",
+  "relation": {
+    "has-preprint": [
+      {
+        "id-type": "doi",
+        "id": "10.31219\/osf.io\/sd5z7",
+        "asserted-by": "object"
+      },
+      {
+        "id-type": "doi",
+        "id": "10.31219\/osf.io\/sd5z7_v1",
+        "asserted-by": "object"
+      },
+      {
+        "id-type": "doi",
+        "id": "10.31219\/osf.io\/sd5z7_v3",
+        "asserted-by": "object"
+      }
+    ]
+  },
+  "ISSN": ["0002-9092", "1467-8276"],
+  "subject": [],
+  "container-title-short": "American J Agri Economics",
+  "published": { "date-parts": [[2010, 7, 19]] }
+}

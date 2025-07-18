@@ -1,10 +1,11 @@
-use std::{collections::HashMap, str::FromStr};
+use std::str::FromStr;
 
 use codec::{
     common::{
         eyre::Result,
+        indexmap::IndexMap,
         serde::{Deserialize, Serialize},
-        serde_json,
+        serde_json::Value,
         serde_with::skip_serializing_none,
     },
     schema::{
@@ -18,7 +19,8 @@ use codec::{
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case", crate = "codec::common::serde")]
 pub struct CslItem {
-    pub id: String,
+    pub id: Option<String>,
+
     #[serde(rename = "type")]
     pub item_type: String,
 
@@ -28,7 +30,7 @@ pub struct CslItem {
     pub issued: Option<CslDate>,
 
     // Publication fields
-    pub container_title: Option<String>,
+    pub container_title: Option<Value>,
     pub volume: Option<StringOrNumber>,
     pub issue: Option<StringOrNumber>,
     pub page: Option<String>,
@@ -44,8 +46,9 @@ pub struct CslItem {
     pub abstract_text: Option<String>,
 
     // Catch-all for other fields
+    // Uses `IndexMap` so that order is deterministic
     #[serde(flatten)]
-    pub other: HashMap<String, serde_json::Value>,
+    pub other: IndexMap<String, Value>,
 }
 
 #[skip_serializing_none]
@@ -198,13 +201,22 @@ fn convert_csl_date(csl_date: &CslDate) -> Option<Date> {
 
 /// Create publication hierarchy from CSL metadata
 fn create_publication_info(
-    container_title: &str,
+    container_title: &Value,
     volume: Option<&StringOrNumber>,
     issue: Option<&StringOrNumber>,
     page: Option<&str>,
 ) -> Option<Box<CreativeWorkType>> {
+    let periodical_name = match container_title {
+        Value::String(value) => value.to_string(),
+        Value::Array(value) => value
+            .first()
+            .map(|value| value.to_string())
+            .unwrap_or_default(),
+        _ => container_title.to_string(),
+    };
+
     let periodical = Periodical {
-        name: Some(container_title.to_string()),
+        name: Some(periodical_name),
         ..Default::default()
     };
 

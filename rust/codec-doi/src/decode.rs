@@ -1,15 +1,18 @@
-use crate::client::DoiClient;
+use url::Url;
+
 use codec::{
-    DecodeInfo, DecodeOptions,
+    Codec, DecodeInfo, DecodeOptions,
     common::{
-        eyre::{Result, eyre},
+        eyre::Result,
         once_cell::sync::Lazy,
         regex::Regex,
+        reqwest::{Client, header},
         tracing,
     },
     schema::Node,
 };
-use url::Url;
+use codec_csl::CslCodec;
+use version::STENCILA_VERSION;
 
 /// Extract a DOI from an identifier string
 ///
@@ -58,24 +61,32 @@ pub(super) fn extract_doi(identifier: &str) -> Option<String> {
 }
 
 /// Decode a DOI to a Stencila [`Node`]
-#[tracing::instrument(skip(_options))]
+#[tracing::instrument(skip(options))]
 pub(super) async fn decode_doi(
     doi: &str,
-    _options: Option<DecodeOptions>,
+    options: Option<DecodeOptions>,
 ) -> Result<(Node, DecodeInfo)> {
-    tracing::debug!("Decoding DOI: {}", doi);
+    tracing::debug!("Decoding DOI {doi}");
 
-    let client = DoiClient::new()?;
-    
-    let csl_item = client
-        .get(doi)
-        .await
-        .map_err(|error| eyre!("Failed to fetch metadata for {doi}: {error}"))?;
+    let mut headers = header::HeaderMap::new();
+    headers.insert(
+        header::ACCEPT,
+        header::HeaderValue::from_static("application/vnd.citationstyles.csl+json"),
+    );
 
-    let article = csl_item.to_article()?;
-    let decode_info = DecodeInfo::default();
+    let client = Client::builder()
+        .default_headers(headers)
+        .user_agent(format!(
+            "stencila/{STENCILA_VERSION} (mailto:hello@stencila.io)"
+        ))
+        .timeout(std::time::Duration::from_secs(30))
+        .build()?;
 
-    Ok((Node::Article(article), decode_info))
+    let response = client.get(format!("https://doi.org/{doi}")).send().await?;
+    response.error_for_status_ref()?;
+    let json = response.text().await?;
+
+    CslCodec.from_str(&json, options).await
 }
 
 #[cfg(test)]

@@ -9,15 +9,11 @@ use codec::{
     status::Status,
 };
 
-mod client;
-mod csl;
 mod decode;
 
-pub use client::DoiClient;
-
-/// A codec for decoding DOIs into Stencila [`Article`]
+/// A codec for decoding DOIs into Stencila [`Node`]
 ///
-/// This codec is used for fetching metadata for an [`Article`] having
+/// This codec is used for fetching metadata for an [`Node`] having
 /// a DOI. It is used to supplement other codecs, such as `codec-arxiv`,
 /// `codec-openrxiv`, and `codec-pmcoa` by providing standardized metadata
 /// for properties such as authors and references, which may not be well
@@ -34,7 +30,7 @@ impl Codec for DoiCodec {
     }
 
     fn status(&self) -> Status {
-        Status::UnderDevelopment
+        Status::Alpha
     }
 
     fn supports_from_format(&self, _format: &Format) -> CodecSupport {

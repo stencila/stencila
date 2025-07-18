@@ -1,0 +1,76 @@
+---
+source: rust/codec-csl/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "abstract": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "<jats:p>We investigate the pricing of traits in the U.S. corn seed market under imperfect competition. In a multiproduct context, we examine how substitution/complementarity relationships among products can affect pricing. This is used to motivate generalizations of the Herfindahl‐Hirschman index capturing cross‐market effects of imperfect competition on pricing. The model is applied to pricing of U.S. conventional and biotech seeds from 2000 to 2007. We reject the standard component pricing in biotech traits in favor of subadditive bundle pricing. The econometric estimates show how changes in market structure (as measured by both own‐ and cross‐Herfindahl indexes) affect U.S. corn seed prices.</jats:p>"
+          }
+        }
+      ]
+    }
+  ],
+  "authors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Shi"
+      ],
+      "givenNames": [
+        "Guanming"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Chavas"
+      ],
+      "givenNames": [
+        "Jean-paul"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Stiegert"
+      ],
+      "givenNames": [
+        "Kyle"
+      ]
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2010-07-19"
+  },
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "An Analysis of the Pricing of Traits in the U.S. Corn Seed Market"
+      }
+    }
+  ],
+  "content": [],
+  "isPartOf": {
+    "type": "PublicationIssue",
+    "isPartOf": {
+      "type": "PublicationVolume",
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "American Journal of Agricultural Economics"
+      },
+      "volumeNumber": "92"
+    },
+    "issueNumber": "5",
+    "pageStart": "1324",
+    "pageEnd": "1338"
+  }
+}

@@ -1,6 +1,6 @@
 ---
-source: rust/codec-doi/tests/examples.rs
-expression: article
+source: rust/codec-csl/tests/examples.rs
+expression: node
 ---
 {
   "type": "Article",
