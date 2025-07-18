@@ -35,7 +35,7 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Delete a secret</dim>
   <b>stencila secrets delete</> <g>ANTHROPIC_API_KEY</>
 
-  <dim># Use the add/remove aliases</dim>
+  <dim># Use the add/remove aliases instead</dim>
   <b>stencila secrets add</> <g>STENCILA_API_TOKEN</>
   <b>stencila secrets remove</> <g>STENCILA_API_TOKEN</>
 
@@ -45,6 +45,30 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   AI model providers and cloud platforms.
 "
 );
+
+/// A command to perform with secrets
+#[derive(Debug, Subcommand)]
+enum Command {
+    List(List),
+    Set(Set),
+    Delete(Delete),
+}
+
+/// List the secrets used by Stencila
+#[derive(Debug, Args)]
+struct List;
+
+/// Set a secret used by Stencila
+///
+/// You will be prompted for the secret. Alternatively, you can echo the
+/// password into this command i.e. `echo <TOKEN> | stencila secrets set STENCILA_API_TOKEN`
+#[derive(Debug, Args)]
+#[command(alias = "add", after_long_help = SET_AFTER_LONG_HELP)]
+struct Set {
+    /// The name of the secret
+    #[arg(value_parser = name_validator)]
+    name: String,
+}
 
 pub static SET_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
@@ -59,7 +83,7 @@ pub static SET_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila secrets set</> <g>GOOGLE_AI_API_KEY</>
   <b>stencila secrets set</> <g>STENCILA_API_TOKEN</>
 
-  <dim># Use the add alias</dim>
+  <dim># Use the add alias instead</dim>
   <b>stencila secrets add</> <g>STENCILA_API_TOKEN</>
 
 <bold><b>Security</b></bold>
@@ -68,6 +92,15 @@ pub static SET_AFTER_LONG_HELP: &str = cstr!(
   doesn't record the command with the secret value.
 "
 );
+
+/// Delete a secret previously set using Stencila
+#[derive(Debug, Args)]
+#[command(alias = "remove", after_long_help = DELETE_AFTER_LONG_HELP)]
+struct Delete {
+    /// The name of the secret
+    #[arg(value_parser = name_validator)]
+    name: String,
+}
 
 pub static DELETE_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
@@ -78,7 +111,7 @@ pub static DELETE_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila secrets delete</> <g>ANTHROPIC_API_KEY</>
   <b>stencila secrets delete</> <g>GOOGLE_AI_API_KEY</>
 
-  <dim># Use the remove alias</dim>
+  <dim># Use the remove alias instead</dim>
   <b>stencila secrets remove</> <g>GOOGLE_AI_API_KEY</>
 
 <bold><b>Warning</b></bold>
@@ -88,38 +121,6 @@ pub static DELETE_AFTER_LONG_HELP: &str = cstr!(
 "
 );
 
-/// A command to perform with secrets
-#[derive(Debug, Subcommand)]
-enum Command {
-    /// List the secrets used by Stencila
-    List,
-
-    /// Set a secret used by Stencila
-    ///
-    /// You will be prompted for the secret. Alternatively, you can echo the
-    /// password into this command i.e. `echo <TOKEN> | stencila secrets set STENCILA_API_TOKEN`
-    #[command(alias = "add", after_long_help = SET_AFTER_LONG_HELP)]
-    Set(Set),
-
-    /// Delete a secret previously set using Stencila
-    #[command(alias = "remove", after_long_help = DELETE_AFTER_LONG_HELP)]
-    Delete(Delete),
-}
-
-#[derive(Debug, Args)]
-struct Set {
-    /// The name of the secret
-    #[arg(value_parser = name_validator)]
-    name: String,
-}
-
-#[derive(Debug, Args)]
-struct Delete {
-    /// The name of the secret
-    #[arg(value_parser = name_validator)]
-    name: String,
-}
-
 impl Cli {
     // Run the CLI
     pub async fn run(self) -> Result<()> {
@@ -128,7 +129,7 @@ impl Cli {
         };
 
         match command {
-            Command::List => list_cli()?,
+            Command::List(..) => list_cli()?,
             Command::Set(Set { name }) => {
                 let value = if !stdin().is_terminal() {
                     // This allows piping in secrets which can be useful
