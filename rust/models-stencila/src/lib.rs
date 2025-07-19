@@ -230,7 +230,7 @@ mod tests {
 
         let model = StencilaModel {
             provider: "google".to_string(),
-            identifier: "gemini-1.5-flash-001".to_string(),
+            identifier: "gemini-2.0-flash-001".to_string(),
             ..Default::default()
         };
         let output = model.perform_task(&test_task_repeat_word()).await?;
