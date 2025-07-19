@@ -19,21 +19,17 @@ pub fn router() -> Router<ServerState> {
 #[derive(Deserialize)]
 #[serde(crate = "common::serde")]
 pub struct AuthQuery {
-    access_token: Option<String>,
+    sst: Option<String>,
     otc: Option<String>,
 }
 
-/// Login to the server with an access token
-///
-/// Currently this simply provides a way of removing the need for the `access_token` query
-/// parameter by setting a cookie and redirecting to the desired path. In the future, it
-/// my include a login form which will be presented when no access token is supplied.
+/// Callback when
 #[tracing::instrument(skip_all)]
 pub async fn callback(
     State(state): State<ServerState>,
     Query(query): Query<AuthQuery>,
 ) -> Response {
-    let Some(server_access_token) = state.access_token else {
+    let Some(server_token) = state.server_token else {
         return (
             StatusCode::UNAUTHORIZED,
             "Route is only permitted with secured server",
@@ -41,12 +37,12 @@ pub async fn callback(
             .into_response();
     };
 
-    let Some(access_token) = query.access_token else {
-        return (StatusCode::UNAUTHORIZED, "Access token required").into_response();
+    let Some(sst) = query.sst else {
+        return (StatusCode::UNAUTHORIZED, "Server token required").into_response();
     };
 
-    if access_token != server_access_token {
-        return (StatusCode::UNAUTHORIZED, "Invalid access token").into_response();
+    if sst != server_token {
+        return (StatusCode::UNAUTHORIZED, "Invalid server token").into_response();
     }
 
     let Some(otc) = query.otc else {

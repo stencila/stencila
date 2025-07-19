@@ -8,7 +8,7 @@ use common::{
 use url::Url;
 
 use cloud::TokenSource;
-use server::{get_access_token, ServeOptions};
+use server::{get_server_token, ServeOptions};
 
 /// Manage Stencila Cloud account
 #[derive(Debug, Parser)]
@@ -123,11 +123,11 @@ impl Signin {
         }
 
         // Get (or generate) an access token so it can be included in the URL
-        let access_token = get_access_token();
+        let server_token = get_server_token();
 
         // Serve with access token
         let options = ServeOptions {
-            access_token: Some(access_token.clone()),
+            server_token: Some(server_token.clone()),
             no_startup_message: true,
             graceful_shutdown: true,
             ..Default::default()
@@ -140,7 +140,7 @@ impl Signin {
         let mut callback = Url::parse("http://127.0.0.1:9000/~auth/callback")?;
         callback
             .query_pairs_mut()
-            .append_pair("access_token", &access_token);
+            .append_pair("sst", &server_token);
         let url = format!("https://stencila.cloud/signin/cli?callback={callback}");
 
         message(

@@ -7,7 +7,7 @@ use common::{
     tokio,
 };
 use document::{Document, SyncDirection};
-use server::{get_access_token, ServeOptions};
+use server::{get_server_token, ServeOptions};
 
 /// Preview a document
 ///
@@ -69,21 +69,21 @@ impl Cli {
             .ok_or_eyre("File has no parent")?
             .to_path_buf();
 
-        // Get (or generate) an access token so it can be included in the URL
-        let access_token = get_access_token();
+        // Get (or generate) a server token so it can be included in the URL
+        let server_token = get_server_token();
 
         // Serve the directory
         let options = ServeOptions {
             dir: dir.clone(),
             sync: Some(self.sync),
-            access_token: Some(access_token.clone()),
+            server_token: Some(server_token.clone()),
             ..Default::default()
         };
         let serve = tokio::spawn(async move { server::serve(options).await });
 
         // Open the browser to the login page with redirect to the document path
         let path = file.strip_prefix(&dir)?.to_string_lossy();
-        let url = format!("http://127.0.0.1:9000/~login?access_token={access_token}&next={path}");
+        let url = format!("http://127.0.0.1:9000/~login?sst={server_token}&next={path}");
         webbrowser::open(&url)?;
 
         // Await the serve task
