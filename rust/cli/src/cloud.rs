@@ -1,3 +1,4 @@
+use ask::ask_for_password;
 use cli_utils::{color_print::cstr, message};
 use common::{
     clap::{self, Args, Parser, Subcommand},
@@ -64,7 +65,7 @@ impl Status {
             (Some(redacted_token), Some(source)) => {
                 message(
                     &format!(
-                        "Signed in to Stencila Cloud\nToken: {redacted_token} (set via {source})\n"
+                        "Signed in to Stencila Cloud\n Access token: {redacted_token} (set via {source})\n"
                     ),
                     Some("✅"),
                 );
@@ -89,12 +90,19 @@ impl Status {
 /// Sign in to Stencila Cloud
 #[derive(Debug, Args)]
 #[command(alias = "login", after_long_help = SIGNIN_AFTER_LONG_HELP)]
-pub struct Signin;
+pub struct Signin {
+    /// Signin by manually entering a Stencila access token
+    #[arg(long, short)]
+    manual: bool,
+}
 
 pub static SIGNIN_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
   <dim># Sign in to Stencila Cloud</dim>
   <b>stencila cloud signin</>
+
+  <dim># Sign in manually</dim>
+  <b>stencila cloud signin --manual</>
 
   <dim># Use one of the command aliases</dim>
   <b>stencila signin</>
@@ -104,6 +112,16 @@ pub static SIGNIN_AFTER_LONG_HELP: &str = cstr!(
 
 impl Signin {
     pub async fn run(self) -> Result<()> {
+        if self.manual {
+            let token = ask_for_password(&format!(cstr!(
+                "Enter an access token from <b>https://stencila.cloud/access-tokens</>"
+            )))
+            .await?;
+            cloud::signin(&token)?;
+
+            return Ok(());
+        }
+
         // Get (or generate) an access token so it can be included in the URL
         let access_token = get_access_token();
 
@@ -154,7 +172,7 @@ impl Signout {
         match (status_before.token, status_before.token_source) {
             (Some(_), Some(TokenSource::Keyring)) => message(
                 "Signed out from Stencila Cloud
-Token removed from keyring",
+ Access token removed from keyring",
                 Some("✅"),
             ),
             (Some(_), Some(TokenSource::EnvVar)) => {
