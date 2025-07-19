@@ -113,9 +113,9 @@ pub static SIGNIN_AFTER_LONG_HELP: &str = cstr!(
 impl Signin {
     pub async fn run(self) -> Result<()> {
         if self.manual {
-            let token = ask_for_password(&format!(cstr!(
+            let token = ask_for_password(cstr!(
                 "Enter an access token from <b>https://stencila.cloud/access-tokens</>"
-            )))
+            ))
             .await?;
             cloud::signin(&token)?;
 
@@ -138,9 +138,7 @@ impl Signin {
         // Open the browser to the Stencila Cloud CLI signin page with a callback
         // to the ~auth endpoint.
         let mut callback = Url::parse("http://127.0.0.1:9000/~auth/callback")?;
-        callback
-            .query_pairs_mut()
-            .append_pair("sst", &server_token);
+        callback.query_pairs_mut().append_pair("sst", &server_token);
         let url = format!("https://stencila.cloud/signin/cli?callback={callback}");
 
         message(

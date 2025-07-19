@@ -94,7 +94,7 @@ impl Cli {
         let input = input.as_deref().unwrap_or("-");
 
         let decode_options = decode_options.build(input_path.as_deref(), strip_options.clone());
-        let node = codecs::from_identifier(&input, Some(decode_options)).await?;
+        let node = codecs::from_identifier(input, Some(decode_options)).await?;
 
         if outputs.is_empty() || outputs.iter().all(|path| path.to_string_lossy() == "-") {
             codecs::to_stdout(

@@ -1,4 +1,4 @@
-use cli_utils::{message};
+use cli_utils::message;
 use common::{
     clap::{self, Args},
     eyre::Result,

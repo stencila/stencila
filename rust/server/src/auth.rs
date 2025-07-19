@@ -50,7 +50,7 @@ pub async fn callback(
     };
 
     let Ok(response) = Client::new()
-        .post(&format!("{}/access-tokens/otc", cloud::base_url()))
+        .post(format!("{}/access-tokens/otc", cloud::base_url()))
         .header("Content-Type", "application/json")
         .json(&cloud::OtcRequest { otc })
         .send()

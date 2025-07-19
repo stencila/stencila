@@ -261,7 +261,7 @@ pub async fn from_url(input: &str, options: Option<DecodeOptions>) -> Result<Nod
             const MAX_IN_MEMORY_SIZE: u64 = 10 * 1024 * 1024; // 10MB
 
             if codec.supports_from_string()
-                && content_length.map_or(false, |len| len <= MAX_IN_MEMORY_SIZE)
+                && content_length.is_some_and(|len| len <= MAX_IN_MEMORY_SIZE)
             {
                 let text = response.text().await?;
                 from_str(&text, options).await
