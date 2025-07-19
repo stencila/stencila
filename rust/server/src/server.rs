@@ -24,7 +24,7 @@ use common::{
     eyre::{self},
     serde::Deserialize,
     smart_default::SmartDefault,
-    tokio::net::TcpListener,
+    tokio::{net::TcpListener, sync::mpsc},
     tracing,
 };
 use document::SyncDirection;
@@ -57,6 +57,9 @@ pub(crate) struct ServerState {
 
     /// The cache of documents
     pub docs: Arc<Documents>,
+
+    /// Shutdown signal sender for graceful server termination
+    pub shutdown_sender: Option<mpsc::Sender<()>>,
 }
 
 /// Run the HTTP/Websocket server
@@ -117,6 +120,13 @@ pub struct ServeOptions {
     /// when it is called internally.
     #[clap(skip)]
     pub access_token: Option<String>,
+
+    /// Do not show a startup message giving a login URL
+    pub no_startup_message: bool,
+
+    /// Whether the server can be be gracefully shutdown by sending
+    /// a message on the server state's `shutdown_sender`.
+    pub graceful_shutdown: bool,
 }
 
 /// Start the server
@@ -130,6 +140,8 @@ pub async fn serve(
         source,
         sync,
         access_token,
+        no_startup_message,
+        graceful_shutdown,
     }: ServeOptions,
 ) -> eyre::Result<()> {
     let dir = dir.canonicalize()?;
@@ -148,19 +160,27 @@ pub async fn serve(
         url.push_str(access_token);
     }
 
+    let (shutdown_sender, shutdown_receiver) = if graceful_shutdown {
+        let channel = mpsc::channel(10);
+        (Some(channel.0), Some(channel.1))
+    } else {
+        (None, None)
+    };
+
     let state = ServerState {
         dir,
         access_token,
         raw,
         source,
         sync,
+        shutdown_sender,
         ..Default::default()
     };
 
     let router = Router::new()
         .nest("/~static", statics::router())
         .route("/~login", get(login::login))
-        .route("/~auth", get(auth::auth))
+        .nest("/~auth", auth::router())
         .nest(
             "/~documents",
             documents::router().route_layer(middleware_fn(state.clone(), auth_middleware)),
@@ -175,12 +195,28 @@ pub async fn serve(
         )
         .layer(TraceLayer::new_for_http())
         .layer(CookieManagerLayer::new())
-        .with_state(state);
+        .with_state(state)
+        .into_make_service();
 
     let listener = TcpListener::bind(&address).await?;
-    tracing::info!("Starting server at {url}");
 
-    axum::serve(listener, router.into_make_service()).await?;
+    if !no_startup_message {
+        tracing::info!("Starting server at {url}");
+    }
+
+    if let Some(mut shutdown_receiver) = shutdown_receiver {
+        axum::serve(listener, router)
+            .with_graceful_shutdown(async move {
+                if let Some(()) = shutdown_receiver.recv().await {
+                    tracing::debug!("Server shutdown signal received, stopping server gracefully");
+                } else {
+                    tracing::warn!("Server shutdown channel closed without signal");
+                }
+            })
+            .await?;
+    } else {
+        axum::serve(listener, router).await?;
+    }
 
     Ok(())
 }

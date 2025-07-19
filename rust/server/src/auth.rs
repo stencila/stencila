@@ -1,12 +1,20 @@
 use axum::{
     extract::{Query, State},
     http::StatusCode,
-    response::{IntoResponse, Response},
+    response::{Html, IntoResponse, Response},
+    routing::get,
+    Router,
 };
 
 use common::{reqwest::Client, serde::Deserialize, tracing};
+use version::STENCILA_VERSION;
 
 use crate::server::ServerState;
+
+/// Create a router for auth routes
+pub fn router() -> Router<ServerState> {
+    Router::new().route("/callback", get(callback))
+}
 
 #[derive(Deserialize)]
 #[serde(crate = "common::serde")]
@@ -21,7 +29,10 @@ pub struct AuthQuery {
 /// parameter by setting a cookie and redirecting to the desired path. In the future, it
 /// my include a login form which will be presented when no access token is supplied.
 #[tracing::instrument(skip_all)]
-pub async fn auth(State(state): State<ServerState>, Query(query): Query<AuthQuery>) -> Response {
+pub async fn callback(
+    State(state): State<ServerState>,
+    Query(query): Query<AuthQuery>,
+) -> Response {
     let Some(server_access_token) = state.access_token else {
         return (
             StatusCode::UNAUTHORIZED,
@@ -81,5 +92,15 @@ pub async fn auth(State(state): State<ServerState>, Query(query): Query<AuthQuer
             .into_response();
     }
 
-    StatusCode::OK.into_response()
+    if let Some(shutdown_sender) = &state.shutdown_sender {
+        tracing::debug!("Sending shutdown signal");
+        if let Err(error) = shutdown_sender.send(()).await {
+            tracing::error!("Failed to send shutdown signal: {error}");
+        } else {
+            tracing::debug!("Shutdown signal sent successfully");
+        }
+    }
+
+    let html = include_str!("auth-success.html").replace("STENCILA_VERSION", STENCILA_VERSION);
+    Html::from(html).into_response()
 }

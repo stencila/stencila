@@ -2,7 +2,7 @@ use ask::ask_for_password;
 use cli_utils::{color_print::cstr, message};
 use common::{
     clap::{self, Args, Parser, Subcommand},
-    eyre::Result,
+    eyre::{bail, Result},
     tokio,
 };
 use url::Url;
@@ -128,22 +128,35 @@ impl Signin {
         // Serve with access token
         let options = ServeOptions {
             access_token: Some(access_token.clone()),
+            no_startup_message: true,
+            graceful_shutdown: true,
             ..Default::default()
         };
+
         let serve = tokio::spawn(async move { server::serve(options).await });
 
         // Open the browser to the Stencila Cloud CLI signin page with a callback
         // to the ~auth endpoint.
-        let mut callback = Url::parse("http://127.0.0.1:9000/~auth")?;
+        let mut callback = Url::parse("http://127.0.0.1:9000/~auth/callback")?;
         callback
             .query_pairs_mut()
             .append_pair("access_token", &access_token);
-
         let url = format!("https://stencila.cloud/signin/cli?callback={callback}");
+
+        message(
+            cstr!("Opening browser to signin at <b>https://stencila.cloud</>"),
+            Some("☁️"),
+        );
         webbrowser::open(&url)?;
 
-        // Await the serve task
-        serve.await??;
+        // Await the serve task (it will stop gracefully when auth_success triggers shutdown)
+        match serve.await {
+            Ok(Ok(())) => {
+                message("✅ Signed in successfully!", None);
+            }
+            Ok(Err(error)) => bail!(error),
+            Err(error) => bail!(error),
+        }
 
         Ok(())
     }
