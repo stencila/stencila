@@ -3,8 +3,9 @@ use std::{env, sync::OnceLock};
 use cached::proc_macro::cached;
 
 use common::{
-    eyre::{eyre, Result},
-    serde::Deserialize,
+    eyre::{bail, eyre, Result},
+    reqwest,
+    serde::{de::DeserializeOwned, Deserialize, Serialize},
     strum::Display,
     tracing,
 };
@@ -101,6 +102,7 @@ pub struct Status {
     pub token_source: Option<TokenSource>,
 }
 
+/// The source of the current API token
 #[derive(Display)]
 pub enum TokenSource {
     #[strum(serialize = "keyring")]
@@ -109,10 +111,53 @@ pub enum TokenSource {
     EnvVar,
 }
 
+/// A request to swap a one-time code for an API token
+#[derive(Serialize)]
+#[serde(crate = "common::serde")]
+pub struct OtcRequest {
+    pub otc: String,
+}
+
+/// A response to an [`OtcRequest`]
+#[derive(Deserialize)]
+#[serde(crate = "common::serde")]
+pub struct OtcResponse {
+    pub token: String,
+
+    #[serde(rename = "userId")]
+    pub user_id: Option<String>,
+}
+
 /// An error response from Stencila Cloud
 #[derive(Default, Deserialize)]
 #[serde(default, crate = "common::serde")]
 pub struct ErrorResponse {
     pub status: u16,
     pub error: String,
+}
+
+/// Process an HTTP response from Stencila Cloud API and return parsed JSON
+///
+/// This function handles error responses by extracting meaningful error messages
+/// and returns the parsed response body for successful requests.
+pub async fn process_response<T: DeserializeOwned>(response: reqwest::Response) -> Result<T> {
+    if !response.status().is_success() {
+        let status = response.status();
+        let message = match response.json::<ErrorResponse>().await {
+            Ok(error_resp) => {
+                if !error_resp.error.is_empty() {
+                    error_resp.error
+                } else {
+                    format!("HTTP error status: {status}")
+                }
+            }
+            Err(_) => format!("HTTP error status: {status}"),
+        };
+        bail!("API request failed: {message}");
+    }
+
+    response
+        .json::<T>()
+        .await
+        .map_err(|error| eyre!("Failed to parse response: {error}"))
 }

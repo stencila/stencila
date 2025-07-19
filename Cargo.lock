@@ -921,6 +921,7 @@ dependencies = [
  "tools",
  "tracing-error",
  "tracing-subscriber",
+ "url",
  "version",
  "webbrowser",
  "zip",
@@ -6942,6 +6943,7 @@ name = "server"
 version = "0.0.0"
 dependencies = [
  "axum 0.8.4",
+ "cloud",
  "codecs",
  "common",
  "common-dev",

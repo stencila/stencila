@@ -6,6 +6,7 @@ edition = "2021"
 
 [dependencies]
 axum = { version = "0.8.4", features = ["ws"] }
+cloud = { path = "../cloud" }
 codecs = { path = "../codecs" }
 common = { path = "../common" }
 document = { path = "../document" }

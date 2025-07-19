@@ -31,6 +31,7 @@ use document::SyncDirection;
 pub(crate) use version::STENCILA_VERSION;
 
 use crate::{
+    auth,
     documents::{self, Documents},
     login, statics,
 };
@@ -159,6 +160,7 @@ pub async fn serve(
     let router = Router::new()
         .nest("/~static", statics::router())
         .route("/~login", get(login::login))
+        .route("/~auth", get(auth::auth))
         .nest(
             "/~documents",
             documents::router().route_layer(middleware_fn(state.clone(), auth_middleware)),

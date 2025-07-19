@@ -2,9 +2,12 @@ use cli_utils::{color_print::cstr, message};
 use common::{
     clap::{self, Args, Parser, Subcommand},
     eyre::Result,
+    tokio,
 };
+use url::Url;
 
 use cloud::TokenSource;
+use server::{get_access_token, ServeOptions};
 
 /// Manage Stencila Cloud account
 #[derive(Debug, Parser)]
@@ -54,7 +57,6 @@ pub static STATUS_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl Status {
-    #[allow(clippy::print_stderr)]
     async fn run(self) -> Result<()> {
         let status = cloud::status();
 
@@ -101,9 +103,31 @@ pub static SIGNIN_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl Signin {
-    #[allow(clippy::print_stderr)]
     pub async fn run(self) -> Result<()> {
-        todo!()
+        // Get (or generate) an access token so it can be included in the URL
+        let access_token = get_access_token();
+
+        // Serve with access token
+        let options = ServeOptions {
+            access_token: Some(access_token.clone()),
+            ..Default::default()
+        };
+        let serve = tokio::spawn(async move { server::serve(options).await });
+
+        // Open the browser to the Stencila Cloud CLI signin page with a callback
+        // to the ~auth endpoint.
+        let mut callback = Url::parse("http://127.0.0.1:9000/~auth")?;
+        callback
+            .query_pairs_mut()
+            .append_pair("access_token", &access_token);
+
+        let url = format!("https://stencila.cloud/signin/cli?callback={callback}");
+        webbrowser::open(&url)?;
+
+        // Await the serve task
+        serve.await??;
+
+        Ok(())
     }
 }
 
@@ -124,7 +148,6 @@ pub static SIGNOUT_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl Signout {
-    #[allow(clippy::print_stderr)]
     pub async fn run(self) -> Result<()> {
         let status_before = cloud::signout()?;
 
