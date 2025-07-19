@@ -163,12 +163,8 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
 
     // Open Stencila Cloud in the user's browser with that callback URL
     const cb = encodeURIComponent(callbackUri.toString())
-    const name = 'vscode-extension'
-    const desc = encodeURIComponent(
-      'Access token for Stencila VSCode extension'
-    )
     const authUri = vscode.Uri.parse(
-      `${CLOUD_URL}/signin/vscode?callback=${cb}&name=${name}&description=${desc}`
+      `${CLOUD_URL}/signin/vscode?callback=${cb}`
     )
     vscode.env.openExternal(authUri)
 
