@@ -213,6 +213,7 @@ jobs:
 
       - name: Lint
         run: make -C vscode lint
+        if: runner.os == 'Linux'
 
       - name: Test
         run: make -C vscode test
