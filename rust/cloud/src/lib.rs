@@ -4,11 +4,16 @@ use cached::proc_macro::cached;
 
 use common::{
     eyre::{bail, eyre, Result},
-    reqwest,
+    reqwest::{
+        self,
+        header::{HeaderMap, HeaderValue, AUTHORIZATION, USER_AGENT},
+        Client,
+    },
     serde::{de::DeserializeOwned, Deserialize, Serialize},
     strum::Display,
     tracing,
 };
+use version::STENCILA_VERSION;
 
 /// The base URL for the Stencila Cloud API
 ///
@@ -160,4 +165,24 @@ pub async fn process_response<T: DeserializeOwned>(response: reqwest::Response) 
         .json::<T>()
         .await
         .map_err(|error| eyre!("Failed to parse response: {error}"))
+}
+
+/// Get an authenticated client for the Stencila Cloud API
+pub async fn client() -> Result<Client> {
+    let Some(token) = api_token() else {
+        bail!("This functionality requires a Stencila Cloud account. Please sign in and try again.")
+    };
+
+    let mut headers = HeaderMap::new();
+    headers.insert(
+        USER_AGENT,
+        HeaderValue::from_str(&format!("stencila/{STENCILA_VERSION}"))?,
+    );
+    headers.insert(
+        AUTHORIZATION,
+        HeaderValue::from_str(&format!("Bearer {token}"))?,
+    );
+
+    let client = Client::builder().default_headers(headers).build()?;
+    Ok(client)
 }
