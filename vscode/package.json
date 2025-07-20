@@ -1285,22 +1285,22 @@
   },
   "dependencies": {
     "@vscode/python-extension": "1.0.5",
-    "posthog-js": "1.255.0",
+    "posthog-js": "1.257.0",
     "vscode-languageclient": "9.0.1"
   },
   "devDependencies": {
-    "@eslint/js": "9.29.0",
+    "@eslint/js": "9.31.0",
     "@types/mocha": "10.0.10",
     "@types/node": "22.13.10",
     "@types/vscode": "1.84.0",
-    "@typescript-eslint/parser": "8.34.1",
+    "@typescript-eslint/parser": "8.37.0",
     "@vscode/test-cli": "0.0.11",
     "@vscode/test-electron": "2.5.2",
-    "@vscode/vsce": "3.5.0",
-    "esbuild": "0.25.5",
-    "eslint": "9.29.0",
+    "@vscode/vsce": "3.6.0",
+    "esbuild": "0.25.8",
+    "eslint": "9.31.0",
     "js-yaml": "4.1.0",
-    "ovsx": "0.10.4",
-    "typescript-eslint": "8.34.1"
+    "ovsx": "0.10.5",
+    "typescript-eslint": "8.37.0"
   }
 }
