@@ -9,6 +9,11 @@ use codec_pmcoa::PmcOaCodec;
 /// Download and decode from PMCID
 #[tokio::test]
 async fn downloads() -> Result<()> {
+    if std::env::var("CI").is_ok() {
+        eprintln!("Skipping network-dependent test on CI");
+        return Ok(());
+    }
+
     for pmcid in ["PMC11518443"] {
         let (article, info) = PmcOaCodec.from_str(pmcid, None).await?;
 
