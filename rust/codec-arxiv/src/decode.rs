@@ -121,7 +121,7 @@ pub(super) async fn decode_arxiv_id(
     arxiv_id: &str,
     options: Option<DecodeOptions>,
 ) -> Result<(Node, DecodeInfo)> {
-    tracing::info!("Attempting to decode arXiv preprint `{arxiv_id}`");
+    tracing::debug!("Attempting to decode arXiv preprint `{arxiv_id}`");
 
     for (format, url) in [
         ("html", format!("https://export.arxiv.org/html/{arxiv_id}")),
