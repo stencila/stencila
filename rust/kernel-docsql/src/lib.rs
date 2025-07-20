@@ -26,8 +26,10 @@ use kernel_jinja::{
     JinjaKernelContext,
 };
 
+mod openalex;
 mod query;
 
+use openalex::{add_openalex_functions, OpenAlexQuery};
 use query::{
     add_constants, add_document_functions, add_functions, add_subquery_functions, NodeProxies,
     NodeProxy, Query, GLOBAL_NAMES,
@@ -183,6 +185,9 @@ impl KernelInstance for DocsQLKernelInstance {
         }
 
         add_subquery_functions(&mut env);
+
+        let openalex = Arc::new(OpenAlexQuery::new(messages.clone()));
+        add_openalex_functions(&mut env, openalex);
 
         #[cfg(debug_assertions)]
         if code.contains("test") {

@@ -1,0 +1,18 @@
+openalex.works().skip(5).limit(10)
+---
+GET https://api.openalex.org/works?page=1&per-page=10
+
+
+openalex.works(skip=5,limit=10)
+---
+GET https://api.openalex.org/works?page=1&per-page=10
+
+
+openalex.preprints().limit(3).skip(4)
+---
+GET https://api.openalex.org/works?filter=type%3Apreprint&page=2&per-page=3
+
+
+openalex.people(limit=50, skip = 100)
+---
+GET https://api.openalex.org/authors?page=3&per-page=50

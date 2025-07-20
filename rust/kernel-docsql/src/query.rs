@@ -45,6 +45,7 @@ pub(crate) const GLOBAL_NAMES: &[&str] = &[
     // Database names added in lib.rs
     "document",
     "workspace",
+    "openalex",
     // Added in add_document_functions
     // Static code
     "codeBlock",

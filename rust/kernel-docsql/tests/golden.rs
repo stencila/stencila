@@ -28,14 +28,18 @@ async fn golden() -> Result<()> {
         .join("tests")
         .canonicalize()?
         .to_string_lossy()
-        .to_string()
-        + "/*.cypher";
+        .to_string();
+    let cypher_pattern = pattern.clone() + "/*.cypher";
+    let openalex_pattern = &(pattern + "/*.openalex");
 
     let (.., receiver) = watch::channel(Node::Null(Null));
     let (sender, ..) = mpsc::channel(1);
     let mut kernel = DocsQLKernelInstance::new(None, Some((receiver, sender)))?;
 
-    for path in glob(&pattern)?.flatten() {
+    for path in glob(&cypher_pattern)?
+        .flatten()
+        .chain(glob(&openalex_pattern)?.flatten())
+    {
         let contents = read_to_string(&path)?;
 
         let Some(filename) = path.file_name() else {
@@ -58,9 +62,10 @@ async fn golden() -> Result<()> {
                 message.message.clone()
             } else {
                 match outputs.first() {
-                    Some(Node::CodeChunk(CodeChunk { code, .. })) => {
-                        code.lines().skip(1).join("\n")
-                    }
+                    Some(Node::CodeChunk(CodeChunk { code, .. })) => code
+                        .lines()
+                        .filter(|line| !line.starts_with("//"))
+                        .join("\n"),
                     Some(node) => bail!("Expected a code chunk, got {}", node.to_string()),
                     None => bail!("Expect a code chunk, got `None`"),
                 }

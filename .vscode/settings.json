@@ -108,6 +108,7 @@
         "ollama",
         "oneshot",
         "openai",
+        "openalex",
         "openrxiv",
         "orcid",
         "pandoc",
