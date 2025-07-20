@@ -33,6 +33,7 @@ codec-lexical = { path = "../codec-lexical" }
 codec-markdown = { path = "../codec-markdown" }
 codec-meca = { path = "../codec-meca" }
 codec-odt = { path = "../codec-odt" }
+codec-openrxiv = { path = "../codec-openrxiv" }
 codec-pandoc = { path = "../codec-pandoc" }
 codec-pdf = { path = "../codec-pdf" }
 codec-pmcoa = { path = "../codec-pmcoa" }

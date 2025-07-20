@@ -108,6 +108,7 @@
         "ollama",
         "oneshot",
         "openai",
+        "openrxiv",
         "orcid",
         "pandoc",
         "pixi",

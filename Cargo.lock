@@ -958,6 +958,7 @@ dependencies = [
  "cached",
  "common",
  "secrets",
+ "version",
 ]
 
 [[package]]
@@ -1315,6 +1316,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-openrxiv"
+version = "0.0.0"
+dependencies = [
+ "cloud",
+ "codec",
+ "codec-meca",
+ "codec-pdf",
+ "url",
+ "version",
+]
+
+[[package]]
 name = "codec-pandoc"
 version = "0.0.0"
 dependencies = [
@@ -1447,6 +1460,7 @@ dependencies = [
  "codec-markdown",
  "codec-meca",
  "codec-odt",
+ "codec-openrxiv",
  "codec-pandoc",
  "codec-pdf",
  "codec-pmcoa",

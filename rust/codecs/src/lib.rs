@@ -30,6 +30,7 @@ pub use codec::{
 };
 use codec_arxiv::ArxivCodec;
 use codec_doi::DoiCodec;
+use codec_openrxiv::OpenRxivCodec;
 use codec_pmcoa::PmcOaCodec;
 use codec_utils::rebase_edits;
 use node_strip::{StripNode, StripTargets};
@@ -181,6 +182,8 @@ pub async fn from_identifier(identifier: &str, options: Option<DecodeOptions>) -
         from_stdin(options).await
     } else if ArxivCodec::supports_identifier(identifier) {
         Ok(ArxivCodec::from_identifier(identifier, options).await?.0)
+    } else if OpenRxivCodec::supports_identifier(identifier) {
+        Ok(OpenRxivCodec::from_identifier(identifier, options).await?.0)
     } else if PmcOaCodec::supports_identifier(identifier) {
         Ok(PmcOaCodec::from_identifier(identifier, options).await?.0)
     } else if DoiCodec::supports_identifier(identifier) {

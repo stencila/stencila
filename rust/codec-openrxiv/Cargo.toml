@@ -1,0 +1,15 @@
+[package]
+name = "codec-openrxiv"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+cloud = { path = "../cloud" }
+codec = { path = "../codec" }
+codec-meca = { path = "../codec-meca" }
+codec-pdf = { path = "../codec-pdf" }
+url = { workspace = true }
+version = { path = "../version" }
+
+[lints]
+workspace = true
