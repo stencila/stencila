@@ -46,6 +46,15 @@ expression: node
     }
   ],
   "content": [],
+  "identifiers": [
+    "https://openalex.org/W2150233247",
+    "https://doi.org/10.5539/ies.v2n4p117",
+    {
+      "type": "PropertyValue",
+      "propertyId": "mag",
+      "value": "2150233247"
+    }
+  ],
   "isPartOf": {
     "type": "PublicationIssue",
     "isPartOf": {

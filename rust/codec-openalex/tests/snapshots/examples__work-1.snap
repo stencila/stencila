@@ -24,6 +24,14 @@ expression: node
     }
   ],
   "content": [],
+  "identifiers": [
+    "https://openalex.org/W410028754",
+    {
+      "type": "PropertyValue",
+      "propertyId": "mag",
+      "value": "410028754"
+    }
+  ],
   "isPartOf": {
     "type": "PublicationIssue",
     "isPartOf": {

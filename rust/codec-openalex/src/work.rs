@@ -1,8 +1,9 @@
 use codec::{
-    common::serde::Deserialize,
+    common::{indexmap::IndexMap, serde::Deserialize},
     schema::{
         Article, Block, CreativeWork, CreativeWorkType, Date, IntegerOrString, Organization,
-        Periodical, Person, PublicationIssue, PublicationVolume,
+        Periodical, Person, Primitive, PropertyValue, PropertyValueOrString, PublicationIssue,
+        PublicationVolume,
     },
 };
 use std::collections::HashMap;
@@ -17,6 +18,7 @@ pub struct Work {
     pub display_name: Option<String>,
     pub title: Option<String>,
     pub doi: Option<String>,
+    pub ids: Option<IndexMap<String, String>>,
     pub publication_date: Option<String>,
     pub publication_year: Option<i32>,
     pub language: Option<String>,
@@ -165,6 +167,11 @@ impl From<Work> for Article {
             article.r#abstract = de_invert_abstract(abstract_index);
         }
 
+        // Map ids to identifiers
+        if let Some(ref ids) = work.ids {
+            article.options.identifiers = convert_ids_to_identifiers(ids);
+        }
+
         if let Some(pub_date) = work.publication_date.clone() {
             article.date_published = Some(Date::new(pub_date));
         }
@@ -241,6 +248,11 @@ impl From<Work> for CreativeWork {
         // De-invert abstract if present
         if let Some(ref abstract_index) = work.abstract_inverted_index {
             creative_work.options.r#abstract = de_invert_abstract(abstract_index);
+        }
+
+        // Map ids to identifiers
+        if let Some(ref ids) = work.ids {
+            creative_work.options.identifiers = convert_ids_to_identifiers(ids);
         }
 
         if let Some(pub_date) = work.publication_date {
@@ -342,6 +354,38 @@ fn create_publication_info(
     } else {
         // No biblio, just periodical
         Some(Box::new(CreativeWorkType::Periodical(periodical)))
+    }
+}
+
+/// Convert OpenAlex ids to Stencila identifiers
+fn convert_ids_to_identifiers(
+    ids: &IndexMap<String, String>,
+) -> Option<Vec<PropertyValueOrString>> {
+    if ids.is_empty() {
+        return None;
+    }
+
+    let identifiers: Vec<PropertyValueOrString> = ids
+        .iter()
+        .map(|(property_id, value)| {
+            // If the value is a URL, use it directly as a string identifier
+            if value.starts_with("http://") || value.starts_with("https://") {
+                PropertyValueOrString::String(value.clone())
+            } else {
+                // Otherwise create a PropertyValue with property_id and value
+                PropertyValueOrString::PropertyValue(PropertyValue {
+                    property_id: Some(property_id.clone()),
+                    value: Primitive::String(value.clone().into()),
+                    ..Default::default()
+                })
+            }
+        })
+        .collect();
+
+    if identifiers.is_empty() {
+        None
+    } else {
+        Some(identifiers)
     }
 }
 

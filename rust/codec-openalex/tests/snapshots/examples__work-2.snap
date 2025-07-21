@@ -66,6 +66,10 @@ expression: node
     }
   ],
   "content": [],
+  "identifiers": [
+    "https://openalex.org/W4288041529",
+    "https://doi.org/10.1177/01445987221113122"
+  ],
   "isPartOf": {
     "type": "PublicationIssue",
     "isPartOf": {
