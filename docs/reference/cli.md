@@ -69,6 +69,12 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila tools install`↴](#stencila-tools-install)
 * [`stencila tools env`↴](#stencila-tools-env)
 * [`stencila tools run`↴](#stencila-tools-run)
+* [`stencila cloud`↴](#stencila-cloud)
+* [`stencila cloud status`↴](#stencila-cloud-status)
+* [`stencila cloud signin`↴](#stencila-cloud-signin)
+* [`stencila cloud signout`↴](#stencila-cloud-signout)
+* [`stencila signin`↴](#stencila-signin)
+* [`stencila signout`↴](#stencila-signout)
 * [`stencila upgrade`↴](#stencila-upgrade)
 * [`stencila uninstall`↴](#stencila-uninstall)
 
@@ -131,6 +137,9 @@ Examples
 * `plugins` — Manage plugins
 * `secrets` — Manage secrets
 * `tools` — Manage tools and environments used by Stencila
+* `cloud` — Manage Stencila Cloud account
+* `signin` — Sign in to Stencila Cloud
+* `signout` — Sign out from Stencila Cloud
 * `upgrade` — Upgrade to the latest version
 * `uninstall` — Uninstall this command line tool
 
@@ -142,10 +151,10 @@ Examples
 
 * `--yes` — Assume the answer `yes` to any interactive prompts
 
-   The options `--no` and `--cancel` (and corresponding env vars) are also available (but but for brevity not listed).
+   The unlisted options `--no` and `--cancel` (and corresponding env vars) are also available.
 * `--debug` — Display debug level logging and detailed error reports
 
-   For trace level logging, --trace is also available (but for brevity not listed). See documentation for other logging options --log-level, --log-format, log-filter.
+   For trace level logging, use the unlisted --trace option. See documentation for other unlisted logging options --log-level, --log-format, log-filter.
 * `--no-color` — Do not color any output
 
 
@@ -564,7 +573,7 @@ Examples
 
 ###### **Arguments:**
 
-* `<INPUT>` — The path of the input file
+* `<INPUT>` — The path, URL or other identifier for the input file
 
    If not supplied, or if "-", the input content is read from `stdin`.
 * `<OUTPUTS>` — The paths of desired output files
@@ -1202,10 +1211,8 @@ Examples
   stencila preview
 
   # Preview a document in a specific folder
-  stencila preview docs/
+  stencila preview report/main.smd
 
-  # Preview without syncing (static preview)
-  stencila preview report.pdf --sync none
 
 ###### **Arguments:**
 
@@ -1505,6 +1512,12 @@ Examples
   # Disable syntax highlighting for code blocks
   stencila demo document.md --no-highlighting
 
+  # Demo only specific slides (slides are delimited by ***)
+  stencila demo document.md --slides 2-4
+
+  # Demo multiple slide ranges
+  stencila demo document.md --slides "1,3-5,7-"
+
 
 ###### **Arguments:**
 
@@ -1564,6 +1577,9 @@ Examples
    The execution duration of executable nodes will be used for the spinner duration, but will be clamped to this maximum value.
 
   Default value: `5000`
+* `--slides <SLIDES>` — Specify which slides to demo
+
+   Slides are delimited by thematic breaks (---). Examples: - "2" - only slide 2 - "2-4" - slides 2 through 4 - "2-" - slide 2 to the end - "-3" - slides 1 through 3 - "1,3-5,7-" - slides 1, 3 through 5, and 7 to the end
 * `--ignore-errors` — Ignore any errors while executing document
 * `--no-execute` — Do not execute the document before running the demo
 * `--no-store` — Do not store the document after executing it
@@ -2337,9 +2353,9 @@ Examples
   # Delete a secret
   stencila secrets delete ANTHROPIC_API_KEY
 
-  # Use the add/remove aliases
-  stencila secrets add MY_SECRET
-  stencila secrets remove MY_SECRET
+  # Use the add/remove aliases instead
+  stencila secrets add STENCILA_API_TOKEN
+  stencila secrets remove STENCILA_API_TOKEN
 
 Security
   Secrets are stored securely using your system's keyring.
@@ -2380,11 +2396,11 @@ Examples
 
   # Set API tokens for different services
   stencila secrets set ANTHROPIC_API_KEY
-  stencila secrets set GOOGLE_API_KEY
+  stencila secrets set GOOGLE_AI_API_KEY
   stencila secrets set STENCILA_API_TOKEN
 
-  # Use the add alias
-  stencila secrets add MY_SECRET
+  # Use the add alias instead
+  stencila secrets add STENCILA_API_TOKEN
 
 Security
   When setting secrets interactively, your input will be
@@ -2410,10 +2426,10 @@ Examples
 
   # Delete API tokens
   stencila secrets delete ANTHROPIC_API_KEY
-  stencila secrets delete GOOGLE_API_KEY
+  stencila secrets delete GOOGLE_AI_API_KEY
 
-  # Use the remove alias
-  stencila secrets remove MY_SECRET
+  # Use the remove alias instead
+  stencila secrets remove GOOGLE_AI_API_KEY
 
 Warning
   This permanently removes the secret from your system's
@@ -2673,6 +2689,119 @@ Examples
 * `-C`, `--cwd <DIR>` — Working directory for the command
 
    Environment detection will be performed relative to this directory. If not specified, uses the current working directory.
+
+
+
+## `stencila cloud`
+
+Manage Stencila Cloud account
+
+**Usage:** `stencila cloud [COMMAND]`
+
+Examples
+  // TODO: complete as for other module's CLI_AFTER_LONG_HELP
+
+
+###### **Subcommands:**
+
+* `status` — Display Stencila Cloud authentication status
+* `signin` — Sign in to Stencila Cloud
+* `signout` — Sign out from Stencila Cloud
+
+
+
+## `stencila cloud status`
+
+Display Stencila Cloud authentication status
+
+**Usage:** `stencila cloud status`
+
+Examples
+  # See your current authentication status
+  stencila cloud status
+
+
+
+
+## `stencila cloud signin`
+
+Sign in to Stencila Cloud
+
+**Usage:** `stencila cloud signin [OPTIONS]`
+
+Examples
+  # Sign in to Stencila Cloud
+  stencila cloud signin
+
+  # Sign in manually
+  stencila cloud signin --manual
+
+  # Use one of the command aliases
+  stencila signin
+  stencila login
+
+
+###### **Options:**
+
+* `-m`, `--manual` — Signin by manually entering a Stencila access token
+
+
+
+## `stencila cloud signout`
+
+Sign out from Stencila Cloud
+
+**Usage:** `stencila cloud signout`
+
+Examples
+  # Sign out from Stencila Cloud
+  stencila cloud signout
+
+  # Use one of the command aliases
+  stencila signout
+  stencila logout
+
+
+
+
+## `stencila signin`
+
+Sign in to Stencila Cloud
+
+**Usage:** `stencila signin [OPTIONS]`
+
+Examples
+  # Sign in to Stencila Cloud
+  stencila cloud signin
+
+  # Sign in manually
+  stencila cloud signin --manual
+
+  # Use one of the command aliases
+  stencila signin
+  stencila login
+
+
+###### **Options:**
+
+* `-m`, `--manual` — Signin by manually entering a Stencila access token
+
+
+
+## `stencila signout`
+
+Sign out from Stencila Cloud
+
+**Usage:** `stencila signout`
+
+Examples
+  # Sign out from Stencila Cloud
+  stencila cloud signout
+
+  # Use one of the command aliases
+  stencila signout
+  stencila logout
+
 
 
 

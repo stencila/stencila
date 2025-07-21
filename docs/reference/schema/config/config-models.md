@@ -63,6 +63,7 @@ The `ConfigModels` type can be encoded (serialized) to, and/or decoded (deserial
 | [Lexical JSON](https://stencila.ghost.io/docs/reference/formats/lexical)            |          |          |         |
 | [Koenig JSON](https://stencila.ghost.io/docs/reference/formats/koenig)              |          |          |         |
 | [Pandoc AST](https://stencila.ghost.io/docs/reference/formats/pandoc)               |          |          |         |
+| [CSL-JSON](https://stencila.ghost.io/docs/reference/formats/csl)                    |          |          |         |
 | [PNG](https://stencila.ghost.io/docs/reference/formats/png)                         |          |          |         |
 | [Directory](https://stencila.ghost.io/docs/reference/formats/directory)             |          |          |         |
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)         |          |          |         |
