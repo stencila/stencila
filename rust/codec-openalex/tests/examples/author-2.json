@@ -1,0 +1,35 @@
+{
+  "id": "https://openalex.org/A5090478819",
+  "orcid": null,
+  "display_name": "侯政男",
+  "display_name_alternatives": [
+    "侯政男"
+  ],
+  "works_count": 1,
+  "cited_by_count": 0,
+  "summary_stats": {
+    "2yr_mean_citedness": 0.0,
+    "h_index": 0,
+    "i10_index": 0
+  },
+  "ids": {
+    "openalex": "https://openalex.org/A5090478819"
+  },
+  "affiliations": [],
+  "last_known_institutions": [],
+  "topics": [],
+  "topic_share": [],
+  "x_concepts": [
+    {
+      "id": "https://openalex.org/C17744445",
+      "wikidata": "https://www.wikidata.org/wiki/Q36442",
+      "display_name": "Political science",
+      "level": 0,
+      "score": 100.0
+    }
+  ],
+  "counts_by_year": [],
+  "works_api_url": "https://api.openalex.org/works?filter=author.id:A5090478819",
+  "updated_date": "2024-05-09T14:26:21.169855",
+  "created_date": "2023-07-21"
+}

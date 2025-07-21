@@ -1,0 +1,13 @@
+[package]
+name = "codec-openalex"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+codec = { path = "../codec" }
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }
+
+[lints]
+workspace = true

@@ -1,0 +1,41 @@
+---
+source: rust/codec-openalex/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "id": "https://openalex.org/W410028754",
+  "authors": [
+    {
+      "type": "Person",
+      "name": "東京大学判例研究会"
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2000-01-01"
+  },
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "最高裁判所民事判例研究(民集51巻6号)懲罰的損害賠償を命じた外国判決の承認・執行とその反公序性(平成9.7.11第二小法廷判決)"
+      }
+    }
+  ],
+  "content": [],
+  "isPartOf": {
+    "type": "PublicationIssue",
+    "isPartOf": {
+      "type": "PublicationVolume",
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "法学協会雑誌"
+      },
+      "volumeNumber": "117"
+    },
+    "issueNumber": "11"
+  },
+  "pageStart": "1697",
+  "pageEnd": "1708"
+}

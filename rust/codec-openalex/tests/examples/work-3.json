@@ -1,0 +1,644 @@
+{
+  "id": "https://openalex.org/W2150233247",
+  "doi": "https://doi.org/10.5539/ies.v2n4p117",
+  "title": "Evaluation from Students—A Case Study in Construction Engineering Technology of YAU",
+  "display_name": "Evaluation from Students—A Case Study in Construction Engineering Technology of YAU",
+  "publication_year": 2009,
+  "publication_date": "2009-10-15",
+  "ids": {
+    "openalex": "https://openalex.org/W2150233247",
+    "doi": "https://doi.org/10.5539/ies.v2n4p117",
+    "mag": "2150233247"
+  },
+  "language": "en",
+  "primary_location": {
+    "is_oa": true,
+    "landing_page_url": "https://doi.org/10.5539/ies.v2n4p117",
+    "pdf_url": "https://ccsenet.org/journal/index.php/ies/article/download/4128/3562",
+    "source": {
+      "id": "https://openalex.org/S2764687317",
+      "display_name": "International Education Studies",
+      "issn_l": "1913-9020",
+      "issn": [
+        "1913-9020",
+        "1913-9039"
+      ],
+      "is_oa": true,
+      "is_in_doaj": false,
+      "is_indexed_in_scopus": false,
+      "is_core": true,
+      "host_organization": "https://openalex.org/P4310322531",
+      "host_organization_name": "Canadian Center of Science and Education",
+      "host_organization_lineage": [
+        "https://openalex.org/P4310322531"
+      ],
+      "host_organization_lineage_names": [
+        "Canadian Center of Science and Education"
+      ],
+      "type": "journal"
+    },
+    "license": "cc-by",
+    "license_id": "https://openalex.org/licenses/cc-by",
+    "version": "publishedVersion",
+    "is_accepted": true,
+    "is_published": true
+  },
+  "type": "article",
+  "type_crossref": "journal-article",
+  "indexed_in": [
+    "crossref"
+  ],
+  "open_access": {
+    "is_oa": true,
+    "oa_status": "hybrid",
+    "oa_url": "https://ccsenet.org/journal/index.php/ies/article/download/4128/3562",
+    "any_repository_has_fulltext": false
+  },
+  "authorships": [
+    {
+      "author_position": "first",
+      "author": {
+        "id": "https://openalex.org/A5114255301",
+        "display_name": "Liping Chen",
+        "orcid": "https://orcid.org/0009-0005-0449-7055"
+      },
+      "institutions": [
+        {
+          "id": "https://openalex.org/I195019228",
+          "display_name": "Yunnan Agricultural University",
+          "ror": "https://ror.org/04dpa3g90",
+          "country_code": "CN",
+          "type": "funder",
+          "lineage": [
+            "https://openalex.org/I195019228"
+          ]
+        }
+      ],
+      "countries": [
+        "CN"
+      ],
+      "is_corresponding": true,
+      "raw_author_name": "Liping Chen",
+      "raw_affiliation_strings": [
+        "School of Foreign Languages, Yunnan Agricultural University Yunnan Province, Kunming 650201, China"
+      ],
+      "affiliations": [
+        {
+          "raw_affiliation_string": "School of Foreign Languages, Yunnan Agricultural University Yunnan Province, Kunming 650201, China",
+          "institution_ids": [
+            "https://openalex.org/I195019228"
+          ]
+        }
+      ]
+    }
+  ],
+  "institution_assertions": [],
+  "countries_distinct_count": 1,
+  "institutions_distinct_count": 1,
+  "corresponding_author_ids": [
+    "https://openalex.org/A5114255301"
+  ],
+  "corresponding_institution_ids": [
+    "https://openalex.org/I195019228"
+  ],
+  "apc_list": null,
+  "apc_paid": null,
+  "fwci": 0.0,
+  "has_fulltext": true,
+  "fulltext_origin": "pdf",
+  "cited_by_count": 0,
+  "citation_normalized_percentile": {
+    "value": 0.0,
+    "is_in_top_1_percent": false,
+    "is_in_top_10_percent": false
+  },
+  "cited_by_percentile_year": {
+    "min": 0,
+    "max": 64
+  },
+  "biblio": {
+    "volume": "2",
+    "issue": "4",
+    "first_page": null,
+    "last_page": null
+  },
+  "is_retracted": false,
+  "is_paratext": false,
+  "primary_topic": {
+    "id": "https://openalex.org/T12500",
+    "display_name": "Reflective Practices in Education",
+    "score": 0.9961,
+    "subfield": {
+      "id": "https://openalex.org/subfields/3304",
+      "display_name": "Education"
+    },
+    "field": {
+      "id": "https://openalex.org/fields/33",
+      "display_name": "Social Sciences"
+    },
+    "domain": {
+      "id": "https://openalex.org/domains/2",
+      "display_name": "Social Sciences"
+    }
+  },
+  "topics": [
+    {
+      "id": "https://openalex.org/T12500",
+      "display_name": "Reflective Practices in Education",
+      "score": 0.9961,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3304",
+        "display_name": "Education"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11039",
+      "display_name": "Evaluation of Teaching Practices",
+      "score": 0.9935,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3304",
+        "display_name": "Education"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12124",
+      "display_name": "Engineering Education and Curriculum Development",
+      "score": 0.9876,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2214",
+        "display_name": "Media Technology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/22",
+        "display_name": "Engineering"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    }
+  ],
+  "keywords": [],
+  "concepts": [
+    {
+      "id": "https://openalex.org/C145420912",
+      "wikidata": "https://www.wikidata.org/wiki/Q853077",
+      "display_name": "Mathematics education",
+      "level": 1,
+      "score": 0.65706325
+    },
+    {
+      "id": "https://openalex.org/C98045186",
+      "wikidata": "https://www.wikidata.org/wiki/Q205663",
+      "display_name": "Process (computing)",
+      "level": 2,
+      "score": 0.5465467
+    },
+    {
+      "id": "https://openalex.org/C88610354",
+      "wikidata": "https://www.wikidata.org/wiki/Q1813494",
+      "display_name": "Teaching method",
+      "level": 2,
+      "score": 0.5425904
+    },
+    {
+      "id": "https://openalex.org/C15744967",
+      "wikidata": "https://www.wikidata.org/wiki/Q9418",
+      "display_name": "Psychology",
+      "level": 0,
+      "score": 0.4731587
+    },
+    {
+      "id": "https://openalex.org/C5041995",
+      "wikidata": "https://www.wikidata.org/wiki/Q853745",
+      "display_name": "Engineering education",
+      "level": 2,
+      "score": 0.4354354
+    },
+    {
+      "id": "https://openalex.org/C18762648",
+      "wikidata": "https://www.wikidata.org/wiki/Q42213",
+      "display_name": "Work (physics)",
+      "level": 2,
+      "score": 0.42804566
+    },
+    {
+      "id": "https://openalex.org/C19417346",
+      "wikidata": "https://www.wikidata.org/wiki/Q7922",
+      "display_name": "Pedagogy",
+      "level": 1,
+      "score": 0.39862522
+    },
+    {
+      "id": "https://openalex.org/C41008148",
+      "wikidata": "https://www.wikidata.org/wiki/Q21198",
+      "display_name": "Computer science",
+      "level": 0,
+      "score": 0.36420584
+    },
+    {
+      "id": "https://openalex.org/C127413603",
+      "wikidata": "https://www.wikidata.org/wiki/Q11023",
+      "display_name": "Engineering",
+      "level": 0,
+      "score": 0.19873956
+    },
+    {
+      "id": "https://openalex.org/C110354214",
+      "wikidata": "https://www.wikidata.org/wiki/Q6314146",
+      "display_name": "Engineering management",
+      "level": 1,
+      "score": 0.18593493
+    },
+    {
+      "id": "https://openalex.org/C78519656",
+      "wikidata": "https://www.wikidata.org/wiki/Q101333",
+      "display_name": "Mechanical engineering",
+      "level": 1,
+      "score": 0.0
+    },
+    {
+      "id": "https://openalex.org/C111919701",
+      "wikidata": "https://www.wikidata.org/wiki/Q9135",
+      "display_name": "Operating system",
+      "level": 1,
+      "score": 0.0
+    }
+  ],
+  "mesh": [],
+  "locations_count": 1,
+  "locations": [
+    {
+      "is_oa": true,
+      "landing_page_url": "https://doi.org/10.5539/ies.v2n4p117",
+      "pdf_url": "https://ccsenet.org/journal/index.php/ies/article/download/4128/3562",
+      "source": {
+        "id": "https://openalex.org/S2764687317",
+        "display_name": "International Education Studies",
+        "issn_l": "1913-9020",
+        "issn": [
+          "1913-9020",
+          "1913-9039"
+        ],
+        "is_oa": true,
+        "is_in_doaj": false,
+        "is_indexed_in_scopus": false,
+        "is_core": true,
+        "host_organization": "https://openalex.org/P4310322531",
+        "host_organization_name": "Canadian Center of Science and Education",
+        "host_organization_lineage": [
+          "https://openalex.org/P4310322531"
+        ],
+        "host_organization_lineage_names": [
+          "Canadian Center of Science and Education"
+        ],
+        "type": "journal"
+      },
+      "license": "cc-by",
+      "license_id": "https://openalex.org/licenses/cc-by",
+      "version": "publishedVersion",
+      "is_accepted": true,
+      "is_published": true
+    }
+  ],
+  "best_oa_location": {
+    "is_oa": true,
+    "landing_page_url": "https://doi.org/10.5539/ies.v2n4p117",
+    "pdf_url": "https://ccsenet.org/journal/index.php/ies/article/download/4128/3562",
+    "source": {
+      "id": "https://openalex.org/S2764687317",
+      "display_name": "International Education Studies",
+      "issn_l": "1913-9020",
+      "issn": [
+        "1913-9020",
+        "1913-9039"
+      ],
+      "is_oa": true,
+      "is_in_doaj": false,
+      "is_indexed_in_scopus": false,
+      "is_core": true,
+      "host_organization": "https://openalex.org/P4310322531",
+      "host_organization_name": "Canadian Center of Science and Education",
+      "host_organization_lineage": [
+        "https://openalex.org/P4310322531"
+      ],
+      "host_organization_lineage_names": [
+        "Canadian Center of Science and Education"
+      ],
+      "type": "journal"
+    },
+    "license": "cc-by",
+    "license_id": "https://openalex.org/licenses/cc-by",
+    "version": "publishedVersion",
+    "is_accepted": true,
+    "is_published": true
+  },
+  "sustainable_development_goals": [],
+  "grants": [],
+  "datasets": [],
+  "versions": [],
+  "referenced_works_count": 7,
+  "referenced_works": [
+    "https://openalex.org/W186840447",
+    "https://openalex.org/W1964560776",
+    "https://openalex.org/W1987665027",
+    "https://openalex.org/W2493392939",
+    "https://openalex.org/W2789410133",
+    "https://openalex.org/W3114503431",
+    "https://openalex.org/W4301884364"
+  ],
+  "related_works": [
+    "https://openalex.org/W3214445118",
+    "https://openalex.org/W3046802173",
+    "https://openalex.org/W2806948274",
+    "https://openalex.org/W2538131842",
+    "https://openalex.org/W2367714496",
+    "https://openalex.org/W2351190957",
+    "https://openalex.org/W2103102750",
+    "https://openalex.org/W2018022661",
+    "https://openalex.org/W1597034473",
+    "https://openalex.org/W138768472"
+  ],
+  "abstract_inverted_index": {
+    "This": [
+      0
+    ],
+    "paper": [
+      1
+    ],
+    "not": [
+      2
+    ],
+    "only": [
+      3
+    ],
+    "aims": [
+      4
+    ],
+    "to": [
+      5,
+      36,
+      84
+    ],
+    "present": [
+      6
+    ],
+    "the": [
+      7,
+      11,
+      16,
+      20,
+      25,
+      31,
+      39,
+      43,
+      53,
+      56,
+      64,
+      70,
+      73,
+      79
+    ],
+    "feedback": [
+      8,
+      17,
+      54,
+      92
+    ],
+    "received": [
+      9
+    ],
+    "from": [
+      10,
+      38,
+      55,
+      101
+    ],
+    "students,": [
+      12,
+      40,
+      98
+    ],
+    "but": [
+      13
+    ],
+    "also": [
+      14
+    ],
+    "evaluate": [
+      15
+    ],
+    "by": [
+      18
+    ],
+    "review": [
+      19
+    ],
+    "teaching": [
+      21,
+      44,
+      71,
+      80
+    ],
+    "practice.": [
+      22,
+      110
+    ],
+    "It": [
+      23
+    ],
+    "analyses": [
+      24
+    ],
+    "teacher": [
+      26,
+      89
+    ],
+    "should": [
+      27
+    ],
+    "be": [
+      28,
+      85
+    ],
+    "aware": [
+      29
+    ],
+    "of": [
+      30,
+      62,
+      105
+    ],
+    "importance": [
+      32
+    ],
+    "that": [
+      33,
+      72
+    ],
+    "feedback,": [
+      34
+    ],
+    "both": [
+      35
+    ],
+    "and": [
+      37,
+      45,
+      81,
+      103
+    ],
+    "has": [
+      41
+    ],
+    "upon": [
+      42
+    ],
+    "learning": [
+      46
+    ],
+    "process.": [
+      47
+    ],
+    "Through": [
+      48
+    ],
+    "a": [
+      49
+    ],
+    "case": [
+      50
+    ],
+    "study": [
+      51
+    ],
+    "about": [
+      52
+    ],
+    "students": [
+      57
+    ],
+    "in": [
+      58
+    ],
+    "Construction": [
+      59
+    ],
+    "Engineering": [
+      60
+    ],
+    "Technology": [
+      61
+    ],
+    "YAU,": [
+      63
+    ],
+    "author": [
+      65
+    ],
+    "gives": [
+      66
+    ],
+    "some": [
+      67
+    ],
+    "suggestions": [
+      68
+    ],
+    "on": [
+      69
+    ],
+    "teacher’s": [
+      74
+    ],
+    "reflective": [
+      75
+    ],
+    "evaluation": [
+      76,
+      104
+    ],
+    "can": [
+      77,
+      99
+    ],
+    "refine": [
+      78
+    ],
+    "help": [
+      82
+    ],
+    "them": [
+      83
+    ],
+    "better": [
+      86
+    ],
+    "teachers.": [
+      87
+    ],
+    "The": [
+      88
+    ],
+    "may": [
+      90
+    ],
+    "incorporate": [
+      91
+    ],
+    "into": [
+      93
+    ],
+    "practice,": [
+      94
+    ],
+    "which": [
+      95
+    ],
+    "teachers,": [
+      96
+    ],
+    "like": [
+      97
+    ],
+    "benefits": [
+      100
+    ],
+    "assessment": [
+      102
+    ],
+    "their": [
+      106
+    ],
+    "own": [
+      107
+    ],
+    "work": [
+      108
+    ],
+    "or": [
+      109
+    ]
+  },
+  "abstract_inverted_index_v3": null,
+  "cited_by_api_url": "https://api.openalex.org/works?filter=cites:W2150233247",
+  "counts_by_year": [],
+  "updated_date": "2025-07-17T10:59:56.766856",
+  "created_date": "2016-06-24"
+}

@@ -1,0 +1,23 @@
+---
+source: rust/codec-openalex/tests/examples.rs
+expression: node
+---
+{
+  "type": "Person",
+  "id": "https://openalex.org/A5080056684",
+  "affiliations": [
+    {
+      "type": "Organization",
+      "id": "https://openalex.org/I4210141302",
+      "name": "Instituto Jalisciense de Cancerología",
+      "ror": "04bzrjn90"
+    },
+    {
+      "type": "Organization",
+      "id": "https://openalex.org/I4210130711",
+      "name": "Centro de Epilepsia y Neurocirugía Funcional",
+      "ror": "036gb6b33"
+    }
+  ],
+  "name": "Luz A Cuellar-Espinosa"
+}

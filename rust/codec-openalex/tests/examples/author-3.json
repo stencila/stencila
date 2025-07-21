@@ -1,0 +1,35 @@
+{
+  "id": "https://openalex.org/A5074527736",
+  "orcid": null,
+  "display_name": "闭忠敏",
+  "display_name_alternatives": [
+    "闭忠敏"
+  ],
+  "works_count": 1,
+  "cited_by_count": 0,
+  "summary_stats": {
+    "2yr_mean_citedness": 0.0,
+    "h_index": 0,
+    "i10_index": 0
+  },
+  "ids": {
+    "openalex": "https://openalex.org/A5074527736"
+  },
+  "affiliations": [],
+  "last_known_institutions": [],
+  "topics": [],
+  "topic_share": [],
+  "x_concepts": [
+    {
+      "id": "https://openalex.org/C41008148",
+      "wikidata": "https://www.wikidata.org/wiki/Q21198",
+      "display_name": "Computer science",
+      "level": 0,
+      "score": 100.0
+    }
+  ],
+  "counts_by_year": [],
+  "works_api_url": "https://api.openalex.org/works?filter=author.id:A5074527736",
+  "updated_date": "2024-05-13T00:23:29.937984",
+  "created_date": "2023-07-21"
+}

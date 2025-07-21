@@ -1316,6 +1316,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-openalex"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "common-dev",
+]
+
+[[package]]
 name = "codec-openrxiv"
 version = "0.0.0"
 dependencies = [
@@ -3570,6 +3578,8 @@ dependencies = [
 name = "kernel-docsql"
 version = "0.0.0"
 dependencies = [
+ "codec",
+ "codec-openalex",
  "codec-text-trait",
  "common-dev",
  "embed",

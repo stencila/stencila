@@ -1,0 +1,230 @@
+{
+  "id": "https://openalex.org/A5080056684",
+  "orcid": null,
+  "display_name": "Luz A Cuellar-Espinosa",
+  "display_name_alternatives": [
+    "Luz A Cuellar‐Espinosa"
+  ],
+  "works_count": 1,
+  "cited_by_count": 4,
+  "summary_stats": {
+    "2yr_mean_citedness": 0.0,
+    "h_index": 1,
+    "i10_index": 0
+  },
+  "ids": {
+    "openalex": "https://openalex.org/A5080056684"
+  },
+  "affiliations": [
+    {
+      "institution": {
+        "id": "https://openalex.org/I4210141302",
+        "ror": "https://ror.org/04bzrjn90",
+        "display_name": "Instituto Jalisciense de Cancerología",
+        "country_code": "MX",
+        "type": "healthcare",
+        "lineage": [
+          "https://openalex.org/I4210095685",
+          "https://openalex.org/I4210141302"
+        ]
+      },
+      "years": [
+        2007
+      ]
+    },
+    {
+      "institution": {
+        "id": "https://openalex.org/I4210130711",
+        "ror": "https://ror.org/036gb6b33",
+        "display_name": "Centro de Epilepsia y Neurocirugía Funcional",
+        "country_code": "GT",
+        "type": "healthcare",
+        "lineage": [
+          "https://openalex.org/I4210130711"
+        ]
+      },
+      "years": [
+        2007
+      ]
+    }
+  ],
+  "last_known_institutions": [
+    {
+      "id": "https://openalex.org/I4210141302",
+      "ror": "https://ror.org/04bzrjn90",
+      "display_name": "Instituto Jalisciense de Cancerología",
+      "country_code": "MX",
+      "type": "healthcare",
+      "lineage": [
+        "https://openalex.org/I4210095685",
+        "https://openalex.org/I4210141302"
+      ]
+    },
+    {
+      "id": "https://openalex.org/I4210130711",
+      "ror": "https://ror.org/036gb6b33",
+      "display_name": "Centro de Epilepsia y Neurocirugía Funcional",
+      "country_code": "GT",
+      "type": "healthcare",
+      "lineage": [
+        "https://openalex.org/I4210130711"
+      ]
+    }
+  ],
+  "topics": [
+    {
+      "id": "https://openalex.org/T10979",
+      "display_name": "Breastfeeding Practices and Influences",
+      "count": 1,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2713",
+        "display_name": "Epidemiology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/27",
+        "display_name": "Medicine"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/4",
+        "display_name": "Health Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13393",
+      "display_name": "Child Nutrition and Feeding Issues",
+      "count": 1,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2738",
+        "display_name": "Psychiatry and Mental health"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/27",
+        "display_name": "Medicine"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/4",
+        "display_name": "Health Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11060",
+      "display_name": "Infant Development and Preterm Care",
+      "count": 1,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2735",
+        "display_name": "Pediatrics, Perinatology and Child Health"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/27",
+        "display_name": "Medicine"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/4",
+        "display_name": "Health Sciences"
+      }
+    }
+  ],
+  "topic_share": [
+    {
+      "id": "https://openalex.org/T10979",
+      "display_name": "Breastfeeding Practices and Influences",
+      "value": 0.0000074,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2713",
+        "display_name": "Epidemiology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/27",
+        "display_name": "Medicine"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/4",
+        "display_name": "Health Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11060",
+      "display_name": "Infant Development and Preterm Care",
+      "value": 0.0000055,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2735",
+        "display_name": "Pediatrics, Perinatology and Child Health"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/27",
+        "display_name": "Medicine"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/4",
+        "display_name": "Health Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13393",
+      "display_name": "Child Nutrition and Feeding Issues",
+      "value": 0.0000052,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2738",
+        "display_name": "Psychiatry and Mental health"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/27",
+        "display_name": "Medicine"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/4",
+        "display_name": "Health Sciences"
+      }
+    }
+  ],
+  "x_concepts": [
+    {
+      "id": "https://openalex.org/C15708023",
+      "wikidata": "https://www.wikidata.org/wiki/Q80083",
+      "display_name": "Humanities",
+      "level": 1,
+      "score": 100.0
+    },
+    {
+      "id": "https://openalex.org/C71924100",
+      "wikidata": "https://www.wikidata.org/wiki/Q11190",
+      "display_name": "Medicine",
+      "level": 0,
+      "score": 100.0
+    },
+    {
+      "id": "https://openalex.org/C138885662",
+      "wikidata": "https://www.wikidata.org/wiki/Q5891",
+      "display_name": "Philosophy",
+      "level": 0,
+      "score": 100.0
+    },
+    {
+      "id": "https://openalex.org/C142362112",
+      "wikidata": "https://www.wikidata.org/wiki/Q735",
+      "display_name": "Art",
+      "level": 0,
+      "score": 100.0
+    }
+  ],
+  "counts_by_year": [
+    {
+      "year": 2019,
+      "works_count": 0,
+      "cited_by_count": 2
+    },
+    {
+      "year": 2015,
+      "works_count": 0,
+      "cited_by_count": 2
+    },
+    {
+      "year": 2014,
+      "works_count": 0,
+      "cited_by_count": 2
+    }
+  ],
+  "works_api_url": "https://api.openalex.org/works?filter=author.id:A5080056684",
+  "updated_date": "2025-07-15T18:57:05.404403",
+  "created_date": "2023-07-21"
+}

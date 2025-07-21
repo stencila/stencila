@@ -1,0 +1,11 @@
+---
+source: rust/codec-openalex/tests/examples.rs
+expression: node
+---
+{
+  "type": "Organization",
+  "id": "https://openalex.org/I4210163069",
+  "name": "VUES Brno (Czechia)",
+  "ror": "05g59rq62",
+  "url": "http://www.vues.cz/"
+}
