@@ -122,10 +122,12 @@ pub struct ServeOptions {
     pub server_token: Option<String>,
 
     /// Do not show a startup message giving a login URL
+    #[clap(skip)]
     pub no_startup_message: bool,
 
     /// Whether the server can be be gracefully shutdown by sending
     /// a message on the server state's `shutdown_sender`.
+    #[clap(skip)]
     pub graceful_shutdown: bool,
 }
 
