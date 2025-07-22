@@ -139,10 +139,10 @@ impl OpenAlexQuery {
     /// Set sort parameter
     fn order_by(&self, field: String, direction: Option<String>) -> Result<Self, Error> {
         let mut query = self.clone();
-        
+
         // Map DocsQL property names to OpenAlex API sort field names
         let openalex_field = self.map_property_to_openalex(&field)?;
-        
+
         let sort_string = match direction {
             Some(dir) if dir.to_uppercase() == "DESC" => format!("{}:desc", openalex_field),
             _ => format!("{}:asc", openalex_field),
@@ -252,13 +252,15 @@ impl OpenAlexQuery {
 
         // Map the subquery relation to OpenAlex filter prefix
         let filter_prefix = match subquery.first_table.as_str() {
-            "Person" => "authorships.author", // Authors subquery
+            "Person" => "authorships.author",             // Authors subquery
             "Reference" => "references", // References subquery maps to reference count
             "Organization" => "authorships.institutions", // Affiliations subquery
-            _ => return Err(Error::new(
-                ErrorKind::InvalidOperation,
-                format!("Unsupported subquery type: {}", subquery.first_table),
-            )),
+            _ => {
+                return Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    format!("Unsupported subquery type: {}", subquery.first_table),
+                ))
+            }
         };
 
         // Process the raw filters within the subquery
@@ -271,7 +273,13 @@ impl OpenAlexQuery {
                 }
             } else {
                 // Build OpenAlex filter directly from original property, operator, and value
-                let openalex_filter = self.build_openalex_subquery_filter(property, operator, value, filter_prefix, &subquery.first_table)?;
+                let openalex_filter = self.build_openalex_subquery_filter(
+                    property,
+                    operator,
+                    value,
+                    filter_prefix,
+                    &subquery.first_table,
+                )?;
                 query.filters.push(openalex_filter);
             }
         }
@@ -283,12 +291,17 @@ impl OpenAlexQuery {
                 "Reference" => "referenced_works_count",
                 "Person" => "authors_count",
                 "Organization" => "institutions_distinct_count",
-                _ => return Err(Error::new(
-                    ErrorKind::InvalidOperation,
-                    format!("Count subqueries not supported for {}", subquery.first_table),
-                )),
+                _ => {
+                    return Err(Error::new(
+                        ErrorKind::InvalidOperation,
+                        format!(
+                            "Count subqueries not supported for {}",
+                            subquery.first_table
+                        ),
+                    ))
+                }
             };
-            
+
             // Parse the count filter (e.g., "> 10", "= 5", "<= 20")
             // Remove spaces to get ">" + "10" format
             let clean_count_filter = count_filter.replace(" ", "");
@@ -300,21 +313,28 @@ impl OpenAlexQuery {
     }
 
     /// Build OpenAlex API filter from original property, operator, and value for subqueries
-    fn build_openalex_subquery_filter(&self, property: &str, operator: &str, value: &Value, prefix: &str, table: &str) -> Result<String, Error> {
+    fn build_openalex_subquery_filter(
+        &self,
+        property: &str,
+        operator: &str,
+        value: &Value,
+        prefix: &str,
+        table: &str,
+    ) -> Result<String, Error> {
         // Handle different property mappings based on the subquery type
         match (table, property) {
             ("Person", "name") => {
                 // For author names, use raw_author_name.search instead of authorships.author.display_name
                 return self.build_author_name_filter(operator, value);
-            },
+            }
             ("Organization", "name") => {
                 // For organization/institution names, use raw_affiliation_strings.search
                 return self.build_organization_name_filter(operator, value);
-            },
+            }
             ("Organization", property) => {
                 // For other organization properties, use the authorships.institutions prefix
                 let filter_value = format_filter_value(value.clone())?;
-                
+
                 match operator {
                     "==" => Ok(format!("{}.{}:{}", prefix, property, filter_value)),
                     "!=" => Ok(format!("{}.{}:!{}", prefix, property, filter_value)),
@@ -324,22 +344,40 @@ impl OpenAlexQuery {
                     ">=" => Ok(format!("{}.{}:>={}", prefix, property, filter_value)),
                     _ => Err(Error::new(
                         ErrorKind::InvalidOperation,
-                        format!("Unsupported operator for organization property: {}", operator),
+                        format!(
+                            "Unsupported operator for organization property: {}",
+                            operator
+                        ),
                     )),
                 }
-            },
+            }
             _ => {
                 // Default mapping
                 let openalex_property = property;
                 let filter_value = format_filter_value(value.clone())?;
-                
+
                 match operator {
                     "==" => Ok(format!("{}.{}:{}", prefix, openalex_property, filter_value)),
-                    "!=" => Ok(format!("{}.{}:!{}", prefix, openalex_property, filter_value)),
-                    "<" => Ok(format!("{}.{}:<{}", prefix, openalex_property, filter_value)),
-                    "<=" => Ok(format!("{}.{}:<={}", prefix, openalex_property, filter_value)),
-                    ">" => Ok(format!("{}.{}:>{}", prefix, openalex_property, filter_value)),
-                    ">=" => Ok(format!("{}.{}:>={}", prefix, openalex_property, filter_value)),
+                    "!=" => Ok(format!(
+                        "{}.{}:!{}",
+                        prefix, openalex_property, filter_value
+                    )),
+                    "<" => Ok(format!(
+                        "{}.{}:<{}",
+                        prefix, openalex_property, filter_value
+                    )),
+                    "<=" => Ok(format!(
+                        "{}.{}:<={}",
+                        prefix, openalex_property, filter_value
+                    )),
+                    ">" => Ok(format!(
+                        "{}.{}:>{}",
+                        prefix, openalex_property, filter_value
+                    )),
+                    ">=" => Ok(format!(
+                        "{}.{}:>={}",
+                        prefix, openalex_property, filter_value
+                    )),
                     _ => Err(Error::new(
                         ErrorKind::InvalidOperation,
                         format!("Unsupported operator for subquery: {}", operator),
@@ -348,11 +386,11 @@ impl OpenAlexQuery {
             }
         }
     }
-    
+
     /// Helper method to build author name filters using raw_author_name.search
     fn build_author_name_filter(&self, operator: &str, value: &Value) -> Result<String, Error> {
         let filter_value = format_filter_value(value.clone())?;
-        
+
         match operator {
             "==" => Ok(format!("raw_author_name.search:{}", filter_value)),
             "^=" => Ok(format!("raw_author_name.search:{}*", filter_value)),
@@ -365,9 +403,13 @@ impl OpenAlexQuery {
     }
 
     /// Helper method to build organization name filters using raw_affiliation_strings.search
-    fn build_organization_name_filter(&self, operator: &str, value: &Value) -> Result<String, Error> {
+    fn build_organization_name_filter(
+        &self,
+        operator: &str,
+        value: &Value,
+    ) -> Result<String, Error> {
         let filter_value = format_filter_value(value.clone())?;
-        
+
         match operator {
             "==" => Ok(format!("raw_affiliation_strings.search:{}", filter_value)),
             "^=" => Ok(format!("raw_affiliation_strings.search:{}*", filter_value)),
@@ -378,7 +420,6 @@ impl OpenAlexQuery {
             )),
         }
     }
-
 
     /// Map DocsQL property names to OpenAlex API filter names
     fn map_property_to_openalex(&self, property: &str) -> Result<String, Error> {
@@ -635,6 +676,13 @@ impl Object for OpenAlexQuery {
         name: &str,
         args: &[Value],
     ) -> Result<Value, Error> {
+        let like_err = || {
+            Err(Error::new(
+                ErrorKind::UnknownMethod,
+                "Semantic similarity filtering is not available for OpenAlex, use `search` instead",
+            ))
+        };
+
         let mut query = match name {
             "works" | "articles" | "books" | "chapters" | "preprints" | "dissertations"
             | "reviews" | "standards" | "grants" | "retractions" | "datasets" | "people"
@@ -683,11 +731,7 @@ impl Object for OpenAlexQuery {
                             }
                         }
                         "like" => {
-                            // For semantic similarity, we'll use search for now
-                            // In the future, this could use embeddings
-                            if let Some(search_value) = value.as_str() {
-                                query = query.search(search_value.to_string())
-                            }
+                            return like_err();
                         }
                         "limit" => {
                             if let Some(limit_val) = value.as_usize() {
@@ -715,6 +759,9 @@ impl Object for OpenAlexQuery {
             "search" => {
                 let (term,): (String,) = from_args(args)?;
                 self.search(term)
+            }
+            "like" => {
+                return like_err();
             }
             "orderBy" | "order_by" => {
                 let (field, direction): (String, Option<String>) = from_args(args)?;

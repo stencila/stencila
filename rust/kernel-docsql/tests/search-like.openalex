@@ -8,11 +8,6 @@ openalex.works(search="machine learning")
 GET https://api.openalex.org/works?search=machine%20learning
 
 
-openalex.works(like="machine learning")
----
-GET https://api.openalex.org/works?search=machine%20learning
-
-
 openalex.works(search="machine learning")
 ---
 GET https://api.openalex.org/works?search=machine%20learning
@@ -26,3 +21,8 @@ GET https://api.openalex.org/works?filter=type%3Aarticle&search=neural%20network
 openalex.articles(search="neural networks", limit=5)
 ---
 GET https://api.openalex.org/works?filter=type%3Aarticle&search=neural%20networks&per-page=5
+
+
+openalex.works(like="machine learning")
+---
+Semantic similarity filtering is not available for OpenAlex, use `search` instead
