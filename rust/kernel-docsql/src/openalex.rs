@@ -457,8 +457,19 @@ impl OpenAlexQuery {
                     format!("Invalid number in count filter: {}", filter),
                 ))
             }
+        } else if filter.starts_with("=") {
+            // Handle equality - remove the leading = for OpenAlex format
+            let number_str = &filter[1..];
+            if number_str.parse::<i64>().is_ok() {
+                Ok(number_str.to_string())
+            } else {
+                Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    format!("Invalid number in count filter: {}", filter),
+                ))
+            }
         } else {
-            // Keep other operators as-is (>, <, =)
+            // Keep other operators as-is (>, <)
             Ok(filter.to_string())
         }
     }

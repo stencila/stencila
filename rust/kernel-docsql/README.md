@@ -29,6 +29,15 @@ DocsQL queries can be run against different document databases:
 
 - **`document`** - The current document's database containing all nodes and content. Supports positional queries (`above`/`below`) relative to the query's position within the host document.
 - **`workspace`** - The workspace's document database containing multiple documents. Used for cross-document analysis and research across collections.
+- **`openalex`** - Query the OpenAlex database of scholarly works, authors, and institutions. Provides access to millions of research papers with metadata, citations, and author information.
+
+#### OpenAlex Limitations
+
+While DocsQL provides a convenient interface to OpenAlex, there are some limitations due to the underlying API:
+
+- **Reference filtering**: References can only be filtered by count (`...references(* > 10)`) or specific work IDs. Filtering by reference properties like title or topic is not supported.
+- **Operator compatibility**: The `>=` and `<=` operators are automatically converted to equivalent `>` and `<` expressions (e.g., `>=10` becomes `>9`) due to API limitations.
+- **Semantic search**: The `like` method for semantic similarity is not available; use `search` for text-based matching instead.
 
 ### Free Functions vs Database Methods
 
