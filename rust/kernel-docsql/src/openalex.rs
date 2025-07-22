@@ -251,14 +251,15 @@ impl OpenAlexQuery {
         let mut query = self.clone();
 
         // Map the subquery relation to OpenAlex filter prefix
-        let filter_prefix = match subquery.first_table.as_str() {
-            "Person" => "authorships.author",             // Authors subquery
-            "Reference" => "references", // References subquery maps to reference count
-            "Organization" => "authorships.institutions", // Affiliations subquery
+        let filter_prefix = match (subquery.first_table.as_str(), subquery.first_relation.as_str()) {
+            ("Person", _) => "authorships.author",             // Authors subquery
+            ("Reference", "[references]") => "references", // References subquery maps to reference count
+            ("Reference", "[citedBy]") => "citedBy", // CitedBy subquery maps to cited_by_count
+            ("Organization", _) => "authorships.institutions", // Affiliations subquery
             _ => {
                 return Err(Error::new(
                     ErrorKind::InvalidOperation,
-                    format!("Unsupported subquery type: {}", subquery.first_table),
+                    format!("Unsupported subquery type: {} with relation {}", subquery.first_table, subquery.first_relation),
                 ))
             }
         };
@@ -287,16 +288,17 @@ impl OpenAlexQuery {
         // Handle count filters if present
         if let Some(count_filter) = &subquery.count {
             // Convert count filter to OpenAlex API format
-            let count_property = match subquery.first_table.as_str() {
-                "Reference" => "referenced_works_count",
-                "Person" => "authors_count",
-                "Organization" => "institutions_distinct_count",
+            let count_property = match (subquery.first_table.as_str(), subquery.first_relation.as_str()) {
+                ("Reference", "[references]") => "referenced_works_count",
+                ("Reference", "[citedBy]") => "cited_by_count",
+                ("Person", _) => "authors_count",
+                ("Organization", _) => "institutions_distinct_count",
                 _ => {
                     return Err(Error::new(
                         ErrorKind::InvalidOperation,
                         format!(
-                            "Count subqueries not supported for {}",
-                            subquery.first_table
+                            "Count subqueries not supported for {} with relation {}",
+                            subquery.first_table, subquery.first_relation
                         ),
                     ))
                 }

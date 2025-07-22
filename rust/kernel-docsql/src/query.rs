@@ -115,6 +115,7 @@ pub(crate) const GLOBAL_NAMES: &[&str] = &[
     "_references",
     "_affiliations",
     "_organizations",
+    "_citedBy",
     "_chunks",
     "_expressions",
     "_audios",
@@ -1774,6 +1775,7 @@ pub(super) fn add_subquery_functions(env: &mut Environment) {
         ("references", "[references]", NodeType::Reference),
         ("affiliations", "[affiliations]", NodeType::Organization),
         ("organizations", "[organizations]", NodeType::Organization),
+        ("citedBy", "[citedBy]", NodeType::Reference),
     ] {
         env.add_global(
             ["_", name].concat(),

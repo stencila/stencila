@@ -1,0 +1,23 @@
+openalex.articles(...citedBy(* > 100))
+---
+GET https://api.openalex.org/works?filter=type%3Aarticle%2Ccited_by_count%3A%3E100
+
+
+openalex.articles(...citedBy(* >= 50))
+---
+GET https://api.openalex.org/works?filter=type%3Aarticle%2Ccited_by_count%3A%3E49
+
+
+openalex.articles(...citedBy(* <= 10))
+---
+GET https://api.openalex.org/works?filter=type%3Aarticle%2Ccited_by_count%3A%3C11
+
+
+openalex.articles(...citedBy(* == 0))
+---
+GET https://api.openalex.org/works?filter=type%3Aarticle%2Ccited_by_count%3A0
+
+
+openalex.works(...citedBy(* > 1000))
+---
+GET https://api.openalex.org/works?filter=cited_by_count%3A%3E1000
