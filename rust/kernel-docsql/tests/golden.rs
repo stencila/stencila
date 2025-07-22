@@ -37,10 +37,21 @@ async fn golden() -> Result<()> {
     let (sender, ..) = mpsc::channel(1);
     let mut kernel = DocsQLKernelInstance::new(None, Some((receiver, sender)))?;
 
-    for path in glob(&cypher_pattern)?
-        .flatten()
-        .chain(glob(&openalex_pattern)?.flatten())
-    {
+    // Check if a specific test file is requested via environment variable
+    let test_paths = if let Ok(test_file) = env::var("TEST_FILE") {
+        let test_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("tests")
+            .join(&test_file);
+        vec![test_path]
+    } else {
+        // Run all test files as before
+        glob(&cypher_pattern)?
+            .flatten()
+            .chain(glob(&openalex_pattern)?.flatten())
+            .collect()
+    };
+
+    for path in test_paths {
         let contents = read_to_string(&path)?;
 
         let Some(filename) = path.file_name() else {
@@ -81,7 +92,8 @@ async fn golden() -> Result<()> {
                 );
 
                 // For .openalex files, validate the URL by making an HTTP request
-                if filename.ends_with(".openalex") && actual.starts_with("GET ") {
+                // Skip HTTP requests if NO_HTTP environment variable is set
+                if filename.ends_with(".openalex") && actual.starts_with("GET ") && env::var("NO_HTTP").is_err() {
                     let url = actual.strip_prefix("GET ").unwrap_or(&actual);
                     validate_openalex_url(url).await?;
                 }

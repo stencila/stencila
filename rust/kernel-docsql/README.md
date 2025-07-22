@@ -332,3 +332,56 @@ All node type functions are available as both singular (returns first match) and
 - `.out(format)` - Specify output format
 - `.explain()` - Show generated Cypher query
 - `.text()` - Get text representation of results
+
+## Development
+
+### Testing
+
+The `golden.rs` tests, test that:
+
+- **Query compilation**: DocsQL queries are correctly translated to Cypher or external API calls
+- **API integration**: Generated URLs for external services (like OpenAlex) are valid and functional
+- **Consistency**: Query results match expected outputs across different scenarios
+
+Test case files are located in `tests/` with extensions:
+
+- `.cypher` - Tests that generate Cypher queries for document databases
+- `.openalex` - Tests that generate OpenAlex API requests
+
+#### Running Tests
+
+Run all tests:
+
+```bash
+cargo test golden
+```
+
+Run a specific test file:
+
+```bash
+TEST_FILE=subquery.openalex cargo test golden
+```
+
+Skip HTTP requests (faster, offline-friendly):
+
+```bash
+NO_HTTP=1 cargo test golden
+```
+
+Update test expectations:
+
+```bash
+UPDATE_GOLDEN=1 cargo test golden
+```
+
+Combine options:
+
+```bash
+TEST_FILE=subquery.openalex NO_HTTP=1 cargo test golden
+```
+
+#### Environment Variables
+
+- **`TEST_FILE`** - Run tests from a specific file only (e.g., `subquery.openalex`)
+- **`NO_HTTP`** - Skip HTTP validation for OpenAlex URLs (useful for offline testing)
+- **`UPDATE_GOLDEN`** - Update test files with new expected outputs instead of asserting
