@@ -305,7 +305,11 @@ impl OpenAlexQuery {
             // Parse the count filter (e.g., "> 10", "= 5", "<= 20")
             // Remove spaces to get ">" + "10" format
             let clean_count_filter = count_filter.replace(" ", "");
-            let count_filter_str = format!("{}:{}", count_property, clean_count_filter);
+            
+            // OpenAlex doesn't consistently support >= and <= operators
+            // Convert them to equivalent > and < operators
+            let converted_filter = self.convert_count_filter_for_openalex(&clean_count_filter)?;
+            let count_filter_str = format!("{}:{}", count_property, converted_filter);
             query.filters.push(count_filter_str);
         }
 
@@ -418,6 +422,44 @@ impl OpenAlexQuery {
                 ErrorKind::InvalidOperation,
                 format!("Unsupported operator for organization name: {}", operator),
             )),
+        }
+    }
+
+    /// Convert count filters for OpenAlex compatibility
+    /// 
+    /// The >= and <= operators don't work consistently and return 403 errors.
+    /// We convert them to equivalent expressions:
+    /// - ">=N" becomes ">N-1" (e.g., ">=10" becomes ">9")
+    /// - "<=N" becomes "<N+1" (e.g., "<=5" becomes "<6")
+    fn convert_count_filter_for_openalex(&self, filter: &str) -> Result<String, Error> {
+        if let Some(number_str) = filter.strip_prefix(">=") {
+            // Convert ">=N" to ">N-1"
+            if let Ok(number) = number_str.parse::<i64>() {
+                if number > 0 {
+                    Ok(format!(">{}", number - 1))
+                } else {
+                    // >=0 means all positive numbers, equivalent to ">-1" but use ">=0" 
+                    Ok(">=0".to_string())
+                }
+            } else {
+                Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    format!("Invalid number in count filter: {}", filter),
+                ))
+            }
+        } else if let Some(number_str) = filter.strip_prefix("<=") {
+            // Convert "<=N" to "<N+1"
+            if let Ok(number) = number_str.parse::<i64>() {
+                Ok(format!("<{}", number + 1))
+            } else {
+                Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    format!("Invalid number in count filter: {}", filter),
+                ))
+            }
+        } else {
+            // Keep other operators as-is (>, <, =)
+            Ok(filter.to_string())
         }
     }
 
