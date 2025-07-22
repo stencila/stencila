@@ -1337,31 +1337,31 @@ impl Object for Query {
 
 /// A subquery filter
 #[derive(Debug, Clone)]
-pub(super) struct Subquery {
+pub(crate) struct Subquery {
     /// The `MATCH` pattern for the subquery
     ///
     /// The front of the pattern can not be determined until the `generate`
     /// method is called.
-    pattern: String,
+    pub(crate) pattern: String,
 
     /// The initial relation involved in the subquery
-    first_relation: String,
+    pub(crate) first_relation: String,
 
     /// The initial table involved in the subquery
-    first_table: String,
+    pub(crate) first_table: String,
 
     /// The last table involved in the subquery
     ///
     /// Used to determine the relation at the back of the `pattern`.
-    last_table: String,
+    pub(crate) last_table: String,
 
     /// Filters applied in the subquery
-    ands: Vec<String>,
+    pub(crate) ands: Vec<String>,
 
     /// Whether this is a `COUNT` subquery, and if so the conditional clause associated with it.
     ///
     /// See https://docs.kuzudb.com/cypher/subquery/#count
-    count: Option<String>,
+    pub(crate) count: Option<String>,
 }
 
 impl Subquery {

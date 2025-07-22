@@ -1,0 +1,13 @@
+openalex.articles(...authors(.name == "Jane Smith"))
+---
+GET https://api.openalex.org/works?filter=type%3Aarticle%2Craw_author_name.search%3AJane%20Smith
+
+
+openalex.articles(...authors(.name ^= "Smith"))
+---
+GET https://api.openalex.org/works?filter=type%3Aarticle%2Craw_author_name.search%3ASmith%2A
+
+
+openalex.works(...authors(.name ^= "Johnson"))
+---
+GET https://api.openalex.org/works?filter=raw_author_name.search%3AJohnson%2A

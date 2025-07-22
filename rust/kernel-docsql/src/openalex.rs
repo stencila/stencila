@@ -19,7 +19,7 @@ use kernel_jinja::{
     },
 };
 
-use crate::query::{NodeProxies, NodeProxy};
+use crate::query::{NodeProxies, NodeProxy, Subquery};
 
 const API_BASE_URL: &str = "https://api.openalex.org";
 
@@ -137,14 +137,18 @@ impl OpenAlexQuery {
     }
 
     /// Set sort parameter
-    fn order_by(&self, field: String, direction: Option<String>) -> Self {
+    fn order_by(&self, field: String, direction: Option<String>) -> Result<Self, Error> {
         let mut query = self.clone();
+        
+        // Map DocsQL property names to OpenAlex API sort field names
+        let openalex_field = self.map_property_to_openalex(&field)?;
+        
         let sort_string = match direction {
-            Some(dir) if dir.to_uppercase() == "DESC" => format!("{}:desc", field),
-            _ => format!("{}:asc", field),
+            Some(dir) if dir.to_uppercase() == "DESC" => format!("{}:desc", openalex_field),
+            _ => format!("{}:asc", openalex_field),
         };
         query.sort = Some(sort_string);
-        query
+        Ok(query)
     }
 
     /// Set pagination limit
@@ -188,6 +192,13 @@ impl OpenAlexQuery {
 
     /// Apply a DocsQL filter with transformed syntax
     fn apply_docsql_filter(&self, property: &str, value: Value) -> Result<Self, Error> {
+        // Handle subquery filters (e.g., ...authors(.name ^= "Smith"))
+        if property == "_" {
+            if let Some(subquery) = value.downcast_object_ref::<Subquery>() {
+                return self.apply_subquery_filter(subquery);
+            }
+        }
+
         // Handle transformed DocsQL filter syntax
         // The property name contains encoded operator information from transform_filters
 
@@ -235,15 +246,111 @@ impl OpenAlexQuery {
         }
     }
 
+    /// Apply a subquery filter to the OpenAlex query
+    fn apply_subquery_filter(&self, subquery: &Subquery) -> Result<Self, Error> {
+        let mut query = self.clone();
+
+        // Map the subquery relation to OpenAlex filter prefix
+        let filter_prefix = match subquery.first_table.as_str() {
+            "Person" => "authorships.author", // Authors subquery
+            "Reference" => return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                "Reference subqueries not yet supported for OpenAlex".to_string(),
+            )),
+            _ => return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                format!("Unsupported subquery type: {}", subquery.first_table),
+            )),
+        };
+
+        // Process the filters within the subquery
+        for filter in &subquery.ands {
+            // Parse the Cypher filter to extract property and value
+            // This is a simplified parser for the most common case
+            let openalex_filter = self.convert_cypher_filter_to_openalex(filter, filter_prefix)?;
+            query.filters.push(openalex_filter);
+        }
+
+        // Handle count filters if present
+        if let Some(_count_filter) = &subquery.count {
+            return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                "Count subqueries not yet supported for OpenAlex".to_string(),
+            ));
+        }
+
+        Ok(query)
+    }
+
+    /// Convert a Cypher filter string to OpenAlex API filter format
+    fn convert_cypher_filter_to_openalex(&self, cypher_filter: &str, prefix: &str) -> Result<String, Error> {
+        // Parse patterns like: "author.name = 'Smith'" or "starts_with(author.name, 'Smith')"
+        
+        // Handle starts_with function calls (from ^= operator)
+        if let Some(starts_with_match) = cypher_filter.strip_prefix("starts_with(") {
+            if let Some(end_pos) = starts_with_match.find(", ") {
+                let property_part = &starts_with_match[..end_pos];
+                let rest = &starts_with_match[end_pos + 2..];
+                if let Some(value_end) = rest.rfind("')") {
+                    let value = &rest[1..value_end]; // Remove quotes
+                    
+                    // Extract the property name after the dot
+                    if let Some(dot_pos) = property_part.rfind('.') {
+                        let property = &property_part[dot_pos + 1..];
+                        let openalex_property = match property {
+                            "name" => {
+                                // For author names, use raw_author_name.search instead of authorships.author.display_name
+                                return Ok(format!("raw_author_name.search:{}*", value));
+                            },
+                            _ => property,
+                        };
+                        return Ok(format!("{}.{}.search:{}*", prefix, openalex_property, value));
+                    }
+                }
+            }
+        }
+
+        // Handle simple equality: "author.name = 'value'"
+        if let Some(eq_pos) = cypher_filter.find(" = ") {
+            let property_part = &cypher_filter[..eq_pos];
+            let value_part = &cypher_filter[eq_pos + 3..];
+            
+            if let Some(dot_pos) = property_part.rfind('.') {
+                let property = &property_part[dot_pos + 1..];
+                
+                // Remove quotes from value
+                let clean_value = value_part.trim_matches('\'');
+                
+                match property {
+                    "name" => {
+                        // For author names, use raw_author_name.search instead of authorships.author.display_name
+                        return Ok(format!("raw_author_name.search:{}", clean_value));
+                    },
+                    _ => {
+                        return Ok(format!("{}.{}:{}", prefix, property, clean_value));
+                    }
+                }
+            }
+        }
+
+        Err(Error::new(
+            ErrorKind::InvalidOperation,
+            format!("Unsupported cypher filter format: {}", cypher_filter),
+        ))
+    }
+
     /// Map DocsQL property names to OpenAlex API filter names
     fn map_property_to_openalex(&self, property: &str) -> Result<String, Error> {
         let mapped = match property {
             // Common mappings across entities
             "title" => match self.entity_type.as_str() {
-                "works" => "title.search",
+                "works" => "display_name", // Works use display_name for both filtering and sorting
+                _ => "display_name",
+            },
+            "name" => match self.entity_type.as_str() {
+                "authors" => "display_name", // For authors, name maps to display_name
                 _ => "display_name.search",
             },
-            "name" => "display_name.search",
             "text" => match self.entity_type.as_str() {
                 "works" => "title_and_abstract.search",
                 _ => "display_name.search",
@@ -570,7 +677,7 @@ impl Object for OpenAlexQuery {
             }
             "orderBy" | "order_by" => {
                 let (field, direction): (String, Option<String>) = from_args(args)?;
-                self.order_by(field, direction)
+                self.order_by(field, direction)?
             }
             "limit" => {
                 let (count,): (usize,) = from_args(args)?;

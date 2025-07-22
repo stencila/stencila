@@ -1,8 +1,8 @@
 openalex.works().orderBy('title')
 ---
-GET https://api.openalex.org/works?sort=title%3Aasc
+GET https://api.openalex.org/works?sort=display_name%3Aasc
 
 
 openalex.people().order_by('name', 'desc')
 ---
-GET https://api.openalex.org/authors?sort=name%3Adesc
+GET https://api.openalex.org/authors?sort=display_name%3Adesc
