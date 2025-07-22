@@ -18,17 +18,11 @@ openalex.articles(...authors(...affiliations(.name $= "University")))
 GET https://api.openalex.org/works?filter=type%3Aarticle%2Craw_affiliation_strings.search%3A%2AUniversity
 
 
+openalex.articles(...authors(...affiliations(.ror == "03b94tp07")))
+---
+GET https://api.openalex.org/works?filter=type%3Aarticle%2Cauthorships.institutions.ror%3A03b94tp07
+
+
 openalex.articles(...authors(* > 5))
 ---
 GET https://api.openalex.org/works?filter=type%3Aarticle%2Cauthors_count%3A%3E5
-
-
-openalex.articles(...organizations(.ror == "02jx3x895"))
----
-GET https://api.openalex.org/works?filter=type%3Aarticle%2Cauthorships.institutions.ror%3A02jx3x895
-
-
-openalex.articles(...references(* > 10))
----
-GET https://api.openalex.org/works?filter=type%3Aarticle%2Creferenced_works_count%3A%3E10
-
