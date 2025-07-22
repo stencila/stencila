@@ -120,7 +120,7 @@ async fn validate_openalex_url(url: &str) -> Result<()> {
         .get(url)
         .header(
             "User-Agent",
-            "Stencila-DocsQL-Test/1.0 (testing OpenAlex integration)",
+            "Stencila-DocsQL-Test/1.0 (mailto:hello@stenci.la)",
         )
         .send()
         .await?;
