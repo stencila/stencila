@@ -11,6 +11,7 @@ use kernel_jinja::kernel::{
         eyre::{bail, Result},
         glob::glob,
         itertools::Itertools,
+        reqwest::Client,
         tokio::{
             self,
             sync::{mpsc, watch},
@@ -77,7 +78,13 @@ async fn golden() -> Result<()> {
                     actual, expected,
                     "\n\nFile: {}\nDocsQL: {}",
                     filename, docsql
-                )
+                );
+
+                // For .openalex files, validate the URL by making an HTTP request
+                if filename.ends_with(".openalex") && actual.starts_with("GET ") {
+                    let url = actual.strip_prefix("GET ").unwrap_or(&actual);
+                    validate_openalex_url(url).await?;
+                }
             } else {
                 *test = format!("{docsql}\n---\n{actual}\n");
             }
@@ -87,6 +94,29 @@ async fn golden() -> Result<()> {
             let contents = tests.join("\n\n");
             write(path, contents)?;
         }
+    }
+
+    Ok(())
+}
+
+/// Validate an OpenAlex URL by making an HTTP GET request
+async fn validate_openalex_url(url: &str) -> Result<()> {
+    let client = Client::new();
+
+    // Add a user agent to be respectful to the OpenAlex API
+    let response = client
+        .get(url)
+        .header(
+            "User-Agent",
+            "Stencila-DocsQL-Test/1.0 (testing OpenAlex integration)",
+        )
+        .send()
+        .await?;
+
+    if !response.status().is_success() {
+        let status = response.status();
+        let body = response.text().await?;
+        bail!("OpenAlex API request `{url}` failed with status {status}:\n\n{body}");
     }
 
     Ok(())
