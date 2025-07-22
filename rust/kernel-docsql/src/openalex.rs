@@ -732,7 +732,7 @@ impl Object for OpenAlexQuery {
         let like_err = || {
             Err(Error::new(
                 ErrorKind::UnknownMethod,
-                "Semantic similarity filtering is not available for OpenAlex, use `search` instead",
+                "semantic similarity filtering is not available for OpenAlex, use `search` instead",
             ))
         };
 
