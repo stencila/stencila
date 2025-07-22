@@ -113,6 +113,8 @@ pub(crate) const GLOBAL_NAMES: &[&str] = &[
     // Added in add_subquery_functions
     "_authors",
     "_references",
+    "_affiliations",
+    "_organizations",
     "_chunks",
     "_expressions",
     "_audios",
@@ -1355,13 +1357,18 @@ pub(crate) struct Subquery {
     /// Used to determine the relation at the back of the `pattern`.
     pub(crate) last_table: String,
 
-    /// Filters applied in the subquery
+    /// Filters applied in the subquery (Cypher format for KuzuDB)
     pub(crate) ands: Vec<String>,
 
     /// Whether this is a `COUNT` subquery, and if so the conditional clause associated with it.
     ///
     /// See https://docs.kuzudb.com/cypher/subquery/#count
     pub(crate) count: Option<String>,
+
+    /// Raw filter information for external APIs like OpenAlex
+    /// 
+    /// Stores the original property name, operator, and value before conversion to Cypher
+    pub(crate) raw_filters: Vec<(String, String, Value)>,
 }
 
 impl Subquery {
@@ -1375,6 +1382,7 @@ impl Subquery {
             last_table: table,
             ands: Vec::new(),
             count: None,
+            raw_filters: Vec::new(),
         }
     }
 
@@ -1412,9 +1420,33 @@ impl Object for Subquery {
 
         let (kwargs,): (Kwargs,) = from_args(args)?;
         for arg in kwargs.args() {
-            let value = kwargs.get(arg)?;
+            let value: Value = kwargs.get(arg)?;
 
-            let filter = apply_filter(&alias, arg, value, true)?;
+            // Extract original property name and operator for external APIs
+            let (clean_property, operator) = if arg.len() > 1 {
+                if let Some(last_char) = arg.chars().last() {
+                    match last_char {
+                        '0' => (arg.trim_end_matches('0'), "!="),
+                        '1' => (arg.trim_end_matches('1'), "<"),
+                        '2' => (arg.trim_end_matches('2'), "<="),
+                        '3' => (arg.trim_end_matches('3'), ">"),
+                        '4' => (arg.trim_end_matches('4'), ">="),
+                        '5' => (arg.trim_end_matches('5'), "~="),
+                        '6' => (arg.trim_end_matches('6'), "!~"),
+                        '7' => (arg.trim_end_matches('7'), "^="),
+                        '8' => (arg.trim_end_matches('8'), "$="),
+                        '9' => (arg.trim_end_matches('9'), "in"),
+                        '_' => (arg.trim_end_matches('_'), "has"),
+                        _ => (arg, "=="),
+                    }
+                } else {
+                    (arg, "==")
+                }
+            } else {
+                (arg, "==")
+            };
+
+            let filter = apply_filter(&alias, arg, value.clone(), true)?;
 
             if let Some(rest) = filter.strip_prefix("_COUNT") {
                 if subquery.count.is_some() {
@@ -1427,6 +1459,8 @@ impl Object for Subquery {
                 subquery.count = Some(rest.trim().to_string());
             } else {
                 subquery.ands.push(filter);
+                // Store original filter information for external APIs
+                subquery.raw_filters.push((clean_property.to_string(), operator.to_string(), value));
             }
         }
 
@@ -1738,6 +1772,8 @@ pub(super) fn add_subquery_functions(env: &mut Environment) {
     for (name, relation, table) in [
         ("authors", "[authors]", NodeType::Person),
         ("references", "[references]", NodeType::Reference),
+        ("affiliations", "[affiliations]", NodeType::Organization),
+        ("organizations", "[organizations]", NodeType::Organization),
     ] {
         env.add_global(
             ["_", name].concat(),

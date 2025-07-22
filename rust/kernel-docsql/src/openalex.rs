@@ -253,91 +253,132 @@ impl OpenAlexQuery {
         // Map the subquery relation to OpenAlex filter prefix
         let filter_prefix = match subquery.first_table.as_str() {
             "Person" => "authorships.author", // Authors subquery
-            "Reference" => return Err(Error::new(
-                ErrorKind::InvalidOperation,
-                "Reference subqueries not yet supported for OpenAlex".to_string(),
-            )),
+            "Reference" => "references", // References subquery maps to reference count
+            "Organization" => "authorships.institutions", // Affiliations subquery
             _ => return Err(Error::new(
                 ErrorKind::InvalidOperation,
                 format!("Unsupported subquery type: {}", subquery.first_table),
             )),
         };
 
-        // Process the filters within the subquery
-        for filter in &subquery.ands {
-            // Parse the Cypher filter to extract property and value
-            // This is a simplified parser for the most common case
-            let openalex_filter = self.convert_cypher_filter_to_openalex(filter, filter_prefix)?;
-            query.filters.push(openalex_filter);
+        // Process the raw filters within the subquery
+        for (property, operator, value) in &subquery.raw_filters {
+            // Handle nested subqueries (properties that start with _)
+            if property == "_" {
+                // This is a nested subquery
+                if let Some(nested_subquery) = value.downcast_object_ref::<Subquery>() {
+                    return self.apply_subquery_filter(nested_subquery);
+                }
+            } else {
+                // Build OpenAlex filter directly from original property, operator, and value
+                let openalex_filter = self.build_openalex_subquery_filter(property, operator, value, filter_prefix, &subquery.first_table)?;
+                query.filters.push(openalex_filter);
+            }
         }
 
         // Handle count filters if present
-        if let Some(_count_filter) = &subquery.count {
-            return Err(Error::new(
-                ErrorKind::InvalidOperation,
-                "Count subqueries not yet supported for OpenAlex".to_string(),
-            ));
+        if let Some(count_filter) = &subquery.count {
+            // Convert count filter to OpenAlex API format
+            let count_property = match subquery.first_table.as_str() {
+                "Reference" => "referenced_works_count",
+                "Person" => "authors_count",
+                "Organization" => "institutions_distinct_count",
+                _ => return Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    format!("Count subqueries not supported for {}", subquery.first_table),
+                )),
+            };
+            
+            // Parse the count filter (e.g., "> 10", "= 5", "<= 20")
+            // Remove spaces to get ">" + "10" format
+            let clean_count_filter = count_filter.replace(" ", "");
+            let count_filter_str = format!("{}:{}", count_property, clean_count_filter);
+            query.filters.push(count_filter_str);
         }
 
         Ok(query)
     }
 
-    /// Convert a Cypher filter string to OpenAlex API filter format
-    fn convert_cypher_filter_to_openalex(&self, cypher_filter: &str, prefix: &str) -> Result<String, Error> {
-        // Parse patterns like: "author.name = 'Smith'" or "starts_with(author.name, 'Smith')"
-        
-        // Handle starts_with function calls (from ^= operator)
-        if let Some(starts_with_match) = cypher_filter.strip_prefix("starts_with(") {
-            if let Some(end_pos) = starts_with_match.find(", ") {
-                let property_part = &starts_with_match[..end_pos];
-                let rest = &starts_with_match[end_pos + 2..];
-                if let Some(value_end) = rest.rfind("')") {
-                    let value = &rest[1..value_end]; // Remove quotes
-                    
-                    // Extract the property name after the dot
-                    if let Some(dot_pos) = property_part.rfind('.') {
-                        let property = &property_part[dot_pos + 1..];
-                        let openalex_property = match property {
-                            "name" => {
-                                // For author names, use raw_author_name.search instead of authorships.author.display_name
-                                return Ok(format!("raw_author_name.search:{}*", value));
-                            },
-                            _ => property,
-                        };
-                        return Ok(format!("{}.{}.search:{}*", prefix, openalex_property, value));
-                    }
+    /// Build OpenAlex API filter from original property, operator, and value for subqueries
+    fn build_openalex_subquery_filter(&self, property: &str, operator: &str, value: &Value, prefix: &str, table: &str) -> Result<String, Error> {
+        // Handle different property mappings based on the subquery type
+        match (table, property) {
+            ("Person", "name") => {
+                // For author names, use raw_author_name.search instead of authorships.author.display_name
+                return self.build_author_name_filter(operator, value);
+            },
+            ("Organization", "name") => {
+                // For organization/institution names, use raw_affiliation_strings.search
+                return self.build_organization_name_filter(operator, value);
+            },
+            ("Organization", property) => {
+                // For other organization properties, use the authorships.institutions prefix
+                let filter_value = format_filter_value(value.clone())?;
+                
+                match operator {
+                    "==" => Ok(format!("{}.{}:{}", prefix, property, filter_value)),
+                    "!=" => Ok(format!("{}.{}:!{}", prefix, property, filter_value)),
+                    "<" => Ok(format!("{}.{}:<{}", prefix, property, filter_value)),
+                    "<=" => Ok(format!("{}.{}:<={}", prefix, property, filter_value)),
+                    ">" => Ok(format!("{}.{}:>{}", prefix, property, filter_value)),
+                    ">=" => Ok(format!("{}.{}:>={}", prefix, property, filter_value)),
+                    _ => Err(Error::new(
+                        ErrorKind::InvalidOperation,
+                        format!("Unsupported operator for organization property: {}", operator),
+                    )),
+                }
+            },
+            _ => {
+                // Default mapping
+                let openalex_property = property;
+                let filter_value = format_filter_value(value.clone())?;
+                
+                match operator {
+                    "==" => Ok(format!("{}.{}:{}", prefix, openalex_property, filter_value)),
+                    "!=" => Ok(format!("{}.{}:!{}", prefix, openalex_property, filter_value)),
+                    "<" => Ok(format!("{}.{}:<{}", prefix, openalex_property, filter_value)),
+                    "<=" => Ok(format!("{}.{}:<={}", prefix, openalex_property, filter_value)),
+                    ">" => Ok(format!("{}.{}:>{}", prefix, openalex_property, filter_value)),
+                    ">=" => Ok(format!("{}.{}:>={}", prefix, openalex_property, filter_value)),
+                    _ => Err(Error::new(
+                        ErrorKind::InvalidOperation,
+                        format!("Unsupported operator for subquery: {}", operator),
+                    )),
                 }
             }
         }
-
-        // Handle simple equality: "author.name = 'value'"
-        if let Some(eq_pos) = cypher_filter.find(" = ") {
-            let property_part = &cypher_filter[..eq_pos];
-            let value_part = &cypher_filter[eq_pos + 3..];
-            
-            if let Some(dot_pos) = property_part.rfind('.') {
-                let property = &property_part[dot_pos + 1..];
-                
-                // Remove quotes from value
-                let clean_value = value_part.trim_matches('\'');
-                
-                match property {
-                    "name" => {
-                        // For author names, use raw_author_name.search instead of authorships.author.display_name
-                        return Ok(format!("raw_author_name.search:{}", clean_value));
-                    },
-                    _ => {
-                        return Ok(format!("{}.{}:{}", prefix, property, clean_value));
-                    }
-                }
-            }
-        }
-
-        Err(Error::new(
-            ErrorKind::InvalidOperation,
-            format!("Unsupported cypher filter format: {}", cypher_filter),
-        ))
     }
+    
+    /// Helper method to build author name filters using raw_author_name.search
+    fn build_author_name_filter(&self, operator: &str, value: &Value) -> Result<String, Error> {
+        let filter_value = format_filter_value(value.clone())?;
+        
+        match operator {
+            "==" => Ok(format!("raw_author_name.search:{}", filter_value)),
+            "^=" => Ok(format!("raw_author_name.search:{}*", filter_value)),
+            "$=" => Ok(format!("raw_author_name.search:*{}", filter_value)),
+            _ => Err(Error::new(
+                ErrorKind::InvalidOperation,
+                format!("Unsupported operator for author name: {}", operator),
+            )),
+        }
+    }
+
+    /// Helper method to build organization name filters using raw_affiliation_strings.search
+    fn build_organization_name_filter(&self, operator: &str, value: &Value) -> Result<String, Error> {
+        let filter_value = format_filter_value(value.clone())?;
+        
+        match operator {
+            "==" => Ok(format!("raw_affiliation_strings.search:{}", filter_value)),
+            "^=" => Ok(format!("raw_affiliation_strings.search:{}*", filter_value)),
+            "$=" => Ok(format!("raw_affiliation_strings.search:*{}", filter_value)),
+            _ => Err(Error::new(
+                ErrorKind::InvalidOperation,
+                format!("Unsupported operator for organization name: {}", operator),
+            )),
+        }
+    }
+
 
     /// Map DocsQL property names to OpenAlex API filter names
     fn map_property_to_openalex(&self, property: &str) -> Result<String, Error> {
