@@ -1324,6 +1324,7 @@ dependencies = [
  "governor",
  "reqwest-middleware",
  "reqwest-ratelimit",
+ "urlencoding",
 ]
 
 [[package]]
@@ -3581,6 +3582,7 @@ dependencies = [
 name = "kernel-docsql"
 version = "0.0.0"
 dependencies = [
+ "codec-openalex",
  "codec-text-trait",
  "common-dev",
  "embed",

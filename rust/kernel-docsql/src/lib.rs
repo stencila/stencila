@@ -319,17 +319,17 @@ impl KernelInstance for DocsQLKernelInstance {
                 ));
             } else if let Some(query) = value.downcast_object::<Query>() {
                 if query.is_database {
-                    return should_use_db_method(&statement.trim());
+                    return should_use_db_method(statement.trim());
                 }
                 query.nodes()
             } else if let Some(query) = value.downcast_object::<GitHubQuery>() {
                 if query.is_database {
-                    return should_use_db_method(&statement.trim());
+                    return should_use_db_method(statement.trim());
                 }
                 query.nodes()
             } else if let Some(query) = value.downcast_object::<OpenAlexQuery>() {
                 if query.is_database {
-                    return should_use_db_method(&statement.trim());
+                    return should_use_db_method(statement.trim());
                 }
                 query.nodes()
             } else if let Some(proxies) = value.downcast_object::<NodeProxies>() {

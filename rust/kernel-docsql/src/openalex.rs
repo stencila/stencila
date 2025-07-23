@@ -1,13 +1,12 @@
 use std::sync::{Arc, Mutex as SyncMutex};
 
+use codec_openalex::{request_with_params, AuthorsResponse, InstitutionsResponse, WorksResponse};
 use kernel_jinja::{
     kernel::{
         common::{
             eyre::Result,
             itertools::Itertools,
-            once_cell::sync::Lazy,
-            reqwest::Client,
-            serde_json::{self, Value as JsonValue},
+            serde_json,
             tokio::{runtime, task},
             tracing,
         },
@@ -22,9 +21,6 @@ use kernel_jinja::{
 use crate::query::{NodeProxies, NodeProxy, Subquery};
 
 const API_BASE_URL: &str = "https://api.openalex.org";
-
-// HTTP client for OpenAlex API calls
-static CLIENT: Lazy<Client> = Lazy::new(Client::new);
 
 /// OpenAlex query builder for generating API calls
 #[derive(Debug, Clone)]
@@ -251,15 +247,21 @@ impl OpenAlexQuery {
         let mut query = self.clone();
 
         // Map the subquery relation to OpenAlex filter prefix
-        let filter_prefix = match (subquery.first_table.as_str(), subquery.first_relation.as_str()) {
-            ("Person", _) => "authorships.author",             // Authors subquery
+        let filter_prefix = match (
+            subquery.first_table.as_str(),
+            subquery.first_relation.as_str(),
+        ) {
+            ("Person", _) => "authorships.author", // Authors subquery
             ("Reference", "[references]") => "references", // References subquery maps to reference count
             ("Reference", "[citedBy]") => "citedBy", // CitedBy subquery maps to cited_by_count
             ("Organization", _) => "authorships.institutions", // Affiliations subquery
             _ => {
                 return Err(Error::new(
                     ErrorKind::InvalidOperation,
-                    format!("Unsupported subquery type: {} with relation {}", subquery.first_table, subquery.first_relation),
+                    format!(
+                        "Unsupported subquery type: {} with relation {}",
+                        subquery.first_table, subquery.first_relation
+                    ),
                 ))
             }
         };
@@ -298,7 +300,10 @@ impl OpenAlexQuery {
         // Handle count filters if present
         if let Some(count_filter) = &subquery.count {
             // Convert count filter to OpenAlex API format
-            let count_property = match (subquery.first_table.as_str(), subquery.first_relation.as_str()) {
+            let count_property = match (
+                subquery.first_table.as_str(),
+                subquery.first_relation.as_str(),
+            ) {
                 ("Reference", "[references]") => "referenced_works_count",
                 ("Reference", "[citedBy]") => "cited_by_count",
                 ("Person", _) => "authors_count",
@@ -317,7 +322,7 @@ impl OpenAlexQuery {
             // Parse the count filter (e.g., "> 10", "= 5", "<= 20")
             // Remove spaces to get ">" + "10" format
             let clean_count_filter = count_filter.replace(" ", "");
-            
+
             // OpenAlex doesn't consistently support >= and <= operators
             // Convert them to equivalent > and < operators
             let converted_filter = self.convert_count_filter_for_openalex(&clean_count_filter)?;
@@ -341,11 +346,11 @@ impl OpenAlexQuery {
         match (table, property) {
             ("Person", "name") => {
                 // For author names, use raw_author_name.search instead of authorships.author.display_name
-                return self.build_author_name_filter(operator, value);
+                self.build_author_name_filter(operator, value)
             }
             ("Organization", "name") => {
                 // For organization/institution names, use raw_affiliation_strings.search
-                return self.build_organization_name_filter(operator, value);
+                self.build_organization_name_filter(operator, value)
             }
             ("Organization", property) => {
                 // For other organization properties, use the authorships.institutions prefix
@@ -438,12 +443,15 @@ impl OpenAlexQuery {
     }
 
     /// Extract OpenAlex work IDs from query objects
-    /// 
+    ///
     /// Executes OpenAlex and workspace queries to extract work IDs for use in
     /// cited_by filters. Supports up to 100 IDs per OpenAlex API limitations.
-    fn extract_work_ids_from_query_objects(&self, query_objects: &[Value]) -> Result<Vec<String>, Error> {
+    fn extract_work_ids_from_query_objects(
+        &self,
+        query_objects: &[Value],
+    ) -> Result<Vec<String>, Error> {
         let mut work_ids = Vec::new();
-        
+
         for query_obj in query_objects {
             // Handle OpenAlex query objects
             if let Some(openalex_query) = query_obj.downcast_object_ref::<OpenAlexQuery>() {
@@ -459,7 +467,7 @@ impl OpenAlexQuery {
                     }
                 }
             }
-            
+
             // Handle workspace query objects (future implementation)
             if let Some(_workspace_query) = query_obj.downcast_object_ref::<crate::query::Query>() {
                 // TODO: Implement workspace query ID extraction
@@ -467,18 +475,18 @@ impl OpenAlexQuery {
                 // from the resulting documents
                 tracing::warn!("Workspace query ID extraction not yet implemented");
             }
-            
+
             // Break early if we hit the limit
             if work_ids.len() >= 100 {
                 break;
             }
         }
-        
+
         Ok(work_ids)
     }
-    
+
     /// Extract OpenAlex work ID from a Node
-    /// 
+    ///
     /// Looks for OpenAlex ID in various possible fields and formats
     fn extract_work_id_from_node(&self, node: &Node) -> Option<String> {
         // Convert Node to JSON Value for easier field access
@@ -497,7 +505,7 @@ impl OpenAlexQuery {
                         }
                     }
                 }
-                
+
                 // Fallback: try other potential ID fields
                 for field_name in ["openalex_id", "work_id", "doi"] {
                     if let Some(field_value) = obj.get(field_name) {
@@ -513,12 +521,12 @@ impl OpenAlexQuery {
                 }
             }
         }
-        
+
         None
     }
 
     /// Convert count filters for OpenAlex compatibility
-    /// 
+    ///
     /// The >= and <= operators don't work consistently and return 403 errors.
     /// We convert them to equivalent expressions:
     /// - ">=N" becomes ">N-1" (e.g., ">=10" becomes ">9")
@@ -530,7 +538,7 @@ impl OpenAlexQuery {
                 if number > 0 {
                     Ok(format!(">{}", number - 1))
                 } else {
-                    // >=0 means all positive numbers, equivalent to ">-1" but use ">=0" 
+                    // >=0 means all positive numbers, equivalent to ">-1" but use ">=0"
                     Ok(">=0".to_string())
                 }
             } else {
@@ -613,57 +621,63 @@ impl OpenAlexQuery {
         Ok(mapped.to_string())
     }
 
-    /// Generate the OpenAlex API URL
-    pub fn generate(&self) -> String {
-        let mut url = format!("{}/{}", API_BASE_URL, self.entity_type);
+    /// Generate the OpenAlex API query parameters
+    pub fn generate_params(&self) -> Vec<(&'static str, String)> {
         let mut query_params = Vec::new();
 
         // Add filters
         if !self.filters.is_empty() {
             let filter_string = self.filters.join(",");
-            query_params.push(("filter".to_string(), filter_string));
+            query_params.push(("filter", filter_string));
         }
 
         // Add search
         if !self.search_terms.is_empty() {
             let search_string = self.search_terms.join(" ");
-            query_params.push(("search".to_string(), search_string));
+            query_params.push(("search", search_string));
         }
 
         // Add sort
         if let Some(sort) = &self.sort {
-            query_params.push(("sort".to_string(), sort.clone()));
+            query_params.push(("sort", sort.clone()));
         }
 
         // Add pagination
         if let Some(page) = self.page {
-            query_params.push(("page".to_string(), page.to_string()));
+            query_params.push(("page", page.to_string()));
         }
         if let Some(per_page) = self.per_page {
-            query_params.push(("per-page".to_string(), per_page.to_string()));
+            query_params.push(("per-page", per_page.to_string()));
         }
 
         // Add cursor pagination if enabled
         if self.use_cursor {
             if let Some(cursor) = &self.cursor {
-                query_params.push(("cursor".to_string(), cursor.clone()));
+                query_params.push(("cursor", cursor.clone()));
             }
         }
 
         // Add field selection
         if !self.select_fields.is_empty() {
             let select_string = self.select_fields.join(",");
-            query_params.push(("select".to_string(), select_string));
+            query_params.push(("select", select_string));
         }
 
         // Add email if available from environment
         if let Ok(email) = std::env::var("OPENALEX_EMAIL") {
-            query_params.push(("mailto".to_string(), email));
+            query_params.push(("mailto", email));
         }
 
-        // Build query string
-        if !query_params.is_empty() {
-            let query_string = query_params
+        query_params
+    }
+
+    /// Generate the OpenAlex API URL (for backwards compatibility and debugging)
+    pub fn generate(&self) -> String {
+        let params = self.generate_params();
+        let mut url = format!("{}/{}", API_BASE_URL, self.entity_type);
+
+        if !params.is_empty() {
+            let query_string = params
                 .into_iter()
                 .map(|(k, v)| format!("{}={}", k, urlencoding::encode(&v)))
                 .join("&");
@@ -677,80 +691,61 @@ impl OpenAlexQuery {
     /// Execute the query and return the resulting [`Node`]s
     #[tracing::instrument(skip(self))]
     pub fn nodes(&self) -> Vec<Node> {
-        let url = self.generate();
+        let params = self.generate_params();
 
-        tracing::debug!("OpenAlex API request: {}", url);
+        tracing::debug!(
+            "OpenAlex API request: {}/{} with params: {:?}",
+            API_BASE_URL,
+            self.entity_type,
+            params
+        );
 
-        let response = match task::block_in_place(move || {
-            runtime::Handle::current().block_on(async move { CLIENT.get(&url).send().await })
-        }) {
-            Ok(response) => response,
-            Err(error) => {
-                self.add_error_message(format!("HTTP request failed: {}", error));
-                return Vec::new();
-            }
-        };
-
-        // Check response status
-        if !response.status().is_success() {
-            let status = response.status();
-            let error_text = task::block_in_place(move || {
-                runtime::Handle::current()
-                    .block_on(async move { response.text().await.unwrap_or_default() })
-            });
-            self.add_error_message(format!("OpenAlex API error {}: {}", status, error_text));
-            return Vec::new();
-        }
-
-        // Parse JSON response
-        let json: JsonValue = match task::block_in_place(move || {
-            runtime::Handle::current().block_on(async move { response.json().await })
-        }) {
-            Ok(json) => json,
-            Err(error) => {
-                self.add_error_message(format!("Failed to parse JSON response: {}", error));
-                return Vec::new();
-            }
-        };
-
-        // Extract results from OpenAlex response format
-        let results = if self.per_page == Some(0) {
-            // Count query - return the count as an integer node
-            if let Some(meta) = json.get("meta") {
-                if let Some(count) = meta.get("count") {
-                    if let Some(count_val) = count.as_u64() {
-                        return vec![Node::Integer(count_val as i64)];
+        let entity_type = self.entity_type.as_str();
+        let result: Result<_> = task::block_in_place(|| {
+            runtime::Handle::current().block_on(async {
+                Ok(match entity_type {
+                    "works" => {
+                        let response =
+                            request_with_params::<WorksResponse>(&entity_type, &params).await?;
+                        let nodes: Vec<Node> =
+                            response.results.into_iter().map(Into::into).collect();
+                        (response.meta, nodes)
                     }
+                    "authors" => {
+                        let response =
+                            request_with_params::<AuthorsResponse>(&entity_type, &params).await?;
+                        let nodes: Vec<Node> =
+                            response.results.into_iter().map(Into::into).collect();
+                        (response.meta, nodes)
+                    }
+                    "institutions" => {
+                        let response =
+                            request_with_params::<InstitutionsResponse>(&entity_type, &params)
+                                .await?;
+                        let nodes: Vec<Node> =
+                            response.results.into_iter().map(Into::into).collect();
+                        (response.meta, nodes)
+                    }
+                    _ => todo!(),
+                })
+            })
+        });
+
+        match result {
+            Ok((meta, nodes)) => {
+                if self.per_page == Some(0) {
+                    if let Some(meta) = meta {
+                        if let Some(count) = meta.count {
+                            return vec![Node::Integer(count)];
+                        }
+                    }
+                    return Vec::new();
                 }
+                nodes
             }
-            Vec::new()
-        } else if let Some(results) = json.get("results") {
-            if let Some(array) = results.as_array() {
-                array.clone()
-            } else {
-                Vec::new()
-            }
-        } else {
-            // Single entity response
-            vec![json]
-        };
-
-        // Convert OpenAlex JSON objects to Stencila nodes
-        results
-            .into_iter()
-            .filter_map(|item| self.json_to_node(item))
-            .collect()
-    }
-
-    /// Convert OpenAlex JSON object to Stencila Node
-    fn json_to_node(&self, json: JsonValue) -> Option<Node> {
-        // For now, convert to a generic Object node
-        // In the future, we could create specific node types for different OpenAlex entities
-        match serde_json::from_value(json) {
-            Ok(node) => Some(node),
             Err(error) => {
-                tracing::warn!("Failed to convert OpenAlex response to Node: {}", error);
-                None
+                self.add_error_message(format!("OpenAlex API request failed {error}"));
+                Vec::new()
             }
         }
     }

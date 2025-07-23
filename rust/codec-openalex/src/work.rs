@@ -5,7 +5,7 @@ use codec::{
         serde::Deserialize,
     },
     schema::{
-        Article, Block, CreativeWork, CreativeWorkType, Date, IntegerOrString, Organization,
+        Article, Block, CreativeWork, CreativeWorkType, Date, IntegerOrString, Node, Organization,
         Periodical, Person, Primitive, PropertyValue, PropertyValueOrString, PublicationIssue,
         PublicationVolume,
     },
@@ -341,6 +341,16 @@ impl From<Work> for CreativeWork {
         }
 
         creative_work
+    }
+}
+
+impl From<Work> for Node {
+    fn from(work: Work) -> Self {
+        if matches!(work.r#type.as_deref(), Some("article")) {
+            Node::Article(work.into())
+        } else {
+            Node::CreativeWork(work.into())
+        }
     }
 }
 

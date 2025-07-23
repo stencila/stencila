@@ -1,6 +1,6 @@
 use codec::{
     common::{serde::Deserialize, serde_json},
-    schema::{ImageObject, Organization},
+    schema::{ImageObject, Node, Organization},
 };
 
 /// An OpenAlex `Institution` object
@@ -136,5 +136,11 @@ impl From<Institution> for Organization {
         }
 
         organization
+    }
+}
+
+impl From<Institution> for Node {
+    fn from(inst: Institution) -> Self {
+        Node::Organization(inst.into())
     }
 }

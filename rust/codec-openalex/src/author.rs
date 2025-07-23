@@ -1,6 +1,6 @@
 use codec::{
     common::{eyre::Result, serde::Deserialize},
-    schema::{Organization, Person},
+    schema::{Node, Organization, Person},
 };
 
 /// An OpenAlex `Author` object
@@ -128,5 +128,11 @@ impl From<Author> for Person {
         }
 
         person
+    }
+}
+
+impl From<Author> for Node {
+    fn from(author: Author) -> Self {
+        Node::Person(author.into())
     }
 }

@@ -57,7 +57,6 @@ pub(crate) struct GitHubQuery {
 
     /// Fields to select in response
     select_fields: Vec<String>,
-
 }
 
 impl GitHubQuery {
@@ -461,21 +460,21 @@ impl GitHubQuery {
                 // uses per_page = skip + limit to get enough results
                 // Note: This is an approximation and may not give exact results
                 Some(skip as u32 + limit)
-            },
+            }
             (Some(skip), None) => {
                 // Skip without limit - use skip as per_page (approximation)
                 Some(skip as u32)
-            },
+            }
             (None, Some(limit)) => {
                 // Limit without skip - use limit as per_page
                 Some(limit)
-            },
+            }
             (None, None) => {
                 // No pagination specified
                 None
             }
         };
-        
+
         if let Some(page) = self.page {
             query_params.push(("page".to_string(), page.to_string()));
         }

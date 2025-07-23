@@ -7,7 +7,7 @@ use crate::{author::Author, institution::Institution, work::Work};
 /// See https://docs.openalex.org/how-to-use-the-api/get-single-entities
 #[derive(Deserialize)]
 #[serde(crate = "codec::common::serde")]
-pub struct Single<T> {
+pub struct SingleResponse<T> {
     #[serde(flatten)]
     #[allow(dead_code)]
     pub object: T,
@@ -18,7 +18,7 @@ pub struct Single<T> {
 /// See https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities
 #[derive(Deserialize)]
 #[serde(crate = "codec::common::serde")]
-pub struct List<T> {
+pub struct ListResponse<T> {
     pub results: Vec<T>,
     #[allow(dead_code)]
     pub meta: Option<Meta>,
@@ -36,10 +36,10 @@ pub struct Meta {
 }
 
 /// Response for works API calls
-pub type WorksResponse = List<Work>;
+pub type WorksResponse = ListResponse<Work>;
 
 /// Response for authors API calls  
-pub type AuthorsResponse = List<Author>;
+pub type AuthorsResponse = ListResponse<Author>;
 
 /// Response for institutions API calls
-pub type InstitutionsResponse = List<Institution>;
+pub type InstitutionsResponse = ListResponse<Institution>;

@@ -13,6 +13,7 @@ use codec::common::{
     itertools::Itertools,
     once_cell::sync::Lazy,
     reqwest::Client,
+    serde::de::DeserializeOwned,
     tokio::time::Instant,
     tracing,
 };
@@ -56,6 +57,35 @@ static CLIENT: Lazy<ClientWithMiddleware> = Lazy::new(|| {
         .with(all(RateLimiter))
         .build()
 });
+
+/// Make a generic request to the OpenAlex API with custom query parameters
+/// Returns the response as a List<T> where T is the expected entity type
+pub async fn request_with_params<T>(entity_type: &str, params: &[(&str, String)]) -> Result<T>
+where
+    T: DeserializeOwned,
+{
+    let mut url = format!("{API_BASE_URL}/{entity_type}");
+
+    if !params.is_empty() {
+        let query_string = params
+            .iter()
+            .map(|(k, v)| format!("{}={}", k, urlencoding::encode(v)))
+            .collect::<Vec<_>>()
+            .join("&");
+        url.push('?');
+        url.push_str(&query_string);
+    }
+
+    tracing::trace!("Making OpenAlex API request with params: {}", url);
+
+    let response = CLIENT.get(&url).send().await?;
+
+    if let Err(error) = response.error_for_status_ref() {
+        bail!("{error}: {}", response.text().await.unwrap_or_default());
+    }
+
+    Ok(response.json().await?)
+}
 
 /// Fetch a work from OpenAlex by DOI
 #[tracing::instrument()]
