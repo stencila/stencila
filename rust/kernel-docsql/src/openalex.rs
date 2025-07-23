@@ -264,6 +264,16 @@ impl OpenAlexQuery {
             }
         };
 
+        // Handle query objects for ID-based filtering (e.g., citedBy with OpenAlex query)
+        if !subquery.query_objects.is_empty() && subquery.first_relation == "[citedBy]" {
+            // Extract IDs from query objects and use them in cited_by filter
+            let work_ids = self.extract_work_ids_from_query_objects(&subquery.query_objects)?;
+            if !work_ids.is_empty() {
+                let ids_filter = work_ids.join("|");
+                query.filters.push(format!("cited_by:{}", ids_filter));
+            }
+        }
+
         // Process the raw filters within the subquery
         for (property, operator, value) in &subquery.raw_filters {
             // Handle nested subqueries (properties that start with _)
@@ -425,6 +435,86 @@ impl OpenAlexQuery {
                 format!("Unsupported operator for organization name: {}", operator),
             )),
         }
+    }
+
+    /// Extract OpenAlex work IDs from query objects
+    /// 
+    /// Executes OpenAlex and workspace queries to extract work IDs for use in
+    /// cited_by filters. Supports up to 100 IDs per OpenAlex API limitations.
+    fn extract_work_ids_from_query_objects(&self, query_objects: &[Value]) -> Result<Vec<String>, Error> {
+        let mut work_ids = Vec::new();
+        
+        for query_obj in query_objects {
+            // Handle OpenAlex query objects
+            if let Some(openalex_query) = query_obj.downcast_object_ref::<OpenAlexQuery>() {
+                // Execute the query and extract work IDs from the results
+                let nodes = openalex_query.nodes();
+                for node in nodes {
+                    if let Some(work_id) = self.extract_work_id_from_node(&node) {
+                        work_ids.push(work_id);
+                        // Limit to 100 IDs due to OpenAlex API restrictions
+                        if work_ids.len() >= 100 {
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // Handle workspace query objects (future implementation)
+            if let Some(_workspace_query) = query_obj.downcast_object_ref::<crate::query::Query>() {
+                // TODO: Implement workspace query ID extraction
+                // This would involve executing the workspace query and extracting OpenAlex IDs
+                // from the resulting documents
+                tracing::warn!("Workspace query ID extraction not yet implemented");
+            }
+            
+            // Break early if we hit the limit
+            if work_ids.len() >= 100 {
+                break;
+            }
+        }
+        
+        Ok(work_ids)
+    }
+    
+    /// Extract OpenAlex work ID from a Node
+    /// 
+    /// Looks for OpenAlex ID in various possible fields and formats
+    fn extract_work_id_from_node(&self, node: &Node) -> Option<String> {
+        // Convert Node to JSON Value for easier field access
+        if let Ok(json_value) = serde_json::to_value(node) {
+            if let Some(obj) = json_value.as_object() {
+                // Try to get the 'id' field which should contain the full OpenAlex URL
+                if let Some(id_value) = obj.get("id") {
+                    if let Some(id_str) = id_value.as_str() {
+                        // Extract work ID from OpenAlex URL format
+                        if let Some(work_id) = id_str.strip_prefix("https://openalex.org/") {
+                            return Some(work_id.to_string());
+                        }
+                        // Also handle direct work ID format
+                        if id_str.starts_with("W") && id_str.len() > 1 {
+                            return Some(id_str.to_string());
+                        }
+                    }
+                }
+                
+                // Fallback: try other potential ID fields
+                for field_name in ["openalex_id", "work_id", "doi"] {
+                    if let Some(field_value) = obj.get(field_name) {
+                        if let Some(field_str) = field_value.as_str() {
+                            if field_str.starts_with("W") && field_str.len() > 1 {
+                                return Some(field_str.to_string());
+                            }
+                            if let Some(work_id) = field_str.strip_prefix("https://openalex.org/") {
+                                return Some(work_id.to_string());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        None
     }
 
     /// Convert count filters for OpenAlex compatibility

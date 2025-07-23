@@ -30,6 +30,8 @@ use kernel_jinja::{
     },
 };
 
+use crate::openalex::OpenAlexQuery;
+
 const GLOBAL_CONSTS: &[&str] = &["above", "below", "return"];
 
 /// Names added to the Jinja environment with `env.add_global`
@@ -1371,6 +1373,12 @@ pub(crate) struct Subquery {
     ///
     /// Stores the original property name, operator, and value before conversion to Cypher
     pub(crate) raw_filters: Vec<(String, String, Value)>,
+
+    /// Query objects passed to subqueries for ID-based filtering
+    ///
+    /// Stores query objects (OpenAlex queries, workspace queries) that should be executed
+    /// to extract IDs for external API filters like OpenAlex's cited_by
+    pub(crate) query_objects: Vec<Value>,
 }
 
 impl Subquery {
@@ -1385,6 +1393,7 @@ impl Subquery {
             ands: Vec::new(),
             count: None,
             raw_filters: Vec::new(),
+            query_objects: Vec::new(),
         }
     }
 
@@ -1420,7 +1429,26 @@ impl Object for Subquery {
         // TODO: alias needs to be different from alias used in outer
         let alias = alias_for_table(table);
 
-        let (kwargs,): (Kwargs,) = from_args(args)?;
+        let (query, kwargs): (Option<Value>, Kwargs) = from_args(args)?;
+
+        if let Some(query) = query {
+            // Check if this is a query object that should be stored for ID extraction
+            if query.downcast_object_ref::<Query>().is_some()
+                || query.downcast_object_ref::<OpenAlexQuery>().is_some()
+            {
+                // Store query object for later ID extraction
+                subquery.query_objects.push(query.clone());
+            } else {
+                return Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    format!(
+                        "non-keyword arguments must be another query, got a {}",
+                        query.kind()
+                    ),
+                ));
+            }
+        }
+
         for arg in kwargs.args() {
             let value: Value = kwargs.get(arg)?;
 

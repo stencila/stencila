@@ -187,6 +187,31 @@ workspace.articles(...references(* <= 10))  // Articles with 10 or fewer referen
 workspace.articles(...cites(* >= 15))       // Articles that cite 15 or more works
 workspace.articles(...citedBy(* >= 50))     // Articles cited 50 or more times
 
+// Query object subqueries (advanced citation analysis)
+openalex.articles(...citedBy(openalex.articles(search = "frogs").limit(3)))
+// Find articles cited by research about frogs
+
+openalex.works(...citedBy(openalex.articles(...authors(.orcid == "0000-0002-1825-0097")).limit(2)))
+// Find works cited by a specific researcher (using ORCID)
+
+openalex.articles(...citedBy(openalex.works(.doi == "10.1038/nature12373").limit(1)))
+// Find articles cited by a specific Nature paper (using DOI)
+
+openalex.articles(...citedBy(openalex.articles(...authors(.name == "Jane Smith")).limit(4)))
+// Find articles cited by papers authored by Jane Smith
+
+openalex.works(...citedBy(openalex.articles(.year == 2023).limit(3)))
+// Find works cited by recent 2023 articles
+
+openalex.works(...citedBy(openalex.articles(.cited_by_count > 100).limit(5)))
+// Find works cited by highly-cited papers (>100 citations)
+
+openalex.articles(...citedBy(openalex.works(.year > 2020).limit(3)))
+// Find articles cited by recent works since 2020
+
+openalex.works(...citedBy(workspace.articles().limit(5)))
+// Find works cited by articles in your workspace
+
 // Chained subqueries
 workspace.articles(...authors(.name ^= "John").affiliations(.name $= "MIT"))
 // Articles by authors named John who are affiliated with institutions ending in "MIT"
