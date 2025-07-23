@@ -675,6 +675,7 @@ impl OpenAlexQuery {
     }
 
     /// Execute the query and return the resulting [`Node`]s
+    #[tracing::instrument(skip(self))]
     pub fn nodes(&self) -> Vec<Node> {
         let url = self.generate();
 

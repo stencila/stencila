@@ -1,0 +1,28 @@
+github
+---
+GET https://api.github.com/search/repositories
+
+
+github.repositories()
+---
+GET https://api.github.com/search/repositories
+
+
+github.repos()
+---
+GET https://api.github.com/search/repositories
+
+
+github.users()
+---
+GET https://api.github.com/search/users
+
+
+github.code()
+---
+GET https://api.github.com/search/code
+
+
+github.files()
+---
+GET https://api.github.com/search/code

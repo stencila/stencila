@@ -48,6 +48,7 @@ pub(crate) const GLOBAL_NAMES: &[&str] = &[
     "document",
     "workspace",
     "openalex",
+    "github",
     // Added in add_document_functions
     // Static code
     "codeBlock",
@@ -114,11 +115,13 @@ pub(crate) const GLOBAL_NAMES: &[&str] = &[
     "variables",
     // Added in add_subquery_functions
     "_authors",
+    "_owners",
     "_references",
     "_cites",
     "_citedBy",
     "_affiliations",
     "_organizations",
+    "_topics",
     "_chunks",
     "_expressions",
     "_audios",
@@ -1810,6 +1813,9 @@ pub(super) fn add_subquery_functions(env: &mut Environment) {
         ("citedBy", "[citedBy]", NodeType::Reference),
         ("affiliations", "[affiliations]", NodeType::Organization),
         ("organizations", "[organizations]", NodeType::Organization),
+        // GitHub-specific subqueries
+        ("topics", "[topics]", NodeType::String), // GitHub topics are strings
+        ("owners", "[owners]", NodeType::Person),
     ] {
         env.add_global(
             ["_", name].concat(),

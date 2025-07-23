@@ -23,33 +23,34 @@ use kernel_jinja::kernel::{
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn golden() -> Result<()> {
-    let update = env::var("UPDATE_GOLDEN").is_ok();
+    let (.., receiver) = watch::channel(Node::Null(Null));
+    let (sender, ..) = mpsc::channel(1);
+    let mut kernel = DocsQLKernelInstance::new(None, Some((receiver, sender)))?;
 
     let pattern = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests")
         .canonicalize()?
         .to_string_lossy()
         .to_string();
-    let cypher_pattern = pattern.clone() + "/*.cypher";
-    let openalex_pattern = &(pattern + "/*.openalex");
 
-    let (.., receiver) = watch::channel(Node::Null(Null));
-    let (sender, ..) = mpsc::channel(1);
-    let mut kernel = DocsQLKernelInstance::new(None, Some((receiver, sender)))?;
-
-    // Check if a specific test file is requested via environment variable
-    let test_paths = if let Ok(test_file) = env::var("TEST_FILE") {
-        let test_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+    let test_paths: Vec<PathBuf> = if let Ok(glob_pattern) = env::var("GLOB") {
+        let pattern_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("tests")
-            .join(&test_file);
-        vec![test_path]
+            .canonicalize()?
+            .to_string_lossy()
+            .to_string()
+            + "/"
+            + &glob_pattern;
+        glob(&pattern_path)?.flatten().collect()
     } else {
-        // Run all test files as before
-        glob(&cypher_pattern)?
+        glob(&(pattern.clone() + "/*.cypher"))?
             .flatten()
-            .chain(glob(&openalex_pattern)?.flatten())
+            .chain(glob(&(pattern.clone() + "/*.openalex"))?.flatten())
+            .chain(glob(&(pattern + "/*.github"))?.flatten())
             .collect()
     };
+
+    let update = env::var("UPDATE_GOLDEN").is_ok();
 
     for path in test_paths {
         let contents = read_to_string(&path)?;
@@ -91,11 +92,16 @@ async fn golden() -> Result<()> {
                     filename, docsql
                 );
 
-                // For .openalex files, validate the URL by making an HTTP request
-                // Skip HTTP requests if NO_HTTP environment variable is set
-                if filename.ends_with(".openalex") && actual.starts_with("GET ") && env::var("NO_HTTP").is_err() {
-                    let url = actual.strip_prefix("GET ").unwrap_or(&actual);
-                    validate_openalex_url(url).await?;
+                if env::var_os("NO_HTTP").is_none() {
+                    if filename.ends_with(".openalex") {
+                        let url = actual.strip_prefix("GET ").unwrap_or(&actual);
+                        validate_openalex_url(url).await?;
+                    }
+
+                    if filename.ends_with(".github") {
+                        let url = actual.strip_prefix("GET ").unwrap_or(&actual);
+                        validate_github_url(url).await?;
+                    }
                 }
             } else {
                 *test = format!("{docsql}\n---\n{actual}\n");
@@ -103,7 +109,8 @@ async fn golden() -> Result<()> {
         }
 
         if update {
-            let contents = tests.join("\n\n");
+            let mut contents = tests.join("\n\n").trim_end().to_string();
+            contents.push('\n');
             write(path, contents)?;
         }
     }
@@ -129,6 +136,31 @@ async fn validate_openalex_url(url: &str) -> Result<()> {
         let status = response.status();
         let body = response.text().await?;
         bail!("OpenAlex API request `{url}` failed with status {status}:\n\n{body}");
+    }
+
+    Ok(())
+}
+
+/// Validate a GitHub URL by making an HTTP GET request
+async fn validate_github_url(url: &str) -> Result<()> {
+    let client = Client::new();
+
+    // Build request with appropriate headers for GitHub API
+    let mut request = client
+        .get(url)
+        .header("User-Agent", "Stencila-DocsQL-Test/1.0");
+
+    // Add GitHub token if available for authentication
+    if let Ok(token) = env::var("GITHUB_TOKEN") {
+        request = request.header("Authorization", format!("Bearer {}", token));
+    }
+
+    let response = request.send().await?;
+
+    if !response.status().is_success() {
+        let status = response.status();
+        let body = response.text().await?;
+        bail!("GitHub API request `{url}` failed with status {status}:\n\n{body}");
     }
 
     Ok(())

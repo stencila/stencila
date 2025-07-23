@@ -30,14 +30,26 @@ DocsQL queries can be run against different document databases:
 - **`document`** - The current document's database containing all nodes and content. Supports positional queries (`above`/`below`) relative to the query's position within the host document.
 - **`workspace`** - The workspace's document database containing multiple documents. Used for cross-document analysis and research across collections.
 - **`openalex`** - Query the OpenAlex database of scholarly works, authors, and institutions. Provides access to millions of research papers with metadata, citations, and author information.
+- **`github`** - Query GitHub repositories, files, and users to discover open-source research materials like Jupyter notebooks, Quarto documents, and scientific code.
 
-#### OpenAlex Limitations
+#### External API Limitations
 
-While DocsQL provides a convenient interface to OpenAlex, there are some limitations due to the underlying API:
+While DocsQL provides convenient interfaces to external APIs, there are some limitations:
 
+**OpenAlex:**
 - **Reference filtering**: References can only be filtered by count (`...references(* > 10)`) or specific work IDs. Filtering by reference properties like title or topic is not supported.
 - **Operator compatibility**: The `>=` and `<=` operators are automatically converted to equivalent `>` and `<` expressions (e.g., `>=10` becomes `>9`) due to API limitations.
 - **Semantic search**: The `like` method for semantic similarity is not available; use `search` for text-based matching instead.
+
+**GitHub:**
+- **API rate limits**: 5000 requests/hour (authenticated) or 60/hour (unauthenticated)
+- **Search result limits**: Maximum 1000 results per query
+- **File size limits**: Content search limited to files <384KB
+- **Required search terms**: All queries require a search parameter; empty queries use `*` wildcard
+
+**Shared Limitations:**
+- **Pagination approximation**: `skip` and `limit` operations are approximated using API pagination. When `skip + limit` exceeds API per-page limits (100 for GitHub, 200 for OpenAlex), results may be incomplete.
+- **No semantic search**: The `like` method is not supported; use `search` for text-based matching.
 
 ### Free Functions vs Database Methods
 
@@ -76,6 +88,12 @@ paragraphs(above).limit(3)
 
 // Query workspace for articles by author
 workspace.articles(...authors(.name ^= "Smith"))
+
+// Query GitHub for Jupyter notebooks
+github.files(.extension == "ipynb", search = "machine learning")
+
+// Query OpenAlex for recent papers
+openalex.works(.year > 2020, search = "neural networks")
 ```
 
 ## Syntax Overview
@@ -187,6 +205,11 @@ workspace.articles(...references(* <= 10))  // Articles with 10 or fewer referen
 workspace.articles(...cites(* >= 15))       // Articles that cite 15 or more works
 workspace.articles(...citedBy(* >= 50))     // Articles cited 50 or more times
 
+// GitHub subqueries
+github.repositories(...topics(.name == "data-science"))     // Repositories tagged with data science
+github.repositories(...owners(.name =~ ".*University.*"))   // Repositories owned by universities
+github.files(.extension == "qmd", ...repositories(.language == "python"))  // Quarto files in Python repos
+
 // Query object subqueries (advanced citation analysis)
 openalex.articles(...citedBy(openalex.articles(search = "frogs").limit(3)))
 // Find articles cited by research about frogs
@@ -271,6 +294,62 @@ let importantSections = methods().union(results())
 ```
 
 ## Reference
+
+### GitHub-Specific Queries
+
+**Entity Types:**
+- `github.repositories()` / `github.repos()` - GitHub repositories
+- `github.files()` / `github.code()` - Files and code within repositories
+- `github.users()` - GitHub users and organizations
+
+**Target File Types for Research:**
+- **Jupyter Notebooks**: `.extension == "ipynb"`
+- **Quarto Documents**: `.extension == "qmd"`
+- **MyST Markdown**: `.extension == "md"` with MyST syntax
+- **Research Formats**: `.extension in ["tex", "bib", "rmd"]`
+
+**Common GitHub Filters:**
+```docsql
+// Repository properties
+.language == "python"              // Programming language
+.stars > 100                       // Star count
+.size < 1000                       // Repository size in KB
+.created > "2023-01-01"           // Creation date
+.updated > "2023-01-01"           // Last update
+.license == "mit"                  // License type
+
+// File properties  
+.filename == "README.md"           // Specific filename
+.path =~ ".*docs.*"               // Path pattern
+.extension == "py"                // File extension
+
+// Search and content
+search = "machine learning"        // Text search in content
+.content =~ "import pandas"       // Content pattern matching
+```
+
+**GitHub Query Examples:**
+```docsql
+// Find popular Python repositories with Jupyter notebooks
+github.repositories(.language == "python", .stars > 100)
+  .files(.extension == "ipynb")
+
+// Find Quarto documents in data science repositories
+github.repositories(...topics(.name == "data-science"))
+  .files(.extension == "qmd")
+
+// Find research repositories by academic institutions
+github.repositories(...owners(.name =~ ".*University.*"))
+  .search("research")
+
+// Count notebooks in bioinformatics repositories
+github.repositories(...topics(.name == "bioinformatics"))
+  .files(.extension == "ipynb").count()
+
+// Find recently updated research documents
+github.files(.extension in ["ipynb", "qmd", "md"])
+  .repositories(.updated > "2023-01-01")
+```
 
 ### Available Node Types
 
@@ -385,6 +464,7 @@ Test case files are located in `tests/` with extensions:
 
 - `.cypher` - Tests that generate Cypher queries for document databases
 - `.openalex` - Tests that generate OpenAlex API requests
+- `.github` - Tests that generate GitHub API requests
 
 #### Running Tests
 
@@ -394,10 +474,16 @@ Run all tests:
 cargo test golden
 ```
 
+Run tests for a specific pattern:
+
+```bash
+GLOB="*.github" cargo test golden
+```
+
 Run a specific test file:
 
 ```bash
-TEST_FILE=subquery.openalex cargo test golden
+GLOB="subquery.openalex" cargo test golden
 ```
 
 Skip HTTP requests (faster, offline-friendly):
@@ -415,11 +501,11 @@ UPDATE_GOLDEN=1 cargo test golden
 Combine options:
 
 ```bash
-TEST_FILE=subquery.openalex NO_HTTP=1 cargo test golden
+GLOB="*.github" NO_HTTP=1 cargo test golden
 ```
 
 #### Environment Variables
 
-- **`TEST_FILE`** - Run tests from a specific file only (e.g., `subquery.openalex`)
-- **`NO_HTTP`** - Skip HTTP validation for OpenAlex URLs (useful for offline testing)
+- **`GLOB`** - Run tests matching a specific glob pattern (e.g., `*.github`, `subquery.openalex`, `*basic*`)
+- **`NO_HTTP`** - Skip HTTP validation for OpenAlex and GitHub URLs (useful for offline testing)
 - **`UPDATE_GOLDEN`** - Update test files with new expected outputs instead of asserting
