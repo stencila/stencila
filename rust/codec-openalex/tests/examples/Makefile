@@ -31,6 +31,16 @@ author-%.json:
 institution-%.json:
 	curl -s "https://api.openalex.org/institutions/random" | jq '.' > $@
 
+# Additional examples
+
+# This article has the highest citations (at the time of writing) and so often
+# appears during manual testing. However, it has some quirks such as `display_name`
+# having initials concatenated with given name e.g. "OliverH. Lowry". So this,
+# example is added just to identify the fact that such issues are not related to
+# errors in our decoding in this crate
+work-4.json:
+	curl -s "https://api.openalex.org/works/W1775749144" | jq '.' > $@
+
 # Clean up downloaded files
 clean:
 	rm -f *.json
