@@ -21,6 +21,3 @@ GET https://api.openalex.org/works?filter=type%3Aarticle%2Creferenced_works_coun
 openalex.works(...references(* > 0))
 ---
 GET https://api.openalex.org/works?filter=referenced_works_count%3A%3E0
-
-
-

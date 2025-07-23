@@ -16,4 +16,3 @@ GET https://api.openalex.org/works?filter=type%3Aarticle%2Cinstitutions_distinct
 openalex.articles(...organizations(* <= 5))
 ---
 GET https://api.openalex.org/works?filter=type%3Aarticle%2Cinstitutions_distinct_count%3A%3C6
-
