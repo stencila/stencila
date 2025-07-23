@@ -29,7 +29,9 @@ use dirs::{
 use format::Format;
 use kernels::Kernels;
 use node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
-use schema::{Article, Block, ExecutionBounds, Node, NodeId, NodeType};
+use schema::{
+    Article, Block, Collection, CreativeWorkType, ExecutionBounds, Node, NodeId, NodeType,
+};
 
 use crate::track::DocumentRemote;
 
@@ -275,17 +277,32 @@ impl Query {
             .ok();
         }
 
-        let node = if nodes.is_empty() {
+        if nodes.is_empty() {
             eprintln!("🔍 No nodes matching query");
             return Ok(());
-        } else if nodes.len() == 1 {
+        }
+
+        let node = if nodes.len() == 1 {
             nodes[0].clone()
+        } else if nodes.iter().all(|node| node.node_type().is_creative_work()) {
+            Node::Collection(Collection::new(
+                nodes
+                    .into_iter()
+                    .map(TryInto::<CreativeWorkType>::try_into)
+                    .try_collect()?,
+            ))
+        } else if nodes.iter().all(|node| node.node_type().is_block()) {
+            Node::Article(Article::new(
+                nodes
+                    .into_iter()
+                    .map(TryInto::<Block>::try_into)
+                    .try_collect()?,
+            ))
         } else {
-            let blocks = nodes
-                .into_iter()
-                .map(TryInto::<Block>::try_into)
-                .try_collect()?;
-            Node::Article(Article::new(blocks))
+            tracing::warn!(
+                "Nodes are not all creative works or blocks, so returning only the first"
+            );
+            nodes[0].clone()
         };
 
         let compact = self
