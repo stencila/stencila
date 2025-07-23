@@ -5,7 +5,7 @@ use schema::{
 };
 
 mod cbor_hash;
-mod open_alex;
+mod openalex;
 
 /// Canonicalize a node
 ///
@@ -216,10 +216,10 @@ impl Canonicalize for AuthorRole {
 
 impl Canonicalize for Organization {
     async fn canonicalize(&mut self) -> Result<()> {
-        if !is_ror(&self.ror) && !open_alex::is_authorship_ror(&self.ror) {
+        if !is_ror(&self.ror) && !openalex::is_authorship_ror(&self.ror) {
             // Attempt to get ROR from OpenAlex, falling back to generating an
             // ROR from the hash of the organization
-            let ror = match open_alex::ror(&self.name).await? {
+            let ror = match openalex::ror(&self.name).await? {
                 Some(ror) => ror,
                 None => cbor_hash::ror(self)?,
             };
@@ -232,10 +232,10 @@ impl Canonicalize for Organization {
 
 impl Canonicalize for Person {
     async fn canonicalize(&mut self) -> Result<()> {
-        if !is_orcid(&self.orcid) && !open_alex::is_authorship_orcid(&self.orcid) {
+        if !is_orcid(&self.orcid) && !openalex::is_authorship_orcid(&self.orcid) {
             // Attempt to get ORCID from OpenAlex, falling back to generating an
             // ORCID from the hash of the person
-            let orcid = match open_alex::orcid(&self.family_names, &self.given_names).await? {
+            let orcid = match openalex::orcid(&self.family_names, &self.given_names).await? {
                 Some(orcid) => orcid,
                 None => cbor_hash::orcid(self)?,
             };
@@ -260,7 +260,7 @@ impl Canonicalize for Reference {
         // Canonicalize using OpenAlex. This will canonicalize the
         // DOI of the reference as well as the ORCIDs of the authors
         // and the RORs of their affiliations.
-        open_alex::reference(self).await?;
+        openalex::reference(self).await?;
 
         // If the DOI is still missing then fallback to generating a DOI from the
         // hash of the reference
