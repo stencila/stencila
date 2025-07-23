@@ -1,4 +1,7 @@
-use codec::{common::serde::Deserialize, schema::{ImageObject, Organization}};
+use codec::{
+    common::serde::Deserialize,
+    schema::{ImageObject, Organization},
+};
 
 /// An OpenAlex `Publisher` object
 ///

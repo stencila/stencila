@@ -1,5 +1,5 @@
 use codec::{
-    common::serde::Deserialize,
+    common::{eyre::Result, serde::Deserialize},
     schema::{Organization, Person},
 };
 
@@ -24,6 +24,13 @@ pub struct Author {
     pub created_date: Option<String>,
     pub counts_by_year: Option<Vec<CountsByYear>>,
     pub x_concepts: Option<Vec<Concept>>,
+}
+
+impl Author {
+    /// Get the ORCID of an author, or generate a pseudo ORCID
+    pub fn orcid(&self, prefix: char) -> Result<String> {
+        crate::utils::get_or_generate_orcid(&self.orcid, &self.id, prefix)
+    }
 }
 
 #[derive(Deserialize)]

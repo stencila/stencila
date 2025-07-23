@@ -11,11 +11,13 @@ use codec::{
 };
 
 mod author;
+mod client;
 mod entity;
 mod funder;
 mod institution;
 mod publisher;
 mod responses;
+mod utils;
 mod work;
 
 use author::Author;
@@ -23,6 +25,14 @@ use funder::Funder;
 use institution::Institution;
 use publisher::Publisher;
 use work::Work;
+
+// Re-export client functions
+pub use client::{search_authors, search_institutions, search_works, work_by_doi};
+
+// Re-export types that might be needed by consumers
+pub use author::Author as OpenAlexAuthor;
+pub use institution::Institution as OpenAlexInstitution;
+pub use work::Work as OpenAlexWork;
 
 /// A codec for decoding OpenAlex API response JSON to Stencila Schema nodes
 ///

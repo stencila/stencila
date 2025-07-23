@@ -35,6 +35,13 @@ pub struct Institution {
     pub x_concepts: Option<Vec<Concept>>,
 }
 
+impl Institution {
+    /// Get the ROR of an institution, or generate a pseudo ROR
+    pub fn ror(&self, prefix: char) -> String {
+        crate::utils::get_or_generate_ror(&self.ror, &self.id, prefix)
+    }
+}
+
 #[derive(Deserialize)]
 #[serde(rename_all = "snake_case", crate = "codec::common::serde")]
 pub struct SummaryStats {

@@ -1,5 +1,7 @@
 use codec::common::serde::Deserialize;
 
+use crate::{author::Author, institution::Institution, work::Work};
+
 /// The response from getting a single entity
 ///
 /// See https://docs.openalex.org/how-to-use-the-api/get-single-entities
@@ -32,3 +34,12 @@ pub struct Meta {
     pub per_page: Option<i32>,
     pub groups_count: Option<i32>,
 }
+
+/// Response for works API calls
+pub type WorksResponse = List<Work>;
+
+/// Response for authors API calls  
+pub type AuthorsResponse = List<Author>;
+
+/// Response for institutions API calls
+pub type InstitutionsResponse = List<Institution>;

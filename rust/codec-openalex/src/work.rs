@@ -1,5 +1,9 @@
 use codec::{
-    common::{indexmap::IndexMap, serde::Deserialize},
+    common::{
+        eyre::{Result, bail},
+        indexmap::IndexMap,
+        serde::Deserialize,
+    },
     schema::{
         Article, Block, CreativeWork, CreativeWorkType, Date, IntegerOrString, Organization,
         Periodical, Person, Primitive, PropertyValue, PropertyValueOrString, PublicationIssue,
@@ -11,7 +15,7 @@ use std::collections::HashMap;
 /// An OpenAlex `Work` object
 ///
 /// See https://docs.openalex.org/api-entities/works/work-object
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(rename_all = "snake_case", crate = "codec::common::serde")]
 pub struct Work {
     pub id: String,
@@ -48,6 +52,18 @@ pub struct Work {
     pub created_date: Option<String>,
 }
 
+impl Work {
+    /// Get the DOI of a work, or generate a pseudo DOI
+    pub fn doi(&self) -> String {
+        if let Some(doi) = &self.doi {
+            doi.trim_start_matches("https://doi.org/").into()
+        } else {
+            let id = self.id.trim_start_matches("https://openalex.org/");
+            format!("10.0000/openalex.{}", id)
+        }
+    }
+}
+
 /// An OpenAlex `Authorship` object
 ///
 /// See https://docs.openalex.org/api-entities/works/work-object/authorship-object
@@ -71,6 +87,17 @@ pub struct DehydratedAuthor {
     pub orcid: Option<String>,
 }
 
+impl DehydratedAuthor {
+    /// Get the ORCID of an author, or generate a pseudo ORCID
+    pub fn orcid(&self, prefix: char) -> Result<String> {
+        if let Some(id) = &self.id {
+            crate::utils::get_or_generate_orcid(&self.orcid, id, prefix)
+        } else {
+            bail!("Missing author ID")
+        }
+    }
+}
+
 #[derive(Deserialize, Clone)]
 #[serde(rename_all = "snake_case", crate = "codec::common::serde")]
 pub struct DehydratedInstitution {
@@ -82,7 +109,18 @@ pub struct DehydratedInstitution {
     pub lineage: Option<Vec<String>>,
 }
 
-#[derive(Deserialize)]
+impl DehydratedInstitution {
+    /// Get the ROR of an institution, or generate a pseudo ROR
+    pub fn ror(&self, prefix: char) -> String {
+        if let Some(id) = &self.id {
+            crate::utils::get_or_generate_ror(&self.ror, id, prefix)
+        } else {
+            format!("{prefix}unknown")
+        }
+    }
+}
+
+#[derive(Deserialize, Clone)]
 #[serde(rename_all = "snake_case", crate = "codec::common::serde")]
 pub struct OpenAccess {
     pub is_oa: Option<bool>,
@@ -91,7 +129,7 @@ pub struct OpenAccess {
     pub any_repository_has_fulltext: Option<bool>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(rename_all = "snake_case", crate = "codec::common::serde")]
 pub struct Biblio {
     pub volume: Option<String>,
@@ -100,7 +138,7 @@ pub struct Biblio {
     pub last_page: Option<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(rename_all = "snake_case", crate = "codec::common::serde")]
 pub struct Location {
     pub source: Option<DehydratedSource>,
@@ -111,7 +149,7 @@ pub struct Location {
     pub license: Option<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(rename_all = "snake_case", crate = "codec::common::serde")]
 pub struct DehydratedSource {
     pub id: Option<String>,
@@ -127,7 +165,7 @@ pub struct DehydratedSource {
     pub r#type: Option<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(rename_all = "snake_case", crate = "codec::common::serde")]
 pub struct SustainableDevelopmentGoal {
     pub id: Option<String>,
@@ -135,7 +173,7 @@ pub struct SustainableDevelopmentGoal {
     pub score: Option<f64>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(rename_all = "snake_case", crate = "codec::common::serde")]
 pub struct Grant {
     pub funder: Option<String>,
@@ -143,7 +181,7 @@ pub struct Grant {
     pub award_id: Option<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(rename_all = "snake_case", crate = "codec::common::serde")]
 pub struct CountsByYear {
     pub year: Option<i32>,
@@ -375,7 +413,7 @@ fn convert_ids_to_identifiers(
                 // Otherwise create a PropertyValue with property_id and value
                 PropertyValueOrString::PropertyValue(PropertyValue {
                     property_id: Some(property_id.clone()),
-                    value: Primitive::String(value.clone().into()),
+                    value: Primitive::String(value.clone()),
                     ..Default::default()
                 })
             }

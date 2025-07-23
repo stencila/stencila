@@ -6,12 +6,10 @@ edition = "2021"
 [dependencies]
 base64 = { workspace = true }
 codec-cbor = { path = "../codec-cbor" }
+codec-openalex = { path = "../codec-openalex" }
 codec-text = { path = "../codec-text" }
 common = { path = "../common" }
-governor = {version = "0.10.0", default-features = false, features = ["std"]}
 human_name = "2.0.3"
-reqwest-middleware = { workspace = true }
-reqwest-ratelimit = { workspace = true }
 schema = { path = "../schema" }
 
 [dev-dependencies]

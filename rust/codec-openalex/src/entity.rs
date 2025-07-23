@@ -7,7 +7,7 @@ use crate::{
 /// An OpenAlex API entity
 ///
 /// See https://docs.openalex.org/api-entities/entities-overview
-/// 
+///
 /// Note: This enum is kept for potential future use but is no longer used
 /// in the main codec logic, which now uses ID-based type detection.
 #[derive(Deserialize)]
