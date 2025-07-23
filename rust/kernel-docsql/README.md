@@ -169,6 +169,7 @@ workspace.articles()                                    // All articles in works
 workspace.articles(.title ^= "Deep Learning")          // Articles with titles starting with "Deep Learning"
 workspace.articles(...authors(.name == "Jane Smith"))  // Articles by Jane Smith
 workspace.articles(...references(* > 20))              // Articles with more than 20 references
+workspace.articles(...cites(* > 20))                   // Articles that cite more than 20 works (alias for references)
 workspace.articles(...citedBy(* > 100))                // Articles cited more than 100 times
 ```
 
@@ -183,6 +184,7 @@ articles(...authors(.affiliations(.name $= "University"))) // Articles with univ
 articles(...authors(* > 3))                 // Articles with more than 3 authors
 sections(...paragraphs(* == 1))             // Sections with exactly 1 paragraph
 workspace.articles(...references(* <= 10))  // Articles with 10 or fewer references
+workspace.articles(...cites(* >= 15))       // Articles that cite 15 or more works
 workspace.articles(...citedBy(* >= 50))     // Articles cited 50 or more times
 
 // Chained subqueries

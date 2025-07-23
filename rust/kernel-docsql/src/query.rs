@@ -113,9 +113,10 @@ pub(crate) const GLOBAL_NAMES: &[&str] = &[
     // Added in add_subquery_functions
     "_authors",
     "_references",
+    "_cites",
+    "_citedBy",
     "_affiliations",
     "_organizations",
-    "_citedBy",
     "_chunks",
     "_expressions",
     "_audios",
@@ -1367,7 +1368,7 @@ pub(crate) struct Subquery {
     pub(crate) count: Option<String>,
 
     /// Raw filter information for external APIs like OpenAlex
-    /// 
+    ///
     /// Stores the original property name, operator, and value before conversion to Cypher
     pub(crate) raw_filters: Vec<(String, String, Value)>,
 }
@@ -1461,7 +1462,11 @@ impl Object for Subquery {
             } else {
                 subquery.ands.push(filter);
                 // Store original filter information for external APIs
-                subquery.raw_filters.push((clean_property.to_string(), operator.to_string(), value));
+                subquery.raw_filters.push((
+                    clean_property.to_string(),
+                    operator.to_string(),
+                    value,
+                ));
             }
         }
 
@@ -1773,9 +1778,10 @@ pub(super) fn add_subquery_functions(env: &mut Environment) {
     for (name, relation, table) in [
         ("authors", "[authors]", NodeType::Person),
         ("references", "[references]", NodeType::Reference),
+        ("cites", "[references]", NodeType::Reference),
+        ("citedBy", "[citedBy]", NodeType::Reference),
         ("affiliations", "[affiliations]", NodeType::Organization),
         ("organizations", "[organizations]", NodeType::Organization),
-        ("citedBy", "[citedBy]", NodeType::Reference),
     ] {
         env.add_global(
             ["_", name].concat(),
