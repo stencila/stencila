@@ -6,7 +6,7 @@
       content: [
         {
           type: "Text",
-          value: { string: "Examples of table in Markdown with cell contents other than just text" }
+          value: { string: "A table in Markdown with cell contents other than just text" }
         }
       ]
     },
@@ -164,6 +164,171 @@
                     {
                       type: "Text",
                       value: { string: "0" }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: { string: "A table in Markdown with horizontal alignment specified for columns" }
+        }
+      ]
+    },
+    {
+      type: "Table",
+      rows: [
+        {
+          type: "TableRow",
+          cells: [
+            {
+              type: "TableCell",
+              horizontalAlignment: "AlignLeft",
+              content: [
+                {
+                  type: "Paragraph",
+                  content: [
+                    {
+                      type: "Text",
+                      value: { string: "Left" }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              type: "TableCell",
+              horizontalAlignment: "AlignCenter",
+              content: [
+                {
+                  type: "Paragraph",
+                  content: [
+                    {
+                      type: "Text",
+                      value: { string: "Center" }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              type: "TableCell",
+              horizontalAlignment: "AlignRight",
+              content: [
+                {
+                  type: "Paragraph",
+                  content: [
+                    {
+                      type: "Text",
+                      value: { string: "Right" }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          rowType: "HeaderRow"
+        },
+        {
+          type: "TableRow",
+          cells: [
+            {
+              type: "TableCell",
+              horizontalAlignment: "AlignLeft",
+              content: [
+                {
+                  type: "Paragraph",
+                  content: [
+                    {
+                      type: "Text",
+                      value: { string: "L1" }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              type: "TableCell",
+              horizontalAlignment: "AlignCenter",
+              content: [
+                {
+                  type: "Paragraph",
+                  content: [
+                    {
+                      type: "Text",
+                      value: { string: "C1" }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              type: "TableCell",
+              horizontalAlignment: "AlignRight",
+              content: [
+                {
+                  type: "Paragraph",
+                  content: [
+                    {
+                      type: "Text",
+                      value: { string: "R1" }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: "TableRow",
+          cells: [
+            {
+              type: "TableCell",
+              horizontalAlignment: "AlignLeft",
+              content: [
+                {
+                  type: "Paragraph",
+                  content: [
+                    {
+                      type: "Text",
+                      value: { string: "L2" }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              type: "TableCell",
+              horizontalAlignment: "AlignCenter",
+              content: [
+                {
+                  type: "Paragraph",
+                  content: [
+                    {
+                      type: "Text",
+                      value: { string: "C2" }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              type: "TableCell",
+              horizontalAlignment: "AlignRight",
+              content: [
+                {
+                  type: "Paragraph",
+                  content: [
+                    {
+                      type: "Text",
+                      value: { string: "R2" }
                     }
                   ]
                 }

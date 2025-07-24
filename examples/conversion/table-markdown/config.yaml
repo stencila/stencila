@@ -1,2 +1,7 @@
 smd:
   canonical: true
+
+compact.jats.xml:
+  decode:
+    strip-props:
+      - TableCell.horizontal_alignment

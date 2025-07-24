@@ -1,6 +1,9 @@
 use std::{collections::HashMap, str::FromStr};
 
-use markdown::{mdast, unist::Position};
+use markdown::{
+    mdast::{self, AlignKind},
+    unist::Position,
+};
 use winnow::{
     ascii::{alphanumeric1, multispace0, multispace1, space0, Caseless},
     combinator::{alt, delimited, eof, opt, preceded, separated, terminated},
@@ -19,12 +22,12 @@ use codec::{
     schema::{
         Admonition, AdmonitionType, AppendixBreak, Author, Block, CallArgument, CallBlock, Chat,
         ChatMessage, ChatMessageGroup, ChatMessageOptions, Claim, CodeBlock, CodeChunk,
-        CodeExpression, ExecutionBounds, ExecutionMode, Figure, ForBlock, Heading, IfBlock,
-        IfBlockClause, ImageObject, IncludeBlock, Inline, InstructionBlock, InstructionMessage,
-        LabelType, List, ListItem, ListOrder, MathBlock, Node, Paragraph, PromptBlock, QuoteBlock,
-        RawBlock, Section, SoftwareApplication, StyledBlock, SuggestionBlock, SuggestionStatus,
-        Table, TableCell, TableRow, TableRowType, Text, ThematicBreak, Walkthrough,
-        WalkthroughStep,
+        CodeExpression, ExecutionBounds, ExecutionMode, Figure, ForBlock, Heading,
+        HorizontalAlignment, IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline,
+        InstructionBlock, InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock,
+        Node, Paragraph, PromptBlock, QuoteBlock, RawBlock, Section, SoftwareApplication,
+        StyledBlock, SuggestionBlock, SuggestionStatus, Table, TableCell, TableRow, TableRowType,
+        Text, ThematicBreak, Walkthrough, WalkthroughStep,
     },
 };
 
@@ -1447,12 +1450,12 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<
 
         mdast::Node::Table(mdast::Table {
             children,
-            align: _,
+            align,
             position,
         }) => {
             // TODO: use table alignment
             (
-                Block::Table(Table::new(mds_to_table_rows(children, context))),
+                Block::Table(Table::new(mds_to_table_rows(children, align, context))),
                 position,
             )
         }
@@ -1921,11 +1924,16 @@ fn mds_to_list_items(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<ListIt
         .collect()
 }
 
-fn mds_to_table_rows(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<TableRow> {
+fn mds_to_table_rows(
+    mdast_rows: Vec<mdast::Node>,
+    column_alignments: Vec<AlignKind>,
+    context: &mut Context,
+) -> Vec<TableRow> {
     let mut first = true;
-    mds.into_iter()
-        .filter_map(|md| {
-            if let mdast::Node::TableRow(mdast::TableRow { children, position }) = md {
+    mdast_rows
+        .into_iter()
+        .filter_map(|mdast_row| {
+            if let mdast::Node::TableRow(mdast::TableRow { children, position }) = mdast_row {
                 let row_type = if first {
                     first = false;
                     Some(TableRowType::HeaderRow)
@@ -1934,7 +1942,7 @@ fn mds_to_table_rows(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<TableR
                 };
 
                 let node = TableRow {
-                    cells: mds_to_table_cells(children, context),
+                    cells: mds_to_table_cells(children, &column_alignments, context),
                     row_type,
                     ..Default::default()
                 };
@@ -1949,10 +1957,16 @@ fn mds_to_table_rows(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<TableR
         .collect()
 }
 
-fn mds_to_table_cells(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<TableCell> {
-    mds.into_iter()
-        .filter_map(|md| {
-            if let mdast::Node::TableCell(mdast::TableCell { children, position }) = md {
+fn mds_to_table_cells(
+    mdast_cells: Vec<mdast::Node>,
+    column_alignments: &[AlignKind],
+    context: &mut Context,
+) -> Vec<TableCell> {
+    mdast_cells
+        .into_iter()
+        .enumerate()
+        .filter_map(|(index, mdast_cell)| {
+            if let mdast::Node::TableCell(mdast::TableCell { children, position }) = mdast_cell {
                 let content = if children.is_empty() {
                     Vec::new()
                 } else {
@@ -1960,8 +1974,20 @@ fn mds_to_table_cells(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<Table
                         children, context,
                     )))]
                 };
+
+                let horizontal_alignment =
+                    column_alignments
+                        .get(index)
+                        .and_then(|align_kind| match align_kind {
+                            AlignKind::Left => Some(HorizontalAlignment::AlignLeft),
+                            AlignKind::Center => Some(HorizontalAlignment::AlignCenter),
+                            AlignKind::Right => Some(HorizontalAlignment::AlignRight),
+                            AlignKind::None => None,
+                        });
+
                 let node = TableCell {
                     content,
+                    horizontal_alignment,
                     ..Default::default()
                 };
                 context.map_position(&position, node.node_type(), Some(node.node_id()));

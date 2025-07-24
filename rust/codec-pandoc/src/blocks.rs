@@ -377,13 +377,7 @@ fn table_to_pandoc(table: &Table, context: &mut PandocEncodeContext) -> pandoc::
                 .iter()
                 .enumerate()
                 .map(|(index, cell)| {
-                    context.within_index(index, |context| pandoc::Cell {
-                        attr: attrs_empty(),
-                        align: pandoc::Alignment::AlignDefault,
-                        row_span: 1,
-                        col_span: 1,
-                        content: blocks_to_pandoc(NodeProperty::Content, &cell.content, context),
-                    })
+                    context.within_index(index, |context| table_cell_to_pandoc(cell, context))
                 })
                 .collect();
             let pandoc_row = pandoc::Row {
@@ -426,6 +420,23 @@ fn table_to_pandoc(table: &Table, context: &mut PandocEncodeContext) -> pandoc::
             rows: foot,
         },
     })
+}
+
+fn table_cell_to_pandoc(cell: &TableCell, context: &mut PandocEncodeContext) -> pandoc::Cell {
+    let align = match cell.horizontal_alignment {
+        Some(HorizontalAlignment::AlignLeft) => pandoc::Alignment::AlignLeft,
+        Some(HorizontalAlignment::AlignCenter) => pandoc::Alignment::AlignCenter,
+        Some(HorizontalAlignment::AlignRight) => pandoc::Alignment::AlignRight,
+        _ => pandoc::Alignment::AlignDefault,
+    };
+
+    pandoc::Cell {
+        attr: attrs_empty(),
+        align,
+        row_span: 1,
+        col_span: 1,
+        content: blocks_to_pandoc(NodeProperty::Content, &cell.content, context),
+    }
 }
 
 fn table_from_pandoc(table: pandoc::Table, context: &mut PandocDecodeContext) -> Block {
@@ -519,6 +530,13 @@ fn table_row_from_pandoc(
 fn table_cell_from_pandoc(cell: pandoc::Cell, context: &mut PandocDecodeContext) -> TableCell {
     let content = blocks_from_pandoc(cell.content, context);
 
+    let horizontal_alignment = match cell.align {
+        pandoc::Alignment::AlignLeft => Some(HorizontalAlignment::AlignLeft),
+        pandoc::Alignment::AlignCenter => Some(HorizontalAlignment::AlignCenter),
+        pandoc::Alignment::AlignRight => Some(HorizontalAlignment::AlignRight),
+        _ => None,
+    };
+
     let row_span = match cell.row_span {
         1 => None,
         value => Some(value as i64),
@@ -530,6 +548,7 @@ fn table_cell_from_pandoc(cell: pandoc::Cell, context: &mut PandocDecodeContext)
 
     TableCell {
         content,
+        horizontal_alignment,
         options: Box::new(TableCellOptions {
             row_span,
             column_span,

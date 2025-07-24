@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <body>
-    <p>Examples of table in Markdown with cell contents other than just text</p>
+    <p>A table in Markdown with cell contents other than just text</p>
     <table-wrap>
       <table>
         <thead>
@@ -52,6 +52,48 @@
             </td>
             <td>
               <p>H<sub>2</sub>0</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </table-wrap>
+    <p>A table in Markdown with horizontal alignment specified for columns</p>
+    <table-wrap>
+      <table>
+        <thead>
+          <tr>
+            <th>
+              <p>Left</p>
+            </th>
+            <th>
+              <p>Center</p>
+            </th>
+            <th>
+              <p>Right</p>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <p>L1</p>
+            </td>
+            <td>
+              <p>C1</p>
+            </td>
+            <td>
+              <p>R1</p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p>L2</p>
+            </td>
+            <td>
+              <p>C2</p>
+            </td>
+            <td>
+              <p>R2</p>
             </td>
           </tr>
         </tbody>

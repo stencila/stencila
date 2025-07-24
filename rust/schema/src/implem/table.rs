@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, Table, TableRow, TableRowType};
+use crate::{prelude::*, HorizontalAlignment, Table, TableRow, TableRowType};
 
 use super::utils::caption_to_dom;
 
@@ -230,8 +230,9 @@ impl MarkdownCodec for Table {
 // Encode the rows of the table to Markdown
 fn encode_rows_to_markdown(self_rows: &[TableRow], context: &mut MarkdownEncodeContext) {
     // Do a first iteration over rows and cells to generate the Markdown
-    // for each cell and determine column widths
+    // for each cell and determine column widths and alignments
     let mut column_widths: Vec<usize> = Vec::new();
+    let mut column_alignments: Vec<Option<HorizontalAlignment>> = Vec::new();
     let mut rows: Vec<Vec<String>> = Vec::new();
     for row in self_rows {
         let mut cells: Vec<String> = Vec::new();
@@ -259,6 +260,16 @@ fn encode_rows_to_markdown(self_rows: &[TableRow], context: &mut MarkdownEncodeC
                 None => column_widths.push(3.max(width)),
             }
 
+            // Column alignment determined by the first cell with a non-None alignment
+            match column_alignments.get_mut(column) {
+                Some(column_alignment) => {
+                    if column_alignment.is_none() && cell.horizontal_alignment.is_some() {
+                        *column_alignment = cell.horizontal_alignment;
+                    }
+                }
+                None => column_alignments.push(cell.horizontal_alignment),
+            }
+
             cells.push(cell_md);
             context.merge_losses(cell_context.losses);
         }
@@ -268,11 +279,33 @@ fn encode_rows_to_markdown(self_rows: &[TableRow], context: &mut MarkdownEncodeC
     // Rows
     let divider_row = |context: &mut MarkdownEncodeContext| {
         context.push_str("|");
-        for width in &column_widths {
-            context
-                .push_str(" ")
-                .push_str(&"-".repeat(*width))
-                .push_str(" |");
+        for (width, alignment) in column_widths.iter().zip(column_alignments.iter()) {
+            match alignment {
+                Some(HorizontalAlignment::AlignLeft) => {
+                    context
+                        .push_str(" :")
+                        .push_str(&"-".repeat(width.saturating_sub(1)))
+                        .push_str(" |");
+                }
+                Some(HorizontalAlignment::AlignCenter) => {
+                    context
+                        .push_str(" :")
+                        .push_str(&"-".repeat(width.saturating_sub(2)))
+                        .push_str(": |");
+                }
+                Some(HorizontalAlignment::AlignRight) => {
+                    context
+                        .push_str(" ")
+                        .push_str(&"-".repeat(width.saturating_sub(1)))
+                        .push_str(": |");
+                }
+                _ => {
+                    context
+                        .push_str(" ")
+                        .push_str(&"-".repeat(*width))
+                        .push_str(" |");
+                }
+            }
         }
         context.newline();
     };
@@ -309,15 +342,19 @@ fn encode_rows_to_markdown(self_rows: &[TableRow], context: &mut MarkdownEncodeC
                 context.push_str("|");
             }
 
-            context
-                .enter_node(cell.node_type(), cell.node_id())
-                .push_str(&format!(
-                    " {md:width$} ",
-                    md = cells[cell_index],
-                    width = column_widths[cell_index]
-                ))
-                .exit_node()
-                .push_str("|");
+            context.enter_node(cell.node_type(), cell.node_id());
+
+            let content = &cells[cell_index];
+            let width = column_widths[cell_index];
+
+            let aligned_cell = match column_alignments.get(cell_index).unwrap_or(&None) {
+                Some(HorizontalAlignment::AlignLeft) => format!(" {content:<width$} "),
+                Some(HorizontalAlignment::AlignCenter) => format!(" {content:^width$} "),
+                Some(HorizontalAlignment::AlignRight) => format!(" {content:>width$} "),
+                _ => format!(" {content:<width$} "),
+            };
+
+            context.push_str(&aligned_cell).exit_node().push_str("|");
         }
         context.newline().exit_node();
 

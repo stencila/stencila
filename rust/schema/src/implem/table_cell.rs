@@ -1,4 +1,4 @@
-use crate::{prelude::*, TableCell, TableCellType};
+use crate::{prelude::*, Block, HorizontalAlignment, Paragraph, TableCell, TableCellType};
 
 impl TableCell {
     pub fn to_jats_special(&self) -> (String, Losses) {
@@ -17,6 +17,21 @@ impl DomCodec for TableCell {
         };
         context.enter_node_elem(name, self.node_type(), self.node_id());
 
+        if let Some(align) = self.horizontal_alignment {
+            let align = match align {
+                HorizontalAlignment::AlignLeft => "left",
+                HorizontalAlignment::AlignCenter => "center",
+                HorizontalAlignment::AlignRight => "right",
+                HorizontalAlignment::AlignJustify => "justify",
+                HorizontalAlignment::AlignCharacter => "char",
+            };
+            context.push_attr("style", &["text-align:", align].concat());
+        }
+
+        if let Some(char) = &self.horizontal_alignment_character {
+            context.push_attr("char", char);
+        }
+
         if let Some(row_span) = self.options.row_span {
             context.push_attr("rowspan", &row_span.to_string());
         }
@@ -24,7 +39,17 @@ impl DomCodec for TableCell {
             context.push_attr("colspan", &column_span.to_string());
         }
 
-        self.content.to_dom(context);
+        // If content is a single paragraph (true most of the time)
+        // then unwrap it to avoid an unnecessary <stencila-paragraph> element
+        // which amongst other things can interfere with horizontal alignment.
+        if let (1, Some(Block::Paragraph(Paragraph { content, .. }))) =
+            (self.content.len(), self.content.first())
+        {
+            content.to_dom(context);
+        } else {
+            self.content.to_dom(context);
+        }
+
         context.exit_node();
     }
 }

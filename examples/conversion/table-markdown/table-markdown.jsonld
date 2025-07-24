@@ -11,7 +11,7 @@
         {
           "@type": "Text",
           "value": {
-            "string": "Examples of table in Markdown with cell contents other than just text"
+            "string": "A table in Markdown with cell contents other than just text"
           }
         }
       ]
@@ -189,6 +189,191 @@
                       "@type": "Text",
                       "value": {
                         "string": "0"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "A table in Markdown with horizontal alignment specified for columns"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Table",
+      "stencila:rows": [
+        {
+          "@type": "stencila:TableRow",
+          "stencila:cells": [
+            {
+              "@type": "stencila:TableCell",
+              "stencila:horizontalAlignment": "AlignLeft",
+              "stencila:content": [
+                {
+                  "@type": "stencila:Paragraph",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Left"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "@type": "stencila:TableCell",
+              "stencila:horizontalAlignment": "AlignCenter",
+              "stencila:content": [
+                {
+                  "@type": "stencila:Paragraph",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Center"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "@type": "stencila:TableCell",
+              "stencila:horizontalAlignment": "AlignRight",
+              "stencila:content": [
+                {
+                  "@type": "stencila:Paragraph",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Right"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "stencila:rowType": "HeaderRow"
+        },
+        {
+          "@type": "stencila:TableRow",
+          "stencila:cells": [
+            {
+              "@type": "stencila:TableCell",
+              "stencila:horizontalAlignment": "AlignLeft",
+              "stencila:content": [
+                {
+                  "@type": "stencila:Paragraph",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "L1"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "@type": "stencila:TableCell",
+              "stencila:horizontalAlignment": "AlignCenter",
+              "stencila:content": [
+                {
+                  "@type": "stencila:Paragraph",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "C1"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "@type": "stencila:TableCell",
+              "stencila:horizontalAlignment": "AlignRight",
+              "stencila:content": [
+                {
+                  "@type": "stencila:Paragraph",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "R1"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "@type": "stencila:TableRow",
+          "stencila:cells": [
+            {
+              "@type": "stencila:TableCell",
+              "stencila:horizontalAlignment": "AlignLeft",
+              "stencila:content": [
+                {
+                  "@type": "stencila:Paragraph",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "L2"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "@type": "stencila:TableCell",
+              "stencila:horizontalAlignment": "AlignCenter",
+              "stencila:content": [
+                {
+                  "@type": "stencila:Paragraph",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "C2"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "@type": "stencila:TableCell",
+              "stencila:horizontalAlignment": "AlignRight",
+              "stencila:content": [
+                {
+                  "@type": "stencila:Paragraph",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "R2"
                       }
                     }
                   ]
