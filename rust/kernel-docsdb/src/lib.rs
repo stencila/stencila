@@ -5,7 +5,7 @@ use std::{
     sync::Arc,
 };
 
-use dirs::{closest_stencila_dir, stencila_db_dir, stencila_store_dir};
+use dirs::{closest_stencila_dir, stencila_db_file, stencila_store_dir};
 use kernel_kuzu::{
     kernel::{
         common::{
@@ -212,14 +212,14 @@ impl DocsDBKernelInstance {
         let home_dir = self.directory.clone().unwrap_or_else(|| PathBuf::from("."));
         let stencila_dir = closest_stencila_dir(&home_dir, false).await?;
 
-        let db_dir = stencila_db_dir(&stencila_dir, false).await?;
-        if !db_dir.exists() {
+        let db_path = stencila_db_file(&stencila_dir, false).await?;
+        if !db_path.exists() {
             bail!(
                 "Workspace database `{}` does not exist yet",
-                db_dir.display()
+                db_path.display()
             )
         }
-        self.workspace_db.set_path(db_dir);
+        self.workspace_db.set_path(db_path);
 
         let store_dir = stencila_store_dir(&stencila_dir, false).await?;
         if !store_dir.exists() {

@@ -617,7 +617,7 @@ mod tests {
     #[tokio::test]
     async fn db_comment() -> Result<()> {
         let temp = TempDir::new()?;
-        let path = temp.path().to_path_buf();
+        let path = temp.path().join("db.kuzu").to_path_buf();
 
         {
             let mut kernel = KuzuKernelInstance::main(false, None);
@@ -790,7 +790,7 @@ RETURN foo
         skip_on_windows_ci!();
 
         let temp = TempDir::new()?;
-        let path = temp.path().to_path_buf();
+        let path = temp.path().join("db.kuzu").to_path_buf();
 
         // Main: can read and write and copy to
         let mut main = KuzuKernelInstance::main(false, Some(path.clone()));
@@ -858,7 +858,7 @@ COPY (MATCH (p:Person) RETURN p) TO '{}';
         skip_on_windows_ci!();
 
         let temp = TempDir::new()?;
-        let path = temp.path().to_path_buf();
+        let path = temp.path().join("db.kuzu").to_path_buf();
 
         // Start a read-write instance that we can create a database in
         let mut main = KuzuKernelInstance::main(false, Some(path.clone()));

@@ -13,7 +13,7 @@ pub const STENCILA_DIR: &str = ".stencila";
 pub const CONFIG_FILE: &str = "config.yaml";
 pub const DOCS_FILE: &str = "docs.json";
 pub const STORE_DIR: &str = "store";
-pub const DB_DIR: &str = "db";
+pub const DB_FILE: &str = "db.kuzu";
 
 #[derive(SmartDefault)]
 pub struct CreateStencilaDirOptions {
@@ -90,15 +90,17 @@ pub async fn stencila_store_dir(stencila_dir: &Path, ensure: bool) -> Result<Pat
     Ok(store_dir)
 }
 
-/// Get the path of the `.stencila/db` directory and optionally ensure it exists
-pub async fn stencila_db_dir(stencila_dir: &Path, ensure: bool) -> Result<PathBuf> {
-    let db_dir = stencila_dir.join(DB_DIR);
+/// Get the path of the `.stencila/db.kuzu` file and optionally ensure its parent exists
+pub async fn stencila_db_file(stencila_dir: &Path, ensure: bool) -> Result<PathBuf> {
+    let db_file = stencila_dir.join(DB_FILE);
 
-    if ensure && !db_dir.exists() {
-        create_dir_all(&db_dir).await?;
+    if let Some(parent) = db_file.parent() {
+        if ensure && !parent.exists() {
+            create_dir_all(&parent).await?;
+        }
     }
 
-    Ok(db_dir)
+    Ok(db_file)
 }
 
 /// Get the closest `.stencila` directory to a path

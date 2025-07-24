@@ -29,8 +29,8 @@ use common::{
     tracing,
 };
 use dirs::{
-    closest_stencila_dir, stencila_db_dir, stencila_docs_file, stencila_store_dir, workspace_dir,
-    workspace_relative_path, DB_DIR, DOCS_FILE, STORE_DIR,
+    closest_stencila_dir, stencila_db_file, stencila_docs_file, stencila_store_dir, workspace_dir,
+    workspace_relative_path, DB_FILE, DOCS_FILE, STORE_DIR,
 };
 
 use crate::Document;
@@ -337,7 +337,7 @@ impl Document {
             .ok_or_eyre("no tracking file despite ensure")?;
 
         let store_dir = stencila_dir.join(STORE_DIR);
-        let db_path = stencila_dir.join(DB_DIR);
+        let db_path = stencila_dir.join(DB_FILE);
         let relative_path = workspace_relative_path(&stencila_dir, path, true)?;
 
         match entries.entry(relative_path) {
@@ -440,7 +440,7 @@ impl Document {
     /// Add documents to a workspace database
     #[tracing::instrument(skip(paths))]
     pub async fn add_paths(stencila_dir: &Path, paths: &[PathBuf]) -> Result<()> {
-        let db_path = stencila_db_dir(stencila_dir, true).await?;
+        let db_path = stencila_db_file(stencila_dir, true).await?;
         let mut db = NodeDatabase::new(&db_path)?;
 
         // Open each document, store it and upsert to database
@@ -478,7 +478,7 @@ impl Document {
     /// Remove documents from a workspace database
     #[tracing::instrument(skip(paths))]
     pub async fn remove_paths(stencila_dir: &Path, paths: &[PathBuf]) -> Result<()> {
-        let db_path = stencila_db_dir(stencila_dir, false).await?;
+        let db_path = stencila_db_file(stencila_dir, false).await?;
         if !db_path.exists() {
             return Ok(());
         }
@@ -543,7 +543,7 @@ impl Document {
 
         // Remove from database
         if entry.upserted_at.is_some() {
-            let db_path = stencila_db_dir(&stencila_dir, false).await?;
+            let db_path = stencila_db_file(&stencila_dir, false).await?;
             if db_path.exists() {
                 let mut db = NodeDatabase::new(&db_path)?;
                 db.delete(&entry.id)?;
@@ -762,9 +762,9 @@ impl Document {
             remove_dir_all(&store_dir).await?;
         }
 
-        let db_dir = stencila_db_dir(&stencila_dir, false).await?;
-        if db_dir.exists() {
-            remove_dir_all(&db_dir).await?;
+        let db_path = stencila_db_file(&stencila_dir, false).await?;
+        if db_path.exists() {
+            remove_dir_all(&db_path).await?;
         }
 
         Self::add_paths(&stencila_dir, &entries.into_keys().collect_vec()).await?;
