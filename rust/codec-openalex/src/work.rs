@@ -5,12 +5,14 @@ use codec::{
         serde::Deserialize,
     },
     schema::{
-        Article, Block, CreativeWork, CreativeWorkType, Date, IntegerOrString, Node, Organization,
-        Periodical, Person, Primitive, PropertyValue, PropertyValueOrString, PublicationIssue,
-        PublicationVolume,
+        self, Article, Block, CreativeWork, CreativeWorkType, CreativeWorkTypeOrString, Date,
+        Inline, IntegerOrString, Node, Organization, Paragraph, Periodical, Person, Primitive,
+        PropertyValue, PropertyValueOrString, PublicationIssue, PublicationVolume,
     },
 };
 use std::collections::HashMap;
+
+use crate::license::normalize_license;
 
 /// An OpenAlex `Work` object
 ///
@@ -197,7 +199,7 @@ impl From<Work> for Article {
         };
 
         if let Some(title) = work.display_name.clone().or(work.title.clone()) {
-            article.title = Some(vec![codec::schema::Inline::Text(title.into())]);
+            article.title = Some(vec![Inline::Text(title.into())]);
         }
 
         // De-invert abstract if present
@@ -215,7 +217,7 @@ impl From<Work> for Article {
         }
 
         if let Some(authorships) = &work.authorships {
-            let authors: Vec<codec::schema::Author> = authorships
+            let authors: Vec<schema::Author> = authorships
                 .iter()
                 .filter_map(|authorship| {
                     authorship.author.as_ref().map(|dehydrated_author| {
@@ -237,7 +239,7 @@ impl From<Work> for Article {
                             person.affiliations = if orgs.is_empty() { None } else { Some(orgs) };
                         }
 
-                        codec::schema::Author::Person(person)
+                        schema::Author::Person(person)
                     })
                 })
                 .collect();
@@ -267,6 +269,15 @@ impl From<Work> for Article {
             }
         }
 
+        // Apply normalized license from primary location
+        if let Some(primary_location) = &work.primary_location {
+            if let Some(license_str) = &primary_location.license {
+                let normalized_license = normalize_license(license_str);
+                article.options.licenses =
+                    Some(vec![CreativeWorkTypeOrString::String(normalized_license)]);
+            }
+        }
+
         article
     }
 }
@@ -280,7 +291,7 @@ impl From<Work> for CreativeWork {
         };
 
         if let Some(title) = work.display_name.or(work.title) {
-            creative_work.options.title = Some(vec![codec::schema::Inline::Text(title.into())]);
+            creative_work.options.title = Some(vec![Inline::Text(title.into())]);
         }
 
         // De-invert abstract if present
@@ -298,7 +309,7 @@ impl From<Work> for CreativeWork {
         }
 
         if let Some(authorships) = work.authorships {
-            let authors: Vec<codec::schema::Author> = authorships
+            let authors: Vec<schema::Author> = authorships
                 .into_iter()
                 .filter_map(|authorship| {
                     authorship.author.map(|dehydrated_author| {
@@ -320,7 +331,7 @@ impl From<Work> for CreativeWork {
                             person.affiliations = if orgs.is_empty() { None } else { Some(orgs) };
                         }
 
-                        codec::schema::Author::Person(person)
+                        schema::Author::Person(person)
                     })
                 })
                 .collect();
@@ -337,6 +348,15 @@ impl From<Work> for CreativeWork {
                 create_publication_info(primary_location.source.as_ref(), work.biblio.as_ref())
             {
                 creative_work.options.is_part_of = Some(*publication_info);
+            }
+        }
+
+        // Apply normalized license from primary location
+        if let Some(primary_location) = &work.primary_location {
+            if let Some(license_str) = &primary_location.license {
+                let normalized_license = normalize_license(license_str);
+                creative_work.options.licenses =
+                    Some(vec![CreativeWorkTypeOrString::String(normalized_license)]);
             }
         }
 
@@ -466,8 +486,8 @@ fn de_invert_abstract(inverted_index: &HashMap<String, Vec<i32>>) -> Option<Vec<
     if abstract_text.trim().is_empty() {
         None
     } else {
-        Some(vec![Block::Paragraph(codec::schema::Paragraph::new(vec![
-            codec::schema::Inline::Text(abstract_text.into()),
-        ]))])
+        Some(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+            abstract_text.into(),
+        )]))])
     }
 }

@@ -82,6 +82,9 @@ expression: node
     },
     "issueNumber": "1"
   },
+  "licenses": [
+    "https://creativecommons.org/licenses/by/4.0/"
+  ],
   "pageStart": "210",
   "pageEnd": "223"
 }

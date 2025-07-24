@@ -66,5 +66,8 @@ expression: node
       "volumeNumber": "2"
     },
     "issueNumber": "4"
-  }
+  },
+  "licenses": [
+    "https://creativecommons.org/licenses/by/4.0/"
+  ]
 }

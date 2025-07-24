@@ -15,6 +15,7 @@ mod client;
 mod entity;
 mod funder;
 mod institution;
+mod license;
 mod publisher;
 mod responses;
 mod utils;
