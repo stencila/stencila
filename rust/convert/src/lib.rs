@@ -5,6 +5,9 @@
 //! representation of documents as do the `Codec` implementations and leans
 //! heavily on external tools.
 
+pub mod html_to_png;
+pub use html_to_png::html_to_png;
+
 mod latex_to_pdf;
 pub use latex_to_pdf::*;
 

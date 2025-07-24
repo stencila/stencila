@@ -4,10 +4,12 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+base64 = { workspace = true }
 codec-utils = { path = "../codec-utils" }
 common = { path = "../common" }
-tools = { path = "../tools" }
+headless_chrome = { version = "1.0.13", features = ["fetch", "rustls"] }
 rand = { workspace = true }
+tools = { path = "../tools" }
 
 [lints]
 workspace = true

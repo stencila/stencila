@@ -1828,7 +1828,6 @@ dependencies = [
  "codec-utils",
  "common",
  "headless_chrome",
- "percent-encoding",
  "rand 0.9.1",
  "tools",
 ]
