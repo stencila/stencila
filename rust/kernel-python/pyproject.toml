@@ -5,6 +5,7 @@ description = "Dependencies required for testing the Stencila kernel-python crat
 requires-python = ">=3.12"
 dependencies = [
     "altair>=5.5.0",
+    "folium>=0.20.0",
     "matplotlib>=3.10.0",
     "numpy>=2.2.2",
     "pandas>=2.2.3",

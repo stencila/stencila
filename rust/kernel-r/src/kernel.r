@@ -127,6 +127,8 @@ interrupt <- function(condition, error_type = "Interrupt") message("Code executi
 to_json <- function(value, ...) {
   if (inherits(value, "recordedplot") || inherits(value, "ggplot")) {
     toJSON(plot_to_image_object(value, ...))
+  } else if (is_leaflet(value)) {
+    toJSON(leaflet_to_image_object(value))
   } else if (inherits(value, "table")) {
     # The functions `summary` and `table` return class "table" results
     # Currently, just "print" them. In the future, we may convert these to Datatables.
@@ -319,6 +321,35 @@ plot_to_image_object <- function(value, width = 480, height = 480) {
     type = unbox("ImageObject"),
     contentUrl = unbox(paste0("data:image/png;base64,", base64encode(filename)))
   )
+}
+
+# Check if a value is a Leaflet map (htmlwidget)
+is_leaflet <- function(value) {
+  inherits(value, "leaflet") && inherits(value, "htmlwidget")
+}
+
+# Convert a Leaflet map to an `ImageObject` with HTML content
+leaflet_to_image_object <- function(value) {
+  if (requireNamespace("htmlwidgets", quietly = TRUE)) {
+    # Use htmlwidgets to render the widget as HTML
+    temp_file <- tempfile(fileext = ".html", tmpdir = tempdir(check = TRUE))
+    htmlwidgets::saveWidget(value, temp_file, selfcontained = TRUE)
+    html_content <- paste(readLines(temp_file, warn = FALSE), collapse = "\n")
+    unlink(temp_file)
+    
+    list(
+      type = unbox("ImageObject"),
+      mediaType = unbox("text/html"),
+      contentUrl = unbox(html_content)
+    )
+  } else {
+    # Fallback if htmlwidgets is not available
+    list(
+      type = unbox("ImageObject"),
+      mediaType = unbox("text/plain"),
+      contentUrl = unbox("Leaflet map (htmlwidgets package required for rendering)")
+    )
+  }
 }
 
 # Monkey patch `print` to encode individual objects excepting those designed to

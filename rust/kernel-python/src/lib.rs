@@ -1547,6 +1547,71 @@ chart
         Ok(())
     }
 
+    /// `PythonKernel` specific test for getting a Folium map as output
+    #[test_log::test(tokio::test)]
+    async fn folium() -> Result<()> {
+        let Some(mut instance) = start_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+
+        let (.., messages) = instance.execute("import folium").await?;
+        if messages
+            .first()
+            .and_then(|message| message.error_type.as_deref())
+            == Some("ModuleNotFoundError")
+        {
+            eprintln!("Skipping test because `folium` not available");
+            return Ok(());
+        }
+
+        // Test basic map creation
+        let (outputs, messages) = instance
+            .execute("m = folium.Map(location=[45.5, -122.6], zoom_start=10)")
+            .await?;
+        assert_eq!(messages, []);
+        assert_eq!(outputs, []);
+
+        // Test map output
+        let (outputs, messages) = instance.execute("m").await?;
+        assert_eq!(messages, []);
+        if let Some(Node::ImageObject(ImageObject {
+            media_type: Some(media_type),
+            content_url,
+            ..
+        })) = outputs.first()
+        {
+            assert_eq!(media_type, "text/html");
+            assert!(content_url.contains("leaflet")); // Should contain Leaflet JS
+        } else {
+            bail!("Expected an ImageObject with HTML content, got: {outputs:?}")
+        }
+
+        // Test map with marker
+        let (outputs, messages) = instance
+            .execute(
+                "
+m2 = folium.Map(location=[45.5, -122.6], zoom_start=10)
+folium.Marker([45.5, -122.6], popup='Portland, OR').add_to(m2)
+m2",
+            )
+            .await?;
+        assert_eq!(messages, []);
+        if let Some(Node::ImageObject(ImageObject {
+            media_type: Some(media_type),
+            content_url,
+            ..
+        })) = outputs.first()
+        {
+            assert_eq!(media_type, "text/html");
+            assert!(content_url.contains("leaflet"));
+            assert!(content_url.contains("marker")); // Should contain marker
+        } else {
+            bail!("Expected an ImageObject with HTML content, got: {outputs:?}")
+        }
+
+        Ok(())
+    }
+
     /// Standard kernel test for forking
     #[test_log::test(tokio::test)]
     async fn forking() -> Result<()> {

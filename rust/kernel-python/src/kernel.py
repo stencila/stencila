@@ -519,6 +519,19 @@ try:
 except ImportError:
     ALTAIR_AVAILABLE = False
 
+# Custom serialization for Folium maps
+try:
+    import folium
+
+    FOLIUM_AVAILABLE = True
+
+    def is_folium(value: Any) -> bool:
+        """Is the value a Folium map object"""
+        return isinstance(value, folium.Map)
+
+except ImportError:
+    FOLIUM_AVAILABLE = False
+
 
 class MimeBundleJSONEncoder(json.JSONEncoder):
     """
@@ -567,6 +580,16 @@ def mimebundle_to_image_object(bundle: Any) -> ImageObject:
     }
 
 
+def folium_to_image_object(folium_map: Any) -> ImageObject:
+    """Convert a Folium map to an ImageObject with HTML content"""
+    html_content = folium_map._repr_html_()
+    return {
+        "type": "ImageObject",
+        "mediaType": "text/html",
+        "contentUrl": html_content,
+    }
+
+
 # Serialize a Python object as JSON
 def to_json(obj: Any) -> str:
     if isinstance(obj, (bool, int, float, str)):
@@ -580,6 +603,9 @@ def to_json(obj: Any) -> str:
 
     if PANDAS_AVAILABLE and isinstance(obj, pd.DataFrame):  # pyright: ignore
         return json.dumps(dataframe_to_datatable(obj))
+
+    if FOLIUM_AVAILABLE and is_folium(obj):
+        return json.dumps(folium_to_image_object(obj))
 
     if MATPLOTLIB_AVAILABLE and is_matplotlib(obj):
         return json.dumps(matplotlib_to_image_object())

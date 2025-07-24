@@ -28,6 +28,7 @@ export class ImageObject extends Entity {
     mermaid: 'text/vnd.mermaid',
     plotly: 'application/vnd.plotly.v1+json',
     vegaLite: 'application/vnd.vegalite.v5+json',
+    htmlMap: 'text/html',
   } as const
 
   /**
@@ -59,6 +60,12 @@ export class ImageObject extends Entity {
    */
   @state()
   private svg?: string
+
+  /**
+   * The processed HTML map content, if applicable
+   */
+  @state()
+  private htmlMapContent?: string
 
   /**
    * The Cytoscape.js instance (if relevant)
@@ -126,6 +133,8 @@ export class ImageObject extends Entity {
         await this.compilePlotly()
       } else if (this.mediaType == ImageObject.MEDIA_TYPES.vegaLite) {
         await this.compileVegaLite()
+      } else if (this.mediaType == ImageObject.MEDIA_TYPES.htmlMap) {
+        await this.compileHtmlMap()
       } else if (this.contentUrl.startsWith('data:')) {
         // This should not occur, but if it does, do nothing
       } else {
@@ -348,6 +357,52 @@ export class ImageObject extends Entity {
     })
   }
 
+  private async compileHtmlMap() {
+    let codeChunk: HTMLElement
+
+    if (this.parentNodeIs('CodeChunk')) {
+      codeChunk = this.closestGlobally('stencila-code-chunk')
+      this.clearCodeChunkMessages(codeChunk)
+    }
+
+    try {
+      // Check if the HTML content contains Leaflet indicators
+      const htmlContent = this.contentUrl
+      const isLeafletMap = htmlContent.includes('leaflet') || 
+                          htmlContent.includes('L.map') ||
+                          htmlContent.includes('leaflet.js')
+
+      if (isLeafletMap) {
+        // Store the HTML content for rendering
+        this.htmlMapContent = htmlContent
+        this.error = undefined
+      } else {
+        this.error = 'HTML content does not appear to contain a valid map'
+      }
+    } catch (error) {
+      if (codeChunk) {
+        let messages = codeChunk.querySelector('div[slot=messages]')
+        if (!messages) {
+          messages = document.createElement('div')
+          messages.setAttribute('slot', 'execution-messages')
+          codeChunk.appendChild(messages)
+        }
+
+        const message = document.createElement(
+          'stencila-execution-message'
+        ) as ExecutionMessage
+
+        let str = error.message ?? error.toString()
+        str = str.slice(str.lastIndexOf('-^\n')).trim()
+
+        this.addCodeChunkErrorMessage(message, str)
+        messages.appendChild(message)
+      } else {
+        this.error = error.message ?? error.toString()
+      }
+    }
+  }
+
   override render() {
     if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return this.renderContent()
@@ -407,6 +462,10 @@ export class ImageObject extends Entity {
 
     if (this.mediaType === ImageObject.MEDIA_TYPES.vegaLite) {
       return this.renderVega()
+    }
+
+    if (this.mediaType === ImageObject.MEDIA_TYPES.htmlMap) {
+      return this.renderHtmlMap()
     }
 
     return this.svg ? this.renderSvg() : this.renderImg()
@@ -487,6 +546,28 @@ export class ImageObject extends Entity {
       <style id="plotly-css"></style>
       <div slot="content" class="overflow-x-auto">
         <div id="stencila-plotly-container" class="w-full"></div>
+      </div>
+    `
+  }
+
+  private renderHtmlMap() {
+    const mapStyles = css`
+      & iframe {
+        width: 100%;
+        height: 400px;
+        border: none;
+      }
+    `
+
+    // Create a blob URL for the HTML content to safely render in an iframe
+    const blob = new Blob([this.htmlMapContent], { type: 'text/html' })
+    const blobUrl = URL.createObjectURL(blob)
+
+    return html`
+      <div slot="content" class="overflow-x-auto">
+        <div class=${mapStyles}>
+          <iframe src=${blobUrl} sandbox="allow-scripts allow-same-origin"></iframe>
+        </div>
       </div>
     `
   }

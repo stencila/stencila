@@ -938,6 +938,81 @@ df1 = data.frame(
         Ok(())
     }
 
+    /// `RKernel` specific test for getting a Leaflet map as output
+    #[test_log::test(tokio::test)]
+    #[allow(clippy::print_stderr)]
+    async fn leaflet() -> Result<()> {
+        skip_on_ci!();
+
+        let Some(mut instance) = start_instance::<RKernel>().await? else {
+            return Ok(());
+        };
+
+        // Check if leaflet is available
+        let (.., messages) = instance.execute("library(leaflet)").await?;
+        if !messages.is_empty()
+            && messages[0]
+                .message
+                .contains("there is no package called 'leaflet'")
+        {
+            eprintln!("Skipping test because `leaflet` not available");
+            return Ok(());
+        }
+
+        // Test basic map creation
+        let (outputs, messages) = instance
+            .execute(
+                "m <- leaflet() %>% addTiles() %>% setView(lng = -122.6, lat = 45.5, zoom = 10)",
+            )
+            .await?;
+        assert_eq!(messages, []);
+        assert_eq!(outputs, []);
+
+        // Test map output
+        let (outputs, messages) = instance.execute("m").await?;
+        assert_eq!(messages, []);
+        assert_eq!(outputs.len(), 1);
+        if let Some(Node::ImageObject(ImageObject {
+            media_type: Some(media_type),
+            content_url,
+            ..
+        })) = outputs.first()
+        {
+            assert_eq!(media_type, "text/html");
+            assert!(content_url.contains("leaflet")); // Should contain Leaflet JS
+        } else {
+            bail!("Expected an ImageObject with HTML content, got: {outputs:?}")
+        }
+
+        // Test map with marker
+        let (outputs, messages) = instance
+            .execute(
+                "
+m2 <- leaflet() %>%
+  addTiles() %>%
+  setView(lng = -122.6, lat = 45.5, zoom = 10) %>%
+  addMarkers(lng = -122.6, lat = 45.5, popup = 'Portland, OR')
+m2",
+            )
+            .await?;
+        assert_eq!(messages, []);
+        assert_eq!(outputs.len(), 1);
+        if let Some(Node::ImageObject(ImageObject {
+            media_type: Some(media_type),
+            content_url,
+            ..
+        })) = outputs.first()
+        {
+            assert_eq!(media_type, "text/html");
+            assert!(content_url.contains("leaflet"));
+            assert!(content_url.contains("marker")); // Should contain marker
+        } else {
+            bail!("Expected an ImageObject with HTML content, got: {outputs:?}")
+        }
+
+        Ok(())
+    }
+
     /// Standard kernel test for forking
     #[test_log::test(tokio::test)]
     async fn forking() -> Result<()> {
