@@ -6,7 +6,7 @@ impl MarkdownCodec for Collection {
         // creative work in its entirety we encode it as a reference. For
         // encoding all of the collection, including the content of each work,
         // we will probably implement special handling of to_path for
-        // collections where it is encoded to a directory. 
+        // collections where it is encoded to a directory.
         context
             .enter_node(self.node_type(), self.node_id())
             .push_prop_fn(NodeProperty::Parts, |context| {

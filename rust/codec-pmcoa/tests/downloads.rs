@@ -8,6 +8,7 @@ use codec_pmcoa::PmcOaCodec;
 
 /// Download and decode from PMCID
 #[tokio::test]
+#[allow(clippy::print_stderr)]
 async fn downloads() -> Result<()> {
     if std::env::var("CI").is_ok() {
         eprintln!("Skipping network-dependent test on CI");

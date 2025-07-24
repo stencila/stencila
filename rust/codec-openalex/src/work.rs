@@ -458,13 +458,13 @@ fn convert_ids_to_identifiers(
 }
 
 /// Trim "Abstract" prefix from abstract text
-/// 
+///
 /// Removes variations of "Abstract" from the beginning of abstract text,
 /// including "Abstract", "ABSTRACT", "Abstract.", "Abstract:", etc.
 fn trim_abstract_prefix(text: &str) -> String {
     let trimmed = text.trim();
     let lowercased = trimmed.to_lowercase();
-    
+
     // Check for common abstract prefixes (case-insensitive, ordered by specificity)
     let prefixes = [
         "abstract:",
@@ -474,7 +474,7 @@ fn trim_abstract_prefix(text: &str) -> String {
         "abstract—", // em dash variant
         "abstract",  // This should be last to avoid matching partial words
     ];
-    
+
     for prefix in &prefixes {
         if lowercased.starts_with(prefix) {
             // Use the original case by slicing from the original string
@@ -482,7 +482,7 @@ fn trim_abstract_prefix(text: &str) -> String {
             return remaining.trim().to_string();
         }
     }
-    
+
     // Return original text if no prefix found
     trimmed.to_string()
 }
@@ -539,44 +539,44 @@ mod tests {
             trim_abstract_prefix("Abstract: This is the main content."),
             "This is the main content."
         );
-        
+
         assert_eq!(
             trim_abstract_prefix("Abstract. This is the main content."),
             "This is the main content."
         );
-        
+
         assert_eq!(
             trim_abstract_prefix("Abstract This is the main content."),
             "This is the main content."
         );
-        
+
         assert_eq!(
             trim_abstract_prefix("ABSTRACT: This is the main content."),
             "This is the main content."
         );
-        
+
         assert_eq!(
             trim_abstract_prefix("abstract - This is the main content."),
             "This is the main content."
         );
-        
+
         assert_eq!(
             trim_abstract_prefix("Abstract– This is the main content."),
             "This is the main content."
         );
-        
+
         // Test text without abstract prefix
         assert_eq!(
             trim_abstract_prefix("This research study examines..."),
             "This research study examines..."
         );
-        
+
         // Test edge cases
         assert_eq!(trim_abstract_prefix("Abstract"), "");
         assert_eq!(trim_abstract_prefix("Abstract:"), "");
         assert_eq!(trim_abstract_prefix("Abstract."), "");
         assert_eq!(trim_abstract_prefix("  Abstract:  "), "");
-        
+
         // Test that "abstract" in the middle is not trimmed
         assert_eq!(
             trim_abstract_prefix("This abstract contains the word abstract."),
@@ -594,10 +594,10 @@ mod tests {
         inverted_index.insert("the".to_string(), vec![3]);
         inverted_index.insert("main".to_string(), vec![4]);
         inverted_index.insert("content.".to_string(), vec![5]);
-        
+
         let result = de_invert_abstract(&inverted_index);
         assert!(result.is_some());
-        
+
         if let Some(blocks) = result {
             assert_eq!(blocks.len(), 1);
             if let Block::Paragraph(paragraph) = &blocks[0] {
@@ -617,10 +617,10 @@ mod tests {
         inverted_index.insert("research".to_string(), vec![1]);
         inverted_index.insert("examines".to_string(), vec![2]);
         inverted_index.insert("methods.".to_string(), vec![3]);
-        
+
         let result = de_invert_abstract(&inverted_index);
         assert!(result.is_some());
-        
+
         if let Some(blocks) = result {
             assert_eq!(blocks.len(), 1);
             if let Block::Paragraph(paragraph) = &blocks[0] {

@@ -557,11 +557,10 @@ impl OpenAlexQuery {
                     format!("Invalid number in count filter: {}", filter),
                 ))
             }
-        } else if filter.starts_with("=") {
+        } else if let Some(stripped) = filter.strip_prefix("=") {
             // Handle equality - remove the leading = for OpenAlex format
-            let number_str = &filter[1..];
-            if number_str.parse::<i64>().is_ok() {
-                Ok(number_str.to_string())
+            if stripped.parse::<i64>().is_ok() {
+                Ok(stripped.to_string())
             } else {
                 Err(Error::new(
                     ErrorKind::InvalidOperation,
@@ -706,21 +705,21 @@ impl OpenAlexQuery {
                 Ok(match entity_type {
                     "works" => {
                         let response =
-                            request_with_params::<WorksResponse>(&entity_type, &params).await?;
+                            request_with_params::<WorksResponse>(entity_type, &params).await?;
                         let nodes: Vec<Node> =
                             response.results.into_iter().map(Into::into).collect();
                         (response.meta, nodes)
                     }
                     "authors" => {
                         let response =
-                            request_with_params::<AuthorsResponse>(&entity_type, &params).await?;
+                            request_with_params::<AuthorsResponse>(entity_type, &params).await?;
                         let nodes: Vec<Node> =
                             response.results.into_iter().map(Into::into).collect();
                         (response.meta, nodes)
                     }
                     "institutions" => {
                         let response =
-                            request_with_params::<InstitutionsResponse>(&entity_type, &params)
+                            request_with_params::<InstitutionsResponse>(entity_type, &params)
                                 .await?;
                         let nodes: Vec<Node> =
                             response.results.into_iter().map(Into::into).collect();
