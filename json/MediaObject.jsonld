@@ -478,7 +478,7 @@
       "@id": "schema:license",
       "@type": "rdfs:Property",
       "rdfs:label": "licenses",
-      "rdfs:comment": "License documents that applies to this content, typically indicated by URL.",
+      "rdfs:comment": "License documents that applies to this content, typically indicated by URL, but may be a `CreativeWork` itself.",
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
       },

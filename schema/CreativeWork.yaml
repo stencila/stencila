@@ -1,5 +1,5 @@
 title: CreativeWork
-'@id': schema:CreativeWork
+"@id": schema:CreativeWork
 extends: Thing
 category: works
 description: A creative work, including books, movies, photographs, software programs, etc.
@@ -11,11 +11,11 @@ core:
   - doi
 properties:
   doi:
-    '@id': stencila:doi
+    "@id": stencila:doi
     description: The work's Digital Object Identifier (https://doi.org/).
     type: string
   about:
-    '@id': schema:about
+    "@id": schema:about
     description: The subject matter of the content.
     $comment: |
       Consistent with https://schema.org/about, this property allows for
@@ -27,7 +27,7 @@ properties:
       $ref: ThingType
     strip: [metadata]
   abstract:
-    '@id': schema:abstract
+    "@id": schema:abstract
     description: A short description that summarizes a `CreativeWork`.
     type: array
     items:
@@ -37,7 +37,7 @@ properties:
     dom:
       elem: section
   authors:
-    '@id': schema:author
+    "@id": schema:author
     description: The authors of the `CreativeWork`.
     type: array
     items:
@@ -48,7 +48,7 @@ properties:
     dom:
       elem: section
   provenance:
-    '@id': stencila:provenance
+    "@id": stencila:provenance
     description: A summary of the provenance of the content within the work.
     type: array
     items:
@@ -57,7 +57,7 @@ properties:
     dom:
       elem: div
   contributors:
-    '@id': schema:contributor
+    "@id": schema:contributor
     description: A secondary contributor to the `CreativeWork`.
     type: array
     items:
@@ -68,7 +68,7 @@ properties:
     dom:
       elem: section
   editors:
-    '@id': schema:editor
+    "@id": schema:editor
     description: People who edited the `CreativeWork`.
     $comment: |
       Note that, consistent with schema.org, this property can only include
@@ -83,7 +83,7 @@ properties:
     dom:
       elem: section
   maintainers:
-    '@id': schema:maintainer
+    "@id": schema:maintainer
     description: The maintainers of the `CreativeWork`.
     $comment: |
       A maintainer of a `Dataset`, `SoftwareApplication`, or other `CreativeWork`.
@@ -108,7 +108,7 @@ properties:
     dom:
       elem: section
   comments:
-    '@id': schema:comment
+    "@id": schema:comment
     description: Comments about this creative work.
     type: array
     items:
@@ -117,7 +117,7 @@ properties:
     dom:
       elem: section
   dateCreated:
-    '@id': schema:dateCreated
+    "@id": schema:dateCreated
     description: Date/time of creation.
     $ref: Date
     strip: [metadata]
@@ -126,7 +126,7 @@ properties:
     dom:
       with: Date::to_dom_attr
   dateReceived:
-    '@id': schema:dateReceived
+    "@id": schema:dateReceived
     description: Date/time that work was received.
     $ref: Date
     strip: [metadata]
@@ -135,7 +135,7 @@ properties:
     dom:
       with: Date::to_dom_attr
   dateAccepted:
-    '@id': stencila:dateAccepted
+    "@id": stencila:dateAccepted
     description: Date/time of acceptance.
     $comment: |
       This is not yet a schema.org property but the term is used
@@ -147,7 +147,7 @@ properties:
     dom:
       with: Date::to_dom_attr
   dateModified:
-    '@id': schema:dateModified
+    "@id": schema:dateModified
     description: Date/time of most recent modification.
     $ref: Date
     strip: [metadata]
@@ -156,7 +156,7 @@ properties:
     dom:
       with: Date::to_dom_attr
   datePublished:
-    '@id': schema:datePublished
+    "@id": schema:datePublished
     aliases:
       # This assumes that a user specifying `date` means the date published
       # and not the date modified or created.
@@ -169,7 +169,7 @@ properties:
     dom:
       with: Date::to_dom_attr
   funders:
-    '@id': schema:funder
+    "@id": schema:funder
     description: People or organizations that funded the `CreativeWork`.
     type: array
     items:
@@ -182,7 +182,7 @@ properties:
     dom:
       elem: section
   fundedBy:
-    '@id': stencila:fundedBy
+    "@id": stencila:fundedBy
     description: Grants that funded the `CreativeWork`; reverse of `fundedItems`.
     $comment: |
       This follows the proposal [here](https://github.com/schemaorg/schemaorg/issues/2258)
@@ -198,7 +198,7 @@ properties:
     dom:
       elem: section
   genre:
-    '@id': schema:genre
+    "@id": schema:genre
     description: Genre of the creative work, broadcast channel or group.
     type: array
     items:
@@ -209,7 +209,7 @@ properties:
     serde:
       deserializeWith: option_csv_or_array
   keywords:
-    '@id': schema:keywords
+    "@id": schema:keywords
     description: |
       Keywords or tags used to describe this content.
       Multiple entries in a keywords list are typically delimited by commas.
@@ -222,27 +222,29 @@ properties:
     serde:
       deserializeWith: option_csv_or_array
   isPartOf:
-    '@id': schema:isPartOf
+    "@id": schema:isPartOf
     description: |
       An item or other CreativeWork that this CreativeWork is a part of.
     $ref: CreativeWorkType
     strip: [metadata]
   licenses:
-    '@id': schema:license
+    "@id": schema:license
     description: |
-      License documents that applies to this content, typically indicated by URL.
+      License documents that applies to this content, typically indicated by URL, but may be
+      a `CreativeWork` itself.
     type: array
     items:
       anyOf:
         - $ref: CreativeWorkType
-        - $ref: Text
+        - type: string
+          pattern: url
     strip: [metadata]
     dom:
       elem: section
   parts:
     # The name "parts" seems more intuitive for users and developers than schema.orgs's "hasParts".
     # We provide the latter as an alias.
-    '@id': schema:hasParts
+    "@id": schema:hasParts
     aliases:
       - hasParts
     description: |
@@ -255,7 +257,7 @@ properties:
     dom:
       elem: section
   publisher:
-    '@id': schema:publisher
+    "@id": schema:publisher
     description: |
       A publisher of the CreativeWork.
     anyOf:
@@ -267,7 +269,7 @@ properties:
     dom:
       elem: section
   references:
-    '@id': schema:citation
+    "@id": schema:citation
     aliases:
       - citations
     description: |
@@ -280,14 +282,14 @@ properties:
     dom:
       elem: section
   text:
-    '@id': schema:text
+    "@id": schema:text
     description: The textual content of this creative work.
     $ref: Text
     strip: [content]
   title:
     # The name "title" is more appropriate to our context than schema.org's "headline".
     # We provide the latter as an alias.
-    '@id': schema:headline
+    "@id": schema:headline
     description: The title of the creative work.
     aliases:
       - headline
@@ -301,7 +303,7 @@ properties:
     dom:
       elem: h1
   version:
-    '@id': schema:version
+    "@id": schema:version
     description: The version of the creative work.
     $comment: |
       In this case `string` is listed as an alternative before `number` to

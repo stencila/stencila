@@ -53,7 +53,7 @@ export * from "./ContactPoint.js";
 export * from "./Cord.js";
 export * from "./CreativeWork.js";
 export * from "./CreativeWorkType.js";
-export * from "./CreativeWorkTypeOrText.js";
+export * from "./CreativeWorkTypeOrString.js";
 export * from "./Datatable.js";
 export * from "./DatatableColumn.js";
 export * from "./DatatableColumnHint.js";

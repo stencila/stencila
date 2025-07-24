@@ -628,8 +628,8 @@ class CreativeWork(Thing):
     is_part_of: CreativeWorkType | None = None
     """An item or other CreativeWork that this CreativeWork is a part of."""
 
-    licenses: list[CreativeWorkType | Text] | None = None
-    """License documents that applies to this content, typically indicated by URL."""
+    licenses: list[CreativeWorkType | str] | None = None
+    """License documents that applies to this content, typically indicated by URL, but may be a `CreativeWork` itself."""
 
     parts: list[CreativeWorkType] | None = None
     """Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more."""
@@ -3768,7 +3768,7 @@ UNIONS = [
 
 ANON_UNIONS = [
     Citation | Text,
-    CreativeWorkType | Text,
+    CreativeWorkType | str,
     File | Directory,
     Grant | MonetaryGrant,
     Person | Organization,

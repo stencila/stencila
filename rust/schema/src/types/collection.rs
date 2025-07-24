@@ -6,7 +6,7 @@ use super::author::Author;
 use super::block::Block;
 use super::comment::Comment;
 use super::creative_work_type::CreativeWorkType;
-use super::creative_work_type_or_text::CreativeWorkTypeOrText;
+use super::creative_work_type_or_string::CreativeWorkTypeOrString;
 use super::date::Date;
 use super::grant_or_monetary_grant::GrantOrMonetaryGrant;
 use super::image_object::ImageObject;
@@ -215,12 +215,12 @@ pub struct CollectionOptions {
     #[strip(metadata)]
     pub is_part_of: Option<CreativeWorkType>,
 
-    /// License documents that applies to this content, typically indicated by URL.
+    /// License documents that applies to this content, typically indicated by URL, but may be a `CreativeWork` itself.
     #[serde(alias = "license")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     #[dom(elem = "section")]
-    pub licenses: Option<Vec<CreativeWorkTypeOrText>>,
+    pub licenses: Option<Vec<CreativeWorkTypeOrString>>,
 
     /// A publisher of the CreativeWork.
     #[serde(default, deserialize_with = "option_string_or_object")]

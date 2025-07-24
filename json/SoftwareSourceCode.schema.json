@@ -491,7 +491,7 @@
     },
     "licenses": {
       "@id": "schema:license",
-      "description": "License documents that applies to this content, typically indicated by URL.",
+      "description": "License documents that applies to this content, typically indicated by URL, but may be a `CreativeWork` itself.",
       "aliases": [
         "license"
       ],
@@ -508,7 +508,8 @@
             "$ref": "CreativeWorkType.schema.json"
           },
           {
-            "$ref": "Text.schema.json"
+            "type": "string",
+            "pattern": "url"
           }
         ]
       }
