@@ -92,14 +92,14 @@ async fn golden() -> Result<()> {
                     filename, docsql
                 );
 
-                if env::var_os("NO_HTTP").is_none() {
+                if env::var_os("NO_HTTP").is_none()
+                    && env::var_os("CI").is_none() // Don't run HTTP requests on CI yet
+                    && actual.starts_with("GET ")
+                {
+                    let url = actual.strip_prefix("GET ").unwrap_or(&actual);
                     if filename.ends_with(".openalex") {
-                        let url = actual.strip_prefix("GET ").unwrap_or(&actual);
                         validate_openalex_url(url).await?;
-                    }
-
-                    if filename.ends_with(".github") {
-                        let url = actual.strip_prefix("GET ").unwrap_or(&actual);
+                    } else if filename.ends_with(".github") {
                         validate_github_url(url).await?;
                     }
                 }

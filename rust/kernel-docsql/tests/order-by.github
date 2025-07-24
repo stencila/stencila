@@ -1,16 +1,16 @@
 github.repositories().orderBy("stars")
 ---
-GET https://api.github.com/search/repositories?sort=stars&order=asc
+GET https://api.github.com/search/repositories?q=%2A&sort=stars&order=asc
 
 
 github.repositories().orderBy("stars", "desc")
 ---
-GET https://api.github.com/search/repositories?sort=stars&order=desc
+GET https://api.github.com/search/repositories?q=%2A&sort=stars&order=desc
 
 
 github.repositories().orderBy("updated")
 ---
-GET https://api.github.com/search/repositories?sort=updated&order=asc
+GET https://api.github.com/search/repositories?q=%2A&sort=updated&order=asc
 
 
 github.repositories(.language == "python").orderBy("forks", "desc")
@@ -20,4 +20,4 @@ GET https://api.github.com/search/repositories?q=language%3Apython&sort=forks&or
 
 github.users().orderBy("followers", "desc")
 ---
-GET https://api.github.com/search/users?sort=followers&order=desc
+GET https://api.github.com/search/users?q=%2A&sort=followers&order=desc

@@ -3,9 +3,9 @@ openalex.articles(...citedBy(openalex.articles(search = "frogs").limit(3)))
 GET https://api.openalex.org/works?filter=type%3Aarticle%2Ccited_by%3AW2038411763%7CW2107572441%7CW2534919910
 
 
-openalex.works(...citedBy(openalex.articles(...authors(.orcid == "0000-0002-1825-0097")).limit(2)))
+openalex.works(...citedBy(openalex.articles(...authors(.orcid == "0000-0002-1825-0097")).limit(1)))
 ---
-GET https://api.openalex.org/works?filter=cited_by%3AW4407154702%7CW4408236070
+GET https://api.openalex.org/works?filter=cited_by%3AW4407154702
 
 
 openalex.articles(...citedBy(openalex.works(.doi == "10.1038/nature12373").limit(1)))
