@@ -1,0 +1,90 @@
+---
+source: rust/codec-openalex/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "id": "https://openalex.org/W4288041529",
+  "doi": "10.1177/01445987221113122",
+  "abstract": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This research study examines the integration of wireless system and solar cells for detection and location of faults in power grids by implementing minimum number of Phasor Measurement Units (PMUs) after considering zero injection buses. A fault in the grid networks indicates a failure in the entire network that interfaces the normal flow of current which can be measured using wireless systems. The fault location in power grid is problematic because of high existence in several lateral tap-offs. In addition, the identification of exact location with presence of faults in the power system and severity of the faults are challenging tasks due to bulk and complex nature of the electrical power system state estimation. The major requirement of PMU placement approach is to find the minimum number of PMUs and their location with maximum wireless coverage under fault conditions with a prerequisite for the projected algorithm. The integrated algorithm is tested and validated for different fault conditions where the results are compared with different conventional methods using different optimization models such as heuristics, decision rules and mathematical programming where the outcomes proves to be much effective in terms of number of PMU installation for proper placements and detection, location in number of fault systems thus achieving 82% reliability using Ant Lion Optimizer (ALO)."
+          }
+        }
+      ]
+    }
+  ],
+  "authors": [
+    {
+      "type": "Person",
+      "name": "Hariprasath Manoharan"
+    },
+    {
+      "type": "Person",
+      "orcid": "0000-0003-4297-3460",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "University of Sheffield",
+          "ror": "05krs5044"
+        }
+      ],
+      "name": "Yuvaraja Teekaraman"
+    },
+    {
+      "type": "Person",
+      "name": "Ramya Kuppusamy"
+    },
+    {
+      "type": "Person",
+      "orcid": "0000-0003-3700-2491",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Jimma University",
+          "ror": "05eer8g02"
+        }
+      ],
+      "name": "Arun Radhakrishnan"
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2022-07-26"
+  },
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Application of solar cells and wireless system for detecting faults in phasor measurement units using non-linear optimization"
+      }
+    }
+  ],
+  "content": [],
+  "identifiers": [
+    "https://openalex.org/W4288041529",
+    "https://doi.org/10.1177/01445987221113122"
+  ],
+  "isPartOf": {
+    "type": "PublicationIssue",
+    "isPartOf": {
+      "type": "PublicationVolume",
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "Energy Exploration & Exploitation"
+      },
+      "volumeNumber": "41"
+    },
+    "issueNumber": "1"
+  },
+  "licenses": [
+    "https://creativecommons.org/licenses/by/4.0/"
+  ],
+  "pageStart": "210",
+  "pageEnd": "223"
+}

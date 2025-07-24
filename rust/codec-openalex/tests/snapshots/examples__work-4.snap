@@ -1,0 +1,108 @@
+---
+source: rust/codec-openalex/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "id": "https://openalex.org/W1775749144",
+  "doi": "10.1016/s0021-9258(19)52451-6",
+  "abstract": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Since 1922 when Wu proposed the use of the Folin phenol reagent for the measurement of proteins (l), a number of modified analytical procedures ut.ilizing this reagent have been reported for the determination of proteins in serum (2-G), in antigen-antibody precipitates (7-9), and in insulin (10).Although the reagent would seem to be recommended by its great sensitivity and the simplicity of procedure possible with its use, it has not found great favor for general biochemical purposes.In the belief that this reagent, nevertheless, has considerable merit for certain application, but that its peculiarities and limitations need to be understood for its fullest exploitation, it has been studied with regard t.o effects of variations in pH, time of reaction, and concentration of reactants, permissible levels of reagents commonly used in handling proteins, and interfering subst.ances.Procedures are described for measuring protein in solution or after precipitation wit,h acids or other agents, and for the determination of as little as 0.2 y of protein. MethodReagents-Reagent A, 2 per cent N&OX in 0.10 N NaOH.Reagent B, 0.5 per cent CuS04.5Hz0 in 1 per cent sodium or potassium tartrabe.Reagent C, alkaline copper solution.Mix 50 ml. of Reagent A with 1 ml. of Reagent B. Discard after 1 day.Reagent D, carbonate-copper solution, is the same as Reagent C except for omission of NaOH.Reagent E, diluted Folin reagent.Titrate Folin-Ciocalteu phenol reagent ((II), Eimer and Amend, Fisher Scientific Company, New York) with NaOH t.o a phenolphthalein end-point.On the basis of this titration dilute the Folin reagent (about 2-fold) to make it 1 N in acid.Working standards may be prepared from human serum diluted IOO-to lOOO-fold (approximately 700 to 70 y per ml.).These in turn may be checked against a standard solution of crystalline bovine albumin (Armour and"
+          }
+        }
+      ]
+    }
+  ],
+  "authors": [
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Washington University in St. Louis",
+          "ror": "01yc7t268"
+        }
+      ],
+      "name": "OliverH. Lowry"
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Washington University in St. Louis",
+          "ror": "01yc7t268"
+        }
+      ],
+      "name": "NiraJ. Rosebrough"
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Washington University in St. Louis",
+          "ror": "01yc7t268"
+        }
+      ],
+      "name": "A. Farr"
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Washington University in St. Louis",
+          "ror": "01yc7t268"
+        }
+      ],
+      "name": "RoseJ. Randall"
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "1951-11-01"
+  },
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "PROTEIN MEASUREMENT WITH THE FOLIN PHENOL REAGENT"
+      }
+    }
+  ],
+  "content": [],
+  "identifiers": [
+    "https://openalex.org/W1775749144",
+    "https://doi.org/10.1016/s0021-9258(19)52451-6",
+    {
+      "type": "PropertyValue",
+      "propertyId": "mag",
+      "value": "1775749144"
+    },
+    "https://pubmed.ncbi.nlm.nih.gov/14907713"
+  ],
+  "isPartOf": {
+    "type": "PublicationIssue",
+    "isPartOf": {
+      "type": "PublicationVolume",
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "Journal of Biological Chemistry"
+      },
+      "volumeNumber": "193"
+    },
+    "issueNumber": "1"
+  },
+  "licenses": [
+    "https://creativecommons.org/licenses/by/4.0/"
+  ],
+  "pageStart": "265",
+  "pageEnd": "275"
+}

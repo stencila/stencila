@@ -6,7 +6,7 @@ use super::author::Author;
 use super::block::Block;
 use super::comment::Comment;
 use super::creative_work_type::CreativeWorkType;
-use super::creative_work_type_or_text::CreativeWorkTypeOrText;
+use super::creative_work_type_or_string::CreativeWorkTypeOrString;
 use super::date::Date;
 use super::grant_or_monetary_grant::GrantOrMonetaryGrant;
 use super::image_object::ImageObject;
@@ -258,12 +258,12 @@ pub struct VideoObjectOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub is_part_of: Option<CreativeWorkType>,
 
-    /// License documents that applies to this content, typically indicated by URL.
+    /// License documents that applies to this content, typically indicated by URL, but may be a `CreativeWork` itself.
     #[serde(alias = "license")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub licenses: Option<Vec<CreativeWorkTypeOrText>>,
+    pub licenses: Option<Vec<CreativeWorkTypeOrString>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     #[serde(alias = "hasParts", alias = "part")]

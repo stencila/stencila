@@ -1,0 +1,18 @@
+openalex.articles(...organizations(.name == "University of Auckland"))
+---
+GET https://api.openalex.org/works?filter=type%3Aarticle%2Craw_affiliation_strings.search%3AUniversity%20of%20Auckland
+
+
+openalex.articles(...organizations(.ror == "03b94tp07"))
+---
+GET https://api.openalex.org/works?filter=type%3Aarticle%2Cauthorships.institutions.ror%3A03b94tp07
+
+
+openalex.articles(...organizations(* >= 10))
+---
+GET https://api.openalex.org/works?filter=type%3Aarticle%2Cinstitutions_distinct_count%3A%3E9
+
+
+openalex.articles(...organizations(* <= 5))
+---
+GET https://api.openalex.org/works?filter=type%3Aarticle%2Cinstitutions_distinct_count%3A%3C6

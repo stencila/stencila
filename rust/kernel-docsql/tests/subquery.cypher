@@ -60,5 +60,3 @@ only one count filter (*) allowed per call
 test.articles(* < 10)
 ---
 count filters (*) can only be used with subqueries
-
-

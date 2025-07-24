@@ -1,0 +1,1131 @@
+{
+  "id": "https://openalex.org/W4288041529",
+  "doi": "https://doi.org/10.1177/01445987221113122",
+  "title": "Application of solar cells and wireless system for detecting faults in phasor measurement units using non-linear optimization",
+  "display_name": "Application of solar cells and wireless system for detecting faults in phasor measurement units using non-linear optimization",
+  "publication_year": 2022,
+  "publication_date": "2022-07-26",
+  "ids": {
+    "openalex": "https://openalex.org/W4288041529",
+    "doi": "https://doi.org/10.1177/01445987221113122"
+  },
+  "language": "en",
+  "primary_location": {
+    "is_oa": true,
+    "landing_page_url": "https://doi.org/10.1177/01445987221113122",
+    "pdf_url": null,
+    "source": {
+      "id": "https://openalex.org/S73050191",
+      "display_name": "Energy Exploration & Exploitation",
+      "issn_l": "0144-5987",
+      "issn": [
+        "0144-5987",
+        "2048-4054"
+      ],
+      "is_oa": true,
+      "is_in_doaj": true,
+      "is_indexed_in_scopus": true,
+      "is_core": true,
+      "host_organization": "https://openalex.org/P4310320017",
+      "host_organization_name": "SAGE Publishing",
+      "host_organization_lineage": [
+        "https://openalex.org/P4310320017"
+      ],
+      "host_organization_lineage_names": [
+        "SAGE Publishing"
+      ],
+      "type": "journal"
+    },
+    "license": "cc-by",
+    "license_id": "https://openalex.org/licenses/cc-by",
+    "version": "publishedVersion",
+    "is_accepted": true,
+    "is_published": true
+  },
+  "type": "article",
+  "type_crossref": "journal-article",
+  "indexed_in": [
+    "crossref",
+    "doaj"
+  ],
+  "open_access": {
+    "is_oa": true,
+    "oa_status": "gold",
+    "oa_url": "https://doi.org/10.1177/01445987221113122",
+    "any_repository_has_fulltext": false
+  },
+  "authorships": [
+    {
+      "author_position": "first",
+      "author": {
+        "id": "https://openalex.org/A5085186219",
+        "display_name": "Hariprasath Manoharan",
+        "orcid": null
+      },
+      "institutions": [],
+      "countries": [
+        "IN"
+      ],
+      "is_corresponding": false,
+      "raw_author_name": "Hariprasath Manoharan",
+      "raw_affiliation_strings": [
+        "Department of Electronics and Communication Engineering, Panimalar Engineering College, Chennai, Tamil Nadu, India"
+      ],
+      "affiliations": [
+        {
+          "raw_affiliation_string": "Department of Electronics and Communication Engineering, Panimalar Engineering College, Chennai, Tamil Nadu, India",
+          "institution_ids": []
+        }
+      ]
+    },
+    {
+      "author_position": "middle",
+      "author": {
+        "id": "https://openalex.org/A5084215524",
+        "display_name": "Yuvaraja Teekaraman",
+        "orcid": "https://orcid.org/0000-0003-4297-3460"
+      },
+      "institutions": [
+        {
+          "id": "https://openalex.org/I91136226",
+          "display_name": "University of Sheffield",
+          "ror": "https://ror.org/05krs5044",
+          "country_code": "GB",
+          "type": "funder",
+          "lineage": [
+            "https://openalex.org/I91136226"
+          ]
+        }
+      ],
+      "countries": [
+        "GB"
+      ],
+      "is_corresponding": false,
+      "raw_author_name": "Yuvaraja Teekaraman",
+      "raw_affiliation_strings": [
+        "Department of Electronic and Electrical Engineering, The University of Sheffield, Sheffield, UK"
+      ],
+      "affiliations": [
+        {
+          "raw_affiliation_string": "Department of Electronic and Electrical Engineering, The University of Sheffield, Sheffield, UK",
+          "institution_ids": [
+            "https://openalex.org/I91136226"
+          ]
+        }
+      ]
+    },
+    {
+      "author_position": "middle",
+      "author": {
+        "id": "https://openalex.org/A5008249092",
+        "display_name": "Ramya Kuppusamy",
+        "orcid": null
+      },
+      "institutions": [],
+      "countries": [
+        "IN"
+      ],
+      "is_corresponding": false,
+      "raw_author_name": "Ramya Kuppusamy",
+      "raw_affiliation_strings": [
+        "Department of Electrical and Electronics Engineering, Sri Sairam College of Engineering, Bangalore City, India"
+      ],
+      "affiliations": [
+        {
+          "raw_affiliation_string": "Department of Electrical and Electronics Engineering, Sri Sairam College of Engineering, Bangalore City, India",
+          "institution_ids": []
+        }
+      ]
+    },
+    {
+      "author_position": "last",
+      "author": {
+        "id": "https://openalex.org/A5066119714",
+        "display_name": "Arun Radhakrishnan",
+        "orcid": "https://orcid.org/0000-0003-3700-2491"
+      },
+      "institutions": [
+        {
+          "id": "https://openalex.org/I1443707",
+          "display_name": "Jimma University",
+          "ror": "https://ror.org/05eer8g02",
+          "country_code": "ET",
+          "type": "funder",
+          "lineage": [
+            "https://openalex.org/I1443707"
+          ]
+        }
+      ],
+      "countries": [
+        "ET"
+      ],
+      "is_corresponding": true,
+      "raw_author_name": "Arun Radhakrishnan",
+      "raw_affiliation_strings": [
+        "Faculty of Electrical & Computer Engineering, Jimma Institute of Technology, Jimma University, Ethiopia"
+      ],
+      "affiliations": [
+        {
+          "raw_affiliation_string": "Faculty of Electrical & Computer Engineering, Jimma Institute of Technology, Jimma University, Ethiopia",
+          "institution_ids": [
+            "https://openalex.org/I1443707"
+          ]
+        }
+      ]
+    }
+  ],
+  "institution_assertions": [],
+  "countries_distinct_count": 3,
+  "institutions_distinct_count": 2,
+  "corresponding_author_ids": [
+    "https://openalex.org/A5066119714"
+  ],
+  "corresponding_institution_ids": [
+    "https://openalex.org/I1443707"
+  ],
+  "apc_list": {
+    "value": 1200,
+    "currency": "USD",
+    "value_usd": 1200
+  },
+  "apc_paid": {
+    "value": 1200,
+    "currency": "USD",
+    "value_usd": 1200
+  },
+  "fwci": 0.454,
+  "has_fulltext": false,
+  "cited_by_count": 3,
+  "citation_normalized_percentile": {
+    "value": 0.566549,
+    "is_in_top_1_percent": false,
+    "is_in_top_10_percent": false
+  },
+  "cited_by_percentile_year": {
+    "min": 74,
+    "max": 78
+  },
+  "biblio": {
+    "volume": "41",
+    "issue": "1",
+    "first_page": "210",
+    "last_page": "223"
+  },
+  "is_retracted": false,
+  "is_paratext": false,
+  "primary_topic": {
+    "id": "https://openalex.org/T10972",
+    "display_name": "Power Systems Fault Detection",
+    "score": 0.9994,
+    "subfield": {
+      "id": "https://openalex.org/subfields/2207",
+      "display_name": "Control and Systems Engineering"
+    },
+    "field": {
+      "id": "https://openalex.org/fields/22",
+      "display_name": "Engineering"
+    },
+    "domain": {
+      "id": "https://openalex.org/domains/3",
+      "display_name": "Physical Sciences"
+    }
+  },
+  "topics": [
+    {
+      "id": "https://openalex.org/T10972",
+      "display_name": "Power Systems Fault Detection",
+      "score": 0.9994,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2207",
+        "display_name": "Control and Systems Engineering"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/22",
+        "display_name": "Engineering"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10305",
+      "display_name": "Power System Optimization and Stability",
+      "score": 0.9993,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2208",
+        "display_name": "Electrical and Electronic Engineering"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/22",
+        "display_name": "Engineering"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13183",
+      "display_name": "Islanding Detection in Power Systems",
+      "score": 0.9991,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2208",
+        "display_name": "Electrical and Electronic Engineering"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/22",
+        "display_name": "Engineering"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    }
+  ],
+  "keywords": [
+    {
+      "id": "https://openalex.org/keywords/heuristics",
+      "display_name": "Heuristics",
+      "score": 0.5624985
+    },
+    {
+      "id": "https://openalex.org/keywords/phasor-measurement-unit",
+      "display_name": "Phasor measurement unit",
+      "score": 0.44951558
+    },
+    {
+      "id": "https://openalex.org/keywords/fault-indicator",
+      "display_name": "Fault indicator",
+      "score": 0.41427207
+    },
+    {
+      "id": "https://openalex.org/keywords/units-of-measurement",
+      "display_name": "Units of measurement",
+      "score": 0.41394767
+    }
+  ],
+  "concepts": [
+    {
+      "id": "https://openalex.org/C176605952",
+      "wikidata": "https://www.wikidata.org/wiki/Q827674",
+      "display_name": "Phasor",
+      "level": 4,
+      "score": 0.78226733
+    },
+    {
+      "id": "https://openalex.org/C175551986",
+      "wikidata": "https://www.wikidata.org/wiki/Q47089",
+      "display_name": "Fault (geology)",
+      "level": 2,
+      "score": 0.6343075
+    },
+    {
+      "id": "https://openalex.org/C127705205",
+      "wikidata": "https://www.wikidata.org/wiki/Q5748245",
+      "display_name": "Heuristics",
+      "level": 2,
+      "score": 0.5624985
+    },
+    {
+      "id": "https://openalex.org/C41008148",
+      "wikidata": "https://www.wikidata.org/wiki/Q21198",
+      "display_name": "Computer science",
+      "level": 0,
+      "score": 0.4811917
+    },
+    {
+      "id": "https://openalex.org/C555944384",
+      "wikidata": "https://www.wikidata.org/wiki/Q249",
+      "display_name": "Wireless",
+      "level": 2,
+      "score": 0.47036335
+    },
+    {
+      "id": "https://openalex.org/C89227174",
+      "wikidata": "https://www.wikidata.org/wiki/Q2388981",
+      "display_name": "Electric power system",
+      "level": 3,
+      "score": 0.4562806
+    },
+    {
+      "id": "https://openalex.org/C152745839",
+      "wikidata": "https://www.wikidata.org/wiki/Q5438153",
+      "display_name": "Fault detection and isolation",
+      "level": 3,
+      "score": 0.45506522
+    },
+    {
+      "id": "https://openalex.org/C2778229166",
+      "wikidata": "https://www.wikidata.org/wiki/Q8290",
+      "display_name": "Phasor measurement unit",
+      "level": 5,
+      "score": 0.44951558
+    },
+    {
+      "id": "https://openalex.org/C41045048",
+      "wikidata": "https://www.wikidata.org/wiki/Q202843",
+      "display_name": "Linear programming",
+      "level": 2,
+      "score": 0.43306458
+    },
+    {
+      "id": "https://openalex.org/C187691185",
+      "wikidata": "https://www.wikidata.org/wiki/Q2020720",
+      "display_name": "Grid",
+      "level": 2,
+      "score": 0.43064255
+    },
+    {
+      "id": "https://openalex.org/C79403827",
+      "wikidata": "https://www.wikidata.org/wiki/Q3988",
+      "display_name": "Real-time computing",
+      "level": 1,
+      "score": 0.4220021
+    },
+    {
+      "id": "https://openalex.org/C163258240",
+      "wikidata": "https://www.wikidata.org/wiki/Q25342",
+      "display_name": "Power (physics)",
+      "level": 2,
+      "score": 0.4197376
+    },
+    {
+      "id": "https://openalex.org/C21267803",
+      "wikidata": "https://www.wikidata.org/wiki/Q5438159",
+      "display_name": "Fault indicator",
+      "level": 4,
+      "score": 0.41427207
+    },
+    {
+      "id": "https://openalex.org/C151233233",
+      "wikidata": "https://www.wikidata.org/wiki/Q47574",
+      "display_name": "Units of measurement",
+      "level": 2,
+      "score": 0.41394767
+    },
+    {
+      "id": "https://openalex.org/C200601418",
+      "wikidata": "https://www.wikidata.org/wiki/Q2193887",
+      "display_name": "Reliability engineering",
+      "level": 1,
+      "score": 0.3932064
+    },
+    {
+      "id": "https://openalex.org/C127413603",
+      "wikidata": "https://www.wikidata.org/wiki/Q11023",
+      "display_name": "Engineering",
+      "level": 0,
+      "score": 0.36669472
+    },
+    {
+      "id": "https://openalex.org/C11413529",
+      "wikidata": "https://www.wikidata.org/wiki/Q8366",
+      "display_name": "Algorithm",
+      "level": 1,
+      "score": 0.26909107
+    },
+    {
+      "id": "https://openalex.org/C119599485",
+      "wikidata": "https://www.wikidata.org/wiki/Q43035",
+      "display_name": "Electrical engineering",
+      "level": 1,
+      "score": 0.17606717
+    },
+    {
+      "id": "https://openalex.org/C33923547",
+      "wikidata": "https://www.wikidata.org/wiki/Q395",
+      "display_name": "Mathematics",
+      "level": 0,
+      "score": 0.12205601
+    },
+    {
+      "id": "https://openalex.org/C76155785",
+      "wikidata": "https://www.wikidata.org/wiki/Q418",
+      "display_name": "Telecommunications",
+      "level": 1,
+      "score": 0.0
+    },
+    {
+      "id": "https://openalex.org/C121332964",
+      "wikidata": "https://www.wikidata.org/wiki/Q413",
+      "display_name": "Physics",
+      "level": 0,
+      "score": 0.0
+    },
+    {
+      "id": "https://openalex.org/C2524010",
+      "wikidata": "https://www.wikidata.org/wiki/Q8087",
+      "display_name": "Geometry",
+      "level": 1,
+      "score": 0.0
+    },
+    {
+      "id": "https://openalex.org/C62520636",
+      "wikidata": "https://www.wikidata.org/wiki/Q944",
+      "display_name": "Quantum mechanics",
+      "level": 1,
+      "score": 0.0
+    },
+    {
+      "id": "https://openalex.org/C165205528",
+      "wikidata": "https://www.wikidata.org/wiki/Q83371",
+      "display_name": "Seismology",
+      "level": 1,
+      "score": 0.0
+    },
+    {
+      "id": "https://openalex.org/C172707124",
+      "wikidata": "https://www.wikidata.org/wiki/Q423488",
+      "display_name": "Actuator",
+      "level": 2,
+      "score": 0.0
+    },
+    {
+      "id": "https://openalex.org/C127313418",
+      "wikidata": "https://www.wikidata.org/wiki/Q1069",
+      "display_name": "Geology",
+      "level": 0,
+      "score": 0.0
+    },
+    {
+      "id": "https://openalex.org/C111919701",
+      "wikidata": "https://www.wikidata.org/wiki/Q9135",
+      "display_name": "Operating system",
+      "level": 1,
+      "score": 0.0
+    }
+  ],
+  "mesh": [],
+  "locations_count": 2,
+  "locations": [
+    {
+      "is_oa": true,
+      "landing_page_url": "https://doi.org/10.1177/01445987221113122",
+      "pdf_url": null,
+      "source": {
+        "id": "https://openalex.org/S73050191",
+        "display_name": "Energy Exploration & Exploitation",
+        "issn_l": "0144-5987",
+        "issn": [
+          "0144-5987",
+          "2048-4054"
+        ],
+        "is_oa": true,
+        "is_in_doaj": true,
+        "is_indexed_in_scopus": true,
+        "is_core": true,
+        "host_organization": "https://openalex.org/P4310320017",
+        "host_organization_name": "SAGE Publishing",
+        "host_organization_lineage": [
+          "https://openalex.org/P4310320017"
+        ],
+        "host_organization_lineage_names": [
+          "SAGE Publishing"
+        ],
+        "type": "journal"
+      },
+      "license": "cc-by",
+      "license_id": "https://openalex.org/licenses/cc-by",
+      "version": "publishedVersion",
+      "is_accepted": true,
+      "is_published": true
+    },
+    {
+      "is_oa": false,
+      "landing_page_url": "https://doaj.org/article/b72d9a1f04e44ce9957b35c738ecb76b",
+      "pdf_url": null,
+      "source": {
+        "id": "https://openalex.org/S4306401280",
+        "display_name": "DOAJ (DOAJ: Directory of Open Access Journals)",
+        "issn_l": null,
+        "issn": null,
+        "is_oa": true,
+        "is_in_doaj": false,
+        "is_indexed_in_scopus": false,
+        "is_core": false,
+        "host_organization": null,
+        "host_organization_name": null,
+        "host_organization_lineage": [],
+        "host_organization_lineage_names": [],
+        "type": "repository"
+      },
+      "license": null,
+      "license_id": null,
+      "version": null,
+      "is_accepted": false,
+      "is_published": false
+    }
+  ],
+  "best_oa_location": {
+    "is_oa": true,
+    "landing_page_url": "https://doi.org/10.1177/01445987221113122",
+    "pdf_url": null,
+    "source": {
+      "id": "https://openalex.org/S73050191",
+      "display_name": "Energy Exploration & Exploitation",
+      "issn_l": "0144-5987",
+      "issn": [
+        "0144-5987",
+        "2048-4054"
+      ],
+      "is_oa": true,
+      "is_in_doaj": true,
+      "is_indexed_in_scopus": true,
+      "is_core": true,
+      "host_organization": "https://openalex.org/P4310320017",
+      "host_organization_name": "SAGE Publishing",
+      "host_organization_lineage": [
+        "https://openalex.org/P4310320017"
+      ],
+      "host_organization_lineage_names": [
+        "SAGE Publishing"
+      ],
+      "type": "journal"
+    },
+    "license": "cc-by",
+    "license_id": "https://openalex.org/licenses/cc-by",
+    "version": "publishedVersion",
+    "is_accepted": true,
+    "is_published": true
+  },
+  "sustainable_development_goals": [
+    {
+      "score": 0.67,
+      "id": "https://metadata.un.org/sdg/7",
+      "display_name": "Affordable and clean energy"
+    }
+  ],
+  "grants": [],
+  "datasets": [],
+  "versions": [],
+  "referenced_works_count": 23,
+  "referenced_works": [
+    "https://openalex.org/W1934071914",
+    "https://openalex.org/W2001979953",
+    "https://openalex.org/W2025505447",
+    "https://openalex.org/W2028659449",
+    "https://openalex.org/W2080646385",
+    "https://openalex.org/W2090956425",
+    "https://openalex.org/W2321674405",
+    "https://openalex.org/W2405718429",
+    "https://openalex.org/W2542813941",
+    "https://openalex.org/W2589283077",
+    "https://openalex.org/W2617747909",
+    "https://openalex.org/W2726319948",
+    "https://openalex.org/W2753609891",
+    "https://openalex.org/W2767891474",
+    "https://openalex.org/W2782936428",
+    "https://openalex.org/W2787868362",
+    "https://openalex.org/W2806882889",
+    "https://openalex.org/W2883938742",
+    "https://openalex.org/W2886948626",
+    "https://openalex.org/W2898526571",
+    "https://openalex.org/W3049680392",
+    "https://openalex.org/W4210719279",
+    "https://openalex.org/W4255220859"
+  ],
+  "related_works": [
+    "https://openalex.org/W2564500233",
+    "https://openalex.org/W2547260311",
+    "https://openalex.org/W2536794900",
+    "https://openalex.org/W2371020764",
+    "https://openalex.org/W2154842468",
+    "https://openalex.org/W2096980798",
+    "https://openalex.org/W2028471916",
+    "https://openalex.org/W1995635042",
+    "https://openalex.org/W1589114377",
+    "https://openalex.org/W1538400183"
+  ],
+  "abstract_inverted_index": {
+    "This": [
+      0
+    ],
+    "research": [
+      1
+    ],
+    "study": [
+      2
+    ],
+    "examines": [
+      3
+    ],
+    "the": [
+      4,
+      38,
+      45,
+      50,
+      80,
+      90,
+      96,
+      108,
+      124,
+      143,
+      158,
+      179
+    ],
+    "integration": [
+      5
+    ],
+    "of": [
+      6,
+      16,
+      25,
+      53,
+      71,
+      82,
+      87,
+      95,
+      107,
+      117,
+      127,
+      188,
+      190,
+      201
+    ],
+    "wireless": [
+      7,
+      60,
+      134
+    ],
+    "system": [
+      8,
+      92,
+      111
+    ],
+    "and": [
+      9,
+      14,
+      93,
+      104,
+      129,
+      151,
+      175,
+      196
+    ],
+    "solar": [
+      10
+    ],
+    "cells": [
+      11
+    ],
+    "for": [
+      12,
+      142,
+      153,
+      193
+    ],
+    "detection": [
+      13
+    ],
+    "location": [
+      15,
+      64,
+      84,
+      131,
+      198
+    ],
+    "faults": [
+      17,
+      88,
+      97
+    ],
+    "in": [
+      18,
+      37,
+      44,
+      65,
+      74,
+      89,
+      186,
+      199
+    ],
+    "power": [
+      19,
+      66,
+      91,
+      110
+    ],
+    "grids": [
+      20
+    ],
+    "by": [
+      21
+    ],
+    "implementing": [
+      22
+    ],
+    "minimum": [
+      23,
+      125
+    ],
+    "number": [
+      24,
+      126,
+      189,
+      200
+    ],
+    "Phasor": [
+      26
+    ],
+    "Measurement": [
+      27
+    ],
+    "Units": [
+      28
+    ],
+    "(PMUs)": [
+      29
+    ],
+    "after": [
+      30
+    ],
+    "considering": [
+      31
+    ],
+    "zero": [
+      32
+    ],
+    "injection": [
+      33
+    ],
+    "buses.": [
+      34
+    ],
+    "A": [
+      35
+    ],
+    "fault": [
+      36,
+      63,
+      137,
+      155,
+      202
+    ],
+    "grid": [
+      39,
+      67
+    ],
+    "networks": [
+      40
+    ],
+    "indicates": [
+      41
+    ],
+    "a": [
+      42,
+      140
+    ],
+    "failure": [
+      43
+    ],
+    "entire": [
+      46
+    ],
+    "network": [
+      47
+    ],
+    "that": [
+      48
+    ],
+    "interfaces": [
+      49
+    ],
+    "normal": [
+      51
+    ],
+    "flow": [
+      52
+    ],
+    "current": [
+      54
+    ],
+    "which": [
+      55
+    ],
+    "can": [
+      56
+    ],
+    "be": [
+      57,
+      183
+    ],
+    "measured": [
+      58
+    ],
+    "using": [
+      59,
+      166,
+      208
+    ],
+    "systems.": [
+      61
+    ],
+    "The": [
+      62,
+      114,
+      146
+    ],
+    "is": [
+      68,
+      121,
+      149
+    ],
+    "problematic": [
+      69
+    ],
+    "because": [
+      70
+    ],
+    "high": [
+      72
+    ],
+    "existence": [
+      73
+    ],
+    "several": [
+      75
+    ],
+    "lateral": [
+      76
+    ],
+    "tap-offs.": [
+      77
+    ],
+    "In": [
+      78
+    ],
+    "addition,": [
+      79
+    ],
+    "identification": [
+      81
+    ],
+    "exact": [
+      83
+    ],
+    "with": [
+      85,
+      132,
+      139,
+      162
+    ],
+    "presence": [
+      86
+    ],
+    "severity": [
+      94
+    ],
+    "are": [
+      98,
+      160
+    ],
+    "challenging": [
+      99
+    ],
+    "tasks": [
+      100
+    ],
+    "due": [
+      101
+    ],
+    "to": [
+      102,
+      122,
+      182
+    ],
+    "bulk": [
+      103
+    ],
+    "complex": [
+      105
+    ],
+    "nature": [
+      106
+    ],
+    "electrical": [
+      109
+    ],
+    "state": [
+      112
+    ],
+    "estimation.": [
+      113
+    ],
+    "major": [
+      115
+    ],
+    "requirement": [
+      116
+    ],
+    "PMU": [
+      118,
+      191
+    ],
+    "placement": [
+      119
+    ],
+    "approach": [
+      120
+    ],
+    "find": [
+      123
+    ],
+    "PMUs": [
+      128
+    ],
+    "their": [
+      130
+    ],
+    "maximum": [
+      133
+    ],
+    "coverage": [
+      135
+    ],
+    "under": [
+      136
+    ],
+    "conditions": [
+      138,
+      156
+    ],
+    "prerequisite": [
+      141
+    ],
+    "projected": [
+      144
+    ],
+    "algorithm.": [
+      145
+    ],
+    "integrated": [
+      147
+    ],
+    "algorithm": [
+      148
+    ],
+    "tested": [
+      150
+    ],
+    "validated": [
+      152
+    ],
+    "different": [
+      154,
+      163,
+      167
+    ],
+    "where": [
+      157,
+      178
+    ],
+    "results": [
+      159
+    ],
+    "compared": [
+      161
+    ],
+    "conventional": [
+      164
+    ],
+    "methods": [
+      165
+    ],
+    "optimization": [
+      168
+    ],
+    "models": [
+      169
+    ],
+    "such": [
+      170
+    ],
+    "as": [
+      171
+    ],
+    "heuristics,": [
+      172
+    ],
+    "decision": [
+      173
+    ],
+    "rules": [
+      174
+    ],
+    "mathematical": [
+      176
+    ],
+    "programming": [
+      177
+    ],
+    "outcomes": [
+      180
+    ],
+    "proves": [
+      181
+    ],
+    "much": [
+      184
+    ],
+    "effective": [
+      185
+    ],
+    "terms": [
+      187
+    ],
+    "installation": [
+      192
+    ],
+    "proper": [
+      194
+    ],
+    "placements": [
+      195
+    ],
+    "detection,": [
+      197
+    ],
+    "systems": [
+      203
+    ],
+    "thus": [
+      204
+    ],
+    "achieving": [
+      205
+    ],
+    "82%": [
+      206
+    ],
+    "reliability": [
+      207
+    ],
+    "Ant": [
+      209
+    ],
+    "Lion": [
+      210
+    ],
+    "Optimizer": [
+      211
+    ],
+    "(ALO).": [
+      212
+    ]
+  },
+  "abstract_inverted_index_v3": null,
+  "cited_by_api_url": "https://api.openalex.org/works?filter=cites:W4288041529",
+  "counts_by_year": [
+    {
+      "year": 2024,
+      "cited_by_count": 2
+    },
+    {
+      "year": 2023,
+      "cited_by_count": 1
+    }
+  ],
+  "updated_date": "2025-06-20T13:24:45.706459",
+  "created_date": "2022-07-27"
+}

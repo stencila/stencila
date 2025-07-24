@@ -155,6 +155,12 @@ pub enum NodeType {
 }
 
 impl NodeType {
+    /// Is the node type a creative work type?
+    pub fn is_creative_work(&self) -> bool {
+        use NodeType::*;
+        matches!(self, Article|AudioObject|Chat|Claim|Collection|Comment|Datatable|Figure|ImageObject|MediaObject|Periodical|Prompt|PublicationIssue|PublicationVolume|Review|SoftwareApplication|SoftwareSourceCode|Table|VideoObject)
+    }
+
     /// Is the node type a block content type?
     pub fn is_block(&self) -> bool {
         use NodeType::*;

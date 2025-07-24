@@ -191,6 +191,15 @@ impl Schemas {
             .map(|title| format!("    {title},"))
             .join("\n");
 
+        let creative_work_types = self
+            .schemas
+            .get("CreativeWorkType")
+            .and_then(|schema| schema.any_of.as_ref())
+            .expect("should always exist")
+            .iter()
+            .filter_map(|schema| schema.r#ref.as_ref())
+            .join("|");
+
         let block_types = self
             .schemas
             .get("Block")
@@ -261,6 +270,12 @@ pub enum NodeType {{
 }}
 
 impl NodeType {{
+    /// Is the node type a creative work type?
+    pub fn is_creative_work(&self) -> bool {{
+        use NodeType::*;
+        matches!(self, {creative_work_types})
+    }}
+
     /// Is the node type a block content type?
     pub fn is_block(&self) -> bool {{
         use NodeType::*;

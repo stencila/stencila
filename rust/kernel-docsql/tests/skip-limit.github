@@ -1,0 +1,18 @@
+github.repositories().skip(5).limit(10)
+---
+GET https://api.github.com/search/repositories?q=%2A&per_page=15
+
+
+github.repositories(skip=5,limit=10)
+---
+GET https://api.github.com/search/repositories?q=%2A&per_page=15
+
+
+github.files().limit(3).skip(4)
+---
+GET https://api.github.com/search/code?q=%2A&per_page=7
+
+
+github.users(limit=50, skip = 100)
+---
+GET https://api.github.com/search/users?q=%2A&per_page=150

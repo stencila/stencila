@@ -4,7 +4,7 @@ import { Author } from "./Author.js";
 import { Block } from "./Block.js";
 import { Comment } from "./Comment.js";
 import { CreativeWorkType } from "./CreativeWorkType.js";
-import { CreativeWorkTypeOrText } from "./CreativeWorkTypeOrText.js";
+import { CreativeWorkTypeOrString } from "./CreativeWorkTypeOrString.js";
 import { Date } from "./Date.js";
 import { GrantOrMonetaryGrant } from "./GrantOrMonetaryGrant.js";
 import { Inline } from "./Inline.js";
@@ -120,9 +120,9 @@ export class CreativeWork extends Thing {
   isPartOf?: CreativeWorkType;
 
   /**
-   * License documents that applies to this content, typically indicated by URL.
+   * License documents that applies to this content, typically indicated by URL, but may be a `CreativeWork` itself.
    */
-  licenses?: CreativeWorkTypeOrText[];
+  licenses?: CreativeWorkTypeOrString[];
 
   /**
    * Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.

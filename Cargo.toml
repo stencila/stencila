@@ -26,6 +26,7 @@ darling = "0.20.11"
 derive_more = { version = "2.0.1", features = ["display", "deref", "deref_mut", "into_iterator"] }
 directories = "6.0.0"
 flate2 = "1.1.2"
+governor = {version = "0.10.0", default-features = false, features = ["std"]}
 lru = "0.14.0"
 mime = "0.3.17"
 mime_guess = "2.0.5"

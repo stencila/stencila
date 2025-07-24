@@ -1,0 +1,68 @@
+openalex
+---
+GET https://api.openalex.org/works
+
+
+openalex.works()
+---
+GET https://api.openalex.org/works
+
+
+openalex.articles()
+---
+GET https://api.openalex.org/works?filter=type%3Aarticle
+
+
+openalex.books()
+---
+GET https://api.openalex.org/works?filter=type%3Abook
+
+
+openalex.chapters()
+---
+GET https://api.openalex.org/works?filter=type%3Abook-chapter
+
+
+openalex.preprints()
+---
+GET https://api.openalex.org/works?filter=type%3Apreprint
+
+
+openalex.dissertations()
+---
+GET https://api.openalex.org/works?filter=type%3Adissertation
+
+
+openalex.reviews()
+---
+GET https://api.openalex.org/works?filter=type%3Areview
+
+
+openalex.standards()
+---
+GET https://api.openalex.org/works?filter=type%3Astandard
+
+
+openalex.grants()
+---
+GET https://api.openalex.org/works?filter=type%3Agrant
+
+
+openalex.retractions()
+---
+GET https://api.openalex.org/works?filter=type%3Aretraction
+
+
+openalex.datasets()
+---
+GET https://api.openalex.org/works?filter=type%3Adataset
+
+
+openalex.people()
+---
+GET https://api.openalex.org/authors
+
+
+openalex.organizations()
+---
+GET https://api.openalex.org/institutions

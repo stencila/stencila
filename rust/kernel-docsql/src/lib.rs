@@ -26,8 +26,12 @@ use kernel_jinja::{
     JinjaKernelContext,
 };
 
+mod github;
+mod openalex;
 mod query;
 
+use github::{add_github_functions, GitHubQuery};
+use openalex::{add_openalex_functions, OpenAlexQuery};
 use query::{
     add_constants, add_document_functions, add_functions, add_subquery_functions, NodeProxies,
     NodeProxy, Query, GLOBAL_NAMES,
@@ -184,6 +188,12 @@ impl KernelInstance for DocsQLKernelInstance {
 
         add_subquery_functions(&mut env);
 
+        let openalex = Arc::new(OpenAlexQuery::new(messages.clone()));
+        add_openalex_functions(&mut env, openalex);
+
+        let github = Arc::new(GitHubQuery::new(messages.clone()));
+        add_github_functions(&mut env, github);
+
         #[cfg(debug_assertions)]
         if code.contains("test") {
             env.add_global(
@@ -200,6 +210,18 @@ impl KernelInstance for DocsQLKernelInstance {
         if code.trim().is_empty() {
             return Ok(Default::default());
         }
+
+        let should_use_db_method = |db: &str| {
+            Ok((
+                Vec::new(),
+                vec![ExecutionMessage::new(
+                    MessageLevel::Error,
+                    format!(
+                        "Document database should have a method called on it, e.g. `{db}.figures()`",
+                    ),
+                )],
+            ))
+        };
 
         let mut outputs = Vec::new();
         let mut line_offset = 0;
@@ -297,18 +319,18 @@ impl KernelInstance for DocsQLKernelInstance {
                 ));
             } else if let Some(query) = value.downcast_object::<Query>() {
                 if query.is_database {
-                    return Ok((
-                        Vec::new(),
-                        vec![ExecutionMessage::new(
-                            MessageLevel::Error,
-                            format!(
-                                "Document database should have a method called on it, e.g. `{}.figures()`",
-                                statement.trim()
-                            ),
-                        )],
-                    ));
+                    return should_use_db_method(statement.trim());
                 }
-
+                query.nodes()
+            } else if let Some(query) = value.downcast_object::<GitHubQuery>() {
+                if query.is_database {
+                    return should_use_db_method(statement.trim());
+                }
+                query.nodes()
+            } else if let Some(query) = value.downcast_object::<OpenAlexQuery>() {
+                if query.is_database {
+                    return should_use_db_method(statement.trim());
+                }
                 query.nodes()
             } else if let Some(proxies) = value.downcast_object::<NodeProxies>() {
                 proxies.nodes()

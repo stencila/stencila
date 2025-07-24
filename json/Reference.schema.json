@@ -8,6 +8,9 @@
   ],
   "category": "works",
   "description": "A reference to a creative work, including books, movies, photographs, software programs, etc.",
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type"
   ],

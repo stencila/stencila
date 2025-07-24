@@ -1,0 +1,73 @@
+---
+source: rust/codec-openalex/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "id": "https://openalex.org/W2150233247",
+  "doi": "10.5539/ies.v2n4p117",
+  "abstract": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "This paper not only aims to present the feedback received from the students, but also evaluate the feedback by review the teaching practice. It analyses the teacher should be aware of the importance that feedback, both to and from the students, has upon the teaching and learning process. Through a case study about the feedback from the students in Construction Engineering Technology of YAU, the author gives some suggestions on the teaching that the teacher’s reflective evaluation can refine the teaching and help them to be better teachers. The teacher may incorporate feedback into practice, which teachers, like students, can benefits from assessment and evaluation of their own work or practice."
+          }
+        }
+      ]
+    }
+  ],
+  "authors": [
+    {
+      "type": "Person",
+      "orcid": "0009-0005-0449-7055",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Yunnan Agricultural University",
+          "ror": "04dpa3g90"
+        }
+      ],
+      "name": "Liping Chen"
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2009-10-15"
+  },
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Evaluation from Students—A Case Study in Construction Engineering Technology of YAU"
+      }
+    }
+  ],
+  "content": [],
+  "identifiers": [
+    "https://openalex.org/W2150233247",
+    "https://doi.org/10.5539/ies.v2n4p117",
+    {
+      "type": "PropertyValue",
+      "propertyId": "mag",
+      "value": "2150233247"
+    }
+  ],
+  "isPartOf": {
+    "type": "PublicationIssue",
+    "isPartOf": {
+      "type": "PublicationVolume",
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "International Education Studies"
+      },
+      "volumeNumber": "2"
+    },
+    "issueNumber": "4"
+  },
+  "licenses": [
+    "https://creativecommons.org/licenses/by/4.0/"
+  ]
+}

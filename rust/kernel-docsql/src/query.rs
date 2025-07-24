@@ -30,6 +30,8 @@ use kernel_jinja::{
     },
 };
 
+use crate::openalex::OpenAlexQuery;
+
 const GLOBAL_CONSTS: &[&str] = &["above", "below", "return"];
 
 /// Names added to the Jinja environment with `env.add_global`
@@ -45,6 +47,8 @@ pub(crate) const GLOBAL_NAMES: &[&str] = &[
     // Database names added in lib.rs
     "document",
     "workspace",
+    "openalex",
+    "github",
     // Added in add_document_functions
     // Static code
     "codeBlock",
@@ -111,7 +115,13 @@ pub(crate) const GLOBAL_NAMES: &[&str] = &[
     "variables",
     // Added in add_subquery_functions
     "_authors",
+    "_owners",
     "_references",
+    "_cites",
+    "_citedBy",
+    "_affiliations",
+    "_organizations",
+    "_topics",
     "_chunks",
     "_expressions",
     "_audios",
@@ -1336,31 +1346,42 @@ impl Object for Query {
 
 /// A subquery filter
 #[derive(Debug, Clone)]
-pub(super) struct Subquery {
+pub(crate) struct Subquery {
     /// The `MATCH` pattern for the subquery
     ///
     /// The front of the pattern can not be determined until the `generate`
     /// method is called.
-    pattern: String,
+    pub(crate) pattern: String,
 
     /// The initial relation involved in the subquery
-    first_relation: String,
+    pub(crate) first_relation: String,
 
     /// The initial table involved in the subquery
-    first_table: String,
+    pub(crate) first_table: String,
 
     /// The last table involved in the subquery
     ///
     /// Used to determine the relation at the back of the `pattern`.
-    last_table: String,
+    pub(crate) last_table: String,
 
-    /// Filters applied in the subquery
-    ands: Vec<String>,
+    /// Filters applied in the subquery (Cypher format for KuzuDB)
+    pub(crate) ands: Vec<String>,
 
     /// Whether this is a `COUNT` subquery, and if so the conditional clause associated with it.
     ///
     /// See https://docs.kuzudb.com/cypher/subquery/#count
-    count: Option<String>,
+    pub(crate) count: Option<String>,
+
+    /// Raw filter information for external APIs like OpenAlex
+    ///
+    /// Stores the original property name, operator, and value before conversion to Cypher
+    pub(crate) raw_filters: Vec<(String, String, Value)>,
+
+    /// Query objects passed to subqueries for ID-based filtering
+    ///
+    /// Stores query objects (OpenAlex queries, workspace queries) that should be executed
+    /// to extract IDs for external API filters like OpenAlex's cited_by
+    pub(crate) query_objects: Vec<Value>,
 }
 
 impl Subquery {
@@ -1374,6 +1395,8 @@ impl Subquery {
             last_table: table,
             ands: Vec::new(),
             count: None,
+            raw_filters: Vec::new(),
+            query_objects: Vec::new(),
         }
     }
 
@@ -1409,11 +1432,54 @@ impl Object for Subquery {
         // TODO: alias needs to be different from alias used in outer
         let alias = alias_for_table(table);
 
-        let (kwargs,): (Kwargs,) = from_args(args)?;
-        for arg in kwargs.args() {
-            let value = kwargs.get(arg)?;
+        let (query, kwargs): (Option<Value>, Kwargs) = from_args(args)?;
 
-            let filter = apply_filter(&alias, arg, value, true)?;
+        if let Some(query) = query {
+            // Check if this is a query object that should be stored for ID extraction
+            if query.downcast_object_ref::<Query>().is_some()
+                || query.downcast_object_ref::<OpenAlexQuery>().is_some()
+            {
+                // Store query object for later ID extraction
+                subquery.query_objects.push(query.clone());
+            } else {
+                return Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    format!(
+                        "non-keyword arguments must be another query, got a {}",
+                        query.kind()
+                    ),
+                ));
+            }
+        }
+
+        for arg in kwargs.args() {
+            let value: Value = kwargs.get(arg)?;
+
+            // Extract original property name and operator for external APIs
+            let (clean_property, operator) = if arg.len() > 1 {
+                if let Some(last_char) = arg.chars().last() {
+                    match last_char {
+                        '0' => (arg.trim_end_matches('0'), "!="),
+                        '1' => (arg.trim_end_matches('1'), "<"),
+                        '2' => (arg.trim_end_matches('2'), "<="),
+                        '3' => (arg.trim_end_matches('3'), ">"),
+                        '4' => (arg.trim_end_matches('4'), ">="),
+                        '5' => (arg.trim_end_matches('5'), "~="),
+                        '6' => (arg.trim_end_matches('6'), "!~"),
+                        '7' => (arg.trim_end_matches('7'), "^="),
+                        '8' => (arg.trim_end_matches('8'), "$="),
+                        '9' => (arg.trim_end_matches('9'), "in"),
+                        '_' => (arg.trim_end_matches('_'), "has"),
+                        _ => (arg, "=="),
+                    }
+                } else {
+                    (arg, "==")
+                }
+            } else {
+                (arg, "==")
+            };
+
+            let filter = apply_filter(&alias, arg, value.clone(), true)?;
 
             if let Some(rest) = filter.strip_prefix("_COUNT") {
                 if subquery.count.is_some() {
@@ -1426,6 +1492,12 @@ impl Object for Subquery {
                 subquery.count = Some(rest.trim().to_string());
             } else {
                 subquery.ands.push(filter);
+                // Store original filter information for external APIs
+                subquery.raw_filters.push((
+                    clean_property.to_string(),
+                    operator.to_string(),
+                    value,
+                ));
             }
         }
 
@@ -1737,6 +1809,13 @@ pub(super) fn add_subquery_functions(env: &mut Environment) {
     for (name, relation, table) in [
         ("authors", "[authors]", NodeType::Person),
         ("references", "[references]", NodeType::Reference),
+        ("cites", "[references]", NodeType::Reference),
+        ("citedBy", "[citedBy]", NodeType::Reference),
+        ("affiliations", "[affiliations]", NodeType::Organization),
+        ("organizations", "[organizations]", NodeType::Organization),
+        // GitHub-specific subqueries
+        ("topics", "[topics]", NodeType::String), // GitHub topics are strings
+        ("owners", "[owners]", NodeType::Person),
     ] {
         env.add_global(
             ["_", name].concat(),

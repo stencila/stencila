@@ -651,7 +651,7 @@ export function {name}({required_args}options?: Partial<{title}>): {title} {{
         // A hack to avoid issues for the generated functions for these
         // Not necessary to have functions for these anyway.
         && ![
-            "CreativeWorkTypeOrText",
+            "CreativeWorkTypeOrString",
             "IntegerOrString",
             "StringOrNumber",
             "ThingType",

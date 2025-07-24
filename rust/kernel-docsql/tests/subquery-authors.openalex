@@ -1,0 +1,28 @@
+openalex.articles(...authors(.name == "Jane Smith"))
+---
+GET https://api.openalex.org/works?filter=type%3Aarticle%2Craw_author_name.search%3AJane%20Smith
+
+
+openalex.articles(...authors(.name ^= "Jane"))
+---
+GET https://api.openalex.org/works?filter=type%3Aarticle%2Craw_author_name.search%3AJane%2A
+
+
+openalex.works(...authors(.name $= "Smith"))
+---
+GET https://api.openalex.org/works?filter=raw_author_name.search%3A%2ASmith
+
+
+openalex.articles(...authors(...affiliations(.name $= "University")))
+---
+GET https://api.openalex.org/works?filter=type%3Aarticle%2Craw_affiliation_strings.search%3A%2AUniversity
+
+
+openalex.articles(...authors(...affiliations(.ror == "03b94tp07")))
+---
+GET https://api.openalex.org/works?filter=type%3Aarticle%2Cauthorships.institutions.ror%3A03b94tp07
+
+
+openalex.articles(...authors(* > 5))
+---
+GET https://api.openalex.org/works?filter=type%3Aarticle%2Cauthors_count%3A%3E5

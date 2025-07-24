@@ -1,0 +1,143 @@
+{
+  "id": "https://openalex.org/W410028754",
+  "doi": null,
+  "title": "最高裁判所民事判例研究(民集51巻6号)懲罰的損害賠償を命じた外国判決の承認・執行とその反公序性(平成9.7.11第二小法廷判決)",
+  "display_name": "最高裁判所民事判例研究(民集51巻6号)懲罰的損害賠償を命じた外国判決の承認・執行とその反公序性(平成9.7.11第二小法廷判決)",
+  "publication_year": 2000,
+  "publication_date": "2000-01-01",
+  "ids": {
+    "openalex": "https://openalex.org/W410028754",
+    "mag": "410028754"
+  },
+  "language": "ko",
+  "primary_location": {
+    "is_oa": false,
+    "landing_page_url": "http://ci.nii.ac.jp/naid/40003460785",
+    "pdf_url": null,
+    "source": {
+      "id": "https://openalex.org/S4306553684",
+      "display_name": "法学協会雑誌",
+      "issn_l": null,
+      "issn": null,
+      "is_oa": false,
+      "is_in_doaj": false,
+      "is_indexed_in_scopus": false,
+      "is_core": false,
+      "host_organization": null,
+      "host_organization_name": null,
+      "host_organization_lineage": [],
+      "host_organization_lineage_names": [],
+      "type": "journal"
+    },
+    "license": null,
+    "license_id": null,
+    "version": null,
+    "is_accepted": false,
+    "is_published": false
+  },
+  "type": "article",
+  "type_crossref": "journal-article",
+  "indexed_in": [],
+  "open_access": {
+    "is_oa": false,
+    "oa_status": "closed",
+    "oa_url": null,
+    "any_repository_has_fulltext": false
+  },
+  "authorships": [
+    {
+      "author_position": "first",
+      "author": {
+        "id": "https://openalex.org/A5087317007",
+        "display_name": "東京大学判例研究会",
+        "orcid": null
+      },
+      "institutions": [],
+      "countries": [],
+      "is_corresponding": true,
+      "raw_author_name": "東京大学判例研究会",
+      "raw_affiliation_strings": [],
+      "affiliations": []
+    }
+  ],
+  "institution_assertions": [],
+  "countries_distinct_count": 0,
+  "institutions_distinct_count": 0,
+  "corresponding_author_ids": [
+    "https://openalex.org/A5087317007"
+  ],
+  "corresponding_institution_ids": [],
+  "apc_list": null,
+  "apc_paid": null,
+  "fwci": null,
+  "has_fulltext": false,
+  "cited_by_count": 0,
+  "citation_normalized_percentile": null,
+  "cited_by_percentile_year": {
+    "min": 0,
+    "max": 58
+  },
+  "biblio": {
+    "volume": "117",
+    "issue": "11",
+    "first_page": "1697",
+    "last_page": "1708"
+  },
+  "is_retracted": false,
+  "is_paratext": false,
+  "primary_topic": null,
+  "topics": [],
+  "keywords": [],
+  "concepts": [
+    {
+      "id": "https://openalex.org/C41008148",
+      "wikidata": "https://www.wikidata.org/wiki/Q21198",
+      "display_name": "Computer science",
+      "level": 0,
+      "score": 0.32294208
+    }
+  ],
+  "mesh": [],
+  "locations_count": 1,
+  "locations": [
+    {
+      "is_oa": false,
+      "landing_page_url": "http://ci.nii.ac.jp/naid/40003460785",
+      "pdf_url": null,
+      "source": {
+        "id": "https://openalex.org/S4306553684",
+        "display_name": "法学協会雑誌",
+        "issn_l": null,
+        "issn": null,
+        "is_oa": false,
+        "is_in_doaj": false,
+        "is_indexed_in_scopus": false,
+        "is_core": false,
+        "host_organization": null,
+        "host_organization_name": null,
+        "host_organization_lineage": [],
+        "host_organization_lineage_names": [],
+        "type": "journal"
+      },
+      "license": null,
+      "license_id": null,
+      "version": null,
+      "is_accepted": false,
+      "is_published": false
+    }
+  ],
+  "best_oa_location": null,
+  "sustainable_development_goals": [],
+  "grants": [],
+  "datasets": [],
+  "versions": [],
+  "referenced_works_count": 0,
+  "referenced_works": [],
+  "related_works": [],
+  "abstract_inverted_index": null,
+  "abstract_inverted_index_v3": null,
+  "cited_by_api_url": "https://api.openalex.org/works?filter=cites:W410028754",
+  "counts_by_year": [],
+  "updated_date": "2025-01-19T12:31:07.114623",
+  "created_date": "2016-06-24"
+}
