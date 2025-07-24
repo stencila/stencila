@@ -43,6 +43,7 @@ test-log = { version = "0.2.17", default-features = false, features = ["trace"] 
 time = { version = "0.3.41", features = ["formatting"] }
 tl = "0.7.8"
 url = { version = "2.5.4", features = ["serde"] }
+urlencoding = "2.1.3"
 which = "8.0.0"
 # To reduce dependencies avoid bzip2, lzma, xz, and zstd compression which are rare for zip archive.
 # Reinstate those if necessary

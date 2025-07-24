@@ -8,7 +8,7 @@ codec = { path = "../codec" }
 governor = {workspace = true}
 reqwest-middleware = { workspace = true }
 reqwest-ratelimit = { workspace = true }
-urlencoding = "2.1.3"
+urlencoding = { workspace = true }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
