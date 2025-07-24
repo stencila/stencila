@@ -14,7 +14,7 @@ RUN cd web && npm run build
 
 
 # Use the official Rust image to build CLI binary
-FROM rust:1.85 AS cli
+FROM rust:1.88 AS cli
 
 # Set the working directory to /build and copy files into it
 WORKDIR /build
