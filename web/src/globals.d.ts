@@ -10,3 +10,9 @@ declare module 'idiomorph/dist/idiomorph.esm.js' {
 
   const Idiomorph: Idiomorph
 }
+
+declare interface Window {
+  // Global to turn off interactive elements on special images
+  // e.g. Plotly, Leaflet
+  STENCILA_STATIC_MODE?: boolean
+}

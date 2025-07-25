@@ -179,6 +179,15 @@ export class ImageObject extends Entity {
       'div#stencila-cytoscape-container'
     ) as HTMLElement
 
+    // Configure for static mode if enabled
+    const isStaticMode = window.STENCILA_STATIC_MODE === true
+    if (isStaticMode) {
+      graph.userZoomingEnabled = false
+      graph.userPanningEnabled = false
+      graph.boxSelectionEnabled = false
+      graph.autoungrabify = true
+    }
+
     this.cytoscape = cytoscape(graph)
   }
 
@@ -262,7 +271,19 @@ export class ImageObject extends Entity {
     }
 
     try {
-      await Plotly.react(container, spec.data, spec.layout, spec.config)
+      // Configure for static mode if enabled
+      const isStaticMode = window.STENCILA_STATIC_MODE === true
+      const config = isStaticMode ? {
+        ...spec.config,
+        staticPlot: true,
+        displayModeBar: false,
+        scrollZoom: false,
+        doubleClick: false,
+        showTips: false,
+        dragMode: false
+      } : spec.config
+
+      await Plotly.react(container, spec.data, spec.layout, config)
 
       // find plotly,js dynamically generated style tags
       const styleTags = Array.from(
@@ -328,11 +349,21 @@ export class ImageObject extends Entity {
     ) as HTMLElement
 
     // embed the figure as svg
-    vegaEmbed(container, spec, {
-      renderer: 'svg',
+    const isStaticMode = window.STENCILA_STATIC_MODE === true
+    const embedOptions = {
+      renderer: 'svg' as const,
       actions: false,
-      mode: 'vega-lite',
-    }).catch((error) => {
+      mode: 'vega-lite' as const,
+      ...(isStaticMode && {
+        config: {
+          view: { continuousWidth: 400, continuousHeight: 300 },
+          axis: { domain: false, ticks: false },
+          legend: { disable: true }
+        }
+      })
+    }
+    
+    vegaEmbed(container, spec, embedOptions).catch((error) => {
       if (codeChunk) {
         let messages = codeChunk.querySelector('div[slot=messages]')
         if (!messages) {
