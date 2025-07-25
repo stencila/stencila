@@ -618,7 +618,7 @@ def to_json(obj: Any) -> str:
         if isinstance(bundle, (tuple, list)) and len(bundle):
             bundle = bundle[0]
 
-        if is_plotly(bundle) or is_altair(bundle):
+        if PLOTLY_AVAILABLE and is_plotly(bundle) or ALTAIR_AVAILABLE and is_altair(bundle):
             return json.dumps(mimebundle_to_image_object(bundle))
 
         return json.dumps(bundle, cls=MimeBundleJSONEncoder)
