@@ -8,7 +8,7 @@ use std::{
 use axum::{
     body::Body,
     extract::{Query, State},
-    http::{HeaderMap, Request, StatusCode},
+    http::{header::HeaderValue, HeaderMap, Method, Request, StatusCode},
     middleware::{from_fn_with_state as middleware_fn, Next},
     response::{IntoResponse, Response},
     routing::get,
@@ -17,7 +17,10 @@ use axum::{
 
 use rand::{rng, Rng};
 use tower_cookies::{Cookie, CookieManagerLayer, Cookies};
-use tower_http::trace::TraceLayer;
+use tower_http::{
+    cors::{Any, CorsLayer},
+    trace::TraceLayer,
+};
 
 use common::{
     clap::{self, Args},
@@ -60,6 +63,20 @@ pub(crate) struct ServerState {
 
     /// Shutdown signal sender for graceful server termination
     pub shutdown_sender: Option<mpsc::Sender<()>>,
+}
+
+/// CORS policy levels
+#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum, SmartDefault)]
+pub enum CorsLevel {
+    /// No CORS headers
+    #[default]
+    None,
+    /// Allow only same-origin requests
+    Restrictive,
+    /// Allow localhost and 127.0.0.1 origins only
+    Local,
+    /// Allow all origins, methods, and headers
+    Permissive,
 }
 
 /// Run the HTTP/Websocket server
@@ -114,6 +131,18 @@ pub struct ServeOptions {
     #[arg(long)]
     pub sync: Option<SyncDirection>,
 
+    /// CORS policy level
+    ///
+    /// Controls Cross-Origin Resource Sharing (CORS) headers.
+    /// Ordered from most to least restrictive:
+    /// - `none`: No CORS headers (default)
+    /// - `restrictive`: Allow GET and POST requests from localhost
+    /// - `local`: Allow any requests from localhost and 127.0.0.1 origins
+    /// - `permissive`: Allow all origins, methods, and headers
+    #[arg(long, default_value = "none")]
+    #[default(CorsLevel::None)]
+    pub cors: CorsLevel,
+
     /// The server token to use
     ///
     /// This is not a CLI argument. It is only passed to the `serve()` function
@@ -141,6 +170,7 @@ pub async fn serve(
         raw,
         source,
         sync,
+        cors,
         server_token,
         no_startup_message,
         graceful_shutdown,
@@ -195,6 +225,7 @@ pub async fn serve(
             "/",
             get(documents::serve_root).route_layer(middleware_fn(state.clone(), auth_middleware)),
         )
+        .layer(create_cors_layer(cors))
         .layer(TraceLayer::new_for_http())
         .layer(CookieManagerLayer::new())
         .with_state(state)
@@ -305,4 +336,32 @@ async fn auth_middleware(
     }
 
     Err((StatusCode::UNAUTHORIZED, "Unauthorized").into_response())
+}
+
+/// Create a CORS layer based on the specified level
+fn create_cors_layer(level: CorsLevel) -> CorsLayer {
+    match level {
+        CorsLevel::None => CorsLayer::new(),
+        CorsLevel::Restrictive => CorsLayer::new()
+            .allow_origin(HeaderValue::from_static("http://localhost"))
+            .allow_methods([Method::GET, Method::POST])
+            .allow_headers(Any),
+        CorsLevel::Local => CorsLayer::new()
+            .allow_origin([
+                HeaderValue::from_static("http://localhost:3000"),
+                HeaderValue::from_static("http://127.0.0.1:3000"),
+                HeaderValue::from_static("http://localhost:9000"),
+                HeaderValue::from_static("http://127.0.0.1:9000"),
+            ])
+            .allow_methods([
+                Method::GET,
+                Method::POST,
+                Method::PUT,
+                Method::DELETE,
+                Method::PATCH,
+            ])
+            .allow_headers(Any)
+            .allow_credentials(true),
+        CorsLevel::Permissive => CorsLayer::permissive(),
+    }
 }
