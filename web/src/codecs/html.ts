@@ -903,7 +903,12 @@ const MANUAL_ENCODERS: Partial<
         .map((row) => {
           const rowContent = row.cells
             .map((cell) => {
-              const cellContent = (cell.content || [])
+              let content: Block[] | Inline[] = cell.content || []
+              if (content.length == 1 && content[0].type == 'Paragraph') {
+                content = content[0].content
+              }
+
+              const cellContent = content
                 .map((item: Node) =>
                   encode(item, [
                     ...context.ancestors,
@@ -913,7 +918,17 @@ const MANUAL_ENCODERS: Partial<
                   ])
                 )
                 .join('')
-              return `<td id="${cell.id || 'xxx'}" depth="${context.ancestors.length + 2}" ancestors="${[...ancestors, 'TableRow'].join('.')}">${cellContent}</td>`
+
+              let style = ''
+              if (cell.horizontalAlignment == 'AlignLeft') {
+                style = ' style="text-align: left"'
+              } else if (cell.horizontalAlignment == 'AlignCenter') {
+                style = ' style="text-align: center"'
+              } else if (cell.horizontalAlignment == 'AlignRight') {
+                style = ' style="text-align: right"'
+              }
+
+              return `<td id="${cell.id || 'xxx'}" depth="${context.ancestors.length + 2}" ancestors="${[...ancestors, 'TableRow'].join('.')}"${style}>${cellContent}</td>`
             })
             .join('')
           return `<tr id="${row.id || 'xxx'}" depth="${context.ancestors.length + 1}" ancestors="${ancestors.join('.')}">${rowContent}</tr>`
