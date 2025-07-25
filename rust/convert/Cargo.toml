@@ -10,6 +10,8 @@ common = { path = "../common" }
 headless_chrome = { version = "1.0.13", features = ["fetch", "rustls"] }
 rand = { workspace = true }
 tools = { path = "../tools" }
+version = { path = "../version" }
+web-dist = { path = "../web-dist" }
 
 [lints]
 workspace = true
