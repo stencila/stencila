@@ -485,18 +485,33 @@ export class ImageObject extends Entity {
 
   private renderSvg() {
     /**
-     * Reset styles on SVG
+     * Reset specific inherited styles on SVG
      *
-     * Sets all properties to their default values as defined by the CSS specification.
-     * This effectively strips away any inherited styles or previously applied styles,
-     * resetting the SVG to its most basic, unstyled state.
-     *
-     * We do this to prevent inherited properties (e.g. line-height) from the current
-     * theme for the document.
+     * Only reset properties that commonly cause issues with SVGs when inherited
+     * from the document, while preserving essential SVG styling.
+     * 
+     * Previously we used `all: initial;` to do this but that was too aggressive
+     * and was breaking mermaid rending on Chrome
      */
     const svgStyles = css`
       & svg {
-        all: initial;
+        /* Reset text-related inherited properties */
+        line-height: 1;
+        font-size: inherit;
+        font-family: inherit;
+        text-align: initial;
+        letter-spacing: normal;
+        word-spacing: normal;
+        
+        /* Reset box model properties that might interfere */
+        margin: 0;
+        padding: 0;
+        border: none;
+        
+        /* Ensure SVG displays properly */
+        display: block;
+        max-width: 100%;
+        height: auto;
       }
     `
 
