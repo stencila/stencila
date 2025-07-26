@@ -30,6 +30,7 @@ use std::{
     ffi::OsStr,
     path::Path,
     sync::{Arc, Mutex},
+    thread::sleep,
     time::Duration,
 };
 
@@ -43,7 +44,7 @@ use common::{
     eyre::{Result, eyre},
     itertools::Itertools,
     once_cell::sync::Lazy,
-    tokio, tracing,
+    tracing,
 };
 use version::STENCILA_VERSION;
 use web_dist::Web;
@@ -354,7 +355,7 @@ fn get_media_type_timeouts(html: &str) -> Vec<&'static MediaTypeTimeout> {
 }
 
 /// Wait for rendering completion based on media type detection
-async fn detect_rendering_completion(tab: &Arc<Tab>, html: &str) -> Result<()> {
+fn detect_rendering_completion(tab: &Arc<Tab>, html: &str) -> Result<()> {
     // If no dynamic scripts are needed, return immediately
     if !needs_dynamic_scripts(html) {
         tracing::debug!("No dynamic content detected, skipping render wait");
@@ -394,7 +395,7 @@ async fn detect_rendering_completion(tab: &Arc<Tab>, html: &str) -> Result<()> {
         .map(|t| t.wait_ms)
         .max()
         .unwrap_or(1000);
-    tokio::time::sleep(Duration::from_millis(max_wait as u64)).await;
+    sleep(Duration::from_millis(max_wait as u64));
 
     // Use JavaScript to check completion by penetrating shadow DOM
     let rendering_comple_check = r#"
@@ -457,7 +458,7 @@ async fn detect_rendering_completion(tab: &Arc<Tab>, html: &str) -> Result<()> {
                 .map(|t| t.timeout_ms)
                 .max()
                 .unwrap_or(3000);
-            tokio::time::sleep(Duration::from_millis(max_timeout as u64)).await;
+            sleep(Duration::from_millis(max_timeout as u64));
         }
     }
 
@@ -465,7 +466,7 @@ async fn detect_rendering_completion(tab: &Arc<Tab>, html: &str) -> Result<()> {
 }
 
 /// Calculate the bounding box of the content wrapper for cropping
-async fn get_content_bounds(tab: &Arc<Tab>, padding: u32) -> Result<Option<Page::Viewport>> {
+fn get_content_bounds(tab: &Arc<Tab>, padding: u32) -> Result<Option<Page::Viewport>> {
     let bounds_js = format!(
         r#"
         new Promise((resolve) => {{
@@ -689,35 +690,18 @@ fn try_screenshot_with_padding(html: &str, padding: u32) -> Result<String> {
 
     // Wait for interactive visualizations to complete rendering
     // This detects media types and waits only when necessary
-    tokio::task::block_in_place(|| match tokio::runtime::Handle::try_current() {
-        Ok(handle) => {
-            if let Err(error) = handle.block_on(detect_rendering_completion(tab, html)) {
-                tracing::warn!(
-                    "Rendering completion detection failed: {error}. Taking screenshot anyway.",
-                );
-            }
-        }
-        Err(_) => {
-            tracing::debug!("No tokio runtime available, skipping async completion detection");
-        }
-    });
+    if let Err(error) = detect_rendering_completion(tab, html) {
+        tracing::warn!("Rendering completion detection failed: {error}. Taking screenshot anyway.",);
+    }
 
     // Calculate content bounds for cropping
-    let clip = tokio::task::block_in_place(|| match tokio::runtime::Handle::try_current() {
-        Ok(handle) => match handle.block_on(get_content_bounds(tab, padding)) {
-            Ok(bounds) => bounds,
-            Err(error) => {
-                tracing::warn!(
-                    "Failed to get content bounds: {error}. Using full page screenshot."
-                );
-                None
-            }
-        },
-        Err(_) => {
-            tracing::debug!("No tokio runtime available, using full page screenshot");
+    let clip = match get_content_bounds(tab, padding) {
+        Ok(bounds) => bounds,
+        Err(error) => {
+            tracing::warn!("Failed to get content bounds: {error}. Using full page screenshot.");
             None
         }
-    });
+    };
 
     // Capture screenshot with content cropping or full page fallback
     let has_clip = clip.is_some();
@@ -824,8 +808,8 @@ mod tests {
 
     /// To run this test with logs printed:
     /// RUST_LOG=trace cargo test -p convert html_to_png::tests::test_rendering -- --nocapture
-    #[test_log::test(tokio::test(flavor = "multi_thread", worker_threads = 2))]
-    async fn test_rendering() -> Result<()> {
+    #[test_log::test]
+    fn test_rendering() -> Result<()> {
         let datatable_html = r#"<stencila-datatable>
             <table>
                 <thead>
