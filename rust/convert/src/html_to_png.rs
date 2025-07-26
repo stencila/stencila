@@ -77,7 +77,22 @@ use web_dist::Web;
 /// # }
 /// ```
 pub fn html_to_png_data_uri(html: &str) -> Result<String> {
-    let base64_png = capture_screenshot(&wrap_html(html))?;
+    html_to_png_data_uri_with_padding(html, 16)
+}
+
+/// Converts HTML to PNG and returns as data URI with configurable padding
+///
+/// This function uses a persistent browser instance for optimal performance and
+/// crops the screenshot to the content bounds with the specified padding.
+///
+/// # Arguments
+/// * `html`: HTML content to render
+/// * `padding`: Padding in pixels around the content (0 for tight cropping)
+///
+/// # Returns
+/// * `Result<String>`: Base64 encoded PNG as a data URI
+pub fn html_to_png_data_uri_with_padding(html: &str, padding: u32) -> Result<String> {
+    let base64_png = capture_screenshot_with_padding(&wrap_html(html), padding)?;
 
     // Return as data URI (base64 string already from Chrome)
     Ok(format!("data:image/png;base64,{}", base64_png))
@@ -111,7 +126,23 @@ pub fn html_to_png_data_uri(html: &str) -> Result<String> {
 /// # }
 /// ```
 pub fn html_to_png_file(html: &str, path: &Path) -> Result<()> {
-    let base64_png = capture_screenshot(&wrap_html(html))?;
+    html_to_png_file_with_padding(html, path, 16)
+}
+
+/// Converts HTML to PNG and saves to file with configurable padding
+///
+/// This function uses a persistent browser instance for optimal performance and
+/// crops the screenshot to the content bounds with the specified padding.
+///
+/// # Arguments
+/// * `html`: HTML content to render
+/// * `path`: File path where the PNG will be saved
+/// * `padding`: Padding in pixels around the content (0 for tight cropping)
+///
+/// # Returns
+/// * `Result<()>`: Success or error
+pub fn html_to_png_file_with_padding(html: &str, path: &Path, padding: u32) -> Result<()> {
+    let base64_png = capture_screenshot_with_padding(&wrap_html(html), padding)?;
 
     // Decode base64 to bytes for file writing
     let png_bytes = BASE64
@@ -280,7 +311,7 @@ const MEDIA_TYPE_TIMEOUTS: &[MediaTypeTimeout] = &[
     },
     MediaTypeTimeout {
         media_type: "text/vnd.mermaid",
-        wait_ms: 500,
+        wait_ms: 1000,
         timeout_ms: 8000,
     },
     MediaTypeTimeout {
@@ -358,12 +389,12 @@ async fn detect_rendering_completion(tab: &Arc<Tab>, html: &str) -> Result<()> {
     }
 
     // Initial wait for modules and component initialization
-    let max_pause = media_timeouts
+    let max_wait = media_timeouts
         .iter()
         .map(|t| t.wait_ms)
         .max()
         .unwrap_or(1000);
-    tokio::time::sleep(Duration::from_millis(max_pause as u64)).await;
+    tokio::time::sleep(Duration::from_millis(max_wait as u64)).await;
 
     // Use JavaScript to check completion by penetrating shadow DOM
     let rendering_comple_check = r#"
@@ -433,6 +464,97 @@ async fn detect_rendering_completion(tab: &Arc<Tab>, html: &str) -> Result<()> {
     Ok(())
 }
 
+/// Calculate the bounding box of the content wrapper for cropping
+async fn get_content_bounds(tab: &Arc<Tab>, padding: u32) -> Result<Option<Page::Viewport>> {
+    let bounds_js = format!(r#"
+        new Promise((resolve) => {{
+            const wrapper = document.getElementById('stencila-content-wrapper');
+            if (!wrapper) {{
+                resolve(null);
+                return;
+            }}
+            
+            const rect = wrapper.getBoundingClientRect();
+            const padding = {padding};
+            
+            // Ensure we have meaningful content dimensions
+            if (rect.width < 1 || rect.height < 1) {{
+                resolve(null);
+                return;
+            }}
+            
+            // Calculate clipping bounds with padding
+            const bounds = {{
+                x: Math.max(0, rect.left - padding),
+                y: Math.max(0, rect.top - padding), 
+                width: rect.width + (2 * padding),
+                height: rect.height + (2 * padding),
+                scale: 1
+            }};
+            
+            resolve(bounds);
+        }})
+    "#);
+
+    match tab.evaluate(&bounds_js, true) {
+        Ok(result) => {
+            // Try to get the actual object properties using headless_chrome's get_properties
+            if let Some(object_id) = &result.object_id {
+                match tab.call_method(headless_chrome::protocol::cdp::Runtime::GetProperties {
+                    object_id: object_id.clone(),
+                    own_properties: Some(true),
+                    accessor_properties_only: Some(false),
+                    generate_preview: Some(false),
+                    non_indexed_properties_only: Some(false),
+                }) {
+                    Ok(props_result) => {
+                        let mut x = 0.0;
+                        let mut y = 0.0;
+                        let mut width = 0.0;
+                        let mut height = 0.0;
+                        let mut scale = 1.0;
+                        
+                        for prop in props_result.result {
+                            if let Some(value) = &prop.value {
+                                match prop.name.as_str() {
+                                    "x" => x = value.value.as_ref().and_then(|v| v.as_f64()).unwrap_or(0.0),
+                                    "y" => y = value.value.as_ref().and_then(|v| v.as_f64()).unwrap_or(0.0),
+                                    "width" => width = value.value.as_ref().and_then(|v| v.as_f64()).unwrap_or(0.0),
+                                    "height" => height = value.value.as_ref().and_then(|v| v.as_f64()).unwrap_or(0.0),
+                                    "scale" => scale = value.value.as_ref().and_then(|v| v.as_f64()).unwrap_or(1.0),
+                                    _ => {}
+                                }
+                            }
+                        }
+                        
+                        if width > 0.0 && height > 0.0 {
+                            let viewport = Page::Viewport {
+                                x,
+                                y,
+                                width,
+                                height,
+                                scale,
+                            };
+                            tracing::debug!("Content bounds detected: {}×{} at ({}, {})", width, height, x, y);
+                            return Ok(Some(viewport));
+                        }
+                    }
+                    Err(error) => {
+                        tracing::warn!("Failed to get object properties: {error}");
+                    }
+                }
+            }
+            
+            tracing::debug!("Could not detect content bounds, using full page screenshot");
+            Ok(None)
+        }
+        Err(error) => {
+            tracing::warn!("Failed to calculate content bounds: {error}");
+            Ok(None)
+        }
+    }
+}
+
 /// Wraps HTML with so that any necessary CSS and Javascript is available
 fn wrap_html(html: &str) -> String {
     // Keep any unused linting warning here so that if we turn on the line below
@@ -479,23 +601,37 @@ fn wrap_html(html: &str) -> String {
         <title>Stencila Screen</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         {styles}
+        <style>
+            body {{
+                margin: 0;
+                padding: 0;
+                font-family: system-ui, -apple-system, sans-serif;
+            }}
+            #stencila-content-wrapper {{
+                display: inline-block;
+                min-width: fit-content;
+                min-height: fit-content;
+            }}
+        </style>
         {scripts}
     </head>
     <body>
-        <stencila-dynamic-view view=dynamic>
-            {html}
-        </stencila-dynamic-view>
+        <div id="stencila-content-wrapper">
+            <stencila-dynamic-view view=dynamic>
+                {html}
+            </stencila-dynamic-view>
+        </div>
     </body>
 </html>"#
     )
 }
 
-/// Captures HTML content as PNG using persistent browser instance
-fn capture_screenshot(html: &str) -> Result<String> {
+/// Captures HTML content as PNG using persistent browser instance with content cropping
+fn capture_screenshot_with_padding(html: &str, padding: u32) -> Result<String> {
     // Ensure we have a working browser, recreating if necessary
     ensure_browser_available()?;
 
-    let result = try_screenshot(html);
+    let result = try_screenshot_with_padding(html, padding);
     if result.is_err() {
         // Force recreation by clearing both browser and tab
         if let Ok(mut manager) = BROWSER_MANAGER.lock() {
@@ -506,14 +642,14 @@ fn capture_screenshot(html: &str) -> Result<String> {
         ensure_browser_available()?;
 
         // Retry the screenshot
-        try_screenshot(html)
+        try_screenshot_with_padding(html, padding)
     } else {
         result
     }
 }
 
-/// Attempts to take a screenshot with the current tab instance
-fn try_screenshot(html: &str) -> Result<String> {
+/// Attempts to take a screenshot with the current tab instance, cropped to content
+fn try_screenshot_with_padding(html: &str, padding: u32) -> Result<String> {
     let manager = BROWSER_MANAGER
         .lock()
         .map_err(|error| eyre!("Failed to acquire browser manager lock: {error}"))?;
@@ -561,11 +697,29 @@ fn try_screenshot(html: &str) -> Result<String> {
         }
     });
 
-    // Capture screenshot with maximum speed optimization
+    // Calculate content bounds for cropping
+    let clip = tokio::task::block_in_place(|| match tokio::runtime::Handle::try_current() {
+        Ok(handle) => {
+            match handle.block_on(get_content_bounds(tab, padding)) {
+                Ok(bounds) => bounds,
+                Err(error) => {
+                    tracing::warn!("Failed to get content bounds: {error}. Using full page screenshot.");
+                    None
+                }
+            }
+        }
+        Err(_) => {
+            tracing::debug!("No tokio runtime available, using full page screenshot");
+            None
+        }
+    });
+
+    // Capture screenshot with content cropping or full page fallback
+    let has_clip = clip.is_some();
     let screenshot_params = Page::CaptureScreenshot {
         format: Some(Page::CaptureScreenshotFormatOption::Png),
         quality: Some(5), // Lower quality for speed
-        clip: None,       // Full page
+        clip,             // Use content bounds or None for full page
         from_surface: Some(true),
         capture_beyond_viewport: Some(false), // Don't capture beyond viewport for speed
         optimize_for_speed: Some(true),
@@ -574,6 +728,12 @@ fn try_screenshot(html: &str) -> Result<String> {
     let result = tab
         .call_method(screenshot_params)
         .map_err(|error| eyre!("Failed to capture screenshot: {error}"))?;
+
+    if has_clip {
+        tracing::debug!("Screenshot captured with content cropping");
+    } else {
+        tracing::debug!("Screenshot captured without cropping (fallback to full page)");
+    }
 
     Ok(result.data)
 }
