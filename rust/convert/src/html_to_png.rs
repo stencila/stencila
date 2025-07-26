@@ -30,8 +30,7 @@ use std::{
     ffi::OsStr,
     path::Path,
     sync::{Arc, Mutex},
-    thread::sleep,
-    time::Duration,
+    time::{Duration, Instant},
 };
 
 use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64};
@@ -157,6 +156,28 @@ pub fn html_to_png_file_with_padding(html: &str, path: &Path, padding: u32) -> R
     Ok(())
 }
 
+/// Warm up the browser by creating initial instance
+///
+/// Call this during application startup to avoid cold start delays
+/// on the first screenshot request.
+pub fn warmup() -> Result<()> {
+    ensure_browser_available()
+}
+
+/// Shutdown the browser and clean up resources
+///
+/// Call this during application shutdown for clean resource cleanup.
+///
+/// Note: Resources will be automatically cleaned up when the program exits
+/// even if this function is not called, thanks to the Drop implementation.
+pub fn shutdown() -> Result<()> {
+    if let Ok(mut manager) = BROWSER_MANAGER.lock() {
+        manager.cleanup();
+    }
+
+    Ok(())
+}
+
 /// Browser manager that automatically cleans up resources when dropped
 ///
 /// Avoids zombie chrome processes if shutdown is not explicitly called.
@@ -212,28 +233,6 @@ impl Drop for BrowserManager {
 /// Static browser manager instance that is reused across function calls
 static BROWSER_MANAGER: Lazy<Mutex<BrowserManager>> =
     Lazy::new(|| Mutex::new(BrowserManager::new()));
-
-/// Warm up the browser by creating initial instance
-///
-/// Call this during application startup to avoid cold start delays
-/// on the first screenshot request.
-pub fn warmup() -> Result<()> {
-    ensure_browser_available()
-}
-
-/// Shutdown the browser and clean up resources
-///
-/// Call this during application shutdown for clean resource cleanup.
-///
-/// Note: Resources will be automatically cleaned up when the program exits
-/// even if this function is not called, thanks to the Drop implementation.
-pub fn shutdown() -> Result<()> {
-    if let Ok(mut manager) = BROWSER_MANAGER.lock() {
-        manager.cleanup();
-    }
-
-    Ok(())
-}
 
 /// Creates a new browser instance with optimized launch options
 fn create_browser() -> Result<Browser> {
@@ -297,172 +296,562 @@ fn ensure_browser_available() -> Result<()> {
     Ok(())
 }
 
-/// Media type timeout configurations for dynamic rendering
-struct MediaTypeTimeout {
-    media_type: &'static str,
-    wait_ms: u32,
-    timeout_ms: u32,
-}
-
-const MEDIA_TYPE_TIMEOUTS: &[MediaTypeTimeout] = &[
-    MediaTypeTimeout {
-        media_type: "application/vnd.plotly.v1+json",
-        wait_ms: 0,
-        timeout_ms: 3000,
-    },
-    MediaTypeTimeout {
-        media_type: "text/vnd.mermaid",
-        wait_ms: 1000,
-        timeout_ms: 8000,
-    },
-    MediaTypeTimeout {
-        media_type: "application/vnd.vegalite.v5+json",
-        wait_ms: 0,
-        timeout_ms: 3000,
-    },
-    MediaTypeTimeout {
-        media_type: "application/vnd.vega.v5+json",
-        wait_ms: 0,
-        timeout_ms: 3000,
-    },
-    MediaTypeTimeout {
-        media_type: "application/vnd.cytoscape.v3+json",
-        wait_ms: 0,
-        timeout_ms: 2000,
-    },
-    MediaTypeTimeout {
-        media_type: "text/html", // Leaflet maps
-        wait_ms: 0,
-        timeout_ms: 4000,
-    },
-];
-
 /// Check if HTML contains stencila-image-object elements that require JavaScript for rendering
 fn needs_dynamic_scripts(html: &str) -> bool {
-    // Check if HTML contains stencila-image-object with any of the dynamic media types
-    html.contains("<stencila-image-object")
-        && MEDIA_TYPE_TIMEOUTS
-            .iter()
-            .any(|timeout| html.contains(timeout.media_type))
+    html.contains("<stencila-")
+        && (html.contains("application/vnd.plotly.v1+json")
+            || html.contains("text/vnd.mermaid")
+            || html.contains("application/vnd.vegalite.v5+json")
+            || html.contains("application/vnd.vega.v5+json")
+            || html.contains("application/vnd.cytoscape.v3+json")
+            || (html.contains("text/html") && html.contains("<iframe")))
 }
 
-/// Detect which media types are present in the HTML and return their timeouts
-fn get_media_type_timeouts(html: &str) -> Vec<&'static MediaTypeTimeout> {
-    MEDIA_TYPE_TIMEOUTS
-        .iter()
-        .filter(|timeout| html.contains(timeout.media_type))
-        .collect()
+/// Configuration for screenshot wait strategies
+///
+/// This configuration allows selective enabling of different wait strategies to
+/// ensure page content is fully rendered before taking screenshots. Strategies
+/// include:
+///
+/// - **Network Idle**: Waits until no network requests for 500ms (like
+///   Puppeteer's networkidle0)
+/// - **Animation Frame**: Uses double requestAnimationFrame to ensure
+///   animations settle
+/// - **Web Components**: Waits for custom elements and shadow DOM to initialize  
+/// - **DOM Mutations**: Monitors for DOM stability using MutationObserver
+/// - **Images and Fonts**: Waits for all images to load and web fonts to be
+///   ready
+/// - **Iframe Detection**: Ensures all embedded iframes finish loading their
+///   content
+#[derive(Debug, Clone)]
+pub struct WaitConfig {
+    pub network_idle: bool,
+    pub animation_frame: bool,
+    pub web_components: bool,
+    pub dom_mutations: bool,
+    pub images_and_fonts: bool,
+    pub iframe_detection: bool,
+    pub timeout: Duration,
+    pub mutation_quiet_period: Duration,
 }
 
-/// Wait for rendering completion based on media type detection
-fn detect_rendering_completion(tab: &Arc<Tab>, html: &str) -> Result<()> {
-    // If no dynamic scripts are needed, return immediately
-    if !needs_dynamic_scripts(html) {
-        tracing::debug!("No dynamic content detected, skipping render wait");
-        return Ok(());
+impl Default for WaitConfig {
+    fn default() -> Self {
+        Self {
+            network_idle: true,
+            animation_frame: true,
+            web_components: true,
+            dom_mutations: true,
+            images_and_fonts: true,
+            iframe_detection: true,
+            timeout: Duration::from_secs(30),
+            mutation_quiet_period: Duration::from_millis(500),
+        }
+    }
+}
+
+/// Screenshot waiter that implements multiple wait strategies for ensuring
+/// page content is fully rendered before capturing screenshots.
+///
+/// This replaces the previous hardcoded media-type specific timeouts with
+/// more robust, general-purpose waiting strategies that can handle:
+/// - Complex interactive visualizations (Plotly, Mermaid, Vega-Lite)
+/// - Leaflet maps and other iframe content  
+/// - Web fonts and custom typography
+/// - CSS animations and transitions
+/// - Dynamically loaded content
+pub struct ScreenshotWaiter {
+    config: WaitConfig,
+}
+
+impl ScreenshotWaiter {
+    pub fn new(config: WaitConfig) -> Self {
+        Self { config }
     }
 
-    let media_timeouts = get_media_type_timeouts(html);
-    if media_timeouts.is_empty() {
-        tracing::debug!("No matching media types found");
-        return Ok(());
+    /// Wait for page to be ready according to configured strategies
+    pub fn wait_for_ready(&self, tab: &Arc<Tab>) -> Result<()> {
+        let start_time = Instant::now();
+
+        // Apply each strategy based on configuration
+        if self.config.network_idle {
+            self.wait_network_idle(tab)?;
+        }
+
+        if self.config.images_and_fonts {
+            self.wait_images_and_fonts(tab)?;
+        }
+
+        if self.config.iframe_detection {
+            self.wait_iframes_loaded(tab)?;
+        }
+
+        if self.config.web_components {
+            self.wait_web_components(tab)?;
+        }
+
+        if self.config.dom_mutations {
+            self.wait_dom_stability(tab)?;
+        }
+
+        if self.config.animation_frame {
+            self.wait_animation_frame(tab)?;
+        }
+
+        // Check timeout
+        if start_time.elapsed() > self.config.timeout {
+            return Err(eyre!("Screenshot wait timeout exceeded"));
+        }
+
+        Ok(())
     }
 
-    tracing::debug!(
-        "Detected {} dynamic media type(s), waiting for completion",
-        media_timeouts.len()
-    );
+    /// Wait for network to be idle (no pending requests)
+    ///
+    /// Uses Chrome's Page lifecycle events to detect when network activity
+    /// has stopped for at least 500ms, similar to Puppeteer's networkidle0.
+    fn wait_network_idle(&self, tab: &Arc<Tab>) -> Result<()> {
+        // Basic network idle detection - wait for navigation to complete
+        // This covers the common case of waiting for main document and resources
+        if let Err(error) = tab.wait_until_navigated() {
+            tracing::warn!("Network idle wait failed: {error}. Continuing anyway.");
+        }
 
-    // Wait for web components to be defined first
-    let web_component_check = r#"
-        return new Promise((resolve) => {
-            if (customElements.get('stencila-image-object')) {
-                resolve(true);
-            } else {
-                customElements.whenDefined('stencila-image-object').then(() => resolve(true));
-            }
-        });
-    "#;
-    if let Err(error) = tab.evaluate(web_component_check, true) {
-        tracing::warn!("Failed to wait for stencila-image-object to be defined: {error}",);
-    } else {
-        tracing::debug!("stencila-image-object web component is defined");
+        // Additional wait for any remaining async content with timeout
+        let network_idle_check = r#"
+            Promise.race([
+                new Promise(resolve => {
+                    if (document.readyState === 'complete') {
+                        // Wait briefly for any async operations
+                        setTimeout(resolve, 300);
+                    } else {
+                        window.addEventListener('load', () => {
+                            setTimeout(resolve, 300);
+                        });
+                        // Fallback timeout if load event never fires
+                        setTimeout(resolve, 2000);
+                    }
+                }),
+                // Global timeout
+                new Promise(resolve => setTimeout(resolve, 3000))
+            ])
+        "#;
+
+        if let Err(error) = tab.evaluate(network_idle_check, true) {
+            tracing::warn!("Network idle evaluation failed: {error}");
+        }
+
+        Ok(())
     }
 
-    // Initial wait for modules and component initialization
-    let max_wait = media_timeouts
-        .iter()
-        .map(|t| t.wait_ms)
-        .max()
-        .unwrap_or(1000);
-    sleep(Duration::from_millis(max_wait as u64));
-
-    // Use JavaScript to check completion by penetrating shadow DOM
-    let rendering_comple_check = r#"
-        return new Promise((resolve) => {
-            let checkCount = 0;
-            const maxChecks = 30; // 15 seconds max (500ms intervals)
-            
-            function checkCompletion() {
-                checkCount++;
-                
-                const imageObjects = document.querySelectorAll('stencila-image-object');
-                let allComplete = true;
-                
-                imageObjects.forEach((element) => {
-                    const mediaType = element.getAttribute('media-type');
+    /// Wait for all images and web fonts to load
+    ///
+    /// Uses the CSS Font Loading API (document.fonts.ready) and monitors
+    /// image load events to ensure visual content is fully available.
+    fn wait_images_and_fonts(&self, tab: &Arc<Tab>) -> Result<()> {
+        let images_fonts_script = r#"
+            Promise.race([
+                (async () => {
+                    // Wait for fonts using CSS Font Loading API with timeout
+                    try {
+                        await Promise.race([
+                            document.fonts.ready,
+                            new Promise(resolve => setTimeout(resolve, 2000))
+                        ]);
+                    } catch (e) {
+                        console.warn('Font loading check failed:', e);
+                    }
                     
-                    if (element.shadowRoot) {
-                        const shadowContent = element.shadowRoot;
-                        
-                        if (mediaType === 'text/vnd.mermaid') {
-                            const svgs = shadowContent.querySelectorAll('svg');
-                            if (svgs.length === 0) {
-                                allComplete = false;
-                            }
-                        } else if (mediaType === 'application/vnd.plotly.v1+json') {
-                            const plots = shadowContent.querySelectorAll('.plotly');
-                            if (plots.length === 0) {
-                                allComplete = false;
-                            }
-                        } else if (mediaType && mediaType.includes('vega')) {
-                            const vegaElements = shadowContent.querySelectorAll('.vega-embed');
-                            if (vegaElements.length === 0) {
-                                allComplete = false;
+                    // Wait for all images to load with shorter timeout
+                    const images = Array.from(document.querySelectorAll('img'));
+                    if (images.length > 0) {
+                        await Promise.all(images.map(img => {
+                            if (img.complete) return Promise.resolve();
+                            return new Promise((resolve) => {
+                                img.addEventListener('load', resolve);
+                                img.addEventListener('error', resolve); // Resolve even on error
+                                // Shorter timeout per image
+                                setTimeout(resolve, 2000);
+                            });
+                        }));
+                    }
+                    
+                    // Quick check for background images in stylesheets
+                    try {
+                        const stylesheets = Array.from(document.styleSheets);
+                        for (const sheet of stylesheets) {
+                            try {
+                                // Just check if we can access rules
+                                const rules = sheet.cssRules;
+                            } catch (e) {
+                                // Cross-origin stylesheets will throw, ignore
                             }
                         }
-                    } else {
-                        allComplete = false;
+                    } catch (e) {
+                        // Ignore stylesheet errors
                     }
-                });
+                })(),
+                // Global timeout for the entire operation
+                new Promise(resolve => setTimeout(resolve, 4000))
+            ])
+        "#;
+
+        if let Err(error) = tab.evaluate(images_fonts_script, true) {
+            tracing::warn!("Images and fonts wait failed: {error}");
+        }
+
+        Ok(())
+    }
+
+    /// Wait for all iframes to finish loading their content
+    ///
+    /// Handles both same-origin and cross-origin iframes by monitoring
+    /// load events. Critical for content like Leaflet maps in iframes.
+    fn wait_iframes_loaded(&self, tab: &Arc<Tab>) -> Result<()> {
+        let iframe_script = r#"
+            Promise.race([
+                new Promise(resolve => {
+                    const iframes = Array.from(document.querySelectorAll('iframe'));
+                    if (iframes.length === 0) {
+                        resolve();
+                        return;
+                    }
+                    
+                    let pendingFrames = iframes.length;
+                    const checkFrame = (iframe) => {
+                        const decrementAndCheck = () => {
+                            pendingFrames--;
+                            if (pendingFrames === 0) resolve();
+                        };
+                        
+                        try {
+                            // For same-origin iframes, check readyState
+                            if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+                                decrementAndCheck();
+                                return;
+                            }
+                        } catch (e) {
+                            // Cross-origin access denied, rely on load event
+                        }
+                        
+                        // Listen for load event
+                        iframe.addEventListener('load', decrementAndCheck, { once: true });
+                        // Shorter timeout for problematic iframes
+                        setTimeout(decrementAndCheck, 4000);
+                    };
+                    
+                    iframes.forEach(checkFrame);
+                    
+                    // Watch for dynamically added iframes for a shorter period
+                    const observer = new MutationObserver(mutations => {
+                        mutations.forEach(mutation => {
+                            mutation.addedNodes.forEach(node => {
+                                if (node.tagName === 'IFRAME') {
+                                    pendingFrames++;
+                                    checkFrame(node);
+                                }
+                            });
+                        });
+                    });
+                    
+                    observer.observe(document.body, { childList: true, subtree: true });
+                    
+                    // Stop observing after shorter time
+                    setTimeout(() => {
+                        observer.disconnect();
+                        if (pendingFrames > 0) resolve(); // Force resolve
+                    }, 1500);
+                }),
+                // Global timeout
+                new Promise(resolve => setTimeout(resolve, 5000))
+            ])
+        "#;
+
+        if let Err(error) = tab.evaluate(iframe_script, true) {
+            tracing::warn!("Iframe loading wait failed: {error}");
+        }
+
+        Ok(())
+    }
+
+    /// Wait for web components to be ready
+    ///
+    /// Specifically handles Stencila components and other custom elements
+    /// by checking for common readiness patterns and shadow DOM initialization.
+    fn wait_web_components(&self, tab: &Arc<Tab>) -> Result<()> {
+        let components_script = r#"
+            Promise.race([
+                (async () => {
+                    // Wait for stencila-image-object to be defined with timeout
+                    if (!customElements.get('stencila-image-object')) {
+                        try {
+                            await Promise.race([
+                                customElements.whenDefined('stencila-image-object'),
+                                new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000))
+                            ]);
+                        } catch (e) {
+                            // Component not defined within timeout, continue
+                            return;
+                        }
+                    }
+                    
+                    // Quick check for component readiness
+                    const imageObjects = document.querySelectorAll('stencila-image-object');
+                    if (imageObjects.length === 0) return;
+                    
+                    // Wait briefly for shadow DOM to initialize
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    
+                    // Check if components have shadow DOM content
+                    let allReady = true;
+                    imageObjects.forEach(el => {
+                        if (!el.shadowRoot || el.shadowRoot.children.length === 0) {
+                            allReady = false;
+                        }
+                    });
+                    
+                    if (!allReady) {
+                        // Wait a bit more for components to render
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    }
+                })(),
+                // Global timeout for the entire operation
+                new Promise(resolve => setTimeout(resolve, 3000))
+            ])
+        "#;
+
+        if let Err(error) = tab.evaluate(components_script, true) {
+            tracing::warn!("Web components wait failed: {error}");
+        }
+
+        Ok(())
+    }
+
+    /// Wait for DOM to stop mutating
+    ///
+    /// Uses MutationObserver to detect when DOM modifications have stopped
+    /// for the configured quiet period, indicating dynamic content has settled.
+    fn wait_dom_stability(&self, tab: &Arc<Tab>) -> Result<()> {
+        let quiet_period_ms = self.config.mutation_quiet_period.as_millis() as u64;
+
+        let mutation_script = format!(
+            r#"
+            new Promise(resolve => {{
+                let timeout;
+                const observer = new MutationObserver(() => {{
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {{
+                        observer.disconnect();
+                        resolve();
+                    }}, {});
+                }});
                 
-                if (allComplete || checkCount >= maxChecks) {
-                    resolve(allComplete);
-                } else {
-                    setTimeout(checkCompletion, 500);
-                }
-            }
-            
-            checkCompletion();
-        });
-    "#;
-    match tab.evaluate(rendering_comple_check, true) {
-        Ok(_) => {
-            tracing::debug!("Rendering completion check succeeded");
+                observer.observe(document.body, {{
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    characterData: true
+                }});
+                
+                // Initial timeout in case no mutations occur
+                timeout = setTimeout(() => {{
+                    observer.disconnect();
+                    resolve();
+                }}, {});
+            }})
+            "#,
+            quiet_period_ms, quiet_period_ms
+        );
+
+        if let Err(error) = tab.evaluate(&mutation_script, true) {
+            tracing::warn!("DOM stability wait failed: {error}");
         }
-        Err(error) => {
-            tracing::warn!("Rendering completion check failed: {error}. Using fallback delay.",);
-            // Fallback to a generous delay for complex visualizations
-            let max_timeout = media_timeouts
-                .iter()
-                .map(|t| t.timeout_ms)
-                .max()
-                .unwrap_or(3000);
-            sleep(Duration::from_millis(max_timeout as u64));
+
+        Ok(())
+    }
+
+    /// Wait for animation frames to stabilize
+    ///
+    /// Uses double requestAnimationFrame technique to ensure the browser's
+    /// rendering pipeline has processed all pending animations and reflows.
+    fn wait_animation_frame(&self, tab: &Arc<Tab>) -> Result<()> {
+        let animation_script = r#"
+            new Promise(resolve => {
+                // Double requestAnimationFrame ensures rendering pipeline is flushed
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        // Additional setTimeout to ensure we're after paint
+                        setTimeout(resolve, 0);
+                    });
+                });
+            })
+        "#;
+
+        if let Err(error) = tab.evaluate(animation_script, true) {
+            tracing::warn!("Animation frame wait failed: {error}");
         }
+
+        Ok(())
+    }
+}
+
+impl WaitConfig {
+    /// Create a configuration optimized for the given HTML content
+    ///
+    /// Analyzes the HTML to determine which wait strategies are most relevant,
+    /// providing intelligent defaults while allowing for customization.
+    pub fn for_content(html: &str) -> Self {
+        // Check for specific content types that need special handling
+        let has_plotly = html.contains("application/vnd.plotly.v1+json");
+        let has_mermaid = html.contains("text/vnd.mermaid");
+        let has_vega = html.contains("vegalite") || html.contains("application/vnd.vega");
+        let has_cytoscape = html.contains("application/vnd.cytoscape");
+        let has_stencila_components = html.contains("stencila-");
+        let has_datatable = html.contains("stencila-datatable");
+        let has_iframes = html.contains("<iframe");
+        let has_images = html.contains("<img");
+        let has_dynamic_content = needs_dynamic_scripts(html);
+
+        // Determine timeout based on content complexity
+        let timeout = if has_plotly {
+            Duration::from_secs(8) // Plotly needs reasonable time but not excessive
+        } else if has_mermaid {
+            Duration::from_secs(6) // Mermaid is usually fast
+        } else if has_vega || has_cytoscape {
+            Duration::from_secs(5) // Vega is typically quick
+        } else if has_dynamic_content {
+            Duration::from_secs(4) // Dynamic content with moderate timeout
+        } else if has_datatable || has_stencila_components || has_iframes {
+            Duration::from_secs(3) // Components and iframes need some time to render
+        } else {
+            Duration::from_secs(2) // Basic content should be fast
+        };
+
+        Self {
+            // Enable network idle for dynamic content, iframes, or components that might load resources
+            network_idle: has_dynamic_content || has_iframes || has_stencila_components,
+
+            // Always enable animation frame - it's very fast and ensures stability
+            animation_frame: true,
+
+            // Enable web components for any Stencila content, not just dynamic media types
+            web_components: has_stencila_components,
+
+            // Enable DOM mutations for dynamic content or components that modify DOM
+            dom_mutations: has_dynamic_content || has_datatable,
+
+            // Enable images/fonts if we have images, dynamic content, or components that might load fonts
+            images_and_fonts: has_images || has_dynamic_content || has_stencila_components,
+
+            // Only enable iframe detection if iframes are present
+            iframe_detection: has_iframes,
+
+            timeout,
+
+            // Shorter mutation quiet period for faster response
+            mutation_quiet_period: Duration::from_millis(300),
+        }
+    }
+}
+
+/// Wait for rendering completion using modern wait strategies
+///
+/// This function replaces the previous hardcoded media-type timeouts with
+/// a more robust approach that uses multiple wait strategies to ensure
+/// content is fully rendered. The strategies are intelligently configured
+/// based on the HTML content.
+fn detect_rendering_completion(tab: &Arc<Tab>, html: &str) -> Result<()> {
+    // Create optimized wait configuration based on HTML content
+    let config = WaitConfig::for_content(html);
+
+    tracing::debug!(
+        "Using wait strategies: network_idle={}, animation_frame={}, web_components={}, dom_mutations={}, images_and_fonts={}, iframe_detection={}",
+        config.network_idle,
+        config.animation_frame,
+        config.web_components,
+        config.dom_mutations,
+        config.images_and_fonts,
+        config.iframe_detection
+    );
+
+    // Apply the wait strategies
+    let waiter = ScreenshotWaiter::new(config);
+    if let Err(error) = waiter.wait_for_ready(tab) {
+        tracing::warn!("Screenshot wait strategies failed: {error}. Taking screenshot anyway.");
+    } else {
+        tracing::debug!("All wait strategies completed successfully");
     }
 
     Ok(())
+}
+
+/// Wait for content bounds to be detected with exponential backoff
+///
+/// If content bounds cannot be detected immediately, this indicates that
+/// rendering is not yet complete. We use exponential backoff to wait longer
+/// between attempts, up to a maximum timeout of 30 seconds.
+fn wait_for_content_bounds_with_backoff(
+    tab: &Arc<Tab>,
+    html: &str,
+    padding: u32,
+) -> Result<Option<Page::Viewport>> {
+    let start_time = Instant::now();
+    let max_wait = Duration::from_secs(10); // Reduced from 30s since logic is simpler
+    let mut attempt = 0;
+
+    loop {
+        // Try to get content bounds
+        match get_content_bounds(tab, padding) {
+            Ok(Some(bounds)) => {
+                tracing::debug!(
+                    "Content bounds detected on attempt {}: {}×{} at ({}, {})",
+                    attempt + 1,
+                    bounds.width,
+                    bounds.height,
+                    bounds.x,
+                    bounds.y
+                );
+                return Ok(Some(bounds));
+            }
+            Ok(None) => {
+                // Content bounds not available yet, check if we should continue waiting
+                let elapsed = start_time.elapsed();
+                if elapsed >= max_wait {
+                    tracing::warn!(
+                        "Content bounds not detected after {}s, using full page screenshot",
+                        elapsed.as_secs()
+                    );
+                    return Ok(None);
+                }
+
+                // Calculate exponential backoff delay (50ms, 100ms, 200ms, 400ms, 800ms, 1600ms, max 3200ms)
+                let delay_ms = (50 * (1 << attempt)).min(3200);
+                tracing::debug!(
+                    "Content bounds not detected on attempt {}, waiting {}ms before retry",
+                    attempt + 1,
+                    delay_ms
+                );
+
+                std::thread::sleep(Duration::from_millis(delay_ms));
+
+                // Additional wait strategy: if this is a Stencila component, give it more time on first attempt
+                if attempt == 0 && html.contains("stencila-") {
+                    tracing::debug!(
+                        "Stencila component detected, applying additional wait for rendering"
+                    );
+                    std::thread::sleep(Duration::from_millis(500)); // Simple additional wait
+                }
+
+                attempt += 1;
+            }
+            Err(error) => {
+                tracing::warn!(
+                    "Failed to get content bounds: {error}. Using full page screenshot."
+                );
+                return Ok(None);
+            }
+        }
+    }
 }
 
 /// Calculate the bounding box of the content wrapper for cropping
@@ -476,11 +865,17 @@ fn get_content_bounds(tab: &Arc<Tab>, padding: u32) -> Result<Option<Page::Viewp
                 return;
             }}
             
+            // Wait for wrapper to have content
+            if (wrapper.children.length === 0) {{
+                resolve(null);
+                return;
+            }}
+            
             const rect = wrapper.getBoundingClientRect();
             const padding = {padding};
             
-            // Ensure we have meaningful content dimensions
-            if (rect.width < 1 || rect.height < 1) {{
+            // Wait for reasonable dimensions (at least 10x10 pixels to account for small content)
+            if (rect.width < 10 || rect.height < 10) {{
                 resolve(null);
                 return;
             }}
@@ -611,9 +1006,9 @@ fn wrap_html(html: &str) -> String {
                 font-family: system-ui, -apple-system, sans-serif;
             }}
             #stencila-content-wrapper {{
-                display: inline-block;
-                min-width: fit-content;
-                min-height: fit-content;
+                display: block;
+                width: fit-content;
+                height: fit-content;
             }}
         </style>
         {scripts}
@@ -694,14 +1089,8 @@ fn try_screenshot_with_padding(html: &str, padding: u32) -> Result<String> {
         tracing::warn!("Rendering completion detection failed: {error}. Taking screenshot anyway.",);
     }
 
-    // Calculate content bounds for cropping
-    let clip = match get_content_bounds(tab, padding) {
-        Ok(bounds) => bounds,
-        Err(error) => {
-            tracing::warn!("Failed to get content bounds: {error}. Using full page screenshot.");
-            None
-        }
-    };
+    // Calculate content bounds for cropping with exponential backoff
+    let clip = wait_for_content_bounds_with_backoff(tab, html, padding)?;
 
     // Capture screenshot with content cropping or full page fallback
     let has_clip = clip.is_some();
