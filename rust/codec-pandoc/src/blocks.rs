@@ -2,7 +2,8 @@ use std::{any::type_name_of_val, str::FromStr};
 
 use pandoc_types::definition::{self as pandoc};
 
-use codec::{format::Format, schema::*};
+use codec::{common::tracing, format::Format, schema::*};
+use codec_png::to_png_data_uri;
 use codec_text_trait::to_text;
 
 use crate::{
@@ -733,10 +734,50 @@ fn code_chunk_to_pandoc(
             };
         };
 
-        // TODO: handle multiple outputs
+        // TODO: handle multiple outputs, this just takes first
         let inline = if let Some(output) = outputs.first() {
             match output {
-                Node::ImageObject(image) => image_to_pandoc(image, context),
+                Node::ImageObject(image) => {
+                    // Only use image_to_pandoc if the image has a "image/..."
+                    // media type or a content url with an image media type. For
+                    // other images (e.g. plotly, html map) use
+                    // `to_png_data_uri` to create an image object
+
+                    let has_image_media_type = image
+                        .media_type
+                        .as_ref()
+                        .is_some_and(|media_type| media_type.starts_with("image/"));
+
+                    let has_image_content_url = {
+                        let url_lower = image.content_url.to_lowercase();
+                        url_lower.contains("data:image/")
+                            || url_lower.ends_with(".png")
+                            || url_lower.ends_with(".jpg")
+                            || url_lower.ends_with(".jpeg")
+                            || url_lower.ends_with(".gif")
+                            || url_lower.ends_with(".webp")
+                            || url_lower.ends_with(".svg")
+                    };
+
+                    if has_image_media_type || has_image_content_url {
+                        image_to_pandoc(image, context)
+                    } else {
+                        match to_png_data_uri(output) {
+                            Ok(data_uri) => {
+                                let png_image = ImageObject {
+                                    content_url: data_uri,
+                                    media_type: Some("image/png".to_string()),
+                                    ..Default::default()
+                                };
+                                image_to_pandoc(&png_image, context)
+                            }
+                            Err(error) => {
+                                tracing::error!("While encoding output to data URI: {error}");
+                                pandoc::Inline::Str(to_text(output))
+                            }
+                        }
+                    }
+                }
                 _ => pandoc::Inline::Str(to_text(output)),
             }
         } else {
