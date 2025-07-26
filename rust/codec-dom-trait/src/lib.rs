@@ -15,6 +15,16 @@ use node_type::NodeType;
 pub use codec_dom_derive::DomCodec;
 pub use html_escape;
 
+/// Encode a node that implements `DomCodec` to DOM HTML
+pub fn to_dom<T>(node: &T) -> String
+where
+    T: DomCodec,
+{
+    let mut context = DomEncodeContext::new(false, None, None);
+    node.to_dom(&mut context);
+    context.content
+}
+
 pub trait DomCodec {
     /// Encode a Stencila Schema node to DOM HTML
     fn to_dom(&self, context: &mut DomEncodeContext);
