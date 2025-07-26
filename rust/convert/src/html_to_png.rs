@@ -30,6 +30,7 @@ use std::{
     ffi::OsStr,
     path::Path,
     sync::{Arc, Mutex},
+    thread::sleep,
     time::{Duration, Instant},
 };
 
@@ -713,18 +714,20 @@ impl WaitConfig {
         let has_dynamic_content = needs_dynamic_scripts(html);
 
         // Determine timeout based on content complexity
-        let timeout = if has_plotly {
-            Duration::from_secs(8) // Plotly needs reasonable time but not excessive
+        let timeout = if has_iframes {
+            Duration::from_secs(15)
+        } else if has_plotly {
+            Duration::from_secs(10)
         } else if has_mermaid {
-            Duration::from_secs(6) // Mermaid is usually fast
+            Duration::from_secs(8)
         } else if has_vega || has_cytoscape {
-            Duration::from_secs(5) // Vega is typically quick
+            Duration::from_secs(6)
         } else if has_dynamic_content {
-            Duration::from_secs(4) // Dynamic content with moderate timeout
-        } else if has_datatable || has_stencila_components || has_iframes {
-            Duration::from_secs(3) // Components and iframes need some time to render
+            Duration::from_secs(4)
+        } else if has_datatable || has_stencila_components {
+            Duration::from_secs(3)
         } else {
-            Duration::from_secs(2) // Basic content should be fast
+            Duration::from_secs(2)
         };
 
         Self {
@@ -777,9 +780,9 @@ fn detect_rendering_completion(tab: &Arc<Tab>, html: &str) -> Result<()> {
     // Apply the wait strategies
     let waiter = ScreenshotWaiter::new(config);
     if let Err(error) = waiter.wait_for_ready(tab) {
-        tracing::warn!("Screenshot wait strategies failed: {error}. Taking screenshot anyway.");
+        tracing::debug!("Screenshot wait strategies failed: {error}. Taking screenshot anyway.");
     } else {
-        tracing::debug!("All wait strategies completed successfully");
+        tracing::trace!("All wait strategies completed successfully");
     }
 
     Ok(())
@@ -817,7 +820,7 @@ fn wait_for_content_bounds_with_backoff(
                 // Content bounds not available yet, check if we should continue waiting
                 let elapsed = start_time.elapsed();
                 if elapsed >= max_wait {
-                    tracing::warn!(
+                    tracing::debug!(
                         "Content bounds not detected after {}s, using full page screenshot",
                         elapsed.as_secs()
                     );
@@ -832,14 +835,14 @@ fn wait_for_content_bounds_with_backoff(
                     delay_ms
                 );
 
-                std::thread::sleep(Duration::from_millis(delay_ms));
+                sleep(Duration::from_millis(delay_ms));
 
                 // Additional wait strategy: if this is a Stencila component, give it more time on first attempt
                 if attempt == 0 && html.contains("stencila-") {
                     tracing::debug!(
                         "Stencila component detected, applying additional wait for rendering"
                     );
-                    std::thread::sleep(Duration::from_millis(500)); // Simple additional wait
+                    sleep(Duration::from_millis(500)); // Simple additional wait
                 }
 
                 attempt += 1;
