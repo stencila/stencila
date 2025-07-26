@@ -466,7 +466,8 @@ async fn detect_rendering_completion(tab: &Arc<Tab>, html: &str) -> Result<()> {
 
 /// Calculate the bounding box of the content wrapper for cropping
 async fn get_content_bounds(tab: &Arc<Tab>, padding: u32) -> Result<Option<Page::Viewport>> {
-    let bounds_js = format!(r#"
+    let bounds_js = format!(
+        r#"
         new Promise((resolve) => {{
             const wrapper = document.getElementById('stencila-content-wrapper');
             if (!wrapper) {{
@@ -494,65 +495,66 @@ async fn get_content_bounds(tab: &Arc<Tab>, padding: u32) -> Result<Option<Page:
             
             resolve(bounds);
         }})
-    "#);
+    "#
+    );
 
-    match tab.evaluate(&bounds_js, true) {
-        Ok(result) => {
-            // Try to get the actual object properties using headless_chrome's get_properties
-            if let Some(object_id) = &result.object_id {
-                match tab.call_method(headless_chrome::protocol::cdp::Runtime::GetProperties {
-                    object_id: object_id.clone(),
-                    own_properties: Some(true),
-                    accessor_properties_only: Some(false),
-                    generate_preview: Some(false),
-                    non_indexed_properties_only: Some(false),
-                }) {
-                    Ok(props_result) => {
-                        let mut x = 0.0;
-                        let mut y = 0.0;
-                        let mut width = 0.0;
-                        let mut height = 0.0;
-                        let mut scale = 1.0;
-                        
-                        for prop in props_result.result {
-                            if let Some(value) = &prop.value {
-                                match prop.name.as_str() {
-                                    "x" => x = value.value.as_ref().and_then(|v| v.as_f64()).unwrap_or(0.0),
-                                    "y" => y = value.value.as_ref().and_then(|v| v.as_f64()).unwrap_or(0.0),
-                                    "width" => width = value.value.as_ref().and_then(|v| v.as_f64()).unwrap_or(0.0),
-                                    "height" => height = value.value.as_ref().and_then(|v| v.as_f64()).unwrap_or(0.0),
-                                    "scale" => scale = value.value.as_ref().and_then(|v| v.as_f64()).unwrap_or(1.0),
-                                    _ => {}
-                                }
-                            }
-                        }
-                        
-                        if width > 0.0 && height > 0.0 {
-                            let viewport = Page::Viewport {
-                                x,
-                                y,
-                                width,
-                                height,
-                                scale,
-                            };
-                            tracing::debug!("Content bounds detected: {}×{} at ({}, {})", width, height, x, y);
-                            return Ok(Some(viewport));
-                        }
-                    }
-                    Err(error) => {
-                        tracing::warn!("Failed to get object properties: {error}");
-                    }
-                }
-            }
-            
-            tracing::debug!("Could not detect content bounds, using full page screenshot");
-            Ok(None)
-        }
+    let result = match tab.evaluate(&bounds_js, true) {
+        Ok(result) => result,
         Err(error) => {
             tracing::warn!("Failed to calculate content bounds: {error}");
-            Ok(None)
+            return Ok(None);
+        }
+    };
+
+    // Try to get the actual object properties using headless_chrome's get_properties
+    if let Some(object_id) = &result.object_id {
+        match tab.call_method(headless_chrome::protocol::cdp::Runtime::GetProperties {
+            object_id: object_id.clone(),
+            own_properties: Some(true),
+            accessor_properties_only: Some(false),
+            generate_preview: Some(false),
+            non_indexed_properties_only: Some(false),
+        }) {
+            Ok(props_result) => {
+                let mut x = 0.0;
+                let mut y = 0.0;
+                let mut width = 0.0;
+                let mut height = 0.0;
+                let mut scale = 1.0;
+
+                for prop in props_result.result {
+                    let Some(value) = &prop.value else { continue };
+                    let value = value.value.as_ref().and_then(|v| v.as_f64());
+                    match prop.name.as_str() {
+                        "x" => x = value.unwrap_or(0.0),
+                        "y" => y = value.unwrap_or(0.0),
+                        "width" => width = value.unwrap_or(0.0),
+                        "height" => height = value.unwrap_or(0.0),
+                        "scale" => scale = value.unwrap_or(1.0),
+                        _ => {}
+                    }
+                }
+
+                if width > 0.0 && height > 0.0 {
+                    let viewport = Page::Viewport {
+                        x,
+                        y,
+                        width,
+                        height,
+                        scale,
+                    };
+                    tracing::debug!("Content bounds detected: {width}×{height} at ({x}, {y})",);
+                    return Ok(Some(viewport));
+                }
+            }
+            Err(error) => {
+                tracing::warn!("Failed to get object properties: {error}");
+            }
         }
     }
+
+    tracing::debug!("Could not detect content bounds, using full page screenshot");
+    Ok(None)
 }
 
 /// Wraps HTML with so that any necessary CSS and Javascript is available
@@ -628,6 +630,11 @@ fn wrap_html(html: &str) -> String {
 
 /// Captures HTML content as PNG using persistent browser instance with content cropping
 fn capture_screenshot_with_padding(html: &str, padding: u32) -> Result<String> {
+    // Testing indicated that for Plotly is is best to use a fresh browser tab
+    if html.contains("application/vnd.plotly.v1+json") {
+        shutdown().ok();
+    }
+
     // Ensure we have a working browser, recreating if necessary
     ensure_browser_available()?;
 
@@ -699,15 +706,15 @@ fn try_screenshot_with_padding(html: &str, padding: u32) -> Result<String> {
 
     // Calculate content bounds for cropping
     let clip = tokio::task::block_in_place(|| match tokio::runtime::Handle::try_current() {
-        Ok(handle) => {
-            match handle.block_on(get_content_bounds(tab, padding)) {
-                Ok(bounds) => bounds,
-                Err(error) => {
-                    tracing::warn!("Failed to get content bounds: {error}. Using full page screenshot.");
-                    None
-                }
+        Ok(handle) => match handle.block_on(get_content_bounds(tab, padding)) {
+            Ok(bounds) => bounds,
+            Err(error) => {
+                tracing::warn!(
+                    "Failed to get content bounds: {error}. Using full page screenshot."
+                );
+                None
             }
-        }
+        },
         Err(_) => {
             tracing::debug!("No tokio runtime available, using full page screenshot");
             None
