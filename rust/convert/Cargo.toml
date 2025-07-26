@@ -13,5 +13,8 @@ tools = { path = "../tools" }
 version = { path = "../version" }
 web-dist = { path = "../web-dist" }
 
+[dev-dependencies]
+test-log = { workspace = true }
+
 [lints]
 workspace = true

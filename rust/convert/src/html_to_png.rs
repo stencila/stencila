@@ -30,6 +30,7 @@ use std::{
     ffi::OsStr,
     path::Path,
     sync::{Arc, Mutex},
+    time::Duration,
 };
 
 use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64};
@@ -42,7 +43,7 @@ use common::{
     eyre::{Result, eyre},
     itertools::Itertools,
     once_cell::sync::Lazy,
-    tracing,
+    tokio, tracing,
 };
 use version::STENCILA_VERSION;
 use web_dist::Web;
@@ -125,7 +126,7 @@ pub fn html_to_png_file(html: &str, path: &Path) -> Result<()> {
 }
 
 /// Browser manager that automatically cleans up resources when dropped
-/// 
+///
 /// Avoids zombie chrome processes if shutdown is not explicitly called.
 struct BrowserManager {
     browser: Option<Browser>,
@@ -191,7 +192,7 @@ pub fn warmup() -> Result<()> {
 /// Shutdown the browser and clean up resources
 ///
 /// Call this during application shutdown for clean resource cleanup.
-/// 
+///
 /// Note: Resources will be automatically cleaned up when the program exits
 /// even if this function is not called, thanks to the Drop implementation.
 pub fn shutdown() -> Result<()> {
@@ -264,38 +265,186 @@ fn ensure_browser_available() -> Result<()> {
     Ok(())
 }
 
+/// Media type timeout configurations for dynamic rendering
+struct MediaTypeTimeout {
+    media_type: &'static str,
+    wait_ms: u32,
+    timeout_ms: u32,
+}
+
+const MEDIA_TYPE_TIMEOUTS: &[MediaTypeTimeout] = &[
+    MediaTypeTimeout {
+        media_type: "application/vnd.plotly.v1+json",
+        wait_ms: 0,
+        timeout_ms: 3000,
+    },
+    MediaTypeTimeout {
+        media_type: "text/vnd.mermaid",
+        wait_ms: 500,
+        timeout_ms: 8000,
+    },
+    MediaTypeTimeout {
+        media_type: "application/vnd.vegalite.v5+json",
+        wait_ms: 0,
+        timeout_ms: 3000,
+    },
+    MediaTypeTimeout {
+        media_type: "application/vnd.vega.v5+json",
+        wait_ms: 0,
+        timeout_ms: 3000,
+    },
+    MediaTypeTimeout {
+        media_type: "application/vnd.cytoscape.v3+json",
+        wait_ms: 0,
+        timeout_ms: 2000,
+    },
+    MediaTypeTimeout {
+        media_type: "text/html", // Leaflet maps
+        wait_ms: 0,
+        timeout_ms: 4000,
+    },
+];
+
 /// Check if HTML contains stencila-image-object elements that require JavaScript for rendering
 fn needs_dynamic_scripts(html: &str) -> bool {
-    // Media types that require JavaScript modules for proper rendering
-    // See `web/src/nodes/image-object.ts`
-    const DYNAMIC_MEDIA_TYPES: &[&str] = &[
-        "application/vnd.cytoscape.v3+json",
-        "application/vnd.plotly.v1+json",
-        "application/vnd.vega.v5+json",
-        "application/vnd.vegalite.v5+json",
-        "text/html", // Leaflet maps
-        "text/vnd.mermaid",
-    ];
-
     // Check if HTML contains stencila-image-object with any of the dynamic media types
     html.contains("<stencila-image-object")
-        && DYNAMIC_MEDIA_TYPES
+        && MEDIA_TYPE_TIMEOUTS
             .iter()
-            .any(|media_type| html.contains(media_type))
+            .any(|timeout| html.contains(timeout.media_type))
+}
+
+/// Detect which media types are present in the HTML and return their timeouts
+fn get_media_type_timeouts(html: &str) -> Vec<&'static MediaTypeTimeout> {
+    MEDIA_TYPE_TIMEOUTS
+        .iter()
+        .filter(|timeout| html.contains(timeout.media_type))
+        .collect()
+}
+
+/// Wait for rendering completion based on media type detection
+async fn detect_rendering_completion(tab: &Arc<Tab>, html: &str) -> Result<()> {
+    // If no dynamic scripts are needed, return immediately
+    if !needs_dynamic_scripts(html) {
+        tracing::debug!("No dynamic content detected, skipping render wait");
+        return Ok(());
+    }
+
+    let media_timeouts = get_media_type_timeouts(html);
+    if media_timeouts.is_empty() {
+        tracing::debug!("No matching media types found");
+        return Ok(());
+    }
+
+    tracing::debug!(
+        "Detected {} dynamic media type(s), waiting for completion",
+        media_timeouts.len()
+    );
+
+    // Wait for web components to be defined first
+    let web_component_check = r#"
+        return new Promise((resolve) => {
+            if (customElements.get('stencila-image-object')) {
+                resolve(true);
+            } else {
+                customElements.whenDefined('stencila-image-object').then(() => resolve(true));
+            }
+        });
+    "#;
+    if let Err(error) = tab.evaluate(web_component_check, true) {
+        tracing::warn!("Failed to wait for stencila-image-object to be defined: {error}",);
+    } else {
+        tracing::debug!("stencila-image-object web component is defined");
+    }
+
+    // Initial wait for modules and component initialization
+    let max_pause = media_timeouts
+        .iter()
+        .map(|t| t.wait_ms)
+        .max()
+        .unwrap_or(1000);
+    tokio::time::sleep(Duration::from_millis(max_pause as u64)).await;
+
+    // Use JavaScript to check completion by penetrating shadow DOM
+    let rendering_comple_check = r#"
+        return new Promise((resolve) => {
+            let checkCount = 0;
+            const maxChecks = 30; // 15 seconds max (500ms intervals)
+            
+            function checkCompletion() {
+                checkCount++;
+                
+                const imageObjects = document.querySelectorAll('stencila-image-object');
+                let allComplete = true;
+                
+                imageObjects.forEach((element) => {
+                    const mediaType = element.getAttribute('media-type');
+                    
+                    if (element.shadowRoot) {
+                        const shadowContent = element.shadowRoot;
+                        
+                        if (mediaType === 'text/vnd.mermaid') {
+                            const svgs = shadowContent.querySelectorAll('svg');
+                            if (svgs.length === 0) {
+                                allComplete = false;
+                            }
+                        } else if (mediaType === 'application/vnd.plotly.v1+json') {
+                            const plots = shadowContent.querySelectorAll('.plotly');
+                            if (plots.length === 0) {
+                                allComplete = false;
+                            }
+                        } else if (mediaType && mediaType.includes('vega')) {
+                            const vegaElements = shadowContent.querySelectorAll('.vega-embed');
+                            if (vegaElements.length === 0) {
+                                allComplete = false;
+                            }
+                        }
+                    } else {
+                        allComplete = false;
+                    }
+                });
+                
+                if (allComplete || checkCount >= maxChecks) {
+                    resolve(allComplete);
+                } else {
+                    setTimeout(checkCompletion, 500);
+                }
+            }
+            
+            checkCompletion();
+        });
+    "#;
+    match tab.evaluate(rendering_comple_check, true) {
+        Ok(_) => {
+            tracing::debug!("Rendering completion check succeeded");
+        }
+        Err(error) => {
+            tracing::warn!("Rendering completion check failed: {error}. Using fallback delay.",);
+            // Fallback to a generous delay for complex visualizations
+            let max_timeout = media_timeouts
+                .iter()
+                .map(|t| t.timeout_ms)
+                .max()
+                .unwrap_or(3000);
+            tokio::time::sleep(Duration::from_millis(max_timeout as u64)).await;
+        }
+    }
+
+    Ok(())
 }
 
 /// Wraps HTML with so that any necessary CSS and Javascript is available
 fn wrap_html(html: &str) -> String {
     // Keep any unused linting warning here so that if we turn on the line below
     // it is harder to forget to reverse that before committing
-    let static_prefix = format!("https://stencila.io/web/v{STENCILA_VERSION}");
+    let _static_prefix = format!("https://stencila.io/web/v{STENCILA_VERSION}");
 
     // During development of web components uncomment the next line and run
     // a local Stencila server with permissive CORS (so that headless
     // browser can get use web dist):
     //
     // cargo run -p cli serve --cors permissive
-    let static_prefix = format!("http://localhost:9000/~static/dev");
+    let static_prefix = "http://localhost:9000/~static/dev".to_string();
 
     // Add CSS
     let mut styles = String::new();
@@ -346,9 +495,7 @@ fn capture_screenshot(html: &str) -> Result<String> {
     // Ensure we have a working browser, recreating if necessary
     ensure_browser_available()?;
 
-    let result = try_screenshot(&html);
-
-    // If screenshot failed, try recreating the browser and retry once
+    let result = try_screenshot(html);
     if result.is_err() {
         // Force recreation by clearing both browser and tab
         if let Ok(mut manager) = BROWSER_MANAGER.lock() {
@@ -359,7 +506,7 @@ fn capture_screenshot(html: &str) -> Result<String> {
         ensure_browser_available()?;
 
         // Retry the screenshot
-        try_screenshot(&html)
+        try_screenshot(html)
     } else {
         result
     }
@@ -392,18 +539,27 @@ fn try_screenshot(html: &str) -> Result<String> {
 
     tab.enable_log()
         .map_err(|error| eyre!("Failed to enable log: {error}"))?;
-    tab.add_event_listener(Arc::new(move |event: &Event| match event {
-        Event::LogEntryAdded(entry) => {
+    tab.add_event_listener(Arc::new(move |event: &Event| {
+        if let Event::LogEntryAdded(entry) = event {
             tracing::debug!("{:?} {}", entry.params.entry.level, entry.params.entry.text)
         }
-        _ => {}
     }))
     .map_err(|error| eyre!("Failed to add log event listener: {error}"))?;
 
-    // TODO: implement a way for interactive visualizations to (a) signal that they
-    // are rendering and (b) finished rendering so that this can wait but only if needed.
-    //tab.wait_for_element_with_custom_timeout("stencila-image-object > svg", Duration::from_millis(5000))
-    //    .map_err(|error| eyre!(error))?;
+    // Wait for interactive visualizations to complete rendering
+    // This detects media types and waits only when necessary
+    tokio::task::block_in_place(|| match tokio::runtime::Handle::try_current() {
+        Ok(handle) => {
+            if let Err(error) = handle.block_on(detect_rendering_completion(tab, html)) {
+                tracing::warn!(
+                    "Rendering completion detection failed: {error}. Taking screenshot anyway.",
+                );
+            }
+        }
+        Err(_) => {
+            tracing::debug!("No tokio runtime available, skipping async completion detection");
+        }
+    });
 
     // Capture screenshot with maximum speed optimization
     let screenshot_params = Page::CaptureScreenshot {
@@ -501,9 +657,10 @@ mod tests {
         Ok(())
     }
 
-    // This test will normally be ignored
-    #[test]
-    fn test_rendering() -> Result<()> {
+    /// To run this test with logs printed:
+    /// RUST_LOG=trace cargo test -p convert html_to_png::tests::test_rendering -- --nocapture
+    #[test_log::test(tokio::test(flavor = "multi_thread", worker_threads = 2))]
+    async fn test_rendering() -> Result<()> {
         // Test Mermaid rendering
         let mermaid_html = r#"
             <stencila-image-object 
@@ -575,7 +732,8 @@ mod tests {
                 std::fs::remove_file(&output_path)?;
             }
 
-            html_to_png_file(&wrap_html(html), &output_path)?;
+            let wrapped_html = wrap_html(html);
+            html_to_png_file(&wrapped_html, &output_path)?;
 
             let file_size = std::fs::metadata(&output_path)?.len();
             assert!(
