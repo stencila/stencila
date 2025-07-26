@@ -1399,6 +1399,7 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-latex-trait",
+ "codec-png",
  "codec-text-trait",
  "pandoc_types",
  "tools",
@@ -1432,7 +1433,9 @@ name = "codec-png"
 version = "0.0.0"
 dependencies = [
  "codec",
+ "codec-dom-trait",
  "codec-latex-trait",
+ "convert",
  "images",
 ]
 
@@ -1829,7 +1832,10 @@ dependencies = [
  "common",
  "headless_chrome",
  "rand 0.9.1",
+ "test-log",
  "tools",
+ "version",
+ "web-dist",
 ]
 
 [[package]]
