@@ -762,23 +762,11 @@ fn code_chunk_to_pandoc(
                     if has_image_media_type || has_image_content_url {
                         image_to_pandoc(image, context)
                     } else {
-                        match to_png_data_uri(output) {
-                            Ok(data_uri) => {
-                                let png_image = ImageObject {
-                                    content_url: data_uri,
-                                    media_type: Some("image/png".to_string()),
-                                    ..Default::default()
-                                };
-                                image_to_pandoc(&png_image, context)
-                            }
-                            Err(error) => {
-                                tracing::error!("While encoding output to data URI: {error}");
-                                pandoc::Inline::Str(to_text(output))
-                            }
-                        }
+                        render_output_to_pandoc(output, context)
                     }
                 }
-                _ => pandoc::Inline::Str(to_text(output)),
+                // Some other
+                _ => render_output_to_pandoc(output, context),
             }
         } else {
             pandoc::Inline::Str("".into())
@@ -826,6 +814,23 @@ fn code_chunk_to_pandoc(
         ..Default::default()
     };
     vec![pandoc::Block::CodeBlock(attrs, chunk.code.to_string())]
+}
+
+fn render_output_to_pandoc(output: &Node, context: &mut PandocEncodeContext) -> pandoc::Inline {
+    match to_png_data_uri(output) {
+        Ok(data_uri) => {
+            let image = ImageObject {
+                content_url: data_uri,
+                media_type: Some("image/png".to_string()),
+                ..Default::default()
+            };
+            image_to_pandoc(&image, context)
+        }
+        Err(error) => {
+            tracing::error!("While encoding output to data URI: {error}");
+            pandoc::Inline::Str(to_text(output))
+        }
+    }
 }
 
 fn math_block_to_pandoc(
