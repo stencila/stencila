@@ -619,9 +619,7 @@ fn wrap_html(html: &str) -> String {
     </head>
     <body>
         <div id="stencila-content-wrapper">
-            <stencila-dynamic-view view=dynamic>
-                {html}
-            </stencila-dynamic-view>
+            {html}
         </div>
     </body>
 </html>"#
@@ -828,7 +826,36 @@ mod tests {
     /// RUST_LOG=trace cargo test -p convert html_to_png::tests::test_rendering -- --nocapture
     #[test_log::test(tokio::test(flavor = "multi_thread", worker_threads = 2))]
     async fn test_rendering() -> Result<()> {
-        // Test Mermaid rendering
+        let datatable_html = r#"<stencila-datatable>
+            <table>
+                <thead>
+                <tr>
+                    <th>
+                    <stencila-datatable-column>
+                        <span>a</span>
+                    </stencila-datatable-column>
+                    </th>
+                    <th>
+                    <stencila-datatable-column>
+                        <span>b</span>
+                    </stencila-datatable-column>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td data-type="number">1</td>
+                    <td data-type="number">3</td>
+                </tr>
+                <tr>
+                    <td data-type="number">2</td>
+                    <td data-type="number">4</td>
+                </tr>
+                </tbody>
+            </table>
+            </stencila-datatable>
+            "#;
+
         let mermaid_html = r#"
             <stencila-image-object 
                 media-type="text/vnd.mermaid" 
@@ -838,7 +865,6 @@ mod tests {
             </stencila-image-object>
         "#;
 
-        // Test Plotly rendering
         let plotly_html = r#"
             <stencila-image-object 
                 media-type="application/vnd.plotly.v1+json" 
@@ -859,7 +885,6 @@ mod tests {
             </stencila-image-object>
         "#;
 
-        // Test Vega-Lite rendering
         let vega_html = r#"
             <stencila-image-object 
                 media-type="application/vnd.vegalite.v5+json" 
@@ -885,8 +910,8 @@ mod tests {
             </stencila-image-object>
         "#;
 
-        // Render all examples
         let examples = [
+            ("test-datatable.png", datatable_html),
             ("test-mermaid.png", mermaid_html),
             ("test-plotly.png", plotly_html),
             ("test-vega-lite.png", vega_html),
