@@ -10,7 +10,19 @@ use codec::{
     schema::Node,
     status::Status,
 };
+use codec_dom_trait::to_dom;
 use codec_latex_trait::{latex_to_image, to_latex};
+use convert::{html_to_png::html_to_png_file, html_to_png_data_uri};
+
+/// Encode a node as a PNG dataURI
+pub fn to_png_data_uri(node: &Node) -> Result<String> {
+    html_to_png_data_uri(&to_dom(node))
+}
+
+/// Encode a node as a PNG file
+pub fn to_png_file(node: &Node, path: &Path) -> Result<()> {
+    html_to_png_file(&to_dom(node), path)
+}
 
 /// A codec for PNG
 pub struct PngCodec;

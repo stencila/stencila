@@ -5,7 +5,9 @@ edition = "2024"
 
 [dependencies]
 codec = { path = "../codec" }
+codec-dom-trait = { path = "../codec-dom-trait" }
 codec-latex-trait = { path = "../codec-latex-trait" }
+convert = { path = "../convert" }
 images = { path = "../images" }
 
 [lints]
