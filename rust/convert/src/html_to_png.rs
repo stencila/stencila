@@ -960,14 +960,14 @@ fn get_content_bounds(tab: &Arc<Tab>, padding: u32) -> Result<Option<Page::Viewp
 fn wrap_html(html: &str) -> String {
     // Keep any unused linting warning here so that if we turn on the line below
     // it is harder to forget to reverse that before committing
-    let _static_prefix = format!("https://stencila.io/web/v{STENCILA_VERSION}");
+    let static_prefix = format!("https://stencila.io/web/v{STENCILA_VERSION}");
 
     // During development of web components uncomment the next line and run
     // a local Stencila server with permissive CORS (so that headless
     // browser can get use web dist):
     //
     // cargo run -p cli serve --cors permissive
-    let static_prefix = "http://localhost:9000/~static/dev".to_string();
+    //let static_prefix = "http://localhost:9000/~static/dev".to_string();
 
     // Add CSS
     let mut styles = String::new();
