@@ -1166,6 +1166,7 @@ mod tests {
         assert!(needs_dynamic_scripts(vega_html));
     }
 
+    #[ignore = "primarily for development"]
     #[test]
     fn test_perf() -> Result<()> {
         // Ensure clean state
@@ -1200,6 +1201,7 @@ mod tests {
 
     /// To run this test with logs printed:
     /// RUST_LOG=trace cargo test -p convert html_to_png::tests::test_rendering -- --nocapture
+    #[ignore = "primarily for development"]
     #[test_log::test]
     fn test_rendering() -> Result<()> {
         let datatable_html = r#"<stencila-datatable>
