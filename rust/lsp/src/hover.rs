@@ -12,7 +12,7 @@ use async_lsp::{
 use codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext};
 use common::tokio::sync::RwLock;
 use document::Document;
-use schema::{CodeChunk, CodeExpression, Node, NodeId};
+use schema::{CodeChunk, CodeExpression, Node, NodeId, Reference};
 
 use crate::text_document::TextNode;
 
@@ -127,7 +127,14 @@ fn code_chunk(node: CodeChunk, uri: &Url, node_id: &NodeId) -> Option<String> {
                         .push_str(r#"" height="240px">"#);
                 }
             }
-            _ => output.to_markdown(&mut context),
+            _ => {
+                if output.node_type().is_creative_work() {
+                    let reference = Reference::from(output);
+                    reference.to_markdown(&mut context)
+                } else {
+                    output.to_markdown(&mut context)
+                }
+            }
         }
     }
     Some(context.content)
