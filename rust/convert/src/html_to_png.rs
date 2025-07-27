@@ -1297,13 +1297,13 @@ mod tests {
             let output_path = Path::new(filename);
 
             if output_path.exists() {
-                std::fs::remove_file(&output_path)?;
+                std::fs::remove_file(output_path)?;
             }
 
             let wrapped_html = wrap_html(html);
-            html_to_png_file(&wrapped_html, &output_path)?;
+            html_to_png_file(&wrapped_html, output_path)?;
 
-            let file_size = std::fs::metadata(&output_path)?.len();
+            let file_size = std::fs::metadata(output_path)?.len();
             assert!(
                 file_size > 1000,
                 "PNG file should have substantial content (got {} bytes)",

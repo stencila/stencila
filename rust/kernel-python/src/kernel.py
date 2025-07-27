@@ -35,6 +35,7 @@ PrimitiveType = Union[str, int, float, bool, None]
 # What we have here is useful, however, because this provides an overview of
 # the excepted types that are returned via the API.
 
+
 class ArrayHint(TypedDict):
     type: Literal["ArrayHint"]
     length: int
@@ -97,6 +98,7 @@ class SoftwareApplication(TypedDict):
     url: str
     software_version: str
     operating_system: str
+
 
 class SoftwareSourceCode(TypedDict):
     type: Literal["SoftwareSourceCode"]
@@ -219,9 +221,7 @@ logger.addHandler(handler)
 def log_warning(message, category, filename, lineno, file=None, line=None) -> None:  # type: ignore  # noqa: ANN001
     warning_details = {
         "warning_details": {
-            "category": str(
-                category.__name__
-            ),  # pyright: ignore[reportAttributeAccessIssue]
+            "category": str(category.__name__),  # pyright: ignore[reportAttributeAccessIssue]
             "filename": filename,
             "lineno": lineno,
             "line": line,
@@ -618,7 +618,9 @@ def to_json(obj: Any) -> str:
         if isinstance(bundle, (tuple, list)) and len(bundle):
             bundle = bundle[0]
 
-        if PLOTLY_AVAILABLE and is_plotly(bundle) or ALTAIR_AVAILABLE and is_altair(bundle):
+        if (PLOTLY_AVAILABLE and is_plotly(bundle)) or (
+            ALTAIR_AVAILABLE and is_altair(bundle)
+        ):
             return json.dumps(mimebundle_to_image_object(bundle))
 
         return json.dumps(bundle, cls=MimeBundleJSONEncoder)
