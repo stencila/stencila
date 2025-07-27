@@ -589,31 +589,20 @@ impl OpenAlexQuery {
                 "works" => "title_and_abstract.search",
                 _ => "display_name.search",
             },
-            "year" | "publication_year" => "publication_year",
-            "date" | "publication_date" => "publication_date",
-            "doi" => "doi",
-            "orcid" => "orcid",
-            "ror" => "ror",
-            "country_code" => "country_code",
-            "continent" => "continent",
-            "authors_count" => "authors_count",
-            "cited_by_count" => "cited_by_count",
-            "is_oa" => "open_access.is_oa",
-            "type" => "type",
-            "language" => "language",
 
             // Works-specific
+            "year" => "publication_year",
+            "date" => "publication_date",
             "abstract" => "abstract.search",
-            "cited_by" => "cited_by",
-            "cites" => "cites",
             "journal" => "primary_location.source.display_name.search",
-            "venue" => "primary_location.source.display_name.search",
+            "is_oa" => "open_access.is_oa",
 
             // Authors-specific
             "h_index" => "summary_stats.h_index",
             "i10_index" => "summary_stats.i10_index",
 
-            // If no mapping found, use as-is
+            // If no mapping found, use as-is, this includes:
+            // type, language, cited_by, cites, doi, orcid, ror
             _ => property,
         };
 
