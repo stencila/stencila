@@ -59,24 +59,6 @@ use web_dist::Web;
 ///
 /// # Returns
 /// * `Result<String>`: Base64 encoded PNG as a data URI
-///
-/// # Example
-/// ```no_run
-/// use convert::html_to_png::{self, warmup};
-///
-/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
-/// // Warmup for optimal first-call performance
-/// html_to_png::warmup()?;
-///
-/// let html = "<table><tr><td>Hello</td></tr></table>";
-/// let data_uri = html_to_png_data_uri(html)?;
-/// // Returns: "data:image/png;base64,iVBORw0KGgoAAAANS..."
-///
-/// // With Stencila assets for rendering components like Mermaid, Plotly
-/// let data_uri = html_to_png_data_uri(html)?;
-/// # Ok(())
-/// # }
-/// ```
 pub fn html_to_png_data_uri(html: &str) -> Result<String> {
     html_to_png_data_uri_with_padding(html, 16)
 }
@@ -110,22 +92,6 @@ pub fn html_to_png_data_uri_with_padding(html: &str, padding: u32) -> Result<Str
 ///
 /// # Returns
 /// * `Result<()>`: Success or error
-///
-/// # Example
-/// ```no_run
-/// use convert::html_to_png::{html_to_png_file, warmup};
-/// use std::path::Path;
-///
-/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
-/// // Warmup for optimal first-call performance
-/// warmup()?;
-///
-/// let html = "<table><tr><td>Hello</td></tr></table>";
-/// html_to_png_file(html, Path::new("output.png"))?;
-///
-/// # Ok(())
-/// # }
-/// ```
 pub fn html_to_png_file(html: &str, path: &Path) -> Result<()> {
     html_to_png_file_with_padding(html, path, 16)
 }
