@@ -192,9 +192,26 @@ pub struct CountsByYear {
 
 impl From<Work> for Article {
     fn from(work: Work) -> Self {
+        // Sometimes DOI is null bt will ne available in one of the work's URLs
+        let mut doi = work.doi.clone();
+        if doi.is_none() {
+            doi = work
+                .primary_location
+                .as_ref()
+                .and_then(|location| location.landing_page_url.as_ref())
+                .and_then(|url| url.strip_prefix("https://doi.org/").map(String::from));
+        }
+        if doi.is_none() {
+            doi = work
+                .open_access
+                .as_ref()
+                .and_then(|location| location.oa_url.as_ref())
+                .and_then(|url| url.strip_prefix("https://doi.org/").map(String::from));
+        }
+
         let mut article = Article {
             id: Some(work.id.clone()),
-            doi: crate::strip_doi_prefix(work.doi.clone()),
+            doi: crate::strip_doi_prefix(doi),
             ..Default::default()
         };
 

@@ -1,0 +1,70 @@
+---
+source: rust/codec-openalex/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "id": "https://openalex.org/W4225981453",
+  "doi": "10.1101/2021.11.24.469827",
+  "authors": [
+    {
+      "type": "Person",
+      "orcid": "0000-0002-5366-0673",
+      "name": "Allison Q. Byrne"
+    },
+    {
+      "type": "Person",
+      "orcid": "0000-0002-5154-4302",
+      "name": "Anthony W. Waddle"
+    },
+    {
+      "type": "Person",
+      "orcid": "0000-0003-4038-4339",
+      "name": "Veronica Saenz"
+    },
+    {
+      "type": "Person",
+      "orcid": "0000-0002-5937-6585",
+      "name": "Michel E. B. Ohmer"
+    },
+    {
+      "type": "Person",
+      "name": "Jef R. Jaeger"
+    },
+    {
+      "type": "Person",
+      "orcid": "0000-0002-4212-041X",
+      "name": "Corinne L. Richards‐Zawacki"
+    },
+    {
+      "type": "Person",
+      "orcid": "0000-0002-0073-5790",
+      "name": "Jamie Voyles"
+    },
+    {
+      "type": "Person",
+      "orcid": "0000-0002-7384-8032",
+      "name": "Erica Bree Rosenblum"
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2022-01-01"
+  },
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Host species is linked to pathogen genotype for the amphibian chytrid fungus (Batrachochytrium dendrobatidis)"
+      }
+    }
+  ],
+  "content": [],
+  "identifiers": [
+    "https://openalex.org/W4225981453"
+  ],
+  "isPartOf": {
+    "type": "Periodical",
+    "name": "bioRxiv (Cold Spring Harbor Laboratory)"
+  }
+}

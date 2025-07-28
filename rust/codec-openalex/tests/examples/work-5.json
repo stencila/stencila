@@ -1,0 +1,496 @@
+{
+  "id": "https://openalex.org/W4225981453",
+  "doi": null,
+  "title": "Host species is linked to pathogen genotype for the amphibian chytrid fungus (Batrachochytrium dendrobatidis)",
+  "display_name": "Host species is linked to pathogen genotype for the amphibian chytrid fungus (Batrachochytrium dendrobatidis)",
+  "publication_year": 2022,
+  "publication_date": "2022-01-01",
+  "ids": {
+    "openalex": "https://openalex.org/W4225981453"
+  },
+  "language": "en",
+  "primary_location": {
+    "is_oa": true,
+    "landing_page_url": "https://doi.org/10.1101/2021.11.24.469827",
+    "pdf_url": null,
+    "source": {
+      "id": "https://openalex.org/S4306402567",
+      "display_name": "bioRxiv (Cold Spring Harbor Laboratory)",
+      "issn_l": null,
+      "issn": null,
+      "is_oa": true,
+      "is_in_doaj": false,
+      "is_indexed_in_scopus": false,
+      "is_core": false,
+      "host_organization": "https://openalex.org/I2750212522",
+      "host_organization_name": "Cold Spring Harbor Laboratory",
+      "host_organization_lineage": [
+        "https://openalex.org/I2750212522"
+      ],
+      "host_organization_lineage_names": [
+        "Cold Spring Harbor Laboratory"
+      ],
+      "type": "repository"
+    },
+    "license": null,
+    "license_id": null,
+    "version": "submittedVersion",
+    "is_accepted": false,
+    "is_published": false
+  },
+  "type": "article",
+  "type_crossref": "journal-article",
+  "indexed_in": [],
+  "open_access": {
+    "is_oa": true,
+    "oa_status": "green",
+    "oa_url": "https://doi.org/10.1101/2021.11.24.469827",
+    "any_repository_has_fulltext": true
+  },
+  "authorships": [
+    {
+      "author_position": "first",
+      "author": {
+        "id": "https://openalex.org/A5044863873",
+        "display_name": "Allison Q. Byrne",
+        "orcid": "https://orcid.org/0000-0002-5366-0673"
+      },
+      "institutions": [],
+      "countries": [],
+      "is_corresponding": false,
+      "raw_author_name": "Allison Q. Byrne",
+      "raw_affiliation_strings": [],
+      "affiliations": []
+    },
+    {
+      "author_position": "middle",
+      "author": {
+        "id": "https://openalex.org/A5025931738",
+        "display_name": "Anthony W. Waddle",
+        "orcid": "https://orcid.org/0000-0002-5154-4302"
+      },
+      "institutions": [],
+      "countries": [],
+      "is_corresponding": false,
+      "raw_author_name": "Anthony W. Waddle",
+      "raw_affiliation_strings": [],
+      "affiliations": []
+    },
+    {
+      "author_position": "middle",
+      "author": {
+        "id": "https://openalex.org/A5017266182",
+        "display_name": "Veronica Saenz",
+        "orcid": "https://orcid.org/0000-0003-4038-4339"
+      },
+      "institutions": [],
+      "countries": [],
+      "is_corresponding": false,
+      "raw_author_name": "Veronica Saenz",
+      "raw_affiliation_strings": [],
+      "affiliations": []
+    },
+    {
+      "author_position": "middle",
+      "author": {
+        "id": "https://openalex.org/A5041883795",
+        "display_name": "Michel E. B. Ohmer",
+        "orcid": "https://orcid.org/0000-0002-5937-6585"
+      },
+      "institutions": [],
+      "countries": [],
+      "is_corresponding": false,
+      "raw_author_name": "Michel Ohmer",
+      "raw_affiliation_strings": [],
+      "affiliations": []
+    },
+    {
+      "author_position": "middle",
+      "author": {
+        "id": "https://openalex.org/A5035664436",
+        "display_name": "Jef R. Jaeger",
+        "orcid": null
+      },
+      "institutions": [],
+      "countries": [],
+      "is_corresponding": false,
+      "raw_author_name": "Jef R. Jaeger",
+      "raw_affiliation_strings": [],
+      "affiliations": []
+    },
+    {
+      "author_position": "middle",
+      "author": {
+        "id": "https://openalex.org/A5021819956",
+        "display_name": "Corinne L. Richards‐Zawacki",
+        "orcid": "https://orcid.org/0000-0002-4212-041X"
+      },
+      "institutions": [],
+      "countries": [],
+      "is_corresponding": false,
+      "raw_author_name": "Corinne L. Richards-Zawacki",
+      "raw_affiliation_strings": [],
+      "affiliations": []
+    },
+    {
+      "author_position": "middle",
+      "author": {
+        "id": "https://openalex.org/A5079651093",
+        "display_name": "Jamie Voyles",
+        "orcid": "https://orcid.org/0000-0002-0073-5790"
+      },
+      "institutions": [],
+      "countries": [],
+      "is_corresponding": false,
+      "raw_author_name": "Jamie Voyles",
+      "raw_affiliation_strings": [],
+      "affiliations": []
+    },
+    {
+      "author_position": "last",
+      "author": {
+        "id": "https://openalex.org/A5073659833",
+        "display_name": "Erica Bree Rosenblum",
+        "orcid": "https://orcid.org/0000-0002-7384-8032"
+      },
+      "institutions": [],
+      "countries": [],
+      "is_corresponding": false,
+      "raw_author_name": "Erica Bree Rosenblum",
+      "raw_affiliation_strings": [],
+      "affiliations": []
+    }
+  ],
+  "institution_assertions": [],
+  "countries_distinct_count": 0,
+  "institutions_distinct_count": 0,
+  "corresponding_author_ids": [],
+  "corresponding_institution_ids": [],
+  "apc_list": null,
+  "apc_paid": null,
+  "fwci": 0.0,
+  "has_fulltext": false,
+  "cited_by_count": 0,
+  "citation_normalized_percentile": {
+    "value": 0.0,
+    "is_in_top_1_percent": false,
+    "is_in_top_10_percent": false
+  },
+  "cited_by_percentile_year": {
+    "min": 0,
+    "max": 59
+  },
+  "biblio": {
+    "volume": null,
+    "issue": null,
+    "first_page": null,
+    "last_page": null
+  },
+  "is_retracted": false,
+  "is_paratext": false,
+  "primary_topic": {
+    "id": "https://openalex.org/T10825",
+    "display_name": "Plant Pathogens and Fungal Diseases",
+    "score": 0.9883,
+    "subfield": {
+      "id": "https://openalex.org/subfields/1307",
+      "display_name": "Cell Biology"
+    },
+    "field": {
+      "id": "https://openalex.org/fields/13",
+      "display_name": "Biochemistry, Genetics and Molecular Biology"
+    },
+    "domain": {
+      "id": "https://openalex.org/domains/1",
+      "display_name": "Life Sciences"
+    }
+  },
+  "topics": [
+    {
+      "id": "https://openalex.org/T10825",
+      "display_name": "Plant Pathogens and Fungal Diseases",
+      "score": 0.9883,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1307",
+        "display_name": "Cell Biology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/13",
+        "display_name": "Biochemistry, Genetics and Molecular Biology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10487",
+      "display_name": "Plant and animal studies",
+      "score": 0.9706,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1105",
+        "display_name": "Ecology, Evolution, Behavior and Systematics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/11",
+        "display_name": "Agricultural and Biological Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10451",
+      "display_name": "Mycorrhizal Fungi and Plant Interactions",
+      "score": 0.9577,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1110",
+        "display_name": "Plant Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/11",
+        "display_name": "Agricultural and Biological Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    }
+  ],
+  "keywords": [
+    {
+      "id": "https://openalex.org/keywords/chytridiomycosis",
+      "display_name": "Chytridiomycosis",
+      "score": 0.70360696
+    },
+    {
+      "id": "https://openalex.org/keywords/chytridiomycota",
+      "display_name": "Chytridiomycota",
+      "score": 0.6143038
+    },
+    {
+      "id": "https://openalex.org/keywords/fungal-pathogen",
+      "display_name": "Fungal pathogen",
+      "score": 0.5376163
+    },
+    {
+      "id": "https://openalex.org/keywords/pathogenic-fungus",
+      "display_name": "Pathogenic fungus",
+      "score": 0.4319396
+    }
+  ],
+  "concepts": [
+    {
+      "id": "https://openalex.org/C2779678110",
+      "wikidata": "https://www.wikidata.org/wiki/Q764",
+      "display_name": "Fungus",
+      "level": 2,
+      "score": 0.81474245
+    },
+    {
+      "id": "https://openalex.org/C2781465898",
+      "wikidata": "https://www.wikidata.org/wiki/Q10908",
+      "display_name": "Amphibian",
+      "level": 2,
+      "score": 0.81455433
+    },
+    {
+      "id": "https://openalex.org/C2776460866",
+      "wikidata": "https://www.wikidata.org/wiki/Q170065",
+      "display_name": "Pathogen",
+      "level": 2,
+      "score": 0.7349799
+    },
+    {
+      "id": "https://openalex.org/C2781273459",
+      "wikidata": "https://www.wikidata.org/wiki/Q1090290",
+      "display_name": "Chytridiomycosis",
+      "level": 3,
+      "score": 0.70360696
+    },
+    {
+      "id": "https://openalex.org/C86803240",
+      "wikidata": "https://www.wikidata.org/wiki/Q420",
+      "display_name": "Biology",
+      "level": 0,
+      "score": 0.66921616
+    },
+    {
+      "id": "https://openalex.org/C2778653143",
+      "wikidata": "https://www.wikidata.org/wiki/Q473747",
+      "display_name": "Chytridiomycota",
+      "level": 4,
+      "score": 0.6143038
+    },
+    {
+      "id": "https://openalex.org/C3019170707",
+      "wikidata": "https://www.wikidata.org/wiki/Q6471530",
+      "display_name": "Fungal pathogen",
+      "level": 3,
+      "score": 0.5376163
+    },
+    {
+      "id": "https://openalex.org/C126831891",
+      "wikidata": "https://www.wikidata.org/wiki/Q221673",
+      "display_name": "Host (biology)",
+      "level": 2,
+      "score": 0.5253871
+    },
+    {
+      "id": "https://openalex.org/C89423630",
+      "wikidata": "https://www.wikidata.org/wiki/Q7193",
+      "display_name": "Microbiology",
+      "level": 1,
+      "score": 0.5057292
+    },
+    {
+      "id": "https://openalex.org/C135763542",
+      "wikidata": "https://www.wikidata.org/wiki/Q106016",
+      "display_name": "Genotype",
+      "level": 3,
+      "score": 0.50086236
+    },
+    {
+      "id": "https://openalex.org/C2775839086",
+      "wikidata": "https://www.wikidata.org/wiki/Q6471530",
+      "display_name": "Pathogenic fungus",
+      "level": 3,
+      "score": 0.4319396
+    },
+    {
+      "id": "https://openalex.org/C18903297",
+      "wikidata": "https://www.wikidata.org/wiki/Q7150",
+      "display_name": "Ecology",
+      "level": 1,
+      "score": 0.3520804
+    },
+    {
+      "id": "https://openalex.org/C90856448",
+      "wikidata": "https://www.wikidata.org/wiki/Q431",
+      "display_name": "Zoology",
+      "level": 1,
+      "score": 0.32008344
+    },
+    {
+      "id": "https://openalex.org/C59822182",
+      "wikidata": "https://www.wikidata.org/wiki/Q441",
+      "display_name": "Botany",
+      "level": 1,
+      "score": 0.1847718
+    },
+    {
+      "id": "https://openalex.org/C2781212518",
+      "wikidata": "https://www.wikidata.org/wiki/Q174726",
+      "display_name": "Ascomycota",
+      "level": 3,
+      "score": 0.15402117
+    },
+    {
+      "id": "https://openalex.org/C54355233",
+      "wikidata": "https://www.wikidata.org/wiki/Q7162",
+      "display_name": "Genetics",
+      "level": 1,
+      "score": 0.07034728
+    },
+    {
+      "id": "https://openalex.org/C104317684",
+      "wikidata": "https://www.wikidata.org/wiki/Q7187",
+      "display_name": "Gene",
+      "level": 2,
+      "score": 0.068386644
+    }
+  ],
+  "mesh": [],
+  "locations_count": 1,
+  "locations": [
+    {
+      "is_oa": true,
+      "landing_page_url": "https://doi.org/10.1101/2021.11.24.469827",
+      "pdf_url": null,
+      "source": {
+        "id": "https://openalex.org/S4306402567",
+        "display_name": "bioRxiv (Cold Spring Harbor Laboratory)",
+        "issn_l": null,
+        "issn": null,
+        "is_oa": true,
+        "is_in_doaj": false,
+        "is_indexed_in_scopus": false,
+        "is_core": false,
+        "host_organization": "https://openalex.org/I2750212522",
+        "host_organization_name": "Cold Spring Harbor Laboratory",
+        "host_organization_lineage": [
+          "https://openalex.org/I2750212522"
+        ],
+        "host_organization_lineage_names": [
+          "Cold Spring Harbor Laboratory"
+        ],
+        "type": "repository"
+      },
+      "license": null,
+      "license_id": null,
+      "version": "submittedVersion",
+      "is_accepted": false,
+      "is_published": false
+    }
+  ],
+  "best_oa_location": {
+    "is_oa": true,
+    "landing_page_url": "https://doi.org/10.1101/2021.11.24.469827",
+    "pdf_url": null,
+    "source": {
+      "id": "https://openalex.org/S4306402567",
+      "display_name": "bioRxiv (Cold Spring Harbor Laboratory)",
+      "issn_l": null,
+      "issn": null,
+      "is_oa": true,
+      "is_in_doaj": false,
+      "is_indexed_in_scopus": false,
+      "is_core": false,
+      "host_organization": "https://openalex.org/I2750212522",
+      "host_organization_name": "Cold Spring Harbor Laboratory",
+      "host_organization_lineage": [
+        "https://openalex.org/I2750212522"
+      ],
+      "host_organization_lineage_names": [
+        "Cold Spring Harbor Laboratory"
+      ],
+      "type": "repository"
+    },
+    "license": null,
+    "license_id": null,
+    "version": "submittedVersion",
+    "is_accepted": false,
+    "is_published": false
+  },
+  "sustainable_development_goals": [
+    {
+      "score": 0.42,
+      "id": "https://metadata.un.org/sdg/14",
+      "display_name": "Life below water"
+    }
+  ],
+  "grants": [],
+  "datasets": [],
+  "versions": [],
+  "referenced_works_count": 0,
+  "referenced_works": [],
+  "related_works": [
+    "https://openalex.org/W912038",
+    "https://openalex.org/W6471914",
+    "https://openalex.org/W47400599",
+    "https://openalex.org/W35280375",
+    "https://openalex.org/W34442664",
+    "https://openalex.org/W33306938",
+    "https://openalex.org/W25033548",
+    "https://openalex.org/W242903",
+    "https://openalex.org/W19955503",
+    "https://openalex.org/W11346004"
+  ],
+  "abstract_inverted_index": null,
+  "abstract_inverted_index_v3": null,
+  "cited_by_api_url": "https://api.openalex.org/works?filter=cites:W4225981453",
+  "counts_by_year": [],
+  "updated_date": "2025-03-04T14:22:19.841590",
+  "created_date": "2022-05-05"
+}

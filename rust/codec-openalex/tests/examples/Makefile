@@ -46,6 +46,11 @@ source-%.json:
 work-4.json:
 	curl -s "https://api.openalex.org/works/W1775749144" | jq '.' > $@
 
+# This bioRxiv article has `doi: null` but some https://doi.org/... URLs from
+# which its DOI can be extracted
+work-5.json:
+	curl -s "https://api.openalex.org/works/W4225981453" | jq '.' > $@
+
 # bioRxiv
 source-4.json:
 	curl -s "https://api.openalex.org/sources/S4306402567" | jq '.' > $@
