@@ -9,10 +9,10 @@ use async_lsp::{
     ResponseError,
 };
 
-use codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext};
+use codec_markdown_trait::{to_markdown, MarkdownCodec, MarkdownEncodeContext};
 use common::tokio::sync::RwLock;
 use document::Document;
-use schema::{CodeChunk, CodeExpression, Node, NodeId, Reference};
+use schema::{Citation, CodeChunk, CodeExpression, Node, NodeId, NodeType, Reference};
 
 use crate::text_document::TextNode;
 
@@ -32,12 +32,16 @@ pub(super) async fn request(
         return Ok(None);
     };
 
-    // Check if it has any outputs
-    if text_node
-        .execution
-        .and_then(|execution| execution.outputs)
-        .unwrap_or_default()
-        == 0
+    // Check if is a node that we generate hovers for
+    if !(matches!(text_node.node_type, NodeType::Citation)
+        || (matches!(
+            text_node.node_type,
+            NodeType::CodeChunk | NodeType::CodeExpression
+        ) && text_node
+            .execution
+            .and_then(|execution| execution.outputs)
+            .unwrap_or_default()
+            > 0))
     {
         return Ok(None);
     };
@@ -51,6 +55,7 @@ pub(super) async fn request(
     let Some(markdown) = (match node {
         Node::CodeChunk(node) => code_chunk(node, &uri, &text_node.node_id),
         Node::CodeExpression(node) => code_expression(node),
+        Node::Citation(node) => citation(node),
         _ => None,
     }) else {
         return Ok(None);
@@ -142,9 +147,10 @@ fn code_chunk(node: CodeChunk, uri: &Url, node_id: &NodeId) -> Option<String> {
 
 /// Render the output of a code expression as Markdown
 fn code_expression(node: CodeExpression) -> Option<String> {
-    let output = node.output?;
+    Some(to_markdown(&node.output?))
+}
 
-    let mut context = MarkdownEncodeContext::default();
-    output.to_markdown(&mut context);
-    Some(context.content)
+/// Render the reference that the citation cites
+fn citation(node: Citation) -> Option<String> {
+    Some(to_markdown(&node.options.cites?))
 }
