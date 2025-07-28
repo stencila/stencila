@@ -1,12 +1,6 @@
-use std::{ops::Deref, path::PathBuf, sync::Arc};
+use std::path::PathBuf;
 
-use common::{
-    eyre::{OptionExt, Result},
-    tokio::sync::RwLock,
-};
-use kernels::Kernels;
-use prompts::prompt::{KernelsContext, PromptContext};
-use schema::{replicate, CompilationDigest, ExecutionBounds, PromptBlock};
+use schema::{replicate, CompilationDigest, PromptBlock};
 
 use crate::{prelude::*, state_digest};
 
@@ -104,10 +98,8 @@ impl Executable for PromptBlock {
             ],
         );
 
-        // Break walk because `content` is compiled in `execute`
-        // and do not want headings, figures etc to be compiled
-        // in main document
-        WalkControl::Break
+        // Continue walk so that excerpts and citations in excerpts are compiled
+        WalkControl::Continue
     }
 
     #[tracing::instrument(skip_all)]
@@ -144,24 +136,13 @@ impl Executable for PromptBlock {
         let started = Timestamp::now();
         let mut messages = Vec::new();
 
-        // Execute content of prompt
+        // Execute content of prompt within the prompt's directory (so that includes work)
         let home = PathBuf::from(self.options.directory.as_deref().unwrap_or_default());
-        match prompt_executor(executor, home).await {
-            Ok(mut prompt_executor) => {
-                if let Err(error) = prompt_executor
-                    .compile_prepare_execute(&mut self.content)
-                    .await
-                {
-                    messages.push(error_to_execution_message("While executing prompt", error));
-                }
-            }
-            Err(error) => {
-                messages.push(error_to_execution_message(
-                    "While creating prompt executor",
-                    error,
-                ));
-            }
-        };
+        executor.directory_stack.push(home);
+        if let Err(error) = executor.compile_prepare_execute(&mut self.content).await {
+            messages.push(error_to_execution_message("While executing prompt", error));
+        }
+        executor.directory_stack.pop();
 
         let ended = Timestamp::now();
         let messages = (!messages.is_empty()).then_some(messages);
@@ -188,41 +169,4 @@ impl Executable for PromptBlock {
         // Break walk because already walked over content with the new executor
         WalkControl::Break
     }
-}
-
-/// Create a new executor to execute a prompt
-async fn prompt_executor(executor: &Executor, home: PathBuf) -> Result<Executor> {
-    // Create a prompt context
-    // TODO: allow prompts to specify whether they need various parts of context
-    // as an optimization, particularly to avoid getting kernel contexts unnecessarily.
-    let context = PromptContext {
-        instruction: executor.instruction_context.clone(),
-        document: Some(executor.document_context.clone()),
-        kernels: Some(KernelsContext::from_kernels(executor.kernels.read().await.deref()).await?),
-    };
-
-    // Create a new kernel instance for the prompt context
-    let kernel = kernels::get("quickjs")
-        .await
-        .ok_or_eyre("QuickJS kernel not available")?;
-    let kernel_instance = context.into_kernel().await?;
-
-    // Create a set of kernels to execute the prompt and add the kernel instance to it
-    let mut kernels = Kernels::new(ExecutionBounds::Main, &home, None);
-    kernels
-        .add_instance(Arc::new(kernel), kernel_instance)
-        .await?;
-
-    // Create the new executor using the set of kernels
-    let mut executor = Executor::new(
-        home.clone(),
-        Arc::new(RwLock::new(kernels)),
-        executor.patch_sender.clone(),
-    );
-
-    // Push the home directory onto the stack
-    // TODO: consider pushing the executor's home on the the stack in Executor::new?
-    executor.directory_stack.push(home);
-
-    Ok(executor)
 }

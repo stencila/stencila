@@ -7,6 +7,7 @@ use common::{
     clap::{self, Args},
     eyre::{bail, eyre, Result},
     futures::future::join_all,
+    indexmap::IndexSet,
     itertools::Itertools,
     serde::{Deserialize, Serialize},
     tokio::sync::{mpsc, oneshot, RwLock, RwLockWriteGuard},
@@ -238,16 +239,20 @@ pub struct Executor {
     labels: HashMap<String, (LabelType, String)>,
 
     /// References that may be the `target` of citations
-    targets: HashMap<String, Reference>,
+    ///
+    /// All references that the document "knows about", including existing
+    /// references, excerpts, and references cited with those excerpts should be
+    /// be included in this list
+    bibliography: HashMap<String, Reference>,
 
-    /// References within the document
+    /// References that are cited within the main content of the document
     ///
-    /// Usually, only references in `Citation` nodes will be listed in the references
-    /// section of the document.
+    /// After the document is compiled, this should be a list of references that
+    /// are the target of `Citation` nodes within the main body of the document.
     ///
-    /// This is an [`IndexMap`] so that, if desired, references can be listed in
+    /// This is an [`IndexSet`] so that, if desired, references can be listed in
     /// order of appearance in the document.
-    references: Vec<Reference>,
+    references: IndexSet<String>,
 
     /// The last programming language used
     programming_language: Option<String>,
@@ -454,7 +459,7 @@ impl Executor {
             figure_count: 0,
             equation_count: 0,
             labels: Default::default(),
-            targets: Default::default(),
+            bibliography: Default::default(),
             references: Default::default(),
             programming_language: None,
             linting_context: Vec::new(),
@@ -537,7 +542,7 @@ impl Executor {
         self.table_count = 0;
         self.figure_count = 0;
         self.equation_count = 0;
-        self.targets.clear();
+        self.bibliography.clear();
         self.linting_context.clear();
         self.walk_position = 0;
         self.walk_ancestors.clear();

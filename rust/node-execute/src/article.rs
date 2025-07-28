@@ -1,5 +1,5 @@
 use codec_markdown::decode_frontmatter;
-use schema::{diff, Article, NodeSlot, NodeType};
+use schema::{diff, Article, NodeSlot, NodeType, Reference};
 
 use crate::{interrupt_impl, prelude::*, HeadingInfo};
 
@@ -30,13 +30,19 @@ impl Executable for Article {
 
         // Add references that have an id and/or DOI to the executor's targets
         // so that citations can link to them
-        executor.targets.clear();
+        executor.bibliography.clear();
         for reference in self.references.iter().flatten() {
+            // Note that we allow for each reference to be targeted using either
+            // custom id or DOI
             if let Some(id) = &reference.id {
-                executor.targets.insert(id.into(), reference.clone());
+                if !executor.bibliography.contains_key(id) {
+                    executor.bibliography.insert(id.into(), reference.clone());
+                }
             }
             if let Some(doi) = &reference.doi {
-                executor.targets.insert(doi.into(), reference.clone());
+                if !executor.bibliography.contains_key(doi) {
+                    executor.bibliography.insert(doi.into(), reference.clone());
+                }
             }
         }
 
@@ -81,6 +87,9 @@ impl Executable for Article {
         let node_id = self.node_id();
         tracing::trace!("Linking Article {node_id}");
 
+        // Clear the executor's references list
+        executor.references.clear();
+
         // Link `content` and other properties
         if let Err(error) = async {
             self.title.walk_async(executor).await?;
@@ -92,12 +101,12 @@ impl Executable for Article {
             tracing::error!("While linking article: {error}")
         }
 
-        /*
-        WIP so commented out until complete
-
-        // Mark references as being cited and insert into references list if not
-        // already there.
-        let references = std::mem::take(&mut executor.references);
+        // Update the article's references leaving only those that are cited.
+        let references: Vec<Reference> = executor
+            .references
+            .iter()
+            .filter_map(|id| executor.bibliography.get(id).cloned())
+            .collect();
         if references.is_empty() {
             executor.patch(&node_id, [none(NodeProperty::References)]);
         } else if let Some(current) = &self.references {
@@ -116,7 +125,6 @@ impl Executable for Article {
         } else {
             executor.patch(&node_id, [set(NodeProperty::References, references)]);
         }
-        */
 
         // Break because properties linked above
         WalkControl::Break
