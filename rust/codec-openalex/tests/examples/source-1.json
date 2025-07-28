@@ -1,0 +1,998 @@
+{
+  "id": "https://openalex.org/S4306509078",
+  "issn_l": null,
+  "issn": null,
+  "display_name": "El Ecologista",
+  "host_organization": null,
+  "host_organization_name": null,
+  "host_organization_lineage": [],
+  "works_count": 1280,
+  "cited_by_count": 219,
+  "summary_stats": {
+    "2yr_mean_citedness": 0.0,
+    "h_index": 7,
+    "i10_index": 2
+  },
+  "is_oa": false,
+  "is_in_doaj": false,
+  "is_indexed_in_scopus": false,
+  "is_core": false,
+  "ids": {
+    "openalex": "https://openalex.org/S4306509078",
+    "wikidata": "https://www.wikidata.org/entity/Q5821816"
+  },
+  "homepage_url": "http://www.ecologistasenaccion.org/revista",
+  "apc_prices": null,
+  "apc_usd": null,
+  "country_code": "ES",
+  "societies": [],
+  "alternate_titles": [],
+  "abbreviated_title": null,
+  "type": "journal",
+  "topics": [
+    {
+      "id": "https://openalex.org/T12641",
+      "display_name": "Historical and socio-economic studies of Spain and related regions",
+      "count": 176,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2002",
+        "display_name": "Economics and Econometrics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/20",
+        "display_name": "Economics, Econometrics and Finance"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13624",
+      "display_name": "Social Sciences and Policies",
+      "count": 105,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3300",
+        "display_name": "General Social Sciences"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12670",
+      "display_name": "Urbanism, Landscape, and Tourism Studies",
+      "count": 98,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3316",
+        "display_name": "Cultural Studies"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13870",
+      "display_name": "Environmental and Ecological Studies",
+      "count": 87,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2105",
+        "display_name": "Renewable Energy, Sustainability and the Environment"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/21",
+        "display_name": "Energy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11857",
+      "display_name": "Archaeological and Historical Studies",
+      "count": 81,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1204",
+        "display_name": "Archeology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/12",
+        "display_name": "Arts and Humanities"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12636",
+      "display_name": "Regional Development and Innovation",
+      "count": 73,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3303",
+        "display_name": "Development"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12969",
+      "display_name": "Economic and Social Development",
+      "count": 71,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3312",
+        "display_name": "Sociology and Political Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13760",
+      "display_name": "Finance, Taxation, and Governance",
+      "count": 65,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2308",
+        "display_name": "Management, Monitoring, Policy and Law"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12273",
+      "display_name": "Latin American Urban Studies",
+      "count": 48,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3322",
+        "display_name": "Urban Studies"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12455",
+      "display_name": "Mediterranean and Iberian flora and fauna",
+      "count": 47,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1110",
+        "display_name": "Plant Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/11",
+        "display_name": "Agricultural and Biological Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13911",
+      "display_name": "Employment, Labor, and Gender Studies",
+      "count": 45,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3311",
+        "display_name": "Safety Research"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14232",
+      "display_name": "Water Resource Management and Quality",
+      "count": 44,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2312",
+        "display_name": "Water Science and Technology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13557",
+      "display_name": "Environmental and sustainability education",
+      "count": 35,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2308",
+        "display_name": "Management, Monitoring, Policy and Law"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12986",
+      "display_name": "Administrative Law and Governance",
+      "count": 35,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3320",
+        "display_name": "Political Science and International Relations"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14490",
+      "display_name": "Human Rights and Immigration",
+      "count": 34,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3312",
+        "display_name": "Sociology and Political Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12669",
+      "display_name": "Comparative International Legal Studies",
+      "count": 28,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3320",
+        "display_name": "Political Science and International Relations"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13147",
+      "display_name": "Ethics and bioethics in healthcare",
+      "count": 24,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2739",
+        "display_name": "Public Health, Environmental and Occupational Health"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/27",
+        "display_name": "Medicine"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/4",
+        "display_name": "Health Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14052",
+      "display_name": "Galician and Iberian cultural studies",
+      "count": 24,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3305",
+        "display_name": "Geography, Planning and Development"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14452",
+      "display_name": "Mexican Socioeconomic and Environmental Dynamics",
+      "count": 23,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2308",
+        "display_name": "Management, Monitoring, Policy and Law"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13831",
+      "display_name": "Archaeological and Geological Studies",
+      "count": 22,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1204",
+        "display_name": "Archeology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/12",
+        "display_name": "Arts and Humanities"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13838",
+      "display_name": "Plant and soil sciences",
+      "count": 21,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1100",
+        "display_name": "General Agricultural and Biological Sciences"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/11",
+        "display_name": "Agricultural and Biological Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13714",
+      "display_name": "Medieval Architecture and Archaeology",
+      "count": 20,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1204",
+        "display_name": "Archeology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/12",
+        "display_name": "Arts and Humanities"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14264",
+      "display_name": "Law, Ethics, and AI Impact",
+      "count": 20,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1407",
+        "display_name": "Organizational Behavior and Human Resource Management"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/14",
+        "display_name": "Business, Management and Accounting"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10471",
+      "display_name": "Climate Change Policy and Economics",
+      "count": 19,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2002",
+        "display_name": "Economics and Econometrics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/20",
+        "display_name": "Economics, Econometrics and Finance"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14272",
+      "display_name": "Agricultural and Food Production Studies",
+      "count": 19,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1106",
+        "display_name": "Food Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/11",
+        "display_name": "Agricultural and Biological Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    }
+  ],
+  "topic_share": [
+    {
+      "id": "https://openalex.org/T13557",
+      "display_name": "Environmental and sustainability education",
+      "value": 0.0015342,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2308",
+        "display_name": "Management, Monitoring, Policy and Law"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12969",
+      "display_name": "Economic and Social Development",
+      "value": 0.0007544,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3312",
+        "display_name": "Sociology and Political Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12641",
+      "display_name": "Historical and socio-economic studies of Spain and related regions",
+      "value": 0.0007502,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2002",
+        "display_name": "Economics and Econometrics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/20",
+        "display_name": "Economics, Econometrics and Finance"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14206",
+      "display_name": "Animal Law and Welfare",
+      "value": 0.0006964,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3308",
+        "display_name": "Law"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13870",
+      "display_name": "Environmental and Ecological Studies",
+      "value": 0.0006566,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2105",
+        "display_name": "Renewable Energy, Sustainability and the Environment"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/21",
+        "display_name": "Energy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14232",
+      "display_name": "Water Resource Management and Quality",
+      "value": 0.000643,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2312",
+        "display_name": "Water Science and Technology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14032",
+      "display_name": "History and International Relations",
+      "value": 0.0005631,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3320",
+        "display_name": "Political Science and International Relations"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12670",
+      "display_name": "Urbanism, Landscape, and Tourism Studies",
+      "value": 0.0005622,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3316",
+        "display_name": "Cultural Studies"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14264",
+      "display_name": "Law, Ethics, and AI Impact",
+      "value": 0.0005075,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1407",
+        "display_name": "Organizational Behavior and Human Resource Management"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/14",
+        "display_name": "Business, Management and Accounting"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12273",
+      "display_name": "Latin American Urban Studies",
+      "value": 0.0004223,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3322",
+        "display_name": "Urban Studies"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14452",
+      "display_name": "Mexican Socioeconomic and Environmental Dynamics",
+      "value": 0.0003442,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2308",
+        "display_name": "Management, Monitoring, Policy and Law"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12636",
+      "display_name": "Regional Development and Innovation",
+      "value": 0.0003319,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3303",
+        "display_name": "Development"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13687",
+      "display_name": "Extractivism and Socioeconomic Issues",
+      "value": 0.0002504,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3312",
+        "display_name": "Sociology and Political Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13492",
+      "display_name": "Science, Technology, and Education in Latin America",
+      "value": 0.0002469,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3317",
+        "display_name": "Demography"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13760",
+      "display_name": "Finance, Taxation, and Governance",
+      "value": 0.0002427,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2308",
+        "display_name": "Management, Monitoring, Policy and Law"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14422",
+      "display_name": "Sociology, Governance, and Technology",
+      "value": 0.0002406,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3312",
+        "display_name": "Sociology and Political Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12986",
+      "display_name": "Administrative Law and Governance",
+      "value": 0.0002226,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3320",
+        "display_name": "Political Science and International Relations"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13756",
+      "display_name": "International Environmental Law and Policies",
+      "value": 0.0002113,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2308",
+        "display_name": "Management, Monitoring, Policy and Law"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13911",
+      "display_name": "Employment, Labor, and Gender Studies",
+      "value": 0.0002047,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3311",
+        "display_name": "Safety Research"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13624",
+      "display_name": "Social Sciences and Policies",
+      "value": 0.0002028,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3300",
+        "display_name": "General Social Sciences"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14052",
+      "display_name": "Galician and Iberian cultural studies",
+      "value": 0.0001949,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3305",
+        "display_name": "Geography, Planning and Development"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13043",
+      "display_name": "Youth Culture and Social Dynamics",
+      "value": 0.0001927,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3312",
+        "display_name": "Sociology and Political Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12455",
+      "display_name": "Mediterranean and Iberian flora and fauna",
+      "value": 0.0001785,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1110",
+        "display_name": "Plant Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/11",
+        "display_name": "Agricultural and Biological Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14188",
+      "display_name": "Latin American Legal and Economic Studies",
+      "value": 0.0001784,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3320",
+        "display_name": "Political Science and International Relations"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14016",
+      "display_name": "International Relations and Autism",
+      "value": 0.0001783,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3322",
+        "display_name": "Urban Studies"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    }
+  ],
+  "x_concepts": [
+    {
+      "id": "https://openalex.org/C138885662",
+      "wikidata": "https://www.wikidata.org/wiki/Q5891",
+      "display_name": "Philosophy",
+      "level": 0,
+      "score": 34.0
+    },
+    {
+      "id": "https://openalex.org/C142362112",
+      "wikidata": "https://www.wikidata.org/wiki/Q735",
+      "display_name": "Art",
+      "level": 0,
+      "score": 32.7
+    },
+    {
+      "id": "https://openalex.org/C17744445",
+      "wikidata": "https://www.wikidata.org/wiki/Q36442",
+      "display_name": "Political science",
+      "level": 0,
+      "score": 31.4
+    },
+    {
+      "id": "https://openalex.org/C15708023",
+      "wikidata": "https://www.wikidata.org/wiki/Q80083",
+      "display_name": "Humanities",
+      "level": 1,
+      "score": 29.9
+    },
+    {
+      "id": "https://openalex.org/C205649164",
+      "wikidata": "https://www.wikidata.org/wiki/Q1071",
+      "display_name": "Geography",
+      "level": 0,
+      "score": 28.0
+    }
+  ],
+  "counts_by_year": [
+    {
+      "year": 2025,
+      "works_count": 0,
+      "cited_by_count": 2
+    },
+    {
+      "year": 2024,
+      "works_count": 0,
+      "cited_by_count": 2
+    },
+    {
+      "year": 2023,
+      "works_count": 0,
+      "cited_by_count": 4
+    },
+    {
+      "year": 2022,
+      "works_count": 0,
+      "cited_by_count": 8
+    },
+    {
+      "year": 2021,
+      "works_count": 0,
+      "cited_by_count": 12
+    },
+    {
+      "year": 2020,
+      "works_count": 49,
+      "cited_by_count": 20
+    },
+    {
+      "year": 2019,
+      "works_count": 53,
+      "cited_by_count": 12
+    },
+    {
+      "year": 2018,
+      "works_count": 62,
+      "cited_by_count": 9
+    },
+    {
+      "year": 2017,
+      "works_count": 49,
+      "cited_by_count": 14
+    },
+    {
+      "year": 2016,
+      "works_count": 61,
+      "cited_by_count": 10
+    },
+    {
+      "year": 2015,
+      "works_count": 53,
+      "cited_by_count": 12
+    },
+    {
+      "year": 2014,
+      "works_count": 55,
+      "cited_by_count": 15
+    },
+    {
+      "year": 2013,
+      "works_count": 56,
+      "cited_by_count": 17
+    },
+    {
+      "year": 2012,
+      "works_count": 59,
+      "cited_by_count": 13
+    }
+  ],
+  "works_api_url": "https://api.openalex.org/works?filter=primary_location.source.id:S4306509078",
+  "updated_date": "2025-07-15T20:24:24.270006",
+  "created_date": "2022-10-17"
+}

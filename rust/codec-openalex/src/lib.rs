@@ -18,6 +18,7 @@ mod institution;
 mod license;
 mod publisher;
 mod responses;
+mod source;
 mod utils;
 mod work;
 
@@ -25,6 +26,7 @@ use author::Author;
 use funder::Funder;
 use institution::Institution;
 use publisher::Publisher;
+use source::Source;
 use work::Work;
 
 // Re-export client functions
@@ -35,7 +37,8 @@ pub use client::{
 // Re-export types that might be needed by consumers
 pub use author::Author as OpenAlexAuthor;
 pub use institution::Institution as OpenAlexInstitution;
-pub use responses::{AuthorsResponse, InstitutionsResponse, WorksResponse};
+pub use responses::{AuthorsResponse, InstitutionsResponse, SourcesResponse, WorksResponse};
+pub use source::Source as OpenAlexSource;
 pub use work::Work as OpenAlexWork;
 
 /// A codec for decoding OpenAlex API response JSON to Stencila Schema nodes
@@ -116,6 +119,10 @@ pub fn from_value_any(value: &serde_json::Value) -> Result<Node> {
                 Ok(Node::CreativeWork(work.into()))
             }
         }
+        "source" => {
+            let source: Source = serde_json::from_value(value.clone())?;
+            Ok(Node::Periodical(source.into()))
+        }
         "institution" => {
             let institution: Institution = serde_json::from_value(value.clone())?;
             Ok(Node::Organization(institution.into()))
@@ -138,6 +145,7 @@ fn detect_entity_type(id: &str) -> Option<&str> {
         match id_part.chars().next() {
             Some('A') => Some("author"),
             Some('W') => Some("work"),
+            Some('S') => Some("source"),
             Some('I') => Some("institution"),
             Some('F') => Some("funder"),
             Some('P') => Some("publisher"),

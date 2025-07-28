@@ -1,0 +1,1011 @@
+{
+  "id": "https://openalex.org/S4306501059",
+  "issn_l": null,
+  "issn": null,
+  "display_name": "AGU Fall Meeting 2019",
+  "host_organization": null,
+  "host_organization_name": null,
+  "host_organization_lineage": [],
+  "works_count": 874,
+  "cited_by_count": 50,
+  "summary_stats": {
+    "2yr_mean_citedness": 0.0,
+    "h_index": 3,
+    "i10_index": 1
+  },
+  "is_oa": false,
+  "is_in_doaj": false,
+  "is_indexed_in_scopus": false,
+  "is_core": false,
+  "ids": {
+    "openalex": "https://openalex.org/S4306501059"
+  },
+  "homepage_url": null,
+  "apc_prices": null,
+  "apc_usd": null,
+  "country_code": null,
+  "societies": [],
+  "alternate_titles": [],
+  "abbreviated_title": null,
+  "type": "journal",
+  "topics": [
+    {
+      "id": "https://openalex.org/T11588",
+      "display_name": "Atmospheric and Environmental Gas Dynamics",
+      "count": 45,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2306",
+        "display_name": "Global and Planetary Change"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10995",
+      "display_name": "Methane Hydrates and Related Phenomena",
+      "count": 39,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2304",
+        "display_name": "Environmental Chemistry"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10644",
+      "display_name": "Cryospheric studies and observations",
+      "count": 36,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1902",
+        "display_name": "Atmospheric Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11986",
+      "display_name": "Scientific Computing and Data Management",
+      "count": 33,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1802",
+        "display_name": "Information Systems and Management"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/18",
+        "display_name": "Decision Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10325",
+      "display_name": "Astro and Planetary Science",
+      "count": 33,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3103",
+        "display_name": "Astronomy and Astrophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10017",
+      "display_name": "Geology and Paleoclimatology Research",
+      "count": 31,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1902",
+        "display_name": "Atmospheric Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10330",
+      "display_name": "Hydrology and Watershed Management Studies",
+      "count": 31,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2312",
+        "display_name": "Water Science and Technology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10075",
+      "display_name": "Atmospheric chemistry and aerosols",
+      "count": 28,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1902",
+        "display_name": "Atmospheric Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13018",
+      "display_name": "Seismology and Earthquake Studies",
+      "count": 27,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1702",
+        "display_name": "Artificial Intelligence"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/17",
+        "display_name": "Computer Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10466",
+      "display_name": "Meteorological Phenomena and Simulations",
+      "count": 27,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1902",
+        "display_name": "Atmospheric Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12157",
+      "display_name": "Geochemistry and Geologic Mapping",
+      "count": 25,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1702",
+        "display_name": "Artificial Intelligence"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/17",
+        "display_name": "Computer Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13067",
+      "display_name": "Geological Modeling and Analysis",
+      "count": 23,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1906",
+        "display_name": "Geochemistry and Petrology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10251",
+      "display_name": "Solar and Space Plasma Dynamics",
+      "count": 23,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3103",
+        "display_name": "Astronomy and Astrophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11459",
+      "display_name": "Arctic and Antarctic ice dynamics",
+      "count": 22,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1902",
+        "display_name": "Atmospheric Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12120",
+      "display_name": "Air Quality Monitoring and Forecasting",
+      "count": 22,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2305",
+        "display_name": "Environmental Engineering"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11405",
+      "display_name": "Geophysics and Gravity Measurements",
+      "count": 21,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1910",
+        "display_name": "Oceanography"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10110",
+      "display_name": "earthquake and tectonic studies",
+      "count": 21,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1908",
+        "display_name": "Geophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10406",
+      "display_name": "Planetary Science and Exploration",
+      "count": 20,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3103",
+        "display_name": "Astronomy and Astrophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10001",
+      "display_name": "Geological and Geochemical Analysis",
+      "count": 19,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1908",
+        "display_name": "Geophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10159",
+      "display_name": "Ionosphere and magnetosphere dynamics",
+      "count": 19,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3103",
+        "display_name": "Astronomy and Astrophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10535",
+      "display_name": "Landslides and related hazards",
+      "count": 18,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2308",
+        "display_name": "Management, Monitoring, Policy and Law"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10347",
+      "display_name": "Atmospheric aerosols and clouds",
+      "count": 18,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2306",
+        "display_name": "Global and Planetary Change"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10399",
+      "display_name": "Hydrocarbon exploration and reservoir analysis",
+      "count": 18,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2211",
+        "display_name": "Mechanics of Materials"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/22",
+        "display_name": "Engineering"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11333",
+      "display_name": "Climate change and permafrost",
+      "count": 18,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1902",
+        "display_name": "Atmospheric Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12717",
+      "display_name": "Space exploration and regulation",
+      "count": 16,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3103",
+        "display_name": "Astronomy and Astrophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    }
+  ],
+  "topic_share": [
+    {
+      "id": "https://openalex.org/T14222",
+      "display_name": "Knowledge Management and Technology",
+      "value": 0.0003717,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1803",
+        "display_name": "Management Science and Operations Research"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/18",
+        "display_name": "Decision Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13530",
+      "display_name": "Climate Change and Environmental Impact",
+      "value": 0.0003553,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2306",
+        "display_name": "Global and Planetary Change"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14427",
+      "display_name": "Environmental Monitoring and Data Management",
+      "value": 0.0003218,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1907",
+        "display_name": "Geology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11986",
+      "display_name": "Scientific Computing and Data Management",
+      "value": 0.0001857,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1802",
+        "display_name": "Information Systems and Management"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/18",
+        "display_name": "Decision Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12766",
+      "display_name": "Interdisciplinary Research and Collaboration",
+      "value": 0.0001836,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1802",
+        "display_name": "Information Systems and Management"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/18",
+        "display_name": "Decision Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13018",
+      "display_name": "Seismology and Earthquake Studies",
+      "value": 0.0001794,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1702",
+        "display_name": "Artificial Intelligence"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/17",
+        "display_name": "Computer Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11490",
+      "display_name": "Hydrological Forecasting Using AI",
+      "value": 0.0001697,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2305",
+        "display_name": "Environmental Engineering"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11937",
+      "display_name": "Research Data Management Practices",
+      "value": 0.0001634,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1710",
+        "display_name": "Information Systems"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/17",
+        "display_name": "Computer Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14195",
+      "display_name": "Linguistic and Cultural Studies",
+      "value": 0.0001605,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1110",
+        "display_name": "Plant Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/11",
+        "display_name": "Agricultural and Biological Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11459",
+      "display_name": "Arctic and Antarctic ice dynamics",
+      "value": 0.0001437,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1902",
+        "display_name": "Atmospheric Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10644",
+      "display_name": "Cryospheric studies and observations",
+      "value": 0.0001342,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1902",
+        "display_name": "Atmospheric Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11588",
+      "display_name": "Atmospheric and Environmental Gas Dynamics",
+      "value": 0.0001261,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2306",
+        "display_name": "Global and Planetary Change"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12120",
+      "display_name": "Air Quality Monitoring and Forecasting",
+      "value": 0.000124,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2305",
+        "display_name": "Environmental Engineering"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13980",
+      "display_name": "Alexander von Humboldt Studies",
+      "value": 0.0001208,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2404",
+        "display_name": "Microbiology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/24",
+        "display_name": "Immunology and Microbiology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13967",
+      "display_name": "Conservation, Ecology, Wildlife Education",
+      "value": 0.0001178,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2308",
+        "display_name": "Management, Monitoring, Policy and Law"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12717",
+      "display_name": "Space exploration and regulation",
+      "value": 0.0001172,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3103",
+        "display_name": "Astronomy and Astrophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14214",
+      "display_name": "Space Exploration and Technology",
+      "value": 0.0001171,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2202",
+        "display_name": "Aerospace Engineering"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/22",
+        "display_name": "Engineering"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11488",
+      "display_name": "Climate Change Communication and Perception",
+      "value": 0.0001153,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3312",
+        "display_name": "Sociology and Political Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10347",
+      "display_name": "Atmospheric aerosols and clouds",
+      "value": 0.0001118,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2306",
+        "display_name": "Global and Planetary Change"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13067",
+      "display_name": "Geological Modeling and Analysis",
+      "value": 0.0001082,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1906",
+        "display_name": "Geochemistry and Petrology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14350",
+      "display_name": "Innovation, Sustainability, Human-Machine Systems",
+      "value": 0.0001078,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3312",
+        "display_name": "Sociology and Political Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13650",
+      "display_name": "Computational Physics and Python Applications",
+      "value": 0.0001046,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1702",
+        "display_name": "Artificial Intelligence"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/17",
+        "display_name": "Computer Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11333",
+      "display_name": "Climate change and permafrost",
+      "value": 0.0001007,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1902",
+        "display_name": "Atmospheric Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12648",
+      "display_name": "Academic Writing and Publishing",
+      "value": 0.0001002,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1207",
+        "display_name": "History and Philosophy of Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/12",
+        "display_name": "Arts and Humanities"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11594",
+      "display_name": "Tree-ring climate responses",
+      "value": 0.0000988,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1902",
+        "display_name": "Atmospheric Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    }
+  ],
+  "x_concepts": [
+    {
+      "id": "https://openalex.org/C127313418",
+      "wikidata": "https://www.wikidata.org/wiki/Q1069",
+      "display_name": "Geology",
+      "level": 0,
+      "score": 70.9
+    },
+    {
+      "id": "https://openalex.org/C121332964",
+      "wikidata": "https://www.wikidata.org/wiki/Q413",
+      "display_name": "Physics",
+      "level": 0,
+      "score": 60.3
+    },
+    {
+      "id": "https://openalex.org/C205649164",
+      "wikidata": "https://www.wikidata.org/wiki/Q1071",
+      "display_name": "Geography",
+      "level": 0,
+      "score": 57.7
+    },
+    {
+      "id": "https://openalex.org/C86803240",
+      "wikidata": "https://www.wikidata.org/wiki/Q420",
+      "display_name": "Biology",
+      "level": 0,
+      "score": 56.6
+    },
+    {
+      "id": "https://openalex.org/C39432304",
+      "wikidata": "https://www.wikidata.org/wiki/Q188847",
+      "display_name": "Environmental science",
+      "level": 0,
+      "score": 50.3
+    },
+    {
+      "id": "https://openalex.org/C41008148",
+      "wikidata": "https://www.wikidata.org/wiki/Q21198",
+      "display_name": "Computer science",
+      "level": 0,
+      "score": 40.4
+    },
+    {
+      "id": "https://openalex.org/C18903297",
+      "wikidata": "https://www.wikidata.org/wiki/Q7150",
+      "display_name": "Ecology",
+      "level": 1,
+      "score": 33.4
+    },
+    {
+      "id": "https://openalex.org/C127413603",
+      "wikidata": "https://www.wikidata.org/wiki/Q11023",
+      "display_name": "Engineering",
+      "level": 0,
+      "score": 30.8
+    },
+    {
+      "id": "https://openalex.org/C111368507",
+      "wikidata": "https://www.wikidata.org/wiki/Q43518",
+      "display_name": "Oceanography",
+      "level": 1,
+      "score": 29.2
+    },
+    {
+      "id": "https://openalex.org/C153294291",
+      "wikidata": "https://www.wikidata.org/wiki/Q25261",
+      "display_name": "Meteorology",
+      "level": 1,
+      "score": 29.1
+    },
+    {
+      "id": "https://openalex.org/C1276947",
+      "wikidata": "https://www.wikidata.org/wiki/Q333",
+      "display_name": "Astronomy",
+      "level": 1,
+      "score": 24.1
+    },
+    {
+      "id": "https://openalex.org/C33923547",
+      "wikidata": "https://www.wikidata.org/wiki/Q395",
+      "display_name": "Mathematics",
+      "level": 0,
+      "score": 20.1
+    }
+  ],
+  "counts_by_year": [
+    {
+      "year": 2025,
+      "works_count": 0,
+      "cited_by_count": 1
+    },
+    {
+      "year": 2024,
+      "works_count": 0,
+      "cited_by_count": 7
+    },
+    {
+      "year": 2023,
+      "works_count": 0,
+      "cited_by_count": 8
+    },
+    {
+      "year": 2022,
+      "works_count": 1,
+      "cited_by_count": 11
+    },
+    {
+      "year": 2021,
+      "works_count": 1,
+      "cited_by_count": 16
+    },
+    {
+      "year": 2020,
+      "works_count": 4,
+      "cited_by_count": 6
+    },
+    {
+      "year": 2019,
+      "works_count": 876,
+      "cited_by_count": 1
+    }
+  ],
+  "works_api_url": "https://api.openalex.org/works?filter=primary_location.source.id:S4306501059",
+  "updated_date": "2025-07-19T22:00:45.423488",
+  "created_date": "2022-10-17"
+}

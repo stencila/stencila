@@ -1,0 +1,24 @@
+---
+source: rust/codec-openalex/tests/examples.rs
+expression: node
+---
+{
+  "type": "Periodical",
+  "id": "https://openalex.org/S137773608",
+  "name": "Nature",
+  "identifiers": [
+    "https://openalex.org/S137773608",
+    "https://www.wikidata.org/entity/Q180445"
+  ],
+  "url": "https://www.nature.com/nature/",
+  "publisher": {
+    "type": "Organization",
+    "id": "https://openalex.org/P4310319908",
+    "name": "Nature Portfolio"
+  },
+  "issns": [
+    "0028-0836",
+    "0028-0836",
+    "1476-4687"
+  ]
+}

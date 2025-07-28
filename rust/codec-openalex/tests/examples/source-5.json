@@ -1,0 +1,1086 @@
+{
+  "id": "https://openalex.org/S137773608",
+  "issn_l": "0028-0836",
+  "issn": [
+    "0028-0836",
+    "1476-4687"
+  ],
+  "display_name": "Nature",
+  "host_organization": "https://openalex.org/P4310319908",
+  "host_organization_name": "Nature Portfolio",
+  "host_organization_lineage": [
+    "https://openalex.org/P4310319908",
+    "https://openalex.org/P4310319965"
+  ],
+  "works_count": 431710,
+  "cited_by_count": 25383959,
+  "summary_stats": {
+    "2yr_mean_citedness": 16.27041483418519,
+    "h_index": 1786,
+    "i10_index": 117964
+  },
+  "is_oa": false,
+  "is_in_doaj": false,
+  "is_indexed_in_scopus": true,
+  "is_core": true,
+  "ids": {
+    "openalex": "https://openalex.org/S137773608",
+    "issn_l": "0028-0836",
+    "issn": [
+      "0028-0836",
+      "1476-4687"
+    ],
+    "mag": "137773608",
+    "wikidata": "https://www.wikidata.org/entity/Q180445"
+  },
+  "homepage_url": "https://www.nature.com/nature/",
+  "apc_prices": [
+    {
+      "price": 9750,
+      "currency": "EUR"
+    },
+    {
+      "price": 11690,
+      "currency": "USD"
+    },
+    {
+      "price": 8490,
+      "currency": "GBP"
+    }
+  ],
+  "apc_usd": 11690,
+  "country_code": "GB",
+  "societies": [],
+  "alternate_titles": [],
+  "abbreviated_title": null,
+  "type": "journal",
+  "topics": [
+    {
+      "id": "https://openalex.org/T13656",
+      "display_name": "Science, Research, and Medicine",
+      "count": 12590,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2743",
+        "display_name": "Reproductive Medicine"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/27",
+        "display_name": "Medicine"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/4",
+        "display_name": "Health Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12836",
+      "display_name": "History and Developments in Astronomy",
+      "count": 9944,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3103",
+        "display_name": "Astronomy and Astrophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10325",
+      "display_name": "Astro and Planetary Science",
+      "count": 7628,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3103",
+        "display_name": "Astronomy and Astrophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10017",
+      "display_name": "Geology and Paleoclimatology Research",
+      "count": 7005,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1902",
+        "display_name": "Atmospheric Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13297",
+      "display_name": "History and advancements in chemistry",
+      "count": 6037,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1606",
+        "display_name": "Physical and Theoretical Chemistry"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/16",
+        "display_name": "Chemistry"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12168",
+      "display_name": "Health and Medical Research Impacts",
+      "count": 6011,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2739",
+        "display_name": "Public Health, Environmental and Occupational Health"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/27",
+        "display_name": "Medicine"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/4",
+        "display_name": "Health Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14293",
+      "display_name": "Biotechnology and Related Fields",
+      "count": 4835,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2739",
+        "display_name": "Public Health, Environmental and Occupational Health"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/27",
+        "display_name": "Medicine"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/4",
+        "display_name": "Health Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12327",
+      "display_name": "Various Chemistry Research Topics",
+      "count": 4556,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1606",
+        "display_name": "Physical and Theoretical Chemistry"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/16",
+        "display_name": "Chemistry"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10487",
+      "display_name": "Plant and animal studies",
+      "count": 4156,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1105",
+        "display_name": "Ecology, Evolution, Behavior and Systematics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/11",
+        "display_name": "Agricultural and Biological Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10001",
+      "display_name": "Geological and Geochemical Analysis",
+      "count": 4092,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1908",
+        "display_name": "Geophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13175",
+      "display_name": "Historical Astronomy and Related Studies",
+      "count": 4075,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3103",
+        "display_name": "Astronomy and Astrophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10406",
+      "display_name": "Planetary Science and Exploration",
+      "count": 3962,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3103",
+        "display_name": "Astronomy and Astrophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10521",
+      "display_name": "RNA and protein synthesis mechanisms",
+      "count": 3924,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1312",
+        "display_name": "Molecular Biology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/13",
+        "display_name": "Biochemistry, Genetics and Molecular Biology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10251",
+      "display_name": "Solar and Space Plasma Dynamics",
+      "count": 3729,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3103",
+        "display_name": "Astronomy and Astrophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13937",
+      "display_name": "Genetics, Bioinformatics, and Biomedical Research",
+      "count": 3717,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1312",
+        "display_name": "Molecular Biology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/13",
+        "display_name": "Biochemistry, Genetics and Molecular Biology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12788",
+      "display_name": "Space Science and Extraterrestrial Life",
+      "count": 3656,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3103",
+        "display_name": "Astronomy and Astrophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12471",
+      "display_name": "History of Science and Natural History",
+      "count": 3546,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1207",
+        "display_name": "History and Philosophy of Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/12",
+        "display_name": "Arts and Humanities"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12250",
+      "display_name": "Experimental and Theoretical Physics Studies",
+      "count": 3347,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3109",
+        "display_name": "Statistical and Nonlinear Physics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10110",
+      "display_name": "earthquake and tectonic studies",
+      "count": 3283,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1908",
+        "display_name": "Geophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10039",
+      "display_name": "Stellar, planetary, and galactic studies",
+      "count": 3166,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3103",
+        "display_name": "Astronomy and Astrophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11354",
+      "display_name": "Evolution and Paleontology Studies",
+      "count": 3090,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1911",
+        "display_name": "Paleontology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13726",
+      "display_name": "International Science and Diplomacy",
+      "count": 2892,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3320",
+        "display_name": "Political Science and International Relations"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10413",
+      "display_name": "High-pressure geophysics and materials",
+      "count": 2813,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1908",
+        "display_name": "Geophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10878",
+      "display_name": "CRISPR and Genetic Engineering",
+      "count": 2748,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1312",
+        "display_name": "Molecular Biology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/13",
+        "display_name": "Biochemistry, Genetics and Molecular Biology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10702",
+      "display_name": "Insect and Arachnid Ecology and Behavior",
+      "count": 2732,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1311",
+        "display_name": "Genetics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/13",
+        "display_name": "Biochemistry, Genetics and Molecular Biology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    }
+  ],
+  "topic_share": [
+    {
+      "id": "https://openalex.org/T13656",
+      "display_name": "Science, Research, and Medicine",
+      "value": 0.0867767,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2743",
+        "display_name": "Reproductive Medicine"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/27",
+        "display_name": "Medicine"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/4",
+        "display_name": "Health Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14329",
+      "display_name": "Science and Climate Studies",
+      "value": 0.0511421,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2306",
+        "display_name": "Global and Planetary Change"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13726",
+      "display_name": "International Science and Diplomacy",
+      "value": 0.0497343,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3320",
+        "display_name": "Political Science and International Relations"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12445",
+      "display_name": "Twentieth Century Scientific Developments",
+      "value": 0.0396551,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1207",
+        "display_name": "History and Philosophy of Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/12",
+        "display_name": "Arts and Humanities"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12182",
+      "display_name": "Evolution and Science Education",
+      "value": 0.0371664,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1207",
+        "display_name": "History and Philosophy of Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/12",
+        "display_name": "Arts and Humanities"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12471",
+      "display_name": "History of Science and Natural History",
+      "value": 0.0364597,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1207",
+        "display_name": "History and Philosophy of Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/12",
+        "display_name": "Arts and Humanities"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14293",
+      "display_name": "Biotechnology and Related Fields",
+      "value": 0.0357595,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2739",
+        "display_name": "Public Health, Environmental and Occupational Health"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/27",
+        "display_name": "Medicine"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/4",
+        "display_name": "Health Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12836",
+      "display_name": "History and Developments in Astronomy",
+      "value": 0.0301346,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3103",
+        "display_name": "Astronomy and Astrophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13967",
+      "display_name": "Conservation, Ecology, Wildlife Education",
+      "value": 0.0280363,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2308",
+        "display_name": "Management, Monitoring, Policy and Law"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12168",
+      "display_name": "Health and Medical Research Impacts",
+      "value": 0.0275133,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2739",
+        "display_name": "Public Health, Environmental and Occupational Health"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/27",
+        "display_name": "Medicine"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/4",
+        "display_name": "Health Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14311",
+      "display_name": "Electrical and Electromagnetic Research",
+      "value": 0.0263709,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3107",
+        "display_name": "Atomic and Molecular Physics, and Optics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12180",
+      "display_name": "Polar Research and Ecology",
+      "value": 0.0244874,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2303",
+        "display_name": "Ecology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13098",
+      "display_name": "Conferences and Exhibitions Management",
+      "value": 0.0238886,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3312",
+        "display_name": "Sociology and Political Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12250",
+      "display_name": "Experimental and Theoretical Physics Studies",
+      "value": 0.0238304,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3109",
+        "display_name": "Statistical and Nonlinear Physics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12788",
+      "display_name": "Space Science and Extraterrestrial Life",
+      "value": 0.0228302,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3103",
+        "display_name": "Astronomy and Astrophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13175",
+      "display_name": "Historical Astronomy and Related Studies",
+      "value": 0.0226204,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3103",
+        "display_name": "Astronomy and Astrophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13607",
+      "display_name": "Academic Publishing and Open Access",
+      "value": 0.0212482,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1802",
+        "display_name": "Information Systems and Management"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/18",
+        "display_name": "Decision Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11731",
+      "display_name": "Global Health and Surgery",
+      "value": 0.0207542,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2739",
+        "display_name": "Public Health, Environmental and Occupational Health"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/27",
+        "display_name": "Medicine"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/4",
+        "display_name": "Health Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10955",
+      "display_name": "Paleontology and Evolutionary Biology",
+      "value": 0.0197864,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1911",
+        "display_name": "Paleontology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12717",
+      "display_name": "Space exploration and regulation",
+      "value": 0.0193161,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3103",
+        "display_name": "Astronomy and Astrophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11445",
+      "display_name": "Origins and Evolution of Life",
+      "value": 0.0187835,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3103",
+        "display_name": "Astronomy and Astrophysics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/31",
+        "display_name": "Physics and Astronomy"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13705",
+      "display_name": "Australian Indigenous Culture and History",
+      "value": 0.0177044,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3314",
+        "display_name": "Anthropology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11354",
+      "display_name": "Evolution and Paleontology Studies",
+      "value": 0.0176162,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1911",
+        "display_name": "Paleontology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13721",
+      "display_name": "Political Science Research and Education",
+      "value": 0.0174919,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3320",
+        "display_name": "Political Science and International Relations"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/33",
+        "display_name": "Social Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13937",
+      "display_name": "Genetics, Bioinformatics, and Biomedical Research",
+      "value": 0.0172408,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1312",
+        "display_name": "Molecular Biology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/13",
+        "display_name": "Biochemistry, Genetics and Molecular Biology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    }
+  ],
+  "x_concepts": [
+    {
+      "id": "https://openalex.org/C86803240",
+      "wikidata": "https://www.wikidata.org/wiki/Q420",
+      "display_name": "Biology",
+      "level": 0,
+      "score": 58.2
+    },
+    {
+      "id": "https://openalex.org/C121332964",
+      "wikidata": "https://www.wikidata.org/wiki/Q413",
+      "display_name": "Physics",
+      "level": 0,
+      "score": 40.6
+    },
+    {
+      "id": "https://openalex.org/C185592680",
+      "wikidata": "https://www.wikidata.org/wiki/Q2329",
+      "display_name": "Chemistry",
+      "level": 0,
+      "score": 36.0
+    },
+    {
+      "id": "https://openalex.org/C41008148",
+      "wikidata": "https://www.wikidata.org/wiki/Q21198",
+      "display_name": "Computer science",
+      "level": 0,
+      "score": 31.8
+    },
+    {
+      "id": "https://openalex.org/C71924100",
+      "wikidata": "https://www.wikidata.org/wiki/Q11190",
+      "display_name": "Medicine",
+      "level": 0,
+      "score": 26.6
+    },
+    {
+      "id": "https://openalex.org/C205649164",
+      "wikidata": "https://www.wikidata.org/wiki/Q1071",
+      "display_name": "Geography",
+      "level": 0,
+      "score": 25.7
+    },
+    {
+      "id": "https://openalex.org/C127313418",
+      "wikidata": "https://www.wikidata.org/wiki/Q1069",
+      "display_name": "Geology",
+      "level": 0,
+      "score": 23.6
+    },
+    {
+      "id": "https://openalex.org/C95457728",
+      "wikidata": "https://www.wikidata.org/wiki/Q309",
+      "display_name": "History",
+      "level": 0,
+      "score": 23.1
+    },
+    {
+      "id": "https://openalex.org/C138885662",
+      "wikidata": "https://www.wikidata.org/wiki/Q5891",
+      "display_name": "Philosophy",
+      "level": 0,
+      "score": 22.3
+    },
+    {
+      "id": "https://openalex.org/C17744445",
+      "wikidata": "https://www.wikidata.org/wiki/Q36442",
+      "display_name": "Political science",
+      "level": 0,
+      "score": 21.9
+    },
+    {
+      "id": "https://openalex.org/C54355233",
+      "wikidata": "https://www.wikidata.org/wiki/Q7162",
+      "display_name": "Genetics",
+      "level": 1,
+      "score": 21.4
+    },
+    {
+      "id": "https://openalex.org/C127413603",
+      "wikidata": "https://www.wikidata.org/wiki/Q11023",
+      "display_name": "Engineering",
+      "level": 0,
+      "score": 21.2
+    },
+    {
+      "id": "https://openalex.org/C55493867",
+      "wikidata": "https://www.wikidata.org/wiki/Q7094",
+      "display_name": "Biochemistry",
+      "level": 1,
+      "score": 21.1
+    },
+    {
+      "id": "https://openalex.org/C62520636",
+      "wikidata": "https://www.wikidata.org/wiki/Q944",
+      "display_name": "Quantum mechanics",
+      "level": 1,
+      "score": 20.6
+    }
+  ],
+  "counts_by_year": [
+    {
+      "year": 2025,
+      "works_count": 2702,
+      "cited_by_count": 507752
+    },
+    {
+      "year": 2024,
+      "works_count": 4385,
+      "cited_by_count": 1152809
+    },
+    {
+      "year": 2023,
+      "works_count": 4317,
+      "cited_by_count": 1249079
+    },
+    {
+      "year": 2022,
+      "works_count": 4103,
+      "cited_by_count": 1263591
+    },
+    {
+      "year": 2021,
+      "works_count": 3772,
+      "cited_by_count": 1325540
+    },
+    {
+      "year": 2020,
+      "works_count": 3697,
+      "cited_by_count": 1212643
+    },
+    {
+      "year": 2019,
+      "works_count": 4054,
+      "cited_by_count": 1051735
+    },
+    {
+      "year": 2018,
+      "works_count": 4073,
+      "cited_by_count": 978403
+    },
+    {
+      "year": 2017,
+      "works_count": 3920,
+      "cited_by_count": 921421
+    },
+    {
+      "year": 2016,
+      "works_count": 4150,
+      "cited_by_count": 883392
+    },
+    {
+      "year": 2015,
+      "works_count": 4244,
+      "cited_by_count": 863573
+    },
+    {
+      "year": 2014,
+      "works_count": 4163,
+      "cited_by_count": 859669
+    },
+    {
+      "year": 2013,
+      "works_count": 4293,
+      "cited_by_count": 835075
+    },
+    {
+      "year": 2012,
+      "works_count": 4397,
+      "cited_by_count": 784100
+    }
+  ],
+  "works_api_url": "https://api.openalex.org/works?filter=primary_location.source.id:S137773608",
+  "updated_date": "2025-07-25T13:43:03.941503",
+  "created_date": "2016-06-24"
+}

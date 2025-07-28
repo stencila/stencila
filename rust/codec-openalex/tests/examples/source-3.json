@@ -1,0 +1,1136 @@
+{
+  "id": "https://openalex.org/S2478435593",
+  "issn_l": "2095-0357",
+  "issn": [
+    "2095-0357"
+  ],
+  "display_name": "Asian Herpetological Research",
+  "host_organization": "https://openalex.org/P4310319982",
+  "host_organization_name": "Science Press",
+  "host_organization_lineage": [
+    "https://openalex.org/P4310319982"
+  ],
+  "works_count": 179,
+  "cited_by_count": 1427,
+  "summary_stats": {
+    "2yr_mean_citedness": 0.7894736842105263,
+    "h_index": 19,
+    "i10_index": 56
+  },
+  "is_oa": false,
+  "is_in_doaj": false,
+  "is_indexed_in_scopus": true,
+  "is_core": true,
+  "ids": {
+    "openalex": "https://openalex.org/S2478435593",
+    "issn_l": "2095-0357",
+    "issn": [
+      "2095-0357"
+    ],
+    "mag": "2478435593",
+    "wikidata": "https://www.wikidata.org/entity/Q21386159",
+    "fatcat": "https://fatcat.wiki/container/pfhty6ymmrbmde6g52ixid6xnm"
+  },
+  "homepage_url": null,
+  "apc_prices": null,
+  "apc_usd": null,
+  "country_code": "CN",
+  "societies": [],
+  "alternate_titles": [
+    "Yazhou liangqi paxing dongwu yanjiu"
+  ],
+  "abbreviated_title": null,
+  "type": "journal",
+  "topics": [
+    {
+      "id": "https://openalex.org/T10332",
+      "display_name": "Amphibian and Reptile Biology",
+      "count": 167,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2306",
+        "display_name": "Global and Planetary Change"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10895",
+      "display_name": "Species Distribution and Climate Change",
+      "count": 64,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2302",
+        "display_name": "Ecological Modeling"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10174",
+      "display_name": "Animal Behavior and Reproduction",
+      "count": 42,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1105",
+        "display_name": "Ecology, Evolution, Behavior and Systematics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/11",
+        "display_name": "Agricultural and Biological Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10199",
+      "display_name": "Wildlife Ecology and Conservation",
+      "count": 40,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2303",
+        "display_name": "Ecology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11656",
+      "display_name": "Turtle Biology and Conservation",
+      "count": 36,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2309",
+        "display_name": "Nature and Landscape Conservation"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12447",
+      "display_name": "Spider Taxonomy and Behavior Studies",
+      "count": 29,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1311",
+        "display_name": "Genetics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/13",
+        "display_name": "Biochemistry, Genetics and Molecular Biology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11228",
+      "display_name": "Bat Biology and Ecology Studies",
+      "count": 25,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1105",
+        "display_name": "Ecology, Evolution, Behavior and Systematics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/11",
+        "display_name": "Agricultural and Biological Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10012",
+      "display_name": "Genetic diversity and population structure",
+      "count": 23,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1311",
+        "display_name": "Genetics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/13",
+        "display_name": "Biochemistry, Genetics and Molecular Biology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10487",
+      "display_name": "Plant and animal studies",
+      "count": 22,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1105",
+        "display_name": "Ecology, Evolution, Behavior and Systematics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/11",
+        "display_name": "Agricultural and Biological Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11974",
+      "display_name": "Lepidoptera: Biology and Taxonomy",
+      "count": 21,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1311",
+        "display_name": "Genetics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/13",
+        "display_name": "Biochemistry, Genetics and Molecular Biology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10702",
+      "display_name": "Insect and Arachnid Ecology and Behavior",
+      "count": 20,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1311",
+        "display_name": "Genetics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/13",
+        "display_name": "Biochemistry, Genetics and Molecular Biology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11056",
+      "display_name": "Physiological and biochemical adaptations",
+      "count": 17,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2303",
+        "display_name": "Ecology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12319",
+      "display_name": "Fish Biology and Ecology Studies",
+      "count": 13,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1104",
+        "display_name": "Aquatic Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/11",
+        "display_name": "Agricultural and Biological Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11913",
+      "display_name": "Animal Ecology and Behavior Studies",
+      "count": 12,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2303",
+        "display_name": "Ecology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10506",
+      "display_name": "Aquaculture disease management and microbiota",
+      "count": 12,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2403",
+        "display_name": "Immunology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/24",
+        "display_name": "Immunology and Microbiology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10302",
+      "display_name": "Fish Ecology and Management Studies",
+      "count": 12,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2309",
+        "display_name": "Nature and Landscape Conservation"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10699",
+      "display_name": "Primate Behavior and Ecology",
+      "count": 10,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3207",
+        "display_name": "Social Psychology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/32",
+        "display_name": "Psychology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11665",
+      "display_name": "Animal Vocal Communication and Behavior",
+      "count": 10,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1309",
+        "display_name": "Developmental Biology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/13",
+        "display_name": "Biochemistry, Genetics and Molecular Biology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13435",
+      "display_name": "Animal and Plant Science Education",
+      "count": 9,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3207",
+        "display_name": "Social Psychology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/32",
+        "display_name": "Psychology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11354",
+      "display_name": "Evolution and Paleontology Studies",
+      "count": 8,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1911",
+        "display_name": "Paleontology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14372",
+      "display_name": "Environmental and Biological Research in Conflict Zones",
+      "count": 8,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2308",
+        "display_name": "Management, Monitoring, Policy and Law"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10005",
+      "display_name": "Ecology and Vegetation Dynamics Studies",
+      "count": 8,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2309",
+        "display_name": "Nature and Landscape Conservation"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10015",
+      "display_name": "Genomics and Phylogenetic Studies",
+      "count": 7,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1312",
+        "display_name": "Molecular Biology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/13",
+        "display_name": "Biochemistry, Genetics and Molecular Biology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12232",
+      "display_name": "Yersinia bacterium, plague, ectoparasites research",
+      "count": 6,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1311",
+        "display_name": "Genetics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/13",
+        "display_name": "Biochemistry, Genetics and Molecular Biology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10815",
+      "display_name": "Parasite Biology and Host Interactions",
+      "count": 6,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2303",
+        "display_name": "Ecology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    }
+  ],
+  "topic_share": [
+    {
+      "id": "https://openalex.org/T10332",
+      "display_name": "Amphibian and Reptile Biology",
+      "value": 0.0010915,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2306",
+        "display_name": "Global and Planetary Change"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12447",
+      "display_name": "Spider Taxonomy and Behavior Studies",
+      "value": 0.0006636,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1311",
+        "display_name": "Genetics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/13",
+        "display_name": "Biochemistry, Genetics and Molecular Biology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11656",
+      "display_name": "Turtle Biology and Conservation",
+      "value": 0.0006194,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2309",
+        "display_name": "Nature and Landscape Conservation"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10174",
+      "display_name": "Animal Behavior and Reproduction",
+      "value": 0.0002237,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1105",
+        "display_name": "Ecology, Evolution, Behavior and Systematics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/11",
+        "display_name": "Agricultural and Biological Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10895",
+      "display_name": "Species Distribution and Climate Change",
+      "value": 0.0002136,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2302",
+        "display_name": "Ecological Modeling"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11228",
+      "display_name": "Bat Biology and Ecology Studies",
+      "value": 0.0002106,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1105",
+        "display_name": "Ecology, Evolution, Behavior and Systematics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/11",
+        "display_name": "Agricultural and Biological Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T14372",
+      "display_name": "Environmental and Biological Research in Conflict Zones",
+      "value": 0.0001599,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2308",
+        "display_name": "Management, Monitoring, Policy and Law"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11974",
+      "display_name": "Lepidoptera: Biology and Taxonomy",
+      "value": 0.0001343,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1311",
+        "display_name": "Genetics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/13",
+        "display_name": "Biochemistry, Genetics and Molecular Biology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10012",
+      "display_name": "Genetic diversity and population structure",
+      "value": 0.0001257,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1311",
+        "display_name": "Genetics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/13",
+        "display_name": "Biochemistry, Genetics and Molecular Biology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10199",
+      "display_name": "Wildlife Ecology and Conservation",
+      "value": 0.0001197,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2303",
+        "display_name": "Ecology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11056",
+      "display_name": "Physiological and biochemical adaptations",
+      "value": 0.0001142,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2303",
+        "display_name": "Ecology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11665",
+      "display_name": "Animal Vocal Communication and Behavior",
+      "value": 0.0001122,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1309",
+        "display_name": "Developmental Biology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/13",
+        "display_name": "Biochemistry, Genetics and Molecular Biology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10699",
+      "display_name": "Primate Behavior and Ecology",
+      "value": 0.0000883,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3207",
+        "display_name": "Social Psychology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/32",
+        "display_name": "Psychology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13435",
+      "display_name": "Animal and Plant Science Education",
+      "value": 0.0000703,
+      "subfield": {
+        "id": "https://openalex.org/subfields/3207",
+        "display_name": "Social Psychology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/32",
+        "display_name": "Psychology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/2",
+        "display_name": "Social Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T13945",
+      "display_name": "Legal, Health, Environmental and COVID-19 Challenges",
+      "value": 0.0000653,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2739",
+        "display_name": "Public Health, Environmental and Occupational Health"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/27",
+        "display_name": "Medicine"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/4",
+        "display_name": "Health Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10702",
+      "display_name": "Insect and Arachnid Ecology and Behavior",
+      "value": 0.0000637,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1311",
+        "display_name": "Genetics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/13",
+        "display_name": "Biochemistry, Genetics and Molecular Biology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10506",
+      "display_name": "Aquaculture disease management and microbiota",
+      "value": 0.0000622,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2403",
+        "display_name": "Immunology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/24",
+        "display_name": "Immunology and Microbiology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11913",
+      "display_name": "Animal Ecology and Behavior Studies",
+      "value": 0.0000595,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2303",
+        "display_name": "Ecology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12417",
+      "display_name": "Morphological variations and asymmetry",
+      "value": 0.0000566,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2608",
+        "display_name": "Geometry and Topology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/26",
+        "display_name": "Mathematics"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12644",
+      "display_name": "Wildlife-Road Interactions and Conservation",
+      "value": 0.0000526,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2303",
+        "display_name": "Ecology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/23",
+        "display_name": "Environmental Science"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T10955",
+      "display_name": "Paleontology and Evolutionary Biology",
+      "value": 0.0000494,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1911",
+        "display_name": "Paleontology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11103",
+      "display_name": "Antimicrobial Peptides and Activities",
+      "value": 0.000048,
+      "subfield": {
+        "id": "https://openalex.org/subfields/2404",
+        "display_name": "Microbiology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/24",
+        "display_name": "Immunology and Microbiology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12319",
+      "display_name": "Fish Biology and Ecology Studies",
+      "value": 0.0000478,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1104",
+        "display_name": "Aquatic Science"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/11",
+        "display_name": "Agricultural and Biological Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T12232",
+      "display_name": "Yersinia bacterium, plague, ectoparasites research",
+      "value": 0.0000459,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1311",
+        "display_name": "Genetics"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/13",
+        "display_name": "Biochemistry, Genetics and Molecular Biology"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/1",
+        "display_name": "Life Sciences"
+      }
+    },
+    {
+      "id": "https://openalex.org/T11354",
+      "display_name": "Evolution and Paleontology Studies",
+      "value": 0.0000456,
+      "subfield": {
+        "id": "https://openalex.org/subfields/1911",
+        "display_name": "Paleontology"
+      },
+      "field": {
+        "id": "https://openalex.org/fields/19",
+        "display_name": "Earth and Planetary Sciences"
+      },
+      "domain": {
+        "id": "https://openalex.org/domains/3",
+        "display_name": "Physical Sciences"
+      }
+    }
+  ],
+  "x_concepts": [
+    {
+      "id": "https://openalex.org/C86803240",
+      "wikidata": "https://www.wikidata.org/wiki/Q420",
+      "display_name": "Biology",
+      "level": 0,
+      "score": 162.0
+    },
+    {
+      "id": "https://openalex.org/C90856448",
+      "wikidata": "https://www.wikidata.org/wiki/Q431",
+      "display_name": "Zoology",
+      "level": 1,
+      "score": 157.5
+    },
+    {
+      "id": "https://openalex.org/C18903297",
+      "wikidata": "https://www.wikidata.org/wiki/Q7150",
+      "display_name": "Ecology",
+      "level": 1,
+      "score": 120.1
+    },
+    {
+      "id": "https://openalex.org/C127313418",
+      "wikidata": "https://www.wikidata.org/wiki/Q1069",
+      "display_name": "Geology",
+      "level": 0,
+      "score": 60.9
+    },
+    {
+      "id": "https://openalex.org/C151730666",
+      "wikidata": "https://www.wikidata.org/wiki/Q7205",
+      "display_name": "Paleontology",
+      "level": 1,
+      "score": 57.0
+    },
+    {
+      "id": "https://openalex.org/C71924100",
+      "wikidata": "https://www.wikidata.org/wiki/Q11190",
+      "display_name": "Medicine",
+      "level": 0,
+      "score": 56.4
+    },
+    {
+      "id": "https://openalex.org/C95457728",
+      "wikidata": "https://www.wikidata.org/wiki/Q309",
+      "display_name": "History",
+      "level": 0,
+      "score": 44.7
+    },
+    {
+      "id": "https://openalex.org/C205649164",
+      "wikidata": "https://www.wikidata.org/wiki/Q1071",
+      "display_name": "Geography",
+      "level": 0,
+      "score": 43.6
+    },
+    {
+      "id": "https://openalex.org/C166957645",
+      "wikidata": "https://www.wikidata.org/wiki/Q23498",
+      "display_name": "Archaeology",
+      "level": 1,
+      "score": 39.7
+    },
+    {
+      "id": "https://openalex.org/C59822182",
+      "wikidata": "https://www.wikidata.org/wiki/Q441",
+      "display_name": "Botany",
+      "level": 1,
+      "score": 39.1
+    },
+    {
+      "id": "https://openalex.org/C17744445",
+      "wikidata": "https://www.wikidata.org/wiki/Q36442",
+      "display_name": "Political science",
+      "level": 0,
+      "score": 38.0
+    },
+    {
+      "id": "https://openalex.org/C199539241",
+      "wikidata": "https://www.wikidata.org/wiki/Q7748",
+      "display_name": "Law",
+      "level": 1,
+      "score": 38.0
+    },
+    {
+      "id": "https://openalex.org/C185592680",
+      "wikidata": "https://www.wikidata.org/wiki/Q2329",
+      "display_name": "Chemistry",
+      "level": 0,
+      "score": 36.9
+    },
+    {
+      "id": "https://openalex.org/C54355233",
+      "wikidata": "https://www.wikidata.org/wiki/Q7162",
+      "display_name": "Genetics",
+      "level": 1,
+      "score": 36.3
+    },
+    {
+      "id": "https://openalex.org/C55493867",
+      "wikidata": "https://www.wikidata.org/wiki/Q7094",
+      "display_name": "Biochemistry",
+      "level": 1,
+      "score": 34.1
+    },
+    {
+      "id": "https://openalex.org/C191935318",
+      "wikidata": "https://www.wikidata.org/wiki/Q148",
+      "display_name": "China",
+      "level": 2,
+      "score": 33.5
+    },
+    {
+      "id": "https://openalex.org/C78458016",
+      "wikidata": "https://www.wikidata.org/wiki/Q840400",
+      "display_name": "Evolutionary biology",
+      "level": 1,
+      "score": 33.5
+    },
+    {
+      "id": "https://openalex.org/C126322002",
+      "wikidata": "https://www.wikidata.org/wiki/Q11180",
+      "display_name": "Internal medicine",
+      "level": 1,
+      "score": 29.6
+    },
+    {
+      "id": "https://openalex.org/C134018914",
+      "wikidata": "https://www.wikidata.org/wiki/Q162606",
+      "display_name": "Endocrinology",
+      "level": 1,
+      "score": 24.0
+    },
+    {
+      "id": "https://openalex.org/C104317684",
+      "wikidata": "https://www.wikidata.org/wiki/Q7187",
+      "display_name": "Gene",
+      "level": 2,
+      "score": 20.7
+    },
+    {
+      "id": "https://openalex.org/C105702510",
+      "wikidata": "https://www.wikidata.org/wiki/Q514",
+      "display_name": "Anatomy",
+      "level": 1,
+      "score": 20.7
+    },
+    {
+      "id": "https://openalex.org/C157369684",
+      "wikidata": "https://www.wikidata.org/wiki/Q34740",
+      "display_name": "Genus",
+      "level": 2,
+      "score": 20.1
+    },
+    {
+      "id": "https://openalex.org/C144024400",
+      "wikidata": "https://www.wikidata.org/wiki/Q21201",
+      "display_name": "Sociology",
+      "level": 0,
+      "score": 20.1
+    }
+  ],
+  "counts_by_year": [
+    {
+      "year": 2025,
+      "works_count": 14,
+      "cited_by_count": 40
+    },
+    {
+      "year": 2024,
+      "works_count": 34,
+      "cited_by_count": 113
+    },
+    {
+      "year": 2023,
+      "works_count": 19,
+      "cited_by_count": 101
+    },
+    {
+      "year": 2022,
+      "works_count": 0,
+      "cited_by_count": 91
+    },
+    {
+      "year": 2021,
+      "works_count": 1,
+      "cited_by_count": 142
+    },
+    {
+      "year": 2020,
+      "works_count": 2,
+      "cited_by_count": 154
+    },
+    {
+      "year": 2019,
+      "works_count": 1,
+      "cited_by_count": 115
+    },
+    {
+      "year": 2018,
+      "works_count": 1,
+      "cited_by_count": 121
+    },
+    {
+      "year": 2017,
+      "works_count": 1,
+      "cited_by_count": 81
+    },
+    {
+      "year": 2016,
+      "works_count": 3,
+      "cited_by_count": 78
+    },
+    {
+      "year": 2015,
+      "works_count": 1,
+      "cited_by_count": 76
+    },
+    {
+      "year": 2014,
+      "works_count": 41,
+      "cited_by_count": 72
+    },
+    {
+      "year": 2013,
+      "works_count": 44,
+      "cited_by_count": 79
+    },
+    {
+      "year": 2012,
+      "works_count": 45,
+      "cited_by_count": 51
+    }
+  ],
+  "works_api_url": "https://api.openalex.org/works?filter=primary_location.source.id:S2478435593",
+  "updated_date": "2025-07-21T20:55:16.700027",
+  "created_date": "2016-08-23"
+}

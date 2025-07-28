@@ -6,13 +6,13 @@ use codec::{
     },
     schema::{
         self, Article, Block, CreativeWork, CreativeWorkType, CreativeWorkTypeOrString, Date,
-        Inline, IntegerOrString, Node, Organization, Paragraph, Periodical, Person, Primitive,
-        PropertyValue, PropertyValueOrString, PublicationIssue, PublicationVolume,
+        Inline, IntegerOrString, Node, Organization, Paragraph, Periodical, Person,
+        PublicationIssue, PublicationVolume,
     },
 };
 use std::collections::HashMap;
 
-use crate::license::normalize_license;
+use crate::{license::normalize_license, utils::convert_ids_to_identifiers};
 
 /// An OpenAlex `Work` object
 ///
@@ -422,38 +422,6 @@ fn create_publication_info(
     } else {
         // No biblio, just periodical
         Some(Box::new(CreativeWorkType::Periodical(periodical)))
-    }
-}
-
-/// Convert OpenAlex ids to Stencila identifiers
-fn convert_ids_to_identifiers(
-    ids: &IndexMap<String, String>,
-) -> Option<Vec<PropertyValueOrString>> {
-    if ids.is_empty() {
-        return None;
-    }
-
-    let identifiers: Vec<PropertyValueOrString> = ids
-        .iter()
-        .map(|(property_id, value)| {
-            // If the value is a URL, use it directly as a string identifier
-            if value.starts_with("http://") || value.starts_with("https://") {
-                PropertyValueOrString::String(value.clone())
-            } else {
-                // Otherwise create a PropertyValue with property_id and value
-                PropertyValueOrString::PropertyValue(PropertyValue {
-                    property_id: Some(property_id.clone()),
-                    value: Primitive::String(value.clone()),
-                    ..Default::default()
-                })
-            }
-        })
-        .collect();
-
-    if identifiers.is_empty() {
-        None
-    } else {
-        Some(identifiers)
     }
 }
 

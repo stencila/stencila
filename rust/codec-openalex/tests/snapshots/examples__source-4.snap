@@ -1,0 +1,19 @@
+---
+source: rust/codec-openalex/tests/examples.rs
+expression: node
+---
+{
+  "type": "Periodical",
+  "id": "https://openalex.org/S4306402567",
+  "name": "bioRxiv (Cold Spring Harbor Laboratory)",
+  "identifiers": [
+    "https://openalex.org/S4306402567",
+    "https://www.wikidata.org/entity/Q19835482"
+  ],
+  "url": "https://www.biorxiv.org",
+  "publisher": {
+    "type": "Organization",
+    "id": "https://openalex.org/I2750212522",
+    "name": "Cold Spring Harbor Laboratory"
+  }
+}

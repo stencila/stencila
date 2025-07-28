@@ -1,0 +1,14 @@
+---
+source: rust/codec-openalex/tests/examples.rs
+expression: node
+---
+{
+  "type": "Periodical",
+  "id": "https://openalex.org/S4306509078",
+  "name": "El Ecologista",
+  "identifiers": [
+    "https://openalex.org/S4306509078",
+    "https://www.wikidata.org/entity/Q5821816"
+  ],
+  "url": "http://www.ecologistasenaccion.org/revista"
+}

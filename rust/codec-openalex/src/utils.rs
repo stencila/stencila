@@ -1,4 +1,7 @@
-use codec::common::eyre::Result;
+use codec::{
+    common::{eyre::Result, indexmap::IndexMap},
+    schema::{Primitive, PropertyValue, PropertyValueOrString},
+};
 
 /// Generate a pseudo-ORCID from an OpenAlex ID
 pub fn generate_pseudo_orcid(openalex_id: &str, prefix: char) -> Result<String> {
@@ -43,5 +46,37 @@ pub fn get_or_generate_ror(ror: &Option<String>, openalex_id: &str, prefix: char
         ror.trim_start_matches("https://ror.org/").into()
     } else {
         generate_pseudo_ror(openalex_id, prefix)
+    }
+}
+
+/// Convert OpenAlex ids to Stencila identifiers
+pub fn convert_ids_to_identifiers(
+    ids: &IndexMap<String, String>,
+) -> Option<Vec<PropertyValueOrString>> {
+    if ids.is_empty() {
+        return None;
+    }
+
+    let identifiers: Vec<PropertyValueOrString> = ids
+        .iter()
+        .map(|(property_id, value)| {
+            // If the value is a URL, use it directly as a string identifier
+            if value.starts_with("http://") || value.starts_with("https://") {
+                PropertyValueOrString::String(value.clone())
+            } else {
+                // Otherwise create a PropertyValue with property_id and value
+                PropertyValueOrString::PropertyValue(PropertyValue {
+                    property_id: Some(property_id.clone()),
+                    value: Primitive::String(value.clone()),
+                    ..Default::default()
+                })
+            }
+        })
+        .collect();
+
+    if identifiers.is_empty() {
+        None
+    } else {
+        Some(identifiers)
     }
 }

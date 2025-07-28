@@ -1,6 +1,6 @@
 use codec::common::serde::Deserialize;
 
-use crate::{author::Author, institution::Institution, work::Work};
+use crate::{author::Author, institution::Institution, source::Source, work::Work};
 
 /// The response from getting a single entity
 ///
@@ -40,6 +40,9 @@ pub type WorksResponse = ListResponse<Work>;
 
 /// Response for authors API calls  
 pub type AuthorsResponse = ListResponse<Author>;
+
+/// Response for sources API calls
+pub type SourcesResponse = ListResponse<Source>;
 
 /// Response for institutions API calls
 pub type InstitutionsResponse = ListResponse<Institution>;

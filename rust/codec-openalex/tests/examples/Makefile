@@ -9,7 +9,8 @@ NUMBERS := 1 2 3
 WORK_FILES := $(foreach n,$(NUMBERS),work-$(n).json)
 AUTHOR_FILES := $(foreach n,$(NUMBERS),author-$(n).json)
 INSTITUTION_FILES := $(foreach n,$(NUMBERS),institution-$(n).json)
-ALL_FILES := $(WORK_FILES) $(AUTHOR_FILES) $(INSTITUTION_FILES)
+SOURCE_FILES := $(foreach n,$(NUMBERS),source-$(n).json)
+ALL_FILES := $(WORK_FILES) $(AUTHOR_FILES) $(INSTITUTION_FILES) $(SOURCE_FILES)
 
 .PHONY: all works authors institutions clean help
 
@@ -20,6 +21,7 @@ all: $(ALL_FILES)
 works: $(WORK_FILES)
 authors: $(AUTHOR_FILES)
 institutions: $(INSTITUTION_FILES)
+sources: $(SOURCE_FILES)
 
 # Pattern rules for downloading entities
 work-%.json:
@@ -31,6 +33,9 @@ author-%.json:
 institution-%.json:
 	curl -s "https://api.openalex.org/institutions/random" | jq '.' > $@
 
+source-%.json:
+	curl -s "https://api.openalex.org/sources/random" | jq '.' > $@
+
 # Additional examples
 
 # This article has the highest citations (at the time of writing) and so often
@@ -40,6 +45,14 @@ institution-%.json:
 # errors in our decoding in this crate
 work-4.json:
 	curl -s "https://api.openalex.org/works/W1775749144" | jq '.' > $@
+
+# bioRxiv
+source-4.json:
+	curl -s "https://api.openalex.org/sources/S4306402567" | jq '.' > $@
+
+# Nature
+source-5.json:
+	curl -s "https://api.openalex.org/sources/S137773608" | jq '.' > $@
 
 # Clean up downloaded files
 clean:
