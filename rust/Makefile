@@ -17,7 +17,7 @@ endif
 
 # Setup local development environment
 setup:
-	cargo install cargo-binstall
+	cargo install --locked cargo-binstall
 	cargo binstall --no-confirm cargo-audit cargo-insta cargo-llvm-cov cargo-machete cargo-outdated cargo-watch
 	cargo --list
 
