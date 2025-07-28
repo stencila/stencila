@@ -372,6 +372,11 @@ impl DomEncodeContext {
         self
     }
 
+    /// Is the current node the root node?
+    pub fn is_root(&self) -> bool {
+        self.node_types.len() == 1
+    }
+
     /// Get the content of the encoding context at completion of encoding
     pub fn content(&mut self) -> String {
         // Use take instead of cloning for performance
