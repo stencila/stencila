@@ -45,6 +45,7 @@ pub struct Excerpt {
     /// The excerpted content.
     #[serde(deserialize_with = "one_or_many")]
     #[strip(content)]
+    #[walk]
     #[patch(format = "all")]
     #[dom(elem = "div")]
     pub content: Vec<Block>,

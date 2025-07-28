@@ -94,7 +94,6 @@
       "strip": [
         "content"
       ],
-      "walk": false,
       "dom": {
         "elem": "div"
       },

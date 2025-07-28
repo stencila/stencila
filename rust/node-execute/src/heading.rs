@@ -50,7 +50,12 @@ impl Executable for Heading {
         if !executor.walk_ancestors.iter().any(|node_type| {
             matches!(
                 node_type,
-                NodeType::Figure | NodeType::Table | NodeType::CodeChunk
+                NodeType::Figure
+                    | NodeType::Table
+                    | NodeType::CodeChunk
+                    | NodeType::Chat
+                    | NodeType::PromptBlock
+                    | NodeType::Excerpt
             )
         }) {
             let info = HeadingInfo {

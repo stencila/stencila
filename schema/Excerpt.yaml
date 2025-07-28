@@ -40,9 +40,6 @@ properties:
     type: array
     items:
       $ref: Block
-    # Do not walk over the content of excerpts to avoid treating
-    # nodes with it as part of the current document.
-    walk: false
     strip: [content]
     dom:
       elem: div
