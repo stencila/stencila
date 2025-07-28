@@ -32,7 +32,7 @@ const nodeColours = (name: string) => ({
 // prettier-ignore
 const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
   // Article level
-  Article:          {                        ...nodeColours('gray')},
+  Article:          { icon: 'files',         ...nodeColours('blue')},
 
   // Primitive data types
   Boolean:          { icon: 'toggleOff',     ...nodeColours('slate')},
@@ -52,9 +52,9 @@ const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
   Section:          { icon: 'square',         ...nodeColours('stone')},
 
   // Simple block and inline types (usually only have `content` property)
-  Heading:          { icon: 'heading',        ...nodeColours('blue')},
-  Paragraph:        { icon: 'paragraph',      ...nodeColours('blue')},
-  ThematicBreak:    { icon: 'hr',             ...nodeColours('blue')},
+  Heading:          { icon: 'heading',        ...nodeColours('gray')},
+  Paragraph:        { icon: 'paragraph',      ...nodeColours('gray')},
+  ThematicBreak:    { icon: 'hr',             ...nodeColours('gray')},
 
   // More complex, less common, block and inline types
   Admonition:       { icon: 'admonition',     ...nodeColours('indigo')},

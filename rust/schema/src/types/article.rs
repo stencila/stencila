@@ -41,7 +41,7 @@ use super::timestamp::Timestamp;
 /// An article, including news and scholarly articles.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -75,7 +75,6 @@ pub struct Article {
     #[strip(metadata)]
     #[walk]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub r#abstract: Option<Vec<Block>>,
 
     /// The authors of the `CreativeWork`.
@@ -83,14 +82,12 @@ pub struct Article {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(authors)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub authors: Option<Vec<Author>>,
 
     /// A summary of the provenance of the content within the work.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(provenance)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "div")]
     pub provenance: Option<Vec<ProvenanceCount>>,
 
     /// Date/time of creation.
@@ -98,7 +95,6 @@ pub struct Article {
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(with = "Date::to_dom_attr")]
     pub date_created: Option<Date>,
 
     /// Date/time that work was received.
@@ -106,7 +102,6 @@ pub struct Article {
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(with = "Date::to_dom_attr")]
     pub date_received: Option<Date>,
 
     /// Date/time of acceptance.
@@ -114,7 +109,6 @@ pub struct Article {
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(with = "Date::to_dom_attr")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of most recent modification.
@@ -122,7 +116,6 @@ pub struct Article {
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(with = "Date::to_dom_attr")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
@@ -130,7 +123,6 @@ pub struct Article {
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(with = "Date::to_dom_attr")]
     pub date_published: Option<Date>,
 
     /// Genre of the creative work, broadcast channel or group.
@@ -153,7 +145,6 @@ pub struct Article {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub references: Option<Vec<Reference>>,
 
     /// The title of the creative work.
@@ -163,7 +154,6 @@ pub struct Article {
     #[walk]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,
 
     /// Under which circumstances the node should be executed.
@@ -183,13 +173,11 @@ pub struct Article {
     #[strip(metadata)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "div")]
     pub config: Option<Config>,
 
     /// A list of links to headings, including implied section headings, within the document
     #[strip(content, temporary)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "nav")]
     pub headings: Option<List>,
 
     /// The content of the article.
@@ -201,14 +189,12 @@ pub struct Article {
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks(2)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks(4)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks(8)"#))]
-    #[dom(elem = "section")]
     pub content: Vec<Block>,
 
     /// Nodes, usually from within `content` of the article, that have been archived.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(content, archive)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(skip)]
     pub archive: Option<Vec<Node>>,
 
     /// Non-core optional fields
@@ -225,7 +211,7 @@ pub struct Article {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct ArticleOptions {
@@ -271,7 +257,6 @@ pub struct ArticleOptions {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub contributors: Option<Vec<Author>>,
 
     /// People who edited the `CreativeWork`.
@@ -279,7 +264,6 @@ pub struct ArticleOptions {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub editors: Option<Vec<Person>>,
 
     /// The maintainers of the `CreativeWork`.
@@ -287,7 +271,6 @@ pub struct ArticleOptions {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub maintainers: Option<Vec<PersonOrOrganization>>,
 
     /// Comments about this creative work.
@@ -295,7 +278,6 @@ pub struct ArticleOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub comments: Option<Vec<Comment>>,
 
     /// People or organizations that funded the `CreativeWork`.
@@ -303,7 +285,6 @@ pub struct ArticleOptions {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub funders: Option<Vec<PersonOrOrganization>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
@@ -311,7 +292,6 @@ pub struct ArticleOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub funded_by: Option<Vec<GrantOrMonetaryGrant>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -325,7 +305,6 @@ pub struct ArticleOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub licenses: Option<Vec<CreativeWorkTypeOrString>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
@@ -333,14 +312,12 @@ pub struct ArticleOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(content)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub parts: Option<Vec<CreativeWorkType>>,
 
     /// A publisher of the CreativeWork.
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "section")]
     pub publisher: Option<PersonOrOrganization>,
 
     /// The textual content of this creative work.
@@ -357,7 +334,6 @@ pub struct ArticleOptions {
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
     #[strip(compilation)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(skip)]
     pub compilation_digest: Option<CompilationDigest>,
 
     /// Messages generated while compiling the code.
@@ -365,14 +341,12 @@ pub struct ArticleOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(compilation)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
     pub compilation_messages: Option<Vec<CompilationMessage>>,
 
     /// The `compilationDigest` of the node when it was last executed.
     #[serde(alias = "execution-digest", alias = "execution_digest")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(skip)]
     pub execution_digest: Option<CompilationDigest>,
 
     /// The upstream dependencies of this node.
@@ -380,7 +354,6 @@ pub struct ArticleOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
     pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
     /// The downstream dependants of this node.
@@ -388,7 +361,6 @@ pub struct ArticleOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
     pub execution_dependants: Option<Vec<ExecutionDependant>>,
 
     /// Tags in the code which affect its execution.
@@ -396,7 +368,6 @@ pub struct ArticleOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
     pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// A count of the number of times that the node has been executed.
@@ -427,14 +398,12 @@ pub struct ArticleOptions {
     #[serde(alias = "execution-ended", alias = "execution_ended")]
     #[strip(execution, timestamps)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(with = "Timestamp::to_dom_attr")]
     pub execution_ended: Option<Timestamp>,
 
     /// Duration of the last execution.
     #[serde(alias = "execution-duration", alias = "execution_duration")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(with = "Duration::to_dom_attr")]
     pub execution_duration: Option<Duration>,
 
     /// Messages emitted while executing the node.
@@ -442,7 +411,6 @@ pub struct ArticleOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "span")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
 
     /// The page on which the article starts; for example "135" or "xiii".
@@ -481,7 +449,6 @@ pub struct ArticleOptions {
     #[strip(metadata)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "docx")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(skip)]
     pub extra: Option<Object>,
 }
 

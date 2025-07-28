@@ -4,6 +4,7 @@ import { apply } from '@twind/core'
 import { html } from 'lit'
 import { state, property } from 'lit/decorators'
 
+import { Article } from '../../../nodes/article'
 import { ChatMessage } from '../../../nodes/chat-message'
 import { Excerpt } from '../../../nodes/excerpt'
 import { SuggestionBlock } from '../../../nodes/suggestion-block'
@@ -110,6 +111,7 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
 
       // Expand certain nodes types in certain contexts
       if (
+        Article.shouldExpand(this, this.type) ||
         Excerpt.shouldExpand(this, this.type) ||
         ChatMessage.shouldExpand(this, this.type) ||
         SuggestionBlock.shouldExpand(this, this.type)

@@ -1,7 +1,7 @@
 use codec_markdown_trait::to_markdown;
 use common::serde_yaml;
 
-use crate::{prelude::*, Article, Block, RawBlock};
+use crate::{prelude::*, Article, Block, RawBlock, Reference};
 
 impl Article {
     /// Does tha article appear to be have been decoded from the format using the `--coarse` option
@@ -59,6 +59,68 @@ impl Article {
             ),
             losses,
         )
+    }
+}
+
+impl DomCodec for Article {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        context.enter_node(self.node_type(), self.node_id());
+
+        self.doi.to_dom_attr("doi", context);
+        self.options.identifiers.to_dom_attr("identifiers", context);
+
+        self.date_published.to_dom_attr("date-published", context);
+        self.date_accepted.to_dom_attr("date-accepted", context);
+        self.date_created.to_dom_attr("date-created", context);
+
+        self.options.is_part_of.to_dom_attr("is-part-of", context);
+        self.options.page_start.to_dom_attr("page-start", context);
+        self.options.page_end.to_dom_attr("page_end", context);
+
+        self.options.repository.to_dom_attr("repository", context);
+        self.options.path.to_dom_attr("path", context);
+        self.options.commit.to_dom_attr("commit", context);
+
+        if context.is_root() {
+            if let Some(title) = &self.title {
+                context.push_slot_fn("section", "title", |context| {
+                    context.enter_elem("h1");
+                    title.to_dom(context);
+                    context.exit_elem();
+                });
+            }
+
+            if let Some(authors) = &self.authors {
+                context.push_slot_fn("div", "authors", |context| authors.to_dom(context));
+            }
+        } else {
+            // If this article is not the root (e.g an article output from an
+            // OpenAlex DocsQL query) then represent as a reference
+            let reference = Reference::from(self);
+            context.push_slot_fn("div", "reference", |context| reference.to_dom(context));
+        }
+
+        if let Some(r#abstract) = &self.r#abstract {
+            context.push_slot_fn("section", "abstract", |context| r#abstract.to_dom(context));
+        }
+
+        if let Some(headings) = &self.headings {
+            context.push_slot_fn("nav", "headings", |context| headings.to_dom(context));
+        }
+
+        if context.is_root() {
+            // Do not show content for articles that are not the root (they
+            // usually don't have any content anyway)
+            context.push_slot_fn("section", "content", |context| self.content.to_dom(context));
+        }
+
+        if let Some(references) = &self.references {
+            context.push_slot_fn("section", "references", |context| {
+                references.to_dom(context)
+            });
+        }
+
+        context.exit_node();
     }
 }
 

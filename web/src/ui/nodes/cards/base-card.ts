@@ -3,6 +3,7 @@ import { apply } from '@twind/core'
 import { html, PropertyValueMap } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
+import { Article } from '../../../nodes/article'
 import { ChatMessage } from '../../../nodes/chat-message'
 import { SuggestionBlock } from '../../../nodes/suggestion-block'
 import { withTwind } from '../../../twind'
@@ -104,6 +105,7 @@ export class UIBaseCard extends UIBaseClass {
     const canClose =
       ((this.depth > 0 || !this.hasRoot) &&
         !(
+          Article.shouldExpand(this, this.type) ||
           ChatMessage.shouldExpand(this, this.type) ||
           SuggestionBlock.shouldExpand(this, this.type)
         )) ||

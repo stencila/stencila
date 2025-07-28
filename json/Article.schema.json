@@ -10,6 +10,9 @@
   "category": "works",
   "description": "An article, including news and scholarly articles.",
   "$comment": "This is an implementation, and extension, of schema.org [`Article`](https://schema.org/Article).\nIt extends schema.org `Article` by adding a `content` property which must be\nan array of [`Block`](./Block), as well as the properties added by\n[`CreativeWork`](./CreativeWork) which it extends.\n",
+  "dom": {
+    "derive": false
+  },
   "html": {
     "elem": "article"
   },
@@ -972,9 +975,6 @@
           "qmd"
         ]
       },
-      "dom": {
-        "elem": "div"
-      },
       "$ref": "Config.schema.json"
     },
     "headings": {
@@ -985,9 +985,6 @@
         "content",
         "temporary"
       ],
-      "dom": {
-        "elem": "nav"
-      },
       "$ref": "List.schema.json"
     },
     "content": {
@@ -996,9 +993,6 @@
       "strip": [
         "content"
       ],
-      "dom": {
-        "elem": "section"
-      },
       "proptest": {
         "min": {
           "description": "Generate a single arbitrary block node",
@@ -1029,9 +1023,6 @@
         "content",
         "archive"
       ],
-      "dom": {
-        "skip": true
-      },
       "type": "array",
       "items": {
         "$ref": "Node.schema.json"
@@ -1081,9 +1072,6 @@
       "serde": {
         "flatten": true,
         "deserializeWith": "empty_object_is_none"
-      },
-      "dom": {
-        "skip": true
       },
       "type": "object"
     }

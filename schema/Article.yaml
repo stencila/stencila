@@ -8,6 +8,8 @@ $comment: |
   It extends schema.org `Article` by adding a `content` property which must be
   an array of [`Block`](./Block), as well as the properties added by
   [`CreativeWork`](./CreativeWork) which it extends.
+dom:
+  derive: false
 html:
   elem: article
 jats:
@@ -75,8 +77,6 @@ properties:
     strip: [metadata]
     patch:
       formats: [md, smd, myst, ipynb, qmd]
-    dom:
-      elem: div
   headings:
     "@id": stencila:headings
     description: A list of links to headings, including implied section headings, within the document
@@ -85,8 +85,6 @@ properties:
       Each item in the list has (1) a `Link` to the heading, and (2) a nested list of subheadings.
     $ref: List
     strip: [content, temporary]
-    dom:
-      elem: nav
   content:
     "@id": stencila:content
     description: The content of the article.
@@ -94,8 +92,6 @@ properties:
     items:
       $ref: Block
     strip: [content]
-    dom:
-      elem: section
     proptest:
       min:
         description: Generate a single arbitrary block node
@@ -116,8 +112,6 @@ properties:
     items:
       $ref: Node
     strip: [content, archive]
-    dom:
-      skip: true
   repository:
     '@id': schema:codeRepository
     description: |
@@ -151,5 +145,3 @@ properties:
       deserializeWith: empty_object_is_none
     patch:
       formats: [md, smd, myst, ipynb, qmd, docx]
-    dom:
-      skip: true
