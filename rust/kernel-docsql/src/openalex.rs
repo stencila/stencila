@@ -1,6 +1,8 @@
 use std::sync::{Arc, Mutex as SyncMutex};
 
-use codec_openalex::{request_with_params, AuthorsResponse, InstitutionsResponse, SourcesResponse, WorksResponse};
+use codec_openalex::{
+    request_with_params, AuthorsResponse, InstitutionsResponse, SourcesResponse, WorksResponse,
+};
 use kernel_jinja::{
     kernel::{
         common::{
@@ -284,7 +286,9 @@ impl OpenAlexQuery {
             let source_ids = self.extract_source_ids_from_query_objects(&subquery.query_objects)?;
             if !source_ids.is_empty() {
                 let ids_filter = source_ids.join("|");
-                query.filters.push(format!("primary_location.source.id:{}", ids_filter));
+                query
+                    .filters
+                    .push(format!("primary_location.source.id:{}", ids_filter));
             }
         }
 
@@ -381,10 +385,7 @@ impl OpenAlexQuery {
                     ">=" => Ok(format!("{}.{}:>={}", prefix, property, filter_value)),
                     _ => Err(Error::new(
                         ErrorKind::InvalidOperation,
-                        format!(
-                            "Unsupported operator for periodical property: {}",
-                            operator
-                        ),
+                        format!("Unsupported operator for periodical property: {}", operator),
                     )),
                 }
             }
@@ -625,7 +626,8 @@ impl OpenAlexQuery {
                             if field_str.starts_with("S") && field_str.len() > 1 {
                                 return Some(field_str.to_string());
                             }
-                            if let Some(source_id) = field_str.strip_prefix("https://openalex.org/") {
+                            if let Some(source_id) = field_str.strip_prefix("https://openalex.org/")
+                            {
                                 return Some(source_id.to_string());
                             }
                         }

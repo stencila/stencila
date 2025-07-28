@@ -71,7 +71,7 @@ pub struct Society {
 }
 
 /// Convert Source ExternalIds to IndexMap for use with convert_ids_to_identifiers
-/// 
+///
 /// Note: does not include ISSNs since there is a specific property for those.
 fn convert_source_ids_to_indexmap(ids: &ExternalIds) -> IndexMap<String, String> {
     let mut id_map = IndexMap::new();
@@ -125,14 +125,10 @@ impl From<Source> for Periodical {
         let issns = (!issns.is_empty()).then_some(issns);
 
         // Map other ids to identifiers
-        let identifiers = source
-            .ids
-            .as_ref()
-            .map(|ids| {
-                let id_map = convert_source_ids_to_indexmap(ids);
-                convert_ids_to_identifiers(&id_map)
-            })
-            .flatten();
+        let identifiers = source.ids.as_ref().and_then(|ids| {
+            let id_map = convert_source_ids_to_indexmap(ids);
+            convert_ids_to_identifiers(&id_map)
+        });
 
         Periodical {
             id: Some(source.id),
