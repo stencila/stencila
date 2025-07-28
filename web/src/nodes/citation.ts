@@ -1,4 +1,4 @@
-import { CitationMode } from '@stencila/types'
+import { CitationMode, CompilationMessage } from '@stencila/types'
 import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
@@ -20,6 +20,9 @@ export class Citation extends Entity {
   @property({ attribute: 'citation-mode' })
   citationMode?: CitationMode
 
+  @property({ attribute: 'compilation-messages', type: Array })
+  compilationMessages?: CompilationMessage[]
+
   /**
    * Whether the citation has a resolved `Reference` in the `cites` slot
    *
@@ -38,7 +41,9 @@ export class Citation extends Entity {
   }
 
   override render() {
-    const inner = html`<slot
+    const inner = this.compilationMessages ? 
+      html`<sl-tooltip placement="top" content="${this.compilationMessages.map(msg => msg.message).join('; ')}"><span class="text-gray-500">${this.target}</span></sl-tooltip>`: 
+      html`<slot
         name="cites"
         @slotchange=${this.onCitesSlotChange}
       ></slot
