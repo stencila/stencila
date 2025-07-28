@@ -1811,6 +1811,7 @@ pub(super) fn add_subquery_functions(env: &mut Environment) {
         ("references", "[references]", NodeType::Reference),
         ("cites", "[references]", NodeType::Reference),
         ("citedBy", "[citedBy]", NodeType::Reference),
+        ("publishedIn", "[publishedIn]", NodeType::Periodical),
         ("affiliations", "[affiliations]", NodeType::Organization),
         ("organizations", "[organizations]", NodeType::Organization),
         // GitHub-specific subqueries

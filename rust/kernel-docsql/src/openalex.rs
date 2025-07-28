@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex as SyncMutex};
 
-use codec_openalex::{request_with_params, AuthorsResponse, InstitutionsResponse, WorksResponse};
+use codec_openalex::{request_with_params, AuthorsResponse, InstitutionsResponse, SourcesResponse, WorksResponse};
 use kernel_jinja::{
     kernel::{
         common::{
@@ -254,7 +254,9 @@ impl OpenAlexQuery {
             ("Person", _) => "authorships.author", // Authors subquery
             ("Reference", "[references]") => "references", // References subquery maps to reference count
             ("Reference", "[citedBy]") => "citedBy", // CitedBy subquery maps to cited_by_count
-            ("Organization", _) => "authorships.institutions", // Affiliations subquery
+            ("Organization", "[affiliations]") => "authorships.institutions", // Affiliations subquery
+            ("Organization", _) => "authorships.institutions", // Default organization subquery
+            ("Periodical", "[publishedIn]") => "primary_location.source", // PublishedIn subquery maps to source
             _ => {
                 return Err(Error::new(
                     ErrorKind::InvalidOperation,
@@ -273,6 +275,16 @@ impl OpenAlexQuery {
             if !work_ids.is_empty() {
                 let ids_filter = work_ids.join("|");
                 query.filters.push(format!("cited_by:{}", ids_filter));
+            }
+        }
+
+        // Handle query objects for publishedIn subqueries
+        if !subquery.query_objects.is_empty() && subquery.first_relation == "[publishedIn]" {
+            // Extract source IDs from query objects and use them in primary_location.source.id filter
+            let source_ids = self.extract_source_ids_from_query_objects(&subquery.query_objects)?;
+            if !source_ids.is_empty() {
+                let ids_filter = source_ids.join("|");
+                query.filters.push(format!("primary_location.source.id:{}", ids_filter));
             }
         }
 
@@ -347,6 +359,34 @@ impl OpenAlexQuery {
             ("Person", "name") => {
                 // For author names, use raw_author_name.search instead of authorships.author.display_name
                 self.build_author_name_filter(operator, value)
+            }
+            ("Periodical", "name") | ("Periodical", "display_name") => {
+                // For publishedIn source names, there's no direct search field available
+                // Return an error suggesting to use query objects instead
+                Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    "Source name filtering not supported in publishedIn subqueries. Use query objects like: ...publishedIn(openalex.sources(.display_name == \"bioRxiv\"))".to_string(),
+                ))
+            }
+            ("Periodical", property) => {
+                // For other periodical properties, use the primary_location.source prefix
+                let filter_value = format_filter_value(value.clone())?;
+
+                match operator {
+                    "==" => Ok(format!("{}.{}:{}", prefix, property, filter_value)),
+                    "!=" => Ok(format!("{}.{}:!{}", prefix, property, filter_value)),
+                    "<" => Ok(format!("{}.{}:<{}", prefix, property, filter_value)),
+                    "<=" => Ok(format!("{}.{}:<={}", prefix, property, filter_value)),
+                    ">" => Ok(format!("{}.{}:>{}", prefix, property, filter_value)),
+                    ">=" => Ok(format!("{}.{}:>={}", prefix, property, filter_value)),
+                    _ => Err(Error::new(
+                        ErrorKind::InvalidOperation,
+                        format!(
+                            "Unsupported operator for periodical property: {}",
+                            operator
+                        ),
+                    )),
+                }
             }
             ("Organization", "name") => {
                 // For organization/institution names, use raw_affiliation_strings.search
@@ -515,6 +555,78 @@ impl OpenAlexQuery {
                             }
                             if let Some(work_id) = field_str.strip_prefix("https://openalex.org/") {
                                 return Some(work_id.to_string());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        None
+    }
+
+    /// Extract source IDs from query objects for publishedBy subqueries
+    fn extract_source_ids_from_query_objects(
+        &self,
+        query_objects: &[Value],
+    ) -> Result<Vec<String>, Error> {
+        let mut source_ids = Vec::new();
+        for query_obj in query_objects {
+            // Handle OpenAlex query objects
+            if let Some(openalex_query) = query_obj.downcast_object_ref::<OpenAlexQuery>() {
+                // Execute the query and extract source IDs from the results
+                let nodes = openalex_query.nodes();
+                for node in nodes {
+                    if let Some(source_id) = self.extract_source_id_from_node(&node) {
+                        source_ids.push(source_id);
+                        // Limit to 100 IDs due to OpenAlex API restrictions
+                        if source_ids.len() >= 100 {
+                            break;
+                        }
+                    }
+                }
+            }
+            // Handle workspace query objects (future implementation)
+            if let Some(_workspace_query) = query_obj.downcast_object_ref::<crate::query::Query>() {
+                // TODO: Implement workspace query ID extraction for sources
+                tracing::warn!("Workspace query ID extraction for sources not yet implemented");
+            }
+            // Break early if we hit the limit
+            if source_ids.len() >= 100 {
+                break;
+            }
+        }
+        Ok(source_ids)
+    }
+
+    /// Extract a source ID from a Node
+    fn extract_source_id_from_node(&self, node: &Node) -> Option<String> {
+        // Convert Node to JSON Value for easier field access
+        if let Ok(json_value) = serde_json::to_value(node) {
+            if let Some(obj) = json_value.as_object() {
+                // Try to get the 'id' field which should contain the full OpenAlex URL
+                if let Some(id_value) = obj.get("id") {
+                    if let Some(id_str) = id_value.as_str() {
+                        // Extract source ID from OpenAlex URL format
+                        if let Some(source_id) = id_str.strip_prefix("https://openalex.org/") {
+                            return Some(source_id.to_string());
+                        }
+                        // Also handle direct source ID format
+                        if id_str.starts_with("S") && id_str.len() > 1 {
+                            return Some(id_str.to_string());
+                        }
+                    }
+                }
+
+                // Fallback: try other potential ID fields
+                for field_name in ["openalex_id", "source_id"] {
+                    if let Some(field_value) = obj.get(field_name) {
+                        if let Some(field_str) = field_value.as_str() {
+                            if field_str.starts_with("S") && field_str.len() > 1 {
+                                return Some(field_str.to_string());
+                            }
+                            if let Some(source_id) = field_str.strip_prefix("https://openalex.org/") {
+                                return Some(source_id.to_string());
                             }
                         }
                     }
@@ -714,6 +826,13 @@ impl OpenAlexQuery {
                             response.results.into_iter().map(Into::into).collect();
                         (response.meta, nodes)
                     }
+                    "sources" => {
+                        let response =
+                            request_with_params::<SourcesResponse>(entity_type, &params).await?;
+                        let nodes: Vec<Node> =
+                            response.results.into_iter().map(Into::into).collect();
+                        (response.meta, nodes)
+                    }
                     _ => todo!(),
                 })
             })
@@ -815,7 +934,7 @@ impl Object for OpenAlexQuery {
         let mut query = match name {
             "works" | "articles" | "books" | "chapters" | "preprints" | "dissertations"
             | "reviews" | "standards" | "grants" | "retractions" | "datasets" | "people"
-            | "organizations" => {
+            | "organizations" | "sources" | "publishers" => {
                 let (entity_type, type_equals) = match name {
                     "works" => ("works", None),
 
@@ -834,6 +953,8 @@ impl Object for OpenAlexQuery {
                     "datasets" => ("works", Some("dataset")),
                     "people" => ("authors", None),
                     "organizations" => ("institutions", None),
+                    "sources" => ("sources", None),
+                    "publishers" => ("sources", None),
 
                     _ => {
                         return Err(Error::new(

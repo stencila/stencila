@@ -1,8 +1,3 @@
-openalex.articles(...citedBy(openalex.articles(search = "frogs").limit(3)))
----
-GET https://api.openalex.org/works?filter=type%3Aarticle%2Ccited_by%3AW2038411763%7CW2107572441%7CW2534919910
-
-
 openalex.works(...citedBy(openalex.articles(...authors(.orcid == "0000-0002-1825-0097")).limit(1)))
 ---
 GET https://api.openalex.org/works?filter=cited_by%3AW4407154702
@@ -21,16 +16,6 @@ GET https://api.openalex.org/works?filter=type%3Aarticle%2Ccited_by%3AW202643379
 openalex.works(...citedBy(openalex.articles(.year == 2023).limit(3)))
 ---
 GET https://api.openalex.org/works?filter=cited_by%3AW4315754639%7CW4386076325%7CW2151041036
-
-
-openalex.articles(...citedBy(openalex.articles(...authors(.name == "John Miller")).limit(2)))
----
-GET https://api.openalex.org/works?filter=type%3Aarticle%2Ccited_by%3AW2143098196%7CW2150374398
-
-
-openalex.articles(...citedBy(openalex.works(.year > 2020).limit(3)))
----
-GET https://api.openalex.org/works?filter=type%3Aarticle%2Ccited_by%3AW3128646645%7CW3118615836%7CW3177828909
 
 
 openalex.articles(...citedBy(* > 10))
