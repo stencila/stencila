@@ -276,14 +276,6 @@ impl Schemas {
             ("Person", vec![("name", "self.name()")]),
         ]);
 
-        // Node types for which embeddings should be created.
-        // Used to generate a function which returns the text string that is used to create the embeddings
-        let embeddings_properties = HashMap::from([
-            ("Article", vec!["title", "abstract"]),
-            ("Paragraph", vec!["text"]),
-            ("Sentence", vec!["text"]),
-        ]);
-
         // Node types where the primary key is not the node id. These node types are treated
         // as being "outside" of documents: we do not use node ids to create relations with them
         // rather, we use these canonical ids.
@@ -293,22 +285,23 @@ impl Schemas {
             ("Organization", "ror"),
         ]);
 
-        write(
-            dir.join("fts_indices.rs"),
-            r#"// Generated file, do not edit. See the Rust `schema-gen` crate.
+        // Node types for which full-text search indices should be created.
+        let fts_properties = HashMap::from([
+            ("Article", vec!["title", "abstract", "description"]),
+            ("Table", vec!["caption"]),
+            ("Figure", vec!["caption"]),
+            ("CodeChunk", vec!["caption", "code"]),
+            ("Paragraph", vec!["text"]),
+            ("Sentence", vec!["text"]),
+        ]);
 
-pub const FTS_INDICES: &[(&str, &[&str])] = &[
-    ("Article",        &["title", "abstract", "description"]),
-    ("Table",          &["caption"]),
-    ("Figure",         &["caption"]),
-    ("CodeChunk",      &["caption", "code"]),
-    ("Paragraph",      &["text"]),
-    ("Sentence",       &["text"]),
-];
-"#
-            .to_string(),
-        )
-        .await?;
+        // Node types for which embeddings should be created.
+        // Used to generate a function which returns the text string that is used to create the embeddings
+        let embeddings_properties = HashMap::from([
+            ("Article", vec!["title", "abstract"]),
+            ("Paragraph", vec!["text"]),
+            ("Sentence", vec!["text"]),
+        ]);
 
         let mut node_tables = Vec::new();
         let mut one_to_many = BTreeMap::new();
@@ -664,8 +657,28 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
             })
             .join("\n\n");
 
+        let fts_indices = fts_properties
+            .into_iter()
+            .map(|(table, properties)| {
+                format!(
+                    "CALL CREATE_FTS_INDEX('{table}', 'fts', [{}]);",
+                    properties
+                        .iter()
+                        .map(|name| ["'", name, "'"].concat())
+                        .join(",")
+                )
+            })
+            .join("\n");
+
+        let vector_indices = embeddings_properties
+            .into_iter()
+            .map(|(table, ..)| {
+                format!("CALL CREATE_VECTOR_INDEX('{table}', 'vector', 'embeddings');")
+            })
+            .join("\n");
+
         write(
-            dir.join("schema.kuzu"),
+            dir.join("schema.cypher"),
             format!(
                 "// Generated file, do not edit. See the Rust `schema-gen` crate;
 
@@ -676,6 +689,14 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
 {one_to_many}
 
 {many_to_many}
+
+INSTALL FTS;
+LOAD EXTENSION FTS;
+{fts_indices}
+
+INSTALL VECTOR;
+LOAD EXTENSION VECTOR;
+{vector_indices}
 "
             ),
         )

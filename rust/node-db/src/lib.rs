@@ -1,7 +1,7 @@
 use std::{
     collections::HashMap,
     fmt::Display,
-    fs::remove_dir_all,
+    fs::remove_file,
     io::{BufWriter, Write},
     path::Path,
     sync::Arc,
@@ -31,13 +31,10 @@ use schema::{Node, NodeId, NodePath, NodeProperty, NodeType, Visitor, WalkNode};
 #[rustfmt::skip]
 mod node_types;
 #[rustfmt::skip]
-mod fts_indices;
-#[rustfmt::skip]
 mod vector_indices;
 
 mod walker;
 
-use fts_indices::FTS_INDICES;
 use vector_indices::VECTOR_EMBEDDINGS;
 use walker::DatabaseWalker;
 
@@ -156,7 +153,7 @@ impl NodeDatabase {
             // If there is any error in creating the database then remove it so that
             // it is not in a corrupted/partial state
             drop(database);
-            remove_dir_all(path)?;
+            remove_file(path)?;
 
             return Err(error);
         }
@@ -204,7 +201,7 @@ impl NodeDatabase {
             return Ok(());
         }
 
-        let schema = include_str!("schema.kuzu");
+        let schema = include_str!("schema.cypher");
         for statement in schema.split(";") {
             let statement = statement.trim();
             if statement.starts_with("//") || statement.is_empty() {
@@ -259,21 +256,10 @@ impl NodeDatabase {
 
         let connection = Connection::new(&self.database)?;
 
-        // It is necessary to drop any vector indices before deleting nodes
-        // TODO: This should not be necessary.
+        // Load extensions to avoid error
+        // "Trying to delete from an index on table X but its extension is not loaded"
+        KuzuKernel::use_extension(&connection, "fts")?;
         KuzuKernel::use_extension(&connection, "vector")?;
-        for (table, ..) in VECTOR_EMBEDDINGS {
-            if let Err(error) =
-                connection.query(&format!("CALL DROP_VECTOR_INDEX('{table}', 'vector');"))
-            {
-                if !error
-                    .to_string()
-                    .contains("doesn't have an index with name vector")
-                {
-                    return Err(eyre!(error));
-                }
-            };
-        }
 
         let delete_doc = match self.delete_doc_statement.as_mut() {
             Some(statement) => statement,
@@ -299,15 +285,6 @@ impl NodeDatabase {
 
         let connection = Connection::new(&self.database)?;
         connection.query(&format!("MATCH (node:{table}) DETACH DELETE node"))?;
-
-        Ok(())
-    }
-
-    /// Update database indices
-    #[tracing::instrument(skip(self))]
-    pub fn update(&self) -> Result<()> {
-        self.create_fts_indices()?;
-        self.create_vector_indices()?;
 
         Ok(())
     }
@@ -567,41 +544,16 @@ impl NodeDatabase {
         Ok(())
     }
 
-    /// Create FTS indices
+    /// Create vector embeddings
+    ///
+    /// TODO: This needs to be refactored so that embedding are created at the
+    /// time that a node is inserted in `create_node_entries`. It currently
+    /// fails because using SET is not allowed for fields used in indices.
     #[tracing::instrument(skip(self))]
-    pub fn create_fts_indices(&self) -> Result<()> {
-        tracing::trace!("Creating FTS indices");
+    pub fn create_vector_embeddings(&self) -> Result<()> {
+        tracing::trace!("Creating vector embeddings");
 
         let connection = Connection::new(&self.database)?;
-        KuzuKernel::use_extension(&connection, "fts")?;
-
-        for (table, properties) in FTS_INDICES {
-            // This is `ok()`ed because it may may fail if the index does not exist yet.
-            // This is a lot less code than explicitly listing indices and checking for each one.
-            connection
-                .query(&format!("CALL DROP_FTS_INDEX('{table}', 'fts');"))
-                .ok();
-
-            connection.query(&format!(
-                "CALL CREATE_FTS_INDEX('{table}', 'fts', [{}]);",
-                properties
-                    .iter()
-                    .map(|name| ["'", name, "'"].concat())
-                    .join(",")
-            ))?;
-        }
-
-        Ok(())
-    }
-
-    /// Create vector indices
-    #[tracing::instrument(skip(self))]
-    pub fn create_vector_indices(&self) -> Result<()> {
-        tracing::trace!("Creating vector indices");
-
-        let connection = Connection::new(&self.database)?;
-        KuzuKernel::use_extension(&connection, "vector")?;
-
         for (table, properties) in VECTOR_EMBEDDINGS {
             // Get all the nodes in the table that have no embeddings
             let (node_ids, texts): (Vec<Value>, Vec<String>) = connection.query(&format!(
@@ -630,16 +582,6 @@ impl NodeDatabase {
                     ],
                 )?;
             }
-
-            // This is `ok()`ed because it may may fail if the index does not exist yet.
-            // This is a lot less code than explicitly listing indices and checking for each one.
-            connection
-                .query(&format!("CALL DROP_VECTOR_INDEX('{table}', 'vector');"))
-                .ok();
-
-            connection.query(&format!(
-                "CALL CREATE_VECTOR_INDEX('{table}', 'vector', 'embeddings');",
-            ))?;
         }
 
         Ok(())

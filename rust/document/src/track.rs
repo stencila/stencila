@@ -479,9 +479,6 @@ impl Document {
             db.upsert(&doc_id, &root)?;
         }
 
-        // Update database indices
-        db.update()?;
-
         Ok(())
     }
 
@@ -508,9 +505,6 @@ impl Document {
             // Delete database nodes
             db.delete(&entry.id)?;
         }
-
-        // Update database indices
-        db.update()?;
 
         Ok(())
     }
