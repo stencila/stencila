@@ -8,7 +8,9 @@ impl Executable for Excerpt {
         tracing::trace!("Compiling Excerpt {node_id}");
 
         if let Some(id) = &self.id {
-            executor.bibliography.insert(id.to_string(), self.source.clone());
+            executor
+                .bibliography
+                .insert(id.to_string(), self.source.clone());
         }
 
         WalkControl::Continue

@@ -58,15 +58,15 @@ impl Executable for Citation {
         if let Some(reference) = &self.options.cites {
             if let Some(id) = reference.doi.as_ref().or(reference.id.as_ref()) {
                 // Record the reference as cited if not already and if not in a chat
-                if !executor.references.contains(id) {
-                    if !executor.walk_ancestors.iter().any(|node_type| {
+                if !executor.references.contains(id)
+                    && !executor.walk_ancestors.iter().any(|node_type| {
                         matches!(
                             node_type,
                             NodeType::Chat | NodeType::PromptBlock | NodeType::Excerpt
                         )
-                    }) {
-                        executor.references.insert(id.clone());
-                    }
+                    })
+                {
+                    executor.references.insert(id.clone());
                 }
             }
         }
