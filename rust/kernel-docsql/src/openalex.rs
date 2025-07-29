@@ -16,7 +16,7 @@ use kernel_jinja::{
     },
     minijinja::{
         Environment, Error, ErrorKind, State, Value,
-        value::{Kwargs, Object, from_args},
+        value::{Kwargs, Object, ValueKind, from_args},
     },
 };
 
@@ -162,7 +162,7 @@ impl OpenAlexQuery {
         };
 
         // Transform the minijinja argument value into a string
-        let filter_value = format_filter_value(&arg_value)?;
+        let filter_value = format_filter_value(&arg_value);
 
         // Generate the filter string
         let filter_string = match operator {
@@ -393,7 +393,7 @@ impl OpenAlexQuery {
             }
             ("Periodical", property) => {
                 // For other periodical properties, use the primary_location.source prefix
-                let filter_value = format_filter_value(&value)?;
+                let filter_value = format_filter_value(&value);
 
                 match operator {
                     "==" => Ok(format!("{prefix}.{property}:{filter_value}")),
@@ -414,7 +414,7 @@ impl OpenAlexQuery {
             }
             ("Organization", property) => {
                 // For other organization properties, use the authorships.institutions prefix
-                let filter_value = format_filter_value(&value)?;
+                let filter_value = format_filter_value(&value);
 
                 match operator {
                     "==" => Ok(format!("{prefix}.{property}:{filter_value}")),
@@ -432,7 +432,7 @@ impl OpenAlexQuery {
             _ => {
                 // Default mapping
                 let openalex_property = property;
-                let filter_value = format_filter_value(&value)?;
+                let filter_value = format_filter_value(&value);
 
                 match operator {
                     "==" => Ok(format!("{prefix}.{openalex_property}:{filter_value}")),
@@ -452,7 +452,7 @@ impl OpenAlexQuery {
 
     /// Helper method to build author name filters using raw_author_name.search
     fn build_author_name_filter(&self, operator: &str, value: &Value) -> Result<String, Error> {
-        let filter_value = format_filter_value(&value)?;
+        let filter_value = format_filter_value(&value);
 
         match operator {
             "==" => Ok(format!("raw_author_name.search:{filter_value}")),
@@ -471,7 +471,7 @@ impl OpenAlexQuery {
         operator: &str,
         value: &Value,
     ) -> Result<String, Error> {
-        let filter_value = format_filter_value(&value)?;
+        let filter_value = format_filter_value(&value);
 
         match operator {
             "==" => Ok(format!("raw_affiliation_strings.search:{filter_value}")),
@@ -1008,15 +1008,23 @@ impl Object for OpenAlexQuery {
 }
 
 /// Format a filter value for OpenAlex API
-fn format_filter_value(value: &Value) -> Result<String, Error> {
-    if let Some(s) = value.as_str() {
-        Ok(s.to_string())
-    } else if let Some(n) = value.as_i64() {
-        Ok(n.to_string())
-    } else if value.is_none() {
-        Ok("null".to_string())
-    } else {
-        // For complex values, convert to string representation
-        Ok(value.to_string())
+fn format_filter_value(value: &Value) -> String {
+    match value.kind() {
+        ValueKind::None | ValueKind::Undefined => "null".to_string(),
+        ValueKind::Bool => {
+            if value.is_true() {
+                "true".into()
+            } else {
+                "false".into()
+            }
+        }
+        ValueKind::Number => value.to_string(),
+        ValueKind::String => value.as_str().unwrap_or_default().into(),
+        ValueKind::Bytes => value
+            .as_bytes()
+            .map(String::from_utf8_lossy)
+            .unwrap_or_default()
+            .into(),
+        _ => value.to_string(),
     }
 }
