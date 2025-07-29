@@ -1,6 +1,7 @@
 use codec_info::lost_options;
+use common::indexmap::IndexMap;
 
-use crate::{ArrayValidator, Datatable, Object, Primitive, prelude::*};
+use crate::{ArrayValidator, Datatable, DatatableColumn, Object, Primitive, prelude::*};
 
 impl Datatable {
     /// Get the number of rows in the [`Datatable`]
@@ -22,6 +23,28 @@ impl Datatable {
                 Object(pairs)
             })
             .collect()
+    }
+}
+
+impl From<Vec<serde_json::Map<String, serde_json::Value>>> for Datatable {
+    fn from(rows: Vec<serde_json::Map<String, serde_json::Value>>) -> Self {
+        let mut columns: IndexMap<String, Vec<Primitive>> = IndexMap::new();
+        for row in rows {
+            for (name, value) in row {
+                let primitive: Primitive =
+                    serde_json::from_value(value).unwrap_or(Primitive::Null(crate::Null));
+                columns
+                    .entry(name)
+                    .and_modify(|column| column.push(primitive.clone()))
+                    .or_insert_with(|| vec![primitive]);
+            }
+        }
+
+        let columns = columns
+            .into_iter()
+            .map(|(name, values)| DatatableColumn::new(name, values))
+            .collect();
+        Datatable::new(columns)
     }
 }
 

@@ -18,6 +18,7 @@ mod institution;
 mod license;
 mod publisher;
 mod responses;
+mod select;
 mod source;
 mod utils;
 mod work;
@@ -37,7 +38,9 @@ pub use client::{
 // Re-export types that might be needed by consumers
 pub use author::Author as OpenAlexAuthor;
 pub use institution::Institution as OpenAlexInstitution;
-pub use responses::{AuthorsResponse, InstitutionsResponse, SourcesResponse, WorksResponse};
+pub use responses::{
+    AuthorsResponse, InstitutionsResponse, SelectResponse, SourcesResponse, WorksResponse,
+};
 pub use source::Source as OpenAlexSource;
 pub use work::Work as OpenAlexWork;
 

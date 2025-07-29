@@ -1,7 +1,8 @@
 use std::sync::{Arc, Mutex as SyncMutex};
 
 use codec_openalex::{
-    AuthorsResponse, InstitutionsResponse, SourcesResponse, WorksResponse, request_with_params,
+    AuthorsResponse, InstitutionsResponse, SelectResponse, SourcesResponse, WorksResponse,
+    request_with_params,
 };
 use kernel_jinja::{
     kernel::{
@@ -12,7 +13,7 @@ use kernel_jinja::{
             tokio::{runtime, task},
             tracing,
         },
-        schema::{CodeChunk, ExecutionMessage, MessageLevel, Node},
+        schema::{CodeChunk, Datatable, ExecutionMessage, MessageLevel, Node},
     },
     minijinja::{
         Environment, Error, ErrorKind, State, Value,
@@ -787,6 +788,13 @@ impl OpenAlexQuery {
         let entity_type = self.entity_type.as_str();
         let result: Result<_> = task::block_in_place(|| {
             runtime::Handle::current().block_on(async {
+                if !self.select_fields.is_empty() {
+                    let response =
+                        request_with_params::<SelectResponse>(entity_type, &params).await?;
+                    let datatable = Datatable::from(response.results);
+                    return Ok((response.meta, vec![Node::Datatable(datatable)]));
+                }
+
                 Ok(match entity_type {
                     "works" => {
                         let response =
