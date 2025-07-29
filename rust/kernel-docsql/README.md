@@ -112,7 +112,7 @@ openalex.works(.year > 2020, search = "neural networks")
 .text == "Introduction"     // equality
 .position > 100            // numeric comparison  
 .title ^= "Chapter"        // starts with
-.content =~ "pattern.*"    // regex match
+.content ~= "pattern.*"    // regex match
 .tags in ["AI", "ML"]      // list membership
 ```
 
@@ -207,7 +207,7 @@ workspace.articles(...citedBy(* >= 50))     // Articles cited 50 or more times
 
 // GitHub subqueries
 github.repositories(...topics(.name == "data-science"))     // Repositories tagged with data science
-github.repositories(...owners(.name =~ ".*University.*"))   // Repositories owned by universities
+github.repositories(...owners(.name ~= ".*University.*"))   // Repositories owned by universities
 github.files(.extension == "qmd", ...repositories(.language == "python"))  // Quarto files in Python repos
 
 // Query object subqueries (advanced citation analysis)
@@ -320,12 +320,12 @@ let importantSections = methods().union(results())
 
 // File properties  
 .filename == "README.md"           // Specific filename
-.path =~ ".*docs.*"               // Path pattern
+.path ~= ".*docs.*"               // Path pattern
 .extension == "py"                // File extension
 
 // Search and content
 search = "machine learning"        // Text search in content
-.content =~ "import pandas"       // Content pattern matching
+.content ~= "import pandas"       // Content pattern matching
 ```
 
 **GitHub Query Examples:**
@@ -339,7 +339,7 @@ github.repositories(...topics(.name == "data-science"))
   .files(.extension == "qmd")
 
 // Find research repositories by academic institutions
-github.repositories(...owners(.name =~ ".*University.*"))
+github.repositories(...owners(.name ~= ".*University.*"))
   .search("research")
 
 // Count notebooks in bioinformatics repositories
@@ -407,8 +407,8 @@ All node type functions are available as both singular (returns first match) and
 - `>=` - Greater than or equal
 
 **String Operators:**
-- `=~` or `~=` - Regex match
-- `!~` - Regex non-match
+- `~=` - Regex match
+- `~!` - Regex non-match
 - `^=` - Starts with
 - `$=` - Ends with
 

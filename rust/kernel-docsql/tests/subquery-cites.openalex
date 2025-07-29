@@ -1,23 +1,23 @@
 openalex.articles(...cites(* > 10))
 ---
-GET https://api.openalex.org/works?filter=type%3Aarticle%2Creferenced_works_count%3A%3E10
+GET https://api.openalex.org/works?filter=type:article,referenced_works_count:>10
 
 
 openalex.articles(...cites(* >= 5))
 ---
-GET https://api.openalex.org/works?filter=type%3Aarticle%2Creferenced_works_count%3A%3E4
+GET https://api.openalex.org/works?filter=type:article,referenced_works_count:>4
 
 
 openalex.articles(...cites(* <= 20))
 ---
-GET https://api.openalex.org/works?filter=type%3Aarticle%2Creferenced_works_count%3A%3C21
+GET https://api.openalex.org/works?filter=type:article,referenced_works_count:<21
 
 
 openalex.articles(...cites(* == 15))
 ---
-GET https://api.openalex.org/works?filter=type%3Aarticle%2Creferenced_works_count%3A15
+GET https://api.openalex.org/works?filter=type:article,referenced_works_count:15
 
 
 openalex.works(...cites(* > 0))
 ---
-GET https://api.openalex.org/works?filter=referenced_works_count%3A%3E0
+GET https://api.openalex.org/works?filter=referenced_works_count:>0

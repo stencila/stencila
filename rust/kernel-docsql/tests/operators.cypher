@@ -30,7 +30,7 @@ RETURN cell
 LIMIT 10
 
 
-test.cells(.text =~ 'a')
+test.cells(.text ~= 'a')
 ---
 MATCH (cell:TableCell)
 WHERE regexp_matches(cell.text, 'a')
@@ -38,7 +38,7 @@ RETURN cell
 LIMIT 10
 
 
-test.cells(.text !~ 'a')
+test.cells(.text ~!  'a')
 ---
 MATCH (cell:TableCell)
 WHERE NOT regexp_matches(cell.text, 'a')

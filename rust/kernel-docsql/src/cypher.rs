@@ -13,8 +13,6 @@ use kernel_jinja::{
             eyre::Result,
             inflector::Inflector,
             itertools::Itertools,
-            once_cell::sync::Lazy,
-            regex::{Captures, Regex},
             serde_json,
             tokio::{runtime, sync::Mutex, task},
             tracing,
@@ -30,7 +28,7 @@ use kernel_jinja::{
     },
 };
 
-use crate::openalex::OpenAlexQuery;
+use crate::{docsql::decode_filter, openalex::OpenAlexQuery};
 
 const GLOBAL_CONSTS: &[&str] = &["above", "below", "return"];
 
@@ -135,80 +133,27 @@ pub(crate) const GLOBAL_NAMES: &[&str] = &[
     "combine",
 ];
 
-/// Transform property filter arguments into valid MiniJinja keyword arguments
-///
-/// Uses single digit codes and spacing to ensure that the code stays the same length.
-pub(super) fn transform_filters(code: &str) -> String {
-    static FILTERS: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"((?:\(|,)\s*)(\*|(?:\.[a-zA-Z][\w_]*))\s*(==|\!=|<=|<|>=|>|=\~|\~=|\!\~|\^=|\$=|in|has|=)\s*")
-            .expect("invalid regex")
-    });
-
-    let code = FILTERS.replace_all(code, |captures: &Captures| {
-        let before = &captures[1];
-        let var = &captures[2];
-        let op = match &captures[3] {
-            "=" | "==" => "",
-            "!=" => "0",
-            "<" => "1",
-            "<=" => "2",
-            ">" => "3",
-            ">=" => "4",
-            "~=" | "=~" => "5",
-            "!~" => "6",
-            "^=" => "7",
-            "$=" => "8",
-            "in" => "9",
-            "has" => "_",
-            echo => echo,
-        };
-
-        let var = match var {
-            "*" => "_C", // Count
-            _ => var.trim_start_matches("."),
-        };
-
-        let spaces = captures[0]
-            .len()
-            .saturating_sub(before.len() + var.len() + op.len() + 1);
-        let spaces = " ".repeat(spaces);
-
-        [before, var, op, &spaces, "="].concat()
-    });
-
-    static SUBQUERY: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"((?:\(|,)\s*)\.\.\.([a-zA-Z][\w_]*)").expect("invalid regex"));
-
-    SUBQUERY
-        .replace_all(&code, |captures: &Captures| {
-            let pre = &captures[1];
-            let func = &captures[2];
-            [pre, "_=_", func].concat()
-        })
-        .into()
-}
-
-/// Translate a filter into a Cypher `WHERE` clause
+/// Translate a filter argument into a Cypher `WHERE` clause
 fn apply_filter(
     alias: &str,
-    property: &str,
-    value: Value,
+    arg_name: &str,
+    arg_value: Value,
     for_subquery: bool,
 ) -> Result<String, Error> {
-    if property == "_" {
-        if let Some(subquery) = value.downcast_object_ref::<Subquery>() {
+    if arg_name == "_" {
+        if let Some(subquery) = arg_value.downcast_object_ref::<Subquery>() {
             return Ok(subquery.generate(alias));
         }
     }
 
-    let mut chars = property.chars().collect_vec();
+    let mut chars = arg_name.chars().collect_vec();
 
     let last = *chars.last().expect("always has at least one char");
     if last.is_numeric() || last == '_' {
         chars.pop();
     }
 
-    let col = if property.starts_with("_C") {
+    let col = if arg_name.starts_with("_C") {
         if !for_subquery {
             return Err(Error::new(
                 ErrorKind::InvalidOperation,
@@ -229,13 +174,13 @@ fn apply_filter(
         [alias, ".", &chars.iter().join("").to_camel_case()].concat()
     };
 
-    let val_str = || ["'", &value.to_string(), "'"].concat();
+    let val_str = || ["'", &arg_value.to_string(), "'"].concat();
 
     let val_lit = || {
-        if value.as_str().is_some() {
+        if arg_value.as_str().is_some() {
             val_str()
         } else {
-            value.to_string()
+            arg_value.to_string()
         }
     };
 
@@ -478,25 +423,25 @@ impl Query {
             }
         }
 
-        for key in kwargs.args() {
+        for arg_name in kwargs.args() {
             // Ensure all arguments are defined
-            let value: Value = kwargs.get(key)?;
-            if value.is_undefined() {
+            let arg_value: Value = kwargs.get(arg_name)?;
+            if arg_value.is_undefined() {
                 return Err(Error::new(
                     ErrorKind::UndefinedError,
-                    format!("value for argument `{key}` is undefined"),
+                    format!("value for argument `{arg_name}` is undefined"),
                 ));
             }
 
-            match key {
+            match arg_name {
                 "like" => {
-                    let text = if let Some(text) = value.as_str() {
+                    let text = if let Some(text) = arg_value.as_str() {
                         text.to_string()
-                    } else if let Some(query) = value.downcast_object::<Query>() {
+                    } else if let Some(query) = arg_value.downcast_object::<Query>() {
                         query.text()?.to_string()
-                    } else if let Some(nodes) = value.downcast_object::<NodeProxies>() {
+                    } else if let Some(nodes) = arg_value.downcast_object::<NodeProxies>() {
                         nodes.text()?.to_string()
-                    } else if let Some(node) = value.downcast_object::<NodeProxy>() {
+                    } else if let Some(node) = arg_value.downcast_object::<NodeProxy>() {
                         node.text()?.to_string()
                     } else {
                         return Err(Error::new(
@@ -527,20 +472,20 @@ impl Query {
                 }
                 "search" | "searchAll" | "and" | "or" => {
                     // Argument value should be string
-                    let value = value
+                    let value = arg_value
                         .as_str()
                         .ok_or_else(|| {
                             Error::new(
                                 ErrorKind::InvalidOperation,
-                                format!("argument `{key}` should be a string"),
+                                format!("argument `{arg_name}` should be a string"),
                             )
                         })?
                         .to_string();
 
-                    match key {
+                    match arg_name {
                         "search" | "searchAll" => {
                             let table = table.replace("`", "");
-                            let option = if key == "searchAll" {
+                            let option = if arg_name == "searchAll" {
                                 ", conjunctive := true"
                             } else {
                                 ""
@@ -557,7 +502,7 @@ impl Query {
                     }
                 }
                 _ => {
-                    let filter = apply_filter(&alias, key, value, false)?;
+                    let filter = apply_filter(&alias, arg_name, arg_value, false)?;
                     query.ands.push(filter)
                 }
             }
@@ -1426,34 +1371,11 @@ impl Object for Subquery {
             }
         }
 
-        for arg in kwargs.args() {
-            let value: Value = kwargs.get(arg)?;
+        for arg_name in kwargs.args() {
+            let (property, operator) = decode_filter(arg_name);
+            let arg_value: Value = kwargs.get(arg_name)?;
 
-            // Extract original property name and operator for external APIs
-            let (clean_property, operator) = if arg.len() > 1 {
-                if let Some(last_char) = arg.chars().last() {
-                    match last_char {
-                        '0' => (arg.trim_end_matches('0'), "!="),
-                        '1' => (arg.trim_end_matches('1'), "<"),
-                        '2' => (arg.trim_end_matches('2'), "<="),
-                        '3' => (arg.trim_end_matches('3'), ">"),
-                        '4' => (arg.trim_end_matches('4'), ">="),
-                        '5' => (arg.trim_end_matches('5'), "~="),
-                        '6' => (arg.trim_end_matches('6'), "!~"),
-                        '7' => (arg.trim_end_matches('7'), "^="),
-                        '8' => (arg.trim_end_matches('8'), "$="),
-                        '9' => (arg.trim_end_matches('9'), "in"),
-                        '_' => (arg.trim_end_matches('_'), "has"),
-                        _ => (arg, "=="),
-                    }
-                } else {
-                    (arg, "==")
-                }
-            } else {
-                (arg, "==")
-            };
-
-            let filter = apply_filter(&alias, arg, value.clone(), true)?;
+            let filter = apply_filter(&alias, arg_name, arg_value.clone(), true)?;
 
             if let Some(rest) = filter.strip_prefix("_COUNT") {
                 if subquery.count.is_some() {
@@ -1467,11 +1389,9 @@ impl Object for Subquery {
             } else {
                 subquery.ands.push(filter);
                 // Store original filter information for external APIs
-                subquery.raw_filters.push((
-                    clean_property.to_string(),
-                    operator.to_string(),
-                    value,
-                ));
+                subquery
+                    .raw_filters
+                    .push((property.to_string(), operator.to_string(), arg_value));
             }
         }
 
@@ -1499,9 +1419,9 @@ impl Object for Subquery {
             .push_str(&format!("-{relation}->({alias}:{table})"));
 
         let (kwargs,): (Kwargs,) = from_args(args)?;
-        for arg in kwargs.args() {
-            let value = kwargs.get(arg)?;
-            let filter = apply_filter(&alias, arg, value, true)?;
+        for arg_name in kwargs.args() {
+            let arg_value = kwargs.get(arg_name)?;
+            let filter = apply_filter(&alias, arg_name, arg_value, true)?;
             subquery.ands.push(filter);
         }
 
@@ -2127,60 +2047,4 @@ fn kwargs_insert(kwargs: Kwargs, key: &str, value: Value) -> Kwargs {
             .map(|key| (key, kwargs.get(key).expect("")))
             .chain([(key, value)]),
     )
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn transform_filters() {
-        use super::transform_filters as t;
-
-        assert_eq!(t(""), "");
-        assert_eq!(t(".a"), ".a");
-
-        assert_eq!(t("(.a = 1)"), "(a   =1)");
-        assert_eq!(t("(.a= 1)"), "(a  =1)");
-        assert_eq!(t("(.a =1)"), "(a  =1)");
-        assert_eq!(t("(.a=1)"), "(a =1)");
-
-        assert_eq!(t("(.a == 1)"), "(a    =1)");
-        assert_eq!(t("(.a== 1)"), "(a   =1)");
-        assert_eq!(t("(.a ==1)"), "(a   =1)");
-        assert_eq!(t("(.a==1)"), "(a  =1)");
-
-        assert_eq!(t("(.a < 1)"), "(a1  =1)");
-        assert_eq!(t("(.a< 1)"), "(a1 =1)");
-        assert_eq!(t("(.a <1)"), "(a1 =1)");
-        assert_eq!(t("(.a<1)"), "(a1=1)");
-
-        assert_eq!(t("(.abc !~ 'regex')"), "(abc6   ='regex')");
-        assert_eq!(t("(.abc!~ 'regex')"), "(abc6  ='regex')");
-        assert_eq!(t("(.abc !~'regex')"), "(abc6  ='regex')");
-        assert_eq!(t("(.abc!~'regex')"), "(abc6 ='regex')");
-
-        assert_eq!(t("(.a != 1)"), "(a0   =1)");
-        assert_eq!(t("(.a < 1)"), "(a1  =1)");
-        assert_eq!(t("(.a <= 1)"), "(a2   =1)");
-        assert_eq!(t("(.a > 1)"), "(a3  =1)");
-        assert_eq!(t("(.a >= 1)"), "(a4   =1)");
-        assert_eq!(t("(.a =~ 1)"), "(a5   =1)");
-        assert_eq!(t("(.a !~ 1)"), "(a6   =1)");
-        assert_eq!(t("(.a ^= 1)"), "(a7   =1)");
-        assert_eq!(t("(.a $= 1)"), "(a8   =1)");
-        assert_eq!(t("(.a in 1)"), "(a9   =1)");
-        assert_eq!(t("(.a has 1)"), "(a_    =1)");
-
-        assert_eq!(
-            t("(.a != 1, .b < 1,.c has 1)"),
-            "(a0   =1, b1  =1,c_    =1)"
-        );
-
-        assert_eq!(t("(above)"), "(above)");
-        assert_eq!(t("(below, .a != 1)"), "(below, a0   =1)");
-
-        assert_eq!(t("(* == 1)"), "(_C  =1)");
-        assert_eq!(t("(* <  1)"), "(_C1 =1)");
-        assert_eq!(t("(* > 1)"), "(_C3=1)");
-        assert_eq!(t("(*>=1)"), "(_C4=1)");
-    }
 }

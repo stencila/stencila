@@ -5,4 +5,4 @@ GET https://api.openalex.org/works?page=1&per-page=10
 
 openalex.preprints().limit(3).skip(4)
 ---
-GET https://api.openalex.org/works?filter=type%3Apreprint&page=2&per-page=3
+GET https://api.openalex.org/works?filter=type:preprint&page=2&per-page=3

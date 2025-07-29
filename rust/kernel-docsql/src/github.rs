@@ -19,12 +19,21 @@ use kernel_jinja::{
     },
 };
 
-use crate::query::{NodeProxies, NodeProxy, Subquery};
+use crate::cypher::{NodeProxies, NodeProxy, Subquery};
 
 const API_BASE_URL: &str = "https://api.github.com";
 
 // HTTP client for GitHub API calls
 static CLIENT: Lazy<Client> = Lazy::new(Client::new);
+
+/// Add GitHub functions to the Jinja environment
+pub(crate) fn add_github_functions(
+    env: &mut Environment,
+    messages: &Arc<SyncMutex<Vec<ExecutionMessage>>>,
+) {
+    let github = Arc::new(GitHubQuery::new(messages.clone()));
+    env.add_global("github", Value::from_object((*github).clone()));
+}
 
 /// GitHub query builder for generating API calls
 #[derive(Debug, Clone)]
@@ -238,7 +247,7 @@ impl GitHubQuery {
                     '3' => (property.trim_end_matches('3'), ">"),
                     '4' => (property.trim_end_matches('4'), ">="),
                     '5' => (property.trim_end_matches('5'), "~="),
-                    '6' => (property.trim_end_matches('6'), "!~"),
+                    '6' => (property.trim_end_matches('6'), "~!"),
                     '7' => (property.trim_end_matches('7'), "^="),
                     '8' => (property.trim_end_matches('8'), "$="),
                     '9' => (property.trim_end_matches('9'), "in"),
@@ -254,7 +263,7 @@ impl GitHubQuery {
 
         // Handle different operators
         match operator {
-            "~=" | "!~" => {
+            "~=" => {
                 // Regex not directly supported, convert to search
                 let search_value = value
                     .as_str()
@@ -756,9 +765,4 @@ fn format_filter_value(value: Value) -> Result<String, Error> {
         // For complex values, convert to string representation
         Ok(value.to_string())
     }
-}
-
-/// Add GitHub functions to the Jinja environment
-pub(crate) fn add_github_functions(env: &mut Environment, github: Arc<GitHubQuery>) {
-    env.add_global("github", Value::from_object((*github).clone()));
 }

@@ -58,27 +58,50 @@ static CLIENT: Lazy<ClientWithMiddleware> = Lazy::new(|| {
         .build()
 });
 
-/// Make a generic request to the OpenAlex API with custom query parameters
-/// Returns the response as a List<T> where T is the expected entity type
-pub async fn request_with_params<T>(entity_type: &str, params: &[(&str, String)]) -> Result<T>
-where
-    T: DeserializeOwned,
-{
-    let mut url = format!("{API_BASE_URL}/{entity_type}");
+/// Generate a URL to query a list of an entity type
+///
+/// Minimal necessary encoding of values to produce uRLs that are readable and
+/// similar to those in the OpenAlex docs (e.g. : is not encoded)              
+pub fn url_for_list(entity_type: &str, mut query_params: Vec<(&str, String)>) -> String {
+    let mut url = [API_BASE_URL, "/", entity_type].concat();
 
-    if !params.is_empty() {
-        let query_string = params
-            .iter()
-            .map(|(k, v)| format!("{}={}", k, urlencoding::encode(v)))
-            .collect::<Vec<_>>()
+    if let Ok(email) = std::env::var("OPENALEX_EMAIL") {
+        query_params.push(("mailto", email));
+    }
+
+    if !query_params.is_empty() {
+        let query_string = query_params
+            .into_iter()
+            .map(|(name, value)| {
+                let encoded = value
+                    .replace(" ", "+")
+                    .replace("?", "%3F")
+                    .replace("&", "%26")
+                    .replace("=", "%3D")
+                    .replace("#", "%23")
+                    .replace("%", "%25");
+                [name, "=", &encoded].concat()
+            })
             .join("&");
+
         url.push('?');
         url.push_str(&query_string);
     }
 
-    tracing::trace!("Making OpenAlex API request with params: {}", url);
+    url
+}
 
-    let response = CLIENT.get(&url).send().await?;
+/// Make a generic request to the OpenAlex API
+///
+/// Returns the response as a List<T> where T is the expected entity type
+#[tracing::instrument]
+pub async fn request<T>(url: &str) -> Result<T>
+where
+    T: DeserializeOwned,
+{
+    tracing::debug!("Making OpenAlex API request");
+
+    let response = CLIENT.get(url).send().await?;
 
     if let Err(error) = response.error_for_status_ref() {
         bail!("{error}: {}", response.text().await.unwrap_or_default());

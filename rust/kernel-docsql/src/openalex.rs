@@ -1,14 +1,13 @@
 use std::sync::{Arc, Mutex as SyncMutex};
 
 use codec_openalex::{
-    AuthorsResponse, InstitutionsResponse, SelectResponse, SourcesResponse, WorksResponse,
-    request_with_params,
+    AuthorsResponse, InstitutionsResponse, SelectResponse, SourcesResponse, WorksResponse, request,
+    url_for_list,
 };
 use kernel_jinja::{
     kernel::{
         common::{
-            eyre::Result,
-            itertools::Itertools,
+            eyre::{Result, bail},
             serde_json,
             tokio::{runtime, task},
             tracing,
@@ -21,9 +20,19 @@ use kernel_jinja::{
     },
 };
 
-use crate::query::{NodeProxies, NodeProxy, Subquery};
+use crate::{
+    cypher::{NodeProxies, NodeProxy, Subquery},
+    docsql::decode_filter,
+};
 
-const API_BASE_URL: &str = "https://api.openalex.org";
+/// Add OpenAlex functions to the Jinja environment
+pub(crate) fn add_openalex_functions(
+    env: &mut Environment,
+    messages: &Arc<SyncMutex<Vec<ExecutionMessage>>>,
+) {
+    let openalex = Arc::new(OpenAlexQuery::new(messages.clone()));
+    env.add_global("openalex", Value::from_object((*openalex).clone()));
+}
 
 /// OpenAlex query builder for generating API calls
 #[derive(Debug, Clone)]
@@ -85,35 +94,102 @@ impl OpenAlexQuery {
     }
 
     /// Add a filter to the query
-    fn filter(&self, property: &str, operator: &str, value: Value) -> Result<Self, Error> {
+    fn filter(&self, entity_type: &str, arg_name: &str, arg_value: Value) -> Result<Self, Error> {
         let mut query = self.clone();
 
+        // Handle subquery filters (e.g., ...authors(.name ^= "Smith"))
+        if arg_name == "_" {
+            if let Some(subquery) = arg_value.downcast_object_ref::<Subquery>() {
+                return self.apply_subquery_filter(subquery);
+            }
+        }
+
+        // Extract the property name an operator from the arg
+        let (property_name, operator) = decode_filter(arg_name);
+
+        // Error early for unhandled operators with advice
+        if operator == "~!" || operator == "^=" || operator == "$=" {
+            let message = match operator {
+                "~!" => "Negated search operator ~! is not supported for OpenAlex queries.",
+                "^=" => {
+                    "Starts-with operator ^= is not supported for OpenAlex queries. Perhaps use search operator ~= instead."
+                }
+                "$=" => {
+                    "Ends-with operator $= is not supported for OpenAlex queries. Perhaps use search operator ~= instead."
+                }
+                _ => "Unsupported operator",
+            };
+            return Err(Error::new(ErrorKind::InvalidOperation, message));
+        }
+
+        // Map the property name to the OpenAlex filter name
+        let filter_name = match entity_type {
+            "works" => match property_name {
+                // See https://docs.openalex.org/api-entities/works/filter-works for a list of
+                // available filters
+                // In OpenAlex it is not possible to test equality for `display_name`, only `display_name.search`
+                // it available, which is also aliased to `title.search`
+                "title" => "title.search",
+                "name" => "display_name.search",
+                _ => property_name,
+            },
+            _ => match property_name {
+                // Common mappings across entities
+                "name" => match self.entity_type.as_str() {
+                    "authors" => "display_name", // For authors, name maps to display_name
+                    _ => "display_name.search",
+                },
+                "text" => match self.entity_type.as_str() {
+                    "works" => "title_and_abstract.search",
+                    _ => "display_name.search",
+                },
+
+                // Works-specific
+                "year" => "publication_year",
+                "date" => "publication_date",
+                "abstract" => "abstract.search",
+                "journal" => "primary_location.source.display_name.search",
+                "is_oa" => "open_access.is_oa",
+
+                // Authors-specific
+                "h_index" => "summary_stats.h_index",
+                "i10_index" => "summary_stats.i10_index",
+
+                // If no mapping found, use as-is, this includes:
+                // type, language, cited_by, cites, doi, orcid, ror
+                _ => property_name,
+            },
+        };
+
+        // Transform the minijinja argument value into a string
+        let filter_value = format_filter_value(&arg_value)?;
+
+        // Generate the filter string
         let filter_string = match operator {
-            "==" | "" => format!("{}:{}", property, format_filter_value(value)?),
-            "!=" => format!("{}:!{}", property, format_filter_value(value)?),
-            "<" => format!("{}:<{}", property, format_filter_value(value)?),
-            "<=" => format!("{}:<={}", property, format_filter_value(value)?),
-            ">" => format!("{}:>{}", property, format_filter_value(value)?),
-            ">=" => format!("{}:>={}", property, format_filter_value(value)?),
-            "search" => {
-                if let Some(search_value) = value.as_str() {
-                    query.search_terms.push(search_value.to_string());
-                    return Ok(query);
+            "==" => format!("{filter_name}:{filter_value}"),
+            "!=" => format!("{filter_name}:!{filter_value}"),
+
+            "<" => format!("{filter_name}:<{filter_value}"),
+            "<=" => format!("{filter_name}:<={filter_value}"),
+            ">" => format!("{filter_name}:>{filter_value}"),
+            ">=" => format!("{filter_name}:>={filter_value}"),
+
+            "~=" => {
+                if filter_name.ends_with(".search") {
+                    format!("{filter_name}:{filter_value}")
                 } else {
-                    return Err(Error::new(
-                        ErrorKind::InvalidOperation,
-                        "Search value must be a string",
-                    ));
+                    format!("{filter_name}.search:{filter_value}")
                 }
             }
+
             "in" => {
                 // Handle list values for 'in' operator
-                if value.is_true() || value.is_none() {
+                if arg_value.is_true() || arg_value.is_none() {
                     // Not actually a sequence, treat as single value
-                    format!("{}:{}", property, format_filter_value(value)?)
+                    format!("{filter_name}:{filter_value}")
                 } else {
                     // Try to handle as array
-                    format!("{}:{}", property, format_filter_value(value)?)
+                    format!("{filter_name}:{filter_value}")
                 }
             }
             _ => {
@@ -139,9 +215,7 @@ impl OpenAlexQuery {
     fn order_by(&self, field: String, direction: Option<String>) -> Result<Self, Error> {
         let mut query = self.clone();
 
-        // Map DocsQL property names to OpenAlex API sort field names
-        let openalex_field = self.map_property_to_openalex(&field)?;
-
+        let openalex_field = self.property_to_sort_name(&self.entity_type, &field)?;
         let sort_string = match direction {
             Some(dir) if dir.to_uppercase() == "DESC" => format!("{openalex_field}:desc"),
             _ => format!("{openalex_field}:asc"),
@@ -187,62 +261,6 @@ impl OpenAlexQuery {
         let mut query = self.clone();
         query.per_page = Some(0); // OpenAlex returns count in meta when per_page=0
         query
-    }
-
-    /// Apply a DocsQL filter with transformed syntax
-    fn apply_docsql_filter(&self, property: &str, value: Value) -> Result<Self, Error> {
-        // Handle subquery filters (e.g., ...authors(.name ^= "Smith"))
-        if property == "_" {
-            if let Some(subquery) = value.downcast_object_ref::<Subquery>() {
-                return self.apply_subquery_filter(subquery);
-            }
-        }
-
-        // Handle transformed DocsQL filter syntax
-        // The property name contains encoded operator information from transform_filters
-
-        let (clean_property, operator) = if property.len() > 1 {
-            if let Some(last_char) = property.chars().last() {
-                match last_char {
-                    '0' => (property.trim_end_matches('0'), "!="),
-                    '1' => (property.trim_end_matches('1'), "<"),
-                    '2' => (property.trim_end_matches('2'), "<="),
-                    '3' => (property.trim_end_matches('3'), ">"),
-                    '4' => (property.trim_end_matches('4'), ">="),
-                    '5' => (property.trim_end_matches('5'), "~="),
-                    '6' => (property.trim_end_matches('6'), "!~"),
-                    '7' => (property.trim_end_matches('7'), "^="),
-                    '8' => (property.trim_end_matches('8'), "$="),
-                    '9' => (property.trim_end_matches('9'), "in"),
-                    '_' => (property.trim_end_matches('_'), "has"),
-                    _ => (property, "=="),
-                }
-            } else {
-                (property, "==")
-            }
-        } else {
-            (property, "==")
-        };
-
-        // Map DocsQL property names to OpenAlex API filters
-        let openalex_property = self.map_property_to_openalex(clean_property)?;
-
-        // Handle different operators
-        match operator {
-            "^=" | "$=" | "!~" => Err(Error::new(
-                ErrorKind::InvalidOperation,
-                format!("Unsupported operator: {operator}"),
-            )),
-            "~=" => {
-                // Regex match: use search for now
-                let search_value = value
-                    .as_str()
-                    .map(String::from)
-                    .unwrap_or_else(|| value.to_string());
-                Ok(self.search(format!("{openalex_property}:{search_value}")))
-            }
-            _ => self.filter(&openalex_property, operator, value),
-        }
     }
 
     /// Apply a subquery filter to the OpenAlex query
@@ -375,7 +393,7 @@ impl OpenAlexQuery {
             }
             ("Periodical", property) => {
                 // For other periodical properties, use the primary_location.source prefix
-                let filter_value = format_filter_value(value.clone())?;
+                let filter_value = format_filter_value(&value)?;
 
                 match operator {
                     "==" => Ok(format!("{prefix}.{property}:{filter_value}")),
@@ -396,7 +414,7 @@ impl OpenAlexQuery {
             }
             ("Organization", property) => {
                 // For other organization properties, use the authorships.institutions prefix
-                let filter_value = format_filter_value(value.clone())?;
+                let filter_value = format_filter_value(&value)?;
 
                 match operator {
                     "==" => Ok(format!("{prefix}.{property}:{filter_value}")),
@@ -414,7 +432,7 @@ impl OpenAlexQuery {
             _ => {
                 // Default mapping
                 let openalex_property = property;
-                let filter_value = format_filter_value(value.clone())?;
+                let filter_value = format_filter_value(&value)?;
 
                 match operator {
                     "==" => Ok(format!("{prefix}.{openalex_property}:{filter_value}")),
@@ -434,7 +452,7 @@ impl OpenAlexQuery {
 
     /// Helper method to build author name filters using raw_author_name.search
     fn build_author_name_filter(&self, operator: &str, value: &Value) -> Result<String, Error> {
-        let filter_value = format_filter_value(value.clone())?;
+        let filter_value = format_filter_value(&value)?;
 
         match operator {
             "==" => Ok(format!("raw_author_name.search:{filter_value}")),
@@ -453,7 +471,7 @@ impl OpenAlexQuery {
         operator: &str,
         value: &Value,
     ) -> Result<String, Error> {
-        let filter_value = format_filter_value(value.clone())?;
+        let filter_value = format_filter_value(&value)?;
 
         match operator {
             "==" => Ok(format!("raw_affiliation_strings.search:{filter_value}")),
@@ -493,7 +511,8 @@ impl OpenAlexQuery {
             }
 
             // Handle workspace query objects (future implementation)
-            if let Some(_workspace_query) = query_obj.downcast_object_ref::<crate::query::Query>() {
+            if let Some(_workspace_query) = query_obj.downcast_object_ref::<crate::cypher::Query>()
+            {
                 // TODO: Implement workspace query ID extraction
                 // This would involve executing the workspace query and extracting OpenAlex IDs
                 // from the resulting documents
@@ -571,7 +590,8 @@ impl OpenAlexQuery {
                 }
             }
             // Handle workspace query objects (future implementation)
-            if let Some(_workspace_query) = query_obj.downcast_object_ref::<crate::query::Query>() {
+            if let Some(_workspace_query) = query_obj.downcast_object_ref::<crate::cypher::Query>()
+            {
                 // TODO: Implement workspace query ID extraction for sources
                 tracing::warn!("Workspace query ID extraction for sources not yet implemented");
             }
@@ -670,162 +690,98 @@ impl OpenAlexQuery {
         }
     }
 
-    /// Map DocsQL property names to OpenAlex API filter names
-    fn map_property_to_openalex(&self, property: &str) -> Result<String, Error> {
-        let mapped = match property {
-            // Common mappings across entities
-            "title" => match self.entity_type.as_str() {
-                "works" => "display_name", // Works use display_name for both filtering and sorting
-                _ => "display_name",
-            },
-            "name" => match self.entity_type.as_str() {
-                "authors" => "display_name", // For authors, name maps to display_name
-                _ => "display_name.search",
-            },
-            "text" => match self.entity_type.as_str() {
-                "works" => "title_and_abstract.search",
-                _ => "display_name.search",
-            },
-
-            // Works-specific
-            "year" => "publication_year",
-            "date" => "publication_date",
-            "abstract" => "abstract.search",
-            "journal" => "primary_location.source.display_name.search",
-            "is_oa" => "open_access.is_oa",
-
-            // Authors-specific
-            "h_index" => "summary_stats.h_index",
-            "i10_index" => "summary_stats.i10_index",
-
-            // If no mapping found, use as-is, this includes:
-            // type, language, cited_by, cites, doi, orcid, ror
-            _ => property,
-        };
-
-        Ok(mapped.to_string())
+    /// Map a DocsQL property name to an OpenAlex API sort name
+    fn property_to_sort_name(&self, _entity_type: &str, property: &str) -> Result<String, Error> {
+        Ok(property.to_string())
     }
 
-    /// Generate the OpenAlex API query parameters
-    pub fn generate_params(&self) -> Vec<(&'static str, String)> {
-        let mut query_params = Vec::new();
+    /// Generate the OpenAlex API URL (for backwards compatibility and debugging)
+    pub fn generate(&self) -> String {
+        let mut params = Vec::new();
 
         // Add filters
         if !self.filters.is_empty() {
             let filter_string = self.filters.join(",");
-            query_params.push(("filter", filter_string));
+            params.push(("filter", filter_string));
         }
 
         // Add search
         if !self.search_terms.is_empty() {
             let search_string = self.search_terms.join(" ");
-            query_params.push(("search", search_string));
+            params.push(("search", search_string));
         }
 
         // Add sort
         if let Some(sort) = &self.sort {
-            query_params.push(("sort", sort.clone()));
+            params.push(("sort", sort.clone()));
         }
 
         // Add pagination
         if let Some(page) = self.page {
-            query_params.push(("page", page.to_string()));
+            params.push(("page", page.to_string()));
         }
         if let Some(per_page) = self.per_page {
-            query_params.push(("per-page", per_page.to_string()));
+            params.push(("per-page", per_page.to_string()));
         }
 
         // Add cursor pagination if enabled
         if self.use_cursor {
             if let Some(cursor) = &self.cursor {
-                query_params.push(("cursor", cursor.clone()));
+                params.push(("cursor", cursor.clone()));
             }
         }
 
         // Add field selection
         if !self.select_fields.is_empty() {
             let select_string = self.select_fields.join(",");
-            query_params.push(("select", select_string));
+            params.push(("select", select_string));
         }
 
-        // Add email if available from environment
-        if let Ok(email) = std::env::var("OPENALEX_EMAIL") {
-            query_params.push(("mailto", email));
-        }
-
-        query_params
-    }
-
-    /// Generate the OpenAlex API URL (for backwards compatibility and debugging)
-    pub fn generate(&self) -> String {
-        let params = self.generate_params();
-        let mut url = format!("{}/{}", API_BASE_URL, self.entity_type);
-
-        if !params.is_empty() {
-            let query_string = params
-                .into_iter()
-                .map(|(k, v)| format!("{}={}", k, urlencoding::encode(&v)))
-                .join("&");
-            url.push('?');
-            url.push_str(&query_string);
-        }
-
-        url
+        url_for_list(&self.entity_type, params)
     }
 
     /// Execute the query and return the resulting [`Node`]s
     #[tracing::instrument(skip(self))]
     pub fn nodes(&self) -> Vec<Node> {
-        let params = self.generate_params();
-
-        tracing::debug!(
-            "OpenAlex API request: {}/{} with params: {:?}",
-            API_BASE_URL,
-            self.entity_type,
-            params
-        );
-
+        let url = self.generate();
         let entity_type = self.entity_type.as_str();
+
         let result: Result<_> = task::block_in_place(|| {
             runtime::Handle::current().block_on(async {
                 if !self.select_fields.is_empty() {
-                    let response =
-                        request_with_params::<SelectResponse>(entity_type, &params).await?;
+                    let response = request::<SelectResponse>(&url).await?;
                     let datatable = Datatable::from(response.results);
                     return Ok((response.meta, vec![Node::Datatable(datatable)]));
                 }
 
                 Ok(match entity_type {
                     "works" => {
-                        let response =
-                            request_with_params::<WorksResponse>(entity_type, &params).await?;
+                        let response = request::<WorksResponse>(&url).await?;
                         let nodes: Vec<Node> =
                             response.results.into_iter().map(Into::into).collect();
                         (response.meta, nodes)
                     }
                     "authors" => {
-                        let response =
-                            request_with_params::<AuthorsResponse>(entity_type, &params).await?;
+                        let response = request::<AuthorsResponse>(&url).await?;
                         let nodes: Vec<Node> =
                             response.results.into_iter().map(Into::into).collect();
                         (response.meta, nodes)
                     }
                     "institutions" => {
-                        let response =
-                            request_with_params::<InstitutionsResponse>(entity_type, &params)
-                                .await?;
+                        let response = request::<InstitutionsResponse>(&url).await?;
                         let nodes: Vec<Node> =
                             response.results.into_iter().map(Into::into).collect();
                         (response.meta, nodes)
                     }
                     "sources" => {
-                        let response =
-                            request_with_params::<SourcesResponse>(entity_type, &params).await?;
+                        let response = request::<SourcesResponse>(&url).await?;
                         let nodes: Vec<Node> =
                             response.results.into_iter().map(Into::into).collect();
                         (response.meta, nodes)
                     }
-                    _ => todo!(),
+                    _ => {
+                        bail!("Fetching of OpenAlex `{entity_type}` objects not yet enabled")
+                    }
                 })
             })
         });
@@ -843,7 +799,7 @@ impl OpenAlexQuery {
                 nodes
             }
             Err(error) => {
-                self.add_error_message(format!("OpenAlex API request failed {error}"));
+                self.add_error_message(format!("OpenAlex API request failed: {error}"));
                 Vec::new()
             }
         }
@@ -920,7 +876,7 @@ impl Object for OpenAlexQuery {
             "works" | "articles" | "books" | "chapters" | "preprints" | "dissertations"
             | "reviews" | "standards" | "grants" | "retractions" | "datasets" | "people"
             | "organizations" | "sources" | "publishers" => {
-                let (entity_type, type_equals) = match name {
+                let (entity_type, type_filter) = match name {
                     "works" => ("works", None),
 
                     // Types of creative works
@@ -951,8 +907,8 @@ impl Object for OpenAlexQuery {
 
                 let mut query = self.entity(entity_type);
 
-                if let Some(value) = type_equals {
-                    query = query.filter("type", "==", Value::from(value))?;
+                if let Some(value) = type_filter {
+                    query.filters.push(["type:", value].concat());
                 }
 
                 // Handle search argument and other special arguments
@@ -972,7 +928,7 @@ impl Object for OpenAlexQuery {
                             ));
                         }
                         // Handle transformed DocsQL filters
-                        _ => query = query.apply_docsql_filter(arg, value)?,
+                        _ => query = query.filter(entity_type, arg, value)?,
                     }
                 }
 
@@ -1052,7 +1008,7 @@ impl Object for OpenAlexQuery {
 }
 
 /// Format a filter value for OpenAlex API
-fn format_filter_value(value: Value) -> Result<String, Error> {
+fn format_filter_value(value: &Value) -> Result<String, Error> {
     if let Some(s) = value.as_str() {
         Ok(s.to_string())
     } else if let Some(n) = value.as_i64() {
@@ -1062,63 +1018,5 @@ fn format_filter_value(value: Value) -> Result<String, Error> {
     } else {
         // For complex values, convert to string representation
         Ok(value.to_string())
-    }
-}
-
-/// Add OpenAlex functions to the Jinja environment
-pub(crate) fn add_openalex_functions(env: &mut Environment, openalex: Arc<OpenAlexQuery>) {
-    env.add_global("openalex", Value::from_object((*openalex).clone()));
-
-    // TODO: consider whether to add these
-    // Add convenient aliases for common entity types
-    //env.add_global("articles", Value::from_object(OpenAlexEntityQuery::new("works", openalex.clone())));
-    //env.add_global("people", Value::from_object(OpenAlexEntityQuery::new("authors", openalex.clone())));
-    //env.add_global("organizations", Value::from_object(OpenAlexEntityQuery::new("institutions", openalex.clone())));
-    //env.add_global("journals", Value::from_object(OpenAlexEntityQuery::new("sources", openalex.clone())));
-}
-
-/// Helper struct for entity-specific queries
-#[derive(Debug, Clone)]
-pub(crate) struct OpenAlexEntityQuery {
-    entity_type: String,
-    base_query: Arc<OpenAlexQuery>,
-}
-
-impl Object for OpenAlexEntityQuery {
-    fn call(self: &Arc<Self>, _state: &State, args: &[Value]) -> Result<Value, Error> {
-        let (_args, kwargs): (&[Value], Kwargs) = from_args(args)?;
-        let mut query = self.base_query.entity(&self.entity_type);
-
-        // Process filters from kwargs
-        for arg in kwargs.args() {
-            let value: Value = kwargs.get(arg)?;
-            match arg {
-                "search" => {
-                    if let Some(search_value) = value.as_str() {
-                        query = query.search(search_value.to_string());
-                    }
-                }
-                "like" => {
-                    if let Some(search_value) = value.as_str() {
-                        query = query.search(search_value.to_string());
-                    }
-                }
-                "limit" => {
-                    if let Some(limit_val) = value.as_usize() {
-                        query = query.limit(limit_val);
-                    }
-                }
-                "skip" => {
-                    if let Some(skip_val) = value.as_usize() {
-                        query = query.skip(skip_val);
-                    }
-                }
-                _ => {
-                    query = query.apply_docsql_filter(arg, value)?;
-                }
-            }
-        }
-
-        Ok(Value::from_object(query))
     }
 }

@@ -1,0 +1,33 @@
+openalex.works(.title == "Some words on the post-collisional magmatism")
+---
+GET https://api.openalex.org/works?filter=title.search:Some+words+on+the+post-collisional+magmatism
+
+
+openalex.works(.title ~= "magmatism")
+---
+GET https://api.openalex.org/works?filter=title.search:magmatism
+
+
+openalex.works(search = "magmatism")
+---
+GET https://api.openalex.org/works?search=magmatism
+
+
+openalex.articles(search = "magmatism")
+---
+GET https://api.openalex.org/works?filter=type:article&search=magmatism
+
+
+openalex.works(.title ^= "word")
+---
+Starts-with operator ^= is not supported for OpenAlex queries. Perhaps use search operator ~= instead.
+
+
+openalex.works(.title $= "word")
+---
+Ends-with operator $= is not supported for OpenAlex queries. Perhaps use search operator ~= instead.
+
+
+openalex.works(.title ~! "word")
+---
+Negated search operator ~! is not supported for OpenAlex queries.

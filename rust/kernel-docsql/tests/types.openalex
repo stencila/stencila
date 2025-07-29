@@ -10,52 +10,52 @@ GET https://api.openalex.org/works
 
 openalex.articles()
 ---
-GET https://api.openalex.org/works?filter=type%3Aarticle
+GET https://api.openalex.org/works?filter=type:article
 
 
 openalex.books()
 ---
-GET https://api.openalex.org/works?filter=type%3Abook
+GET https://api.openalex.org/works?filter=type:book
 
 
 openalex.chapters()
 ---
-GET https://api.openalex.org/works?filter=type%3Abook-chapter
+GET https://api.openalex.org/works?filter=type:book-chapter
 
 
 openalex.preprints()
 ---
-GET https://api.openalex.org/works?filter=type%3Apreprint
+GET https://api.openalex.org/works?filter=type:preprint
 
 
 openalex.dissertations()
 ---
-GET https://api.openalex.org/works?filter=type%3Adissertation
+GET https://api.openalex.org/works?filter=type:dissertation
 
 
 openalex.reviews()
 ---
-GET https://api.openalex.org/works?filter=type%3Areview
+GET https://api.openalex.org/works?filter=type:review
 
 
 openalex.standards()
 ---
-GET https://api.openalex.org/works?filter=type%3Astandard
+GET https://api.openalex.org/works?filter=type:standard
 
 
 openalex.grants()
 ---
-GET https://api.openalex.org/works?filter=type%3Agrant
+GET https://api.openalex.org/works?filter=type:grant
 
 
 openalex.retractions()
 ---
-GET https://api.openalex.org/works?filter=type%3Aretraction
+GET https://api.openalex.org/works?filter=type:retraction
 
 
 openalex.datasets()
 ---
-GET https://api.openalex.org/works?filter=type%3Adataset
+GET https://api.openalex.org/works?filter=type:dataset
 
 
 openalex.people()

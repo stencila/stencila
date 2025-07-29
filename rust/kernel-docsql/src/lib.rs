@@ -25,18 +25,19 @@ use kernel_jinja::{
     minijinja::{Environment, UndefinedBehavior, Value, context},
 };
 
+mod docsql;
 mod github;
 mod openalex;
-mod query;
+mod cypher;
 
 use github::{GitHubQuery, add_github_functions};
 use openalex::{OpenAlexQuery, add_openalex_functions};
-use query::{
+use cypher::{
     GLOBAL_NAMES, NodeProxies, NodeProxy, Query, add_constants, add_document_functions,
     add_functions, add_subquery_functions,
 };
 
-use crate::query::{QueryLabelled, QueryNodeType, QuerySectionType, QueryVariables};
+use crate::cypher::{QueryLabelled, QueryNodeType, QuerySectionType, QueryVariables};
 
 const NAME: &str = "docsql";
 
@@ -186,12 +187,8 @@ impl KernelInstance for DocsQLKernelInstance {
         }
 
         add_subquery_functions(&mut env);
-
-        let openalex = Arc::new(OpenAlexQuery::new(messages.clone()));
-        add_openalex_functions(&mut env, openalex);
-
-        let github = Arc::new(GitHubQuery::new(messages.clone()));
-        add_github_functions(&mut env, github);
+        add_openalex_functions(&mut env, &messages);
+        add_github_functions(&mut env, &messages);
 
         #[cfg(debug_assertions)]
         if code.contains("test") {
@@ -248,7 +245,7 @@ impl KernelInstance for DocsQLKernelInstance {
                 None => (None, statement.to_string()),
             };
 
-            let expr = query::transform_filters(&expr);
+            let expr = docsql::encode_filters(&expr);
             let expr = match env.compile_expression(&expr) {
                 Ok(expr) => expr,
                 Err(error) => {
