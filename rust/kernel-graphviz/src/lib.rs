@@ -113,7 +113,7 @@ impl KernelInstance for GraphvizKernelInstance {
                 static SPACES_RE: Lazy<Regex> =
                     Lazy::new(|| Regex::new(r"\s+").expect("invalid regex"));
                 let svg = SPACES_RE.replace_all(&svg, " ");
-                let data_uri = format!("data:image/svg+xml,{}", svg);
+                let data_uri = format!("data:image/svg+xml,{svg}");
 
                 let image = Node::ImageObject(ImageObject {
                     content_url: data_uri,

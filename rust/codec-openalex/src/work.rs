@@ -61,7 +61,7 @@ impl Work {
             doi.trim_start_matches("https://doi.org/").into()
         } else {
             let id = self.id.trim_start_matches("https://openalex.org/");
-            format!("10.0000/openalex.{}", id)
+            format!("10.0000/openalex.{id}")
         }
     }
 }

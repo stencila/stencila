@@ -102,7 +102,7 @@ impl Ask for CliProvider {
         // Blank line to separate from logs or other questions
         eprintln!();
 
-        let prompt = format!("{}: ", prompt);
+        let prompt = format!("{prompt}: ");
         let width = termwidth().min(120); // Cap at 120 for readability
         let prompt = wrap(
             &prompt,

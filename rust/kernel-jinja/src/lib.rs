@@ -256,7 +256,7 @@ pub fn error_to_execution_message(error: Error) -> ExecutionMessage {
     let mut error = &error as &dyn std::error::Error;
     let mut stack_trace = String::new();
     while let Some(source) = error.source() {
-        stack_trace.push_str(&format!("\n{:#}", source));
+        stack_trace.push_str(&format!("\n{source:#}"));
         error = source;
     }
     let stack_trace = if stack_trace.is_empty() {

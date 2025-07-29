@@ -121,6 +121,6 @@ impl ToStdout for Code {
 
         // Ensure terminal attributes are reset to their defaults otherwise
         // the styling on the last line will persist (e.g. in a REPL)
-        format!("{}\x1b[0m", highlighted)
+        format!("{highlighted}\x1b[0m")
     }
 }

@@ -51,7 +51,7 @@ pub fn path_to_data_uri(path: &Path) -> Result<String> {
         STANDARD.encode(&bytes)
     };
 
-    Ok(format!("data:{};base64,{}", mime_type, encoded))
+    Ok(format!("data:{mime_type};base64,{encoded}"))
 }
 
 /// Convert a data URI into an image file
@@ -98,7 +98,7 @@ pub fn data_uri_to_file(data_uri: &str, images_dir: &Path) -> Result<String> {
     let mut hash = SeaHasher::new();
     data_uri.hash(&mut hash);
     let hash = hash.finish();
-    let image_name = format!("{:x}.{}", hash, extension);
+    let image_name = format!("{hash:x}.{extension}");
 
     // Ensure the images directory exists
     if !images_dir.exists() {
@@ -226,7 +226,7 @@ fn img_srcs_transform(html: &str, transform: impl Fn(&str) -> String) -> String 
             let prefix = &caps[1]; // Everything before the src attribute
             let src = &caps[2]; // The src value
             let new_src = transform(src);
-            format!(r#"{}src="{}""#, prefix, new_src)
+            format!(r#"{prefix}src="{new_src}""#)
         })
         .into_owned()
 }
@@ -276,14 +276,14 @@ mod tests {
                 <img src="path/with spaces.jpg">
             </div>
         "#;
-        let result = img_srcs_transform(html, |src: &str| format!("/converted/{}", src));
+        let result = img_srcs_transform(html, |src: &str| format!("/converted/{src}"));
 
         assert!(result.contains(r#"src="/converted/path/to/image.jpg""#));
         assert!(result.contains(r#"src="/converted/another/image.png""#));
         assert!(result.contains(r#"src="/converted/path/with spaces.jpg""#));
 
         let html = r#"<img class="test" src="path.jpg" alt="test">"#;
-        let result = img_srcs_transform(html, |src: &str| format!("/converted/{}", src));
+        let result = img_srcs_transform(html, |src: &str| format!("/converted/{src}"));
 
         assert!(result.contains(r#"class="test""#));
         assert!(result.contains(r#"alt="test""#));

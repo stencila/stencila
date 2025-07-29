@@ -228,7 +228,7 @@ impl List {
                         .display()
                         .to_string();
 
-                    format!("\x1b[35m{}\x1b[0m", relative_path) // Magenta color
+                    format!("\x1b[35m{relative_path}\x1b[0m") // Magenta color
                 })
                 .collect();
 
@@ -393,7 +393,7 @@ impl Install {
     #[tracing::instrument(skip(self))]
     async fn install_tool(&self, name: &str) -> Result<()> {
         let Some(tool) = get(name) else {
-            eprintln!("🔍 No known tool with name `{}`", name);
+            eprintln!("🔍 No known tool with name `{name}`");
             exit(1)
         };
 
@@ -440,7 +440,7 @@ impl Install {
                 if let Some(path) = tool.path_in_env() {
                     eprintln!("   Path: {}", strip_home_dir(&path));
                     if let Some(version) = tool.version_available_in_env() {
-                        eprintln!("   Version: {}", version);
+                        eprintln!("   Version: {version}");
                     }
                 }
             }

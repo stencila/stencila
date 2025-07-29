@@ -56,7 +56,7 @@ pub trait ToStdout: Display {
         if std::io::stdout().is_terminal() {
             println!("{}", self.to_terminal())
         } else {
-            println!("{}", self)
+            println!("{self}")
         }
     }
 

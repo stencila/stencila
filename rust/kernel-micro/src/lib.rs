@@ -485,7 +485,7 @@ impl KernelInstance for MicrokernelInstance {
                 self.id(),
                 self.command
                     .as_ref()
-                    .map(|command| format!("{:?}", command))
+                    .map(|command| format!("{command:?}"))
                     .unwrap_or_default()
             )
         })?;

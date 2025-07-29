@@ -98,8 +98,8 @@ pub fn use_packages(latex: &str) -> String {
 
     // Helper to check for either \usepackage or \RequirePackage (with or without options)
     let has_pkg = |pkg: &str| {
-        latex.contains(&format!(r"\usepackage{{{}}}", pkg))
-            || latex.contains(&format!(r"\RequirePackage{{{}}}", pkg))
+        latex.contains(&format!(r"\usepackage{{{pkg}}}"))
+            || latex.contains(&format!(r"\RequirePackage{{{pkg}}}"))
             || latex.contains(&r"\usepackage[".to_string()) && latex.contains(pkg)
     };
 

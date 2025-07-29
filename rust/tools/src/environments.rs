@@ -109,7 +109,7 @@ impl Tool for Devbox {
         if !has_config {
             // Use shell to run both commands sequentially
             let mut command = AsyncToolCommand::new("sh");
-            command.args(["-c", &format!("devbox init && devbox add {}", pkg)]);
+            command.args(["-c", &format!("devbox init && devbox add {pkg}")]);
             Some(command)
         } else {
             let mut command = AsyncToolCommand::new(self.executable_name());

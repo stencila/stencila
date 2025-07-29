@@ -93,7 +93,7 @@ impl KernelLint for RKernel {
         // Write the code to a temporary file
         // styler requires that this have an R extension
         let mut temp_file = tempfile::Builder::new().suffix(".R").tempfile()?;
-        write!(temp_file, "{}", code)?;
+        write!(temp_file, "{code}")?;
         let temp_path = temp_file.path();
         let temp_path_str = temp_path.to_string_lossy();
 

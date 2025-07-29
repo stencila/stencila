@@ -120,22 +120,22 @@ impl FromStr for NodeUrl {
 
 impl Display for NodeUrl {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", BASE_URL)?;
+        write!(f, "{BASE_URL}")?;
         let mut pairs = Vec::new();
         if let Some(t) = &self.r#type {
-            pairs.push(format!("type={}", t));
+            pairs.push(format!("type={t}"));
         }
         if let Some(id) = &self.id {
-            pairs.push(format!("id={}", id));
+            pairs.push(format!("id={id}"));
         }
         if let Some(path) = &self.path {
-            pairs.push(format!("path={}", path));
+            pairs.push(format!("path={path}"));
         }
         if let Some(pos) = &self.position {
-            pairs.push(format!("position={}", pos));
+            pairs.push(format!("position={pos}"));
         }
         if let Some(jzb64) = &self.jzb64 {
-            pairs.push(format!("jzb64={}", jzb64));
+            pairs.push(format!("jzb64={jzb64}"));
         }
         if !pairs.is_empty() {
             write!(f, "?")?;

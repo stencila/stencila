@@ -104,8 +104,7 @@ impl<C: LspClient> Ask for LspProvider<C> {
                 let params = ShowMessageRequestParams {
                     typ: MessageType::ERROR,
                     message: format!(
-                        "Password input is not supported by this editor: {}\n\nPlease use the CLI interface for password-protected operations.",
-                        error
+                        "Password input is not supported by this editor: {error}\n\nPlease use the CLI interface for password-protected operations."
                     ),
                     actions: Some(vec![MessageActionItem {
                         title: "OK".to_string(),

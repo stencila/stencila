@@ -181,7 +181,7 @@ fn normalize_git_url(url: &str) -> Option<String> {
                 let host = &url[at_pos + 1..at_pos + colon_pos];
                 let path = &url[at_pos + colon_pos + 1..];
                 let path = path.strip_suffix(".git").unwrap_or(path);
-                return Some(format!("https://{}/{}", host, path));
+                return Some(format!("https://{host}/{path}"));
             }
         }
     }
@@ -203,7 +203,7 @@ fn normalize_git_url(url: &str) -> Option<String> {
         let host = parsed_url.host_str().unwrap_or("");
         let path = parsed_url.path();
         let path = path.strip_suffix(".git").unwrap_or(path);
-        return Some(format!("https://{}{}", host, path));
+        return Some(format!("https://{host}{path}"));
     }
 
     // Remove query parameters and fragments

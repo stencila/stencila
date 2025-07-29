@@ -78,7 +78,7 @@ pub fn html_to_png_data_uri_with_padding(html: &str, padding: u32) -> Result<Str
     let base64_png = capture_screenshot_with_padding(&wrap_html(html), padding)?;
 
     // Return as data URI (base64 string already from Chrome)
-    Ok(format!("data:image/png;base64,{}", base64_png))
+    Ok(format!("data:image/png;base64,{base64_png}"))
 }
 
 /// Converts HTML to PNG and saves to file
@@ -610,7 +610,7 @@ impl ScreenshotWaiter {
                     timeout = setTimeout(() => {{
                         observer.disconnect();
                         resolve();
-                    }}, {});
+                    }}, {quiet_period_ms});
                 }});
                 
                 observer.observe(document.body, {{
@@ -624,10 +624,9 @@ impl ScreenshotWaiter {
                 timeout = setTimeout(() => {{
                     observer.disconnect();
                     resolve();
-                }}, {});
+                }}, {quiet_period_ms});
             }})
-            "#,
-            quiet_period_ms, quiet_period_ms
+            "#
         );
 
         if let Err(error) = tab.evaluate(&mutation_script, true) {
