@@ -1,10 +1,13 @@
 use codec_markdown_trait::to_markdown;
 use common::serde_yaml;
 
-use crate::{prelude::*, Article, Block, RawBlock, Reference};
+use crate::{
+    prelude::*, replicate, shortcuts::t, Article, Block, Collection, CollectionOptions,
+    CreativeWorkType, Inline, RawBlock, Reference, SoftwareSourceCode,
+};
 
 impl Article {
-    /// Does tha article appear to be have been decoded from the format using the `--coarse` option
+    /// Does the article appear to be have been decoded from the format using the `--coarse` option
     ///
     /// Checks whether the first block in the content of the article is a `RawBlock` of the given formats
     pub fn is_coarse(&self, format: &Format) -> bool {
@@ -13,6 +16,53 @@ impl Article {
         } else {
             false
         }
+    }
+
+    /// Get the `title` property of an article, or generate it from its
+    /// `path` property, if any
+    pub fn title(&self) -> Option<Vec<Inline>> {
+        if let Some(title) = &self.title {
+            return replicate(title).ok();
+        };
+
+        if let Some(path) = &self.options.path {
+            return Some(vec![t(path.to_string())]);
+        }
+
+        None
+    }
+
+    /// Get the `is_part_of` property of an article, or generate it from its
+    /// `repository` property, if any
+    pub fn is_part_of(&self) -> Option<Box<CreativeWorkType>> {
+        if let Some(is_part_of) = &self.options.is_part_of {
+            return replicate(is_part_of).ok().map(Box::new);
+        };
+
+        if let Some(repo) = &self.options.repository {
+            if let Some(name) = repo
+                .strip_prefix("https://github.com/")
+                .or_else(|| repo.strip_prefix("https://gitlab.com/"))
+            {
+                return Some(Box::new(CreativeWorkType::SoftwareSourceCode(
+                    SoftwareSourceCode {
+                        name: name.to_string(),
+                        repository: Some(repo.clone()),
+                        ..Default::default()
+                    },
+                )));
+            } else {
+                return Some(Box::new(CreativeWorkType::Collection(Collection {
+                    options: Box::new(CollectionOptions {
+                        url: Some(repo.clone()),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                })));
+            }
+        }
+
+        None
     }
 
     pub fn to_jats_special(&self) -> (String, Losses) {

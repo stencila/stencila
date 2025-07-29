@@ -83,7 +83,7 @@ export class Reference extends Entity {
   }
 
   renderWithinTooltip() {
-    // Links do not work within a <sl-tooltip> , nor does copy and pasting, so
+    // Links do not work within a <sl-tooltip>, nor does copy and pasting, so
     // this does not include the DOI
 
     const authors = this.authors
@@ -106,20 +106,22 @@ export class Reference extends Entity {
       ? this.authors.map(authorNameInitialsDotted).join(', ')
       : 'Anon'
 
-    const pages = pagesEndashed(this.pageStart, this.pageStart, this.pagination)
+    const year = this.date ? html` (${dateYear(this.date)}). ` : ''
+
+    const isPartOf = this.isPartOf ? html`<em> ${partOf(this.isPartOf)}</em>` : ''
+
+    const pagination = pagesEndashed(this.pageStart, this.pageStart, this.pagination)
+    const pages = pagination
+        ? html` ${pagination}`
+        : ''
+
+    const url = createUrl(this)
+    const link = url
+        ? html` <a href="url" target="_blank">url</a>`
+        : ''
 
     return html`<div class="mt-3">
-      ${authors}${this.date ? html` (${dateYear(this.date)}). ` : ''}<slot
-        name="title"
-      ></slot
-      >.
-      ${this.isPartOf ? html`<em> ${partOf(this.isPartOf)}</em>` : ''}${pages
-        ? html` ${pages}`
-        : ''}${this.doi
-        ? html` <a href="https://doi.org/${this.doi}" target="_blank"
-            >https://doi.org/${this.doi}</a
-          >`
-        : ''}
+      ${authors}${year}<slot name="title"></slot>.${isPartOf}${pages}${link}
     </div>`
   }
 
@@ -128,18 +130,19 @@ export class Reference extends Entity {
       ? this.authors.map(authorNameInitialsDotted).join(', ')
       : ''
 
-    const date = this.date ? html` (${dateYear(this.date)}). ` : ''
+    const year = this.date ? html` (${dateYear(this.date)}). ` : ''
 
     const title = html`<span class="font-semibold"
       ><slot name="title"></slot
     ></span>`
 
-    const within = this.isPartOf
+    const isPartOf = this.isPartOf
       ? html`<span class="italic"> ${partOf(this.isPartOf)}</span>`
       : ''
 
-    const doi = this.doi
-      ? html` <a href="https://doi.org/${this.doi}" target="_blank"
+    const url = createUrl(this)
+    const link = url
+      ? html` <a href="${url}" target="_blank"
           ><stencila-ui-icon
             class="inline-block"
             name="externalLink"
@@ -148,7 +151,7 @@ export class Reference extends Entity {
       : ''
 
     return html`<div class="font-sans text-xs">
-      ${authors}${date}${title}${within}${doi}
+      ${authors}${year}${title}${isPartOf}${link}
     </div>`
   }
 }
@@ -232,6 +235,8 @@ function partOf(work: CreativeWorkType): string {
       return `${work.isPartOf ? `${partOf(work.isPartOf)} ` : ''}(${work.issueNumber ?? ''})`
     case 'PublicationVolume':
       return `${work.isPartOf ? `${partOf(work.isPartOf)} ` : ''}${work.volumeNumber ?? ''}`
+    case 'SoftwareSourceCode':
+      return work.name  ?? ''
     default:
       return work.name
   }
@@ -252,4 +257,23 @@ function pagesEndashed(
     : pagination && pagination.length > 0
       ? pagination
       : ''
+}
+
+/**
+ * Create a URL for a reference
+ */
+function createUrl(reference: Reference): string | null {
+  if (reference.doi && !reference.doi.startsWith('10.0000')) {
+    return `https://doi.org/${reference.doi}`
+  }
+
+  if (reference.isPartOf?.type === 'SoftwareSourceCode' && reference.isPartOf.repository) {
+    return reference.isPartOf.repository
+  }
+
+  if (reference.isPartOf?.type === 'Collection' && reference.isPartOf.url) {
+    return reference.isPartOf.url
+  }
+
+  return null
 }

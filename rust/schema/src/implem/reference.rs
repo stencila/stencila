@@ -34,15 +34,8 @@ impl From<&Article> for Reference {
                 .as_ref()
                 .or(article.date_modified.as_ref())
                 .and_then(|date| replicate(date).ok()),
-            title: article
-                .title
-                .as_ref()
-                .and_then(|title| replicate(title).ok()),
-            is_part_of: article
-                .options
-                .is_part_of
-                .as_ref()
-                .and_then(|work| replicate(work).ok().map(Box::new)),
+            title: article.title(),
+            is_part_of: article.is_part_of(),
             page_start: article.options.page_start.clone(),
             page_end: article.options.page_end.clone(),
             pagination: article.options.pagination.clone(),
