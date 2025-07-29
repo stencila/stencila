@@ -294,17 +294,20 @@ Status Information
 
 Add documents to the workspace database
 
-**Usage:** `stencila add [FILES]...`
+**Usage:** `stencila add <DOCUMENTS>...`
 
 Examples
   # Add a single document to workspace database
   stencila add document.md
 
-  # Add multiple documents
+  # Add multiple local Markdown documents
   stencila add *.md docs/*.md
 
-  # Add all Markdown files recursively
+  # Add all local Markdown documents
   stencila add **/*.md
+
+  # Add a bioRxiv preprint using its DOI
+  stencila add https://doi.org/10.1101/2021.11.24.469827
 
 Note
   This adds documents to the workspace database for
@@ -314,7 +317,7 @@ Note
 
 ###### **Arguments:**
 
-* `<FILES>` — The files to add
+* `<DOCUMENTS>` — The documents to add to the workspace database
 
 
 
@@ -322,7 +325,7 @@ Note
 
 Remove documents from the workspace database
 
-**Usage:** `stencila remove [FILES]...`
+**Usage:** `stencila remove <DOCUMENTS>...`
 
 Examples
   # Remove a document from workspace database
@@ -342,7 +345,7 @@ Note
 
 ###### **Arguments:**
 
-* `<FILES>` — The files to remove
+* `<DOCUMENTS>` — The document to remove from the workspace database
 
 
 
@@ -1646,6 +1649,22 @@ Run the HTTP/Websocket server
 * `--sync <SYNC>` — Whether and in which direction(s) to sync served documents
 
   Possible values: `in`, `out`, `in-out`
+
+* `--cors <CORS>` — CORS policy level
+
+   Controls Cross-Origin Resource Sharing (CORS) headers. Ordered from most to least restrictive: - `none`: No CORS headers (default) - `restrictive`: Allow GET and POST requests from localhost - `local`: Allow any requests from localhost and 127.0.0.1 origins - `permissive`: Allow all origins, methods, and headers
+
+  Default value: `none`
+
+  Possible values:
+  - `none`:
+    No CORS headers
+  - `restrictive`:
+    Allow only same-origin requests
+  - `local`:
+    Allow localhost and 127.0.0.1 origins only
+  - `permissive`:
+    Allow all origins, methods, and headers
 
 
 
