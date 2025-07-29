@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 kernel = { path = "../kernel" }
 kernel-jinja = { path = "../kernel-jinja" }
-kuzu = "0.11.0"
+kuzu = "0.11.1"
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }

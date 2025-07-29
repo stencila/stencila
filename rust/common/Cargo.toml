@@ -30,11 +30,11 @@ serde_yaml = "0.9.34"
 similar = { version = "2.7.0", features = ["serde", "unicode"] }
 smart-default = { workspace = true }
 smol_str = "0.2.2"
-strum = { version = "0.27.1", features = ["derive"] }
+strum = { version = "0.27.2", features = ["derive"] }
 tar = "0.4.44"
 tempfile = "3.20.0"
-tokio = { version = "1.46.1", features = ["full", "tracing"] }
-toml = "0.9.2"
+tokio = { version = "1.47.0", features = ["full", "tracing"] }
+toml = "0.9.3"
 tracing = { version = "0.1.41", features = ["log"] }
 uuid = { version = "1.17.0", features = ["v4"] }
 
