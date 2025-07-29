@@ -1,7 +1,7 @@
 [package]
 name = "stencila"
 version = "2.0.0-beta.2"
-edition = "2021"
+edition = "2024"
 
 [lib]
 # The name of the native library. This is the name which will be used in Python to import the

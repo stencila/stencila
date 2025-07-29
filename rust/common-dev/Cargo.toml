@@ -1,7 +1,7 @@
 [package]
 name = "common-dev"
 version = "0.0.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 insta = { version = "1.43.1", features = ["json", "yaml", "redactions"] }

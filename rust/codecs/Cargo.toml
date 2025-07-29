@@ -1,7 +1,7 @@
 [package]
 name = "codecs"
 version = "0.0.0"
-edition = "2021"
+edition = "2024"
 
 [features]
 proptest-min = ["codec/proptest-min"]

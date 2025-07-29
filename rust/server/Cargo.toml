@@ -2,7 +2,7 @@
 name = "server"
 version = "0.0.0"
 authors = ["Nokome Bentley <nokome@stencila.io"]
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 axum = { version = "0.8.4", features = ["ws"] }
