@@ -416,9 +416,11 @@ impl Track {
     #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
         if let Some(url) = self.url {
-            let already_tracked =
-                Document::track_remote(&self.file, (url.clone(), DocumentRemote::default()))
-                    .await?;
+            let already_tracked = Document::track_path_with_remote(
+                &self.file,
+                (url.clone(), DocumentRemote::default()),
+            )
+            .await?;
             eprintln!(
                 "🟢 {} tracking {url} for `{}`",
                 if already_tracked {
@@ -497,8 +499,9 @@ impl Untrack {
 #[derive(Debug, Parser)]
 #[command(after_long_help = ADD_AFTER_LONG_HELP)]
 pub struct Add {
-    /// The files to add
-    files: Vec<PathBuf>,
+    /// The documents to add to the workspace database
+    #[arg(num_args = 1.., required = true)]
+    documents: Vec<String>,
 }
 
 pub static ADD_AFTER_LONG_HELP: &str = cstr!(
@@ -506,11 +509,14 @@ pub static ADD_AFTER_LONG_HELP: &str = cstr!(
   <dim># Add a single document to workspace database</dim>
   <b>stencila add</> <g>document.md</>
 
-  <dim># Add multiple documents</dim>
+  <dim># Add multiple local Markdown documents</dim>
   <b>stencila add</> <g>*.md</> <g>docs/*.md</>
 
-  <dim># Add all Markdown files recursively</dim>
+  <dim># Add all local Markdown documents</dim>
   <b>stencila add</> <g>**/*.md</>
+
+  <dim># Add a bioRxiv preprint using its DOI</dim>
+  <b>stencila add</> <g>https://doi.org/10.1101/2021.11.24.469827</>
 
 <bold><b>Note</b></bold>
   This adds documents to the workspace database for
@@ -522,12 +528,20 @@ pub static ADD_AFTER_LONG_HELP: &str = cstr!(
 impl Add {
     #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
-        let Some(first_path) = self.files.first() else {
+        let Some(first_doc) = self.documents.first() else {
+            tracing::warn!("No documents provided");
             return Ok(());
         };
-        let stencila_dir = closest_stencila_dir(first_path, false).await?;
 
-        Document::add_paths(&stencila_dir, &self.files).await
+        let first_path = PathBuf::from(first_doc);
+        let base_path = if first_path.exists() {
+            first_path
+        } else {
+            current_dir()?
+        };
+
+        let stencila_dir = closest_stencila_dir(&base_path, false).await?;
+        Document::add_docs(&stencila_dir, &self.documents).await
     }
 }
 
@@ -536,8 +550,9 @@ impl Add {
 #[clap(alias = "rm")]
 #[command(after_long_help = REMOVE_AFTER_LONG_HELP)]
 pub struct Remove {
-    /// The files to remove
-    files: Vec<PathBuf>,
+    /// The document to remove from the workspace database
+    #[arg(num_args = 1.., required = true)]
+    documents: Vec<String>,
 }
 
 pub static REMOVE_AFTER_LONG_HELP: &str = cstr!(
@@ -561,12 +576,21 @@ pub static REMOVE_AFTER_LONG_HELP: &str = cstr!(
 impl Remove {
     #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
-        let Some(first_path) = self.files.first() else {
+        let Some(first_doc) = self.documents.first() else {
+            tracing::warn!("No documents provided");
             return Ok(());
         };
-        let stencila_dir = closest_stencila_dir(first_path, false).await?;
 
-        Document::remove_paths(&stencila_dir, &self.files).await
+        let first_path = PathBuf::from(first_doc);
+        let base_path = if first_path.exists() {
+            first_path
+        } else {
+            current_dir()?
+        };
+
+        let stencila_dir = closest_stencila_dir(&base_path, false).await?;
+
+        Document::remove_docs(&stencila_dir, &self.documents).await
     }
 }
 
@@ -728,7 +752,7 @@ impl Status {
             "Status",
             "Modified\n",
             "Stored\n↳ Pulled",
-            "Upserted\n↳ Pushed",
+            "Added\n↳ Pushed",
         ]);
 
         for (path, entry) in statuses {
@@ -759,7 +783,7 @@ impl Status {
                     humanize_timestamp(modified_at)?
                 }),
                 Cell::new(humanize_timestamp(entry.stored_at)?),
-                Cell::new(humanize_timestamp(entry.upserted_at)?),
+                Cell::new(humanize_timestamp(entry.added_at)?),
             ]);
 
             for (url, remote) in entry.remotes.iter().flatten() {
