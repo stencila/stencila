@@ -1,5 +1,5 @@
 use std::{
-    collections::{btree_map::Entry, BTreeMap},
+    collections::{BTreeMap, btree_map::Entry},
     env::current_dir,
     fs::read_dir,
     path::{Path, PathBuf},
@@ -16,7 +16,7 @@ use url::Url;
 use codecs::EncodeOptions;
 use common::{
     chrono::Utc,
-    eyre::{bail, OptionExt, Result},
+    eyre::{OptionExt, Result, bail},
     itertools::Itertools,
     serde::{Deserialize, Serialize},
     serde_json,
@@ -29,8 +29,8 @@ use common::{
     tracing,
 };
 use dirs::{
-    closest_stencila_dir, stencila_db_file, stencila_docs_file, stencila_store_dir, workspace_dir,
-    workspace_relative_path, DB_FILE, DOCS_FILE, STORE_DIR,
+    DB_FILE, DOCS_FILE, STORE_DIR, closest_stencila_dir, stencila_db_file, stencila_docs_file,
+    stencila_store_dir, workspace_dir, workspace_relative_path,
 };
 
 use crate::Document;

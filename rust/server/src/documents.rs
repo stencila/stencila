@@ -5,33 +5,33 @@ use std::{
 };
 
 use axum::{
+    Json, Router,
     body::Body,
     extract::{
-        ws::{Message, WebSocket},
         Path, Query, State, WebSocketUpgrade,
+        ws::{Message, WebSocket},
     },
-    http::{header::CONTENT_TYPE, HeaderName, HeaderValue, StatusCode},
+    http::{HeaderName, HeaderValue, StatusCode, header::CONTENT_TYPE},
     response::{IntoResponse, Response},
     routing::get,
-    Json, Router,
 };
 
 use codecs::{DecodeOptions, EncodeOptions};
 use common::{
-    eyre::{self, eyre, Result},
+    eyre::{self, Result, eyre},
     futures::{
-        stream::{SplitSink, SplitStream},
         SinkExt, StreamExt,
+        stream::{SplitSink, SplitStream},
     },
     itertools::Itertools,
-    serde::{de::DeserializeOwned, Serialize},
+    serde::{Serialize, de::DeserializeOwned},
     serde_json,
     tokio::{
         self,
         fs::read,
         sync::{
-            mpsc::{channel, Receiver, Sender},
             RwLock,
+            mpsc::{Receiver, Sender, channel},
         },
     },
     tracing,
@@ -42,7 +42,7 @@ use format::Format;
 
 use crate::{
     errors::InternalError,
-    server::{ServerState, STENCILA_VERSION},
+    server::{STENCILA_VERSION, ServerState},
 };
 
 /// A store of documents
@@ -246,7 +246,9 @@ pub async fn serve_path(
         .dump(Format::Dom, None)
         .await
         .map_err(InternalError::new)?;
-    let body = format!("<stencila-{view}-view doc={uuid} type={root_type} view={view} access={access} theme={theme} format={format}>{root_html}</stencila-{view}-view>");
+    let body = format!(
+        "<stencila-{view}-view doc={uuid} type={root_type} view={view} access={access} theme={theme} format={format}>{root_html}</stencila-{view}-view>"
+    );
 
     // The version path segment for static assets (JS & CSS)
     let version = if cfg!(debug_assertions) {

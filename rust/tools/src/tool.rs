@@ -4,8 +4,8 @@ use std::{
     path::{Path, PathBuf},
     process::Command,
     sync::{
-        atomic::{AtomicBool, Ordering},
         Mutex,
+        atomic::{AtomicBool, Ordering},
     },
 };
 
@@ -16,7 +16,7 @@ use which::which;
 use common::{
     async_recursion::async_recursion,
     clap::{self, ValueEnum},
-    eyre::{bail, OptionExt, Result},
+    eyre::{OptionExt, Result, bail},
     once_cell::sync::Lazy,
     regex::Regex,
     reqwest,
@@ -28,7 +28,7 @@ use common::{
 };
 use version::STENCILA_VERSION;
 
-use crate::{command::AsyncToolCommand, json_map, ToolCommand, ToolStdio};
+use crate::{ToolCommand, ToolStdio, command::AsyncToolCommand, json_map};
 
 /// The type of a kernel
 #[derive(Debug, Clone, PartialEq, Eq, Display, Serialize, ValueEnum)]
@@ -552,7 +552,11 @@ async fn install_via_tool(
         }
         Ok(())
     } else {
-        tracing::warn!("Tool `{}` defines `{}` as an installer but the latter does not provide a command to install it", tool.name(), installer.name());
+        tracing::warn!(
+            "Tool `{}` defines `{}` as an installer but the latter does not provide a command to install it",
+            tool.name(),
+            installer.name()
+        );
 
         // Fall back to using script
         install_via_script(tool, display).await

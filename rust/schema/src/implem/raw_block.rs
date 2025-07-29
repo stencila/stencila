@@ -1,7 +1,7 @@
 use codec_info::lost_options;
 use images::img_srcs_to_paths;
 
-use crate::{prelude::*, RawBlock};
+use crate::{RawBlock, prelude::*};
 
 impl DomCodec for RawBlock {
     fn to_dom(&self, context: &mut DomEncodeContext) {

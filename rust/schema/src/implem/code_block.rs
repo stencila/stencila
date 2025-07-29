@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, CodeBlock};
+use crate::{CodeBlock, prelude::*};
 
 impl DomCodec for CodeBlock {
     fn to_dom(&self, context: &mut DomEncodeContext) {

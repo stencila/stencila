@@ -1,4 +1,4 @@
-use crate::{prelude::*, Collection, Reference};
+use crate::{Collection, Reference, prelude::*};
 
 impl MarkdownCodec for Collection {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {

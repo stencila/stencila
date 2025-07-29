@@ -1,10 +1,10 @@
 use semver::Version;
 
 use crate::{
+    VersionReq,
     environments::{Apt, Devbox, Mise},
     packages::Uv,
     tool::{Tool, ToolType},
-    VersionReq,
 };
 
 pub struct Agg;

@@ -1,9 +1,9 @@
 use node_store::{
-    automerge::{transaction::Transactable, ObjId, Prop, ScalarValue},
     ReadNode, WriteNode, WriteStore,
+    automerge::{ObjId, Prop, ScalarValue, transaction::Transactable},
 };
 
-use crate::{prelude::*, Null};
+use crate::{Null, prelude::*};
 
 impl StripNode for Null {}
 

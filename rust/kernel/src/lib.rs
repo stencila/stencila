@@ -4,7 +4,7 @@ use common::{
     async_trait::async_trait,
     bs58,
     clap::{self, ValueEnum},
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     serde::{Deserialize, Serialize},
     strum::Display,
     tokio::sync::{broadcast, mpsc, watch},

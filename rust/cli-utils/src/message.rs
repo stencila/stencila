@@ -1,4 +1,4 @@
-use textwrap::{termwidth, wrap, Options};
+use textwrap::{Options, termwidth, wrap};
 
 /// Create a wrapped user message on the terminal
 #[allow(clippy::print_stderr)]

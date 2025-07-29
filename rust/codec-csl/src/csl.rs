@@ -189,14 +189,8 @@ fn convert_csl_date(csl_date: &CslDate) -> Option<Date> {
         CslDate::DateParts { date_parts } => {
             if let Some(parts) = date_parts.first() {
                 let year = parts.first().map(|y| y.to_string()).unwrap_or_default();
-                let month = parts
-                    .get(1)
-                    .map(|m| format!("-{m:02}"))
-                    .unwrap_or_default();
-                let day = parts
-                    .get(2)
-                    .map(|d| format!("-{d:02}"))
-                    .unwrap_or_default();
+                let month = parts.get(1).map(|m| format!("-{m:02}")).unwrap_or_default();
+                let day = parts.get(2).map(|d| format!("-{d:02}")).unwrap_or_default();
                 Some(Date::new(format!("{year}{month}{day}")))
             } else {
                 None

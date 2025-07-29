@@ -3,11 +3,11 @@
 //! See https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_publishDiagnostics
 
 use async_lsp::{
-    lsp_types::{
-        notification::Notification, Diagnostic, DiagnosticSeverity, Position,
-        PublishDiagnosticsParams, Range, Url,
-    },
     ClientSocket, LanguageClient,
+    lsp_types::{
+        Diagnostic, DiagnosticSeverity, Position, PublishDiagnosticsParams, Range, Url,
+        notification::Notification,
+    },
 };
 
 use common::{
@@ -21,8 +21,8 @@ use schema::{
 };
 
 use crate::{
-    text_document::{TextNode, TextNodeExecution},
     ServerOptionsDiagnostics,
+    text_document::{TextNode, TextNodeExecution},
 };
 
 /// A summary of the execution status of a node including

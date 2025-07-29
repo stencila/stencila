@@ -1,4 +1,5 @@
 use kernel::{
+    Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
     common::{async_trait::async_trait, eyre::Result, tracing},
     format::Format,
     generate_id,
@@ -6,7 +7,6 @@ use kernel::{
         ExecutionBounds, ExecutionMessage, ImageObject, Node, SoftwareApplication,
         SoftwareApplicationOptions,
     },
-    Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
 };
 use kernel_jinja::JinjaKernelInstance;
 

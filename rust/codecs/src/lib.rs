@@ -6,27 +6,27 @@ use std::{
 use url::Url;
 use walkdir::WalkDir;
 
-use ask::{ask_with, Answer, AskLevel, AskOptions};
+use ask::{Answer, AskLevel, AskOptions, ask_with};
 use cli_utils::{Code, ToStdout};
+pub use codec::{
+    Codec, CodecDirection, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
+    Losses, LossesResponse, Mapping, MappingEntry, Message, MessageLevel, Messages, PoshMap,
+    Position8, Position16, Positions, Range8, Range16, format::Format,
+};
 use codec::{
     common::{
         chrono::Local,
-        eyre::{bail, eyre, Context, OptionExt, Result},
+        eyre::{Context, OptionExt, Result, bail, eyre},
         futures::StreamExt,
         reqwest::Client,
         tempfile::tempdir,
         tokio::{
-            fs::{read_to_string, write, File},
+            fs::{File, read_to_string, write},
             io::AsyncWriteExt,
         },
         tracing,
     },
     schema::{Article, Block, IncludeBlock, Node, VisitorAsync, WalkControl, WalkNode},
-};
-pub use codec::{
-    format::Format, Codec, CodecDirection, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo,
-    EncodeOptions, Losses, LossesResponse, Mapping, MappingEntry, Message, MessageLevel, Messages,
-    PoshMap, Position16, Position8, Positions, Range16, Range8,
 };
 use codec_arxiv::ArxivCodec;
 use codec_doi::DoiCodec;
@@ -562,7 +562,9 @@ pub async fn merge(
         }
     }
     let Some(original) = original else {
-        bail!("Relative path of original source file not specified and not available from edited document")
+        bail!(
+            "Relative path of original source file not specified and not available from edited document"
+        )
     };
 
     let mut commit = commit.map(String::from);

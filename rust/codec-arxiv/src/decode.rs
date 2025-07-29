@@ -1,14 +1,14 @@
 use url::Url;
 
 use codec::{
+    DecodeInfo, DecodeOptions,
     common::{
-        eyre::{bail, Result},
+        eyre::{Result, bail},
         once_cell::sync::Lazy,
         regex::Regex,
         reqwest, tracing,
     },
     schema::Node,
-    DecodeInfo, DecodeOptions,
 };
 
 use super::decode_html::decode_arxiv_html;

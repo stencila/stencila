@@ -12,7 +12,6 @@ use crate::{
 /// in the main codec logic, which now uses ID-based type detection.
 #[derive(Deserialize)]
 #[serde(crate = "codec::common::serde")]
-#[allow(clippy::large_enum_variant)]
 pub enum Entity {
     Author(Author),
     Funder(Funder),

@@ -11,7 +11,7 @@ use schema::{
     SoftwareApplication,
 };
 
-use crate::{interrupt_impl, prelude::*, state_digest, ExecuteOptions};
+use crate::{ExecuteOptions, interrupt_impl, prelude::*, state_digest};
 
 impl Executable for InstructionBlock {
     #[tracing::instrument(skip_all)]

@@ -1,9 +1,10 @@
 use std::hash::{Hash, Hasher};
 
 use kernel_jinja::JinjaKernelInstance;
-use railwind::{parse_to_string, CollectionOptions, Source};
+use railwind::{CollectionOptions, Source, parse_to_string};
 
 use kernel::{
+    Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
     common::{
         async_trait::async_trait, bs58, eyre::Result, once_cell::sync::Lazy, regex::Regex,
         seahash::SeaHasher, tracing,
@@ -14,7 +15,6 @@ use kernel::{
         CodeLocation, ExecutionBounds, ExecutionMessage, MessageLevel, Node, SoftwareApplication,
         SoftwareApplicationOptions,
     },
-    Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
 };
 
 /// A kernel for compiling styles, including Tailwind classes and Jinja templates, into CSS.

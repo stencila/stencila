@@ -1,9 +1,9 @@
 use codec::{
+    Codec, CodecSupport, EncodeInfo, EncodeOptions,
     common::{async_trait::async_trait, eyre::Result},
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecSupport, EncodeInfo, EncodeOptions,
 };
 
 /// A codec for the Rust debug format

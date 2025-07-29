@@ -1,16 +1,16 @@
 use tl::{HTMLTag, Parser};
 
 use codec::schema::{
-    shortcuts::{p, t},
     AppendixBreak, Block, Claim, ClaimType, CodeBlock, Figure, HorizontalAlignment, ImageObject,
     Inline, List, ListItem, ListOrder, MathBlock, RawBlock, Section, SectionType, Table, TableCell,
     TableCellType, TableRow, TableRowType,
+    shortcuts::{p, t},
 };
 
 use crate::decode_html_inlines::decode_inline;
 
 use super::decode_html::{
-    extract_latex_and_mathml, get_attr, get_class, get_text, ArxivDecodeContext,
+    ArxivDecodeContext, extract_latex_and_mathml, get_attr, get_class, get_text,
 };
 use super::decode_html_inlines::{decode_a, decode_img, decode_inlines, decode_span};
 
@@ -634,8 +634,8 @@ fn decode_list_item_blocks(
             blocks.remove(0);
         } else {
             // Try to strip list number from the beginning of the first paragraph
-            if let Block::Paragraph(ref mut paragraph) = &mut blocks[0] {
-                if let Some(Inline::Text(ref mut text_node)) = paragraph.content.first_mut() {
+            if let Block::Paragraph(paragraph) = &mut blocks[0] {
+                if let Some(Inline::Text(text_node)) = paragraph.content.first_mut() {
                     let text = &text_node.value;
                     if let Some(content_start) = find_content_after_list_number(text) {
                         if content_start < text.len() {

@@ -1,7 +1,7 @@
 use std::io::IsTerminal;
 
 use tracing_subscriber::{
-    fmt::{format::Writer, FmtContext, FormatEvent, FormatFields},
+    fmt::{FmtContext, FormatEvent, FormatFields, format::Writer},
     prelude::*,
     registry::LookupSpan,
 };
@@ -10,7 +10,7 @@ use common::{
     clap::{self, ValueEnum},
     eyre::Result,
     strum::AsRefStr,
-    tracing::{metadata::LevelFilter, Event, Level, Subscriber},
+    tracing::{Event, Level, Subscriber, metadata::LevelFilter},
 };
 
 /// Setup logging
@@ -22,9 +22,9 @@ use common::{
 /// - `format`: The format to output log entries
 #[cfg(not(feature = "console-subscriber"))]
 pub fn setup(level: LoggingLevel, filter: &str, format: LoggingFormat) -> Result<()> {
-    use common::eyre::{bail, Context};
+    use common::eyre::{Context, bail};
     use tracing_error::ErrorLayer;
-    use tracing_subscriber::{fmt, registry, EnvFilter};
+    use tracing_subscriber::{EnvFilter, fmt, registry};
 
     let is_term = std::io::stderr().is_terminal();
     let (format, ansi) = match format {
@@ -161,7 +161,7 @@ where
             level.as_str()
         };
 
-        write!(writer, "{} ", prefix)?;
+        write!(writer, "{prefix} ")?;
         ctx.field_format().format_fields(writer.by_ref(), event)?;
         writeln!(writer)
     }

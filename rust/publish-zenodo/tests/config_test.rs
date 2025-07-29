@@ -1,4 +1,4 @@
-use document::{schema::Node, Document};
+use document::{Document, schema::Node};
 
 #[cfg(test)]
 mod tests {

@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, Author, InstructionMessage, MessagePart, MessageRole};
+use crate::{Author, InstructionMessage, MessagePart, MessageRole, prelude::*};
 
 impl InstructionMessage {
     pub fn system<S: AsRef<str>>(value: S, authors: Option<Vec<Author>>) -> Self {

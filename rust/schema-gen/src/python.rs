@@ -7,7 +7,7 @@ use topological_sort::TopologicalSort;
 
 use common::{
     async_recursion::async_recursion,
-    eyre::{bail, Context, Report, Result},
+    eyre::{Context, Report, Result, bail},
     futures::future::try_join_all,
     inflector::Inflector,
     itertools::Itertools,

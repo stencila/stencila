@@ -7,17 +7,16 @@ use cli_utils::{color_print::cstr, parse_host};
 use codec::schema::ConfigPublishZenodoAccessRight;
 use common::{
     clap::{
-        self,
+        self, Parser, ValueHint,
         builder::{ArgPredicate, PossibleValue},
-        Parser, ValueHint,
     },
-    eyre::{bail, OptionExt, Result},
+    eyre::{OptionExt, Result, bail},
     reqwest::Client,
     serde,
-    serde_json::{json, Value},
+    serde_json::{Value, json},
     tokio, tracing,
 };
-use document::{schema, schema::Node, Document};
+use document::{Document, schema, schema::Node};
 
 mod metadata_extraction;
 
@@ -380,7 +379,10 @@ impl Cli {
 
         // Pre-check: ensure that we have an Article
         let Node::Article(_) = &doc.root().await else {
-            bail!("Document in file {} is not an `Article`. Attempt to re-render as a standalone document and retry.", self.path.display());
+            bail!(
+                "Document in file {} is not an `Article`. Attempt to re-render as a standalone document and retry.",
+                self.path.display()
+            );
         };
 
         // Determine server URL
@@ -494,12 +496,14 @@ impl Cli {
                 debug_assert_eq!(
                     access_right,
                     Some(ConfigPublishZenodoAccessRight::Embargoed),
-                    "logic error: --embargoed={:?} is set, but --access_right={:?}",
-                    embargo_date,
-                    access_right
+                    "logic error: --embargoed={embargo_date:?} is set, but --access_right={access_right:?}"
                 );
                 if access_right != Some(ConfigPublishZenodoAccessRight::Embargoed) {
-                    tracing::info!("Note: An embargo date ({}) has been provided, but access right is set to {:?}. Replacing access right to `embargoed`.", embargo_date, access_right);
+                    tracing::info!(
+                        "Note: An embargo date ({}) has been provided, but access right is set to {:?}. Replacing access right to `embargoed`.",
+                        embargo_date,
+                        access_right
+                    );
                 }
                 deposit["metadata"]["embargo_date"] = json!(embargo_date);
                 deposit["metadata"]["access_right"] = json!("embargoed");
@@ -560,7 +564,9 @@ impl Cli {
             match (&self.doi, &doi_from_doc) {
                 (None, None) => reserve_doi = true,
                 (None, Some(from_doc)) => {
-                    tracing::debug!("Requesting a new DOI, although one ({from_doc}) was found within the Article metadata");
+                    tracing::debug!(
+                        "Requesting a new DOI, although one ({from_doc}) was found within the Article metadata"
+                    );
                     deposit["metadata"]["prereserve_doi"] = json!(true);
                     doi = Some(from_doc);
                 }
@@ -578,17 +584,21 @@ impl Cli {
             }
         } else {
             match (&self.doi, &doi_from_doc) {
-                (None, None) => tracing::debug!("No DOI was explicitly requested, nor was one provided. Relying on Zenodo's defaults."),
+                (None, None) => tracing::debug!(
+                    "No DOI was explicitly requested, nor was one provided. Relying on Zenodo's defaults."
+                ),
                 (None, Some(from_doc)) => {
                     tracing::info!("Providing DOI found in Article metadata ({from_doc}).");
                     doi = Some(from_doc);
-                },
+                }
                 (Some(from_cli), None) => doi = Some(from_cli),
                 (Some(from_cli), Some(from_doc)) if from_cli == from_doc => doi = Some(from_cli),
                 (Some(from_cli), Some(from_doc)) => {
-                    tracing::debug!("DOI provided ({from_cli}) does not match the DOI found within the Article metadata ({from_doc}). Preferring {from_cli}.");
+                    tracing::debug!(
+                        "DOI provided ({from_cli}) does not match the DOI found within the Article metadata ({from_doc}). Preferring {from_cli}."
+                    );
                     doi = Some(from_cli);
-                },
+                }
             }
         };
 
@@ -639,7 +649,11 @@ impl Cli {
                 embargo_date, self.access_right
             );
             if &self.access_right != "embargoed" {
-                tracing::info!("Note: An embargo date ({}) has been provided, but access right is set to {}. Replacing access right to `embargoed`.", embargo_date, self.access_right);
+                tracing::info!(
+                    "Note: An embargo date ({}) has been provided, but access right is set to {}. Replacing access right to `embargoed`.",
+                    embargo_date,
+                    self.access_right
+                );
             }
             deposit["metadata"]["embargo_date"] = json!(embargo_date);
             deposit["metadata"]["access_right"] = json!("embargoed");
@@ -700,7 +714,9 @@ impl Cli {
             } else {
                 msg.push_str(" (`deposit:actions`)");
             }
-            bail!("{msg} enabled and is provided by the Zenodo server that you're uploading to ({server_url})");
+            bail!(
+                "{msg} enabled and is provided by the Zenodo server that you're uploading to ({server_url})"
+            );
         }
 
         if !&deposition_response.status().is_success() {
@@ -736,7 +752,9 @@ impl Cli {
                         "metadata.description" => {
                             for message in messages.iter().filter_map(|msg| msg.as_str()) {
                                 if message == "Field may not be null." {
-                                    tracing::error!("Description missing from article. If using Stencila CLI, provide a description with the --description flag.");
+                                    tracing::error!(
+                                        "Description missing from article. If using Stencila CLI, provide a description with the --description flag."
+                                    );
                                 } else {
                                     tracing::error!("Problem with description: {:?}", message)
                                 }
@@ -745,7 +763,9 @@ impl Cli {
                         "metadata.title" => {
                             for message in messages.iter().filter_map(|msg| msg.as_str()) {
                                 if message == "Field may not be null." {
-                                    tracing::error!("Title missing from article. If using Stencila CLI, provide a title with the --title flag.");
+                                    tracing::error!(
+                                        "Title missing from article. If using Stencila CLI, provide a title with the --title flag."
+                                    );
                                 } else {
                                     tracing::error!("Problem with title: {:?}", message)
                                 }
@@ -754,7 +774,9 @@ impl Cli {
                         "metadata.license" => {
                             for message in messages.iter().filter_map(|msg| msg.as_str()) {
                                 if message.starts_with("Invalid license") {
-                                    tracing::error!("Invalid license identifier provided. Check that you are using an identifier, rather than the license's full name. Many identifiers are available in human-readable form at <https://spdx.org/licenses/>. Zenodo's full list of supported licenses is provided programmatically at https://zenodo.org/api/vocabularies/licenses.");
+                                    tracing::error!(
+                                        "Invalid license identifier provided. Check that you are using an identifier, rather than the license's full name. Many identifiers are available in human-readable form at <https://spdx.org/licenses/>. Zenodo's full list of supported licenses is provided programmatically at https://zenodo.org/api/vocabularies/licenses."
+                                    );
                                 } else {
                                     tracing::error!("Problem with license: {:?}", message)
                                 }
@@ -798,7 +820,7 @@ impl Cli {
             .ok_or_eyre("unable to infer file name from path")? // should never happen - we've already checked that it's a file
             .to_str()
             .ok_or_eyre("unable to convert file name to UTF-8")?;
-        let upload_url: String = format!("{}/{}", bucket_url, file_name);
+        let upload_url: String = format!("{bucket_url}/{file_name}");
         tracing::debug!(
             url = upload_url,
             file = file_name,
@@ -824,10 +846,8 @@ impl Cli {
 
         #[allow(clippy::print_stderr)]
         if self.force {
-            let publish_url = format!(
-                "{}/api/deposit/depositions/{}/actions/publish",
-                server_url, deposition_id
-            );
+            let publish_url =
+                format!("{server_url}/api/deposit/depositions/{deposition_id}/actions/publish");
             tracing::debug!("Publishing deposit");
             // Publish the deposition
             let publish_response = client.post(publish_url).bearer_auth(token).send().await?;
@@ -843,16 +863,13 @@ impl Cli {
             }
 
             eprintln!("🎉 Deposition published");
-            eprintln!("🌐 URL: {}", deposition_url);
+            eprintln!("🌐 URL: {deposition_url}");
         } else {
             eprintln!("🎉 Draft deposition submitted");
-            eprintln!(
-                "🌐 URL: {} (visit to check details and publish)",
-                deposition_url
-            );
+            eprintln!("🌐 URL: {deposition_url} (visit to check details and publish)");
 
             if let Some(doi) = reserved_doi {
-                eprintln!("📑 DOI: {}", doi);
+                eprintln!("📑 DOI: {doi}");
             }
 
             if self.sandbox {

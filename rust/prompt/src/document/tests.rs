@@ -1,16 +1,16 @@
-use crate::{prelude::*, PromptContext};
+use crate::{PromptContext, prelude::*};
 
 use common_dev::pretty_assertions::assert_eq;
 use kernel_quickjs::kernel::common::tokio;
-use schema::{shortcuts::t, Node, Null, SectionType};
+use schema::{Node, Null, SectionType, shortcuts::t};
 
 use super::{
+    Document, Metadata,
     code_chunks::{CodeChunk, CodeChunks},
     headings::{Heading, Headings},
     node::Node as ContextNode,
     paragraphs::{Paragraph, Paragraphs},
     sections::Sections,
-    Document, Metadata,
 };
 
 #[tokio::test]

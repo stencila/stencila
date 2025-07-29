@@ -1,9 +1,9 @@
 use axum::{
+    Router,
     extract::{Query, State},
     http::StatusCode,
     response::{Html, IntoResponse, Response},
     routing::get,
-    Router,
 };
 
 use common::{reqwest::Client, serde::Deserialize, tracing};
@@ -64,7 +64,7 @@ pub async fn callback(
         Err(err) => {
             return (
                 StatusCode::UNAUTHORIZED,
-                format!("Authentication failed: {}", err),
+                format!("Authentication failed: {err}"),
             )
                 .into_response();
         }

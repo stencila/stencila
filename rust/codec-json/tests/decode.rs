@@ -9,10 +9,10 @@
 use codec::{
     common::{eyre::Result, serde_json::json},
     schema::{
-        shortcuts::{p, t},
         Array, Article, ArticleOptions, Block, Boolean, Date, Emphasis, Inline, Integer,
         IntegerOrString, Node, Null, Number, Object, Paragraph, Person, Primitive, ThematicBreak,
         Time,
+        shortcuts::{p, t},
     },
 };
 use common_dev::pretty_assertions::assert_eq;

@@ -12,18 +12,18 @@ use node_types::primary_key;
 use time::format_description::{self, BorrowedFormatItem};
 
 use common::{
-    eyre::{bail, eyre, Context, Result},
+    eyre::{Context, Result, bail, eyre},
     itertools::Itertools,
     once_cell::sync::Lazy,
     tempfile::NamedTempFile,
     tracing,
 };
 use kernel_kuzu::{
+    KuzuKernel, ToKuzu,
     kuzu::{
         Connection, Database, Error as KuzuError, LogicalType, PreparedStatement, SystemConfig,
         Value,
     },
-    KuzuKernel, ToKuzu,
 };
 use schema::{Node, NodeId, NodePath, NodeProperty, NodeType, Visitor, WalkNode};
 
@@ -396,7 +396,7 @@ impl NodeDatabase {
                         .iter()
                         .map(|name| ["`", name, "`: $", name, "_"].concat())
                         .join(", ");
-                    let statement = format!("CREATE (:`{node_type}` {{{}}})", properties);
+                    let statement = format!("CREATE (:`{node_type}` {{{properties}}})");
 
                     let statement = connection
                         .prepare(&statement)
@@ -591,7 +591,7 @@ impl NodeDatabase {
 fn escape_csv_field(field: String) -> String {
     if field.contains(',') || field.contains('\n') || field.contains('"') {
         let escaped = field.replace("\"", "\"\"").replace("\n", "\\n");
-        format!("\"{}\"", escaped)
+        format!("\"{escaped}\"")
     } else {
         field
     }

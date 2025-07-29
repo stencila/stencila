@@ -1,14 +1,14 @@
 use std::path::Path;
 
 use codec::{
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, NodeType,
     common::{
         async_trait::async_trait,
-        eyre::{bail, Result},
+        eyre::{Result, bail},
     },
     format::Format,
     schema::Node,
     status::Status,
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, NodeType,
 };
 
 mod decode;

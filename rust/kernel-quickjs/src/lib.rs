@@ -4,20 +4,21 @@ use std::{
     collections::HashMap,
     path::Path,
     sync::{
-        atomic::{AtomicU8, Ordering},
         Arc,
+        atomic::{AtomicU8, Ordering},
     },
 };
 
 use rquickjs::{
-    class::Trace, function::Rest, Array as JsArray, AsyncContext, AsyncRuntime, Ctx, Error,
-    JsLifetime, Object as JsObject, String as JsString, Value,
+    Array as JsArray, AsyncContext, AsyncRuntime, Ctx, Error, JsLifetime, Object as JsObject,
+    String as JsString, Value, class::Trace, function::Rest,
 };
 
 use kernel::{
+    Kernel, KernelInstance, KernelSignal, KernelStatus, KernelTerminate,
     common::{
         async_trait::async_trait,
-        eyre::{bail, eyre, Result},
+        eyre::{Result, bail, eyre},
         indexmap::IndexMap,
         once_cell::sync::Lazy,
         regex::Regex,
@@ -35,7 +36,6 @@ use kernel::{
         Node, NodeType, Null, Object, ObjectHint, Primitive, SoftwareApplication,
         SoftwareApplicationOptions, SoftwareSourceCode, StringHint, Variable,
     },
-    Kernel, KernelInstance, KernelSignal, KernelStatus, KernelTerminate,
 };
 
 // Re-export primarily for use by the `prompt` crate

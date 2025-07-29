@@ -1,9 +1,9 @@
 use codec::{
+    Codec, DecodeInfo, Messages,
     common::{
         eyre::{Ok, Result},
         tokio,
     },
-    Codec, DecodeInfo, Messages,
 };
 use codec_markdown::MarkdownCodec;
 use common_dev::insta::assert_snapshot;

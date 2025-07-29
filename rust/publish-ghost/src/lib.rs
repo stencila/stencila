@@ -11,8 +11,8 @@ use cli_utils::parse_host;
 use common::{
     chrono::{DateTime, Utc},
     clap::{self, Parser},
-    eyre::{bail, eyre, Context, OptionExt, Result},
-    reqwest::{multipart::Form, Client, Response, StatusCode},
+    eyre::{Context, OptionExt, Result, bail, eyre},
+    reqwest::{Client, Response, StatusCode, multipart::Form},
     serde::{Deserialize, Serialize},
     serde_json,
     serde_with::skip_serializing_none,
@@ -20,9 +20,8 @@ use common::{
     tempfile, tokio, tracing,
 };
 use document::{
-    codecs,
-    schema::{shortcuts::t, ConfigPublishGhostState, ConfigPublishGhostType, Node},
-    DecodeOptions, Document, EncodeOptions, Format, LossesResponse,
+    DecodeOptions, Document, EncodeOptions, Format, LossesResponse, codecs,
+    schema::{ConfigPublishGhostState, ConfigPublishGhostType, Node, shortcuts::t},
 };
 
 const API_KEY_NAME: &str = "GHOST_ADMIN_API_KEY";
@@ -224,7 +223,9 @@ impl Cli {
     #[tracing::instrument(skip(self, doc))]
     async fn create(&self, doc: Document) -> Result<()> {
         let Some(host) = &self.domain else {
-            bail!("Post or page is being created, so the --domain option, of GHOST_DOMAIN env var, must be provided");
+            bail!(
+                "Post or page is being created, so the --domain option, of GHOST_DOMAIN env var, must be provided"
+            );
         };
         let host = host.to_string();
         let base_url = format!("https://{host}/ghost/api/admin/");
@@ -272,7 +273,7 @@ impl Cli {
 
         // Send the request
         let response = Client::new()
-            .post(format!("{}{}s/", base_url, resource_type))
+            .post(format!("{base_url}{resource_type}s/"))
             .header("Authorization", format!("Ghost {token}"))
             .json(&payload)
             .send()
@@ -286,7 +287,9 @@ impl Cli {
         // Get the URL of the newly created Ghost page/post
         let Some(location) = response.headers().get("location") else {
             tracing::error!(resp = ?response, "POST succeeded, but Location header unavailable");
-            bail!("Uploading the document to Ghost appears to have succeeded, but Ghost did not provide the new URL. Check Ghost Admin for the new draft.");
+            bail!(
+                "Uploading the document to Ghost appears to have succeeded, but Ghost did not provide the new URL. Check Ghost Admin for the new draft."
+            );
         };
         let doc_url = location
             .to_str()
@@ -701,7 +704,9 @@ fn parse_key(arg: &str) -> Result<String> {
 fn validate_key(key: &str) -> Result<String> {
     // Split into id:secret
     let Some((id, secret)) = key.split_once(':') else {
-        bail!("Ghost Admin API key must be in format `id:secret`, i.e. an id and secret separated by a colon.");
+        bail!(
+            "Ghost Admin API key must be in format `id:secret`, i.e. an id and secret separated by a colon."
+        );
     };
 
     if id.is_empty() {
@@ -716,7 +721,9 @@ fn validate_key(key: &str) -> Result<String> {
             .all(|c| c.is_ascii_lowercase() && c.is_ascii_hexdigit())
     }
     if !only_hex(id) || !only_hex(secret) {
-        tracing::warn!("Ghost Admin API key may be invalid; should only contain lowercase hexadecimal characters");
+        tracing::warn!(
+            "Ghost Admin API key may be invalid; should only contain lowercase hexadecimal characters"
+        );
     }
 
     Ok(key.to_string())

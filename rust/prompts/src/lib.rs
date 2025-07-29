@@ -14,32 +14,32 @@ use derive_more::{Deref, DerefMut};
 use codec_markdown::to_markdown;
 use codecs::{DecodeOptions, Format};
 use common::{
-    eyre::{bail, eyre, OptionExt, Result},
+    eyre::{OptionExt, Result, bail, eyre},
     futures::future::{join_all, try_join_all},
     glob::glob,
     inflector::Inflector,
     itertools::Itertools,
     regex::Regex,
     reqwest::Client,
-    serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer},
+    serde::{Deserialize, Serialize, Serializer, ser::SerializeStruct},
     serde_json,
     tar::Archive,
     tokio::fs::{create_dir_all, read_to_string, remove_dir_all, write},
     tracing,
 };
-use dirs::{get_app_dir, DirType};
+use dirs::{DirType, get_app_dir};
 use flate2::read::GzDecoder;
 use images::ensure_http_or_data_uri;
 use rust_embed::RustEmbed;
 
 use model::{
-    schema::{
-        authorship, shortcuts::p, Article, AudioObject, Author, AuthorRole, Block,
-        CompilationMessage, ExecutionMessage, ImageObject, Inline, InstructionBlock,
-        InstructionMessage, InstructionType, Link, MessageLevel, MessagePart, Node, NodeType,
-        Prompt, SuggestionBlock, SuggestionStatus, Timestamp, UnsignedIntegerOrString, VideoObject,
-    },
     ModelOutput, ModelOutputKind, ModelTask,
+    schema::{
+        Article, AudioObject, Author, AuthorRole, Block, CompilationMessage, ExecutionMessage,
+        ImageObject, Inline, InstructionBlock, InstructionMessage, InstructionType, Link,
+        MessageLevel, MessagePart, Node, NodeType, Prompt, SuggestionBlock, SuggestionStatus,
+        Timestamp, UnsignedIntegerOrString, VideoObject, authorship, shortcuts::p,
+    },
 };
 
 pub mod cli;

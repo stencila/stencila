@@ -4,10 +4,10 @@ use std::{
 };
 
 use derive_more::Deref;
-use rand::{distr::Alphanumeric, rng, Rng};
+use rand::{Rng, distr::Alphanumeric, rng};
 
 use common::{
-    eyre::{bail, Report},
+    eyre::{Report, bail},
     serde_with::DeserializeFromStr,
     serde_with::SerializeDisplay,
 };

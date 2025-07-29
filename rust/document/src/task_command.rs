@@ -2,17 +2,17 @@ use std::path::PathBuf;
 
 use codecs::DecodeOptions;
 use common::{
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     itertools::Itertools,
     tokio::{self, task::JoinHandle},
     tracing,
 };
 use format::Format;
-use node_execute::{compile, execute, interrupt, lint, ExecuteOptions};
+use node_execute::{ExecuteOptions, compile, execute, interrupt, lint};
 use schema::{
-    transforms::blocks_to_inlines, Article, Block, ChatMessage, ChatMessageOptions, CodeChunk,
-    CodeExpression, File, Inline, Node, NodeId, NodePath, NodeProperty, Paragraph, Patch,
-    PatchNode, PatchOp,
+    Article, Block, ChatMessage, ChatMessageOptions, CodeChunk, CodeExpression, File, Inline, Node,
+    NodeId, NodePath, NodeProperty, Paragraph, Patch, PatchNode, PatchOp,
+    transforms::blocks_to_inlines,
 };
 
 use crate::{

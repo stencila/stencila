@@ -1,9 +1,9 @@
 use crate::{
+    ToolCommand, VersionReq,
     command::AsyncToolCommand,
     environments::{Apt, Devbox, Mise},
     packages::{Rig, Uv},
     tool::{Tool, ToolType},
-    ToolCommand, VersionReq,
 };
 
 pub struct Bash;

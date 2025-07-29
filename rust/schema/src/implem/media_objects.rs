@@ -2,7 +2,7 @@ use codec_info::lost_options;
 use common::tracing;
 use images::highlight_image;
 
-use crate::{prelude::*, AudioObject, ImageObject, MediaObject, VideoObject};
+use crate::{AudioObject, ImageObject, MediaObject, VideoObject, prelude::*};
 
 macro_rules! html_attrs {
     ($object:expr) => {{

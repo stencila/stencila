@@ -1,4 +1,4 @@
-use common::eyre::{bail, Result};
+use common::eyre::{Result, bail};
 
 use crate::{Array, Node, NodePath, NodeSlot, Null, Object};
 

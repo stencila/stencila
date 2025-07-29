@@ -1,7 +1,7 @@
 use common::{eyre::Result, futures::future::try_join_all, once_cell::sync::Lazy, regex::Regex};
 use schema::{
-    replicate, Article, Author, AuthorRole, AuthorRoleAuthor, Citation, Node, Organization, Person,
-    Reference, VisitorMut, WalkControl, WalkNode,
+    Article, Author, AuthorRole, AuthorRoleAuthor, Citation, Node, Organization, Person, Reference,
+    VisitorMut, WalkControl, WalkNode, replicate,
 };
 
 mod cbor_hash;

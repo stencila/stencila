@@ -3,9 +3,10 @@ use std::sync::Arc;
 use cached::proc_macro::cached;
 
 use model::{
+    Model, ModelIO, ModelOutput, ModelTask, ModelType,
     common::{
         async_trait::async_trait,
-        eyre::{bail, Result},
+        eyre::{Result, bail},
         itertools::Itertools,
         reqwest::Client,
         serde::{Deserialize, Serialize},
@@ -13,7 +14,7 @@ use model::{
         tracing,
     },
     schema::{ImageObject, MessagePart, MessageRole},
-    secrets, Model, ModelIO, ModelOutput, ModelTask, ModelType,
+    secrets,
 };
 
 const BASE_URL: &str = "https://generativelanguage.googleapis.com/v1beta";
@@ -183,8 +184,7 @@ impl Model for GoogleModel {
                 inline_data: Some(Blob { mime_type, data }),
                 ..
             } => {
-                ModelOutput::from_url(self, &mime_type, format!("{};base64,{}", mime_type, data))
-                    .await
+                ModelOutput::from_url(self, &mime_type, format!("{mime_type};base64,{data}")).await
             }
             _ => bail!("Unexpected response content part"),
         }
@@ -375,7 +375,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
 #[cached(time = 21_600, result = true)]
 async fn list_google_models() -> Result<ModelsResponse> {
     let response = Client::new()
-        .get(format!("{}/models", BASE_URL))
+        .get(format!("{BASE_URL}/models"))
         .query(&[("key", secrets::env_or_get(API_KEY)?)])
         .send()
         .await?;

@@ -1,7 +1,7 @@
 //! Provides the `PatchNode` derive macro for structs and enums in Stencila Schema
 
-use darling::{self, ast::Data as AstData, util::Ignored, FromDeriveInput, FromField};
-use syn::{self, parse_macro_input, parse_str, Data, DataEnum, DeriveInput, Fields, Ident, Path};
+use darling::{self, FromDeriveInput, FromField, ast::Data as AstData, util::Ignored};
+use syn::{self, Data, DataEnum, DeriveInput, Fields, Ident, Path, parse_macro_input, parse_str};
 
 use common::{
     inflector::Inflector,

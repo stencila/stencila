@@ -1,8 +1,8 @@
 use std::fmt::Display;
 
 use crate::{
-    prelude::*, Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, Organization, Person,
-    SoftwareApplication, StringOrNumber, Thing, ThingOptions, Timestamp,
+    Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, Organization, Person,
+    SoftwareApplication, StringOrNumber, Thing, ThingOptions, Timestamp, prelude::*,
 };
 
 impl AuthorRole {

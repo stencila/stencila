@@ -1,6 +1,6 @@
 use schema::{Heading, LabelType, NodeType};
 
-use crate::{prelude::*, HeadingInfo};
+use crate::{HeadingInfo, prelude::*};
 
 impl Executable for Heading {
     #[tracing::instrument(skip_all)]

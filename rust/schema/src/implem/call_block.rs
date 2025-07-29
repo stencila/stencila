@@ -1,6 +1,6 @@
 use codec_info::{lost_exec_options, lost_options};
 
-use crate::{prelude::*, CallBlock};
+use crate::{CallBlock, prelude::*};
 
 impl LatexCodec for CallBlock {
     fn to_latex(&self, context: &mut LatexEncodeContext) {

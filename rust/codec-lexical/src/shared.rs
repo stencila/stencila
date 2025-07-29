@@ -1,4 +1,4 @@
-use codec::{format::Format, Losses};
+use codec::{Losses, format::Format};
 
 use crate::lexical::TextFormat;
 

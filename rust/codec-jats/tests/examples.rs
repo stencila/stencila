@@ -1,8 +1,8 @@
 use std::{fs::read_to_string, path::PathBuf};
 
 use codec::{
-    common::{eyre::Result, glob::glob},
     EncodeOptions,
+    common::{eyre::Result, glob::glob},
 };
 
 use codec_jats::{decode, encode};

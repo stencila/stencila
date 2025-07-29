@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, Admonition, AdmonitionType};
+use crate::{Admonition, AdmonitionType, prelude::*};
 
 impl MarkdownCodec for Admonition {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {

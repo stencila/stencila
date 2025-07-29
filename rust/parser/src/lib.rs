@@ -91,11 +91,7 @@ pub trait Parser: Sync + Send {
                 tags
             });
 
-        if !tags.is_empty() {
-            Some(tags)
-        } else {
-            None
-        }
+        if !tags.is_empty() { Some(tags) } else { None }
     }
 
     /// Calculate a [`ParseChange`] from the current and previous [`CompilationDigest`] of some code

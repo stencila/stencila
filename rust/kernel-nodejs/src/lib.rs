@@ -6,15 +6,15 @@ use std::{
 use tools::ToolCommand;
 
 use kernel_micro::{
+    Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelLint,
+    KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider, KernelTerminate,
+    Microkernel,
     common::{eyre::Result, serde::Deserialize, serde_json, tempfile, tracing},
     format::Format,
     schema::{
         AuthorRole, AuthorRoleName, CodeLocation, CompilationMessage, ExecutionBounds,
         MessageLevel, SoftwareApplication, Timestamp,
     },
-    Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelLint,
-    KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider, KernelTerminate,
-    Microkernel,
 };
 
 /// A kernel for executing JavaScript code in Node.js
@@ -569,7 +569,9 @@ console.error("Error message");
     async fn packages() -> Result<()> {
         #[allow(clippy::print_stderr)]
         if std::env::var("CI").is_ok() {
-            eprintln!("Skipping test on CI because requires `npm install` has been run (not always the case)");
+            eprintln!(
+                "Skipping test on CI because requires `npm install` has been run (not always the case)"
+            );
             return Ok(());
         }
 

@@ -1,4 +1,4 @@
-use schema::{replicate, Citation, CompilationMessage, NodeType};
+use schema::{Citation, CompilationMessage, NodeType, replicate};
 
 use crate::prelude::*;
 

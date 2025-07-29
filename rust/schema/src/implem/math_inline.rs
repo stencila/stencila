@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, MathInline};
+use crate::{MathInline, prelude::*};
 
 impl MathInline {
     pub fn to_jats_special(&self) -> (String, Losses) {

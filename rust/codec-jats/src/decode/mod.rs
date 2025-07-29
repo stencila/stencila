@@ -1,9 +1,9 @@
 use roxmltree::{Document, ParsingOptions};
 
 use codec::{
-    common::eyre::{bail, Result},
-    schema::{Article, Node},
     DecodeInfo, DecodeOptions, Losses,
+    common::eyre::{Result, bail},
+    schema::{Article, Node},
 };
 
 mod back;

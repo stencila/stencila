@@ -3,11 +3,11 @@ use std::path::PathBuf;
 use cli_utils::color_print::cstr;
 use common::{
     clap::{self, Parser},
-    eyre::{bail, OptionExt, Result},
+    eyre::{OptionExt, Result, bail},
     tokio,
 };
 use document::{Document, SyncDirection};
-use server::{get_server_token, ServeOptions};
+use server::{ServeOptions, get_server_token};
 
 /// Preview a document
 ///

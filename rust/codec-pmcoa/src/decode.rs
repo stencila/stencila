@@ -4,8 +4,9 @@ use flate2::read::GzDecoder;
 use url::Url;
 
 use codec::{
+    Codec, DecodeInfo, DecodeOptions,
     common::{
-        eyre::{bail, ContextCompat, OptionExt, Result},
+        eyre::{ContextCompat, OptionExt, Result, bail},
         futures::StreamExt,
         glob::glob,
         regex::Regex,
@@ -13,13 +14,12 @@ use codec::{
         tar::Archive,
         tempfile,
         tokio::{
-            fs::{remove_file, File},
+            fs::{File, remove_file},
             io::AsyncWriteExt,
         },
         tracing,
     },
     schema::Node,
-    Codec, DecodeInfo, DecodeOptions,
 };
 use codec_jats::JatsCodec;
 use media_embed::embed_media;

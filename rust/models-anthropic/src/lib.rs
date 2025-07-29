@@ -3,9 +3,10 @@ use std::sync::Arc;
 use cached::proc_macro::cached;
 
 use model::{
+    Model, ModelIO, ModelOutput, ModelTask, ModelType,
     common::{
         async_trait::async_trait,
-        eyre::{bail, Result},
+        eyre::{Result, bail},
         itertools::Itertools,
         reqwest::Client,
         serde::{Deserialize, Serialize},
@@ -13,7 +14,7 @@ use model::{
         tracing,
     },
     schema::{ImageObject, MessagePart, MessageRole},
-    secrets, Model, ModelIO, ModelOutput, ModelTask, ModelType,
+    secrets,
 };
 
 /// The base URL for the Anthropic API
@@ -223,7 +224,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
 #[cached(time = 21_600, result = true)]
 async fn list_anthropic_models() -> Result<ModelsResponse> {
     let response = Client::new()
-        .get(format!("{}/models", BASE_URL))
+        .get(format!("{BASE_URL}/models"))
         .header("x-api-key", secrets::env_or_get(API_KEY)?)
         .header("anthropic-version", API_VERSION)
         .send()

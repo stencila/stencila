@@ -1,4 +1,4 @@
-use crate::{prelude::*, replicate, Article, CreativeWorkType, Reference};
+use crate::{Article, CreativeWorkType, Reference, prelude::*, replicate};
 
 impl From<&Node> for Reference {
     fn from(node: &Node) -> Self {

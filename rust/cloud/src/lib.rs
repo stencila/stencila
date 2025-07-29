@@ -3,13 +3,12 @@ use std::{env, sync::OnceLock};
 use cached::proc_macro::cached;
 
 use common::{
-    eyre::{bail, eyre, Result},
+    eyre::{Result, bail, eyre},
     reqwest::{
-        self,
-        header::{HeaderMap, HeaderValue, AUTHORIZATION, USER_AGENT},
-        Client,
+        self, Client,
+        header::{AUTHORIZATION, HeaderMap, HeaderValue, USER_AGENT},
     },
-    serde::{de::DeserializeOwned, Deserialize, Serialize},
+    serde::{Deserialize, Serialize, de::DeserializeOwned},
     strum::Display,
     tracing,
 };
@@ -64,15 +63,12 @@ pub fn signin(token: &str) -> Result<Status> {
 
 /// Sign out from Stencila Cloud
 ///
-/// Removes the API token from the keyring or removes it as an env var. Returns
-/// the status BEFORE removal so the user can be provided with appropriate
-/// messaging.
+/// Removes the API token from the keyring. Returns the status BEFORE removal so
+/// the user can be provided with appropriate messaging.
 pub fn signout() -> Result<Status> {
     let status = status();
-    match status.token_source {
-        Some(TokenSource::Keyring) => secrets::delete(API_TOKEN_NAME)?,
-        Some(TokenSource::EnvVar) => env::remove_var(API_TOKEN_NAME),
-        None => {}
+    if matches!(status.token_source, Some(TokenSource::Keyring)) {
+        secrets::delete(API_TOKEN_NAME)?
     }
     Ok(status)
 }

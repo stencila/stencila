@@ -5,12 +5,12 @@ use std::{collections::HashMap, fmt::Debug, path::PathBuf, str::FromStr, sync::A
 use codecs::{DecodeOptions, Format};
 use common::{
     clap::{self, Args},
-    eyre::{bail, eyre, Result},
+    eyre::{Result, bail, eyre},
     futures::future::join_all,
     indexmap::IndexSet,
     itertools::Itertools,
     serde::{Deserialize, Serialize},
-    tokio::sync::{mpsc, oneshot, RwLock, RwLockWriteGuard},
+    tokio::sync::{RwLock, RwLockWriteGuard, mpsc, oneshot},
     tracing,
 };
 use kernels::{KernelLintingOptions, Kernels};

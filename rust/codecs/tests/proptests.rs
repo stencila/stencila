@@ -11,14 +11,14 @@
 #![allow(unused_imports)]
 
 use codec::{
+    DecodeOptions, EncodeOptions,
     common::{eyre::Result, futures::executor::block_on, once_cell::sync::Lazy, tokio::runtime},
     format::Format,
     schema::{Article, AudioObject, Node},
-    DecodeOptions, EncodeOptions,
 };
 use common_dev::{
     pretty_assertions::assert_eq,
-    proptest::prelude::{proptest, ProptestConfig},
+    proptest::prelude::{ProptestConfig, proptest},
 };
 use node_strip::{StripNode, StripTargets};
 

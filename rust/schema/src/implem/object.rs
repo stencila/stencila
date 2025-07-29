@@ -2,11 +2,11 @@ use std::collections::HashSet;
 
 use codec_html_trait::encode::{attr, elem};
 use node_store::{
-    automerge::{iter::MapRangeItem, transaction::Transactable, ObjId, ObjType, Prop, Value},
     ReadNode, ReadStore, WriteNode, WriteStore,
+    automerge::{ObjId, ObjType, Prop, Value, iter::MapRangeItem, transaction::Transactable},
 };
 
-use crate::{prelude::*, Object, Primitive};
+use crate::{Object, Primitive, prelude::*};
 
 impl StripNode for Object {}
 

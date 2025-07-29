@@ -1,6 +1,6 @@
 //! Provides the `TextCodec` derive macro for structs and enums in Stencila Schema
 
-use syn::{parse_macro_input, Data, DataEnum, DataStruct, DeriveInput, Fields, PathSegment, Type};
+use syn::{Data, DataEnum, DataStruct, DeriveInput, Fields, PathSegment, Type, parse_macro_input};
 
 use common::{proc_macro2::TokenStream, quote::quote};
 

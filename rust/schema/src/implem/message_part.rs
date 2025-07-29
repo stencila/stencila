@@ -1,4 +1,4 @@
-use crate::{prelude::*, MessagePart, Text};
+use crate::{MessagePart, Text, prelude::*};
 
 impl<S> From<S> for MessagePart
 where

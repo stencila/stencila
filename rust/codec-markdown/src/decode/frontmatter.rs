@@ -1,18 +1,18 @@
 use std::str::FromStr;
 
 use codec::{
+    NodeType,
     common::{
         serde_json::{self, json},
         serde_yaml,
     },
     format::Format,
     schema::{
-        shortcuts::t, Article, Chat, CodeLocation, CompilationMessage, MessageLevel, Node, Prompt,
+        Article, Chat, CodeLocation, CompilationMessage, MessageLevel, Node, Prompt, shortcuts::t,
     },
-    NodeType,
 };
 
-use super::{decode_blocks, decode_inlines, Context};
+use super::{Context, decode_blocks, decode_inlines};
 
 /// Parse any YAML frontmatter
 ///

@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, Claim};
+use crate::{Claim, prelude::*};
 
 impl MarkdownCodec for Claim {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {

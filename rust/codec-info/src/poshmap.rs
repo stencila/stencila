@@ -1,7 +1,7 @@
 use node_id::NodeId;
 use node_type::NodeProperty;
 
-use crate::{Mapping, Position16, Position8, Positions, Range16, Range8, Shifter};
+use crate::{Mapping, Position8, Position16, Positions, Range8, Range16, Shifter};
 
 /// A PoshMap is a combination of a [`Positions`], a [`Shifter`], and a [`Mapping`] used to
 /// translate a [`Position8`] or [`Position16`] (e.g. received from a LSP client) into a [`NodeId`]

@@ -2,8 +2,8 @@ use codec_markdown_trait::to_markdown;
 use common::serde_yaml;
 
 use crate::{
-    prelude::*, replicate, shortcuts::t, Article, Block, Collection, CollectionOptions,
-    CreativeWorkType, Inline, RawBlock, Reference, SoftwareSourceCode,
+    Article, Block, Collection, CollectionOptions, CreativeWorkType, Inline, RawBlock, Reference,
+    SoftwareSourceCode, prelude::*, replicate, shortcuts::t,
 };
 
 impl Article {

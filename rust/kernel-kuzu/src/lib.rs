@@ -8,9 +8,11 @@ use std::{
 use kuzu::{Connection, Database, LogicalType, SystemConfig, Value};
 
 use kernel::{
+    Kernel, KernelInstance, KernelType, KernelVariableRequest, KernelVariableRequester,
+    KernelVariableResponder,
     common::{
         async_trait::async_trait,
-        eyre::{bail, eyre, OptionExt, Result},
+        eyre::{OptionExt, Result, bail, eyre},
         itertools::Itertools,
         once_cell::sync::Lazy,
         regex::Regex,
@@ -22,8 +24,6 @@ use kernel::{
         Array, CodeLocation, Datatable, ExecutionBounds, ExecutionMessage, MessageLevel, Node,
         Null, SoftwareApplication, SoftwareApplicationOptions, StringOrNumber,
     },
-    Kernel, KernelInstance, KernelType, KernelVariableRequest, KernelVariableRequester,
-    KernelVariableResponder,
 };
 use kernel_jinja::JinjaKernelInstance;
 
@@ -933,9 +933,11 @@ COPY (MATCH (p:Person) RETURN p) TO '{}';
         ] {
             match kernel.replicate(bounds).await {
                 Ok(..) => bail!("expected error"),
-                Err(error) => assert!(error
-                    .to_string()
-                    .starts_with("Can not replicate a Kuzu kernel for an in-memory database")),
+                Err(error) => assert!(
+                    error
+                        .to_string()
+                        .starts_with("Can not replicate a Kuzu kernel for an in-memory database")
+                ),
             }
         }
 

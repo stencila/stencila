@@ -3,17 +3,17 @@ use std::path::Path;
 use codec::schema::ExecutionBounds;
 use common::{
     async_trait::async_trait,
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     serde::{Deserialize, Serialize},
 };
 use kernel::{
-    format::Format,
-    schema::{ExecutionMessage, Node, SoftwareApplication, SoftwareSourceCode, Variable},
     Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelProvider,
     KernelTerminate,
+    format::Format,
+    schema::{ExecutionMessage, Node, SoftwareApplication, SoftwareSourceCode, Variable},
 };
 
-use crate::{plugins, Plugin, PluginEnabled, PluginInstance, PluginStatus};
+use crate::{Plugin, PluginEnabled, PluginInstance, PluginStatus, plugins};
 
 /// A kernel provided by a plugin
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -219,7 +219,7 @@ impl KernelInstance for PluginKernelInstance {
         if let Some(plugin_instance) = self.plugin_instance.as_mut() {
             if let Some(instance) = self.kernel_instance.take() {
                 plugin_instance
-                    .call("kernel_stop", Params { instance })
+                    .call::<_, ()>("kernel_stop", Params { instance })
                     .await?;
             }
             plugin_instance.stop().await?;

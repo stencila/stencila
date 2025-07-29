@@ -1,6 +1,6 @@
 use codec_info::{lost_exec_options, lost_options, lost_props};
 
-use crate::{prelude::*, CodeExpression};
+use crate::{CodeExpression, prelude::*};
 
 impl LatexCodec for CodeExpression {
     fn to_latex(&self, context: &mut LatexEncodeContext) {

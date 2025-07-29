@@ -1,4 +1,4 @@
-use crate::{prelude::*, DatatableColumn};
+use crate::{DatatableColumn, prelude::*};
 
 impl DomCodec for DatatableColumn {
     fn to_dom(&self, context: &mut DomEncodeContext) {

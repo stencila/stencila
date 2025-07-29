@@ -1,12 +1,12 @@
-use crate::{prelude::*, PromptContext};
+use crate::{PromptContext, prelude::*};
 
 use common_dev::pretty_assertions::assert_eq;
 use kernel_quickjs::kernel::common::tokio;
 use schema::Node;
 
 use super::{
-    variable::{Hint, Variable},
     Kernel, Kernels, Package,
+    variable::{Hint, Variable},
 };
 
 #[tokio::test]

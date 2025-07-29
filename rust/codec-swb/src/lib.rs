@@ -1,8 +1,9 @@
 use std::{fs::File, path::Path};
 
-use flate2::{write::GzEncoder, Compression};
+use flate2::{Compression, write::GzEncoder};
 
 use codec::{
+    Codec, CodecSupport, EncodeInfo, EncodeOptions,
     common::{
         async_trait::async_trait,
         clap::{self, Parser},
@@ -14,7 +15,6 @@ use codec::{
     format::Format,
     schema::Node,
     status::Status,
-    Codec, CodecSupport, EncodeInfo, EncodeOptions,
 };
 use codec_dom::DomCodec;
 use codec_jsonld::JsonLdCodec;

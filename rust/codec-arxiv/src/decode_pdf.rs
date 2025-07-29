@@ -1,4 +1,5 @@
 use codec::{
+    Codec, DecodeInfo, DecodeOptions,
     common::{
         eyre::Result,
         futures::StreamExt,
@@ -8,7 +9,6 @@ use codec::{
         tracing,
     },
     schema::Node,
-    Codec, DecodeInfo, DecodeOptions,
 };
 use codec_pdf::PdfCodec;
 

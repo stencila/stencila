@@ -1,17 +1,18 @@
 use std::{
     path::Path,
     sync::{
-        atomic::{AtomicU8, Ordering},
         Arc, RwLock,
+        atomic::{AtomicU8, Ordering},
     },
 };
 
 use rhai::{Dynamic, Engine, Map, Scope};
 
 use kernel::{
+    Kernel, KernelInstance, KernelSignal, KernelStatus, KernelTerminate,
     common::{
         async_trait::async_trait,
-        eyre::{bail, eyre, Result},
+        eyre::{Result, bail, eyre},
         itertools::Itertools,
         serde_json,
         tokio::{
@@ -27,7 +28,6 @@ use kernel::{
         ObjectHint, SoftwareApplication, SoftwareApplicationOptions, SoftwareSourceCode,
         StringHint, Unknown, Variable,
     },
-    Kernel, KernelInstance, KernelSignal, KernelStatus, KernelTerminate,
 };
 
 /// A kernel for executing Rhai.
@@ -652,11 +652,12 @@ b",
         let sw = kernel::tests::info(instance).await?;
         assert_eq!(sw.name, "Rhai");
         assert!(sw.options.software_version.is_some());
-        assert!(sw
-            .options
-            .software_version
-            .map(|version| version.starts_with('1'))
-            .unwrap_or_default());
+        assert!(
+            sw.options
+                .software_version
+                .map(|version| version.starts_with('1'))
+                .unwrap_or_default()
+        );
         assert!(sw.options.operating_system.is_some());
 
         Ok(())

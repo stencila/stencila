@@ -7,7 +7,7 @@ use std::{
 };
 
 use common::{
-    eyre::{bail, Context, Report, Result},
+    eyre::{Context, Report, Result, bail},
     futures::future::try_join_all,
     inflector::Inflector,
     itertools::Itertools,
@@ -475,7 +475,7 @@ pub(crate) fn node_type_properties(node_type: &NodeType) -> Vec<NodeProperty> {{
     async fn rust_object(dest: &Path, title: &String, schema: &Schema) -> Result<String> {
         let module = title.to_snake_case();
 
-        let path = dest.join(format!("{}.rs", module));
+        let path = dest.join(format!("{module}.rs"));
         if path.exists() {
             return Ok(title.to_string());
         }

@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use async_openai::{
+    Client,
     config::OpenAIConfig,
     types::{
         ChatCompletionRequestAssistantMessage, ChatCompletionRequestAssistantMessageContent,
@@ -11,20 +12,20 @@ use async_openai::{
         CreateChatCompletionRequest, CreateImageRequestArgs, Image, ImageDetail, ImageQuality,
         ImageResponseFormat, ImageSize, ImageStyle, ImageUrl, ListModelResponse, Stop,
     },
-    Client,
 };
 use cached::proc_macro::cached;
 
 use model::{
+    Model, ModelIO, ModelOutput, ModelTask, ModelTaskKind, ModelType,
     common::{
         async_trait::async_trait,
-        eyre::{bail, Result},
+        eyre::{Result, bail},
         inflector::Inflector,
         itertools::Itertools,
         tracing,
     },
     schema::{ImageObject, MessagePart, MessageRole},
-    secrets, Model, ModelIO, ModelOutput, ModelTask, ModelTaskKind, ModelType,
+    secrets,
 };
 
 /// The name of the env var or secret for the API key

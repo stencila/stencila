@@ -5,10 +5,10 @@ use codec::{Codec, EncodeOptions};
 use codec_swb::SwbCodec;
 use common::{
     clap::{self, Parser},
-    eyre::{bail, eyre, Result},
+    eyre::{Result, bail, eyre},
     reqwest::{
-        multipart::{Form, Part},
         Client,
+        multipart::{Form, Part},
     },
     serde::Serialize,
     serde_json,

@@ -1,4 +1,4 @@
-use crate::{prelude::*, Block, HorizontalAlignment, Paragraph, TableCell, TableCellType};
+use crate::{Block, HorizontalAlignment, Paragraph, TableCell, TableCellType, prelude::*};
 
 impl TableCell {
     pub fn to_jats_special(&self) -> (String, Losses) {

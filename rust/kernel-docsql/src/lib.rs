@@ -5,11 +5,12 @@ use std::{
 
 use kernel_docsdb::{DocsDBChannels, DocsDBKernelInstance};
 use kernel_jinja::{
-    self,
+    self, JinjaKernelContext,
     kernel::{
+        Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
         common::{
             async_trait::async_trait,
-            eyre::{eyre, OptionExt, Result},
+            eyre::{OptionExt, Result, eyre},
             itertools::Itertools,
             once_cell::sync::Lazy,
             regex::Regex,
@@ -20,21 +21,19 @@ use kernel_jinja::{
         format::Format,
         generate_id,
         schema::{ExecutionBounds, ExecutionMessage, MessageLevel, Node, SoftwareApplication},
-        Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
     },
-    minijinja::{context, Environment, UndefinedBehavior, Value},
-    JinjaKernelContext,
+    minijinja::{Environment, UndefinedBehavior, Value, context},
 };
 
 mod github;
 mod openalex;
 mod query;
 
-use github::{add_github_functions, GitHubQuery};
-use openalex::{add_openalex_functions, OpenAlexQuery};
+use github::{GitHubQuery, add_github_functions};
+use openalex::{OpenAlexQuery, add_openalex_functions};
 use query::{
-    add_constants, add_document_functions, add_functions, add_subquery_functions, NodeProxies,
-    NodeProxy, Query, GLOBAL_NAMES,
+    GLOBAL_NAMES, NodeProxies, NodeProxy, Query, add_constants, add_document_functions,
+    add_functions, add_subquery_functions,
 };
 
 use crate::query::{QueryLabelled, QueryNodeType, QuerySectionType, QueryVariables};
@@ -256,7 +255,7 @@ impl KernelInstance for DocsQLKernelInstance {
                     return Ok((
                         Vec::new(),
                         vec![error_to_execution_message(error, line_offset)],
-                    ))
+                    ));
                 }
             };
 

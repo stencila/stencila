@@ -2,19 +2,20 @@ use std::{collections::HashMap, str::FromStr};
 
 use jupyter_protocol::{Media, MediaType};
 use nbformat::{
-    parse_notebook, serialize_notebook, upgrade_legacy_notebook,
+    Notebook, parse_notebook, serialize_notebook, upgrade_legacy_notebook,
     v4::{
         Author as NotebookAuthor, Cell, CellId, CellMetadata, ErrorOutput, ExecuteResult, Metadata,
         MultilineString, Notebook as NotebookV4, Output,
     },
-    Notebook,
 };
 
 use codec::{
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Losses, NodeId,
+    NodeType,
     common::{
         async_trait::async_trait,
-        eyre::{bail, eyre, Result},
-        serde_json::{self, json, Map, Value},
+        eyre::{Result, bail, eyre},
+        serde_json::{self, Map, Value, json},
     },
     format::Format,
     schema::{
@@ -22,8 +23,6 @@ use codec::{
         LabelType, Node, Object, Person, RawBlock,
     },
     status::Status,
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Losses, NodeId,
-    NodeType,
 };
 
 /// A codec for Jupyter Notebooks
@@ -431,22 +430,22 @@ fn node_from_media(media: Media) -> Node {
     for media_type in &media.content {
         match media_type {
             MediaType::Plotly(value) => {
-                return image_object_from_object("application/vnd.plotly.v1+json", value)
+                return image_object_from_object("application/vnd.plotly.v1+json", value);
             }
             MediaType::VegaLiteV2(value) => {
-                return image_object_from_object("application/vnd.vegalite.v2+json", value)
+                return image_object_from_object("application/vnd.vegalite.v2+json", value);
             }
             MediaType::VegaLiteV3(value) => {
-                return image_object_from_object("application/vnd.vegalite.v3+json", value)
+                return image_object_from_object("application/vnd.vegalite.v3+json", value);
             }
             MediaType::VegaLiteV4(value) => {
-                return image_object_from_object("application/vnd.vegalite.v4+json", value)
+                return image_object_from_object("application/vnd.vegalite.v4+json", value);
             }
             MediaType::VegaLiteV5(value) => {
-                return image_object_from_object("application/vnd.vegalite.v5+json", value)
+                return image_object_from_object("application/vnd.vegalite.v5+json", value);
             }
             MediaType::VegaLiteV6(value) => {
-                return image_object_from_object("application/vnd.vegalite.v6+json", value)
+                return image_object_from_object("application/vnd.vegalite.v6+json", value);
             }
             _ => {}
         }

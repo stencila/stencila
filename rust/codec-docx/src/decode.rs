@@ -5,7 +5,7 @@ use zip::ZipArchive;
 
 use codec::{
     common::{
-        eyre::{eyre, Context, Result},
+        eyre::{Context, Result, eyre},
         indexmap::IndexMap,
         serde_json,
     },

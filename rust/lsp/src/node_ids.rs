@@ -4,8 +4,8 @@
 use std::{str::FromStr, sync::Arc};
 
 use async_lsp::{
-    lsp_types::{request::Request, Position},
     ResponseError,
+    lsp_types::{Position, request::Request},
 };
 
 use common::{

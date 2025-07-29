@@ -3,25 +3,24 @@ use std::{
     fs::read_to_string,
 };
 
-use codec::{format::Format, Codec, DecodeOptions};
+use codec::{Codec, DecodeOptions, format::Format};
 use codec_markdown::MarkdownCodec;
 use common::{
-    eyre::{bail, Ok, Result},
+    eyre::{Ok, Result, bail},
     glob::glob,
     itertools::Itertools,
     serde::Serialize,
     tokio,
 };
 use common_dev::{insta::assert_yaml_snapshot, pretty_assertions::assert_eq};
-use node_strip::{strip, StripScope, StripTargets};
+use node_strip::{StripScope, StripTargets, strip};
 use schema::{
-    authorship, diff, merge, patch,
-    shortcuts::{art, p, sec, t},
     Article, Author, AuthorRole, AuthorRoleName, Block, CodeChunk, Cord, CordAuthorship, CordOp,
     Figure, Inline, InstructionBlock, InstructionType, Node, NodePath, NodeProperty, NodeSlot,
     Paragraph, Patch, PatchNode, PatchOp, PatchValue, Person, Primitive, ProvenanceCategory,
     ProvenanceCount, SoftwareApplication, Strong, SuggestionBlock, SuggestionStatus, Text,
-    TimeUnit,
+    TimeUnit, authorship, diff, merge, patch,
+    shortcuts::{art, p, sec, t},
 };
 
 /// An individual fixture

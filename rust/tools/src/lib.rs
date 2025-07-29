@@ -21,7 +21,7 @@ mod tool;
 /// Re-exports for consuming crates
 pub use command::{AsyncToolCommand, ToolCommand, ToolStdio};
 pub use semver::{Version, VersionReq};
-pub use tool::{detect_managers, ToolType};
+pub use tool::{ToolType, detect_managers};
 
 use crate::collaboration::*;
 use crate::conversion::*;

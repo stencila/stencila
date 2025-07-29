@@ -1,7 +1,7 @@
 use cli_utils::{
+    AsFormat, Code, ToStdout,
     color_print::cstr,
     tabulated::{Attribute, Cell, Color, Tabulated},
-    AsFormat, Code, ToStdout,
 };
 use codecs::{EncodeOptions, Format};
 use common::itertools::Itertools;

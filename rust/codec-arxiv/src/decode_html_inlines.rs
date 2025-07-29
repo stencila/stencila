@@ -1,13 +1,13 @@
 use tl::{HTMLTag, Parser};
 
 use codec::schema::{
-    shortcuts::{em, stg, stk, sub, sup, t, u},
     Citation, CitationGroup, CitationMode, ImageObject, Inline, Link, MathInline,
+    shortcuts::{em, stg, stk, sub, sup, t, u},
 };
 
 use super::decode_html::{
-    extract_latex_and_mathml, extract_text_from_inlines, get_attr, get_href_target,
-    ArxivDecodeContext,
+    ArxivDecodeContext, extract_latex_and_mathml, extract_text_from_inlines, get_attr,
+    get_href_target,
 };
 
 /// Decode inline elements
@@ -42,11 +42,11 @@ pub fn decode_inlines(
                 let result = if text_content.starts_with(char::is_whitespace)
                     && text_content.ends_with(char::is_whitespace)
                 {
-                    format!(" {} ", normalized)
+                    format!(" {normalized} ")
                 } else if text_content.starts_with(char::is_whitespace) {
-                    format!(" {}", normalized)
+                    format!(" {normalized}")
                 } else if text_content.ends_with(char::is_whitespace) {
-                    format!("{} ", normalized)
+                    format!("{normalized} ")
                 } else {
                     normalized
                 };
@@ -376,7 +376,7 @@ fn extract_citation_text_for_link(
     } else if year.is_empty() {
         author_text
     } else {
-        format!("{}, {}", author_text, year)
+        format!("{author_text}, {year}")
     }
 }
 
@@ -544,14 +544,14 @@ pub fn decode_svg_picture_inline(
     tag: &HTMLTag,
     _context: &mut ArxivDecodeContext,
 ) -> Inline {
-    use base64::{engine::general_purpose::STANDARD, Engine as _};
+    use base64::{Engine as _, engine::general_purpose::STANDARD};
 
     // Get the full SVG element as HTML string
     let svg_html = tag.outer_html(parser);
 
     // Create a base64 encoded data URI
     let encoded = STANDARD.encode(svg_html.as_bytes());
-    let data_uri = format!("data:image/svg+xml;base64,{}", encoded);
+    let data_uri = format!("data:image/svg+xml;base64,{encoded}");
 
     // Create an ImageObject
     let image_object = ImageObject {

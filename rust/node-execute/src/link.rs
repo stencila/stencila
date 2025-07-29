@@ -1,4 +1,4 @@
-use schema::{shortcuts::t, LabelType, Link};
+use schema::{LabelType, Link, shortcuts::t};
 
 use crate::prelude::*;
 

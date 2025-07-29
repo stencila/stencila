@@ -1,4 +1,4 @@
-use std::io::{stdout, Write};
+use std::io::{Write, stdout};
 
 /// Clear the terminal
 #[allow(clippy::print_stdout)]

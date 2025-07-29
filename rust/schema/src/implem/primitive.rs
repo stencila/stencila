@@ -1,6 +1,6 @@
-use node_store::{automerge::ObjId, ReadNode, ReadStore};
+use node_store::{ReadNode, ReadStore, automerge::ObjId};
 
-use crate::{prelude::*, Array, Null, Object, Primitive};
+use crate::{Array, Null, Object, Primitive, prelude::*};
 
 impl ReadNode for Primitive {
     fn load_null() -> Result<Self> {

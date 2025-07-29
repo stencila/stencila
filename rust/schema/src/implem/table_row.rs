@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, TableCellType, TableRow, TableRowType};
+use crate::{TableCellType, TableRow, TableRowType, prelude::*};
 
 impl TableRow {
     pub fn to_jats_special(&self) -> (String, Losses) {

@@ -1,4 +1,4 @@
-use codec::{common::itertools::Itertools, Losses};
+use codec::{Losses, common::itertools::Itertools};
 use roxmltree::Node;
 
 /// Extend a path with a new child tag name

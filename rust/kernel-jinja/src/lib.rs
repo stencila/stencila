@@ -4,12 +4,14 @@ use std::{
     thread,
 };
 
-use minijinja::{context, value::Object, Environment, Error, Value};
+use minijinja::{Environment, Error, Value, context, value::Object};
 
 use kernel::{
+    Kernel, KernelInstance, KernelType, KernelVariableRequest, KernelVariableRequester,
+    KernelVariableResponder,
     common::{
         async_trait::async_trait,
-        eyre::{eyre, Report, Result},
+        eyre::{Report, Result, eyre},
         serde_json, tokio, tracing,
     },
     format::Format,
@@ -18,8 +20,6 @@ use kernel::{
         CodeLocation, ExecutionBounds, ExecutionMessage, MessageLevel, Node, Null,
         SoftwareApplication, SoftwareApplicationOptions,
     },
-    Kernel, KernelInstance, KernelType, KernelVariableRequest, KernelVariableRequester,
-    KernelVariableResponder,
 };
 
 // Re-exports for dependants

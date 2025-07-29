@@ -8,7 +8,7 @@ use std::{
 
 use common::{
     async_recursion::async_recursion,
-    eyre::{bail, Context, Report, Result},
+    eyre::{Context, Report, Result, bail},
     futures::future::try_join_all,
     inflector::Inflector,
     itertools::Itertools,
@@ -363,7 +363,7 @@ export const provenanceCategories: {{ [Property in ProvenanceCategory]: string }
         title: &String,
         schema: &Schema,
     ) -> Result<String> {
-        let path = dest.join(format!("{}.ts", title));
+        let path = dest.join(format!("{title}.ts"));
         if path.exists() {
             return Ok(title.to_string());
         }
@@ -600,7 +600,7 @@ export function {name}({required_args}options?: Partial<{title}>): {title} {{
                 .join("Or")
         });
 
-        let path = dest.join(format!("{}.ts", name));
+        let path = dest.join(format!("{name}.ts"));
         if path.exists() {
             return Ok(name);
         }
@@ -744,7 +744,7 @@ export type {name} =
     async fn typescript_array_of(dest: &Path, item_type: &str) -> Result<String> {
         let name = item_type.to_plural();
 
-        let path = dest.join(format!("{}.ts", name));
+        let path = dest.join(format!("{name}.ts"));
         if path.exists() {
             return Ok(name);
         }

@@ -1,13 +1,13 @@
 use axum::{
+    Router,
     body::Body,
     extract::Path,
     http::{
-        header::{ACCEPT_ENCODING, CACHE_CONTROL, CONTENT_ENCODING, CONTENT_TYPE},
         HeaderMap, StatusCode,
+        header::{ACCEPT_ENCODING, CACHE_CONTROL, CONTENT_ENCODING, CONTENT_TYPE},
     },
     response::{IntoResponse, Response},
     routing::get,
-    Router,
 };
 
 use common::tracing;
@@ -15,7 +15,7 @@ use web_dist::Web;
 
 use crate::{
     errors::InternalError,
-    server::{ServerState, STENCILA_VERSION},
+    server::{STENCILA_VERSION, ServerState},
 };
 
 /// The encodings to use when serving static files

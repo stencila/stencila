@@ -93,7 +93,7 @@ impl Cli {
         }
 
         // Sleep forever (or until Ctrl+C is pressed)
-        use tokio::time::{sleep, Duration};
+        use tokio::time::{Duration, sleep};
         sleep(Duration::from_secs(u64::MAX)).await;
 
         Ok(())

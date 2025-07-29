@@ -2,12 +2,12 @@ use codec_text_trait::to_text;
 use roxmltree::Node;
 
 use codec::{
+    Losses,
     schema::{
         Article, Author, Block, CreativeWorkType, Date, Heading, IntegerOrString, Organization,
         OrganizationOptions, Person, PersonOptions, PersonOrOrganization, Primitive, PropertyValue,
         PropertyValueOrString, PublicationVolume, StringOrNumber, ThingType,
     },
-    Losses,
 };
 
 use super::{

@@ -19,14 +19,14 @@ use std::path::Path;
 use pandoc_types::definition::Pandoc;
 
 use codec::{
+    DecodeOptions, EncodeOptions,
     common::{
-        eyre::{bail, Result},
+        eyre::{Result, bail},
         serde_json,
         tokio::io::AsyncWriteExt,
         tracing,
     },
     format::Format,
-    DecodeOptions, EncodeOptions,
 };
 use tools::{AsyncToolCommand, ToolStdio};
 

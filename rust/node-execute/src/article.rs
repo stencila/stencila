@@ -1,7 +1,7 @@
 use codec_markdown::decode_frontmatter;
-use schema::{diff, Article, NodeSlot, NodeType, Reference};
+use schema::{Article, NodeSlot, NodeType, Reference, diff};
 
-use crate::{interrupt_impl, prelude::*, HeadingInfo};
+use crate::{HeadingInfo, interrupt_impl, prelude::*};
 
 impl Executable for Article {
     #[tracing::instrument(skip_all)]

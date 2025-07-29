@@ -1,12 +1,11 @@
 use codec::{
+    Codec, EncodeInfo,
     common::{eyre::Result, tokio},
     format::Format,
     schema::{
-        authorship, merge,
+        AuthorRole, AuthorRoleName, Person, authorship, merge,
         shortcuts::{art, p, t},
-        AuthorRole, AuthorRoleName, Person,
     },
-    Codec, EncodeInfo,
 };
 use codec_markdown::MarkdownCodec;
 use common_dev::insta::{assert_snapshot, assert_yaml_snapshot};

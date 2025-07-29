@@ -2,8 +2,8 @@
 
 use darling::{self, FromDeriveInput, FromField};
 use syn::{
-    self, parse_macro_input, parse_str, Data, DataEnum, DeriveInput, Fields, Ident, Path,
-    PathSegment, Type,
+    self, Data, DataEnum, DeriveInput, Fields, Ident, Path, PathSegment, Type, parse_macro_input,
+    parse_str,
 };
 
 use common::{inflector::Inflector, proc_macro2::TokenStream, quote::quote};

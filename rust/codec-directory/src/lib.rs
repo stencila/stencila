@@ -6,14 +6,14 @@ use std::{
 use ignore::Walk;
 
 use codec::{
+    Codec, CodecSupport, DecodeInfo, DecodeOptions,
     common::{
         async_trait::async_trait,
-        eyre::{bail, Result},
+        eyre::{Result, bail},
     },
     format::Format,
     schema::{Directory, File, FileOrDirectory, Node, NodeType},
     status::Status,
-    Codec, CodecSupport, DecodeInfo, DecodeOptions,
 };
 
 /// A codec for "decoding" a directory to a Stencila `Directory` node

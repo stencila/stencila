@@ -1,6 +1,6 @@
 use codec::common::{
     eyre::Result,
-    serde::{de::DeserializeOwned, Serialize},
+    serde::{Serialize, de::DeserializeOwned},
 };
 
 impl<T> CborCodec for T where T: DeserializeOwned + Serialize {}

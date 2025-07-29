@@ -1,12 +1,12 @@
 use codec::{
+    Codec, CodecSupport, DecodeInfo, DecodeOptions,
     common::{
         async_trait::async_trait,
-        eyre::{bail, Result},
+        eyre::{Result, bail},
     },
     format::Format,
     schema::Node,
     status::Status,
-    Codec, CodecSupport, DecodeInfo, DecodeOptions,
 };
 
 mod decode;

@@ -1,15 +1,16 @@
 use std::{collections::HashMap, ops::Range};
 
 use markdown::{
+    ParseOptions,
     mdast::{self, Root},
     to_mdast,
     unist::Position,
-    ParseOptions,
 };
 
 use codec::{
+    DecodeInfo, DecodeOptions, Losses, Mapping,
     common::{
-        eyre::{eyre, Result},
+        eyre::{Result, eyre},
         once_cell::sync::Lazy,
         regex::Regex,
     },
@@ -17,7 +18,6 @@ use codec::{
     schema::{
         Article, Block, Chat, Inline, Node, NodeId, NodeType, Null, Prompt, VisitorMut, WalkControl,
     },
-    DecodeInfo, DecodeOptions, Losses, Mapping,
 };
 
 use self::{blocks::mds_to_blocks, inlines::mds_to_inlines};

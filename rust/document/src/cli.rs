@@ -4,18 +4,18 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use ask::{ask_with_default, Answer};
+use ask::{Answer, ask_with_default};
 use cli_utils::{
+    AsFormat, Code, ToStdout,
     color_print::cstr,
     tabulated::{Attribute, Cell, Color, Tabulated},
-    AsFormat, Code, ToStdout,
 };
 use codecs::{EncodeOptions, LossesResponse};
 use common::{
     chrono::TimeDelta,
     chrono_humanize,
     clap::{self, Parser},
-    eyre::{bail, Report, Result},
+    eyre::{Report, Result, bail},
     futures::future::try_join_all,
     itertools::Itertools,
     reqwest::Url,
@@ -23,8 +23,8 @@ use common::{
     tracing,
 };
 use dirs::{
-    closest_stencila_dir, closest_workspace_dir, stencila_dir_create, CreateStencilaDirOptions,
-    STENCILA_DIR,
+    CreateStencilaDirOptions, STENCILA_DIR, closest_stencila_dir, closest_workspace_dir,
+    stencila_dir_create,
 };
 use format::Format;
 use kernels::Kernels;
@@ -35,7 +35,7 @@ use schema::{
 
 use crate::track::DocumentRemote;
 
-use super::{track::DocumentTrackingStatus, Document};
+use super::{Document, track::DocumentTrackingStatus};
 
 /// Initialize a workspace
 #[derive(Debug, Parser)]
@@ -241,7 +241,7 @@ impl Query {
         };
 
         let (language, code) = if self.cypher || query.to_lowercase().starts_with("match ") {
-            ("docsdb", format!("// @{}\n{}", db, query))
+            ("docsdb", format!("// @{db}\n{query}"))
         } else {
             ("docsql", query.to_string())
         };

@@ -1,4 +1,4 @@
-use crate::{prelude::*, SuggestionStatus};
+use crate::{SuggestionStatus, prelude::*};
 
 impl SuggestionStatus {
     pub fn to_keyword(&self) -> &str {

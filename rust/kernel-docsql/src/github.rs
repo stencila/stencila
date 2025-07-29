@@ -14,8 +14,8 @@ use kernel_jinja::{
         schema::{CodeChunk, ExecutionMessage, MessageLevel, Node},
     },
     minijinja::{
-        value::{from_args, Kwargs, Object},
         Environment, Error, ErrorKind, State, Value,
+        value::{Kwargs, Object, from_args},
     },
 };
 
@@ -260,7 +260,7 @@ impl GitHubQuery {
                     .as_str()
                     .map(String::from)
                     .unwrap_or_else(|| value.to_string());
-                Ok(self.search(format!("{}:{}", clean_property, search_value)))
+                Ok(self.search(format!("{clean_property}:{search_value}")))
             }
             _ => self.filter(clean_property, operator, value),
         }
@@ -365,18 +365,18 @@ impl GitHubQuery {
         let filter_value = format_filter_value(value.clone())?;
 
         match operator {
-            "==" => Ok(format!("{}:{}", property, filter_value)),
-            "!=" => Ok(format!("-{}:{}", property, filter_value)),
-            "^=" => Ok(format!("{}:{}*", property, filter_value)),
-            "$=" => Ok(format!("{}:*{}", property, filter_value)),
+            "==" => Ok(format!("{property}:{filter_value}")),
+            "!=" => Ok(format!("-{property}:{filter_value}")),
+            "^=" => Ok(format!("{property}:{filter_value}*")),
+            "$=" => Ok(format!("{property}:*{filter_value}")),
             "in" => {
                 // For GitHub, "in" operator should create multiple OR conditions
                 // For now, treat as single value since we don't have proper array handling
-                Ok(format!("{}:{}", property, filter_value))
+                Ok(format!("{property}:{filter_value}"))
             }
             _ => Err(Error::new(
                 ErrorKind::InvalidOperation,
-                format!("Unsupported operator for GitHub subquery: {}", operator),
+                format!("Unsupported operator for GitHub subquery: {operator}"),
             )),
         }
     }
@@ -421,10 +421,10 @@ impl GitHubQuery {
     /// Generate the GitHub API URL
     pub fn generate(&self) -> String {
         let mut url = match self.entity_type.as_str() {
-            "repositories" => format!("{}/search/repositories", API_BASE_URL),
-            "users" => format!("{}/search/users", API_BASE_URL),
-            "code" | "files" => format!("{}/search/code", API_BASE_URL),
-            _ => format!("{}/search/repositories", API_BASE_URL), // default
+            "repositories" => format!("{API_BASE_URL}/search/repositories"),
+            "users" => format!("{API_BASE_URL}/search/users"),
+            "code" | "files" => format!("{API_BASE_URL}/search/code"),
+            _ => format!("{API_BASE_URL}/search/repositories"), // default
         };
 
         let mut query_params = Vec::new();
@@ -508,7 +508,7 @@ impl GitHubQuery {
 
                 // Add GitHub token if available
                 if let Ok(token) = std::env::var("GITHUB_TOKEN") {
-                    request = request.header("Authorization", format!("Bearer {}", token));
+                    request = request.header("Authorization", format!("Bearer {token}"));
                 }
 
                 request.send().await
@@ -516,7 +516,7 @@ impl GitHubQuery {
         }) {
             Ok(response) => response,
             Err(error) => {
-                self.add_error_message(format!("HTTP request failed: {}", error));
+                self.add_error_message(format!("HTTP request failed: {error}"));
                 return Vec::new();
             }
         };
@@ -528,7 +528,7 @@ impl GitHubQuery {
                 runtime::Handle::current()
                     .block_on(async move { response.text().await.unwrap_or_default() })
             });
-            self.add_error_message(format!("GitHub API error {}: {}", status, error_text));
+            self.add_error_message(format!("GitHub API error {status}: {error_text}"));
             return Vec::new();
         }
 
@@ -538,7 +538,7 @@ impl GitHubQuery {
         }) {
             Ok(json) => json,
             Err(error) => {
-                self.add_error_message(format!("Failed to parse JSON response: {}", error));
+                self.add_error_message(format!("Failed to parse JSON response: {error}"));
                 return Vec::new();
             }
         };
@@ -705,7 +705,7 @@ impl Object for GitHubQuery {
                 if !args.is_empty() {
                     return Err(Error::new(
                         ErrorKind::TooManyArguments,
-                        format!("Method `{}` takes no arguments.", name),
+                        format!("Method `{name}` takes no arguments."),
                     ));
                 }
                 self.count()
@@ -720,7 +720,7 @@ impl Object for GitHubQuery {
             _ => {
                 return Err(Error::new(
                     ErrorKind::UnknownMethod,
-                    format!("Unknown method: {}", name),
+                    format!("Unknown method: {name}"),
                 ));
             }
         };

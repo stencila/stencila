@@ -1,4 +1,5 @@
 use kernel::{
+    Kernel, KernelInstance, KernelType,
     common::{async_trait::async_trait, eyre::Result, itertools::Itertools, tracing},
     format::Format,
     generate_id,
@@ -6,7 +7,6 @@ use kernel::{
         CodeLocation, ExecutionBounds, ExecutionMessage, MessageLevel, Node, Null,
         SoftwareApplication, SoftwareApplicationOptions,
     },
-    Kernel, KernelInstance, KernelType,
 };
 
 const NAME: &str = "asciimath";
@@ -140,7 +140,7 @@ impl AsciiMathKernelInstance {
                                 ..Default::default()
                             }),
                             ..Default::default()
-                        })
+                        });
                     }
                 })
             })

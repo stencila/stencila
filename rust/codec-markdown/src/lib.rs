@@ -1,6 +1,7 @@
 use std::path::Path;
 
 use codec::{
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     common::{
         async_trait::async_trait,
         eyre::Result,
@@ -9,7 +10,6 @@ use codec::{
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
 
 pub use codec_markdown_trait::{to_markdown, to_markdown_flavor};

@@ -3,15 +3,15 @@ use std::{fs::read_to_string, io::Write, path::Path};
 use tools::ToolCommand;
 
 use kernel_micro::{
+    Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelLint,
+    KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider, KernelTerminate,
+    Microkernel,
     common::{eyre::Result, serde::Deserialize, serde_json, tempfile, tracing},
     format::Format,
     schema::{
         AuthorRole, AuthorRoleName, CodeLocation, CompilationMessage, ExecutionBounds,
         MessageLevel, SoftwareApplication, Timestamp,
     },
-    Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelLint,
-    KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider, KernelTerminate,
-    Microkernel,
 };
 
 /// A kernel for executing R code
@@ -217,7 +217,7 @@ mod tests {
     use common_dev::pretty_assertions::assert_eq;
     use kernel_micro::{
         common::{
-            eyre::{bail, Ok},
+            eyre::{Ok, bail},
             indexmap::IndexMap,
             tokio,
         },

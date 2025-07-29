@@ -2,7 +2,7 @@
 
 use std::{collections::HashMap, env};
 
-use async_lsp::{lsp_types::Url, ClientSocket};
+use async_lsp::{ClientSocket, lsp_types::Url};
 
 use common::{eyre::Result, serde::Deserialize, serde_json, smart_default::SmartDefault, tracing};
 

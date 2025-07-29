@@ -1,9 +1,9 @@
 use automerge::{ObjType, Prop, ScalarValue, Value};
 
-use common::eyre::{bail, Result};
+use common::eyre::{Result, bail};
 use node_type::NodeType;
 
-use crate::{automerge::ObjId, ReadStore};
+use crate::{ReadStore, automerge::ObjId};
 
 /// Get the type property of an object in a CRDT
 pub fn get_type<C: ReadStore>(crdt: &C, obj_id: &ObjId) -> Result<Option<String>> {

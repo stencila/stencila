@@ -1,7 +1,7 @@
 use codec_info::{lost_exec_options, lost_options};
 use common::{eyre::Ok, tracing};
 
-use crate::{merge, patch, prelude::*, ExecutionMode, InstructionBlock, InstructionType, Node};
+use crate::{ExecutionMode, InstructionBlock, InstructionType, Node, merge, patch, prelude::*};
 
 /// Implementation of [`PatchNode`] for [`InstructionBlock`] to customize diffing and
 /// patching from Markdown-based formats

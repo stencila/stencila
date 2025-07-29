@@ -3,7 +3,7 @@ use kernel_quickjs::kernel::common::{
 };
 use schema::MessagePart;
 
-use crate::{prelude::*, DocumentContext};
+use crate::{DocumentContext, prelude::*};
 
 #[cfg(test)]
 mod tests;

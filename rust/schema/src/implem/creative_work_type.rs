@@ -1,4 +1,4 @@
-use crate::{prelude::*, replicate, CreativeWorkType, Inline, Node};
+use crate::{CreativeWorkType, Inline, Node, prelude::*, replicate};
 
 impl CreativeWorkType {
     // TODO: add similar methods for doi(), authors etc, OR have a

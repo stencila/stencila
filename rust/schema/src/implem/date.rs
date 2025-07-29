@@ -8,7 +8,7 @@ use common::{
     regex::Regex,
 };
 
-use crate::{prelude::*, Date};
+use crate::{Date, prelude::*};
 
 impl Date {
     /// Get the year part of a date
@@ -55,7 +55,7 @@ impl FromStr for Date {
 
     fn from_str(string: &str) -> Result<Self, Self::Err> {
         use common::chrono::Local;
-        use interim::{parse_date_string, Dialect};
+        use interim::{Dialect, parse_date_string};
 
         // If matches an ISO 8601 then use that...
         static REGEX: Lazy<Regex> =
@@ -80,7 +80,7 @@ impl TryFrom<&Date> for chrono::NaiveDate {
 
     fn try_from(date: &Date) -> Result<Self, Self::Error> {
         use common::chrono::Local;
-        use interim::{parse_date_string, Dialect};
+        use interim::{Dialect, parse_date_string};
 
         let date_time = parse_date_string(&date.value, Local::now(), Dialect::Us)?;
         let date = date_time.date_naive();

@@ -1,6 +1,6 @@
-use parser::{common::once_cell::sync::Lazy, format::Format, DefaultParser};
+use parser::{DefaultParser, common::once_cell::sync::Lazy, format::Format};
 
-pub use parser::{schema::CompilationDigest, ParseInfo, Parser};
+pub use parser::{ParseInfo, Parser, schema::CompilationDigest};
 
 /// Parse some code in a language
 pub fn parse(

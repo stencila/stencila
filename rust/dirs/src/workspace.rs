@@ -4,7 +4,7 @@ use std::{
 };
 
 use common::{
-    eyre::{bail, OptionExt, Result},
+    eyre::{OptionExt, Result, bail},
     smart_default::SmartDefault,
     tokio::fs::{create_dir_all, write},
 };

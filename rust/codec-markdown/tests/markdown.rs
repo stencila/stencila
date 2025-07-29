@@ -1,7 +1,8 @@
 use common_dev::pretty_assertions::assert_eq;
 use markdown::{
+    ParseOptions,
     mdast::{Code, Node},
-    to_mdast, ParseOptions,
+    to_mdast,
 };
 
 /// Test that the `markdown` crate handles nested

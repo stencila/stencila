@@ -5,12 +5,12 @@
 use std::{ops::Deref, path::PathBuf, sync::Arc};
 
 use async_lsp::{
+    ResponseError,
     lsp_types::{
         Command, CompletionItem, CompletionItemKind, CompletionItemLabelDetails, CompletionParams,
         CompletionResponse, CompletionTextEdit, Documentation, InsertTextFormat, MarkupContent,
         MarkupKind, Position, Range, TextEdit,
     },
-    ResponseError,
 };
 
 use codecs::{Format, Positions};

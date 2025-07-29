@@ -1,6 +1,6 @@
 use common::tracing;
 
-use crate::{patch, prelude::*, InstructionInline, SuggestionStatus};
+use crate::{InstructionInline, SuggestionStatus, patch, prelude::*};
 
 impl InstructionInline {
     /// Custom implementation of [`PatchNode::apply`]

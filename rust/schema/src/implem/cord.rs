@@ -3,17 +3,17 @@ use std::{ops::Range, time::Duration};
 use codec_html_trait::encode::text;
 use common::similar::{Algorithm, DiffTag, TextDiff, TextDiffConfig};
 use node_store::{
-    automerge::{transaction::Transactable, ObjId, ObjType, Prop, Value},
     ReadNode, ReadStore, WriteNode, WriteStore,
+    automerge::{ObjId, ObjType, Prop, Value, transaction::Transactable},
 };
 
 use crate::{
+    Cord, CordAuthorship, CordOp, ProvenanceCount,
     cord_provenance::{
         category, display, human_edited, human_verified, human_written, machine_edited,
         machine_influence, machine_verified, machine_written,
     },
     prelude::*,
-    Cord, CordAuthorship, CordOp, ProvenanceCount,
 };
 
 impl Cord {

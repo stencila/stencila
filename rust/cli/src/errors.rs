@@ -33,11 +33,8 @@ pub fn setup(details: &str, link: bool) -> Result<()> {
 
     let mut builder = color_eyre::config::HookBuilder::blank()
         .display_location_section(details.contains(&"location"))
-        .display_env_section(details.contains(&"env"));
-
-    if !details.contains(&"span") && !link {
-        std::env::set_var("RUST_SPANTRACE", "0");
-    }
+        .display_env_section(details.contains(&"env"))
+        .capture_span_trace_by_default(details.contains(&"span"));
 
     if link {
         builder = builder

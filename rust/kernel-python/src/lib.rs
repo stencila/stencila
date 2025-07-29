@@ -5,15 +5,15 @@ use which::which;
 use tools::ToolCommand;
 
 use kernel_micro::{
+    Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelLint,
+    KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider, KernelTerminate,
+    Microkernel,
     common::{eyre::Result, serde::Deserialize, serde_json, tempfile::NamedTempFile, tracing},
     format::Format,
     schema::{
         AuthorRole, AuthorRoleName, CodeLocation, CompilationMessage, ExecutionBounds,
         MessageLevel, SoftwareApplication, Timestamp,
     },
-    Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelLint,
-    KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider, KernelTerminate,
-    Microkernel,
 };
 
 /// A kernel for executing Python code
@@ -87,7 +87,7 @@ impl KernelLint for PythonKernel {
         // Write the code to a temporary file. Avoid temptation to add any import
         // before the code as that mucks up line numbers using for matching
         let mut temp_file = NamedTempFile::new()?;
-        write!(temp_file, "{}", code)?;
+        write!(temp_file, "{code}")?;
         let temp_path = temp_file.path();
 
         let mut authors: Vec<AuthorRole> = Vec::new();
@@ -361,7 +361,7 @@ mod tests {
     use common_dev::pretty_assertions::assert_eq;
     use kernel_micro::{
         common::{
-            eyre::{bail, Ok},
+            eyre::{Ok, bail},
             indexmap::IndexMap,
             tokio,
         },
@@ -789,7 +789,9 @@ baz()
         assert_eq!(msg.message, "name 'bar' is not defined");
         assert_eq!(
             msg.stack_trace.as_deref(),
-            Some("Code chunk #4, line 7, in <module>\nCode chunk #4, line 6, in baz\nCode chunk #4, line 4, in foo\n")
+            Some(
+                "Code chunk #4, line 7, in <module>\nCode chunk #4, line 6, in baz\nCode chunk #4, line 4, in foo\n"
+            )
         );
         assert_eq!(
             msg.code_location,
@@ -1178,9 +1180,7 @@ df1 = pd.DataFrame({
         let list = instance.list().await?;
 
         macro_rules! var {
-            ($name:expr) => {{
-                list.iter().find(|var| var.name == $name).unwrap().clone()
-            }};
+            ($name:expr) => {{ list.iter().find(|var| var.name == $name).unwrap().clone() }};
         }
         macro_rules! get {
             ($name:expr) => {

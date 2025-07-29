@@ -8,7 +8,7 @@ use common::{
     glob::glob,
     serde_json,
     tokio::{
-        fs::{remove_file, File},
+        fs::{File, remove_file},
         io::AsyncWriteExt,
     },
 };
@@ -35,8 +35,8 @@ impl Schemas {
         let mut file = File::create(path).await?;
 
         let settings = SchemaSettings::draft07();
-        let gen = settings.into_generator();
-        let schema = gen.into_root_schema_for::<Schema>();
+        let generator = settings.into_generator();
+        let schema = generator.into_root_schema_for::<Schema>();
 
         let json = serde_json::to_string_pretty(&schema)?;
         file.write_all(json.as_bytes()).await?;

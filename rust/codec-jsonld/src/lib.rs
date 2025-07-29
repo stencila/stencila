@@ -1,16 +1,16 @@
 use std::collections::HashMap;
 
 use codec::{
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     common::{
         async_trait::async_trait,
         eyre::Result,
         once_cell::sync::Lazy,
-        serde_json::{self, json, Map, Value},
+        serde_json::{self, Map, Value, json},
     },
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
 
 /// A codec for JSON-LD

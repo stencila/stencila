@@ -1,6 +1,6 @@
-use node_store::{automerge::ObjId, get_node_type, ReadNode, ReadStore};
+use node_store::{ReadNode, ReadStore, automerge::ObjId, get_node_type};
 
-use crate::{prelude::*, Array, Block, Inline, Node, Null, Object, Primitive};
+use crate::{Array, Block, Inline, Node, Null, Object, Primitive, prelude::*};
 
 impl Node {
     pub fn node_type(&self) -> NodeType {

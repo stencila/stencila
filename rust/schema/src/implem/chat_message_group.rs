@@ -1,4 +1,4 @@
-use crate::{prelude::*, ChatMessageGroup};
+use crate::{ChatMessageGroup, prelude::*};
 
 impl ChatMessageGroup {
     /// Custom implementation of [`PatchNode::apply`] to ensure only one message

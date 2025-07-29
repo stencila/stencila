@@ -1,4 +1,4 @@
-use syn::{parse_macro_input, Attribute, Data, DataEnum, DataStruct, DeriveInput, Fields};
+use syn::{Attribute, Data, DataEnum, DataStruct, DeriveInput, Fields, parse_macro_input};
 
 use common::{
     proc_macro2::TokenStream,

@@ -7,7 +7,7 @@ use std::{
 use derive_more::{Deref, DerefMut, IntoIterator};
 
 use common::{
-    eyre::{bail, Context, OptionExt, Report, Result},
+    eyre::{Context, OptionExt, Report, Result, bail},
     itertools::Itertools,
     serde::{Deserialize, Serialize},
     serde_json::{self},

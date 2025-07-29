@@ -1,9 +1,9 @@
 use codec::{
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, NodeType,
     common::{async_trait::async_trait, eyre::Result, serde_json},
     format::Format,
     schema::Node,
     status::Status,
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, NodeType,
 };
 use lexical::LexicalDoc;
 use nodes::{root_from_lexical, root_to_lexical};

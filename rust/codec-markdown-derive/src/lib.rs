@@ -1,7 +1,7 @@
 //! Provides the `MarkdownCodec` derive macro for structs and enums in Stencila Schema
 
 use darling::{self, FromDeriveInput, FromField};
-use syn::{self, parse_macro_input, Data, DataEnum, DeriveInput, Fields, Ident, PathSegment, Type};
+use syn::{self, Data, DataEnum, DeriveInput, Fields, Ident, PathSegment, Type, parse_macro_input};
 
 use common::{
     inflector::Inflector,

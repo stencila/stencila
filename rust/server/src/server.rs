@@ -6,16 +6,16 @@ use std::{
 };
 
 use axum::{
+    Router,
     body::Body,
     extract::{Query, State},
-    http::{header::HeaderValue, HeaderMap, Method, Request, StatusCode},
-    middleware::{from_fn_with_state as middleware_fn, Next},
+    http::{HeaderMap, Method, Request, StatusCode, header::HeaderValue},
+    middleware::{Next, from_fn_with_state as middleware_fn},
     response::{IntoResponse, Response},
     routing::get,
-    Router,
 };
 
-use rand::{rng, Rng};
+use rand::{Rng, rng};
 use tower_cookies::{Cookie, CookieManagerLayer, Cookies};
 use tower_http::{
     cors::{Any, CorsLayer},
@@ -180,7 +180,9 @@ pub async fn serve(
 
     let address = SocketAddr::new(address, port);
     let server_token = if no_auth {
-        tracing::warn!("Using `--no-auth` flag; no routes are protected by authentication/authorization checks");
+        tracing::warn!(
+            "Using `--no-auth` flag; no routes are protected by authentication/authorization checks"
+        );
         None
     } else {
         Some(server_token.unwrap_or_else(get_server_token))

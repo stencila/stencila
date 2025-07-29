@@ -1,15 +1,15 @@
 use std::sync::Mutex;
 
 use async_lsp::{
-    lsp_types::{MessageType, ShowMessageParams},
     ClientSocket, LanguageClient,
+    lsp_types::{MessageType, ShowMessageParams},
 };
 use tracing_subscriber::{
-    field::Visit, filter::LevelFilter, fmt, layer::SubscriberExt, registry,
-    util::SubscriberInitExt, EnvFilter, Layer,
+    EnvFilter, Layer, field::Visit, filter::LevelFilter, fmt, layer::SubscriberExt, registry,
+    util::SubscriberInitExt,
 };
 
-use common::tracing::{field::Field, Event, Level, Subscriber};
+use common::tracing::{Event, Level, Subscriber, field::Field};
 
 /// Setup logging
 ///
@@ -69,7 +69,7 @@ where
             event.record(&mut visitor);
             let mut message = visitor.message;
             if message.is_empty() {
-                message = format!("{:?}", event);
+                message = format!("{event:?}");
             }
 
             client.show_message(ShowMessageParams { typ, message }).ok();
@@ -92,13 +92,13 @@ impl Visit for EventVisitor {
 
     fn record_debug(&mut self, field: &Field, value: &dyn std::fmt::Debug) {
         if field.name() == "message" {
-            self.message = format!("{:?}", value);
+            self.message = format!("{value:?}");
         }
     }
 
     fn record_error(&mut self, field: &Field, value: &(dyn std::error::Error + 'static)) {
         if field.name() == "message" {
-            self.message = format!("{:?}", value);
+            self.message = format!("{value:?}");
         }
     }
 }

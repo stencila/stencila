@@ -9,7 +9,7 @@ use codec_text_trait::to_text;
 
 use crate::{
     blocks::{blocks_from_pandoc, blocks_to_pandoc},
-    shared::{attrs_classes, attrs_empty, PandocDecodeContext, PandocEncodeContext},
+    shared::{PandocDecodeContext, PandocEncodeContext, attrs_classes, attrs_empty},
 };
 
 pub(super) fn inlines_to_pandoc(

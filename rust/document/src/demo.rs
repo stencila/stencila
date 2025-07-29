@@ -1,26 +1,25 @@
 use std::{
     fs::File,
-    io::{stdin, stdout, BufWriter, Write},
+    io::{BufWriter, Write, stdin, stdout},
     path::PathBuf,
     thread,
     time::{Duration, SystemTime},
 };
 
 use format::Format;
-use rand::{rng, rngs::ThreadRng, Rng};
+use rand::{Rng, rng, rngs::ThreadRng};
 
 use cli_utils::{
-    clear_terminal,
+    Code, ToStdout, clear_terminal,
     color_print::cstr,
     strip_ansi_escapes,
     tabulated::{Cell, Tabulated},
     terminal_size::terminal_size,
-    Code, ToStdout,
 };
 use codec_text::to_text;
 use common::{
     clap::{self, Args, ValueEnum},
-    eyre::{bail, Context, Result},
+    eyre::{Context, Result, bail},
     itertools::Itertools,
     serde_json::json,
     tracing,
@@ -189,7 +188,7 @@ impl SlideRanges {
                     // "-N" format
                     let n = end
                         .parse::<usize>()
-                        .wrap_err_with(|| format!("Invalid slide number: {}", end))?;
+                        .wrap_err_with(|| format!("Invalid slide number: {end}"))?;
                     if n == 0 {
                         bail!("Slide numbers start from 1");
                     }
@@ -198,7 +197,7 @@ impl SlideRanges {
                     // "N-" format
                     let n = start
                         .parse::<usize>()
-                        .wrap_err_with(|| format!("Invalid slide number: {}", start))?;
+                        .wrap_err_with(|| format!("Invalid slide number: {start}"))?;
                     if n == 0 {
                         bail!("Slide numbers start from 1");
                     }
@@ -207,10 +206,10 @@ impl SlideRanges {
                     // "N-M" format
                     let start_num = start
                         .parse::<usize>()
-                        .wrap_err_with(|| format!("Invalid slide number: {}", start))?;
+                        .wrap_err_with(|| format!("Invalid slide number: {start}"))?;
                     let end_num = end
                         .parse::<usize>()
-                        .wrap_err_with(|| format!("Invalid slide number: {}", end))?;
+                        .wrap_err_with(|| format!("Invalid slide number: {end}"))?;
                     if start_num == 0 || end_num == 0 {
                         bail!("Slide numbers start from 1");
                     }
@@ -223,7 +222,7 @@ impl SlideRanges {
                 // Single slide number
                 let n = part
                     .parse::<usize>()
-                    .wrap_err_with(|| format!("Invalid slide number: {}", part))?;
+                    .wrap_err_with(|| format!("Invalid slide number: {part}"))?;
                 if n == 0 {
                     bail!("Slide numbers start from 1");
                 }
@@ -512,7 +511,7 @@ impl Walker {
                     "width": width,
                     "height": height
                 });
-                writeln!(&mut writer, "{}", header).wrap_err("Failed to write asciicast header")?;
+                writeln!(&mut writer, "{header}").wrap_err("Failed to write asciicast header")?;
 
                 (
                     Some(writer),
@@ -602,7 +601,7 @@ impl Walker {
         }
 
         // Print to stdout
-        print!("{}", text);
+        print!("{text}");
         stdout().flush().ok();
 
         // Record to asciicast file if configured
@@ -800,7 +799,7 @@ impl Walker {
                 thread::sleep(Duration::from_millis(typo_pause));
 
                 // Backspace and correct
-                self.write(&format!("\x08 \x08{}", ch));
+                self.write(&format!("\x08 \x08{ch}"));
             } else {
                 self.write(&ch.to_string());
             }
@@ -879,7 +878,7 @@ impl Drop for Walker {
         // Always restore cursor visibility when Walker is dropped
         // This handles cleanup even when interrupted (e.g., Ctrl+C)
         // Note: We bypass the in_active_slide check here to ensure cleanup
-        print!("{}{}", SHOW_CURSOR, RESET);
+        print!("{SHOW_CURSOR}{RESET}");
         stdout().flush().ok();
     }
 }

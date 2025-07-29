@@ -1,8 +1,8 @@
 use std::{
     ops::{DerefMut, Range},
     sync::{
-        atomic::{AtomicU32, Ordering},
         Arc,
+        atomic::{AtomicU32, Ordering},
     },
     time::Duration,
 };
@@ -19,8 +19,8 @@ use common::{
     tokio::{
         self,
         sync::{
-            mpsc::{Receiver, Sender},
             Mutex,
+            mpsc::{Receiver, Sender},
         },
     },
     tracing,
@@ -488,8 +488,8 @@ mod tests {
     use format::Format;
     use node_strip::StripScope;
     use schema::{
-        shortcuts::{art, p, t},
         NodeType,
+        shortcuts::{art, p, t},
     };
 
     use super::*;

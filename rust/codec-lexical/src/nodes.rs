@@ -1,8 +1,8 @@
 use codec::{
-    common::eyre::{bail, Result},
+    DecodeInfo, EncodeInfo, EncodeOptions,
+    common::eyre::{Result, bail},
     format::Format,
     schema::{Article, Node},
-    DecodeInfo, EncodeInfo, EncodeOptions,
 };
 
 use crate::{

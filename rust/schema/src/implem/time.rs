@@ -1,4 +1,4 @@
-use crate::{prelude::*, Time};
+use crate::{Time, prelude::*};
 
 impl Time {
     pub fn to_jats_special(&self) -> (String, Losses) {

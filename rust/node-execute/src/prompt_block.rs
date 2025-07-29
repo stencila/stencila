@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use schema::{replicate, CompilationDigest, PromptBlock};
+use schema::{CompilationDigest, PromptBlock, replicate};
 
 use crate::{prelude::*, state_digest};
 

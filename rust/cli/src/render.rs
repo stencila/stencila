@@ -1,10 +1,10 @@
 use std::{path::PathBuf, process::exit};
 
-use ask::{ask_with, Answer, AskLevel, AskOptions};
-use cli_utils::{color_print::cstr, Code, ToStdout};
+use ask::{Answer, AskLevel, AskOptions, ask_with};
+use cli_utils::{Code, ToStdout, color_print::cstr};
 use common::{
     clap::{self, Parser},
-    eyre::{bail, eyre, Result},
+    eyre::{Result, bail, eyre},
 };
 use document::Document;
 use format::Format;
@@ -136,7 +136,7 @@ impl Cli {
                     // Make sure the value doesn't look like another argument
                     if value.starts_with("--") {
                         bail!(
-                            "Parameter '{current}' requires a value, but found another argument '{value}'"                            
+                            "Parameter '{current}' requires a value, but found another argument '{value}'"
                         );
                     }
 
@@ -226,7 +226,9 @@ impl Cli {
             {
                 eprintln!("▶️  You can use `--ignore-errors` to continue without being asked")
             } else {
-                eprintln!("🛑 Stopping due to execution errors (you can use `--ignore-errors` to continue without being asked)");
+                eprintln!(
+                    "🛑 Stopping due to execution errors (you can use `--ignore-errors` to continue without being asked)"
+                );
                 exit(1)
             }
         }

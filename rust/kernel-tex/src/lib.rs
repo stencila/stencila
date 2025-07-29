@@ -1,4 +1,5 @@
 use kernel::{
+    Kernel, KernelInstance, KernelType,
     common::{
         async_trait::async_trait, eyre::Result, once_cell::sync::Lazy, regex::Regex, tracing,
     },
@@ -8,9 +9,8 @@ use kernel::{
         ExecutionBounds, ExecutionMessage, MessageLevel, Node, SoftwareApplication,
         SoftwareApplicationOptions,
     },
-    Kernel, KernelInstance, KernelType,
 };
-use latex2mathml::{latex_to_mathml, DisplayStyle};
+use latex2mathml::{DisplayStyle, latex_to_mathml};
 
 const NAME: &str = "tex";
 

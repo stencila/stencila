@@ -2,8 +2,8 @@ use common::{eyre::Result, tokio};
 use common_dev::insta::assert_json_snapshot;
 use node_canonicalize::canonicalize;
 use schema::{
-    shortcuts::{ct, p},
     Article, Node, Reference,
+    shortcuts::{ct, p},
 };
 
 /// Citations are canonicalized by using the DOI of the cited reference

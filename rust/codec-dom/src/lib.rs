@@ -1,19 +1,19 @@
 use lightningcss::stylesheet::{ParserOptions, PrinterOptions, StyleSheet};
 
 use codec::{
+    Codec, CodecSupport, EncodeInfo, EncodeOptions,
     common::{
         async_trait::async_trait,
-        eyre::{bail, Result},
+        eyre::{Result, bail},
         itertools::Itertools,
     },
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecSupport, EncodeInfo, EncodeOptions,
 };
 use codec_dom_trait::{
-    html_escape::{encode_double_quoted_attribute, encode_safe},
     DomCodec as DomCodecTrait, DomEncodeContext,
+    html_escape::{encode_double_quoted_attribute, encode_safe},
 };
 use codec_text_trait::to_text;
 use version::STENCILA_VERSION;
@@ -202,7 +202,7 @@ pub fn encode<T: DomCodecTrait>(node: &T) -> String {
 ///
 /// Originally based on https://gist.github.com/lwilli/14fb3178bd9adac3a64edfbc11f42e0d
 fn indent_html(html: &str) -> Result<String> {
-    use quick_xml::{events::Event, Reader, Writer};
+    use quick_xml::{Reader, Writer, events::Event};
 
     let mut reader = Reader::from_str(html);
     reader.config_mut().trim_text(true);

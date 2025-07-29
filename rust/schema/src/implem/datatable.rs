@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, ArrayValidator, Datatable, Object, Primitive};
+use crate::{ArrayValidator, Datatable, Object, Primitive, prelude::*};
 
 impl Datatable {
     /// Get the number of rows in the [`Datatable`]

@@ -1,19 +1,19 @@
 use std::str::FromStr;
 
-use tl::{parse, HTMLTag, Parser, ParserOptions};
+use tl::{HTMLTag, Parser, ParserOptions, parse};
 
 use codec::{
+    DecodeInfo, DecodeOptions, Losses,
     common::{
-        eyre::{bail, Result},
+        eyre::{Result, bail},
         once_cell::sync::Lazy,
         regex::Regex,
         tracing,
     },
     schema::{
-        shortcuts::t, Article, Author, Block, CreativeWorkType, Date, Inline, IntegerOrString,
-        Node, Periodical, Person, PublicationIssue, PublicationVolume, Reference,
+        Article, Author, Block, CreativeWorkType, Date, Inline, IntegerOrString, Node, Periodical,
+        Person, PublicationIssue, PublicationVolume, Reference, shortcuts::t,
     },
-    DecodeInfo, DecodeOptions, Losses,
 };
 
 use super::decode::arxiv_id_to_doi;
@@ -106,7 +106,7 @@ impl ArxivDecodeContext {
             // Remove leading slash from url if present (for relative URLs)
             let relative_url = url.trim_start_matches('/');
 
-            format!("https://export.arxiv.org/{}/{}", base, relative_url)
+            format!("https://export.arxiv.org/{base}/{relative_url}")
         } else {
             // No base href available, return URL as-is
             url.to_string()
@@ -648,7 +648,7 @@ pub fn extract_latex_and_mathml(parser: &Parser, tag: &HTMLTag) -> (String, Stri
             if inner_html.trim().is_empty() {
                 String::new()
             } else {
-                format!("<math>{}</math>", inner_html)
+                format!("<math>{inner_html}</math>")
             }
         } else {
             found_math

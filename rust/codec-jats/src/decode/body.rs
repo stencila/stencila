@@ -3,9 +3,9 @@ use roxmltree::Node;
 use std::str::FromStr;
 
 use codec::{
+    Losses,
     common::itertools::Itertools,
     schema::{
-        shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
         Admonition, Article, AudioObject, AudioObjectOptions, Block, Citation, CitationMode,
         CitationOptions, Claim, ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord,
         Date, DateTime, Duration, ExecutionMode, Figure, Heading, ImageObject, ImageObjectOptions,
@@ -13,8 +13,8 @@ use codec::{
         MediaObjectOptions, Note, NoteType, Parameter, Section, SectionType, StyledInline, Table,
         TableCell, TableRow, TableRowType, Text, ThematicBreak, Time, Timestamp, VideoObject,
         VideoObjectOptions,
+        shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
     },
-    Losses,
 };
 
 use crate::encode::serialize_node;

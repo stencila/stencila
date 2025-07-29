@@ -2,11 +2,11 @@ use codec::{
     common::{serde_json::from_value, tracing},
     format::Format,
     schema::{
-        shortcuts::{art, p, t},
-        transforms::blocks_to_inlines,
         AudioObject, Block, CodeBlock, File, Heading, ImageObject, Inline, List, ListItem,
         ListOrder, MathBlock, Paragraph, QuoteBlock, RawBlock, Table, Text, ThematicBreak,
         VideoObject,
+        shortcuts::{art, p, t},
+        transforms::blocks_to_inlines,
     },
 };
 use codec_text::to_text;

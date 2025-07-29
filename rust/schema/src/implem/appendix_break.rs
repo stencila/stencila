@@ -1,4 +1,4 @@
-use crate::{prelude::*, AppendixBreak};
+use crate::{AppendixBreak, prelude::*};
 
 impl LatexCodec for AppendixBreak {
     fn to_latex(&self, context: &mut LatexEncodeContext) {

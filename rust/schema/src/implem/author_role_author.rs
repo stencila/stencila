@@ -1,4 +1,4 @@
-use crate::{prelude::*, AuthorRoleAuthor};
+use crate::{AuthorRoleAuthor, prelude::*};
 
 impl AuthorRoleAuthor {
     pub fn node_type(&self) -> NodeType {

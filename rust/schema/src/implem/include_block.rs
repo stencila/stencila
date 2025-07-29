@@ -1,7 +1,7 @@
 use codec_info::{lost_exec_options, lost_options};
 use node_url::NodePosition;
 
-use crate::{prelude::*, IncludeBlock};
+use crate::{IncludeBlock, prelude::*};
 
 impl LatexCodec for IncludeBlock {
     fn to_latex(&self, context: &mut LatexEncodeContext) {

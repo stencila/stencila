@@ -4,8 +4,8 @@
 use std::sync::Arc;
 
 use async_lsp::{
-    lsp_types::{notification::Notification, request::Request},
     ClientSocket, ErrorCode, ResponseError,
+    lsp_types::{notification::Notification, request::Request},
 };
 
 use codecs::{EncodeOptions, Format};

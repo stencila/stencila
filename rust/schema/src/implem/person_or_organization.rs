@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use crate::{prelude::*, Person, PersonOrOrganization};
+use crate::{Person, PersonOrOrganization, prelude::*};
 
 impl FromStr for PersonOrOrganization {
     type Err = ErrReport;

@@ -5,14 +5,14 @@
 use std::sync::Arc;
 
 use async_lsp::{
-    lsp_types::{Position, Range, TextEdit},
     ErrorCode, ResponseError,
+    lsp_types::{Position, Range, TextEdit},
 };
 
 use codecs::{EncodeOptions, Format, LossesResponse};
 use common::{
     itertools::Itertools,
-    similar::{self, capture_diff_slices, Algorithm},
+    similar::{self, Algorithm, capture_diff_slices},
     tokio::sync::RwLock,
     tracing,
 };

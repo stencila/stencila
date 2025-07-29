@@ -1,4 +1,4 @@
-use crate::{prelude::*, Cord, Text};
+use crate::{Cord, Text, prelude::*};
 
 impl Text {
     pub fn to_value_string(&self) -> String {

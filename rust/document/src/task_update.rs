@@ -5,7 +5,7 @@ use common::{
     tracing,
 };
 use node_execute::ExecuteOptions;
-use schema::{authorship, Config, Node, PatchNode, PatchOp};
+use schema::{Config, Node, PatchNode, PatchOp, authorship};
 
 use crate::{
     Command, CommandNodes, CommandScope, Document, DocumentCommandSender, DocumentPatchReceiver,

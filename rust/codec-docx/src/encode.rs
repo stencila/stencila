@@ -6,13 +6,13 @@ use std::{
 };
 
 use codec::common::{
-    eyre::{eyre, Context, OptionExt, Result},
+    eyre::{Context, OptionExt, Result, eyre},
     regex::Regex,
     tempfile,
     uuid::Uuid,
 };
 use codec_utils::move_file;
-use zip::{write::SimpleFileOptions, ZipArchive, ZipWriter};
+use zip::{ZipArchive, ZipWriter, write::SimpleFileOptions};
 
 /// Encode custom data and properties into a DOCX
 pub fn data_and_properties(

@@ -1,9 +1,9 @@
 use std::{fs::read_to_string, path::PathBuf};
 
 use codec::{
+    EncodeOptions,
     common::{eyre::Result, glob::glob, once_cell::sync::Lazy, regex::Regex},
     format::Format,
-    EncodeOptions,
 };
 
 use codec_lexical::{decode, encode};

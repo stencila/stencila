@@ -1,13 +1,13 @@
 use std::path::Path;
 
 use codec::{
+    EncodeInfo, EncodeOptions,
     common::{
-        eyre::{bail, Result},
+        eyre::{Result, bail},
         tracing,
     },
     format::Format,
     schema::Node,
-    EncodeInfo, EncodeOptions,
 };
 use codec_latex_trait::to_latex;
 

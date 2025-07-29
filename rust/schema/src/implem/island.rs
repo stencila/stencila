@@ -1,7 +1,7 @@
 use codec_latex_trait::{latex_to_image, to_latex};
 use common::tracing;
 
-use crate::{prelude::*, Island, LabelType};
+use crate::{Island, LabelType, prelude::*};
 
 impl LatexCodec for Island {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
@@ -43,13 +43,10 @@ impl LatexCodec for Island {
                         let appendix = prefix.chars().next().map(|c| c as u32 - 'A' as u32 + 1);
 
                         // Parse label counter and subtract 1 (because the figure itself will increment the counter)
-                        let label_counter = suffix.parse::<u32>().ok().and_then(|n| {
-                            if n > 0 {
-                                Some(n - 1)
-                            } else {
-                                None
-                            }
-                        });
+                        let label_counter = suffix
+                            .parse::<u32>()
+                            .ok()
+                            .and_then(|n| if n > 0 { Some(n - 1) } else { None });
 
                         (appendix, label_counter)
                     };

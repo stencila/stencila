@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, CitationGroup};
+use crate::{CitationGroup, prelude::*};
 
 impl CitationGroup {
     pub fn to_jats_special(&self) -> (String, Losses) {

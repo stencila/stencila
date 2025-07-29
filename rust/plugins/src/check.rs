@@ -1,5 +1,5 @@
 use cli_utils::message;
-use codec::schema::{shortcuts, ExecutionBounds};
+use codec::schema::{ExecutionBounds, shortcuts};
 use common::{
     clap::{self, Args},
     eyre::Result,
@@ -7,8 +7,8 @@ use common::{
 };
 use kernel::schema::{Node, Null};
 use model::{
-    schema::{InstructionMessage, MessagePart},
     ModelTask,
+    schema::{InstructionMessage, MessagePart},
 };
 
 use crate::Plugin;

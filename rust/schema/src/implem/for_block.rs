@@ -1,6 +1,6 @@
 use codec_info::{lost_exec_options, lost_options, lost_props};
 
-use crate::{prelude::*, Block, ForBlock, Section};
+use crate::{Block, ForBlock, Section, prelude::*};
 
 impl LatexCodec for ForBlock {
     fn to_latex(&self, context: &mut LatexEncodeContext) {

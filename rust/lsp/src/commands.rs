@@ -4,13 +4,14 @@ use std::{
     path::PathBuf,
     str::FromStr,
     sync::{
-        atomic::{AtomicI32, Ordering},
         Arc,
+        atomic::{AtomicI32, Ordering},
     },
     time::Duration,
 };
 
 use async_lsp::{
+    ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
     lsp_types::{
         ApplyWorkspaceEditParams, DocumentChanges, ExecuteCommandParams, MessageType,
         NumberOrString, OneOf, OptionalVersionedTextDocumentIdentifier, Position, ProgressParams,
@@ -18,7 +19,6 @@ use async_lsp::{
         WorkDoneProgressBegin, WorkDoneProgressCancelParams, WorkDoneProgressCreateParams,
         WorkDoneProgressEnd, WorkDoneProgressReport, WorkspaceEdit,
     },
-    ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
 
 use codecs::{DecodeOptions, EncodeOptions, Format};
@@ -26,10 +26,10 @@ use common::{
     eyre::{OptionExt, Result},
     itertools::Itertools,
     once_cell::sync::Lazy,
-    serde_json::{self, json, Value},
+    serde_json::{self, Value, json},
     tokio::{
         self,
-        sync::{mpsc, watch::Receiver, RwLock},
+        sync::{RwLock, mpsc, watch::Receiver},
         time::timeout,
     },
     tracing,
@@ -38,16 +38,16 @@ use document::{Command, CommandNodes, CommandScope, CommandStatus, Document};
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
-    diff, replicate, AuthorRole, AuthorRoleName, Block, Chat, ContentType, ExecutionMode,
-    InstructionBlock, InstructionMessage, InstructionType, ModelParameters, Node, NodeId, NodePath,
-    NodeProperty, NodeType, Patch, PatchNode, PatchOp, PatchValue, PromptBlock, SuggestionBlock,
-    Timestamp,
+    AuthorRole, AuthorRoleName, Block, Chat, ContentType, ExecutionMode, InstructionBlock,
+    InstructionMessage, InstructionType, ModelParameters, Node, NodeId, NodePath, NodeProperty,
+    NodeType, Patch, PatchNode, PatchOp, PatchValue, PromptBlock, SuggestionBlock, Timestamp, diff,
+    replicate,
 };
 
 use crate::{
+    ServerState,
     formatting::format_doc,
     text_document::{SyncState, TextNode},
-    ServerState,
 };
 
 pub(super) const PATCH_VALUE: &str = "stencila.patch-value";
@@ -171,7 +171,7 @@ pub(super) async fn doc_command(
             return Err(ResponseError::new(
                 ErrorCode::INTERNAL_ERROR,
                 "Unable to wait for is_synced",
-            ))
+            ));
         }
         _ => {}
     };

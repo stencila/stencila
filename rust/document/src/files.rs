@@ -6,7 +6,7 @@ use std::{
 
 use common::{
     eyre::Result,
-    glob::{glob, glob_with, MatchOptions},
+    glob::{MatchOptions, glob, glob_with},
     itertools::Itertools,
 };
 use format::Format;

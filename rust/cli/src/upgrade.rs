@@ -1,6 +1,6 @@
 use std::{
     env::consts::{ARCH, OS},
-    fs::{create_dir_all, File},
+    fs::{File, create_dir_all},
     io::Cursor,
     path::{Path, PathBuf},
     sync::atomic::{AtomicBool, Ordering},
@@ -13,7 +13,7 @@ use zip::ZipArchive;
 use cli_utils::color_print::cstr;
 use common::{
     clap::{self, Parser},
-    eyre::{bail, Report, Result},
+    eyre::{Report, Result, bail},
     once_cell::sync::Lazy,
     reqwest::Client,
     serde::{Deserialize, Serialize},
@@ -27,7 +27,7 @@ use common::{
     },
     tracing,
 };
-use dirs::{get_app_dir, DirType};
+use dirs::{DirType, get_app_dir};
 use version::STENCILA_VERSION;
 
 /// Upgrade the Stencila CLI to the latest version

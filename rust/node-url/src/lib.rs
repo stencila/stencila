@@ -4,13 +4,13 @@ use std::{
     str::FromStr,
 };
 
-use base64::{prelude::BASE64_URL_SAFE_NO_PAD, Engine as _};
-use flate2::{read::ZlibDecoder, write::ZlibEncoder, Compression};
+use base64::{Engine as _, prelude::BASE64_URL_SAFE_NO_PAD};
+use flate2::{Compression, read::ZlibDecoder, write::ZlibEncoder};
 use url::Url;
 
 use common::{
     eyre::{Report, Result},
-    serde::{de::DeserializeOwned, Serialize},
+    serde::{Serialize, de::DeserializeOwned},
     serde_json,
     strum::{Display, EnumString},
 };

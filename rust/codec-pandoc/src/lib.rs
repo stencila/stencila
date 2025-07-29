@@ -1,9 +1,9 @@
 use codec::{
+    Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     common::{async_trait::async_trait, eyre::Result, serde_json},
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
 
 mod blocks;

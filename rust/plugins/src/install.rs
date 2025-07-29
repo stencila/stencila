@@ -1,12 +1,12 @@
 use cli_utils::message;
 use common::{
     clap::{self, Args},
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     tokio::fs::{create_dir_all, remove_dir_all, write},
     toml, tracing,
 };
 
-use crate::{Plugin, MANIFEST_FILENAME};
+use crate::{MANIFEST_FILENAME, Plugin};
 
 /// Install a plugin
 #[tracing::instrument]
@@ -39,7 +39,9 @@ pub async fn install(name: &str) -> Result<Plugin> {
         // Check that runtime version requirement for the plugin is met
         let runtime_version = runtime.version(None)?;
         if !version_req.matches(&runtime_version) {
-            bail!("Unable to install plugin `{name}`: it requires {runtime}{version_req} but only {runtime_version} is available")
+            bail!(
+                "Unable to install plugin `{name}`: it requires {runtime}{version_req} but only {runtime_version} is available"
+            )
         }
 
         // Make sure the directory is present

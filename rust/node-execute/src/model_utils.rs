@@ -1,13 +1,13 @@
 use codec_markdown::to_markdown_flavor;
 use codecs::{DecodeOptions, Format};
 use common::{
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     tracing,
 };
 use models::{ModelOutput, ModelOutputKind, ModelTask};
 use schema::{
-    shortcuts::p, Article, AudioObject, AuthorRole, Block, File, ImageObject, Inline,
-    InstructionMessage, Link, MessagePart, MessageRole, Node, Text, VideoObject,
+    Article, AudioObject, AuthorRole, Block, File, ImageObject, Inline, InstructionMessage, Link,
+    MessagePart, MessageRole, Node, Text, VideoObject, shortcuts::p,
 };
 
 /// Render Stencila [`Block`] nodes to a "system prompt"

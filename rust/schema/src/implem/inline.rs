@@ -1,4 +1,4 @@
-use node_store::{automerge::ObjId, get_node_type, ReadNode, ReadStore};
+use node_store::{ReadNode, ReadStore, automerge::ObjId, get_node_type};
 
 use crate::{prelude::*, transforms::blocks_to_inlines, *};
 

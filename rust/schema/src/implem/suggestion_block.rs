@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, SuggestionBlock};
+use crate::{SuggestionBlock, prelude::*};
 
 impl SuggestionBlock {
     pub fn to_jats_special(&self) -> (String, Losses) {

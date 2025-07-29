@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use common::{clap::Parser, eyre::Result, tempfile::TempDir, tokio};
 
 use tools::cli::Cli;
-use tools::{detect_managers, ToolType};
+use tools::{ToolType, detect_managers};
 
 /// Helper function to get the path to example workspaces
 fn example_workspace_path(name: &str) -> PathBuf {
@@ -53,8 +53,7 @@ async fn test_install_dry_run_all_workspaces() -> Result<()> {
         let workspace_path = example_workspace_path(workspace_name);
         assert!(
             workspace_path.exists(),
-            "Workspace {} should exist",
-            workspace_name
+            "Workspace {workspace_name} should exist"
         );
 
         let cli = Cli::try_parse_from([
@@ -342,8 +341,7 @@ async fn test_install_multiple_tools() -> Result<()> {
             let error_msg = e.to_string();
             assert!(
                 !error_msg.contains("No tool with name"),
-                "Should recognize all tool names: {}",
-                error_msg
+                "Should recognize all tool names: {error_msg}"
             );
         }
     }

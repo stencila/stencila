@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, StyledInline};
+use crate::{StyledInline, prelude::*};
 
 impl DomCodec for StyledInline {
     fn to_dom(&self, context: &mut DomEncodeContext) {

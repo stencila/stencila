@@ -8,6 +8,7 @@ use codec_text_trait::to_text;
 use kernel_docsdb::{DocsDBKernelInstance, QueryResultTransform};
 use kernel_jinja::{
     kernel::{
+        KernelInstance,
         common::{
             eyre::Result,
             inflector::Inflector,
@@ -19,14 +20,13 @@ use kernel_jinja::{
             tracing,
         },
         schema::{
-            get, Array, CodeChunk, ExecutionMessage, MessageLevel, Node, NodePath, NodeProperty,
-            NodeSet, NodeType, Primitive, SectionType,
+            Array, CodeChunk, ExecutionMessage, MessageLevel, Node, NodePath, NodeProperty,
+            NodeSet, NodeType, Primitive, SectionType, get,
         },
-        KernelInstance,
     },
     minijinja::{
-        value::{from_args, DynObject, Enumerator, Kwargs, Object, ObjectRepr},
         Environment, Error, ErrorKind, State, Value,
+        value::{DynObject, Enumerator, Kwargs, Object, ObjectRepr, from_args},
     },
 };
 
@@ -785,7 +785,7 @@ impl Query {
                 return Err(Error::new(
                     ErrorKind::InvalidOperation,
                     format!("Invalid output type: {out}"),
-                ))
+                ));
             }
         };
 
@@ -983,11 +983,7 @@ impl Query {
 
             let first = if first < 0 {
                 let first = nodes.len() as i32 + first;
-                if first < 0 {
-                    0usize
-                } else {
-                    first as usize
-                }
+                if first < 0 { 0usize } else { first as usize }
             } else {
                 first as usize
             };
@@ -995,11 +991,7 @@ impl Query {
             let last = last.unwrap_or(nodes.len() as i32);
             let last = if last < 0 {
                 let last = nodes.len() as i32 + last;
-                if last < 0 {
-                    0usize
-                } else {
-                    last as usize
-                }
+                if last < 0 { 0usize } else { last as usize }
             } else {
                 last as usize
             };
@@ -1323,11 +1315,7 @@ impl Object for Query {
 
         let index = if key < 0 {
             let first = nodes.len() as i64 + key;
-            if first < 0 {
-                0usize
-            } else {
-                first as usize
-            }
+            if first < 0 { 0usize } else { first as usize }
         } else {
             key as usize
         };

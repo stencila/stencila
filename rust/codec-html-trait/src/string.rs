@@ -1,6 +1,6 @@
 use common::serde_json;
 
-use crate::{encode::text, HtmlCodec, HtmlEncodeContext};
+use crate::{HtmlCodec, HtmlEncodeContext, encode::text};
 
 impl HtmlCodec for String {
     fn to_html(&self, _context: &mut HtmlEncodeContext) -> String {

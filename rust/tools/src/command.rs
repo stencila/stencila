@@ -6,9 +6,9 @@ use std::{
 
 use derive_more::{Deref, DerefMut};
 
-use ask::{ask_with, Answer, AskLevel, AskOptions};
+use ask::{Answer, AskLevel, AskOptions, ask_with};
 use common::{
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     itertools::Itertools,
     tokio::{self, process::Command as AsyncCommand},
     tracing,
@@ -16,7 +16,7 @@ use common::{
 
 use crate::{
     get,
-    tool::{detect_managers, install_tool, is_dry_run, is_installed, Tool, ToolType},
+    tool::{Tool, ToolType, detect_managers, install_tool, is_dry_run, is_installed},
 };
 
 /// The stdio config to use with one of the tools streams
@@ -404,7 +404,9 @@ impl AsyncToolCommand {
                         tracing::warn!("Failed to install {name}: {error}");
                     }
                 } else {
-                    bail!(format!("Please install {name_ver} (e.g. using `stencila tools install {name}`) and try again"));
+                    bail!(format!(
+                        "Please install {name_ver} (e.g. using `stencila tools install {name}`) and try again"
+                    ));
                 }
             }
         }

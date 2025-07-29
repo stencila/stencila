@@ -2,7 +2,7 @@ use kuzu::{LogicalType, Value};
 
 use kernel::{
     common::{
-        eyre::{bail, Result},
+        eyre::{Result, bail},
         itertools::Itertools,
     },
     schema::*,

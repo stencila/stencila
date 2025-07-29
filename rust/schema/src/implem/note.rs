@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, Inline, Note, NoteType};
+use crate::{Inline, Note, NoteType, prelude::*};
 
 impl LatexCodec for Note {
     fn to_latex(&self, context: &mut LatexEncodeContext) {

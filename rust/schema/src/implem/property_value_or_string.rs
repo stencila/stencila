@@ -1,6 +1,6 @@
-use node_store::{automerge::ObjId, ReadNode, ReadStore};
+use node_store::{ReadNode, ReadStore, automerge::ObjId};
 
-use crate::{prelude::*, PropertyValue, PropertyValueOrString};
+use crate::{PropertyValue, PropertyValueOrString, prelude::*};
 
 impl ReadNode for PropertyValueOrString {
     fn load_str(value: &SmolStr) -> Result<Self> {

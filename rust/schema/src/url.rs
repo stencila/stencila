@@ -1,5 +1,5 @@
 use common::{
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     serde::Serialize,
 };
 use node_path::NodePath;

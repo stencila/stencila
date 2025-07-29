@@ -1,6 +1,6 @@
 use node_store::ReadNode;
 
-use crate::{prelude::*, IntegerOrString};
+use crate::{IntegerOrString, prelude::*};
 
 impl ReadNode for IntegerOrString {
     fn load_int(value: &i64) -> Result<Self> {

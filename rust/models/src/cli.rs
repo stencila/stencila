@@ -1,9 +1,10 @@
 use cli_utils::{
+    AsFormat, Code, ToStdout,
     color_print::cstr,
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
-    AsFormat, Code, ToStdout,
 };
 use model::{
+    ModelAvailability, ModelSpecification, ModelTask, ModelType,
     common::{
         clap::{self, Args, Parser, Subcommand},
         eyre::Result,
@@ -12,7 +13,6 @@ use model::{
     },
     format::Format,
     schema::{InstructionMessage, ModelParameters},
-    ModelAvailability, ModelSpecification, ModelTask, ModelType,
 };
 
 use crate::select;

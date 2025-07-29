@@ -3,8 +3,8 @@
 use std::str::FromStr;
 
 use common::serde::{
-    de::{DeserializeOwned, Error},
     Deserialize, Deserializer,
+    de::{DeserializeOwned, Error},
 };
 
 use crate::Object;

@@ -1,6 +1,6 @@
 use codec_info::{lost_exec_options, lost_options};
 
-use crate::{prelude::*, PromptBlock};
+use crate::{PromptBlock, prelude::*};
 
 impl PromptBlock {
     /// Custom implementation of [`PatchNode::apply`]

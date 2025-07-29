@@ -1,4 +1,4 @@
-use crate::{prelude::*, Block, Inline, List, Node, Paragraph, Section, Table, TableRow};
+use crate::{Block, Inline, List, Node, Paragraph, Section, Table, TableRow, prelude::*};
 
 impl Block {
     pub fn node_type(&self) -> NodeType {
@@ -105,14 +105,14 @@ impl TryFrom<Node> for Block {
         // Wrap parts of blocks (e.g. table cells, table rows, list items) accordingly
         match node {
             Node::TableCell(cell) => {
-                return Ok(Block::Table(Table::new(vec![TableRow::new(vec![cell])])))
+                return Ok(Block::Table(Table::new(vec![TableRow::new(vec![cell])])));
             }
             Node::TableRow(row) => return Ok(Block::Table(Table::new(vec![row]))),
             Node::ListItem(item) => {
                 return Ok(Block::List(List::new(
                     vec![item],
                     crate::ListOrder::Unordered,
-                )))
+                )));
             }
             _ => {}
         }

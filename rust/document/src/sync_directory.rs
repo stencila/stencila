@@ -1,11 +1,11 @@
 use std::path::{Component, Path, PathBuf};
 
 use common::{
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     serde::{Deserialize, Serialize},
     tokio::{
         self,
-        fs::{create_dir_all, remove_dir_all, remove_file, rename, File},
+        fs::{File, create_dir_all, remove_dir_all, remove_file, rename},
         sync::mpsc::{Receiver, Sender},
     },
     tracing,

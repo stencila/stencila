@@ -3,9 +3,10 @@ use std::sync::Arc;
 use cached::proc_macro::cached;
 
 use model::{
+    Model, ModelIO, ModelOutput, ModelTask, ModelType,
     common::{
         async_trait::async_trait,
-        eyre::{bail, Result},
+        eyre::{Result, bail},
         inflector::Inflector,
         itertools::Itertools,
         reqwest::Client,
@@ -14,7 +15,7 @@ use model::{
         tracing,
     },
     schema::{MessagePart, MessageRole},
-    secrets, Model, ModelIO, ModelOutput, ModelTask, ModelType,
+    secrets,
 };
 
 const BASE_URL: &str = "https://api.mistral.ai/v1";
@@ -70,7 +71,11 @@ impl Model for MistralModel {
     }
 
     fn version(&self) -> String {
-        self.model.split('-').last().unwrap_or_default().to_string()
+        self.model
+            .split('-')
+            .next_back()
+            .unwrap_or_default()
+            .to_string()
     }
 
     fn context_length(&self) -> usize {
@@ -273,7 +278,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
 #[cached(time = 21_600, result = true)]
 async fn list_mistral_models() -> Result<ModelsResponse> {
     let response = Client::new()
-        .get(format!("{}/models", BASE_URL))
+        .get(format!("{BASE_URL}/models"))
         .bearer_auth(secrets::env_or_get(API_KEY)?)
         .send()
         .await?;

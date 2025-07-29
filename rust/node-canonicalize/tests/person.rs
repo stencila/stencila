@@ -1,5 +1,5 @@
 use common::{
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     tokio,
 };
 use common_dev::pretty_assertions::assert_eq;

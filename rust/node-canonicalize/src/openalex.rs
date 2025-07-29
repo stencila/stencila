@@ -1,5 +1,5 @@
 use codec_openalex::{
-    search_authors, search_institutions, search_works, work_by_doi, OpenAlexWork,
+    OpenAlexWork, search_authors, search_institutions, search_works, work_by_doi,
 };
 use codec_text::to_text;
 use common::{eyre::Result, once_cell::sync::Lazy, regex::Regex, tracing};

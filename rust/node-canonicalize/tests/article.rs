@@ -1,11 +1,11 @@
 use common::{
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     serde_json::{self, json},
     tokio,
 };
 use common_dev::pretty_assertions::assert_eq;
 use node_canonicalize::canonicalize;
-use schema::{shortcuts::t, Article, Author, Date, Node, Person};
+use schema::{Article, Author, Date, Node, Person, shortcuts::t};
 
 /// Article with a DOI on OpenAlex should get that DOI
 #[tokio::test]

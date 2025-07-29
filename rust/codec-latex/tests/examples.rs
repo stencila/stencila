@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 
 use codec::{
-    common::{eyre::Result, glob::glob, tokio},
     Codec, DecodeOptions, EncodeOptions,
+    common::{eyre::Result, glob::glob, tokio},
 };
 
 use codec_latex::LatexCodec;

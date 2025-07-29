@@ -4,8 +4,8 @@ use std::{
 };
 
 use cli_utils::{
-    tabulated::{Attribute, Cell, Color, Tabulated},
     ToStdout,
+    tabulated::{Attribute, Cell, Color, Tabulated},
 };
 use common::{
     clap::{self, Args},
@@ -16,7 +16,7 @@ use common::{
     tokio::fs::{read_to_string, write},
     tracing,
 };
-use dirs::{get_app_dir, DirType};
+use dirs::{DirType, get_app_dir};
 
 use crate::{Plugin, PluginEnabled, PluginStatus};
 

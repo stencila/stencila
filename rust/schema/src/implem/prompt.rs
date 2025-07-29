@@ -1,5 +1,5 @@
 use crate::{
-    prelude::*, AuthorRole, AuthorRoleAuthor, AuthorRoleName, Prompt, SoftwareApplication,
+    AuthorRole, AuthorRoleAuthor, AuthorRoleName, Prompt, SoftwareApplication, prelude::*,
 };
 
 impl From<Prompt> for AuthorRole {

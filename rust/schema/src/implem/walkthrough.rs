@@ -1,6 +1,6 @@
 use serde_json::Value;
 
-use crate::{prelude::*, Walkthrough, WalkthroughStep};
+use crate::{Walkthrough, WalkthroughStep, prelude::*};
 
 impl Walkthrough {
     /// Custom implementation of [`PatchNode::apply`].

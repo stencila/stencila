@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, SuggestionInline};
+use crate::{SuggestionInline, prelude::*};
 
 impl MarkdownCodec for SuggestionInline {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {

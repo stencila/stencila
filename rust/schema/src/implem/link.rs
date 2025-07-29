@@ -1,7 +1,7 @@
 use codec_info::lost_options;
 use codec_text_trait::to_text;
 
-use crate::{prelude::*, Inline, Link};
+use crate::{Inline, Link, prelude::*};
 
 impl DomCodec for Link {
     fn to_dom(&self, context: &mut DomEncodeContext) {

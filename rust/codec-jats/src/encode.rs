@@ -1,12 +1,12 @@
 use std::io::Cursor;
 
 use quick_xml::{
-    events::{BytesEnd, BytesStart, BytesText, Event},
     Writer,
+    events::{BytesEnd, BytesStart, BytesText, Event},
 };
 use roxmltree::{Node as XmlNode, NodeType as XmlNodeType};
 
-use codec::{common::eyre::Result, schema::Node, EncodeInfo, EncodeOptions, Losses};
+use codec::{EncodeInfo, EncodeOptions, Losses, common::eyre::Result, schema::Node};
 use codec_jats_trait::JatsCodec as _;
 
 /// Encode a [`Node`] as JATS XML
@@ -51,7 +51,7 @@ pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, En
 ///
 /// Originally based on https://gist.github.com/lwilli/14fb3178bd9adac3a64edfbc11f42e0d
 fn indent(jats: &str) -> String {
-    use quick_xml::{events::Event, Reader, Writer};
+    use quick_xml::{Reader, Writer, events::Event};
 
     let mut reader = Reader::from_str(jats);
     reader.config_mut().trim_text(true);

@@ -7,7 +7,7 @@ use automerge::ROOT;
 
 use common::{
     async_trait::async_trait,
-    eyre::{bail, Context, Result},
+    eyre::{Context, Result, bail},
     smol_str::SmolStr,
     tokio::fs::{read, write},
 };
@@ -17,7 +17,7 @@ pub use automerge::{
     self, AutoCommit as WriteStore, ChangeHash as CommitHash, ObjId, ObjType, Prop,
     ReadDoc as ReadStore,
 };
-pub(crate) use automerge::{transaction::CommitOptions, ScalarValue, Value};
+pub(crate) use automerge::{ScalarValue, Value, transaction::CommitOptions};
 
 pub use node_store_derive::{ReadNode, WriteNode};
 

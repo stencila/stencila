@@ -1,22 +1,22 @@
 use std::ops::Deref;
 
 use common::{
-    futures::{stream::FuturesUnordered, StreamExt},
+    futures::{StreamExt, stream::FuturesUnordered},
     itertools::Itertools,
     serde_json::json,
     tokio,
 };
 use models::ModelTask;
-use node_diagnostics::{diagnostics_gte, DiagnosticLevel};
+use node_diagnostics::{DiagnosticLevel, diagnostics_gte};
 use schema::{
-    authorship,
-    shortcuts::{ci, h3, p, t},
     Author, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, ChatMessageGroup,
     ChatMessageOptions, ExecutionBounds, InstructionMessage, InstructionType, MessagePart,
-    MessageRole, ModelParameters, NodePath, Patch, SoftwareApplication,
+    MessageRole, ModelParameters, NodePath, Patch, SoftwareApplication, authorship,
+    shortcuts::{ci, h3, p, t},
 };
 
 use crate::{
+    ExecuteOptions,
     code_utils::apply_execution_bounds,
     interrupt_impl,
     model_utils::{
@@ -24,7 +24,6 @@ use crate::{
         model_task_to_blocks_and_authors,
     },
     prelude::*,
-    ExecuteOptions,
 };
 
 impl Executable for Chat {

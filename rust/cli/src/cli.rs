@@ -2,7 +2,7 @@ use ask::Answer;
 use cli_utils::color_print::cstr;
 use common::{
     clap::{self, Parser, Subcommand},
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     tracing,
 };
 use server::{self, ServeOptions};

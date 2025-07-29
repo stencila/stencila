@@ -6,18 +6,18 @@ use node_reconstitute::reconstitute;
 use rust_embed::RustEmbed;
 
 use codec::{
+    Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
+    NodeType,
     common::{
         async_trait::async_trait,
         eyre::{OptionExt, Result},
         serde_json,
-        tempfile::{tempdir, NamedTempFile},
+        tempfile::{NamedTempFile, tempdir},
         tokio::fs::{create_dir_all, write},
     },
     format::Format,
-    schema::{strip_non_content, Article, Node, Object, Primitive},
+    schema::{Article, Node, Object, Primitive, strip_non_content},
     status::Status,
-    Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    NodeType,
 };
 use codec_pandoc::{
     coarse_to_path, pandoc_availability, pandoc_from_format, pandoc_to_format, root_from_pandoc,
@@ -218,7 +218,7 @@ impl Codec for DocxCodec {
                 // Default to using builtin template by extracting it to cache
                 // The cache path includes the Stencila version so that it is cache-busted
                 // for each new version
-                use dirs::{get_app_dir, DirType};
+                use dirs::{DirType, get_app_dir};
                 let template = get_app_dir(DirType::Templates, false)?
                     .join(STENCILA_VERSION)
                     .join(DEFAULT_TEMPLATE);

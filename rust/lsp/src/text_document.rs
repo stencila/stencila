@@ -6,12 +6,12 @@ use core::time;
 use std::{ops::ControlFlow, path::PathBuf, sync::Arc};
 
 use async_lsp::{
+    ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
     lsp_types::{
         Diagnostic as LspDiagnostic, DiagnosticSeverity, DidChangeTextDocumentParams,
         DidCloseTextDocumentParams, DidOpenTextDocumentParams, DidSaveTextDocumentParams,
         MessageType, Position, PublishDiagnosticsParams, Range, ShowMessageParams, Url,
     },
-    ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
 
 use codec_utils::git_info;
@@ -20,10 +20,10 @@ use codecs::{
     Messages,
 };
 use common::{
-    eyre::{bail, Report},
+    eyre::{Report, bail},
     tokio::{
         self,
-        sync::{mpsc, watch, RwLock},
+        sync::{RwLock, mpsc, watch},
     },
     tracing,
 };
@@ -35,7 +35,7 @@ use schema::{
 };
 
 use crate::{
-    diagnostics, inspect::Inspector, node_info, DocumentsOnSave, ServerOptions, ServerState,
+    DocumentsOnSave, ServerOptions, ServerState, diagnostics, inspect::Inspector, node_info,
 };
 
 /// A Stencila `Node` within a `TextDocument`
@@ -891,7 +891,7 @@ pub(super) fn did_open(
             return ControlFlow::Break(Err(Error::Response(ResponseError::new(
                 ErrorCode::INTERNAL_ERROR,
                 format!("While creating new document: {error}"),
-            ))))
+            ))));
         }
     };
     state.documents.insert(uri, text_doc);

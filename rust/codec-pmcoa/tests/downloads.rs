@@ -1,6 +1,6 @@
 use codec::{
-    common::{eyre::Result, tokio},
     Codec,
+    common::{eyre::Result, tokio},
 };
 use common_dev::insta::{assert_json_snapshot, assert_yaml_snapshot};
 

@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, HorizontalAlignment, Table, TableRow, TableRowType};
+use crate::{HorizontalAlignment, Table, TableRow, TableRowType, prelude::*};
 
 use super::utils::caption_to_dom;
 

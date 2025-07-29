@@ -1,6 +1,6 @@
 use std::sync::{
-    atomic::{AtomicU32, Ordering},
     Arc,
+    atomic::{AtomicU32, Ordering},
 };
 
 use json_patch::{PatchOperation, ReplaceOperation};
@@ -13,8 +13,8 @@ use common::{
     tokio::{
         self,
         sync::{
-            mpsc::{Receiver, Sender},
             Mutex,
+            mpsc::{Receiver, Sender},
         },
     },
     tracing,
@@ -182,8 +182,8 @@ mod tests {
     use common::{eyre::bail, tokio::sync::mpsc::channel};
     use common_dev::pretty_assertions::assert_eq;
     use schema::{
-        shortcuts::{art, p, t},
         NodeType,
+        shortcuts::{art, p, t},
     };
 
     use crate::Update;

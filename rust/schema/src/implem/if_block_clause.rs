@@ -1,6 +1,6 @@
 use codec_info::lost_exec_options;
 
-use crate::{prelude::*, IfBlockClause};
+use crate::{IfBlockClause, prelude::*};
 
 impl MarkdownCodec for IfBlockClause {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {

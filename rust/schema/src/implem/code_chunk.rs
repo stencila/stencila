@@ -4,8 +4,8 @@ use codec_markdown_trait::to_markdown;
 use common::tracing;
 
 use crate::{
-    prelude::*, CodeChunk, Duration, ExecutionBounds, ExecutionMode, LabelType, MessageLevel,
-    Timestamp,
+    CodeChunk, Duration, ExecutionBounds, ExecutionMode, LabelType, MessageLevel, Timestamp,
+    prelude::*,
 };
 
 use super::utils::caption_to_dom;

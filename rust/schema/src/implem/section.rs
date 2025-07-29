@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, Section, SectionType};
+use crate::{Section, SectionType, prelude::*};
 
 impl Section {
     pub fn to_html_special(&self, context: &mut HtmlEncodeContext) -> String {

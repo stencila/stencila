@@ -1273,8 +1273,7 @@ mod tests {
             let file_size = std::fs::metadata(output_path)?.len();
             assert!(
                 file_size > 1000,
-                "PNG file should have substantial content (got {} bytes)",
-                file_size
+                "PNG file should have substantial content (got {file_size} bytes)"
             );
         }
 

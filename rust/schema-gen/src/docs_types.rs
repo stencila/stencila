@@ -8,7 +8,7 @@ use std::{
 
 use codecs::{CodecSupport, Format};
 use common::{
-    eyre::{bail, Context as _, Result},
+    eyre::{Context as _, Result, bail},
     futures::future::try_join_all,
     inflector::Inflector,
     itertools::Itertools,
@@ -17,8 +17,8 @@ use common::{
     tokio::fs::{create_dir_all, remove_dir_all, remove_file},
 };
 use schema::{
-    shortcuts::*, Article, Block, Config, ConfigPublish, ConfigPublishGhost,
-    ConfigPublishGhostState, ConfigPublishGhostType, Inline, Node, NodeType, NoteType, TableCell,
+    Article, Block, Config, ConfigPublish, ConfigPublishGhost, ConfigPublishGhostState,
+    ConfigPublishGhostType, Inline, Node, NodeType, NoteType, TableCell, shortcuts::*,
 };
 use status::Status;
 
@@ -411,10 +411,7 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
         let name = format.name();
         let name = td([lnk(
             [t(name)],
-            format!(
-                "https://stencila.ghost.io/docs/reference/formats/{}",
-                format
-            ),
+            format!("https://stencila.ghost.io/docs/reference/formats/{format}"),
         )]);
 
         fn codec_support(support: CodecSupport) -> TableCell {
@@ -457,7 +454,9 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
         p([
             t("The "),
             ci(title),
-            t(" type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:"),
+            t(
+                " type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:",
+            ),
         ]),
         tbl(rows),
     ]
@@ -544,14 +543,18 @@ fn proptests_anyof(title: &str, schema: &Schema) -> Vec<Block> {
                     t(" "),
                     lnk([t("book")], "https://proptest-rs.github.io/proptest/"),
                     t(" and the "),
-                    lnk([ci("proptest.rs")], "https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs"),
+                    lnk(
+                        [ci("proptest.rs")],
+                        "https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs",
+                    ),
                     t(" module for details."),
                 ])],
             ),
-            t(" for each complexity level. Any variant not shown is generated using the default strategy for the corresponding type and complexity level."),
-
+            t(
+                " for each complexity level. Any variant not shown is generated using the default strategy for the corresponding type and complexity level.",
+            ),
         ]),
-        tbl(rows)
+        tbl(rows),
     ]
 }
 
@@ -633,11 +636,16 @@ fn proptests_object(title: &str, schema: &Schema) -> Vec<Block> {
                     t(" "),
                     lnk([t("book")], "https://proptest-rs.github.io/proptest/"),
                     t(" and the "),
-                    lnk([ci("proptest.rs")], "https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs"),
+                    lnk(
+                        [ci("proptest.rs")],
+                        "https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs",
+                    ),
                     t(" module for details."),
                 ])],
             ),
-            t(" for each complexity level. Any optional properties that are not in this table are set to "),
+            t(
+                " for each complexity level. Any optional properties that are not in this table are set to ",
+            ),
             ci("None"),
             t("."),
         ]),
@@ -685,11 +693,7 @@ fn related(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
 fn bindings(title: &str, schema: &Schema) -> Vec<Block> {
     vec![
         h1([t("Bindings")]),
-        p([
-            t("The "),
-            ci(title),
-            t(" type is represented in:"),
-        ]),
+        p([t("The "), ci(title), t(" type is represented in:")]),
         ul([
             li([lnk(
                 [t("JSON-LD")],
@@ -699,18 +703,51 @@ fn bindings(title: &str, schema: &Schema) -> Vec<Block> {
                 [t("JSON Schema")],
                 format!("https://stencila.org/{title}.schema.json"),
             )]),
-            li([t("Python "), t(if schema.is_object() { "class "} else {"type "}), lnk(
-                [ci(title)],
-                format!("https://github.com/stencila/stencila/blob/main/python/python/stencila/types/{module}.py", module = title.to_snake_case()),
-            )]),
-            li([t("Rust "), t(if schema.is_object() { "struct "} else {"type "}), lnk(
-                [ci(title)],
-                format!("https://github.com/stencila/stencila/blob/main/rust/schema/src/types/{module}.rs", module = title.to_snake_case()),
-            )]),
-            li([t("TypeScript "), t(if schema.is_object() { "class "} else {"type "}), lnk(
-                [ci(title)],
-                format!("https://github.com/stencila/stencila/blob/main/ts/src/types/{module}.ts", module = title.to_pascal_case()),
-            )]),
+            li([
+                t("Python "),
+                t(if schema.is_object() {
+                    "class "
+                } else {
+                    "type "
+                }),
+                lnk(
+                    [ci(title)],
+                    format!(
+                        "https://github.com/stencila/stencila/blob/main/python/python/stencila/types/{module}.py",
+                        module = title.to_snake_case()
+                    ),
+                ),
+            ]),
+            li([
+                t("Rust "),
+                t(if schema.is_object() {
+                    "struct "
+                } else {
+                    "type "
+                }),
+                lnk(
+                    [ci(title)],
+                    format!(
+                        "https://github.com/stencila/stencila/blob/main/rust/schema/src/types/{module}.rs",
+                        module = title.to_snake_case()
+                    ),
+                ),
+            ]),
+            li([
+                t("TypeScript "),
+                t(if schema.is_object() {
+                    "class "
+                } else {
+                    "type "
+                }),
+                lnk(
+                    [ci(title)],
+                    format!(
+                        "https://github.com/stencila/stencila/blob/main/ts/src/types/{module}.ts",
+                        module = title.to_pascal_case()
+                    ),
+                ),
+            ]),
         ]),
     ]
 }

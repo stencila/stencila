@@ -1,24 +1,24 @@
 use std::{
     ops::DerefMut,
     sync::{
-        atomic::{AtomicU32, Ordering},
         Arc,
+        atomic::{AtomicU32, Ordering},
     },
     time::{Duration, Instant},
 };
 
 use codecs::EncodeOptions;
 use common::{
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     itertools::Itertools,
     serde::{Deserialize, Serialize},
     serde_with::skip_serializing_none,
-    similar::{capture_diff_slices_deadline, Algorithm, DiffTag},
+    similar::{Algorithm, DiffTag, capture_diff_slices_deadline},
     tokio::{
         self,
         sync::{
-            mpsc::{Receiver, Sender},
             Mutex,
+            mpsc::{Receiver, Sender},
         },
     },
     tracing,

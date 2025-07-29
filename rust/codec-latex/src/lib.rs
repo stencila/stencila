@@ -1,13 +1,13 @@
 use codec::{
+    Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
+    NodeType,
     common::{
         async_trait::async_trait,
-        eyre::{bail, Result},
+        eyre::{Result, bail},
     },
     format::Format,
     schema::Node,
     status::Status,
-    Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    NodeType,
 };
 use codec_latex_trait::to_latex;
 use codec_pandoc::{pandoc_availability, pandoc_to_format, root_to_pandoc};

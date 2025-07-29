@@ -1,5 +1,5 @@
 use codec::{
-    common::eyre::{bail, Result},
+    common::eyre::{Result, bail},
     schema::{Article, Block, Inline, Node, Paragraph},
 };
 use common_dev::insta::assert_yaml_snapshot;

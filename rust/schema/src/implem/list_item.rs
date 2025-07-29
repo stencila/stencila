@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, Block, ListItem, Paragraph};
+use crate::{Block, ListItem, Paragraph, prelude::*};
 
 impl LatexCodec for ListItem {
     fn to_latex(&self, context: &mut LatexEncodeContext) {

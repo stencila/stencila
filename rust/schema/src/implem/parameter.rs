@@ -3,7 +3,7 @@ use codec_html_trait::encode::{attr, elem};
 use codec_info::{lost_exec_options, lost_options};
 use common::inflector::Inflector;
 
-use crate::{prelude::*, Parameter, Validator};
+use crate::{Parameter, Validator, prelude::*};
 
 use super::validators::node_to_md;
 

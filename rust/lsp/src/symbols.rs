@@ -5,10 +5,10 @@
 use std::sync::Arc;
 
 use async_lsp::{
-    lsp_types::{DocumentSymbol, DocumentSymbolResponse, SymbolKind},
     ErrorCode, ResponseError,
+    lsp_types::{DocumentSymbol, DocumentSymbolResponse, SymbolKind},
 };
-use common::tokio::sync::{watch::Receiver, RwLock};
+use common::tokio::sync::{RwLock, watch::Receiver};
 use schema::NodeType;
 
 use crate::text_document::{SyncState, TextNode};

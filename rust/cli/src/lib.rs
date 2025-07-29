@@ -56,19 +56,13 @@ mod tests {
                         successful_commands += 1;
                     }
                     Err(e) => {
-                        panic!(
-                            "Command '{}' from {} failed to parse: {}",
-                            example, command_name, e
-                        );
+                        panic!("Command '{example}' from {command_name} failed to parse: {e}");
                     }
                 }
             }
         }
 
-        eprintln!(
-            "✅ Validated {} CLI example commands successfully!",
-            successful_commands
-        );
+        eprintln!("✅ Validated {successful_commands} CLI example commands successfully!");
     }
 
     fn collect_all_after_long_help() -> Vec<(&'static str, &'static str)> {

@@ -1,6 +1,6 @@
 pub(crate) use automerge::{
-    transaction::Transactable, AutoCommit as WriteStore, ObjId, ObjType, Prop,
-    ReadDoc as ReadStore, Value,
+    AutoCommit as WriteStore, ObjId, ObjType, Prop, ReadDoc as ReadStore, Value,
+    transaction::Transactable,
 };
 
 pub(crate) use common::eyre::Result;

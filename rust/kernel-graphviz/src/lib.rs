@@ -4,6 +4,7 @@ use layout::{
 };
 
 use kernel::{
+    Kernel, KernelInstance, KernelType,
     common::{
         async_trait::async_trait, eyre::Result, once_cell::sync::Lazy, regex::Regex, tracing,
     },
@@ -13,7 +14,6 @@ use kernel::{
         ExecutionBounds, ExecutionMessage, ImageObject, MessageLevel, Node, SoftwareApplication,
         SoftwareApplicationOptions,
     },
-    Kernel, KernelInstance, KernelType,
 };
 
 const NAME: &str = "graphviz";

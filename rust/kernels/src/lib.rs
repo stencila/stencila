@@ -6,19 +6,19 @@ use std::{
 };
 
 use kernel::{
+    Kernel, KernelInstance, KernelLint, KernelLinting, KernelLintingOutput, KernelVariableRequest,
+    KernelVariableRequester, KernelVariableResponse,
     common::{
-        eyre::{bail, Result},
+        eyre::{Result, bail},
         once_cell::sync::Lazy,
         tokio::{
             self,
-            sync::{broadcast, mpsc, watch, Mutex, RwLock},
+            sync::{Mutex, RwLock, broadcast, mpsc, watch},
         },
         tracing,
     },
     format::Format,
     schema::{ExecutionBounds, ExecutionMessage, Node},
-    Kernel, KernelInstance, KernelLint, KernelLinting, KernelLintingOutput, KernelVariableRequest,
-    KernelVariableRequester, KernelVariableResponse,
 };
 use kernel_asciimath::AsciiMathKernel;
 use kernel_bash::BashKernel;

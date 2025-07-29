@@ -1,9 +1,10 @@
 use cli_utils::{
+    AsFormat, Code, Tabulated, ToStdout,
     color_print::cstr,
     tabulated::{Attribute, Cell, Color},
-    AsFormat, Code, Tabulated, ToStdout,
 };
 use codec::{
+    CodecAvailability, CodecDirection,
     common::{
         clap::{self, Args, Parser, Subcommand},
         eyre::Result,
@@ -11,7 +12,6 @@ use codec::{
         strum::IntoEnumIterator,
     },
     format::Format,
-    CodecAvailability, CodecDirection,
 };
 
 /// List the support for formats

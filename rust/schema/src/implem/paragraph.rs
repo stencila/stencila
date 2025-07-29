@@ -1,4 +1,4 @@
-use crate::{prelude::*, Paragraph};
+use crate::{Paragraph, prelude::*};
 
 impl LatexCodec for Paragraph {
     fn to_latex(&self, context: &mut LatexEncodeContext) {

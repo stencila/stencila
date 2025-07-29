@@ -1,7 +1,7 @@
 use codec::{
+    Codec,
     common::{eyre::Result, tokio},
     schema::{CodeBlock, Node},
-    Codec,
 };
 use codec_markdown::MarkdownCodec;
 use common_dev::insta::assert_snapshot;

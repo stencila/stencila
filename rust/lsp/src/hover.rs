@@ -5,11 +5,11 @@
 use std::sync::Arc;
 
 use async_lsp::{
-    lsp_types::{Hover, HoverContents, HoverParams, MarkupContent, MarkupKind, Url},
     ResponseError,
+    lsp_types::{Hover, HoverContents, HoverParams, MarkupContent, MarkupKind, Url},
 };
 
-use codec_markdown_trait::{to_markdown, MarkdownCodec, MarkdownEncodeContext};
+use codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext, to_markdown};
 use common::tokio::sync::RwLock;
 use document::Document;
 use schema::{Citation, CodeChunk, CodeExpression, Node, NodeId, NodeType, Reference};

@@ -5,7 +5,7 @@ use std::{collections::BTreeMap, fmt::Display, path::PathBuf};
 use schemars::JsonSchema;
 
 use common::{
-    eyre::{bail, eyre, Context, Report, Result},
+    eyre::{Context, Report, Result, bail, eyre},
     indexmap::IndexMap,
     inflector::Inflector,
     itertools::Itertools,
@@ -404,10 +404,10 @@ impl Display for Value {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use Value::*;
         match self {
-            String(value) => write!(f, "{}", value),
-            Number(value) => write!(f, "{}", value),
-            Integer(value) => write!(f, "{}", value),
-            Boolean(value) => write!(f, "{}", value),
+            String(value) => write!(f, "{value}"),
+            Number(value) => write!(f, "{value}"),
+            Integer(value) => write!(f, "{value}"),
+            Boolean(value) => write!(f, "{value}"),
             Object(value) => write!(
                 f,
                 "{}",

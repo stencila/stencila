@@ -3,7 +3,7 @@ use common::{
     eyre::{Report, Result},
 };
 
-use crate::{prelude::*, DateTime};
+use crate::{DateTime, prelude::*};
 
 impl DateTime {
     pub fn to_jats_special(&self) -> (String, Losses) {
@@ -25,7 +25,7 @@ impl TryFrom<&DateTime> for chrono::DateTime<chrono::Utc> {
 
     fn try_from(date_time: &DateTime) -> Result<Self, Self::Error> {
         use common::chrono::Utc;
-        use interim::{parse_date_string, Dialect};
+        use interim::{Dialect, parse_date_string};
 
         let date_time = parse_date_string(&date_time.value, Utc::now(), Dialect::Us)?;
         Ok(date_time)

@@ -2,8 +2,8 @@ use common::serde_json;
 use common_dev::{pretty_assertions::assert_eq, proptest::prelude::*};
 
 use schema::{
-    cord_provenance::{display, human_written},
     AuthorType, Block, Cord, CordAuthorship,
+    cord_provenance::{display, human_written},
 };
 
 #[test]

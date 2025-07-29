@@ -1,7 +1,7 @@
 use std::env;
 
 use common::{
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     itertools::Itertools,
     once_cell::sync::Lazy,
     serde::Serialize,

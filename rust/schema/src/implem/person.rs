@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use common::{once_cell::sync::Lazy, regex::Regex};
 
-use crate::{prelude::*, Person, PersonOptions};
+use crate::{Person, PersonOptions, prelude::*};
 
 impl Person {
     /// Get the name of a [`Person`]

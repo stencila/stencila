@@ -1,6 +1,6 @@
 use codec_info::lost_exec_options;
 
-use crate::{prelude::*, IfBlock, IfBlockClause};
+use crate::{IfBlock, IfBlockClause, prelude::*};
 
 impl LatexCodec for IfBlock {
     fn to_latex(&self, context: &mut LatexEncodeContext) {

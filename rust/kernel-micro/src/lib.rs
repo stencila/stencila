@@ -11,15 +11,15 @@ use which::which;
 // Re-exports for the convenience of internal crates implementing
 // the `Microkernel` trait
 pub use kernel::{
-    common, format, schema, tests, Kernel, KernelAvailability, KernelInstance, KernelInterrupt,
-    KernelKill, KernelLint, KernelLinting, KernelLintingOptions, KernelLintingOutput,
-    KernelProvider, KernelSignal, KernelStatus, KernelTerminate,
+    Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelLint,
+    KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider, KernelSignal,
+    KernelStatus, KernelTerminate, common, format, schema, tests,
 };
 
 use kernel::{
     common::{
         async_trait::async_trait,
-        eyre::{bail, eyre, Context, OptionExt, Result},
+        eyre::{Context, OptionExt, Result, bail, eyre},
         itertools::Itertools,
         serde_json,
         strum::Display,
@@ -535,7 +535,10 @@ impl KernelInstance for MicrokernelInstance {
             .get_status()
             .wrap_err_with(|| eyre!("Unable to check status of starting kernel"))?;
         if matches!(status, KernelStatus::Failed | KernelStatus::Stopped) {
-            bail!("Startup of `{}` kernel failed; perhaps the runtime version on this machine is not supported?", self.id())
+            bail!(
+                "Startup of `{}` kernel failed; perhaps the runtime version on this machine is not supported?",
+                self.id()
+            )
         }
 
         if matches!(self.bounds, ExecutionBounds::Box) {
@@ -562,7 +565,7 @@ impl KernelInstance for MicrokernelInstance {
             #[cfg(unix)]
             {
                 use nix::{
-                    sys::signal::{kill, Signal},
+                    sys::signal::{Signal, kill},
                     unistd::Pid,
                 };
 
@@ -848,7 +851,7 @@ impl MicrokernelInstance {
                 #[cfg(unix)]
                 {
                     use nix::{
-                        sys::signal::{kill, Signal},
+                        sys::signal::{Signal, kill},
                         unistd::Pid,
                     };
 
@@ -913,7 +916,7 @@ impl MicrokernelInstance {
             use nix::{
                 sys::{
                     signal,
-                    wait::{waitpid, WaitPidFlag, WaitStatus},
+                    wait::{WaitPidFlag, WaitStatus, waitpid},
                 },
                 unistd::Pid,
             };

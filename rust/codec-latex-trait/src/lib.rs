@@ -10,11 +10,11 @@ use std::{
 use codec_utils::{move_file, split_paragraph};
 use node_path::{NodePath, NodeSlot};
 use node_url::{NodePosition, NodeUrl};
-use rand::{distr::Alphanumeric, rng, Rng};
+use rand::{Rng, distr::Alphanumeric, rng};
 
 use codec_info::{EncodeInfo, Losses, Mapping, NodeId, NodeProperty, NodeType};
 use common::{
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     glob,
     itertools::Itertools,
     tracing,

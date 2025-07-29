@@ -3,7 +3,7 @@
 use std::{cmp::Ordering, collections::HashMap, sync::Arc};
 
 use model::common::{
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     futures::future::join_all,
     itertools::Itertools,
     tracing,
@@ -95,8 +95,7 @@ pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
     // Check that there is at least one model available so we can advise the user
     // that they might need to provide an API key or run a model locally
     if !models.iter().any(|model| model.is_available()) {
-        let message =
-            "No AI models available. Please sign in to Stencila Cloud, set STENCILA_API_TOKEN, or configure local models.";
+        let message = "No AI models available. Please sign in to Stencila Cloud, set STENCILA_API_TOKEN, or configure local models.";
 
         // Log message so it is visible in console or an the LSP client
         tracing::error!(message);

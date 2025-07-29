@@ -1,6 +1,6 @@
 use std::{path::PathBuf, process::exit};
 
-use cli_utils::{color_print::cstr, AsFormat, Code, ToStdout};
+use cli_utils::{AsFormat, Code, ToStdout, color_print::cstr};
 use common::{
     clap::{self, Parser},
     eyre::Result,

@@ -1,13 +1,13 @@
 use std::path::Path;
 
 use codec::{
+    Codec, DecodeInfo, DecodeOptions,
     common::{
         eyre::{OptionExt, Result},
         glob::glob,
         tempfile, tracing,
     },
     schema::Node,
-    Codec, DecodeInfo, DecodeOptions,
 };
 use codec_jats::JatsCodec;
 use media_embed::embed_media;

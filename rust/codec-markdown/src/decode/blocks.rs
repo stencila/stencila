@@ -5,11 +5,11 @@ use markdown::{
     unist::Position,
 };
 use winnow::{
-    ascii::{alphanumeric1, multispace0, multispace1, space0, Caseless},
+    LocatingSlice as Located, ModalResult, Parser,
+    ascii::{Caseless, alphanumeric1, multispace0, multispace1, space0},
     combinator::{alt, delimited, eof, opt, preceded, separated, terminated},
     stream::AsChar,
     token::{take_till, take_until, take_while},
-    LocatingSlice as Located, ModalResult, Parser,
 };
 
 use codec::{
@@ -32,14 +32,13 @@ use codec::{
 };
 
 use super::{
-    decode_blocks, decode_inlines,
+    Context, decode_blocks, decode_inlines,
     inlines::{inlines, mds_to_inlines, mds_to_string},
     shared::{
         attrs, attrs_list, block_node_type, execution_bounds, execution_mode, instruction_type,
         model_parameters, name, node_to_string, primitive_node, prompt, relative_position,
         string_to_instruction_message,
     },
-    Context,
 };
 
 /// Transform MDAST nodes to Stencila Schema `Block`

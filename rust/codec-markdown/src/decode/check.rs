@@ -1,4 +1,4 @@
-use codec::{common::strum::Display, format::Format, Message, MessageLevel, Messages};
+use codec::{Message, MessageLevel, Messages, common::strum::Display, format::Format};
 
 /// Check Markdown prior to decoding
 pub fn check(md: &str, _format: &Format) -> Messages {

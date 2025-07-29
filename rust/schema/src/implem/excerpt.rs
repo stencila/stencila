@@ -1,4 +1,4 @@
-use crate::{prelude::*, Excerpt};
+use crate::{Excerpt, prelude::*};
 
 impl MarkdownCodec for Excerpt {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {

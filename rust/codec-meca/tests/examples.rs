@@ -1,12 +1,12 @@
 use std::path::PathBuf;
 
 use codec::{
+    Codec,
     common::{
         eyre::{OptionExt, Result},
         glob::glob,
         tokio,
     },
-    Codec,
 };
 use common_dev::insta::{assert_json_snapshot, assert_yaml_snapshot};
 

@@ -6,13 +6,13 @@ use std::{
 use codec_utils::git_info;
 use common::{
     async_trait::async_trait,
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     serde::{Deserialize, Serialize},
     serde_with::skip_serializing_none,
     smart_default::SmartDefault,
     strum::{Display, IntoEnumIterator},
     tokio::{
-        fs::{create_dir_all, File},
+        fs::{File, create_dir_all},
         io::{AsyncReadExt, AsyncWriteExt},
     },
     tracing,

@@ -1,4 +1,4 @@
-use codec::{common::eyre::Result, schema::Node, EncodeInfo, EncodeOptions};
+use codec::{EncodeInfo, EncodeOptions, common::eyre::Result, schema::Node};
 
 use codec_html_trait::{HtmlCodec as _, HtmlEncodeContext};
 
@@ -33,7 +33,7 @@ pub(super) fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(Str
 ///
 /// Originally based on https://gist.github.com/lwilli/14fb3178bd9adac3a64edfbc11f42e0d
 fn indent(html: &str) -> String {
-    use quick_xml::{events::Event, Reader, Writer};
+    use quick_xml::{Reader, Writer, events::Event};
 
     let mut reader = Reader::from_str(html);
     reader.config_mut().trim_text(true);

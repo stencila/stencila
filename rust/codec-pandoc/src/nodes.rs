@@ -3,10 +3,10 @@ use std::collections::HashMap;
 use pandoc_types::definition::{self as pandoc};
 
 use codec::{
-    common::eyre::{bail, Result},
+    DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
+    common::eyre::{Result, bail},
     format::Format,
     schema::*,
-    DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
 
 use crate::{

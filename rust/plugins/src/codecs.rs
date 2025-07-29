@@ -1,14 +1,14 @@
 use std::sync::Arc;
 
-use codec::{schema::Node, status::Status, Codec, EncodeInfo, EncodeOptions};
+use codec::{Codec, EncodeInfo, EncodeOptions, schema::Node, status::Status};
 use common::{
     async_trait::async_trait,
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     serde::{Deserialize, Serialize},
     tokio::sync::Mutex,
 };
 
-use crate::{plugins, Plugin, PluginInstance};
+use crate::{Plugin, PluginInstance, plugins};
 
 /// A codec provided by a plugin
 #[derive(Debug, Clone, Deserialize, Serialize)]

@@ -5,8 +5,8 @@
 use std::sync::Arc;
 
 use async_lsp::{
-    lsp_types::{CodeLens, Command, Range, Url},
     ErrorCode, ResponseError,
+    lsp_types::{CodeLens, Command, Range, Url},
 };
 use codecs::Format;
 use common::{inflector::Inflector, itertools::Itertools, serde_json::json, tokio::sync::RwLock};
@@ -89,7 +89,7 @@ pub(crate) async fn request(
                         if *index == 0 {
                             "Original".to_string()
                         } else {
-                            format!("{} of {}", index, of)
+                            format!("{index} of {of}")
                         }
                     ])),
                 };

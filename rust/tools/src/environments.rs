@@ -1,8 +1,8 @@
 use std::{env, process::Command};
 
 use crate::{
-    tool::{find_config_in_ancestors, Tool, ToolType},
     AsyncToolCommand,
+    tool::{Tool, ToolType, find_config_in_ancestors},
 };
 
 pub struct Apt;

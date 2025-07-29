@@ -4,14 +4,14 @@ use std::str::FromStr;
 
 use markdown::mdast;
 use winnow::{
+    LocatingSlice as Located, ModalResult, Parser,
     ascii::{
-        alphanumeric1, dec_int, digit1, float, multispace0, multispace1, take_escaped, Caseless,
+        Caseless, alphanumeric1, dec_int, digit1, float, multispace0, multispace1, take_escaped,
     },
     combinator::{alt, delimited, not, opt, peek, preceded, separated, separated_pair, terminated},
     error::ParserError,
     stream::Stream,
     token::{none_of, take_until, take_while},
-    LocatingSlice as Located, ModalResult, Parser,
 };
 
 use codec::schema::{
@@ -410,7 +410,7 @@ pub fn node_to_option_duration(node: Node) -> Option<Duration> {
 /// Parses the string as Markdown and splits images into separate
 /// message parts.
 pub fn string_to_instruction_message(md: &str) -> InstructionMessage {
-    use markdown::{to_mdast, ParseOptions};
+    use markdown::{ParseOptions, to_mdast};
     use mdast::Node;
 
     let Ok(Node::Root(root)) = to_mdast(md, &ParseOptions::default()) else {

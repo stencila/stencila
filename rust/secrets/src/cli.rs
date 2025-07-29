@@ -1,10 +1,10 @@
-use std::io::{stdin, IsTerminal, Read};
+use std::io::{IsTerminal, Read, stdin};
 
 use ask::ask_for_password;
 use cli_utils::{
+    ToStdout,
     color_print::cstr,
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
-    ToStdout,
 };
 use common::{
     clap::{self, Args, Parser, Subcommand},

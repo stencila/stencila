@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex as SyncMutex};
 
 use codec_openalex::{
-    request_with_params, AuthorsResponse, InstitutionsResponse, SourcesResponse, WorksResponse,
+    AuthorsResponse, InstitutionsResponse, SourcesResponse, WorksResponse, request_with_params,
 };
 use kernel_jinja::{
     kernel::{
@@ -15,8 +15,8 @@ use kernel_jinja::{
         schema::{CodeChunk, ExecutionMessage, MessageLevel, Node},
     },
     minijinja::{
-        value::{from_args, Kwargs, Object},
         Environment, Error, ErrorKind, State, Value,
+        value::{Kwargs, Object, from_args},
     },
 };
 
@@ -142,8 +142,8 @@ impl OpenAlexQuery {
         let openalex_field = self.map_property_to_openalex(&field)?;
 
         let sort_string = match direction {
-            Some(dir) if dir.to_uppercase() == "DESC" => format!("{}:desc", openalex_field),
-            _ => format!("{}:asc", openalex_field),
+            Some(dir) if dir.to_uppercase() == "DESC" => format!("{openalex_field}:desc"),
+            _ => format!("{openalex_field}:asc"),
         };
         query.sort = Some(sort_string);
         Ok(query)
@@ -238,7 +238,7 @@ impl OpenAlexQuery {
                     .as_str()
                     .map(String::from)
                     .unwrap_or_else(|| value.to_string());
-                Ok(self.search(format!("{}:{}", openalex_property, search_value)))
+                Ok(self.search(format!("{openalex_property}:{search_value}")))
             }
             _ => self.filter(&openalex_property, operator, value),
         }
@@ -266,7 +266,7 @@ impl OpenAlexQuery {
                         "Unsupported subquery type: {} with relation {}",
                         subquery.first_table, subquery.first_relation
                     ),
-                ))
+                ));
             }
         };
 
@@ -276,7 +276,7 @@ impl OpenAlexQuery {
             let work_ids = self.extract_work_ids_from_query_objects(&subquery.query_objects)?;
             if !work_ids.is_empty() {
                 let ids_filter = work_ids.join("|");
-                query.filters.push(format!("cited_by:{}", ids_filter));
+                query.filters.push(format!("cited_by:{ids_filter}"));
             }
         }
 
@@ -288,7 +288,7 @@ impl OpenAlexQuery {
                 let ids_filter = source_ids.join("|");
                 query
                     .filters
-                    .push(format!("primary_location.source.id:{}", ids_filter));
+                    .push(format!("primary_location.source.id:{ids_filter}"));
             }
         }
 
@@ -331,7 +331,7 @@ impl OpenAlexQuery {
                             "Count subqueries not supported for {} with relation {}",
                             subquery.first_table, subquery.first_relation
                         ),
-                    ))
+                    ));
                 }
             };
 
@@ -342,7 +342,7 @@ impl OpenAlexQuery {
             // OpenAlex doesn't consistently support >= and <= operators
             // Convert them to equivalent > and < operators
             let converted_filter = self.convert_count_filter_for_openalex(&clean_count_filter)?;
-            let count_filter_str = format!("{}:{}", count_property, converted_filter);
+            let count_filter_str = format!("{count_property}:{converted_filter}");
             query.filters.push(count_filter_str);
         }
 
@@ -377,15 +377,15 @@ impl OpenAlexQuery {
                 let filter_value = format_filter_value(value.clone())?;
 
                 match operator {
-                    "==" => Ok(format!("{}.{}:{}", prefix, property, filter_value)),
-                    "!=" => Ok(format!("{}.{}:!{}", prefix, property, filter_value)),
-                    "<" => Ok(format!("{}.{}:<{}", prefix, property, filter_value)),
-                    "<=" => Ok(format!("{}.{}:<={}", prefix, property, filter_value)),
-                    ">" => Ok(format!("{}.{}:>{}", prefix, property, filter_value)),
-                    ">=" => Ok(format!("{}.{}:>={}", prefix, property, filter_value)),
+                    "==" => Ok(format!("{prefix}.{property}:{filter_value}")),
+                    "!=" => Ok(format!("{prefix}.{property}:!{filter_value}")),
+                    "<" => Ok(format!("{prefix}.{property}:<{filter_value}")),
+                    "<=" => Ok(format!("{prefix}.{property}:<={filter_value}")),
+                    ">" => Ok(format!("{prefix}.{property}:>{filter_value}")),
+                    ">=" => Ok(format!("{prefix}.{property}:>={filter_value}")),
                     _ => Err(Error::new(
                         ErrorKind::InvalidOperation,
-                        format!("Unsupported operator for periodical property: {}", operator),
+                        format!("Unsupported operator for periodical property: {operator}"),
                     )),
                 }
             }
@@ -398,18 +398,15 @@ impl OpenAlexQuery {
                 let filter_value = format_filter_value(value.clone())?;
 
                 match operator {
-                    "==" => Ok(format!("{}.{}:{}", prefix, property, filter_value)),
-                    "!=" => Ok(format!("{}.{}:!{}", prefix, property, filter_value)),
-                    "<" => Ok(format!("{}.{}:<{}", prefix, property, filter_value)),
-                    "<=" => Ok(format!("{}.{}:<={}", prefix, property, filter_value)),
-                    ">" => Ok(format!("{}.{}:>{}", prefix, property, filter_value)),
-                    ">=" => Ok(format!("{}.{}:>={}", prefix, property, filter_value)),
+                    "==" => Ok(format!("{prefix}.{property}:{filter_value}")),
+                    "!=" => Ok(format!("{prefix}.{property}:!{filter_value}")),
+                    "<" => Ok(format!("{prefix}.{property}:<{filter_value}")),
+                    "<=" => Ok(format!("{prefix}.{property}:<={filter_value}")),
+                    ">" => Ok(format!("{prefix}.{property}:>{filter_value}")),
+                    ">=" => Ok(format!("{prefix}.{property}:>={filter_value}")),
                     _ => Err(Error::new(
                         ErrorKind::InvalidOperation,
-                        format!(
-                            "Unsupported operator for organization property: {}",
-                            operator
-                        ),
+                        format!("Unsupported operator for organization property: {operator}"),
                     )),
                 }
             }
@@ -419,30 +416,15 @@ impl OpenAlexQuery {
                 let filter_value = format_filter_value(value.clone())?;
 
                 match operator {
-                    "==" => Ok(format!("{}.{}:{}", prefix, openalex_property, filter_value)),
-                    "!=" => Ok(format!(
-                        "{}.{}:!{}",
-                        prefix, openalex_property, filter_value
-                    )),
-                    "<" => Ok(format!(
-                        "{}.{}:<{}",
-                        prefix, openalex_property, filter_value
-                    )),
-                    "<=" => Ok(format!(
-                        "{}.{}:<={}",
-                        prefix, openalex_property, filter_value
-                    )),
-                    ">" => Ok(format!(
-                        "{}.{}:>{}",
-                        prefix, openalex_property, filter_value
-                    )),
-                    ">=" => Ok(format!(
-                        "{}.{}:>={}",
-                        prefix, openalex_property, filter_value
-                    )),
+                    "==" => Ok(format!("{prefix}.{openalex_property}:{filter_value}")),
+                    "!=" => Ok(format!("{prefix}.{openalex_property}:!{filter_value}")),
+                    "<" => Ok(format!("{prefix}.{openalex_property}:<{filter_value}")),
+                    "<=" => Ok(format!("{prefix}.{openalex_property}:<={filter_value}")),
+                    ">" => Ok(format!("{prefix}.{openalex_property}:>{filter_value}")),
+                    ">=" => Ok(format!("{prefix}.{openalex_property}:>={filter_value}")),
                     _ => Err(Error::new(
                         ErrorKind::InvalidOperation,
-                        format!("Unsupported operator for subquery: {}", operator),
+                        format!("Unsupported operator for subquery: {operator}"),
                     )),
                 }
             }
@@ -454,12 +436,12 @@ impl OpenAlexQuery {
         let filter_value = format_filter_value(value.clone())?;
 
         match operator {
-            "==" => Ok(format!("raw_author_name.search:{}", filter_value)),
-            "^=" => Ok(format!("raw_author_name.search:{}*", filter_value)),
-            "$=" => Ok(format!("raw_author_name.search:*{}", filter_value)),
+            "==" => Ok(format!("raw_author_name.search:{filter_value}")),
+            "^=" => Ok(format!("raw_author_name.search:{filter_value}*")),
+            "$=" => Ok(format!("raw_author_name.search:*{filter_value}")),
             _ => Err(Error::new(
                 ErrorKind::InvalidOperation,
-                format!("Unsupported operator for author name: {}", operator),
+                format!("Unsupported operator for author name: {operator}"),
             )),
         }
     }
@@ -473,12 +455,12 @@ impl OpenAlexQuery {
         let filter_value = format_filter_value(value.clone())?;
 
         match operator {
-            "==" => Ok(format!("raw_affiliation_strings.search:{}", filter_value)),
-            "^=" => Ok(format!("raw_affiliation_strings.search:{}*", filter_value)),
-            "$=" => Ok(format!("raw_affiliation_strings.search:*{}", filter_value)),
+            "==" => Ok(format!("raw_affiliation_strings.search:{filter_value}")),
+            "^=" => Ok(format!("raw_affiliation_strings.search:{filter_value}*")),
+            "$=" => Ok(format!("raw_affiliation_strings.search:*{filter_value}")),
             _ => Err(Error::new(
                 ErrorKind::InvalidOperation,
-                format!("Unsupported operator for organization name: {}", operator),
+                format!("Unsupported operator for organization name: {operator}"),
             )),
         }
     }
@@ -658,7 +640,7 @@ impl OpenAlexQuery {
             } else {
                 Err(Error::new(
                     ErrorKind::InvalidOperation,
-                    format!("Invalid number in count filter: {}", filter),
+                    format!("Invalid number in count filter: {filter}"),
                 ))
             }
         } else if let Some(number_str) = filter.strip_prefix("<=") {
@@ -668,7 +650,7 @@ impl OpenAlexQuery {
             } else {
                 Err(Error::new(
                     ErrorKind::InvalidOperation,
-                    format!("Invalid number in count filter: {}", filter),
+                    format!("Invalid number in count filter: {filter}"),
                 ))
             }
         } else if let Some(stripped) = filter.strip_prefix("=") {
@@ -678,7 +660,7 @@ impl OpenAlexQuery {
             } else {
                 Err(Error::new(
                     ErrorKind::InvalidOperation,
-                    format!("Invalid number in count filter: {}", filter),
+                    format!("Invalid number in count filter: {filter}"),
                 ))
             }
         } else {
@@ -961,7 +943,7 @@ impl Object for OpenAlexQuery {
                     _ => {
                         return Err(Error::new(
                             ErrorKind::UnknownMethod,
-                            format!("Unknown method: {}", name),
+                            format!("Unknown method: {name}"),
                         ));
                     }
                 };
@@ -1035,7 +1017,7 @@ impl Object for OpenAlexQuery {
                 if !args.is_empty() {
                     return Err(Error::new(
                         ErrorKind::TooManyArguments,
-                        format!("Method `{}` takes no arguments.", name),
+                        format!("Method `{name}` takes no arguments."),
                     ));
                 }
                 self.count()
@@ -1050,7 +1032,7 @@ impl Object for OpenAlexQuery {
             _ => {
                 return Err(Error::new(
                     ErrorKind::UnknownMethod,
-                    format!("Unknown method: {}", name),
+                    format!("Unknown method: {name}"),
                 ));
             }
         };

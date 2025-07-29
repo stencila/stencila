@@ -5,6 +5,7 @@
 use std::{ops::ControlFlow, process};
 
 use async_lsp::{
+    ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
     lsp_types::{
         CodeLensOptions, CompletionOptions, DocumentSymbolOptions, ExecuteCommandOptions,
         HoverProviderCapability, InitializeResult, InitializedParams, MessageActionItem,
@@ -12,17 +13,16 @@ use async_lsp::{
         ShowMessageRequestParams, TextDocumentSyncCapability, TextDocumentSyncKind,
         WorkDoneProgressOptions,
     },
-    ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
 
 use common::{
     async_trait::async_trait,
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     serde_json,
     tokio::sync::Mutex,
 };
 
-use crate::{commands, ServerState, ServerStatus};
+use crate::{ServerState, ServerStatus, commands};
 
 pub const STENCILA_VERSION: &str = env!("CARGO_PKG_VERSION");
 

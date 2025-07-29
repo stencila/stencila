@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, Heading, LabelType};
+use crate::{Heading, LabelType, prelude::*};
 
 impl Heading {
     pub fn to_jats_special(&self) -> (String, Losses) {

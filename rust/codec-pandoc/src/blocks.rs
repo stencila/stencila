@@ -12,8 +12,8 @@ use crate::{
         string_from_pandoc_inlines,
     },
     shared::{
-        attrs_attributes, attrs_classes, attrs_empty, get_attr, PandocDecodeContext,
-        PandocEncodeContext,
+        PandocDecodeContext, PandocEncodeContext, attrs_attributes, attrs_classes, attrs_empty,
+        get_attr,
     },
 };
 

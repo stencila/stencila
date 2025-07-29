@@ -8,7 +8,7 @@ use std::{
 use codecs::PoshMap;
 use common::{
     clap::{self, ValueEnum},
-    eyre::{bail, eyre, OptionExt, Result},
+    eyre::{OptionExt, Result, bail, eyre},
     serde::{Deserialize, Serialize},
     serde_json,
     smart_default::SmartDefault,
@@ -16,12 +16,12 @@ use common::{
     tokio::{
         self,
         fs::read_to_string,
-        sync::{mpsc, oneshot, watch, RwLock},
+        sync::{RwLock, mpsc, oneshot, watch},
     },
     tracing,
 };
 use kernels::Kernels;
-use node_diagnostics::{diagnostics, Diagnostic, DiagnosticLevel};
+use node_diagnostics::{Diagnostic, DiagnosticLevel, diagnostics};
 use node_find::find;
 use node_first::first;
 use schema::{
@@ -82,7 +82,6 @@ pub struct LogEntry {
 #[derive(Debug, Display, Clone, Serialize, Deserialize, PartialEq)]
 #[strum(serialize_all = "kebab-case")]
 #[serde(tag = "command", rename_all = "kebab-case", crate = "common::serde")]
-#[allow(clippy::large_enum_variant)]
 pub enum Command {
     /// Compile the document
     CompileDocument { config: Config },

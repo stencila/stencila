@@ -4,7 +4,7 @@ use common::{
     inflector::Inflector,
 };
 
-use crate::{prelude::*, Duration, TimeUnit};
+use crate::{Duration, TimeUnit, prelude::*};
 
 impl Duration {
     /// Get a humanized representation of the duration

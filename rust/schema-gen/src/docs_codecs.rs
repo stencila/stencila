@@ -10,7 +10,7 @@ use codecs::{CodecSupport, EncodeOptions, Format};
 use common::{
     eyre::Result, glob::glob, inflector::Inflector, itertools::Itertools, strum::IntoEnumIterator,
 };
-use schema::{shortcuts::*, Article, Inline, Node, NodeType, TableCell};
+use schema::{Article, Inline, Node, NodeType, TableCell, shortcuts::*};
 
 use crate::{
     schema::{Category, HtmlOptions, JatsOptions, MarkdownOptions, Schema},
@@ -204,9 +204,11 @@ impl Schemas {
                         t("Encoded as "),
                         lnk(
                             [ci(format!("<{elem}>"))],
-                            format!("https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/{elem}.html"),
+                            format!(
+                                "https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/{elem}.html"
+                            ),
                         ),
-                        t(" using special function")
+                        t(" using special function"),
                     ]
                 } else {
                     vec![t("Encoded using special function")]
@@ -216,7 +218,9 @@ impl Schemas {
                     t("Encoded as "),
                     lnk(
                         [ci(format!("<{elem}>"))],
-                        format!("https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/{elem}.html"),
+                        format!(
+                            "https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/{elem}.html"
+                        ),
                     ),
                 ]
             } else {

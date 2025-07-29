@@ -3,15 +3,15 @@ use std::sync::Arc;
 use cached::proc_macro::cached;
 
 use model::{
+    Model, ModelAvailability, ModelIO, ModelOutput, ModelTask, ModelType,
     common::{
         async_trait::async_trait,
-        eyre::{bail, eyre, Result},
+        eyre::{Result, bail, eyre},
         inflector::Inflector,
         itertools::Itertools,
         reqwest::Client,
         serde::{Deserialize, Serialize},
     },
-    Model, ModelAvailability, ModelIO, ModelOutput, ModelTask, ModelType,
 };
 
 /// A model available via Stencila Cloud

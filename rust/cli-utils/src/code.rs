@@ -7,7 +7,7 @@ use syntect::{
 
 use common::{
     clap::{self, ValueEnum},
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     once_cell::sync::Lazy,
     serde::Serialize,
     serde_json, serde_yaml,

@@ -1,6 +1,7 @@
 use std::{collections::HashMap, str::FromStr};
 
 use async_lsp::{
+    ErrorCode, MainLoop, ResponseError,
     client_monitor::ClientProcessMonitorLayer,
     concurrency::ConcurrencyLayer,
     lsp_types::{notification, request},
@@ -8,7 +9,6 @@ use async_lsp::{
     router::Router,
     server::LifecycleLayer,
     tracing::TracingLayer,
-    ErrorCode, MainLoop, ResponseError,
 };
 use schema::NodeId;
 use tower::ServiceBuilder;
@@ -17,10 +17,10 @@ use tracing_subscriber::filter::LevelFilter;
 use common::{eyre::Result, serde_json};
 
 use crate::{
-    code_lens,
+    ServerState, ServerStatus, code_lens,
     commands::{self, INSERT_CLONES, INSERT_INSTRUCTION, MERGE_DOC},
     completion, content, dom, formatting, hover, kernels_, lifecycle, logging, models_, node_ids,
-    prompts_, symbols, text_document, ServerState, ServerStatus,
+    prompts_, symbols, text_document,
 };
 
 /// Run the language server

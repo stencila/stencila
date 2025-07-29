@@ -1,6 +1,6 @@
 use common::{
     eyre::Result,
-    serde::{de::DeserializeOwned, Serialize},
+    serde::{Serialize, de::DeserializeOwned},
     serde_json,
 };
 

@@ -4,7 +4,7 @@ pub use serde_with::{self, serde_as, skip_serializing_none};
 
 pub use common::{
     async_recursion::async_recursion,
-    eyre::{bail, ErrReport, Result},
+    eyre::{ErrReport, Result, bail},
     itertools::Itertools,
     serde::{self, Deserialize, Serialize},
     serde_json,

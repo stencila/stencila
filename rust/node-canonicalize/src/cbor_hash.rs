@@ -2,7 +2,7 @@
 
 use std::hash::{Hash, Hasher};
 
-use base64::{prelude::BASE64_URL_SAFE_NO_PAD, Engine as _};
+use base64::{Engine as _, prelude::BASE64_URL_SAFE_NO_PAD};
 
 use codec_cbor::r#trait::CborCodec;
 use common::{eyre::Result, seahash::SeaHasher};

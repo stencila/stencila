@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, MathBlock, MessageLevel};
+use crate::{MathBlock, MessageLevel, prelude::*};
 
 impl MathBlock {
     pub fn has_warnings_errors_or_exceptions(&self) -> bool {

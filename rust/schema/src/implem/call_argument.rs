@@ -1,7 +1,7 @@
 use codec_info::{lost_exec_options, lost_options};
 use codec_json5_trait::Json5Codec;
 
-use crate::{prelude::*, CallArgument};
+use crate::{CallArgument, prelude::*};
 
 impl MarkdownCodec for CallArgument {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {

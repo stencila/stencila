@@ -4,18 +4,18 @@ use std::{
     path::Path,
 };
 
-use zip::{self, write::FileOptions, ZipArchive};
+use zip::{self, ZipArchive, write::FileOptions};
 
 use codec::{
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     common::{
         async_trait::async_trait,
-        eyre::{bail, Result},
+        eyre::{Result, bail},
         serde_json::{Map, Value},
     },
     format::Format,
     schema::{Article, Node, NodeType},
     status::Status,
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
 use version::STENCILA_VERSION;
 

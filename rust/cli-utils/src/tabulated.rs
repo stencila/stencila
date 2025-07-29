@@ -4,8 +4,8 @@ use std::{
 };
 
 use comfy_table::{
-    modifiers::UTF8_ROUND_CORNERS, presets::UTF8_BORDERS_ONLY, ContentArrangement,
-    Table as ComfyTable,
+    ContentArrangement, Table as ComfyTable, modifiers::UTF8_ROUND_CORNERS,
+    presets::UTF8_BORDERS_ONLY,
 };
 
 // Re-exports

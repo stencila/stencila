@@ -1,4 +1,4 @@
-use ask::{ask_with_default, Answer};
+use ask::{Answer, ask_with_default};
 use cli_utils::color_print::cstr;
 use common::{
     clap::{self, Parser},

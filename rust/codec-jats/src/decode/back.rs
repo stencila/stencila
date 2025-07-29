@@ -1,12 +1,12 @@
 use roxmltree::Node;
 
 use codec::{
+    Losses,
     common::itertools::Itertools,
     schema::{
         Article, Author, CreativeWorkType, Date, IntegerOrString, Periodical, Person,
         PublicationVolume, Reference,
     },
-    Losses,
 };
 
 use super::{

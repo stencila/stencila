@@ -1,5 +1,5 @@
 use codec_cbor::r#trait::CborCodec;
-use schema::{replicate, Block, ExecutionMode, ForBlock, Section, SectionType};
+use schema::{Block, ExecutionMode, ForBlock, Section, SectionType, replicate};
 
 use crate::{interrupt_impl, prelude::*};
 

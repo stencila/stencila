@@ -3,12 +3,12 @@ use std::path::{Path, PathBuf};
 use cli_utils::message;
 use common::{
     clap::{self, Args},
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     tokio::fs::{remove_dir_all, remove_file},
     tracing,
 };
 
-use crate::{Plugin, MANIFEST_FILENAME};
+use crate::{MANIFEST_FILENAME, Plugin};
 
 /// Link a local directory as a plugin
 #[tracing::instrument]

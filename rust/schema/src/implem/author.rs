@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use crate::{prelude::*, Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, Person};
+use crate::{Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, Person, prelude::*};
 
 #[derive(Debug, Clone, Copy)]
 pub enum AuthorType {

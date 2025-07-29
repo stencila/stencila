@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, transforms::blocks_to_inlines, Figure, ImageObject, Inline};
+use crate::{Figure, ImageObject, Inline, prelude::*, transforms::blocks_to_inlines};
 
 use super::utils::caption_to_dom;
 

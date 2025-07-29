@@ -3,11 +3,11 @@ use std::{collections::HashMap, ops::Range};
 use codec_text_trait::to_text;
 use markdown::{mdast, unist::Position};
 use winnow::{
+    ModalResult, Parser,
     ascii::{multispace0, space0},
     combinator::{alt, delimited, not, opt, peek, preceded, repeat, separated, terminated},
     stream::LocatingSlice as Located,
     token::{take, take_until, take_while},
-    ModalResult, Parser,
 };
 
 use codec::{
@@ -24,12 +24,12 @@ use codec::{
 };
 
 use super::{
+    Context,
     shared::{
         attrs, attrs_list, name, node_to_option_date, node_to_option_datetime,
         node_to_option_duration, node_to_option_i64, node_to_option_number, node_to_option_time,
         node_to_option_timestamp, node_to_string, take_until_unbalanced,
     },
-    Context,
 };
 
 pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<Inline> {

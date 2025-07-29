@@ -4,8 +4,8 @@
 use std::{collections::HashMap, sync::Arc};
 
 use async_lsp::{
-    lsp_types::{notification::Notification, request::Request},
     ClientSocket, ErrorCode, ResponseError,
+    lsp_types::{notification::Notification, request::Request},
 };
 
 use common::{
@@ -15,8 +15,8 @@ use common::{
     tokio::{
         self,
         sync::{
-            mpsc::{self, Sender},
             Mutex, RwLock,
+            mpsc::{self, Sender},
         },
         task::JoinHandle,
     },

@@ -5,14 +5,14 @@ use std::{
 };
 
 use cli_utils::{
+    AsFormat, Code, ToStdout,
     color_print::cstr,
     format::Format,
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
-    AsFormat, Code, ToStdout,
 };
 use common::{
     clap::{self, Args, Parser, Subcommand},
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     itertools::Itertools,
     once_cell::sync::Lazy,
     serde_json::json,
@@ -25,7 +25,7 @@ use crate::{
     command::{AsyncToolCommand, ToolStdio},
     get, list,
     packages::Renv,
-    tool::{detect_managers, install_tool, is_installed, set_dry_run, ToolType},
+    tool::{ToolType, detect_managers, install_tool, is_installed, set_dry_run},
 };
 
 /// Manage tools and environments used by Stencila
@@ -773,7 +773,9 @@ pub static RUN_AFTER_LONG_HELP: &str = cstr!(
 impl Run {
     async fn run(self) -> Result<()> {
         if self.command.is_empty() {
-            bail!("No command specified. Use -- to separate command from options, e.g.: stencila tools run -- pandoc --version");
+            bail!(
+                "No command specified. Use -- to separate command from options, e.g.: stencila tools run -- pandoc --version"
+            );
         }
 
         let cmd = &self.command[0];

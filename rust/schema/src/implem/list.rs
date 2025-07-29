@@ -1,7 +1,7 @@
 use codec_html_trait::encode::elem;
 use codec_info::lost_options;
 
-use crate::{prelude::*, List, ListOrder};
+use crate::{List, ListOrder, prelude::*};
 
 impl List {
     pub fn to_html_special(&self, context: &mut HtmlEncodeContext) -> String {

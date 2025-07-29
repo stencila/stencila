@@ -3,6 +3,7 @@
 use std::{collections::BTreeMap, env, fs::File, path::PathBuf};
 
 use codec::{
+    DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     common::{
         eyre::{Context, Result},
         glob::glob,
@@ -19,7 +20,6 @@ use codec::{
     },
     format::Format,
     schema::NodeType,
-    DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
 use common_dev::pretty_assertions::assert_eq;
 use json_value_merge::Merge;

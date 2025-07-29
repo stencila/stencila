@@ -1,7 +1,7 @@
 use std::{collections::BTreeMap, fmt::Display, fs, ops::AddAssign, path::PathBuf};
 
 use common::{
-    eyre::{bail, eyre, Result},
+    eyre::{Result, bail, eyre},
     inflector::Inflector,
     itertools::Itertools,
     serde::{Deserialize, Serialize},

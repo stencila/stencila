@@ -1,4 +1,5 @@
 use codec::{
+    DecodeInfo, DecodeOptions,
     common::{
         eyre::Result,
         itertools::Itertools,
@@ -11,7 +12,6 @@ use codec::{
         IfBlockClause, IncludeBlock, Inline, InlinesBlock, Island, LabelType, Link, Node, RawBlock,
         Text,
     },
-    DecodeInfo, DecodeOptions,
 };
 use codec_pandoc::{pandoc_from_format, root_from_pandoc};
 

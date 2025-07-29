@@ -5,7 +5,7 @@
 use common::eyre::Result;
 use common_dev::{
     pretty_assertions::assert_eq,
-    proptest::prelude::{proptest, ProptestConfig},
+    proptest::prelude::{ProptestConfig, proptest},
 };
 use node_store::{ReadNode, WriteNode, WriteStore};
 use schema::Article;

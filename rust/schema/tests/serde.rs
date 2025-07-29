@@ -5,7 +5,7 @@
 use std::str::FromStr;
 
 use common::{
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     indexmap::IndexMap,
     itertools::Itertools,
     serde_json, serde_yaml,

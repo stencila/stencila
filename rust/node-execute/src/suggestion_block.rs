@@ -17,7 +17,9 @@ impl Executable for SuggestionBlock {
             }
             Some(SuggestionStatus::Rejected) | None => {
                 // Suggestion is proposed or rejected so compile within a fork
-                tracing::trace!("Compiling proposed or rejected suggestion block `{node_id}` with forked executor");
+                tracing::trace!(
+                    "Compiling proposed or rejected suggestion block `{node_id}` with forked executor"
+                );
                 let mut fork = executor.fork_for_compile();
                 if let Err(error) = self.content.walk_async(&mut fork).await {
                     tracing::error!("While compiling suggestion block: {error}");
@@ -46,7 +48,9 @@ impl Executable for SuggestionBlock {
                 // Suggestion has been rejected so prepare within an executor fork which will
                 // set the status of descendent nodes to `ExecutionStatus::Rejected` (so that rejected
                 // nodes are not executed unless explicitly)
-                tracing::trace!("Preparing proposed or rejected suggestion block `{node_id}` with forked executor");
+                tracing::trace!(
+                    "Preparing proposed or rejected suggestion block `{node_id}` with forked executor"
+                );
                 let mut fork = executor.fork_for_prepare(ExecutionStatus::Rejected);
                 if let Err(error) = self.content.walk_async(&mut fork).await {
                     tracing::error!("While preparing suggestion block: {error}");
@@ -94,7 +98,9 @@ impl Executable for SuggestionBlock {
                         }
                     };
                 } else {
-                    tracing::debug!("Skipping execution of proposed suggestion block `{node_id}` because kernels are not forkable");
+                    tracing::debug!(
+                        "Skipping execution of proposed suggestion block `{node_id}` because kernels are not forkable"
+                    );
                 }
             }
         }

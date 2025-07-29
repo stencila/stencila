@@ -1,11 +1,13 @@
 use std::path::PathBuf;
 
 use cli_utils::{
+    AsFormat, Code, ToStdout,
     color_print::cstr,
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
-    AsFormat, Code, ToStdout,
 };
 use kernel::{
+    KernelAvailability, KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider,
+    KernelSpecification, KernelType,
     common::{
         clap::{self, Args, Parser, Subcommand},
         eyre::{OptionExt, Result},
@@ -16,8 +18,6 @@ use kernel::{
     },
     format::Format,
     schema::{ExecutionBounds, ExecutionMessage, Node, NodeId, NodeType, StringOrNumber},
-    KernelAvailability, KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider,
-    KernelSpecification, KernelType,
 };
 use node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
 

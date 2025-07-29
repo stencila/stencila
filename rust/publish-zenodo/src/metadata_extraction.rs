@@ -16,7 +16,9 @@ pub(crate) fn extract_affiliations(author: &Person) -> Option<impl Iterator<Item
     }
 
     if aff.len() > 1 {
-        common::tracing::warn!("Author has multiple affiliations, only one can be added programmatically. Edit the record in Zenodo's web interface to correct any mistakes.");
+        common::tracing::warn!(
+            "Author has multiple affiliations, only one can be added programmatically. Edit the record in Zenodo's web interface to correct any mistakes."
+        );
     }
 
     let aff = aff
@@ -62,7 +64,7 @@ pub(crate) fn extract_name(person: &Person) -> Option<Cow<str>> {
 
     match (family_names, given_names) {
         (Some(family), Some(given)) => {
-            Some(format!("{}, {}", family, given).into()) // Format prescribed by Zenodo
+            Some(format!("{family}, {given}").into()) // Format prescribed by Zenodo
         }
         (None, Some(given)) => Some(given),
         (Some(family), None) => Some(family),
@@ -273,7 +275,7 @@ pub(crate) fn find_orcid(text: &str) -> Option<Cow<str>> {
     }
 
     // ... otherwise insert them
-    Some(Cow::Owned(format!("{}-{}-{}-{}", a, b, c, d)))
+    Some(Cow::Owned(format!("{a}-{b}-{c}-{d}")))
 }
 
 #[cfg(test)]
@@ -366,7 +368,7 @@ mod doi_proptests {
     fn doi_prefix() -> impl Strategy<Value = String> {
         prop_oneof![
             // Classic "10.NNNN" format
-            "[0-9]{4,10}".prop_map(|n| format!("10.{}", n)),
+            "[0-9]{4,10}".prop_map(|n| format!("10.{n}")),
             // New ISO 26324 compliant format allowing other directory indicators
             "[0-9]{2,5}".prop_map(|n| n),
             // Nested
@@ -390,7 +392,7 @@ mod doi_proptests {
     fn valid_doi() -> impl Strategy<Value = String> {
         let suffix = prop_oneof![unicode_doi_suffix(), doi_suffix(),];
 
-        (doi_prefix(), suffix).prop_map(|(prefix, suffix)| format!("{}/{}", prefix, suffix))
+        (doi_prefix(), suffix).prop_map(|(prefix, suffix)| format!("{prefix}/{suffix}"))
     }
 
     // Generate URL-like wrappers for DOIs
@@ -417,7 +419,7 @@ mod doi_proptests {
             doi in valid_doi(),
             url_fragment in part_of_url()
         ) {
-            let input = format!("{}{}", url_fragment, doi);
+            let input = format!("{url_fragment}{doi}");
             let result = find_doi(&input);
             prop_assert_eq!(result.as_deref(), Some(doi.as_str()));
         }
@@ -429,7 +431,7 @@ mod doi_proptests {
             prefix in "[\\w]{0,50}\\s",
             suffix in "\\s[\\w]{0,50}"
         ) {
-            let text = format!("{} {} {}", prefix, doi, suffix);
+            let text = format!("{prefix} {doi} {suffix}");
             let result = find_doi(&text);
             prop_assert_eq!(result.as_deref(), Some(doi.as_str()));
         }

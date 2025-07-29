@@ -1,6 +1,6 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, QuoteBlock};
+use crate::{QuoteBlock, prelude::*};
 
 impl LatexCodec for QuoteBlock {
     fn to_latex(&self, context: &mut LatexEncodeContext) {

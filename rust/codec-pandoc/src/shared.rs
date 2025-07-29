@@ -1,8 +1,8 @@
 use codec::{
+    Losses, NodeProperty, NodeType,
     common::{inflector::Inflector, serde::Serialize, tracing},
     format::Format,
-    schema::{node_url_jzb64, node_url_path, NodePath, NodePosition, NodeSlot, StripNode},
-    Losses, NodeProperty, NodeType,
+    schema::{NodePath, NodePosition, NodeSlot, StripNode, node_url_jzb64, node_url_path},
 };
 use pandoc_types::definition::{self as pandoc, Target};
 

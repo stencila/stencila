@@ -7,8 +7,9 @@ use std::{
 use common_dev::pretty_assertions::assert_eq;
 use kernel_docsql::DocsQLKernelInstance;
 use kernel_jinja::kernel::{
+    KernelInstance,
     common::{
-        eyre::{bail, Result},
+        eyre::{Result, bail},
         glob::glob,
         itertools::Itertools,
         reqwest::Client,
@@ -18,7 +19,6 @@ use kernel_jinja::kernel::{
         },
     },
     schema::{CodeChunk, Node, Null},
-    KernelInstance,
 };
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -152,7 +152,7 @@ async fn validate_github_url(url: &str) -> Result<()> {
 
     // Add GitHub token if available for authentication
     if let Ok(token) = env::var("GITHUB_TOKEN") {
-        request = request.header("Authorization", format!("Bearer {}", token));
+        request = request.header("Authorization", format!("Bearer {token}"));
     }
 
     let response = request.send().await?;

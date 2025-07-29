@@ -1,28 +1,28 @@
 use std::{
     collections::HashMap,
     env,
-    fs::{create_dir_all, remove_file, File},
+    fs::{File, create_dir_all, remove_file},
     net::TcpListener,
     path::{Path, PathBuf},
     process::Stdio,
     str::FromStr,
     sync::{
-        atomic::{AtomicU64, Ordering},
         Arc,
+        atomic::{AtomicU64, Ordering},
     },
     time::Duration,
 };
 
-use rand::{distr::Alphanumeric, rng, Rng};
+use rand::{Rng, distr::Alphanumeric, rng};
 use semver::{Version, VersionReq};
 use which::which;
 
 use cli_utils::Code;
 use common::{
-    eyre::{bail, eyre, OptionExt, Report, Result},
+    eyre::{OptionExt, Report, Result, bail, eyre},
     itertools::Itertools,
-    reqwest::{self, header, Client, Url},
-    serde::{self, de::DeserializeOwned, Deserialize, Deserializer, Serialize, Serializer},
+    reqwest::{self, Client, Url, header},
+    serde::{self, Deserialize, Deserializer, Serialize, Serializer, de::DeserializeOwned},
     serde_json::{self, Value},
     serde_with::{DeserializeFromStr, SerializeDisplay},
     strum::{Display, EnumString},
@@ -33,15 +33,15 @@ use common::{
     },
     toml, tracing,
 };
-use dirs::{get_app_dir, DirType};
+use dirs::{DirType, get_app_dir};
 
-use codec::{format::Format, Codec};
+use codec::{Codec, format::Format};
 use kernel::Kernel;
 use model::Model;
 
 use codecs::PluginCodec;
 use kernels::PluginKernel;
-use list::{list, List};
+use list::{List, list};
 use models::PluginModel;
 
 mod check;
@@ -890,7 +890,7 @@ impl PluginInstance {
                 .connect_timeout(Duration::from_millis(10000))
                 .build()?;
 
-            let url = Url::parse(&format!("http://127.0.0.1:{}", port))?;
+            let url = Url::parse(&format!("http://127.0.0.1:{port}"))?;
 
             Some((client, url))
         } else {

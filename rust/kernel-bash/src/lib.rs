@@ -1,6 +1,6 @@
 use kernel_micro::{
-    common::eyre::Result, format::Format, schema::ExecutionBounds, Kernel, KernelAvailability,
-    KernelInstance, KernelInterrupt, KernelKill, KernelProvider, KernelTerminate, Microkernel,
+    Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelProvider,
+    KernelTerminate, Microkernel, common::eyre::Result, format::Format, schema::ExecutionBounds,
 };
 
 /// A kernel for executing Bash code locally

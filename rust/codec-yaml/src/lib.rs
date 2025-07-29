@@ -1,4 +1,5 @@
 use codec::{
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     common::{
         async_trait::async_trait,
         eyre::Result,
@@ -7,7 +8,6 @@ use codec::{
     format::Format,
     schema::{Article, Node, NodeType},
     status::Status,
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
 use version::STENCILA_VERSION;
 

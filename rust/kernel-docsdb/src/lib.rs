@@ -7,10 +7,12 @@ use std::{
 
 use dirs::{closest_stencila_dir, stencila_db_file, stencila_store_dir};
 use kernel_kuzu::{
+    KuzuKernelInstance,
     kernel::{
+        Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
         common::{
             async_trait::async_trait,
-            eyre::{bail, Result},
+            eyre::{Result, bail},
             itertools::Itertools,
             once_cell::sync::Lazy,
             regex::Regex,
@@ -18,19 +20,17 @@ use kernel_kuzu::{
             tokio::{
                 self,
                 fs::read_to_string,
-                sync::{mpsc, oneshot, watch, Mutex},
+                sync::{Mutex, mpsc, oneshot, watch},
             },
             tracing,
         },
         format::Format,
         generate_id,
         schema::{
-            get, shortcuts::t, Array, Excerpt, ExecutionBounds, ExecutionMessage, Node, NodeId,
-            NodeSet, NodeType, Primitive, Reference, SoftwareApplication, Variable,
+            Array, Excerpt, ExecutionBounds, ExecutionMessage, Node, NodeId, NodeSet, NodeType,
+            Primitive, Reference, SoftwareApplication, Variable, get, shortcuts::t,
         },
-        Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
     },
-    KuzuKernelInstance,
 };
 use lru::LruCache;
 use node_db::NodeDatabase;

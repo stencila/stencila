@@ -6,7 +6,7 @@ use common::{
     eyre::Result,
     tracing,
 };
-use document::{demo::DemoOptions, Document};
+use document::{Document, demo::DemoOptions};
 use node_execute::ExecuteOptions;
 
 /// Run a terminal demonstration from a document
@@ -51,7 +51,9 @@ impl Demo {
                 if self.ignore_errors {
                     eprintln!("▶️  Ignoring execution errors")
                 } else {
-                    eprintln!("🛑 Stopping due to execution errors (you can use `--ignore-errors` to continue demo regardless)");
+                    eprintln!(
+                        "🛑 Stopping due to execution errors (you can use `--ignore-errors` to continue demo regardless)"
+                    );
                     exit(1)
                 }
             }

@@ -4,7 +4,7 @@ use std::{
 };
 
 use common::{
-    eyre::{bail, OptionExt, Result},
+    eyre::{OptionExt, Result, bail},
     inflector::Inflector,
     itertools::Itertools,
     tokio::fs::write,
@@ -520,8 +520,7 @@ impl Schemas {
             };
 
             node_tables.push(format!(
-                "CREATE NODE TABLE IF NOT EXISTS `{title}` ({}{});",
-                node_table_props, extra,
+                "CREATE NODE TABLE IF NOT EXISTS `{title}` ({node_table_props}{extra});",
             ));
 
             let primary_key = primary_keys

@@ -3,8 +3,8 @@
 //! See https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_publishDiagnostics
 
 use async_lsp::{
-    lsp_types::{notification::Notification, Range, Url},
     ClientSocket,
+    lsp_types::{Range, Url, notification::Notification},
 };
 
 use common::{

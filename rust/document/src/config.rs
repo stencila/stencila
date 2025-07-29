@@ -11,7 +11,7 @@ use common::{
         sync::RwLock,
     },
 };
-use dirs::{closest_config_file, get_app_dir, DirType, CONFIG_FILE};
+use dirs::{CONFIG_FILE, DirType, closest_config_file, get_app_dir};
 use schema::{Article, Config, Node};
 
 use crate::Document;

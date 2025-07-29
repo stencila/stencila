@@ -1,9 +1,9 @@
 use std::{any::type_name, collections::HashMap, fmt::Debug, ops::Range};
 
 use common::{
-    eyre::{bail, Report, Result},
+    eyre::{Report, Result, bail},
     itertools::Itertools,
-    serde::{de::DeserializeOwned, Deserialize, Serialize},
+    serde::{Deserialize, Serialize, de::DeserializeOwned},
     serde_json::{self, Value as JsonValue},
 };
 use format::Format;
@@ -12,8 +12,8 @@ use node_path::{NodePath, NodeSlot};
 use node_type::NodeProperty;
 
 use crate::{
-    prelude::AuthorType, replicate, Author, AuthorRole, AuthorRoleName, Block, ChatMessage, CordOp,
-    Inline, Node, PromptBlock, ProvenanceCount, SuggestionBlock, Timestamp,
+    Author, AuthorRole, AuthorRoleName, Block, ChatMessage, CordOp, Inline, Node, PromptBlock,
+    ProvenanceCount, SuggestionBlock, Timestamp, prelude::AuthorType, replicate,
 };
 
 /// Assign authorship to a node
@@ -409,7 +409,7 @@ impl PatchContext {
     /// - `authors`: the `authors` property of the node
     ///
     /// - `take`: whether the authors of the context should be "taken"
-    ///    (i.e. should NOT be applied to child nodes of the current node)
+    ///   (i.e. should NOT be applied to child nodes of the current node)
     ///
     /// - `overwrite`: whether to overwrite (i.e. reset) the current `authors` property of the node
     pub fn update_authors(

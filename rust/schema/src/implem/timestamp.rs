@@ -4,7 +4,7 @@ use common::{
     inflector::Inflector,
 };
 
-use crate::{prelude::*, Duration, TimeUnit, Timestamp};
+use crate::{Duration, TimeUnit, Timestamp, prelude::*};
 
 impl Timestamp {
     /// Get the current timestamp

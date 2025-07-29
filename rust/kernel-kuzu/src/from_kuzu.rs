@@ -5,7 +5,7 @@ use kuzu::{LogicalType, NodeVal, QueryResult, RelVal, Value};
 use kernel::{
     common::{
         self,
-        eyre::{bail, Report, Result},
+        eyre::{Report, Result, bail},
         indexmap::IndexMap,
         once_cell::sync::Lazy,
         regex::Regex,

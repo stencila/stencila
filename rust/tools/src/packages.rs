@@ -1,11 +1,11 @@
 use std::process::Command;
 
 use crate::{
+    ToolCommand,
     command::AsyncToolCommand,
     environments::{Apt, Devbox, Mise},
     execution::{Python, R},
-    tool::{Tool, ToolType, PACKAGE},
-    ToolCommand,
+    tool::{PACKAGE, Tool, ToolType},
 };
 
 pub struct Npm;

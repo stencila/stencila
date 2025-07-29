@@ -1,4 +1,5 @@
 use codec::{
+    Codec, EncodeOptions,
     common::{
         eyre::Result,
         indexmap::IndexMap,
@@ -7,10 +8,9 @@ use codec::{
         tokio,
     },
     schema::{
-        shortcuts::{cc, ce, p, t},
         Article, ArticleOptions, Node, Object, Primitive,
+        shortcuts::{cc, ce, p, t},
     },
-    Codec, EncodeOptions,
 };
 use common_dev::pretty_assertions::assert_eq;
 use version::STENCILA_VERSION;

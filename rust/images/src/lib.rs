@@ -1,19 +1,19 @@
 use std::{
-    fs::{copy, create_dir_all, read_to_string, File},
+    fs::{File, copy, create_dir_all, read_to_string},
     hash::{Hash, Hasher},
     io::{Cursor, Write},
     path::{Path, PathBuf},
 };
 
-use base64::{engine::general_purpose::STANDARD, Engine as _};
+use base64::{Engine as _, engine::general_purpose::STANDARD};
 use common::{
-    eyre::{bail, OptionExt, Result},
+    eyre::{OptionExt, Result, bail},
     itertools::Itertools,
     once_cell::sync::Lazy,
     regex::{Captures, Regex},
     seahash::SeaHasher,
 };
-use image::{open, GenericImage, GenericImageView, ImageBuffer, ImageFormat, ImageReader, Rgba};
+use image::{GenericImage, GenericImageView, ImageBuffer, ImageFormat, ImageReader, Rgba, open};
 use mime_guess::from_path;
 
 /// Covert an image URL to a HTTP or data URI

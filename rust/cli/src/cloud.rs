@@ -2,13 +2,13 @@ use ask::ask_for_password;
 use cli_utils::{color_print::cstr, message};
 use common::{
     clap::{self, Args, Parser, Subcommand},
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     tokio,
 };
 use url::Url;
 
 use cloud::TokenSource;
-use server::{get_server_token, ServeOptions};
+use server::{ServeOptions, get_server_token};
 
 /// Manage Stencila Cloud account
 #[derive(Debug, Parser)]
@@ -192,11 +192,11 @@ impl Signout {
                     Some("⚠️"),
                 );
                 message(
-                cstr!(
-                    "To sign out, remove the <b>STENCILA_API_TOKEN</> environment variable from your shell profile or system environment."
-                ),
-                Some("💡"),
-            )
+                    cstr!(
+                        "To sign out, remove the <b>STENCILA_API_TOKEN</> environment variable from your shell profile or system environment."
+                    ),
+                    Some("💡"),
+                )
             }
             (None, None) => {
                 message!("ℹ️  Already signed out from Stencila Cloud");

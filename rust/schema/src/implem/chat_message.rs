@@ -1,4 +1,4 @@
-use crate::{prelude::*, ChatMessage, MessageRole, SoftwareApplication};
+use crate::{ChatMessage, MessageRole, SoftwareApplication, prelude::*};
 
 impl MarkdownCodec for ChatMessage {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {

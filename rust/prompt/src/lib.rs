@@ -1,6 +1,6 @@
 use kernel_quickjs::{
-    kernel::{common::eyre::Result, KernelInstance},
     QuickJsKernelInstance,
+    kernel::{KernelInstance, common::eyre::Result},
 };
 use rquickjs::Error;
 

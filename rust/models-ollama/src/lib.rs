@@ -2,23 +2,23 @@ use std::sync::Arc;
 
 use cached::proc_macro::cached;
 use ollama_rs::{
+    Ollama,
     generation::{
-        chat::{request::ChatMessageRequest, ChatMessage, MessageRole},
+        chat::{ChatMessage, MessageRole, request::ChatMessageRequest},
         images::Image,
     },
     models::{LocalModel, ModelOptions},
-    Ollama,
 };
 
 use model::{
+    Model, ModelIO, ModelOutput, ModelTask, ModelType,
     common::{
         async_trait::async_trait,
-        eyre::{eyre, Result},
+        eyre::{Result, eyre},
         inflector::Inflector,
         tracing,
     },
     schema::{self, ImageObject, MessagePart},
-    Model, ModelIO, ModelOutput, ModelTask, ModelType,
 };
 
 /// A model running on a Ollama (https://github.com/jmorganca/ollama/) server

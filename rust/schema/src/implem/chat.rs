@@ -1,7 +1,7 @@
 use codec_dom_trait::DomCodec;
 use common::serde_yaml;
 
-use crate::{prelude::*, Chat, SuggestionBlock};
+use crate::{Chat, SuggestionBlock, prelude::*};
 
 impl Chat {
     /// Custom implementation of [`PatchNode::apply`]

@@ -2,14 +2,14 @@ use std::sync::Arc;
 
 use common::{
     async_trait::async_trait,
-    eyre::{bail, Result},
+    eyre::{Result, bail},
     inflector::Inflector,
     serde::{Deserialize, Serialize},
     tokio::sync::Mutex,
 };
 use model::{Model, ModelAvailability, ModelIO, ModelOutput, ModelTask, ModelType};
 
-use crate::{plugins, Plugin, PluginEnabled, PluginInstance, PluginStatus};
+use crate::{Plugin, PluginEnabled, PluginInstance, PluginStatus, plugins};
 
 /// A model provided by a plugin
 #[derive(Debug, Clone, Deserialize, Serialize)]

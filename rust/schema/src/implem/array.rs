@@ -1,10 +1,10 @@
 use codec_html_trait::encode::elem;
 use node_store::{
-    automerge::{ObjId, Prop},
     ReadNode, ReadStore, WriteNode, WriteStore,
+    automerge::{ObjId, Prop},
 };
 
-use crate::{prelude::*, Array, Primitive};
+use crate::{Array, Primitive, prelude::*};
 
 impl std::fmt::Display for Array {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

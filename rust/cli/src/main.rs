@@ -6,9 +6,9 @@ use cli_utils::message;
 use common::{clap::Parser, eyre::Result, tokio};
 
 use cli::{
-    errors,
+    Cli, Command, errors,
     logging::{self, LoggingFormat, LoggingLevel},
-    upgrade, Cli, Command,
+    upgrade,
 };
 
 /// Main entry function
@@ -16,10 +16,16 @@ use cli::{
 async fn main() -> Result<()> {
     let cli = Cli::parse();
 
-    if cli.no_color {
-        set_var("NO_COLOR", "1");
-    } else if cli.force_color {
-        set_var("FORCE_COLOR", "1");
+    // set_var is unsafe in multithreaded processes. But, given that at very start
+    // of process, and appears to be no other way to apply this options in a way
+    // that is observed by dependencies, is allowed here
+    #[allow(unsafe_code)]
+    unsafe {
+        if cli.no_color {
+            set_var("NO_COLOR", "1");
+        } else if cli.force_color {
+            set_var("FORCE_COLOR", "1");
+        }
     }
 
     let (log_level, log_format, error_details) = if cli.debug {
