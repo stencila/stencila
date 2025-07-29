@@ -540,7 +540,7 @@ impl Add {
             current_dir()?
         };
 
-        let stencila_dir = closest_stencila_dir(&base_path, false).await?;
+        let stencila_dir = closest_stencila_dir(&base_path, true).await?;
         Document::add_docs(&stencila_dir, &self.documents).await
     }
 }
@@ -589,7 +589,6 @@ impl Remove {
         };
 
         let stencila_dir = closest_stencila_dir(&base_path, false).await?;
-
         Document::remove_docs(&stencila_dir, &self.documents).await
     }
 }
