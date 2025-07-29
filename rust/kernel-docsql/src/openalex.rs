@@ -916,13 +916,6 @@ impl Object for OpenAlexQuery {
         name: &str,
         args: &[Value],
     ) -> Result<Value, Error> {
-        let like_err = || {
-            Err(Error::new(
-                ErrorKind::UnknownMethod,
-                "semantic similarity filtering is not available for OpenAlex, use `search` instead",
-            ))
-        };
-
         let mut query = match name {
             "works" | "articles" | "books" | "chapters" | "preprints" | "dissertations"
             | "reviews" | "standards" | "grants" | "retractions" | "datasets" | "people"
@@ -973,17 +966,10 @@ impl Object for OpenAlexQuery {
                             }
                         }
                         "like" => {
-                            return like_err();
-                        }
-                        "limit" => {
-                            if let Some(limit_val) = value.as_usize() {
-                                query = query.limit(limit_val)
-                            }
-                        }
-                        "skip" => {
-                            if let Some(skip_val) = value.as_usize() {
-                                query = query.skip(skip_val)
-                            }
+                            return Err(Error::new(
+                                ErrorKind::UnknownMethod,
+                                "semantic similarity filtering is not available for OpenAlex, use `search` instead",
+                            ));
                         }
                         // Handle transformed DocsQL filters
                         _ => query = query.apply_docsql_filter(arg, value)?,
@@ -994,17 +980,6 @@ impl Object for OpenAlexQuery {
             }
 
             // Query methods
-            "filter" => {
-                let (property, operator, value): (String, String, Value) = from_args(args)?;
-                self.filter(&property, &operator, value)?
-            }
-            "search" => {
-                let (term,): (String,) = from_args(args)?;
-                self.search(term)
-            }
-            "like" => {
-                return like_err();
-            }
             "orderBy" | "order_by" => {
                 let (field, direction): (String, Option<String>) = from_args(args)?;
                 self.order_by(field, direction)?

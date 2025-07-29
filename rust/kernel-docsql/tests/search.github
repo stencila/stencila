@@ -1,8 +1,3 @@
-github.repositories().search("machine learning")
----
-GET https://api.github.com/search/repositories?q=machine%20learning
-
-
 github.repositories(search="machine learning")
 ---
 GET https://api.github.com/search/repositories?q=machine%20learning
@@ -13,12 +8,7 @@ github.repos(search="machine learning")
 GET https://api.github.com/search/repositories?q=machine%20learning
 
 
-github.files().search("neural networks").limit(5)
----
-GET https://api.github.com/search/code?q=neural%20networks&per_page=5
-
-
-github.code(search="neural networks", limit=5)
+github.files(search="neural networks").limit(5)
 ---
 GET https://api.github.com/search/code?q=neural%20networks&per_page=5
 

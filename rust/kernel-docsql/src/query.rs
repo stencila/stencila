@@ -556,20 +556,6 @@ impl Query {
                         _ => unreachable!(),
                     }
                 }
-                "skip" | "limit" => {
-                    let count = value.as_usize().ok_or_else(|| {
-                        Error::new(
-                            ErrorKind::InvalidOperation,
-                            format!("argument `{key}` should be an unsigned integer"),
-                        )
-                    })?;
-
-                    match key {
-                        "skip" => query.skip = Some(count),
-                        "limit" => query.limit = Some(count),
-                        _ => unreachable!(),
-                    }
-                }
                 _ => {
                     let filter = apply_filter(&alias, key, value, false)?;
                     query.ands.push(filter)

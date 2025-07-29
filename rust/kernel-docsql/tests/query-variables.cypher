@@ -21,13 +21,13 @@ RETURN variable
 LIMIT 10
 
 
-variables(above, limit = 2)
+variables(above)
 ---
 MATCH (variable:Variable)
 WHERE variable.position<$currentPosition
 RETURN variable
 ORDER BY variable.position DESC
-LIMIT 2
+LIMIT 10
 
 
 variables(below).limit(2)

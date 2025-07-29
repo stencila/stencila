@@ -30,7 +30,7 @@ RETURN section
 LIMIT 10
 
 
-introduction().paragraphs(return, limit = 2)
+introduction().paragraphs(return).limit(2)
 ---
 MATCH (section:Section)-[:content|:items* acyclic]->(paragraph:Paragraph)
 WHERE section.sectionType = 'Introduction'

@@ -658,15 +658,11 @@ impl Object for GitHubQuery {
                                 query = query.search(search_value.to_string())
                             }
                         }
-                        "limit" => {
-                            if let Some(limit_val) = value.as_usize() {
-                                query = query.limit(limit_val)
-                            }
-                        }
-                        "skip" => {
-                            if let Some(skip_val) = value.as_usize() {
-                                query = query.skip(skip_val)
-                            }
+                        "like" => {
+                            return Err(Error::new(
+                                ErrorKind::UnknownMethod,
+                                "semantic similarity filtering is not available for GitHub, use `search` instead",
+                            ));
                         }
                         // Handle transformed DocsQL filters
                         _ => query = query.apply_docsql_filter(arg, value)?,
@@ -677,14 +673,6 @@ impl Object for GitHubQuery {
             }
 
             // Query methods
-            "filter" => {
-                let (property, operator, value): (String, String, Value) = from_args(args)?;
-                self.filter(&property, &operator, value)?
-            }
-            "search" => {
-                let (term,): (String,) = from_args(args)?;
-                self.search(term)
-            }
             "orderBy" | "order_by" => {
                 let (field, direction): (String, Option<String>) = from_args(args)?;
                 self.order_by(field, direction)?
