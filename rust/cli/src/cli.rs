@@ -132,7 +132,7 @@ pub struct Cli {
 
     /// The details to include in error reports
     ///
-    /// `auto`, `all`, or a comma separated list including `location`, `span`, or `env`.
+    /// `none`, `auto`, `all`, or a comma separated list including `location`, `span`, or `env`.
     #[arg(long, default_value = "auto", global = true, hide = true)]
     pub error_details: String,
 
