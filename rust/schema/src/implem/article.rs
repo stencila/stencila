@@ -158,7 +158,7 @@ impl DomCodec for Article {
             context.push_slot_fn("nav", "headings", |context| headings.to_dom(context));
         }
 
-        if context.is_root() {
+        if context.is_root() && !self.content.is_empty() {
             // Do not show content for articles that are not the root (they
             // usually don't have any content anyway)
             context.push_slot_fn("section", "content", |context| self.content.to_dom(context));
