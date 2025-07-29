@@ -12,14 +12,17 @@ use node_types::primary_key;
 use time::format_description::{self, BorrowedFormatItem};
 
 use common::{
-    eyre::{eyre, Context, Result},
+    eyre::{bail, eyre, Context, Result},
     itertools::Itertools,
     once_cell::sync::Lazy,
     tempfile::NamedTempFile,
     tracing,
 };
 use kernel_kuzu::{
-    kuzu::{Connection, Database, LogicalType, PreparedStatement, SystemConfig, Value},
+    kuzu::{
+        Connection, Database, Error as KuzuError, LogicalType, PreparedStatement, SystemConfig,
+        Value,
+    },
     KuzuKernel, ToKuzu,
 };
 use schema::{Node, NodeId, NodePath, NodeProperty, NodeType, Visitor, WalkNode};
@@ -130,10 +133,24 @@ const EXPECT_JUST_INSERTED: &str = "should exist, just inserted";
 impl NodeDatabase {
     /// Create a new node database
     ///
-    /// Note that `path` should be a directory (not a file) and will be created if it
-    /// does not yet exist.
+    /// Note that `path` should be a file and will be created if it does not yet
+    /// exist.
     pub fn new(path: &Path) -> Result<Self> {
-        let database = Arc::new(Database::new(path, SystemConfig::default())?);
+        let database = match Database::new(path, SystemConfig::default()) {
+            Ok(db) => db,
+            Err(error) => match &error {
+                KuzuError::CxxException(exception) => {
+                    if exception.what().contains("Could not set lock on file") {
+                        return Err(error).wrap_err("Database is locked by another Stencila process (e.g. VS Code extension). Please stop that process, or perform this operation within it.");
+                    } else {
+                        bail!(error)
+                    }
+                }
+                _ => bail!(error),
+            },
+        };
+
+        let database = Arc::new(database);
 
         if let Err(error) = Self::init(&database) {
             // If there is any error in creating the database then remove it so that
