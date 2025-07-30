@@ -58,6 +58,16 @@ openalex.works(.oa_status = 'diamond')
 GET https://api.openalex.org/works?filter=oa_status:diamond
 
 
+openalex.works(.oa_status = ['diamond', 'gold'])
+---
+GET https://api.openalex.org/works?filter=oa_status:diamond|gold
+
+
+openalex.works(.oa_status in ['diamond'])
+---
+GET https://api.openalex.org/works?filter=oa_status:diamond
+
+
 openalex.works(.cited_by_count < 10)
 ---
 GET https://api.openalex.org/works?filter=cited_by_count:<10

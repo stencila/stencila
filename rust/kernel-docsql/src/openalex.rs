@@ -8,6 +8,7 @@ use kernel_jinja::{
     kernel::{
         common::{
             eyre::{Result, bail},
+            itertools::Itertools,
             serde_json,
             tokio::{runtime, task},
             tracing,
@@ -112,7 +113,7 @@ impl OpenAlexQuery {
         let (property_name, mut operator) = decode_filter(arg_name);
 
         // Error early for unhandled operators with advice
-        if operator == "~!" || operator == "^=" || operator == "$=" {
+        if operator == "~!" || operator == "^=" || operator == "$=" || operator == "has" {
             let message = match operator {
                 "~!" => "Negated search operator ~! is not supported for OpenAlex queries.",
                 "^=" => {
@@ -121,6 +122,7 @@ impl OpenAlexQuery {
                 "$=" => {
                     "Ends-with operator $= is not supported for OpenAlex queries. Perhaps use search operator ~= instead."
                 }
+                "has" => "The `has` operator is not supported for OpenAlex queries",
                 _ => "Unsupported operator",
             };
             return Err(Error::new(ErrorKind::InvalidOperation, message));
@@ -296,16 +298,7 @@ impl OpenAlexQuery {
                 }
             }
 
-            "in" => {
-                // Handle list values for 'in' operator
-                if arg_value.is_true() || arg_value.is_none() {
-                    // Not actually a sequence, treat as single value
-                    format!("{filter_name}:{filter_value}")
-                } else {
-                    // Try to handle as array
-                    format!("{filter_name}:{filter_value}")
-                }
-            }
+            "in" => format!("{filter_name}:{filter_value}"),
 
             _ => {
                 return Err(Error::new(
@@ -1188,6 +1181,14 @@ fn format_filter_value(value: &Value) -> String {
             .map(String::from_utf8_lossy)
             .unwrap_or_default()
             .into(),
+        ValueKind::Seq => {
+            // Assumes that the list of values is being used as a list of OR alternatives
+            // https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities/filter-entity-lists#addition-or
+            match value.try_iter() {
+                Ok(iter) => iter.map(|item| format_filter_value(&item)).join("|"),
+                Err(_) => value.to_string(),
+            }
+        }
         _ => value.to_string(),
     }
 }
