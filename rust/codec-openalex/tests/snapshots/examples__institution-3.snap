@@ -7,5 +7,14 @@ expression: node
   "id": "https://openalex.org/I4210134686",
   "name": "Charles George VA Medical Center",
   "ror": "03vwf8m18",
+  "identifiers": [
+    "https://openalex.org/I4210134686",
+    "https://ror.org/03vwf8m18",
+    {
+      "type": "PropertyValue",
+      "propertyId": "grid",
+      "value": "grid.509332.e"
+    }
+  ],
   "url": "https://www.asheville.va.gov/"
 }

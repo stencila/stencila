@@ -1,0 +1,20 @@
+---
+source: rust/codec-openalex/tests/examples.rs
+expression: node
+---
+{
+  "type": "Organization",
+  "id": "https://openalex.org/F4320333583",
+  "name": "Directorate-General for International Partnerships",
+  "identifiers": [
+    "https://openalex.org/F4320333583",
+    "https://www.wikidata.org/entity/Q65768953",
+    {
+      "type": "PropertyValue",
+      "propertyId": "crossref",
+      "value": "100013971"
+    },
+    "https://doi.org/10.13039/100013971"
+  ],
+  "url": "https://ec.europa.eu/info/departments/international-partnerships_en"
+}

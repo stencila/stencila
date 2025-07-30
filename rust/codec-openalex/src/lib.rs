@@ -39,7 +39,8 @@ pub use client::{
 pub use author::Author as OpenAlexAuthor;
 pub use institution::Institution as OpenAlexInstitution;
 pub use responses::{
-    AuthorsResponse, InstitutionsResponse, SelectResponse, SourcesResponse, WorksResponse,
+    AuthorsResponse, FundersResponse, InstitutionsResponse, PublishersResponse, SelectResponse,
+    SourcesResponse, WorksResponse,
 };
 pub use source::Source as OpenAlexSource;
 pub use work::Work as OpenAlexWork;

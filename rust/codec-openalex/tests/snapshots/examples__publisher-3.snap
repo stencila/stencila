@@ -1,0 +1,14 @@
+---
+source: rust/codec-openalex/tests/examples.rs
+expression: node
+---
+{
+  "type": "Organization",
+  "id": "https://openalex.org/P4310321080",
+  "name": "Association for Information Systems",
+  "identifiers": [
+    "https://openalex.org/P4310321080",
+    "https://www.wikidata.org/entity/Q3558129"
+  ],
+  "url": "http://www.aisnet.org"
+}

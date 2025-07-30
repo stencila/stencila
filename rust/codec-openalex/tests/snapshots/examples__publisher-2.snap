@@ -1,0 +1,20 @@
+---
+source: rust/codec-openalex/tests/examples.rs
+expression: node
+---
+{
+  "type": "Organization",
+  "id": "https://openalex.org/P4310320211",
+  "name": "Zanichelli",
+  "identifiers": [
+    "https://openalex.org/P4310320211",
+    "https://www.wikidata.org/entity/Q3876396"
+  ],
+  "images": [
+    {
+      "type": "ImageObject",
+      "contentUrl": "https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/Casa Editrice Zanichelli.jpg"
+    }
+  ],
+  "url": "http://www.zanichelli.it"
+}

@@ -1,0 +1,20 @@
+---
+source: rust/codec-openalex/tests/examples.rs
+expression: node
+---
+{
+  "type": "Organization",
+  "id": "https://openalex.org/F4320329370",
+  "name": "Departamento de Salud, Gobierno de Navarra",
+  "identifiers": [
+    "https://openalex.org/F4320329370",
+    "https://www.wikidata.org/wiki/Q36875058",
+    {
+      "type": "PropertyValue",
+      "propertyId": "crossref",
+      "value": "501100016120"
+    },
+    "https://doi.org/10.13039/501100016120"
+  ],
+  "url": "https://www.navarra.es/home_es/Gobierno+de+Navarra/Departamento+Salud"
+}

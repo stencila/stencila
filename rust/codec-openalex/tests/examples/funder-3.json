@@ -1,0 +1,82 @@
+{
+  "id": "https://openalex.org/F4320330868",
+  "display_name": "Kerry Group Kuok Foundation",
+  "alternate_titles": [
+    "KGKF",
+    "嘉里集团郭氏基金会（香港）有限公司",
+    "Kerry Group Kuok Foundation Ltd",
+    "Kerry Group Kuok Foundation Ltd.",
+    "嘉里集团郭氏基金会",
+    "Kerry Group Kuok Foundation (Hong Kong) Limited",
+    "Kerry Group Kuok Foundation (Hong Kong) Co., Ltd."
+  ],
+  "country_code": "HK",
+  "description": null,
+  "homepage_url": null,
+  "image_url": null,
+  "image_thumbnail_url": null,
+  "grants_count": 1,
+  "works_count": 3,
+  "cited_by_count": 54,
+  "summary_stats": {
+    "2yr_mean_citedness": 0.0,
+    "h_index": 2,
+    "i10_index": 2
+  },
+  "ids": {
+    "openalex": "https://openalex.org/F4320330868",
+    "crossref": "501100020393",
+    "doi": "https://doi.org/10.13039/501100020393"
+  },
+  "counts_by_year": [
+    {
+      "year": 2025,
+      "works_count": 0,
+      "cited_by_count": 5
+    },
+    {
+      "year": 2024,
+      "works_count": 1,
+      "cited_by_count": 10
+    },
+    {
+      "year": 2023,
+      "works_count": 0,
+      "cited_by_count": 11
+    },
+    {
+      "year": 2022,
+      "works_count": 0,
+      "cited_by_count": 14
+    },
+    {
+      "year": 2021,
+      "works_count": 0,
+      "cited_by_count": 8
+    },
+    {
+      "year": 2020,
+      "works_count": 1,
+      "cited_by_count": 3
+    },
+    {
+      "year": 2019,
+      "works_count": 0,
+      "cited_by_count": 2
+    },
+    {
+      "year": 2018,
+      "works_count": 1,
+      "cited_by_count": 1
+    }
+  ],
+  "roles": [
+    {
+      "role": "funder",
+      "id": "https://openalex.org/F4320330868",
+      "works_count": 3
+    }
+  ],
+  "updated_date": "2025-07-20T19:40:17.548957",
+  "created_date": "2023-02-13"
+}

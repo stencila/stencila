@@ -1,6 +1,7 @@
+use crate::utils::convert_ids_to_identifiers;
 use codec::{
-    common::{serde::Deserialize, serde_json},
-    schema::{ImageObject, Node, Organization},
+    common::{indexmap::IndexMap, serde::Deserialize, serde_json},
+    schema::{ImageObject, Node, Organization, OrganizationOptions},
 };
 
 /// An OpenAlex `Institution` object
@@ -117,25 +118,58 @@ pub struct Concept {
 
 impl From<Institution> for Organization {
     fn from(institution: Institution) -> Self {
-        let mut organization = Organization {
-            id: Some(institution.id),
-            ror: crate::strip_ror_prefix(institution.ror),
-            name: institution.display_name,
-            ..Default::default()
-        };
-
-        // Map homepage_url to organization options url
-        organization.options.url = institution.homepage_url;
+        // Get ROR
+        let ror = crate::strip_ror_prefix(
+            institution
+                .ror
+                .clone()
+                .or(institution.ids.as_ref().and_then(|ids| ids.ror.clone())),
+        );
 
         // Map image_url to organization options images
-        if let Some(image_url) = institution.image_url {
-            organization.options.images = Some(vec![ImageObject {
+        let images = institution.image_url.map(|image_url| {
+            vec![ImageObject {
                 content_url: image_url,
                 ..Default::default()
-            }]);
-        }
+            }]
+        });
 
-        organization
+        // Map ids to identifiers
+        let identifiers = institution.ids.as_ref().and_then(|ids| {
+            let mut id_map = IndexMap::new();
+            if let Some(openalex) = &ids.openalex {
+                id_map.insert("openalex".to_string(), openalex.clone());
+            }
+            if let Some(ror) = &ids.ror {
+                id_map.insert("ror".to_string(), ror.clone());
+            }
+            if let Some(grid) = &ids.grid {
+                id_map.insert("grid".to_string(), grid.clone());
+            }
+            if let Some(wikipedia) = &ids.wikipedia {
+                id_map.insert("wikipedia".to_string(), wikipedia.clone());
+            }
+            if let Some(wikidata) = &ids.wikidata {
+                id_map.insert("wikidata".to_string(), wikidata.clone());
+            }
+            if let Some(mag) = &ids.mag {
+                id_map.insert("mag".to_string(), mag.clone());
+            }
+            convert_ids_to_identifiers(&id_map)
+        });
+
+        Organization {
+            id: Some(institution.id),
+            name: institution.display_name,
+            ror,
+            options: Box::new(OrganizationOptions {
+                url: institution.homepage_url,
+                images,
+                identifiers,
+                ..Default::default()
+            }),
+            ..Default::default()
+        }
     }
 }
 

@@ -7,5 +7,14 @@ expression: node
   "id": "https://openalex.org/I4210163069",
   "name": "VUES Brno (Czechia)",
   "ror": "05g59rq62",
+  "identifiers": [
+    "https://openalex.org/I4210163069",
+    "https://ror.org/05g59rq62",
+    {
+      "type": "PropertyValue",
+      "propertyId": "grid",
+      "value": "grid.448239.0"
+    }
+  ],
   "url": "http://www.vues.cz/"
 }

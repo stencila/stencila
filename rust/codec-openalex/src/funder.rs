@@ -1,6 +1,7 @@
+use crate::{strip_ror_prefix, utils::convert_ids_to_identifiers};
 use codec::{
-    common::serde::Deserialize,
-    schema::{ImageObject, Organization},
+    common::{indexmap::IndexMap, serde::Deserialize},
+    schema::{ImageObject, Node, Organization, OrganizationOptions},
 };
 
 /// An OpenAlex `Funder` object
@@ -25,7 +26,15 @@ pub struct Funder {
     pub counts_by_year: Option<Vec<CountsByYear>>,
     pub updated_date: Option<String>,
     pub created_date: Option<String>,
-    pub roles: Option<Vec<String>>,
+    pub roles: Option<Vec<Role>>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+pub struct Role {
+    pub role: Option<String>,
+    pub id: Option<String>,
+    pub works_count: Option<i64>,
 }
 
 #[derive(Deserialize)]
@@ -57,24 +66,55 @@ pub struct CountsByYear {
 
 impl From<Funder> for Organization {
     fn from(funder: Funder) -> Self {
-        let mut organization = Organization {
-            id: Some(funder.id),
-            name: funder.display_name,
-            ror: crate::strip_ror_prefix(funder.ids.and_then(|ids| ids.ror)),
-            ..Default::default()
-        };
-
-        // Map homepage_url to organization options url
-        organization.options.url = funder.homepage_url;
+        // Get ROR
+        let ror = strip_ror_prefix(funder.ids.as_ref().and_then(|ids| ids.ror.clone()));
 
         // Map image_url to organization options images
-        if let Some(image_url) = funder.image_url {
-            organization.options.images = Some(vec![ImageObject {
+        let images = funder.image_url.map(|image_url| {
+            vec![ImageObject {
                 content_url: image_url,
                 ..Default::default()
-            }]);
-        }
+            }]
+        });
 
-        organization
+        // Map ids to identifiers
+        let identifiers = funder.ids.as_ref().and_then(|ids| {
+            let mut id_map = IndexMap::new();
+            if let Some(openalex) = &ids.openalex {
+                id_map.insert("openalex".to_string(), openalex.clone());
+            }
+            if let Some(ror) = &ids.ror {
+                id_map.insert("ror".to_string(), ror.clone());
+            }
+            if let Some(wikidata) = &ids.wikidata {
+                id_map.insert("wikidata".to_string(), wikidata.clone());
+            }
+            if let Some(crossref) = &ids.crossref {
+                id_map.insert("crossref".to_string(), crossref.clone());
+            }
+            if let Some(doi) = &ids.doi {
+                id_map.insert("doi".to_string(), doi.clone());
+            }
+            convert_ids_to_identifiers(&id_map)
+        });
+
+        Organization {
+            id: Some(funder.id),
+            name: funder.display_name,
+            ror,
+            options: Box::new(OrganizationOptions {
+                url: funder.homepage_url,
+                images,
+                identifiers,
+                ..Default::default()
+            }),
+            ..Default::default()
+        }
+    }
+}
+
+impl From<Funder> for Node {
+    fn from(funder: Funder) -> Self {
+        Node::Organization(funder.into())
     }
 }

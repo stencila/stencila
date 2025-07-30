@@ -1,0 +1,97 @@
+{
+  "id": "https://openalex.org/P4310321080",
+  "display_name": "Association for Information Systems",
+  "alternate_titles": [],
+  "hierarchy_level": 0,
+  "parent_publisher": null,
+  "lineage": [
+    "https://openalex.org/P4310321080"
+  ],
+  "country_codes": [],
+  "homepage_url": "http://www.aisnet.org",
+  "image_url": null,
+  "image_thumbnail_url": null,
+  "works_count": 3359,
+  "cited_by_count": 158759,
+  "summary_stats": {
+    "2yr_mean_citedness": 4.07177033492823,
+    "h_index": 166,
+    "i10_index": 1846
+  },
+  "ids": {
+    "openalex": "https://openalex.org/P4310321080",
+    "wikidata": "https://www.wikidata.org/entity/Q3558129"
+  },
+  "counts_by_year": [
+    {
+      "year": 2023,
+      "works_count": 49,
+      "cited_by_count": 1495
+    },
+    {
+      "year": 2022,
+      "works_count": 150,
+      "cited_by_count": 6470
+    },
+    {
+      "year": 2021,
+      "works_count": 196,
+      "cited_by_count": 7084
+    },
+    {
+      "year": 2020,
+      "works_count": 188,
+      "cited_by_count": 5959
+    },
+    {
+      "year": 2019,
+      "works_count": 202,
+      "cited_by_count": 5090
+    },
+    {
+      "year": 2018,
+      "works_count": 183,
+      "cited_by_count": 3969
+    },
+    {
+      "year": 2017,
+      "works_count": 157,
+      "cited_by_count": 3873
+    },
+    {
+      "year": 2016,
+      "works_count": 156,
+      "cited_by_count": 4402
+    },
+    {
+      "year": 2015,
+      "works_count": 170,
+      "cited_by_count": 6242
+    },
+    {
+      "year": 2014,
+      "works_count": 179,
+      "cited_by_count": 6248
+    },
+    {
+      "year": 2013,
+      "works_count": 111,
+      "cited_by_count": 5644
+    },
+    {
+      "year": 2012,
+      "works_count": 121,
+      "cited_by_count": 5122
+    }
+  ],
+  "roles": [
+    {
+      "role": "publisher",
+      "id": "https://openalex.org/P4310321080",
+      "works_count": 3359
+    }
+  ],
+  "sources_api_url": "https://api.openalex.org/sources?filter=host_organization.id:P4310321080",
+  "updated_date": "2025-07-28T08:53:58.757676",
+  "created_date": "2023-01-01"
+}

@@ -1,0 +1,102 @@
+{
+  "id": "https://openalex.org/P4310320211",
+  "display_name": "Zanichelli",
+  "alternate_titles": [
+    "Nicola Zanichelli editore",
+    "Zanichelli Editore"
+  ],
+  "hierarchy_level": 0,
+  "parent_publisher": null,
+  "lineage": [
+    "https://openalex.org/P4310320211"
+  ],
+  "country_codes": [
+    "IT"
+  ],
+  "homepage_url": "http://www.zanichelli.it",
+  "image_url": "https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/Casa Editrice Zanichelli.jpg",
+  "image_thumbnail_url": "https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/Casa Editrice Zanichelli.jpg&width=300",
+  "works_count": 1628,
+  "cited_by_count": 809,
+  "summary_stats": {
+    "2yr_mean_citedness": 0.012987012987012988,
+    "h_index": 27,
+    "i10_index": 70
+  },
+  "ids": {
+    "openalex": "https://openalex.org/P4310320211",
+    "wikidata": "https://www.wikidata.org/entity/Q3876396"
+  },
+  "counts_by_year": [
+    {
+      "year": 2023,
+      "works_count": 0,
+      "cited_by_count": 1
+    },
+    {
+      "year": 2022,
+      "works_count": 66,
+      "cited_by_count": 1
+    },
+    {
+      "year": 2021,
+      "works_count": 71,
+      "cited_by_count": 28
+    },
+    {
+      "year": 2020,
+      "works_count": 91,
+      "cited_by_count": 93
+    },
+    {
+      "year": 2019,
+      "works_count": 131,
+      "cited_by_count": 40
+    },
+    {
+      "year": 2018,
+      "works_count": 96,
+      "cited_by_count": 36
+    },
+    {
+      "year": 2017,
+      "works_count": 78,
+      "cited_by_count": 34
+    },
+    {
+      "year": 2016,
+      "works_count": 74,
+      "cited_by_count": 32
+    },
+    {
+      "year": 2015,
+      "works_count": 71,
+      "cited_by_count": 52
+    },
+    {
+      "year": 2014,
+      "works_count": 63,
+      "cited_by_count": 49
+    },
+    {
+      "year": 2013,
+      "works_count": 76,
+      "cited_by_count": 64
+    },
+    {
+      "year": 2012,
+      "works_count": 78,
+      "cited_by_count": 59
+    }
+  ],
+  "roles": [
+    {
+      "role": "publisher",
+      "id": "https://openalex.org/P4310320211",
+      "works_count": 1628
+    }
+  ],
+  "sources_api_url": "https://api.openalex.org/sources?filter=host_organization.id:P4310320211",
+  "updated_date": "2025-07-15T12:55:34.117279",
+  "created_date": "2023-01-01"
+}

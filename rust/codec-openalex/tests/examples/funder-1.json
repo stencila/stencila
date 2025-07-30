@@ -1,0 +1,99 @@
+{
+  "id": "https://openalex.org/F4320333583",
+  "display_name": "Directorate-General for International Partnerships",
+  "alternate_titles": [
+    "DG International Partnerships",
+    "DG INTPA",
+    "International Partnerships",
+    "DG International Partnerships, European Commission",
+    "DG-INTPA",
+    "INTPA",
+    "EU International Partnerships",
+    "European Commission Directorate-General for International Partnerships"
+  ],
+  "country_code": null,
+  "description": "department of the EU commission responsible for formulating the EU’s international partnership and development policy",
+  "homepage_url": "https://ec.europa.eu/info/departments/international-partnerships_en",
+  "image_url": null,
+  "image_thumbnail_url": null,
+  "grants_count": 13,
+  "works_count": 35,
+  "cited_by_count": 536,
+  "summary_stats": {
+    "2yr_mean_citedness": 4.25,
+    "h_index": 13,
+    "i10_index": 18
+  },
+  "ids": {
+    "openalex": "https://openalex.org/F4320333583",
+    "wikidata": "https://www.wikidata.org/entity/Q65768953",
+    "crossref": "100013971",
+    "doi": "https://doi.org/10.13039/100013971"
+  },
+  "counts_by_year": [
+    {
+      "year": 2025,
+      "works_count": 5,
+      "cited_by_count": 95
+    },
+    {
+      "year": 2024,
+      "works_count": 6,
+      "cited_by_count": 131
+    },
+    {
+      "year": 2023,
+      "works_count": 3,
+      "cited_by_count": 114
+    },
+    {
+      "year": 2022,
+      "works_count": 5,
+      "cited_by_count": 77
+    },
+    {
+      "year": 2021,
+      "works_count": 5,
+      "cited_by_count": 60
+    },
+    {
+      "year": 2020,
+      "works_count": 7,
+      "cited_by_count": 20
+    },
+    {
+      "year": 2019,
+      "works_count": 3,
+      "cited_by_count": 7
+    },
+    {
+      "year": 2018,
+      "works_count": 0,
+      "cited_by_count": 4
+    },
+    {
+      "year": 2017,
+      "works_count": 0,
+      "cited_by_count": 16
+    },
+    {
+      "year": 2016,
+      "works_count": 0,
+      "cited_by_count": 11
+    },
+    {
+      "year": 2015,
+      "works_count": 1,
+      "cited_by_count": 0
+    }
+  ],
+  "roles": [
+    {
+      "role": "funder",
+      "id": "https://openalex.org/F4320333583",
+      "works_count": 35
+    }
+  ],
+  "updated_date": "2025-07-27T17:57:42.964505",
+  "created_date": "2023-02-13"
+}

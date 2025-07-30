@@ -10,7 +10,9 @@ WORK_FILES := $(foreach n,$(NUMBERS),work-$(n).json)
 AUTHOR_FILES := $(foreach n,$(NUMBERS),author-$(n).json)
 INSTITUTION_FILES := $(foreach n,$(NUMBERS),institution-$(n).json)
 SOURCE_FILES := $(foreach n,$(NUMBERS),source-$(n).json)
-ALL_FILES := $(WORK_FILES) $(AUTHOR_FILES) $(INSTITUTION_FILES) $(SOURCE_FILES)
+PUBLISHER_FILES := $(foreach n,$(NUMBERS),publisher-$(n).json)
+FUNDER_FILES := $(foreach n,$(NUMBERS),funder-$(n).json)
+ALL_FILES := $(WORK_FILES) $(AUTHOR_FILES) $(INSTITUTION_FILES) $(SOURCE_FILES) $(PUBLISHER_FILES) $(FUNDER_FILES)
 
 .PHONY: all works authors institutions clean help
 
@@ -22,6 +24,8 @@ works: $(WORK_FILES)
 authors: $(AUTHOR_FILES)
 institutions: $(INSTITUTION_FILES)
 sources: $(SOURCE_FILES)
+publishers: $(PUBLISHER_FILES)
+funders: $(FUNDERS_FILES)
 
 # Pattern rules for downloading entities
 work-%.json:
@@ -35,6 +39,12 @@ institution-%.json:
 
 source-%.json:
 	curl -s "https://api.openalex.org/sources/random" | jq '.' > $@
+
+publisher-%.json:
+	curl -s "https://api.openalex.org/publishers/random" | jq '.' > $@
+
+funder-%.json:
+	curl -s "https://api.openalex.org/funders/random" | jq '.' > $@
 
 # Additional examples
 

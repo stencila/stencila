@@ -1,0 +1,82 @@
+{
+  "id": "https://openalex.org/F4320329370",
+  "display_name": "Departamento de Salud, Gobierno de Navarra",
+  "alternate_titles": [
+    "Department of Health, Government of Navarra"
+  ],
+  "country_code": "ES",
+  "description": "government organization in Pamplona, Spain",
+  "homepage_url": "https://www.navarra.es/home_es/Gobierno+de+Navarra/Departamento+Salud",
+  "image_url": null,
+  "image_thumbnail_url": null,
+  "grants_count": 64,
+  "works_count": 72,
+  "cited_by_count": 1457,
+  "summary_stats": {
+    "2yr_mean_citedness": 10.192307692307692,
+    "h_index": 20,
+    "i10_index": 35
+  },
+  "ids": {
+    "openalex": "https://openalex.org/F4320329370",
+    "wikidata": "https://www.wikidata.org/wiki/Q36875058",
+    "crossref": "501100016120",
+    "doi": "https://doi.org/10.13039/501100016120"
+  },
+  "counts_by_year": [
+    {
+      "year": 2025,
+      "works_count": 7,
+      "cited_by_count": 304
+    },
+    {
+      "year": 2024,
+      "works_count": 13,
+      "cited_by_count": 456
+    },
+    {
+      "year": 2023,
+      "works_count": 14,
+      "cited_by_count": 369
+    },
+    {
+      "year": 2022,
+      "works_count": 12,
+      "cited_by_count": 206
+    },
+    {
+      "year": 2021,
+      "works_count": 14,
+      "cited_by_count": 89
+    },
+    {
+      "year": 2020,
+      "works_count": 9,
+      "cited_by_count": 24
+    },
+    {
+      "year": 2019,
+      "works_count": 2,
+      "cited_by_count": 8
+    },
+    {
+      "year": 2018,
+      "works_count": 1,
+      "cited_by_count": 1
+    },
+    {
+      "year": 2017,
+      "works_count": 1,
+      "cited_by_count": 1
+    }
+  ],
+  "roles": [
+    {
+      "role": "funder",
+      "id": "https://openalex.org/F4320329370",
+      "works_count": 72
+    }
+  ],
+  "updated_date": "2025-07-29T03:01:13.046009",
+  "created_date": "2023-02-13"
+}

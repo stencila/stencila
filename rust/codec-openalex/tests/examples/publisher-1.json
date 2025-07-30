@@ -1,0 +1,105 @@
+{
+  "id": "https://openalex.org/P4310322363",
+  "display_name": "Academy of Medical Sciences of Bosnia and Herzegovina",
+  "alternate_titles": [],
+  "hierarchy_level": 0,
+  "parent_publisher": null,
+  "lineage": [
+    "https://openalex.org/P4310322363"
+  ],
+  "country_codes": [
+    "BA"
+  ],
+  "homepage_url": "https://amn.ba",
+  "image_url": null,
+  "image_thumbnail_url": null,
+  "works_count": 1229,
+  "cited_by_count": 14120,
+  "summary_stats": {
+    "2yr_mean_citedness": 1.8141592920353982,
+    "h_index": 48,
+    "i10_index": 557
+  },
+  "ids": {
+    "openalex": "https://openalex.org/P4310322363",
+    "ror": "https://ror.org/01vbw1f94",
+    "wikidata": "https://www.wikidata.org/entity/Q63859238"
+  },
+  "counts_by_year": [
+    {
+      "year": 2023,
+      "works_count": 19,
+      "cited_by_count": 422
+    },
+    {
+      "year": 2022,
+      "works_count": 81,
+      "cited_by_count": 1565
+    },
+    {
+      "year": 2021,
+      "works_count": 85,
+      "cited_by_count": 1345
+    },
+    {
+      "year": 2020,
+      "works_count": 99,
+      "cited_by_count": 1174
+    },
+    {
+      "year": 2019,
+      "works_count": 95,
+      "cited_by_count": 839
+    },
+    {
+      "year": 2018,
+      "works_count": 102,
+      "cited_by_count": 667
+    },
+    {
+      "year": 2017,
+      "works_count": 97,
+      "cited_by_count": 616
+    },
+    {
+      "year": 2016,
+      "works_count": 115,
+      "cited_by_count": 548
+    },
+    {
+      "year": 2015,
+      "works_count": 109,
+      "cited_by_count": 520
+    },
+    {
+      "year": 2014,
+      "works_count": 111,
+      "cited_by_count": 395
+    },
+    {
+      "year": 2013,
+      "works_count": 126,
+      "cited_by_count": 286
+    },
+    {
+      "year": 2012,
+      "works_count": 130,
+      "cited_by_count": 183
+    }
+  ],
+  "roles": [
+    {
+      "role": "institution",
+      "id": "https://openalex.org/I4210107857",
+      "works_count": 502
+    },
+    {
+      "role": "publisher",
+      "id": "https://openalex.org/P4310322363",
+      "works_count": 1229
+    }
+  ],
+  "sources_api_url": "https://api.openalex.org/sources?filter=host_organization.id:P4310322363",
+  "updated_date": "2025-07-30T03:34:11.351456",
+  "created_date": "2023-01-01"
+}
