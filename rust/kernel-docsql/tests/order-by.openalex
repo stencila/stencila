@@ -1,8 +1,19 @@
 openalex.works().orderBy('title')
 ---
-GET https://api.openalex.org/works?sort=title:asc
+GET https://api.openalex.org/works?sort=display_name:asc
 
 
-openalex.people().order_by('name', 'desc')
+openalex.works().orderBy('cited_by_count', 'desc')
 ---
-GET https://api.openalex.org/authors?sort=name:desc
+GET https://api.openalex.org/works?sort=cited_by_count:desc
+
+
+openalex.people().order_by('name')
+---
+GET https://api.openalex.org/authors?sort=display_name:asc
+
+
+openalex.people().order_by('h_index', 'desc')
+---
+GET https://api.openalex.org/authors?sort=summary_stats.h_index:desc
+

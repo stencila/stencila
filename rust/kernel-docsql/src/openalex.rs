@@ -323,15 +323,35 @@ impl OpenAlexQuery {
     }
 
     /// Set sort parameter
-    fn order_by(&self, field: String, direction: Option<String>) -> Result<Self, Error> {
+    fn order_by(&self, property: &str, direction: Option<String>) -> Result<Self, Error> {
         let mut query = self.clone();
 
-        let openalex_field = self.property_to_sort_name(&self.entity_type, &field)?;
+        // Map the field name to the OpenAlex attribute name
+        let attribute = match self.entity_type.as_str() {
+            "works" => match property {
+                "title" | "name" => "display_name",
+                "year" => "publication_year",
+                "date" => "publication_date",
+                "license" => "primary_location.license",
+                "is_accepted" => "primary_location.is_accepted",
+                "is_published" => "primary_location.is_published",
+                "version" => "primary_location.version",
+                _ => property,
+            },
+            _ => match property {
+                "name" => "display_name",
+                "h_index" => "summary_stats.h_index",
+                "i10_index" => "summary_stats.i10_index",
+                _ => property,
+            },
+        };
+
         let sort_string = match direction {
-            Some(dir) if dir.to_uppercase() == "DESC" => format!("{openalex_field}:desc"),
-            _ => format!("{openalex_field}:asc"),
+            Some(dir) if dir.to_uppercase() == "DESC" => format!("{attribute}:desc"),
+            _ => format!("{attribute}:asc"),
         };
         query.sort = Some(sort_string);
+
         Ok(query)
     }
 
@@ -801,11 +821,6 @@ impl OpenAlexQuery {
         }
     }
 
-    /// Map a DocsQL property name to an OpenAlex API sort name
-    fn property_to_sort_name(&self, _entity_type: &str, property: &str) -> Result<String, Error> {
-        Ok(property.to_string())
-    }
-
     /// Generate the OpenAlex API URL (for backwards compatibility and debugging)
     pub fn generate(&self) -> String {
         let mut params = Vec::new();
@@ -1064,8 +1079,8 @@ impl Object for OpenAlexQuery {
 
             // Query methods
             "orderBy" | "order_by" => {
-                let (field, direction): (String, Option<String>) = from_args(args)?;
-                self.order_by(field, direction)?
+                let (property, direction): (String, Option<String>) = from_args(args)?;
+                self.order_by(&property, direction)?
             }
             "limit" => {
                 let (count,): (usize,) = from_args(args)?;
