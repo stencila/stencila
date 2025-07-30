@@ -159,34 +159,17 @@ pub(super) fn encode_filters(code: &str) -> String {
 
     let code = FILTERS.replace_all(code, |captures: &Captures| {
         let before = &captures[1];
-        let var = &captures[2];
-        let op = match &captures[3] {
-            "=" | "==" => "",
-            "!=" => "0",
-            "<" => "1",
-            "<=" => "2",
-            ">" => "3",
-            ">=" => "4",
-            "~=" => "5",
-            "~!" => "6",
-            "^=" => "7",
-            "$=" => "8",
-            "in" => "9",
-            "has" => "_",
-            echo => echo,
-        };
+        let property = &captures[2];
+        let operator = &captures[3];
 
-        let var = match var {
-            "*" => "_C", // Count
-            _ => var.trim_start_matches("."),
-        };
+        let name = encode_filter(property, operator);
 
         let spaces = captures[0]
             .len()
-            .saturating_sub(before.len() + var.len() + op.len() + 1);
+            .saturating_sub(before.len() + name.len() + 1);
         let spaces = " ".repeat(spaces);
 
-        [before, var, op, &spaces, "="].concat()
+        [before, &name, &spaces, "="].concat()
     });
 
     static SUBQUERY: Lazy<Regex> =
@@ -201,9 +184,35 @@ pub(super) fn encode_filters(code: &str) -> String {
         .into()
 }
 
-/// Decode a Minijinja argument name into a property name and operator
+/// Encode a property name and operator into a MiniJinja argument name
+pub(super) fn encode_filter(property: &str, operator: &str) -> String {
+    let name = match property {
+        "*" => "_C", // Count
+        _ => property.trim_start_matches("."),
+    };
+
+    let suffix = match operator {
+        "!=" => "0",
+        "<" => "1",
+        "<=" => "2",
+        ">" => "3",
+        ">=" => "4",
+        "~=" => "5",
+        "~!" => "6",
+        "^=" => "7",
+        "$=" => "8",
+        "in" => "9",
+        "has" => "_",
+        "=" | "==" => "",
+        _ => operator,
+    };
+
+    [name, suffix].concat()
+}
+
+/// Decode a MiniJinja argument name into a property name and operator
 ///
-/// The inverse of `encode_filter` for a single argument.
+/// The inverse of `encode_filter`.
 pub(super) fn decode_filter(arg_name: &str) -> (&str, &str) {
     if arg_name.len() > 1 {
         if let Some(last_char) = arg_name.chars().last() {
@@ -233,7 +242,7 @@ pub(super) fn decode_filter(arg_name: &str) -> (&str, &str) {
 #[cfg(test)]
 mod tests {
     #[test]
-    fn transform_filters() {
+    fn encode_filters() {
         use super::encode_filters as t;
 
         assert_eq!(t(""), "");
