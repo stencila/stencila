@@ -1,8 +1,8 @@
 use std::sync::{Arc, Mutex as SyncMutex};
 
 use codec_openalex::{
-    AuthorsResponse, InstitutionsResponse, SelectResponse, SourcesResponse, WorksResponse, request,
-    url_for_list,
+    AuthorsResponse, FundersResponse, InstitutionsResponse, PublishersResponse, SelectResponse,
+    SourcesResponse, WorksResponse, request, url_for_list,
 };
 use kernel_jinja::{
     kernel::{
@@ -220,6 +220,25 @@ impl OpenAlexQuery {
                         format!(
                             "Unhandled filter property for OpenAlex publishers: {property_name}"
                         ),
+                    ));
+                }
+            },
+            "funders" => match property_name {
+                // See https://docs.openalex.org/api-entities/funders/filter-funders
+                "name" => "display_name.search",
+                "description" => "description.search",
+                // Properties on `summary_stats` that we hoist up
+                "h_index" => "summary_stats.h_index",
+                "i10_index" => "summary_stats.i10_index",
+                // Properties which do not need mapping, including convenience filters
+                //  https://docs.openalex.org/api-entities/funders/filter-funders#funders-convenience-filters
+                "ror" | "grants_count" | "works_count" | "cited_by_count" | "is_global_south" => {
+                    property_name
+                }
+                _ => {
+                    return Err(Error::new(
+                        ErrorKind::InvalidOperation,
+                        format!("Unhandled filter property for OpenAlex funders: {property_name}"),
                     ));
                 }
             },
@@ -871,6 +890,18 @@ impl OpenAlexQuery {
                             response.results.into_iter().map(Into::into).collect();
                         (response.meta, nodes)
                     }
+                    "publishers" => {
+                        let response = request::<PublishersResponse>(&url).await?;
+                        let nodes: Vec<Node> =
+                            response.results.into_iter().map(Into::into).collect();
+                        (response.meta, nodes)
+                    }
+                    "funders" => {
+                        let response = request::<FundersResponse>(&url).await?;
+                        let nodes: Vec<Node> =
+                            response.results.into_iter().map(Into::into).collect();
+                        (response.meta, nodes)
+                    }
                     _ => {
                         bail!("Fetching of OpenAlex `{entity_type}` objects not yet enabled")
                     }
@@ -968,7 +999,7 @@ impl Object for OpenAlexQuery {
             "works" | "articles" | "books" | "chapters" | "preprints" | "dissertations"
             | "reviews" | "standards" | "grants" | "retractions" | "datasets" | "authors"
             | "people" | "institutions" | "organizations" | "sources" | "journals"
-            | "publishers" => {
+            | "publishers" | "funders" => {
                 let (entity_type, type_filter) = match name {
                     "works" => ("works", None),
 
@@ -991,6 +1022,7 @@ impl Object for OpenAlexQuery {
 
                     "sources" | "journals" => ("sources", None),
                     "publishers" => ("publishers", None),
+                    "funders" => ("funders", None),
 
                     _ => {
                         return Err(Error::new(

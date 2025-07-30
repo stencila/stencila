@@ -1,0 +1,43 @@
+openalex.funders(.name == "National Science Foundation")
+---
+GET https://api.openalex.org/funders?filter=display_name.search:National+Science+Foundation
+
+
+openalex.funders(.description ~= "United States government agency")
+---
+GET https://api.openalex.org/funders?filter=description.search:United+States+government+agency
+
+
+openalex.funders(.ror == "021nxhr62")
+---
+GET https://api.openalex.org/funders?filter=ror:021nxhr62
+
+
+openalex.funders(.h_index > 1000)
+---
+GET https://api.openalex.org/funders?filter=summary_stats.h_index:>1000
+
+
+openalex.funders(.i10_index < 1000)
+---
+GET https://api.openalex.org/funders?filter=summary_stats.i10_index:<1000
+
+
+openalex.funders(.grants_count <= 100)
+---
+GET https://api.openalex.org/funders?filter=grants_count:<101
+
+
+openalex.funders(.works_count < 10)
+---
+GET https://api.openalex.org/funders?filter=works_count:<10
+
+
+openalex.funders(.cited_by_count >= 10)
+---
+GET https://api.openalex.org/funders?filter=cited_by_count:>9
+
+
+openalex.funders(.foo = "bar")
+---
+Unhandled filter property for OpenAlex funders: foo
