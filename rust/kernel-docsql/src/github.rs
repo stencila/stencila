@@ -19,7 +19,7 @@ use kernel_jinja::{
     },
 };
 
-use crate::cypher::{NodeProxies, NodeProxy, Subquery};
+use crate::{cypher::{NodeProxies, NodeProxy}, subquery::Subquery};
 
 const API_BASE_URL: &str = "https://api.github.com";
 

@@ -1,7 +1,152 @@
-use kernel_jinja::kernel::common::{
-    once_cell::sync::Lazy,
-    regex::{Captures, Regex},
+use std::sync::Arc;
+
+use kernel_jinja::{
+    kernel::common::{
+        once_cell::sync::Lazy,
+        regex::{Captures, Regex},
+    },
+    minijinja::{Environment, Error, ErrorKind, Value},
 };
+
+use crate::{CypherQuery, NodeProxies, NodeProxy, openalex::OpenAlexQuery};
+
+/// Names added to the Jinja environment with `env.add_global`
+///
+/// Maintaining this list is tedious. However, it is only
+/// used as an optimization to avoid searching for
+/// these function as variables in other kernels. As such it
+/// does not need to be complete (or even accurate), but better
+/// if it is (both complete and accurate).
+///
+/// Unfortunately, at this time, this can not be done dynamically.
+pub(crate) const GLOBAL_NAMES: &[&str] = &[
+    // Database names added in lib.rs
+    "document",
+    "workspace",
+    "openalex",
+    "github",
+    // Added in cypher::add_document_functions
+    // Static code
+    "codeBlock",
+    "codeBlocks",
+    "codeInline",
+    "codeInlines",
+    // Executable code
+    "codeChunk",
+    "codeChunks",
+    "chunk",
+    "chunks",
+    "codeExpression",
+    "codeExpressions",
+    "expression",
+    "expressions",
+    // Math
+    "mathBlock",
+    "mathBlocks",
+    "mathInline",
+    "mathInlines",
+    // Media
+    "image",
+    "images",
+    "audio",
+    "audios",
+    "video",
+    "videos",
+    // Containers
+    "admonition",
+    "admonitions",
+    "claim",
+    "claims",
+    "heading",
+    "headings",
+    "list",
+    "lists",
+    "paragraph",
+    "paragraphs",
+    "section",
+    "sections",
+    "sentence",
+    "sentences",
+    // Metadata
+    "organization",
+    "organizations",
+    "person",
+    "people",
+    "reference",
+    "references",
+    // Labelled types
+    "figure",
+    "figures",
+    "table",
+    "tables",
+    "equation",
+    "equations",
+    // Section types
+    "methods",
+    "results",
+    "introduction",
+    "discussion",
+    // Variables
+    "variable",
+    "variables",
+    // Added in subquery::add_subquery_functions
+    "_authors",
+    "_owners",
+    "_references",
+    "_cites",
+    "_citedBy",
+    "_affiliations",
+    "_organizations",
+    "_topics",
+    "_chunks",
+    "_expressions",
+    "_audios",
+    "_images",
+    "_videos",
+    // GLOBAL_CONSTS added in add_constants
+    "above",
+    "below",
+    "return",
+    // Added in add_functions
+    "combine",
+];
+
+/// Add global constants
+pub(super) fn add_constants(env: &mut Environment) {
+    for name in GLOBAL_CONSTS {
+        env.add_global(*name, *name);
+    }
+}
+
+pub(super) const GLOBAL_CONSTS: &[&str] = &["above", "below", "return"];
+
+/// Add global functions to the environment
+pub(super) fn add_functions(env: &mut Environment) {
+    env.add_function("combine", combine);
+}
+
+/// Function to combine nodes from several queries
+fn combine(args: &[Value]) -> Result<Value, Error> {
+    let mut nodes = Vec::new();
+    for value in args {
+        if let Some(query) = value.downcast_object::<CypherQuery>() {
+            nodes.append(&mut query.nodes());
+        } else if let Some(query) = value.downcast_object::<OpenAlexQuery>() {
+            nodes.append(&mut query.nodes());
+        } else if let Some(proxies) = value.downcast_object::<NodeProxies>() {
+            nodes.append(&mut proxies.nodes());
+        } else if let Some(proxy) = value.downcast_object::<NodeProxy>() {
+            nodes.append(&mut proxy.nodes());
+        } else {
+            return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                "all arguments should be queries or nodes resulting from queries",
+            ));
+        }
+    }
+
+    Ok(Value::from_object(NodeProxies::new(nodes, Arc::default())))
+}
 
 /// Encode DocsQL filter arguments into valid MiniJinja keyword arguments
 ///
@@ -57,7 +202,7 @@ pub(super) fn encode_filters(code: &str) -> String {
 }
 
 /// Decode a Minijinja argument name into a property name and operator
-/// 
+///
 /// The inverse of `encode_filter` for a single argument.
 pub(super) fn decode_filter(arg_name: &str) -> (&str, &str) {
     if arg_name.len() > 1 {

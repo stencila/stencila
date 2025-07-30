@@ -22,8 +22,9 @@ use kernel_jinja::{
 };
 
 use crate::{
-    cypher::{NodeProxies, NodeProxy, Subquery},
+    cypher::{NodeProxies, NodeProxy},
     docsql::decode_filter,
+    subquery::Subquery,
 };
 
 /// Add OpenAlex functions to the Jinja environment
@@ -262,12 +263,11 @@ impl OpenAlexQuery {
         let mut filter_value = format_filter_value(&arg_value);
 
         // Further entity_type and property transformations for user convenience
-        if entity_type == "works" && property_name == "version" {
-            if !filter_value.ends_with("Version") {
+        if entity_type == "works" && property_name == "version"
+            && !filter_value.ends_with("Version") {
                 // published => publishedVersion etc
                 filter_value.push_str("Version");
             }
-        }
 
         // Support <= and >= operators by transforming to < and > respectively
         if matches!(arg_value.kind(), ValueKind::Number)
@@ -529,7 +529,7 @@ impl OpenAlexQuery {
             }
             ("Periodical", property) => {
                 // For other periodical properties, use the primary_location.source prefix
-                let filter_value = format_filter_value(&value);
+                let filter_value = format_filter_value(value);
 
                 match operator {
                     "==" => Ok(format!("{prefix}.{property}:{filter_value}")),
@@ -550,7 +550,7 @@ impl OpenAlexQuery {
             }
             ("Organization", property) => {
                 // For other organization properties, use the authorships.institutions prefix
-                let filter_value = format_filter_value(&value);
+                let filter_value = format_filter_value(value);
 
                 match operator {
                     "==" => Ok(format!("{prefix}.{property}:{filter_value}")),
@@ -568,7 +568,7 @@ impl OpenAlexQuery {
             _ => {
                 // Default mapping
                 let openalex_property = property;
-                let filter_value = format_filter_value(&value);
+                let filter_value = format_filter_value(value);
 
                 match operator {
                     "==" => Ok(format!("{prefix}.{openalex_property}:{filter_value}")),
@@ -588,7 +588,7 @@ impl OpenAlexQuery {
 
     /// Helper method to build author name filters using raw_author_name.search
     fn build_author_name_filter(&self, operator: &str, value: &Value) -> Result<String, Error> {
-        let filter_value = format_filter_value(&value);
+        let filter_value = format_filter_value(value);
 
         match operator {
             "==" => Ok(format!("raw_author_name.search:{filter_value}")),
@@ -607,7 +607,7 @@ impl OpenAlexQuery {
         operator: &str,
         value: &Value,
     ) -> Result<String, Error> {
-        let filter_value = format_filter_value(&value);
+        let filter_value = format_filter_value(value);
 
         match operator {
             "==" => Ok(format!("raw_affiliation_strings.search:{filter_value}")),
@@ -647,7 +647,8 @@ impl OpenAlexQuery {
             }
 
             // Handle workspace query objects (future implementation)
-            if let Some(_workspace_query) = query_obj.downcast_object_ref::<crate::cypher::Query>()
+            if let Some(_workspace_query) =
+                query_obj.downcast_object_ref::<crate::cypher::CypherQuery>()
             {
                 // TODO: Implement workspace query ID extraction
                 // This would involve executing the workspace query and extracting OpenAlex IDs
@@ -726,7 +727,8 @@ impl OpenAlexQuery {
                 }
             }
             // Handle workspace query objects (future implementation)
-            if let Some(_workspace_query) = query_obj.downcast_object_ref::<crate::cypher::Query>()
+            if let Some(_workspace_query) =
+                query_obj.downcast_object_ref::<crate::cypher::CypherQuery>()
             {
                 // TODO: Implement workspace query ID extraction for sources
                 tracing::warn!("Workspace query ID extraction for sources not yet implemented");

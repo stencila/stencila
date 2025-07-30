@@ -25,19 +25,22 @@ use kernel_jinja::{
     minijinja::{Environment, UndefinedBehavior, Value, context},
 };
 
+mod cypher;
 mod docsql;
 mod github;
 mod openalex;
-mod cypher;
+mod subquery;
 
+use cypher::{
+    CypherQuery, CypherQueryLabelled, CypherQueryNodeType, CypherQuerySectionType,
+    CypherQueryVariables, NodeProxies, NodeProxy, add_document_functions,
+};
+use docsql::{add_constants, add_functions};
 use github::{GitHubQuery, add_github_functions};
 use openalex::{OpenAlexQuery, add_openalex_functions};
-use cypher::{
-    GLOBAL_NAMES, NodeProxies, NodeProxy, Query, add_constants, add_document_functions,
-    add_functions, add_subquery_functions,
-};
+use subquery::add_subquery_functions;
 
-use crate::cypher::{QueryLabelled, QueryNodeType, QuerySectionType, QueryVariables};
+use crate::docsql::GLOBAL_NAMES;
 
 const NAME: &str = "docsql";
 
@@ -164,7 +167,7 @@ impl KernelInstance for DocsQLKernelInstance {
         let messages = Arc::new(SyncMutex::new(Vec::new()));
 
         if let Some(document) = &self.document {
-            let document = Arc::new(Query::new(
+            let document = Arc::new(CypherQuery::new(
                 "document".into(),
                 document.clone(),
                 messages.clone(),
@@ -178,7 +181,7 @@ impl KernelInstance for DocsQLKernelInstance {
         if code.contains("workspace") {
             env.add_global(
                 "workspace",
-                Value::from_object(Query::new(
+                Value::from_object(CypherQuery::new(
                     "workspace".into(),
                     self.workspace().await?,
                     messages.clone(),
@@ -194,7 +197,7 @@ impl KernelInstance for DocsQLKernelInstance {
         if code.contains("test") {
             env.add_global(
                 "test",
-                Value::from_object(Query::new(
+                Value::from_object(CypherQuery::new(
                     "test".into(),
                     Arc::new(Mutex::new(DocsDBKernelInstance::new(None, None, None)?)),
                     messages.clone(),
@@ -298,10 +301,14 @@ impl KernelInstance for DocsQLKernelInstance {
                     messages
                 };
                 return Ok((Vec::new(), messages));
-            } else if value.downcast_object_ref::<QueryLabelled>().is_some()
-                || value.downcast_object_ref::<QueryVariables>().is_some()
-                || value.downcast_object_ref::<QuerySectionType>().is_some()
-                || value.downcast_object_ref::<QueryNodeType>().is_some()
+            } else if value.downcast_object_ref::<CypherQueryLabelled>().is_some()
+                || value
+                    .downcast_object_ref::<CypherQueryVariables>()
+                    .is_some()
+                || value
+                    .downcast_object_ref::<CypherQuerySectionType>()
+                    .is_some()
+                || value.downcast_object_ref::<CypherQueryNodeType>().is_some()
             {
                 return Ok((
                     Vec::new(),
@@ -313,7 +320,7 @@ impl KernelInstance for DocsQLKernelInstance {
                         ),
                     )],
                 ));
-            } else if let Some(query) = value.downcast_object::<Query>() {
+            } else if let Some(query) = value.downcast_object::<CypherQuery>() {
                 if query.is_database {
                     return should_use_db_method(statement.trim());
                 }
