@@ -399,36 +399,77 @@ impl OpenAlexQuery {
         query
     }
 
+    /// Get OpenAlex filter prefix for a subquery name
+    fn get_openalex_filter_prefix(subquery_name: &str) -> Result<&'static str, Error> {
+        match subquery_name {
+            "authors" => Ok("authorships.author"),
+            "references" => Ok("references"),
+            "cites" => Ok("references"), 
+            "citedBy" => Ok("citedBy"),
+            "publishedIn" => Ok("primary_location.source"),
+            "affiliations" | "organizations" => Ok("authorships.institutions"),
+            // GitHub-specific subqueries that might be used in OpenAlex context
+            "topics" => Err(Error::new(
+                ErrorKind::InvalidOperation,
+                "Topics subquery not supported in OpenAlex"
+            )),
+            "owners" => Err(Error::new(
+                ErrorKind::InvalidOperation, 
+                "Owners subquery not supported in OpenAlex"
+            )),
+            _ => Err(Error::new(
+                ErrorKind::InvalidOperation,
+                format!("Unsupported subquery: {subquery_name}")
+            ))
+        }
+    }
+
     /// Apply a subquery filter to the OpenAlex query
     fn apply_subquery_filter(&self, subquery: &Subquery) -> Result<Self, Error> {
         let mut query = self.clone();
 
-        // Map the subquery relation to OpenAlex filter prefix
-        let filter_prefix = match (
-            subquery.first_table.as_str(),
-            subquery.first_relation.as_str(),
-        ) {
-            ("Person", _) => "authorships.author", // Authors subquery
-            ("Reference", "[references]") => "references", // References subquery maps to reference count
-            ("Reference", "[citedBy]") => "citedBy", // CitedBy subquery maps to cited_by_count
-            ("Organization", "[affiliations]") => "authorships.institutions", // Affiliations subquery
-            ("Organization", _) => "authorships.institutions", // Default organization subquery
-            ("Periodical", "[publishedIn]") => "primary_location.source", // PublishedIn subquery maps to source
-            _ => {
-                return Err(Error::new(
-                    ErrorKind::InvalidOperation,
-                    format!(
-                        "Unsupported subquery type: {} with relation {}",
-                        subquery.first_table, subquery.first_relation
-                    ),
-                ));
+        // Get the OpenAlex filter prefix from the subquery name
+        let filter_prefix = Self::get_openalex_filter_prefix(&subquery.name)?;
+
+        // Extract query objects from args
+        let mut query_objects = Vec::new();
+        let mut regular_args = Vec::new();
+        let mut count_filter = None;
+        
+        for (arg_name, arg_value) in &subquery.args {
+            if arg_name.is_empty() {
+                // Non-keyword argument - check if it's a query object
+                if arg_value.downcast_object_ref::<OpenAlexQuery>().is_some()
+                    || arg_value.downcast_object_ref::<crate::cypher::CypherQuery>().is_some()
+                {
+                    query_objects.push(arg_value.clone());
+                }
+            } else if arg_name.starts_with("_C") {
+                // Count filter argument (e.g., _C1, _C2, _C3, etc.)
+                // Extract the operator from the last character
+                let operator = if let Some(last_char) = arg_name.chars().last() {
+                    match last_char {
+                        '0' => "<>",
+                        '1' => "<",
+                        '2' => "<=", 
+                        '3' => ">",
+                        '4' => ">=",
+                        _ => "="
+                    }
+                } else {
+                    "="
+                };
+                count_filter = Some(format!("{operator}{arg_value}"));
+            } else {
+                // Regular keyword argument
+                regular_args.push((arg_name.clone(), arg_value.clone()));
             }
-        };
+        }
 
         // Handle query objects for ID-based filtering (e.g., citedBy with OpenAlex query)
-        if !subquery.query_objects.is_empty() && subquery.first_relation == "[citedBy]" {
+        if !query_objects.is_empty() && subquery.name == "citedBy" {
             // Extract IDs from query objects and use them in cited_by filter
-            let work_ids = self.extract_work_ids_from_query_objects(&subquery.query_objects)?;
+            let work_ids = self.extract_work_ids_from_query_objects(&query_objects)?;
             if !work_ids.is_empty() {
                 let ids_filter = work_ids.join("|");
                 query.filters.push(format!("cited_by:{ids_filter}"));
@@ -436,9 +477,9 @@ impl OpenAlexQuery {
         }
 
         // Handle query objects for publishedIn subqueries
-        if !subquery.query_objects.is_empty() && subquery.first_relation == "[publishedIn]" {
+        if !query_objects.is_empty() && subquery.name == "publishedIn" {
             // Extract source IDs from query objects and use them in primary_location.source.id filter
-            let source_ids = self.extract_source_ids_from_query_objects(&subquery.query_objects)?;
+            let source_ids = self.extract_source_ids_from_query_objects(&query_objects)?;
             if !source_ids.is_empty() {
                 let ids_filter = source_ids.join("|");
                 query
@@ -447,8 +488,8 @@ impl OpenAlexQuery {
             }
         }
 
-        // Process the raw filters within the subquery
-        for (property, operator, value) in &subquery.raw_filters {
+        // Process the regular args to build filters
+        for (property, value) in regular_args {
             // Handle nested subqueries (properties that start with _)
             if property == "_" {
                 // This is a nested subquery
@@ -456,35 +497,35 @@ impl OpenAlexQuery {
                     return self.apply_subquery_filter(nested_subquery);
                 }
             } else {
+                // Decode the property name and operator from the arg name
+                let (clean_property, operator) = crate::docsql::decode_filter(&property);
+                
                 // Build OpenAlex filter directly from original property, operator, and value
                 let openalex_filter = self.build_openalex_subquery_filter(
-                    property,
+                    clean_property,
                     operator,
-                    value,
+                    &value,
                     filter_prefix,
-                    &subquery.first_table,
+                    &subquery.name,
                 )?;
                 query.filters.push(openalex_filter);
             }
         }
 
         // Handle count filters if present
-        if let Some(count_filter) = &subquery.count {
+        if let Some(count_filter_value) = count_filter {
             // Convert count filter to OpenAlex API format
-            let count_property = match (
-                subquery.first_table.as_str(),
-                subquery.first_relation.as_str(),
-            ) {
-                ("Reference", "[references]") => "referenced_works_count",
-                ("Reference", "[citedBy]") => "cited_by_count",
-                ("Person", _) => "authors_count",
-                ("Organization", _) => "institutions_distinct_count",
+            let count_property = match subquery.name.as_str() {
+                "references" | "cites" => "referenced_works_count",
+                "citedBy" => "cited_by_count", 
+                "authors" => "authors_count",
+                "affiliations" | "organizations" => "institutions_distinct_count",
                 _ => {
                     return Err(Error::new(
                         ErrorKind::InvalidOperation,
                         format!(
-                            "Count subqueries not supported for {} with relation {}",
-                            subquery.first_table, subquery.first_relation
+                            "Count subqueries not supported for {}",
+                            subquery.name
                         ),
                     ));
                 }
@@ -492,7 +533,7 @@ impl OpenAlexQuery {
 
             // Parse the count filter (e.g., "> 10", "= 5", "<= 20")
             // Remove spaces to get ">" + "10" format
-            let clean_count_filter = count_filter.replace(" ", "");
+            let clean_count_filter = count_filter_value.replace(" ", "");
 
             // OpenAlex doesn't consistently support >= and <= operators
             // Convert them to equivalent > and < operators
@@ -511,15 +552,15 @@ impl OpenAlexQuery {
         operator: &str,
         value: &Value,
         prefix: &str,
-        table: &str,
+        subquery_name: &str,
     ) -> Result<String, Error> {
         // Handle different property mappings based on the subquery type
-        match (table, property) {
-            ("Person", "name") => {
+        match (subquery_name, property) {
+            ("authors", "name") => {
                 // For author names, use raw_author_name.search instead of authorships.author.display_name
                 self.build_author_name_filter(operator, value)
             }
-            ("Periodical", "name") | ("Periodical", "display_name") => {
+            ("publishedIn", "name") | ("publishedIn", "display_name") => {
                 // For publishedIn source names, there's no direct search field available
                 // Return an error suggesting to use query objects instead
                 Err(Error::new(
@@ -527,7 +568,7 @@ impl OpenAlexQuery {
                     "Source name filtering not supported in publishedIn subqueries. Use query objects like: ...publishedIn(openalex.sources(.display_name == \"bioRxiv\"))".to_string(),
                 ))
             }
-            ("Periodical", property) => {
+            ("publishedIn", property) => {
                 // For other periodical properties, use the primary_location.source prefix
                 let filter_value = format_filter_value(value);
 
@@ -544,11 +585,11 @@ impl OpenAlexQuery {
                     )),
                 }
             }
-            ("Organization", "name") => {
+            ("affiliations" | "organizations", "name") => {
                 // For organization/institution names, use raw_affiliation_strings.search
                 self.build_organization_name_filter(operator, value)
             }
-            ("Organization", property) => {
+            ("affiliations" | "organizations", property) => {
                 // For other organization properties, use the authorships.institutions prefix
                 let filter_value = format_filter_value(value);
 

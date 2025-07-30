@@ -8,12 +8,7 @@ use kernel_jinja::{
     },
 };
 
-use crate::{
-    CypherQuery,
-    cypher::{DEFAULT_RELATION, alias_for_table, apply_filter},
-    docsql::decode_filter,
-    openalex::OpenAlexQuery,
-};
+use crate::cypher::{DEFAULT_RELATION, alias_for_table, apply_filter};
 
 /// Add functions for subqueries
 ///
@@ -37,7 +32,7 @@ pub(super) fn add_subquery_functions(env: &mut Environment) {
     ] {
         env.add_global(
             ["_", name].concat(),
-            Value::from_object(Subquery::new(relation, table)),
+            Value::from_object(Subquery::new(name, relation, table)),
         );
     }
 
@@ -70,7 +65,7 @@ pub(super) fn add_subquery_functions(env: &mut Environment) {
     ] {
         env.add_global(
             ["_", name].concat(),
-            Value::from_object(Subquery::new(DEFAULT_RELATION, table)),
+            Value::from_object(Subquery::new(name, DEFAULT_RELATION, table)),
         );
     }
 }
@@ -78,6 +73,21 @@ pub(super) fn add_subquery_functions(env: &mut Environment) {
 /// A subquery filter
 #[derive(Debug, Clone)]
 pub(crate) struct Subquery {
+    /// Name of the subquery
+    pub(crate) name: String,
+
+    /// Arguments to the subquery
+    ///
+    /// Stores the raw argument names and values so that `CypherQuery`,
+    /// `OpenAlexQuery` etc can use those appropriately for their respective
+    /// target APIs.
+    ///
+    /// The arg name (first value in tuple) will be empty if the argument was
+    /// not a keyword argument.
+    pub(crate) args: Vec<(String, Value)>,
+
+    // TODO: the following are used in the cypher, openalex and github modules. Those
+    // should all the refactored to use the new `name` field above
     /// The `MATCH` pattern for the subquery
     ///
     /// The front of the pattern can not be determined until the `generate`
@@ -90,6 +100,8 @@ pub(crate) struct Subquery {
     /// The initial table involved in the subquery
     pub(crate) first_table: String,
 
+    // TODO: The following are used in the cypher module only, it should instead use the new
+    // `args` field above.
     /// Filters applied in the subquery (Cypher format for KuzuDB)
     pub(crate) ands: Vec<String>,
 
@@ -97,36 +109,27 @@ pub(crate) struct Subquery {
     ///
     /// See https://docs.kuzudb.com/cypher/subquery/#count
     pub(crate) count: Option<String>,
-
-    /// Raw filter information for external APIs like OpenAlex
-    ///
-    /// Stores the original property name, operator, and value before conversion to Cypher
-    pub(crate) raw_filters: Vec<(String, String, Value)>,
-
-    /// Query objects passed to subqueries for ID-based filtering
-    ///
-    /// Stores query objects (OpenAlex queries, workspace queries) that should be executed
-    /// to extract IDs for external API filters like OpenAlex's cited_by
-    pub(crate) query_objects: Vec<Value>,
 }
 
 impl Subquery {
     /// Create a new subquery
-    fn new(relation: &str, node_type: NodeType) -> Self {
+    fn new(name: &str, relation: &str, node_type: NodeType) -> Self {
         let table = node_type.to_string();
         Self {
+            name: name.into(),
+            args: Vec::new(),
+            // TODO: refactor away these
             pattern: String::new(),
             first_relation: relation.into(),
             first_table: table.clone(),
             ands: Vec::new(),
             count: None,
-            raw_filters: Vec::new(),
-            query_objects: Vec::new(),
         }
     }
 
     /// Generate cypher for the subquery
     pub fn generate(&self, alias: &str) -> String {
+        // TODO: Move this to a new Cypher::apply_subquery (or similar) method
         let mut cypher = format!(
             "MATCH ({alias})-{}->({}:{}){}",
             self.first_relation,
@@ -152,6 +155,22 @@ impl Object for Subquery {
     fn call(self: &Arc<Self>, _state: &State, args: &[Value]) -> Result<Value, Error> {
         let mut subquery = self.deref().clone();
 
+        // Capture all arguments
+        for arg in args {
+            if arg.is_kwargs()
+                && let Some(kwargs) = arg.as_object()
+            {
+                for (name, value) in kwargs.try_iter_pairs().into_iter().flatten() {
+                    let name = name.as_str().unwrap_or_default().to_string();
+                    subquery.args.push((name, value));
+                }
+            } else {
+                subquery.args.push((String::new(), arg.clone()));
+            }
+        }
+
+        // TODO: Move the rest of this function to a new Cypher::apply_subquery (or similar) method
+
         let table = &self.first_table;
 
         // TODO: alias needs to be different from alias used in outer
@@ -159,26 +178,7 @@ impl Object for Subquery {
 
         let (query, kwargs): (Option<Value>, Kwargs) = from_args(args)?;
 
-        if let Some(query) = query {
-            // Check if this is a query object that should be stored for ID extraction
-            if query.downcast_object_ref::<CypherQuery>().is_some()
-                || query.downcast_object_ref::<OpenAlexQuery>().is_some()
-            {
-                // Store query object for later ID extraction
-                subquery.query_objects.push(query.clone());
-            } else {
-                return Err(Error::new(
-                    ErrorKind::InvalidOperation,
-                    format!(
-                        "non-keyword arguments must be another query, got a {}",
-                        query.kind()
-                    ),
-                ));
-            }
-        }
-
         for arg_name in kwargs.args() {
-            let (property, operator) = decode_filter(arg_name);
             let arg_value: Value = kwargs.get(arg_name)?;
 
             let filter = apply_filter(&alias, arg_name, arg_value.clone(), true)?;
@@ -194,10 +194,6 @@ impl Object for Subquery {
                 subquery.count = Some(rest.trim().to_string());
             } else {
                 subquery.ands.push(filter);
-                // Store original filter information for external APIs
-                subquery
-                    .raw_filters
-                    .push((property.to_string(), operator.to_string(), arg_value));
             }
         }
 

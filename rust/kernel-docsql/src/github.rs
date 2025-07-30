@@ -275,34 +275,88 @@ impl GitHubQuery {
         }
     }
 
+    /// Get GitHub search qualifier type for a subquery name
+    fn get_github_qualifier_type(subquery_name: &str) -> Result<&'static str, Error> {
+        match subquery_name {
+            "topics" => Ok("topic"),
+            "owners" => Ok("user"), // Default to user, but can be org based on context
+            // File-related subqueries (not directly supported in repo search, but mapped for code search)
+            "files" => Ok("filename"), // This would need special handling
+            _ => {
+                // Most other subqueries aren't directly supported by GitHub API
+                Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    format!("Subquery '{subquery_name}' not supported for GitHub search")
+                ))
+            }
+        }
+    }
+
     /// Apply a subquery filter to the GitHub query
     fn apply_subquery_filter(&self, subquery: &Subquery) -> Result<Self, Error> {
         let mut query = self.clone();
 
-        // Map the subquery relation to GitHub search qualifier
-        match (
-            subquery.first_table.as_str(),
-            subquery.first_relation.as_str(),
-        ) {
-            ("String", "[topics]") => {
+        // Get the GitHub qualifier type from the subquery name
+        let _qualifier_type = Self::get_github_qualifier_type(&subquery.name)?;
+
+        // Extract query objects from args
+        let mut query_objects = Vec::new();
+        let mut regular_args = Vec::new();
+        let mut count_filter = None;
+        
+        for (arg_name, arg_value) in &subquery.args {
+            if arg_name.is_empty() {
+                // Non-keyword argument - check if it's a query object
+                if arg_value.downcast_object_ref::<GitHubQuery>().is_some()
+                    || arg_value.downcast_object_ref::<crate::cypher::CypherQuery>().is_some()
+                {
+                    query_objects.push(arg_value.clone());
+                }
+            } else if arg_name.starts_with("_C") {
+                // Count filter argument (e.g., _C1, _C2, _C3, etc.)
+                // Extract the operator from the last character
+                let operator = if let Some(last_char) = arg_name.chars().last() {
+                    match last_char {
+                        '0' => "<>",
+                        '1' => "<",
+                        '2' => "<=", 
+                        '3' => ">",
+                        '4' => ">=",
+                        _ => "="
+                    }
+                } else {
+                    "="
+                };
+                count_filter = Some(format!("{operator}{arg_value}"));
+            } else {
+                // Regular keyword argument
+                regular_args.push((arg_name.clone(), arg_value.clone()));
+            }
+        }
+
+        // Process subquery based on its name
+        match subquery.name.as_str() {
+            "topics" => {
                 // Topics subquery
-                for (property, operator, value) in &subquery.raw_filters {
-                    if property == "name" {
+                for (property, value) in regular_args {
+                    let (clean_property, operator) = crate::docsql::decode_filter(&property);
+                    if clean_property == "name" {
                         let topic_filter =
-                            self.build_github_subquery_filter("topic", operator, value)?;
+                            self.build_github_subquery_filter("topic", operator, &value)?;
                         if !topic_filter.is_empty() {
                             query.filters.push(topic_filter);
                         }
                     }
                 }
             }
-            ("Person", "[owners]") => {
+            "owners" => {
                 // Owner subquery
-                for (property, operator, value) in &subquery.raw_filters {
-                    match property.as_str() {
+                for (property, value) in regular_args {
+                    let (clean_property, operator) = crate::docsql::decode_filter(&property);
+                    match clean_property {
                         "name" => {
                             let user_filter =
-                                self.build_github_subquery_filter("user", operator, value)?;
+                                self.build_github_subquery_filter("user", operator, &value)?;
                             if !user_filter.is_empty() {
                                 query.filters.push(user_filter);
                             }
@@ -320,21 +374,22 @@ impl GitHubQuery {
                     }
                 }
             }
-            ("File", _) => {
+            "files" => {
                 // Files subquery - this would need special handling
                 // as GitHub API doesn't directly support file subqueries in repo search
-                for (property, operator, value) in &subquery.raw_filters {
-                    match property.as_str() {
+                for (property, value) in regular_args {
+                    let (clean_property, operator) = crate::docsql::decode_filter(&property);
+                    match clean_property {
                         "extension" => {
                             let ext_filter =
-                                self.build_github_subquery_filter("extension", operator, value)?;
+                                self.build_github_subquery_filter("extension", operator, &value)?;
                             if !ext_filter.is_empty() {
                                 query.filters.push(ext_filter);
                             }
                         }
                         "filename" => {
                             let filename_filter =
-                                self.build_github_subquery_filter("filename", operator, value)?;
+                                self.build_github_subquery_filter("filename", operator, &value)?;
                             if !filename_filter.is_empty() {
                                 query.filters.push(filename_filter);
                             }
@@ -346,19 +401,21 @@ impl GitHubQuery {
             _ => {
                 return Err(Error::new(
                     ErrorKind::InvalidOperation,
-                    format!(
-                        "Unsupported subquery type: {} with relation {}",
-                        subquery.first_table, subquery.first_relation
-                    ),
+                    format!("Unsupported subquery: {}", subquery.name),
                 ));
             }
         }
 
         // Handle count filters if present
-        if let Some(_count_filter) = &subquery.count {
+        if let Some(_count_filter_value) = count_filter {
             // Convert count filter to GitHub API format
             // Note: GitHub doesn't support all count-based filtering like OpenAlex
             tracing::warn!("Count-based subquery filters are limited in GitHub API");
+        }
+
+        // Handle query objects (not commonly used in GitHub context, but keeping for consistency)
+        if !query_objects.is_empty() {
+            tracing::warn!("Query objects in GitHub subqueries are not yet fully implemented");
         }
 
         Ok(query)
