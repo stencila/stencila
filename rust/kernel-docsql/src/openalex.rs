@@ -171,6 +171,23 @@ impl OpenAlexQuery {
                     ));
                 }
             },
+            "institutions" => match property_name {
+                // See https://docs.openalex.org/api-entities/institutions/filter-institutions for a list of
+                // available filters
+                "name" => "display_name.search",
+                // Properties on `summary_stats` that we hoist up
+                "h_index" => "summary_stats.h_index",
+                "i10_index" => "summary_stats.i10_index",
+                // Properties which do not need mapping, including convenience filters
+                //  https://docs.openalex.org/api-entities/institutions/filter-institutions#institutions-convenience-filters
+                "ror" | "has_ror" | "works_count" | "type" | "is_global_south" => property_name,
+                 _ => {
+                    return Err(Error::new(
+                        ErrorKind::InvalidOperation,
+                        format!("Unhandled filter property for OpenAlex institutions: {property_name}"),
+                    ));
+                }
+            }
             _ => {
                 return Err(Error::new(
                     ErrorKind::InvalidOperation,

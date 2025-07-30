@@ -1,0 +1,38 @@
+openalex.institutions(.name == "John Brown University")
+---
+GET https://api.openalex.org/institutions?filter=display_name.search:John+Brown+University
+
+
+openalex.institutions(.name ~= "John Brown")
+---
+GET https://api.openalex.org/institutions?filter=display_name.search:John+Brown
+
+
+openalex.institutions(.ror == "02ct41q97")
+---
+GET https://api.openalex.org/institutions?filter=ror:02ct41q97
+
+
+openalex.institutions(.has_ror = true)
+---
+GET https://api.openalex.org/institutions?filter=has_ror:true
+
+
+openalex.institutions(.h_index > 1000)
+---
+GET https://api.openalex.org/institutions?filter=summary_stats.h_index:>1000
+
+
+openalex.institutions(.i10_index < 1000)
+---
+GET https://api.openalex.org/institutions?filter=summary_stats.i10_index:<1000
+
+
+openalex.institutions(.works_count > 100)
+---
+GET https://api.openalex.org/institutions?filter=works_count:>100
+
+
+openalex.institutions(.foo = "bar")
+---
+Unhandled filter property for OpenAlex institutions: foo
