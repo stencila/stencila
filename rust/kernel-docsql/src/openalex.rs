@@ -131,7 +131,27 @@ impl OpenAlexQuery {
                 // it available, which is also aliased to `title.search`
                 "title" => "title.search",
                 "name" => "display_name.search",
-                _ => property_name,
+                // Abstract is available to search https://docs.openalex.org/api-entities/works/filter-works#abstract.search
+                "abstract" => "abstract.search",
+                // Renames
+                "year" => "publication_year",
+                "date" => "publication_date",
+                // Properties on `primary_location` that we hoist up
+                "license" => "primary_location.license",
+                "is_accepted" => "primary_location.is_accepted",
+                "is_published" => "primary_location.is_published",
+                "version" => "primary_location.version",
+                // Properties which do not need mapping, including convenience filters
+                //  https://docs.openalex.org/api-entities/works/filter-works#works-convenience-filters
+                "doi" | "is_oa" | "oa_status" | "has_abstract" | "has_references" | "has_doi"
+                | "has_orcid" | "has_pmcid" | "has_pmid" => property_name,
+                // Error for all others
+                _ => {
+                    return Err(Error::new(
+                        ErrorKind::InvalidOperation,
+                        format!("Unhandled filter property for OpenAlex works: {property_name}"),
+                    ));
+                }
             },
             _ => match property_name {
                 // Common mappings across entities
@@ -139,17 +159,6 @@ impl OpenAlexQuery {
                     "authors" => "display_name", // For authors, name maps to display_name
                     _ => "display_name.search",
                 },
-                "text" => match self.entity_type.as_str() {
-                    "works" => "title_and_abstract.search",
-                    _ => "display_name.search",
-                },
-
-                // Works-specific
-                "year" => "publication_year",
-                "date" => "publication_date",
-                "abstract" => "abstract.search",
-                "journal" => "primary_location.source.display_name.search",
-                "is_oa" => "open_access.is_oa",
 
                 // Authors-specific
                 "h_index" => "summary_stats.h_index",
@@ -162,7 +171,15 @@ impl OpenAlexQuery {
         };
 
         // Transform the minijinja argument value into a string
-        let filter_value = format_filter_value(&arg_value);
+        let mut filter_value = format_filter_value(&arg_value);
+
+        // Further entity_type and property transformations for user convenience
+        if entity_type == "works" && property_name == "version" {
+            if !filter_value.ends_with("Version") {
+                // published => publishedVersion etc
+                filter_value.push_str("Version");
+            }
+        }
 
         // Generate the filter string
         let filter_string = match operator {

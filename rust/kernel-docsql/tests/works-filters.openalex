@@ -8,14 +8,64 @@ openalex.works(.title ~= "magmatism")
 GET https://api.openalex.org/works?filter=title.search:magmatism
 
 
-openalex.works(search = "magmatism")
+openalex.works(.abstract ~= "magmatism")
 ---
-GET https://api.openalex.org/works?search=magmatism
+GET https://api.openalex.org/works?filter=abstract.search:magmatism
 
 
-openalex.articles(search = "magmatism")
+openalex.works(.year > 2000)
 ---
-GET https://api.openalex.org/works?filter=type:article&search=magmatism
+GET https://api.openalex.org/works?filter=publication_year:>2000
+
+
+openalex.works(.date < "2010-10-10")
+---
+GET https://api.openalex.org/works?filter=publication_date:<2010-10-10
+
+
+openalex.works(.doi = "10.1007/bf00372365")
+---
+GET https://api.openalex.org/works?filter=doi:10.1007/bf00372365
+
+
+openalex.works(.is_accepted = true)
+---
+GET https://api.openalex.org/works?filter=primary_location.is_accepted:true
+
+
+openalex.works(.is_published = false)
+---
+GET https://api.openalex.org/works?filter=primary_location.is_published:false
+
+
+openalex.works(.license = "cc-by")
+---
+GET https://api.openalex.org/works?filter=primary_location.license:cc-by
+
+
+openalex.works(.version = "submitted")
+---
+GET https://api.openalex.org/works?filter=primary_location.version:submittedVersion
+
+
+openalex.works(.is_oa = true)
+---
+GET https://api.openalex.org/works?filter=is_oa:true
+
+
+openalex.works(.oa_status = 'diamond')
+---
+GET https://api.openalex.org/works?filter=oa_status:diamond
+
+
+openalex.works(.has_pmcid = true, .has_abstract = true, .has_references = false)
+---
+GET https://api.openalex.org/works?filter=has_abstract:true,has_pmcid:true,has_references:false
+
+
+openalex.works(.foo = "bar")
+---
+Unhandled filter property for OpenAlex works: foo
 
 
 openalex.works(.title ^= "word")
