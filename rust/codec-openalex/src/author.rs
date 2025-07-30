@@ -1,6 +1,6 @@
 use codec::{
     common::{eyre::Result, serde::Deserialize},
-    schema::{Node, Organization, Person},
+    schema::{Node, Organization, OrganizationOptions, Person, PersonOptions},
 };
 
 /// An OpenAlex `Author` object
@@ -88,14 +88,8 @@ pub struct Concept {
 
 impl From<Author> for Person {
     fn from(author: Author) -> Self {
-        let mut person = Person {
-            id: Some(author.id),
-            orcid: crate::strip_orcid_prefix(author.orcid),
-            ..Default::default()
-        };
-        person.options.name = author.display_name;
-
-        if let Some(affiliations) = author.affiliations {
+        // Map affiliations from affiliations or last_known_institutions
+        let affiliations = if let Some(affiliations) = author.affiliations {
             let organizations: Vec<Organization> = affiliations
                 .into_iter()
                 .filter_map(|affiliation| {
@@ -103,14 +97,13 @@ impl From<Author> for Person {
                         id: inst.id,
                         name: inst.display_name,
                         ror: crate::strip_ror_prefix(inst.ror),
+                        options: Box::new(OrganizationOptions::default()),
                         ..Default::default()
                     })
                 })
                 .collect();
 
-            if !organizations.is_empty() {
-                person.affiliations = Some(organizations);
-            }
+            (!organizations.is_empty()).then_some(organizations)
         } else if let Some(last_known) = author.last_known_institutions {
             let organizations: Vec<Organization> = last_known
                 .into_iter()
@@ -118,16 +111,26 @@ impl From<Author> for Person {
                     id: inst.id,
                     name: inst.display_name,
                     ror: crate::strip_ror_prefix(inst.ror),
+                    options: Box::new(OrganizationOptions::default()),
                     ..Default::default()
                 })
                 .collect();
 
-            if !organizations.is_empty() {
-                person.affiliations = Some(organizations);
-            }
-        }
+            (!organizations.is_empty()).then_some(organizations)
+        } else {
+            None
+        };
 
-        person
+        Person {
+            id: Some(author.id),
+            orcid: crate::strip_orcid_prefix(author.orcid),
+            affiliations,
+            options: Box::new(PersonOptions {
+                name: author.display_name,
+                ..Default::default()
+            }),
+            ..Default::default()
+        }
     }
 }
 

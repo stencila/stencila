@@ -5,8 +5,8 @@ use codec::{
         serde::Deserialize,
     },
     schema::{
-        self, Article, Block, CreativeWork, CreativeWorkType, CreativeWorkTypeOrString, Date,
-        Inline, IntegerOrString, Node, Organization, Paragraph, Periodical, Person,
+        self, Article, ArticleOptions, Block, CreativeWork, CreativeWorkOptions, CreativeWorkType, CreativeWorkTypeOrString, Date,
+        Inline, IntegerOrString, Node, Organization, OrganizationOptions, Paragraph, Periodical, Person, PersonOptions,
         PublicationIssue, PublicationVolume,
     },
 };
@@ -192,7 +192,7 @@ pub struct CountsByYear {
 
 impl From<Work> for Article {
     fn from(work: Work) -> Self {
-        // Sometimes DOI is null bt will ne available in one of the work's URLs
+        // Sometimes DOI is null but will be available in one of the work's URLs
         let mut doi = work.doi.clone();
         if doi.is_none() {
             doi = work
@@ -209,175 +209,188 @@ impl From<Work> for Article {
                 .and_then(|url| url.strip_prefix("https://doi.org/").map(String::from));
         }
 
-        let mut article = Article {
-            id: Some(work.id.clone()),
-            doi: crate::strip_doi_prefix(doi),
-            ..Default::default()
-        };
-
-        if let Some(title) = work.display_name.clone().or(work.title.clone()) {
-            article.title = Some(vec![Inline::Text(title.into())]);
-        }
+        // Extract title
+        let title = work.display_name.clone().or(work.title.clone())
+            .map(|title| vec![Inline::Text(title.into())]);
 
         // De-invert abstract if present
-        if let Some(ref abstract_index) = work.abstract_inverted_index {
-            article.r#abstract = de_invert_abstract(abstract_index);
-        }
+        let r#abstract = work.abstract_inverted_index.as_ref()
+            .and_then(de_invert_abstract);
 
         // Map ids to identifiers
-        if let Some(ref ids) = work.ids {
-            article.options.identifiers = convert_ids_to_identifiers(ids);
-        }
+        let identifiers = work.ids.as_ref()
+            .and_then(convert_ids_to_identifiers);
 
-        if let Some(pub_date) = work.publication_date.clone() {
-            article.date_published = Some(Date::new(pub_date));
-        }
+        // Extract publication date
+        let date_published = work.publication_date.clone()
+            .map(Date::new);
 
-        if let Some(authorships) = &work.authorships {
+        // Map authorships to authors
+        let authors = work.authorships.as_ref().and_then(|authorships| {
             let authors: Vec<schema::Author> = authorships
                 .iter()
                 .filter_map(|authorship| {
                     authorship.author.as_ref().map(|dehydrated_author| {
-                        let mut person = Person::default();
-                        if let Some(name) = &dehydrated_author.display_name {
-                            person.options.name = Some(name.clone());
-                        }
-                        person.orcid = crate::strip_orcid_prefix(dehydrated_author.orcid.clone());
-
-                        if let Some(institutions) = &authorship.institutions {
-                            let orgs: Vec<Organization> = institutions
+                        let affiliations = authorship.institutions.as_ref().map(|institutions| {
+                            institutions
                                 .iter()
                                 .map(|inst| Organization {
                                     name: inst.display_name.clone(),
                                     ror: crate::strip_ror_prefix(inst.ror.clone()),
+                                    options: Box::new(OrganizationOptions::default()),
                                     ..Default::default()
                                 })
-                                .collect();
-                            person.affiliations = if orgs.is_empty() { None } else { Some(orgs) };
-                        }
+                                .collect()
+                        }).filter(|orgs: &Vec<Organization>| !orgs.is_empty());
+
+                        let person = Person {
+                            orcid: crate::strip_orcid_prefix(dehydrated_author.orcid.clone()),
+                            affiliations,
+                            options: Box::new(PersonOptions {
+                                name: dehydrated_author.display_name.clone(),
+                                ..Default::default()
+                            }),
+                            ..Default::default()
+                        };
 
                         schema::Author::Person(person)
                     })
                 })
                 .collect();
 
-            if !authors.is_empty() {
-                article.authors = Some(authors);
-            }
-        }
+            (!authors.is_empty()).then_some(authors)
+        });
 
-        // Set page start and end from biblio
-        if let Some(biblio) = &work.biblio {
-            if let Some(first_page) = &biblio.first_page {
-                article.options.page_start = Some(IntegerOrString::String(first_page.clone()));
-            }
-            if let Some(last_page) = &biblio.last_page {
-                article.options.page_end = Some(IntegerOrString::String(last_page.clone()));
-            }
-        }
+        // Extract page information from biblio
+        let (page_start, page_end) = work.biblio.as_ref()
+            .map(|biblio| (
+                biblio.first_page.as_ref().map(|page| IntegerOrString::String(page.clone())),
+                biblio.last_page.as_ref().map(|page| IntegerOrString::String(page.clone()))
+            ))
+            .unwrap_or((None, None));
 
         // Create publication info from primary_location source and biblio
-        // Don't include page fields in publication hierarchy for articles since they're on the article itself
-        if let Some(primary_location) = &work.primary_location {
-            if let Some(publication_info) =
+        let is_part_of = work.primary_location.as_ref()
+            .and_then(|primary_location| 
                 create_publication_info(primary_location.source.as_ref(), work.biblio.as_ref())
-            {
-                article.options.is_part_of = Some(*publication_info);
-            }
-        }
+                    .map(|info| *info)
+            );
 
         // Apply normalized license from primary location
-        if let Some(primary_location) = &work.primary_location {
-            if let Some(license_str) = &primary_location.license {
-                let normalized_license = normalize_license(license_str);
-                article.options.licenses =
-                    Some(vec![CreativeWorkTypeOrString::String(normalized_license)]);
-            }
-        }
+        let licenses = work.primary_location.as_ref()
+            .and_then(|primary_location| 
+                primary_location.license.as_ref().map(|license_str| {
+                    let normalized_license = normalize_license(license_str);
+                    vec![CreativeWorkTypeOrString::String(normalized_license)]
+                })
+            );
 
-        article
+        Article {
+            id: Some(work.id.clone()),
+            doi: crate::strip_doi_prefix(doi),
+            title,
+            r#abstract,
+            date_published,
+            authors,
+            options: Box::new(ArticleOptions {
+                identifiers,
+                page_start,
+                page_end,
+                is_part_of,
+                licenses,
+                ..Default::default()
+            }),
+            ..Default::default()
+        }
     }
 }
 
 impl From<Work> for CreativeWork {
     fn from(work: Work) -> Self {
-        let mut creative_work = CreativeWork {
-            id: Some(work.id),
-            doi: crate::strip_doi_prefix(work.doi),
-            ..Default::default()
-        };
-
-        if let Some(title) = work.display_name.or(work.title) {
-            creative_work.options.title = Some(vec![Inline::Text(title.into())]);
-        }
+        // Extract title
+        let title = work.display_name.or(work.title)
+            .map(|title| vec![Inline::Text(title.into())]);
 
         // De-invert abstract if present
-        if let Some(ref abstract_index) = work.abstract_inverted_index {
-            creative_work.options.r#abstract = de_invert_abstract(abstract_index);
-        }
+        let r#abstract = work.abstract_inverted_index.as_ref()
+            .and_then(de_invert_abstract);
 
         // Map ids to identifiers
-        if let Some(ref ids) = work.ids {
-            creative_work.options.identifiers = convert_ids_to_identifiers(ids);
-        }
+        let identifiers = work.ids.as_ref()
+            .and_then(convert_ids_to_identifiers);
 
-        if let Some(pub_date) = work.publication_date {
-            creative_work.options.date_published = Some(Date::new(pub_date));
-        }
+        // Extract publication date
+        let date_published = work.publication_date
+            .map(Date::new);
 
-        if let Some(authorships) = work.authorships {
+        // Map authorships to authors
+        let authors = work.authorships.and_then(|authorships| {
             let authors: Vec<schema::Author> = authorships
                 .into_iter()
                 .filter_map(|authorship| {
                     authorship.author.map(|dehydrated_author| {
-                        let mut person = Person::default();
-                        if let Some(name) = dehydrated_author.display_name {
-                            person.options.name = Some(name);
-                        }
-                        person.orcid = crate::strip_orcid_prefix(dehydrated_author.orcid);
-
-                        if let Some(institutions) = authorship.institutions {
-                            let orgs: Vec<Organization> = institutions
+                        let affiliations = authorship.institutions.map(|institutions| {
+                            institutions
                                 .into_iter()
                                 .map(|inst| Organization {
                                     name: inst.display_name,
                                     ror: crate::strip_ror_prefix(inst.ror),
+                                    options: Box::new(OrganizationOptions::default()),
                                     ..Default::default()
                                 })
-                                .collect();
-                            person.affiliations = if orgs.is_empty() { None } else { Some(orgs) };
-                        }
+                                .collect()
+                        }).filter(|orgs: &Vec<Organization>| !orgs.is_empty());
+
+                        let person = Person {
+                            orcid: crate::strip_orcid_prefix(dehydrated_author.orcid),
+                            affiliations,
+                            options: Box::new(PersonOptions {
+                                name: dehydrated_author.display_name,
+                                ..Default::default()
+                            }),
+                            ..Default::default()
+                        };
 
                         schema::Author::Person(person)
                     })
                 })
                 .collect();
 
-            if !authors.is_empty() {
-                creative_work.options.authors = Some(authors);
-            }
-        }
+            (!authors.is_empty()).then_some(authors)
+        });
 
         // Create publication info from primary_location source and biblio
         // Include page fields in publication hierarchy for non-article creative works
-        if let Some(primary_location) = &work.primary_location {
-            if let Some(publication_info) =
+        let is_part_of = work.primary_location.as_ref()
+            .and_then(|primary_location| 
                 create_publication_info(primary_location.source.as_ref(), work.biblio.as_ref())
-            {
-                creative_work.options.is_part_of = Some(*publication_info);
-            }
-        }
+                    .map(|info| *info)
+            );
 
         // Apply normalized license from primary location
-        if let Some(primary_location) = &work.primary_location {
-            if let Some(license_str) = &primary_location.license {
-                let normalized_license = normalize_license(license_str);
-                creative_work.options.licenses =
-                    Some(vec![CreativeWorkTypeOrString::String(normalized_license)]);
-            }
-        }
+        let licenses = work.primary_location.as_ref()
+            .and_then(|primary_location| 
+                primary_location.license.as_ref().map(|license_str| {
+                    let normalized_license = normalize_license(license_str);
+                    vec![CreativeWorkTypeOrString::String(normalized_license)]
+                })
+            );
 
-        creative_work
+        CreativeWork {
+            id: Some(work.id),
+            doi: crate::strip_doi_prefix(work.doi),
+            options: Box::new(CreativeWorkOptions {
+                title,
+                r#abstract,
+                identifiers,
+                date_published,
+                authors,
+                is_part_of,
+                licenses,
+                ..Default::default()
+            }),
+            ..Default::default()
+        }
     }
 }
 
