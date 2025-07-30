@@ -126,6 +126,17 @@ impl From<Institution> for Organization {
                 .or(institution.ids.as_ref().and_then(|ids| ids.ror.clone())),
         );
 
+        // Map display_name_acronyms and display_name_alternatives to alternate_names
+        let mut alternate_names = institution.display_name_alternatives.unwrap_or_default();
+        if let Some(acronyms) = institution.display_name_acronyms {
+            for acronym in acronyms {
+                if !alternate_names.contains(&acronym) {
+                    alternate_names.push(acronym);
+                }
+            }
+        }
+        let alternate_names = (!alternate_names.is_empty()).then_some(alternate_names);
+
         // Map image_url to organization options images
         let images = institution.image_url.map(|image_url| {
             vec![ImageObject {
@@ -164,6 +175,7 @@ impl From<Institution> for Organization {
             ror,
             options: Box::new(OrganizationOptions {
                 url: institution.homepage_url,
+                alternate_names,
                 images,
                 identifiers,
                 ..Default::default()

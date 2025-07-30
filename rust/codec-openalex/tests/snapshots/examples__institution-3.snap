@@ -7,6 +7,9 @@ expression: node
   "id": "https://openalex.org/I4210134686",
   "name": "Charles George VA Medical Center",
   "ror": "03vwf8m18",
+  "alternateNames": [
+    "Asheville VA Medical Center"
+  ],
   "identifiers": [
     "https://openalex.org/I4210134686",
     "https://ror.org/03vwf8m18",

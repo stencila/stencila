@@ -69,6 +69,10 @@ impl From<Funder> for Organization {
         // Get ROR
         let ror = strip_ror_prefix(funder.ids.as_ref().and_then(|ids| ids.ror.clone()));
 
+        // Map alternate_titles to alternate_names
+        let alternate_names = funder.alternate_titles
+            .filter(|names| !names.is_empty());
+
         // Map image_url to organization options images
         let images = funder.image_url.map(|image_url| {
             vec![ImageObject {
@@ -104,6 +108,7 @@ impl From<Funder> for Organization {
             ror,
             options: Box::new(OrganizationOptions {
                 url: funder.homepage_url,
+                alternate_names,
                 images,
                 identifiers,
                 ..Default::default()

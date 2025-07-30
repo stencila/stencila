@@ -88,6 +88,30 @@ pub struct Concept {
 
 impl From<Author> for Person {
     fn from(author: Author) -> Self {
+        // Map display_name_alternatives to alternate_names, avoiding duplicates with display_name
+        let alternate_names = author.display_name_alternatives.and_then(|alternatives| {
+            let mut filtered_names = Vec::new();
+            for name in alternatives {
+                // Normalize both names for comparison by replacing various dash characters with regular hyphen
+                let normalized_name = name
+                    .replace('‐', "-")  // en-dash (U+2010)
+                    .replace('–', "-")  // en-dash (U+2013)
+                    .replace('—', "-"); // em-dash (U+2014)
+                
+                let normalized_display_name = author.display_name.as_ref().map(|n| 
+                    n.replace('‐', "-")
+                     .replace('–', "-")
+                     .replace('—', "-")
+                );
+                
+                // Only include if it's different from the main display_name after normalization
+                if normalized_display_name.as_ref() != Some(&normalized_name) {
+                    filtered_names.push(name);
+                }
+            }
+            (!filtered_names.is_empty()).then_some(filtered_names)
+        });
+
         // Map affiliations from affiliations or last_known_institutions
         let affiliations = if let Some(affiliations) = author.affiliations {
             let organizations: Vec<Organization> = affiliations
@@ -127,6 +151,7 @@ impl From<Author> for Person {
             affiliations,
             options: Box::new(PersonOptions {
                 name: author.display_name,
+                alternate_names,
                 ..Default::default()
             }),
             ..Default::default()

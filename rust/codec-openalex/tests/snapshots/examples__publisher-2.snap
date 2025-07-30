@@ -6,6 +6,10 @@ expression: node
   "type": "Organization",
   "id": "https://openalex.org/P4310320211",
   "name": "Zanichelli",
+  "alternateNames": [
+    "Nicola Zanichelli editore",
+    "Zanichelli Editore"
+  ],
   "identifiers": [
     "https://openalex.org/P4310320211",
     "https://www.wikidata.org/entity/Q3876396"
