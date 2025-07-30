@@ -105,7 +105,7 @@ impl OpenAlexQuery {
         }
 
         // Extract the property name an operator from the arg
-        let (property_name, operator) = decode_filter(arg_name);
+        let (property_name, mut operator) = decode_filter(arg_name);
 
         // Error early for unhandled operators with advice
         if operator == "~!" || operator == "^=" || operator == "$=" {
@@ -125,8 +125,7 @@ impl OpenAlexQuery {
         // Map the property name to the OpenAlex filter name
         let filter_name = match entity_type {
             "works" => match property_name {
-                // See https://docs.openalex.org/api-entities/works/filter-works for a list of
-                // available filters
+                // See https://docs.openalex.org/api-entities/works/filter-works
                 // In OpenAlex it is not possible to test equality for `display_name`, only `display_name.search`
                 // it available, which is also aliased to `title.search`
                 "title" => "title.search",
@@ -144,7 +143,7 @@ impl OpenAlexQuery {
                 // Properties which do not need mapping, including convenience filters
                 //  https://docs.openalex.org/api-entities/works/filter-works#works-convenience-filters
                 "doi" | "is_oa" | "oa_status" | "has_abstract" | "has_references" | "has_doi"
-                | "has_orcid" | "has_pmcid" | "has_pmid" => property_name,
+                | "has_orcid" | "has_pmcid" | "has_pmid" | "cited_by_count" => property_name,
                 // Error for all others
                 _ => {
                     return Err(Error::new(
@@ -154,15 +153,14 @@ impl OpenAlexQuery {
                 }
             },
             "authors" => match property_name {
-                // See https://docs.openalex.org/api-entities/authors/filter-authors for a list of
-                // available filters
+                // See https://docs.openalex.org/api-entities/authors/filter-authors
                 "name" => "display_name.search",
                 // Properties on `summary_stats` that we hoist up
                 "h_index" => "summary_stats.h_index",
                 "i10_index" => "summary_stats.i10_index",
                 // Properties which do not need mapping, including convenience filters
                 //  https://docs.openalex.org/api-entities/authors/filter-authors#authors-convenience-filters
-                "orcid" | "has_orcid" | "works_count" => property_name,
+                "orcid" | "has_orcid" | "works_count" | "cited_by_count" => property_name,
                 // Error for all others
                 _ => {
                     return Err(Error::new(
@@ -172,22 +170,41 @@ impl OpenAlexQuery {
                 }
             },
             "institutions" => match property_name {
-                // See https://docs.openalex.org/api-entities/institutions/filter-institutions for a list of
-                // available filters
+                // See https://docs.openalex.org/api-entities/institutions/filter-institutions
                 "name" => "display_name.search",
                 // Properties on `summary_stats` that we hoist up
                 "h_index" => "summary_stats.h_index",
                 "i10_index" => "summary_stats.i10_index",
                 // Properties which do not need mapping, including convenience filters
                 //  https://docs.openalex.org/api-entities/institutions/filter-institutions#institutions-convenience-filters
-                "ror" | "has_ror" | "works_count" | "type" | "is_global_south" => property_name,
-                 _ => {
+                "ror" | "has_ror" | "works_count" | "cited_by_count" | "type"
+                | "is_global_south" => property_name,
+                _ => {
                     return Err(Error::new(
                         ErrorKind::InvalidOperation,
-                        format!("Unhandled filter property for OpenAlex institutions: {property_name}"),
+                        format!(
+                            "Unhandled filter property for OpenAlex institutions: {property_name}"
+                        ),
                     ));
                 }
-            }
+            },
+            "sources" => match property_name {
+                // See https://docs.openalex.org/api-entities/sources/filter-sources
+                "name" => "display_name.search",
+                // Properties on `summary_stats` that we hoist up
+                "h_index" => "summary_stats.h_index",
+                "i10_index" => "summary_stats.i10_index",
+                // Properties which do not need mapping, including convenience filters
+                //  https://docs.openalex.org/api-entities/sources/filter-sources#sources-convenience-filters
+                "issn" | "has_issn" | "is_oa" | "works_count" | "cited_by_count"
+                | "is_global_south" => property_name,
+                _ => {
+                    return Err(Error::new(
+                        ErrorKind::InvalidOperation,
+                        format!("Unhandled filter property for OpenAlex sources: {property_name}"),
+                    ));
+                }
+            },
             _ => {
                 return Err(Error::new(
                     ErrorKind::InvalidOperation,
@@ -209,15 +226,26 @@ impl OpenAlexQuery {
             }
         }
 
+        // Support <= and >= operators by transforming to < and > respectively
+        if matches!(arg_value.kind(), ValueKind::Number)
+            && let Some(num) = arg_value.as_i64()
+        {
+            if operator == "<=" {
+                operator = "<";
+                filter_value = num.saturating_add(1).to_string()
+            } else if operator == ">=" {
+                operator = ">";
+                filter_value = num.saturating_sub(1).to_string()
+            }
+        }
+
         // Generate the filter string
         let filter_string = match operator {
             "==" => format!("{filter_name}:{filter_value}"),
             "!=" => format!("{filter_name}:!{filter_value}"),
 
             "<" => format!("{filter_name}:<{filter_value}"),
-            "<=" => format!("{filter_name}:<={filter_value}"),
             ">" => format!("{filter_name}:>{filter_value}"),
-            ">=" => format!("{filter_name}:>={filter_value}"),
 
             "~=" => {
                 if filter_name.ends_with(".search") {
@@ -237,6 +265,7 @@ impl OpenAlexQuery {
                     format!("{filter_name}:{filter_value}")
                 }
             }
+
             _ => {
                 return Err(Error::new(
                     ErrorKind::InvalidOperation,
@@ -919,8 +948,9 @@ impl Object for OpenAlexQuery {
     ) -> Result<Value, Error> {
         let mut query = match name {
             "works" | "articles" | "books" | "chapters" | "preprints" | "dissertations"
-            | "reviews" | "standards" | "grants" | "retractions" | "datasets" | "people"
-            | "authors" | "organizations" | "institutions" | "sources" | "publishers" => {
+            | "reviews" | "standards" | "grants" | "retractions" | "datasets" | "authors"
+            | "people" | "institutions" | "organizations" | "sources" | "journals"
+            | "publishers" => {
                 let (entity_type, type_filter) = match name {
                     "works" => ("works", None),
 
@@ -938,11 +968,11 @@ impl Object for OpenAlexQuery {
                     "retractions" => ("works", Some("retraction")),
                     "datasets" => ("works", Some("dataset")),
 
-                    "people" | "authors" => ("authors", None),
-                    "organizations" | "institutions" => ("institutions", None),
+                    "authors" | "people" => ("authors", None),
+                    "institutions" | "organizations" => ("institutions", None),
 
-                    "sources" => ("sources", None),
-                    "publishers" => ("sources", None),
+                    "sources" | "journals" => ("sources", None),
+                    "publishers" => ("publishers", None),
 
                     _ => {
                         return Err(Error::new(

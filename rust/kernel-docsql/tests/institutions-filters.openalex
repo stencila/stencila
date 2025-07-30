@@ -33,6 +33,11 @@ openalex.institutions(.works_count > 100)
 GET https://api.openalex.org/institutions?filter=works_count:>100
 
 
+openalex.institutions(.cited_by_count < 10)
+---
+GET https://api.openalex.org/institutions?filter=cited_by_count:<10
+
+
 openalex.institutions(.foo = "bar")
 ---
 Unhandled filter property for OpenAlex institutions: foo

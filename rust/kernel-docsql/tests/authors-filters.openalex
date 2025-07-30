@@ -33,6 +33,11 @@ openalex.authors(.works_count > 100)
 GET https://api.openalex.org/authors?filter=works_count:>100
 
 
+openalex.authors(.cited_by_count < 10)
+---
+GET https://api.openalex.org/authors?filter=cited_by_count:<10
+
+
 openalex.authors(.foo = "bar")
 ---
 Unhandled filter property for OpenAlex authors: foo

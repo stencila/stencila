@@ -1,0 +1,43 @@
+openalex.sources(.name == "eLife")
+---
+GET https://api.openalex.org/sources?filter=display_name.search:eLife
+
+
+openalex.sources(.name ~= "Nature")
+---
+GET https://api.openalex.org/sources?filter=display_name.search:Nature
+
+
+openalex.sources(.issn == "2050-084X")
+---
+GET https://api.openalex.org/sources?filter=issn:2050-084X
+
+
+openalex.sources(.has_issn = true)
+---
+GET https://api.openalex.org/sources?filter=has_issn:true
+
+
+openalex.sources(.h_index > 1000)
+---
+GET https://api.openalex.org/sources?filter=summary_stats.h_index:>1000
+
+
+openalex.sources(.i10_index < 1000)
+---
+GET https://api.openalex.org/sources?filter=summary_stats.i10_index:<1000
+
+
+openalex.sources(.works_count > 100)
+---
+GET https://api.openalex.org/sources?filter=works_count:>100
+
+
+openalex.sources(.cited_by_count <= 100)
+---
+GET https://api.openalex.org/sources?filter=cited_by_count:<101
+
+
+openalex.sources(.foo = "bar")
+---
+Unhandled filter property for OpenAlex sources: foo
