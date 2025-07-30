@@ -205,6 +205,24 @@ impl OpenAlexQuery {
                     ));
                 }
             },
+            "publishers" => match property_name {
+                // See https://docs.openalex.org/api-entities/publishers/filter-publishers
+                "name" => "display_name.search",
+                // Properties on `summary_stats` that we hoist up
+                "h_index" => "summary_stats.h_index",
+                "i10_index" => "summary_stats.i10_index",
+                // Properties which do not need mapping, including convenience filters
+                //  https://docs.openalex.org/api-entities/publishers/filter-publishers#publishers-convenience-filters
+                "ror" | "works_count" | "cited_by_count" => property_name,
+                _ => {
+                    return Err(Error::new(
+                        ErrorKind::InvalidOperation,
+                        format!(
+                            "Unhandled filter property for OpenAlex publishers: {property_name}"
+                        ),
+                    ));
+                }
+            },
             _ => {
                 return Err(Error::new(
                     ErrorKind::InvalidOperation,

@@ -1,0 +1,38 @@
+openalex.publishers(.name == "Wiley")
+---
+GET https://api.openalex.org/publishers?filter=display_name.search:Wiley
+
+
+openalex.publishers(.name ~= "Nature")
+---
+GET https://api.openalex.org/publishers?filter=display_name.search:Nature
+
+
+openalex.publishers(.ror == "04rjz5883")
+---
+GET https://api.openalex.org/publishers?filter=ror:04rjz5883
+
+
+openalex.publishers(.h_index > 1000)
+---
+GET https://api.openalex.org/publishers?filter=summary_stats.h_index:>1000
+
+
+openalex.publishers(.i10_index < 1000)
+---
+GET https://api.openalex.org/publishers?filter=summary_stats.i10_index:<1000
+
+
+openalex.publishers(.works_count > 100)
+---
+GET https://api.openalex.org/publishers?filter=works_count:>100
+
+
+openalex.publishers(.cited_by_count < 10)
+---
+GET https://api.openalex.org/publishers?filter=cited_by_count:<10
+
+
+openalex.publishers(.foo = "bar")
+---
+Unhandled filter property for OpenAlex publishers: foo
