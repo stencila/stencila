@@ -73,6 +73,21 @@ openalex.works(.cited_by_count < 10)
 GET https://api.openalex.org/works?filter=cited_by_count:<10
 
 
+openalex.works(.authors_count >= 10)
+---
+GET https://api.openalex.org/works?filter=authors_count:>9
+
+
+openalex.works(.institutions_count == 42)
+---
+GET https://api.openalex.org/works?filter=institutions_distinct_count:42
+
+
+openalex.works(.organizations_count == 42)
+---
+GET https://api.openalex.org/works?filter=institutions_distinct_count:42
+
+
 openalex.works(.has_pmcid = true, .has_abstract = true, .has_references = false)
 ---
 GET https://api.openalex.org/works?filter=has_abstract:true,has_pmcid:true,has_references:false

@@ -1,0 +1,23 @@
+openalex.works(...affiliations(.name == "John Brown University"))
+---
+GET https://api.openalex.org/works?filter=raw_affiliation_strings.search:John+Brown+University
+
+
+openalex.works(...affiliations(.name ~= "John Brown"))
+---
+GET https://api.openalex.org/works?filter=raw_affiliation_strings.search:John+Brown
+
+
+openalex.works(...affiliations(.ror == "02ct41q97"))
+---
+GET https://api.openalex.org/works?filter=authorships.institutions.ror:02ct41q97
+
+
+openalex.works(...affiliations(* > 30))
+---
+GET https://api.openalex.org/works?filter=institutions_distinct_count:>30
+
+
+openalex.works(...affiliations(.foo = "bar"))
+---
+Filter `foo` in subquery `affiliations` is not supported for OpenAlex `works`

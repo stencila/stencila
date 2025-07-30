@@ -9,7 +9,6 @@ use kernel_jinja::{
         common::{
             eyre::{Result, bail},
             itertools::Itertools,
-            serde_json,
             tokio::{runtime, task},
             tracing,
         },
@@ -23,7 +22,7 @@ use kernel_jinja::{
 
 use crate::{
     cypher::{NodeProxies, NodeProxy},
-    docsql::decode_filter,
+    docsql::{decode_filter, encode_filter},
     subquery::Subquery,
 };
 
@@ -100,13 +99,11 @@ impl OpenAlexQuery {
     }
 
     /// Add a filter to the query
-    fn filter(&self, entity_type: &str, arg_name: &str, arg_value: Value) -> Result<Self, Error> {
-        let mut query = self.clone();
-
+    fn filter(&mut self, arg_name: &str, arg_value: Value) -> Result<(), Error> {
         // Handle subquery filters (e.g., ...authors(.name ^= "Smith"))
         if arg_name == "_" {
             if let Some(subquery) = arg_value.downcast_object_ref::<Subquery>() {
-                return self.apply_subquery_filter(subquery);
+                return self.subquery_filters(subquery);
             }
         }
 
@@ -130,7 +127,7 @@ impl OpenAlexQuery {
         }
 
         // Map the property name to the OpenAlex filter name
-        let filter_name = match entity_type {
+        let filter_name = match self.entity_type.as_str() {
             "works" => match property_name {
                 // See https://docs.openalex.org/api-entities/works/filter-works
                 // In OpenAlex it is not possible to test equality for `display_name`, only `display_name.search`
@@ -147,10 +144,21 @@ impl OpenAlexQuery {
                 "is_accepted" => "primary_location.is_accepted",
                 "is_published" => "primary_location.is_published",
                 "version" => "primary_location.version",
+                // Aliases
+                "institutions_count" | "organizations_count" => "institutions_distinct_count",
                 // Properties which do not need mapping, including convenience filters
                 //  https://docs.openalex.org/api-entities/works/filter-works#works-convenience-filters
                 "doi" | "is_oa" | "oa_status" | "has_abstract" | "has_references" | "has_doi"
                 | "has_orcid" | "has_pmcid" | "has_pmid" | "cited_by_count" => property_name,
+                // Properties used by subqueries
+                "authors_count"
+                | "authorships.author.orcid"
+                | "authorships.institutions.ror"
+                | "authorships.institutions.type"
+                | "authorships.institutions.is_global_south"
+                | "institutions_distinct_count"
+                | "raw_affiliation_strings.search"
+                | "raw_author_name.search" => property_name,
                 // Error for all others
                 _ => {
                     return Err(Error::new(
@@ -253,7 +261,8 @@ impl OpenAlexQuery {
                 return Err(Error::new(
                     ErrorKind::InvalidOperation,
                     format!(
-                        "Unhandled filter property for OpenAlex {entity_type}: {property_name}"
+                        "Unhandled filter property for OpenAlex {}: {property_name}",
+                        self.entity_type
                     ),
                 ));
             }
@@ -263,11 +272,13 @@ impl OpenAlexQuery {
         let mut filter_value = format_filter_value(&arg_value);
 
         // Further entity_type and property transformations for user convenience
-        if entity_type == "works" && property_name == "version"
-            && !filter_value.ends_with("Version") {
-                // published => publishedVersion etc
-                filter_value.push_str("Version");
-            }
+        if self.entity_type == "works"
+            && property_name == "version"
+            && !filter_value.ends_with("Version")
+        {
+            // published => publishedVersion etc
+            filter_value.push_str("Version");
+        }
 
         // Support <= and >= operators by transforming to < and > respectively
         if matches!(arg_value.kind(), ValueKind::Number)
@@ -307,9 +318,82 @@ impl OpenAlexQuery {
                 ));
             }
         };
+        self.filters.push(filter_string);
 
-        query.filters.push(filter_string);
-        Ok(query)
+        Ok(())
+    }
+
+    /// Add filters specified in a subquery
+    fn subquery_filters(&mut self, subquery: &Subquery) -> Result<(), Error> {
+        let entity_type = self.entity_type.clone();
+        let subquery_name = subquery.name.as_str();
+
+        // How each subquery and its arguments are handled depends upon (a) the
+        // entity type of the current query, (b) the name (entity type) of the
+        // subquery, (c) the subquery filter property. If all subqueries filters
+        // can be handled in a single request, by adding a filter to this query,
+        // then that is done. The fallback is to create a new query and then
+        // filter by id.
+        match entity_type.as_str() {
+            "works" => match subquery_name {
+                "authors" => {
+                    for (arg_name, arg_value) in &subquery.args {
+                        let (property, operator) = decode_filter(arg_name);
+                        let property = match property {
+                            "orcid" => "authorships.author.orcid",
+                            "name" => "raw_author_name.search",
+                            "_C" => "authors_count",
+                            _ => {
+                                return Err(Error::new(
+                                    ErrorKind::InvalidOperation,
+                                    format!(
+                                        "Filter `{property}` in subquery `{subquery_name}` is not supported for OpenAlex `{entity_type}`"
+                                    ),
+                                ));
+                            }
+                        };
+                        self.filter(&encode_filter(property, operator), arg_value.clone())?;
+                    }
+                }
+                "affiliations" => {
+                    for (arg_name, arg_value) in &subquery.args {
+                        let (property, operator) = decode_filter(arg_name);
+                        let property = match property {
+                            "ror" => "authorships.institutions.ror",
+                            "type" => "authorships.institutions.type",
+                            "is_global_south" => "authorships.institutions.is_global_south",
+                            "name" => "raw_affiliation_strings.search",
+                            "_C" => "institutions_distinct_count",
+                            _ => {
+                                return Err(Error::new(
+                                    ErrorKind::InvalidOperation,
+                                    format!(
+                                        "Filter `{property}` in subquery `{subquery_name}` is not supported for OpenAlex `{entity_type}`"
+                                    ),
+                                ));
+                            }
+                        };
+                        self.filter(&encode_filter(property, operator), arg_value.clone())?;
+                    }
+                }
+                _ => {
+                    return Err(Error::new(
+                        ErrorKind::InvalidOperation,
+                        format!(
+                            "Subquery `{subquery_name}` is not supported for OpenAlex `{entity_type}`"
+                        ),
+                    ));
+                }
+            },
+            _ => {
+                return Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    format!("Subqueries are not supported for OpenAlex `{entity_type}`"),
+                ));
+            }
+        }
+
+        Ok(())
     }
 
     /// Add a search term
@@ -397,476 +481,6 @@ impl OpenAlexQuery {
         let mut query = self.clone();
         query.per_page = Some(0); // OpenAlex returns count in meta when per_page=0
         query
-    }
-
-    /// Get OpenAlex filter prefix for a subquery name
-    fn get_openalex_filter_prefix(subquery_name: &str) -> Result<&'static str, Error> {
-        match subquery_name {
-            "authors" => Ok("authorships.author"),
-            "references" => Ok("references"),
-            "cites" => Ok("references"), 
-            "citedBy" => Ok("citedBy"),
-            "publishedIn" => Ok("primary_location.source"),
-            "affiliations" | "organizations" => Ok("authorships.institutions"),
-            // GitHub-specific subqueries that might be used in OpenAlex context
-            "topics" => Err(Error::new(
-                ErrorKind::InvalidOperation,
-                "Topics subquery not supported in OpenAlex"
-            )),
-            "owners" => Err(Error::new(
-                ErrorKind::InvalidOperation, 
-                "Owners subquery not supported in OpenAlex"
-            )),
-            _ => Err(Error::new(
-                ErrorKind::InvalidOperation,
-                format!("Unsupported subquery: {subquery_name}")
-            ))
-        }
-    }
-
-    /// Apply a subquery filter to the OpenAlex query
-    fn apply_subquery_filter(&self, subquery: &Subquery) -> Result<Self, Error> {
-        let mut query = self.clone();
-
-        // Get the OpenAlex filter prefix from the subquery name
-        let filter_prefix = Self::get_openalex_filter_prefix(&subquery.name)?;
-
-        // Extract query objects from args
-        let mut query_objects = Vec::new();
-        let mut regular_args = Vec::new();
-        let mut count_filter = None;
-        
-        for (arg_name, arg_value) in &subquery.args {
-            if arg_name.is_empty() {
-                // Non-keyword argument - check if it's a query object
-                if arg_value.downcast_object_ref::<OpenAlexQuery>().is_some()
-                    || arg_value.downcast_object_ref::<crate::cypher::CypherQuery>().is_some()
-                {
-                    query_objects.push(arg_value.clone());
-                }
-            } else if arg_name.starts_with("_C") {
-                // Count filter argument (e.g., _C1, _C2, _C3, etc.)
-                // Extract the operator from the last character
-                let operator = if let Some(last_char) = arg_name.chars().last() {
-                    match last_char {
-                        '0' => "<>",
-                        '1' => "<",
-                        '2' => "<=", 
-                        '3' => ">",
-                        '4' => ">=",
-                        _ => "="
-                    }
-                } else {
-                    "="
-                };
-                count_filter = Some(format!("{operator}{arg_value}"));
-            } else {
-                // Regular keyword argument
-                regular_args.push((arg_name.clone(), arg_value.clone()));
-            }
-        }
-
-        // Handle query objects for ID-based filtering (e.g., citedBy with OpenAlex query)
-        if !query_objects.is_empty() && subquery.name == "citedBy" {
-            // Extract IDs from query objects and use them in cited_by filter
-            let work_ids = self.extract_work_ids_from_query_objects(&query_objects)?;
-            if !work_ids.is_empty() {
-                let ids_filter = work_ids.join("|");
-                query.filters.push(format!("cited_by:{ids_filter}"));
-            }
-        }
-
-        // Handle query objects for publishedIn subqueries
-        if !query_objects.is_empty() && subquery.name == "publishedIn" {
-            // Extract source IDs from query objects and use them in primary_location.source.id filter
-            let source_ids = self.extract_source_ids_from_query_objects(&query_objects)?;
-            if !source_ids.is_empty() {
-                let ids_filter = source_ids.join("|");
-                query
-                    .filters
-                    .push(format!("primary_location.source.id:{ids_filter}"));
-            }
-        }
-
-        // Process the regular args to build filters
-        for (property, value) in regular_args {
-            // Handle nested subqueries (properties that start with _)
-            if property == "_" {
-                // This is a nested subquery
-                if let Some(nested_subquery) = value.downcast_object_ref::<Subquery>() {
-                    return self.apply_subquery_filter(nested_subquery);
-                }
-            } else {
-                // Decode the property name and operator from the arg name
-                let (clean_property, operator) = crate::docsql::decode_filter(&property);
-                
-                // Build OpenAlex filter directly from original property, operator, and value
-                let openalex_filter = self.build_openalex_subquery_filter(
-                    clean_property,
-                    operator,
-                    &value,
-                    filter_prefix,
-                    &subquery.name,
-                )?;
-                query.filters.push(openalex_filter);
-            }
-        }
-
-        // Handle count filters if present
-        if let Some(count_filter_value) = count_filter {
-            // Convert count filter to OpenAlex API format
-            let count_property = match subquery.name.as_str() {
-                "references" | "cites" => "referenced_works_count",
-                "citedBy" => "cited_by_count", 
-                "authors" => "authors_count",
-                "affiliations" | "organizations" => "institutions_distinct_count",
-                _ => {
-                    return Err(Error::new(
-                        ErrorKind::InvalidOperation,
-                        format!(
-                            "Count subqueries not supported for {}",
-                            subquery.name
-                        ),
-                    ));
-                }
-            };
-
-            // Parse the count filter (e.g., "> 10", "= 5", "<= 20")
-            // Remove spaces to get ">" + "10" format
-            let clean_count_filter = count_filter_value.replace(" ", "");
-
-            // OpenAlex doesn't consistently support >= and <= operators
-            // Convert them to equivalent > and < operators
-            let converted_filter = self.convert_count_filter_for_openalex(&clean_count_filter)?;
-            let count_filter_str = format!("{count_property}:{converted_filter}");
-            query.filters.push(count_filter_str);
-        }
-
-        Ok(query)
-    }
-
-    /// Build OpenAlex API filter from original property, operator, and value for subqueries
-    fn build_openalex_subquery_filter(
-        &self,
-        property: &str,
-        operator: &str,
-        value: &Value,
-        prefix: &str,
-        subquery_name: &str,
-    ) -> Result<String, Error> {
-        // Handle different property mappings based on the subquery type
-        match (subquery_name, property) {
-            ("authors", "name") => {
-                // For author names, use raw_author_name.search instead of authorships.author.display_name
-                self.build_author_name_filter(operator, value)
-            }
-            ("publishedIn", "name") | ("publishedIn", "display_name") => {
-                // For publishedIn source names, there's no direct search field available
-                // Return an error suggesting to use query objects instead
-                Err(Error::new(
-                    ErrorKind::InvalidOperation,
-                    "Source name filtering not supported in publishedIn subqueries. Use query objects like: ...publishedIn(openalex.sources(.display_name == \"bioRxiv\"))".to_string(),
-                ))
-            }
-            ("publishedIn", property) => {
-                // For other periodical properties, use the primary_location.source prefix
-                let filter_value = format_filter_value(value);
-
-                match operator {
-                    "==" => Ok(format!("{prefix}.{property}:{filter_value}")),
-                    "!=" => Ok(format!("{prefix}.{property}:!{filter_value}")),
-                    "<" => Ok(format!("{prefix}.{property}:<{filter_value}")),
-                    "<=" => Ok(format!("{prefix}.{property}:<={filter_value}")),
-                    ">" => Ok(format!("{prefix}.{property}:>{filter_value}")),
-                    ">=" => Ok(format!("{prefix}.{property}:>={filter_value}")),
-                    _ => Err(Error::new(
-                        ErrorKind::InvalidOperation,
-                        format!("Unsupported operator for periodical property: {operator}"),
-                    )),
-                }
-            }
-            ("affiliations" | "organizations", "name") => {
-                // For organization/institution names, use raw_affiliation_strings.search
-                self.build_organization_name_filter(operator, value)
-            }
-            ("affiliations" | "organizations", property) => {
-                // For other organization properties, use the authorships.institutions prefix
-                let filter_value = format_filter_value(value);
-
-                match operator {
-                    "==" => Ok(format!("{prefix}.{property}:{filter_value}")),
-                    "!=" => Ok(format!("{prefix}.{property}:!{filter_value}")),
-                    "<" => Ok(format!("{prefix}.{property}:<{filter_value}")),
-                    "<=" => Ok(format!("{prefix}.{property}:<={filter_value}")),
-                    ">" => Ok(format!("{prefix}.{property}:>{filter_value}")),
-                    ">=" => Ok(format!("{prefix}.{property}:>={filter_value}")),
-                    _ => Err(Error::new(
-                        ErrorKind::InvalidOperation,
-                        format!("Unsupported operator for organization property: {operator}"),
-                    )),
-                }
-            }
-            _ => {
-                // Default mapping
-                let openalex_property = property;
-                let filter_value = format_filter_value(value);
-
-                match operator {
-                    "==" => Ok(format!("{prefix}.{openalex_property}:{filter_value}")),
-                    "!=" => Ok(format!("{prefix}.{openalex_property}:!{filter_value}")),
-                    "<" => Ok(format!("{prefix}.{openalex_property}:<{filter_value}")),
-                    "<=" => Ok(format!("{prefix}.{openalex_property}:<={filter_value}")),
-                    ">" => Ok(format!("{prefix}.{openalex_property}:>{filter_value}")),
-                    ">=" => Ok(format!("{prefix}.{openalex_property}:>={filter_value}")),
-                    _ => Err(Error::new(
-                        ErrorKind::InvalidOperation,
-                        format!("Unsupported operator for subquery: {operator}"),
-                    )),
-                }
-            }
-        }
-    }
-
-    /// Helper method to build author name filters using raw_author_name.search
-    fn build_author_name_filter(&self, operator: &str, value: &Value) -> Result<String, Error> {
-        let filter_value = format_filter_value(value);
-
-        match operator {
-            "==" => Ok(format!("raw_author_name.search:{filter_value}")),
-            "^=" => Ok(format!("raw_author_name.search:{filter_value}*")),
-            "$=" => Ok(format!("raw_author_name.search:*{filter_value}")),
-            _ => Err(Error::new(
-                ErrorKind::InvalidOperation,
-                format!("Unsupported operator for author name: {operator}"),
-            )),
-        }
-    }
-
-    /// Helper method to build organization name filters using raw_affiliation_strings.search
-    fn build_organization_name_filter(
-        &self,
-        operator: &str,
-        value: &Value,
-    ) -> Result<String, Error> {
-        let filter_value = format_filter_value(value);
-
-        match operator {
-            "==" => Ok(format!("raw_affiliation_strings.search:{filter_value}")),
-            "^=" => Ok(format!("raw_affiliation_strings.search:{filter_value}*")),
-            "$=" => Ok(format!("raw_affiliation_strings.search:*{filter_value}")),
-            _ => Err(Error::new(
-                ErrorKind::InvalidOperation,
-                format!("Unsupported operator for organization name: {operator}"),
-            )),
-        }
-    }
-
-    /// Extract OpenAlex work IDs from query objects
-    ///
-    /// Executes OpenAlex and workspace queries to extract work IDs for use in
-    /// cited_by filters. Supports up to 100 IDs per OpenAlex API limitations.
-    fn extract_work_ids_from_query_objects(
-        &self,
-        query_objects: &[Value],
-    ) -> Result<Vec<String>, Error> {
-        let mut work_ids = Vec::new();
-
-        for query_obj in query_objects {
-            // Handle OpenAlex query objects
-            if let Some(openalex_query) = query_obj.downcast_object_ref::<OpenAlexQuery>() {
-                // Execute the query and extract work IDs from the results
-                let nodes = openalex_query.nodes();
-                for node in nodes {
-                    if let Some(work_id) = self.extract_work_id_from_node(&node) {
-                        work_ids.push(work_id);
-                        // Limit to 100 IDs due to OpenAlex API restrictions
-                        if work_ids.len() >= 100 {
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // Handle workspace query objects (future implementation)
-            if let Some(_workspace_query) =
-                query_obj.downcast_object_ref::<crate::cypher::CypherQuery>()
-            {
-                // TODO: Implement workspace query ID extraction
-                // This would involve executing the workspace query and extracting OpenAlex IDs
-                // from the resulting documents
-                tracing::warn!("Workspace query ID extraction not yet implemented");
-            }
-
-            // Break early if we hit the limit
-            if work_ids.len() >= 100 {
-                break;
-            }
-        }
-
-        Ok(work_ids)
-    }
-
-    /// Extract OpenAlex work ID from a Node
-    ///
-    /// Looks for OpenAlex ID in various possible fields and formats
-    fn extract_work_id_from_node(&self, node: &Node) -> Option<String> {
-        // Convert Node to JSON Value for easier field access
-        if let Ok(json_value) = serde_json::to_value(node) {
-            if let Some(obj) = json_value.as_object() {
-                // Try to get the 'id' field which should contain the full OpenAlex URL
-                if let Some(id_value) = obj.get("id") {
-                    if let Some(id_str) = id_value.as_str() {
-                        // Extract work ID from OpenAlex URL format
-                        if let Some(work_id) = id_str.strip_prefix("https://openalex.org/") {
-                            return Some(work_id.to_string());
-                        }
-                        // Also handle direct work ID format
-                        if id_str.starts_with("W") && id_str.len() > 1 {
-                            return Some(id_str.to_string());
-                        }
-                    }
-                }
-
-                // Fallback: try other potential ID fields
-                for field_name in ["openalex_id", "work_id", "doi"] {
-                    if let Some(field_value) = obj.get(field_name) {
-                        if let Some(field_str) = field_value.as_str() {
-                            if field_str.starts_with("W") && field_str.len() > 1 {
-                                return Some(field_str.to_string());
-                            }
-                            if let Some(work_id) = field_str.strip_prefix("https://openalex.org/") {
-                                return Some(work_id.to_string());
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        None
-    }
-
-    /// Extract source IDs from query objects for publishedBy subqueries
-    fn extract_source_ids_from_query_objects(
-        &self,
-        query_objects: &[Value],
-    ) -> Result<Vec<String>, Error> {
-        let mut source_ids = Vec::new();
-        for query_obj in query_objects {
-            // Handle OpenAlex query objects
-            if let Some(openalex_query) = query_obj.downcast_object_ref::<OpenAlexQuery>() {
-                // Execute the query and extract source IDs from the results
-                let nodes = openalex_query.nodes();
-                for node in nodes {
-                    if let Some(source_id) = self.extract_source_id_from_node(&node) {
-                        source_ids.push(source_id);
-                        // Limit to 100 IDs due to OpenAlex API restrictions
-                        if source_ids.len() >= 100 {
-                            break;
-                        }
-                    }
-                }
-            }
-            // Handle workspace query objects (future implementation)
-            if let Some(_workspace_query) =
-                query_obj.downcast_object_ref::<crate::cypher::CypherQuery>()
-            {
-                // TODO: Implement workspace query ID extraction for sources
-                tracing::warn!("Workspace query ID extraction for sources not yet implemented");
-            }
-            // Break early if we hit the limit
-            if source_ids.len() >= 100 {
-                break;
-            }
-        }
-        Ok(source_ids)
-    }
-
-    /// Extract a source ID from a Node
-    fn extract_source_id_from_node(&self, node: &Node) -> Option<String> {
-        // Convert Node to JSON Value for easier field access
-        if let Ok(json_value) = serde_json::to_value(node) {
-            if let Some(obj) = json_value.as_object() {
-                // Try to get the 'id' field which should contain the full OpenAlex URL
-                if let Some(id_value) = obj.get("id") {
-                    if let Some(id_str) = id_value.as_str() {
-                        // Extract source ID from OpenAlex URL format
-                        if let Some(source_id) = id_str.strip_prefix("https://openalex.org/") {
-                            return Some(source_id.to_string());
-                        }
-                        // Also handle direct source ID format
-                        if id_str.starts_with("S") && id_str.len() > 1 {
-                            return Some(id_str.to_string());
-                        }
-                    }
-                }
-
-                // Fallback: try other potential ID fields
-                for field_name in ["openalex_id", "source_id"] {
-                    if let Some(field_value) = obj.get(field_name) {
-                        if let Some(field_str) = field_value.as_str() {
-                            if field_str.starts_with("S") && field_str.len() > 1 {
-                                return Some(field_str.to_string());
-                            }
-                            if let Some(source_id) = field_str.strip_prefix("https://openalex.org/")
-                            {
-                                return Some(source_id.to_string());
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        None
-    }
-
-    /// Convert count filters for OpenAlex compatibility
-    ///
-    /// The >= and <= operators don't work consistently and return 403 errors.
-    /// We convert them to equivalent expressions:
-    /// - ">=N" becomes ">N-1" (e.g., ">=10" becomes ">9")
-    /// - "<=N" becomes "<N+1" (e.g., "<=5" becomes "<6")
-    fn convert_count_filter_for_openalex(&self, filter: &str) -> Result<String, Error> {
-        if let Some(number_str) = filter.strip_prefix(">=") {
-            // Convert ">=N" to ">N-1"
-            if let Ok(number) = number_str.parse::<i64>() {
-                if number > 0 {
-                    Ok(format!(">{}", number - 1))
-                } else {
-                    // >=0 means all positive numbers, equivalent to ">-1" but use ">=0"
-                    Ok(">=0".to_string())
-                }
-            } else {
-                Err(Error::new(
-                    ErrorKind::InvalidOperation,
-                    format!("Invalid number in count filter: {filter}"),
-                ))
-            }
-        } else if let Some(number_str) = filter.strip_prefix("<=") {
-            // Convert "<=N" to "<N+1"
-            if let Ok(number) = number_str.parse::<i64>() {
-                Ok(format!("<{}", number + 1))
-            } else {
-                Err(Error::new(
-                    ErrorKind::InvalidOperation,
-                    format!("Invalid number in count filter: {filter}"),
-                ))
-            }
-        } else if let Some(stripped) = filter.strip_prefix("=") {
-            // Handle equality - remove the leading = for OpenAlex format
-            if stripped.parse::<i64>().is_ok() {
-                Ok(stripped.to_string())
-            } else {
-                Err(Error::new(
-                    ErrorKind::InvalidOperation,
-                    format!("Invalid number in count filter: {filter}"),
-                ))
-            }
-        } else {
-            // Keep other operators as-is (>, <)
-            Ok(filter.to_string())
-        }
     }
 
     /// Generate the OpenAlex API URL (for backwards compatibility and debugging)
@@ -1102,11 +716,12 @@ impl Object for OpenAlexQuery {
 
                 let mut query = self.entity(entity_type);
 
+                // Add filter for the type of work
                 if let Some(value) = type_filter {
                     query.filters.push(["type:", value].concat());
                 }
 
-                // Handle search argument and other special arguments
+                // Handle `search` and `like` arguments and apply all others as filters
                 let (kwargs,): (Kwargs,) = from_args(args)?;
                 for arg in kwargs.args() {
                     let value: Value = kwargs.get(arg)?;
@@ -1119,11 +734,10 @@ impl Object for OpenAlexQuery {
                         "like" => {
                             return Err(Error::new(
                                 ErrorKind::UnknownMethod,
-                                "semantic similarity filtering is not available for OpenAlex, use `search` instead",
+                                "Semantic similarity filtering is not available for OpenAlex, use `search` instead",
                             ));
                         }
-                        // Handle transformed DocsQL filters
-                        _ => query = query.filter(entity_type, arg, value)?,
+                        _ => query.filter(arg, value)?,
                     }
                 }
 

@@ -1,0 +1,23 @@
+openalex.works(...authors(.name == "Josiah Carberry"))
+---
+GET https://api.openalex.org/works?filter=raw_author_name.search:Josiah+Carberry
+
+
+openalex.works(...authors(.name ~= "Josiah"))
+---
+GET https://api.openalex.org/works?filter=raw_author_name.search:Josiah
+
+
+openalex.works(...authors(.orcid == "0000-0002-1825-0097"))
+---
+GET https://api.openalex.org/works?filter=authorships.author.orcid:0000-0002-1825-0097
+
+
+openalex.works(...authors(* > 30))
+---
+GET https://api.openalex.org/works?filter=authors_count:>30
+
+
+openalex.works(...authors(.foo = "bar"))
+---
+Filter `foo` in subquery `authors` is not supported for OpenAlex `works`
