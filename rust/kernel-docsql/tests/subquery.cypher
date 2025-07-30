@@ -5,16 +5,6 @@ WHERE EXISTS { MATCH (article)-[authors]->(person:Person) WHERE starts_with(pers
 RETURN article
 LIMIT 10
 
-
-test.articles(.title ~= 'height', ...authors(.name ^= 'John').affiliations(.name $= 'University'))
----
-MATCH (article:Article)
-WHERE EXISTS { MATCH (article)-[authors]->(person:Person)-[:affiliations]->(org:Organization) WHERE starts_with(person.name, 'John') AND ends_with(org.name, 'University') }
-  AND regexp_matches(article.title, 'height')
-RETURN article
-LIMIT 10
-
-
 test.articles(...authors(* > 4))
 ---
 MATCH (article:Article)

@@ -868,7 +868,7 @@ impl CypherQuery {
 }
 
 /// Generate a table name for a method
-pub(super) fn table_for_method(method: &str) -> (String, Option<String>) {
+fn table_for_method(method: &str) -> (String, Option<String>) {
     (
         match method {
             "affiliations" => "Organization".into(),
@@ -925,7 +925,7 @@ pub(super) fn alias_for_table<S: AsRef<str>>(table: S) -> String {
 pub(super) const DEFAULT_RELATION: &str = "[:content|:items* acyclic]";
 
 /// Generate the relation between to tables
-pub(super) fn relation_between_tables(table1: &str, table2: &str) -> String {
+fn relation_between_tables(table1: &str, table2: &str) -> String {
     match (table1, table2) {
         ("CitationGroup", "Citation") => "[:items]",
         (_, "Citation") => "[:content|:items*]",

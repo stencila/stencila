@@ -10,9 +10,7 @@ use kernel_jinja::{
 
 use crate::{
     CypherQuery,
-    cypher::{
-        DEFAULT_RELATION, alias_for_table, apply_filter, relation_between_tables, table_for_method,
-    },
+    cypher::{DEFAULT_RELATION, alias_for_table, apply_filter},
     docsql::decode_filter,
     openalex::OpenAlexQuery,
 };
@@ -92,11 +90,6 @@ pub(crate) struct Subquery {
     /// The initial table involved in the subquery
     pub(crate) first_table: String,
 
-    /// The last table involved in the subquery
-    ///
-    /// Used to determine the relation at the back of the `pattern`.
-    pub(crate) last_table: String,
-
     /// Filters applied in the subquery (Cypher format for KuzuDB)
     pub(crate) ands: Vec<String>,
 
@@ -125,7 +118,6 @@ impl Subquery {
             pattern: String::new(),
             first_relation: relation.into(),
             first_table: table.clone(),
-            last_table: table,
             ands: Vec::new(),
             count: None,
             raw_filters: Vec::new(),
@@ -208,38 +200,6 @@ impl Object for Subquery {
                     .push((property.to_string(), operator.to_string(), arg_value));
             }
         }
-
-        Ok(Value::from_object(subquery))
-    }
-
-    fn call_method(
-        self: &Arc<Self>,
-        _state: &State,
-        name: &str,
-        args: &[Value],
-    ) -> Result<Value, Error> {
-        let mut subquery = self.deref().clone();
-
-        let (table, and) = table_for_method(name);
-        if let Some(and) = and {
-            subquery.ands.push(and);
-        }
-
-        let alias = alias_for_table(&table);
-        let relation = relation_between_tables(&self.last_table, &table);
-
-        subquery
-            .pattern
-            .push_str(&format!("-{relation}->({alias}:{table})"));
-
-        let (kwargs,): (Kwargs,) = from_args(args)?;
-        for arg_name in kwargs.args() {
-            let arg_value = kwargs.get(arg_name)?;
-            let filter = apply_filter(&alias, arg_name, arg_value, true)?;
-            subquery.ands.push(filter);
-        }
-
-        subquery.last_table = table;
 
         Ok(Value::from_object(subquery))
     }
