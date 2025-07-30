@@ -30,6 +30,98 @@ use kernel_jinja::{
 
 use crate::{docsql::GLOBAL_CONSTS, subquery::Subquery};
 
+/// Get Cypher relation and table for a subquery name
+fn get_cypher_subquery_info(subquery_name: &str) -> Result<(&'static str, &'static str), Error> {
+    match subquery_name {
+        // Academic/research subqueries
+        "authors" => Ok(("[authors]", "Person")),
+        "references" => Ok(("[references]", "Reference")),
+        "cites" => Ok(("[references]", "Reference")),
+        "citedBy" => Ok(("[citedBy]", "Reference")),
+        "publishedIn" => Ok(("[publishedIn]", "Periodical")),
+        "affiliations" => Ok(("[affiliations]", "Organization")),
+        "organizations" => Ok(("[organizations]", "Organization")),
+        
+        // GitHub-specific subqueries (not directly supported in Cypher, but keeping for consistency)
+        "topics" => Ok(("[topics]", "String")),
+        "owners" => Ok(("[owners]", "Person")),
+        
+        // Content subqueries
+        "codeBlocks" => Ok((DEFAULT_RELATION, "CodeBlock")),
+        "codeInlines" => Ok((DEFAULT_RELATION, "CodeInline")),
+        "codeChunks" | "chunks" => Ok((DEFAULT_RELATION, "CodeChunk")),
+        "codeExpressions" | "expressions" => Ok((DEFAULT_RELATION, "CodeExpression")),
+        "mathBlocks" => Ok((DEFAULT_RELATION, "MathBlock")),
+        "mathInlines" => Ok((DEFAULT_RELATION, "MathInline")),
+        "images" => Ok((DEFAULT_RELATION, "ImageObject")),
+        "audios" => Ok((DEFAULT_RELATION, "AudioObject")),
+        "videos" => Ok((DEFAULT_RELATION, "VideoObject")),
+        "admonitions" => Ok((DEFAULT_RELATION, "Admonition")),
+        "claims" => Ok((DEFAULT_RELATION, "Claim")),
+        "lists" => Ok((DEFAULT_RELATION, "List")),
+        "paragraphs" => Ok((DEFAULT_RELATION, "Paragraph")),
+        "sections" => Ok((DEFAULT_RELATION, "Section")),
+        "sentences" => Ok((DEFAULT_RELATION, "Sentence")),
+        "people" => Ok((DEFAULT_RELATION, "Person")),
+        
+        _ => Err(Error::new(
+            ErrorKind::InvalidOperation,
+            format!("Unsupported subquery for Cypher: {subquery_name}")
+        ))
+    }
+}
+
+/// Process a subquery for Cypher using name and args
+pub(super) fn process_subquery_for_cypher(subquery: &crate::subquery::Subquery, outer_alias: &str) -> Result<String, Error> {
+    // Get relation and table from subquery name
+    let (relation, table) = get_cypher_subquery_info(&subquery.name)?;
+    
+    // Generate alias for the subquery table
+    let alias = alias_for_table(table);
+    
+    // Build the base MATCH pattern
+    let mut cypher = format!(
+        "MATCH ({outer_alias})-{relation}->({alias}:{table})"
+    );
+    
+    // Process args to build WHERE conditions
+    let mut ands = Vec::new();
+    let mut count_condition = None;
+    
+    for (arg_name, arg_value) in &subquery.args {
+        if !arg_name.is_empty() {
+            // This is a keyword argument - process as filter
+            let filter = apply_filter(&alias, arg_name, arg_value.clone(), true)?;
+            
+            if let Some(rest) = filter.strip_prefix("_COUNT") {
+                if count_condition.is_some() {
+                    return Err(Error::new(
+                        ErrorKind::InvalidOperation,
+                        "only one count filter (*) allowed per call",
+                    ));
+                }
+                count_condition = Some(rest.trim().to_string());
+            } else {
+                ands.push(filter);
+            }
+        }
+        // Non-keyword arguments (query objects) are handled by the respective modules
+    }
+    
+    // Add WHERE clause if there are conditions
+    if !ands.is_empty() {
+        cypher.push_str(" WHERE ");
+        cypher.push_str(&ands.join(" AND "));
+    }
+    
+    // Wrap in COUNT or EXISTS based on whether there's a count condition
+    if let Some(count) = count_condition {
+        Ok(format!("COUNT {{ {cypher} }} {count}"))
+    } else {
+        Ok(format!("EXISTS {{ {cypher} }}"))
+    }
+}
+
 /// Translate a filter argument into a Cypher `WHERE` clause
 pub(super) fn apply_filter(
     alias: &str,
@@ -39,7 +131,7 @@ pub(super) fn apply_filter(
 ) -> Result<String, Error> {
     if arg_name == "_" {
         if let Some(subquery) = arg_value.downcast_object_ref::<Subquery>() {
-            return Ok(subquery.generate(alias));
+            return process_subquery_for_cypher(subquery, alias);
         }
     }
 
