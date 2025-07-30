@@ -1,0 +1,13 @@
+openalex.works().sample()
+---
+GET https://api.openalex.org/works?per-page=10&sample=10
+
+
+openalex.works(search = "frogs").sample(3)
+---
+GET https://api.openalex.org/works?search=frogs&per-page=3&sample=3
+
+
+openalex.authors().sample(2)
+---
+GET https://api.openalex.org/authors?per-page=2&sample=2

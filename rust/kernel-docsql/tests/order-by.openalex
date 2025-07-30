@@ -16,4 +16,3 @@ GET https://api.openalex.org/authors?sort=display_name:asc
 openalex.people().order_by('h_index', 'desc')
 ---
 GET https://api.openalex.org/authors?sort=summary_stats.h_index:desc
-

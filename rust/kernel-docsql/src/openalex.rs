@@ -59,6 +59,9 @@ pub(crate) struct OpenAlexQuery {
     page: Option<u32>,
     per_page: Option<u32>,
 
+    // Sample count
+    sample: Option<u32>,
+
     /// Fields to select in response
     select_fields: Vec<String>,
 
@@ -79,6 +82,7 @@ impl OpenAlexQuery {
             sort: None,
             page: None,
             per_page: None,
+            sample: None,
             select_fields: Vec::new(),
             use_cursor: false,
             cursor: None,
@@ -366,6 +370,14 @@ impl OpenAlexQuery {
     fn skip(&self, count: usize) -> Self {
         let mut query = self.clone();
         query.page = Some((count / query.per_page.unwrap_or(25) as usize) as u32 + 1);
+        query
+    }
+
+    fn sample(&self, count: Option<u32>) -> Self {
+        let mut query = self.clone();
+        let count = count.unwrap_or(10);
+        query.sample = Some(count);
+        query.per_page = Some(count);
         query
     }
 
@@ -857,6 +869,11 @@ impl OpenAlexQuery {
             }
         }
 
+        // Add sample
+        if let Some(sample) = self.sample {
+            params.push(("sample", sample.to_string()));
+        }
+
         // Add field selection
         if !self.select_fields.is_empty() {
             let select_string = self.select_fields.join(",");
@@ -1089,6 +1106,10 @@ impl Object for OpenAlexQuery {
             "skip" => {
                 let (count,): (usize,) = from_args(args)?;
                 self.skip(count)
+            }
+            "sample" => {
+                let (count,): (Option<u32>,) = from_args(args)?;
+                self.sample(count)
             }
             "select" => {
                 let (fields,): (&[Value],) = from_args(args)?;
