@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use codec::{
     common::{eyre::Result, serde::Deserialize},
     schema::{Node, Organization, OrganizationOptions, Person, PersonOptions},
@@ -88,22 +90,29 @@ pub struct Concept {
 
 impl From<Author> for Person {
     fn from(author: Author) -> Self {
+        // Try to parse given_names and family_names from display_name
+        let (given_names, family_names) = if let Some(ref display_name) = author.display_name {
+            if let Ok(parsed_person) = Person::from_str(display_name) {
+                (parsed_person.given_names, parsed_person.family_names)
+            } else {
+                (None, None)
+            }
+        } else {
+            (None, None)
+        };
+
         // Map display_name_alternatives to alternate_names, avoiding duplicates with display_name
         let alternate_names = author.display_name_alternatives.and_then(|alternatives| {
             let mut filtered_names = Vec::new();
             for name in alternatives {
                 // Normalize both names for comparison by replacing various dash characters with regular hyphen
-                let normalized_name = name
-                    .replace('‐', "-")  // en-dash (U+2010)
-                    .replace('–', "-")  // en-dash (U+2013)
-                    .replace('—', "-"); // em-dash (U+2014)
-                
-                let normalized_display_name = author.display_name.as_ref().map(|n| 
-                    n.replace('‐', "-")
-                     .replace('–', "-")
-                     .replace('—', "-")
-                );
-                
+                let normalized_name = name.replace(['‐', '–', '—'], "-");
+
+                let normalized_display_name = author
+                    .display_name
+                    .as_ref()
+                    .map(|n| n.replace(['‐', '–', '—'], "-"));
+
                 // Only include if it's different from the main display_name after normalization
                 if normalized_display_name.as_ref() != Some(&normalized_name) {
                     filtered_names.push(name);
@@ -148,6 +157,8 @@ impl From<Author> for Person {
         Person {
             id: Some(author.id),
             orcid: crate::strip_orcid_prefix(author.orcid),
+            given_names,
+            family_names,
             affiliations,
             options: Box::new(PersonOptions {
                 name: author.display_name,

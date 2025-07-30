@@ -5,5 +5,12 @@ expression: node
 {
   "type": "Person",
   "id": "https://openalex.org/A5090478819",
+  "familyNames": [
+    "男"
+  ],
+  "givenNames": [
+    "侯",
+    "政"
+  ],
   "name": "侯政男"
 }
