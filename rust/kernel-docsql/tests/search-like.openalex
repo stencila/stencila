@@ -8,6 +8,11 @@ openalex.articles(search = "neural networks").limit(5)
 GET https://api.openalex.org/works?filter=type:article&search=neural+networks&per-page=5
 
 
+openalex.authors(search = "Josiah Carberry")
+---
+GET https://api.openalex.org/authors?search=Josiah+Carberry
+
+
 openalex.works(like="machine learning")
 ---
 semantic similarity filtering is not available for OpenAlex, use `search` instead

@@ -153,21 +153,32 @@ impl OpenAlexQuery {
                     ));
                 }
             },
-            _ => match property_name {
-                // Common mappings across entities
-                "name" => match self.entity_type.as_str() {
-                    "authors" => "display_name", // For authors, name maps to display_name
-                    _ => "display_name.search",
-                },
-
-                // Authors-specific
+            "authors" => match property_name {
+                // See https://docs.openalex.org/api-entities/authors/filter-authors for a list of
+                // available filters
+                "name" => "display_name.search",
+                // Properties on `summary_stats` that we hoist up
                 "h_index" => "summary_stats.h_index",
                 "i10_index" => "summary_stats.i10_index",
-
-                // If no mapping found, use as-is, this includes:
-                // type, language, cited_by, cites, doi, orcid, ror
-                _ => property_name,
+                // Properties which do not need mapping, including convenience filters
+                //  https://docs.openalex.org/api-entities/authors/filter-authors#authors-convenience-filters
+                "orcid" | "has_orcid" | "works_count" => property_name,
+                // Error for all others
+                _ => {
+                    return Err(Error::new(
+                        ErrorKind::InvalidOperation,
+                        format!("Unhandled filter property for OpenAlex authors: {property_name}"),
+                    ));
+                }
             },
+            _ => {
+                return Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    format!(
+                        "Unhandled filter property for OpenAlex {entity_type}: {property_name}"
+                    ),
+                ));
+            }
         };
 
         // Transform the minijinja argument value into a string
@@ -892,7 +903,7 @@ impl Object for OpenAlexQuery {
         let mut query = match name {
             "works" | "articles" | "books" | "chapters" | "preprints" | "dissertations"
             | "reviews" | "standards" | "grants" | "retractions" | "datasets" | "people"
-            | "organizations" | "sources" | "publishers" => {
+            | "authors" | "organizations" | "institutions" | "sources" | "publishers" => {
                 let (entity_type, type_filter) = match name {
                     "works" => ("works", None),
 
@@ -909,8 +920,10 @@ impl Object for OpenAlexQuery {
                     "grants" => ("works", Some("grant")),
                     "retractions" => ("works", Some("retraction")),
                     "datasets" => ("works", Some("dataset")),
-                    "people" => ("authors", None),
-                    "organizations" => ("institutions", None),
+
+                    "people" | "authors" => ("authors", None),
+                    "organizations" | "institutions" => ("institutions", None),
+
                     "sources" => ("sources", None),
                     "publishers" => ("sources", None),
 

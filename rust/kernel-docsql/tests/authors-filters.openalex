@@ -1,0 +1,38 @@
+openalex.authors(.name == "Josiah Carberry")
+---
+GET https://api.openalex.org/authors?filter=display_name.search:Josiah+Carberry
+
+
+openalex.authors(.name ~= "Josiah")
+---
+GET https://api.openalex.org/authors?filter=display_name.search:Josiah
+
+
+openalex.authors(.orcid == "0000-0002-1825-0097")
+---
+GET https://api.openalex.org/authors?filter=orcid:0000-0002-1825-0097
+
+
+openalex.authors(.has_orcid = true)
+---
+GET https://api.openalex.org/authors?filter=has_orcid:true
+
+
+openalex.authors(.h_index > 10)
+---
+GET https://api.openalex.org/authors?filter=summary_stats.h_index:>10
+
+
+openalex.authors(.i10_index < 10)
+---
+GET https://api.openalex.org/authors?filter=summary_stats.i10_index:<10
+
+
+openalex.authors(.works_count > 100)
+---
+GET https://api.openalex.org/authors?filter=works_count:>100
+
+
+openalex.authors(.foo = "bar")
+---
+Unhandled filter property for OpenAlex authors: foo
