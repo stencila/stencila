@@ -60,4 +60,4 @@ GET https://api.openalex.org/institutions?filter=cited_by_count:<10
 
 openalex.institutions(.foo = "bar")
 ---
-Unhandled filter property for OpenAlex institutions: foo
+Unsupported filter property for OpenAlex institutions: foo

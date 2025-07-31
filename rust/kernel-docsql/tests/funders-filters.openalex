@@ -50,4 +50,4 @@ GET https://api.openalex.org/funders?filter=cited_by_count:>9
 
 openalex.funders(.foo = "bar")
 ---
-Unhandled filter property for OpenAlex funders: foo
+Unsupported filter property for OpenAlex funders: foo

@@ -45,4 +45,4 @@ GET https://api.openalex.org/publishers?filter=cited_by_count:<10
 
 openalex.publishers(.foo = "bar")
 ---
-Unhandled filter property for OpenAlex publishers: foo
+Unsupported filter property for OpenAlex publishers: foo

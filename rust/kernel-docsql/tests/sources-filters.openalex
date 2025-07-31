@@ -50,4 +50,4 @@ GET https://api.openalex.org/sources?filter=cited_by_count:<101
 
 openalex.sources(.foo = "bar")
 ---
-Unhandled filter property for OpenAlex sources: foo
+Unsupported filter property for OpenAlex sources: foo
