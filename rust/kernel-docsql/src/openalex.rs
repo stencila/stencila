@@ -164,14 +164,16 @@ impl OpenAlexQuery {
                 "is_published" => "primary_location.is_published",
                 "version" => "primary_location.version",
                 // Aliases
+                "references_count" | "cites_count" => "referenced_works_count",
                 "institutions_count" | "organizations_count" => "institutions_distinct_count",
                 // Properties which do not need mapping, including convenience filters
                 //  https://docs.openalex.org/api-entities/works/filter-works#works-convenience-filters
                 "doi" | "is_oa" | "oa_status" | "has_abstract" | "has_references" | "has_doi"
-                | "has_orcid" | "has_pmcid" | "has_pmid" | "cited_by_count" => property_name,
-                // Properties used by subqueries
-                "authors_count"
-                | "authorships.author.orcid"
+                | "has_orcid" | "has_pmcid" | "has_pmid" | "authors_count" | "cited_by_count" => {
+                    property_name
+                }
+                // Compound properties used by subqueries
+                "authorships.author.orcid"
                 | "authorships.institutions.ror"
                 | "authorships.institutions.type"
                 | "authorships.institutions.is_global_south"
