@@ -353,6 +353,28 @@ impl OpenAlexQuery {
         let entity_type = self.entity_type.clone();
         let subquery_name = subquery.name.as_str();
 
+        let unsupported_property = |property: &str| {
+            Err(Error::new(
+                ErrorKind::InvalidOperation,
+                format!(
+                    "Filter `{property}` in subquery `{subquery_name}` is not supported for OpenAlex `{entity_type}`"
+                ),
+            ))
+        };
+
+        let ids_maybe = |query: OpenAlexQuery, test: &str, none: &str| {
+            if query.filters.is_empty() {
+                None
+            } else if testing() {
+                Some(test.into())
+            } else {
+                // If no ids returned then use a valid but
+                // non-existent author id so that filter is still
+                // applied but results in an empty set
+                Some(query.ids().unwrap_or_else(|| none.into()))
+            }
+        };
+
         // How each subquery and its arguments are handled depends upon (a) the
         // entity type of the current query, (b) the name (entity type) of the
         // subquery, (c) the subquery filter property. If all subqueries filters
@@ -374,28 +396,12 @@ impl OpenAlexQuery {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
-                            _ => {
-                                return Err(Error::new(
-                                    ErrorKind::InvalidOperation,
-                                    format!(
-                                        "Filter `{property}` in subquery `{subquery_name}` is not supported for OpenAlex `{entity_type}`"
-                                    ),
-                                ));
-                            }
+                            _ => return unsupported_property(property),
                         };
                         self.filter(&encode_filter(property, operator), arg_value.clone())?;
                     }
 
-                    if !ids_query.filters.is_empty() {
-                        let ids = if testing() {
-                            "A5100335963".to_string()
-                        } else {
-                            // If no ids returned then use a valid but
-                            // non-existent author id so that filter is still
-                            // applied but results in an empty set
-                            ids_query.ids().unwrap_or_else(|| "A0000000000".into())
-                        };
-
+                    if let Some(ids) = ids_maybe(ids_query, "A5100335963", "A0000000000") {
                         self.filters.push(format!("authorships.author.id:{ids}"));
                     }
                 }
@@ -414,25 +420,12 @@ impl OpenAlexQuery {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
-                            _ => {
-                                return Err(Error::new(
-                                    ErrorKind::InvalidOperation,
-                                    format!(
-                                        "Filter `{property}` in subquery `{subquery_name}` is not supported for OpenAlex `{entity_type}`"
-                                    ),
-                                ));
-                            }
+                            _ => return unsupported_property(property),
                         };
                         self.filter(&encode_filter(property, operator), arg_value.clone())?;
                     }
 
-                    if !ids_query.filters.is_empty() {
-                        let ids = if testing() {
-                            "I1294671590".to_string()
-                        } else {
-                            ids_query.ids().unwrap_or_else(|| "I0000000000".into())
-                        };
-
+                    if let Some(ids) = ids_maybe(ids_query, "I1294671590", "I0000000000") {
                         self.filters
                             .push(format!("authorships.institutions.id:{ids}"));
                     }
@@ -478,25 +471,12 @@ impl OpenAlexQuery {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
-                            _ => {
-                                return Err(Error::new(
-                                    ErrorKind::InvalidOperation,
-                                    format!(
-                                        "Filter `{property}` in subquery `{subquery_name}` is not supported for OpenAlex `{entity_type}`"
-                                    ),
-                                ));
-                            }
+                            _ => return unsupported_property(property),
                         };
                         self.filter(&encode_filter(property, operator), arg_value.clone())?;
                     }
 
-                    if !ids_query.filters.is_empty() {
-                        let ids = if testing() {
-                            "W2582743722".to_string()
-                        } else {
-                            ids_query.ids().unwrap_or_else(|| "W0000000000".into())
-                        };
-
+                    if let Some(ids) = ids_maybe(ids_query, "W2582743722", "W0000000000") {
                         self.filters.push(if subquery_name == "cited_by" {
                             format!("cited_by:{ids}")
                         } else {
@@ -517,25 +497,12 @@ impl OpenAlexQuery {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
-                            _ => {
-                                return Err(Error::new(
-                                    ErrorKind::InvalidOperation,
-                                    format!(
-                                        "Filter `{property}` in subquery `{subquery_name}` is not supported for OpenAlex `{entity_type}`"
-                                    ),
-                                ));
-                            }
+                            _ => return unsupported_property(property),
                         };
                         self.filter(&encode_filter(property, operator), arg_value.clone())?;
                     }
 
-                    if !ids_query.filters.is_empty() {
-                        let ids = if testing() {
-                            "S1336409049".to_string()
-                        } else {
-                            ids_query.ids().unwrap_or_else(|| "S0000000000".into())
-                        };
-
+                    if let Some(ids) = ids_maybe(ids_query, "S1336409049", "S0000000000") {
                         self.filters
                             .push(format!("primary_location.source.id:{ids}"));
                     }
