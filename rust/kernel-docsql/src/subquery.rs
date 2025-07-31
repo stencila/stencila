@@ -1,7 +1,7 @@
 use std::{ops::Deref, sync::Arc};
 
 use kernel_jinja::{
-    kernel::common::eyre::Result,
+    kernel::common::{eyre::Result, inflector::Inflector},
     minijinja::{Environment, Error, State, Value, value::Object},
 };
 
@@ -12,37 +12,21 @@ use kernel_jinja::{
 /// subquery filters.
 ///
 /// Note: leading underscore intentional and important         
+#[rustfmt::skip]
 pub(super) fn add_subquery_functions(env: &mut Environment) {
+    // Names on the same row are usually, but not necessarily, used as aliases
+    // Exact behavior will depend upon the context eg. CypherQuery vs OpenAlexQuery
     for name in [
-        "authors",
-        "references",
-        "cites",
-        "citedBy",
-        "publishedIn",
-        "affiliations",
-        "organizations",
-        // GitHub-specific subqueries
-        "topics", // GitHub topics are strings
-        "owners",
-    ] {
-        env.add_global(
-            ["_", name].concat(),
-            Value::from_object(Subquery::new(name)),
-        );
-    }
-
-    for name in [
+        // Content
         // Static code
-        "codeBlocks",
-        "codeInlines",
+        "code_blocks",
+        "code_inlines",
         // Executable code
-        "codeChunks",
-        "chunks",
-        "codeExpressions",
-        "expressions",
+        "code_chunks", "chunks",
+        "code_expressions", "expressions",
         // Math
-        "mathBlocks",
-        "mathInlines",
+        "math_blocks", "equations",
+        "math_inlines",
         // Media
         "images",
         "audios",
@@ -54,14 +38,28 @@ pub(super) fn add_subquery_functions(env: &mut Environment) {
         "paragraphs",
         "sections",
         "sentences",
+
         // Metadata
-        "organizations",
-        "people",
+        "authors", "people",
+        "affiliations", "organizations",
+        "references", "cites",
+        "cited_by",
+        "published_in",
+        "topics",
+        "owners",
     ] {
         env.add_global(
             ["_", name].concat(),
             Value::from_object(Subquery::new(name)),
         );
+
+        let camel_case = name.to_camel_case();
+        if camel_case != name {
+            env.add_global(
+                ["_", &camel_case].concat(),
+                Value::from_object(Subquery::new(name)),
+            );
+        }
     }
 }
 
