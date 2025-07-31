@@ -23,6 +23,11 @@ openalex.works(.abstract ~= "magmatism")
 GET https://api.openalex.org/works?filter=abstract.search:magmatism
 
 
+openalex.works(.keywords = "magnetic")
+---
+GET https://api.openalex.org/works?filter=keywords.id:keywords/diagnosis
+
+
 openalex.works(.year > 2000)
 ---
 GET https://api.openalex.org/works?filter=publication_year:>2000
@@ -115,7 +120,7 @@ GET https://api.openalex.org/works?filter=has_abstract:true,has_pmcid:true,has_r
 
 openalex.works(.foo = "bar")
 ---
-Unhandled filter property for OpenAlex works: foo
+Unsupported filter property for OpenAlex works: foo
 
 
 openalex.works(.title ^= "word")

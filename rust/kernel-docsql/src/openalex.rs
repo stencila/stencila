@@ -153,162 +153,174 @@ impl OpenAlexQuery {
             return Err(Error::new(ErrorKind::InvalidOperation, message));
         }
 
-        // Map the property name to the OpenAlex filter name
-        let filter_name = match self.entity_type.as_str() {
-            "works" => match property_name {
-                // See https://docs.openalex.org/api-entities/works/filter-works
-                // In OpenAlex it is not possible to test equality for `display_name`, only `display_name.search`
-                // it available, which is also aliased to `title.search`
-                "title" => "title.search",
-                "name" => "display_name.search",
-                // Abstract is available to search https://docs.openalex.org/api-entities/works/filter-works#abstract.search
-                "abstract" => "abstract.search",
-                // Properties on `primary_location` that we hoist up
-                "license" => "primary_location.license",
-                "is_accepted" => "primary_location.is_accepted",
-                "is_published" => "primary_location.is_published",
-                "version" => "primary_location.version",
-                // Aliases
-                "year" => "publication_year",
-                "date" => "publication_date",
-                "references_count" | "cites_count" | "referenced_works_count" => {
-                    "referenced_works_count"
-                }
-                "institutions_count" | "organizations_count" | "institutions_distinct_count" => {
-                    "institutions_distinct_count"
-                }
-                // Properties which do not need mapping, including convenience filters
-                //  https://docs.openalex.org/api-entities/works/filter-works#works-convenience-filters
-                "doi" | "is_oa" | "oa_status" | "has_abstract" | "has_references" | "has_doi"
-                | "has_orcid" | "has_pmcid" | "has_pmid" | "authors_count" | "cited_by_count" => {
-                    property_name
-                }
-                // Compound properties used by subqueries
-                "authorships.author.orcid"
-                | "authorships.institutions.ror"
-                | "authorships.institutions.type"
-                | "authorships.institutions.is_global_south"
-                | "locations_count"
-                | "primary_location.source.issn"
-                | "raw_affiliation_strings.search"
-                | "raw_author_name.search" => property_name,
-                // Error for all others
-                _ => {
-                    return Err(Error::new(
-                        ErrorKind::InvalidOperation,
-                        format!("Unhandled filter property for OpenAlex works: {property_name}"),
-                    ));
-                }
-            },
-            "authors" => match property_name {
-                // See https://docs.openalex.org/api-entities/authors/filter-authors
-                "name" => "display_name.search",
-                // Properties on `summary_stats` that we hoist up
-                "impact_factor" => "summary_status.2yr_mean_citedness",
-                "h_index" => "summary_stats.h_index",
-                "i10_index" => "summary_stats.i10_index",
-                // Properties which do not need mapping, including convenience filters
-                //  https://docs.openalex.org/api-entities/authors/filter-authors#authors-convenience-filters
-                "orcid" | "has_orcid" | "works_count" | "cited_by_count" => property_name,
-                // Compound properties used by subqueries
-                "affiliations.institution.ror"
-                | "affiliations.institution.type"
-                | "last_known_institutions.is_global_south" => property_name,
-                // Error for all others
-                _ => {
-                    return Err(Error::new(
-                        ErrorKind::InvalidOperation,
-                        format!("Unhandled filter property for OpenAlex authors: {property_name}"),
-                    ));
-                }
-            },
-            "institutions" => match property_name {
-                // See https://docs.openalex.org/api-entities/institutions/filter-institutions
-                "name" => "display_name.search",
-                // Properties on `summary_stats` that we hoist up
-                "impact_factor" => "summary_status.2yr_mean_citedness",
-                "h_index" => "summary_stats.h_index",
-                "i10_index" => "summary_stats.i10_index",
-                // Properties which do not need mapping, including convenience filters
-                //  https://docs.openalex.org/api-entities/institutions/filter-institutions#institutions-convenience-filters
-                "ror" | "has_ror" | "works_count" | "cited_by_count" | "type"
-                | "is_global_south" => property_name,
-                _ => {
-                    return Err(Error::new(
-                        ErrorKind::InvalidOperation,
-                        format!(
-                            "Unhandled filter property for OpenAlex institutions: {property_name}"
-                        ),
-                    ));
-                }
-            },
-            "sources" => match property_name {
-                // See https://docs.openalex.org/api-entities/sources/filter-sources
-                "name" => "display_name.search",
-                // Properties on `summary_stats` that we hoist up
-                "impact_factor" => "summary_status.2yr_mean_citedness",
-                "h_index" => "summary_stats.h_index",
-                "i10_index" => "summary_stats.i10_index",
-                // Properties which do not need mapping, including convenience filters
-                //  https://docs.openalex.org/api-entities/sources/filter-sources#sources-convenience-filters
-                "issn" | "has_issn" | "is_oa" | "works_count" | "cited_by_count"
-                | "is_global_south" => property_name,
-                _ => {
-                    return Err(Error::new(
-                        ErrorKind::InvalidOperation,
-                        format!("Unhandled filter property for OpenAlex sources: {property_name}"),
-                    ));
-                }
-            },
-            "publishers" => match property_name {
-                // See https://docs.openalex.org/api-entities/publishers/filter-publishers
-                "name" => "display_name.search",
-                // Properties on `summary_stats` that we hoist up
-                "impact_factor" => "summary_status.2yr_mean_citedness",
-                "h_index" => "summary_stats.h_index",
-                "i10_index" => "summary_stats.i10_index",
-                // Properties which do not need mapping, including convenience filters
-                //  https://docs.openalex.org/api-entities/publishers/filter-publishers#publishers-convenience-filters
-                "ror" | "works_count" | "cited_by_count" => property_name,
-                _ => {
-                    return Err(Error::new(
-                        ErrorKind::InvalidOperation,
-                        format!(
-                            "Unhandled filter property for OpenAlex publishers: {property_name}"
-                        ),
-                    ));
-                }
-            },
-            "funders" => match property_name {
-                // See https://docs.openalex.org/api-entities/funders/filter-funders
-                "name" => "display_name.search",
-                "description" => "description.search",
-                // Properties on `summary_stats` that we hoist up
-                "impact_factor" => "summary_status.2yr_mean_citedness",
-                "h_index" => "summary_stats.h_index",
-                "i10_index" => "summary_stats.i10_index",
-                // Properties which do not need mapping, including convenience filters
-                //  https://docs.openalex.org/api-entities/funders/filter-funders#funders-convenience-filters
-                "ror" | "grants_count" | "works_count" | "cited_by_count" | "is_global_south" => {
-                    property_name
-                }
-                _ => {
-                    return Err(Error::new(
-                        ErrorKind::InvalidOperation,
-                        format!("Unhandled filter property for OpenAlex funders: {property_name}"),
-                    ));
-                }
-            },
-            _ => {
+        // Handle keywords specially as a combination of searching for the
+        // keywords and then filtering for the mapped keywords
+        if self.entity_type == "works" && property_name == "keywords" {
+            if !["==", "~="].contains(&operator) {
+                return Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    format!("Unsupported operator for OpenAlex keywords: {operator}. Use = or ==."),
+                ));
+            }
+
+            let search = if let Some(value) = arg_value.as_str() {
+                value.to_string()
+            } else if let Ok(iter) = arg_value.try_iter() {
+                iter.map(|item| format_filter_value(&item)).join(" ")
+            } else {
                 return Err(Error::new(
                     ErrorKind::InvalidOperation,
                     format!(
-                        "Unhandled filter property for OpenAlex {}: {property_name}",
-                        self.entity_type
+                        "Unsupported value for OpenAlex keywords: {}",
+                        arg_value.to_string()
                     ),
                 ));
+            };
+
+            let keyword_query = self.clone_for("keywords").search(&search);
+            if let Some(ids) = if testing() {
+                Some("keywords/diagnosis".into())
+            } else {
+                keyword_query.ids()
+            } {
+                self.filters.push(format!("keywords.id:{ids}"));
+                return Ok(());
+            } else {
+                return Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    "No matching keywords",
+                ));
             }
+        }
+
+        let unsupported_property = || {
+            Err(Error::new(
+                ErrorKind::InvalidOperation,
+                format!(
+                    "Unsupported filter property for OpenAlex {}: {property_name}",
+                    self.entity_type
+                ),
+            ))
         };
+
+        // Map the property name to the OpenAlex filter name
+        let filter_name =
+            match self.entity_type.as_str() {
+                "works" => match property_name {
+                    // See https://docs.openalex.org/api-entities/works/filter-works
+                    // In OpenAlex it is not possible to test equality for `display_name`, only `display_name.search`
+                    // it available, which is also aliased to `title.search`
+                    "title" => "title.search",
+                    "name" => "display_name.search",
+                    // Abstract is available to search https://docs.openalex.org/api-entities/works/filter-works#abstract.search
+                    "abstract" => "abstract.search",
+                    // Properties on `primary_location` that we hoist up
+                    "license" => "primary_location.license",
+                    "is_accepted" => "primary_location.is_accepted",
+                    "is_published" => "primary_location.is_published",
+                    "version" => "primary_location.version",
+                    // Aliases
+                    "year" => "publication_year",
+                    "date" => "publication_date",
+                    "references_count" | "cites_count" | "referenced_works_count" => {
+                        "referenced_works_count"
+                    }
+                    "institutions_count"
+                    | "organizations_count"
+                    | "institutions_distinct_count" => "institutions_distinct_count",
+                    // Properties which do not need mapping, including convenience filters
+                    //  https://docs.openalex.org/api-entities/works/filter-works#works-convenience-filters
+                    "doi" | "is_oa" | "oa_status" | "has_abstract" | "has_references"
+                    | "has_doi" | "has_orcid" | "has_pmcid" | "has_pmid" | "authors_count"
+                    | "cited_by_count" => property_name,
+                    // Compound properties used by subqueries
+                    "authorships.author.orcid"
+                    | "authorships.institutions.ror"
+                    | "authorships.institutions.type"
+                    | "authorships.institutions.is_global_south"
+                    | "locations_count"
+                    | "primary_location.source.issn"
+                    | "raw_affiliation_strings.search"
+                    | "raw_author_name.search" => property_name,
+                    // Error for all others
+                    _ => return unsupported_property(),
+                },
+                "authors" => match property_name {
+                    // See https://docs.openalex.org/api-entities/authors/filter-authors
+                    "name" => "display_name.search",
+                    // Properties on `summary_stats` that we hoist up
+                    "impact_factor" => "summary_status.2yr_mean_citedness",
+                    "h_index" => "summary_stats.h_index",
+                    "i10_index" => "summary_stats.i10_index",
+                    // Properties which do not need mapping, including convenience filters
+                    //  https://docs.openalex.org/api-entities/authors/filter-authors#authors-convenience-filters
+                    "orcid" | "has_orcid" | "works_count" | "cited_by_count" => property_name,
+                    // Compound properties used by subqueries
+                    "affiliations.institution.ror"
+                    | "affiliations.institution.type"
+                    | "last_known_institutions.is_global_south" => property_name,
+                    // Error for all others
+                    _ => return unsupported_property(),
+                },
+                "institutions" => match property_name {
+                    // See https://docs.openalex.org/api-entities/institutions/filter-institutions
+                    "name" => "display_name.search",
+                    // Properties on `summary_stats` that we hoist up
+                    "impact_factor" => "summary_status.2yr_mean_citedness",
+                    "h_index" => "summary_stats.h_index",
+                    "i10_index" => "summary_stats.i10_index",
+                    // Properties which do not need mapping, including convenience filters
+                    //  https://docs.openalex.org/api-entities/institutions/filter-institutions#institutions-convenience-filters
+                    "ror" | "has_ror" | "works_count" | "cited_by_count" | "type"
+                    | "is_global_south" => property_name,
+                    // Error for all others
+                    _ => return unsupported_property(),
+                },
+                "sources" => match property_name {
+                    // See https://docs.openalex.org/api-entities/sources/filter-sources
+                    "name" => "display_name.search",
+                    // Properties on `summary_stats` that we hoist up
+                    "impact_factor" => "summary_status.2yr_mean_citedness",
+                    "h_index" => "summary_stats.h_index",
+                    "i10_index" => "summary_stats.i10_index",
+                    // Properties which do not need mapping, including convenience filters
+                    //  https://docs.openalex.org/api-entities/sources/filter-sources#sources-convenience-filters
+                    "issn" | "has_issn" | "is_oa" | "works_count" | "cited_by_count"
+                    | "is_global_south" => property_name,
+                    // Error for all others
+                    _ => return unsupported_property(),
+                },
+                "publishers" => match property_name {
+                    // See https://docs.openalex.org/api-entities/publishers/filter-publishers
+                    "name" => "display_name.search",
+                    // Properties on `summary_stats` that we hoist up
+                    "impact_factor" => "summary_status.2yr_mean_citedness",
+                    "h_index" => "summary_stats.h_index",
+                    "i10_index" => "summary_stats.i10_index",
+                    // Properties which do not need mapping, including convenience filters
+                    //  https://docs.openalex.org/api-entities/publishers/filter-publishers#publishers-convenience-filters
+                    "ror" | "works_count" | "cited_by_count" => property_name,
+                    // Error for all others
+                    _ => return unsupported_property(),
+                },
+                "funders" => match property_name {
+                    // See https://docs.openalex.org/api-entities/funders/filter-funders
+                    "name" => "display_name.search",
+                    "description" => "description.search",
+                    // Properties on `summary_stats` that we hoist up
+                    "impact_factor" => "summary_status.2yr_mean_citedness",
+                    "h_index" => "summary_stats.h_index",
+                    "i10_index" => "summary_stats.i10_index",
+                    // Properties which do not need mapping, including convenience filters
+                    //  https://docs.openalex.org/api-entities/funders/filter-funders#funders-convenience-filters
+                    "ror" | "grants_count" | "works_count" | "cited_by_count"
+                    | "is_global_south" => property_name,
+                    // Error for all others
+                    _ => return unsupported_property(),
+                },
+                // Error for all others
+                _ => return unsupported_property(),
+            };
 
         // Transform the minijinja argument value into a string
         let mut filter_value = format_filter_value(&arg_value);
@@ -476,6 +488,7 @@ impl OpenAlexQuery {
                             // Remaining filter attributes on works (see above),
                             // and nested subqueries, require an id query
                             "search"
+                            | "keywords"
                             | "title"
                             | "name"
                             | "abstract"

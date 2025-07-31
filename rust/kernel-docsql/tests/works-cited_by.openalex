@@ -23,6 +23,11 @@ openalex.works(...cited_by(.year == 2023))
 GET https://api.openalex.org/works?filter=cited_by:W2582743722
 
 
+openalex.works(...cited_by(.keywords = ['fish', 'feed']))
+---
+GET https://api.openalex.org/works?filter=cited_by:W2582743722
+
+
 openalex.works(...citedBy(.is_accepted = true, .is_published = false, .license = "cc-by", .is_oa = true, .oa_status = 'diamond'))
 ---
 GET https://api.openalex.org/works?filter=cited_by:W2582743722
