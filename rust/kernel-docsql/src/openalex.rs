@@ -528,6 +528,26 @@ impl OpenAlexQuery {
                             .push(format!("primary_location.source.host_organization:{ids}"));
                     }
                 }
+                "funded_by" => {
+                    let mut ids_query = self.clone_for("funders");
+                    for (arg_name, arg_value) in &subquery.args {
+                        let (property, ..) = decode_filter(arg_name);
+                        match property {
+                            "_C" => return unsupported_property("count (*)"),
+                            // All filter attributes on funders (see above) require an id query
+                            "name" | "description" | "h_index" | "i10_index" | "ror" | "grants_count"
+                            | "works_count" | "cited_by_count" | "is_global_south" => {
+                                ids_query.filter(arg_name, arg_value.clone())?;
+                                continue;
+                            }
+                            _ => return unsupported_property(property),
+                        };
+                    }
+
+                    if let Some(ids) = ids_maybe(ids_query, "F4320306076", "F0000000000") {
+                        self.filters.push(format!("grants.funder:{ids}"));
+                    }
+                }
                 _ => {
                     return Err(Error::new(
                         ErrorKind::InvalidOperation,

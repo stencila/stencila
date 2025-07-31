@@ -1,0 +1,28 @@
+openalex.works(...fundedBy(.name == "National Science Foundation"))
+---
+GET https://api.openalex.org/works?filter=grants.funder:F4320306076
+
+
+openalex.works(...funded_by(.description ~= "United States government agency"))
+---
+GET https://api.openalex.org/works?filter=grants.funder:F4320306076
+
+
+openalex.works(...fundedBy(.ror == "021nxhr62"))
+---
+GET https://api.openalex.org/works?filter=grants.funder:F4320306076
+
+
+openalex.works(...funded_by(.grants_count > 10))
+---
+GET https://api.openalex.org/works?filter=grants.funder:F4320306076
+
+
+openalex.works(...fundedBy(.h_index > 1000, .i10_index < 1000, .works_count < 10, .cited_by_count >= 10))
+---
+GET https://api.openalex.org/works?filter=grants.funder:F4320306076
+
+
+openalex.works(...funded_by(* > 10))
+---
+Filter `count (*)` in subquery `funded_by` is not supported for OpenAlex `works`

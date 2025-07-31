@@ -46,6 +46,7 @@ pub(super) fn add_subquery_functions(env: &mut Environment) {
         "cited_by",
         "published_in",
         "published_by",
+        "funded_by",
         "topics",
         "owners",
     ] {
