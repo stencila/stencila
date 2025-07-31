@@ -1,3 +1,13 @@
+openalex.works(...published_in("eLife"))
+---
+GET https://api.openalex.org/works?filter=primary_location.source.id:S1336409049
+
+
+openalex.works(...published_in(search = "eLife"))
+---
+GET https://api.openalex.org/works?filter=primary_location.source.id:S1336409049
+
+
 openalex.works(...published_in(.name == "eLife"))
 ---
 GET https://api.openalex.org/works?filter=primary_location.source.id:S1336409049

@@ -1,3 +1,13 @@
+openalex.works("Some words on the post-collisional magmatism")
+---
+GET https://api.openalex.org/works?search=Some+words+on+the+post-collisional+magmatism
+
+
+openalex.works(search = "Some words on the post-collisional magmatism")
+---
+GET https://api.openalex.org/works?search=Some+words+on+the+post-collisional+magmatism
+
+
 openalex.works(.title == "Some words on the post-collisional magmatism")
 ---
 GET https://api.openalex.org/works?filter=title.search:Some+words+on+the+post-collisional+magmatism

@@ -2,7 +2,10 @@ use std::{ops::Deref, sync::Arc};
 
 use kernel_jinja::{
     kernel::common::{eyre::Result, inflector::Inflector},
-    minijinja::{Environment, Error, State, Value, value::Object},
+    minijinja::{
+        Environment, Error, State, Value,
+        value::{Kwargs, Object, from_args},
+    },
 };
 
 /// Add functions for subqueries
@@ -100,17 +103,14 @@ impl Object for Subquery {
     fn call(self: &Arc<Self>, _state: &State, args: &[Value]) -> Result<Value, Error> {
         let mut subquery = self.deref().clone();
 
-        for arg in args {
-            if arg.is_kwargs()
-                && let Some(kwargs) = arg.as_object()
-            {
-                for (name, value) in kwargs.try_iter_pairs().into_iter().flatten() {
-                    let name = name.as_str().unwrap_or_default().to_string();
-                    subquery.args.push((name, value));
-                }
-            } else {
-                subquery.args.push((String::new(), arg.clone()));
-            }
+        let (arg, kwargs): (Option<Value>, Kwargs) = from_args(args)?;
+
+        if let Some(arg) = arg {
+            subquery.args.push(("search".to_string(), arg));
+        }
+
+        for name in kwargs.args() {
+            subquery.args.push((name.to_string(), kwargs.get(name)?));
         }
 
         Ok(Value::from_object(subquery))

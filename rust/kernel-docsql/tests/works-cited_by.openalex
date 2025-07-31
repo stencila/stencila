@@ -1,3 +1,13 @@
+openalex.works(...cited_by("magmatism"))
+---
+GET https://api.openalex.org/works?filter=cited_by:W2582743722
+
+
+openalex.works(...cited_by(search = "magmatism"))
+---
+GET https://api.openalex.org/works?filter=cited_by:W2582743722
+
+
 openalex.works(...cited_by(.title ~= "magmatism"))
 ---
 GET https://api.openalex.org/works?filter=cited_by:W2582743722

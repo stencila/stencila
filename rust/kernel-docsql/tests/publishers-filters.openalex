@@ -1,3 +1,13 @@
+openalex.publishers("eLife")
+---
+GET https://api.openalex.org/publishers?search=eLife
+
+
+openalex.publishers(search = "eLife")
+---
+GET https://api.openalex.org/publishers?search=eLife
+
+
 openalex.publishers(.name == "Wiley")
 ---
 GET https://api.openalex.org/publishers?filter=display_name.search:Wiley

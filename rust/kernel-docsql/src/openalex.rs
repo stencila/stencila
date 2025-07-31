@@ -126,6 +126,14 @@ impl OpenAlexQuery {
             }
         }
 
+        // Handle search (for when called for subquery)
+        if arg_name == "search"
+            && let Some(search) = arg_value.to_str().as_deref()
+        {
+            self.search = Some(search.into());
+            return Ok(());
+        }
+
         // Extract the property name an operator from the arg
         let (property_name, mut operator) = decode_filter(arg_name);
 
@@ -374,7 +382,7 @@ impl OpenAlexQuery {
         };
 
         let ids_maybe = |query: OpenAlexQuery, test: &str, none: &str| {
-            if query.filters.is_empty() {
+            if query.filters.is_empty() && query.search.is_none() {
                 None
             } else if testing() {
                 Some(test.into())
@@ -399,7 +407,7 @@ impl OpenAlexQuery {
                     for (arg_name, arg_value) in &subquery.args {
                         let (property, operator) = decode_filter(arg_name);
                         let property = match property {
-                            "name" => "raw_author_name.search",
+                            "search" | "name" => "raw_author_name.search",
                             "orcid" => "authorships.author.orcid",
                             "_C" => "authors_count",
                             // Remaining filter attributes on authors (see
@@ -424,7 +432,7 @@ impl OpenAlexQuery {
                     for (arg_name, arg_value) in &subquery.args {
                         let (property, operator) = decode_filter(arg_name);
                         let property = match property {
-                            "name" => "raw_affiliation_strings.search",
+                            "search" | "name" => "raw_affiliation_strings.search",
                             "ror" => "authorships.institutions.ror",
                             "type" => "authorships.institutions.type",
                             "is_global_south" => "authorships.institutions.is_global_south",
@@ -462,7 +470,8 @@ impl OpenAlexQuery {
                             }
                             // Remaining filter attributes on works (see above),
                             // and nested subqueries, require an id query
-                            "title"
+                            "search"
+                            | "title"
                             | "name"
                             | "abstract"
                             | "license"
@@ -513,8 +522,8 @@ impl OpenAlexQuery {
                             // Remaining filter attributes on sources (see
                             // above), and nested subqueries, require an id
                             // query
-                            "name" | "h_index" | "i10_index" | "has_issn" | "works_count"
-                            | "cited_by_count" | "is_global_south" | "_" => {
+                            "search" | "name" | "h_index" | "i10_index" | "has_issn"
+                            | "works_count" | "cited_by_count" | "is_global_south" | "_" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
@@ -536,7 +545,7 @@ impl OpenAlexQuery {
                             "_C" => return unsupported_property("count (*)"),
                             // All filter attributes on publishers (see above),
                             // and nested subqueries, require an id query
-                            "name" | "h_index" | "i10_index" | "ror" | "works_count"
+                            "search" | "name" | "h_index" | "i10_index" | "ror" | "works_count"
                             | "cited_by_count" | "_" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
@@ -558,7 +567,7 @@ impl OpenAlexQuery {
                             "_C" => return unsupported_property("count (*)"),
                             // All filter attributes on funders (see above), and
                             // nested subqueries, require an id query
-                            "name" | "description" | "h_index" | "i10_index" | "ror"
+                            "search" | "name" | "description" | "h_index" | "i10_index" | "ror"
                             | "grants_count" | "works_count" | "cited_by_count"
                             | "is_global_south" | "_" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
@@ -587,8 +596,8 @@ impl OpenAlexQuery {
                             // Remaining filter attributes on institutions (see
                             // above), and nested subqueries, require an id
                             // query
-                            "name" | "has_ror" | "h_index" | "i10_index" | "works_count"
-                            | "cited_by_count" | "_" => {
+                            "search" | "name" | "has_ror" | "h_index" | "i10_index"
+                            | "works_count" | "cited_by_count" | "_" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
@@ -613,7 +622,7 @@ impl OpenAlexQuery {
                             "_C" => return unsupported_property("count (*)"),
                             // All filter attributes on publishers (see above),
                             // and nested subqueries, require an id query
-                            "name" | "h_index" | "i10_index" | "ror" | "works_count"
+                            "search" | "name" | "h_index" | "i10_index" | "ror" | "works_count"
                             | "cited_by_count" | "_" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
@@ -644,9 +653,9 @@ impl OpenAlexQuery {
     }
 
     /// Add a search term
-    fn search(&self, term: String) -> Self {
+    fn search(&self, term: &str) -> Self {
         let mut query = self.clone();
-        query.search = Some(term);
+        query.search = Some(term.into());
         query
     }
 
@@ -1003,13 +1012,18 @@ impl Object for OpenAlexQuery {
                 }
 
                 // Handle `search` and `like` arguments and apply all others as filters
-                let (kwargs,): (Kwargs,) = from_args(args)?;
+                let (arg, kwargs): (Option<Value>, Kwargs) = from_args(args)?;
+                if let Some(value) = arg {
+                    if let Some(value) = value.as_str() {
+                        query = query.search(value)
+                    }
+                }
                 for arg in kwargs.args() {
                     let value: Value = kwargs.get(arg)?;
                     match arg {
                         "search" => {
-                            if let Some(search_value) = value.as_str() {
-                                query = query.search(search_value.to_string())
+                            if let Some(value) = value.as_str() {
+                                query = query.search(value)
                             }
                         }
                         "like" => {

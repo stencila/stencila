@@ -1,3 +1,13 @@
+openalex.publishers(...part_of("Wiley"))
+---
+GET https://api.openalex.org/publishers?filter=lineage:P4310320595
+
+
+openalex.publishers(...part_of(search = "Wiley"))
+---
+GET https://api.openalex.org/publishers?filter=lineage:P4310320595
+
+
 openalex.publishers(...part_of(.name == "Wiley"))
 ---
 GET https://api.openalex.org/publishers?filter=lineage:P4310320595

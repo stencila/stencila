@@ -1,3 +1,13 @@
+openalex.institutions("John Brown University")
+---
+GET https://api.openalex.org/institutions?search=John+Brown+University
+
+
+openalex.institutions(search = "John Brown University")
+---
+GET https://api.openalex.org/institutions?search=John+Brown+University
+
+
 openalex.institutions(.name == "John Brown University")
 ---
 GET https://api.openalex.org/institutions?filter=display_name.search:John+Brown+University

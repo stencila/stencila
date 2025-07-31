@@ -1,3 +1,13 @@
+openalex.works(...authors("Josiah Carberry"))
+---
+GET https://api.openalex.org/works?filter=raw_author_name.search:Josiah+Carberry
+
+
+openalex.works(...authors(search = "Josiah Carberry"))
+---
+GET https://api.openalex.org/works?filter=raw_author_name.search:Josiah+Carberry
+
+
 openalex.works(...authors(.name == "Josiah Carberry"))
 ---
 GET https://api.openalex.org/works?filter=raw_author_name.search:Josiah+Carberry

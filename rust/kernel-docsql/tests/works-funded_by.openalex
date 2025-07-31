@@ -1,3 +1,13 @@
+openalex.works(...fundedBy("National Science Foundation"))
+---
+GET https://api.openalex.org/works?filter=grants.funder:F4320306076
+
+
+openalex.works(...fundedBy(search = "National Science Foundation"))
+---
+GET https://api.openalex.org/works?filter=grants.funder:F4320306076
+
+
 openalex.works(...fundedBy(.name == "National Science Foundation"))
 ---
 GET https://api.openalex.org/works?filter=grants.funder:F4320306076

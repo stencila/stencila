@@ -1,3 +1,13 @@
+openalex.works(...published_by("Wiley"))
+---
+GET https://api.openalex.org/works?filter=primary_location.source.host_organization:P4310320595
+
+
+openalex.works(...published_by(search = "Wiley"))
+---
+GET https://api.openalex.org/works?filter=primary_location.source.host_organization:P4310320595
+
+
 openalex.works(...published_by(.name == "Wiley"))
 ---
 GET https://api.openalex.org/works?filter=primary_location.source.host_organization:P4310320595

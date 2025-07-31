@@ -1,3 +1,13 @@
+openalex.sources(...published_by("Wiley"))
+---
+GET https://api.openalex.org/sources?filter=host_organization_lineage:P4310320595
+
+
+openalex.sources(...published_by(search = "Wiley"))
+---
+GET https://api.openalex.org/sources?filter=host_organization_lineage:P4310320595
+
+
 openalex.sources(...published_by(.name == "Wiley"))
 ---
 GET https://api.openalex.org/sources?filter=host_organization_lineage:P4310320595

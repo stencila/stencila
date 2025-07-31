@@ -1,3 +1,13 @@
+openalex.works(...affiliations("John Brown University"))
+---
+GET https://api.openalex.org/works?filter=raw_affiliation_strings.search:John+Brown+University
+
+
+openalex.works(...affiliations(search = "John Brown University"))
+---
+GET https://api.openalex.org/works?filter=raw_affiliation_strings.search:John+Brown+University
+
+
 openalex.works(...affiliations(.name == "John Brown University"))
 ---
 GET https://api.openalex.org/works?filter=raw_affiliation_strings.search:John+Brown+University

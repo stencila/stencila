@@ -1,3 +1,13 @@
+openalex.authors("Josiah Carberry")
+---
+GET https://api.openalex.org/authors?search=Josiah+Carberry
+
+
+openalex.authors(search = "Josiah Carberry")
+---
+GET https://api.openalex.org/authors?search=Josiah+Carberry
+
+
 openalex.authors(.name == "Josiah Carberry")
 ---
 GET https://api.openalex.org/authors?filter=display_name.search:Josiah+Carberry

@@ -1,3 +1,13 @@
+openalex.funders("National Science Foundation")
+---
+GET https://api.openalex.org/funders?search=National+Science+Foundation
+
+
+openalex.funders(search = "National Science Foundation")
+---
+GET https://api.openalex.org/funders?search=National+Science+Foundation
+
+
 openalex.funders(.name == "National Science Foundation")
 ---
 GET https://api.openalex.org/funders?filter=display_name.search:National+Science+Foundation

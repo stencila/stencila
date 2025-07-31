@@ -1,3 +1,13 @@
+openalex.authors(...affiliations("John Brown University"))
+---
+GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590
+
+
+openalex.authors(...affiliations(search = "John Brown University"))
+---
+GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590
+
+
 openalex.authors(...affiliations(.name == "John Brown University"))
 ---
 GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590
