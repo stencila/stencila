@@ -201,6 +201,10 @@ impl OpenAlexQuery {
                 // Properties which do not need mapping, including convenience filters
                 //  https://docs.openalex.org/api-entities/authors/filter-authors#authors-convenience-filters
                 "orcid" | "has_orcid" | "works_count" | "cited_by_count" => property_name,
+                // Compound properties used by subqueries
+                "affiliations.institution.ror"
+                | "affiliations.institution.type"
+                | "last_known_institutions.is_global_south" => property_name,
                 // Error for all others
                 _ => {
                     return Err(Error::new(
@@ -353,6 +357,13 @@ impl OpenAlexQuery {
         let entity_type = self.entity_type.clone();
         let subquery_name = subquery.name.as_str();
 
+        let unsupported_subquery = || {
+            return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                format!("Subquery `{subquery_name}` is not supported for OpenAlex `{entity_type}`"),
+            ));
+        };
+
         let unsupported_property = |property: &str| {
             Err(Error::new(
                 ErrorKind::InvalidOperation,
@@ -391,6 +402,7 @@ impl OpenAlexQuery {
                             "name" => "raw_author_name.search",
                             "orcid" => "authorships.author.orcid",
                             "_C" => "authors_count",
+                            // Remaining filter attributes on authors (see above) require an id query
                             "has_orcid" | "h_index" | "i10_index" | "works_count"
                             | "cited_by_count" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
@@ -415,6 +427,7 @@ impl OpenAlexQuery {
                             "type" => "authorships.institutions.type",
                             "is_global_south" => "authorships.institutions.is_global_south",
                             "_C" => "institutions_distinct_count",
+                            // Remaining filter attributes on institutions (see above) require an id query
                             "has_ror" | "h_index" | "i10_index" | "works_count"
                             | "cited_by_count" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
@@ -535,8 +548,9 @@ impl OpenAlexQuery {
                         match property {
                             "_C" => return unsupported_property("count (*)"),
                             // All filter attributes on funders (see above) require an id query
-                            "name" | "description" | "h_index" | "i10_index" | "ror" | "grants_count"
-                            | "works_count" | "cited_by_count" | "is_global_south" => {
+                            "name" | "description" | "h_index" | "i10_index" | "ror"
+                            | "grants_count" | "works_count" | "cited_by_count"
+                            | "is_global_south" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
@@ -548,14 +562,35 @@ impl OpenAlexQuery {
                         self.filters.push(format!("grants.funder:{ids}"));
                     }
                 }
-                _ => {
-                    return Err(Error::new(
-                        ErrorKind::InvalidOperation,
-                        format!(
-                            "Subquery `{subquery_name}` is not supported for OpenAlex `{entity_type}`"
-                        ),
-                    ));
+                _ => return unsupported_subquery(),
+            },
+            "authors" => match subquery_name {
+                "affiliations" => {
+                    let mut ids_query = self.clone_for("institutions");
+                    for (arg_name, arg_value) in &subquery.args {
+                        let (property, operator) = decode_filter(arg_name);
+                        let property = match property {
+                            "ror" => "affiliations.institution.ror",
+                            "type" => "affiliations.institution.type",
+                            "is_global_south" => "last_known_institutions.is_global_south",
+                            "_C" => return unsupported_property("count (*)"),
+                            // Remaining filter attributes on institutions (see above) require an id query
+                            "name" | "has_ror" | "h_index" | "i10_index" | "works_count"
+                            | "cited_by_count" => {
+                                ids_query.filter(arg_name, arg_value.clone())?;
+                                continue;
+                            }
+                            _ => return unsupported_property(property),
+                        };
+                        self.filter(&encode_filter(property, operator), arg_value.clone())?;
+                    }
+
+                    if let Some(ids) = ids_maybe(ids_query, "I1294671590", "I0000000000") {
+                        self.filters
+                            .push(format!("affiliations.institution.id:{ids}"));
+                    }
                 }
+                _ => return unsupported_subquery(),
             },
             _ => {
                 return Err(Error::new(
