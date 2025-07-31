@@ -1,0 +1,33 @@
+openalex.works(...cites(.title ~= "magmatism"))
+---
+GET https://api.openalex.org/works?filter=cites:W2582743722
+
+
+openalex.works(...cites(.doi = "10.1007/bf00372365"))
+---
+GET https://api.openalex.org/works?filter=cites:W2582743722
+
+
+openalex.works(...cites(.is_accepted = true, .is_published = false, .license = "cc-by", .is_oa = true, .oa_status = 'diamond'))
+---
+GET https://api.openalex.org/works?filter=cites:W2582743722
+
+
+openalex.works(...cites(* > 10))
+---
+GET https://api.openalex.org/works?filter=referenced_works_count:>10
+
+
+openalex.works(...cites(* >= 5))
+---
+GET https://api.openalex.org/works?filter=referenced_works_count:>4
+
+
+openalex.works(...cites(* <= 20))
+---
+GET https://api.openalex.org/works?filter=referenced_works_count:<21
+
+
+openalex.works(...cites(* == 15))
+---
+GET https://api.openalex.org/works?filter=referenced_works_count:15

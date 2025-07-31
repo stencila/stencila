@@ -155,17 +155,20 @@ impl OpenAlexQuery {
                 "name" => "display_name.search",
                 // Abstract is available to search https://docs.openalex.org/api-entities/works/filter-works#abstract.search
                 "abstract" => "abstract.search",
-                // Renames
-                "year" => "publication_year",
-                "date" => "publication_date",
                 // Properties on `primary_location` that we hoist up
                 "license" => "primary_location.license",
                 "is_accepted" => "primary_location.is_accepted",
                 "is_published" => "primary_location.is_published",
                 "version" => "primary_location.version",
                 // Aliases
-                "references_count" | "cites_count" => "referenced_works_count",
-                "institutions_count" | "organizations_count" => "institutions_distinct_count",
+                "year" => "publication_year",
+                "date" => "publication_date",
+                "references_count" | "cites_count" | "referenced_works_count" => {
+                    "referenced_works_count"
+                }
+                "institutions_count" | "organizations_count" | "institutions_distinct_count" => {
+                    "institutions_distinct_count"
+                }
                 // Properties which do not need mapping, including convenience filters
                 //  https://docs.openalex.org/api-entities/works/filter-works#works-convenience-filters
                 "doi" | "is_oa" | "oa_status" | "has_abstract" | "has_references" | "has_doi"
@@ -177,7 +180,6 @@ impl OpenAlexQuery {
                 | "authorships.institutions.ror"
                 | "authorships.institutions.type"
                 | "authorships.institutions.is_global_south"
-                | "institutions_distinct_count"
                 | "raw_affiliation_strings.search"
                 | "raw_author_name.search" => property_name,
                 // Error for all others
@@ -431,6 +433,65 @@ impl OpenAlexQuery {
 
                         self.filters
                             .push(format!("authorships.institutions.id:{ids}"));
+                    }
+                }
+                "references" | "cites" => {
+                    let mut ids_query = self.clone_for("works");
+                    for (arg_name, arg_value) in &subquery.args {
+                        let (property, operator) = decode_filter(arg_name);
+                        let property = match property {
+                            // The only filter field related to referenced works, other than `cites`
+                            // is the number of references:
+                            "_C" => "referenced_works_count",
+                            // These are all properties in the filter method for works, ll of which
+                            // should be passed on to the ids query
+                            "title"
+                            | "name"
+                            | "abstract"
+                            | "license"
+                            | "is_accepted"
+                            | "is_published"
+                            | "version"
+                            | "year"
+                            | "date"
+                            | "references_count"
+                            | "cites_count"
+                            | "institutions_count"
+                            | "organizations_count"
+                            | "doi"
+                            | "is_oa"
+                            | "oa_status"
+                            | "has_abstract"
+                            | "has_references"
+                            | "has_doi"
+                            | "has_orcid"
+                            | "has_pmcid"
+                            | "has_pmid"
+                            | "authors_count"
+                            | "cited_by_count" => {
+                                ids_query.filter(arg_name, arg_value.clone())?;
+                                continue;
+                            }
+                            _ => {
+                                return Err(Error::new(
+                                    ErrorKind::InvalidOperation,
+                                    format!(
+                                        "Filter `{property}` in subquery `{subquery_name}` is not supported for OpenAlex `{entity_type}`"
+                                    ),
+                                ));
+                            }
+                        };
+                        self.filter(&encode_filter(property, operator), arg_value.clone())?;
+                    }
+
+                    if !ids_query.filters.is_empty() {
+                        let ids = if testing() {
+                            "W2582743722".to_string()
+                        } else {
+                            ids_query.ids().unwrap_or_else(|| "W0000000000".into())
+                        };
+
+                        self.filters.push(format!("cites:{ids}"));
                     }
                 }
                 _ => {
