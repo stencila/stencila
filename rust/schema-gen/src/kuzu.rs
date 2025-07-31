@@ -286,7 +286,7 @@ impl Schemas {
         ]);
 
         // Node types for which full-text search indices should be created.
-        let fts_properties = HashMap::from([
+        let fts_properties = BTreeMap::from([
             ("Article", vec!["title", "abstract", "description"]),
             ("Table", vec!["caption"]),
             ("Figure", vec!["caption"]),
@@ -297,7 +297,7 @@ impl Schemas {
 
         // Node types for which embeddings should be created.
         // Used to generate a function which returns the text string that is used to create the embeddings
-        let embeddings_properties = HashMap::from([
+        let embeddings_properties = BTreeMap::from([
             ("Article", vec!["title", "abstract"]),
             ("Paragraph", vec!["text"]),
             ("Sentence", vec!["text"]),

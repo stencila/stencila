@@ -1899,15 +1899,15 @@ CREATE REL TABLE IF NOT EXISTS `references` (
 
 INSTALL FTS;
 LOAD EXTENSION FTS;
-CALL CREATE_FTS_INDEX('Table', 'fts', ['caption']);
-CALL CREATE_FTS_INDEX('CodeChunk', 'fts', ['caption','code']);
 CALL CREATE_FTS_INDEX('Article', 'fts', ['title','abstract','description']);
+CALL CREATE_FTS_INDEX('CodeChunk', 'fts', ['caption','code']);
+CALL CREATE_FTS_INDEX('Figure', 'fts', ['caption']);
 CALL CREATE_FTS_INDEX('Paragraph', 'fts', ['text']);
 CALL CREATE_FTS_INDEX('Sentence', 'fts', ['text']);
-CALL CREATE_FTS_INDEX('Figure', 'fts', ['caption']);
+CALL CREATE_FTS_INDEX('Table', 'fts', ['caption']);
 
 INSTALL VECTOR;
 LOAD EXTENSION VECTOR;
+CALL CREATE_VECTOR_INDEX('Article', 'vector', 'embeddings');
 CALL CREATE_VECTOR_INDEX('Paragraph', 'vector', 'embeddings');
 CALL CREATE_VECTOR_INDEX('Sentence', 'vector', 'embeddings');
-CALL CREATE_VECTOR_INDEX('Article', 'vector', 'embeddings');
