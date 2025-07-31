@@ -507,6 +507,27 @@ impl OpenAlexQuery {
                             .push(format!("primary_location.source.id:{ids}"));
                     }
                 }
+                "published_by" => {
+                    let mut ids_query = self.clone_for("publishers");
+                    for (arg_name, arg_value) in &subquery.args {
+                        let (property, ..) = decode_filter(arg_name);
+                        match property {
+                            "_C" => return unsupported_property("count (*)"),
+                            // All filter attributes on publishers (see above) require an id query
+                            "name" | "h_index" | "i10_index" | "ror" | "works_count"
+                            | "cited_by_count" => {
+                                ids_query.filter(arg_name, arg_value.clone())?;
+                                continue;
+                            }
+                            _ => return unsupported_property(property),
+                        };
+                    }
+
+                    if let Some(ids) = ids_maybe(ids_query, "P4310320595", "P0000000000") {
+                        self.filters
+                            .push(format!("primary_location.source.host_organization:{ids}"));
+                    }
+                }
                 _ => {
                     return Err(Error::new(
                         ErrorKind::InvalidOperation,
