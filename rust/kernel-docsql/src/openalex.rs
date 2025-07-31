@@ -592,8 +592,8 @@ impl OpenAlexQuery {
                 }
                 _ => return unsupported_subquery(),
             },
-            "sources" => match subquery_name {
-                "published_by" => {
+            "sources" | "publishers" => match (entity_type.as_str(), subquery_name) {
+                ("sources", "published_by") | ("publishers", "part_of") => {
                     let mut ids_query = self.clone_for("publishers");
                     for (arg_name, arg_value) in &subquery.args {
                         let (property, ..) = decode_filter(arg_name);
@@ -610,8 +610,11 @@ impl OpenAlexQuery {
                     }
 
                     if let Some(ids) = ids_maybe(ids_query, "P4310320595", "P0000000000") {
-                        self.filters
-                            .push(format!("host_organization_lineage:{ids}"));
+                        self.filters.push(if entity_type == "sources" {
+                            format!("host_organization_lineage:{ids}")
+                        } else {
+                            format!("lineage:{ids}")
+                        });
                     }
                 }
                 _ => return unsupported_subquery(),
