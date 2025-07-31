@@ -4,6 +4,7 @@ expression: node
 ---
 {
   "type": "Article",
+  "doi": "10.48550/ARXIV.2507.11353",
   "abstract": [
     {
       "type": "Paragraph",
@@ -68,6 +69,7 @@ expression: node
     }
   ],
   "content": [],
+  "url": "https://arxiv.org/abs/2507.11353",
   "publisher": {
     "type": "Organization",
     "name": "arXiv"

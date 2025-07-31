@@ -80,11 +80,17 @@ pub struct Item {
     pub chapter_number: Option<OrdinaryField>,
 
     // Identifier fields
+    #[serde(alias = "DOI")]
     pub doi: Option<String>,
+    #[serde(alias = "URL")]
     pub url: Option<String>,
+    #[serde(alias = "ISSN")]
     pub issn: Option<Vec<String>>,
+    #[serde(alias = "ISBN")]
     pub isbn: Option<Vec<String>>,
+    #[serde(alias = "PMID")]
     pub pmid: Option<String>,
+    #[serde(alias = "PMCID")]
     pub pmcid: Option<String>,
 
     // Publication info
