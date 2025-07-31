@@ -394,6 +394,7 @@ impl OpenAlexQuery {
                     }
                 }
                 "affiliations" => {
+                    let mut ids_query = self.clone_for("institutions");
                     for (arg_name, arg_value) in &subquery.args {
                         let (property, operator) = decode_filter(arg_name);
                         let property = match property {
@@ -402,6 +403,11 @@ impl OpenAlexQuery {
                             "type" => "authorships.institutions.type",
                             "is_global_south" => "authorships.institutions.is_global_south",
                             "_C" => "institutions_distinct_count",
+                            "has_ror" | "h_index" | "i10_index" | "works_count"
+                            | "cited_by_count" => {
+                                ids_query.filter(arg_name, arg_value.clone())?;
+                                continue;
+                            }
                             _ => {
                                 return Err(Error::new(
                                     ErrorKind::InvalidOperation,
@@ -412,6 +418,17 @@ impl OpenAlexQuery {
                             }
                         };
                         self.filter(&encode_filter(property, operator), arg_value.clone())?;
+                    }
+
+                    if !ids_query.filters.is_empty() {
+                        let ids = if testing() {
+                            "I1294671590".to_string()
+                        } else {
+                            ids_query.ids().unwrap_or_else(|| "I0000000000".into())
+                        };
+
+                        self.filters
+                            .push(format!("authorships.institutions.id:{ids}"));
                     }
                 }
                 _ => {
@@ -648,10 +665,17 @@ impl OpenAlexQuery {
     }
 
     /// Get the ids of nodes matching the query
+    ///
+    /// This is used to construct pipe joined lists of ids. Up to 100 ids can be joined in that
+    /// pay so this als set per-page to 100.
+    ///
+    /// See https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities/filter-entity-lists#addition-or
     #[tracing::instrument(skip(self))]
     pub fn ids(&self) -> Option<String> {
         let mut query = self.clone();
         query.select.push("id".into());
+        query.per_page = Some(100);
+
         let url = query.generate();
 
         let result: Result<_> = task::block_in_place(|| {

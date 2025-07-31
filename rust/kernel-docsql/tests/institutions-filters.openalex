@@ -18,6 +18,16 @@ openalex.institutions(.has_ror = true)
 GET https://api.openalex.org/institutions?filter=has_ror:true
 
 
+openalex.institutions(.type = "government")
+---
+GET https://api.openalex.org/institutions?filter=type:government
+
+
+openalex.institutions(.is_global_south = true)
+---
+GET https://api.openalex.org/institutions?filter=is_global_south:true
+
+
 openalex.institutions(.h_index > 1000)
 ---
 GET https://api.openalex.org/institutions?filter=summary_stats.h_index:>1000
