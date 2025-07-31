@@ -1,14 +1,21 @@
 use std::str::FromStr;
 
-use codec::{common::{
-    indexmap::IndexMap, serde::{Deserialize, Serialize}, serde_json::Value, serde_with::skip_serializing_none
-}, schema::{Author, Person}};
+use codec::{
+    common::{
+        indexmap::IndexMap,
+        itertools::Itertools,
+        serde::{Deserialize, Serialize},
+        serde_json::Value,
+        serde_with::skip_serializing_none,
+    },
+    schema::{Author, Organization, Person, PersonOptions},
+};
 
 /// A CSL name field
-/// 
+///
 /// Represents contributor names in CSL-JSON format, supporting both personal names
 /// with separate components and literal names for institutions or single-name persons.
-/// 
+///
 /// See:
 /// - https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html#name-fields
 #[skip_serializing_none]
@@ -41,47 +48,67 @@ pub struct NameField {
 
     /// ORCID identifier
     pub orcid: Option<String>,
-    
+
     /// Additional name-related fields
     #[serde(flatten)]
     pub extra: IndexMap<String, Value>,
 }
 
+impl From<NameField> for Author {
+    fn from(name: NameField) -> Self {
+        if name.family.is_none()
+            && name.given.is_none()
+            && let Some(literal) = name.literal
+        {
+            let person = Person::from_str(&literal).unwrap_or_else(|_| Person {
+                options: Box::new(PersonOptions {
+                    name: Some(literal),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            });
+            return Author::Person(person);
+        }
 
-/// Convert CSL authors to Stencila authors
-pub fn convert_csl_authors(csl_authors: &[NameField]) -> Vec<Author> {
-    csl_authors
-        .iter()
-        .filter_map(|csl_author| {
-            if let Some(literal) = &csl_author.literal {
-                // Try to parse the literal name
-                match Person::from_str(literal) {
-                    Ok(person) => Some(Author::Person(person)),
-                    Err(_) => {
-                        // Fall back to literal name as given name
-                        Some(Author::Person(Person {
-                            given_names: Some(vec![literal.clone()]),
-                            ..Default::default()
-                        }))
-                    }
-                }
-            } else {
-                // Build from parts
-                let mut person = Person::default();
-                if let Some(given) = &csl_author.given {
-                    person.given_names = Some(vec![given.clone()]);
-                }
-                if let Some(family) = &csl_author.family {
-                    person.family_names = Some(vec![family.clone()]);
-                }
+        let family_names = name
+            .family
+            .map(|name| name.split_whitespace().map(String::from).collect());
 
-                // Only create a person if we have at least some name information
-                if person.given_names.is_some() || person.family_names.is_some() {
-                    Some(Author::Person(person))
-                } else {
-                    None
-                }
-            }
+        let given_names = name
+            .given
+            .map(|name| name.split_whitespace().map(String::from).collect());
+
+        let affiliations = name
+            .affiliation
+            .into_iter()
+            .flatten()
+            .filter_map(|value| match value {
+                Value::String(name) => Some(name),
+                Value::Object(object) => object
+                    .get("name")
+                    .and_then(|value| value.as_str())
+                    .map(String::from),
+                _ => None,
+            })
+            .map(|name| Organization {
+                name: Some(name),
+                ..Default::default()
+            })
+            .collect_vec();
+        let affiliations = (!affiliations.is_empty()).then_some(affiliations);
+
+        Author::Person(Person {
+            family_names,
+            given_names,
+            affiliations,
+            orcid: name.orcid,
+            options: Box::new(PersonOptions {
+                name: name.literal,
+                honorific_prefix: name.dropping_particle,
+                honorific_suffix: name.suffix,
+                ..Default::default()
+            }),
+            ..Default::default()
         })
-        .collect()
+    }
 }

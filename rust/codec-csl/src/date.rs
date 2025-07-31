@@ -1,5 +1,8 @@
+use std::str::FromStr;
+
 use codec::{
     common::{
+        eyre::{Report, bail},
         indexmap::IndexMap,
         serde::{Deserialize, Serialize},
         serde_json::Value,
@@ -126,23 +129,26 @@ pub struct DateParts {
     pub day: Option<u8>,
 }
 
-/// Convert CSL date field to a Stencila Date
-pub fn convert_csl_date(csl_date: &DateField) -> Option<Date> {
-    match csl_date {
-        DateField::DateParts { date_parts }
-        | DateField::Single { date_parts, .. }
-        | DateField::Range { date_parts, .. } => {
-            if let Some(parts) = date_parts.first() {
-                let year = parts.first().map(|y| y.to_string()).unwrap_or_default();
-                let month = parts.get(1).map(|m| format!("-{m:02}")).unwrap_or_default();
-                let day = parts.get(2).map(|d| format!("-{d:02}")).unwrap_or_default();
-                Some(Date::new(format!("{year}{month}{day}")))
-            } else {
-                None
+impl TryFrom<DateField> for Date {
+    type Error = Report;
+
+    fn try_from(value: DateField) -> Result<Self, Self::Error> {
+        Ok(match value {
+            DateField::DateParts { date_parts }
+            | DateField::Single { date_parts, .. }
+            | DateField::Range { date_parts, .. } => {
+                if let Some(parts) = date_parts.first() {
+                    let year = parts.first().map(|y| y.to_string()).unwrap_or_default();
+                    let month = parts.get(1).map(|m| format!("-{m:02}")).unwrap_or_default();
+                    let day = parts.get(2).map(|d| format!("-{d:02}")).unwrap_or_default();
+                    Date::new(format!("{year}{month}{day}"))
+                } else {
+                    bail!("No date parts")
+                }
             }
-        }
-        DateField::Literal { literal, .. } => Some(Date::new(literal.to_string())),
-        DateField::Raw { raw, .. } => Some(Date::new(raw.to_string())),
-        DateField::Edtf { edtf, .. } => Some(Date::new(edtf.to_string())),
+            DateField::Literal { literal, .. } => Date::from_str(&literal)?,
+            DateField::Raw { raw, .. } => Date::from_str(&raw)?,
+            DateField::Edtf { edtf, .. } => Date::from_str(&edtf)?,
+        })
     }
 }

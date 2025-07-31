@@ -1,22 +1,19 @@
 use codec::{
     common::{
         indexmap::IndexMap,
+        itertools::Itertools,
         serde::{Deserialize, Serialize},
         serde_json::Value,
         serde_with::skip_serializing_none,
     },
     schema::{
-        Article, ArticleOptions, CreativeWorkType, IntegerOrString, Organization, Periodical,
-        PersonOrOrganization, PublicationIssue, PublicationVolume,
+        Article, ArticleOptions, Author, CreativeWorkType, Date, IntegerOrString, Organization,
+        Periodical, PersonOrOrganization, PublicationIssue, PublicationVolume,
         shortcuts::{p, t},
     },
 };
 
-use crate::{
-    date::{DateField, convert_csl_date},
-    name::{NameField, convert_csl_authors},
-    ordinary::OrdinaryField,
-};
+use crate::{date::DateField, name::NameField, ordinary::OrdinaryField};
 
 /// A CSL item
 ///
@@ -247,13 +244,13 @@ impl From<Item> for Article {
 
         let authors = item
             .author
-            .as_ref()
-            .map(|authors| convert_csl_authors(authors))
-            .unwrap_or_default();
-
+            .into_iter()
+            .flatten()
+            .map(|name_field| Author::from(name_field))
+            .collect_vec();
         let authors = (!authors.is_empty()).then_some(authors);
 
-        let date_published = item.issued.as_ref().and_then(convert_csl_date);
+        let date_published = item.issued.and_then(|date| Date::try_from(date).ok());
 
         let r#abstract = item
             .abstract_text
