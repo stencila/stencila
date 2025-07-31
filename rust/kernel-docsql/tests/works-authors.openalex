@@ -18,6 +18,11 @@ openalex.works(...authors(.has_orcid = true, .h_index > 10, .i10_index > 10, .wo
 GET https://api.openalex.org/works?filter=authorships.author.id:A5100335963
 
 
+openalex.works(...authors(.works_count > 100, ...affiliations(.type = "government")))
+---
+GET https://api.openalex.org/works?filter=authorships.author.id:A5100335963
+
+
 openalex.works(...authors(* > 30))
 ---
 GET https://api.openalex.org/works?filter=authors_count:>30

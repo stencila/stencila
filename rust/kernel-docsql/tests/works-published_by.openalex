@@ -13,6 +13,11 @@ openalex.works(...published_by(.h_index > 1000,.i10_index < 1000, .works_count >
 GET https://api.openalex.org/works?filter=primary_location.source.host_organization:P4310320595
 
 
+openalex.works(...published_by(...part_of(.name == "Springer Nature")))
+---
+GET https://api.openalex.org/works?filter=primary_location.source.host_organization:P4310320595
+
+
 openalex.works(...published_by(* < 10))
 ---
 Filter `count (*)` in subquery `published_by` is not supported for OpenAlex `works`

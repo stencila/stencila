@@ -18,26 +18,31 @@ openalex.works(...citedBy(.is_accepted = true, .is_published = false, .license =
 GET https://api.openalex.org/works?filter=cited_by:W2582743722
 
 
+openalex.works(...cited_by(...authors(.h_index > 10)))
+---
+GET https://api.openalex.org/works?filter=cited_by:W2582743722
+
+
+openalex.works(...cited_by(...affiliations(.type = "education")))
+---
+GET https://api.openalex.org/works?filter=cited_by:W2582743722
+
+
 openalex.works(...citedBy(* > 100))
 ---
 GET https://api.openalex.org/works?filter=cited_by_count:>100
 
 
-openalex.works(...cited_by(* >= 50))
+openalex.works(...cited_by(* >= 50, * < 100))
 ---
-GET https://api.openalex.org/works?filter=cited_by_count:>49
-
-
-openalex.works(...citedBy(* <= 10))
----
-GET https://api.openalex.org/works?filter=cited_by_count:<11
-
-
-openalex.works(...cited_by(* == 0))
----
-GET https://api.openalex.org/works?filter=cited_by_count:0
+GET https://api.openalex.org/works?filter=cited_by_count:<100,cited_by_count:>49
 
 
 openalex.works(.is_oa = true, search = "pink frogs", ...citedBy(* > 10))
 ---
 GET https://api.openalex.org/works?filter=cited_by_count:>10,is_oa:true&search=pink+frogs
+
+
+openalex.works(...cited_by(...part_of(.h_index > 10)))
+---
+Subquery `part_of` is not supported for OpenAlex `works`

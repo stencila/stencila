@@ -13,21 +13,21 @@ openalex.works(...cites(.is_accepted = true, .is_published = false, .license = "
 GET https://api.openalex.org/works?filter=cites:W2582743722
 
 
-openalex.works(...cites(* > 10))
+openalex.works(...cites(...authors(.h_index < 10)))
 ---
-GET https://api.openalex.org/works?filter=referenced_works_count:>10
+GET https://api.openalex.org/works?filter=cites:W2582743722
 
 
-openalex.works(...cites(* >= 5))
+openalex.works(...cites(* > 10, * <= 20))
 ---
-GET https://api.openalex.org/works?filter=referenced_works_count:>4
-
-
-openalex.works(...cites(* <= 20))
----
-GET https://api.openalex.org/works?filter=referenced_works_count:<21
+GET https://api.openalex.org/works?filter=referenced_works_count:<21,referenced_works_count:>10
 
 
 openalex.works(...cites(* == 15))
 ---
 GET https://api.openalex.org/works?filter=referenced_works_count:15
+
+
+openalex.works(...cites(...part_of(.h_index < 10)))
+---
+Subquery `part_of` is not supported for OpenAlex `works`

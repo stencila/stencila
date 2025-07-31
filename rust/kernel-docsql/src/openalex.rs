@@ -402,9 +402,11 @@ impl OpenAlexQuery {
                             "name" => "raw_author_name.search",
                             "orcid" => "authorships.author.orcid",
                             "_C" => "authors_count",
-                            // Remaining filter attributes on authors (see above) require an id query
+                            // Remaining filter attributes on authors (see
+                            // above), and nested subqueries, require an id
+                            // query
                             "has_orcid" | "h_index" | "i10_index" | "works_count"
-                            | "cited_by_count" => {
+                            | "cited_by_count" | "_" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
@@ -427,9 +429,11 @@ impl OpenAlexQuery {
                             "type" => "authorships.institutions.type",
                             "is_global_south" => "authorships.institutions.is_global_south",
                             "_C" => "institutions_distinct_count",
-                            // Remaining filter attributes on institutions (see above) require an id query
+                            // Remaining filter attributes on institutions (see
+                            // above), and nested subqueries, require an id
+                            // query
                             "has_ror" | "h_index" | "i10_index" | "works_count"
-                            | "cited_by_count" => {
+                            | "cited_by_count" | "_" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
@@ -456,7 +460,8 @@ impl OpenAlexQuery {
                                     "referenced_works_count"
                                 }
                             }
-                            // Remaining filter attributes on works (see above) require an id query
+                            // Remaining filter attributes on works (see above),
+                            // and nested subqueries, require an id query
                             "title"
                             | "name"
                             | "abstract"
@@ -480,7 +485,8 @@ impl OpenAlexQuery {
                             | "has_pmcid"
                             | "has_pmid"
                             | "authors_count"
-                            | "cited_by_count" => {
+                            | "cited_by_count"
+                            | "_" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
@@ -504,9 +510,11 @@ impl OpenAlexQuery {
                         let property = match property {
                             "issn" => "primary_location.source.issn",
                             "_C" => "locations_count",
-                            // Remaining filter attributes on sources (see above) require an id query
+                            // Remaining filter attributes on sources (see
+                            // above), and nested subqueries, require an id
+                            // query
                             "name" | "h_index" | "i10_index" | "has_issn" | "works_count"
-                            | "cited_by_count" | "is_global_south" => {
+                            | "cited_by_count" | "is_global_south" | "_" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
@@ -526,9 +534,10 @@ impl OpenAlexQuery {
                         let (property, ..) = decode_filter(arg_name);
                         match property {
                             "_C" => return unsupported_property("count (*)"),
-                            // All filter attributes on publishers (see above) require an id query
+                            // All filter attributes on publishers (see above),
+                            // and nested subqueries, require an id query
                             "name" | "h_index" | "i10_index" | "ror" | "works_count"
-                            | "cited_by_count" => {
+                            | "cited_by_count" | "_" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
@@ -547,10 +556,11 @@ impl OpenAlexQuery {
                         let (property, ..) = decode_filter(arg_name);
                         match property {
                             "_C" => return unsupported_property("count (*)"),
-                            // All filter attributes on funders (see above) require an id query
+                            // All filter attributes on funders (see above), and
+                            // nested subqueries, require an id query
                             "name" | "description" | "h_index" | "i10_index" | "ror"
                             | "grants_count" | "works_count" | "cited_by_count"
-                            | "is_global_south" => {
+                            | "is_global_south" | "_" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
@@ -574,9 +584,11 @@ impl OpenAlexQuery {
                             "type" => "affiliations.institution.type",
                             "is_global_south" => "last_known_institutions.is_global_south",
                             "_C" => return unsupported_property("count (*)"),
-                            // Remaining filter attributes on institutions (see above) require an id query
+                            // Remaining filter attributes on institutions (see
+                            // above), and nested subqueries, require an id
+                            // query
                             "name" | "has_ror" | "h_index" | "i10_index" | "works_count"
-                            | "cited_by_count" => {
+                            | "cited_by_count" | "_" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
@@ -599,9 +611,10 @@ impl OpenAlexQuery {
                         let (property, ..) = decode_filter(arg_name);
                         match property {
                             "_C" => return unsupported_property("count (*)"),
-                            // All filter attributes on publishers (see above) require an id query
+                            // All filter attributes on publishers (see above),
+                            // and nested subqueries, require an id query
                             "name" | "h_index" | "i10_index" | "ror" | "works_count"
-                            | "cited_by_count" => {
+                            | "cited_by_count" | "_" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
