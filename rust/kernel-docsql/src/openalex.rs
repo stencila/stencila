@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex as SyncMutex};
 
 use codec_openalex::{
     AuthorsResponse, FundersResponse, InstitutionsResponse, PublishersResponse, SelectResponse,
-    SourcesResponse, WorksResponse, request, url_for_list,
+    SourcesResponse, WorksResponse, request, request_ids, url_for_list,
 };
 use kernel_jinja::{
     kernel::{
@@ -24,6 +24,7 @@ use crate::{
     cypher::{NodeProxies, NodeProxy},
     docsql::{decode_filter, encode_filter},
     subquery::Subquery,
+    testing,
 };
 
 /// Add OpenAlex functions to the Jinja environment
@@ -51,7 +52,7 @@ pub(crate) struct OpenAlexQuery {
     filters: Vec<String>,
 
     /// Search terms for general search
-    search_terms: Vec<String>,
+    search: Option<String>,
 
     /// Sort parameter (e.g., "cited_by_count:desc")
     sort: Option<String>,
@@ -64,7 +65,7 @@ pub(crate) struct OpenAlexQuery {
     sample: Option<u32>,
 
     /// Fields to select in response
-    select_fields: Vec<String>,
+    select: Vec<String>,
 
     /// Whether to use cursor pagination for large result sets
     use_cursor: bool,
@@ -79,12 +80,30 @@ impl OpenAlexQuery {
             messages,
             is_database: true,
             filters: Vec::new(),
-            search_terms: Vec::new(),
+            search: None,
             sort: None,
             page: None,
             per_page: None,
             sample: None,
-            select_fields: Vec::new(),
+            select: Vec::new(),
+            use_cursor: false,
+            cursor: None,
+        }
+    }
+
+    /// Create a new OpenAlex query for an entity type
+    pub fn clone_for(&self, entity_type: &str) -> Self {
+        Self {
+            entity_type: entity_type.into(),
+            messages: self.messages.clone(),
+            is_database: false,
+            filters: Vec::new(),
+            search: None,
+            sort: None,
+            page: None,
+            per_page: None,
+            sample: None,
+            select: Vec::new(),
             use_cursor: false,
             cursor: None,
         }
@@ -337,12 +356,18 @@ impl OpenAlexQuery {
         match entity_type.as_str() {
             "works" => match subquery_name {
                 "authors" => {
+                    let mut ids_query = self.clone_for("authors");
                     for (arg_name, arg_value) in &subquery.args {
                         let (property, operator) = decode_filter(arg_name);
                         let property = match property {
-                            "orcid" => "authorships.author.orcid",
                             "name" => "raw_author_name.search",
+                            "orcid" => "authorships.author.orcid",
                             "_C" => "authors_count",
+                            "has_orcid" | "h_index" | "i10_index" | "works_count"
+                            | "cited_by_count" => {
+                                ids_query.filter(arg_name, arg_value.clone())?;
+                                continue;
+                            }
                             _ => {
                                 return Err(Error::new(
                                     ErrorKind::InvalidOperation,
@@ -354,15 +379,28 @@ impl OpenAlexQuery {
                         };
                         self.filter(&encode_filter(property, operator), arg_value.clone())?;
                     }
+
+                    if !ids_query.filters.is_empty() {
+                        let ids = if testing() {
+                            "A5100335963".to_string()
+                        } else {
+                            // If no ids returned then use a valid but
+                            // non-existent author id so that filter is still
+                            // applied but results in an empty set
+                            ids_query.ids().unwrap_or_else(|| "A0000000000".into())
+                        };
+
+                        self.filters.push(format!("authorships.author.id:{ids}"));
+                    }
                 }
                 "affiliations" => {
                     for (arg_name, arg_value) in &subquery.args {
                         let (property, operator) = decode_filter(arg_name);
                         let property = match property {
+                            "name" => "raw_affiliation_strings.search",
                             "ror" => "authorships.institutions.ror",
                             "type" => "authorships.institutions.type",
                             "is_global_south" => "authorships.institutions.is_global_south",
-                            "name" => "raw_affiliation_strings.search",
                             "_C" => "institutions_distinct_count",
                             _ => {
                                 return Err(Error::new(
@@ -399,7 +437,7 @@ impl OpenAlexQuery {
     /// Add a search term
     fn search(&self, term: String) -> Self {
         let mut query = self.clone();
-        query.search_terms.push(term);
+        query.search = Some(term);
         query
     }
 
@@ -464,7 +502,7 @@ impl OpenAlexQuery {
 
         for field in fields {
             if let Some(field_name) = field.as_str() {
-                query.select_fields.push(field_name.to_string());
+                query.select.push(field_name.to_string());
             } else {
                 return Err(Error::new(
                     ErrorKind::InvalidOperation,
@@ -494,9 +532,8 @@ impl OpenAlexQuery {
         }
 
         // Add search
-        if !self.search_terms.is_empty() {
-            let search_string = self.search_terms.join(" ");
-            params.push(("search", search_string));
+        if let Some(search) = &self.search {
+            params.push(("search", search.clone()));
         }
 
         // Add sort
@@ -525,8 +562,8 @@ impl OpenAlexQuery {
         }
 
         // Add field selection
-        if !self.select_fields.is_empty() {
-            let select_string = self.select_fields.join(",");
+        if !self.select.is_empty() {
+            let select_string = self.select.join(",");
             params.push(("select", select_string));
         }
 
@@ -541,7 +578,7 @@ impl OpenAlexQuery {
 
         let result: Result<_> = task::block_in_place(|| {
             runtime::Handle::current().block_on(async {
-                if !self.select_fields.is_empty() {
+                if !self.select.is_empty() {
                     let response = request::<SelectResponse>(&url).await?;
                     let datatable = Datatable::from(response.results);
                     return Ok((response.meta, vec![Node::Datatable(datatable)]));
@@ -606,6 +643,34 @@ impl OpenAlexQuery {
             Err(error) => {
                 self.add_error_message(format!("OpenAlex API request failed: {error}"));
                 Vec::new()
+            }
+        }
+    }
+
+    /// Get the ids of nodes matching the query
+    #[tracing::instrument(skip(self))]
+    pub fn ids(&self) -> Option<String> {
+        let mut query = self.clone();
+        query.select.push("id".into());
+        let url = query.generate();
+
+        let result: Result<_> = task::block_in_place(|| {
+            runtime::Handle::current().block_on(async { request_ids(&url).await })
+        });
+
+        match result {
+            Ok(ids) => {
+                if ids.is_empty() {
+                    None
+                } else {
+                    Some(ids.join("|"))
+                }
+            }
+            Err(error) => {
+                self.add_error_message(format!(
+                    "OpenAlex API request for entity ids failed: {error}"
+                ));
+                None
             }
         }
     }

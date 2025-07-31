@@ -13,6 +13,11 @@ openalex.works(...authors(.orcid == "0000-0002-1825-0097"))
 GET https://api.openalex.org/works?filter=authorships.author.orcid:0000-0002-1825-0097
 
 
+openalex.works(...authors(.has_orcid = true, .h_index > 10, .i10_index > 10, .works_count > 100, .cited_by_count > 10))
+---
+GET https://api.openalex.org/works?filter=authorships.author.id:A5100335963
+
+
 openalex.works(...authors(* > 30))
 ---
 GET https://api.openalex.org/works?filter=authors_count:>30
