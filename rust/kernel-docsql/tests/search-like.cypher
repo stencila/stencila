@@ -21,3 +21,11 @@ WHERE starts_with(node.text, 'Word')
 RETURN node
 ORDER BY score DESC
 LIMIT 10
+
+
+test.paragraphs(like = 'some text')
+---
+CALL QUERY_VECTOR_INDEX('Paragraph', 'vector', $par1, 10)
+RETURN node
+ORDER BY distance
+LIMIT 10
