@@ -1,0 +1,18 @@
+openalex.sources(...published_by(.name == "Wiley"))
+---
+GET https://api.openalex.org/sources?filter=host_organization_lineage:P4310320595
+
+
+openalex.sources(...publishedBy(.ror == "04rjz5883"))
+---
+GET https://api.openalex.org/sources?filter=host_organization_lineage:P4310320595
+
+
+openalex.sources(...published_by(.h_index > 1000,.i10_index < 1000, .works_count > 100))
+---
+GET https://api.openalex.org/sources?filter=host_organization_lineage:P4310320595
+
+
+openalex.sources(...published_by(* < 10))
+---
+Filter `count (*)` in subquery `published_by` is not supported for OpenAlex `sources`
