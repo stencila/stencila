@@ -1,0 +1,28 @@
+openalex.works(...published_in(.name == "eLife"))
+---
+GET https://api.openalex.org/works?filter=primary_location.source.id:S1336409049
+
+
+openalex.works(...publishedIn(.name ~= "Nature"))
+---
+GET https://api.openalex.org/works?filter=primary_location.source.id:S1336409049
+
+
+openalex.works(...published_in(.issn == "2050-084X"))
+---
+GET https://api.openalex.org/works?filter=primary_location.source.issn:2050-084X
+
+
+openalex.works(...publishedIn(.has_issn = true))
+---
+GET https://api.openalex.org/works?filter=primary_location.source.id:S1336409049
+
+
+openalex.works(...published_in(.h_index > 1000, .i10_index < 1000, .works_count > 100, .cited_by_count <= 100))
+---
+GET https://api.openalex.org/works?filter=primary_location.source.id:S1336409049
+
+
+openalex.works(...published_in(* > 10))
+---
+GET https://api.openalex.org/works?filter=locations_count:>10

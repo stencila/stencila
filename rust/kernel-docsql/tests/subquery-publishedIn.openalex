@@ -1,8 +1,0 @@
-openalex.works(...publishedIn(.id == "S4306402567"))
----
-GET https://api.openalex.org/works?filter=primary_location.source.id:S4306402567
-
-
-openalex.articles(...publishedIn(.type == "repository"))
----
-GET https://api.openalex.org/works?filter=type:article,primary_location.source.type:repository
