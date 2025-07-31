@@ -435,14 +435,19 @@ impl OpenAlexQuery {
                             .push(format!("authorships.institutions.id:{ids}"));
                     }
                 }
-                "references" | "cites" => {
+                "references" | "cites" | "cited_by" => {
                     let mut ids_query = self.clone_for("works");
                     for (arg_name, arg_value) in &subquery.args {
                         let (property, operator) = decode_filter(arg_name);
                         let property = match property {
-                            // The only filter field related to referenced works, other than `cites`
-                            // is the number of references:
-                            "_C" => "referenced_works_count",
+                            // Only count convenience filters are available (other than `cites` and `cited_by` id filters)
+                            "_C" => {
+                                if subquery_name == "cited_by" {
+                                    "cited_by_count"
+                                } else {
+                                    "referenced_works_count"
+                                }
+                            }
                             // These are all properties in the filter method for works, ll of which
                             // should be passed on to the ids query
                             "title"
@@ -491,7 +496,11 @@ impl OpenAlexQuery {
                             ids_query.ids().unwrap_or_else(|| "W0000000000".into())
                         };
 
-                        self.filters.push(format!("cites:{ids}"));
+                        self.filters.push(if subquery_name == "cited_by" {
+                            format!("cited_by:{ids}")
+                        } else {
+                            format!("cites:{ids}")
+                        });
                     }
                 }
                 _ => {
