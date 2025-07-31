@@ -21,7 +21,7 @@ use codec::common::{
 use crate::{
     author::Author,
     institution::Institution,
-    responses::{AuthorsResponse, InstitutionsResponse, WorksResponse},
+    responses::{AuthorsResponse, IdResponse, InstitutionsResponse, WorksResponse},
     work::Work,
 };
 
@@ -60,7 +60,7 @@ static CLIENT: Lazy<ClientWithMiddleware> = Lazy::new(|| {
 
 /// Generate a URL to query a list of an entity type
 ///
-/// Minimal necessary encoding of values to produce uRLs that are readable and
+/// Minimal necessary encoding of values to produce URLs that are readable and
 /// similar to those in the OpenAlex docs (e.g. : is not encoded)              
 pub fn url_for_list(entity_type: &str, mut query_params: Vec<(&str, String)>) -> String {
     let mut url = [API_BASE_URL, "/", entity_type].concat();
@@ -108,6 +108,24 @@ where
     }
 
     Ok(response.json().await?)
+}
+
+/// Make a request for the ids of entities of a type matching filters
+#[tracing::instrument]
+pub async fn request_ids(url: &str) -> Result<Vec<String>> {
+    let response = request::<IdResponse>(&url).await?;
+
+    let ids = response
+        .results
+        .into_iter()
+        .map(|item| {
+            item.id
+                .trim_start_matches("https://openalex.org/")
+                .to_string()
+        })
+        .collect();
+
+    Ok(ids)
 }
 
 /// Fetch a work from OpenAlex by DOI

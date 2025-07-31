@@ -1,8 +1,8 @@
-use codec::common::serde::Deserialize;
+use codec::common::{serde::Deserialize, serde_json};
 
 use crate::{
-    author::Author, funder::Funder, institution::Institution, publisher::Publisher, select::Select,
-    source::Source, work::Work,
+    author::Author, funder::Funder, institution::Institution, publisher::Publisher, source::Source,
+    work::Work,
 };
 
 /// The response from getting a single entity
@@ -56,5 +56,15 @@ pub type PublishersResponse = ListResponse<Publisher>;
 /// Response for funder API calls
 pub type FundersResponse = ListResponse<Funder>;
 
-/// Response for select API calls
-pub type SelectResponse = ListResponse<Select>;
+/// Response for select API calls with partial fields
+///
+/// See https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities/select-fields
+pub type SelectResponse = ListResponse<serde_json::Map<String, serde_json::Value>>;
+
+/// Response for a call with select=id
+#[derive(Deserialize)]
+#[serde(crate = "codec::common::serde")]
+pub struct Id {
+    pub id: String,
+}
+pub type IdResponse = ListResponse<Id>;

@@ -18,7 +18,6 @@ mod institution;
 mod license;
 mod publisher;
 mod responses;
-mod select;
 mod source;
 mod utils;
 mod work;
@@ -32,7 +31,8 @@ use work::Work;
 
 // Re-export client functions
 pub use client::{
-    request, search_authors, search_institutions, search_works, url_for_list, work_by_doi,
+    request, request_ids, search_authors, search_institutions, search_works, url_for_list,
+    work_by_doi,
 };
 
 // Re-export types that might be needed by consumers
