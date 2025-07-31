@@ -101,6 +101,15 @@ where
 {
     tracing::debug!("Making OpenAlex API request");
 
+    let url = if !url.contains("&per-page=") {
+        // If no per-page specified use the maximum, In the future, more sophisticated
+        // page or cursor handling may be implemented
+        // See https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities/paging
+        [url, "&per-page=200"].concat()
+    } else {
+        url.to_string()
+    };
+
     let response = CLIENT.get(url).send().await?;
 
     if let Err(error) = response.error_for_status_ref() {

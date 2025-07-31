@@ -66,10 +66,6 @@ pub(crate) struct OpenAlexQuery {
 
     /// Fields to select in response
     select: Vec<String>,
-
-    /// Whether to use cursor pagination for large result sets
-    use_cursor: bool,
-    cursor: Option<String>,
 }
 
 impl OpenAlexQuery {
@@ -86,8 +82,6 @@ impl OpenAlexQuery {
             per_page: None,
             sample: None,
             select: Vec::new(),
-            use_cursor: false,
-            cursor: None,
         }
     }
 
@@ -104,8 +98,6 @@ impl OpenAlexQuery {
             per_page: None,
             sample: None,
             select: Vec::new(),
-            use_cursor: false,
-            cursor: None,
         }
     }
 
@@ -755,7 +747,7 @@ impl OpenAlexQuery {
     /// Return count of results
     fn count(&self) -> Self {
         let mut query = self.clone();
-        query.per_page = Some(0); // OpenAlex returns count in meta when per_page=0
+        query.per_page = Some(0); // Used below to indicate that only count should be extracted
         query
     }
 
@@ -784,14 +776,8 @@ impl OpenAlexQuery {
             params.push(("page", page.to_string()));
         }
         if let Some(per_page) = self.per_page {
-            params.push(("per-page", per_page.to_string()));
-        }
-
-        // Add cursor pagination if enabled
-        if self.use_cursor {
-            if let Some(cursor) = &self.cursor {
-                params.push(("cursor", cursor.clone()));
-            }
+            // Must be > 0, but we use 0 to indicate that count should be extracted
+            params.push(("per-page", per_page.max(1).to_string()));
         }
 
         // Add sample
