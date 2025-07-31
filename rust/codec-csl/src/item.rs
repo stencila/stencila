@@ -22,6 +22,7 @@ use crate::{date::DateField, name::NameField, ordinary::OrdinaryField};
 /// standard CSL fields and extension fields used by various publishers and repositories.
 ///
 /// See:
+/// - https://docs.citationstyles.org/en/stable/specification.html#appendix-iii-types
 /// - https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html#items
 /// - https://raw.githubusercontent.com/citation-style-language/schema/master/schemas/input/csl-data.json
 ///
@@ -182,8 +183,9 @@ pub struct Item {
 /// This enum includes all standard CSL item types plus common extensions.
 ///
 /// See:
-/// - https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html#introduction
 /// - https://docs.citationstyles.org/en/stable/specification.html#appendix-iii-types
+/// - https://docs.citationstyles.org/en/stable/specification.html#appendix-iv-variables
+/// - https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html#introduction
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case", crate = "codec::common::serde")]
 pub enum ItemType {
@@ -208,7 +210,6 @@ pub enum ItemType {
     Graphic,
     Hearing,
     Interview,
-    JournalArticle,
     LegalCase,
     Legislation,
     Manuscript,
@@ -219,10 +220,10 @@ pub enum ItemType {
     PaperConference,
     Patent,
     Performance,
+    Periodical,
     PersonalCommunication,
     Post,
     PostWeblog,
-    PostedContent,
     Regulation,
     Report,
     Review,
@@ -246,7 +247,7 @@ impl From<Item> for Article {
             .author
             .into_iter()
             .flatten()
-            .map(|name_field| Author::from(name_field))
+            .map(Author::from)
             .collect_vec();
         let authors = (!authors.is_empty()).then_some(authors);
 

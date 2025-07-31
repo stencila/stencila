@@ -1,5 +1,5 @@
 use codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions,
     common::{async_trait::async_trait, eyre::Result, serde_json},
     format::Format,
     schema::Node,
@@ -12,8 +12,13 @@ mod name;
 mod ordinary;
 
 /// A codec for CSL-JSON (Citation Style Language JSON)
+///
+/// Only supports decoding from CSL-JSON. Primarily used for fetching
+/// metadata about creative works
 /// 
-/// See https://citeproc-js.readthedocs.io/en/latest/csl-json/
+/// See:
+/// - https://docs.citationstyles.org/en/stable/specification.html
+/// - https://citeproc-js.readthedocs.io/en/latest/csl-json/
 pub struct CslCodec;
 
 #[async_trait]
@@ -33,13 +38,6 @@ impl Codec for CslCodec {
         }
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Csl => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
     async fn from_str(
         &self,
         str: &str,
@@ -49,19 +47,5 @@ impl Codec for CslCodec {
         let article = csl_item.into();
 
         Ok((Node::Article(article), DecodeInfo::default()))
-    }
-
-    async fn to_string(
-        &self,
-        node: &Node,
-        options: Option<EncodeOptions>,
-    ) -> Result<(String, EncodeInfo)> {
-        let json = if options.and_then(|opts| opts.compact).unwrap_or_default() {
-            serde_json::to_string(node)?
-        } else {
-            serde_json::to_string_pretty(node)?
-        };
-
-        Ok((json, EncodeInfo::none()))
     }
 }

@@ -20,6 +20,12 @@ expression: node
   "authors": [
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Agricultural and Applied Economics University of Wisconsin"
+        }
+      ],
       "familyNames": [
         "Shi"
       ],
@@ -29,6 +35,12 @@ expression: node
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Agricultural and Applied Economics University of Wisconsin"
+        }
+      ],
       "familyNames": [
         "Chavas"
       ],
@@ -38,6 +50,12 @@ expression: node
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Agricultural and Applied Economics University of Wisconsin"
+        }
+      ],
       "familyNames": [
         "Stiegert"
       ],

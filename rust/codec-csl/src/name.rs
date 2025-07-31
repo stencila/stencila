@@ -17,6 +17,7 @@ use codec::{
 /// with separate components and literal names for institutions or single-name persons.
 ///
 /// See:
+/// - https://docs.citationstyles.org/en/stable/specification.html#appendix-iv-variables (Name Variables)
 /// - https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html#name-fields
 #[skip_serializing_none]
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]

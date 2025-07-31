@@ -16,7 +16,9 @@ use codec::{
 /// Represents dates in CSL-JSON format with support for various date representations
 /// including structured date parts, literal strings, raw formats, and EDTF.
 ///
-/// See https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html#date-fields
+/// See:
+/// - https://docs.citationstyles.org/en/stable/specification.html#appendix-iv-variables (Date Variables)
+/// - https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html#date-fields
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged, crate = "codec::common::serde")]
 pub enum DateField {

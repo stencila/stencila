@@ -5,11 +5,13 @@ use codec::common::serde::{Deserialize, Serialize};
 /// Ordinary variables in CSL-JSON can contain strings, numbers, or mixed content.
 /// This enum provides flexible parsing while preserving the original data type.
 ///
-/// See https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html#ordinary-variables
+/// See:
+/// - https://docs.citationstyles.org/en/stable/specification.html#appendix-iv-variables (Standard and Number Variables)
+/// - https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html#ordinary-variables
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged, crate = "codec::common::serde")]
 pub enum OrdinaryField {
-    Float(f64),
     Integer(i64),
+    Float(f64),
     String(String),
 }
