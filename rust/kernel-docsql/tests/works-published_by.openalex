@@ -18,7 +18,7 @@ openalex.works(...publishedBy(.ror == "04rjz5883"))
 GET https://api.openalex.org/works?filter=primary_location.source.host_organization:P4310320595
 
 
-openalex.works(...published_by(.h_index > 1000,.i10_index < 1000, .works_count > 100))
+openalex.works(...published_by(.impact_factor > 3, .i10_index < 1000, .works_count > 100))
 ---
 GET https://api.openalex.org/works?filter=primary_location.source.host_organization:P4310320595
 

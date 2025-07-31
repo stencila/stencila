@@ -204,6 +204,7 @@ impl OpenAlexQuery {
                 // See https://docs.openalex.org/api-entities/authors/filter-authors
                 "name" => "display_name.search",
                 // Properties on `summary_stats` that we hoist up
+                "impact_factor" => "summary_status.2yr_mean_citedness",
                 "h_index" => "summary_stats.h_index",
                 "i10_index" => "summary_stats.i10_index",
                 // Properties which do not need mapping, including convenience filters
@@ -225,6 +226,7 @@ impl OpenAlexQuery {
                 // See https://docs.openalex.org/api-entities/institutions/filter-institutions
                 "name" => "display_name.search",
                 // Properties on `summary_stats` that we hoist up
+                "impact_factor" => "summary_status.2yr_mean_citedness",
                 "h_index" => "summary_stats.h_index",
                 "i10_index" => "summary_stats.i10_index",
                 // Properties which do not need mapping, including convenience filters
@@ -244,6 +246,7 @@ impl OpenAlexQuery {
                 // See https://docs.openalex.org/api-entities/sources/filter-sources
                 "name" => "display_name.search",
                 // Properties on `summary_stats` that we hoist up
+                "impact_factor" => "summary_status.2yr_mean_citedness",
                 "h_index" => "summary_stats.h_index",
                 "i10_index" => "summary_stats.i10_index",
                 // Properties which do not need mapping, including convenience filters
@@ -261,6 +264,7 @@ impl OpenAlexQuery {
                 // See https://docs.openalex.org/api-entities/publishers/filter-publishers
                 "name" => "display_name.search",
                 // Properties on `summary_stats` that we hoist up
+                "impact_factor" => "summary_status.2yr_mean_citedness",
                 "h_index" => "summary_stats.h_index",
                 "i10_index" => "summary_stats.i10_index",
                 // Properties which do not need mapping, including convenience filters
@@ -280,6 +284,7 @@ impl OpenAlexQuery {
                 "name" => "display_name.search",
                 "description" => "description.search",
                 // Properties on `summary_stats` that we hoist up
+                "impact_factor" => "summary_status.2yr_mean_citedness",
                 "h_index" => "summary_stats.h_index",
                 "i10_index" => "summary_stats.i10_index",
                 // Properties which do not need mapping, including convenience filters
@@ -413,8 +418,8 @@ impl OpenAlexQuery {
                             // Remaining filter attributes on authors (see
                             // above), and nested subqueries, require an id
                             // query
-                            "has_orcid" | "h_index" | "i10_index" | "works_count"
-                            | "cited_by_count" | "_" => {
+                            "has_orcid" | "impact_factor" | "h_index" | "i10_index"
+                            | "works_count" | "cited_by_count" | "_" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
@@ -440,8 +445,8 @@ impl OpenAlexQuery {
                             // Remaining filter attributes on institutions (see
                             // above), and nested subqueries, require an id
                             // query
-                            "has_ror" | "h_index" | "i10_index" | "works_count"
-                            | "cited_by_count" | "_" => {
+                            "has_ror" | "impact_factor" | "h_index" | "i10_index"
+                            | "works_count" | "cited_by_count" | "_" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
@@ -522,8 +527,9 @@ impl OpenAlexQuery {
                             // Remaining filter attributes on sources (see
                             // above), and nested subqueries, require an id
                             // query
-                            "search" | "name" | "h_index" | "i10_index" | "has_issn"
-                            | "works_count" | "cited_by_count" | "is_global_south" | "_" => {
+                            "search" | "name" | "impact_factor" | "h_index" | "i10_index"
+                            | "has_issn" | "works_count" | "cited_by_count" | "is_global_south"
+                            | "_" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
@@ -545,8 +551,8 @@ impl OpenAlexQuery {
                             "_C" => return unsupported_property("count (*)"),
                             // All filter attributes on publishers (see above),
                             // and nested subqueries, require an id query
-                            "search" | "name" | "h_index" | "i10_index" | "ror" | "works_count"
-                            | "cited_by_count" | "_" => {
+                            "search" | "name" | "impact_factor" | "h_index" | "i10_index"
+                            | "ror" | "works_count" | "cited_by_count" | "_" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
@@ -567,9 +573,9 @@ impl OpenAlexQuery {
                             "_C" => return unsupported_property("count (*)"),
                             // All filter attributes on funders (see above), and
                             // nested subqueries, require an id query
-                            "search" | "name" | "description" | "h_index" | "i10_index" | "ror"
-                            | "grants_count" | "works_count" | "cited_by_count"
-                            | "is_global_south" | "_" => {
+                            "search" | "name" | "description" | "impact_factor" | "h_index"
+                            | "i10_index" | "ror" | "grants_count" | "works_count"
+                            | "cited_by_count" | "is_global_south" | "_" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
@@ -596,8 +602,8 @@ impl OpenAlexQuery {
                             // Remaining filter attributes on institutions (see
                             // above), and nested subqueries, require an id
                             // query
-                            "search" | "name" | "has_ror" | "h_index" | "i10_index"
-                            | "works_count" | "cited_by_count" | "_" => {
+                            "search" | "name" | "has_ror" | "impact_factor" | "h_index"
+                            | "i10_index" | "works_count" | "cited_by_count" | "_" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
@@ -622,8 +628,8 @@ impl OpenAlexQuery {
                             "_C" => return unsupported_property("count (*)"),
                             // All filter attributes on publishers (see above),
                             // and nested subqueries, require an id query
-                            "search" | "name" | "h_index" | "i10_index" | "ror" | "works_count"
-                            | "cited_by_count" | "_" => {
+                            "search" | "name" | "impact_factor" | "h_index" | "i10_index"
+                            | "ror" | "works_count" | "cited_by_count" | "_" => {
                                 ids_query.filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
@@ -677,6 +683,7 @@ impl OpenAlexQuery {
             },
             _ => match property {
                 "name" => "display_name",
+                "impact_factor" => "summary_status.2yr_mean_citedness",
                 "h_index" => "summary_stats.h_index",
                 "i10_index" => "summary_stats.i10_index",
                 _ => property,

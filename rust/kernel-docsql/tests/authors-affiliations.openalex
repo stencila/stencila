@@ -33,7 +33,7 @@ openalex.authors(...affiliations(.is_global_south = false))
 GET https://api.openalex.org/authors?filter=last_known_institutions.is_global_south:false
 
 
-openalex.authors(...affiliations(.has_ror = true, .h_index > 10, .i10_index > 10, .works_count > 100, .cited_by_count > 10))
+openalex.authors(...affiliations(.has_ror = true, .impact_factor > 3, .h_index > 10, .i10_index > 10, .works_count > 100, .cited_by_count > 10))
 ---
 GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590
 

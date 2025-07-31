@@ -40,7 +40,7 @@ pub struct Source {
 #[serde(rename_all = "snake_case", crate = "codec::common::serde")]
 pub struct SummaryStats {
     #[serde(rename = "2yr_mean_citedness")]
-    pub two_yr_mean_citedness: Option<f64>,
+    pub impact_factor: Option<f64>,
     pub h_index: Option<i32>,
     pub i10_index: Option<i32>,
 }
