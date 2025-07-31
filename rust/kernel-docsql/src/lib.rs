@@ -11,7 +11,6 @@ use kernel_jinja::{
         common::{
             async_trait::async_trait,
             eyre::{OptionExt, Result, eyre},
-            itertools::Itertools,
             once_cell::sync::Lazy,
             regex::Regex,
             serde_json,
@@ -40,7 +39,7 @@ use github::{GitHubQuery, add_github_functions};
 use openalex::{OpenAlexQuery, add_openalex_functions};
 use subquery::add_subquery_functions;
 
-use crate::docsql::GLOBAL_NAMES;
+use crate::docsql::{GLOBAL_NAMES, strip_comments};
 
 const NAME: &str = "docsql";
 
@@ -444,22 +443,6 @@ impl KernelInstance for DocsQLKernelInstance {
     }
 }
 
-/// Strips comments after any `//`
-///
-/// Note that this will may result in blank lines which is
-/// intentional for maintaining line numbers
-fn strip_comments(code: &str) -> String {
-    code.lines()
-        .map(|line| {
-            if let Some(pos) = line.find("//") {
-                &line[..pos]
-            } else {
-                line
-            }
-        })
-        .join("\n")
-}
-
 /// Convert and error into an execution message with appropriate line and column offsets
 fn error_to_execution_message(
     error: kernel_jinja::minijinja::Error,
@@ -479,17 +462,20 @@ fn error_to_execution_message(
     message
 }
 
+/// Are we currently testing this crate
+///
+/// During tests, rather than make a request return some fixed entity ids
+/// this is particularly useful for snapshot tests to avoid potentially
+/// changing ids.
+fn testing() -> bool {
+    std::env::var("CARGO_PKG_NAME") == Ok("kernel-docsql".to_string())
+}
+
 #[cfg(test)]
 mod tests {
-    use common_dev::pretty_assertions::assert_eq;
 
     #[test]
-    fn strip_comments() {
-        use super::strip_comments as s;
-
-        assert_eq!(s(""), "");
-        assert_eq!(s("// comment\nA"), "\nA");
-        assert_eq!(s("A\n// comment\nB"), "A\n\nB");
-        assert_eq!(s("A // comment\nB//comment"), "A \nB");
+    fn test_testing() {
+        assert!(super::testing());
     }
 }

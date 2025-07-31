@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use kernel_jinja::{
     kernel::common::{
+        itertools::Itertools,
         once_cell::sync::Lazy,
         regex::{Captures, Regex},
     },
@@ -148,6 +149,22 @@ fn combine(args: &[Value]) -> Result<Value, Error> {
     Ok(Value::from_object(NodeProxies::new(nodes, Arc::default())))
 }
 
+/// Strips comments after any `//`
+///
+/// Note that this will may result in blank lines which is
+/// intentional for maintaining line numbers
+pub(super) fn strip_comments(code: &str) -> String {
+    code.lines()
+        .map(|line| {
+            if let Some(pos) = line.find("//") {
+                &line[..pos]
+            } else {
+                line
+            }
+        })
+        .join("\n")
+}
+
 /// Encode DocsQL filter arguments into valid MiniJinja keyword arguments
 ///
 /// Uses single digit codes and spacing to ensure that the code stays the same length.
@@ -241,6 +258,18 @@ pub(super) fn decode_filter(arg_name: &str) -> (&str, &str) {
 
 #[cfg(test)]
 mod tests {
+    use common_dev::pretty_assertions::assert_eq;
+
+    #[test]
+    fn strip_comments() {
+        use super::strip_comments as s;
+
+        assert_eq!(s(""), "");
+        assert_eq!(s("// comment\nA"), "\nA");
+        assert_eq!(s("A\n// comment\nB"), "A\n\nB");
+        assert_eq!(s("A // comment\nB//comment"), "A \nB");
+    }
+
     #[test]
     fn encode_filters() {
         use super::encode_filters as t;
