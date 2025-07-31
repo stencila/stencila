@@ -5,6 +5,7 @@ WHERE EXISTS { MATCH (article)-[authors]->(person:Person) WHERE starts_with(pers
 RETURN article
 LIMIT 10
 
+
 test.articles(...authors(* > 4))
 ---
 MATCH (article:Article)
