@@ -1,0 +1,46 @@
+---
+source: rust/codec-cff/tests/examples.rs
+expression: node
+---
+{
+  "type": "SoftwareSourceCode",
+  "name": "Ruby CFF Library",
+  "doi": "10.5281/zenodo.1184077",
+  "version": "1.3.0",
+  "programmingLanguage": "",
+  "repository": "https://github.com/citation-file-format/ruby-cff",
+  "description": "This library provides a Ruby interface to manipulate Citation File Format files",
+  "authors": [
+    {
+      "type": "Person",
+      "orcid": "0000-0002-9538-7919",
+      "familyNames": [
+        "Haines"
+      ],
+      "givenNames": [
+        "Robert"
+      ]
+    },
+    {
+      "type": "Organization",
+      "name": "The Ruby Citation File Format Developers"
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2024-10-26"
+  },
+  "keywords": [
+    "ruby",
+    "credit",
+    "software citation",
+    "research software",
+    "software sustainability",
+    "metadata",
+    "citation file format",
+    "CFF"
+  ],
+  "licenses": [
+    "Apache-2.0"
+  ]
+}

@@ -1,0 +1,90 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+title: PyTorch
+authors:
+  - family-names: PyTorch Team
+url: https://pytorch.org
+preferred-citation:
+  type: conference-paper
+  title: "PyTorch 2: Faster Machine Learning Through Dynamic Python Bytecode Transformation and Graph Compilation"
+  authors:
+    - family-names: Ansel
+      given-names: Jason
+    - family-names: Yang
+      given-names: Edward
+    - family-names: He
+      given-names: Horace
+    - family-names: Gimelshein
+      given-names: Natalia
+    - family-names: Jain
+      given-names: Animesh
+    - family-names: Voznesensky
+      given-names: Michael
+    - family-names: Bao
+      given-names: Bin
+    - family-names: Bell
+      given-names: Peter
+    - family-names: Berard
+      given-names: David
+    - family-names: Burovski
+      given-names: Evgeni
+    - family-names: Chauhan
+      given-names: Geeta
+    - family-names: Chourdia
+      given-names: Anjali
+    - family-names: Constable
+      given-names: Will
+    - family-names: Desmaison
+      given-names: Alban
+    - family-names: DeVito
+      given-names: Zachary
+    - family-names: Ellison
+      given-names: Elias
+    - family-names: Fennell
+      given-names: Will
+    - family-names: Goyal
+      given-names: Jiong
+    - family-names: Gschwind
+      given-names: Michael
+    - family-names: Hirsh
+      given-names: Brian
+    - family-names: Huang
+      given-names: Sherlock
+    - family-names: Kalambarkar
+      given-names: Kshiteej
+    - family-names: Kirsch
+      given-names: Laurent
+    - family-names: Last
+      given-names: Michael
+    - family-names: Lazos
+      given-names: Ilia
+    - family-names: Lezcano
+      given-names: Mario
+    - family-names: Liang
+      given-names: Yanbo
+    - family-names: Liang
+      given-names: Jason
+    - family-names: Lu
+      given-names: Yinghai
+    - family-names: Luk
+      given-names: CK
+    - family-names: Maher
+      given-names: Bert
+    - family-names: Pan
+      given-names: Yunjie
+    - family-names: Puhrsch
+      given-names: Christian
+    - family-names: Reso
+      given-names: Matthias
+    - family-names: Saroufim
+      given-names: Mark
+    - family-names: Siraichi
+      given-names: Marcos Yukio
+  collection-title: "29th ACM International Conference on Architectural Support for Programming Languages and Operating Systems, Volume 2 (ASPLOS '24)"
+  collection-type: proceedings
+  month: 4
+  year: 2024
+  publisher:
+    name: ACM
+  doi: "10.1145/3620665.3640366"
+  url: "https://docs.pytorch.org/assets/pytorch2-2.pdf"

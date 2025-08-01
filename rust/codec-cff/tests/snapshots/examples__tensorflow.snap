@@ -1,0 +1,379 @@
+---
+source: rust/codec-cff/tests/examples.rs
+expression: node
+---
+{
+  "type": "SoftwareApplication",
+  "name": "TensorFlow, Large-scale machine learning on heterogeneous systems",
+  "doi": "10.5281/zenodo.4724125",
+  "description": "TensorFlow is a machine learning system that operates at large scale and in heterogeneous environments. TensorFlow uses dataflow graphs to represent computation, shared state, and the operations that mutate that state. It maps the nodes of a dataflow graph across many machines in a cluster, and within a machine across multiple computational devices, including multicore CPUs, general-purpose GPUs, and custom designed ASICs known as Tensor Processing Units (TPUs). This architecture gives flexibility to the application developer: whereas in previous \"parameter server\" designs the management of shared state is built into the system, TensorFlow enables developers to experiment with novel optimizations and training algorithms. TensorFlow supports a variety of applications, with particularly strong support for training and inference on deep neural networks. Several Google services use TensorFlow in production, we have released it as an open-source project, and it has become widely used for machine learning research.",
+  "authors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Abadi"
+      ],
+      "givenNames": [
+        "Martín"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Agarwal"
+      ],
+      "givenNames": [
+        "Ashish"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Barham"
+      ],
+      "givenNames": [
+        "Paul"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Brevdo"
+      ],
+      "givenNames": [
+        "Eugene"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Chen"
+      ],
+      "givenNames": [
+        "Zhifeng"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Citro"
+      ],
+      "givenNames": [
+        "Craig"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Corrado"
+      ],
+      "givenNames": [
+        "Greg S."
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Davis"
+      ],
+      "givenNames": [
+        "Andy"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Dean"
+      ],
+      "givenNames": [
+        "Jeffrey"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Devin"
+      ],
+      "givenNames": [
+        "Matthieu"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Ghemawat"
+      ],
+      "givenNames": [
+        "Sanjay"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Goodfellow"
+      ],
+      "givenNames": [
+        "Ian"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Harp"
+      ],
+      "givenNames": [
+        "Andrew"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Irving"
+      ],
+      "givenNames": [
+        "Geoffrey"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Isard"
+      ],
+      "givenNames": [
+        "Michael"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Jia"
+      ],
+      "givenNames": [
+        "Yangqing"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Jozefowicz"
+      ],
+      "givenNames": [
+        "Rafal"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Kaiser"
+      ],
+      "givenNames": [
+        "Lukasz"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Kudlur"
+      ],
+      "givenNames": [
+        "Manjunath"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Levenberg"
+      ],
+      "givenNames": [
+        "Josh"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Mané"
+      ],
+      "givenNames": [
+        "Dandelion"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Monga"
+      ],
+      "givenNames": [
+        "Rajat"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Moore"
+      ],
+      "givenNames": [
+        "Sherry"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Murray"
+      ],
+      "givenNames": [
+        "Derek"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Olah"
+      ],
+      "givenNames": [
+        "Chris"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Schuster"
+      ],
+      "givenNames": [
+        "Mike"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Shlens"
+      ],
+      "givenNames": [
+        "Jonathon"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Steiner"
+      ],
+      "givenNames": [
+        "Benoit"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Sutskever"
+      ],
+      "givenNames": [
+        "Ilya"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Talwar"
+      ],
+      "givenNames": [
+        "Kunal"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Tucker"
+      ],
+      "givenNames": [
+        "Paul"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Vanhoucke"
+      ],
+      "givenNames": [
+        "Vincent"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Vasudevan"
+      ],
+      "givenNames": [
+        "Vijay"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Viégas"
+      ],
+      "givenNames": [
+        "Fernanda"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Vinyals"
+      ],
+      "givenNames": [
+        "Oriol"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Warden"
+      ],
+      "givenNames": [
+        "Pete"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Wattenberg"
+      ],
+      "givenNames": [
+        "Martin"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Wicke"
+      ],
+      "givenNames": [
+        "Martin"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Yu"
+      ],
+      "givenNames": [
+        "Yuan"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Zheng"
+      ],
+      "givenNames": [
+        "Xiaoqiang"
+      ]
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2015-11-09"
+  },
+  "licenses": [
+    "Apache-2.0"
+  ]
+}

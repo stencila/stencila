@@ -1,0 +1,42 @@
+---
+source: rust/codec-cff/tests/examples.rs
+expression: node
+---
+{
+  "type": "SoftwareSourceCode",
+  "name": "Scientific Inkscape",
+  "version": "1.3.2",
+  "programmingLanguage": "",
+  "repository": "https://github.com/burghoff/Scientific-Inkscape",
+  "description": "Scientific Inkscape is a set of Inkscape extensions for editing and exporting scientific figures.",
+  "identifiers": [
+    {
+      "type": "PropertyValue",
+      "propertyId": "url",
+      "value": "https://github.com/burghoff/Scientific-Inkscape"
+    }
+  ],
+  "url": "https://github.com/burghoff/Scientific-Inkscape",
+  "authors": [
+    {
+      "type": "Person",
+      "orcid": "0000-0001-5848-2389",
+      "familyNames": [
+        "Burghoff"
+      ],
+      "givenNames": [
+        "David"
+      ],
+      "emails": [
+        "burghoff@utexas.edu"
+      ]
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2023-10-23"
+  },
+  "licenses": [
+    "GPL-2.0-or-later"
+  ]
+}

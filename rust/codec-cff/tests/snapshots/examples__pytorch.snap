@@ -1,0 +1,352 @@
+---
+source: rust/codec-cff/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "doi": "10.1145/3620665.3640366",
+  "authors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Ansel"
+      ],
+      "givenNames": [
+        "Jason"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Yang"
+      ],
+      "givenNames": [
+        "Edward"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "He"
+      ],
+      "givenNames": [
+        "Horace"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Gimelshein"
+      ],
+      "givenNames": [
+        "Natalia"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Jain"
+      ],
+      "givenNames": [
+        "Animesh"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Voznesensky"
+      ],
+      "givenNames": [
+        "Michael"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Bao"
+      ],
+      "givenNames": [
+        "Bin"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Bell"
+      ],
+      "givenNames": [
+        "Peter"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Berard"
+      ],
+      "givenNames": [
+        "David"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Burovski"
+      ],
+      "givenNames": [
+        "Evgeni"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Chauhan"
+      ],
+      "givenNames": [
+        "Geeta"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Chourdia"
+      ],
+      "givenNames": [
+        "Anjali"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Constable"
+      ],
+      "givenNames": [
+        "Will"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Desmaison"
+      ],
+      "givenNames": [
+        "Alban"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "DeVito"
+      ],
+      "givenNames": [
+        "Zachary"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Ellison"
+      ],
+      "givenNames": [
+        "Elias"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Fennell"
+      ],
+      "givenNames": [
+        "Will"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Goyal"
+      ],
+      "givenNames": [
+        "Jiong"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Gschwind"
+      ],
+      "givenNames": [
+        "Michael"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Hirsh"
+      ],
+      "givenNames": [
+        "Brian"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Huang"
+      ],
+      "givenNames": [
+        "Sherlock"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Kalambarkar"
+      ],
+      "givenNames": [
+        "Kshiteej"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Kirsch"
+      ],
+      "givenNames": [
+        "Laurent"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Last"
+      ],
+      "givenNames": [
+        "Michael"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Lazos"
+      ],
+      "givenNames": [
+        "Ilia"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Lezcano"
+      ],
+      "givenNames": [
+        "Mario"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Liang"
+      ],
+      "givenNames": [
+        "Yanbo"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Liang"
+      ],
+      "givenNames": [
+        "Jason"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Lu"
+      ],
+      "givenNames": [
+        "Yinghai"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Luk"
+      ],
+      "givenNames": [
+        "CK"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Maher"
+      ],
+      "givenNames": [
+        "Bert"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Pan"
+      ],
+      "givenNames": [
+        "Yunjie"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Puhrsch"
+      ],
+      "givenNames": [
+        "Christian"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Reso"
+      ],
+      "givenNames": [
+        "Matthias"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Saroufim"
+      ],
+      "givenNames": [
+        "Mark"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Siraichi"
+      ],
+      "givenNames": [
+        "Marcos Yukio"
+      ]
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2024-04"
+  },
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "PyTorch 2: Faster Machine Learning Through Dynamic Python Bytecode Transformation and Graph Compilation"
+      }
+    }
+  ],
+  "content": [],
+  "url": "https://docs.pytorch.org/assets/pytorch2-2.pdf",
+  "publisher": {
+    "type": "Organization",
+    "name": "ACM"
+  }
+}

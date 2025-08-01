@@ -1,0 +1,46 @@
+---
+source: rust/codec-cff/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "doi": "10.21105/joss.01674",
+  "authors": [
+    {
+      "type": "Person",
+      "orcid": "0000-0001-5911-0472",
+      "familyNames": [
+        "Donoghue"
+      ],
+      "givenNames": [
+        "Thomas"
+      ]
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2019"
+  },
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "LISC: A Python Package for Scientific Literature Collection and Analysis"
+      }
+    }
+  ],
+  "content": [],
+  "isPartOf": {
+    "type": "PublicationIssue",
+    "isPartOf": {
+      "type": "PublicationVolume",
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "Journal of Open Source Software"
+      },
+      "volumeNumber": "4"
+    },
+    "issueNumber": "41",
+    "pageStart": "1674"
+  }
+}

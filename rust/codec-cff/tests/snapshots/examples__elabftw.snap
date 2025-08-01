@@ -1,0 +1,46 @@
+---
+source: rust/codec-cff/tests/examples.rs
+expression: node
+---
+{
+  "type": "SoftwareApplication",
+  "name": "eLabFTW: An open source laboratory notebook for research labs",
+  "doi": "10.21105/joss.00146",
+  "version": "1.4.0",
+  "authors": [
+    {
+      "type": "Person",
+      "orcid": "0000-0002-7494-5555",
+      "familyNames": [
+        "CARPi"
+      ],
+      "givenNames": [
+        "Nicolas"
+      ]
+    },
+    {
+      "type": "Person",
+      "orcid": "0000-0001-7760-2753",
+      "familyNames": [
+        "Minges"
+      ],
+      "givenNames": [
+        "Alexander"
+      ]
+    },
+    {
+      "type": "Person",
+      "orcid": "0000-0002-2848-177X",
+      "familyNames": [
+        "Piel"
+      ],
+      "givenNames": [
+        "Matthieu"
+      ]
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2017-04-14"
+  }
+}

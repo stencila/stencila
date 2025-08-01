@@ -1,0 +1,30 @@
+---
+source: rust/codec-cff/tests/examples.rs
+expression: node
+---
+{
+  "type": "SoftwareSourceCode",
+  "name": "pandas-dev/pandas: Pandas",
+  "doi": "10.5281/zenodo.3509134",
+  "programmingLanguage": "",
+  "repository": "https://github.com/pandas-dev/pandas",
+  "description": "Pandas is a powerful data structures for data analysis, time series, and statistics.",
+  "url": "https://pandas.pydata.org/",
+  "authors": [
+    {
+      "type": "Organization",
+      "name": "The pandas development team"
+    }
+  ],
+  "keywords": [
+    "python",
+    "data science",
+    "flexible",
+    "pandas",
+    "alignment",
+    "data analysis"
+  ],
+  "licenses": [
+    "BSD-3-Clause"
+  ]
+}

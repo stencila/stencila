@@ -1,0 +1,58 @@
+cff-version: 1.2.0
+message: If you use ruby-cff in your work, please cite it using the following metadata
+title: Ruby CFF Library
+abstract: This library provides a Ruby interface to manipulate Citation File Format files
+authors:
+- family-names: Haines
+  given-names: Robert
+  orcid: https://orcid.org/0000-0002-9538-7919
+  affiliation: The University of Manchester, UK
+- name: The Ruby Citation File Format Developers
+keywords:
+- ruby
+- credit
+- software citation
+- research software
+- software sustainability
+- metadata
+- citation file format
+- CFF
+version: 1.3.0
+doi: 10.5281/zenodo.1184077
+date-released: 2024-10-26
+license: Apache-2.0
+repository-artifact: https://rubygems.org/gems/cff
+repository-code: https://github.com/citation-file-format/ruby-cff
+references:
+- type: software
+  title: Citation File Format
+  authors:
+  - family-names: Druskat
+    given-names: Stephan
+    orcid: https://orcid.org/0000-0003-4925-7248
+  - family-names: Spaaks
+    given-names: Jurriaan H.
+    orcid: https://orcid.org/0000-0002-7064-4069
+  - family-names: Chue Hong
+    given-names: Neil
+    orcid: https://orcid.org/0000-0002-8876-7606
+  - family-names: Haines
+    given-names: Robert
+    orcid: https://orcid.org/0000-0002-9538-7919
+  - family-names: Baker
+    given-names: James
+    orcid: https://orcid.org/0000-0002-2682-6922
+  - family-names: Bliven
+    given-names: Spencer
+    orcid: https://orcid.org/0000-0002-1200-1698
+  - family-names: Willighagen
+    given-names: Egon
+    orcid: https://orcid.org/0000-0001-7542-0286
+  - family-names: Pérez-Suárez
+    given-names: David
+    orcid: https://orcid.org/0000-0003-0784-6909
+  - family-names: Konovalov
+    given-names: Alexander
+    orcid: https://orcid.org/0000-0001-5299-3292
+  url: https://github.com/citation-file-format/citation-file-format
+  doi: 10.5281/zenodo.1003149
