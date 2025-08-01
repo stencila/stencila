@@ -1,16 +1,19 @@
+use std::collections::HashMap;
+
+use serde::Deserialize;
+
 use codec::{
     common::{
         eyre::{Result, bail},
         indexmap::IndexMap,
-        serde::Deserialize,
     },
     schema::{
-        self, Article, ArticleOptions, Block, CreativeWork, CreativeWorkOptions, CreativeWorkType, CreativeWorkTypeOrString, Date,
-        Inline, IntegerOrString, Node, Organization, OrganizationOptions, Paragraph, Periodical, Person, PersonOptions,
-        PublicationIssue, PublicationVolume,
+        self, Article, ArticleOptions, Block, CreativeWork, CreativeWorkOptions, CreativeWorkType,
+        CreativeWorkTypeOrString, Date, Inline, IntegerOrString, Node, Organization,
+        OrganizationOptions, Paragraph, Periodical, Person, PersonOptions, PublicationIssue,
+        PublicationVolume,
     },
 };
-use std::collections::HashMap;
 
 use crate::{license::normalize_license, utils::convert_ids_to_identifiers};
 
@@ -18,7 +21,7 @@ use crate::{license::normalize_license, utils::convert_ids_to_identifiers};
 ///
 /// See https://docs.openalex.org/api-entities/works/work-object
 #[derive(Deserialize, Clone)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct Work {
     pub id: String,
     pub display_name: Option<String>,
@@ -70,7 +73,7 @@ impl Work {
 ///
 /// See https://docs.openalex.org/api-entities/works/work-object/authorship-object
 #[derive(Deserialize, Clone)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct Authorship {
     pub author_position: Option<String>,
     pub author: Option<DehydratedAuthor>,
@@ -82,7 +85,7 @@ pub struct Authorship {
 }
 
 #[derive(Deserialize, Clone)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct DehydratedAuthor {
     pub id: Option<String>,
     pub display_name: Option<String>,
@@ -101,7 +104,7 @@ impl DehydratedAuthor {
 }
 
 #[derive(Deserialize, Clone)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct DehydratedInstitution {
     pub id: Option<String>,
     pub display_name: Option<String>,
@@ -123,7 +126,7 @@ impl DehydratedInstitution {
 }
 
 #[derive(Deserialize, Clone)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct OpenAccess {
     pub is_oa: Option<bool>,
     pub oa_date: Option<String>,
@@ -132,7 +135,7 @@ pub struct OpenAccess {
 }
 
 #[derive(Deserialize, Clone)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct Biblio {
     pub volume: Option<String>,
     pub issue: Option<String>,
@@ -141,7 +144,7 @@ pub struct Biblio {
 }
 
 #[derive(Deserialize, Clone)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct Location {
     pub source: Option<DehydratedSource>,
     pub landing_page_url: Option<String>,
@@ -152,7 +155,7 @@ pub struct Location {
 }
 
 #[derive(Deserialize, Clone)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct DehydratedSource {
     pub id: Option<String>,
     pub display_name: Option<String>,
@@ -168,7 +171,7 @@ pub struct DehydratedSource {
 }
 
 #[derive(Deserialize, Clone)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct SustainableDevelopmentGoal {
     pub id: Option<String>,
     pub display_name: Option<String>,
@@ -176,7 +179,7 @@ pub struct SustainableDevelopmentGoal {
 }
 
 #[derive(Deserialize, Clone)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct Grant {
     pub funder: Option<String>,
     pub funder_display_name: Option<String>,
@@ -184,7 +187,7 @@ pub struct Grant {
 }
 
 #[derive(Deserialize, Clone)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct CountsByYear {
     pub year: Option<i32>,
     pub cited_by_count: Option<i64>,
@@ -210,20 +213,23 @@ impl From<Work> for Article {
         }
 
         // Extract title
-        let title = work.display_name.clone().or(work.title.clone())
+        let title = work
+            .display_name
+            .clone()
+            .or(work.title.clone())
             .map(|title| vec![Inline::Text(title.into())]);
 
         // De-invert abstract if present
-        let r#abstract = work.abstract_inverted_index.as_ref()
+        let r#abstract = work
+            .abstract_inverted_index
+            .as_ref()
             .and_then(de_invert_abstract);
 
         // Map ids to identifiers
-        let identifiers = work.ids.as_ref()
-            .and_then(convert_ids_to_identifiers);
+        let identifiers = work.ids.as_ref().and_then(convert_ids_to_identifiers);
 
         // Extract publication date
-        let date_published = work.publication_date.clone()
-            .map(Date::new);
+        let date_published = work.publication_date.clone().map(Date::new);
 
         // Map authorships to authors
         let authors = work.authorships.as_ref().and_then(|authorships| {
@@ -231,17 +237,21 @@ impl From<Work> for Article {
                 .iter()
                 .filter_map(|authorship| {
                     authorship.author.as_ref().map(|dehydrated_author| {
-                        let affiliations = authorship.institutions.as_ref().map(|institutions| {
-                            institutions
-                                .iter()
-                                .map(|inst| Organization {
-                                    name: inst.display_name.clone(),
-                                    ror: crate::strip_ror_prefix(inst.ror.clone()),
-                                    options: Box::new(OrganizationOptions::default()),
-                                    ..Default::default()
-                                })
-                                .collect()
-                        }).filter(|orgs: &Vec<Organization>| !orgs.is_empty());
+                        let affiliations = authorship
+                            .institutions
+                            .as_ref()
+                            .map(|institutions| {
+                                institutions
+                                    .iter()
+                                    .map(|inst| Organization {
+                                        name: inst.display_name.clone(),
+                                        ror: crate::strip_ror_prefix(inst.ror.clone()),
+                                        options: Box::new(OrganizationOptions::default()),
+                                        ..Default::default()
+                                    })
+                                    .collect()
+                            })
+                            .filter(|orgs: &Vec<Organization>| !orgs.is_empty());
 
                         let person = Person {
                             orcid: crate::strip_orcid_prefix(dehydrated_author.orcid.clone()),
@@ -262,28 +272,36 @@ impl From<Work> for Article {
         });
 
         // Extract page information from biblio
-        let (page_start, page_end) = work.biblio.as_ref()
-            .map(|biblio| (
-                biblio.first_page.as_ref().map(|page| IntegerOrString::String(page.clone())),
-                biblio.last_page.as_ref().map(|page| IntegerOrString::String(page.clone()))
-            ))
+        let (page_start, page_end) = work
+            .biblio
+            .as_ref()
+            .map(|biblio| {
+                (
+                    biblio
+                        .first_page
+                        .as_ref()
+                        .map(|page| IntegerOrString::String(page.clone())),
+                    biblio
+                        .last_page
+                        .as_ref()
+                        .map(|page| IntegerOrString::String(page.clone())),
+                )
+            })
             .unwrap_or((None, None));
 
         // Create publication info from primary_location source and biblio
-        let is_part_of = work.primary_location.as_ref()
-            .and_then(|primary_location| 
-                create_publication_info(primary_location.source.as_ref(), work.biblio.as_ref())
-                    .map(|info| *info)
-            );
+        let is_part_of = work.primary_location.as_ref().and_then(|primary_location| {
+            create_publication_info(primary_location.source.as_ref(), work.biblio.as_ref())
+                .map(|info| *info)
+        });
 
         // Apply normalized license from primary location
-        let licenses = work.primary_location.as_ref()
-            .and_then(|primary_location| 
-                primary_location.license.as_ref().map(|license_str| {
-                    let normalized_license = normalize_license(license_str);
-                    vec![CreativeWorkTypeOrString::String(normalized_license)]
-                })
-            );
+        let licenses = work.primary_location.as_ref().and_then(|primary_location| {
+            primary_location.license.as_ref().map(|license_str| {
+                let normalized_license = normalize_license(license_str);
+                vec![CreativeWorkTypeOrString::String(normalized_license)]
+            })
+        });
 
         Article {
             id: Some(work.id.clone()),
@@ -308,20 +326,22 @@ impl From<Work> for Article {
 impl From<Work> for CreativeWork {
     fn from(work: Work) -> Self {
         // Extract title
-        let title = work.display_name.or(work.title)
+        let title = work
+            .display_name
+            .or(work.title)
             .map(|title| vec![Inline::Text(title.into())]);
 
         // De-invert abstract if present
-        let r#abstract = work.abstract_inverted_index.as_ref()
+        let r#abstract = work
+            .abstract_inverted_index
+            .as_ref()
             .and_then(de_invert_abstract);
 
         // Map ids to identifiers
-        let identifiers = work.ids.as_ref()
-            .and_then(convert_ids_to_identifiers);
+        let identifiers = work.ids.as_ref().and_then(convert_ids_to_identifiers);
 
         // Extract publication date
-        let date_published = work.publication_date
-            .map(Date::new);
+        let date_published = work.publication_date.map(Date::new);
 
         // Map authorships to authors
         let authors = work.authorships.and_then(|authorships| {
@@ -329,17 +349,20 @@ impl From<Work> for CreativeWork {
                 .into_iter()
                 .filter_map(|authorship| {
                     authorship.author.map(|dehydrated_author| {
-                        let affiliations = authorship.institutions.map(|institutions| {
-                            institutions
-                                .into_iter()
-                                .map(|inst| Organization {
-                                    name: inst.display_name,
-                                    ror: crate::strip_ror_prefix(inst.ror),
-                                    options: Box::new(OrganizationOptions::default()),
-                                    ..Default::default()
-                                })
-                                .collect()
-                        }).filter(|orgs: &Vec<Organization>| !orgs.is_empty());
+                        let affiliations = authorship
+                            .institutions
+                            .map(|institutions| {
+                                institutions
+                                    .into_iter()
+                                    .map(|inst| Organization {
+                                        name: inst.display_name,
+                                        ror: crate::strip_ror_prefix(inst.ror),
+                                        options: Box::new(OrganizationOptions::default()),
+                                        ..Default::default()
+                                    })
+                                    .collect()
+                            })
+                            .filter(|orgs: &Vec<Organization>| !orgs.is_empty());
 
                         let person = Person {
                             orcid: crate::strip_orcid_prefix(dehydrated_author.orcid),
@@ -361,20 +384,18 @@ impl From<Work> for CreativeWork {
 
         // Create publication info from primary_location source and biblio
         // Include page fields in publication hierarchy for non-article creative works
-        let is_part_of = work.primary_location.as_ref()
-            .and_then(|primary_location| 
-                create_publication_info(primary_location.source.as_ref(), work.biblio.as_ref())
-                    .map(|info| *info)
-            );
+        let is_part_of = work.primary_location.as_ref().and_then(|primary_location| {
+            create_publication_info(primary_location.source.as_ref(), work.biblio.as_ref())
+                .map(|info| *info)
+        });
 
         // Apply normalized license from primary location
-        let licenses = work.primary_location.as_ref()
-            .and_then(|primary_location| 
-                primary_location.license.as_ref().map(|license_str| {
-                    let normalized_license = normalize_license(license_str);
-                    vec![CreativeWorkTypeOrString::String(normalized_license)]
-                })
-            );
+        let licenses = work.primary_location.as_ref().and_then(|primary_location| {
+            primary_location.license.as_ref().map(|license_str| {
+                let normalized_license = normalize_license(license_str);
+                vec![CreativeWorkTypeOrString::String(normalized_license)]
+            })
+        });
 
         CreativeWork {
             id: Some(work.id),

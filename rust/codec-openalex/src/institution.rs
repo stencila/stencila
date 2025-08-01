@@ -1,14 +1,17 @@
-use crate::utils::convert_ids_to_identifiers;
+use serde::Deserialize;
+
 use codec::{
-    common::{indexmap::IndexMap, serde::Deserialize, serde_json},
+    common::{indexmap::IndexMap, serde_json},
     schema::{ImageObject, Node, Organization, OrganizationOptions},
 };
+
+use crate::utils::convert_ids_to_identifiers;
 
 /// An OpenAlex `Institution` object
 ///
 /// See https://docs.openalex.org/api-entities/institutions/institution-object
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct Institution {
     pub id: String,
     pub ror: Option<String>,
@@ -44,7 +47,7 @@ impl Institution {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct SummaryStats {
     #[serde(rename = "2yr_mean_citedness")]
     pub impact_factor: Option<f64>,
@@ -53,7 +56,7 @@ pub struct SummaryStats {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct ExternalIds {
     pub openalex: Option<String>,
     pub ror: Option<String>,
@@ -64,7 +67,7 @@ pub struct ExternalIds {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct Geo {
     pub city: Option<String>,
     pub geonames_city_id: Option<String>,
@@ -76,13 +79,13 @@ pub struct Geo {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct International {
     pub display_name: Option<serde_json::Value>,
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct AssociatedInstitution {
     pub id: Option<String>,
     pub display_name: Option<String>,
@@ -93,7 +96,7 @@ pub struct AssociatedInstitution {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct CountsByYear {
     pub year: Option<i32>,
     pub works_count: Option<i64>,
@@ -101,7 +104,7 @@ pub struct CountsByYear {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct Role {
     pub role: Option<String>,
     pub id: Option<String>,
@@ -109,7 +112,7 @@ pub struct Role {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct Concept {
     pub id: Option<String>,
     pub display_name: Option<String>,

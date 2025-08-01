@@ -1,7 +1,9 @@
 use std::str::FromStr;
 
+use serde::Deserialize;
+
 use codec::{
-    common::{eyre::Result, serde::Deserialize},
+    common::eyre::Result,
     schema::{Node, Organization, OrganizationOptions, Person, PersonOptions},
 };
 
@@ -9,7 +11,7 @@ use codec::{
 ///
 /// See https://docs.openalex.org/api-entities/authors/author-object
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct Author {
     pub id: String,
     pub orcid: Option<String>,
@@ -36,7 +38,7 @@ impl Author {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct SummaryStats {
     #[serde(rename = "2yr_mean_citedness")]
     pub impact_factor: Option<f64>,
@@ -45,7 +47,7 @@ pub struct SummaryStats {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct ExternalIds {
     pub openalex: Option<String>,
     pub orcid: Option<String>,
@@ -55,14 +57,14 @@ pub struct ExternalIds {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct Affiliation {
     pub institution: Option<DehydratedInstitution>,
     pub years: Option<Vec<i32>>,
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct DehydratedInstitution {
     pub id: Option<String>,
     pub display_name: Option<String>,
@@ -73,7 +75,7 @@ pub struct DehydratedInstitution {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct CountsByYear {
     pub year: Option<i32>,
     pub works_count: Option<i64>,
@@ -81,7 +83,7 @@ pub struct CountsByYear {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct Concept {
     pub id: Option<String>,
     pub display_name: Option<String>,

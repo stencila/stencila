@@ -1,14 +1,17 @@
-use crate::{strip_ror_prefix, utils::convert_ids_to_identifiers};
+use serde::Deserialize;
+
 use codec::{
-    common::{indexmap::IndexMap, serde::Deserialize},
+    common::indexmap::IndexMap,
     schema::{ImageObject, Node, Organization, OrganizationOptions},
 };
+
+use crate::{strip_ror_prefix, utils::convert_ids_to_identifiers};
 
 /// An OpenAlex `Publisher` object
 ///
 /// See https://docs.openalex.org/api-entities/publishers/publisher-object
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct Publisher {
     pub id: String,
     pub display_name: Option<String>,
@@ -32,7 +35,7 @@ pub struct Publisher {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct Role {
     pub role: Option<String>,
     pub id: Option<String>,
@@ -40,7 +43,7 @@ pub struct Role {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct SummaryStats {
     #[serde(rename = "2yr_mean_citedness")]
     pub impact_factor: Option<f64>,
@@ -49,7 +52,7 @@ pub struct SummaryStats {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct ExternalIds {
     pub openalex: Option<String>,
     pub ror: Option<String>,
@@ -57,7 +60,7 @@ pub struct ExternalIds {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct CountsByYear {
     pub year: Option<i32>,
     pub works_count: Option<i64>,
@@ -70,8 +73,7 @@ impl From<Publisher> for Organization {
         let ror = strip_ror_prefix(publisher.ids.as_ref().and_then(|ids| ids.ror.clone()));
 
         // Map alternate_titles to alternate_names
-        let alternate_names = publisher.alternate_titles
-            .filter(|names| !names.is_empty());
+        let alternate_names = publisher.alternate_titles.filter(|names| !names.is_empty());
 
         // Map image_url to organization options images
         let images = publisher.image_url.map(|image_url| {

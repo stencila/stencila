@@ -1,5 +1,7 @@
+use serde::Deserialize;
+
 use codec::{
-    common::{indexmap::IndexMap, serde::Deserialize},
+    common::indexmap::IndexMap,
     schema::{Node, Organization, Periodical, PeriodicalOptions, PersonOrOrganization},
 };
 
@@ -9,7 +11,7 @@ use crate::utils::convert_ids_to_identifiers;
 ///
 /// See https://docs.openalex.org/api-entities/sources/source-object
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct Source {
     pub id: String,
     pub display_name: Option<String>,
@@ -37,7 +39,7 @@ pub struct Source {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct SummaryStats {
     #[serde(rename = "2yr_mean_citedness")]
     pub impact_factor: Option<f64>,
@@ -46,7 +48,7 @@ pub struct SummaryStats {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct ExternalIds {
     pub openalex: Option<String>,
     pub issn_l: Option<String>,
@@ -56,7 +58,7 @@ pub struct ExternalIds {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct CountsByYear {
     pub year: Option<i32>,
     pub works_count: Option<i64>,
@@ -64,7 +66,7 @@ pub struct CountsByYear {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", crate = "codec::common::serde")]
+#[serde(rename_all = "snake_case")]
 pub struct Society {
     pub url: Option<String>,
     pub organization: Option<String>,

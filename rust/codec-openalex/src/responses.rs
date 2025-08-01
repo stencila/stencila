@@ -1,4 +1,6 @@
-use codec::common::{serde::Deserialize, serde_json};
+use serde::Deserialize;
+
+use codec::common::serde_json;
 
 use crate::{
     author::Author, funder::Funder, institution::Institution, publisher::Publisher, source::Source,
@@ -9,7 +11,6 @@ use crate::{
 ///
 /// See https://docs.openalex.org/how-to-use-the-api/get-single-entities
 #[derive(Deserialize)]
-#[serde(crate = "codec::common::serde")]
 pub struct SingleResponse<T> {
     #[serde(flatten)]
     #[allow(dead_code)]
@@ -20,7 +21,6 @@ pub struct SingleResponse<T> {
 ///
 /// See https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities
 #[derive(Deserialize)]
-#[serde(crate = "codec::common::serde")]
 pub struct ListResponse<T> {
     pub results: Vec<T>,
     #[allow(dead_code)]
@@ -28,7 +28,6 @@ pub struct ListResponse<T> {
 }
 
 #[derive(Deserialize)]
-#[serde(crate = "codec::common::serde")]
 #[allow(dead_code)]
 pub struct Meta {
     pub count: Option<i64>,
