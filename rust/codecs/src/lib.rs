@@ -41,7 +41,8 @@ pub mod cli;
 pub fn list() -> Vec<Box<dyn Codec>> {
     let codecs = vec![
         Box::new(codec_cbor::CborCodec) as Box<dyn Codec>,
-        Box::new(codec_csl::CslCodec) as Box<dyn Codec>,
+        Box::new(codec_cff::CffCodec),
+        Box::new(codec_csl::CslCodec),
         Box::new(codec_debug::DebugCodec),
         Box::new(codec_docx::DocxCodec),
         // DomCodec supports to HTML and because listed here before HtmlCodec

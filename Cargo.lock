@@ -1061,6 +1061,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-cff"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "common-dev",
+]
+
+[[package]]
 name = "codec-csl"
 version = "0.0.0"
 dependencies = [
@@ -1511,6 +1519,7 @@ dependencies = [
  "codec",
  "codec-arxiv",
  "codec-cbor",
+ "codec-cff",
  "codec-csl",
  "codec-debug",
  "codec-directory",
