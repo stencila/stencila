@@ -1,0 +1,13 @@
+---
+source: rust/codec-github/tests/examples.rs
+assertion_line: 34
+expression: node
+---
+{
+  "type": "SoftwareSourceCode",
+  "name": "006_Pandas.ipynb",
+  "repository": "https://api.github.com/repos/pzc/cadd-grc-2013",
+  "path": "006_Pandas.ipynb",
+  "version": "e21b1d43a42cb601699579a481a5d4528d40c490",
+  "programmingLanguage": ""
+}

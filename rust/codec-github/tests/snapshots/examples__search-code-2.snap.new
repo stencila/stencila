@@ -1,0 +1,13 @@
+---
+source: rust/codec-github/tests/examples.rs
+assertion_line: 34
+expression: node
+---
+{
+  "type": "SoftwareSourceCode",
+  "name": "sfs",
+  "repository": "https://api.github.com/repos/hausdorff/snapchat-fs",
+  "path": "sfs",
+  "version": "0d98c05f1186e111ef8a634cd42f884ca0d6db08",
+  "programmingLanguage": ""
+}

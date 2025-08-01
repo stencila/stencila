@@ -1,0 +1,17 @@
+[package]
+name = "codec-github"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+codec = { path = "../codec" }
+governor = {workspace = true}
+secrets = { path = "../secrets" }
+serde = { workspace = true }
+version = { path = "../version" }
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }
+
+[lints]
+workspace = true
