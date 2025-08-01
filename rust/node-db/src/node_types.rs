@@ -107,6 +107,8 @@ impl DatabaseNode for Article {
             (NodeProperty::DatePublished, self.date_published.to_kuzu_type(), self.date_published.to_kuzu_value()),
             (NodeProperty::Genre, self.genre.to_kuzu_type(), self.genre.to_kuzu_value()),
             (NodeProperty::Keywords, self.keywords.to_kuzu_type(), self.keywords.to_kuzu_value()),
+            (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
+            (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
             (NodeProperty::ExecutionMode, self.execution_mode.to_kuzu_type(), self.execution_mode.to_kuzu_value()),
             (NodeProperty::ExecutionCount, self.options.execution_count.to_kuzu_type(), self.options.execution_count.to_kuzu_value()),
             (NodeProperty::ExecutionRequired, self.options.execution_required.to_kuzu_type(), self.options.execution_required.to_kuzu_value()),
@@ -115,8 +117,6 @@ impl DatabaseNode for Article {
             (NodeProperty::ExecutionDuration, self.options.execution_duration.to_kuzu_type(), self.options.execution_duration.to_kuzu_value()),
             (NodeProperty::Pagination, self.options.pagination.to_kuzu_type(), self.options.pagination.to_kuzu_value()),
             (NodeProperty::Frontmatter, self.frontmatter.to_kuzu_type(), self.frontmatter.to_kuzu_value()),
-            (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
-            (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
             (NodeProperty::Title, LogicalType::String, to_text(&self.title).to_kuzu_value()),
             (NodeProperty::Abstract, LogicalType::String, to_text(&self.r#abstract).to_kuzu_value()),
             (embeddings_property(), embeddings_type(), Null.to_kuzu_value())
@@ -163,6 +163,9 @@ impl DatabaseNode for AudioObject {
             (NodeProperty::DatePublished, self.options.date_published.to_kuzu_type(), self.options.date_published.to_kuzu_value()),
             (NodeProperty::Genre, self.options.genre.to_kuzu_type(), self.options.genre.to_kuzu_value()),
             (NodeProperty::Keywords, self.options.keywords.to_kuzu_type(), self.options.keywords.to_kuzu_value()),
+            (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
+            (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
+            (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
             (NodeProperty::Bitrate, self.options.bitrate.to_kuzu_type(), self.options.bitrate.to_kuzu_value()),
             (NodeProperty::ContentSize, self.options.content_size.to_kuzu_type(), self.options.content_size.to_kuzu_value()),
             (NodeProperty::ContentUrl, self.content_url.to_kuzu_type(), self.content_url.to_kuzu_value()),
@@ -294,6 +297,9 @@ impl DatabaseNode for Claim {
             (NodeProperty::DatePublished, self.options.date_published.to_kuzu_type(), self.options.date_published.to_kuzu_value()),
             (NodeProperty::Genre, self.options.genre.to_kuzu_type(), self.options.genre.to_kuzu_value()),
             (NodeProperty::Keywords, self.options.keywords.to_kuzu_type(), self.options.keywords.to_kuzu_value()),
+            (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
+            (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
+            (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
             (NodeProperty::ClaimType, self.claim_type.to_kuzu_type(), self.claim_type.to_kuzu_value()),
             (NodeProperty::Label, self.label.to_kuzu_type(), self.label.to_kuzu_value())
         ]
@@ -471,6 +477,9 @@ impl DatabaseNode for Figure {
             (NodeProperty::DatePublished, self.options.date_published.to_kuzu_type(), self.options.date_published.to_kuzu_value()),
             (NodeProperty::Genre, self.options.genre.to_kuzu_type(), self.options.genre.to_kuzu_value()),
             (NodeProperty::Keywords, self.options.keywords.to_kuzu_type(), self.options.keywords.to_kuzu_value()),
+            (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
+            (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
+            (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
             (NodeProperty::Label, self.label.to_kuzu_type(), self.label.to_kuzu_value()),
             (NodeProperty::LabelAutomatically, self.label_automatically.to_kuzu_type(), self.label_automatically.to_kuzu_value()),
             (NodeProperty::Caption, LogicalType::String, to_text(&self.caption).to_kuzu_value())
@@ -711,6 +720,9 @@ impl DatabaseNode for ImageObject {
             (NodeProperty::DatePublished, self.options.date_published.to_kuzu_type(), self.options.date_published.to_kuzu_value()),
             (NodeProperty::Genre, self.options.genre.to_kuzu_type(), self.options.genre.to_kuzu_value()),
             (NodeProperty::Keywords, self.options.keywords.to_kuzu_type(), self.options.keywords.to_kuzu_value()),
+            (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
+            (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
+            (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
             (NodeProperty::Bitrate, self.options.bitrate.to_kuzu_type(), self.options.bitrate.to_kuzu_value()),
             (NodeProperty::ContentSize, self.options.content_size.to_kuzu_type(), self.options.content_size.to_kuzu_value()),
             (NodeProperty::ContentUrl, self.content_url.to_kuzu_type(), self.content_url.to_kuzu_value()),
@@ -934,6 +946,9 @@ impl DatabaseNode for MediaObject {
             (NodeProperty::DatePublished, self.options.date_published.to_kuzu_type(), self.options.date_published.to_kuzu_value()),
             (NodeProperty::Genre, self.options.genre.to_kuzu_type(), self.options.genre.to_kuzu_value()),
             (NodeProperty::Keywords, self.options.keywords.to_kuzu_type(), self.options.keywords.to_kuzu_value()),
+            (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
+            (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
+            (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
             (NodeProperty::Bitrate, self.options.bitrate.to_kuzu_type(), self.options.bitrate.to_kuzu_value()),
             (NodeProperty::ContentSize, self.options.content_size.to_kuzu_type(), self.options.content_size.to_kuzu_value()),
             (NodeProperty::ContentUrl, self.content_url.to_kuzu_type(), self.content_url.to_kuzu_value()),
@@ -1094,6 +1109,9 @@ impl DatabaseNode for Periodical {
             (NodeProperty::Url, self.options.url.to_kuzu_type(), self.options.url.to_kuzu_value()),
             (NodeProperty::Genre, self.options.genre.to_kuzu_type(), self.options.genre.to_kuzu_value()),
             (NodeProperty::Keywords, self.options.keywords.to_kuzu_type(), self.options.keywords.to_kuzu_value()),
+            (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
+            (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
+            (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
             (NodeProperty::DateStart, self.options.date_start.to_kuzu_type(), self.options.date_start.to_kuzu_value()),
             (NodeProperty::DateEnd, self.options.date_end.to_kuzu_type(), self.options.date_end.to_kuzu_value()),
             (NodeProperty::Issns, self.options.issns.to_kuzu_type(), self.options.issns.to_kuzu_value())
@@ -1155,6 +1173,9 @@ impl DatabaseNode for PublicationIssue {
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
+            (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
+            (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
+            (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
             (NodeProperty::IssueNumber, LogicalType::String, to_text(&self.issue_number).to_kuzu_value())
         ]
     }
@@ -1181,6 +1202,9 @@ impl DatabaseNode for PublicationVolume {
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
+            (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
+            (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
+            (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
             (NodeProperty::VolumeNumber, LogicalType::String, to_text(&self.volume_number).to_kuzu_value())
         ]
     }
@@ -1382,6 +1406,9 @@ impl DatabaseNode for SoftwareApplication {
             (NodeProperty::DatePublished, self.options.date_published.to_kuzu_type(), self.options.date_published.to_kuzu_value()),
             (NodeProperty::Genre, self.options.genre.to_kuzu_type(), self.options.genre.to_kuzu_value()),
             (NodeProperty::Keywords, self.options.keywords.to_kuzu_type(), self.options.keywords.to_kuzu_value()),
+            (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
+            (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
+            (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
             (NodeProperty::SoftwareVersion, self.options.software_version.to_kuzu_type(), self.options.software_version.to_kuzu_value()),
             (NodeProperty::OperatingSystem, self.options.operating_system.to_kuzu_type(), self.options.operating_system.to_kuzu_value())
         ]
@@ -1487,6 +1514,9 @@ impl DatabaseNode for Table {
             (NodeProperty::DatePublished, self.options.date_published.to_kuzu_type(), self.options.date_published.to_kuzu_value()),
             (NodeProperty::Genre, self.options.genre.to_kuzu_type(), self.options.genre.to_kuzu_value()),
             (NodeProperty::Keywords, self.options.keywords.to_kuzu_type(), self.options.keywords.to_kuzu_value()),
+            (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
+            (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
+            (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
             (NodeProperty::Label, self.label.to_kuzu_type(), self.label.to_kuzu_value()),
             (NodeProperty::LabelAutomatically, self.label_automatically.to_kuzu_type(), self.label_automatically.to_kuzu_value()),
             (NodeProperty::Caption, LogicalType::String, to_text(&self.caption).to_kuzu_value())
@@ -1679,6 +1709,9 @@ impl DatabaseNode for VideoObject {
             (NodeProperty::DatePublished, self.options.date_published.to_kuzu_type(), self.options.date_published.to_kuzu_value()),
             (NodeProperty::Genre, self.options.genre.to_kuzu_type(), self.options.genre.to_kuzu_value()),
             (NodeProperty::Keywords, self.options.keywords.to_kuzu_type(), self.options.keywords.to_kuzu_value()),
+            (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
+            (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
+            (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
             (NodeProperty::Bitrate, self.options.bitrate.to_kuzu_type(), self.options.bitrate.to_kuzu_value()),
             (NodeProperty::ContentSize, self.options.content_size.to_kuzu_type(), self.options.content_size.to_kuzu_value()),
             (NodeProperty::ContentUrl, self.content_url.to_kuzu_type(), self.content_url.to_kuzu_value()),
