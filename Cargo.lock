@@ -1066,6 +1066,7 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "common-dev",
+ "serde",
 ]
 
 [[package]]
@@ -1074,6 +1075,7 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "common-dev",
+ "serde",
 ]
 
 [[package]]

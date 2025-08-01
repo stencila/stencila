@@ -1,4 +1,4 @@
-use codec::common::serde::Deserialize;
+use serde::Deserialize;
 
 /// Represents ordinary fields in CSL items
 ///
@@ -9,7 +9,7 @@ use codec::common::serde::Deserialize;
 /// - https://docs.citationstyles.org/en/stable/specification.html#appendix-iv-variables (Standard and Number Variables)
 /// - https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html#ordinary-variables
 #[derive(Deserialize)]
-#[serde(untagged, crate = "codec::common::serde")]
+#[serde(untagged)]
 pub enum OrdinaryField {
     Integer(i64),
     Float(f64),

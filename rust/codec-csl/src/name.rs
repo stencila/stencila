@@ -1,8 +1,10 @@
 use std::str::FromStr;
 
+use serde::Deserialize;
+
 use codec::{
     common::{
-        indexmap::IndexMap, itertools::Itertools, serde::Deserialize, serde_json::Value,
+        indexmap::IndexMap, itertools::Itertools, serde_json::Value,
         serde_with::skip_serializing_none,
     },
     schema::{Author, Organization, Person, PersonOptions},
@@ -18,7 +20,7 @@ use codec::{
 /// - https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html#name-fields
 #[skip_serializing_none]
 #[derive(Deserialize)]
-#[serde(rename_all = "kebab-case", crate = "codec::common::serde")]
+#[serde(rename_all = "kebab-case")]
 pub struct NameField {
     /// Family/surname
     pub family: Option<String>,

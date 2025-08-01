@@ -1,10 +1,11 @@
 use std::str::FromStr;
 
+use serde::Deserialize;
+
 use codec::{
     common::{
         eyre::{Report, bail},
         indexmap::IndexMap,
-        serde::Deserialize,
         serde_json::Value,
         serde_with::skip_serializing_none,
     },
@@ -20,7 +21,7 @@ use codec::{
 /// - https://docs.citationstyles.org/en/stable/specification.html#appendix-iv-variables (Date Variables)
 /// - https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html#date-fields
 #[derive(Deserialize)]
-#[serde(untagged, crate = "codec::common::serde")]
+#[serde(untagged)]
 pub enum DateField {
     /// Date with parts (year, month, day) and optional metadata
     Single {
@@ -70,8 +71,7 @@ pub enum DateField {
 /// Contains optional metadata that can accompany CSL date fields,
 /// including temporal context, precision indicators, and repository-specific information.
 #[skip_serializing_none]
-#[derive(Default, Deserialize)]
-#[serde(crate = "codec::common::serde")]
+#[derive(Deserialize)]
 pub struct DateMeta {
     /// Season information
     pub season: Option<Season>,
@@ -99,7 +99,7 @@ pub struct DateMeta {
 
 /// Represents seasonal information
 #[derive(Deserialize)]
-#[serde(rename_all = "lowercase", crate = "codec::common::serde")]
+#[serde(rename_all = "lowercase")]
 pub enum Season {
     Spring,
     Summer,
@@ -109,7 +109,7 @@ pub enum Season {
 
 /// Represents approximate date information
 #[derive(Deserialize)]
-#[serde(untagged, crate = "codec::common::serde")]
+#[serde(untagged)]
 pub enum Circa {
     Bool(bool),
     Year(i64),

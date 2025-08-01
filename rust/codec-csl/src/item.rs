@@ -1,6 +1,10 @@
+use serde::Deserialize;
+
 use codec::{
     common::{
-        indexmap::IndexMap, itertools::Itertools, serde::Deserialize, serde_json::Value,
+        indexmap::IndexMap,
+        itertools::Itertools,
+        serde_json::Value,
         serde_with::skip_serializing_none,
     },
     schema::{
@@ -32,7 +36,7 @@ use crate::{date::DateField, name::NameField, ordinary::OrdinaryField};
 /// `From` trait to convert CSL types to Stencila Schema types.
 #[skip_serializing_none]
 #[derive(Deserialize)]
-#[serde(rename_all = "kebab-case", crate = "codec::common::serde")]
+#[serde(rename_all = "kebab-case")]
 pub struct Item {
     /// Unique identifier
     pub id: Option<String>,
@@ -194,7 +198,7 @@ pub struct Item {
 /// - https://docs.citationstyles.org/en/stable/specification.html#appendix-iv-variables
 /// - https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html#introduction
 #[derive(Deserialize)]
-#[serde(rename_all = "kebab-case", crate = "codec::common::serde")]
+#[serde(rename_all = "kebab-case")]
 pub enum ItemType {
     Article,
     ArticleJournal,
@@ -256,7 +260,7 @@ pub enum ItemType {
 /// - https://www.crossref.org/documentation/retrieve-metadata/rest-api/
 #[skip_serializing_none]
 #[derive(Default, Deserialize)]
-#[serde(rename_all = "kebab-case", crate = "codec::common::serde")]
+#[serde(rename_all = "kebab-case")]
 pub struct ReferenceValue {
     /// Unique key for this reference
     pub key: Option<String>,
