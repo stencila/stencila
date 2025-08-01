@@ -568,6 +568,50 @@
       }
     },
     {
+      "@id": "schema:codeRepository",
+      "@type": "rdfs:Property",
+      "rdfs:label": "repository",
+      "rdfs:comment": "URL of the repository where the un-compiled, human readable source of the work is located.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:path",
+      "@type": "rdfs:Property",
+      "rdfs:label": "path",
+      "rdfs:comment": "The file system path of the source of the work.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Directory"
+        },
+        {
+          "@id": "stencila:File"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:commit",
+      "@type": "rdfs:Property",
+      "rdfs:label": "commit",
+      "rdfs:comment": "The commit hash (or similar) of the source of the work.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "schema:version",
       "@type": "rdfs:Property",
       "rdfs:label": "version",
@@ -1047,55 +1091,6 @@
       "rdfs:comment": "Nodes, usually from within `content` of the article, that have been archived.",
       "schema:domainIncludes": {
         "@id": "schema:Article"
-      }
-    },
-    {
-      "@id": "schema:codeRepository",
-      "@type": "rdfs:Property",
-      "rdfs:label": "repository",
-      "rdfs:comment": "URL of the repository where the un-compiled, human readable source of the article is located.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:Article"
-        },
-        {
-          "@id": "schema:SoftwareSourceCode"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
-      "@id": "stencila:path",
-      "@type": "rdfs:Property",
-      "rdfs:label": "path",
-      "rdfs:comment": "The filesystem path of the source of the article.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:Article"
-        },
-        {
-          "@id": "stencila:Directory"
-        },
-        {
-          "@id": "stencila:File"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
-      "@id": "stencila:commit",
-      "@type": "rdfs:Property",
-      "rdfs:label": "commit",
-      "rdfs:comment": "The commit hash (or similar) of the source of the article.",
-      "schema:domainIncludes": {
-        "@id": "schema:Article"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
       }
     },
     {

@@ -310,6 +310,20 @@ pub struct ClaimOptions {
     #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,
 
+    /// URL of the repository where the un-compiled, human readable source of the work is located.
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub repository: Option<String>,
+
+    /// The file system path of the source of the work.
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub path: Option<String>,
+
+    /// The commit hash (or similar) of the source of the work.
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub commit: Option<String>,
+
     /// The version of the creative work.
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]

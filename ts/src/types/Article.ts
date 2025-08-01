@@ -56,21 +56,6 @@ export class Article extends CreativeWork {
   archive?: Node[];
 
   /**
-   * URL of the repository where the un-compiled, human readable source of the article is located.
-   */
-  repository?: string;
-
-  /**
-   * The filesystem path of the source of the article.
-   */
-  path?: string;
-
-  /**
-   * The commit hash (or similar) of the source of the article.
-   */
-  commit?: string;
-
-  /**
    * Additional metadata for the article.
    */
   extra?: Object;

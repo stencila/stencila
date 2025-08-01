@@ -68,7 +68,7 @@
       "rdfs:comment": "The path (absolute or relative) of the file on the file system",
       "schema:domainIncludes": [
         {
-          "@id": "schema:Article"
+          "@id": "schema:CreativeWork"
         },
         {
           "@id": "stencila:Directory"

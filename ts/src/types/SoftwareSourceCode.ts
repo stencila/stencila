@@ -22,11 +22,6 @@ export class SoftwareSourceCode extends CreativeWork {
   programmingLanguage: string;
 
   /**
-   * URL of the repository where the un-compiled, human readable code and related code is located.
-   */
-  repository?: string;
-
-  /**
    * What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
    */
   codeSampleType?: string;

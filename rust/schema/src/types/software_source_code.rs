@@ -47,6 +47,17 @@ pub struct SoftwareSourceCode {
     /// The work's Digital Object Identifier (https://doi.org/).
     pub doi: Option<String>,
 
+    /// URL of the repository where the un-compiled, human readable source of the work is located.
+    pub repository: Option<String>,
+
+    /// The file system path of the source of the work.
+    #[strip(metadata)]
+    pub path: Option<String>,
+
+    /// The commit hash (or similar) of the source of the work.
+    #[strip(metadata)]
+    pub commit: Option<String>,
+
     /// The version of the creative work.
     #[strip(metadata)]
     pub version: Option<StringOrNumber>,
@@ -54,14 +65,6 @@ pub struct SoftwareSourceCode {
     /// The computer programming language.
     #[serde(alias = "programming-language", alias = "programming_language")]
     pub programming_language: String,
-
-    /// URL of the repository where the un-compiled, human readable code and related code is located.
-    pub repository: Option<String>,
-
-    /// Target operating system or product to which the code applies.
-    #[serde(alias = "target-products", alias = "target_products", alias = "targetProduct", alias = "target-product", alias = "target_product")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
-    pub target_products: Option<Vec<SoftwareApplication>>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -279,6 +282,11 @@ pub struct SoftwareSourceCodeOptions {
     #[serde(alias = "software-requirements", alias = "software_requirements", alias = "softwareRequirement", alias = "software-requirement", alias = "software_requirement")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     pub software_requirements: Option<Vec<SoftwareSourceCodeOrSoftwareApplicationOrString>>,
+
+    /// Target operating system or product to which the code applies.
+    #[serde(alias = "target-products", alias = "target_products", alias = "targetProduct", alias = "target-product", alias = "target_product")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub target_products: Option<Vec<SoftwareApplication>>,
 }
 
 impl SoftwareSourceCode {

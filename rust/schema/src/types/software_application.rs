@@ -252,6 +252,17 @@ pub struct SoftwareApplicationOptions {
     #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,
 
+    /// URL of the repository where the un-compiled, human readable source of the work is located.
+    pub repository: Option<String>,
+
+    /// The file system path of the source of the work.
+    #[strip(metadata)]
+    pub path: Option<String>,
+
+    /// The commit hash (or similar) of the source of the work.
+    #[strip(metadata)]
+    pub commit: Option<String>,
+
     /// Requirements for application, including shared libraries that are not included in the application distribution.
     #[serde(alias = "software-requirements", alias = "software_requirements", alias = "softwareRequirement", alias = "software-requirement", alias = "software_requirement")]
     #[serde(default, deserialize_with = "option_one_or_many")]

@@ -646,6 +646,15 @@ class CreativeWork(Thing):
     title: list[Inline] | None = None
     """The title of the creative work."""
 
+    repository: str | None = None
+    """URL of the repository where the un-compiled, human readable source of the work is located."""
+
+    path: str | None = None
+    """The file system path of the source of the work."""
+
+    commit: str | None = None
+    """The commit hash (or similar) of the source of the work."""
+
     version: str | float | None = None
     """The version of the creative work."""
 
@@ -1149,15 +1158,6 @@ class Article(CreativeWork, Executable):
 
     archive: list[Node] | None = None
     """Nodes, usually from within `content` of the article, that have been archived."""
-
-    repository: str | None = None
-    """URL of the repository where the un-compiled, human readable source of the article is located."""
-
-    path: str | None = None
-    """The filesystem path of the source of the article."""
-
-    commit: str | None = None
-    """The commit hash (or similar) of the source of the article."""
 
     extra: Object | None = None
     """Additional metadata for the article."""
@@ -2823,9 +2823,6 @@ class SoftwareSourceCode(CreativeWork):
 
     programming_language: str
     """The computer programming language."""
-
-    repository: str | None = None
-    """URL of the repository where the un-compiled, human readable code and related code is located."""
 
     code_sample_type: str | None = None
     """What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template."""

@@ -10,7 +10,8 @@ required:
   - programmingLanguage
 core:
   - repository
-  - targetProducts
+  - path
+  - commit
   - version
 properties:
   programmingLanguage:
@@ -18,13 +19,6 @@ properties:
     description: |
       The computer programming language.
     type: string
-  repository:
-    '@id': schema:codeRepository
-    description: |
-      URL of the repository where the un-compiled, human readable code and related
-      code is located.
-    type: string
-    format: uri
   codeSampleType:
     '@id': schema:codeSampleType
     description: |

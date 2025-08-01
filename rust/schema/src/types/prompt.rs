@@ -303,6 +303,17 @@ pub struct PromptOptions {
     #[strip(content)]
     pub text: Option<Text>,
 
+    /// URL of the repository where the un-compiled, human readable source of the work is located.
+    pub repository: Option<String>,
+
+    /// The file system path of the source of the work.
+    #[strip(metadata)]
+    pub path: Option<String>,
+
+    /// The commit hash (or similar) of the source of the work.
+    #[strip(metadata)]
+    pub commit: Option<String>,
+
     /// A digest of the content, semantics and dependencies of the node.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
     #[strip(compilation)]

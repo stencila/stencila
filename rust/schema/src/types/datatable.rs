@@ -235,6 +235,17 @@ pub struct DatatableOptions {
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub title: Option<Vec<Inline>>,
 
+    /// URL of the repository where the un-compiled, human readable source of the work is located.
+    pub repository: Option<String>,
+
+    /// The file system path of the source of the work.
+    #[strip(metadata)]
+    pub path: Option<String>,
+
+    /// The commit hash (or similar) of the source of the work.
+    #[strip(metadata)]
+    pub commit: Option<String>,
+
     /// The version of the creative work.
     #[strip(metadata)]
     pub version: Option<StringOrNumber>,

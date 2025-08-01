@@ -325,6 +325,20 @@ pub struct ArticleOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub text: Option<Text>,
 
+    /// URL of the repository where the un-compiled, human readable source of the work is located.
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub repository: Option<String>,
+
+    /// The file system path of the source of the work.
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub path: Option<String>,
+
+    /// The commit hash (or similar) of the source of the work.
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub commit: Option<String>,
+
     /// The version of the creative work.
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
@@ -429,20 +443,6 @@ pub struct ArticleOptions {
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub pagination: Option<String>,
-
-    /// URL of the repository where the un-compiled, human readable source of the article is located.
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub repository: Option<String>,
-
-    /// The filesystem path of the source of the article.
-    #[strip(metadata)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub path: Option<String>,
-
-    /// The commit hash (or similar) of the source of the article.
-    #[strip(metadata)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub commit: Option<String>,
 
     /// Additional metadata for the article.
     #[serde(flatten, deserialize_with = "empty_object_is_none")]

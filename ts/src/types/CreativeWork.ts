@@ -150,6 +150,21 @@ export class CreativeWork extends Thing {
   title?: Inline[];
 
   /**
+   * URL of the repository where the un-compiled, human readable source of the work is located.
+   */
+  repository?: string;
+
+  /**
+   * The file system path of the source of the work.
+   */
+  path?: string;
+
+  /**
+   * The commit hash (or similar) of the source of the work.
+   */
+  commit?: string;
+
+  /**
    * The version of the creative work.
    */
   version?: StringOrNumber;

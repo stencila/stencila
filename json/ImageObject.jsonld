@@ -568,6 +568,50 @@
       }
     },
     {
+      "@id": "schema:codeRepository",
+      "@type": "rdfs:Property",
+      "rdfs:label": "repository",
+      "rdfs:comment": "URL of the repository where the un-compiled, human readable source of the work is located.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:path",
+      "@type": "rdfs:Property",
+      "rdfs:label": "path",
+      "rdfs:comment": "The file system path of the source of the work.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Directory"
+        },
+        {
+          "@id": "stencila:File"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:commit",
+      "@type": "rdfs:Property",
+      "rdfs:label": "commit",
+      "rdfs:comment": "The commit hash (or similar) of the source of the work.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "schema:version",
       "@type": "rdfs:Property",
       "rdfs:label": "version",
