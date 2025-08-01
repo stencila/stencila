@@ -19,7 +19,7 @@ use kernel_jinja::{
 
 use crate::{
     NodeProxy,
-    docsql::decode_filter,
+    docsql::{decode_filter, Operator},
     extend_messages,
     nodes::{all, first, get, last},
     subquery::Subquery,
@@ -112,7 +112,7 @@ impl GitHubQuery {
         let (property_name, operator) = decode_filter(arg_name);
 
         // Error early for unhandled operators
-        if operator == "has" {
+        if operator == Operator::Has {
             return Err(Error::new(
                 ErrorKind::InvalidOperation,
                 format!("The `{operator}` operator is not supported for GitHub queries"),
@@ -142,7 +142,7 @@ impl GitHubQuery {
         };
 
         // Handle the `in` operator by expanding it into qualifiers joined by OR
-        if operator == "in" {
+        if operator == Operator::In {
             if matches!(arg_value.kind(), ValueKind::Seq)
                 && let Ok(iter) = arg_value.try_iter()
             {
@@ -165,16 +165,19 @@ impl GitHubQuery {
 
         // Generate the filter string
         let filter_string = match operator {
-            "==" => format!("{qualifier_name}:{qualifier_value}"),
-            "!=" => format!("NOT {qualifier_name}:{qualifier_value}"),
-            "<" | "<=" | ">" | ">=" => format!("{qualifier_name}:{operator}{qualifier_value}"),
+            Operator::Eq => format!("{qualifier_name}:{qualifier_value}"),
+            Operator::Neq => format!("NOT {qualifier_name}:{qualifier_value}"),
+            Operator::Lt => format!("{qualifier_name}:<{qualifier_value}"),
+            Operator::Lte => format!("{qualifier_name}:<={qualifier_value}"),
+            Operator::Gt => format!("{qualifier_name}:>{qualifier_value}"),
+            Operator::Gte => format!("{qualifier_name}:>={qualifier_value}"),
 
             // Regex-based filters for code search
             // See https://docs.github.com/en/search-github/github-code-search/understanding-github-code-search-syntax#using-regular-expressions
-            "~=" => format!("{qualifier_name}:/{qualifier_value}/"),
-            "~!" => format!("NOT {qualifier_name}:/{qualifier_value}/"),
-            "^=" => format!("{qualifier_name}:/^{qualifier_value}/"),
-            "$=" => format!("{qualifier_name}:/{qualifier_value}$/"),
+            Operator::Match => format!("{qualifier_name}:/{qualifier_value}/"),
+            Operator::NoMatch => format!("NOT {qualifier_name}:/{qualifier_value}/"),
+            Operator::Starts => format!("{qualifier_name}:/^{qualifier_value}/"),
+            Operator::Ends => format!("{qualifier_name}:/{qualifier_value}$/"),
 
             _ => {
                 return Err(Error::new(

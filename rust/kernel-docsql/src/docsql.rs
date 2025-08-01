@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{fmt, sync::Arc};
 
 use kernel_jinja::{
     kernel::common::{
@@ -10,6 +10,104 @@ use kernel_jinja::{
 };
 
 use crate::{CypherQuery, NodeProxies, NodeProxy, openalex::OpenAlexQuery};
+
+/// Operator enum for filter operations
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Operator {
+    Eq,      // ==
+    Neq,     // !=
+    Lt,      // <
+    Lte,     // <=
+    Gt,      // >
+    Gte,     // >=
+    Match,   // ~=
+    NoMatch, // ~!
+    Starts,  // ^=
+    Ends,    // $=
+    In,      // in
+    Has,     // has
+}
+
+impl Operator {
+    /// Convert operator to its single character suffix
+    pub fn to_suffix(self) -> &'static str {
+        match self {
+            Operator::Eq => "",
+            Operator::Neq => "0",
+            Operator::Lt => "1",
+            Operator::Lte => "2",
+            Operator::Gt => "3",
+            Operator::Gte => "4",
+            Operator::Match => "5",
+            Operator::NoMatch => "6",
+            Operator::Starts => "7",
+            Operator::Ends => "8",
+            Operator::In => "9",
+            Operator::Has => "_",
+        }
+    }
+
+    /// Parse a suffix character back to an operator
+    pub fn from_suffix(c: char) -> Option<Self> {
+        match c {
+            '0' => Some(Operator::Neq),
+            '1' => Some(Operator::Lt),
+            '2' => Some(Operator::Lte),
+            '3' => Some(Operator::Gt),
+            '4' => Some(Operator::Gte),
+            '5' => Some(Operator::Match),
+            '6' => Some(Operator::NoMatch),
+            '7' => Some(Operator::Starts),
+            '8' => Some(Operator::Ends),
+            '9' => Some(Operator::In),
+            '_' => Some(Operator::Has),
+            _ => None,
+        }
+    }
+
+    /// Get the string representation of the operator
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Operator::Eq => "==",
+            Operator::Neq => "!=",
+            Operator::Lt => "<",
+            Operator::Lte => "<=",
+            Operator::Gt => ">",
+            Operator::Gte => ">=",
+            Operator::Match => "~=",
+            Operator::NoMatch => "~!",
+            Operator::Starts => "^=",
+            Operator::Ends => "$=",
+            Operator::In => "in",
+            Operator::Has => "has",
+        }
+    }
+
+    /// Parse an operator string to enum
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s {
+            "=" | "==" => Some(Operator::Eq),
+            "!=" => Some(Operator::Neq),
+            "<" => Some(Operator::Lt),
+            "<=" => Some(Operator::Lte),
+            ">" => Some(Operator::Gt),
+            ">=" => Some(Operator::Gte),
+            "~=" => Some(Operator::Match),
+            "~!" => Some(Operator::NoMatch),
+            "^=" => Some(Operator::Starts),
+            "$=" => Some(Operator::Ends),
+            "in" => Some(Operator::In),
+            "has" => Some(Operator::Has),
+            _ => None,
+        }
+    }
+}
+
+impl fmt::Display for Operator {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
+}
 
 /// Names added to the Jinja environment with `env.add_global`
 ///
@@ -208,20 +306,10 @@ pub(super) fn encode_filter(property: &str, operator: &str) -> String {
         _ => property.trim_start_matches("."),
     };
 
-    let suffix = match operator {
-        "!=" => "0",
-        "<" => "1",
-        "<=" => "2",
-        ">" => "3",
-        ">=" => "4",
-        "~=" => "5",
-        "~!" => "6",
-        "^=" => "7",
-        "$=" => "8",
-        "in" => "9",
-        "has" => "_",
-        "=" | "==" => "",
-        _ => operator,
+    let suffix = if let Some(op) = Operator::from_str(operator) {
+        op.to_suffix()
+    } else {
+        operator
     };
 
     [name, suffix].concat()
@@ -230,35 +318,78 @@ pub(super) fn encode_filter(property: &str, operator: &str) -> String {
 /// Decode a MiniJinja argument name into a property name and operator
 ///
 /// The inverse of `encode_filter`.
-pub(super) fn decode_filter(arg_name: &str) -> (&str, &str) {
+pub(super) fn decode_filter(arg_name: &str) -> (&str, Operator) {
     if arg_name.len() > 1 {
         if let Some(last_char) = arg_name.chars().last() {
-            let trimmed = &arg_name[..arg_name.len() - 1];
-            match last_char {
-                '0' => (trimmed, "!="),
-                '1' => (trimmed, "<"),
-                '2' => (trimmed, "<="),
-                '3' => (trimmed, ">"),
-                '4' => (trimmed, ">="),
-                '5' => (trimmed, "~="),
-                '6' => (trimmed, "~!"),
-                '7' => (trimmed, "^="),
-                '8' => (trimmed, "$="),
-                '9' => (trimmed, "in"),
-                '_' => (trimmed, "has"),
-                _ => (arg_name, "=="),
+            if let Some(op) = Operator::from_suffix(last_char) {
+                let trimmed = &arg_name[..arg_name.len() - 1];
+                (trimmed, op)
+            } else {
+                (arg_name, Operator::Eq)
             }
         } else {
-            (arg_name, "==")
+            (arg_name, Operator::Eq)
         }
     } else {
-        (arg_name, "==")
+        (arg_name, Operator::Eq)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
+
+    #[test]
+    fn operator_conversions() {
+        use super::{Operator, decode_filter};
+
+        // All operators for testing
+        let operators = [
+            (Operator::Eq, "", "=="),
+            (Operator::Neq, "0", "!="),
+            (Operator::Lt, "1", "<"),
+            (Operator::Lte, "2", "<="),
+            (Operator::Gt, "3", ">"),
+            (Operator::Gte, "4", ">="),
+            (Operator::Match, "5", "~="),
+            (Operator::NoMatch, "6", "~!"),
+            (Operator::Starts, "7", "^="),
+            (Operator::Ends, "8", "$="),
+            (Operator::In, "9", "in"),
+            (Operator::Has, "_", "has"),
+        ];
+
+        // Test suffix roundtrip conversions
+        for (op, suffix, _) in &operators {
+            assert_eq!(op.to_suffix(), *suffix);
+            if !suffix.is_empty() {
+                assert_eq!(
+                    Operator::from_suffix(suffix.chars().next().unwrap()),
+                    Some(*op)
+                );
+            }
+        }
+
+        // Test invalid suffix
+        assert_eq!(Operator::from_suffix('x'), None);
+
+        // Test string roundtrip conversions
+        for (op, _, str_repr) in &operators {
+            assert_eq!(op.as_str(), *str_repr);
+            assert_eq!(Operator::from_str(str_repr), Some(*op));
+        }
+
+        // Test special cases
+        assert_eq!(Operator::from_str("="), Some(Operator::Eq)); // Alternative for ==
+        assert_eq!(Operator::from_str("foo"), None);
+
+        // Test decode_filter returns Operator
+        assert_eq!(decode_filter("property0"), ("property", Operator::Neq));
+        assert_eq!(decode_filter("property1"), ("property", Operator::Lt));
+        assert_eq!(decode_filter("property_"), ("property", Operator::Has));
+        assert_eq!(decode_filter("property"), ("property", Operator::Eq));
+        assert_eq!(decode_filter("p"), ("p", Operator::Eq));
+    }
 
     #[test]
     fn strip_comments() {
