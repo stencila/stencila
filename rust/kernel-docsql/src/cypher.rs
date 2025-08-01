@@ -1,7 +1,6 @@
 use std::{
     ops::Deref,
-    str::FromStr,
-    sync::{Arc, Mutex as SyncMutex, MutexGuard as SyncMutexGuard},
+    sync::{Arc, Mutex as SyncMutex},
 };
 
 use codec_text_trait::to_text;
@@ -13,191 +12,98 @@ use kernel_jinja::{
             eyre::Result,
             inflector::Inflector,
             itertools::Itertools,
-            serde_json,
             tokio::{runtime, sync::Mutex, task},
-            tracing,
         },
         schema::{
-            Array, CodeChunk, ExecutionMessage, MessageLevel, Node, NodePath, NodeProperty,
-            NodeSet, NodeType, Primitive, SectionType, get,
+            Array, CodeChunk, ExecutionMessage, MessageLevel, Node, NodeType, Primitive, SectionType,
         },
     },
     minijinja::{
         Environment, Error, ErrorKind, State, Value,
-        value::{DynObject, Enumerator, Kwargs, Object, ObjectRepr, from_args},
+        value::{DynObject, Kwargs, Object, from_args},
     },
 };
 
-use crate::{docsql::GLOBAL_CONSTS, subquery::Subquery};
+use crate::{
+    NodeProxies, NodeProxy, docsql::GLOBAL_CONSTS, lock_messages, subquery::Subquery, try_messages,
+};
 
-/// Get Cypher relation and table for a subquery name
-fn get_cypher_subquery_info(subquery_name: &str) -> Result<(&'static str, &'static str), Error> {
-    match subquery_name {
-        // Academic/research subqueries
-        "authors" => Ok(("[authors]", "Person")),
-        "references" => Ok(("[references]", "Reference")),
-        "cites" => Ok(("[references]", "Reference")),
-        "citedBy" => Ok(("[citedBy]", "Reference")),
-        "publishedIn" => Ok(("[publishedIn]", "Periodical")),
-        "affiliations" => Ok(("[affiliations]", "Organization")),
-        "organizations" => Ok(("[organizations]", "Organization")),
-        
-        // GitHub-specific subqueries (not directly supported in Cypher, but keeping for consistency)
-        "topics" => Ok(("[topics]", "String")),
-        "owners" => Ok(("[owners]", "Person")),
-        
-        // Content subqueries
-        "codeBlocks" => Ok((DEFAULT_RELATION, "CodeBlock")),
-        "codeInlines" => Ok((DEFAULT_RELATION, "CodeInline")),
-        "codeChunks" | "chunks" => Ok((DEFAULT_RELATION, "CodeChunk")),
-        "codeExpressions" | "expressions" => Ok((DEFAULT_RELATION, "CodeExpression")),
-        "mathBlocks" => Ok((DEFAULT_RELATION, "MathBlock")),
-        "mathInlines" => Ok((DEFAULT_RELATION, "MathInline")),
-        "images" => Ok((DEFAULT_RELATION, "ImageObject")),
-        "audios" => Ok((DEFAULT_RELATION, "AudioObject")),
-        "videos" => Ok((DEFAULT_RELATION, "VideoObject")),
-        "admonitions" => Ok((DEFAULT_RELATION, "Admonition")),
-        "claims" => Ok((DEFAULT_RELATION, "Claim")),
-        "lists" => Ok((DEFAULT_RELATION, "List")),
-        "paragraphs" => Ok((DEFAULT_RELATION, "Paragraph")),
-        "sections" => Ok((DEFAULT_RELATION, "Section")),
-        "sentences" => Ok((DEFAULT_RELATION, "Sentence")),
-        "people" => Ok((DEFAULT_RELATION, "Person")),
-        
-        _ => Err(Error::new(
-            ErrorKind::InvalidOperation,
-            format!("Unsupported subquery for Cypher: {subquery_name}")
-        ))
+/// A document shortcut functions to the environment
+pub(super) fn add_document_functions(env: &mut Environment, document: Arc<CypherQuery>) {
+    for (name, node_type) in [
+        // Static code
+        ("codeBlock", NodeType::CodeBlock),
+        ("codeInline", NodeType::CodeInline),
+        // Executable code
+        ("codeChunk", NodeType::CodeChunk),
+        ("chunk", NodeType::CodeChunk),
+        ("codeExpression", NodeType::CodeExpression),
+        ("expressions", NodeType::CodeExpression),
+        // Math
+        ("mathBlock", NodeType::MathBlock),
+        ("mathInline", NodeType::MathInline),
+        // Media
+        ("image", NodeType::ImageObject),
+        ("audio", NodeType::AudioObject),
+        ("video", NodeType::VideoObject),
+        // Containers
+        ("admonition", NodeType::Admonition),
+        ("claim", NodeType::Claim),
+        ("heading", NodeType::Heading),
+        ("list", NodeType::List),
+        ("paragraph", NodeType::Paragraph),
+        ("section", NodeType::Section),
+        // Note: at present, mainly for performance reasons, the current document is not
+        // "sentencized" so `sentence` and `sentences` function are not provided here.
+        // Metadata
+        ("organization", NodeType::Organization),
+        ("person", NodeType::Person),
+        ("reference", NodeType::Reference),
+    ] {
+        env.add_global(
+            name,
+            Value::from_object(CypherQueryNodeType::new(node_type, document.clone(), true)),
+        );
+        env.add_global(
+            match name {
+                "person" => "people".to_string(),
+                _ => [name, "s"].concat(),
+            },
+            Value::from_object(CypherQueryNodeType::new(node_type, document.clone(), false)),
+        );
     }
-}
 
-/// Process a subquery for Cypher using name and args
-pub(super) fn process_subquery_for_cypher(subquery: &crate::subquery::Subquery, outer_alias: &str) -> Result<String, Error> {
-    // Get relation and table from subquery name
-    let (relation, table) = get_cypher_subquery_info(&subquery.name)?;
-    
-    // Generate alias for the subquery table
-    let alias = alias_for_table(table);
-    
-    // Build the base MATCH pattern
-    let mut cypher = format!(
-        "MATCH ({outer_alias})-{relation}->({alias}:{table})"
+    for name in ["figure", "table", "equation"] {
+        env.add_global(
+            name,
+            Value::from_object(CypherQueryLabelled::new(name, document.clone(), true)),
+        );
+        env.add_global(
+            [name, "s"].concat(),
+            Value::from_object(CypherQueryLabelled::new(name, document.clone(), false)),
+        );
+    }
+
+    for (name, section_type) in [
+        ("introduction", SectionType::Introduction),
+        ("methods", SectionType::Methods),
+        ("results", SectionType::Results),
+        ("discussion", SectionType::Discussion),
+    ] {
+        env.add_global(
+            name,
+            Value::from_object(CypherQuerySectionType::new(section_type, document.clone())),
+        );
+    }
+
+    env.add_global(
+        "variable",
+        Value::from_object(CypherQueryVariables::new(document.clone(), true)),
     );
-    
-    // Process args to build WHERE conditions
-    let mut ands = Vec::new();
-    let mut count_condition = None;
-    
-    for (arg_name, arg_value) in &subquery.args {
-        if !arg_name.is_empty() {
-            // This is a keyword argument - process as filter
-            let filter = apply_filter(&alias, arg_name, arg_value.clone(), true)?;
-            
-            if let Some(rest) = filter.strip_prefix("_COUNT") {
-                if count_condition.is_some() {
-                    return Err(Error::new(
-                        ErrorKind::InvalidOperation,
-                        "only one count filter (*) allowed per call",
-                    ));
-                }
-                count_condition = Some(rest.trim().to_string());
-            } else {
-                ands.push(filter);
-            }
-        }
-        // Non-keyword arguments (query objects) are handled by the respective modules
-    }
-    
-    // Add WHERE clause if there are conditions
-    if !ands.is_empty() {
-        cypher.push_str(" WHERE ");
-        cypher.push_str(&ands.join(" AND "));
-    }
-    
-    // Wrap in COUNT or EXISTS based on whether there's a count condition
-    if let Some(count) = count_condition {
-        Ok(format!("COUNT {{ {cypher} }} {count}"))
-    } else {
-        Ok(format!("EXISTS {{ {cypher} }}"))
-    }
-}
-
-/// Translate a filter argument into a Cypher `WHERE` clause
-pub(super) fn apply_filter(
-    alias: &str,
-    arg_name: &str,
-    arg_value: Value,
-    for_subquery: bool,
-) -> Result<String, Error> {
-    if arg_name == "_" {
-        if let Some(subquery) = arg_value.downcast_object_ref::<Subquery>() {
-            return process_subquery_for_cypher(subquery, alias);
-        }
-    }
-
-    let mut chars = arg_name.chars().collect_vec();
-
-    let last = *chars.last().expect("always has at least one char");
-    if last.is_numeric() || last == '_' {
-        chars.pop();
-    }
-
-    let col = if arg_name.starts_with("_C") {
-        if !for_subquery {
-            return Err(Error::new(
-                ErrorKind::InvalidOperation,
-                "count filters (*) can only be used with subqueries".to_string(),
-            ));
-        }
-
-        if last.is_numeric() && last > '4' && last != '9' {
-            return Err(Error::new(
-                ErrorKind::InvalidOperation,
-                "only numeric comparison operators (e.g. <=) can be used in count filters (*)"
-                    .to_string(),
-            ));
-        }
-
-        "_COUNT".to_string()
-    } else {
-        [alias, ".", &chars.iter().join("").to_camel_case()].concat()
-    };
-
-    let val_str = || ["'", &arg_value.to_string(), "'"].concat();
-
-    let val_lit = || {
-        if arg_value.as_str().is_some() {
-            val_str()
-        } else {
-            arg_value.to_string()
-        }
-    };
-
-    Ok(match last {
-        '5' => ["regexp_matches(", &col, ", ", &val_str(), ")"].concat(),
-        '6' => ["NOT regexp_matches(", &col, ", ", &val_str(), ")"].concat(),
-        '7' => ["starts_with(", &col, ", ", &val_str(), ")"].concat(),
-        '8' => ["ends_with(", &col, ", ", &val_str(), ")"].concat(),
-        '9' => {
-            if col == "_COUNT" {
-                [&col, " IN ", &val_lit()].concat()
-            } else {
-                ["list_contains(", &val_lit(), ", ", &col, ")"].concat()
-            }
-        }
-        '_' => ["list_contains(", &col, ", ", &val_lit(), ")"].concat(),
-        _ => {
-            let op = match last {
-                '0' => "<>",
-                '1' => "<",
-                '2' => "<=",
-                '3' => ">",
-                '4' => ">=",
-                _ => "=",
-            };
-            [&col, " ", op, " ", &val_lit()].concat()
-        }
-    })
+    env.add_global(
+        "variables",
+        Value::from_object(CypherQueryVariables::new(document.clone(), false)),
+    );
 }
 
 #[derive(Debug, Clone)]
@@ -210,10 +116,6 @@ pub(super) struct CypherQuery {
 
     /// Execution messages to be added to when executing the query
     messages: Arc<SyncMutex<Vec<ExecutionMessage>>>,
-
-    /// Whether this a database [`Query`] such as `document` or `workspace`
-    /// without any methods called on it
-    pub is_database: bool,
 
     /// The Cypher for the query
     cypher: Option<String>,
@@ -284,7 +186,6 @@ impl CypherQuery {
             db_name,
             db,
             messages,
-            is_database: true,
             cypher: None,
             call: None,
             pattern: None,
@@ -304,6 +205,15 @@ impl CypherQuery {
             match_used: false,
             node_table_used: None,
         }
+    }
+
+    /// Whether this is the base query for which no method has been called yet
+    pub fn is_base(&self) -> bool {
+        self.cypher.is_none()
+            && self.call.is_none()
+            && self.pattern.is_none()
+            && self.ands.is_empty()
+            && self.ors.is_empty()
     }
 
     /// Specify the entire Cypher query manually
@@ -498,10 +408,6 @@ impl CypherQuery {
         }
 
         query.node_table_used = Some(table);
-
-        // This is done in call_method but because this method is called directly from some of
-        // the document query objects e.g. `QueryNodeType`, also done here
-        query.is_database = false;
 
         Ok(query)
     }
@@ -1097,6 +1003,174 @@ fn escape_keyword(word: &str) -> String {
     }
 }
 
+/// Translate a filter argument into a Cypher `WHERE` clause
+pub(super) fn apply_filter(
+    alias: &str,
+    arg_name: &str,
+    arg_value: Value,
+    for_subquery: bool,
+) -> Result<String, Error> {
+    if arg_name == "_" {
+        if let Some(subquery) = arg_value.downcast_object_ref::<Subquery>() {
+            return process_subquery_for_cypher(subquery, alias);
+        }
+    }
+
+    let mut chars = arg_name.chars().collect_vec();
+
+    let last = *chars.last().expect("always has at least one char");
+    if last.is_numeric() || last == '_' {
+        chars.pop();
+    }
+
+    let col = if arg_name.starts_with("_C") {
+        if !for_subquery {
+            return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                "count filters (*) can only be used with subqueries".to_string(),
+            ));
+        }
+
+        if last.is_numeric() && last > '4' && last != '9' {
+            return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                "only numeric comparison operators (e.g. <=) can be used in count filters (*)"
+                    .to_string(),
+            ));
+        }
+
+        "_COUNT".to_string()
+    } else {
+        [alias, ".", &chars.iter().join("").to_camel_case()].concat()
+    };
+
+    let val_str = || ["'", &arg_value.to_string(), "'"].concat();
+
+    let val_lit = || {
+        if arg_value.as_str().is_some() {
+            val_str()
+        } else {
+            arg_value.to_string()
+        }
+    };
+
+    Ok(match last {
+        '5' => ["regexp_matches(", &col, ", ", &val_str(), ")"].concat(),
+        '6' => ["NOT regexp_matches(", &col, ", ", &val_str(), ")"].concat(),
+        '7' => ["starts_with(", &col, ", ", &val_str(), ")"].concat(),
+        '8' => ["ends_with(", &col, ", ", &val_str(), ")"].concat(),
+        '9' => {
+            if col == "_COUNT" {
+                [&col, " IN ", &val_lit()].concat()
+            } else {
+                ["list_contains(", &val_lit(), ", ", &col, ")"].concat()
+            }
+        }
+        '_' => ["list_contains(", &col, ", ", &val_lit(), ")"].concat(),
+        _ => {
+            let op = match last {
+                '0' => "<>",
+                '1' => "<",
+                '2' => "<=",
+                '3' => ">",
+                '4' => ">=",
+                _ => "=",
+            };
+            [&col, " ", op, " ", &val_lit()].concat()
+        }
+    })
+}
+
+/// Process a subquery for Cypher using name and args
+pub(super) fn process_subquery_for_cypher(
+    subquery: &Subquery,
+    outer_alias: &str,
+) -> Result<String, Error> {
+    // Get relation and table from subquery name
+    let (relation, table) = match subquery.name.as_str() {
+        // Academic/research subqueries
+        "authors" => ("[authors]", "Person"),
+        "references" => ("[references]", "Reference"),
+        "cites" => ("[references]", "Reference"),
+        "citedBy" => ("[citedBy]", "Reference"),
+        "publishedIn" => ("[publishedIn]", "Periodical"),
+        "affiliations" => ("[affiliations]", "Organization"),
+        "organizations" => ("[organizations]", "Organization"),
+
+        // GitHub-specific subqueries (not directly supported in Cypher, but keeping for consistency)
+        "topics" => ("[topics]", "String"),
+        "owners" => ("[owners]", "Person"),
+
+        // Content subqueries
+        "codeBlocks" => (DEFAULT_RELATION, "CodeBlock"),
+        "codeInlines" => (DEFAULT_RELATION, "CodeInline"),
+        "codeChunks" | "chunks" => (DEFAULT_RELATION, "CodeChunk"),
+        "codeExpressions" | "expressions" => (DEFAULT_RELATION, "CodeExpression"),
+        "mathBlocks" => (DEFAULT_RELATION, "MathBlock"),
+        "mathInlines" => (DEFAULT_RELATION, "MathInline"),
+        "images" => (DEFAULT_RELATION, "ImageObject"),
+        "audios" => (DEFAULT_RELATION, "AudioObject"),
+        "videos" => (DEFAULT_RELATION, "VideoObject"),
+        "admonitions" => (DEFAULT_RELATION, "Admonition"),
+        "claims" => (DEFAULT_RELATION, "Claim"),
+        "lists" => (DEFAULT_RELATION, "List"),
+        "paragraphs" => (DEFAULT_RELATION, "Paragraph"),
+        "sections" => (DEFAULT_RELATION, "Section"),
+        "sentences" => (DEFAULT_RELATION, "Sentence"),
+        "people" => (DEFAULT_RELATION, "Person"),
+
+        _ => {
+            return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                format!("Unsupported subquery for Cypher: {}", subquery.name),
+            ));
+        }
+    };
+
+    // Generate alias for the subquery table
+    let alias = alias_for_table(table);
+
+    // Build the base MATCH pattern
+    let mut cypher = format!("MATCH ({outer_alias})-{relation}->({alias}:{table})");
+
+    // Process args to build WHERE conditions
+    let mut ands = Vec::new();
+    let mut count_condition = None;
+
+    for (arg_name, arg_value) in &subquery.args {
+        if !arg_name.is_empty() {
+            // This is a keyword argument - process as filter
+            let filter = apply_filter(&alias, arg_name, arg_value.clone(), true)?;
+
+            if let Some(rest) = filter.strip_prefix("_COUNT") {
+                if count_condition.is_some() {
+                    return Err(Error::new(
+                        ErrorKind::InvalidOperation,
+                        "only one count filter (*) allowed per call",
+                    ));
+                }
+                count_condition = Some(rest.trim().to_string());
+            } else {
+                ands.push(filter);
+            }
+        }
+        // Non-keyword arguments (query objects) are handled by the respective modules
+    }
+
+    // Add WHERE clause if there are conditions
+    if !ands.is_empty() {
+        cypher.push_str(" WHERE ");
+        cypher.push_str(&ands.join(" AND "));
+    }
+
+    // Wrap in COUNT or EXISTS based on whether there's a count condition
+    if let Some(count) = count_condition {
+        Ok(format!("COUNT {{ {cypher} }} {count}"))
+    } else {
+        Ok(format!("EXISTS {{ {cypher} }}"))
+    }
+}
+
 impl Object for CypherQuery {
     fn call_method(
         self: &Arc<Self>,
@@ -1104,7 +1178,7 @@ impl Object for CypherQuery {
         name: &str,
         args: &[Value],
     ) -> Result<Value, Error> {
-        let mut query = match name {
+        let query = match name {
             // Core Cypher query building methods
             "cypher" => {
                 let (cypher,) = from_args(args)?;
@@ -1202,8 +1276,6 @@ impl Object for CypherQuery {
                 self.table(name, args, kwargs)?
             }
         };
-
-        query.is_database = false;
 
         Ok(Value::from_object(query))
     }
@@ -1432,338 +1504,6 @@ impl Object for CypherQueryNodeType {
         let query = if self.one { query.limit(1) } else { query };
 
         Ok(Value::from_object(query))
-    }
-}
-
-/// A document shortcut functions to the environment
-pub(super) fn add_document_functions(env: &mut Environment, document: Arc<CypherQuery>) {
-    for (name, node_type) in [
-        // Static code
-        ("codeBlock", NodeType::CodeBlock),
-        ("codeInline", NodeType::CodeInline),
-        // Executable code
-        ("codeChunk", NodeType::CodeChunk),
-        ("chunk", NodeType::CodeChunk),
-        ("codeExpression", NodeType::CodeExpression),
-        ("expressions", NodeType::CodeExpression),
-        // Math
-        ("mathBlock", NodeType::MathBlock),
-        ("mathInline", NodeType::MathInline),
-        // Media
-        ("image", NodeType::ImageObject),
-        ("audio", NodeType::AudioObject),
-        ("video", NodeType::VideoObject),
-        // Containers
-        ("admonition", NodeType::Admonition),
-        ("claim", NodeType::Claim),
-        ("heading", NodeType::Heading),
-        ("list", NodeType::List),
-        ("paragraph", NodeType::Paragraph),
-        ("section", NodeType::Section),
-        // Note: at present, mainly for performance reasons, the current document is not
-        // "sentencized" so `sentence` and `sentences` function are not provided here.
-        // Metadata
-        ("organization", NodeType::Organization),
-        ("person", NodeType::Person),
-        ("reference", NodeType::Reference),
-    ] {
-        env.add_global(
-            name,
-            Value::from_object(CypherQueryNodeType::new(node_type, document.clone(), true)),
-        );
-        env.add_global(
-            match name {
-                "person" => "people".to_string(),
-                _ => [name, "s"].concat(),
-            },
-            Value::from_object(CypherQueryNodeType::new(node_type, document.clone(), false)),
-        );
-    }
-
-    for name in ["figure", "table", "equation"] {
-        env.add_global(
-            name,
-            Value::from_object(CypherQueryLabelled::new(name, document.clone(), true)),
-        );
-        env.add_global(
-            [name, "s"].concat(),
-            Value::from_object(CypherQueryLabelled::new(name, document.clone(), false)),
-        );
-    }
-
-    for (name, section_type) in [
-        ("introduction", SectionType::Introduction),
-        ("methods", SectionType::Methods),
-        ("results", SectionType::Results),
-        ("discussion", SectionType::Discussion),
-    ] {
-        env.add_global(
-            name,
-            Value::from_object(CypherQuerySectionType::new(section_type, document.clone())),
-        );
-    }
-
-    env.add_global(
-        "variable",
-        Value::from_object(CypherQueryVariables::new(document.clone(), true)),
-    );
-    env.add_global(
-        "variables",
-        Value::from_object(CypherQueryVariables::new(document.clone(), false)),
-    );
-}
-
-/// A proxy for a [`Node`] to allow it to be accessed as a minijinja [`Value`]
-///
-/// This has several advantage over simply converting all nodes to values
-/// via `serde_json`:
-///
-/// 1. We can provide getters for derived properties such as `text`
-///
-/// 2. We can create an error message if a non-existent property is accessed
-///
-/// 3. We can chain proxies together and convert to a minijinja value only
-///    when appropriate e.g. for primitives
-#[derive(Debug, Clone)]
-pub(super) struct NodeProxy {
-    /// The node being proxied
-    node: Node,
-
-    /// Execution messages to be added to when accessing the node
-    messages: Arc<SyncMutex<Vec<ExecutionMessage>>>,
-}
-
-impl NodeProxy {
-    pub fn new(node: Node, messages: Arc<SyncMutex<Vec<ExecutionMessage>>>) -> Self {
-        Self { node, messages }
-    }
-
-    pub fn nodes(&self) -> Vec<Node> {
-        vec![self.node.clone()]
-    }
-
-    fn text(&self) -> Result<Value, Error> {
-        try_messages(&self.messages)?;
-        Ok(Value::from(to_text(&self.node)))
-    }
-}
-
-impl Object for NodeProxy {
-    fn repr(self: &Arc<Self>) -> ObjectRepr {
-        ObjectRepr::Map
-    }
-
-    fn get_value(self: &Arc<Self>, key: &Value) -> Option<Value> {
-        if key.is_integer() {
-            if let Some(mut msgs) = lock_messages(&self.messages) {
-                msgs.push(ExecutionMessage::new(
-                    MessageLevel::Error,
-                    "Cannot index a single node".into(),
-                ))
-            };
-            return Some(Value::UNDEFINED);
-        };
-
-        let property = key.as_str()?;
-
-        if property == "type" {
-            return Some(Value::from(self.node.node_type().to_string()));
-        }
-
-        let Ok(property) = NodeProperty::from_str(property) else {
-            if let Some(mut msgs) = lock_messages(&self.messages) {
-                msgs.push(ExecutionMessage::new(
-                    MessageLevel::Error,
-                    format!("Invalid node property `{property}`"),
-                ))
-            };
-            return Some(Value::UNDEFINED);
-        };
-
-        let Ok(property) = get(&self.node, NodePath::from(property)) else {
-            if let Some(mut msgs) = lock_messages(&self.messages) {
-                msgs.push(ExecutionMessage::new(
-                    MessageLevel::Error,
-                    format!(
-                        "`{property}` is not a property of node type `{}`",
-                        self.node.node_type()
-                    ),
-                ))
-            };
-            return Some(Value::UNDEFINED);
-        };
-
-        match node_set_to_value(property, &self.messages) {
-            Ok(value) => Some(value),
-            Err(error) => {
-                tracing::error!("While converting node to minijinja value: {error}");
-                None
-            }
-        }
-    }
-
-    fn call_method(
-        self: &Arc<Self>,
-        _state: &State,
-        method: &str,
-        args: &[Value],
-    ) -> Result<Value, Error> {
-        if method == "text" {
-            if !args.is_empty() {
-                return Err(Error::new(
-                    ErrorKind::TooManyArguments,
-                    "Method `text` takes no arguments.",
-                ));
-            }
-            self.text()
-        } else {
-            Err(Error::new(
-                ErrorKind::UnknownMethod,
-                format!("Method `{method}` takes no arguments."),
-            ))
-        }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub(super) struct NodeProxies {
-    /// The nodes being proxied
-    nodes: Vec<Node>,
-
-    /// Execution messages to be added to when accessing the nodes
-    messages: Arc<SyncMutex<Vec<ExecutionMessage>>>,
-}
-
-impl NodeProxies {
-    pub fn new(nodes: Vec<Node>, messages: Arc<SyncMutex<Vec<ExecutionMessage>>>) -> Self {
-        Self { nodes, messages }
-    }
-
-    pub fn nodes(&self) -> Vec<Node> {
-        self.nodes.clone()
-    }
-
-    fn text(&self) -> Result<Value, Error> {
-        try_messages(&self.messages)?;
-        Ok(Value::from(self.nodes.iter().map(to_text).join(" ")))
-    }
-}
-
-impl Object for NodeProxies {
-    fn repr(self: &Arc<Self>) -> ObjectRepr {
-        ObjectRepr::Seq
-    }
-
-    fn enumerate(self: &Arc<Self>) -> Enumerator {
-        Enumerator::Seq(self.nodes.len())
-    }
-
-    fn get_value(self: &Arc<Self>, key: &Value) -> Option<Value> {
-        if let Some(property) = key.as_str() {
-            if let Some(mut msgs) = lock_messages(&self.messages) {
-                msgs.push(ExecutionMessage::new(
-                    MessageLevel::Error,
-                    format!("`{property}` is not a property of a node list"),
-                ))
-            };
-            return Some(Value::UNDEFINED);
-        };
-
-        let key = key.as_i64()?;
-
-        let index = if key < 0 {
-            self.nodes.len() as i64 - key - 1
-        } else {
-            key
-        };
-
-        if index < 0 || index >= self.nodes.len() as i64 {
-            return None;
-        }
-
-        let node = self.nodes[index as usize].clone();
-        Some(Value::from_object(NodeProxy::new(
-            node,
-            self.messages.clone(),
-        )))
-    }
-
-    fn call_method(
-        self: &Arc<Self>,
-        _state: &State,
-        method: &str,
-        args: &[Value],
-    ) -> Result<Value, Error> {
-        if method == "text" {
-            if !args.is_empty() {
-                return Err(Error::new(
-                    ErrorKind::TooManyArguments,
-                    "Method `text` takes no arguments.",
-                ));
-            }
-            self.text()
-        } else {
-            Err(Error::new(
-                ErrorKind::UnknownMethod,
-                format!("Method `{method}` takes no arguments."),
-            ))
-        }
-    }
-}
-
-fn node_set_to_value(
-    node_set: NodeSet,
-    messages: &Arc<SyncMutex<Vec<ExecutionMessage>>>,
-) -> Result<Value> {
-    match node_set {
-        NodeSet::One(node) => node_to_value(node, messages),
-        NodeSet::Many(nodes) => Ok(Value::from_object(NodeProxies::new(
-            nodes,
-            messages.clone(),
-        ))),
-    }
-}
-
-fn node_to_value(node: Node, messages: &Arc<SyncMutex<Vec<ExecutionMessage>>>) -> Result<Value> {
-    match node {
-        Node::Null(..) => Ok(Value::from(())),
-        Node::Boolean(node) => Ok(Value::from(node)),
-        Node::Integer(node) => Ok(Value::from(node)),
-        Node::UnsignedInteger(node) => Ok(Value::from(node)),
-        Node::Number(node) => Ok(Value::from(node)),
-        Node::String(node) => Ok(Value::from(node)),
-        Node::Array(..) | Node::Object(..) => node_to_value_via_serde(node),
-        _ => Ok(Value::from_object(NodeProxy::new(node, messages.clone()))),
-    }
-}
-
-fn node_to_value_via_serde(node: Node) -> Result<Value> {
-    let value = serde_json::to_value(node)?;
-    Ok(serde_json::from_value(value)?)
-}
-
-fn lock_messages(
-    messages: &SyncMutex<Vec<ExecutionMessage>>,
-) -> Option<SyncMutexGuard<'_, Vec<ExecutionMessage>>> {
-    match messages.lock() {
-        Ok(messages) => Some(messages),
-        Err(..) => {
-            tracing::error!("Unable to lock messages");
-            None
-        }
-    }
-}
-
-fn try_messages(messages: &SyncMutex<Vec<ExecutionMessage>>) -> Result<(), Error> {
-    let Some(messages) = lock_messages(messages) else {
-        return Ok(());
-    };
-
-    if !messages.is_empty() {
-        let detail = messages.iter().map(|msg| &msg.message).join(". ");
-        Err(Error::new(ErrorKind::InvalidOperation, detail))
-    } else {
-        Ok(())
     }
 }
 

@@ -122,7 +122,7 @@ where
 /// Make a request for the ids of entities of a type matching filters
 #[tracing::instrument(skip(url))]
 pub async fn request_ids(url: &str) -> Result<Vec<String>> {
-    let response = request::<IdResponse>(&url).await?;
+    let response = request::<IdResponse>(url).await?;
 
     let ids = response
         .results

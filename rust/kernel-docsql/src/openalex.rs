@@ -21,8 +21,8 @@ use kernel_jinja::{
 };
 
 use crate::{
-    cypher::{NodeProxies, NodeProxy},
     docsql::{decode_filter, encode_filter},
+    nodes::{NodeProxies, NodeProxy},
     subquery::Subquery,
     testing,
 };
@@ -39,14 +39,11 @@ pub(crate) fn add_openalex_functions(
 /// OpenAlex query builder for generating API calls
 #[derive(Debug, Clone)]
 pub(crate) struct OpenAlexQuery {
-    /// The OpenAlex entity type (works, authors, institutions, etc.)
-    entity_type: String,
-
     /// Execution messages to be added to when executing the query
     messages: Arc<SyncMutex<Vec<ExecutionMessage>>>,
 
-    /// Whether this is a base OpenAlex query object
-    pub is_database: bool,
+    /// The OpenAlex entity type (works, authors, institutions, etc.)
+    entity_type: String,
 
     /// Filter parameters for the API call
     filters: Vec<String>,
@@ -74,7 +71,6 @@ impl OpenAlexQuery {
         Self {
             entity_type: "works".into(),
             messages,
-            is_database: true,
             filters: Vec::new(),
             search: None,
             sort: None,
@@ -90,7 +86,6 @@ impl OpenAlexQuery {
         Self {
             entity_type: entity_type.into(),
             messages: self.messages.clone(),
-            is_database: false,
             filters: Vec::new(),
             search: None,
             sort: None,
@@ -101,11 +96,15 @@ impl OpenAlexQuery {
         }
     }
 
+    /// Whether this is the base query for which no method has been called yet
+    pub fn is_base(&self) -> bool {
+        self.entity_type.is_empty()
+    }
+
     /// Set the entity type for the query (works, authors, institutions, etc.)
     fn entity(&self, entity_type: &str) -> Self {
         let mut query = self.clone();
         query.entity_type = entity_type.into();
-        query.is_database = false;
         query
     }
 
@@ -163,8 +162,7 @@ impl OpenAlexQuery {
                 return Err(Error::new(
                     ErrorKind::InvalidOperation,
                     format!(
-                        "Unsupported value for OpenAlex keywords: {}",
-                        arg_value.to_string()
+                        "Unsupported value for OpenAlex keywords: {arg_value}"
                     ),
                 ));
             };
@@ -375,10 +373,10 @@ impl OpenAlexQuery {
         let subquery_name = subquery.name.as_str();
 
         let unsupported_subquery = || {
-            return Err(Error::new(
+            Err(Error::new(
                 ErrorKind::InvalidOperation,
                 format!("Subquery `{subquery_name}` is not supported for OpenAlex `{entity_type}`"),
-            ));
+            ))
         };
 
         let unsupported_property = |property: &str| {
@@ -973,7 +971,7 @@ impl Object for OpenAlexQuery {
         name: &str,
         args: &[Value],
     ) -> Result<Value, Error> {
-        let mut query = match name {
+        let query = match name {
             "works" | "articles" | "books" | "chapters" | "preprints" | "dissertations"
             | "reviews" | "standards" | "grants" | "retractions" | "datasets" | "authors"
             | "people" | "institutions" | "organizations" | "sources" | "journals"
@@ -1090,7 +1088,6 @@ impl Object for OpenAlexQuery {
             }
         };
 
-        query.is_database = false;
         Ok(Value::from_object(query))
     }
 

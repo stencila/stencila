@@ -1,41 +1,31 @@
 use std::{
     path::{Path, PathBuf},
-    sync::{Arc, Mutex as SyncMutex},
+    sync::{Arc, Mutex as SyncMutex, MutexGuard as SyncMutexGuard},
 };
 
 use kernel_docsdb::{DocsDBChannels, DocsDBKernelInstance};
 use kernel_jinja::{
-    self, JinjaKernelContext,
-    kernel::{
-        Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
+    self, kernel::{
         common::{
-            async_trait::async_trait,
-            eyre::{OptionExt, Result, eyre},
-            once_cell::sync::Lazy,
-            regex::Regex,
-            serde_json,
-            tokio::sync::Mutex,
-            tracing,
-        },
-        format::Format,
-        generate_id,
-        schema::{ExecutionBounds, ExecutionMessage, MessageLevel, Node, SoftwareApplication},
-    },
-    minijinja::{Environment, UndefinedBehavior, Value, context},
+            async_trait::async_trait, eyre::{eyre, OptionExt, Result}, itertools::Itertools, once_cell::sync::Lazy, regex::Regex, serde_json, tokio::sync::Mutex, tracing
+        }, format::Format, generate_id, schema::{ExecutionBounds, ExecutionMessage, MessageLevel, Node, SoftwareApplication}, Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder
+    }, minijinja::{context, Environment, Error, ErrorKind, UndefinedBehavior, Value}, JinjaKernelContext
 };
 
 mod cypher;
 mod docsql;
 mod github;
+mod nodes;
 mod openalex;
 mod subquery;
 
 use cypher::{
     CypherQuery, CypherQueryLabelled, CypherQueryNodeType, CypherQuerySectionType,
-    CypherQueryVariables, NodeProxies, NodeProxy, add_document_functions,
+    CypherQueryVariables, add_document_functions,
 };
 use docsql::{add_constants, add_functions};
 use github::{GitHubQuery, add_github_functions};
+use nodes::{NodeProxies, NodeProxy};
 use openalex::{OpenAlexQuery, add_openalex_functions};
 use subquery::add_subquery_functions;
 
@@ -320,17 +310,17 @@ impl KernelInstance for DocsQLKernelInstance {
                     )],
                 ));
             } else if let Some(query) = value.downcast_object::<CypherQuery>() {
-                if query.is_database {
-                    return should_use_db_method(statement.trim());
-                }
-                query.nodes()
-            } else if let Some(query) = value.downcast_object::<GitHubQuery>() {
-                if query.is_database {
+                if query.is_base() {
                     return should_use_db_method(statement.trim());
                 }
                 query.nodes()
             } else if let Some(query) = value.downcast_object::<OpenAlexQuery>() {
-                if query.is_database {
+                if query.is_base() {
+                    return should_use_db_method(statement.trim());
+                }
+                query.nodes()
+            } else if let Some(query) = value.downcast_object::<GitHubQuery>() {
+                if query.is_base() {
                     return should_use_db_method(statement.trim());
                 }
                 query.nodes()
@@ -460,6 +450,31 @@ fn error_to_execution_message(
     }
 
     message
+}
+
+fn lock_messages(
+    messages: &SyncMutex<Vec<ExecutionMessage>>,
+) -> Option<SyncMutexGuard<'_, Vec<ExecutionMessage>>> {
+    match messages.lock() {
+        Ok(messages) => Some(messages),
+        Err(..) => {
+            tracing::error!("Unable to lock messages");
+            None
+        }
+    }
+}
+
+fn try_messages(messages: &SyncMutex<Vec<ExecutionMessage>>) -> Result<(), Error> {
+    let Some(messages) = lock_messages(messages) else {
+        return Ok(());
+    };
+
+    if !messages.is_empty() {
+        let detail = messages.iter().map(|msg| &msg.message).join(". ");
+        Err(Error::new(ErrorKind::InvalidOperation, detail))
+    } else {
+        Ok(())
+    }
 }
 
 /// Are we currently testing this crate

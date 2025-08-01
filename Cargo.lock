@@ -3742,7 +3742,6 @@ dependencies = [
  "embed",
  "kernel-docsdb",
  "kernel-jinja",
- "urlencoding",
 ]
 
 [[package]]
