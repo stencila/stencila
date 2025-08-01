@@ -8,7 +8,8 @@ use codec::{
     },
     schema::{
         Article, ArticleOptions, Author, CreativeWorkType, Date, IntegerOrString, Organization,
-        Periodical, PersonOrOrganization, PublicationIssue, PublicationVolume,
+        Periodical, PeriodicalOptions, PersonOrOrganization, Primitive, PropertyValue,
+        PropertyValueOrString, PublicationIssue, PublicationVolume,
         shortcuts::{p, t},
     },
 };
@@ -264,12 +265,26 @@ impl From<Item> for Article {
             .as_ref()
             .map(|text| vec![p(vec![t(text)])]);
 
-        let doi = item.doi.clone();
         let url = item.url.clone();
+
+        let doi = item
+            .doi
+            .clone()
+            .map(|doi| doi.trim_start_matches("https://doi.org").to_string());
+
+        let mut identifiers = Vec::new();
+        if let Some(id) = item.pmid {
+            identifiers.push(id_to_identifier("pmid", id));
+        }
+        if let Some(id) = item.pmcid {
+            identifiers.push(id_to_identifier("pmcid", id));
+        }
+        let identifiers = (!identifiers.is_empty()).then_some(identifiers);
 
         let is_part_of = item.container_title.as_ref().and_then(|container| {
             create_publication_info(
                 container,
+                item.issn,
                 item.volume.as_ref(),
                 item.issue.as_ref(),
                 item.page.as_deref(),
@@ -291,6 +306,7 @@ impl From<Item> for Article {
             date_published,
             options: Box::new(ArticleOptions {
                 url,
+                identifiers,
                 is_part_of,
                 publisher,
                 ..Default::default()
@@ -300,9 +316,25 @@ impl From<Item> for Article {
     }
 }
 
+/// Convert a string id to valid `identifiers` value
+fn id_to_identifier(property_id: &str, id: String) -> PropertyValueOrString {
+    // If the value is a URL, use it directly as a string identifier
+    if id.starts_with("http://") || id.starts_with("https://") {
+        PropertyValueOrString::String(id)
+    } else {
+        // Otherwise create a PropertyValue with property_id and value
+        PropertyValueOrString::PropertyValue(PropertyValue {
+            property_id: Some(property_id.to_string()),
+            value: Primitive::String(id),
+            ..Default::default()
+        })
+    }
+}
+
 /// Create publication hierarchy from CSL metadata
 fn create_publication_info(
     container_title: &Value,
+    issns: Option<Vec<String>>,
     volume: Option<&OrdinaryField>,
     issue: Option<&OrdinaryField>,
     page: Option<&str>,
@@ -318,6 +350,10 @@ fn create_publication_info(
 
     let periodical = Periodical {
         name: Some(periodical_name),
+        options: Box::new(PeriodicalOptions {
+            issns,
+            ..Default::default()
+        }),
         ..Default::default()
     };
 

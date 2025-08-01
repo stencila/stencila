@@ -85,7 +85,11 @@ expression: node
       "type": "PublicationVolume",
       "isPartOf": {
         "type": "Periodical",
-        "name": "American Journal of Agricultural Economics"
+        "name": "American Journal of Agricultural Economics",
+        "issns": [
+          "0002-9092",
+          "1467-8276"
+        ]
       },
       "volumeNumber": "92"
     },
