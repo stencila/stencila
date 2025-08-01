@@ -15,7 +15,7 @@ mod ordinary;
 ///
 /// Only supports decoding from CSL-JSON. Primarily used for fetching
 /// metadata about creative works
-/// 
+///
 /// See:
 /// - https://docs.citationstyles.org/en/stable/specification.html
 /// - https://citeproc-js.readthedocs.io/en/latest/csl-json/

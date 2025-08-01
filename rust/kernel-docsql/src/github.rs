@@ -220,7 +220,7 @@ impl GitHubQuery {
 
         for filter in &self.filters {
             query.push(' ');
-            query.push_str(&filter);
+            query.push_str(filter);
         }
 
         let mut params = vec![("q", query)];
@@ -367,9 +367,7 @@ impl Object for GitHubQuery {
         let query = match name {
             // Core API URL building methods
             "code" => {
-                let object_type = match name {
-                    _ => name,
-                };
+                let object_type = name;
 
                 let mut query = self.object_type(object_type);
 

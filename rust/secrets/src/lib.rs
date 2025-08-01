@@ -12,6 +12,7 @@ use common::{
 pub mod cli;
 
 /// A category of secret
+#[allow(clippy::enum_variant_names)]
 #[derive(Clone, Serialize)]
 #[serde(crate = "common::serde")]
 enum SecretCategory {

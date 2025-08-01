@@ -2,9 +2,7 @@ use serde::Deserialize;
 
 use codec::{
     common::{
-        indexmap::IndexMap,
-        itertools::Itertools,
-        serde_json::Value,
+        indexmap::IndexMap, itertools::Itertools, serde_json::Value,
         serde_with::skip_serializing_none,
     },
     schema::{
@@ -335,7 +333,7 @@ impl From<ReferenceValue> for Reference {
         });
 
         // Parse year into Date
-        let date = ref_value.year.map(|year_str| Date::new(year_str));
+        let date = ref_value.year.map(Date::new);
 
         // Create title from available title fields
         let title = ref_value
@@ -377,9 +375,7 @@ impl From<ReferenceValue> for Reference {
         });
 
         // Extract page start from first-page
-        let page_start = ref_value
-            .first_page
-            .map(|page| IntegerOrString::String(page));
+        let page_start = ref_value.first_page.map(IntegerOrString::String);
 
         Reference {
             doi,

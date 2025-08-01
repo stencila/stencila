@@ -4,7 +4,7 @@ use semver::Version;
 pub const STENCILA_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// A versioned User-Agent header for making requests
-/// 
+///
 /// Includes and email as required by some APIs
 pub const STENCILA_USER_AGENT: &str = concat!(
     "Stencila/",

@@ -9,7 +9,7 @@ use crate::search_code::CodeSearchItem;
 pub struct SearchResponse<T> {
     /// Total number of search results
     pub total_count: i64,
-    
+
     /// Whether the search results are incomplete
     pub incomplete_results: bool,
 

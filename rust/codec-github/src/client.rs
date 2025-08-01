@@ -75,12 +75,10 @@ async fn apply_rate_limiting(url: &str, authenticated: bool) -> Result<()> {
         } else {
             SEARCH_UNAUTH_GOVERNOR.until_ready().await;
         }
+    } else if authenticated {
+        DEFAULT_AUTH_GOVERNOR.until_ready().await;
     } else {
-        if authenticated {
-            DEFAULT_AUTH_GOVERNOR.until_ready().await;
-        } else {
-            DEFAULT_UNAUTH_GOVERNOR.until_ready().await;
-        }
+        DEFAULT_UNAUTH_GOVERNOR.until_ready().await;
     }
 
     let duration = (Instant::now() - start).as_millis();
@@ -154,7 +152,7 @@ pub fn search_url(endpoint: &str, query_params: &[(&str, String)]) -> String {
 
     if !query_params.is_empty() {
         let query_string = query_params
-            .into_iter()
+            .iter()
             .map(|(name, value)| {
                 let encoded = value.replace(" ", "+").replace("&", "%26");
                 [name, "=", &encoded].concat()

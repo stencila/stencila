@@ -8,7 +8,7 @@ use codec::{
 
 mod cff;
 
-use cff::{CitationFile, CffType};
+use cff::{CffType, CitationFile};
 
 /// A codec for the Citation File Format (CFF)
 ///

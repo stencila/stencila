@@ -6,7 +6,12 @@ use codec::{
         serde_with::skip_serializing_none,
     },
     schema::{
-        shortcuts::{p, t}, Article, ArticleOptions, Author, CreativeWorkType, CreativeWorkTypeOrString, Date, IntegerOrString, Organization, Periodical, PeriodicalOptions, Person, PersonOptions, PersonOrOrganization, Primitive, PropertyValue, PropertyValueOrString, PublicationIssue, PublicationIssueOptions, PublicationVolume, PublicationVolumeOptions, SoftwareApplication, SoftwareApplicationOptions, SoftwareSourceCode, SoftwareSourceCodeOptions, StringOrNumber
+        Article, ArticleOptions, Author, CreativeWorkType, CreativeWorkTypeOrString, Date,
+        IntegerOrString, Organization, Periodical, PeriodicalOptions, Person, PersonOptions,
+        PersonOrOrganization, Primitive, PropertyValue, PropertyValueOrString, PublicationIssue,
+        PublicationIssueOptions, PublicationVolume, PublicationVolumeOptions, SoftwareApplication,
+        SoftwareApplicationOptions, SoftwareSourceCode, SoftwareSourceCodeOptions, StringOrNumber,
+        shortcuts::{p, t},
     },
 };
 
