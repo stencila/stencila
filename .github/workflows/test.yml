@@ -79,6 +79,9 @@ jobs:
           toolchain: ${{ env.RUST_VERSION }}
           components: clippy,llvm-tools
 
+      - name: Setup linker
+        run: make -C rust setup-linker
+
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
 
@@ -103,7 +106,6 @@ jobs:
 
       - name: Setup Chrome for web e2e tests
         uses: browser-actions/setup-chrome@v1
-      - run: which chrome
 
       - name: Show disk usage
         run: df -h && du -hd1

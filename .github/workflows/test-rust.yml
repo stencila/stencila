@@ -36,16 +36,27 @@ jobs:
     runs-on: ${{ matrix.runner }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
         if: ${{ contains(inputs.platforms, matrix.platform) }}
 
-      - uses: dtolnay/rust-toolchain@master
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@master
         if: ${{ contains(inputs.platforms, matrix.platform) }}
         with:
           toolchain: ${{ env.RUST_VERSION }}
           components: clippy
 
-      - uses: Swatinem/rust-cache@v2
+      - name: Setup linker
+        if: ${{ contains(inputs.platforms, matrix.platform) }}
+        run: |
+          make -C rust setup-linker
+          if [[ "${{ matrix.platform }}" == "macos" ]]; then
+            echo "$(brew --prefix)/opt/llvm/bin" >> $GITHUB_PATH
+          fi
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
         if: ${{ contains(inputs.platforms, matrix.platform) }}
 
       - name: Install uv

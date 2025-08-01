@@ -18,13 +18,20 @@ stencila = { git = "https://github.com/stencila/stencila" }
 
 ### Getting started
 
-Get started by cloning this repository, [installing Rust](https://rustup.rs) and using the using `make setup` to install necessary Cargo plugins (for formatting, linting, etc):
+Get started by cloning this repository, [installing Rust](https://rustup.rs) and using the using `make setup` to install necessary Cargo plugins (for formatting, linting, etc) and linkers:
 
 ```sh
 git clone git@github.com:stencila/stencila
 cd stencila/rust
 make setup
 ```
+
+This project is configured to use fast linkers to significantly improve build times:
+
+- **Linux**: [mold](https://github.com/rui314/mold)
+- **macOS**: [lld](https://lld.llvm.org/)
+
+The `make setup` command automatically installs the appropriate linker for your platform. See the `setup-linker` recipe in the `Makefile` if you would prefer to do this yourself.
 
 If you are contributing code please run formatting, linting and tests before submitting PRs:
 

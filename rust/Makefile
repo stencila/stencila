@@ -16,10 +16,53 @@ else
 endif
 
 # Setup local development environment
-setup:
+setup: setup-linker
 	cargo install --locked cargo-binstall
 	cargo binstall --no-confirm cargo-audit cargo-insta cargo-llvm-cov cargo-machete cargo-outdated cargo-watch
 	cargo --list
+
+# Setup appropriate linker for the OS
+setup-linker:
+ifeq ($(UNAME_S),Linux)
+	@$(MAKE) setup-mold
+endif
+ifeq ($(UNAME_S),Darwin)
+	@$(MAKE) setup-lld
+endif
+
+# Setup mold linker on Linux
+setup-mold:
+	@if ! command -v mold >/dev/null 2>&1; then \
+		echo "Installing mold linker..."; \
+		if command -v apt-get >/dev/null 2>&1; then \
+			sudo apt-get update && sudo apt-get install -y mold; \
+		elif command -v dnf >/dev/null 2>&1; then \
+			sudo dnf install -y mold; \
+		elif command -v pacman >/dev/null 2>&1; then \
+			sudo pacman -S --noconfirm mold; \
+		else \
+			echo "No supported package manager found. Please install mold manually."; \
+			echo "See: https://github.com/rui314/mold#installation"; \
+		fi \
+	else \
+		echo "mold linker already installed"; \
+	fi
+
+# Setup lld linker on macOS
+setup-lld:
+	@if ! command -v lld >/dev/null 2>&1; then \
+		echo "Installing LLVM (for lld linker)..."; \
+		if command -v brew >/dev/null 2>&1; then \
+			brew install llvm; \
+			echo "LLVM installed. You may need to add it to your PATH:"; \
+			echo "export PATH=\"$$(brew --prefix)/opt/llvm/bin:\$$PATH\""; \
+		else \
+			echo "Homebrew not found. Please install LLVM manually."; \
+			echo "See: https://llvm.org/docs/GettingStarted.html#getting-the-source-code-and-building-llvm"; \
+		fi \
+	else \
+		echo "lld linker already available"; \
+	fi
 
 # Make formatting and linting fixes
 fix:
