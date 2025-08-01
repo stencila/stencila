@@ -1,0 +1,8 @@
+github.code().sort('indexed')
+---
+GET https://api.github.com/search/code?q=.&sort=indexed
+
+
+github.code().sort('indexed', 'desc')
+---
+GET https://api.github.com/search/code?q=.&sort=indexed

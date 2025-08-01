@@ -12,7 +12,7 @@ use kernel_jinja::kernel::{
         eyre::{Result, bail},
         glob::glob,
         itertools::Itertools,
-        reqwest::Client,
+        reqwest::{Client, header::USER_AGENT},
         tokio::{
             self,
             sync::{mpsc, watch},
@@ -20,6 +20,7 @@ use kernel_jinja::kernel::{
     },
     schema::{CodeChunk, Node, Null},
 };
+use version::STENCILA_USER_AGENT;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn golden() -> Result<()> {
@@ -125,10 +126,7 @@ async fn validate_openalex_url(url: &str) -> Result<()> {
     // Add a user agent to be respectful to the OpenAlex API
     let response = client
         .get(url)
-        .header(
-            "User-Agent",
-            "Stencila-DocsQL-Test/1.0 (mailto:hello@stenci.la)",
-        )
+        .header(USER_AGENT, STENCILA_USER_AGENT)
         .send()
         .await?;
 
@@ -146,9 +144,7 @@ async fn validate_github_url(url: &str) -> Result<()> {
     let client = Client::new();
 
     // Build request with appropriate headers for GitHub API
-    let mut request = client
-        .get(url)
-        .header("User-Agent", "Stencila-DocsQL-Test/1.0");
+    let mut request = client.get(url).header(USER_AGENT, STENCILA_USER_AGENT);
 
     // Add GitHub token if available for authentication
     if let Ok(token) = env::var("GITHUB_TOKEN") {

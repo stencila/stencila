@@ -1,0 +1,13 @@
+github.code(search="machine learning")
+---
+GET https://api.github.com/search/code?q=machine+learning
+
+
+github.code(search = "neural networks").limit(5)
+---
+GET https://api.github.com/search/code?q=neural+networks&per_page=5
+
+
+github.code(like="machine learning")
+---
+Semantic similarity filtering is not available for GitHub, use `search` instead

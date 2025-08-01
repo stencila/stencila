@@ -1,0 +1,53 @@
+github.code("octocat")
+---
+GET https://api.github.com/search/code?q=octocat
+
+
+github.code(search = "octocat")
+---
+GET https://api.github.com/search/code?q=octocat
+
+
+github.code(.user == "octocat")
+---
+GET https://api.github.com/search/code?q=.+user:octocat
+
+
+github.code(.org != "octocat")
+---
+GET https://api.github.com/search/code?q=.+NOT+org:octocat
+
+
+github.code(.repo ~= "octocat")
+---
+GET https://api.github.com/search/code?q=.+repo:/octocat/
+
+
+github.code(.path ~! "octocat")
+---
+GET https://api.github.com/search/code?q=.+NOT+path:/octocat/
+
+
+github.code(.language ^= "py")
+---
+GET https://api.github.com/search/code?q=.+language:/^py/
+
+
+github.code(.extension $= "py")
+---
+GET https://api.github.com/search/code?q=.+extension:/py$/
+
+
+github.code(.size < 10)
+---
+GET https://api.github.com/search/code?q=.+size:<10
+
+
+github.code(.size >= 2000)
+---
+GET https://api.github.com/search/code?q=.+size:>=2000
+
+
+github.code(.foo = "bar")
+---
+Unsupported filter property for GitHub code: foo

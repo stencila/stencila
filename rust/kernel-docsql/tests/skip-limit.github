@@ -1,0 +1,23 @@
+github.code().skip(5)
+---
+GET https://api.github.com/search/code?q=.&per_page=5&page=2
+
+
+github.code().limit(3)
+---
+GET https://api.github.com/search/code?q=.&per_page=3
+
+
+github.code().skip(5).limit(5)
+---
+GET https://api.github.com/search/code?q=.&per_page=5&page=2
+
+
+github.code().limit(5).skip(10)
+---
+GET https://api.github.com/search/code?q=.&per_page=5&page=3
+
+
+github.code().skip(10).limit(3)
+---
+GET https://api.github.com/search/code?q=.&per_page=3&page=4
