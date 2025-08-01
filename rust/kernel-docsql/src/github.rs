@@ -5,6 +5,7 @@ use kernel_jinja::{
     kernel::{
         common::{
             eyre::{Result, bail},
+            itertools::Itertools,
             tokio::{runtime, task},
             tracing,
         },
@@ -110,6 +111,14 @@ impl GitHubQuery {
         // Extract the property name an operator from the arg
         let (property_name, operator) = decode_filter(arg_name);
 
+        // Error early for unhandled operators
+        if operator == "has" {
+            return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                format!("The `{operator}` operator is not supported for GitHub queries"),
+            ));
+        }
+
         let unsupported_property = || {
             Err(Error::new(
                 ErrorKind::InvalidOperation,
@@ -132,10 +141,27 @@ impl GitHubQuery {
             _ => return unsupported_property(),
         };
 
+        // Handle the `in` operator by expanding it into qualifiers joined by OR
+        if operator == "in" {
+            if matches!(arg_value.kind(), ValueKind::Seq)
+                && let Ok(iter) = arg_value.try_iter()
+            {
+                let joined = iter
+                    .filter_map(|value| format_filter_value(&value).ok())
+                    .map(|value| format!("{property_name}:{value}"))
+                    .join(" OR ");
+                self.filters.push(joined);
+                return Ok(());
+            } else {
+                return Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    "The `in` operator can only be used with sequence values",
+                ));
+            }
+        }
+
         // Transform the minijinja argument value into a string
         let qualifier_value = format_filter_value(&arg_value)?;
-
-        // TODO: transform `in` operator into OR joined clauses for the property
 
         // Generate the filter string
         let filter_string = match operator {
