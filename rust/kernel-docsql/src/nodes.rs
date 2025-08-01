@@ -6,16 +6,8 @@ use std::{
 use codec_text_trait::to_text;
 use kernel_jinja::{
     kernel::{
-        common::{
-            eyre::Result,
-            itertools::Itertools,
-            serde_json,
-            tracing,
-        },
-        schema::{
-            ExecutionMessage, MessageLevel, Node, NodePath, NodeProperty,
-            NodeSet, get,
-        },
+        common::{eyre::Result, itertools::Itertools, serde_json, tracing},
+        schema::{self, ExecutionMessage, MessageLevel, Node, NodePath, NodeProperty, NodeSet},
     },
     minijinja::{
         Error, ErrorKind, State, Value,
@@ -24,6 +16,63 @@ use kernel_jinja::{
 };
 
 use crate::{lock_messages, try_messages};
+
+/// Return all nodes and a [`NodeProxies`] Minijinja value
+pub(crate) fn all(nodes: Vec<Node>, messages: &Arc<SyncMutex<Vec<ExecutionMessage>>>) -> Value {
+    Value::from_object(NodeProxies::new(nodes, messages.clone()))
+}
+
+/// Return first node as [`NodeProxy`] Minijinja value
+pub(crate) fn first(
+    nodes: Vec<Node>,
+    messages: &Arc<SyncMutex<Vec<ExecutionMessage>>>,
+) -> Result<Value, Error> {
+    match nodes.into_iter().next() {
+        Some(node) => Ok(Value::from_object(NodeProxy::new(node, messages.clone()))),
+        None => Err(Error::new(
+            ErrorKind::InvalidOperation,
+            "Empty result set so cannot get first node",
+        )),
+    }
+}
+
+/// Return last node as [`NodeProxy`] Minijinja value
+pub(crate) fn last(
+    nodes: Vec<Node>,
+    messages: &Arc<SyncMutex<Vec<ExecutionMessage>>>,
+) -> Result<Value, Error> {
+    match nodes.into_iter().last() {
+        Some(node) => Ok(Value::from_object(NodeProxy::new(node, messages.clone()))),
+        None => Err(Error::new(
+            ErrorKind::InvalidOperation,
+            "Empty result set so cannot get last node",
+        )),
+    }
+}
+
+/// Return the node at an index as a [`NodeProxy`] Minijinja value
+pub(crate) fn get(
+    index: i64,
+    mut nodes: Vec<Node>,
+    messages: &Arc<SyncMutex<Vec<ExecutionMessage>>>,
+) -> Option<Value> {
+    let index = if index < 0 {
+        let abs_index = (-index) as usize;
+        if abs_index > nodes.len() {
+            return None;
+        }
+        nodes.len().saturating_sub(abs_index)
+    } else {
+        index as usize
+    };
+
+    if index < nodes.len() {
+        let node = nodes.swap_remove(index);
+        Some(Value::from_object(NodeProxy::new(node, messages.clone())))
+    } else {
+        None
+    }
+}
 
 /// A proxy for a [`Node`] to allow it to be accessed as a minijinja [`Value`]
 ///
@@ -92,7 +141,7 @@ impl Object for NodeProxy {
             return Some(Value::UNDEFINED);
         };
 
-        let Ok(property) = get(&self.node, NodePath::from(property)) else {
+        let Ok(property) = schema::get(&self.node, NodePath::from(property)) else {
             if let Some(mut msgs) = lock_messages(&self.messages) {
                 msgs.push(ExecutionMessage::new(
                     MessageLevel::Error,

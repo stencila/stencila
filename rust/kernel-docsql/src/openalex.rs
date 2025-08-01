@@ -22,7 +22,8 @@ use kernel_jinja::{
 
 use crate::{
     docsql::{decode_filter, encode_filter},
-    nodes::{NodeProxies, NodeProxy},
+    extend_messages,
+    nodes::{NodeProxy, all, first, get, last},
     subquery::Subquery,
     testing,
 };
@@ -745,7 +746,8 @@ impl OpenAlexQuery {
     /// Return count of results
     fn count(&self) -> Self {
         let mut query = self.clone();
-        query.limit = Some(0); // Used below to indicate that only count should be extracted
+        // Used in `nodes` to indicate that only count should be extracted
+        query.limit = Some(0);
         query
     }
 
@@ -825,38 +827,32 @@ impl OpenAlexQuery {
                 Ok(match entity_type {
                     "works" => {
                         let response = request::<WorksResponse>(&url).await?;
-                        let nodes: Vec<Node> =
-                            response.results.into_iter().map(Into::into).collect();
+                        let nodes = response.results.into_iter().map(Node::from).collect();
                         (response.meta, nodes)
                     }
                     "authors" => {
                         let response = request::<AuthorsResponse>(&url).await?;
-                        let nodes: Vec<Node> =
-                            response.results.into_iter().map(Into::into).collect();
+                        let nodes = response.results.into_iter().map(Node::from).collect();
                         (response.meta, nodes)
                     }
                     "institutions" => {
                         let response = request::<InstitutionsResponse>(&url).await?;
-                        let nodes: Vec<Node> =
-                            response.results.into_iter().map(Into::into).collect();
+                        let nodes = response.results.into_iter().map(Node::from).collect();
                         (response.meta, nodes)
                     }
                     "sources" => {
                         let response = request::<SourcesResponse>(&url).await?;
-                        let nodes: Vec<Node> =
-                            response.results.into_iter().map(Into::into).collect();
+                        let nodes = response.results.into_iter().map(Node::from).collect();
                         (response.meta, nodes)
                     }
                     "publishers" => {
                         let response = request::<PublishersResponse>(&url).await?;
-                        let nodes: Vec<Node> =
-                            response.results.into_iter().map(Into::into).collect();
+                        let nodes = response.results.into_iter().map(Node::from).collect();
                         (response.meta, nodes)
                     }
                     "funders" => {
                         let response = request::<FundersResponse>(&url).await?;
-                        let nodes: Vec<Node> =
-                            response.results.into_iter().map(Into::into).collect();
+                        let nodes = response.results.into_iter().map(Node::from).collect();
                         (response.meta, nodes)
                     }
                     _ => {
@@ -933,36 +929,47 @@ impl OpenAlexQuery {
 
     /// Execute the query and return [`NodeProxies`] for all results
     fn all(&self) -> Value {
-        Value::from_object(NodeProxies::new(self.nodes(), self.messages.clone()))
+        all(self.nodes(), &self.messages)
     }
 
     /// Execute and return first result as [`NodeProxy`]
     fn first(&self) -> Result<Value, Error> {
-        let query = self.limit(1);
-        match query.nodes().into_iter().next() {
-            Some(node) => Ok(Value::from_object(NodeProxy::new(
-                node,
-                self.messages.clone(),
-            ))),
-            None => Err(Error::new(
-                ErrorKind::InvalidOperation,
-                "Empty result set so cannot get first node",
-            )),
-        }
+        first(self.limit(1).nodes(), &self.messages)
     }
 
     /// Execute and return last result as [`NodeProxy`]  
     fn last(&self) -> Result<Value, Error> {
-        match self.nodes().into_iter().last() {
-            Some(node) => Ok(Value::from_object(NodeProxy::new(
-                node,
-                self.messages.clone(),
-            ))),
-            None => Err(Error::new(
-                ErrorKind::InvalidOperation,
-                "Empty result set so cannot get last node",
-            )),
+        last(self.nodes(), &self.messages)
+    }
+}
+
+/// Format a filter value for OpenAlex API
+fn format_filter_value(value: &Value) -> String {
+    match value.kind() {
+        ValueKind::None | ValueKind::Undefined => "null".to_string(),
+        ValueKind::Bool => {
+            if value.is_true() {
+                "true".into()
+            } else {
+                "false".into()
+            }
         }
+        ValueKind::Number => value.to_string(),
+        ValueKind::String => value.as_str().unwrap_or_default().into(),
+        ValueKind::Bytes => value
+            .as_bytes()
+            .map(String::from_utf8_lossy)
+            .unwrap_or_default()
+            .into(),
+        ValueKind::Seq => {
+            // Assumes that the list of values is being used as a list of OR alternatives
+            // https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities/filter-entity-lists#addition-or
+            match value.try_iter() {
+                Ok(iter) => iter.map(|item| format_filter_value(&item)).join("|"),
+                Err(_) => value.to_string(),
+            }
+        }
+        _ => value.to_string(),
     }
 }
 
@@ -1049,13 +1056,13 @@ impl Object for OpenAlexQuery {
                 let (property, direction): (String, Option<String>) = from_args(args)?;
                 self.sort(&property, direction)?
             }
-            "limit" => {
-                let (count,): (usize,) = from_args(args)?;
-                self.limit(count)
-            }
             "skip" => {
                 let (count,): (usize,) = from_args(args)?;
                 self.skip(count)
+            }
+            "limit" => {
+                let (count,): (usize,) = from_args(args)?;
+                self.limit(count)
             }
             "sample" => {
                 let (count,): (Option<usize>,) = from_args(args)?;
@@ -1069,13 +1076,14 @@ impl Object for OpenAlexQuery {
                 if !args.is_empty() {
                     return Err(Error::new(
                         ErrorKind::TooManyArguments,
-                        format!("Method `{name}` takes no arguments."),
+                        format!("Method `count` takes no arguments."),
                     ));
                 }
                 self.count()
             }
 
             "explain" => return Ok(self.explain()),
+
             "all" => return Ok(self.all()),
             "first" => return self.first(),
             "last" => return self.last(),
@@ -1092,58 +1100,16 @@ impl Object for OpenAlexQuery {
     }
 
     fn get_value(self: &Arc<Self>, key: &Value) -> Option<Value> {
-        // Handle numeric indexing
-        if let Some(index) = key.as_i64() {
-            let nodes = self.nodes();
-            let index = if index < 0 {
-                let abs_index = (-index) as usize;
-                if abs_index > nodes.len() {
-                    return None;
-                }
-                nodes.len() - abs_index
-            } else {
-                index as usize
-            };
-
-            if index < nodes.len() {
-                let node = nodes[index].clone();
-                return Some(Value::from_object(NodeProxy::new(
-                    node,
-                    self.messages.clone(),
-                )));
-            }
+        if let Some(property) = key.as_str() {
+            extend_messages(
+                &self.messages,
+                format!("OpenAlex query does not have property `{property}`"),
+            );
+            None
+        } else if let Some(index) = key.as_i64() {
+            get(index, self.nodes(), &self.messages)
+        } else {
+            None
         }
-
-        None
-    }
-}
-
-/// Format a filter value for OpenAlex API
-fn format_filter_value(value: &Value) -> String {
-    match value.kind() {
-        ValueKind::None | ValueKind::Undefined => "null".to_string(),
-        ValueKind::Bool => {
-            if value.is_true() {
-                "true".into()
-            } else {
-                "false".into()
-            }
-        }
-        ValueKind::Number => value.to_string(),
-        ValueKind::String => value.as_str().unwrap_or_default().into(),
-        ValueKind::Bytes => value
-            .as_bytes()
-            .map(String::from_utf8_lossy)
-            .unwrap_or_default()
-            .into(),
-        ValueKind::Seq => {
-            // Assumes that the list of values is being used as a list of OR alternatives
-            // https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities/filter-entity-lists#addition-or
-            match value.try_iter() {
-                Ok(iter) => iter.map(|item| format_filter_value(&item)).join("|"),
-                Err(_) => value.to_string(),
-            }
-        }
-        _ => value.to_string(),
     }
 }

@@ -1,7 +1,4 @@
-use std::{
-    ops::Deref,
-    sync::{Arc, Mutex as SyncMutex},
-};
+use std::sync::{Arc, Mutex as SyncMutex};
 
 use codec_text_trait::to_text;
 use kernel_docsdb::{DocsDBKernelInstance, QueryResultTransform};
@@ -26,7 +23,12 @@ use kernel_jinja::{
 };
 
 use crate::{
-    NodeProxies, NodeProxy, docsql::GLOBAL_CONSTS, lock_messages, subquery::Subquery, try_messages,
+    NodeProxies, NodeProxy,
+    docsql::GLOBAL_CONSTS,
+    extend_messages, lock_messages,
+    nodes::{all, first, get, last},
+    subquery::Subquery,
+    try_messages,
 };
 
 /// A document shortcut functions to the environment
@@ -777,9 +779,19 @@ impl CypherQuery {
         Ok(Value::from(nodes.iter().map(to_text).join(" ")))
     }
 
-    /// Execute the query and return [`NodeProxies`] for all nodes in the result
+    /// Execute the query and return [`NodeProxies`] for all results
     fn all(&self) -> Value {
-        Value::from_object(NodeProxies::new(self.nodes(), self.messages.clone()))
+        all(self.nodes(), &self.messages)
+    }
+
+    /// Execute and return first result as [`NodeProxy`]
+    fn first(&self) -> Result<Value, Error> {
+        first(self.limit(1).nodes(), &self.messages)
+    }
+
+    /// Execute and return last result as [`NodeProxy`]  
+    fn last(&self) -> Result<Value, Error> {
+        last(self.nodes(), &self.messages)
     }
 
     /// Execute and return a [`NodeProxies`] for all nodes
@@ -834,35 +846,6 @@ impl CypherQuery {
             nodes,
             self.messages.clone(),
         )))
-    }
-
-    /// Execute with `LIMIT 1` and return a [`NodeProxy`] for first node in result
-    fn first(&self) -> Result<Value, Error> {
-        let query = self.limit(1);
-        match query.nodes().into_iter().next() {
-            Some(node) => Ok(Value::from_object(NodeProxy::new(
-                node,
-                self.messages.clone(),
-            ))),
-            None => Err(Error::new(
-                ErrorKind::InvalidOperation,
-                "Empty result set so cannot get first node",
-            )),
-        }
-    }
-
-    /// Execute and return a [`NodeProxy`] for last node in result
-    fn last(&self) -> Result<Value, Error> {
-        match self.nodes().into_iter().last() {
-            Some(node) => Ok(Value::from_object(NodeProxy::new(
-                node,
-                self.messages.clone(),
-            ))),
-            None => Err(Error::new(
-                ErrorKind::InvalidOperation,
-                "Empty result set so cannot get last node",
-            )),
-        }
     }
 }
 
@@ -1283,45 +1266,16 @@ impl Object for CypherQuery {
 
     fn get_value(self: &Arc<Self>, key: &Value) -> Option<Value> {
         if let Some(property) = key.as_str() {
-            if let Some(mut msgs) = lock_messages(&self.messages) {
-                msgs.push(ExecutionMessage::new(
-                    MessageLevel::Error,
-                    format!("A query does not have property `{property}`"),
-                ))
-            };
-        }
-
-        let mut key = key.as_i64()?;
-
-        let mut query = if key > 0 {
-            self.limit(1)
+            extend_messages(
+                &self.messages,
+                format!("Cypher query does not have property `{property}`"),
+            );
+            None
+        } else if let Some(index) = key.as_i64() {
+            get(index, self.nodes(), &self.messages)
         } else {
-            self.deref().clone()
-        };
-
-        if key > 0 && query.skip.is_none() {
-            query.skip = Some(key as usize);
-            key = 0;
+            None
         }
-
-        let mut nodes = query.nodes();
-
-        let index = if key < 0 {
-            let first = nodes.len() as i64 + key;
-            if first < 0 { 0usize } else { first as usize }
-        } else {
-            key as usize
-        };
-
-        if index >= nodes.len() {
-            return None;
-        }
-
-        let node = nodes.swap_remove(index);
-        Some(Value::from_object(NodeProxy::new(
-            node,
-            self.messages.clone(),
-        )))
     }
 }
 

@@ -5,11 +5,24 @@ use std::{
 
 use kernel_docsdb::{DocsDBChannels, DocsDBKernelInstance};
 use kernel_jinja::{
-    self, kernel::{
+    self, JinjaKernelContext,
+    kernel::{
+        Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
         common::{
-            async_trait::async_trait, eyre::{eyre, OptionExt, Result}, itertools::Itertools, once_cell::sync::Lazy, regex::Regex, serde_json, tokio::sync::Mutex, tracing
-        }, format::Format, generate_id, schema::{ExecutionBounds, ExecutionMessage, MessageLevel, Node, SoftwareApplication}, Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder
-    }, minijinja::{context, Environment, Error, ErrorKind, UndefinedBehavior, Value}, JinjaKernelContext
+            async_trait::async_trait,
+            eyre::{OptionExt, Result, eyre},
+            itertools::Itertools,
+            once_cell::sync::Lazy,
+            regex::Regex,
+            serde_json,
+            tokio::sync::Mutex,
+            tracing,
+        },
+        format::Format,
+        generate_id,
+        schema::{ExecutionBounds, ExecutionMessage, MessageLevel, Node, SoftwareApplication},
+    },
+    minijinja::{Environment, Error, ErrorKind, UndefinedBehavior, Value, context},
 };
 
 mod cypher;
@@ -475,6 +488,19 @@ fn try_messages(messages: &SyncMutex<Vec<ExecutionMessage>>) -> Result<(), Error
     } else {
         Ok(())
     }
+}
+
+fn extend_messages(
+    messages: &SyncMutex<Vec<ExecutionMessage>>,
+    message: String,
+) -> Result<(), Error> {
+    let Some(mut messages) = lock_messages(messages) else {
+        return Ok(());
+    };
+
+    messages.push(ExecutionMessage::new(MessageLevel::Error, message));
+
+    Ok(())
 }
 
 /// Are we currently testing this crate
