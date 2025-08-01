@@ -1,4 +1,4 @@
-test.paragraphs().order_by('text', 'desc')
+test.paragraphs().sort('text', 'desc')
 ---
 MATCH (paragraph:Paragraph)
 RETURN paragraph
@@ -6,7 +6,7 @@ ORDER BY paragraph.text desc
 LIMIT 10
 
 
-test.figures().order_by('label')
+test.figures().sort('label')
 ---
 MATCH (figure:Figure)
 RETURN figure

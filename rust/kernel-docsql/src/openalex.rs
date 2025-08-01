@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex as SyncMutex};
 
 use codec_openalex::{
     AuthorsResponse, FundersResponse, InstitutionsResponse, PublishersResponse, SelectResponse,
-    SourcesResponse, WorksResponse, request, request_ids, url_for_list,
+    SourcesResponse, WorksResponse, list_url, request, request_ids,
 };
 use kernel_jinja::{
     kernel::{
@@ -45,10 +45,10 @@ pub(crate) struct OpenAlexQuery {
     /// The OpenAlex entity type (works, authors, institutions, etc.)
     entity_type: String,
 
-    /// Filter parameters for the API call
+    /// Filter parameters
     filters: Vec<String>,
 
-    /// Search terms for general search
+    /// Search term
     search: Option<String>,
 
     /// Sort parameter (e.g., "cited_by_count:desc")
@@ -69,8 +69,8 @@ impl OpenAlexQuery {
     /// Create a new OpenAlex query
     pub fn new(messages: Arc<SyncMutex<Vec<ExecutionMessage>>>) -> Self {
         Self {
-            entity_type: "works".into(),
             messages,
+            entity_type: String::new(),
             filters: Vec::new(),
             search: None,
             sort: None,
@@ -84,8 +84,8 @@ impl OpenAlexQuery {
     /// Create a new OpenAlex query for an entity type
     pub fn clone_for(&self, entity_type: &str) -> Self {
         Self {
-            entity_type: entity_type.into(),
             messages: self.messages.clone(),
+            entity_type: entity_type.into(),
             filters: Vec::new(),
             search: None,
             sort: None,
@@ -102,7 +102,7 @@ impl OpenAlexQuery {
     }
 
     /// Set the entity type for the query (works, authors, institutions, etc.)
-    fn entity(&self, entity_type: &str) -> Self {
+    fn entity_type(&self, entity_type: &str) -> Self {
         let mut query = self.clone();
         query.entity_type = entity_type.into();
         query
@@ -161,9 +161,7 @@ impl OpenAlexQuery {
             } else {
                 return Err(Error::new(
                     ErrorKind::InvalidOperation,
-                    format!(
-                        "Unsupported value for OpenAlex keywords: {arg_value}"
-                    ),
+                    format!("Unsupported value for OpenAlex keywords: {arg_value}"),
                 ));
             };
 
@@ -661,7 +659,7 @@ impl OpenAlexQuery {
         Ok(())
     }
 
-    /// Add a search term
+    /// Set the search term
     fn search(&self, term: &str) -> Self {
         let mut query = self.clone();
         query.search = Some(term.into());
@@ -669,7 +667,7 @@ impl OpenAlexQuery {
     }
 
     /// Set sort parameter
-    fn order_by(&self, property: &str, direction: Option<String>) -> Result<Self, Error> {
+    fn sort(&self, property: &str, direction: Option<String>) -> Result<Self, Error> {
         let mut query = self.clone();
 
         // Map the field name to the OpenAlex attribute name
@@ -693,11 +691,11 @@ impl OpenAlexQuery {
             },
         };
 
-        let sort_string = match direction {
+        let sort = match direction {
             Some(dir) if dir.to_uppercase() == "DESC" => format!("{attribute}:desc"),
             _ => format!("{attribute}:asc"),
         };
-        query.sort = Some(sort_string);
+        query.sort = Some(sort);
 
         Ok(query)
     }
@@ -749,7 +747,7 @@ impl OpenAlexQuery {
         query
     }
 
-    /// Generate the OpenAlex API URL (for backwards compatibility and debugging)
+    /// Generate the OpenAlex API URL
     pub fn generate(&self) -> String {
         let mut params = Vec::new();
 
@@ -789,7 +787,21 @@ impl OpenAlexQuery {
             params.push(("select", select_string));
         }
 
-        url_for_list(&self.entity_type, params)
+        list_url(&self.entity_type, params)
+    }
+
+    /// Return the generated URL as an executable explanation
+    fn explain(&self) -> Value {
+        let url = self.generate();
+
+        let node = Node::CodeChunk(CodeChunk {
+            code: ["GET ", &url, "\n"].concat().into(),
+            programming_language: Some("http".into()),
+            is_echoed: Some(true), // To make visible
+            ..Default::default()
+        });
+
+        Value::from_object(NodeProxy::new(node, self.messages.clone()))
     }
 
     /// Execute the query and return the resulting [`Node`]s
@@ -915,20 +927,6 @@ impl OpenAlexQuery {
         }
     }
 
-    /// Return the generated URL as an executable explanation
-    fn explain(&self) -> Value {
-        let url = self.generate();
-
-        let node = Node::CodeChunk(CodeChunk {
-            code: ["GET ", &url, "\n"].concat().into(),
-            programming_language: Some("http".into()),
-            is_echoed: Some(true), // To make visible
-            ..Default::default()
-        });
-
-        Value::from_object(NodeProxy::new(node, self.messages.clone()))
-    }
-
     /// Execute the query and return [`NodeProxies`] for all results
     fn all(&self) -> Value {
         Value::from_object(NodeProxies::new(self.nodes(), self.messages.clone()))
@@ -1008,7 +1006,7 @@ impl Object for OpenAlexQuery {
                     }
                 };
 
-                let mut query = self.entity(entity_type);
+                let mut query = self.entity_type(entity_type);
 
                 // Add filter for the type of work
                 if let Some(value) = type_filter {
@@ -1043,10 +1041,9 @@ impl Object for OpenAlexQuery {
                 query
             }
 
-            // Query methods
-            "orderBy" | "order_by" => {
+            "sort" => {
                 let (property, direction): (String, Option<String>) = from_args(args)?;
-                self.order_by(&property, direction)?
+                self.sort(&property, direction)?
             }
             "limit" => {
                 let (count,): (usize,) = from_args(args)?;
@@ -1074,7 +1071,6 @@ impl Object for OpenAlexQuery {
                 self.count()
             }
 
-            // Result retrieval methods
             "explain" => return Ok(self.explain()),
             "all" => return Ok(self.all()),
             "first" => return self.first(),

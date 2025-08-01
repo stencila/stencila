@@ -120,7 +120,7 @@ openalex.works(.year > 2020, search = "neural networks")
 ```docsql
 .limit(n)                  // limit results
 .skip(n)                   // skip first n results
-.orderBy("property")       // sort results
+.sort("property")       // sort results
 .search("terms")           // full-text search
 .like("text")              // semantic similarity
 ```
@@ -261,12 +261,12 @@ workspaceArticles.count()
 paragraphs()
   .skip(10)
   .limit(5)
-  .orderBy("position")
+  .sort("position")
 
 // Complex filtering and processing
 workspace.articles()
   .where(...authors(.name ^= "Smith"))
-  .orderBy("datePublished", "DESC")
+  .sort("datePublished", "DESC")
   .limit(10)
   .select("title", "datePublished")
 ```
@@ -435,8 +435,8 @@ All node type functions are available as both singular (returns first match) and
 - `.all()` - Get all results (default)
 - `.slice(start, end)` - Get slice of results
 
-**Ordering and Limiting:**
-- `.orderBy(property, direction)` - Sort results
+**Sorting and Limiting:**
+- `.sort(property, direction)` - Sort results
 - `.skip(n)` - Skip first n results
 - `.limit(n)` - Limit to n results  
 - `.sample(n)` - Random sample of n results (default 10)

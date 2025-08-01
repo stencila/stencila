@@ -15,7 +15,8 @@ use kernel_jinja::{
             tokio::{runtime, sync::Mutex, task},
         },
         schema::{
-            Array, CodeChunk, ExecutionMessage, MessageLevel, Node, NodeType, Primitive, SectionType,
+            Array, CodeChunk, ExecutionMessage, MessageLevel, Node, NodeType, Primitive,
+            SectionType,
         },
     },
     minijinja::{
@@ -1213,7 +1214,7 @@ impl Object for CypherQuery {
                 }
                 self.count()?
             }
-            "order_by" | "orderBy" => {
+            "sort" => {
                 let (order_by, order) = from_args(args)?;
                 self.order_by(order_by, order)?
             }

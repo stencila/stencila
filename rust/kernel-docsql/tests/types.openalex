@@ -1,8 +1,3 @@
-openalex
----
-GET https://api.openalex.org/works
-
-
 openalex.works()
 ---
 GET https://api.openalex.org/works

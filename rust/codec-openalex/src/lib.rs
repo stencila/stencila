@@ -31,7 +31,7 @@ use work::Work;
 
 // Re-export client functions
 pub use client::{
-    request, request_ids, search_authors, search_institutions, search_works, url_for_list,
+    request, request_ids, search_authors, search_institutions, search_works, list_url,
     work_by_doi,
 };
 

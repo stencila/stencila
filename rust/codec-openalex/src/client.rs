@@ -62,7 +62,7 @@ static CLIENT: Lazy<ClientWithMiddleware> = Lazy::new(|| {
 ///
 /// Minimal necessary encoding of values to produce URLs that are readable and
 /// similar to those in the OpenAlex docs (e.g. : is not encoded)              
-pub fn url_for_list(entity_type: &str, mut query_params: Vec<(&str, String)>) -> String {
+pub fn list_url(entity_type: &str, mut query_params: Vec<(&str, String)>) -> String {
     let mut url = [API_BASE_URL, "/", entity_type].concat();
 
     if let Ok(email) = std::env::var("OPENALEX_EMAIL") {
