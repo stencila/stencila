@@ -54,12 +54,14 @@ pub(crate) struct OpenAlexQuery {
     /// Sort parameter (e.g., "cited_by_count:desc")
     sort: Option<String>,
 
-    /// Pagination parameters
-    page: Option<u32>,
-    per_page: Option<u32>,
+    /// Number of result items to skip
+    skip: Option<usize>,
+
+    /// Number of items to limit result to
+    limit: Option<usize>,
 
     // Sample count
-    sample: Option<u32>,
+    sample: Option<usize>,
 
     /// Fields to select in response
     select: Vec<String>,
@@ -74,8 +76,8 @@ impl OpenAlexQuery {
             filters: Vec::new(),
             search: None,
             sort: None,
-            page: None,
-            per_page: None,
+            skip: None,
+            limit: None,
             sample: None,
             select: Vec::new(),
         }
@@ -89,8 +91,8 @@ impl OpenAlexQuery {
             filters: Vec::new(),
             search: None,
             sort: None,
-            page: None,
-            per_page: None,
+            skip: None,
+            limit: None,
             sample: None,
             select: Vec::new(),
         }
@@ -700,25 +702,25 @@ impl OpenAlexQuery {
         Ok(query)
     }
 
-    /// Set pagination limit
-    fn limit(&self, count: usize) -> Self {
-        let mut query = self.clone();
-        query.per_page = Some(count as u32);
-        query
-    }
-
-    /// Set pagination offset
+    /// Set skip count
     fn skip(&self, count: usize) -> Self {
         let mut query = self.clone();
-        query.page = Some((count / query.per_page.unwrap_or(25) as usize) as u32 + 1);
+        query.skip = Some(count);
         query
     }
 
-    fn sample(&self, count: Option<u32>) -> Self {
+    /// Set limit count
+    fn limit(&self, count: usize) -> Self {
+        let mut query = self.clone();
+        query.limit = Some(count);
+        query
+    }
+
+    fn sample(&self, count: Option<usize>) -> Self {
         let mut query = self.clone();
         let count = count.unwrap_or(10);
         query.sample = Some(count);
-        query.per_page = Some(count);
+        query.limit = Some(count);
         query
     }
 
@@ -743,7 +745,7 @@ impl OpenAlexQuery {
     /// Return count of results
     fn count(&self) -> Self {
         let mut query = self.clone();
-        query.per_page = Some(0); // Used below to indicate that only count should be extracted
+        query.limit = Some(0); // Used below to indicate that only count should be extracted
         query
     }
 
@@ -767,13 +769,15 @@ impl OpenAlexQuery {
             params.push(("sort", sort.clone()));
         }
 
-        // Add pagination
-        if let Some(page) = self.page {
-            params.push(("page", page.to_string()));
-        }
-        if let Some(per_page) = self.per_page {
-            // Must be > 0, but we use 0 to indicate that count should be extracted
-            params.push(("per-page", per_page.max(1).to_string()));
+        // Add pagination parameters based on skip and/or limit
+        if let (Some(skip), Some(limit)) = (self.skip, self.limit) {
+            let page = (skip / limit) + 1;
+            params.extend([("per-page", limit.to_string()), ("page", page.to_string())]);
+        } else if let Some(skip) = self.skip {
+            params.extend([("per-page", skip.to_string()), ("page", "2".to_string())]);
+        } else if let Some(limit) = self.limit {
+            // Need to ensure >0
+            params.push(("per-page", limit.max(1).to_string()));
         }
 
         // Add sample
@@ -864,7 +868,7 @@ impl OpenAlexQuery {
 
         match result {
             Ok((meta, nodes)) => {
-                if self.per_page == Some(0) {
+                if self.limit == Some(0) {
                     if let Some(meta) = meta {
                         if let Some(count) = meta.count {
                             return vec![Node::Integer(count)];
@@ -884,14 +888,14 @@ impl OpenAlexQuery {
     /// Get the ids of nodes matching the query
     ///
     /// This is used to construct pipe joined lists of ids. Up to 100 ids can be joined in that
-    /// pay so this als set per-page to 100.
+    /// pay so this also sets limit to 100.
     ///
     /// See https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities/filter-entity-lists#addition-or
     #[tracing::instrument(skip(self))]
     pub fn ids(&self) -> Option<String> {
         let mut query = self.clone();
         query.select.push("id".into());
-        query.per_page = Some(100);
+        query.limit = Some(100);
 
         let url = query.generate();
 
@@ -1054,7 +1058,7 @@ impl Object for OpenAlexQuery {
                 self.skip(count)
             }
             "sample" => {
-                let (count,): (Option<u32>,) = from_args(args)?;
+                let (count,): (Option<usize>,) = from_args(args)?;
                 self.sample(count)
             }
             "select" => {

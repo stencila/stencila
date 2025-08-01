@@ -1,8 +1,23 @@
-openalex.works().skip(5).limit(10)
+openalex.works().skip(5)
 ---
-GET https://api.openalex.org/works?page=1&per-page=10
+GET https://api.openalex.org/works?per-page=5&page=2
 
 
-openalex.preprints().limit(3).skip(4)
+openalex.works().limit(3)
 ---
-GET https://api.openalex.org/works?filter=type:preprint&page=2&per-page=3
+GET https://api.openalex.org/works?per-page=3
+
+
+openalex.works().skip(5).limit(5)
+---
+GET https://api.openalex.org/works?per-page=5&page=2
+
+
+openalex.works().limit(5).skip(10)
+---
+GET https://api.openalex.org/works?per-page=5&page=3
+
+
+openalex.works().skip(10).limit(3)
+---
+GET https://api.openalex.org/works?per-page=3&page=4
