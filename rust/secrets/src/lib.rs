@@ -18,6 +18,9 @@ enum SecretCategory {
     /// Used to access external services for creating content, esp. LLMs.
     AiApiKey,
 
+    /// Used to access external REST APIs
+    RestApiKey,
+
     /// Used to publish Stencila documents to an external service,
     /// and/or to update a document based on externally-hosted content.
     ReadWriteApiKey,
@@ -75,6 +78,12 @@ static SECRETS: Lazy<Vec<Secret>> = Lazy::new(|| {
             "GOOGLE_AI_API_KEY",
             "Google AI API Key",
             "Used to access the Google AI API",
+        ),
+        Secret::new(
+            SecretCategory::RestApiKey,
+            "GITHUB_TOKEN",
+            "GitHub API Token",
+            "Used to access the GitHub REST API",
         ),
         Secret::new(
             SecretCategory::AiApiKey,

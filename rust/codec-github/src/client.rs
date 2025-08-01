@@ -146,7 +146,9 @@ pub fn api_url(path: &str) -> String {
 
 /// Build a URL for GitHub Search API endpoints
 ///
-/// Minimal necessary encoding of values to produce URLs that are readable     
+/// Minimal necessary encoding of values to produce URLs that are readable Also
+/// avoids escaping symbols such as # and = which may be used in code // search
+/// queries.     
 pub fn search_url(endpoint: &str, query_params: &[(&str, String)]) -> String {
     let mut url = format!("{API_BASE_URL}/search/{endpoint}");
 
@@ -154,13 +156,7 @@ pub fn search_url(endpoint: &str, query_params: &[(&str, String)]) -> String {
         let query_string = query_params
             .into_iter()
             .map(|(name, value)| {
-                let encoded = value
-                    .replace(" ", "+")
-                    .replace("?", "%3F")
-                    .replace("&", "%26")
-                    .replace("=", "%3D")
-                    .replace("#", "%23")
-                    .replace("%", "%25");
+                let encoded = value.replace(" ", "+").replace("&", "%26");
                 [name, "=", &encoded].concat()
             })
             .join("&");
