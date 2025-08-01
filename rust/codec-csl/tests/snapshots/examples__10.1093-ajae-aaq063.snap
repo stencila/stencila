@@ -69,6 +69,293 @@ expression: node
     "type": "Date",
     "value": "2010-07-19"
   },
+  "references": [
+    {
+      "type": "Reference",
+      "doi": "10.2307/1886045"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1093/oso/9780195169508.001.0001",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Avise J. C."
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2004"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The Hope, Hype and Reality of Genetic Engineering: Remarkable Stories from Agriculture, Industry, Medicine, and the Environment"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Baumol W. J."
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1982"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Contestable Markets and the Theory of Industry Structure"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Bound J."
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1995"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Problems with Instrumental Variables Estimation When the Correlation Between the Instruments and the Endogenous Explanatory Variable Is Weak"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Journal of the American Statistical Association"
+          },
+          "volumeNumber": "55"
+        },
+        "issueNumber": "292"
+      },
+      "pageStart": "650"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1111/j.1756-2171.2006.tb00065.x"
+    },
+    {
+      "type": "Reference",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Fernandez-Cornejo J."
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2004"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The Seed Industry in U.S. Agriculture: An Exploration of Data and Information on Crop Seed Markets, Regulation, Industry Structure, and Research and Development"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Fulton M."
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2001"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Agricultural Biotechnology and Industry Structure"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "The Journal of Agrobiotechnology Management & Economics"
+          },
+          "volumeNumber": "4"
+        },
+        "issueNumber": "2"
+      },
+      "pageStart": "137"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1162/003465303765299864"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1126/science.132.3422.275"
+    },
+    {
+      "type": "Reference",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Hayashi F."
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2000"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Econometrics"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Hicks J. R."
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1939"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Value and Capital: An Inquiry into Some Fundamental Principles of Economic Theory"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "doi": "10.2307/1349890"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1016/j.jeconom.2005.02.011"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.2307/3003636"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.2307/2937852"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1080/07311768308800039"
+    },
+    {
+      "type": "Reference",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Payne J."
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2003"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Factors Affecting the Likelihood of Corn Rootworm Bt Seed Adoption"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "The Journal of Agrobiotechnology Management & Economics"
+        },
+        "volumeNumber": "6"
+      },
+      "pageStart": "79"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1086/260169"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1162/rest.1997.79.2.348"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1111/j.1467-8276.2008.01174.x"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.2307/2171753"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1017/CBO9780511614491.006"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1086/367748"
+    },
+    {
+      "type": "Reference",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Whinston M. D."
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2008"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Lectures in Antitrust Economics"
+          }
+        }
+      ]
+    }
+  ],
   "title": [
     {
       "type": "Text",

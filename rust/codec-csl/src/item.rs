@@ -9,7 +9,7 @@ use codec::{
     schema::{
         Article, ArticleOptions, Author, Block, CreativeWorkType, Date, IntegerOrString,
         Organization, Paragraph, Periodical, PeriodicalOptions, PersonOrOrganization, Primitive,
-        PropertyValue, PropertyValueOrString, PublicationIssue, PublicationVolume,
+        PropertyValue, PropertyValueOrString, PublicationIssue, PublicationVolume, Reference,
         shortcuts::{p, t},
     },
 };
@@ -178,6 +178,9 @@ pub struct Item {
     pub prefix: Option<String>,
     pub member: Option<String>,
 
+    // Reference list
+    pub reference: Option<Vec<ReferenceValue>>,
+
     // Catch-all for other fields
     // Uses `IndexMap` so that order is deterministic
     #[serde(flatten)]
@@ -246,6 +249,152 @@ pub enum ItemType {
     Other,
 }
 
+/// A CSL reference value
+///
+/// Represents a bibliographic reference in CSL-JSON format. References can contain
+/// structured metadata or unstructured citation strings, and field names vary
+/// between publishers (camelCase vs kebab-case).
+///
+/// See:
+/// - https://docs.citationstyles.org/en/stable/specification.html#appendix-iv-variables
+/// - https://www.crossref.org/documentation/retrieve-metadata/rest-api/
+#[skip_serializing_none]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case", crate = "codec::common::serde")]
+pub struct ReferenceValue {
+    /// Unique key for this reference
+    pub key: Option<String>,
+
+    /// DOI of the referenced work
+    #[serde(alias = "DOI")]
+    pub doi: Option<String>,
+
+    /// Author information (often as a simple string)
+    pub author: Option<String>,
+
+    /// Publication year
+    pub year: Option<String>,
+
+    /// Title of the referenced article
+    pub article_title: Option<String>,
+
+    /// Journal or publication title
+    pub journal_title: Option<String>,
+
+    /// Volume title (for books, conference proceedings)
+    pub volume_title: Option<String>,
+
+    /// Volume number
+    pub volume: Option<String>,
+
+    /// Issue number
+    pub issue: Option<String>,
+
+    /// First page number
+    pub first_page: Option<String>,
+
+    /// Publisher name
+    pub publisher: Option<String>,
+
+    /// Unstructured citation string (fallback)
+    pub unstructured: Option<String>,
+
+    /// DOI assertion information
+    pub doi_asserted_by: Option<String>,
+
+    /// Catch-all for other fields
+    #[serde(flatten)]
+    pub other: IndexMap<String, Value>,
+}
+
+impl From<ReferenceValue> for Reference {
+    fn from(ref_value: ReferenceValue) -> Self {
+        // Clean DOI by removing URL prefix if present
+        let doi = ref_value
+            .doi
+            .map(|doi| doi.trim_start_matches("https://doi.org/").to_string());
+
+        // Parse authors from string - for now just create a single author if present
+        let authors = ref_value.author.and_then(|author_str| {
+            if author_str.trim().is_empty() {
+                None
+            } else {
+                // Try to parse as a name, fallback to literal
+                use codec::schema::{Person, PersonOptions};
+                use std::str::FromStr;
+
+                let person = Person::from_str(&author_str).unwrap_or_else(|_| Person {
+                    options: Box::new(PersonOptions {
+                        name: Some(author_str),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                });
+                Some(vec![codec::schema::Author::Person(person)])
+            }
+        });
+
+        // Parse year into Date
+        let date = ref_value.year.map(|year_str| Date::new(year_str));
+
+        // Create title from available title fields
+        let title = ref_value
+            .article_title
+            .or(ref_value.volume_title)
+            .or(ref_value.unstructured.clone()) // fallback to unstructured for title
+            .map(|title_str| vec![t(&title_str)]);
+
+        // Create publication hierarchy if journal info is available
+        let is_part_of = ref_value.journal_title.map(|journal_name| {
+            let periodical = Periodical {
+                name: Some(journal_name),
+                ..Default::default()
+            };
+
+            // If we have volume/issue info, create the hierarchy
+            if let Some(vol) = ref_value.volume {
+                let publication_volume = PublicationVolume {
+                    is_part_of: Some(Box::new(CreativeWorkType::Periodical(periodical))),
+                    volume_number: Some(IntegerOrString::String(vol)),
+                    ..Default::default()
+                };
+
+                if let Some(iss) = ref_value.issue {
+                    let publication_issue = PublicationIssue {
+                        is_part_of: Some(Box::new(CreativeWorkType::PublicationVolume(
+                            publication_volume,
+                        ))),
+                        issue_number: Some(IntegerOrString::String(iss)),
+                        ..Default::default()
+                    };
+                    Box::new(CreativeWorkType::PublicationIssue(publication_issue))
+                } else {
+                    Box::new(CreativeWorkType::PublicationVolume(publication_volume))
+                }
+            } else {
+                Box::new(CreativeWorkType::Periodical(periodical))
+            }
+        });
+
+        // Extract page start from first-page
+        let page_start = ref_value
+            .first_page
+            .map(|page| IntegerOrString::String(page));
+
+        Reference {
+            doi,
+            authors,
+            date,
+            title,
+            is_part_of,
+            page_start,
+            page_end: None, // CSL references typically only have first-page
+            pagination: None,
+            ..Default::default()
+        }
+    }
+}
+
 impl From<Item> for Article {
     fn from(item: Item) -> Self {
         let title = item.title.as_ref().map(|title_str| vec![t(title_str)]);
@@ -295,12 +444,18 @@ impl From<Item> for Article {
             })
         });
 
+        let references = item
+            .reference
+            .map(|refs| refs.into_iter().map(Reference::from).collect_vec())
+            .filter(|refs| !refs.is_empty());
+
         Article {
             title,
             authors,
             r#abstract,
             doi,
             date_published,
+            references,
             options: Box::new(ArticleOptions {
                 url,
                 identifiers,

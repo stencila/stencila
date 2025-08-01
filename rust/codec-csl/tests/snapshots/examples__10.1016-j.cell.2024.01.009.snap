@@ -164,6 +164,2143 @@ expression: node
     "type": "Date",
     "value": "2024-02"
   },
+  "references": [
+    {
+      "type": "Reference",
+      "doi": "10.1002/ana.1288",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Rosenfeld"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2001"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Molecular and clinical diversity in paraneoplastic immunity to Ma proteins"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Ann. Neurol."
+        },
+        "volumeNumber": "50"
+      },
+      "pageStart": "339"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1093/brain/122.1.27",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Dalmau"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1999"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Ma1, a novel neuron- and testis-specific protein, is recognized by the serum of patients with paraneoplastic neurological disorders"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Brain"
+        },
+        "volumeNumber": "122"
+      },
+      "pageStart": "27"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1056/NEJM199906103402303",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Voltz"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1999"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A Serologic Marker of Paraneoplastic Limbic and Brain-Stem Encephalitis in Patients with Testicular Cancer"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "N. Engl. J. Med."
+        },
+        "volumeNumber": "340"
+      },
+      "pageStart": "1788"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1093/cercor/bhp062",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Takaji"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2009"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Paraneoplastic antigen-like 5 gene (PNMA5) is preferentially expressed in the association areas in a primate specific manner"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Cereb. Cortex"
+        },
+        "volumeNumber": "19"
+      },
+      "pageStart": "2865"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1016/j.jneuroim.2005.08.019",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Schüller"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2005"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The human PNMA family: novel neuronal proteins implicated in paraneoplastic neurological disease"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "J. Neuroimmunol."
+        },
+        "volumeNumber": "169"
+      },
+      "pageStart": "172"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1136/jnnp.2007.118588",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Hoffmann"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2008"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Anti-Ma and anti-Ta associated paraneoplastic neurological syndromes: 22 newly diagnosed patients and review of previous cases"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "J. Neurol. Neurosurg. Psychiatry"
+        },
+        "volumeNumber": "79"
+      },
+      "pageStart": "767"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1093/brain/awh203",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Dalmau"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2004"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Clinical analysis of anti-Ma2-associated encephalitis"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Brain"
+        },
+        "volumeNumber": "127"
+      },
+      "pageStart": "1831"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1371/journal.pone.0016010",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Cui"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2010"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Paraneoplastic antigen Ma2 autoantibodies as specific blood biomarkers for detection of early recurrence of small intestine neuroendocrine tumors"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "PLoS One"
+        },
+        "volumeNumber": "5"
+      }
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1136/practneurol-2019-002464",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Lyons"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Autoimmune encephalitis associated with Ma2 antibodies and immune checkpoint inhibitor therapy"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Pract. Neurol."
+        },
+        "volumeNumber": "20"
+      },
+      "pageStart": "256"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1159/000519763",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Hashimoto"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Anti-Ma2-Associated Limbic Encephalitis after Termination of Immune Checkpoint Inhibitor Therapy for Malignant Pleural Mesothelioma"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Case Rep. Neurol."
+        },
+        "volumeNumber": "13"
+      },
+      "pageStart": "724"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1016/j.tig.2006.09.006",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Campillos"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2006"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Computational characterization of multiple Gag-like human proteins"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Trends Genet."
+        },
+        "volumeNumber": "22"
+      },
+      "pageStart": "585"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1126/science.abg6155",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Segel"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Mammalian retrovirus-like protein PEG10 packages its own mRNA and can be pseudotyped for mRNA delivery"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Science"
+        },
+        "volumeNumber": "373"
+      },
+      "pageStart": "882"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1093/molbev/mst014",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Kokošar"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2013"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Genesis and regulatory wiring of retroelement-derived domesticated genes: a phylogenomic perspective"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Mol. Biol. Evol."
+        },
+        "volumeNumber": "30"
+      },
+      "pageStart": "1015"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1016/S0960-9822(03)00618-3",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Lynch"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2003"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A co-opted gypsy-type LTR-retrotransposon is conserved in the genomes of humans, sheep, mice, and rats"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Curr. Biol."
+        },
+        "volumeNumber": "13"
+      },
+      "pageStart": "1518"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1016/j.cell.2017.12.022",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Ashley"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Retrovirus-like Gag protein Arc1 binds RNA and traffics across synaptic boutons"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Cell"
+        },
+        "volumeNumber": "172"
+      },
+      "pageStart": "262"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1016/j.cell.2017.12.024",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Pastuzyn"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The neuronal gene arc encodes a repurposed retrotransposon gag protein that mediates intercellular RNA transfer"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Cell"
+        },
+        "volumeNumber": "172"
+      },
+      "pageStart": "275"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1038/s41593-019-0569-y",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Erlendsson"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Structures of virus-like capsids formed by the Drosophila neuronal Arc proteins"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nat. Neurosci."
+        },
+        "volumeNumber": "23"
+      },
+      "pageStart": "172"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1038/nn.2708",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Shepherd"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2011"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "New views of Arc, a master regulator of synaptic plasticity"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nat. Neurosci."
+        },
+        "volumeNumber": "14"
+      },
+      "pageStart": "279"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1093/nar/gkt011",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Abrusán"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2013"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Turning gold into ‘junk’: transposable elements utilize central proteins of cellular networks"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nucleic Acids Res."
+        },
+        "volumeNumber": "41"
+      },
+      "pageStart": "3190"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1126/sciadv.aay6354",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Cottee"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Structure of Drosophila melanogaster ARC1 reveals a repurposed molecule with characteristics of retroviral Gag"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Sci. Adv."
+        },
+        "volumeNumber": "6"
+      },
+      "pageStart": "eaay6354"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1371/journal.pone.0214110",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Abed"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The Gag protein PEG10 binds to RNA and regulates trophoblast stem cell lineage specification"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "PLoS One"
+        },
+        "volumeNumber": "14"
+      }
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1016/j.xcrm.2021.100360",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Pandya"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Secreted retrovirus-like GAG-domain-containing protein PEG10 is regulated by UBE3A and is involved in Angelman syndrome pathophysiology"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Cell Rep. Med."
+        },
+        "volumeNumber": "2"
+      },
+      "pageStart": "100360"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1002/prot.26204",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Zurowska"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Structural evidence that MOAP1 and PEG10 are derived from retrovirus/retrotransposon Gag proteins"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Proteins"
+        },
+        "volumeNumber": "90"
+      },
+      "pageStart": "309"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1006/geno.2001.6494",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Ono"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2001"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A retrotransposon-derived gene, PEG10, is a novel imprinted gene located on human chromosome 7q21"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Genomics"
+        },
+        "volumeNumber": "73"
+      },
+      "pageStart": "232"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1016/j.tins.2020.12.003",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Hantak"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Intercellular communication in the nervous system goes viral"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Trends Neurosci."
+        },
+        "volumeNumber": "44"
+      },
+      "pageStart": "248"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1038/ng.2653",
+      "date": {
+        "type": "Date",
+        "value": "2013"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The genotype-tissue expression (GTEx) project"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nat. Genet."
+        },
+        "volumeNumber": "45"
+      },
+      "pageStart": "580"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1038/s41586-019-1506-7",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Hodge"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Conserved cell types with divergent features in human versus mouse cortex"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature"
+        },
+        "volumeNumber": "573"
+      },
+      "pageStart": "61"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1126/science.aaa1934",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Zeisel"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2015"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Brain structure. Cell types in the mouse cortex and hippocampus revealed by single-cell RNA-seq"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Science"
+        },
+        "volumeNumber": "347"
+      },
+      "pageStart": "1138"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1016/j.tins.2012.09.005",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Shen"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2012"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The Allen Human Brain Atlas: comprehensive gene expression mapping of the human brain"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Trends Neurosci."
+        },
+        "volumeNumber": "35"
+      },
+      "pageStart": "711"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1101/gr.256958.119",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Khrameeva"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Single-cell-resolution transcriptome map of human, chimpanzee, bonobo, and macaque brains"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Genome Res."
+        },
+        "volumeNumber": "30"
+      },
+      "pageStart": "776"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1073/pnas.1900931116",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Dodonova"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Structure of the Ty3/Gypsy retrotransposon capsid and the evolution of retroviruses"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Proc. Natl. Acad. Sci. USA"
+        },
+        "volumeNumber": "116"
+      },
+      "pageStart": "10048"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1016/j.celrep.2020.108296",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Tlemsani"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "SCLC-CellMiner: a resource for small cell lung cancer cell line genomics and pharmacology based on genomic signatures"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Cell Rep."
+        },
+        "volumeNumber": "33"
+      },
+      "pageStart": "108296"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1155/2019/8298524",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Bremmer"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Proteomic comparison of malignant human germ cell tumor cell lines"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Dis. Markers"
+        },
+        "volumeNumber": "2019"
+      },
+      "pageStart": "8298524"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1186/1742-4690-10-29",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Yufenyuy"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2013"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The NTD-CTD intersubunit interface plays a critical role in assembly and stabilization of the HIV-1 capsid"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Retrovirology"
+        },
+        "volumeNumber": "10"
+      },
+      "pageStart": "29"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1038/nri2868",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Bachmann"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2010"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Vaccine delivery: a matter of size, geometry, kinetics and molecular patterns"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nat. Rev. Immunol."
+        },
+        "volumeNumber": "10"
+      },
+      "pageStart": "787"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1021/acsnano.6b07343",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Gause"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2017"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Immunological principles guiding the rational design of particles for vaccine delivery"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "ACS Nano"
+        },
+        "volumeNumber": "11"
+      },
+      "pageStart": "54"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1126/science.8248784",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Bachmann"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1993"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The influence of antigen organization on B cell responsiveness"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Science"
+        },
+        "volumeNumber": "262"
+      },
+      "pageStart": "1448"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1002/1521-4141(200211)32:11<3305::AID-IMMU3305>3.0.CO;2-J",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Jegerlehner"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2002"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Regulation of IgG antibody responses by epitope density and CD21-mediated costimulation"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Eur. J. Immunol."
+        },
+        "volumeNumber": "32"
+      },
+      "pageStart": "3305"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1038/s41564-019-0392-y",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Murin"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Antibody responses to viral infections: a structural perspective across three different enveloped viruses"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nat. Microbiol."
+        },
+        "volumeNumber": "4"
+      },
+      "pageStart": "734"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.3390/v9010015",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Arias"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2017"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The astrovirus capsid: a review"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Viruses"
+        },
+        "volumeNumber": "9"
+      },
+      "pageStart": "15"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1016/S0092-8674(01)00449-4",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Mellman"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2001"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Dendritic cells: specialized and regulated antigen processing machines"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Cell"
+        },
+        "volumeNumber": "106"
+      },
+      "pageStart": "255"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1016/S0092-8674(01)00455-X",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Lanzavecchia"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2001"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Regulation of T cell immunity by dendritic cells"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Cell"
+        },
+        "volumeNumber": "106"
+      },
+      "pageStart": "263"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1146/annurev-immunol-101819-025146",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Yin"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Dendritic cell regulation of T helper cells"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Annu. Rev. Immunol."
+        },
+        "volumeNumber": "39"
+      },
+      "pageStart": "759"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1176/appi.neuropsych.14120383",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Park"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2015"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Anti-Ma2 antibody encephalitis manifesting as cognitive impairment and psychosis"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "J. Neuropsychiatry Clin. Neurosci."
+        },
+        "volumeNumber": "27"
+      },
+      "pageStart": "e221"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1523/JNEUROSCI.3624-13.2014",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Zelikowsky"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2014"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Neuronal ensembles in amygdala, hippocampus, and prefrontal cortex track differential components of contextual fear"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "J. Neurosci."
+        },
+        "volumeNumber": "34"
+      },
+      "pageStart": "8462"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1126/science.aah4972",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Mattei"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2016"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The structure and flexibility of conical HIV-1 capsids determined within intact virions"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Science"
+        },
+        "volumeNumber": "354"
+      },
+      "pageStart": "1434"
+    },
+    {
+      "type": "Reference",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Henriques"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      }
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1016/j.ceb.2015.04.016",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Ponpuak"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2015"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Secretory autophagy"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Curr. Opin. Cell Biol."
+        },
+        "volumeNumber": "35"
+      },
+      "pageStart": "106"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1038/nrm732",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Blott"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2002"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Secretory lysosomes"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nat. Rev. Mol. Cell Biol."
+        },
+        "volumeNumber": "3"
+      },
+      "pageStart": "122"
+    },
+    {
+      "type": "Reference",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Berns"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1995"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The cryptic life style of adeno-associated virus"
+          }
+        }
+      ],
+      "pageStart": "237"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1038/nature09976",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Pertel"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2011"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "TRIM5 is an innate immune sensor for the retrovirus capsid lattice"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature"
+        },
+        "volumeNumber": "472"
+      },
+      "pageStart": "361"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.3389/fimmu.2013.00082",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Hubo"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2013"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Costimulatory molecules on immunogenic versus tolerogenic human dendritic cells"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Front. Immunol."
+        },
+        "volumeNumber": "4"
+      },
+      "pageStart": "82"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1186/s13100-019-0176-1",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Tam"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Diseases of the nERVous system: retrotransposon activity in neurodegenerative disease"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Mobile DNA"
+        },
+        "volumeNumber": "10"
+      },
+      "pageStart": "32"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1186/s13059-021-02357-4",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Jansz"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Endogenous retroviruses in the origins and treatment of cancer"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Genome Biol."
+        },
+        "volumeNumber": "22"
+      },
+      "pageStart": "147"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1186/s12974-014-0160-0",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Greenlee"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2014"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Neuronal uptake of anti-Hu antibody, but not anti-Ri antibody, leads to cell death in brain slice cultures"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "J. Neuroinflammation"
+        },
+        "volumeNumber": "11"
+      },
+      "pageStart": "160"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1523/JNEUROSCI.0167-10.2010",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Hughes"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2010"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Cellular and synaptic mechanisms of anti-NMDA receptor encephalitis"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "J. Neurosci."
+        },
+        "volumeNumber": "30"
+      },
+      "pageStart": "5866"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1136/jnnp.2003.034447",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Graus"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2004"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Recommended diagnostic criteria for paraneoplastic neurological syndromes"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "J. Neurol. Neurosurg. Psychiatry"
+        },
+        "volumeNumber": "75"
+      },
+      "pageStart": "1135"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.3389/fneur.2021.744653",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Greenlee"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Paraneoplastic and other autoimmune encephalitides: antineuronal antibodies, T lymphocytes, and questions of pathogenesis"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Front. Neurol."
+        },
+        "volumeNumber": "12"
+      },
+      "pageStart": "744653"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1261/rna.2192803",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Stewart"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2003"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Lentivirus-delivered stable gene silencing by RNAi in primary cells"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Rna"
+        },
+        "volumeNumber": "9"
+      },
+      "pageStart": "493"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1038/nmeth.2019",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Schindelin"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2012"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Fiji: an open-source platform for biological-image analysis"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nat. Methods"
+        },
+        "volumeNumber": "9"
+      },
+      "pageStart": "676"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1038/s41586-021-03819-2",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Jumper"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Highly accurate protein structure prediction with AlphaFold"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature"
+        },
+        "volumeNumber": "596"
+      },
+      "pageStart": "583"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1042/BCJ20210708",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Kimanius"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "New tools for automated cryo-EM single-particle analysis in RELION-4.0."
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Biochem. J."
+        },
+        "volumeNumber": "478"
+      },
+      "pageStart": "4169"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1016/j.jsb.2015.08.008",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Rohou"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2015"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "CTFFIND4: Fast and accurate defocus estimation from electron micrographs"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "J. Struct. Biol."
+        },
+        "volumeNumber": "192"
+      },
+      "pageStart": "216"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1002/jcc.20084",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Pettersen"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2004"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "UCSF Chimera—a visualization system for exploratory research and analysis"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "J. Comput. Chem."
+        },
+        "volumeNumber": "25"
+      },
+      "pageStart": "1605"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1107/S0907444904019158",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Emsley"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2004"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Coot: model-building tools for molecular graphics"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Acta Crystallogr. D Biol. Crystallogr."
+        },
+        "volumeNumber": "60"
+      },
+      "pageStart": "2126"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1107/S2059798319011471",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Liebschner"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Macromolecular structure determination using X-rays, neutrons and electrons: recent developments in Phenix"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Acta Crystallogr. D Struct. Biol."
+        },
+        "volumeNumber": "75"
+      },
+      "pageStart": "861"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1107/S2059798318002425",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Croll"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "ISOLDE: a physically realistic environment for model building into low-resolution electron-density maps"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Acta Crystallogr. D Struct. Biol."
+        },
+        "volumeNumber": "74"
+      },
+      "pageStart": "519"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1016/j.neuron.2006.08.034",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Shepherd"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2006"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Arc/Arg3.1 mediates homeostatic synaptic scaling of AMPA receptors"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Neuron"
+        },
+        "volumeNumber": "52"
+      },
+      "pageStart": "475"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1038/s41467-020-18952-1",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Bepler"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Topaz-Denoise: general deep denoising models for cryoEM and cryoET"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nat. Commun."
+        },
+        "volumeNumber": "11"
+      },
+      "pageStart": "5208"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1038/nmeth.2727",
+      "authors": [
+        {
+          "type": "Person",
+          "name": "Kucukelbir"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2014"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Quantifying the local resolution of cryo-EM density maps"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nat. Methods"
+        },
+        "volumeNumber": "11"
+      },
+      "pageStart": "63"
+    }
+  ],
   "title": [
     {
       "type": "Text",

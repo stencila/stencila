@@ -78,6 +78,1173 @@ expression: node
     "type": "Date",
     "value": "2023-12-20"
   },
+  "references": [
+    {
+      "type": "Reference",
+      "doi": "10.2165/00007256-200333130-00003",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Duthie"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2003"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Applied physiology and game analysis of rugby union"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Sports Med"
+          },
+          "volumeNumber": "33"
+        },
+        "issueNumber": "13"
+      },
+      "pageStart": "973"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1007/s40279-017-0803-2",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Johnston"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Talent identification in sport: a systematic review"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Sports Med"
+        },
+        "volumeNumber": "48"
+      },
+      "pageStart": "97"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.3389/fpsyg.2020.00664",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Till"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Challenges and [possible] solutions to optimizing talent identification and development in sport"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Front Psychol"
+        },
+        "volumeNumber": "11"
+      },
+      "pageStart": "664"
+    },
+    {
+      "type": "Reference",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Owen"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A multidimensional approach to identifying the physical qualities of male English regional academy rugby union players; considerations of position, chronological age, relative age and maturation"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "Eur J Sports Sci"
+      },
+      "pageStart": "1"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1371/journal.pone.0233796",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Owen"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Testing methods and physical qualities of male age grade rugby union players: A systematic review"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Plos one"
+          },
+          "volumeNumber": "15"
+        },
+        "issueNumber": "6"
+      },
+      "pageStart": "e0233796"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1186/s40798-020-0236-6",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Till"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Applied Sport Science for Male Age-Grade Rugby Union in England"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Sports Med Open"
+          },
+          "volumeNumber": "6"
+        },
+        "issueNumber": "1"
+      },
+      "pageStart": "1"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1371/journal.pone.0202811",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Cunningham"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Relationships between physical qualities and key performance indicators during match-play in senior international rugby union players"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "PloS one"
+          },
+          "volumeNumber": "13"
+        },
+        "issueNumber": "9"
+      },
+      "pageStart": "e0202811"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1519/JSC.0000000000000872",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Darrall-Jones"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2015"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Anthropometric and physical profiles of English academy rugby union players"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "J Strength Cond Res"
+          },
+          "volumeNumber": "29"
+        },
+        "issueNumber": "8"
+      },
+      "pageStart": "2086"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.5114/biolsport.2022.112086",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Peeters"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A comparison of running and contact loads in U18 and U20 international rugby union competition"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Biol Sport"
+          },
+          "volumeNumber": "40"
+        },
+        "issueNumber": "1"
+      },
+      "pageStart": "149"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1519/JSC.0000000000001234",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Darrall-Jones"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2016"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Anthropometric, sprint, and high-intensity running profiles of English academy rugby union players by position"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "J Strength Cond Res"
+          },
+          "volumeNumber": "30"
+        },
+        "issueNumber": "5"
+      },
+      "pageStart": "1348"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1519/JSC.0000000000000724",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lombard"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2015"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Changes in body size and physical characteristics of South African under-20 rugby union players over a 13-year period"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "J Strength Cond Res"
+          },
+          "volumeNumber": "29"
+        },
+        "issueNumber": "4"
+      },
+      "pageStart": "980"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1080/02640414.2017.1329546",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Read"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The physical characteristics of match-play in English schoolboy and academy rugby union"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "J Sports Sci"
+          },
+          "volumeNumber": "36"
+        },
+        "issueNumber": "6"
+      },
+      "pageStart": "645"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1080/02640414.2018.1458589",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jones"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Bigger, stronger, faster, fitter: the differences in physical qualities of school and academy rugby union players"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "J Sports Sci"
+          },
+          "volumeNumber": "36"
+        },
+        "issueNumber": "21"
+      },
+      "pageStart": "2399"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1519/JSC.0000000000000364",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Barr"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2014"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Long-term training-induced changes in sprinting speed and sprint momentum in elite rugby union players"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "J Strength Cond Res"
+          },
+          "volumeNumber": "28"
+        },
+        "issueNumber": "10"
+      },
+      "pageStart": "2724"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1123/ijspp.2018-0523",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Weakley"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The effects of augmented feedback on sprint, jump, and strength adaptations in rugby union players after a 4-week training program"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Int J Sports Physiol Perform"
+          },
+          "volumeNumber": "14"
+        },
+        "issueNumber": "9"
+      },
+      "pageStart": "1205"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1080/14763141.2017.1391325",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lu"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Reliability of force-velocity relationships during deadlift high pull"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Sports Biomechanics"
+          },
+          "volumeNumber": "18"
+        },
+        "issueNumber": "3"
+      },
+      "pageStart": "277"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1123/ijspp.5.4.546",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Taylor"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2010"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Sources of variability in iso-inertial jump assessments"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Int J Sports Physiol Perform"
+          },
+          "volumeNumber": "5"
+        },
+        "issueNumber": "4"
+      },
+      "pageStart": "546"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1519/JSC.0b013e3181ccb18d",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Glatthorn"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2011"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Validity and reliability of Optojump photoelectric cells for estimating vertical jump height"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "J Strength Cond Res"
+          },
+          "volumeNumber": "25"
+        },
+        "issueNumber": "2"
+      },
+      "pageStart": "556"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1007/s40279-015-0446-0",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haugen"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2016"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Sprint running performance monitoring: methodological and practical considerations"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Sports Med"
+          },
+          "volumeNumber": "46"
+        },
+        "issueNumber": "5"
+      },
+      "pageStart": "641"
+    },
+    {
+      "type": "Reference",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Cazorla"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2004"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Evaluation du rugbyman de haut niveau à partir de tests de terrain"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "Edition Sauramps médical"
+      },
+      "pageStart": "4035"
+    },
+    {
+      "type": "Reference",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Leger"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1980"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "An indirect continuous running multistage field test: the Universite de Montreal track test"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Can J Appl Sport Sci"
+        },
+        "volumeNumber": "5"
+      },
+      "pageStart": "77"
+    },
+    {
+      "type": "Reference",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Cazorla"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2001"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Faculté des Sciences du Sport et de l’Éducation Physique"
+          }
+        }
+      ],
+      "pageStart": "2"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.4324/9780203771587",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Cohen"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2013"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Statistical power analysis for the behavioral sciences:"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1519/JSC.0b013e318236d0c2",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Vänttinen"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2011"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Changes in body composition, hormonal status, and physical fitness in 11-, 13-, and 15-year-old Finnish regional youth soccer players during a two-year follow-up"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "J Strength Cond Res"
+          },
+          "volumeNumber": "25"
+        },
+        "issueNumber": "12"
+      },
+      "pageStart": "3342"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1016/j.jsams.2008.07.004",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Le",
+            "Gall"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2010"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Anthropometric and fitness characteristics of international, professional and amateur male graduate soccer players from an elite youth academy"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "J Sci Med Sport"
+          },
+          "volumeNumber": "13"
+        },
+        "issueNumber": "1"
+      },
+      "pageStart": "90"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1080/02640414.2011.637950",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Carling"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2012"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Body size, skeletal maturity, and functional characteristics of elite academy soccer players on entry between 1992 and 2003"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "J Sports Sci"
+          },
+          "volumeNumber": "30"
+        },
+        "issueNumber": "15"
+      },
+      "pageStart": "1683"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1519/JSC.0b013e318241382a",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Argus"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2012"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Characterization of the differences in strength and power between different levels of competition in rugby union athletes"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "J Strength Cond Res"
+          },
+          "volumeNumber": "26"
+        },
+        "issueNumber": "10"
+      },
+      "pageStart": "2698"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1080/02640410600944659",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Quarrie"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2007"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Changes in player characteristics and match activities in Bledisloe Cup rugby union from 1972 to 2004"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "J Sports Sci"
+          },
+          "volumeNumber": "25"
+        },
+        "issueNumber": "8"
+      },
+      "pageStart": "895"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1519/JSC.0000000000001965",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Phibbs"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Organized chaos in late specialization team sports: weekly training loads of elite adolescent rugby union players"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "J Strength Cond Res"
+          },
+          "volumeNumber": "32"
+        },
+        "issueNumber": "5"
+      },
+      "pageStart": "1316"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1123/ijspp.2015-0231",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Darrall-Jones"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2016"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The effect of body mass on the 30–15 intermittent fitness test in rugby union players"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Int J Sports Physiol Perform"
+          },
+          "volumeNumber": "11"
+        },
+        "issueNumber": "3"
+      },
+      "pageStart": "400"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1016/j.jsams.2016.08.017",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Fontana"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2017"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Player’s success prediction in rugby union: From youth performance to senior level placing"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "J Sci Med Sport"
+          },
+          "volumeNumber": "20"
+        },
+        "issueNumber": "4"
+      },
+      "pageStart": "409"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1080/17461391.2011.635812",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Smart"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2014"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The relationship between physical fitness and game behaviours in rugby union players"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Eur J Sports Sci"
+          },
+          "volumeNumber": "14"
+        },
+        "issueNumber": "1"
+      },
+      "pageStart": "S8"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1123/ijspp.2019-0154",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Casserly"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Longitudinal changes in the physical development of Elite Adolescent rugby union players: Effect of playing position and body mass change"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Int J Sports Physiol Perform"
+          },
+          "volumeNumber": "15"
+        },
+        "issueNumber": "4"
+      },
+      "pageStart": "520"
+    }
+  ],
   "title": [
     {
       "type": "Text",

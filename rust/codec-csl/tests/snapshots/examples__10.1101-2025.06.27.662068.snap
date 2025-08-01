@@ -96,6 +96,76 @@ expression: node
     "type": "Date",
     "value": "2025-07-02"
   },
+  "references": [
+    {
+      "type": "Reference",
+      "doi": "10.1016/j.immuni.2021.06.006"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1146/annurev-pathmechdis-051222-015009"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1038/s41577-022-00787-0"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1038/s41590-023-01452-x"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1038/s41577-019-0141-8"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.4049/jimmunol.2200154"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1146/annurev-immunol-101721-040924"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1038/nri1550"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1016/j.immuni.2016.06.013"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1038/s41598-021-97887-z"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1002/psp4.12620"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1016/j.bpj.2015.03.042"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1086/670067)"
+    },
+    {
+      "type": "Reference",
+      "doi": "10.3389/fimmu.2021.631821",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Erandi Pérez-Figueroa , Pablo Álvarez-Carrasco , Enrique Ortega , and Carmen Maldonado-Bernal . Neutrophils: Many ways to die. Frontiers in Immunology, 12:631821, 2021."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "doi": "10.1038/s41590-020-0736-z"
+    }
+  ],
   "title": [
     {
       "type": "Text",
