@@ -5,10 +5,11 @@ edition = "2024"
 
 [dependencies]
 codec = { path = "../codec" }
-governor = {workspace = true}
+governor = { workspace = true }
 reqwest-middleware = { workspace = true }
 reqwest-ratelimit = { workspace = true }
 serde = { workspace = true }
+version = { path = "../version" }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }

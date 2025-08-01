@@ -5,7 +5,7 @@ use governor::{
     clock::DefaultClock,
     state::{InMemoryState, NotKeyed},
 };
-use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
+use reqwest_middleware::{ClientBuilder, ClientWithMiddleware, reqwest::header::USER_AGENT};
 use reqwest_ratelimit::{RateLimiter as ReqwestRateLimiter, all};
 
 use codec::common::{
@@ -17,6 +17,7 @@ use codec::common::{
     tokio::time::Instant,
     tracing,
 };
+use version::STENCILA_USER_AGENT;
 
 use crate::{
     author::Author,
@@ -110,7 +111,11 @@ where
         url.to_string()
     };
 
-    let response = CLIENT.get(url).send().await?;
+    let response = CLIENT
+        .get(url)
+        .header(USER_AGENT, STENCILA_USER_AGENT)
+        .send()
+        .await?;
 
     if let Err(error) = response.error_for_status_ref() {
         bail!("{error}: {}", response.text().await.unwrap_or_default());

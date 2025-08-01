@@ -17,7 +17,7 @@ use codec::{
 };
 use codec_meca::MecaCodec;
 use codec_pdf::PdfCodec;
-use version::STENCILA_VERSION;
+use version::STENCILA_USER_AGENT;
 
 const BIORXIV: &str = "biorxiv.org";
 const MEDRXIV: &str = "medrxiv.org";
@@ -144,9 +144,7 @@ pub(super) async fn decode_openrxiv_id(
         let client = if url.contains("stencila.cloud") {
             cloud::client().await?
         } else {
-            Client::builder()
-                .user_agent(format!("stencila/{STENCILA_VERSION}"))
-                .build()?
+            Client::builder().user_agent(STENCILA_USER_AGENT).build()?
         };
 
         match client.get(&url).send().await {

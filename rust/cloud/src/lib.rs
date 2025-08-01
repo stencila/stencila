@@ -6,13 +6,13 @@ use common::{
     eyre::{Result, bail, eyre},
     reqwest::{
         self, Client,
-        header::{AUTHORIZATION, HeaderMap, HeaderValue, USER_AGENT},
+        header::{AUTHORIZATION, HeaderMap, HeaderValue},
     },
     serde::{Deserialize, Serialize, de::DeserializeOwned},
     strum::Display,
     tracing,
 };
-use version::STENCILA_VERSION;
+use version::STENCILA_USER_AGENT;
 
 /// The base URL for the Stencila Cloud API
 ///
@@ -169,16 +169,13 @@ pub async fn client() -> Result<Client> {
         bail!("This functionality requires a Stencila Cloud account. Please sign in and try again.")
     };
 
-    let mut headers = HeaderMap::new();
-    headers.insert(
-        USER_AGENT,
-        HeaderValue::from_str(&format!("stencila/{STENCILA_VERSION}"))?,
-    );
-    headers.insert(
-        AUTHORIZATION,
-        HeaderValue::from_str(&format!("Bearer {token}"))?,
-    );
+    let client = Client::builder()
+        .user_agent(STENCILA_USER_AGENT)
+        .default_headers(HeaderMap::from_iter([(
+            AUTHORIZATION,
+            HeaderValue::from_str(&format!("Bearer {token}"))?,
+        )]))
+        .build()?;
 
-    let client = Client::builder().default_headers(headers).build()?;
     Ok(client)
 }

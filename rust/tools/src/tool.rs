@@ -26,7 +26,7 @@ use common::{
     tokio::fs::write,
     tracing,
 };
-use version::STENCILA_VERSION;
+use version::STENCILA_USER_AGENT;
 
 use crate::{ToolCommand, ToolStdio, command::AsyncToolCommand, json_map};
 
@@ -586,7 +586,7 @@ async fn install_via_script(tool: &dyn Tool, display: bool) -> Result<()> {
     // Create a client that follows redirects and sets user agent to avoid 403s
     let client = reqwest::Client::builder()
         .redirect(reqwest::redirect::Policy::limited(10))
-        .user_agent(format!("stencila/{STENCILA_VERSION}"))
+        .user_agent(STENCILA_USER_AGENT)
         .build()?;
 
     // Download the installation script

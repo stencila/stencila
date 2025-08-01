@@ -12,7 +12,7 @@ use codec::{
     schema::Node,
 };
 use codec_csl::CslCodec;
-use version::STENCILA_VERSION;
+use version::STENCILA_USER_AGENT;
 
 /// Extract a DOI from an identifier string
 ///
@@ -76,9 +76,7 @@ pub(super) async fn decode_doi(
 
     let client = Client::builder()
         .default_headers(headers)
-        .user_agent(format!(
-            "stencila/{STENCILA_VERSION} (mailto:hello@stencila.io)"
-        ))
+        .user_agent(STENCILA_USER_AGENT)
         .timeout(std::time::Duration::from_secs(30))
         .build()?;
 

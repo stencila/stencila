@@ -15,7 +15,7 @@ use common::{
     clap::{self, Parser},
     eyre::{Report, Result, bail},
     once_cell::sync::Lazy,
-    reqwest::Client,
+    reqwest::{Client, header::USER_AGENT},
     serde::{Deserialize, Serialize},
     serde_json,
     tar::Archive,
@@ -28,7 +28,7 @@ use common::{
     tracing,
 };
 use dirs::{DirType, get_app_dir};
-use version::STENCILA_VERSION;
+use version::{STENCILA_USER_AGENT, STENCILA_VERSION};
 
 /// Upgrade the Stencila CLI to the latest version
 pub async fn upgrade(force: bool) -> Result<Option<String>> {
@@ -127,7 +127,7 @@ impl GithubRelease {
         let client = Client::new();
         let response = client
             .get("https://api.github.com/repos/stencila/stencila/releases/latest")
-            .header("User-Agent", "stencila")
+            .header(USER_AGENT, STENCILA_USER_AGENT)
             .send()
             .await?;
 
