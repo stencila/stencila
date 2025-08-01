@@ -7,9 +7,9 @@ use codec::{
         serde_with::skip_serializing_none,
     },
     schema::{
-        Article, ArticleOptions, Author, CreativeWorkType, Date, IntegerOrString, Organization,
-        Periodical, PeriodicalOptions, PersonOrOrganization, Primitive, PropertyValue,
-        PropertyValueOrString, PublicationIssue, PublicationVolume,
+        Article, ArticleOptions, Author, Block, CreativeWorkType, Date, IntegerOrString,
+        Organization, Paragraph, Periodical, PeriodicalOptions, PersonOrOrganization, Primitive,
+        PropertyValue, PropertyValueOrString, PublicationIssue, PublicationVolume,
         shortcuts::{p, t},
     },
 };
@@ -260,10 +260,7 @@ impl From<Item> for Article {
 
         let date_published = item.issued.and_then(|date| Date::try_from(date).ok());
 
-        let r#abstract = item
-            .abstract_text
-            .as_ref()
-            .map(|text| vec![p(vec![t(text)])]);
+        let r#abstract = item.abstract_text.map(parse_jats_paragraphs);
 
         let url = item.url.clone();
 
@@ -314,6 +311,40 @@ impl From<Item> for Article {
             ..Default::default()
         }
     }
+}
+
+/// Parse JATS paragraphs from abstract text
+///
+/// Extracts separate paragraphs between <jats:p> and </jats:p> tags, dropping
+/// those tags where appropriate. If those tags are not in the text then just
+/// use a single paragraph.
+fn parse_jats_paragraphs(text: String) -> Vec<Block> {
+    // Check if the text contains JATS paragraph tags
+    if text.contains("<jats:p>") && text.contains("</jats:p>") {
+        // Split by JATS paragraph tags and extract content
+        let paragraphs: Vec<_> = text
+            .split("<jats:p>")
+            .skip(1) // Skip the part before the first <jats:p>
+            .filter_map(|part| {
+                // Find the closing tag and extract content
+                part.split_once("</jats:p>")
+                    .map(|(content, _)| content.trim())
+                    .filter(|content| !content.is_empty())
+                    .map(|content| {
+                        Block::Paragraph(Paragraph {
+                            content: vec![t(content)],
+                            ..Default::default()
+                        })
+                    })
+            })
+            .collect();
+        if !paragraphs.is_empty() {
+            return paragraphs;
+        }
+    }
+
+    // No JATS tags found, use single paragraph
+    vec![p(vec![t(text)])]
 }
 
 /// Convert a string id to valid `identifiers` value
