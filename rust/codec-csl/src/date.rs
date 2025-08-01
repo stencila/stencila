@@ -4,7 +4,7 @@ use codec::{
     common::{
         eyre::{Report, bail},
         indexmap::IndexMap,
-        serde::{Deserialize, Serialize},
+        serde::Deserialize,
         serde_json::Value,
         serde_with::skip_serializing_none,
     },
@@ -19,7 +19,7 @@ use codec::{
 /// See:
 /// - https://docs.citationstyles.org/en/stable/specification.html#appendix-iv-variables (Date Variables)
 /// - https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html#date-fields
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Deserialize)]
 #[serde(untagged, crate = "codec::common::serde")]
 pub enum DateField {
     /// Date with parts (year, month, day) and optional metadata
@@ -63,12 +63,6 @@ pub enum DateField {
         #[serde(flatten)]
         meta: DateMeta,
     },
-
-    /// Legacy format for backwards compatibility
-    DateParts {
-        #[serde(rename = "date-parts")]
-        date_parts: Vec<Vec<i32>>,
-    },
 }
 
 /// Additional metadata for dates
@@ -76,7 +70,7 @@ pub enum DateField {
 /// Contains optional metadata that can accompany CSL date fields,
 /// including temporal context, precision indicators, and repository-specific information.
 #[skip_serializing_none]
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Default, Deserialize)]
 #[serde(crate = "codec::common::serde")]
 pub struct DateMeta {
     /// Season information
@@ -104,7 +98,7 @@ pub struct DateMeta {
 }
 
 /// Represents seasonal information
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Deserialize)]
 #[serde(rename_all = "lowercase", crate = "codec::common::serde")]
 pub enum Season {
     Spring,
@@ -114,7 +108,7 @@ pub enum Season {
 }
 
 /// Represents approximate date information
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Deserialize)]
 #[serde(untagged, crate = "codec::common::serde")]
 pub enum Circa {
     Bool(bool),
@@ -122,23 +116,12 @@ pub enum Circa {
     Text(String),
 }
 
-/// Core date components
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(crate = "codec::common::serde")]
-pub struct DateParts {
-    pub year: i64,
-    pub month: Option<u8>,
-    pub day: Option<u8>,
-}
-
 impl TryFrom<DateField> for Date {
     type Error = Report;
 
     fn try_from(value: DateField) -> Result<Self, Self::Error> {
         Ok(match value {
-            DateField::DateParts { date_parts }
-            | DateField::Single { date_parts, .. }
-            | DateField::Range { date_parts, .. } => {
+            DateField::Single { date_parts, .. } | DateField::Range { date_parts, .. } => {
                 if let Some(parts) = date_parts.first() {
                     let year = parts.first().map(|y| y.to_string()).unwrap_or_default();
                     let month = parts.get(1).map(|m| format!("-{m:02}")).unwrap_or_default();

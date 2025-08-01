@@ -1,4 +1,4 @@
-use codec::common::serde::{Deserialize, Serialize};
+use codec::common::serde::Deserialize;
 
 /// Represents ordinary fields in CSL items
 ///
@@ -8,7 +8,7 @@ use codec::common::serde::{Deserialize, Serialize};
 /// See:
 /// - https://docs.citationstyles.org/en/stable/specification.html#appendix-iv-variables (Standard and Number Variables)
 /// - https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html#ordinary-variables
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Deserialize)]
 #[serde(untagged, crate = "codec::common::serde")]
 pub enum OrdinaryField {
     Integer(i64),

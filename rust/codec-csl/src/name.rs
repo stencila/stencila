@@ -2,10 +2,7 @@ use std::str::FromStr;
 
 use codec::{
     common::{
-        indexmap::IndexMap,
-        itertools::Itertools,
-        serde::{Deserialize, Serialize},
-        serde_json::Value,
+        indexmap::IndexMap, itertools::Itertools, serde::Deserialize, serde_json::Value,
         serde_with::skip_serializing_none,
     },
     schema::{Author, Organization, Person, PersonOptions},
@@ -20,7 +17,7 @@ use codec::{
 /// - https://docs.citationstyles.org/en/stable/specification.html#appendix-iv-variables (Name Variables)
 /// - https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html#name-fields
 #[skip_serializing_none]
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Deserialize)]
 #[serde(rename_all = "kebab-case", crate = "codec::common::serde")]
 pub struct NameField {
     /// Family/surname
