@@ -1,0 +1,1844 @@
+{
+  "indexed": {
+    "date-parts": [
+      [
+        2025,
+        7,
+        31
+      ]
+    ],
+    "date-time": "2025-07-31T00:45:29Z",
+    "timestamp": 1753922729984,
+    "version": "3.41.2"
+  },
+  "reference-count": 312,
+  "publisher": "American Association for the Advancement of Science (AAAS)",
+  "issue": "6611",
+  "content-domain": {
+    "domain": [],
+    "crossmark-restriction": false
+  },
+  "published-print": {
+    "date-parts": [
+      [
+        2022,
+        9,
+        9
+      ]
+    ]
+  },
+  "abstract": "<jats:p>Climate tipping points occur when change in a part of the climate system becomes self-perpetuating beyond a warming threshold, leading to substantial Earth system impacts. Synthesizing paleoclimate, observational, and model-based studies, we provide a revised shortlist of global “core” tipping elements and regional “impact” tipping elements and their temperature thresholds. Current global warming of ~1.1°C above preindustrial temperatures already lies within the lower end of some tipping point uncertainty ranges. Several tipping points may be triggered in the Paris Agreement range of 1.5 to &lt;2°C global warming, with many more likely at the 2 to 3°C of warming expected on current policy trajectories. This strengthens the evidence base for urgent action to mitigate climate change and to develop improved tipping point risk assessment, early warning capability, and adaptation strategies.</jats:p>",
+  "DOI": "10.1126/science.abn7950",
+  "type": "journal-article",
+  "created": {
+    "date-parts": [
+      [
+        2022,
+        9,
+        8
+      ]
+    ],
+    "date-time": "2022-09-08T17:57:40Z",
+    "timestamp": 1662659860000
+  },
+  "source": "Crossref",
+  "is-referenced-by-count": 1102,
+  "title": "Exceeding 1.5°C global warming could trigger multiple climate tipping points",
+  "prefix": "10.1126",
+  "volume": "377",
+  "author": [
+    {
+      "ORCID": "https://orcid.org/0000-0002-0020-7461",
+      "authenticated-orcid": true,
+      "given": "David I.",
+      "family": "Armstrong McKay",
+      "sequence": "first",
+      "affiliation": [
+        {
+          "name": "Stockholm Resilience Centre, Stockholm University, Stockholm, Sweden."
+        },
+        {
+          "name": "Bolin Centre for Climate Research, Stockholm University, Stockholm, Sweden."
+        },
+        {
+          "name": "Global Systems Institute, University of Exeter, Exeter, UK."
+        },
+        {
+          "name": "Georesilience Analytics, Leatherhead, UK."
+        }
+      ]
+    },
+    {
+      "ORCID": "https://orcid.org/0000-0001-5409-1436",
+      "authenticated-orcid": true,
+      "given": "Arie",
+      "family": "Staal",
+      "sequence": "additional",
+      "affiliation": [
+        {
+          "name": "Stockholm Resilience Centre, Stockholm University, Stockholm, Sweden."
+        },
+        {
+          "name": "Bolin Centre for Climate Research, Stockholm University, Stockholm, Sweden."
+        },
+        {
+          "name": "Copernicus Institute of Sustainable Development, Utrecht University, Utrecht, Netherlands."
+        }
+      ]
+    },
+    {
+      "ORCID": "https://orcid.org/0000-0003-0411-8519",
+      "authenticated-orcid": true,
+      "given": "Jesse F.",
+      "family": "Abrams",
+      "sequence": "additional",
+      "affiliation": [
+        {
+          "name": "Global Systems Institute, University of Exeter, Exeter, UK."
+        }
+      ]
+    },
+    {
+      "ORCID": "https://orcid.org/0000-0003-1248-3217",
+      "authenticated-orcid": true,
+      "given": "Ricarda",
+      "family": "Winkelmann",
+      "sequence": "additional",
+      "affiliation": [
+        {
+          "name": "Potsdam Institute for Climate Impact Research, Potsdam, Germany."
+        },
+        {
+          "name": "Institute of Physics and Astronomy, University of Potsdam, Potsdam, Germany."
+        }
+      ]
+    },
+    {
+      "ORCID": "https://orcid.org/0000-0002-7230-9723",
+      "authenticated-orcid": true,
+      "given": "Boris",
+      "family": "Sakschewski",
+      "sequence": "additional",
+      "affiliation": [
+        {
+          "name": "Potsdam Institute for Climate Impact Research, Potsdam, Germany."
+        }
+      ]
+    },
+    {
+      "ORCID": "https://orcid.org/0000-0001-6660-960X",
+      "authenticated-orcid": true,
+      "given": "Sina",
+      "family": "Loriani",
+      "sequence": "additional",
+      "affiliation": [
+        {
+          "name": "Potsdam Institute for Climate Impact Research, Potsdam, Germany."
+        }
+      ]
+    },
+    {
+      "ORCID": "https://orcid.org/0000-0001-7335-5679",
+      "authenticated-orcid": true,
+      "given": "Ingo",
+      "family": "Fetzer",
+      "sequence": "additional",
+      "affiliation": [
+        {
+          "name": "Stockholm Resilience Centre, Stockholm University, Stockholm, Sweden."
+        },
+        {
+          "name": "Bolin Centre for Climate Research, Stockholm University, Stockholm, Sweden."
+        }
+      ]
+    },
+    {
+      "ORCID": "https://orcid.org/0000-0003-4367-1296",
+      "authenticated-orcid": true,
+      "given": "Sarah E.",
+      "family": "Cornell",
+      "sequence": "additional",
+      "affiliation": [
+        {
+          "name": "Stockholm Resilience Centre, Stockholm University, Stockholm, Sweden."
+        },
+        {
+          "name": "Bolin Centre for Climate Research, Stockholm University, Stockholm, Sweden."
+        }
+      ]
+    },
+    {
+      "given": "Johan",
+      "family": "Rockström",
+      "sequence": "additional",
+      "affiliation": [
+        {
+          "name": "Stockholm Resilience Centre, Stockholm University, Stockholm, Sweden."
+        },
+        {
+          "name": "Potsdam Institute for Climate Impact Research, Potsdam, Germany."
+        }
+      ]
+    },
+    {
+      "ORCID": "https://orcid.org/0000-0002-6725-7498",
+      "authenticated-orcid": true,
+      "given": "Timothy M.",
+      "family": "Lenton",
+      "sequence": "additional",
+      "affiliation": [
+        {
+          "name": "Global Systems Institute, University of Exeter, Exeter, UK."
+        }
+      ]
+    }
+  ],
+  "member": "221",
+  "reference": [
+    {
+      "key": "e_1_3_2_2_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.0705414105"
+    },
+    {
+      "key": "e_1_3_2_3_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/d41586-019-03595-0"
+    },
+    {
+      "key": "e_1_3_2_4_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.1810141115"
+    },
+    {
+      "key": "e_1_3_2_5_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.0809117106"
+    },
+    {
+      "key": "e_1_3_2_6_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nclimate3013"
+    },
+    {
+      "key": "e_1_3_2_7_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nclimate2964"
+    },
+    {
+      "key": "e_1_3_2_8_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.1512482112"
+    },
+    {
+      "key": "e_1_3_2_9_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1002/2017GL076470"
+    },
+    {
+      "key": "e_1_3_2_10_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1002/2014GL060140"
+    },
+    {
+      "key": "e_1_3_2_11_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1002/2014GL060140"
+    },
+    {
+      "key": "e_1_3_2_12_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.2024192118"
+    },
+    {
+      "key": "e_1_3_2_13_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41558-021-01097-4"
+    },
+    {
+      "key": "e_1_3_2_14_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41558-022-01287-8"
+    },
+    {
+      "key": "e_1_3_2_15_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1126/sciadv.1601666"
+    },
+    {
+      "key": "e_1_3_2_16_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41586-020-2035-0"
+    },
+    {
+      "key": "e_1_3_2_17_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/esd-12-601-2021"
+    },
+    {
+      "key": "e_1_3_2_18_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1007/s13280-011-0221-x"
+    },
+    {
+      "key": "e_1_3_2_19_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41467-020-18728-7"
+    },
+    {
+      "key": "e_1_3_2_20_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.1511451112"
+    },
+    {
+      "key": "e_1_3_2_21_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1007/s10584-011-0126-5"
+    },
+    {
+      "key": "e_1_3_2_22_2",
+      "unstructured": "B. Fox-Kemper H. T. Hewitt C. Xiao G. Aðalgeirsdóttir S. S. Drijfhout T. L. Edwards N. R. Golledge M. Hemer R. E. Kopp G. Krinner A. Mix D. Notz S. Nowicki I. S. Nurhati L. Ruiz J.-B. Sallée A. B. A. Slangen Y. Yu “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021)."
+    },
+    {
+      "key": "e_1_3_2_23_2",
+      "unstructured": "M. Collins M. Sutherland L. Bouwer S.-M. Cheong T. L. Frölicher H. Jacot Des Combes M. K. Roxy I. Losada K. L. McInnes B. Ratter E. Rivera-Arriaga R. D. Susanto D. Swingedouw L. Tibig P. Bakker C. M. Eakin K. Emanuel M. Grose M. Hemer L. Jackson A. Kääb J. B. Kajtar T. Knutson C. Laufkötter I. Noy M. Payne R. Ranasinghe G. Sgubin M.-L. Timmermans “IPCC Special Report on the Ocean and Cryosphere in a Changing Climate” H.-O. Pörtner D. C. Roberts V. Masson-Delmotte P. Zhai M. Tignor E. Poloczanska K. Mintenbeck A. Alegría M. Nicolai A. Okem J. Petzold B. Rama N. M. Weyer Eds. (2019); pp. 589–655."
+    },
+    {
+      "key": "e_1_3_2_24_2",
+      "unstructured": "J. Y. Lee J. Marotzke G. Bala L. Cao S. Corti J. P. Dunne F. Engelbrecht E. Fischer J. C. Fyfe C. Jones A. Maycock J. Mutemi O. Ndiaye S. Panickal T. Zhou “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021)."
+    },
+    {
+      "key": "e_1_3_2_25_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.1517143113"
+    },
+    {
+      "key": "e_1_3_2_26_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41586-020-2727-5"
+    },
+    {
+      "key": "e_1_3_2_27_2",
+      "unstructured": "D. Chen M. Rojas B. H. Samset K. Cobb A. D. Niang P. Edwards S. Emori S. H. Faria E. Hawkins P. Hope P. Huybrechts M. Meinshausen S. K. Mustafa G.-K. Plattner A.-M. Tréguier “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021)."
+    },
+    {
+      "key": "e_1_3_2_28_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nature08227"
+    },
+    {
+      "key": "e_1_3_2_29_2",
+      "unstructured": "R. Ranasinghe A. C. Ruane R. Vautard N. Arnell E. Coppola F. A. Cruz S. Dessai A. S. Islam M. Rahimi D. R. Carrascal J. Sillmann M. B. Sylla C. Tebaldi W. Wang R. Zaaboul “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021) p. 73."
+    },
+    {
+      "key": "e_1_3_2_30_2",
+      "unstructured": "National Research Council Abrupt Climate Change: Inevitable Surprises (The National Academies Press 2002); https://www.nap.edu/catalog/10136."
+    },
+    {
+      "key": "e_1_3_2_31_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1002/2016EF000362"
+    },
+    {
+      "key": "e_1_3_2_32_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1175/JCLI-D-20-0558.1"
+    },
+    {
+      "key": "e_1_3_2_33_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/tc-8-1195-2014"
+    },
+    {
+      "key": "e_1_3_2_34_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.3389/feart.2020.00172"
+    },
+    {
+      "key": "e_1_3_2_35_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1175/JCLI-D-12-00690.1"
+    },
+    {
+      "key": "e_1_3_2_36_2",
+      "unstructured": "I. Allison N. L. Bindoff R. A. Bindoff R. A. Bindschadler P. M. Cox N. de Noblet M. H. England J. E. Francis N. Gruber A.M. Haywood D. J. Karoly G. Kaser C. Le Quéré T. M. Lenton M. E. Mann B. I. McNeil A. J. Pitman S. Rahmstorf E. Rignot H. J. Schellnhuber S. H. Schneider S. C. Sherwood R .C. J. Somerville K. Steffen E. J. Steig M. Visbeck A. J. Weaver “The Copenhagen Diagnosis” (The Univ. of New South Wales Climate Change Research Centre 2009); https://www.ccrc.unsw.edu.au/sites/default/files/Copenhagen_Diagnosis_LOW.pdf)."
+    },
+    {
+      "key": "e_1_3_2_37_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1029/2019GL086749"
+    },
+    {
+      "key": "e_1_3_2_38_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s43247-020-0001-2"
+    },
+    {
+      "key": "e_1_3_2_39_2",
+      "doi-asserted-by": "crossref",
+      "first-page": "233",
+      "DOI": "10.1038/s41586-019-1855-2",
+      "article-title": "Mass balance of the Greenland Ice Sheet from 1992 to 2018",
+      "volume": "579",
+      "author": "Shepherd A.",
+      "year": "2020",
+      "unstructured": "A. Shepherd, E. Ivins, E. Rignot, B. Smith, M. van den Broeke, I. Velicogna, P. Whitehouse, K. Briggs, I. Joughin, G. Krinner, S. Nowicki, T. Payne, T. Scambos, N. Schlegel, G. A, C. Agosta, A. Ahlstrøm, G. Babonis, V. R. Barletta, A. A. Bjørk, A. Blazquez, J. Bonin, W. Colgan, B. Csatho, R. Cullather, M. E. Engdahl, D. Felikson, X. Fettweis, R. Forsberg, A. E. Hogg, H. Gallee, A. Gardner, L. Gilbert, N. Gourmelen, A. Groh, B. Gunter, E. Hanna, C. Harig, V. Helm, A. Horvath, M. Horwath, S. Khan, K. K. Kjeldsen, H. Konrad, P. L. Langen, B. Lecavalier, B. Loomis, S. Luthcke, M. McMillan, D. Melini, S. Mernild, Y. Mohajerani, P. Moore, R. Mottram, J. Mouginot, G. Moyano, A. Muir, T. Nagler, G. Nield, J. Nilsson, B. Noël, I. Otosaka, M. E. Pattle, W. R. Peltier, N. Pie, R. Rietbroek, H. Rott, L. Sandberg Sørensen, I. Sasgen, H. Save, B. Scheuchl, E. Schrama, L. Schröder, K. W. Seo, S. B. Simonsen, T. Slater, G. Spada, T. Sutterley, M. Talpe, L. Tarasov, W. J. van de Berg, W. van der Wal, M. van Wessem, B. D. Vishwakarma, D. Wiese, D. Wilton, T. Wagner, B. Wouters, J. Wuite, Mass balance of the Greenland Ice Sheet from 1992 to 2018. Nature 579, 233–239 (2020).",
+      "journal-title": "Nature"
+    },
+    {
+      "key": "e_1_3_2_40_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nclimate1449"
+    },
+    {
+      "key": "e_1_3_2_41_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/esd-11-953-2020"
+    },
+    {
+      "key": "e_1_3_2_42_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1029/2020GL090471"
+    },
+    {
+      "key": "e_1_3_2_43_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.1216073110"
+    },
+    {
+      "key": "e_1_3_2_44_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.2021442118"
+    },
+    {
+      "key": "e_1_3_2_45_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/tc-14-4299-2020"
+    },
+    {
+      "key": "e_1_3_2_46_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1146/annurev-earth-060614-105344"
+    },
+    {
+      "key": "e_1_3_2_47_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.1902469117"
+    },
+    {
+      "key": "e_1_3_2_48_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1002/2017GL072514"
+    },
+    {
+      "key": "e_1_3_2_49_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1002/2017GL072514"
+    },
+    {
+      "key": "e_1_3_2_50_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41586-019-0901-4"
+    },
+    {
+      "key": "e_1_3_2_51_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41586-020-1931-7"
+    },
+    {
+      "key": "e_1_3_2_52_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41586-021-03427-0"
+    },
+    {
+      "key": "e_1_3_2_53_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41586-018-0501-8"
+    },
+    {
+      "key": "e_1_3_2_54_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.1516130113"
+    },
+    {
+      "key": "e_1_3_2_55_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nature14338"
+    },
+    {
+      "key": "e_1_3_2_56_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nature14338"
+    },
+    {
+      "key": "e_1_3_2_57_2",
+      "unstructured": "J. G. Canadell P. M. S. Monteiro M. H. Costa L. C. da Cunha P. M. Cox A. V. Eliseev S. Henson M. Ishii S. Jaccard C. Koven A. Lohila P. K. Patra S. Piao J. Rogelj S. Syampungani S. Zaehle K. Zickfeld “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021)."
+    },
+    {
+      "key": "e_1_3_2_58_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41561-019-0526-0"
+    },
+    {
+      "key": "e_1_3_2_59_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41558-019-0614-6"
+    },
+    {
+      "key": "e_1_3_2_60_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1016/j.earscirev.2017.07.007"
+    },
+    {
+      "key": "e_1_3_2_61_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1111/j.1365-2389.2010.01312.x"
+    },
+    {
+      "key": "e_1_3_2_62_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nclimate2590"
+    },
+    {
+      "key": "e_1_3_2_63_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41558-017-0049-x"
+    },
+    {
+      "key": "e_1_3_2_64_2",
+      "unstructured": "R. Hock G. Rasul C. Adler B. Cáceres S. Gruber Y. Hirabayashi M. Jackson A. Kääb S. Kang S. Kutuzov A. Milner U. Molau S. Morin B. Orlove H. I. Steltzer “IPCC Special Report on the Ocean and Cryosphere in a Changing Climate” H.-O. Pörtner D. C. Roberts V. Masson-Delmotte P. Zhai M. Tignor E. Poloczanska K. Mintenbeck A. Alegría M. Nicolai A. Okem J. Petzold B. Rama N. M. Weyer Eds. (Cambridge Univ. Press 2019) pp. 131–202."
+    },
+    {
+      "key": "e_1_3_2_65_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nclimate2923"
+    },
+    {
+      "key": "e_1_3_2_66_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/ncomms14375"
+    },
+    {
+      "key": "e_1_3_2_67_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1111/nyas.14659"
+    },
+    {
+      "key": "e_1_3_2_68_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41586-018-0006-5"
+    },
+    {
+      "key": "e_1_3_2_69_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1146/annurev-marine-010816-060415"
+    },
+    {
+      "key": "e_1_3_2_70_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.2017989118"
+    },
+    {
+      "key": "e_1_3_2_71_2",
+      "unstructured": "H. Douville K. Raghavan J. Renwick R. P. Allan P. A. Arias M. Barlow R. Cerezo-Mota A. Cherchi T. Y. Gan J. Gergis D. Jiang A. Khan W. P. Mba D. Rosenfeld J. Tierney O. Zolina “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021) p. 73."
+    },
+    {
+      "key": "e_1_3_2_72_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1007/s00382-015-2540-2"
+    },
+    {
+      "key": "e_1_3_2_73_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/srep14877"
+    },
+    {
+      "key": "e_1_3_2_74_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/cp-7-319-2011"
+    },
+    {
+      "key": "e_1_3_2_75_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41586-021-03629-6"
+    },
+    {
+      "key": "e_1_3_2_76_2",
+      "unstructured": "Science Panel for the Amazon (SPA) “Executive Summary of the Amazon Assessment Report 2021” C. Nobre A. Encalada E. Anderson F.H. Roca Alcazar M. Bustamante C. Mena M. Peña-Claros G. Poveda J.P. Rodriguez S. Saleska S. Trumbore A.L. Val L. Villa Nova R. Abramovay A. Alencar A.C.R. Alzza D. Armenteras P. Artaxo S. Athayde H.T. Barretto Filho J. Barlow E. Berenguer F. Bortolotto F.A. Costa M.H. Costa N. Cuvi P.M. Fearnside J. Ferreira B.M. Flores S. Frieri L.V. Gatti J.M. Guayasamin S. Hecht M. Hirota C. Hoorn C. Josse D.M. Lapola C. Larrea D.M. Larrea-Alcazar Z. Lehm Ardaya Y. Malhi J.A. Marengo M.R. Moraes P. Moutinho M.R. Murmis E.G. Neves B. Paez L. Painter A. Ramos M.C. Rosero-Peña M. Schmink P. Sist H. ter Steege P. Val H. van der Voort M. Varese Zapata-Ríos Eds. (United Nations Sustainable Development Solutions Network 2021); https://www.theamazonwewant.org/wp-content/uploads/2021/09/SPA-Executive-Summary-11Mb.pdf."
+    },
+    {
+      "key": "e_1_3_2_77_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41558-018-0177-y"
+    },
+    {
+      "key": "e_1_3_2_78_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/ncomms14681"
+    },
+    {
+      "key": "e_1_3_2_79_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.1605516113"
+    },
+    {
+      "key": "e_1_3_2_80_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1126/sciadv.aat2340"
+    },
+    {
+      "key": "e_1_3_2_81_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nature11882"
+    },
+    {
+      "key": "e_1_3_2_82_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41558-019-0545-2"
+    },
+    {
+      "key": "e_1_3_2_83_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/bg-14-511-2017"
+    },
+    {
+      "key": "e_1_3_2_84_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.1219844110"
+    },
+    {
+      "key": "e_1_3_2_85_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1088/1748-9326/8/3/034032"
+    },
+    {
+      "key": "e_1_3_2_86_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/ngeo1801"
+    },
+    {
+      "key": "e_1_3_2_87_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1016/j.oneear.2020.03.002"
+    },
+    {
+      "key": "e_1_3_2_88_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41598-017-15637-6"
+    },
+    {
+      "key": "e_1_3_2_89_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.2108783118"
+    },
+    {
+      "key": "e_1_3_2_90_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1007/s00382-021-05859-w"
+    },
+    {
+      "key": "e_1_3_2_91_2",
+      "unstructured": "O. Hoegh-Guldberg D. Jacob M. Taylor M. Bindi S. Brown I. Camilloni A. Diedhiou R. Djalante K. L. Ebi F. Engelbrecht J. Guiot Y. Hijioka S. Mehrotra A. Payne S. I. Seneviratne A. Thomas R. Warren G. Zhou “Impacts of 1.5°C Global Warming on Natural and Human Systems. In: Global Warming of 1.5°C. An IPCC Special Report on the impacts of global warming of 1.5°C above pre-industrial levels and related global greenhouse gas emission pathways in the context of strengthening the global response to the threat of climate change sustainable development and efforts to eradicate poverty.” V. Masson-Delmotte P. Zhai H.-O. Pörtner D. Roberts J. Skea P. R. Shukla A. Pirani W. Moufouma-Okia C. Péan R. Pidcock S. Connors J. B. R. Matthews Y. Chen X. Zhou M. I. Gomis E. Lonnoy T. Maycock M. Tignor T. Waterfield Eds. (2018) pp. 175–311."
+    },
+    {
+      "key": "e_1_3_2_92_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1002/2016MS000660"
+    },
+    {
+      "key": "e_1_3_2_93_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nature22901"
+    },
+    {
+      "key": "e_1_3_2_94_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nclimate1674"
+    },
+    {
+      "key": "e_1_3_2_95_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41586-021-03263-2"
+    },
+    {
+      "key": "e_1_3_2_96_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41586-021-03984-4"
+    },
+    {
+      "key": "e_1_3_2_97_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41586-022-04553-z"
+    },
+    {
+      "key": "e_1_3_2_98_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41561-019-0310-1"
+    },
+    {
+      "key": "e_1_3_2_99_2",
+      "doi-asserted-by": "crossref",
+      "unstructured": "M. Rietkerk R. Bastiaansen S. Banerjee J. Van De Koppel Evasion of tipping in complex systems through spatial pattern formation. \n374 abj0359 (2021). 10.1038/s41561-019-0310-1 abj0359",
+      "DOI": "10.1126/science.abj0359"
+    },
+    {
+      "key": "e_1_3_2_100_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.2106140118"
+    },
+    {
+      "key": "e_1_3_2_101_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nclimate1143"
+    },
+    {
+      "key": "e_1_3_2_102_2",
+      "unstructured": "M. D. Mastrandrea C. B. Field T. F. Stocker O. Edenhofer K. L. Ebi D. J. Frame H. Held E. Kriegler K. J. Mach P. R. Matschoss G.-K. Plattner G. W. Yohe F. W. Zwiers “Guidance Note for Lead Authors of the IPCC Fifth Assessment Report on Consistent Treatment of Uncertainties.” (IPCC 2010); www.ipcc.ch/site/assets/uploads/2017/08/AR5_Uncertainty_Guidance_Note.pdf."
+    },
+    {
+      "key": "e_1_3_2_103_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1016/j.tree.2016.09.011"
+    },
+    {
+      "key": "e_1_3_2_104_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1111/j.1600-0706.2012.20838.x"
+    },
+    {
+      "key": "e_1_3_2_105_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1111/j.1600-0706.2012.20838.x"
+    },
+    {
+      "key": "e_1_3_2_106_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/ncomms8727"
+    },
+    {
+      "key": "e_1_3_2_107_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1371/journal.pcbi.1002360"
+    },
+    {
+      "key": "e_1_3_2_108_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1111/oik.05172"
+    },
+    {
+      "key": "e_1_3_2_109_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1007/s12080-013-0192-6"
+    },
+    {
+      "key": "e_1_3_2_110_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1016/j.physd.2011.02.012"
+    },
+    {
+      "key": "e_1_3_2_111_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1007/s00332-012-9158-x"
+    },
+    {
+      "key": "e_1_3_2_112_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.1911902116"
+    },
+    {
+      "key": "e_1_3_2_113_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1029/2021PA004272"
+    },
+    {
+      "key": "e_1_3_2_114_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1126/sciadv.aav9396"
+    },
+    {
+      "key": "e_1_3_2_115_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/ncomms16008"
+    },
+    {
+      "key": "e_1_3_2_116_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41467-020-18934-3"
+    },
+    {
+      "key": "e_1_3_2_117_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1029/2019GL082914"
+    },
+    {
+      "key": "e_1_3_2_118_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1029/2011JD015804"
+    },
+    {
+      "key": "e_1_3_2_119_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41467-019-09863-x"
+    },
+    {
+      "key": "e_1_3_2_120_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1175/JCLI-D-15-0466.1"
+    },
+    {
+      "key": "e_1_3_2_121_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nature07809"
+    },
+    {
+      "key": "e_1_3_2_122_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1017/jog.2021.124"
+    },
+    {
+      "key": "e_1_3_2_123_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1126/sciadv.1500589"
+    },
+    {
+      "key": "e_1_3_2_124_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41558-018-0305-8"
+    },
+    {
+      "key": "e_1_3_2_125_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nature15706"
+    },
+    {
+      "key": "e_1_3_2_126_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/ncomms8016"
+    },
+    {
+      "key": "e_1_3_2_127_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1016/j.epsl.2011.12.042"
+    },
+    {
+      "key": "e_1_3_2_128_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nature17145"
+    },
+    {
+      "key": "e_1_3_2_129_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1016/j.epsl.2014.12.035"
+    },
+    {
+      "key": "e_1_3_2_130_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1016/j.epsl.2014.12.035"
+    },
+    {
+      "key": "e_1_3_2_131_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s43247-021-00289-2"
+    },
+    {
+      "key": "e_1_3_2_132_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41467-018-08195-6"
+    },
+    {
+      "key": "e_1_3_2_133_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/tc-15-5187-2021"
+    },
+    {
+      "key": "e_1_3_2_134_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/tc-16-397-2022"
+    },
+    {
+      "key": "e_1_3_2_135_2",
+      "unstructured": "E. C. Pettit C. Wild K. Alley A. Muto M. Truffer D. Benn in AGU Fall Meeting (New Orleans USA 2021)."
+    },
+    {
+      "key": "e_1_3_2_136_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41561-021-00877-z"
+    },
+    {
+      "key": "e_1_3_2_137_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41561-021-00877-z"
+    },
+    {
+      "key": "e_1_3_2_138_2",
+      "unstructured": "J. N. Bassis in APS March Meeting 2022 (Chicago 2022)."
+    },
+    {
+      "key": "e_1_3_2_139_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1126/sciadv.abd7254"
+    },
+    {
+      "key": "e_1_3_2_140_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nclimate2094"
+    },
+    {
+      "key": "e_1_3_2_141_2",
+      "doi-asserted-by": "crossref",
+      "unstructured": "R. Reese J. Garbe E. A. Hill B. Urruty K. A. Naughten O. Gagliardini G. Durand F. Gillet-chaulet D. Chandler P. M. Langebroek R. Winkelmann The stability of present-day Antarctic grounding lines — Part B: Possible commitment of regional collapse under current climate. The Cryosphere Discuss . tc-2022-105 [Preprint] (2022); .10.5194/tc-2022-105",
+      "DOI": "10.5194/tc-2022-105-supplement"
+    },
+    {
+      "key": "e_1_3_2_142_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1002/2015GL063861"
+    },
+    {
+      "key": "e_1_3_2_143_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1017/jog.2020.67"
+    },
+    {
+      "key": "e_1_3_2_144_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nclimate2226"
+    },
+    {
+      "key": "e_1_3_2_145_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1016/j.epsl.2018.04.054"
+    },
+    {
+      "key": "e_1_3_2_146_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/ngeo1889"
+    },
+    {
+      "key": "e_1_3_2_147_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nature07337"
+    },
+    {
+      "key": "e_1_3_2_148_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1002/2015PA002818"
+    },
+    {
+      "key": "e_1_3_2_149_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1002/2015PA002818"
+    },
+    {
+      "key": "e_1_3_2_150_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41558-018-0093-1"
+    },
+    {
+      "key": "e_1_3_2_151_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1029/2019EF001470"
+    },
+    {
+      "key": "e_1_3_2_152_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nclimate3262"
+    },
+    {
+      "key": "e_1_3_2_153_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1029/2008GL033639"
+    },
+    {
+      "key": "e_1_3_2_154_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/bg-12-3469-2015"
+    },
+    {
+      "key": "e_1_3_2_155_2",
+      "doi-asserted-by": "crossref",
+      "unstructured": "D. V. Khvorostyanov P. Ciais G. Krinner S. A. Zimov C. Corradi G. Guggenberger Vulnerability of permafrost carbon to global warming. Part II: Sensitivity of permafrost carbon stock to global warming. Tellus B: Chem. Phys. Meteorol . 60 265–275 (2008) .10.5194/bg-12-3469-2015",
+      "DOI": "10.1111/j.1600-0889.2007.00336.x"
+    },
+    {
+      "key": "e_1_3_2_156_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1016/j.earscirev.2019.04.023"
+    },
+    {
+      "key": "e_1_3_2_157_2",
+      "unstructured": "FAO ITPS Recarbonizing global soils – A technical manual of recommended management practices (FAO 2021); https://www.fao.org/documents/card/en/c/cb6378en"
+    },
+    {
+      "key": "e_1_3_2_158_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1111/gcb.12417"
+    },
+    {
+      "key": "e_1_3_2_159_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nclimate1955"
+    },
+    {
+      "key": "e_1_3_2_160_2",
+      "doi-asserted-by": "crossref",
+      "unstructured": "D. V. Khvorostyanov G. Krinner P. Ciais M. Heimann S. A. Zimov Vulnerability of permafrost carbon to global warming. Part I: Model description and role of heat generated by organic matter decomposition. Tellus B: Chem. Phys. Meteorol . . \n60 250–\n264 (2008). 10.1038/nclimate1955",
+      "DOI": "10.1111/j.1600-0889.2007.00333.x"
+    },
+    {
+      "key": "e_1_3_2_161_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1088/1748-9326/8/1/014026"
+    },
+    {
+      "key": "e_1_3_2_162_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/d41586-019-01313-4"
+    },
+    {
+      "key": "e_1_3_2_163_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/ncomms13043"
+    },
+    {
+      "key": "e_1_3_2_164_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41586-019-1880-1"
+    },
+    {
+      "key": "e_1_3_2_165_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1088/1748-9326/9/8/085003"
+    },
+    {
+      "key": "e_1_3_2_166_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.1415123112"
+    },
+    {
+      "key": "e_1_3_2_167_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.1719903115"
+    },
+    {
+      "key": "e_1_3_2_168_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/ngeo1573"
+    },
+    {
+      "key": "e_1_3_2_169_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41467-022-29011-2"
+    },
+    {
+      "key": "e_1_3_2_170_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41558-022-01296-7"
+    },
+    {
+      "key": "e_1_3_2_171_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.2151/jmsj.2021-015"
+    },
+    {
+      "key": "e_1_3_2_172_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/essd-12-1561-2020"
+    },
+    {
+      "key": "e_1_3_2_173_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/bg-14-3051-2017"
+    },
+    {
+      "key": "e_1_3_2_174_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1175/JCLI-D-12-00228.1"
+    },
+    {
+      "key": "e_1_3_2_175_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/gmd-13-3571-2020"
+    },
+    {
+      "key": "e_1_3_2_176_2",
+      "doi-asserted-by": "crossref",
+      "unstructured": "C. D. Koven E. A. G. Schuur C. Schädel T. J. Bohn E. J. Burke G. Chen X. Chen P. Ciais G. Grosse J. W. Harden D. J. Hayes G. Hugelius E. E. Jafarov G. Krinner P. Kuhry D. M. Lawrence A. H. MacDougall S. S. Marchenko A. D. McGuire S. M. Natali D. J. Nicolsky D. Olefeldt S. Peng V. E. Romanovsky K. M. Schaefer J. Strauss C. C. Treat M. Turetsky A simplified data-constrained approach to estimate the permafrost carbon-climate feedback. Philos. Trans. R. Soc. A 373 20140423 (2015). 26438276 20140423",
+      "DOI": "10.1098/rsta.2014.0423"
+    },
+    {
+      "key": "e_1_3_2_177_2",
+      "doi-asserted-by": "crossref",
+      "first-page": "9371",
+      "DOI": "10.1038/s41598-022-13568-5",
+      "article-title": "Exceptional warming over the Barents area",
+      "volume": "12",
+      "author": "Isaksen K.",
+      "year": "2022",
+      "unstructured": "K. Isaksen, Ø. Nordli, B. Ivanov, M. A. Ø. Køltzow, S. Aaboe, H. M. Gjelten, A. Mezghani, S. Eastwood, E. Førland, R. E. Benestad, I. Hanssen-Bauer, R. Brækkan, P. Sviashchennikov, V. Demin, A. Revina, T. Karandasheva, Exceptional warming over the Barents area. Sci. Rep. 12, 9371 (2022). 35705593",
+      "journal-title": "Sci. Rep."
+    },
+    {
+      "key": "e_1_3_2_178_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41561-021-00719-y"
+    },
+    {
+      "key": "e_1_3_2_179_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1002/2016GL070457"
+    },
+    {
+      "key": "e_1_3_2_180_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1002/2015GL064738"
+    },
+    {
+      "key": "e_1_3_2_181_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41561-021-00699-z"
+    },
+    {
+      "key": "e_1_3_2_182_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s43017-022-00263-2"
+    },
+    {
+      "key": "e_1_3_2_183_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41561-022-00896-4"
+    },
+    {
+      "key": "e_1_3_2_184_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1007/s00382-017-3957-6"
+    },
+    {
+      "key": "e_1_3_2_185_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1126/sciadv.aaz4876"
+    },
+    {
+      "key": "e_1_3_2_186_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1371/journal.pclm.0000004"
+    },
+    {
+      "key": "e_1_3_2_187_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/esd-7-327-2016"
+    },
+    {
+      "key": "e_1_3_2_188_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/esd-7-327-2016"
+    },
+    {
+      "key": "e_1_3_2_189_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41586-018-0181-4"
+    },
+    {
+      "key": "e_1_3_2_190_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1175/JCLI-D-13-00528.1"
+    },
+    {
+      "key": "e_1_3_2_191_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/ngeo218"
+    },
+    {
+      "key": "e_1_3_2_192_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1175/JCLI3814.1"
+    },
+    {
+      "key": "e_1_3_2_193_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1007/s00382-018-4522-7"
+    },
+    {
+      "key": "e_1_3_2_194_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1002/jgrd.50206"
+    },
+    {
+      "key": "e_1_3_2_195_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/ngeo2329"
+    },
+    {
+      "key": "e_1_3_2_196_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1016/j.epsl.2015.11.049"
+    },
+    {
+      "key": "e_1_3_2_197_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1029/2020GL088728"
+    },
+    {
+      "key": "e_1_3_2_198_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41467-017-01454-y"
+    },
+    {
+      "key": "e_1_3_2_199_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1016/j.cosust.2013.11.001"
+    },
+    {
+      "key": "e_1_3_2_200_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1186/1750-0680-1-6"
+    },
+    {
+      "key": "e_1_3_2_201_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/bg-18-4985-2021"
+    },
+    {
+      "key": "e_1_3_2_202_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/bg-18-4985-2021"
+    },
+    {
+      "key": "e_1_3_2_203_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1016/j.gloplacha.2015.02.004"
+    },
+    {
+      "key": "e_1_3_2_204_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1111/geb.12125"
+    },
+    {
+      "key": "e_1_3_2_205_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/bg-7-1383-2010"
+    },
+    {
+      "key": "e_1_3_2_206_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.3389/ffgc.2022.756115"
+    },
+    {
+      "key": "e_1_3_2_207_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.3389/ffgc.2022.756115"
+    },
+    {
+      "key": "e_1_3_2_208_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1111/geb.12880"
+    },
+    {
+      "key": "e_1_3_2_209_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nclimate1858"
+    },
+    {
+      "key": "e_1_3_2_210_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1088/1748-9326/8/3/034023"
+    },
+    {
+      "key": "e_1_3_2_211_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1088/1748-9326/aad74e"
+    },
+    {
+      "key": "e_1_3_2_212_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1111/1365-2745.13569"
+    },
+    {
+      "key": "e_1_3_2_213_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1088/1748-9326/11/4/040201"
+    },
+    {
+      "key": "e_1_3_2_214_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1088/1748-9326/abbeb8"
+    },
+    {
+      "key": "e_1_3_2_215_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41467-018-05457-1"
+    },
+    {
+      "key": "e_1_3_2_216_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41467-018-05457-1"
+    },
+    {
+      "key": "e_1_3_2_217_2",
+      "doi-asserted-by": "crossref",
+      "unstructured": "I. Parry P. Ritchie P. Cox Evidence of Amazon rainforest dieback in CMIP6 models. EGUsphere egusphere-2022-82 [Preprint] (2022); .",
+      "DOI": "10.5194/egusphere-2022-82"
+    },
+    {
+      "key": "e_1_3_2_218_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/ngeo555"
+    },
+    {
+      "key": "e_1_3_2_219_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1111/1365-2745.12325"
+    },
+    {
+      "key": "e_1_3_2_220_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1126/sciadv.aay1632"
+    },
+    {
+      "key": "e_1_3_2_221_2",
+      "doi-asserted-by": "crossref",
+      "unstructured": "R. A. Betts N. W. Arnell P. M. Boorman S. E. Cornell J. I. House N. R. Kaye M. P. McCarthy D. J. McNeall M. G. Sanderson A. J. Wiltshire in Understanding the Earth System S. Cornell I. C. Prentice J. House C. Downy Eds. (Cambridge Univ. Press 2012; pp. 160–201.10.1017/CBO9780511921155.009",
+      "DOI": "10.1017/CBO9780511921155.009"
+    },
+    {
+      "key": "e_1_3_2_222_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1029/2010GL043538"
+    },
+    {
+      "key": "e_1_3_2_223_2",
+      "doi-asserted-by": "crossref",
+      "unstructured": "P. Zelazowski Y. Malhi C. Huntingford S. Sitch J. B. Fisher Changes in the potential distribution of humid tropical forests on a warmer planet. Philos. Trans. R. Soc. A 369 137–160 (2011). 21115517",
+      "DOI": "10.1098/rsta.2010.0238"
+    },
+    {
+      "key": "e_1_3_2_224_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1111/gcb.13733"
+    },
+    {
+      "key": "e_1_3_2_225_2",
+      "doi-asserted-by": "crossref",
+      "unstructured": "C. Lyon E. E. Saupe C. J. Smith D. J. Hill A. P. Beckerman L. C. Stringer R. Marchant J. McKay A. Burke P. O’Higgins A. M. Dunhill B. J. Allen J. Riel-Salvatore T. Aze Climate change research and action must look beyond 2100. Glob. Chang. Biol . 28 349–361 (2021). 10.1111/gcb.1373328449261",
+      "DOI": "10.1111/gcb.15871"
+    },
+    {
+      "key": "e_1_3_2_226_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1007/s12080-013-0191-7"
+    },
+    {
+      "key": "e_1_3_2_227_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/bg-18-2511-2021"
+    },
+    {
+      "key": "e_1_3_2_228_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/bg-18-2511-2021"
+    },
+    {
+      "key": "e_1_3_2_229_2",
+      "unstructured": "Science Panel for the Amazon (SPA) “Amazon Assessment Report 2021” Nobre C Encalada A Anderson E Roca Alcazar FH Bustamante M Mena C Peña-Claros M Poveda G Rodriguez JP Saleska S Trumbore S Val AL Villa Nova L Abramovay R Alencar A Rodríguez Alzza C Armenteras D Artaxo P Athayde S Barretto Filho HT Barlow J Berenguer E Bortolotto F Costa FA Costa MH Cuvi N Fearnside PM Ferreira J Flores BM Frieri S Gatti LV Guayasamin JM Hecht S Hirota M Hoorn C Josse C Lapola DM Larrea C Larrea-Alcazar DM Lehm Ardaya Z Malhi Y Marengo JA Melack J Moraes R M Moutinho P Murmis MR Neves EG Paez B Painter L Ramos A Rosero-Peña MC Schmink M Sist P ter Steege H Val P van der Voort H Varese M Zapata-Ríos G Eds. (United Nations Sustainable Development Solutions Network 2021);"
+    },
+    {
+      "key": "e_1_3_2_230_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41586-021-03629-6"
+    },
+    {
+      "key": "e_1_3_2_231_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nature14283"
+    },
+    {
+      "key": "e_1_3_2_232_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1111/gcb.14413"
+    },
+    {
+      "key": "e_1_3_2_233_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41467-020-18996-3"
+    },
+    {
+      "key": "e_1_3_2_234_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41467-022-29619-4"
+    },
+    {
+      "key": "e_1_3_2_235_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1111/gcb.15810"
+    },
+    {
+      "key": "e_1_3_2_236_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41612-021-00162-1"
+    },
+    {
+      "key": "e_1_3_2_237_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/ngeo1741"
+    },
+    {
+      "key": "e_1_3_2_238_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.1019576108"
+    },
+    {
+      "key": "e_1_3_2_239_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1111/gcb.12798"
+    },
+    {
+      "key": "e_1_3_2_240_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41467-021-22050-1"
+    },
+    {
+      "key": "e_1_3_2_241_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1016/j.foreco.2021.119615"
+    },
+    {
+      "key": "e_1_3_2_242_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1007/s10531-018-1589-8"
+    },
+    {
+      "key": "e_1_3_2_243_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1016/j.foreco.2016.08.002"
+    },
+    {
+      "key": "e_1_3_2_244_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.0804619106"
+    },
+    {
+      "key": "e_1_3_2_245_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.0804619106"
+    },
+    {
+      "key": "e_1_3_2_246_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1140/epjs/s11734-021-00157-2"
+    },
+    {
+      "key": "e_1_3_2_247_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41561-019-0312-z"
+    },
+    {
+      "key": "e_1_3_2_248_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1016/j.gloplacha.2021.103520"
+    },
+    {
+      "key": "e_1_3_2_249_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.0901414106"
+    },
+    {
+      "key": "e_1_3_2_250_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1029/2005GL022771"
+    },
+    {
+      "key": "e_1_3_2_251_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.1603130113"
+    },
+    {
+      "key": "e_1_3_2_252_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.1603626113"
+    },
+    {
+      "key": "e_1_3_2_253_2",
+      "doi-asserted-by": "crossref",
+      "unstructured": "A. Katzenberger J. Schewe J. Pongratz A. Levermann Robust increase of Indian monsoon rainfall and its variability under future warming in CMIP-6 models. Earth Syst. Dyn . 12 367–386 (2021). 10.1073/pnas.160362611327091959",
+      "DOI": "10.5194/esd-12-367-2021"
+    },
+    {
+      "key": "e_1_3_2_254_2",
+      "doi-asserted-by": "crossref",
+      "unstructured": "A. J. Watson T. M. Lenton B. J. W. Mills Ocean deoxygenation the global phosphorus cycle and the possibility of human-caused large-scale ocean anoxia. Philos. Trans. R. Soc. A 375 20160318 (2017). 28784709 20160318",
+      "DOI": "10.1098/rsta.2016.0318"
+    },
+    {
+      "key": "e_1_3_2_255_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1029/2009GC002788"
+    },
+    {
+      "key": "e_1_3_2_256_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/esd-10-539-2019"
+    },
+    {
+      "key": "e_1_3_2_257_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/esd-8-357-2017"
+    },
+    {
+      "key": "e_1_3_2_258_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1175/JCLI-D-18-0622.1"
+    },
+    {
+      "key": "e_1_3_2_259_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41561-020-00649-1"
+    },
+    {
+      "key": "e_1_3_2_260_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41561-020-00649-1"
+    },
+    {
+      "key": "e_1_3_2_261_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1029/2020GL089143"
+    },
+    {
+      "key": "e_1_3_2_262_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41558-020-00970-y"
+    },
+    {
+      "key": "e_1_3_2_263_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41558-020-0764-6"
+    },
+    {
+      "key": "e_1_3_2_264_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41893-020-00609-y"
+    },
+    {
+      "key": "e_1_3_2_265_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.3389/ffgc.2019.00039"
+    },
+    {
+      "key": "e_1_3_2_266_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41467-021-21399-7"
+    },
+    {
+      "key": "e_1_3_2_267_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41467-020-19924-1"
+    },
+    {
+      "key": "e_1_3_2_268_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1016/j.oneear.2021.04.008"
+    },
+    {
+      "key": "e_1_3_2_269_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1016/j.baae.2020.04.003"
+    },
+    {
+      "key": "e_1_3_2_270_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/bg-17-1655-2020"
+    },
+    {
+      "key": "e_1_3_2_271_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1098/rstb.2019.0505"
+    },
+    {
+      "key": "e_1_3_2_272_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1111/gcb.15118"
+    },
+    {
+      "key": "e_1_3_2_273_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1029/2020GL087091"
+    },
+    {
+      "key": "e_1_3_2_274_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1016/j.agrformet.2020.108195"
+    },
+    {
+      "key": "e_1_3_2_275_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41558-018-0154-5"
+    },
+    {
+      "key": "e_1_3_2_276_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41558-018-0138-5"
+    },
+    {
+      "key": "e_1_3_2_277_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1016/j.ecoinf.2021.101442"
+    },
+    {
+      "key": "e_1_3_2_278_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1002/2016GL069365"
+    },
+    {
+      "key": "e_1_3_2_279_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1002/2016GL069365"
+    },
+    {
+      "key": "e_1_3_2_280_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.2101742118"
+    },
+    {
+      "key": "e_1_3_2_281_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41467-020-19208-8"
+    },
+    {
+      "key": "e_1_3_2_282_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/33385"
+    },
+    {
+      "key": "e_1_3_2_283_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.97.4.1412"
+    },
+    {
+      "key": "e_1_3_2_284_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/acp-3-1-2003"
+    },
+    {
+      "key": "e_1_3_2_285_2",
+      "unstructured": "B. Weatherhead A. Tanskanen A. Stevermer S. B. Andersen A. Arola J. Austin G. Bernhard H. Browman V. Fioletov V. Grewe J. Herman W. Josefsson A. Kylling E. Kyrö A. Lindfors D. Shindell P. Taalas D. Tarasick in “Arctic Climate Impact Assessment Report” C. Symon L. Arris B. Heal Eds. (Cambridge Univ. Press 2005; http://www.acia.uaf.edu/pages/scientific.html) pp. 151–182."
+    },
+    {
+      "key": "e_1_3_2_286_2",
+      "unstructured": "V. Eyring N. P. Gillett K. M. A. Rao R. Barimalala M. Barreiro Parrillo N. Bellouin C. Cassou P. J. Durack Y. Kosaka S. McGregor S. Min O. Morgenstern Y. Sun “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2021); https://www.ipcc.ch/report/ar6/wg1/downloads/report/IPCC_AR6_WGI_Chapter_03.pdf"
+    },
+    {
+      "key": "e_1_3_2_287_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1088/1748-9326/10/1/014005"
+    },
+    {
+      "key": "e_1_3_2_288_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41558-020-00954-y"
+    },
+    {
+      "key": "e_1_3_2_289_2",
+      "unstructured": "F. J. Doblas-Reyes A. A. Sörensson M. Almazroui A. Dosio W. J. Gutowski R. Haarsma R. Hamdi B. Hewitson W.-T. Kwon B. L. Lamptey D. Maraun T. S. Stephenson I. Takayabu L. Terray A. Turner Z. Zuo “Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change” V. Masson-Delmotte P. Zhai A. Pirani S. L. Connors C. Péan S. Berger N. Caud Y. Chen L. Goldfarb M. I. Gomis M. Huang K. Leitzell E. Lonnoy J. B. R. Matthews T. K. Maycock T. Waterfield O. Yelekçi R. Yu B. Zhou Eds. (Cambridge Univ. Press 2020)."
+    },
+    {
+      "key": "e_1_3_2_290_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.0800885105"
+    },
+    {
+      "key": "e_1_3_2_291_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/cp-7-831-2011"
+    },
+    {
+      "key": "e_1_3_2_292_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1029/95PA02087"
+    },
+    {
+      "key": "e_1_3_2_293_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1002/2016GL069676"
+    },
+    {
+      "key": "e_1_3_2_294_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/ngeo1266"
+    },
+    {
+      "key": "e_1_3_2_295_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/cp-14-1515-2018"
+    },
+    {
+      "key": "e_1_3_2_296_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nature06588"
+    },
+    {
+      "key": "e_1_3_2_297_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41467-021-25536-0"
+    },
+    {
+      "key": "e_1_3_2_298_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/nature23646"
+    },
+    {
+      "key": "e_1_3_2_299_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1002/grl.50985"
+    },
+    {
+      "key": "e_1_3_2_300_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1175/JCLI-D-12-00550.1"
+    },
+    {
+      "key": "e_1_3_2_301_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/tc-15-1097-2021"
+    },
+    {
+      "key": "e_1_3_2_302_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/essd-11-1783-2019"
+    },
+    {
+      "key": "e_1_3_2_303_2",
+      "unstructured": "W. S. Broecker T.-H. Peng Lamont-Doherty Geological Observatory Tracers in the sea (Eldigio Press 1982)."
+    },
+    {
+      "key": "e_1_3_2_304_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1002/2013GB004684"
+    },
+    {
+      "key": "e_1_3_2_305_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.5194/esd-12-797-2021"
+    },
+    {
+      "key": "e_1_3_2_306_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.2008478118"
+    },
+    {
+      "key": "e_1_3_2_307_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1126/sciadv.1700906"
+    },
+    {
+      "key": "e_1_3_2_308_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1073/pnas.1905164116"
+    },
+    {
+      "key": "e_1_3_2_309_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41558-022-01352-2"
+    },
+    {
+      "key": "e_1_3_2_310_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41558-022-01352-2"
+    },
+    {
+      "key": "e_1_3_2_311_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41467-019-08633-z"
+    },
+    {
+      "key": "e_1_3_2_312_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1038/s41559-019-1090-0"
+    },
+    {
+      "key": "e_1_3_2_313_2",
+      "doi-asserted-by": "publisher",
+      "DOI": "10.1126/sciadv.aay1052"
+    }
+  ],
+  "container-title": "Science",
+  "original-title": [],
+  "language": "en",
+  "link": [
+    {
+      "URL": "https://www.science.org/doi/pdf/10.1126/science.abn7950",
+      "content-type": "unspecified",
+      "content-version": "vor",
+      "intended-application": "similarity-checking"
+    }
+  ],
+  "deposited": {
+    "date-parts": [
+      [
+        2024,
+        1,
+        15
+      ]
+    ],
+    "date-time": "2024-01-15T23:26:17Z",
+    "timestamp": 1705361177000
+  },
+  "score": 1,
+  "resource": {
+    "primary": {
+      "URL": "https://www.science.org/doi/10.1126/science.abn7950"
+    }
+  },
+  "subtitle": [],
+  "short-title": [],
+  "issued": {
+    "date-parts": [
+      [
+        2022,
+        9,
+        9
+      ]
+    ]
+  },
+  "references-count": 312,
+  "journal-issue": {
+    "issue": "6611",
+    "published-print": {
+      "date-parts": [
+        [
+          2022,
+          9,
+          9
+        ]
+      ]
+    }
+  },
+  "alternative-id": [
+    "10.1126/science.abn7950"
+  ],
+  "URL": "http://dx.doi.org/10.1126/science.abn7950",
+  "relation": {
+    "has-review": [
+      {
+        "id-type": "doi",
+        "id": "10.3410/f.742312347.793595362",
+        "asserted-by": "object"
+      }
+    ]
+  },
+  "ISSN": [
+    "0036-8075",
+    "1095-9203"
+  ],
+  "subject": [],
+  "container-title-short": "Science",
+  "published": {
+    "date-parts": [
+      [
+        2022,
+        9,
+        9
+      ]
+    ]
+  },
+  "article-number": "eabn7950"
+}

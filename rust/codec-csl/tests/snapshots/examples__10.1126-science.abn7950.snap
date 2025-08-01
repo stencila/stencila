@@ -1,0 +1,248 @@
+---
+source: rust/codec-csl/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "doi": "10.1126/science.abn7950",
+  "abstract": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Climate tipping points occur when change in a part of the climate system becomes self-perpetuating beyond a warming threshold, leading to substantial Earth system impacts. Synthesizing paleoclimate, observational, and model-based studies, we provide a revised shortlist of global “core” tipping elements and regional “impact” tipping elements and their temperature thresholds. Current global warming of ~1.1°C above preindustrial temperatures already lies within the lower end of some tipping point uncertainty ranges. Several tipping points may be triggered in the Paris Agreement range of 1.5 to &lt;2°C global warming, with many more likely at the 2 to 3°C of warming expected on current policy trajectories. This strengthens the evidence base for urgent action to mitigate climate change and to develop improved tipping point risk assessment, early warning capability, and adaptation strategies."
+          }
+        }
+      ]
+    }
+  ],
+  "authors": [
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Stockholm Resilience Centre, Stockholm University, Stockholm, Sweden."
+        },
+        {
+          "type": "Organization",
+          "name": "Bolin Centre for Climate Research, Stockholm University, Stockholm, Sweden."
+        },
+        {
+          "type": "Organization",
+          "name": "Global Systems Institute, University of Exeter, Exeter, UK."
+        },
+        {
+          "type": "Organization",
+          "name": "Georesilience Analytics, Leatherhead, UK."
+        }
+      ],
+      "familyNames": [
+        "Armstrong",
+        "McKay"
+      ],
+      "givenNames": [
+        "David",
+        "I."
+      ]
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Stockholm Resilience Centre, Stockholm University, Stockholm, Sweden."
+        },
+        {
+          "type": "Organization",
+          "name": "Bolin Centre for Climate Research, Stockholm University, Stockholm, Sweden."
+        },
+        {
+          "type": "Organization",
+          "name": "Copernicus Institute of Sustainable Development, Utrecht University, Utrecht, Netherlands."
+        }
+      ],
+      "familyNames": [
+        "Staal"
+      ],
+      "givenNames": [
+        "Arie"
+      ]
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Global Systems Institute, University of Exeter, Exeter, UK."
+        }
+      ],
+      "familyNames": [
+        "Abrams"
+      ],
+      "givenNames": [
+        "Jesse",
+        "F."
+      ]
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Potsdam Institute for Climate Impact Research, Potsdam, Germany."
+        },
+        {
+          "type": "Organization",
+          "name": "Institute of Physics and Astronomy, University of Potsdam, Potsdam, Germany."
+        }
+      ],
+      "familyNames": [
+        "Winkelmann"
+      ],
+      "givenNames": [
+        "Ricarda"
+      ]
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Potsdam Institute for Climate Impact Research, Potsdam, Germany."
+        }
+      ],
+      "familyNames": [
+        "Sakschewski"
+      ],
+      "givenNames": [
+        "Boris"
+      ]
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Potsdam Institute for Climate Impact Research, Potsdam, Germany."
+        }
+      ],
+      "familyNames": [
+        "Loriani"
+      ],
+      "givenNames": [
+        "Sina"
+      ]
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Stockholm Resilience Centre, Stockholm University, Stockholm, Sweden."
+        },
+        {
+          "type": "Organization",
+          "name": "Bolin Centre for Climate Research, Stockholm University, Stockholm, Sweden."
+        }
+      ],
+      "familyNames": [
+        "Fetzer"
+      ],
+      "givenNames": [
+        "Ingo"
+      ]
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Stockholm Resilience Centre, Stockholm University, Stockholm, Sweden."
+        },
+        {
+          "type": "Organization",
+          "name": "Bolin Centre for Climate Research, Stockholm University, Stockholm, Sweden."
+        }
+      ],
+      "familyNames": [
+        "Cornell"
+      ],
+      "givenNames": [
+        "Sarah",
+        "E."
+      ]
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Stockholm Resilience Centre, Stockholm University, Stockholm, Sweden."
+        },
+        {
+          "type": "Organization",
+          "name": "Potsdam Institute for Climate Impact Research, Potsdam, Germany."
+        }
+      ],
+      "familyNames": [
+        "Rockström"
+      ],
+      "givenNames": [
+        "Johan"
+      ]
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Global Systems Institute, University of Exeter, Exeter, UK."
+        }
+      ],
+      "familyNames": [
+        "Lenton"
+      ],
+      "givenNames": [
+        "Timothy",
+        "M."
+      ]
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2022-09-09"
+  },
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Exceeding 1.5°C global warming could trigger multiple climate tipping points"
+      }
+    }
+  ],
+  "content": [],
+  "url": "http://dx.doi.org/10.1126/science.abn7950",
+  "isPartOf": {
+    "type": "PublicationIssue",
+    "isPartOf": {
+      "type": "PublicationVolume",
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "Science",
+        "issns": [
+          "0036-8075",
+          "1095-9203"
+        ]
+      },
+      "volumeNumber": "377"
+    },
+    "issueNumber": "6611"
+  },
+  "publisher": {
+    "type": "Organization",
+    "name": "American Association for the Advancement of Science (AAAS)"
+  }
+}

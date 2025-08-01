@@ -1,0 +1,111 @@
+---
+source: rust/codec-csl/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "doi": "10.1371/journal.pone.0295623",
+  "abstract": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The aims of this study in elite youth French players were to 1) describe the anthropometric and physical characteristics of international and non-international players from U16 to U20, and 2) compare these characteristics across age categories and playing standard (international or non-international). Altogether, 1423 players from the French Rugby Federation’s academies participated in a physical testing battery, part of its national young player development pathway. From seasons 2010 to 2020, players were assessed for anthropometric (body mass and height), off-field (bench press; isometric squat, vertical jump) and on-field physical characteristics (aerobic capacity: maximal aerobic speed [MAS]; speed: 10-m, 50-m sprint). A 2-way mixed model analysis of variance (ANOVA) was used to compare physical characteristics across age categories and playing standards. Two separate models were used for forwards and backs. A main statistical effect was observed for age category and playing standard (range p &lt; 0.05 –p &lt; 0.001). Pair-wise category comparisons showed that older players were generally taller, heavier, stronger, faster and demonstrated better aerobic qualities than younger peers. The same results were observed for INT compared with NI players while INT forwards were also taller and heavier than NI peers (range p &lt; 0.01 –p &lt; 0.001). Findings revealed a clear progression in anthropometric characteristics and physical qualities throughout the age development pathway in elite young French rugby players. Findings also identified certain physical qualities (strength, power and speed) necessary at younger levels to achieve international standard."
+          }
+        }
+      ]
+    }
+  ],
+  "authors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Peeters"
+      ],
+      "givenNames": [
+        "Alexis"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Leduc"
+      ],
+      "givenNames": [
+        "Cedric"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Piscione"
+      ],
+      "givenNames": [
+        "Julien"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Lacome"
+      ],
+      "givenNames": [
+        "Mathieu"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Carling"
+      ],
+      "givenNames": [
+        "Christopher"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Babault"
+      ],
+      "givenNames": [
+        "Nicolas"
+      ]
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2023-12-20"
+  },
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Anthropometric and physical characteristics in U16, U18 and U20 elite French youth rugby union players"
+      }
+    }
+  ],
+  "content": [],
+  "url": "http://dx.doi.org/10.1371/journal.pone.0295623",
+  "isPartOf": {
+    "type": "PublicationIssue",
+    "isPartOf": {
+      "type": "PublicationVolume",
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "PLOS ONE",
+        "issns": [
+          "1932-6203"
+        ]
+      },
+      "volumeNumber": "18"
+    },
+    "issueNumber": "12",
+    "pageStart": "e0295623"
+  },
+  "publisher": {
+    "type": "Organization",
+    "name": "Public Library of Science (PLoS)"
+  }
+}

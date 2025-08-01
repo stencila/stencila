@@ -1,0 +1,198 @@
+---
+source: rust/codec-csl/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "doi": "10.1016/j.cell.2024.01.009",
+  "authors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Xu"
+      ],
+      "givenNames": [
+        "Junjie"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Erlendsson"
+      ],
+      "givenNames": [
+        "Simon"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Singh"
+      ],
+      "givenNames": [
+        "Manvendra"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Holling"
+      ],
+      "givenNames": [
+        "G.",
+        "Aaron"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Regier"
+      ],
+      "givenNames": [
+        "Matthew"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Ibiricu"
+      ],
+      "givenNames": [
+        "Iosune"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Einstein"
+      ],
+      "givenNames": [
+        "Jenifer"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Hantak"
+      ],
+      "givenNames": [
+        "Michael",
+        "P."
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Day"
+      ],
+      "givenNames": [
+        "Gregory",
+        "S."
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Piquet"
+      ],
+      "givenNames": [
+        "Amanda",
+        "L."
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Smith"
+      ],
+      "givenNames": [
+        "Tammy",
+        "L."
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Clardy"
+      ],
+      "givenNames": [
+        "Stacey",
+        "L."
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Whiteley"
+      ],
+      "givenNames": [
+        "Alexandra",
+        "M."
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Feschotte"
+      ],
+      "givenNames": [
+        "Cédric"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Briggs"
+      ],
+      "givenNames": [
+        "John",
+        "A.G."
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Shepherd"
+      ],
+      "givenNames": [
+        "Jason",
+        "D."
+      ]
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2024-02"
+  },
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "PNMA2 forms immunogenic non-enveloped virus-like capsids associated with paraneoplastic neurological syndrome"
+      }
+    }
+  ],
+  "content": [],
+  "url": "http://dx.doi.org/10.1016/j.cell.2024.01.009",
+  "isPartOf": {
+    "type": "PublicationIssue",
+    "isPartOf": {
+      "type": "PublicationVolume",
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "Cell",
+        "issns": [
+          "0092-8674"
+        ]
+      },
+      "volumeNumber": "187"
+    },
+    "issueNumber": "4",
+    "pageStart": "831",
+    "pageEnd": "845.e19"
+  },
+  "publisher": {
+    "type": "Organization",
+    "name": "Elsevier BV"
+  }
+}

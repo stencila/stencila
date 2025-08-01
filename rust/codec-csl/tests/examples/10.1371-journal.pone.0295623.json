@@ -1,0 +1,566 @@
+{
+  "indexed": {
+    "date-parts": [
+      [
+        2025,
+        7,
+        26
+      ]
+    ],
+    "date-time": "2025-07-26T09:25:11Z",
+    "timestamp": 1753521911475,
+    "version": "3.40.5"
+  },
+  "reference-count": 33,
+  "publisher": "Public Library of Science (PLoS)",
+  "issue": "12",
+  "license": [
+    {
+      "start": {
+        "date-parts": [
+          [
+            2023,
+            12,
+            20
+          ]
+        ],
+        "date-time": "2023-12-20T00:00:00Z",
+        "timestamp": 1703030400000
+      },
+      "content-version": "vor",
+      "delay-in-days": 0,
+      "URL": "http://creativecommons.org/licenses/by/4.0/"
+    }
+  ],
+  "content-domain": {
+    "domain": [
+      "www.plosone.org"
+    ],
+    "crossmark-restriction": false
+  },
+  "abstract": "<jats:p>The aims of this study in elite youth French players were to 1) describe the anthropometric and physical characteristics of international and non-international players from U16 to U20, and 2) compare these characteristics across age categories and playing standard (international or non-international). Altogether, 1423 players from the French Rugby Federation’s academies participated in a physical testing battery, part of its national young player development pathway. From seasons 2010 to 2020, players were assessed for anthropometric (body mass and height), off-field (bench press; isometric squat, vertical jump) and on-field physical characteristics (aerobic capacity: maximal aerobic speed [MAS]; speed: 10-m, 50-m sprint). A 2-way mixed model analysis of variance (ANOVA) was used to compare physical characteristics across age categories and playing standards. Two separate models were used for forwards and backs. A main statistical effect was observed for age category and playing standard (range p &lt; 0.05 –p &lt; 0.001). Pair-wise category comparisons showed that older players were generally taller, heavier, stronger, faster and demonstrated better aerobic qualities than younger peers. The same results were observed for INT compared with NI players while INT forwards were also taller and heavier than NI peers (range p &lt; 0.01 –p &lt; 0.001). Findings revealed a clear progression in anthropometric characteristics and physical qualities throughout the age development pathway in elite young French rugby players. Findings also identified certain physical qualities (strength, power and speed) necessary at younger levels to achieve international standard.</jats:p>",
+  "DOI": "10.1371/journal.pone.0295623",
+  "type": "journal-article",
+  "created": {
+    "date-parts": [
+      [
+        2023,
+        12,
+        20
+      ]
+    ],
+    "date-time": "2023-12-20T18:30:44Z",
+    "timestamp": 1703097044000
+  },
+  "page": "e0295623",
+  "update-policy": "https://doi.org/10.1371/journal.pone.corrections_policy",
+  "source": "Crossref",
+  "is-referenced-by-count": 4,
+  "title": "Anthropometric and physical characteristics in U16, U18 and U20 elite French youth rugby union players",
+  "prefix": "10.1371",
+  "volume": "18",
+  "author": [
+    {
+      "ORCID": "https://orcid.org/0000-0002-5864-5798",
+      "authenticated-orcid": true,
+      "given": "Alexis",
+      "family": "Peeters",
+      "sequence": "first",
+      "affiliation": []
+    },
+    {
+      "given": "Cedric",
+      "family": "Leduc",
+      "sequence": "additional",
+      "affiliation": []
+    },
+    {
+      "given": "Julien",
+      "family": "Piscione",
+      "sequence": "additional",
+      "affiliation": []
+    },
+    {
+      "given": "Mathieu",
+      "family": "Lacome",
+      "sequence": "additional",
+      "affiliation": []
+    },
+    {
+      "given": "Christopher",
+      "family": "Carling",
+      "sequence": "additional",
+      "affiliation": []
+    },
+    {
+      "ORCID": "https://orcid.org/0000-0001-6563-503X",
+      "authenticated-orcid": true,
+      "given": "Nicolas",
+      "family": "Babault",
+      "sequence": "additional",
+      "affiliation": []
+    }
+  ],
+  "member": "340",
+  "published-online": {
+    "date-parts": [
+      [
+        2023,
+        12,
+        20
+      ]
+    ]
+  },
+  "reference": [
+    {
+      "issue": "13",
+      "key": "pone.0295623.ref001",
+      "doi-asserted-by": "crossref",
+      "first-page": "973",
+      "DOI": "10.2165/00007256-200333130-00003",
+      "article-title": "Applied physiology and game analysis of rugby union",
+      "volume": "33",
+      "author": "G Duthie",
+      "year": "2003",
+      "journal-title": "Sports Med"
+    },
+    {
+      "key": "pone.0295623.ref002",
+      "doi-asserted-by": "crossref",
+      "first-page": "97",
+      "DOI": "10.1007/s40279-017-0803-2",
+      "article-title": "Talent identification in sport: a systematic review",
+      "volume": "48",
+      "author": "K Johnston",
+      "year": "2018",
+      "journal-title": "Sports Med"
+    },
+    {
+      "key": "pone.0295623.ref003",
+      "doi-asserted-by": "crossref",
+      "first-page": "664",
+      "DOI": "10.3389/fpsyg.2020.00664",
+      "article-title": "Challenges and [possible] solutions to optimizing talent identification and development in sport",
+      "volume": "11",
+      "author": "K Till",
+      "year": "2020",
+      "journal-title": "Front Psychol"
+    },
+    {
+      "key": "pone.0295623.ref004",
+      "first-page": "1",
+      "article-title": "A multidimensional approach to identifying the physical qualities of male English regional academy rugby union players; considerations of position, chronological age, relative age and maturation",
+      "author": "C Owen",
+      "year": "2022",
+      "journal-title": "Eur J Sports Sci"
+    },
+    {
+      "issue": "6",
+      "key": "pone.0295623.ref005",
+      "doi-asserted-by": "crossref",
+      "first-page": "e0233796",
+      "DOI": "10.1371/journal.pone.0233796",
+      "article-title": "Testing methods and physical qualities of male age grade rugby union players: A systematic review",
+      "volume": "15",
+      "author": "C Owen",
+      "year": "2020",
+      "journal-title": "Plos one"
+    },
+    {
+      "issue": "1",
+      "key": "pone.0295623.ref006",
+      "doi-asserted-by": "crossref",
+      "first-page": "1",
+      "DOI": "10.1186/s40798-020-0236-6",
+      "article-title": "Applied Sport Science for Male Age-Grade Rugby Union in England",
+      "volume": "6",
+      "author": "K Till",
+      "year": "2020",
+      "journal-title": "Sports Med Open"
+    },
+    {
+      "issue": "9",
+      "key": "pone.0295623.ref007",
+      "doi-asserted-by": "crossref",
+      "first-page": "e0202811",
+      "DOI": "10.1371/journal.pone.0202811",
+      "article-title": "Relationships between physical qualities and key performance indicators during match-play in senior international rugby union players",
+      "volume": "13",
+      "author": "DJ Cunningham",
+      "year": "2018",
+      "journal-title": "PloS one"
+    },
+    {
+      "issue": "8",
+      "key": "pone.0295623.ref008",
+      "doi-asserted-by": "crossref",
+      "first-page": "2086",
+      "DOI": "10.1519/JSC.0000000000000872",
+      "article-title": "Anthropometric and physical profiles of English academy rugby union players",
+      "volume": "29",
+      "author": "JD Darrall-Jones",
+      "year": "2015",
+      "journal-title": "J Strength Cond Res"
+    },
+    {
+      "issue": "1",
+      "key": "pone.0295623.ref009",
+      "doi-asserted-by": "crossref",
+      "first-page": "149",
+      "DOI": "10.5114/biolsport.2022.112086",
+      "article-title": "A comparison of running and contact loads in U18 and U20 international rugby union competition",
+      "volume": "40",
+      "author": "A Peeters",
+      "year": "2022",
+      "journal-title": "Biol Sport"
+    },
+    {
+      "issue": "5",
+      "key": "pone.0295623.ref010",
+      "doi-asserted-by": "crossref",
+      "first-page": "1348",
+      "DOI": "10.1519/JSC.0000000000001234",
+      "article-title": "Anthropometric, sprint, and high-intensity running profiles of English academy rugby union players by position",
+      "volume": "30",
+      "author": "JD Darrall-Jones",
+      "year": "2016",
+      "journal-title": "J Strength Cond Res"
+    },
+    {
+      "issue": "4",
+      "key": "pone.0295623.ref011",
+      "doi-asserted-by": "crossref",
+      "first-page": "980",
+      "DOI": "10.1519/JSC.0000000000000724",
+      "article-title": "Changes in body size and physical characteristics of South African under-20 rugby union players over a 13-year period",
+      "volume": "29",
+      "author": "WP Lombard",
+      "year": "2015",
+      "journal-title": "J Strength Cond Res"
+    },
+    {
+      "issue": "6",
+      "key": "pone.0295623.ref012",
+      "doi-asserted-by": "crossref",
+      "first-page": "645",
+      "DOI": "10.1080/02640414.2017.1329546",
+      "article-title": "The physical characteristics of match-play in English schoolboy and academy rugby union",
+      "volume": "36",
+      "author": "DB Read",
+      "year": "2018",
+      "journal-title": "J Sports Sci"
+    },
+    {
+      "issue": "21",
+      "key": "pone.0295623.ref013",
+      "doi-asserted-by": "crossref",
+      "first-page": "2399",
+      "DOI": "10.1080/02640414.2018.1458589",
+      "article-title": "Bigger, stronger, faster, fitter: the differences in physical qualities of school and academy rugby union players",
+      "volume": "36",
+      "author": "B Jones",
+      "year": "2018",
+      "journal-title": "J Sports Sci"
+    },
+    {
+      "issue": "10",
+      "key": "pone.0295623.ref014",
+      "doi-asserted-by": "crossref",
+      "first-page": "2724",
+      "DOI": "10.1519/JSC.0000000000000364",
+      "article-title": "Long-term training-induced changes in sprinting speed and sprint momentum in elite rugby union players",
+      "volume": "28",
+      "author": "MJ Barr",
+      "year": "2014",
+      "journal-title": "J Strength Cond Res"
+    },
+    {
+      "issue": "9",
+      "key": "pone.0295623.ref015",
+      "doi-asserted-by": "crossref",
+      "first-page": "1205",
+      "DOI": "10.1123/ijspp.2018-0523",
+      "article-title": "The effects of augmented feedback on sprint, jump, and strength adaptations in rugby union players after a 4-week training program",
+      "volume": "14",
+      "author": "J Weakley",
+      "year": "2019",
+      "journal-title": "Int J Sports Physiol Perform"
+    },
+    {
+      "issue": "3",
+      "key": "pone.0295623.ref016",
+      "doi-asserted-by": "crossref",
+      "first-page": "277",
+      "DOI": "10.1080/14763141.2017.1391325",
+      "article-title": "Reliability of force-velocity relationships during deadlift high pull",
+      "volume": "18",
+      "author": "W Lu",
+      "year": "2019",
+      "journal-title": "Sports Biomechanics"
+    },
+    {
+      "issue": "4",
+      "key": "pone.0295623.ref017",
+      "doi-asserted-by": "crossref",
+      "first-page": "546",
+      "DOI": "10.1123/ijspp.5.4.546",
+      "article-title": "Sources of variability in iso-inertial jump assessments",
+      "volume": "5",
+      "author": "K-L Taylor",
+      "year": "2010",
+      "journal-title": "Int J Sports Physiol Perform"
+    },
+    {
+      "issue": "2",
+      "key": "pone.0295623.ref018",
+      "doi-asserted-by": "crossref",
+      "first-page": "556",
+      "DOI": "10.1519/JSC.0b013e3181ccb18d",
+      "article-title": "Validity and reliability of Optojump photoelectric cells for estimating vertical jump height",
+      "volume": "25",
+      "author": "JF Glatthorn",
+      "year": "2011",
+      "journal-title": "J Strength Cond Res"
+    },
+    {
+      "issue": "5",
+      "key": "pone.0295623.ref019",
+      "doi-asserted-by": "crossref",
+      "first-page": "641",
+      "DOI": "10.1007/s40279-015-0446-0",
+      "article-title": "Sprint running performance monitoring: methodological and practical considerations",
+      "volume": "46",
+      "author": "T Haugen",
+      "year": "2016",
+      "journal-title": "Sports Med"
+    },
+    {
+      "key": "pone.0295623.ref020",
+      "first-page": "4035",
+      "article-title": "Evaluation du rugbyman de haut niveau à partir de tests de terrain",
+      "author": "G Cazorla",
+      "year": "2004",
+      "journal-title": "Edition Sauramps médical"
+    },
+    {
+      "key": "pone.0295623.ref021",
+      "first-page": "77",
+      "article-title": "An indirect continuous running multistage field test: the Universite de Montreal track test",
+      "volume": "5",
+      "author": "L Leger",
+      "year": "1980",
+      "journal-title": "Can J Appl Sport Sci"
+    },
+    {
+      "key": "pone.0295623.ref022",
+      "first-page": "2",
+      "volume-title": "Faculté des Sciences du Sport et de l’Éducation Physique",
+      "author": "G. Cazorla",
+      "year": "2001"
+    },
+    {
+      "key": "pone.0295623.ref023",
+      "doi-asserted-by": "crossref",
+      "DOI": "10.4324/9780203771587",
+      "volume-title": "Statistical power analysis for the behavioral sciences:",
+      "author": "J. Cohen",
+      "year": "2013"
+    },
+    {
+      "issue": "12",
+      "key": "pone.0295623.ref024",
+      "doi-asserted-by": "crossref",
+      "first-page": "3342",
+      "DOI": "10.1519/JSC.0b013e318236d0c2",
+      "article-title": "Changes in body composition, hormonal status, and physical fitness in 11-, 13-, and 15-year-old Finnish regional youth soccer players during a two-year follow-up",
+      "volume": "25",
+      "author": "T Vänttinen",
+      "year": "2011",
+      "journal-title": "J Strength Cond Res"
+    },
+    {
+      "issue": "1",
+      "key": "pone.0295623.ref025",
+      "doi-asserted-by": "crossref",
+      "first-page": "90",
+      "DOI": "10.1016/j.jsams.2008.07.004",
+      "article-title": "Anthropometric and fitness characteristics of international, professional and amateur male graduate soccer players from an elite youth academy",
+      "volume": "13",
+      "author": "F Le Gall",
+      "year": "2010",
+      "journal-title": "J Sci Med Sport"
+    },
+    {
+      "issue": "15",
+      "key": "pone.0295623.ref026",
+      "doi-asserted-by": "crossref",
+      "first-page": "1683",
+      "DOI": "10.1080/02640414.2011.637950",
+      "article-title": "Body size, skeletal maturity, and functional characteristics of elite academy soccer players on entry between 1992 and 2003",
+      "volume": "30",
+      "author": "C Carling",
+      "year": "2012",
+      "journal-title": "J Sports Sci"
+    },
+    {
+      "issue": "10",
+      "key": "pone.0295623.ref027",
+      "doi-asserted-by": "crossref",
+      "first-page": "2698",
+      "DOI": "10.1519/JSC.0b013e318241382a",
+      "article-title": "Characterization of the differences in strength and power between different levels of competition in rugby union athletes",
+      "volume": "26",
+      "author": "CK Argus",
+      "year": "2012",
+      "journal-title": "J Strength Cond Res"
+    },
+    {
+      "issue": "8",
+      "key": "pone.0295623.ref028",
+      "doi-asserted-by": "crossref",
+      "first-page": "895",
+      "DOI": "10.1080/02640410600944659",
+      "article-title": "Changes in player characteristics and match activities in Bledisloe Cup rugby union from 1972 to 2004",
+      "volume": "25",
+      "author": "KL Quarrie",
+      "year": "2007",
+      "journal-title": "J Sports Sci"
+    },
+    {
+      "issue": "5",
+      "key": "pone.0295623.ref029",
+      "doi-asserted-by": "crossref",
+      "first-page": "1316",
+      "DOI": "10.1519/JSC.0000000000001965",
+      "article-title": "Organized chaos in late specialization team sports: weekly training loads of elite adolescent rugby union players",
+      "volume": "32",
+      "author": "PJ Phibbs",
+      "year": "2018",
+      "journal-title": "J Strength Cond Res"
+    },
+    {
+      "issue": "3",
+      "key": "pone.0295623.ref030",
+      "doi-asserted-by": "crossref",
+      "first-page": "400",
+      "DOI": "10.1123/ijspp.2015-0231",
+      "article-title": "The effect of body mass on the 30–15 intermittent fitness test in rugby union players",
+      "volume": "11",
+      "author": "J Darrall-Jones",
+      "year": "2016",
+      "journal-title": "Int J Sports Physiol Perform"
+    },
+    {
+      "issue": "4",
+      "key": "pone.0295623.ref031",
+      "doi-asserted-by": "crossref",
+      "first-page": "409",
+      "DOI": "10.1016/j.jsams.2016.08.017",
+      "article-title": "Player’s success prediction in rugby union: From youth performance to senior level placing",
+      "volume": "20",
+      "author": "FY Fontana",
+      "year": "2017",
+      "journal-title": "J Sci Med Sport"
+    },
+    {
+      "issue": "1",
+      "key": "pone.0295623.ref032",
+      "doi-asserted-by": "crossref",
+      "first-page": "S8",
+      "DOI": "10.1080/17461391.2011.635812",
+      "article-title": "The relationship between physical fitness and game behaviours in rugby union players",
+      "volume": "14",
+      "author": "D Smart",
+      "year": "2014",
+      "journal-title": "Eur J Sports Sci"
+    },
+    {
+      "issue": "4",
+      "key": "pone.0295623.ref033",
+      "doi-asserted-by": "crossref",
+      "first-page": "520",
+      "DOI": "10.1123/ijspp.2019-0154",
+      "article-title": "Longitudinal changes in the physical development of Elite Adolescent rugby union players: Effect of playing position and body mass change",
+      "volume": "15",
+      "author": "N Casserly",
+      "year": "2019",
+      "journal-title": "Int J Sports Physiol Perform"
+    }
+  ],
+  "container-title": "PLOS ONE",
+  "original-title": [],
+  "language": "en",
+  "link": [
+    {
+      "URL": "https://dx.plos.org/10.1371/journal.pone.0295623",
+      "content-type": "unspecified",
+      "content-version": "vor",
+      "intended-application": "similarity-checking"
+    }
+  ],
+  "deposited": {
+    "date-parts": [
+      [
+        2023,
+        12,
+        20
+      ]
+    ],
+    "date-time": "2023-12-20T18:31:01Z",
+    "timestamp": 1703097061000
+  },
+  "score": 1,
+  "resource": {
+    "primary": {
+      "URL": "https://dx.plos.org/10.1371/journal.pone.0295623"
+    }
+  },
+  "subtitle": [],
+  "editor": [
+    {
+      "given": "Emiliano",
+      "family": "Cè",
+      "sequence": "first",
+      "affiliation": []
+    }
+  ],
+  "short-title": [],
+  "issued": {
+    "date-parts": [
+      [
+        2023,
+        12,
+        20
+      ]
+    ]
+  },
+  "references-count": 33,
+  "journal-issue": {
+    "issue": "12",
+    "published-online": {
+      "date-parts": [
+        [
+          2023,
+          12,
+          20
+        ]
+      ]
+    }
+  },
+  "URL": "http://dx.doi.org/10.1371/journal.pone.0295623",
+  "relation": {},
+  "ISSN": [
+    "1932-6203"
+  ],
+  "subject": [],
+  "container-title-short": "PLoS ONE",
+  "published": {
+    "date-parts": [
+      [
+        2023,
+        12,
+        20
+      ]
+    ]
+  }
+}

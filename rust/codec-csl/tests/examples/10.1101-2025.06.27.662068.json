@@ -1,34 +1,75 @@
 {
-  "institution": [{ "name": "bioRxiv" }],
+  "institution": [
+    {
+      "name": "bioRxiv"
+    }
+  ],
   "indexed": {
-    "date-parts": [[2025, 7, 16]],
+    "date-parts": [
+      [
+        2025,
+        7,
+        16
+      ]
+    ],
     "date-time": "2025-07-16T22:10:01Z",
     "timestamp": 1752703801361,
     "version": "3.41.2"
   },
-  "posted": { "date-parts": [[2025, 7, 2]] },
+  "posted": {
+    "date-parts": [
+      [
+        2025,
+        7,
+        2
+      ]
+    ]
+  },
   "group-title": "Cell Biology",
   "reference-count": 15,
   "publisher": "Cold Spring Harbor Laboratory",
   "license": [
     {
       "start": {
-        "date-parts": [[2025, 7, 2]],
+        "date-parts": [
+          [
+            2025,
+            7,
+            2
+          ]
+        ],
         "date-time": "2025-07-02T00:00:00Z",
         "timestamp": 1751414400000
       },
       "content-version": "vor",
       "delay-in-days": 0,
-      "URL": "https:\/\/www.biorxiv.org\/about\/FAQ#license"
+      "URL": "https://www.biorxiv.org/about/FAQ#license"
     }
   ],
-  "content-domain": { "domain": [], "crossmark-restriction": false },
-  "accepted": { "date-parts": [[2025, 7, 16]] },
-  "abstract": "<jats:p>Neutrophils, the most abundant immune cells in the human circulation, play a central role in the innate immune system. While neutrophil heterogeneity is a topic of increasing research interest, few efforts have been made to model the dynamics of neutrophil population subsets. We develop a mathematical model to describe the dynamics that characterizes the states and transitions involved in the maturation of human neutrophils. We use single-cell gene expression data to identify five clusters of healthy human neutrophils, and pseudo-time analysis to inform model structure. We find that precursor neutrophils transition into immature neutrophils, which then either transition to an interferon-responsive state or continue to mature through two further states. The key model parameters are the transition rates (the inverse of a transition rate is the mean waiting time in one state before transitioning to another). In this framework, the transition from the precursor to immature state (mean time less than an hour) is more rapid than subsequent transitions (mean times more than 12 hours). Approximately a quarter of neutrophils are estimated to follow the interferon responsive path; the remainder continue along the standard maturation pathway. We use Bayesian inference to describe the variation, between individuals, in the fraction of cells within each cluster.<\/jats:p>",
-  "DOI": "10.1101\/2025.06.27.662068",
+  "content-domain": {
+    "domain": [],
+    "crossmark-restriction": false
+  },
+  "accepted": {
+    "date-parts": [
+      [
+        2025,
+        7,
+        16
+      ]
+    ]
+  },
+  "abstract": "<jats:p>Neutrophils, the most abundant immune cells in the human circulation, play a central role in the innate immune system. While neutrophil heterogeneity is a topic of increasing research interest, few efforts have been made to model the dynamics of neutrophil population subsets. We develop a mathematical model to describe the dynamics that characterizes the states and transitions involved in the maturation of human neutrophils. We use single-cell gene expression data to identify five clusters of healthy human neutrophils, and pseudo-time analysis to inform model structure. We find that precursor neutrophils transition into immature neutrophils, which then either transition to an interferon-responsive state or continue to mature through two further states. The key model parameters are the transition rates (the inverse of a transition rate is the mean waiting time in one state before transitioning to another). In this framework, the transition from the precursor to immature state (mean time less than an hour) is more rapid than subsequent transitions (mean times more than 12 hours). Approximately a quarter of neutrophils are estimated to follow the interferon responsive path; the remainder continue along the standard maturation pathway. We use Bayesian inference to describe the variation, between individuals, in the fraction of cells within each cluster.</jats:p>",
+  "DOI": "10.1101/2025.06.27.662068",
   "type": "posted-content",
   "created": {
-    "date-parts": [[2025, 7, 2]],
+    "date-parts": [
+      [
+        2025,
+        7,
+        2
+      ]
+    ],
     "date-time": "2025-07-02T13:00:16Z",
     "timestamp": 1751461216000
   },
@@ -91,108 +132,130 @@
     {
       "key": "2025070417450493000_2025.06.27.662068v1.1",
       "doi-asserted-by": "publisher",
-      "DOI": "10.1016\/j.immuni.2021.06.006"
+      "DOI": "10.1016/j.immuni.2021.06.006"
     },
     {
       "key": "2025070417450493000_2025.06.27.662068v1.2",
       "doi-asserted-by": "publisher",
-      "DOI": "10.1146\/annurev-pathmechdis-051222-015009"
+      "DOI": "10.1146/annurev-pathmechdis-051222-015009"
     },
     {
       "key": "2025070417450493000_2025.06.27.662068v1.3",
       "doi-asserted-by": "publisher",
-      "DOI": "10.1038\/s41577-022-00787-0"
+      "DOI": "10.1038/s41577-022-00787-0"
     },
     {
       "key": "2025070417450493000_2025.06.27.662068v1.4",
       "doi-asserted-by": "publisher",
-      "DOI": "10.1038\/s41590-023-01452-x"
+      "DOI": "10.1038/s41590-023-01452-x"
     },
     {
       "key": "2025070417450493000_2025.06.27.662068v1.5",
       "doi-asserted-by": "publisher",
-      "DOI": "10.1038\/s41577-019-0141-8"
+      "DOI": "10.1038/s41577-019-0141-8"
     },
     {
       "key": "2025070417450493000_2025.06.27.662068v1.6",
       "doi-asserted-by": "publisher",
-      "DOI": "10.4049\/jimmunol.2200154"
+      "DOI": "10.4049/jimmunol.2200154"
     },
     {
       "key": "2025070417450493000_2025.06.27.662068v1.7",
       "doi-asserted-by": "publisher",
-      "DOI": "10.1146\/annurev-immunol-101721-040924"
+      "DOI": "10.1146/annurev-immunol-101721-040924"
     },
     {
       "key": "2025070417450493000_2025.06.27.662068v1.8",
       "doi-asserted-by": "publisher",
-      "DOI": "10.1038\/nri1550"
+      "DOI": "10.1038/nri1550"
     },
     {
       "key": "2025070417450493000_2025.06.27.662068v1.9",
       "doi-asserted-by": "publisher",
-      "DOI": "10.1016\/j.immuni.2016.06.013"
+      "DOI": "10.1016/j.immuni.2016.06.013"
     },
     {
       "key": "2025070417450493000_2025.06.27.662068v1.10",
       "doi-asserted-by": "publisher",
-      "DOI": "10.1038\/s41598-021-97887-z"
+      "DOI": "10.1038/s41598-021-97887-z"
     },
     {
       "key": "2025070417450493000_2025.06.27.662068v1.11",
       "doi-asserted-by": "publisher",
-      "DOI": "10.1002\/psp4.12620"
+      "DOI": "10.1002/psp4.12620"
     },
     {
       "key": "2025070417450493000_2025.06.27.662068v1.12",
       "doi-asserted-by": "publisher",
-      "DOI": "10.1016\/j.bpj.2015.03.042"
+      "DOI": "10.1016/j.bpj.2015.03.042"
     },
     {
       "key": "2025070417450493000_2025.06.27.662068v1.13",
       "doi-asserted-by": "publisher",
-      "DOI": "10.1086\/670067)"
+      "DOI": "10.1086/670067)"
     },
     {
       "key": "2025070417450493000_2025.06.27.662068v1.14",
       "doi-asserted-by": "crossref",
-      "unstructured": "Erandi P\u00e9rez-Figueroa , Pablo \u00c1lvarez-Carrasco , Enrique Ortega , and Carmen Maldonado-Bernal . Neutrophils: Many ways to die. Frontiers in Immunology, 12:631821, 2021.",
-      "DOI": "10.3389\/fimmu.2021.631821"
+      "unstructured": "Erandi Pérez-Figueroa , Pablo Álvarez-Carrasco , Enrique Ortega , and Carmen Maldonado-Bernal . Neutrophils: Many ways to die. Frontiers in Immunology, 12:631821, 2021.",
+      "DOI": "10.3389/fimmu.2021.631821"
     },
     {
       "key": "2025070417450493000_2025.06.27.662068v1.15",
       "doi-asserted-by": "publisher",
-      "DOI": "10.1038\/s41590-020-0736-z"
+      "DOI": "10.1038/s41590-020-0736-z"
     }
   ],
   "container-title": [],
   "original-title": [],
   "link": [
     {
-      "URL": "https:\/\/syndication.highwire.org\/content\/doi\/10.1101\/2025.06.27.662068",
+      "URL": "https://syndication.highwire.org/content/doi/10.1101/2025.06.27.662068",
       "content-type": "unspecified",
       "content-version": "vor",
       "intended-application": "similarity-checking"
     }
   ],
   "deposited": {
-    "date-parts": [[2025, 7, 16]],
+    "date-parts": [
+      [
+        2025,
+        7,
+        16
+      ]
+    ],
     "date-time": "2025-07-16T21:41:09Z",
     "timestamp": 1752702069000
   },
   "score": 1,
   "resource": {
     "primary": {
-      "URL": "http:\/\/biorxiv.org\/lookup\/doi\/10.1101\/2025.06.27.662068"
+      "URL": "http://biorxiv.org/lookup/doi/10.1101/2025.06.27.662068"
     }
   },
   "subtitle": [],
   "short-title": [],
-  "issued": { "date-parts": [[2025, 7, 2]] },
+  "issued": {
+    "date-parts": [
+      [
+        2025,
+        7,
+        2
+      ]
+    ]
+  },
   "references-count": 15,
-  "URL": "http:\/\/dx.doi.org\/10.1101\/2025.06.27.662068",
+  "URL": "http://dx.doi.org/10.1101/2025.06.27.662068",
   "relation": {},
   "subject": [],
-  "published": { "date-parts": [[2025, 7, 2]] },
+  "published": {
+    "date-parts": [
+      [
+        2025,
+        7,
+        2
+      ]
+    ]
+  },
   "subtype": "preprint"
 }
