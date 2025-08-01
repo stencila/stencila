@@ -980,7 +980,19 @@ impl Object for OpenAlexQuery {
         name: &str,
         args: &[Value],
     ) -> Result<Value, Error> {
+        let no_args = || -> Result<(), Error> {
+            if args.is_empty() {
+                Ok(())
+            } else {
+                Err(Error::new(
+                    ErrorKind::TooManyArguments,
+                    format!("Method `{name}` takes no arguments."),
+                ))
+            }
+        };
+
         let query = match name {
+            // Core API URL building methods
             "works" | "articles" | "books" | "chapters" | "preprints" | "dissertations"
             | "reviews" | "standards" | "grants" | "retractions" | "datasets" | "authors"
             | "people" | "institutions" | "organizations" | "sources" | "journals"
@@ -1051,7 +1063,6 @@ impl Object for OpenAlexQuery {
 
                 query
             }
-
             "sort" => {
                 let (property, direction): (String, Option<String>) = from_args(args)?;
                 self.sort(&property, direction)?
@@ -1073,20 +1084,26 @@ impl Object for OpenAlexQuery {
                 self.select(fields)?
             }
             "count" => {
-                if !args.is_empty() {
-                    return Err(Error::new(
-                        ErrorKind::TooManyArguments,
-                        format!("Method `count` takes no arguments."),
-                    ));
-                }
+                no_args()?;
                 self.count()
             }
 
-            "explain" => return Ok(self.explain()),
+            // Return the generated API call
+            "explain" => {
+                no_args()?;
+                return Ok(self.explain());
+            }
 
-            "all" => return Ok(self.all()),
-            "first" => return self.first(),
-            "last" => return self.last(),
+            // Methods that execute the query and return node proxies
+            "all" | "first" | "last" => {
+                no_args()?;
+                return Ok(match name {
+                    "all" => self.all(),
+                    "first" => self.first()?,
+                    "last" => self.last()?,
+                    _ => unreachable!(),
+                });
+            }
 
             _ => {
                 return Err(Error::new(

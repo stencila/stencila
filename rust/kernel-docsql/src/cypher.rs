@@ -1162,6 +1162,17 @@ impl Object for CypherQuery {
         name: &str,
         args: &[Value],
     ) -> Result<Value, Error> {
+        let no_args = || -> Result<(), Error> {
+            if args.is_empty() {
+                Ok(())
+            } else {
+                Err(Error::new(
+                    ErrorKind::TooManyArguments,
+                    format!("Method `{name}` takes no arguments."),
+                ))
+            }
+        };
+
         let query = match name {
             // Core Cypher query building methods
             "cypher" => {
@@ -1189,12 +1200,7 @@ impl Object for CypherQuery {
                 self.select(args, kwargs)?
             }
             "count" => {
-                if !args.is_empty() {
-                    return Err(Error::new(
-                        ErrorKind::TooManyArguments,
-                        format!("Method `{name}` takes no arguments."),
-                    ));
-                }
+                no_args()?;
                 self.count()?
             }
             "sort" => {
@@ -1217,43 +1223,40 @@ impl Object for CypherQuery {
                 let (union, all) = from_args(args)?;
                 self.union(union, all)?
             }
+
             // Specify output type
             "out" => {
                 let (out,): (&str,) = from_args(args)?;
                 self.out(out)?
             }
+
             // Return the generated Cypher
-            "explain" => return Ok(self.explain()),
+            "explain" => {
+                no_args()?;
+                return Ok(self.explain());
+            }
+
             // Methods that execute the query and return values
             "text" => {
-                if !args.is_empty() {
-                    return Err(Error::new(
-                        ErrorKind::TooManyArguments,
-                        format!("Method `{name}` takes no arguments."),
-                    ));
-                }
+                no_args()?;
                 return self.text();
             }
+
             // Methods that execute the query and return node proxies
-            "all" | "one" | "first" | "last" => {
-                if !args.is_empty() {
-                    return Err(Error::new(
-                        ErrorKind::TooManyArguments,
-                        format!("Method `{name}` takes no arguments."),
-                    ));
-                }
-                let result = match name {
+            "all" | "first" | "last" => {
+                no_args()?;
+                return Ok(match name {
                     "all" => self.all(),
-                    "one" | "first" => self.first()?,
+                    "first" => self.first()?,
                     "last" => self.last()?,
                     _ => unreachable!(),
-                };
-                return Ok(result);
+                });
             }
             "slice" => {
                 let (first, last) = from_args(args)?;
                 return self.slice(first, last);
             }
+
             // Fallback to node adding a MATCH pattern for a node table
             _ => {
                 let (args, kwargs) = from_args(args)?;

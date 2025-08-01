@@ -490,17 +490,10 @@ fn try_messages(messages: &SyncMutex<Vec<ExecutionMessage>>) -> Result<(), Error
     }
 }
 
-fn extend_messages(
-    messages: &SyncMutex<Vec<ExecutionMessage>>,
-    message: String,
-) -> Result<(), Error> {
-    let Some(mut messages) = lock_messages(messages) else {
-        return Ok(());
+fn extend_messages(messages: &SyncMutex<Vec<ExecutionMessage>>, message: String) {
+    if let Some(mut messages) = lock_messages(messages) {
+        messages.push(ExecutionMessage::new(MessageLevel::Error, message));
     };
-
-    messages.push(ExecutionMessage::new(MessageLevel::Error, message));
-
-    Ok(())
 }
 
 /// Are we currently testing this crate
