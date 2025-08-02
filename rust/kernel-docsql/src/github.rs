@@ -303,14 +303,20 @@ impl GitHubQuery {
                 query.filter(arg_name, arg_value.clone())?;
             }
 
+            // GitHub search API has a limit of 5 AND/OR/NOT operators per query
+            // See https://docs.github.com/en/rest/search/search?apiVersion=2022-11-28#limitations-on-query-length
+            // Since we're using OR between each ID, we can include at most 5 IDs
+
             let ids = if testing() {
                 Some(test_ids)
             } else {
-                query.ids()
+                query.ids(5)
             };
 
-            if let Some(ids) = ids {
+            if let Some(mut ids) = ids {
                 if !ids.is_empty() {
+                    ids.truncate(5);
+
                     let filter = ids
                         .into_iter()
                         .map(|id| format!("{qualifier}:{id}"))
@@ -519,10 +525,14 @@ impl GitHubQuery {
     /// Returns a list of identifiers based on the object type:
     /// - For repositories: returns full repo names (owner/name)
     /// - For users: returns login names
+    ///
+    /// Note: Results are limited to 100 items due to GitHub API pagination limits.
+    /// When used in subqueries, only the first 5 IDs will be used due to GitHub's
+    /// limitation on boolean operators in search queries.
     #[tracing::instrument(skip(self))]
-    pub fn ids(&self) -> Option<Vec<String>> {
+    pub fn ids(&self, limit: usize) -> Option<Vec<String>> {
         let mut query = self.clone();
-        query.limit = Some(100); // GitHub API max per page
+        query.limit = Some(limit);
 
         let url = query.generate();
         let object_type = query.object_type.as_str();
