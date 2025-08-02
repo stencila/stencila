@@ -18,11 +18,6 @@ github.code(.org != "octocat")
 GET https://api.github.com/search/code?q=NOT+org:octocat
 
 
-github.code(.repo ~= "octocat")
----
-GET https://api.github.com/search/code?q=repo:/octocat/
-
-
 github.code(.path ~! "octocat")
 ---
 GET https://api.github.com/search/code?q=NOT+path:/octocat/
@@ -41,6 +36,11 @@ GET https://api.github.com/search/code?q=size:>=2000
 github.code(.language in ['python', 'r', 'javascript'])
 ---
 GET https://api.github.com/search/code?q=language:python+OR+language:r+OR+language:javascript
+
+
+github.code(.repo ~= "octocat")
+---
+The `~=` operator can not be used with the GitHub `repo` filter
 
 
 github.code(.language ^= "py")

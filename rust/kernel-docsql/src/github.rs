@@ -135,29 +135,28 @@ impl GitHubQuery {
         let (qualifier_name, property_type) = match self.object_type.as_str() {
             "code" => match property_name {
                 // See https://docs.github.com/en/search-github/searching-on-github/searching-code
-                "user" | "org" | "repo" | "path" | "filename" => {
-                    (property_name.to_string(), PropertyType::String)
+                "path" | "filename" => (property_name.to_string(), PropertyType::String),
+                "user" | "org" | "repo" | "language" | "extension" => {
+                    (property_name.to_string(), PropertyType::Enum)
                 }
-                "language" | "extension" => (property_name.to_string(), PropertyType::Enum),
                 "size" => (property_name.to_string(), PropertyType::Number),
                 _ => return unsupported_property(),
             },
             "users" => match property_name {
                 // See https://docs.github.com/en/search-github/searching-on-github/searching-users
-                "user" | "org" | "fullname" | "location" => {
-                    (property_name.to_string(), PropertyType::String)
+                "fullname" | "location" => (property_name.to_string(), PropertyType::String),
+                "type" | "user" | "org" | "language" => {
+                    (property_name.to_string(), PropertyType::Enum)
                 }
-                "type" | "language" => (property_name.to_string(), PropertyType::Enum),
                 "repos" | "followers" => (property_name.to_string(), PropertyType::Number),
                 "created" => (property_name.to_string(), PropertyType::Date),
                 _ => return unsupported_property(),
             },
             "repositories" => match property_name {
                 // See https://docs.github.com/en/search-github/searching-on-github/searching-for-repositories
-                "repo" | "user" | "org" | "license" => {
-                    (property_name.to_string(), PropertyType::String)
+                "repo" | "user" | "org" | "license" | "language" | "topic" => {
+                    (property_name.to_string(), PropertyType::Enum)
                 }
-                "language" | "topic" => (property_name.to_string(), PropertyType::Enum),
                 "size" | "followers" | "forks" | "stars" => {
                     (property_name.to_string(), PropertyType::Number)
                 }
