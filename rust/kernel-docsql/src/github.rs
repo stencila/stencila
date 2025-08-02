@@ -21,7 +21,7 @@ use kernel_jinja::{
 
 use crate::{
     NodeProxy,
-    docsql::{Operator, decode_filter},
+    docsql::{Operator, PropertyType, decode_filter},
     extend_messages,
     nodes::{all, first, get, last},
     subquery::Subquery,
@@ -132,26 +132,38 @@ impl GitHubQuery {
         };
 
         // Map the property name to the GitHub qualifier name
-        let (qualifier_name, is_boolean) = match self.object_type.as_str() {
+        let (qualifier_name, property_type) = match self.object_type.as_str() {
             "code" => match property_name {
                 // See https://docs.github.com/en/search-github/searching-on-github/searching-code
-                "user" | "org" | "repo" | "path" | "language" | "size" | "filename"
-                | "extension" => (property_name.to_string(), false),
+                "user" | "org" | "repo" | "path" | "filename" => {
+                    (property_name.to_string(), PropertyType::String)
+                }
+                "language" | "extension" => (property_name.to_string(), PropertyType::Enum),
+                "size" => (property_name.to_string(), PropertyType::Number),
                 _ => return unsupported_property(),
             },
             "users" => match property_name {
                 // See https://docs.github.com/en/search-github/searching-on-github/searching-users
-                "type" | "user" | "org" | "fullname" | "repos" | "location" | "language"
-                | "created" | "followers" => (property_name.to_string(), false),
+                "user" | "org" | "fullname" | "location" => {
+                    (property_name.to_string(), PropertyType::String)
+                }
+                "type" | "language" => (property_name.to_string(), PropertyType::Enum),
+                "repos" | "followers" => (property_name.to_string(), PropertyType::Number),
+                "created" => (property_name.to_string(), PropertyType::Date),
                 _ => return unsupported_property(),
             },
             "repositories" => match property_name {
                 // See https://docs.github.com/en/search-github/searching-on-github/searching-for-repositories
-                "repo" | "user" | "org" | "size" | "followers" | "forks" | "stars" | "created"
-                | "pushed" | "language" | "topic" | "license" => (property_name.to_string(), false),
-                // Boolean properties
+                "repo" | "user" | "org" | "license" => {
+                    (property_name.to_string(), PropertyType::String)
+                }
+                "language" | "topic" => (property_name.to_string(), PropertyType::Enum),
+                "size" | "followers" | "forks" | "stars" => {
+                    (property_name.to_string(), PropertyType::Number)
+                }
+                "created" | "pushed" => (property_name.to_string(), PropertyType::Date),
                 "is_public" | "is_private" | "is_mirror" | "is_template" | "is_archived" => {
-                    (property_name.replace("_", ":"), true)
+                    (property_name.replace("_", ":"), PropertyType::Boolean)
                 }
                 _ => return unsupported_property(),
             },
@@ -159,8 +171,18 @@ impl GitHubQuery {
             _ => return unsupported_property(),
         };
 
+        // Check that operator is valid for property
+        if !property_type.is_valid(operator) {
+            return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                format!(
+                    "The `{operator}` operator can not be used with the GitHub `{property_name}` filter"
+                ),
+            ));
+        }
+
         // Handle boolean operators
-        if is_boolean {
+        if property_type == PropertyType::Boolean {
             if arg_value.kind() == ValueKind::Bool {
                 let filter = if arg_value.is_true() {
                     qualifier_name

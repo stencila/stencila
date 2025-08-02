@@ -109,6 +109,35 @@ impl fmt::Display for Operator {
     }
 }
 
+/// The type of a property
+///
+/// Used to specify which operators can be used with it
+#[allow(unused)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PropertyType {
+    Boolean,
+    Number,
+    Date,
+    Enum,
+    String,
+    Array,
+}
+
+impl PropertyType {
+    /// Is an operator valid for a particular operator?
+    pub fn is_valid(&self, op: Operator) -> bool {
+        use Operator::*;
+        match self {
+            PropertyType::Boolean => matches!(op, Eq | Neq),
+            PropertyType::Number => matches!(op, Eq | Neq | Lt | Lte | Gt | Gte | In),
+            PropertyType::Date => matches!(op, Eq | Neq | Lt | Lte | Gt | Gte | In),
+            PropertyType::Enum => matches!(op, Eq | Neq | In),
+            PropertyType::String => !matches!(op, Has),
+            PropertyType::Array => matches!(op, Has),
+        }
+    }
+}
+
 /// Names added to the Jinja environment with `env.add_global`
 ///
 /// Maintaining this list is tedious. However, it is only

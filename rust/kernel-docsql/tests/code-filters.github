@@ -28,16 +28,6 @@ github.code(.path ~! "octocat")
 GET https://api.github.com/search/code?q=NOT+path:/octocat/
 
 
-github.code(.language ^= "py")
----
-GET https://api.github.com/search/code?q=language:/^py/
-
-
-github.code(.extension $= "py")
----
-GET https://api.github.com/search/code?q=extension:/py$/
-
-
 github.code(.size < 10)
 ---
 GET https://api.github.com/search/code?q=size:<10
@@ -51,6 +41,11 @@ GET https://api.github.com/search/code?q=size:>=2000
 github.code(.language in ['python', 'r', 'javascript'])
 ---
 GET https://api.github.com/search/code?q=language:python+OR+language:r+OR+language:javascript
+
+
+github.code(.language ^= "py")
+---
+The `^=` operator can not be used with the GitHub `language` filter
 
 
 github.code(.language in 'python')
