@@ -40,12 +40,12 @@ GET https://api.github.com/search/code?q=language:python+OR+language:r+OR+langua
 
 github.code(.repo ~= "octocat")
 ---
-The `~=` operator can not be used with the GitHub `repo` filter
+The ~= operator can not be used with the GitHub `repo` filter
 
 
 github.code(.language ^= "py")
 ---
-The `^=` operator can not be used with the GitHub `language` filter
+The ^= operator can not be used with the GitHub `language` filter
 
 
 github.code(.language in 'python')
@@ -55,7 +55,7 @@ The `in` operator can only be used with sequence values
 
 github.code(.language has "bar")
 ---
-The `has` operator is not supported for GitHub queries
+The has operator is not supported for GitHub queries
 
 
 github.code(.foo = "bar")

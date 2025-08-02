@@ -8,6 +8,21 @@ github.repositories(search = "machine learning")
 GET https://api.github.com/search/repositories?q=machine+learning
 
 
+github.repositories(.name ~= "awesome")
+---
+GET https://api.github.com/search/repositories?q=awesome+in:name
+
+
+github.repositories(.description ~= "Hello World")
+---
+GET https://api.github.com/search/repositories?q=Hello+World+in:description
+
+
+github.repositories(.readme ~= "Hello World")
+---
+GET https://api.github.com/search/repositories?q=Hello+World+in:readme
+
+
 github.repositories(.repo == "octocat/Hello-World")
 ---
 GET https://api.github.com/search/repositories?q=repo:octocat/Hello-World
@@ -135,7 +150,7 @@ Unsupported filter property for GitHub repositories: visibility
 
 github.repositories(.description has "api")
 ---
-The `has` operator is not supported for GitHub queries
+The has operator is not supported for GitHub queries
 
 
 github.repositories(.language in "python")

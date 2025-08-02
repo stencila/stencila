@@ -8,6 +8,21 @@ github.users(search = "octocat")
 GET https://api.github.com/search/users?q=octocat
 
 
+github.users(.name ~= "octocat")
+---
+GET https://api.github.com/search/users?q=octocat+in:name
+
+
+github.users(.login ~= "octo")
+---
+GET https://api.github.com/search/users?q=octo+in:login
+
+
+github.users(.email ~= "github.com")
+---
+GET https://api.github.com/search/users?q=github.com+in:email
+
+
 github.users(.type == "user")
 ---
 GET https://api.github.com/search/users?q=type:user
@@ -123,14 +138,19 @@ github.users(.created < "2011-01-01")
 GET https://api.github.com/search/users?q=created:<2011-01-01
 
 
+github.users(.login ~! "octo")
+---
+The GitHub `login` filter does not support the ~! operator
+
+
 github.users(.email == "test@example.com")
 ---
-Unsupported filter property for GitHub users: email
+The GitHub `email` filter does not support the == operator
 
 
 github.users(.company has "octocat")
 ---
-The `has` operator is not supported for GitHub queries
+The has operator is not supported for GitHub queries
 
 
 github.users(.language in "python")

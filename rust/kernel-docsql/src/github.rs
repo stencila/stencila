@@ -117,10 +117,32 @@ impl GitHubQuery {
         if operator == Operator::Has {
             return Err(Error::new(
                 ErrorKind::InvalidOperation,
-                format!("The `{operator}` operator is not supported for GitHub queries"),
+                format!("The {operator} operator is not supported for GitHub queries"),
             ));
         }
 
+        // Handle a filter property implemented via an `in:` qualifier
+        let mut in_property = || match operator {
+            Operator::Match => {
+                if let Some(needle) = arg_value.as_str() {
+                    self.filters.push(format!("{needle} in:{property_name}"));
+                    Ok(())
+                } else {
+                    Err(Error::new(
+                        ErrorKind::InvalidOperation,
+                        format!("The {operator} operator only supports string values"),
+                    ))
+                }
+            }
+            _ => Err(Error::new(
+                ErrorKind::InvalidOperation,
+                format!(
+                    "The GitHub `{property_name}` filter does not support the {operator} operator"
+                ),
+            )),
+        };
+
+        // Return an error for an unsupported property
         let unsupported_property = || {
             Err(Error::new(
                 ErrorKind::InvalidOperation,
@@ -144,6 +166,7 @@ impl GitHubQuery {
             },
             "users" => match property_name {
                 // See https://docs.github.com/en/search-github/searching-on-github/searching-users
+                "name" | "login" | "email" => return in_property(),
                 "fullname" | "location" => (property_name.to_string(), PropertyType::String),
                 "type" | "user" | "org" | "language" => {
                     (property_name.to_string(), PropertyType::Enum)
@@ -154,6 +177,7 @@ impl GitHubQuery {
             },
             "repositories" => match property_name {
                 // See https://docs.github.com/en/search-github/searching-on-github/searching-for-repositories
+                "name" | "description" | "readme" => return in_property(),
                 "repo" | "user" | "org" | "license" | "language" | "topic" => {
                     (property_name.to_string(), PropertyType::Enum)
                 }
@@ -175,7 +199,7 @@ impl GitHubQuery {
             return Err(Error::new(
                 ErrorKind::InvalidOperation,
                 format!(
-                    "The `{operator}` operator can not be used with the GitHub `{property_name}` filter"
+                    "The {operator} operator can not be used with the GitHub `{property_name}` filter"
                 ),
             ));
         }
