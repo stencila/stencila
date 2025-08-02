@@ -1,0 +1,28 @@
+{
+  "total_count": 7286,
+  "incomplete_results": false,
+  "items": [
+    {
+      "login": "awslabs",
+      "id": 3299148,
+      "node_id": "MDEyOk9yZ2FuaXphdGlvbjMyOTkxNDg=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3299148?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/awslabs",
+      "html_url": "https://github.com/awslabs",
+      "followers_url": "https://api.github.com/users/awslabs/followers",
+      "following_url": "https://api.github.com/users/awslabs/following{/other_user}",
+      "gists_url": "https://api.github.com/users/awslabs/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/awslabs/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/awslabs/subscriptions",
+      "organizations_url": "https://api.github.com/users/awslabs/orgs",
+      "repos_url": "https://api.github.com/users/awslabs/repos",
+      "events_url": "https://api.github.com/users/awslabs/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/awslabs/received_events",
+      "type": "Organization",
+      "user_view_type": "public",
+      "site_admin": false,
+      "score": 1.0
+    }
+  ]
+}

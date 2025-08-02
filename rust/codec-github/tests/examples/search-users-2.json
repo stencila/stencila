@@ -1,0 +1,28 @@
+{
+  "total_count": 1,
+  "incomplete_results": false,
+  "items": [
+    {
+      "login": "openai",
+      "id": 14957082,
+      "node_id": "MDEyOk9yZ2FuaXphdGlvbjE0OTU3MDgy",
+      "avatar_url": "https://avatars.githubusercontent.com/u/14957082?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/openai",
+      "html_url": "https://github.com/openai",
+      "followers_url": "https://api.github.com/users/openai/followers",
+      "following_url": "https://api.github.com/users/openai/following{/other_user}",
+      "gists_url": "https://api.github.com/users/openai/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/openai/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/openai/subscriptions",
+      "organizations_url": "https://api.github.com/users/openai/orgs",
+      "repos_url": "https://api.github.com/users/openai/repos",
+      "events_url": "https://api.github.com/users/openai/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/openai/received_events",
+      "type": "Organization",
+      "user_view_type": "public",
+      "site_admin": false,
+      "score": 1.0
+    }
+  ]
+}

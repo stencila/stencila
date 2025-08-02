@@ -1,6 +1,7 @@
 use serde::Deserialize;
 
 use crate::search_code::CodeSearchItem;
+use crate::search_users::UserSearchItem;
 
 /// The response from GitHub search API endpoints
 ///
@@ -19,3 +20,6 @@ pub struct SearchResponse<T> {
 
 /// Response for search code API calls
 pub type SearchCodeResponse = SearchResponse<CodeSearchItem>;
+
+/// Response for search users API calls
+pub type SearchUsersResponse = SearchResponse<UserSearchItem>;

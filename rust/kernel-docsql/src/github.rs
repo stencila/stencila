@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex as SyncMutex};
 
-use codec_github::{SearchCodeResponse, request, search_url};
+use codec_github::{SearchCodeResponse, SearchUsersResponse, request, search_url};
 use kernel_jinja::{
     kernel::{
         common::{
@@ -19,7 +19,7 @@ use kernel_jinja::{
 
 use crate::{
     NodeProxy,
-    docsql::{decode_filter, Operator},
+    docsql::{Operator, decode_filter},
     extend_messages,
     nodes::{all, first, get, last},
     subquery::Subquery,
@@ -95,7 +95,7 @@ impl GitHubQuery {
     fn filter(&mut self, arg_name: &str, arg_value: Value) -> Result<(), Error> {
         // Handle subquery filters (e.g., ...authors(.name ~= "Smith"))
         if arg_name == "_" {
-            if let Some(subquery) = arg_value.downcast_object_ref::<Subquery>() {
+            if let Some(_subquery) = arg_value.downcast_object_ref::<Subquery>() {
                 //return self.subquery_filters(subquery);
             }
         }
@@ -135,6 +135,12 @@ impl GitHubQuery {
                 // See https://docs.github.com/en/search-github/searching-on-github/searching-code for list
                 "user" | "org" | "repo" | "path" | "language" | "size" | "filename"
                 | "extension" => property_name,
+                _ => return unsupported_property(),
+            },
+            "users" => match property_name {
+                // See https://docs.github.com/en/search-github/searching-on-github/searching-users for list
+                "type" | "user" | "org" | "fullname" | "repos" | "location" | "language"
+                | "created" | "followers" => property_name,
                 _ => return unsupported_property(),
             },
             // Error for all others
@@ -300,6 +306,11 @@ impl GitHubQuery {
                         let nodes = response.items.into_iter().map(Node::from).collect();
                         (response.total_count, nodes)
                     }
+                    "users" => {
+                        let response = request::<SearchUsersResponse>(&url).await?;
+                        let nodes = response.items.into_iter().map(Node::from).collect();
+                        (response.total_count, nodes)
+                    }
                     _ => {
                         bail!("Fetching of GitHub `{object_type}` objects not yet enabled")
                     }
@@ -395,7 +406,7 @@ impl Object for GitHubQuery {
 
         let query = match name {
             // Core API URL building methods
-            "code" => {
+            "code" | "users" => {
                 let object_type = name;
 
                 let mut query = self.object_type(object_type);
