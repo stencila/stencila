@@ -1,23 +1,23 @@
 github.code("function", ...part_of(.stars > 1000))
 ---
-GET https://api.github.com/search/code?q=function+repo:stencila/stencila
+GET https://api.github.com/search/code?q=function+repo:pandas-dev/pandas+OR+repo:pola-rs/polars
 
 
 github.code("function", ...part_of(.language = "rust", .stars > 100))
 ---
-GET https://api.github.com/search/code?q=function+repo:stencila/stencila
+GET https://api.github.com/search/code?q=function+repo:pandas-dev/pandas+OR+repo:pola-rs/polars
 
 
 github.code("function", ...part_of(.topic = "machine-learning", .forks > 50))
 ---
-GET https://api.github.com/search/code?q=function+repo:stencila/stencila
+GET https://api.github.com/search/code?q=function+repo:pandas-dev/pandas+OR+repo:pola-rs/polars
 
 
 github.code("test", ...part_of(.created > "2023-01-01"))
 ---
-GET https://api.github.com/search/code?q=test+repo:stencila/stencila
+GET https://api.github.com/search/code?q=test+repo:pandas-dev/pandas+OR+repo:pola-rs/polars
 
 
 github.code("import", ...part_of(.foo = "bar"))
 ---
-Filter `foo` in subquery `part_of` is not supported for GitHub `code`
+Unsupported filter property for GitHub repositories: foo
