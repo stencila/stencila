@@ -1,0 +1,18 @@
+github.repositories("AI", ...owned_by(.followers > 10000))
+---
+GET https://api.github.com/search/repositories?q=AI+(user:octocat+OR+org:octocat+OR+user:github+OR+org:github)
+
+
+github.repositories("library", ...owned_by(.type = "org", .repos > 500))
+---
+GET https://api.github.com/search/repositories?q=library+(org:github+OR+org:microsoft)
+
+
+github.repositories("framework", ...owned_by(.type = "user", .followers > 5000, .created < "2010-01-01"))
+---
+GET https://api.github.com/search/repositories?q=framework+user:octocat
+
+
+github.repositories("tool", ...owned_by(.foo = "bar"))
+---
+Filter `foo` in subquery `owned_by` is not supported for GitHub `repositories`

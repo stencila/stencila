@@ -25,6 +25,7 @@ use crate::{
     extend_messages,
     nodes::{all, first, get, last},
     subquery::Subquery,
+    testing,
 };
 
 /// Add GitHub functions to the Jinja environment
@@ -81,6 +82,20 @@ impl GitHubQuery {
         }
     }
 
+    /// Create a new GitHub query for an object type
+    pub fn clone_for(&self, object_type: &str) -> Self {
+        Self {
+            messages: self.messages.clone(),
+            object_type: object_type.into(),
+            filters: Vec::new(),
+            search: None,
+            sort: None,
+            order: None,
+            skip: None,
+            limit: None,
+        }
+    }
+
     /// Whether this is the base query for which no method has been called yet
     pub fn is_base(&self) -> bool {
         self.object_type.is_empty()
@@ -97,8 +112,8 @@ impl GitHubQuery {
     fn filter(&mut self, arg_name: &str, arg_value: Value) -> Result<(), Error> {
         // Handle subquery filters (e.g., ...authors(.name ~= "Smith"))
         if arg_name == "_" {
-            if let Some(_subquery) = arg_value.downcast_object_ref::<Subquery>() {
-                //return self.subquery_filters(subquery);
+            if let Some(subquery) = arg_value.downcast_object_ref::<Subquery>() {
+                return self.subquery_filters(subquery);
             }
         }
 
@@ -272,6 +287,284 @@ impl GitHubQuery {
         Ok(())
     }
 
+    /// Add filters specified in a subquery
+    fn subquery_filters(&mut self, subquery: &Subquery) -> Result<(), Error> {
+        let object_type = self.object_type.clone();
+        let subquery_name = subquery.name.as_str();
+
+        let unsupported_subquery = || {
+            Err(Error::new(
+                ErrorKind::InvalidOperation,
+                format!("Subquery `{subquery_name}` is not supported for GitHub `{object_type}`"),
+            ))
+        };
+
+        let unsupported_property = |property: &str| {
+            Err(Error::new(
+                ErrorKind::InvalidOperation,
+                format!(
+                    "Filter `{property}` in subquery `{subquery_name}` is not supported for GitHub `{object_type}`"
+                ),
+            ))
+        };
+
+        // Handle subqueries based on object type and subquery name
+        match object_type.as_str() {
+            "code" => match subquery_name {
+                "part_of" => {
+                    // Query for repositories and then filter code by those repos
+                    let mut repo_query = self.clone_for("repositories");
+
+                    for (arg_name, arg_value) in &subquery.args {
+                        let (property, _operator) = decode_filter(arg_name);
+                        match property {
+                            "search" | "name" => {
+                                repo_query.filter(arg_name, arg_value.clone())?;
+                            }
+                            "user" | "org" | "owner" => {
+                                // Map to GitHub's user/org filters
+                                let filter_name = if property == "owner" {
+                                    if let Some(_value) = arg_value.as_str() {
+                                        // Try both user and org
+                                        repo_query.filter(
+                                            &format!("user{}", &arg_name[property.len()..]),
+                                            arg_value.clone(),
+                                        )?;
+                                        repo_query.filter(
+                                            &format!("org{}", &arg_name[property.len()..]),
+                                            arg_value.clone(),
+                                        )?;
+                                    }
+                                    continue;
+                                } else {
+                                    arg_name
+                                };
+                                repo_query.filter(filter_name, arg_value.clone())?;
+                            }
+                            // Repository properties that can be filtered
+                            "language" | "license" | "topic" | "stars" | "forks" | "size"
+                            | "created" | "pushed" => {
+                                repo_query.filter(arg_name, arg_value.clone())?;
+                            }
+                            _ => return unsupported_property(property),
+                        }
+                    }
+
+                    // Execute the query to get repository IDs
+                    let repo_ids = if testing() {
+                        // Return mock repository IDs for testing
+                        if repo_query.search.is_some() || !repo_query.filters.is_empty() {
+                            Some(vec!["stencila/stencila".to_string()])
+                        } else {
+                            None
+                        }
+                    } else {
+                        repo_query.ids()
+                    };
+
+                    if let Some(repo_ids) = repo_ids {
+                        // Add repo filters
+                        let repo_filters: Vec<String> = repo_ids
+                            .into_iter()
+                            .map(|repo| format!("repo:{repo}"))
+                            .collect();
+
+                        if !repo_filters.is_empty() {
+                            let filter = if repo_filters.len() == 1 {
+                                repo_filters[0].clone()
+                            } else {
+                                format!("({})", repo_filters.join(" OR "))
+                            };
+                            self.filters.push(filter);
+                        }
+                    }
+                }
+                "owned_by" | "owners" => {
+                    // Query for users and then filter code by those users/orgs
+                    let mut user_query = self.clone_for("users");
+                    let mut has_type_filter = false;
+                    let mut type_value = "";
+
+                    for (arg_name, arg_value) in &subquery.args {
+                        let (property, _operator) = decode_filter(arg_name);
+                        match property {
+                            "search" | "name" | "login" => {
+                                user_query.filter(arg_name, arg_value.clone())?;
+                            }
+                            "type" => {
+                                if let Some(value) = arg_value.as_str() {
+                                    has_type_filter = true;
+                                    type_value = value;
+                                    user_query.filter(arg_name, arg_value.clone())?;
+                                }
+                            }
+                            "followers" | "repos" | "created" => {
+                                user_query.filter(arg_name, arg_value.clone())?;
+                            }
+                            _ => return unsupported_property(property),
+                        }
+                    }
+
+                    // Execute the query to get user IDs
+                    let user_ids = if testing() {
+                        // Return mock user IDs for testing
+                        if user_query.search.is_some() || !user_query.filters.is_empty() {
+                            match (has_type_filter, type_value) {
+                                (true, "user") | (true, "User") => {
+                                    Some(vec!["octocat".to_string()])
+                                }
+                                (true, "org") | (true, "organization") | (true, "Organization") => {
+                                    Some(vec!["github".to_string(), "microsoft".to_string()])
+                                }
+                                _ => Some(vec!["octocat".to_string(), "github".to_string()]),
+                            }
+                        } else {
+                            None
+                        }
+                    } else {
+                        user_query.ids()
+                    };
+
+                    if let Some(user_ids) = user_ids {
+                        // Build filters based on whether we know the type
+                        let owner_filters: Vec<String> = if has_type_filter {
+                            match type_value {
+                                "user" | "User" => user_ids
+                                    .into_iter()
+                                    .map(|id| format!("user:{id}"))
+                                    .collect(),
+                                "org" | "organization" | "Organization" => {
+                                    user_ids.into_iter().map(|id| format!("org:{id}")).collect()
+                                }
+                                _ => {
+                                    // Unknown type, try both
+                                    user_ids
+                                        .into_iter()
+                                        .flat_map(|id| {
+                                            vec![format!("user:{id}"), format!("org:{id}")]
+                                        })
+                                        .collect()
+                                }
+                            }
+                        } else {
+                            // No type specified, need to check both user and org
+                            user_ids
+                                .into_iter()
+                                .flat_map(|id| vec![format!("user:{id}"), format!("org:{id}")])
+                                .collect()
+                        };
+
+                        if !owner_filters.is_empty() {
+                            let filter = if owner_filters.len() == 1 {
+                                owner_filters[0].clone()
+                            } else {
+                                format!("({})", owner_filters.join(" OR "))
+                            };
+                            self.filters.push(filter);
+                        }
+                    }
+                }
+                _ => return unsupported_subquery(),
+            },
+            "repositories" => match subquery_name {
+                "owned_by" | "owners" => {
+                    // Query for users and then filter repositories by those users/orgs
+                    let mut user_query = self.clone_for("users");
+                    let mut has_type_filter = false;
+                    let mut type_value = "";
+
+                    for (arg_name, arg_value) in &subquery.args {
+                        let (property, _operator) = decode_filter(arg_name);
+                        match property {
+                            "search" | "name" | "login" => {
+                                user_query.filter(arg_name, arg_value.clone())?;
+                            }
+                            "type" => {
+                                if let Some(value) = arg_value.as_str() {
+                                    has_type_filter = true;
+                                    type_value = value;
+                                    user_query.filter(arg_name, arg_value.clone())?;
+                                }
+                            }
+                            "followers" | "repos" | "created" => {
+                                user_query.filter(arg_name, arg_value.clone())?;
+                            }
+                            _ => return unsupported_property(property),
+                        }
+                    }
+
+                    // Execute the query to get user IDs
+                    let user_ids = if testing() {
+                        // Return mock user IDs for testing
+                        if user_query.search.is_some() || !user_query.filters.is_empty() {
+                            match (has_type_filter, type_value) {
+                                (true, "user") | (true, "User") => {
+                                    Some(vec!["octocat".to_string()])
+                                }
+                                (true, "org") | (true, "organization") | (true, "Organization") => {
+                                    Some(vec!["github".to_string(), "microsoft".to_string()])
+                                }
+                                _ => Some(vec!["octocat".to_string(), "github".to_string()]),
+                            }
+                        } else {
+                            None
+                        }
+                    } else {
+                        user_query.ids()
+                    };
+
+                    if let Some(user_ids) = user_ids {
+                        // Build filters based on whether we know the type
+                        let owner_filters: Vec<String> = if has_type_filter {
+                            match type_value {
+                                "user" | "User" => user_ids
+                                    .into_iter()
+                                    .map(|id| format!("user:{id}"))
+                                    .collect(),
+                                "org" | "organization" | "Organization" => {
+                                    user_ids.into_iter().map(|id| format!("org:{id}")).collect()
+                                }
+                                _ => {
+                                    // Unknown type, try both
+                                    user_ids
+                                        .into_iter()
+                                        .flat_map(|id| {
+                                            vec![format!("user:{id}"), format!("org:{id}")]
+                                        })
+                                        .collect()
+                                }
+                            }
+                        } else {
+                            // No type specified, need to check both user and org
+                            user_ids
+                                .into_iter()
+                                .flat_map(|id| vec![format!("user:{id}"), format!("org:{id}")])
+                                .collect()
+                        };
+
+                        if !owner_filters.is_empty() {
+                            let filter = if owner_filters.len() == 1 {
+                                owner_filters[0].clone()
+                            } else {
+                                format!("({})", owner_filters.join(" OR "))
+                            };
+                            self.filters.push(filter);
+                        }
+                    }
+                }
+                _ => return unsupported_subquery(),
+            },
+            _ => {
+                return Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    format!("Subqueries are not supported for GitHub `{object_type}`"),
+                ));
+            }
+        }
+
+        Ok(())
+    }
+
     /// Set the search term
     fn search(&self, term: &str) -> Self {
         let mut query = self.clone();
@@ -417,6 +710,56 @@ impl GitHubQuery {
             Err(error) => {
                 self.add_error_message(format!("GitHub API request failed: {error}"));
                 Vec::new()
+            }
+        }
+    }
+
+    /// Get identifiers from the query results
+    ///
+    /// Returns a list of identifiers based on the object type:
+    /// - For repositories: returns full repo names (owner/name)
+    /// - For users: returns login names
+    #[tracing::instrument(skip(self))]
+    pub fn ids(&self) -> Option<Vec<String>> {
+        let mut query = self.clone();
+        query.limit = Some(100); // GitHub API max per page
+
+        let url = query.generate();
+        let object_type = query.object_type.as_str();
+
+        let result: Result<Vec<String>> = task::block_in_place(|| {
+            runtime::Handle::current().block_on(async {
+                Ok(match object_type {
+                    "repositories" => {
+                        let response = request::<SearchRepositoriesResponse>(&url).await?;
+                        response
+                            .items
+                            .into_iter()
+                            .map(|repo| repo.full_name)
+                            .collect()
+                    }
+                    "users" => {
+                        let response = request::<SearchUsersResponse>(&url).await?;
+                        response.items.into_iter().map(|user| user.login).collect()
+                    }
+                    _ => {
+                        bail!("Getting IDs for GitHub `{object_type}` objects not yet enabled")
+                    }
+                })
+            })
+        });
+
+        match result {
+            Ok(ids) => {
+                if ids.is_empty() {
+                    None
+                } else {
+                    Some(ids)
+                }
+            }
+            Err(error) => {
+                self.add_error_message(format!("GitHub API request for IDs failed: {error}"));
+                None
             }
         }
     }

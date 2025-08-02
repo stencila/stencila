@@ -1,0 +1,18 @@
+github.code("function", ...owned_by(.followers > 1000))
+---
+GET https://api.github.com/search/code?q=function+(user:octocat+OR+org:octocat+OR+user:github+OR+org:github)
+
+
+github.code("function", ...owned_by(.type = "org", .repos > 100))
+---
+GET https://api.github.com/search/code?q=function+(org:github+OR+org:microsoft)
+
+
+github.code("function", ...owned_by(.type = "user", .followers > 5000, .created < "2010-01-01"))
+---
+GET https://api.github.com/search/code?q=function+user:octocat
+
+
+github.code("import", ...owned_by(.foo = "bar"))
+---
+Filter `foo` in subquery `owned_by` is not supported for GitHub `code`

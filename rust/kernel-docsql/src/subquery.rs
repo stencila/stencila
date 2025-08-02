@@ -51,8 +51,7 @@ pub(super) fn add_subquery_functions(env: &mut Environment) {
         "published_by",
         "funded_by",
         "part_of",
-        "topics",
-        "owners",
+        "owned_by",
     ] {
         env.add_global(
             ["_", name].concat(),
