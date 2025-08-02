@@ -3,6 +3,11 @@ github.repositories("octocat")
 GET https://api.github.com/search/repositories?q=octocat
 
 
+github.repos("octocat")
+---
+GET https://api.github.com/search/repositories?q=octocat
+
+
 github.repositories(search = "machine learning")
 ---
 GET https://api.github.com/search/repositories?q=machine+learning

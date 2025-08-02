@@ -648,8 +648,11 @@ impl Object for GitHubQuery {
 
         let query = match name {
             // Core API URL building methods
-            "code" | "users" | "repositories" => {
-                let object_type = name;
+            "code" | "users" | "repositories" | "repos" => {
+                let object_type = match name {
+                    "repos" => "repositories",
+                    _ => name,
+                };
 
                 let mut query = self.object_type(object_type);
 
