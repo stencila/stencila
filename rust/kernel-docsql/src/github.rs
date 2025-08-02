@@ -1,6 +1,8 @@
 use std::sync::{Arc, Mutex as SyncMutex};
 
-use codec_github::{SearchCodeResponse, SearchUsersResponse, request, search_url};
+use codec_github::{
+    SearchCodeResponse, SearchRepositoriesResponse, SearchUsersResponse, request, search_url,
+};
 use kernel_jinja::{
     kernel::{
         common::{
@@ -130,26 +132,54 @@ impl GitHubQuery {
         };
 
         // Map the property name to the GitHub qualifier name
-        let qualifier_name = match self.object_type.as_str() {
+        let (qualifier_name, is_boolean) = match self.object_type.as_str() {
             "code" => match property_name {
-                // See https://docs.github.com/en/search-github/searching-on-github/searching-code for list
+                // See https://docs.github.com/en/search-github/searching-on-github/searching-code
                 "user" | "org" | "repo" | "path" | "language" | "size" | "filename"
-                | "extension" => property_name,
+                | "extension" => (property_name.to_string(), false),
                 _ => return unsupported_property(),
             },
             "users" => match property_name {
-                // See https://docs.github.com/en/search-github/searching-on-github/searching-users for list
+                // See https://docs.github.com/en/search-github/searching-on-github/searching-users
                 "type" | "user" | "org" | "fullname" | "repos" | "location" | "language"
-                | "created" | "followers" => property_name,
+                | "created" | "followers" => (property_name.to_string(), false),
+                _ => return unsupported_property(),
+            },
+            "repositories" => match property_name {
+                // See https://docs.github.com/en/search-github/searching-on-github/searching-for-repositories
+                "repo" | "user" | "org" | "size" | "followers" | "forks" | "stars" | "created"
+                | "pushed" | "language" | "topic" | "license" => (property_name.to_string(), false),
+                // Boolean properties
+                "is_public" | "is_private" | "is_mirror" | "is_template" | "is_archived" => {
+                    (property_name.replace("_", ":"), true)
+                }
                 _ => return unsupported_property(),
             },
             // Error for all others
             _ => return unsupported_property(),
         };
 
+        // Handle boolean operators
+        if is_boolean {
+            if arg_value.kind() == ValueKind::Bool {
+                let filter = if arg_value.is_true() {
+                    qualifier_name
+                } else {
+                    format!("NOT {qualifier_name}")
+                };
+                self.filters.push(filter);
+                return Ok(());
+            } else {
+                return Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    format!("The `{property_name}` filter can only be used with boolean values"),
+                ));
+            }
+        }
+
         // Handle the `in` operator by expanding it into qualifiers joined by OR
         if operator == Operator::In {
-            if matches!(arg_value.kind(), ValueKind::Seq)
+            if arg_value.kind() == ValueKind::Seq
                 && let Ok(iter) = arg_value.try_iter()
             {
                 let joined = iter
@@ -251,11 +281,18 @@ impl GitHubQuery {
 
     /// Generate the GitHub API URL
     pub fn generate(&self) -> String {
-        let mut query = self.search.as_deref().unwrap_or(".").to_string();
+        let mut query = self.search.clone().unwrap_or_default();
 
         for filter in &self.filters {
-            query.push(' ');
+            if !query.is_empty() {
+                query.push(' ');
+            }
             query.push_str(filter);
+        }
+
+        if query.is_empty() {
+            // There has to be something in the q parameter
+            query.push('.');
         }
 
         let mut params = vec![("q", query)];
@@ -308,6 +345,11 @@ impl GitHubQuery {
                     }
                     "users" => {
                         let response = request::<SearchUsersResponse>(&url).await?;
+                        let nodes = response.items.into_iter().map(Node::from).collect();
+                        (response.total_count, nodes)
+                    }
+                    "repositories" => {
+                        let response = request::<SearchRepositoriesResponse>(&url).await?;
                         let nodes = response.items.into_iter().map(Node::from).collect();
                         (response.total_count, nodes)
                     }
@@ -406,7 +448,7 @@ impl Object for GitHubQuery {
 
         let query = match name {
             // Core API URL building methods
-            "code" | "users" => {
+            "code" | "users" | "repositories" => {
                 let object_type = name;
 
                 let mut query = self.object_type(object_type);
