@@ -93,14 +93,10 @@ pub struct Concept {
 impl From<Author> for Person {
     fn from(author: Author) -> Self {
         // Try to parse given_names and family_names from display_name
-        let (given_names, family_names) = if let Some(ref display_name) = author.display_name {
-            if let Ok(parsed_person) = Person::from_str(display_name) {
-                (parsed_person.given_names, parsed_person.family_names)
-            } else {
-                (None, None)
-            }
+        let parsed = if let Some(display_name) = &author.display_name {
+            Person::from_str(display_name).ok()
         } else {
-            (None, None)
+            None
         };
 
         // Map display_name_alternatives to alternate_names, avoiding duplicates with display_name
@@ -159,15 +155,14 @@ impl From<Author> for Person {
         Person {
             id: Some(author.id),
             orcid: crate::strip_orcid_prefix(author.orcid),
-            given_names,
-            family_names,
             affiliations,
             options: Box::new(PersonOptions {
                 name: author.display_name,
                 alternate_names,
                 ..Default::default()
             }),
-            ..Default::default()
+            // Parsed names may include given names, family name, honorifics etc
+            ..parsed.unwrap_or_default()
         }
     }
 }
