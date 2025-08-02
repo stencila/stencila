@@ -1,0 +1,20 @@
+---
+source: rust/codec-github/tests/examples.rs
+expression: node
+---
+{
+  "type": "SoftwareSourceCode",
+  "name": "gitignore",
+  "repository": "https://github.com/github/gitignore",
+  "version": "main",
+  "programmingLanguage": "",
+  "description": "A collection of useful .gitignore templates",
+  "url": "https://api.github.com/repos/github/gitignore",
+  "keywords": [
+    "git",
+    "gitignore"
+  ],
+  "licenses": [
+    "CC0-1.0"
+  ]
+}

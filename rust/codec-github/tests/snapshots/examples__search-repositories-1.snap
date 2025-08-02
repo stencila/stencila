@@ -1,0 +1,22 @@
+---
+source: rust/codec-github/tests/examples.rs
+expression: node
+---
+{
+  "type": "SoftwareSourceCode",
+  "name": "Hello-World",
+  "repository": "https://github.com/octocat/Hello-World",
+  "version": "master",
+  "programmingLanguage": "C",
+  "description": "This your first repo!",
+  "url": "https://api.github.com/repos/octocat/Hello-World",
+  "keywords": [
+    "octocat",
+    "atom",
+    "electron",
+    "api"
+  ],
+  "licenses": [
+    "MIT"
+  ]
+}

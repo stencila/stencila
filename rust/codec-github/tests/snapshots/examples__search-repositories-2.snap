@@ -1,0 +1,28 @@
+---
+source: rust/codec-github/tests/examples.rs
+expression: node
+---
+{
+  "type": "SoftwareSourceCode",
+  "name": "public-apis",
+  "repository": "https://github.com/public-apis/public-apis",
+  "version": "master",
+  "programmingLanguage": "Python",
+  "description": "A collective list of free APIs",
+  "url": "https://api.github.com/repos/public-apis/public-apis",
+  "keywords": [
+    "api",
+    "apis",
+    "dataset",
+    "development",
+    "free",
+    "json",
+    "lists",
+    "open-source",
+    "public",
+    "public-api",
+    "public-apis",
+    "resources",
+    "software"
+  ]
+}

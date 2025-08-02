@@ -14,11 +14,13 @@ pub mod client;
 pub mod responses;
 pub mod search_code;
 pub mod search_users;
+pub mod search_repos;
 
 pub use client::{request, search_url};
-pub use responses::{SearchCodeResponse, SearchUsersResponse};
+pub use responses::{SearchCodeResponse, SearchUsersResponse, SearchRepositoriesResponse};
 pub use search_code::CodeSearchItem;
 pub use search_users::UserSearchItem;
+pub use search_repos::RepositorySearchItem;
 
 /// A codec for decoding GitHub REST API responses to Stencila Schema nodes
 ///
@@ -89,6 +91,14 @@ pub fn from_value_any(value: &serde_json::Value) -> Result<Node> {
     {
         let user_item: UserSearchItem = serde_json::from_value(value.clone())?;
         Ok(user_item.into())
+    }
+    // Check if it's a repository search item
+    else if value.get("full_name").is_some()
+        && value.get("owner").is_some()
+        && value.get("html_url").is_some()
+    {
+        let repo_item: RepositorySearchItem = serde_json::from_value(value.clone())?;
+        Ok(repo_item.into())
     } else {
         bail!("Unsupported GitHub API response format")
     }
