@@ -85,7 +85,7 @@ GET https://api.github.com/search/repositories?q=language:python
 
 github.repositories(.language != "java")
 ---
-GET https://api.github.com/search/repositories?q=NOT+language:java
+GET https://api.github.com/search/repositories?q=.+NOT+language:java
 
 
 github.repositories(.language in ['python', 'javascript', 'rust'])
@@ -110,7 +110,7 @@ GET https://api.github.com/search/repositories?q=is:archived
 
 github.repositories(.is_mirror == false)
 ---
-GET https://api.github.com/search/repositories?q=NOT+is:mirror
+GET https://api.github.com/search/repositories?q=.+NOT+is:mirror
 
 
 github.repositories(.is_template == true)
@@ -120,7 +120,7 @@ GET https://api.github.com/search/repositories?q=is:template
 
 github.repositories(.is_public == false)
 ---
-GET https://api.github.com/search/repositories?q=NOT+is:public
+GET https://api.github.com/search/repositories?q=.+NOT+is:public
 
 
 github.repositories(.is_private == true)

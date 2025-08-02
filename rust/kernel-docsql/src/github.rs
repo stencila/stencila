@@ -335,9 +335,11 @@ impl GitHubQuery {
             query.push_str(filter);
         }
 
+        // Avoid the error "The search contains only logical operators (AND / OR / NOT) without any search terms."
         if query.is_empty() {
-            // There has to be something in the q parameter
             query.push('.');
+        } else if query.starts_with("NOT") || query.starts_with("OR") {
+            query.insert_str(0, ". ");
         }
 
         let mut params = vec![("q", query)];

@@ -35,7 +35,7 @@ GET https://api.github.com/search/users?q=type:org
 
 github.users(.type != "org")
 ---
-GET https://api.github.com/search/users?q=NOT+type:org
+GET https://api.github.com/search/users?q=.+NOT+type:org
 
 
 github.users(.repos > 10)
@@ -75,7 +75,7 @@ GET https://api.github.com/search/users?q=location:/san/
 
 github.users(.location ~! "california")
 ---
-GET https://api.github.com/search/users?q=NOT+location:/california/
+GET https://api.github.com/search/users?q=.+NOT+location:/california/
 
 
 github.users(.location ^= "new")

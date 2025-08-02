@@ -15,12 +15,12 @@ GET https://api.github.com/search/code?q=user:octocat
 
 github.code(.org != "octocat")
 ---
-GET https://api.github.com/search/code?q=NOT+org:octocat
+GET https://api.github.com/search/code?q=.+NOT+org:octocat
 
 
 github.code(.path ~! "octocat")
 ---
-GET https://api.github.com/search/code?q=NOT+path:/octocat/
+GET https://api.github.com/search/code?q=.+NOT+path:/octocat/
 
 
 github.code(.size < 10)
