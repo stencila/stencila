@@ -118,6 +118,11 @@ openalex.works(.has_pmcid = true, .has_abstract = true, .has_references = false)
 GET https://api.openalex.org/works?filter=has_abstract:true,has_pmcid:true,has_references:false
 
 
+openalex.works(.has_pmcid > 0)
+---
+The `>` operator can not be used with the OpenAlex `has_pmcid` filter
+
+
 openalex.works(.foo = "bar")
 ---
 Unsupported filter property for OpenAlex works: foo

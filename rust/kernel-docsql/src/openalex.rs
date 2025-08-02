@@ -21,7 +21,7 @@ use kernel_jinja::{
 };
 
 use crate::{
-    docsql::{decode_filter, encode_filter, Operator},
+    docsql::{Operator, PropertyType, decode_filter, encode_filter},
     extend_messages,
     nodes::{NodeProxy, all, first, get, last},
     subquery::Subquery,
@@ -133,9 +133,15 @@ impl OpenAlexQuery {
 
         // Error early for unhandled operators with advice
         let message = match operator {
-            Operator::NoMatch => Some("Negated search operator ~! is not supported for OpenAlex queries."),
-            Operator::Starts => Some("Starts-with operator ^= is not supported for OpenAlex queries. Perhaps use search operator ~= instead."),
-            Operator::Ends => Some("Ends-with operator $= is not supported for OpenAlex queries. Perhaps use search operator ~= instead."),
+            Operator::NoMatch => {
+                Some("Negated search operator ~! is not supported for OpenAlex queries.")
+            }
+            Operator::Starts => Some(
+                "Starts-with operator ^= is not supported for OpenAlex queries. Perhaps use search operator ~= instead.",
+            ),
+            Operator::Ends => Some(
+                "Ends-with operator $= is not supported for OpenAlex queries. Perhaps use search operator ~= instead.",
+            ),
             Operator::Has => Some("The `has` operator is not supported for OpenAlex queries"),
             _ => None,
         };
@@ -309,6 +315,29 @@ impl OpenAlexQuery {
                 _ => return unsupported_property(),
             };
 
+        // Check that operator is valid for property
+        let property_type = if property_name.starts_with("is_") || property_name.starts_with("has_")
+        {
+            PropertyType::Boolean
+        } else if property_name.ends_with("_count")
+            || property_name.ends_with("_index")
+            || matches!(property_name, "impact_factor" | "year")
+        {
+            PropertyType::Number
+        } else if matches!(property_name, "date") {
+            PropertyType::Date
+        } else {
+            PropertyType::String
+        };
+        if !property_type.is_valid(operator) {
+            return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                format!(
+                    "The `{operator}` operator can not be used with the OpenAlex `{property_name}` filter"
+                ),
+            ));
+        }
+
         // Transform the minijinja argument value into a string
         let mut filter_value = format_filter_value(&arg_value);
 
@@ -424,7 +453,10 @@ impl OpenAlexQuery {
                             }
                             _ => return unsupported_property(property),
                         };
-                        self.filter(&encode_filter(property, operator.as_str()), arg_value.clone())?;
+                        self.filter(
+                            &encode_filter(property, operator.as_str()),
+                            arg_value.clone(),
+                        )?;
                     }
 
                     if let Some(ids) = ids_maybe(ids_query, "A5100335963", "A0000000000") {
@@ -451,7 +483,10 @@ impl OpenAlexQuery {
                             }
                             _ => return unsupported_property(property),
                         };
-                        self.filter(&encode_filter(property, operator.as_str()), arg_value.clone())?;
+                        self.filter(
+                            &encode_filter(property, operator.as_str()),
+                            arg_value.clone(),
+                        )?;
                     }
 
                     if let Some(ids) = ids_maybe(ids_query, "I1294671590", "I0000000000") {
@@ -506,7 +541,10 @@ impl OpenAlexQuery {
                             }
                             _ => return unsupported_property(property),
                         };
-                        self.filter(&encode_filter(property, operator.as_str()), arg_value.clone())?;
+                        self.filter(
+                            &encode_filter(property, operator.as_str()),
+                            arg_value.clone(),
+                        )?;
                     }
 
                     if let Some(ids) = ids_maybe(ids_query, "W2582743722", "W0000000000") {
@@ -535,7 +573,10 @@ impl OpenAlexQuery {
                             }
                             _ => return unsupported_property(property),
                         };
-                        self.filter(&encode_filter(property, operator.as_str()), arg_value.clone())?;
+                        self.filter(
+                            &encode_filter(property, operator.as_str()),
+                            arg_value.clone(),
+                        )?;
                     }
 
                     if let Some(ids) = ids_maybe(ids_query, "S1336409049", "S0000000000") {
@@ -609,7 +650,10 @@ impl OpenAlexQuery {
                             }
                             _ => return unsupported_property(property),
                         };
-                        self.filter(&encode_filter(property, operator.as_str()), arg_value.clone())?;
+                        self.filter(
+                            &encode_filter(property, operator.as_str()),
+                            arg_value.clone(),
+                        )?;
                     }
 
                     if let Some(ids) = ids_maybe(ids_query, "I1294671590", "I0000000000") {
