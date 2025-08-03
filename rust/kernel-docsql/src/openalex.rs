@@ -456,7 +456,7 @@ impl OpenAlexQuery {
                     }
 
                     if let Some(ids) = ids_maybe(ids_query, "authors") {
-                        self.filters.push(format!("authorships.author:{ids}"));
+                        self.filters.push(format!("authorships.author.id:{ids}"));
                     }
                 }
                 "affiliations" => {
