@@ -698,6 +698,29 @@ impl OpenAlexQuery {
         Ok(())
     }
 
+    /// Apply IDs as a filter
+    ///
+    /// If a query is provided, it will be used to fetch IDs. Otherwise, a new query
+    /// for the entity_type will be created from self.
+    fn apply_ids_filter(&mut self, query: Option<OpenAlexQuery>, entity_type: &str, filter_name: &str) -> Result<(), Error> {
+        let ids = if testing() {
+            Some(get_test_ids(entity_type).join("|"))
+        } else {
+            let q = query.unwrap_or_else(|| self.clone_for(entity_type));
+            q.ids().map(|ids| ids.join("|"))
+        };
+
+        if let Some(ids) = ids {
+            if !ids.is_empty() {
+                self.filters.push(format!("{filter_name}:{ids}"));
+            } else {
+                // Use a non-existent ID so the filter is applied but returns empty results
+                self.filters.push(format!("{filter_name}:{}", get_default_id(entity_type)));
+            }
+        }
+        Ok(())
+    }
+
     /// Set the search term
     fn search(&self, term: &str) -> Self {
         let mut query = self.clone();
@@ -1061,6 +1084,34 @@ impl Object for OpenAlexQuery {
             }
         };
 
+        // Apply method arguments to the query
+        let apply_method_args = |query: &mut OpenAlexQuery| -> Result<(), Error> {
+            let (arg, kwargs): (Option<Value>, Kwargs) = from_args(args)?;
+            if let Some(value) = arg {
+                if let Some(value) = value.as_str() {
+                    query.search = Some(value.into());
+                }
+            }
+            for arg in kwargs.args() {
+                let value: Value = kwargs.get(arg)?;
+                match arg {
+                    "search" => {
+                        if let Some(value) = value.as_str() {
+                            query.search = Some(value.into());
+                        }
+                    }
+                    "like" => {
+                        return Err(Error::new(
+                            ErrorKind::UnknownMethod,
+                            "Semantic similarity filtering is not available for OpenAlex, use `search` instead",
+                        ));
+                    }
+                    _ => query.apply_filter(arg, value)?,
+                }
+            }
+            Ok(())
+        };
+
         let query = match name {
             // Core API URL building methods
             "works" | "articles" | "books" | "chapters" | "preprints" | "dissertations"
@@ -1099,39 +1150,62 @@ impl Object for OpenAlexQuery {
                     }
                 };
 
-                let mut query = self.clone_for(entity_type);
+                // Check if this is a chained call
+                if !self.is_base() {
+                    // Define valid chains and their filter names
+                    let (valid_chain, filter_name) = match (self.entity_type.as_str(), entity_type) {
+                        ("authors", "works") => (true, "authorships.author.id"),
+                        ("institutions", "works") => (true, "authorships.institutions.id"),
+                        ("institutions", "authors") => (true, "affiliations.institution.id"),
+                        ("sources", "works") => (true, "primary_location.source.id"),
+                        ("publishers", "works") => (true, "primary_location.source.host_organization"),
+                        ("publishers", "sources") => (true, "host_organization_lineage"),
+                        ("funders", "works") => (true, "grants.funder"),
+                        _ => (false, ""),
+                    };
 
-                // Add filter for the type of work
-                if let Some(value) = type_filter {
-                    query.filters.push(["type:", value].concat());
-                }
-
-                // Handle `search` and `like` arguments and apply all others as filters
-                let (arg, kwargs): (Option<Value>, Kwargs) = from_args(args)?;
-                if let Some(value) = arg {
-                    if let Some(value) = value.as_str() {
-                        query = query.search(value)
+                    if !valid_chain {
+                        return Err(Error::new(
+                            ErrorKind::InvalidOperation,
+                            format!(
+                                "Cannot query for `{}` within `{}`",
+                                entity_type, self.entity_type
+                            ),
+                        ));
                     }
-                }
-                for arg in kwargs.args() {
-                    let value: Value = kwargs.get(arg)?;
-                    match arg {
-                        "search" => {
-                            if let Some(value) = value.as_str() {
-                                query = query.search(value)
-                            }
-                        }
-                        "like" => {
-                            return Err(Error::new(
-                                ErrorKind::UnknownMethod,
-                                "Semantic similarity filtering is not available for OpenAlex, use `search` instead",
-                            ));
-                        }
-                        _ => query.apply_filter(arg, value)?,
-                    }
-                }
 
-                query
+                    let mut query = self.clone_for(entity_type);
+
+                    // Add filter for the type of work if specified
+                    if let Some(value) = type_filter {
+                        query.filters.push(["type:", value].concat());
+                    }
+
+                    // Add filters based on the parent query's IDs
+                    query.apply_ids_filter(
+                        Some((**self).clone()),
+                        &self.entity_type,
+                        filter_name,
+                    )?;
+
+                    // Apply any additional filters from the method arguments
+                    apply_method_args(&mut query)?;
+
+                    query
+                } else {
+                    // Normal (non-chained) call
+                    let mut query = self.clone_for(entity_type);
+
+                    // Add filter for the type of work
+                    if let Some(value) = type_filter {
+                        query.filters.push(["type:", value].concat());
+                    }
+
+                    // Apply method arguments
+                    apply_method_args(&mut query)?;
+
+                    query
+                }
             }
             "sort" => {
                 let (property, direction): (String, Option<String>) = from_args(args)?;

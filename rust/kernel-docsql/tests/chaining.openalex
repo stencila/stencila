@@ -1,0 +1,78 @@
+openalex.authors("smith").works()
+---
+GET https://api.openalex.org/works?filter=authorships.author.id:A5100335963|A2289985273
+
+
+openalex.authors("smith").works("climate change")
+---
+GET https://api.openalex.org/works?filter=authorships.author.id:A5100335963|A2289985273&search=climate+change
+
+
+openalex.authors(.h_index > 50).works("machine learning", .year > 2020)
+---
+GET https://api.openalex.org/works?filter=authorships.author.id:A5100335963|A2289985273,publication_year:>2020&search=machine+learning
+
+
+openalex.institutions("harvard").authors()
+---
+GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590|I97018004
+
+
+openalex.institutions(.type = "education").authors(.has_orcid = true)
+---
+GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590|I97018004,has_orcid:true
+
+
+openalex.institutions("MIT").works(.is_oa = true)
+---
+GET https://api.openalex.org/works?filter=authorships.institutions.id:I1294671590|I97018004,is_oa:true
+
+
+openalex.sources("nature").works()
+---
+GET https://api.openalex.org/works?filter=primary_location.source.id:S1336409049|S124911201
+
+
+openalex.sources(.issn = "0028-0836").works(.year >= 2023)
+---
+GET https://api.openalex.org/works?filter=primary_location.source.id:S1336409049|S124911201,publication_year:>2022
+
+
+openalex.publishers("elsevier").works()
+---
+GET https://api.openalex.org/works?filter=primary_location.source.host_organization:P4310320595|P4310320609
+
+
+openalex.publishers("springer").sources()
+---
+GET https://api.openalex.org/sources?filter=host_organization_lineage:P4310320595|P4310320609
+
+
+openalex.funders("nsf").works()
+---
+GET https://api.openalex.org/works?filter=grants.funder:F4320306076|F4320306084
+
+
+openalex.funders(.ror = "021nxhr62").works(.cited_by_count > 100)
+---
+GET https://api.openalex.org/works?filter=grants.funder:F4320306076|F4320306084,cited_by_count:>100
+
+
+openalex.works().authors()
+---
+Cannot query for `authors` within `works`
+
+
+openalex.authors().funders()
+---
+Cannot query for `funders` within `authors`
+
+
+openalex.sources().publishers()
+---
+Cannot query for `publishers` within `sources`
+
+
+openalex.authors("smith").authors("jones")
+---
+Cannot query for `authors` within `authors`
