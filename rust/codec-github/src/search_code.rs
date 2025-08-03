@@ -268,14 +268,24 @@ pub struct TextMatchItem {
 
 impl From<CodeSearchItem> for SoftwareSourceCode {
     fn from(code: CodeSearchItem) -> Self {
+        use codec::schema::PropertyValueOrString;
+
+        // Store the GitHub file URL in both id and identifiers for compatibility
+        let github_url = code.html_url.clone();
+
         SoftwareSourceCode {
+            // Use the GitHub URL as the id, consistent with, for example, the OpenAlex codec
+            id: Some(github_url.clone()),
             name: code.name,
             programming_language: code.language.unwrap_or_default(),
             path: Some(code.path),
             repository: Some(code.repository.html_url),
             version: Some(StringOrNumber::String(code.sha)),
             options: Box::new(SoftwareSourceCodeOptions {
+                // Store the API URL in url field for reference
                 url: Some(code.url),
+                // Also store the GitHub URL in identifiers array
+                identifiers: Some(vec![PropertyValueOrString::String(github_url)]),
                 ..Default::default()
             }),
             ..Default::default()

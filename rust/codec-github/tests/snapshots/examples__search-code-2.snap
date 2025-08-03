@@ -4,10 +4,14 @@ expression: node
 ---
 {
   "type": "SoftwareSourceCode",
+  "id": "https://github.com/hausdorff/snapchat-fs/blob/acb6af5d133fd5a5d0880a38425e1bf0e23d0069/sfs",
   "name": "sfs",
   "repository": "https://github.com/hausdorff/snapchat-fs",
   "path": "sfs",
   "version": "0d98c05f1186e111ef8a634cd42f884ca0d6db08",
   "programmingLanguage": "",
+  "identifiers": [
+    "https://github.com/hausdorff/snapchat-fs/blob/acb6af5d133fd5a5d0880a38425e1bf0e23d0069/sfs"
+  ],
   "url": "https://api.github.com/repositories/15043424/contents/sfs?ref=acb6af5d133fd5a5d0880a38425e1bf0e23d0069"
 }

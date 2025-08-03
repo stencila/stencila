@@ -1,13 +1,18 @@
 ---
 source: rust/codec-github/tests/examples.rs
+assertion_line: 34
 expression: node
 ---
 {
   "type": "SoftwareSourceCode",
+  "id": "https://github.com/szilard/benchm-ml/blob/941dfd4ebab3854b3a49fd70c192ecf21e483267/2-rf/1.R",
   "name": "1.R",
   "repository": "https://github.com/szilard/benchm-ml",
   "path": "2-rf/1.R",
   "version": "53dd0181339539c3ec9a716c4e439c597409cbff",
   "programmingLanguage": "",
+  "identifiers": [
+    "https://github.com/szilard/benchm-ml/blob/941dfd4ebab3854b3a49fd70c192ecf21e483267/2-rf/1.R"
+  ],
   "url": "https://api.github.com/repositories/33015554/contents/2-rf/1.R?ref=941dfd4ebab3854b3a49fd70c192ecf21e483267"
 }
