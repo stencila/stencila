@@ -1,11 +1,11 @@
-github.users("octocat").repositories()
+github.users("octocat").repositories("cats")
 ---
-GET https://api.github.com/search/repositories?q=user:octocat+OR+user:github
+GET https://api.github.com/search/repositories?q=cats+user:octocat+OR+user:github
 
 
-github.users("octocat").repositories(.stars > 10)
+github.users("octocat").repositories("cats", .stars > 10)
 ---
-GET https://api.github.com/search/repositories?q=user:octocat+OR+user:github+stars:>10
+GET https://api.github.com/search/repositories?q=cats+user:octocat+OR+user:github+stars:>10
 
 
 github.users("octocat").code("function")
