@@ -176,6 +176,25 @@ pub async fn from_str_with_info(
         .await
 }
 
+/// Get the codec that supports a given identifier
+pub fn codec_for_identifier(identifier: &str) -> Option<Box<dyn Codec>> {
+    let path = PathBuf::from(identifier);
+    if path.exists() {
+        let format = Format::from_path(&path);
+        get(None, Some(&format), Some(CodecDirection::Decode)).ok()
+    } else if ArxivCodec::supports_identifier(identifier) {
+        Some(Box::new(ArxivCodec))
+    } else if OpenRxivCodec::supports_identifier(identifier) {
+        Some(Box::new(OpenRxivCodec))
+    } else if PmcOaCodec::supports_identifier(identifier) {
+        Some(Box::new(PmcOaCodec))
+    } else if DoiCodec::supports_identifier(identifier) {
+        Some(Box::new(DoiCodec))
+    } else {
+        None
+    }
+}
+
 /// Decode a Stencila Schema node from an identifier
 #[tracing::instrument]
 pub async fn from_identifier(identifier: &str, options: Option<DecodeOptions>) -> Result<Node> {
