@@ -30,6 +30,7 @@ use codec::{
 };
 use codec_arxiv::ArxivCodec;
 use codec_doi::DoiCodec;
+use codec_github::GithubCodec;
 use codec_openrxiv::OpenRxivCodec;
 use codec_pmcoa::PmcOaCodec;
 use codec_utils::rebase_edits;
@@ -50,6 +51,7 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(codec_dom::DomCodec),
         Box::new(codec_directory::DirectoryCodec),
         Box::new(codec_gdocx::GDocxCodec),
+        Box::new(codec_github::GithubCodec),
         Box::new(codec_html::HtmlCodec),
         Box::new(codec_ipynb::IpynbCodec),
         Box::new(codec_jats::JatsCodec),
@@ -190,6 +192,8 @@ pub fn codec_for_identifier(identifier: &str) -> Option<Box<dyn Codec>> {
         Some(Box::new(PmcOaCodec))
     } else if DoiCodec::supports_identifier(identifier) {
         Some(Box::new(DoiCodec))
+    } else if GithubCodec::supports_identifier(identifier) {
+        Some(Box::new(GithubCodec))
     } else {
         None
     }
@@ -208,8 +212,10 @@ pub async fn from_identifier(identifier: &str, options: Option<DecodeOptions>) -
         Ok(PmcOaCodec::from_identifier(identifier, options).await?.0)
     } else if DoiCodec::supports_identifier(identifier) {
         Ok(DoiCodec::from_identifier(identifier, options).await?.0)
+    } else if GithubCodec::supports_identifier(identifier) {
+        Ok(GithubCodec::from_identifier(identifier, options).await?.0)
     } else if identifier.starts_with("https://")
-        || identifier.starts_with("https://")
+        || identifier.starts_with("http://")
         || identifier.starts_with("file://")
     {
         from_url(identifier, options).await

@@ -23,6 +23,7 @@ codec-docx = { path = "../codec-docx" }
 codec-doi = { path = "../codec-doi" }
 codec-dom = { path = "../codec-dom" }
 codec-gdocx = { path = "../codec-gdocx" }
+codec-github = { path = "../codec-github" }
 codec-html = { path = "../codec-html" }
 codec-ipynb = { path = "../codec-ipynb" }
 codec-jats = { path = "../codec-jats" }

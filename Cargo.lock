@@ -1166,11 +1166,13 @@ dependencies = [
 name = "codec-github"
 version = "0.0.0"
 dependencies = [
+ "base64 0.22.1",
  "codec",
  "common-dev",
  "governor",
  "secrets",
  "serde",
+ "url",
  "version",
 ]
 
@@ -1542,6 +1544,7 @@ dependencies = [
  "codec-doi",
  "codec-dom",
  "codec-gdocx",
+ "codec-github",
  "codec-html",
  "codec-ipynb",
  "codec-jats",
