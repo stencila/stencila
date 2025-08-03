@@ -1,26 +1,26 @@
 openalex.publishers(...part_of("Wiley"))
 ---
-GET https://api.openalex.org/publishers?filter=lineage:P4310320595
+GET https://api.openalex.org/publishers?filter=lineage:P4310320595|P4310320609
 
 
 openalex.publishers(...part_of(search = "Wiley"))
 ---
-GET https://api.openalex.org/publishers?filter=lineage:P4310320595
+GET https://api.openalex.org/publishers?filter=lineage:P4310320595|P4310320609
 
 
 openalex.publishers(...part_of(.name == "Wiley"))
 ---
-GET https://api.openalex.org/publishers?filter=lineage:P4310320595
+GET https://api.openalex.org/publishers?filter=lineage:P4310320595|P4310320609
 
 
 openalex.publishers(...partOf(.ror == "04rjz5883"))
 ---
-GET https://api.openalex.org/publishers?filter=lineage:P4310320595
+GET https://api.openalex.org/publishers?filter=lineage:P4310320595|P4310320609
 
 
 openalex.publishers(...part_of(.h_index > 1000,.i10_index < 1000, .works_count > 100))
 ---
-GET https://api.openalex.org/publishers?filter=lineage:P4310320595
+GET https://api.openalex.org/publishers?filter=lineage:P4310320595|P4310320609
 
 
 openalex.publishers(...part_of(* < 10))

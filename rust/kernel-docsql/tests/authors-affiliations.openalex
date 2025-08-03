@@ -1,21 +1,21 @@
 openalex.authors(...affiliations("John Brown University"))
 ---
-GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590
+GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590|I97018004
 
 
 openalex.authors(...affiliations(search = "John Brown University"))
 ---
-GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590
+GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590|I97018004
 
 
 openalex.authors(...affiliations(.name == "John Brown University"))
 ---
-GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590
+GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590|I97018004
 
 
 openalex.authors(...affiliations(.name ~= "John Brown"))
 ---
-GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590
+GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590|I97018004
 
 
 openalex.authors(...affiliations(.ror == "02ct41q97"))
@@ -35,7 +35,7 @@ GET https://api.openalex.org/authors?filter=last_known_institutions.is_global_so
 
 openalex.authors(...affiliations(.has_ror = true, .impact_factor > 3, .h_index > 10, .i10_index > 10, .works_count > 100, .cited_by_count > 10))
 ---
-GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590
+GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590|I97018004
 
 
 openalex.authors(...affiliations(* > 30))

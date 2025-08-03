@@ -35,7 +35,7 @@ GET https://api.openalex.org/works?filter=authorships.institutions.is_global_sou
 
 openalex.works(...affiliations(.has_ror = true, .h_index > 10, .i10_index > 10, .works_count > 100, .cited_by_count > 10))
 ---
-GET https://api.openalex.org/works?filter=authorships.institutions.id:I1294671590
+GET https://api.openalex.org/works?filter=authorships.institutions.id:I1294671590|I97018004
 
 
 openalex.works(...affiliations(* > 30))

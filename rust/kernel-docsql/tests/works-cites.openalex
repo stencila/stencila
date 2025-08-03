@@ -1,31 +1,31 @@
 openalex.works(...cites("magmatism"))
 ---
-GET https://api.openalex.org/works?filter=cites:W2582743722
+GET https://api.openalex.org/works?filter=cites:W2741809807|W2360775259
 
 
 openalex.works(...cites(search = "magmatism"))
 ---
-GET https://api.openalex.org/works?filter=cites:W2582743722
+GET https://api.openalex.org/works?filter=cites:W2741809807|W2360775259
 
 
 openalex.works(...cites(.title ~= "magmatism"))
 ---
-GET https://api.openalex.org/works?filter=cites:W2582743722
+GET https://api.openalex.org/works?filter=cites:W2741809807|W2360775259
 
 
 openalex.works(...cites(.doi = "10.1007/bf00372365"))
 ---
-GET https://api.openalex.org/works?filter=cites:W2582743722
+GET https://api.openalex.org/works?filter=cites:W2741809807|W2360775259
 
 
 openalex.works(...cites(.is_accepted = true, .is_published = false, .license = "cc-by", .is_oa = true, .oa_status = 'diamond'))
 ---
-GET https://api.openalex.org/works?filter=cites:W2582743722
+GET https://api.openalex.org/works?filter=cites:W2741809807|W2360775259
 
 
 openalex.works(...cites(...authors(.h_index < 10)))
 ---
-GET https://api.openalex.org/works?filter=cites:W2582743722
+GET https://api.openalex.org/works?filter=cites:W2741809807|W2360775259
 
 
 openalex.works(...cites(* > 10, * <= 20))

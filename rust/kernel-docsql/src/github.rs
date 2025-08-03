@@ -610,16 +610,16 @@ fn format_filter_value(value: &Value) -> Result<String, Error> {
     })
 }
 
-/// Get test IDs for a given entity type
-fn get_test_ids(entity_type: &str) -> Vec<String> {
-    match entity_type {
-        "users" => vec!["octocat".to_string(), "github".to_string()],
-        "repositories" => vec![
-            "pandas-dev/pandas".to_string(),
-            "pola-rs/polars".to_string(),
-        ],
+/// Get test IDs for a given object type
+fn get_test_ids(object_type: &str) -> Vec<String> {
+    match object_type {
+        "users" => vec!["octocat", "github"],
+        "repositories" => vec!["pandas-dev/pandas", "pola-rs/polars"],
         _ => vec![],
     }
+    .into_iter()
+    .map(String::from)
+    .collect()
 }
 
 impl Object for GitHubQuery {

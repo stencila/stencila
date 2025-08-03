@@ -104,19 +104,12 @@ impl OpenAlexQuery {
         self.entity_type.is_empty()
     }
 
-    /// Set the entity type for the query (works, authors, institutions, etc.)
-    fn entity_type(&self, entity_type: &str) -> Self {
-        let mut query = self.clone();
-        query.entity_type = entity_type.into();
-        query
-    }
-
-    /// Add a filter to the query
-    fn filter(&mut self, arg_name: &str, arg_value: Value) -> Result<(), Error> {
+    /// Apply a filter to the query
+    fn apply_filter(&mut self, arg_name: &str, arg_value: Value) -> Result<(), Error> {
         // Handle subquery filters (e.g., ...authors(.name ^= "Smith"))
         if arg_name == "_" {
             if let Some(subquery) = arg_value.downcast_object_ref::<Subquery>() {
-                return self.subquery_filters(subquery);
+                return self.apply_subquery_filters(subquery);
             }
         }
 
@@ -172,11 +165,11 @@ impl OpenAlexQuery {
 
             let keyword_query = self.clone_for("keywords").search(&search);
             if let Some(ids) = if testing() {
-                Some("keywords/diagnosis".into())
+                Some(vec!["keywords/diagnosis".to_string()])
             } else {
                 keyword_query.ids()
             } {
-                self.filters.push(format!("keywords.id:{ids}"));
+                self.filters.push(format!("keywords.id:{}", ids.join("|")));
                 return Ok(());
             } else {
                 return Err(Error::new(
@@ -393,8 +386,8 @@ impl OpenAlexQuery {
         Ok(())
     }
 
-    /// Add filters specified in a subquery
-    fn subquery_filters(&mut self, subquery: &Subquery) -> Result<(), Error> {
+    /// Apply filters specified in a subquery
+    fn apply_subquery_filters(&mut self, subquery: &Subquery) -> Result<(), Error> {
         let entity_type = self.entity_type.clone();
         let subquery_name = subquery.name.as_str();
 
@@ -414,16 +407,19 @@ impl OpenAlexQuery {
             ))
         };
 
-        let ids_maybe = |query: OpenAlexQuery, test: &str, none: &str| {
+        let ids_maybe = |query: OpenAlexQuery, entity_type: &str| {
             if query.filters.is_empty() && query.search.is_none() {
                 None
             } else if testing() {
-                Some(test.into())
+                Some(get_test_ids(entity_type).join("|"))
             } else {
                 // If no ids returned then use a valid but
                 // non-existent author id so that filter is still
                 // applied but results in an empty set
-                Some(query.ids().unwrap_or_else(|| none.into()))
+                query
+                    .ids()
+                    .map(|ids| ids.join("|"))
+                    .or_else(|| Some(get_default_id(entity_type)))
             }
         };
 
@@ -448,19 +444,19 @@ impl OpenAlexQuery {
                             // query
                             "has_orcid" | "impact_factor" | "h_index" | "i10_index"
                             | "works_count" | "cited_by_count" | "_" => {
-                                ids_query.filter(arg_name, arg_value.clone())?;
+                                ids_query.apply_filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
                             _ => return unsupported_property(property),
                         };
-                        self.filter(
+                        self.apply_filter(
                             &encode_filter(property, operator.as_str()),
                             arg_value.clone(),
                         )?;
                     }
 
-                    if let Some(ids) = ids_maybe(ids_query, "A5100335963", "A0000000000") {
-                        self.filters.push(format!("authorships.author.id:{ids}"));
+                    if let Some(ids) = ids_maybe(ids_query, "authors") {
+                        self.filters.push(format!("authorships.author:{ids}"));
                     }
                 }
                 "affiliations" => {
@@ -478,18 +474,18 @@ impl OpenAlexQuery {
                             // query
                             "has_ror" | "impact_factor" | "h_index" | "i10_index"
                             | "works_count" | "cited_by_count" | "_" => {
-                                ids_query.filter(arg_name, arg_value.clone())?;
+                                ids_query.apply_filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
                             _ => return unsupported_property(property),
                         };
-                        self.filter(
+                        self.apply_filter(
                             &encode_filter(property, operator.as_str()),
                             arg_value.clone(),
                         )?;
                     }
 
-                    if let Some(ids) = ids_maybe(ids_query, "I1294671590", "I0000000000") {
+                    if let Some(ids) = ids_maybe(ids_query, "institutions") {
                         self.filters
                             .push(format!("authorships.institutions.id:{ids}"));
                     }
@@ -536,18 +532,18 @@ impl OpenAlexQuery {
                             | "authors_count"
                             | "cited_by_count"
                             | "_" => {
-                                ids_query.filter(arg_name, arg_value.clone())?;
+                                ids_query.apply_filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
                             _ => return unsupported_property(property),
                         };
-                        self.filter(
+                        self.apply_filter(
                             &encode_filter(property, operator.as_str()),
                             arg_value.clone(),
                         )?;
                     }
 
-                    if let Some(ids) = ids_maybe(ids_query, "W2582743722", "W0000000000") {
+                    if let Some(ids) = ids_maybe(ids_query, "works") {
                         self.filters.push(if subquery_name == "cited_by" {
                             format!("cited_by:{ids}")
                         } else {
@@ -568,18 +564,18 @@ impl OpenAlexQuery {
                             "search" | "name" | "impact_factor" | "h_index" | "i10_index"
                             | "has_issn" | "works_count" | "cited_by_count" | "is_global_south"
                             | "_" => {
-                                ids_query.filter(arg_name, arg_value.clone())?;
+                                ids_query.apply_filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
                             _ => return unsupported_property(property),
                         };
-                        self.filter(
+                        self.apply_filter(
                             &encode_filter(property, operator.as_str()),
                             arg_value.clone(),
                         )?;
                     }
 
-                    if let Some(ids) = ids_maybe(ids_query, "S1336409049", "S0000000000") {
+                    if let Some(ids) = ids_maybe(ids_query, "sources") {
                         self.filters
                             .push(format!("primary_location.source.id:{ids}"));
                     }
@@ -594,14 +590,14 @@ impl OpenAlexQuery {
                             // and nested subqueries, require an id query
                             "search" | "name" | "impact_factor" | "h_index" | "i10_index"
                             | "ror" | "works_count" | "cited_by_count" | "_" => {
-                                ids_query.filter(arg_name, arg_value.clone())?;
+                                ids_query.apply_filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
                             _ => return unsupported_property(property),
                         };
                     }
 
-                    if let Some(ids) = ids_maybe(ids_query, "P4310320595", "P0000000000") {
+                    if let Some(ids) = ids_maybe(ids_query, "publishers") {
                         self.filters
                             .push(format!("primary_location.source.host_organization:{ids}"));
                     }
@@ -617,14 +613,14 @@ impl OpenAlexQuery {
                             "search" | "name" | "description" | "impact_factor" | "h_index"
                             | "i10_index" | "ror" | "grants_count" | "works_count"
                             | "cited_by_count" | "is_global_south" | "_" => {
-                                ids_query.filter(arg_name, arg_value.clone())?;
+                                ids_query.apply_filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
                             _ => return unsupported_property(property),
                         };
                     }
 
-                    if let Some(ids) = ids_maybe(ids_query, "F4320306076", "F0000000000") {
+                    if let Some(ids) = ids_maybe(ids_query, "funders") {
                         self.filters.push(format!("grants.funder:{ids}"));
                     }
                 }
@@ -645,18 +641,18 @@ impl OpenAlexQuery {
                             // query
                             "search" | "name" | "has_ror" | "impact_factor" | "h_index"
                             | "i10_index" | "works_count" | "cited_by_count" | "_" => {
-                                ids_query.filter(arg_name, arg_value.clone())?;
+                                ids_query.apply_filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
                             _ => return unsupported_property(property),
                         };
-                        self.filter(
+                        self.apply_filter(
                             &encode_filter(property, operator.as_str()),
                             arg_value.clone(),
                         )?;
                     }
 
-                    if let Some(ids) = ids_maybe(ids_query, "I1294671590", "I0000000000") {
+                    if let Some(ids) = ids_maybe(ids_query, "institutions") {
                         self.filters
                             .push(format!("affiliations.institution.id:{ids}"));
                     }
@@ -674,14 +670,14 @@ impl OpenAlexQuery {
                             // and nested subqueries, require an id query
                             "search" | "name" | "impact_factor" | "h_index" | "i10_index"
                             | "ror" | "works_count" | "cited_by_count" | "_" => {
-                                ids_query.filter(arg_name, arg_value.clone())?;
+                                ids_query.apply_filter(arg_name, arg_value.clone())?;
                                 continue;
                             }
                             _ => return unsupported_property(property),
                         };
                     }
 
-                    if let Some(ids) = ids_maybe(ids_query, "P4310320595", "P0000000000") {
+                    if let Some(ids) = ids_maybe(ids_query, "publishers") {
                         self.filters.push(if entity_type == "sources" {
                             format!("host_organization_lineage:{ids}")
                         } else {
@@ -928,7 +924,7 @@ impl OpenAlexQuery {
     ///
     /// See https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities/filter-entity-lists#addition-or
     #[tracing::instrument(skip(self))]
-    pub fn ids(&self) -> Option<String> {
+    pub fn ids(&self) -> Option<Vec<String>> {
         let mut query = self.clone();
         query.select.push("id".into());
         query.limit = Some(100);
@@ -944,7 +940,7 @@ impl OpenAlexQuery {
                 if ids.is_empty() {
                     None
                 } else {
-                    Some(ids.join("|"))
+                    Some(ids)
                 }
             }
             Err(error) => {
@@ -1013,6 +1009,39 @@ fn format_filter_value(value: &Value) -> String {
     }
 }
 
+/// Get test IDs for a given entity type
+fn get_test_ids(entity_type: &str) -> Vec<String> {
+    match entity_type {
+        "authors" => vec!["A5100335963", "A2289985273"],
+        "funders" => vec!["F4320306076", "F4320306084"],
+        "institutions" => vec!["I1294671590", "I97018004"],
+        "publishers" => vec!["P4310320595", "P4310320609"],
+        "sources" => vec!["S1336409049", "S124911201"],
+        "works" => vec!["W2741809807", "W2360775259"],
+        _ => vec![],
+    }
+    .into_iter()
+    .map(String::from)
+    .collect()
+}
+
+/// Get the default ID for a given entity type
+fn get_default_id(entity_type: &str) -> String {
+    [
+        match entity_type {
+            "authors" => "A",
+            "funders" => "F",
+            "institutions" => "I",
+            "publishers" => "P",
+            "sources" => "S",
+            "works" => "W",
+            _ => "X",
+        },
+        "0000000000",
+    ]
+    .concat()
+}
+
 impl Object for OpenAlexQuery {
     fn call_method(
         self: &Arc<Self>,
@@ -1020,6 +1049,7 @@ impl Object for OpenAlexQuery {
         name: &str,
         args: &[Value],
     ) -> Result<Value, Error> {
+        // Return an error for methods that have args that shouldn't
         let no_args = || -> Result<(), Error> {
             if args.is_empty() {
                 Ok(())
@@ -1069,7 +1099,7 @@ impl Object for OpenAlexQuery {
                     }
                 };
 
-                let mut query = self.entity_type(entity_type);
+                let mut query = self.clone_for(entity_type);
 
                 // Add filter for the type of work
                 if let Some(value) = type_filter {
@@ -1097,7 +1127,7 @@ impl Object for OpenAlexQuery {
                                 "Semantic similarity filtering is not available for OpenAlex, use `search` instead",
                             ));
                         }
-                        _ => query.filter(arg, value)?,
+                        _ => query.apply_filter(arg, value)?,
                     }
                 }
 
