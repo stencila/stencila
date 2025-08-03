@@ -654,34 +654,117 @@ impl Object for GitHubQuery {
                     _ => name,
                 };
 
-                let mut query = self.object_type(object_type);
+                // Check if this is a chained call (e.g., users().repositories())
+                if !self.is_base() {
+                    // Validate the chain is allowed
+                    let valid_chain = matches!(
+                        (self.object_type.as_str(), object_type),
+                        ("users", "repositories") | ("users", "code") | ("repositories", "code")
+                    );
 
-                // Handle `search` and `like` arguments and apply all others as filters
-                let (arg, kwargs): (Option<Value>, Kwargs) = from_args(args)?;
-                if let Some(value) = arg {
-                    if let Some(value) = value.as_str() {
-                        query = query.search(value)
+                    if !valid_chain {
+                        return Err(Error::new(
+                            ErrorKind::InvalidOperation,
+                            format!(
+                                "Cannot query for `{}` within `{}`",
+                                object_type, self.object_type
+                            ),
+                        ));
                     }
-                }
-                for arg in kwargs.args() {
-                    let value: Value = kwargs.get(arg)?;
-                    match arg {
-                        "search" => {
-                            if let Some(value) = value.as_str() {
-                                query = query.search(value)
+
+                    // Get IDs from the current query
+                    // GitHub search API has a limit of 5 AND/OR/NOT operators per query
+                    let ids = if testing() {
+                        // Mock IDs for testing
+                        match self.object_type.as_str() {
+                            "users" => Some(vec!["octocat".to_string(), "github".to_string()]),
+                            "repositories" => Some(vec![
+                                "octocat/Hello-World".to_string(),
+                                "github/hub".to_string(),
+                            ]),
+                            _ => None,
+                        }
+                    } else {
+                        self.ids(5)
+                    };
+
+                    let mut query = self.clone_for(object_type);
+
+                    // Add filters based on the parent query's IDs
+                    if let Some(mut ids) = ids {
+                        if !ids.is_empty() {
+                            ids.truncate(5);
+                            let qualifier = match self.object_type.as_str() {
+                                "users" => "user",
+                                "repositories" => "repo",
+                                _ => unreachable!(),
+                            };
+
+                            let filter = ids
+                                .into_iter()
+                                .map(|id| format!("{qualifier}:{id}"))
+                                .join(" OR ");
+                            query.filters.push(filter);
+                        }
+                    }
+
+                    // Apply any additional filters from the method arguments
+                    let (arg, kwargs): (Option<Value>, Kwargs) = from_args(args)?;
+                    if let Some(value) = arg {
+                        if let Some(value) = value.as_str() {
+                            query = query.search(value)
+                        }
+                    }
+                    for arg in kwargs.args() {
+                        let value: Value = kwargs.get(arg)?;
+                        match arg {
+                            "search" => {
+                                if let Some(value) = value.as_str() {
+                                    query = query.search(value)
+                                }
                             }
+                            "like" => {
+                                return Err(Error::new(
+                                    ErrorKind::UnknownMethod,
+                                    "Semantic similarity filtering is not available for GitHub, use `search` instead",
+                                ));
+                            }
+                            _ => query.filter(arg, value)?,
                         }
-                        "like" => {
-                            return Err(Error::new(
-                                ErrorKind::UnknownMethod,
-                                "Semantic similarity filtering is not available for GitHub, use `search` instead",
-                            ));
-                        }
-                        _ => query.filter(arg, value)?,
                     }
-                }
 
-                query
+                    query
+                } else {
+                    // Normal (non-chained) call
+                    let mut query = self.object_type(object_type);
+
+                    // Handle `search` and `like` arguments and apply all others as filters
+                    let (arg, kwargs): (Option<Value>, Kwargs) = from_args(args)?;
+                    if let Some(value) = arg {
+                        if let Some(value) = value.as_str() {
+                            query = query.search(value)
+                        }
+                    }
+                    for arg in kwargs.args() {
+                        let value: Value = kwargs.get(arg)?;
+                        match arg {
+                            "search" => {
+                                if let Some(value) = value.as_str() {
+                                    query = query.search(value)
+                                }
+                            }
+                            "like" => {
+                                return Err(Error::new(
+                                    ErrorKind::UnknownMethod,
+                                    "Semantic similarity filtering is not available for GitHub, use `search` instead",
+                                ));
+                            }
+                            _ => query.filter(arg, value)?,
+                        }
+                    }
+
+                    query
+                }
             }
             "sort" => {
                 let (property, direction): (String, Option<String>) = from_args(args)?;

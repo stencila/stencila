@@ -1,0 +1,48 @@
+github.users("octocat").repositories()
+---
+GET https://api.github.com/search/repositories?q=user:octocat+OR+user:github
+
+
+github.users("octocat").repositories(.stars > 10)
+---
+GET https://api.github.com/search/repositories?q=user:octocat+OR+user:github+stars:>10
+
+
+github.users("octocat").code("function")
+---
+GET https://api.github.com/search/code?q=function+user:octocat+OR+user:github
+
+
+github.users(.followers > 1000).code("import", .language = "python")
+---
+GET https://api.github.com/search/code?q=import+user:octocat+OR+user:github+language:python
+
+
+github.repositories(.stars > 100).code("test")
+---
+GET https://api.github.com/search/code?q=test+repo:octocat/Hello-World+OR+repo:github/hub
+
+
+github.repositories(.topic = "machine-learning").code("def", .extension = "py")
+---
+GET https://api.github.com/search/code?q=def+repo:octocat/Hello-World+OR+repo:github/hub+extension:py
+
+
+github.repositories("pandas").code(.path = "tests")
+---
+GET https://api.github.com/search/code?q=repo:octocat/Hello-World+OR+repo:github/hub+path:tests
+
+
+github.code().repositories()
+---
+Cannot query for `repositories` within `code`
+
+
+github.repositories().users()
+---
+Cannot query for `users` within `repositories`
+
+
+github.users("octocat").users("github")
+---
+Cannot query for `users` within `users`
