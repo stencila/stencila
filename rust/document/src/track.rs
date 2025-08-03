@@ -85,8 +85,7 @@ async fn write_entries(stencila_dir: &Path, entries: &DocumentTrackingEntries) -
 
 /// Create a new document id
 fn new_id() -> NodeId {
-    const NICK: [u8; 3] = [b'd', b'o', b'c'];
-    NodeId::random(NICK)
+    NodeId::random(*b"doc")
 }
 
 /// Get the timestamp now
