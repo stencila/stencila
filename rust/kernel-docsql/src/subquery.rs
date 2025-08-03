@@ -42,10 +42,11 @@ pub(super) fn add_subquery_functions(env: &mut Environment) {
         "sections",
         "sentences",
 
-        // Metadata
-        "authors", "people",
-        "affiliations", "organizations",
-        "references", "cites",
+        // Metadata: use relationship descriptors as names of subqueries
+        // with aliases where appropriate
+        "authored_by", "authors",
+        "affiliated_with", "affiliations",
+        "cites", "references",
         "cited_by",
         "published_in",
         "published_by",

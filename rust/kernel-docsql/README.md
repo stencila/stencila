@@ -87,7 +87,7 @@ paragraphs(search = "machine learning")
 paragraphs(above).limit(3)
 
 // Query workspace for articles by author
-workspace.articles(...authors(.name ^= "Smith"))
+workspace.articles(...authored_by(.name ^= "Smith"))
 
 // Query GitHub for Jupyter notebooks
 github.files(.extension == "ipynb", search = "machine learning")
@@ -129,7 +129,7 @@ openalex.works(.year > 2020, search = "neural networks")
 ```docsql
 // Use ... for existence/count subqueries
 nodeType(...relatedType(filters))
-articles(...authors(.name ^= "Jane"))
+articles(...authored_by(.name ^= "Jane"))
 ```
 
 ## Query Examples
@@ -185,7 +185,7 @@ tables(above).first()           // Most recent table above current position
 // Query across multiple documents
 workspace.articles()                                    // All articles in workspace
 workspace.articles(.title ^= "Deep Learning")          // Articles with titles starting with "Deep Learning"
-workspace.articles(...authors(.name == "Jane Smith"))  // Articles by Jane Smith
+workspace.articles(...authored_by(.name == "Jane Smith"))  // Articles by Jane Smith
 workspace.articles(...references(* > 20))              // Articles with more than 20 references
 workspace.articles(...cites(* > 20))                   // Articles that cite more than 20 works (alias for references)
 workspace.articles(...citedBy(* > 100))                // Articles cited more than 100 times
@@ -196,10 +196,10 @@ workspace.articles(...citedBy(* > 100))                // Articles cited more th
 ```docsql
 // Existence subqueries (does related content exist?)
 sections(...codeChunks(.programmingLanguage == "python"))  // Sections containing Python code
-articles(...authors(.affiliations(.name $= "University"))) // Articles with university-affiliated authors
+articles(...authored_by(.affiliations(.name $= "University"))) // Articles with university-affiliated authors
 
 // Count subqueries (how many related items?)
-articles(...authors(* > 3))                 // Articles with more than 3 authors
+articles(...authored_by(* > 3))                 // Articles with more than 3 authors
 sections(...paragraphs(* == 1))             // Sections with exactly 1 paragraph
 workspace.articles(...references(* <= 10))  // Articles with 10 or fewer references
 workspace.articles(...cites(* >= 15))       // Articles that cite 15 or more works
@@ -214,13 +214,13 @@ github.files(.extension == "qmd", ...repositories(.language == "python"))  // Qu
 openalex.articles(...citedBy(openalex.articles(search = "frogs").limit(3)))
 // Find articles cited by research about frogs
 
-openalex.works(...citedBy(openalex.articles(...authors(.orcid == "0000-0002-1825-0097")).limit(2)))
+openalex.works(...citedBy(openalex.articles(...authored_by(.orcid == "0000-0002-1825-0097")).limit(2)))
 // Find works cited by a specific researcher (using ORCID)
 
 openalex.articles(...citedBy(openalex.works(.doi == "10.1038/nature12373").limit(1)))
 // Find articles cited by a specific Nature paper (using DOI)
 
-openalex.articles(...citedBy(openalex.articles(...authors(.name == "Jane Smith")).limit(4)))
+openalex.articles(...citedBy(openalex.articles(...authored_by(.name == "Jane Smith")).limit(4)))
 // Find articles cited by papers authored by Jane Smith
 
 openalex.works(...citedBy(openalex.articles(.year == 2023).limit(3)))
@@ -236,7 +236,7 @@ openalex.works(...citedBy(workspace.articles().limit(5)))
 // Find works cited by articles in your workspace
 
 // Chained subqueries
-workspace.articles(...authors(.name ^= "John").affiliations(.name $= "MIT"))
+workspace.articles(...authored_by(.name ^= "John").affiliations(.name $= "MIT"))
 // Articles by authors named John who are affiliated with institutions ending in "MIT"
 ```
 
@@ -265,7 +265,7 @@ paragraphs()
 
 // Complex filtering and processing
 workspace.articles()
-  .where(...authors(.name ^= "Smith"))
+  .where(...authored_by(.name ^= "Smith"))
   .sort("datePublished", "DESC")
   .limit(10)
   .select("title", "datePublished")

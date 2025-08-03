@@ -1,4 +1,4 @@
-openalex.works(...affiliations("John Brown University"))
+openalex.works(...affiliated_with("John Brown University"))
 ---
 GET https://api.openalex.org/works?filter=raw_affiliation_strings.search:John+Brown+University
 
@@ -8,7 +8,7 @@ openalex.works(...affiliations(search = "John Brown University"))
 GET https://api.openalex.org/works?filter=raw_affiliation_strings.search:John+Brown+University
 
 
-openalex.works(...affiliations(.name == "John Brown University"))
+openalex.works(...affiliated_with(.name == "John Brown University"))
 ---
 GET https://api.openalex.org/works?filter=raw_affiliation_strings.search:John+Brown+University
 
@@ -18,7 +18,7 @@ openalex.works(...affiliations(.name ~= "John Brown"))
 GET https://api.openalex.org/works?filter=raw_affiliation_strings.search:John+Brown
 
 
-openalex.works(...affiliations(.ror == "02ct41q97"))
+openalex.works(...affiliated_with(.ror == "02ct41q97"))
 ---
 GET https://api.openalex.org/works?filter=authorships.institutions.ror:02ct41q97
 
@@ -28,7 +28,7 @@ openalex.works(...affiliations(.type = "education"))
 GET https://api.openalex.org/works?filter=authorships.institutions.type:education
 
 
-openalex.works(...affiliations(.is_global_south = false))
+openalex.works(...affiliated_with(.is_global_south = false))
 ---
 GET https://api.openalex.org/works?filter=authorships.institutions.is_global_south:false
 
@@ -38,7 +38,7 @@ openalex.works(...affiliations(.has_ror = true, .h_index > 10, .i10_index > 10, 
 GET https://api.openalex.org/works?filter=authorships.institutions.id:I1294671590|I97018004
 
 
-openalex.works(...affiliations(* > 30))
+openalex.works(...affiliated_with(* > 30))
 ---
 GET https://api.openalex.org/works?filter=institutions_distinct_count:>30
 

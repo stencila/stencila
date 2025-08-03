@@ -6,7 +6,7 @@ RETURN article
 LIMIT 10
 
 
-test.articles(...authors(* > 4))
+test.articles(...authored_by(* > 4))
 ---
 MATCH (article:Article)
 WHERE COUNT { MATCH (article)-[authors]->(person:Person) } > 4
@@ -22,7 +22,7 @@ RETURN article
 LIMIT 10
 
 
-test.articles(...references(* == 1))
+test.articles(...cites(* == 1))
 ---
 MATCH (article:Article)
 WHERE COUNT { MATCH (article)-[references]->(ref:Reference) } = 1
@@ -38,7 +38,7 @@ RETURN article
 LIMIT 10
 
 
-test.articles(...references(* ~= 1))
+test.articles(...cites(* ~= 1))
 ---
 only numeric comparison operators (e.g. <=) can be used in count filters (*)
 

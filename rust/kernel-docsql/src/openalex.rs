@@ -431,7 +431,7 @@ impl OpenAlexQuery {
         // filter by id.
         match entity_type.as_str() {
             "works" => match subquery_name {
-                "authors" => {
+                "authored_by" | "authors" => {
                     let mut ids_query = self.clone_for("authors");
                     for (arg_name, arg_value) in &subquery.args {
                         let (property, operator) = decode_filter(arg_name);
@@ -459,7 +459,7 @@ impl OpenAlexQuery {
                         self.filters.push(format!("authorships.author.id:{ids}"));
                     }
                 }
-                "affiliations" => {
+                "affiliated_with" | "affiliations" => {
                     let mut ids_query = self.clone_for("institutions");
                     for (arg_name, arg_value) in &subquery.args {
                         let (property, operator) = decode_filter(arg_name);
@@ -490,7 +490,7 @@ impl OpenAlexQuery {
                             .push(format!("authorships.institutions.id:{ids}"));
                     }
                 }
-                "references" | "cites" | "cited_by" => {
+                "cites" | "references" | "cited_by" => {
                     let mut ids_query = self.clone_for("works");
                     for (arg_name, arg_value) in &subquery.args {
                         let (property, operator) = decode_filter(arg_name);
@@ -627,7 +627,7 @@ impl OpenAlexQuery {
                 _ => return unsupported_subquery(),
             },
             "authors" => match subquery_name {
-                "affiliations" => {
+                "affiliated_with" | "affiliations" => {
                     let mut ids_query = self.clone_for("institutions");
                     for (arg_name, arg_value) in &subquery.args {
                         let (property, operator) = decode_filter(arg_name);

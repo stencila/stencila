@@ -33,12 +33,12 @@ openalex.works(...citedBy(.is_accepted = true, .is_published = false, .license =
 GET https://api.openalex.org/works?filter=cited_by:W2741809807|W2360775259
 
 
-openalex.works(...cited_by(...authors(.impact_factor > 3)))
+openalex.works(...cited_by(...authored_by(.impact_factor > 3)))
 ---
 GET https://api.openalex.org/works?filter=cited_by:W2741809807|W2360775259
 
 
-openalex.works(...cited_by(...affiliations(.type = "education")))
+openalex.works(...cited_by(...affiliated_with(.type = "education")))
 ---
 GET https://api.openalex.org/works?filter=cited_by:W2741809807|W2360775259
 

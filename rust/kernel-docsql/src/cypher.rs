@@ -1072,26 +1072,16 @@ pub(super) fn process_subquery_for_cypher(
 ) -> Result<String, Error> {
     // Get relation and table from subquery name
     let (relation, table) = match subquery.name.as_str() {
-        // Academic/research subqueries
-        "authors" => ("[authors]", "Person"),
-        "references" => ("[references]", "Reference"),
-        "cites" => ("[references]", "Reference"),
-        "citedBy" => ("[citedBy]", "Reference"),
-        "publishedIn" => ("[publishedIn]", "Periodical"),
-        "affiliations" => ("[affiliations]", "Organization"),
-        "organizations" => ("[organizations]", "Organization"),
-
-        // GitHub-specific subqueries (not directly supported in Cypher, but keeping for consistency)
-        "topics" => ("[topics]", "String"),
-        "owners" => ("[owners]", "Person"),
+        // Note: these should be consistent with subqueries
+        // listed in add_subquery_functions
 
         // Content subqueries
-        "codeBlocks" => (DEFAULT_RELATION, "CodeBlock"),
-        "codeInlines" => (DEFAULT_RELATION, "CodeInline"),
-        "codeChunks" | "chunks" => (DEFAULT_RELATION, "CodeChunk"),
-        "codeExpressions" | "expressions" => (DEFAULT_RELATION, "CodeExpression"),
-        "mathBlocks" => (DEFAULT_RELATION, "MathBlock"),
-        "mathInlines" => (DEFAULT_RELATION, "MathInline"),
+        "code_blocks" => (DEFAULT_RELATION, "CodeBlock"),
+        "code_inlines" => (DEFAULT_RELATION, "CodeInline"),
+        "code_chunks" | "chunks" => (DEFAULT_RELATION, "CodeChunk"),
+        "code_expressions" | "expressions" => (DEFAULT_RELATION, "CodeExpression"),
+        "math_blocks" | "equations" => (DEFAULT_RELATION, "MathBlock"),
+        "math_inlines" => (DEFAULT_RELATION, "MathInline"),
         "images" => (DEFAULT_RELATION, "ImageObject"),
         "audios" => (DEFAULT_RELATION, "AudioObject"),
         "videos" => (DEFAULT_RELATION, "VideoObject"),
@@ -1101,7 +1091,13 @@ pub(super) fn process_subquery_for_cypher(
         "paragraphs" => (DEFAULT_RELATION, "Paragraph"),
         "sections" => (DEFAULT_RELATION, "Section"),
         "sentences" => (DEFAULT_RELATION, "Sentence"),
-        "people" => (DEFAULT_RELATION, "Person"),
+
+        // Metadata subqueries
+        "authored_by" | "authors" => ("[authors]", "Person"),
+        "affiliated_with" | "affiliations" => ("[affiliations]", "Organization"),
+        "cites" | "references" => ("[references]", "Reference"),
+        "cited_by" => ("[citedBy]", "Reference"),
+        "published_in" => ("[publishedIn]", "Periodical"),
 
         _ => {
             return Err(Error::new(

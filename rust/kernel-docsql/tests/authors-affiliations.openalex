@@ -1,4 +1,4 @@
-openalex.authors(...affiliations("John Brown University"))
+openalex.authors(...affiliated_with("John Brown University"))
 ---
 GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590|I97018004
 
@@ -8,7 +8,7 @@ openalex.authors(...affiliations(search = "John Brown University"))
 GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590|I97018004
 
 
-openalex.authors(...affiliations(.name == "John Brown University"))
+openalex.authors(...affiliated_with(.name == "John Brown University"))
 ---
 GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590|I97018004
 
@@ -18,7 +18,7 @@ openalex.authors(...affiliations(.name ~= "John Brown"))
 GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590|I97018004
 
 
-openalex.authors(...affiliations(.ror == "02ct41q97"))
+openalex.authors(...affiliated_with(.ror == "02ct41q97"))
 ---
 GET https://api.openalex.org/authors?filter=affiliations.institution.ror:02ct41q97
 
@@ -28,7 +28,7 @@ openalex.authors(...affiliations(.type = "education"))
 GET https://api.openalex.org/authors?filter=affiliations.institution.type:education
 
 
-openalex.authors(...affiliations(.is_global_south = false))
+openalex.authors(...affiliated_with(.is_global_south = false))
 ---
 GET https://api.openalex.org/authors?filter=last_known_institutions.is_global_south:false
 
@@ -38,9 +38,9 @@ openalex.authors(...affiliations(.has_ror = true, .impact_factor > 3, .h_index >
 GET https://api.openalex.org/authors?filter=affiliations.institution.id:I1294671590|I97018004
 
 
-openalex.authors(...affiliations(* > 30))
+openalex.authors(...affiliated_with(* > 30))
 ---
-Filter `count (*)` in subquery `affiliations` is not supported for OpenAlex `authors`
+Filter `count (*)` in subquery `affiliated_with` is not supported for OpenAlex `authors`
 
 
 openalex.authors(...affiliations(.foo = "bar"))

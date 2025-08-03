@@ -103,7 +103,7 @@ impl GitHubQuery {
 
     /// Apply a filter to the query
     fn apply_filter(&mut self, arg_name: &str, arg_value: Value) -> Result<(), Error> {
-        // Handle subquery filters (e.g., ...authors(.name ~= "Smith"))
+        // Handle subquery filters (e.g., ...owned_by(.name ~= "Smith"))
         if arg_name == "_" {
             if let Some(subquery) = arg_value.downcast_object_ref::<Subquery>() {
                 return self.apply_subquery_filters(subquery);

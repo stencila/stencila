@@ -23,7 +23,7 @@ openalex.works(...cites(.is_accepted = true, .is_published = false, .license = "
 GET https://api.openalex.org/works?filter=cites:W2741809807|W2360775259
 
 
-openalex.works(...cites(...authors(.h_index < 10)))
+openalex.works(...cites(...authored_by(.h_index < 10)))
 ---
 GET https://api.openalex.org/works?filter=cites:W2741809807|W2360775259
 

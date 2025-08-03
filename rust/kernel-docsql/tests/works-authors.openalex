@@ -1,4 +1,4 @@
-openalex.works(...authors("Josiah Carberry"))
+openalex.works(...authored_by("Josiah Carberry"))
 ---
 GET https://api.openalex.org/works?filter=raw_author_name.search:Josiah+Carberry
 
@@ -8,7 +8,7 @@ openalex.works(...authors(search = "Josiah Carberry"))
 GET https://api.openalex.org/works?filter=raw_author_name.search:Josiah+Carberry
 
 
-openalex.works(...authors(.name == "Josiah Carberry"))
+openalex.works(...authored_by(.name == "Josiah Carberry"))
 ---
 GET https://api.openalex.org/works?filter=raw_author_name.search:Josiah+Carberry
 
@@ -18,7 +18,7 @@ openalex.works(...authors(.name ~= "Josiah"))
 GET https://api.openalex.org/works?filter=raw_author_name.search:Josiah
 
 
-openalex.works(...authors(.orcid == "0000-0002-1825-0097"))
+openalex.works(...authored_by(.orcid == "0000-0002-1825-0097"))
 ---
 GET https://api.openalex.org/works?filter=authorships.author.orcid:0000-0002-1825-0097
 
@@ -28,7 +28,7 @@ openalex.works(...authors(.has_orcid = true, .h_index > 10, .i10_index > 10, .wo
 GET https://api.openalex.org/works?filter=authorships.author.id:A5100335963|A2289985273
 
 
-openalex.works(...authors(.works_count > 100, ...affiliations(.type = "government")))
+openalex.works(...authored_by(.works_count > 100, ...affiliated_with(.type = "government")))
 ---
 GET https://api.openalex.org/works?filter=authorships.author.id:A5100335963|A2289985273
 
@@ -38,6 +38,6 @@ openalex.works(...authors(* > 30))
 GET https://api.openalex.org/works?filter=authors_count:>30
 
 
-openalex.works(...authors(.foo = "bar"))
+openalex.works(...authored_by(.foo = "bar"))
 ---
-Filter `foo` in subquery `authors` is not supported for OpenAlex `works`
+Filter `foo` in subquery `authored_by` is not supported for OpenAlex `works`
