@@ -148,6 +148,14 @@ impl KuzuKernelInstance {
         Self::init(ExecutionBounds::Main, read_only, path)
     }
 
+    /// Create a new instance with `Main` execution bounds and id
+    pub fn main_with(id: String, transform: QueryResultTransform) -> Self {
+        let mut instance = Self::init(ExecutionBounds::Main, false, None);
+        instance.id = id;
+        instance.transform = Some(transform);
+        instance
+    }
+
     /// Create a new instance with `Fork` execution bounds
     pub fn fork(path: Option<PathBuf>) -> Self {
         Self::init(ExecutionBounds::Fork, true, path)

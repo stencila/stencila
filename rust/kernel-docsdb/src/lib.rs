@@ -5,6 +5,9 @@ use std::{
     sync::Arc,
 };
 
+use lru::LruCache;
+
+use codecs::EncodeOptions;
 use dirs::{closest_stencila_dir, stencila_db_file, stencila_store_dir};
 use kernel_kuzu::{
     KuzuKernelInstance,
@@ -13,6 +16,7 @@ use kernel_kuzu::{
         common::{
             async_trait::async_trait,
             eyre::{Result, bail},
+            futures::future::join_all,
             itertools::Itertools,
             once_cell::sync::Lazy,
             regex::Regex,
@@ -21,6 +25,7 @@ use kernel_kuzu::{
                 self,
                 fs::read_to_string,
                 sync::{Mutex, mpsc, oneshot, watch},
+                task,
             },
             tracing,
         },
@@ -32,8 +37,9 @@ use kernel_kuzu::{
         },
     },
 };
-use lru::LruCache;
+use node_canonicalize::canonicalize;
 use node_db::NodeDatabase;
+use node_sentencize::sentencize;
 
 pub use kernel_kuzu::QueryResultTransform;
 
@@ -142,7 +148,8 @@ impl DocsDBKernelInstance {
         id: Option<String>,
     ) -> Result<Self> {
         let id = id.unwrap_or_else(|| generate_id(NAME));
-        let workspace_db = KuzuKernelInstance::box_with(id.clone(), QueryResultTransform::Excerpts);
+        let workspace_db =
+            KuzuKernelInstance::main_with(id.clone(), QueryResultTransform::Excerpts);
         let document_db = KuzuKernelInstance::box_with(id.clone(), QueryResultTransform::Excerpts);
 
         let (document, variables_requester) =
@@ -214,10 +221,7 @@ impl DocsDBKernelInstance {
 
         let db_path = stencila_db_file(&stencila_dir, false).await?;
         if !db_path.exists() {
-            bail!(
-                "Workspace database `{}` does not exist yet",
-                db_path.display()
-            )
+            NodeDatabase::new(&db_path)?;
         }
         self.workspace_db.set_path(db_path);
 
@@ -438,6 +442,127 @@ impl DocsDBKernelInstance {
             content,
             ..Default::default()
         }))
+    }
+
+    /// Add documents to the database from identifiers
+    ///
+    /// For each document (which may have multiple identifiers), tries each
+    /// identifier in order until one succeeds. Returns the number of documents
+    /// successfully added. Uses parallel processing for efficiency.
+    ///
+    /// # Arguments
+    /// * `documents` - Each inner Vec contains alternative identifiers for one document
+    ///
+    /// # Examples
+    /// ```
+    /// // Single document with single identifier
+    /// instance.add_documents(&vec![vec!["https://doi.org/10.1101/2021.11.24.469827".to_string()]]).await?;
+    ///
+    /// // Multiple documents with fallback identifiers
+    /// instance.add_documents(&vec![
+    ///     vec!["https://doi.org/10.1234/abc".to_string(), "pmc:PMC123456".to_string()],
+    ///     vec!["https://arxiv.org/abs/2101.00000".to_string()]
+    /// ]).await?;
+    /// ```
+    pub async fn add_documents(&mut self, documents: &[Vec<String>]) -> Result<usize> {
+        let Ok(mut db) = self
+            .workspace_db
+            .database()
+            .and_then(NodeDatabase::attached)
+        else {
+            bail!("No workspace database")
+        };
+
+        let Some(store_dir) = &self.store else {
+            bail!("No store directory for workspace database")
+        };
+
+        // Process documents in parallel
+        let store_dir_clone = store_dir.clone();
+        let tasks = documents.iter().map(|document_identifiers| {
+            let store_dir = store_dir_clone.clone();
+            let identifiers = document_identifiers.clone();
+
+            task::spawn(async move {
+                // Try each identifier for this document until one succeeds
+                for identifier in identifiers {
+                    match codecs::from_identifier(&identifier, None).await {
+                        Ok(mut root) => {
+                            // Generate a unique document ID
+                            let doc_id = NodeId::random(*b"doc");
+
+                            // Canonicalize and sentencize the document
+                            if let Err(error) = canonicalize(&mut root).await {
+                                tracing::debug!(
+                                    "Failed to canonicalize document `{identifier}`: {error}",
+                                );
+                                continue;
+                            }
+                            sentencize(&mut root);
+
+                            // Store the document as JSON
+                            let store_path = store_dir.join(format!("{doc_id}.json"));
+                            if let Err(error) = codec_json::to_path(
+                                &root,
+                                &store_path,
+                                Some(EncodeOptions {
+                                    compact: Some(false),
+                                    ..Default::default()
+                                }),
+                            ) {
+                                tracing::debug!(
+                                    "Failed to store document from `{identifier}`: {error}",
+                                );
+                                continue;
+                            }
+
+                            tracing::debug!(
+                                "Successfully processed document from identifier: {identifier}",
+                            );
+
+                            return Some((doc_id, root));
+                        }
+                        Err(error) => {
+                            tracing::debug!(
+                                "Failed to load document from identifier {identifier}: {error}"
+                            );
+                        }
+                    }
+                }
+
+                tracing::debug!("Failed to add document using any of its identifiers");
+                None
+            })
+        });
+
+        // Wait for all tasks to complete
+        let results = join_all(tasks).await;
+
+        // Insert successful documents into database
+        let mut added_count = 0;
+        for result in results {
+            match result {
+                Ok(Some((doc_id, root))) => {
+                    // Upsert to database
+                    db.upsert(&doc_id, &root)?;
+                    added_count += 1;
+                }
+                Ok(None) => {
+                    // Document failed to load from any identifier
+                }
+                Err(e) => {
+                    tracing::error!("Task failed: {}", e);
+                }
+            }
+        }
+
+        if added_count == 0 {
+            bail!(
+                "Failed to add any documents. This may be due to network connectivity issues or unsupported identifiers."
+            );
+        }
+
+        Ok(added_count)
     }
 }
 

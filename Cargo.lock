@@ -3738,11 +3738,15 @@ dependencies = [
 name = "kernel-docsdb"
 version = "0.0.0"
 dependencies = [
+ "codec-json",
  "codec-markdown",
+ "codecs",
  "dirs 0.0.0",
  "kernel-kuzu",
  "lru",
+ "node-canonicalize",
  "node-db",
+ "node-sentencize",
 ]
 
 [[package]]
@@ -3752,6 +3756,7 @@ dependencies = [
  "codec-github",
  "codec-openalex",
  "codec-text-trait",
+ "codecs",
  "common-dev",
  "embed",
  "kernel-docsdb",

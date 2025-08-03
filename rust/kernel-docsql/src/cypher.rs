@@ -1,6 +1,7 @@
 use std::sync::{Arc, Mutex as SyncMutex};
 
 use codec_text_trait::to_text;
+use codecs;
 use kernel_docsdb::{DocsDBKernelInstance, QueryResultTransform};
 use kernel_jinja::{
     kernel::{
@@ -13,7 +14,7 @@ use kernel_jinja::{
         },
         schema::{
             Array, CodeChunk, ExecutionMessage, MessageLevel, Node, NodeType, Primitive,
-            SectionType,
+            PropertyValue, PropertyValueOrString, SectionType,
         },
     },
     minijinja::{
@@ -25,8 +26,11 @@ use kernel_jinja::{
 use crate::{
     NodeProxies, NodeProxy,
     docsql::GLOBAL_CONSTS,
-    extend_messages, lock_messages,
+    extend_messages,
+    github::GitHubQuery,
+    lock_messages,
     nodes::{all, first, get, last},
+    openalex::OpenAlexQuery,
     subquery::Subquery,
     try_messages,
 };
@@ -847,6 +851,74 @@ impl CypherQuery {
             self.messages.clone(),
         )))
     }
+
+    /// Add documents to the workspace database
+    ///
+    /// Accepts either a direct URL string or query results containing documents
+    fn add(&self, source: Value) -> Result<(), Error> {
+        // Only allow on workspace database
+        if self.db_name != "workspace" {
+            return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                "add() can only be called on workspace database",
+            ));
+        }
+
+        // Collect document identifiers from the source
+        let documents = if let Some(identifier) = source.as_str() {
+            vec![vec![identifier.to_string()]]
+        } else if let Some(query) = source.downcast_object_ref::<OpenAlexQuery>() {
+            // OpenAlex query results - multiple documents with multiple identifiers each
+            query
+                .nodes()
+                .iter()
+                .map(|node| extract_identifiers(node))
+                .filter(|ids| !ids.is_empty())
+                .collect()
+        } else if let Some(query) = source.downcast_object_ref::<GitHubQuery>() {
+            // GitHub query results
+            query
+                .nodes()
+                .iter()
+                .map(|node| extract_identifiers(node))
+                .filter(|ids| !ids.is_empty())
+                .collect()
+        } else {
+            return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                "add() expects a string or a query",
+            ));
+        };
+
+        if documents.is_empty() {
+            return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                "No documents with supported identifiers found in query results",
+            ));
+        }
+
+        // Execute the add operation
+        let result: Result<usize, Error> = task::block_in_place(|| {
+            runtime::Handle::current().block_on(async {
+                let mut db_kernel = self.db.lock().await;
+                match db_kernel.add_documents(&documents).await {
+                    Ok(count) => Ok(count),
+                    Err(e) => Err(Error::new(ErrorKind::InvalidOperation, e.to_string())),
+                }
+            })
+        });
+
+        match result {
+            Ok(added_count) => {
+                let message = format!("Added {} documents to workspace", added_count);
+                if let Some(mut messages) = lock_messages(&self.messages) {
+                    messages.push(ExecutionMessage::new(MessageLevel::Info, message));
+                }
+                Ok(())
+            }
+            Err(e) => Err(e),
+        }
+    }
 }
 
 /// Generate a table name for a method
@@ -1253,6 +1325,13 @@ impl Object for CypherQuery {
                 return self.slice(first, last);
             }
 
+            // Method to add documents to workspace
+            "add" => {
+                let (source,) = from_args(args)?;
+                self.add(source)?;
+                return Ok(Value::from(()));
+            }
+
             // Fallback to node adding a MATCH pattern for a node table
             _ => {
                 let (args, kwargs) = from_args(args)?;
@@ -1469,4 +1548,64 @@ fn kwargs_insert(kwargs: Kwargs, key: &str, value: Value) -> Kwargs {
             .map(|key| (key, kwargs.get(key).expect("")))
             .chain([(key, value)]),
     )
+}
+
+/// Extract identifiers from a single node
+///
+/// Returns alternative identifiers for the document that can be used to fetch it.
+/// Handles both PropertyValue objects and plain string URLs in the identifiers array.
+fn extract_identifiers(node: &Node) -> Vec<String> {
+    match node {
+        Node::Article(article) => {
+            let mut identifiers = Vec::new();
+
+            // Try DOI first (most reliable)
+            if let Some(doi) = &article.doi {
+                identifiers.push(format!("https://doi.org/{}", doi));
+            }
+
+            // Then try other identifiers from the identifiers array
+            for id in article.options.identifiers.iter().flatten() {
+                match id {
+                    PropertyValueOrString::String(value)
+                    | PropertyValueOrString::PropertyValue(PropertyValue {
+                        value: Primitive::String(value),
+                        ..
+                    }) if value.starts_with("http") => {
+                        // Check if this URL is supported by one of our codecs
+                        if codecs::codec_for_identifier(value).is_some() {
+                            identifiers.push(value.clone());
+                        }
+                    }
+                    PropertyValueOrString::PropertyValue(PropertyValue {
+                        property_id: Some(prop_id),
+                        value: Primitive::String(value),
+                        ..
+                    }) => match prop_id.as_str() {
+                        "pmc" | "pmcid" => {
+                            identifiers.push(format!(
+                                "https://www.ncbi.nlm.nih.gov/pmc/articles/{}/",
+                                value
+                            ));
+                        }
+                        "arxiv" => {
+                            identifiers.push(format!("https://arxiv.org/abs/{}", value));
+                        }
+                        "biorxiv" => {
+                            identifiers.push(format!("https://www.biorxiv.org/content/{}", value));
+                        }
+                        "medrxiv" => {
+                            identifiers.push(format!("https://www.medrxiv.org/content/{}", value));
+                        }
+                        _ => {}
+                    },
+                    _ => {}
+                }
+            }
+
+            identifiers
+        }
+        // Future: Add support for other node types like SoftwareApplication
+        _ => Vec::new(),
+    }
 }
