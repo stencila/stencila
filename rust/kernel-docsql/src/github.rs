@@ -101,19 +101,12 @@ impl GitHubQuery {
         self.object_type.is_empty()
     }
 
-    /// Set the type for the query (code, repositories, users, etc.)
-    fn object_type(&self, object_type: &str) -> Self {
-        let mut query = self.clone();
-        query.object_type = object_type.into();
-        query
-    }
-
-    /// Add a filter to the query
-    fn filter(&mut self, arg_name: &str, arg_value: Value) -> Result<(), Error> {
+    /// Apply a filter to the query
+    fn apply_filter(&mut self, arg_name: &str, arg_value: Value) -> Result<(), Error> {
         // Handle subquery filters (e.g., ...authors(.name ~= "Smith"))
         if arg_name == "_" {
             if let Some(subquery) = arg_value.downcast_object_ref::<Subquery>() {
-                return self.subquery_filters(subquery);
+                return self.apply_subquery_filters(subquery);
             }
         }
 
@@ -287,69 +280,32 @@ impl GitHubQuery {
         Ok(())
     }
 
-    /// Add filters specified in a subquery
-    fn subquery_filters(&mut self, subquery: &Subquery) -> Result<(), Error> {
+    /// Apply filters specified in a subquery
+    fn apply_subquery_filters(&mut self, subquery: &Subquery) -> Result<(), Error> {
         let object_type = self.object_type.clone();
         let subquery_name = subquery.name.as_str();
 
-        // Closure to handle common subquery pattern
-        let mut apply_subquery_ids = |entity_type: &str,
-                                      args: &[(String, Value)],
-                                      qualifier: &str,
-                                      test_ids: Vec<String>|
-         -> Result<(), Error> {
-            let mut query = self.clone_for(entity_type);
-            for (arg_name, arg_value) in args {
-                query.filter(arg_name, arg_value.clone())?;
-            }
-
-            // GitHub search API has a limit of 5 AND/OR/NOT operators per query
-            // See https://docs.github.com/en/rest/search/search?apiVersion=2022-11-28#limitations-on-query-length
-            // Since we're using OR between each ID, we can include at most 5 IDs
-
-            let ids = if testing() {
-                Some(test_ids)
-            } else {
-                query.ids(5)
-            };
-
-            if let Some(mut ids) = ids {
-                if !ids.is_empty() {
-                    ids.truncate(5);
-
-                    let filter = ids
-                        .into_iter()
-                        .map(|id| format!("{qualifier}:{id}"))
-                        .join(" OR ");
-                    // It would pre preferable to place parentheses around this filter so boolean logic is correct.
-                    // However, although the docs say this is possible,  when this was done, it resulted in the
-                    // error "ERROR_TYPE_QUERY_PARSING_FATAL unable to parse query!"
-                    // See https://docs.github.com/en/search-github/github-code-search/understanding-github-code-search-syntax#using-boolean-operations
-                    self.filters.push(filter);
-                }
-            }
-            Ok(())
-        };
-
         match (object_type.as_str(), subquery_name) {
             ("code", "part_of") => {
-                apply_subquery_ids(
+                let mut query = self.clone_for("repositories");
+                for (arg_name, arg_value) in &subquery.args {
+                    query.apply_filter(arg_name, arg_value.clone())?;
+                }
+
+                self.apply_ids_filter(
+                    Some(query),
                     "repositories",
-                    &subquery.args,
                     "repo",
-                    vec![
-                        "pandas-dev/pandas".to_string(),
-                        "pola-rs/polars".to_string(),
-                    ],
+                    get_test_ids("repositories"),
                 )?;
             }
             ("code" | "repositories", "owned_by") => {
-                apply_subquery_ids(
-                    "users",
-                    &subquery.args,
-                    "user",
-                    vec!["octocat".to_string(), "github".to_string()],
-                )?;
+                let mut query = self.clone_for("users");
+                for (arg_name, arg_value) in &subquery.args {
+                    query.apply_filter(arg_name, arg_value.clone())?;
+                }
+
+                self.apply_ids_filter(Some(query), "users", "user", get_test_ids("users"))?;
             }
             _ => {
                 if matches!(object_type.as_str(), "code" | "repositories") {
@@ -371,11 +327,37 @@ impl GitHubQuery {
         Ok(())
     }
 
-    /// Set the search term
-    fn search(&self, term: &str) -> Self {
-        let mut query = self.clone();
-        query.search = Some(term.into());
-        query
+    /// Apply IDs as a filter with the given qualifier
+    ///
+    /// If a query is provided, it will be used to fetch IDs. Otherwise, a new query
+    /// for the entity_type will be created from self.
+    fn apply_ids_filter(
+        &mut self,
+        query: Option<GitHubQuery>,
+        entity_type: &str,
+        qualifier: &str,
+        test_ids: Vec<String>,
+    ) -> Result<(), Error> {
+        // GitHub search API has a limit of 5 AND/OR/NOT operators per query
+        // See https://docs.github.com/en/rest/search/search?apiVersion=2022-11-28#limitations-on-query-length
+        let ids = if testing() {
+            Some(test_ids)
+        } else {
+            let q = query.unwrap_or_else(|| self.clone_for(entity_type));
+            q.ids(5)
+        };
+
+        if let Some(mut ids) = ids {
+            if !ids.is_empty() {
+                ids.truncate(5);
+                let filter = ids
+                    .into_iter()
+                    .map(|id| format!("{qualifier}:{id}"))
+                    .join(" OR ");
+                self.filters.push(filter);
+            }
+        }
+        Ok(())
     }
 
     /// Set sort parameter
@@ -628,6 +610,18 @@ fn format_filter_value(value: &Value) -> Result<String, Error> {
     })
 }
 
+/// Get test IDs for a given entity type
+fn get_test_ids(entity_type: &str) -> Vec<String> {
+    match entity_type {
+        "users" => vec!["octocat".to_string(), "github".to_string()],
+        "repositories" => vec![
+            "pandas-dev/pandas".to_string(),
+            "pola-rs/polars".to_string(),
+        ],
+        _ => vec![],
+    }
+}
+
 impl Object for GitHubQuery {
     fn call_method(
         self: &Arc<Self>,
@@ -635,6 +629,7 @@ impl Object for GitHubQuery {
         name: &str,
         args: &[Value],
     ) -> Result<Value, Error> {
+        // Return an error for methods that have args that shouldn't
         let no_args = || -> Result<(), Error> {
             if args.is_empty() {
                 Ok(())
@@ -644,6 +639,34 @@ impl Object for GitHubQuery {
                     format!("Method `{name}` takes no arguments."),
                 ))
             }
+        };
+
+        // Apply method arguments to the query
+        let apply_method_args = |query: &mut GitHubQuery| -> Result<(), Error> {
+            let (arg, kwargs): (Option<Value>, Kwargs) = from_args(args)?;
+            if let Some(value) = arg {
+                if let Some(value) = value.as_str() {
+                    query.search = Some(value.into());
+                }
+            }
+            for arg in kwargs.args() {
+                let value: Value = kwargs.get(arg)?;
+                match arg {
+                    "search" => {
+                        if let Some(value) = value.as_str() {
+                            query.search = Some(value.into());
+                        }
+                    }
+                    "like" => {
+                        return Err(Error::new(
+                            ErrorKind::UnknownMethod,
+                            "Semantic similarity filtering is not available for GitHub, use `search` instead",
+                        ));
+                    }
+                    _ => query.apply_filter(arg, value)?,
+                }
+            }
+            Ok(())
         };
 
         let query = match name {
@@ -672,96 +695,32 @@ impl Object for GitHubQuery {
                         ));
                     }
 
-                    // Get IDs from the current query
-                    // GitHub search API has a limit of 5 AND/OR/NOT operators per query
-                    let ids = if testing() {
-                        // Mock IDs for testing
-                        match self.object_type.as_str() {
-                            "users" => Some(vec!["octocat".to_string(), "github".to_string()]),
-                            "repositories" => Some(vec![
-                                "octocat/Hello-World".to_string(),
-                                "github/hub".to_string(),
-                            ]),
-                            _ => None,
-                        }
-                    } else {
-                        self.ids(5)
-                    };
-
                     let mut query = self.clone_for(object_type);
 
                     // Add filters based on the parent query's IDs
-                    if let Some(mut ids) = ids {
-                        if !ids.is_empty() {
-                            ids.truncate(5);
-                            let qualifier = match self.object_type.as_str() {
-                                "users" => "user",
-                                "repositories" => "repo",
-                                _ => unreachable!(),
-                            };
+                    let qualifier = match self.object_type.as_str() {
+                        "users" => "user",
+                        "repositories" => "repo",
+                        _ => unreachable!(),
+                    };
 
-                            let filter = ids
-                                .into_iter()
-                                .map(|id| format!("{qualifier}:{id}"))
-                                .join(" OR ");
-                            query.filters.push(filter);
-                        }
-                    }
+                    query.apply_ids_filter(
+                        Some((**self).clone()),
+                        &self.object_type,
+                        qualifier,
+                        get_test_ids(&self.object_type),
+                    )?;
 
                     // Apply any additional filters from the method arguments
-                    let (arg, kwargs): (Option<Value>, Kwargs) = from_args(args)?;
-                    if let Some(value) = arg {
-                        if let Some(value) = value.as_str() {
-                            query = query.search(value)
-                        }
-                    }
-                    for arg in kwargs.args() {
-                        let value: Value = kwargs.get(arg)?;
-                        match arg {
-                            "search" => {
-                                if let Some(value) = value.as_str() {
-                                    query = query.search(value)
-                                }
-                            }
-                            "like" => {
-                                return Err(Error::new(
-                                    ErrorKind::UnknownMethod,
-                                    "Semantic similarity filtering is not available for GitHub, use `search` instead",
-                                ));
-                            }
-                            _ => query.filter(arg, value)?,
-                        }
-                    }
+                    apply_method_args(&mut query)?;
 
                     query
                 } else {
                     // Normal (non-chained) call
-                    let mut query = self.object_type(object_type);
+                    let mut query = self.clone_for(object_type);
 
-                    // Handle `search` and `like` arguments and apply all others as filters
-                    let (arg, kwargs): (Option<Value>, Kwargs) = from_args(args)?;
-                    if let Some(value) = arg {
-                        if let Some(value) = value.as_str() {
-                            query = query.search(value)
-                        }
-                    }
-                    for arg in kwargs.args() {
-                        let value: Value = kwargs.get(arg)?;
-                        match arg {
-                            "search" => {
-                                if let Some(value) = value.as_str() {
-                                    query = query.search(value)
-                                }
-                            }
-                            "like" => {
-                                return Err(Error::new(
-                                    ErrorKind::UnknownMethod,
-                                    "Semantic similarity filtering is not available for GitHub, use `search` instead",
-                                ));
-                            }
-                            _ => query.filter(arg, value)?,
-                        }
-                    }
+                    // Apply method arguments
+                    apply_method_args(&mut query)?;
 
                     query
                 }

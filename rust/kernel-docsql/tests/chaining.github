@@ -20,17 +20,17 @@ GET https://api.github.com/search/code?q=import+user:octocat+OR+user:github+lang
 
 github.repositories(.stars > 100).code("test")
 ---
-GET https://api.github.com/search/code?q=test+repo:octocat/Hello-World+OR+repo:github/hub
+GET https://api.github.com/search/code?q=test+repo:pandas-dev/pandas+OR+repo:pola-rs/polars
 
 
 github.repositories(.topic = "machine-learning").code("def", .extension = "py")
 ---
-GET https://api.github.com/search/code?q=def+repo:octocat/Hello-World+OR+repo:github/hub+extension:py
+GET https://api.github.com/search/code?q=def+repo:pandas-dev/pandas+OR+repo:pola-rs/polars+extension:py
 
 
 github.repositories("pandas").code(.path = "tests")
 ---
-GET https://api.github.com/search/code?q=repo:octocat/Hello-World+OR+repo:github/hub+path:tests
+GET https://api.github.com/search/code?q=repo:pandas-dev/pandas+OR+repo:pola-rs/polars+path:tests
 
 
 github.code().repositories()
