@@ -6,8 +6,8 @@ expression: node
   "type": "SoftwareSourceCode",
   "name": "pandas-dev/pandas: Pandas",
   "doi": "10.5281/zenodo.3509134",
-  "programmingLanguage": "",
   "repository": "https://github.com/pandas-dev/pandas",
+  "programmingLanguage": "",
   "description": "Pandas is a powerful data structures for data analysis, time series, and statistics.",
   "url": "https://pandas.pydata.org/",
   "authors": [
