@@ -1,7 +1,6 @@
 use std::sync::{Arc, Mutex as SyncMutex};
 
 use codec_text_trait::to_text;
-use codecs;
 use kernel_docsdb::{DocsDBKernelInstance, QueryResultTransform};
 use kernel_jinja::{
     kernel::{
@@ -872,7 +871,7 @@ impl CypherQuery {
             query
                 .nodes()
                 .iter()
-                .map(|node| extract_identifiers(node))
+                .map(extract_identifiers)
                 .filter(|ids| !ids.is_empty())
                 .collect()
         } else if let Some(query) = source.downcast_object_ref::<GitHubQuery>() {
@@ -880,7 +879,7 @@ impl CypherQuery {
             query
                 .nodes()
                 .iter()
-                .map(|node| extract_identifiers(node))
+                .map(extract_identifiers)
                 .filter(|ids| !ids.is_empty())
                 .collect()
         } else {
@@ -910,7 +909,7 @@ impl CypherQuery {
 
         match result {
             Ok(added_count) => {
-                let message = format!("Added {} documents to workspace", added_count);
+                let message = format!("Added {added_count} documents to workspace");
                 if let Some(mut messages) = lock_messages(&self.messages) {
                     messages.push(ExecutionMessage::new(MessageLevel::Info, message));
                 }
@@ -1561,7 +1560,7 @@ fn extract_identifiers(node: &Node) -> Vec<String> {
 
             // Try DOI first (most reliable)
             if let Some(doi) = &article.doi {
-                identifiers.push(format!("https://doi.org/{}", doi));
+                identifiers.push(format!("https://doi.org/{doi}"));
             }
 
             // Then try other identifiers from the identifiers array
@@ -1583,18 +1582,17 @@ fn extract_identifiers(node: &Node) -> Vec<String> {
                     }) => match prop_id.as_str() {
                         "pmc" | "pmcid" => {
                             identifiers.push(format!(
-                                "https://www.ncbi.nlm.nih.gov/pmc/articles/{}/",
-                                value
+                                "https://www.ncbi.nlm.nih.gov/pmc/articles/{value}/"
                             ));
                         }
                         "arxiv" => {
-                            identifiers.push(format!("https://arxiv.org/abs/{}", value));
+                            identifiers.push(format!("https://arxiv.org/abs/{value}"));
                         }
                         "biorxiv" => {
-                            identifiers.push(format!("https://www.biorxiv.org/content/{}", value));
+                            identifiers.push(format!("https://www.biorxiv.org/content/{value}"));
                         }
                         "medrxiv" => {
-                            identifiers.push(format!("https://www.medrxiv.org/content/{}", value));
+                            identifiers.push(format!("https://www.medrxiv.org/content/{value}"));
                         }
                         _ => {}
                     },

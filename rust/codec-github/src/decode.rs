@@ -132,7 +132,7 @@ pub(super) async fn fetch_github_file(file_info: &GithubFileInfo) -> Result<Vec<
     );
     if let Some(ref_) = &file_info.ref_ {
         api_path.push_str("?ref=");
-        api_path.push_str(&ref_);
+        api_path.push_str(ref_);
     };
 
     // Fetch the file content from GitHub
@@ -150,14 +150,16 @@ pub(super) async fn fetch_github_file(file_info: &GithubFileInfo) -> Result<Vec<
 
 #[cfg(test)]
 mod tests {
+    use codec::common::eyre::OptionExt;
+
     use super::*;
 
     #[test]
-    fn test_extract_github_identifier() {
+    fn test_extract_github_identifier() -> Result<()> {
         // Test github.com blob URLs
         let info =
             extract_github_identifier("https://github.com/owner/repo/blob/main/path/to/file.rs")
-                .unwrap();
+                .ok_or_eyre("expected some")?;
         assert_eq!(info.owner, "owner");
         assert_eq!(info.repo, "repo");
         assert_eq!(info.path, "path/to/file.rs");
@@ -166,7 +168,7 @@ mod tests {
         // Test github.com tree URLs
         let info =
             extract_github_identifier("https://github.com/owner/repo/tree/v1.0.0/src/lib.rs")
-                .unwrap();
+                .ok_or_eyre("expected some")?;
         assert_eq!(info.owner, "owner");
         assert_eq!(info.repo, "repo");
         assert_eq!(info.path, "src/lib.rs");
@@ -176,7 +178,7 @@ mod tests {
         let info = extract_github_identifier(
             "https://raw.githubusercontent.com/owner/repo/main/README.md",
         )
-        .unwrap();
+        .ok_or_eyre("expected some")?;
         assert_eq!(info.owner, "owner");
         assert_eq!(info.repo, "repo");
         assert_eq!(info.path, "README.md");
@@ -185,5 +187,7 @@ mod tests {
         // Test invalid URLs
         assert!(extract_github_identifier("https://example.com/file").is_none());
         assert!(extract_github_identifier("not-a-url").is_none());
+
+        Ok(())
     }
 }

@@ -702,7 +702,12 @@ impl OpenAlexQuery {
     ///
     /// If a query is provided, it will be used to fetch IDs. Otherwise, a new query
     /// for the entity_type will be created from self.
-    fn apply_ids_filter(&mut self, query: Option<OpenAlexQuery>, entity_type: &str, filter_name: &str) -> Result<(), Error> {
+    fn apply_ids_filter(
+        &mut self,
+        query: Option<OpenAlexQuery>,
+        entity_type: &str,
+        filter_name: &str,
+    ) -> Result<(), Error> {
         let ids = if testing() {
             Some(get_test_ids(entity_type).join("|"))
         } else {
@@ -715,7 +720,8 @@ impl OpenAlexQuery {
                 self.filters.push(format!("{filter_name}:{ids}"));
             } else {
                 // Use a non-existent ID so the filter is applied but returns empty results
-                self.filters.push(format!("{filter_name}:{}", get_default_id(entity_type)));
+                self.filters
+                    .push(format!("{filter_name}:{}", get_default_id(entity_type)));
             }
         }
         Ok(())
@@ -1153,12 +1159,15 @@ impl Object for OpenAlexQuery {
                 // Check if this is a chained call
                 if !self.is_base() {
                     // Define valid chains and their filter names
-                    let (valid_chain, filter_name) = match (self.entity_type.as_str(), entity_type) {
+                    let (valid_chain, filter_name) = match (self.entity_type.as_str(), entity_type)
+                    {
                         ("authors", "works") => (true, "authorships.author.id"),
                         ("institutions", "works") => (true, "authorships.institutions.id"),
                         ("institutions", "authors") => (true, "affiliations.institution.id"),
                         ("sources", "works") => (true, "primary_location.source.id"),
-                        ("publishers", "works") => (true, "primary_location.source.host_organization"),
+                        ("publishers", "works") => {
+                            (true, "primary_location.source.host_organization")
+                        }
                         ("publishers", "sources") => (true, "host_organization_lineage"),
                         ("funders", "works") => (true, "grants.funder"),
                         _ => (false, ""),

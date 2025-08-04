@@ -393,7 +393,7 @@ mod tests {
             assert_eq!(op.to_suffix(), *suffix);
             if !suffix.is_empty() {
                 assert_eq!(
-                    Operator::from_suffix(suffix.chars().next().unwrap()),
+                    Operator::from_suffix(suffix.chars().next().expect("emptiness checked above")),
                     Some(*op)
                 );
             }

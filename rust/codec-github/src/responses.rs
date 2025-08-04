@@ -1,8 +1,8 @@
 use serde::Deserialize;
 
 use crate::search_code::CodeSearchItem;
-use crate::search_users::UserSearchItem;
 use crate::search_repos::RepositorySearchItem;
+use crate::search_users::UserSearchItem;
 
 /// The response from GitHub search API endpoints
 ///

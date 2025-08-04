@@ -1,7 +1,9 @@
-use codec::schema::{Node, SoftwareSourceCode, SoftwareSourceCodeOptions, StringOrNumber, CreativeWorkTypeOrString};
+use codec::schema::{
+    CreativeWorkTypeOrString, Node, SoftwareSourceCode, SoftwareSourceCodeOptions, StringOrNumber,
+};
 use serde::Deserialize;
 
-use crate::search_code::{TextMatch, SimpleUser};
+use crate::search_code::{SimpleUser, TextMatch};
 
 /// Repository search result item from GitHub search API
 #[derive(Deserialize)]
@@ -205,7 +207,9 @@ impl From<RepositorySearchItem> for SoftwareSourceCode {
 
         // Map license information
         let licenses = repo.license.and_then(|license| {
-            license.spdx_id.map(|spdx_id| vec![CreativeWorkTypeOrString::String(spdx_id)])
+            license
+                .spdx_id
+                .map(|spdx_id| vec![CreativeWorkTypeOrString::String(spdx_id)])
         });
 
         // Map topics as keywords
