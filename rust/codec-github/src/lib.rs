@@ -9,9 +9,10 @@ use codec::{
         serde_json,
     },
     format::Format,
-    schema::{Article, Node, SoftwareSourceCode, SoftwareSourceCodeOptions, Text},
+    schema::{Article, Datatable, Node, SoftwareSourceCode, SoftwareSourceCodeOptions, Text},
     status::Status,
 };
+use codec_csv::CsvCodec;
 use codec_ipynb::IpynbCodec;
 use codec_latex::LatexCodec;
 use codec_markdown::MarkdownCodec;
@@ -86,6 +87,9 @@ impl GithubCodec {
             Format::Markdown | Format::Myst | Format::Qmd | Format::Smd => {
                 MarkdownCodec.from_str(&content, options).await?
             }
+            Format::Csv | Format::Tsv | Format::Parquet | Format::Arrow => {
+                CsvCodec.from_str(&content, options).await?
+            }
             _ => {
                 // For other formats, return as SoftwareSourceCode
                 let node = Node::SoftwareSourceCode(SoftwareSourceCode {
@@ -106,14 +110,25 @@ impl GithubCodec {
         let repository = Some(file_info.repo_url());
         let path = Some(file_info.path);
         let commit = file_info.ref_;
-        if let Node::Article(Article { options, .. }) = &mut node {
-            options.repository = repository;
-            options.path = path;
-            options.commit = commit;
-        } else if let Node::SoftwareSourceCode(code) = &mut node {
-            code.repository = repository;
-            code.path = path;
-            code.commit = commit;
+        match &mut node {
+            Node::Article(Article { options, .. }) => {
+                options.repository = repository;
+                options.path = path;
+                options.commit = commit;
+            }
+            Node::SoftwareSourceCode(code) => {
+                code.repository = repository;
+                code.path = path;
+                code.commit = commit;
+            }
+            Node::Datatable(Datatable { options, .. }) => {
+                options.repository = repository;
+                options.path = path;
+                options.commit = commit;
+            }
+            _ => {
+                // For other node types, we don't set these properties
+            }
         }
 
         Ok((node, info))
@@ -153,7 +168,7 @@ pub fn from_value_any(value: &serde_json::Value) -> Result<Node> {
         && value.get("repository").is_some()
     {
         let code_item: CodeSearchItem = serde_json::from_value(value.clone())?;
-        Ok(Node::SoftwareSourceCode(code_item.into()))
+        Ok(code_item.into())
     }
     // Check if it's a user search item
     else if value.get("login").is_some()

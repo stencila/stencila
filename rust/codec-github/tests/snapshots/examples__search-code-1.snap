@@ -3,15 +3,14 @@ source: rust/codec-github/tests/examples.rs
 expression: node
 ---
 {
-  "type": "SoftwareSourceCode",
+  "type": "Article",
   "id": "https://github.com/pzc/cadd-grc-2013/blob/5e6d8bd8b4be4c8129de4743329250cfb4fbf357/006_Pandas.ipynb",
-  "name": "006_Pandas.ipynb",
-  "repository": "https://github.com/pzc/cadd-grc-2013",
-  "path": "006_Pandas.ipynb",
-  "version": "e21b1d43a42cb601699579a481a5d4528d40c490",
-  "programmingLanguage": "",
+  "content": [],
   "identifiers": [
     "https://github.com/pzc/cadd-grc-2013/blob/5e6d8bd8b4be4c8129de4743329250cfb4fbf357/006_Pandas.ipynb"
   ],
-  "url": "https://api.github.com/repositories/11545024/contents/006_Pandas.ipynb?ref=5e6d8bd8b4be4c8129de4743329250cfb4fbf357"
+  "url": "https://api.github.com/repositories/11545024/contents/006_Pandas.ipynb?ref=5e6d8bd8b4be4c8129de4743329250cfb4fbf357",
+  "repository": "https://github.com/pzc/cadd-grc-2013",
+  "path": "006_Pandas.ipynb",
+  "commit": "e21b1d43a42cb601699579a481a5d4528d40c490"
 }

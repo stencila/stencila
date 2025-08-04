@@ -1,4 +1,12 @@
-use codec::schema::{Node, SoftwareSourceCode, SoftwareSourceCodeOptions, StringOrNumber};
+use std::path::PathBuf;
+
+use codec::{
+    format::Format,
+    schema::{
+        Article, ArticleOptions, Datatable, DatatableOptions, Node, PropertyValueOrString,
+        SoftwareSourceCode, SoftwareSourceCodeOptions,
+    },
+};
 use serde::Deserialize;
 
 /// Code search result item from GitHub search API
@@ -266,35 +274,70 @@ pub struct TextMatchItem {
     pub indices: Option<Vec<i64>>,
 }
 
-impl From<CodeSearchItem> for SoftwareSourceCode {
-    fn from(code: CodeSearchItem) -> Self {
-        use codec::schema::PropertyValueOrString;
-
-        // Store the GitHub file URL in both id and identifiers for compatibility
-        let github_url = code.html_url.clone();
-
-        SoftwareSourceCode {
-            // Use the GitHub URL as the id, consistent with, for example, the OpenAlex codec
-            id: Some(github_url.clone()),
-            name: code.name,
-            programming_language: code.language.unwrap_or_default(),
-            path: Some(code.path),
-            repository: Some(code.repository.html_url),
-            version: Some(StringOrNumber::String(code.sha)),
-            options: Box::new(SoftwareSourceCodeOptions {
-                // Store the API URL in url field for reference
-                url: Some(code.url),
-                // Also store the GitHub URL in identifiers array
-                identifiers: Some(vec![PropertyValueOrString::String(github_url)]),
-                ..Default::default()
-            }),
-            ..Default::default()
-        }
-    }
-}
-
 impl From<CodeSearchItem> for Node {
     fn from(code: CodeSearchItem) -> Self {
-        Node::SoftwareSourceCode(code.into())
+        // Determine the format from the file path
+        let path = PathBuf::from(&code.path);
+        let format = Format::from_path(&path);
+
+        let id = Some(code.html_url.clone());
+
+        let repository = Some(code.repository.html_url);
+        let path = Some(code.path);
+        let commit = Some(code.sha);
+
+        let url = Some(code.url);
+        let identifiers = Some(vec![PropertyValueOrString::String(code.html_url.clone())]);
+
+        match format {
+            // For CSV/TSV/Parquet/Arrow files, create a placeholder Datatable
+            Format::Csv | Format::Tsv | Format::Parquet | Format::Arrow => {
+                Node::Datatable(Datatable {
+                    id,
+                    options: Box::new(DatatableOptions {
+                        url,
+                        identifiers,
+                        repository,
+                        path,
+                        commit,
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                })
+            }
+            // For Jupyter notebooks and document formats, create an Article placeholder
+            Format::Ipynb
+            | Format::Markdown
+            | Format::Myst
+            | Format::Qmd
+            | Format::Smd
+            | Format::Latex => Node::Article(Article {
+                id,
+                options: Box::new(ArticleOptions {
+                    url,
+                    identifiers,
+                    repository,
+                    path,
+                    commit,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }),
+            // For all other formats, use SoftwareSourceCode
+            _ => Node::SoftwareSourceCode(SoftwareSourceCode {
+                id,
+                name: code.name,
+                programming_language: code.language.unwrap_or_default(),
+                path,
+                repository,
+                commit,
+                options: Box::new(SoftwareSourceCodeOptions {
+                    url,
+                    identifiers,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }),
+        }
     }
 }
