@@ -6,7 +6,8 @@ use codec::{
         async_trait::async_trait,
         eyre::{Result, bail},
         serde::de::DeserializeOwned,
-        serde_json,
+        serde_json, tempfile,
+        tokio::fs::write,
     },
     format::Format,
     schema::{Article, Datatable, Node, SoftwareSourceCode, SoftwareSourceCodeOptions, Text},
@@ -16,6 +17,7 @@ use codec_csv::CsvCodec;
 use codec_ipynb::IpynbCodec;
 use codec_latex::LatexCodec;
 use codec_markdown::MarkdownCodec;
+use codec_xlsx::XlsxCodec;
 
 pub mod client;
 pub mod decode;
@@ -74,7 +76,6 @@ impl GithubCodec {
 
         // Fetch the raw content
         let content_bytes = decode::fetch_github_file(&file_info).await?;
-        let content = String::from_utf8(content_bytes)?;
 
         // Determine the format from the file path
         let path = PathBuf::from(&file_info.path);
@@ -82,27 +83,47 @@ impl GithubCodec {
 
         // Delegate to the appropriate codec based on format
         let (mut node, info) = match format {
-            Format::Ipynb => IpynbCodec.from_str(&content, options).await?,
-            Format::Latex => LatexCodec.from_str(&content, options).await?,
-            Format::Markdown | Format::Myst | Format::Qmd | Format::Smd => {
-                MarkdownCodec.from_str(&content, options).await?
-            }
-            Format::Csv | Format::Tsv | Format::Parquet | Format::Arrow => {
-                CsvCodec.from_str(&content, options).await?
+            Format::Xlsx | Format::Xls | Format::Ods => {
+                // Spreadsheet formats require binary file access, so we create a temporary file
+                let temp_file = tempfile::Builder::new()
+                    .suffix(&format!(".{format}"))
+                    .tempfile()?;
+                let temp_path = temp_file.path();
+
+                // Write binary content to temporary file
+                write(temp_path, &content_bytes).await?;
+
+                // Decode using XlsxCodec from_path
+                let (node, _losses, info) = XlsxCodec.from_path(temp_path, options).await?;
+                (node, info)
             }
             _ => {
-                // For other formats, return as SoftwareSourceCode
-                let node = Node::SoftwareSourceCode(SoftwareSourceCode {
-                    name: file_info.file_name(),
-                    programming_language: file_info.lang(),
-                    options: Box::new(SoftwareSourceCodeOptions {
-                        text: Some(Text::from(content)),
-                        url: Some(identifier.to_string()),
-                        ..Default::default()
-                    }),
-                    ..Default::default()
-                });
-                (node, DecodeInfo::none())
+                // For text-based formats, convert to string
+                let content = String::from_utf8(content_bytes)?;
+                match format {
+                    Format::Ipynb => IpynbCodec.from_str(&content, options).await?,
+                    Format::Latex => LatexCodec.from_str(&content, options).await?,
+                    Format::Markdown | Format::Myst | Format::Qmd | Format::Smd => {
+                        MarkdownCodec.from_str(&content, options).await?
+                    }
+                    Format::Csv | Format::Tsv | Format::Parquet | Format::Arrow => {
+                        CsvCodec.from_str(&content, options).await?
+                    }
+                    _ => {
+                        // For other formats, return as SoftwareSourceCode
+                        let node = Node::SoftwareSourceCode(SoftwareSourceCode {
+                            name: file_info.file_name(),
+                            programming_language: file_info.lang(),
+                            options: Box::new(SoftwareSourceCodeOptions {
+                                text: Some(Text::from(content)),
+                                url: Some(identifier.to_string()),
+                                ..Default::default()
+                            }),
+                            ..Default::default()
+                        });
+                        (node, DecodeInfo::none())
+                    }
+                }
             }
         };
 

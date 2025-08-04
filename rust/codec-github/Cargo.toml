@@ -10,6 +10,7 @@ codec-csv = { path = "../codec-csv" }
 codec-ipynb = { path = "../codec-ipynb" }
 codec-latex = { path = "../codec-latex" }
 codec-markdown = { path = "../codec-markdown" }
+codec-xlsx = { path = "../codec-xlsx" }
 governor = {workspace = true}
 secrets = { path = "../secrets" }
 serde = { workspace = true }

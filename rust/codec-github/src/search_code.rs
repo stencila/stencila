@@ -290,21 +290,25 @@ impl From<CodeSearchItem> for Node {
         let identifiers = Some(vec![PropertyValueOrString::String(code.html_url.clone())]);
 
         match format {
-            // For CSV/TSV/Parquet/Arrow files, create a placeholder Datatable
-            Format::Csv | Format::Tsv | Format::Parquet | Format::Arrow => {
-                Node::Datatable(Datatable {
-                    id,
-                    options: Box::new(DatatableOptions {
-                        url,
-                        identifiers,
-                        repository,
-                        path,
-                        commit,
-                        ..Default::default()
-                    }),
+            // For tabular data files, create a placeholder Datatable
+            Format::Csv
+            | Format::Tsv
+            | Format::Parquet
+            | Format::Arrow
+            | Format::Xlsx
+            | Format::Xls
+            | Format::Ods => Node::Datatable(Datatable {
+                id,
+                options: Box::new(DatatableOptions {
+                    url,
+                    identifiers,
+                    repository,
+                    path,
+                    commit,
                     ..Default::default()
-                })
-            }
+                }),
+                ..Default::default()
+            }),
             // For Jupyter notebooks and document formats, create an Article placeholder
             Format::Ipynb
             | Format::Markdown

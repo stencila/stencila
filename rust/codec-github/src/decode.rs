@@ -3,6 +3,7 @@ use url::Url;
 
 use codec::common::{
     eyre::{Result, bail},
+    reqwest,
     serde::Deserialize,
     tracing,
 };
@@ -116,8 +117,13 @@ pub(super) fn extract_github_identifier(identifier: &str) -> Option<GithubFileIn
 /// Response from GitHub Contents API
 #[derive(Debug, Deserialize)]
 struct ContentsResponse {
-    content: String,
+    content: Option<String>,
     encoding: String,
+    size: u64,
+    #[serde(rename = "type")]
+    #[allow(dead_code)]
+    file_type: String,
+    download_url: Option<String>,
 }
 
 /// Fetch raw content from a GitHub file
@@ -138,12 +144,28 @@ pub(super) async fn fetch_github_file(file_info: &GithubFileInfo) -> Result<Vec<
     // Fetch the file content from GitHub
     let response: ContentsResponse = request(&api_url(&api_path)).await?;
 
-    // Decode base64 content
-    if response.encoding != "base64" {
-        bail!("Unsupported encoding: {}", response.encoding);
-    }
+    tracing::debug!(
+        "GitHub API response: size={} bytes, encoding={}",
+        response.size,
+        response.encoding
+    );
 
-    let content_bytes = STANDARD.decode(response.content.replace('\n', ""))?;
+    let content_bytes = if let Some(content) = response.content {
+        // Decode base64 content for smaller files
+        if response.encoding != "base64" {
+            bail!("Unsupported encoding: {}", response.encoding);
+        }
+
+        STANDARD.decode(content.replace('\n', ""))?
+    } else if let Some(download_url) = response.download_url {
+        tracing::debug!("Downloading contents from: {download_url}");
+        let client = reqwest::Client::new();
+        let raw_response = client.get(&download_url).send().await?;
+        let content_bytes = raw_response.bytes().await?;
+        content_bytes.to_vec()
+    } else {
+        bail!("File is too large and no download URL provided by GitHub API");
+    };
 
     Ok(content_bytes)
 }
