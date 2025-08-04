@@ -1,0 +1,65 @@
+---
+source: rust/codec-zenodo/tests/examples.rs
+expression: node
+---
+{
+  "type": "SoftwareSourceCode",
+  "name": "Artifact Virtual Machine for \"Mechanizing Refinement Types\"",
+  "doi": "10.5281/zenodo.8425176",
+  "programmingLanguage": "",
+  "description": "This is a VirtualBox file in OVF format containing a Debian 12.2 Virtual Machine with all necessary dependencies to run (check) the mechanized proofs from the POPL 2024 paper &quot;Mechanizing Refinement Types.&quot;",
+  "url": "https://doi.org/10.5281/zenodo.8425176",
+  "authors": [
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "University of California, San Diego"
+        }
+      ],
+      "familyNames": [
+        "Borkowski"
+      ],
+      "givenNames": [
+        "Michael"
+      ],
+      "name": "Michael H. Borkowski"
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "IMDEA Software Institute"
+        }
+      ],
+      "familyNames": [
+        "Vazou"
+      ],
+      "givenNames": [
+        "Niki"
+      ],
+      "name": "Niki Vazou"
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "University of California, San Diego"
+        }
+      ],
+      "familyNames": [
+        "Jhala"
+      ],
+      "givenNames": [
+        "Ranjit"
+      ],
+      "name": "Ranjit Jhala"
+    }
+  ],
+  "licenses": [
+    "cc-by-4.0"
+  ]
+}

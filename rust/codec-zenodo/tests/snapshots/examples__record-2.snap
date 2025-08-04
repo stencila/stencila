@@ -1,0 +1,83 @@
+---
+source: rust/codec-zenodo/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "doi": "10.5281/zenodo.11189141",
+  "abstract": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Deploying deep learning models on embedded devices is an arduous task: oftentimes, there exist no platform-specific instructions, and compilation times can be considerably large due to the limited computational resources available on-device. Moreover, many music-making applications demand real-time inference. Embedded hardware platforms for audio, such as Bela, offer an entry point for beginners into physical audio computing; however, the need for cross-compilation environments and low-level software development tools for deploying embedded deep learning models imposes high entry barriers on non-expert users. We present a pipeline for deploying neural networks in the Bela embedded hardware platform. In our pipeline, we include a tool to record a multichannel dataset of sensor signals. Additionally, we provide a dockerised cross-compilation environment for faster compilation. With this pipeline, we aim to provide a template for programmers and makers to prototype and experiment with neural networks for real-time embedded musical applications."
+          }
+        }
+      ]
+    }
+  ],
+  "authors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Pelinski"
+      ],
+      "givenNames": [
+        "Teresa"
+      ],
+      "name": "Pelinski, Teresa"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Diaz"
+      ],
+      "givenNames": [
+        "Rodrigo"
+      ],
+      "name": "Diaz, Rodrigo"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Temprano"
+      ],
+      "givenNames": [
+        "Adan",
+        "Benito"
+      ],
+      "name": "Temprano, Adan L. Benito"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "McPherson"
+      ],
+      "givenNames": [
+        "Andrew"
+      ],
+      "name": "McPherson, Andrew"
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2023-05-31"
+  },
+  "keywords": [
+    "community:nime_conference"
+  ],
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Pipeline for recording datasets and running neural networks on the Bela embedded hardware platform"
+      }
+    }
+  ],
+  "content": [],
+  "licenses": [
+    "cc-by-4.0"
+  ]
+}

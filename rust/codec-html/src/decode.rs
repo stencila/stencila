@@ -13,7 +13,7 @@ use tl::{HTMLTag, Parser, ParserOptions, RawChildren, parse};
 /// This is the main entry point for decoding. It parses the HTML, and then traverses the
 /// DOM, building an [`Article`] from it (currently HTML is always treated as an article,
 /// not any other type of `CreativeWork`).
-pub(super) fn decode(html: &str, _options: Option<DecodeOptions>) -> Result<(Node, DecodeInfo)> {
+pub fn decode(html: &str, _options: Option<DecodeOptions>) -> Result<(Node, DecodeInfo)> {
     // Wrap in a <body> if necessary
     let html = if !html.contains("body") {
         ["<body>", html, "</body>"].concat()

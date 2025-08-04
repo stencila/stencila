@@ -1,0 +1,179 @@
+---
+source: rust/codec-zenodo/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "doi": "10.5281/zenodo.15308198",
+  "abstract": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Car price prediction is a critical task in the automotive industry, enabling buyers, sellers, and financial institutions to make informed and objective decisions. This research focuses on applying machine learning techniques, specifically Linear Regression and Lasso Regression to predict used car prices based on multiple factors including fuel type, transmission, seller type, vehicle age, and kilometers driven. The dataset was carefully preprocessed to handle missing values and encode categorical variables, ensuring the data was suitable for model training. Both models were evaluated using R&sup2; scores, with Linear Regression achieving high accuracy and Lasso Regression providing a more simplified model by reducing overfitting. The findings demonstrate that even basic regression models can deliver reliable predictions, highlighting the potential of machine learning to improve transparency and efficiency in car pricing within real-world applications."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "authors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Fathima"
+      ],
+      "givenNames": [
+        "Hafsa"
+      ],
+      "name": "Hafsa Fathima"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Juveria"
+      ],
+      "givenNames": [
+        "Soha"
+      ],
+      "name": "Soha Juveria"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Fathima"
+      ],
+      "givenNames": [
+        "Rida"
+      ],
+      "name": "Rida Fathima"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Naaz"
+      ],
+      "givenNames": [
+        "Syeda",
+        "Hifsa"
+      ],
+      "name": "Syeda Hifsa Naaz"
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2025-04-30"
+  },
+  "keywords": [
+    "Linear Regression, Lasso Regression",
+    "community:compub"
+  ],
+  "references": [
+    {
+      "type": "Reference",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "1.\tBirla, N. (2019). Vehicle Dataset from CarDekho. Retrieved from: https://www.kaggle.com/datasets/nehalbirla/vehicle-dataset-from-cardekho"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "2.\tPedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., ... & Duchesnay, E. (2011). Scikit-learn: Machine learning in Python. Journal of Machine Learning Research, 12, 2825–2830."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "3.\tMcKinney, W. (2010). Data structures for statistical computing in Python. In Proceedings of the 9th Python in Science Conference (pp. 51–56)."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "4.\tHunter, J. D. (2007). Matplotlib: A 2D graphics environment. Computing in Science & Engineering, 9(3), 90–95."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "5.\tWaskom, M. (2021). Seaborn: statistical data visualization. Journal of Open Source Software, 6(60), 3021."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "6.\tJames, G., Witten, D., Hastie, T., & Tibshirani, R. (2013). An Introduction to Statistical Learning: with Applications in R. Springer."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "7.\tTibshirani, R. (1996). Regression shrinkage and selection via the Lasso. Journal of the Royal Statistical Society: Series B (Methodological), 58(1), 267-288."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "8.\tRaschka, S., & Mirjalili, V. (2017). Python Machine Learning: Machine Learning and Deep Learning with Python, scikit-learn, and TensorFlow 2. Packt Publishing Ltd."
+          }
+        }
+      ]
+    }
+  ],
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "An Analysis of Car Price Prediction Using Machine Learning"
+      }
+    }
+  ],
+  "content": [],
+  "licenses": [
+    "cc-by-4.0"
+  ]
+}

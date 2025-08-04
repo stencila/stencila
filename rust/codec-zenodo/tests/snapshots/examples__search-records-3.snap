@@ -1,0 +1,66 @@
+---
+source: rust/codec-zenodo/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "doi": "10.5281/zenodo.8434025",
+  "abstract": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Given the perpetually increasing demand for food, agriculture is the only industry that will consistently thrive. The sector is witnessing a continuous influx of technologically advanced and fast farm implements, greatly enhancing efficiency in agriculture. Various farm implements have been put to use or are being introduced, from sowing to harvest, effectively reducing the time required for various farming operations. A recent advancement, especially in India, is the integration of Agri-drones. Drone technology reduces the time for certain farm operations and increases overall efficiency for farmers. The Government of India is actively promoting drone usage in agriculture, providing Agri drones to ICAR institutes, SAUs, and KVKs since 2022 to encourage their adoption for agricultural purposes. The government has also initiated the certification process for agricultural drones."
+          }
+        }
+      ]
+    }
+  ],
+  "authors": [
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "1 Assistant Professor, Directorate of Extension Education 2Director Extension Education, Directorate of Extension Education 3Research Scholar, Department of Entomology Dr Y S Parmar University of Horticulture and Forestry,  Nauni Solan HP"
+        }
+      ],
+      "familyNames": [
+        "Ajay"
+      ],
+      "givenNames": [
+        "Inder",
+        "Dev2",
+        "And",
+        "Sakshi"
+      ],
+      "name": "Ajay Sharma1, Inder Dev2 and Sakshi Sharma3"
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2023-10-12"
+  },
+  "keywords": [
+    "trends in agriculture science",
+    "popular Article",
+    "Agriculture science",
+    "agriworld",
+    "vigyan varta",
+    "community:trendsinagriculturescience"
+  ],
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Navigation Challenges: Integrating Agri-drones in hilly agriculture"
+      }
+    }
+  ],
+  "content": [],
+  "licenses": [
+    "cc-by-4.0"
+  ]
+}

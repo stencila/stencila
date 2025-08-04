@@ -1679,6 +1679,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-zenodo"
+version = "0.0.0"
+dependencies = [
+ "base64 0.22.1",
+ "codec",
+ "codec-csv",
+ "codec-html",
+ "codec-ipynb",
+ "codec-latex",
+ "codec-markdown",
+ "codec-text",
+ "codec-xlsx",
+ "common-dev",
+ "governor",
+ "secrets",
+ "serde",
+ "url",
+ "version",
+]
+
+[[package]]
 name = "codecs"
 version = "0.0.0"
 dependencies = [

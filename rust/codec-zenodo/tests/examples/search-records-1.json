@@ -1,0 +1,518 @@
+{
+  "hits": {
+    "hits": [
+      {
+        "created": "2025-04-30T07:28:30.935639+00:00",
+        "modified": "2025-04-30T07:28:31.177601+00:00",
+        "id": 15308198,
+        "conceptrecid": "15308197",
+        "doi": "10.5281/zenodo.15308198",
+        "conceptdoi": "10.5281/zenodo.15308197",
+        "doi_url": "https://doi.org/10.5281/zenodo.15308198",
+        "metadata": {
+          "title": "An Analysis of Car Price Prediction Using Machine Learning",
+          "doi": "10.5281/zenodo.15308198",
+          "publication_date": "2025-04-30",
+          "description": "<p><em><span>Car price prediction is a critical task in the automotive industry, enabling buyers, sellers, and financial institutions to make informed and objective decisions. This research focuses on applying machine learning techniques, specifically Linear Regression and Lasso Regression to predict used car prices based on multiple factors including fuel type, transmission, seller type, vehicle age, and kilometers driven. The dataset was carefully preprocessed to handle missing values and encode categorical variables, ensuring the data was suitable for model training. Both models were evaluated using R&sup2; scores, with Linear Regression achieving high accuracy and Lasso Regression providing a more simplified model by reducing overfitting. The findings demonstrate that even basic regression models can deliver reliable predictions, highlighting the potential of machine learning to improve transparency and efficiency in car pricing within real-world applications.</span></em></p>",
+          "access_right": "open",
+          "creators": [
+            {
+              "name": "Hafsa Fathima",
+              "affiliation": null
+            },
+            {
+              "name": "Soha Juveria",
+              "affiliation": null
+            },
+            {
+              "name": "Rida Fathima",
+              "affiliation": null
+            },
+            {
+              "name": "Syeda Hifsa Naaz",
+              "affiliation": null
+            }
+          ],
+          "keywords": [
+            "Linear Regression, Lasso Regression"
+          ],
+          "references": [
+            "1.\tBirla, N. (2019). Vehicle Dataset from CarDekho. Retrieved from: https://www.kaggle.com/datasets/nehalbirla/vehicle-dataset-from-cardekho",
+            "2.\tPedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., ... & Duchesnay, E. (2011). Scikit-learn: Machine learning in Python. Journal of Machine Learning Research, 12, 2825–2830.",
+            "3.\tMcKinney, W. (2010). Data structures for statistical computing in Python. In Proceedings of the 9th Python in Science Conference (pp. 51–56).",
+            "4.\tHunter, J. D. (2007). Matplotlib: A 2D graphics environment. Computing in Science & Engineering, 9(3), 90–95.",
+            "5.\tWaskom, M. (2021). Seaborn: statistical data visualization. Journal of Open Source Software, 6(60), 3021.",
+            "6.\tJames, G., Witten, D., Hastie, T., & Tibshirani, R. (2013). An Introduction to Statistical Learning: with Applications in R. Springer.",
+            "7.\tTibshirani, R. (1996). Regression shrinkage and selection via the Lasso. Journal of the Royal Statistical Society: Series B (Methodological), 58(1), 267-288.",
+            "8.\tRaschka, S., & Mirjalili, V. (2017). Python Machine Learning: Machine Learning and Deep Learning with Python, scikit-learn, and TensorFlow 2. Packt Publishing Ltd."
+          ],
+          "language": "eng",
+          "resource_type": {
+            "title": "Journal article",
+            "type": "publication",
+            "subtype": "article"
+          },
+          "journal": {
+            "issue": "2",
+            "pages": "33-40",
+            "title": "Research and Reviews: Advancement in Cyber Security",
+            "volume": "2"
+          },
+          "license": {
+            "id": "cc-by-4.0"
+          },
+          "communities": [
+            {
+              "id": "compub"
+            }
+          ],
+          "relations": {
+            "version": [
+              {
+                "index": 0,
+                "is_last": true,
+                "parent": {
+                  "pid_type": "recid",
+                  "pid_value": "15308197"
+                }
+              }
+            ]
+          }
+        },
+        "title": "An Analysis of Car Price Prediction Using Machine Learning",
+        "links": {
+          "self": "https://zenodo.org/api/records/15308198",
+          "self_html": "https://zenodo.org/records/15308198",
+          "preview_html": "https://zenodo.org/records/15308198?preview=1",
+          "doi": "https://doi.org/10.5281/zenodo.15308198",
+          "self_doi": "https://doi.org/10.5281/zenodo.15308198",
+          "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.15308198",
+          "reserve_doi": "https://zenodo.org/api/records/15308198/draft/pids/doi",
+          "parent": "https://zenodo.org/api/records/15308197",
+          "parent_html": "https://zenodo.org/records/15308197",
+          "parent_doi": "https://doi.org/10.5281/zenodo.15308197",
+          "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.15308197",
+          "self_iiif_manifest": "https://zenodo.org/api/iiif/record:15308198/manifest",
+          "self_iiif_sequence": "https://zenodo.org/api/iiif/record:15308198/sequence/default",
+          "files": "https://zenodo.org/api/records/15308198/files",
+          "media_files": "https://zenodo.org/api/records/15308198/media-files",
+          "thumbnails": {
+            "10": "https://zenodo.org/api/iiif/record:15308198:AN%20ANALYSIS%20OF%20CAR%20PRICE%20PREDICTION%20-Formatted%20Paper.pdf/full/%5E10,/0/default.jpg",
+            "50": "https://zenodo.org/api/iiif/record:15308198:AN%20ANALYSIS%20OF%20CAR%20PRICE%20PREDICTION%20-Formatted%20Paper.pdf/full/%5E50,/0/default.jpg",
+            "100": "https://zenodo.org/api/iiif/record:15308198:AN%20ANALYSIS%20OF%20CAR%20PRICE%20PREDICTION%20-Formatted%20Paper.pdf/full/%5E100,/0/default.jpg",
+            "250": "https://zenodo.org/api/iiif/record:15308198:AN%20ANALYSIS%20OF%20CAR%20PRICE%20PREDICTION%20-Formatted%20Paper.pdf/full/%5E250,/0/default.jpg",
+            "750": "https://zenodo.org/api/iiif/record:15308198:AN%20ANALYSIS%20OF%20CAR%20PRICE%20PREDICTION%20-Formatted%20Paper.pdf/full/%5E750,/0/default.jpg",
+            "1200": "https://zenodo.org/api/iiif/record:15308198:AN%20ANALYSIS%20OF%20CAR%20PRICE%20PREDICTION%20-Formatted%20Paper.pdf/full/%5E1200,/0/default.jpg"
+          },
+          "archive": "https://zenodo.org/api/records/15308198/files-archive",
+          "archive_media": "https://zenodo.org/api/records/15308198/media-files-archive",
+          "latest": "https://zenodo.org/api/records/15308198/versions/latest",
+          "latest_html": "https://zenodo.org/records/15308198/latest",
+          "versions": "https://zenodo.org/api/records/15308198/versions",
+          "draft": "https://zenodo.org/api/records/15308198/draft",
+          "access_links": "https://zenodo.org/api/records/15308198/access/links",
+          "access_grants": "https://zenodo.org/api/records/15308198/access/grants",
+          "access_users": "https://zenodo.org/api/records/15308198/access/users",
+          "access_request": "https://zenodo.org/api/records/15308198/access/request",
+          "access": "https://zenodo.org/api/records/15308198/access",
+          "communities": "https://zenodo.org/api/records/15308198/communities",
+          "communities-suggestions": "https://zenodo.org/api/records/15308198/communities-suggestions",
+          "requests": "https://zenodo.org/api/records/15308198/requests"
+        },
+        "updated": "2025-04-30T07:28:31.177601+00:00",
+        "recid": "15308198",
+        "revision": 4,
+        "files": [
+          {
+            "id": "d7bf4028-cf86-4dd6-a636-966aa88efdc4",
+            "key": "AN ANALYSIS OF CAR PRICE PREDICTION -Formatted Paper.pdf",
+            "size": 735838,
+            "checksum": "md5:ccbd167dbfd42f6b4af5210f54972c8f",
+            "links": {
+              "self": "https://zenodo.org/api/records/15308198/files/AN ANALYSIS OF CAR PRICE PREDICTION -Formatted Paper.pdf/content"
+            }
+          }
+        ],
+        "swh": {},
+        "owners": [
+          {
+            "id": "109378"
+          }
+        ],
+        "status": "published",
+        "stats": {
+          "downloads": 46,
+          "unique_downloads": 40,
+          "views": 69,
+          "unique_views": 64,
+          "version_downloads": 46,
+          "version_unique_downloads": 40,
+          "version_unique_views": 64,
+          "version_views": 69
+        },
+        "state": "done",
+        "submitted": true
+      }
+    ],
+    "total": 197077
+  },
+  "aggregations": {
+    "access_status": {
+      "buckets": [
+        {
+          "key": "open",
+          "doc_count": 157174,
+          "label": "Open",
+          "is_selected": false
+        },
+        {
+          "key": "restricted",
+          "doc_count": 39075,
+          "label": "Restricted",
+          "is_selected": false
+        },
+        {
+          "key": "embargoed",
+          "doc_count": 828,
+          "label": "Embargoed",
+          "is_selected": false
+        }
+      ],
+      "label": "Access status"
+    },
+    "resource_type": {
+      "buckets": [
+        {
+          "key": "dataset",
+          "doc_count": 103875,
+          "label": "Dataset",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        },
+        {
+          "key": "publication",
+          "doc_count": 60986,
+          "label": "Publication",
+          "is_selected": false,
+          "inner": {
+            "buckets": [
+              {
+                "key": "publication-article",
+                "doc_count": 49748,
+                "label": "Journal article",
+                "is_selected": false
+              },
+              {
+                "key": "publication-conferencepaper",
+                "doc_count": 3021,
+                "label": "Conference paper",
+                "is_selected": false
+              },
+              {
+                "key": "publication-taxonomictreatment",
+                "doc_count": 1199,
+                "label": "Taxonomic treatment",
+                "is_selected": false
+              },
+              {
+                "key": "publication-preprint",
+                "doc_count": 902,
+                "label": "Preprint",
+                "is_selected": false
+              },
+              {
+                "key": "publication-datapaper",
+                "doc_count": 808,
+                "label": "Data paper",
+                "is_selected": false
+              },
+              {
+                "key": "publication-report",
+                "doc_count": 692,
+                "label": "Report",
+                "is_selected": false
+              },
+              {
+                "key": "publication-deliverable",
+                "doc_count": 520,
+                "label": "Project deliverable",
+                "is_selected": false
+              },
+              {
+                "key": "publication-thesis",
+                "doc_count": 442,
+                "label": "Thesis",
+                "is_selected": false
+              },
+              {
+                "key": "publication-journal",
+                "doc_count": 409,
+                "label": "Journal",
+                "is_selected": false
+              },
+              {
+                "key": "publication-other",
+                "doc_count": 309,
+                "label": "Other",
+                "is_selected": false
+              }
+            ]
+          }
+        },
+        {
+          "key": "software",
+          "doc_count": 18329,
+          "label": "Software",
+          "is_selected": false,
+          "inner": {
+            "buckets": [
+              {
+                "key": "software-computationalnotebook",
+                "doc_count": 618,
+                "label": "Computational notebook",
+                "is_selected": false
+              }
+            ]
+          }
+        },
+        {
+          "key": "image",
+          "doc_count": 6755,
+          "label": "Image",
+          "is_selected": false,
+          "inner": {
+            "buckets": [
+              {
+                "key": "image-figure",
+                "doc_count": 4206,
+                "label": "Figure",
+                "is_selected": false
+              },
+              {
+                "key": "image-photo",
+                "doc_count": 1955,
+                "label": "Photo",
+                "is_selected": false
+              },
+              {
+                "key": "image-other",
+                "doc_count": 128,
+                "label": "Other",
+                "is_selected": false
+              },
+              {
+                "key": "image-diagram",
+                "doc_count": 67,
+                "label": "Diagram",
+                "is_selected": false
+              },
+              {
+                "key": "image-plot",
+                "doc_count": 66,
+                "label": "Plot",
+                "is_selected": false
+              },
+              {
+                "key": "image-drawing",
+                "doc_count": 13,
+                "label": "Drawing",
+                "is_selected": false
+              }
+            ]
+          }
+        },
+        {
+          "key": "other",
+          "doc_count": 2395,
+          "label": "Other",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        },
+        {
+          "key": "presentation",
+          "doc_count": 1956,
+          "label": "Presentation",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        },
+        {
+          "key": "poster",
+          "doc_count": 915,
+          "label": "Poster",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        },
+        {
+          "key": "model",
+          "doc_count": 692,
+          "label": "Model",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        },
+        {
+          "key": "video",
+          "doc_count": 496,
+          "label": "Video/Audio",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        },
+        {
+          "key": "lesson",
+          "doc_count": 402,
+          "label": "Lesson",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        }
+      ],
+      "label": "Resource types"
+    },
+    "subject": {
+      "buckets": [
+        {
+          "key": "Biodiversity",
+          "doc_count": 39321,
+          "label": "Biodiversity",
+          "is_selected": false
+        },
+        {
+          "key": "Taxonomy",
+          "doc_count": 39024,
+          "label": "Taxonomy",
+          "is_selected": false
+        },
+        {
+          "key": "Animalia",
+          "doc_count": 33298,
+          "label": "Animalia",
+          "is_selected": false
+        },
+        {
+          "key": "Arthropoda",
+          "doc_count": 24767,
+          "label": "Arthropoda",
+          "is_selected": false
+        },
+        {
+          "key": "Insecta",
+          "doc_count": 17826,
+          "label": "Insecta",
+          "is_selected": false
+        },
+        {
+          "key": "taxonomy",
+          "doc_count": 8304,
+          "label": "taxonomy",
+          "is_selected": false
+        },
+        {
+          "key": "specimen",
+          "doc_count": 7789,
+          "label": "specimen",
+          "is_selected": false
+        },
+        {
+          "key": "natural history",
+          "doc_count": 7752,
+          "label": "natural history",
+          "is_selected": false
+        },
+        {
+          "key": "stock market",
+          "doc_count": 5287,
+          "label": "stock market",
+          "is_selected": false
+        },
+        {
+          "key": "financial data",
+          "doc_count": 5285,
+          "label": "financial data",
+          "is_selected": false
+        }
+      ],
+      "label": "Subjects"
+    },
+    "file_type": {
+      "buckets": [
+        {
+          "key": "zip",
+          "doc_count": 60635,
+          "label": "ZIP",
+          "is_selected": false
+        },
+        {
+          "key": "pdf",
+          "doc_count": 34400,
+          "label": "PDF",
+          "is_selected": false
+        },
+        {
+          "key": "csv",
+          "doc_count": 21615,
+          "label": "CSV",
+          "is_selected": false
+        },
+        {
+          "key": "xlsx",
+          "doc_count": 14761,
+          "label": "XLSX",
+          "is_selected": false
+        },
+        {
+          "key": "json",
+          "doc_count": 12241,
+          "label": "JSON",
+          "is_selected": false
+        },
+        {
+          "key": "txt",
+          "doc_count": 11987,
+          "label": "TXT",
+          "is_selected": false
+        },
+        {
+          "key": "gz",
+          "doc_count": 6986,
+          "label": "GZ",
+          "is_selected": false
+        },
+        {
+          "key": "bin",
+          "doc_count": 6664,
+          "label": "BIN",
+          "is_selected": false
+        },
+        {
+          "key": "png",
+          "doc_count": 5719,
+          "label": "PNG",
+          "is_selected": false
+        },
+        {
+          "key": "md",
+          "doc_count": 5079,
+          "label": "MD",
+          "is_selected": false
+        }
+      ],
+      "label": "File type"
+    }
+  },
+  "links": {
+    "self": "https://zenodo.org/api/records?page=1&q=python%20dataset&size=1&sort=bestmatch",
+    "next": "https://zenodo.org/api/records?page=2&q=python%20dataset&size=1&sort=bestmatch"
+  }
+}

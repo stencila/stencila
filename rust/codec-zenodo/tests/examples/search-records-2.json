@@ -1,0 +1,301 @@
+{
+  "hits": {
+    "hits": [
+      {
+        "created": "2023-10-12T22:40:22.378537+00:00",
+        "modified": "2023-10-12T22:40:22.378537+00:00",
+        "id": 8425176,
+        "conceptrecid": "8425175",
+        "doi": "10.5281/zenodo.8425176",
+        "conceptdoi": "10.5281/zenodo.8425175",
+        "doi_url": "https://doi.org/10.5281/zenodo.8425176",
+        "metadata": {
+          "title": "Artifact Virtual Machine for \"Mechanizing Refinement Types\"",
+          "doi": "10.5281/zenodo.8425176",
+          "publication_date": "2023-10-10",
+          "description": "<p>This is a VirtualBox file in OVF format containing a Debian 12.2 Virtual Machine with all necessary dependencies to run (check) the mechanized proofs from the POPL 2024 paper &quot;Mechanizing Refinement Types.&quot;</p>",
+          "access_right": "open",
+          "creators": [
+            {
+              "name": "Michael H. Borkowski",
+              "affiliation": "University of California, San Diego"
+            },
+            {
+              "name": "Niki Vazou",
+              "affiliation": "IMDEA Software Institute"
+            },
+            {
+              "name": "Ranjit Jhala",
+              "affiliation": "University of California, San Diego"
+            }
+          ],
+          "resource_type": {
+            "title": "Software",
+            "type": "software"
+          },
+          "license": {
+            "id": "cc-by-4.0"
+          },
+          "relations": {
+            "version": [
+              {
+                "index": 0,
+                "is_last": true,
+                "parent": {
+                  "pid_type": "recid",
+                  "pid_value": "8425175"
+                }
+              }
+            ]
+          }
+        },
+        "title": "Artifact Virtual Machine for \"Mechanizing Refinement Types\"",
+        "links": {
+          "self": "https://zenodo.org/api/records/8425176",
+          "self_html": "https://zenodo.org/records/8425176",
+          "preview_html": "https://zenodo.org/records/8425176?preview=1",
+          "doi": "https://doi.org/10.5281/zenodo.8425176",
+          "self_doi": "https://doi.org/10.5281/zenodo.8425176",
+          "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.8425176",
+          "reserve_doi": "https://zenodo.org/api/records/8425176/draft/pids/doi",
+          "parent": "https://zenodo.org/api/records/8425175",
+          "parent_html": "https://zenodo.org/records/8425175",
+          "parent_doi": "https://doi.org/10.5281/zenodo.8425175",
+          "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.8425175",
+          "self_iiif_manifest": "https://zenodo.org/api/iiif/record:8425176/manifest",
+          "self_iiif_sequence": "https://zenodo.org/api/iiif/record:8425176/sequence/default",
+          "files": "https://zenodo.org/api/records/8425176/files",
+          "media_files": "https://zenodo.org/api/records/8425176/media-files",
+          "archive": "https://zenodo.org/api/records/8425176/files-archive",
+          "archive_media": "https://zenodo.org/api/records/8425176/media-files-archive",
+          "latest": "https://zenodo.org/api/records/8425176/versions/latest",
+          "latest_html": "https://zenodo.org/records/8425176/latest",
+          "versions": "https://zenodo.org/api/records/8425176/versions",
+          "draft": "https://zenodo.org/api/records/8425176/draft",
+          "access_links": "https://zenodo.org/api/records/8425176/access/links",
+          "access_grants": "https://zenodo.org/api/records/8425176/access/grants",
+          "access_users": "https://zenodo.org/api/records/8425176/access/users",
+          "access_request": "https://zenodo.org/api/records/8425176/access/request",
+          "access": "https://zenodo.org/api/records/8425176/access",
+          "communities": "https://zenodo.org/api/records/8425176/communities",
+          "communities-suggestions": "https://zenodo.org/api/records/8425176/communities-suggestions",
+          "requests": "https://zenodo.org/api/records/8425176/requests"
+        },
+        "updated": "2023-10-12T22:40:22.378537+00:00",
+        "recid": "8425176",
+        "revision": 0,
+        "files": [
+          {
+            "id": "f31039aa-7f99-48bd-aea4-b085f04fc37b",
+            "key": "MRTArtifact.ova",
+            "size": 5387505152,
+            "checksum": "md5:cb4c14381c7122636c660e5fe2a60e22",
+            "links": {
+              "self": "https://zenodo.org/api/records/8425176/files/MRTArtifact.ova/content"
+            }
+          }
+        ],
+        "swh": {},
+        "owners": [
+          {
+            "id": "619964"
+          }
+        ],
+        "status": "published",
+        "stats": {
+          "downloads": 29,
+          "unique_downloads": 16,
+          "views": 17,
+          "unique_views": 17,
+          "version_downloads": 29,
+          "version_unique_downloads": 16,
+          "version_unique_views": 17,
+          "version_views": 17
+        },
+        "state": "done",
+        "submitted": true
+      }
+    ],
+    "total": 180988
+  },
+  "aggregations": {
+    "access_status": {
+      "buckets": [
+        {
+          "key": "open",
+          "doc_count": 177721,
+          "label": "Open",
+          "is_selected": false
+        },
+        {
+          "key": "restricted",
+          "doc_count": 3123,
+          "label": "Restricted",
+          "is_selected": false
+        },
+        {
+          "key": "embargoed",
+          "doc_count": 144,
+          "label": "Embargoed",
+          "is_selected": false
+        }
+      ],
+      "label": "Access status"
+    },
+    "resource_type": {
+      "buckets": [
+        {
+          "key": "software",
+          "doc_count": 180988,
+          "label": "Software",
+          "is_selected": false,
+          "inner": {
+            "buckets": [
+              {
+                "key": "software-computationalnotebook",
+                "doc_count": 3353,
+                "label": "Computational notebook",
+                "is_selected": false
+              }
+            ]
+          }
+        }
+      ],
+      "label": "Resource types"
+    },
+    "subject": {
+      "buckets": [
+        {
+          "key": "Java",
+          "doc_count": 3801,
+          "label": "Java",
+          "is_selected": false
+        },
+        {
+          "key": "gCube",
+          "doc_count": 3748,
+          "label": "gCube",
+          "is_selected": false
+        },
+        {
+          "key": "Data Management System",
+          "doc_count": 3729,
+          "label": "Data Management System",
+          "is_selected": false
+        },
+        {
+          "key": "Hybrid Data Infrastructure",
+          "doc_count": 3729,
+          "label": "Hybrid Data Infrastructure",
+          "is_selected": false
+        },
+        {
+          "key": "Graphical User Interface",
+          "doc_count": 1875,
+          "label": "Graphical User Interface",
+          "is_selected": false
+        },
+        {
+          "key": "Human Computer Interaction",
+          "doc_count": 1868,
+          "label": "Human Computer Interaction",
+          "is_selected": false
+        },
+        {
+          "key": "Social Networking",
+          "doc_count": 1868,
+          "label": "Social Networking",
+          "is_selected": false
+        },
+        {
+          "key": "Python",
+          "doc_count": 893,
+          "label": "Python",
+          "is_selected": false
+        },
+        {
+          "key": "python",
+          "doc_count": 814,
+          "label": "python",
+          "is_selected": false
+        },
+        {
+          "key": "machine learning",
+          "doc_count": 529,
+          "label": "machine learning",
+          "is_selected": false
+        }
+      ],
+      "label": "Subjects"
+    },
+    "file_type": {
+      "buckets": [
+        {
+          "key": "zip",
+          "doc_count": 155544,
+          "label": "ZIP",
+          "is_selected": false
+        },
+        {
+          "key": "gz",
+          "doc_count": 5228,
+          "label": "GZ",
+          "is_selected": false
+        },
+        {
+          "key": "r",
+          "doc_count": 4561,
+          "label": "R",
+          "is_selected": false
+        },
+        {
+          "key": "bin",
+          "doc_count": 4096,
+          "label": "BIN",
+          "is_selected": false
+        },
+        {
+          "key": "txt",
+          "doc_count": 3153,
+          "label": "TXT",
+          "is_selected": false
+        },
+        {
+          "key": "py",
+          "doc_count": 3140,
+          "label": "PY",
+          "is_selected": false
+        },
+        {
+          "key": "md",
+          "doc_count": 2989,
+          "label": "MD",
+          "is_selected": false
+        },
+        {
+          "key": "pdf",
+          "doc_count": 2495,
+          "label": "PDF",
+          "is_selected": false
+        },
+        {
+          "key": "m",
+          "doc_count": 1676,
+          "label": "M",
+          "is_selected": false
+        },
+        {
+          "key": "csv",
+          "doc_count": 984,
+          "label": "CSV",
+          "is_selected": false
+        }
+      ],
+      "label": "File type"
+    }
+  },
+  "links": {
+    "self": "https://zenodo.org/api/records?page=1&q=type%3Asoftware&size=1&sort=bestmatch",
+    "next": "https://zenodo.org/api/records?page=2&q=type%3Asoftware&size=1&sort=bestmatch"
+  }
+}

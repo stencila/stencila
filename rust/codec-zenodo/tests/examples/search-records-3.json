@@ -1,0 +1,366 @@
+{
+  "hits": {
+    "hits": [
+      {
+        "created": "2023-10-12T09:23:59.611702+00:00",
+        "modified": "2023-10-12T09:23:59.611702+00:00",
+        "id": 8434025,
+        "conceptrecid": "8434024",
+        "doi": "10.5281/zenodo.8434025",
+        "conceptdoi": "10.5281/zenodo.8434024",
+        "doi_url": "https://doi.org/10.5281/zenodo.8434025",
+        "metadata": {
+          "title": "Navigation Challenges: Integrating Agri-drones in hilly agriculture",
+          "doi": "10.5281/zenodo.8434025",
+          "publication_date": "2023-10-12",
+          "description": "<p>Given the perpetually increasing demand for food, agriculture is the only industry that will consistently thrive. The sector is witnessing a continuous influx of technologically advanced and fast farm implements, greatly enhancing efficiency in agriculture. Various farm implements have been put to use or are being introduced, from sowing to harvest, effectively reducing the time required for various farming operations. A recent advancement, especially in India, is the integration of Agri-drones. Drone technology reduces the time for certain farm operations and increases overall efficiency for farmers. The Government of India is actively promoting drone usage in agriculture, providing Agri drones to ICAR institutes, SAUs, and KVKs since 2022 to encourage their adoption for agricultural purposes. The government has also initiated the certification process for agricultural drones.</p>",
+          "access_right": "open",
+          "creators": [
+            {
+              "name": "Ajay Sharma1, Inder Dev2 and Sakshi Sharma3",
+              "affiliation": "1 Assistant Professor, Directorate of Extension Education 2Director Extension Education, Directorate of Extension Education 3Research Scholar, Department of Entomology Dr Y S Parmar University of Horticulture and Forestry,  Nauni Solan HP"
+            }
+          ],
+          "keywords": [
+            "trends in agriculture science",
+            "popular Article",
+            "Agriculture science",
+            "agriworld",
+            "vigyan varta"
+          ],
+          "resource_type": {
+            "title": "Journal article",
+            "type": "publication",
+            "subtype": "article"
+          },
+          "journal": {
+            "issue": "10",
+            "pages": "783-788",
+            "title": "Trends In Agriculture Science",
+            "volume": "2"
+          },
+          "license": {
+            "id": "cc-by-4.0"
+          },
+          "communities": [
+            {
+              "id": "trendsinagriculturescience"
+            }
+          ],
+          "relations": {
+            "version": [
+              {
+                "index": 0,
+                "is_last": true,
+                "parent": {
+                  "pid_type": "recid",
+                  "pid_value": "8434024"
+                }
+              }
+            ]
+          }
+        },
+        "title": "Navigation Challenges: Integrating Agri-drones in hilly agriculture",
+        "links": {
+          "self": "https://zenodo.org/api/records/8434025",
+          "self_html": "https://zenodo.org/records/8434025",
+          "preview_html": "https://zenodo.org/records/8434025?preview=1",
+          "doi": "https://doi.org/10.5281/zenodo.8434025",
+          "self_doi": "https://doi.org/10.5281/zenodo.8434025",
+          "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.8434025",
+          "reserve_doi": "https://zenodo.org/api/records/8434025/draft/pids/doi",
+          "parent": "https://zenodo.org/api/records/8434024",
+          "parent_html": "https://zenodo.org/records/8434024",
+          "parent_doi": "https://doi.org/10.5281/zenodo.8434024",
+          "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.8434024",
+          "self_iiif_manifest": "https://zenodo.org/api/iiif/record:8434025/manifest",
+          "self_iiif_sequence": "https://zenodo.org/api/iiif/record:8434025/sequence/default",
+          "files": "https://zenodo.org/api/records/8434025/files",
+          "media_files": "https://zenodo.org/api/records/8434025/media-files",
+          "archive": "https://zenodo.org/api/records/8434025/files-archive",
+          "archive_media": "https://zenodo.org/api/records/8434025/media-files-archive",
+          "latest": "https://zenodo.org/api/records/8434025/versions/latest",
+          "latest_html": "https://zenodo.org/records/8434025/latest",
+          "versions": "https://zenodo.org/api/records/8434025/versions",
+          "draft": "https://zenodo.org/api/records/8434025/draft",
+          "access_links": "https://zenodo.org/api/records/8434025/access/links",
+          "access_grants": "https://zenodo.org/api/records/8434025/access/grants",
+          "access_users": "https://zenodo.org/api/records/8434025/access/users",
+          "access_request": "https://zenodo.org/api/records/8434025/access/request",
+          "access": "https://zenodo.org/api/records/8434025/access",
+          "communities": "https://zenodo.org/api/records/8434025/communities",
+          "communities-suggestions": "https://zenodo.org/api/records/8434025/communities-suggestions",
+          "requests": "https://zenodo.org/api/records/8434025/requests"
+        },
+        "updated": "2023-10-12T09:23:59.611702+00:00",
+        "recid": "8434025",
+        "revision": 0,
+        "files": [
+          {
+            "id": "5edfc5aa-36ab-4e26-b5da-1f8eb448e925",
+            "key": "1.docx",
+            "size": 509397,
+            "checksum": "md5:67908e130caf7e0d4e6c6c96c0c3f1a6",
+            "links": {
+              "self": "https://zenodo.org/api/records/8434025/files/1.docx/content"
+            }
+          }
+        ],
+        "swh": {},
+        "owners": [
+          {
+            "id": "312610"
+          }
+        ],
+        "status": "published",
+        "stats": {
+          "downloads": 2,
+          "unique_downloads": 2,
+          "views": 9,
+          "unique_views": 9,
+          "version_downloads": 2,
+          "version_unique_downloads": 2,
+          "version_unique_views": 8,
+          "version_views": 8
+        },
+        "state": "done",
+        "submitted": true
+      }
+    ],
+    "total": 3264947
+  },
+  "aggregations": {
+    "access_status": {
+      "buckets": [
+        {
+          "key": "open",
+          "doc_count": 3138402,
+          "label": "Open",
+          "is_selected": false
+        },
+        {
+          "key": "restricted",
+          "doc_count": 123000,
+          "label": "Restricted",
+          "is_selected": false
+        },
+        {
+          "key": "embargoed",
+          "doc_count": 3545,
+          "label": "Embargoed",
+          "is_selected": false
+        }
+      ],
+      "label": "Access status"
+    },
+    "resource_type": {
+      "buckets": [
+        {
+          "key": "publication",
+          "doc_count": 3264947,
+          "label": "Publication",
+          "is_selected": false,
+          "inner": {
+            "buckets": [
+              {
+                "key": "publication-article",
+                "doc_count": 1994885,
+                "label": "Journal article",
+                "is_selected": false
+              },
+              {
+                "key": "publication-taxonomictreatment",
+                "doc_count": 650643,
+                "label": "Taxonomic treatment",
+                "is_selected": false
+              },
+              {
+                "key": "publication-conferencepaper",
+                "doc_count": 164702,
+                "label": "Conference paper",
+                "is_selected": false
+              },
+              {
+                "key": "publication-other",
+                "doc_count": 59594,
+                "label": "Other",
+                "is_selected": false
+              },
+              {
+                "key": "publication-section",
+                "doc_count": 44715,
+                "label": "Book chapter",
+                "is_selected": false
+              },
+              {
+                "key": "publication-report",
+                "doc_count": 39516,
+                "label": "Report",
+                "is_selected": false
+              },
+              {
+                "key": "publication-book",
+                "doc_count": 35409,
+                "label": "Book",
+                "is_selected": false
+              },
+              {
+                "key": "publication-preprint",
+                "doc_count": 32145,
+                "label": "Preprint",
+                "is_selected": false
+              },
+              {
+                "key": "publication-journal",
+                "doc_count": 28749,
+                "label": "Journal",
+                "is_selected": false
+              },
+              {
+                "key": "publication-deliverable",
+                "doc_count": 27783,
+                "label": "Project deliverable",
+                "is_selected": false
+              }
+            ]
+          }
+        }
+      ],
+      "label": "Resource types"
+    },
+    "subject": {
+      "buckets": [
+        {
+          "key": "Biodiversity",
+          "doc_count": 1086690,
+          "label": "Biodiversity",
+          "is_selected": false
+        },
+        {
+          "key": "Taxonomy",
+          "doc_count": 762056,
+          "label": "Taxonomy",
+          "is_selected": false
+        },
+        {
+          "key": "Animalia",
+          "doc_count": 675648,
+          "label": "Animalia",
+          "is_selected": false
+        },
+        {
+          "key": "Arthropoda",
+          "doc_count": 502034,
+          "label": "Arthropoda",
+          "is_selected": false
+        },
+        {
+          "key": "Insecta",
+          "doc_count": 385073,
+          "label": "Insecta",
+          "is_selected": false
+        },
+        {
+          "key": "BHL-Corpus",
+          "doc_count": 305403,
+          "label": "BHL-Corpus",
+          "is_selected": false
+        },
+        {
+          "key": "Source: BHL",
+          "doc_count": 305403,
+          "label": "Source: BHL",
+          "is_selected": false
+        },
+        {
+          "key": "Source: Biodiversity Heritage Library",
+          "doc_count": 305403,
+          "label": "Source: Biodiversity Heritage Library",
+          "is_selected": false
+        },
+        {
+          "key": "Source: https://biodiversitylibrary.org",
+          "doc_count": 305403,
+          "label": "Source: https://biodiversitylibrary.org",
+          "is_selected": false
+        },
+        {
+          "key": "Chordata",
+          "doc_count": 110098,
+          "label": "Chordata",
+          "is_selected": false
+        }
+      ],
+      "label": "Subjects"
+    },
+    "file_type": {
+      "buckets": [
+        {
+          "key": "pdf",
+          "doc_count": 2407730,
+          "label": "PDF",
+          "is_selected": false
+        },
+        {
+          "key": "html",
+          "doc_count": 648838,
+          "label": "HTML",
+          "is_selected": false
+        },
+        {
+          "key": "docx",
+          "doc_count": 41597,
+          "label": "DOCX",
+          "is_selected": false
+        },
+        {
+          "key": "xml",
+          "doc_count": 19480,
+          "label": "XML",
+          "is_selected": false
+        },
+        {
+          "key": "zip",
+          "doc_count": 16377,
+          "label": "ZIP",
+          "is_selected": false
+        },
+        {
+          "key": "xlsx",
+          "doc_count": 7084,
+          "label": "XLSX",
+          "is_selected": false
+        },
+        {
+          "key": "bin",
+          "doc_count": 5247,
+          "label": "BIN",
+          "is_selected": false
+        },
+        {
+          "key": "txt",
+          "doc_count": 4584,
+          "label": "TXT",
+          "is_selected": false
+        },
+        {
+          "key": "jpg",
+          "doc_count": 4572,
+          "label": "JPG",
+          "is_selected": false
+        },
+        {
+          "key": "png",
+          "doc_count": 4285,
+          "label": "PNG",
+          "is_selected": false
+        }
+      ],
+      "label": "File type"
+    }
+  },
+  "links": {
+    "self": "https://zenodo.org/api/records?page=1&q=type%3Apublication&size=1&sort=bestmatch",
+    "next": "https://zenodo.org/api/records?page=2&q=type%3Apublication&size=1&sort=bestmatch"
+  }
+}

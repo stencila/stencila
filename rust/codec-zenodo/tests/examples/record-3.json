@@ -1,0 +1,162 @@
+{
+  "created": "2023-07-17T10:42:35.605486+00:00",
+  "modified": "2024-07-11T17:16:40.183651+00:00",
+  "id": 8154610,
+  "conceptrecid": "8154609",
+  "doi": "10.5281/zenodo.8154610",
+  "conceptdoi": "10.5281/zenodo.8154609",
+  "doi_url": "https://doi.org/10.5281/zenodo.8154610",
+  "metadata": {
+    "title": "Sensitive Data (SD) services for Research: with a few clicks a researcher can launch a personal secure computing environment",
+    "doi": "10.5281/zenodo.8154610",
+    "publication_date": "2022-12-19",
+    "description": "<p>Francesca Morello works as Customer Liaison Officer for CSC&rsquo;s sensitive data services. Morello and her colleagues are developing tools and services to analyse, share and publish data. CSC will also host the Finnish part of the Federated EGA (European Genome-phenome Archive), a distributed network of repositories for sharing human sensitive biomedical data.</p>",
+    "access_right": "open",
+    "creators": [
+      {
+        "name": "Ari Turunen",
+        "affiliation": null,
+        "orcid": "0009-0008-6189-2950"
+      },
+      {
+        "name": "Francesca Morello",
+        "affiliation": "CSC"
+      },
+      {
+        "name": "Tommi Nyrönen",
+        "affiliation": null,
+        "orcid": "0000-0002-5569-5183"
+      }
+    ],
+    "keywords": [
+      "Sensitive data services",
+      "Secure computing environment",
+      "SD Connect",
+      "SD Desktop",
+      "Finnish Federated EGA",
+      "ELIXIR"
+    ],
+    "resource_type": {
+      "title": "Journal article",
+      "type": "publication",
+      "subtype": "article"
+    },
+    "license": {
+      "id": "cc-by-4.0"
+    },
+    "grants": [
+      {
+        "code": "319968",
+        "internal_id": "10.13039/501100002341::319968",
+        "funder": {
+          "name": "Research Council of Finland",
+          "doi": "10.13039/501100002341",
+          "acronym": "AKA"
+        },
+        "title": "ELIXIR - A distributed infrastructure for life-science information"
+      }
+    ],
+    "communities": [
+      {
+        "id": "elixir-fi"
+      },
+      {
+        "id": "csc"
+      }
+    ],
+    "relations": {
+      "version": [
+        {
+          "index": 0,
+          "is_last": true,
+          "parent": {
+            "pid_type": "recid",
+            "pid_value": "8154609"
+          }
+        }
+      ]
+    }
+  },
+  "title": "Sensitive Data (SD) services for Research: with a few clicks a researcher can launch a personal secure computing environment",
+  "links": {
+    "self": "https://zenodo.org/api/records/8154610",
+    "self_html": "https://zenodo.org/records/8154610",
+    "preview_html": "https://zenodo.org/records/8154610?preview=1",
+    "doi": "https://doi.org/10.5281/zenodo.8154610",
+    "self_doi": "https://doi.org/10.5281/zenodo.8154610",
+    "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.8154610",
+    "reserve_doi": "https://zenodo.org/api/records/8154610/draft/pids/doi",
+    "parent": "https://zenodo.org/api/records/8154609",
+    "parent_html": "https://zenodo.org/records/8154609",
+    "parent_doi": "https://doi.org/10.5281/zenodo.8154609",
+    "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.8154609",
+    "self_iiif_manifest": "https://zenodo.org/api/iiif/record:8154610/manifest",
+    "self_iiif_sequence": "https://zenodo.org/api/iiif/record:8154610/sequence/default",
+    "files": "https://zenodo.org/api/records/8154610/files",
+    "media_files": "https://zenodo.org/api/records/8154610/media-files",
+    "thumbnails": {
+      "10": "https://zenodo.org/api/iiif/record:8154610:Sensitive%20Data%20(SD)%20services%20FIN.pdf/full/%5E10,/0/default.jpg",
+      "50": "https://zenodo.org/api/iiif/record:8154610:Sensitive%20Data%20(SD)%20services%20FIN.pdf/full/%5E50,/0/default.jpg",
+      "100": "https://zenodo.org/api/iiif/record:8154610:Sensitive%20Data%20(SD)%20services%20FIN.pdf/full/%5E100,/0/default.jpg",
+      "250": "https://zenodo.org/api/iiif/record:8154610:Sensitive%20Data%20(SD)%20services%20FIN.pdf/full/%5E250,/0/default.jpg",
+      "750": "https://zenodo.org/api/iiif/record:8154610:Sensitive%20Data%20(SD)%20services%20FIN.pdf/full/%5E750,/0/default.jpg",
+      "1200": "https://zenodo.org/api/iiif/record:8154610:Sensitive%20Data%20(SD)%20services%20FIN.pdf/full/%5E1200,/0/default.jpg"
+    },
+    "archive": "https://zenodo.org/api/records/8154610/files-archive",
+    "archive_media": "https://zenodo.org/api/records/8154610/media-files-archive",
+    "latest": "https://zenodo.org/api/records/8154610/versions/latest",
+    "latest_html": "https://zenodo.org/records/8154610/latest",
+    "versions": "https://zenodo.org/api/records/8154610/versions",
+    "draft": "https://zenodo.org/api/records/8154610/draft",
+    "access_links": "https://zenodo.org/api/records/8154610/access/links",
+    "access_grants": "https://zenodo.org/api/records/8154610/access/grants",
+    "access_users": "https://zenodo.org/api/records/8154610/access/users",
+    "access_request": "https://zenodo.org/api/records/8154610/access/request",
+    "access": "https://zenodo.org/api/records/8154610/access",
+    "communities": "https://zenodo.org/api/records/8154610/communities",
+    "communities-suggestions": "https://zenodo.org/api/records/8154610/communities-suggestions",
+    "requests": "https://zenodo.org/api/records/8154610/requests"
+  },
+  "updated": "2024-07-11T17:16:40.183651+00:00",
+  "recid": "8154610",
+  "revision": 5,
+  "files": [
+    {
+      "id": "07d0756a-677e-4df0-a724-63aa000507da",
+      "key": "Sensitive Data (SD) services FIN.pdf",
+      "size": 201998,
+      "checksum": "md5:803e3c4f0bf9185d0298a7fbfb6375b2",
+      "links": {
+        "self": "https://zenodo.org/api/records/8154610/files/Sensitive Data (SD) services FIN.pdf/content"
+      }
+    },
+    {
+      "id": "a8556f2b-610a-4922-b614-316656e3f12c",
+      "key": "Sensitive Data (SD) services for Research- with a few clicks a researcher can launch a personal secure computing environment.pdf",
+      "size": 210469,
+      "checksum": "md5:1d5151bf6d10422fbe9db0f0420ce4de",
+      "links": {
+        "self": "https://zenodo.org/api/records/8154610/files/Sensitive Data (SD) services for Research- with a few clicks a researcher can launch a personal secure computing environment.pdf/content"
+      }
+    }
+  ],
+  "swh": {},
+  "owners": [
+    {
+      "id": "539451"
+    }
+  ],
+  "status": "published",
+  "stats": {
+    "downloads": 64,
+    "unique_downloads": 61,
+    "views": 47,
+    "unique_views": 46,
+    "version_downloads": 64,
+    "version_unique_downloads": 61,
+    "version_unique_views": 45,
+    "version_views": 46
+  },
+  "state": "done",
+  "submitted": true
+}

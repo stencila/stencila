@@ -1,0 +1,26 @@
+[package]
+name = "codec-zenodo"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+base64 = { workspace = true }
+codec = { path = "../codec" }
+codec-csv = { path = "../codec-csv" }
+codec-html = { path = "../codec-html" }
+codec-ipynb = { path = "../codec-ipynb" }
+codec-latex = { path = "../codec-latex" }
+codec-markdown = { path = "../codec-markdown" }
+codec-text = { path = "../codec-text" }
+codec-xlsx = { path = "../codec-xlsx" }
+governor = { workspace = true }
+secrets = { path = "../secrets" }
+serde = { workspace = true }
+url = { workspace = true }
+version = { path = "../version" }
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }
+
+[lints]
+workspace = true

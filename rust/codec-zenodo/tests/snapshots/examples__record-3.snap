@@ -1,0 +1,97 @@
+---
+source: rust/codec-zenodo/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "doi": "10.5281/zenodo.8154610",
+  "abstract": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Francesca Morello works as Customer Liaison Officer for CSC&rsquo;s sensitive data services. Morello and her colleagues are developing tools and services to analyse, share and publish data. CSC will also host the Finnish part of the Federated EGA (European Genome-phenome Archive), a distributed network of repositories for sharing human sensitive biomedical data."
+          }
+        }
+      ]
+    }
+  ],
+  "authors": [
+    {
+      "type": "Person",
+      "orcid": "0009-0008-6189-2950",
+      "familyNames": [
+        "Turunen"
+      ],
+      "givenNames": [
+        "Ari"
+      ],
+      "name": "Ari Turunen"
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "CSC"
+        }
+      ],
+      "familyNames": [
+        "Morello"
+      ],
+      "givenNames": [
+        "Francesca"
+      ],
+      "name": "Francesca Morello"
+    },
+    {
+      "type": "Person",
+      "orcid": "0000-0002-5569-5183",
+      "familyNames": [
+        "Nyrönen"
+      ],
+      "givenNames": [
+        "Tommi"
+      ],
+      "name": "Tommi Nyrönen"
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2022-12-19"
+  },
+  "keywords": [
+    "Sensitive data services",
+    "Secure computing environment",
+    "SD Connect",
+    "SD Desktop",
+    "Finnish Federated EGA",
+    "ELIXIR",
+    "community:elixir-fi",
+    "community:csc"
+  ],
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Sensitive Data (SD) services for Research: with a few clicks a researcher can launch a personal secure computing environment"
+      }
+    }
+  ],
+  "content": [],
+  "fundedBy": [
+    {
+      "type": "Grant",
+      "description": "ELIXIR - A distributed infrastructure for life-science information",
+      "identifiers": [
+        "319968"
+      ],
+      "name": "ELIXIR - A distributed infrastructure for life-science information"
+    }
+  ],
+  "licenses": [
+    "cc-by-4.0"
+  ]
+}

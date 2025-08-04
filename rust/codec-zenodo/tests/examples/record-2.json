@@ -1,0 +1,141 @@
+{
+  "created": "2024-05-14T05:54:21.767355+00:00",
+  "modified": "2024-11-09T08:55:21.109446+00:00",
+  "id": 11189141,
+  "conceptrecid": "11189140",
+  "doi": "10.5281/zenodo.11189141",
+  "conceptdoi": "10.5281/zenodo.11189140",
+  "doi_url": "https://doi.org/10.5281/zenodo.11189141",
+  "metadata": {
+    "title": "Pipeline for recording datasets and running neural networks on the Bela embedded hardware platform",
+    "doi": "10.5281/zenodo.11189141",
+    "publication_date": "2023-05-31",
+    "description": "Deploying deep learning models on embedded devices is an arduous task: oftentimes, there exist no platform-specific instructions, and compilation times can be considerably large due to the limited computational resources available on-device. Moreover, many music-making applications demand real-time inference. Embedded hardware platforms for audio, such as Bela, offer an entry point for beginners into physical audio computing; however, the need for cross-compilation environments and low-level software development tools for deploying embedded deep learning models imposes high entry barriers on non-expert users. We present a pipeline for deploying neural networks in the Bela embedded hardware platform. In our pipeline, we include a tool to record a multichannel dataset of sensor signals. Additionally, we provide a dockerised cross-compilation environment for faster compilation. With this pipeline, we aim to provide a template for programmers and makers to prototype and experiment with neural networks for real-time embedded musical applications.",
+    "access_right": "open",
+    "creators": [
+      {
+        "name": "Pelinski, Teresa",
+        "affiliation": null
+      },
+      {
+        "name": "Diaz, Rodrigo",
+        "affiliation": null
+      },
+      {
+        "name": "Temprano, Adan L. Benito",
+        "affiliation": null
+      },
+      {
+        "name": "McPherson, Andrew",
+        "affiliation": null
+      }
+    ],
+    "resource_type": {
+      "title": "Conference paper",
+      "type": "publication",
+      "subtype": "conferencepaper"
+    },
+    "journal": {},
+    "meeting": {
+      "title": "International Conference on New Interfaces for Musical Expression",
+      "acronym": "NIME",
+      "dates": "31 May - 3 June, 2023",
+      "place": "Mexico City, Mexico",
+      "url": "https://nime.org"
+    },
+    "imprint": {},
+    "license": {
+      "id": "cc-by-4.0"
+    },
+    "communities": [
+      {
+        "id": "nime_conference"
+      }
+    ],
+    "relations": {
+      "version": [
+        {
+          "index": 0,
+          "is_last": true,
+          "parent": {
+            "pid_type": "recid",
+            "pid_value": "11189140"
+          }
+        }
+      ]
+    }
+  },
+  "title": "Pipeline for recording datasets and running neural networks on the Bela embedded hardware platform",
+  "links": {
+    "self": "https://zenodo.org/api/records/11189141",
+    "self_html": "https://zenodo.org/records/11189141",
+    "preview_html": "https://zenodo.org/records/11189141?preview=1",
+    "doi": "https://doi.org/10.5281/zenodo.11189141",
+    "self_doi": "https://doi.org/10.5281/zenodo.11189141",
+    "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.11189141",
+    "reserve_doi": "https://zenodo.org/api/records/11189141/draft/pids/doi",
+    "parent": "https://zenodo.org/api/records/11189140",
+    "parent_html": "https://zenodo.org/records/11189140",
+    "parent_doi": "https://doi.org/10.5281/zenodo.11189140",
+    "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.11189140",
+    "self_iiif_manifest": "https://zenodo.org/api/iiif/record:11189141/manifest",
+    "self_iiif_sequence": "https://zenodo.org/api/iiif/record:11189141/sequence/default",
+    "files": "https://zenodo.org/api/records/11189141/files",
+    "media_files": "https://zenodo.org/api/records/11189141/media-files",
+    "thumbnails": {
+      "10": "https://zenodo.org/api/iiif/record:11189141:nime2023_22.pdf/full/%5E10,/0/default.jpg",
+      "50": "https://zenodo.org/api/iiif/record:11189141:nime2023_22.pdf/full/%5E50,/0/default.jpg",
+      "100": "https://zenodo.org/api/iiif/record:11189141:nime2023_22.pdf/full/%5E100,/0/default.jpg",
+      "250": "https://zenodo.org/api/iiif/record:11189141:nime2023_22.pdf/full/%5E250,/0/default.jpg",
+      "750": "https://zenodo.org/api/iiif/record:11189141:nime2023_22.pdf/full/%5E750,/0/default.jpg",
+      "1200": "https://zenodo.org/api/iiif/record:11189141:nime2023_22.pdf/full/%5E1200,/0/default.jpg"
+    },
+    "archive": "https://zenodo.org/api/records/11189141/files-archive",
+    "archive_media": "https://zenodo.org/api/records/11189141/media-files-archive",
+    "latest": "https://zenodo.org/api/records/11189141/versions/latest",
+    "latest_html": "https://zenodo.org/records/11189141/latest",
+    "versions": "https://zenodo.org/api/records/11189141/versions",
+    "draft": "https://zenodo.org/api/records/11189141/draft",
+    "access_links": "https://zenodo.org/api/records/11189141/access/links",
+    "access_grants": "https://zenodo.org/api/records/11189141/access/grants",
+    "access_users": "https://zenodo.org/api/records/11189141/access/users",
+    "access_request": "https://zenodo.org/api/records/11189141/access/request",
+    "access": "https://zenodo.org/api/records/11189141/access",
+    "communities": "https://zenodo.org/api/records/11189141/communities",
+    "communities-suggestions": "https://zenodo.org/api/records/11189141/communities-suggestions",
+    "requests": "https://zenodo.org/api/records/11189141/requests"
+  },
+  "updated": "2024-11-09T08:55:21.109446+00:00",
+  "recid": "11189141",
+  "revision": 9,
+  "files": [
+    {
+      "id": "68ef418c-5350-4a14-b8f2-067d97610c14",
+      "key": "nime2023_22.pdf",
+      "size": 167734,
+      "checksum": "md5:1fb9d0ac77666ec37246140bd4cdce54",
+      "links": {
+        "self": "https://zenodo.org/api/records/11189141/files/nime2023_22.pdf/content"
+      }
+    }
+  ],
+  "swh": {},
+  "owners": [
+    {
+      "id": "20166"
+    }
+  ],
+  "status": "published",
+  "stats": {
+    "downloads": 47,
+    "unique_downloads": 40,
+    "views": 136,
+    "unique_views": 129,
+    "version_downloads": 47,
+    "version_unique_downloads": 40,
+    "version_unique_views": 129,
+    "version_views": 136
+  },
+  "state": "done",
+  "submitted": true
+}

@@ -9,6 +9,9 @@ use codec::{
 mod decode;
 mod encode;
 
+// Export sync functions for sibling crates
+pub use decode::decode;
+
 /// A codec for HTML
 pub struct HtmlCodec;
 

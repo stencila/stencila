@@ -1,0 +1,230 @@
+{
+  "created": "2021-10-17T16:40:37.484764+00:00",
+  "modified": "2023-09-20T21:02:16.262383+00:00",
+  "id": 5574486,
+  "conceptrecid": "3509134",
+  "doi": "10.5281/zenodo.5574486",
+  "conceptdoi": "10.5281/zenodo.3509134",
+  "doi_url": "https://doi.org/10.5281/zenodo.5574486",
+  "metadata": {
+    "title": "pandas-dev/pandas: Pandas 1.3.4",
+    "doi": "10.5281/zenodo.5574486",
+    "publication_date": "2021-10-17",
+    "description": "<p>This is a patch release in the 1.3.x series and includes some regression fixes and bug fixes. We recommend that all users upgrade to this version.</p>\n<p>See the <a href=\"https://pandas.pydata.org/pandas-docs/version/1.3.4/whatsnew/v1.3.4.html\">full whatsnew</a> for a list of all the changes.</p>\n<p>The release will be available on the defaults and conda-forge channels:</p>\n<pre><code>conda install pandas\n</code></pre>\n<p>Or via PyPI:</p>\n<pre><code>python3 -m pip install --upgrade pandas\n</code></pre>\n<p>Please report any issues with the release on the <a href=\"https://github.com/pandas-dev/pandas/issues\">pandas issue tracker</a>.</p>",
+    "access_right": "open",
+    "creators": [
+      {
+        "name": "Jeff Reback",
+        "affiliation": null
+      },
+      {
+        "name": "jbrockmendel",
+        "affiliation": null
+      },
+      {
+        "name": "Wes McKinney",
+        "affiliation": "@ursa-labs / @rstudio"
+      },
+      {
+        "name": "Joris Van den Bossche",
+        "affiliation": null
+      },
+      {
+        "name": "Tom Augspurger",
+        "affiliation": "@microsoft"
+      },
+      {
+        "name": "Phillip Cloud",
+        "affiliation": null
+      },
+      {
+        "name": "Simon Hawkins",
+        "affiliation": null
+      },
+      {
+        "name": "gfyoung",
+        "affiliation": null
+      },
+      {
+        "name": "Matthew Roeschke",
+        "affiliation": null
+      },
+      {
+        "name": "Sinhrks",
+        "affiliation": null
+      },
+      {
+        "name": "Adam Klein",
+        "affiliation": null
+      },
+      {
+        "name": "Terji Petersen",
+        "affiliation": null
+      },
+      {
+        "name": "Jeff Tratner",
+        "affiliation": null
+      },
+      {
+        "name": "Chang She",
+        "affiliation": "@Tubitv"
+      },
+      {
+        "name": "William Ayd",
+        "affiliation": "innobi"
+      },
+      {
+        "name": "Patrick Hoefler",
+        "affiliation": null
+      },
+      {
+        "name": "Shahar Naveh",
+        "affiliation": null
+      },
+      {
+        "name": "Marc Garcia",
+        "affiliation": null
+      },
+      {
+        "name": "Jeremy Schendel",
+        "affiliation": null
+      },
+      {
+        "name": "Andy Hayden",
+        "affiliation": null
+      },
+      {
+        "name": "Daniel Saxton",
+        "affiliation": null
+      },
+      {
+        "name": "JHM Darbyshire",
+        "affiliation": null
+      },
+      {
+        "name": "Richard Shadrach",
+        "affiliation": "84.51"
+      },
+      {
+        "name": "Marco Edward Gorelli",
+        "affiliation": "@Gousto"
+      },
+      {
+        "name": "Fangchen Li",
+        "affiliation": "Washington University in St. Louis"
+      },
+      {
+        "name": "Matthew Zeitlin",
+        "affiliation": null
+      },
+      {
+        "name": "Vytautas Jancauskas",
+        "affiliation": "Leibniz Rechenzentrum"
+      },
+      {
+        "name": "Ali McMaster",
+        "affiliation": null
+      },
+      {
+        "name": "Pietro Battiston",
+        "affiliation": null
+      },
+      {
+        "name": "Skipper Seabold",
+        "affiliation": "HCA Healthcare"
+      }
+    ],
+    "related_identifiers": [
+      {
+        "identifier": "https://github.com/pandas-dev/pandas/tree/v1.3.4",
+        "relation": "isSupplementTo",
+        "scheme": "url"
+      }
+    ],
+    "version": "v1.3.4",
+    "resource_type": {
+      "title": "Software",
+      "type": "software"
+    },
+    "license": {
+      "id": "other-open"
+    },
+    "relations": {
+      "version": [
+        {
+          "index": 28,
+          "is_last": false,
+          "parent": {
+            "pid_type": "recid",
+            "pid_value": "3509134"
+          }
+        }
+      ]
+    }
+  },
+  "title": "pandas-dev/pandas: Pandas 1.3.4",
+  "links": {
+    "self": "https://zenodo.org/api/records/5574486",
+    "self_html": "https://zenodo.org/records/5574486",
+    "preview_html": "https://zenodo.org/records/5574486?preview=1",
+    "doi": "https://doi.org/10.5281/zenodo.5574486",
+    "self_doi": "https://doi.org/10.5281/zenodo.5574486",
+    "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.5574486",
+    "reserve_doi": "https://zenodo.org/api/records/5574486/draft/pids/doi",
+    "parent": "https://zenodo.org/api/records/3509134",
+    "parent_html": "https://zenodo.org/records/3509134",
+    "parent_doi": "https://doi.org/10.5281/zenodo.3509134",
+    "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.3509134",
+    "self_iiif_manifest": "https://zenodo.org/api/iiif/record:5574486/manifest",
+    "self_iiif_sequence": "https://zenodo.org/api/iiif/record:5574486/sequence/default",
+    "files": "https://zenodo.org/api/records/5574486/files",
+    "media_files": "https://zenodo.org/api/records/5574486/media-files",
+    "archive": "https://zenodo.org/api/records/5574486/files-archive",
+    "archive_media": "https://zenodo.org/api/records/5574486/media-files-archive",
+    "latest": "https://zenodo.org/api/records/5574486/versions/latest",
+    "latest_html": "https://zenodo.org/records/5574486/latest",
+    "versions": "https://zenodo.org/api/records/5574486/versions",
+    "draft": "https://zenodo.org/api/records/5574486/draft",
+    "access_links": "https://zenodo.org/api/records/5574486/access/links",
+    "access_grants": "https://zenodo.org/api/records/5574486/access/grants",
+    "access_users": "https://zenodo.org/api/records/5574486/access/users",
+    "access_request": "https://zenodo.org/api/records/5574486/access/request",
+    "access": "https://zenodo.org/api/records/5574486/access",
+    "communities": "https://zenodo.org/api/records/5574486/communities",
+    "communities-suggestions": "https://zenodo.org/api/records/5574486/communities-suggestions",
+    "requests": "https://zenodo.org/api/records/5574486/requests"
+  },
+  "updated": "2023-09-20T21:02:16.262383+00:00",
+  "recid": "5574486",
+  "revision": 24,
+  "files": [
+    {
+      "id": "a0a2c5ae-504a-4bbb-b9ee-a8d4ed0d53e0",
+      "key": "pandas-dev/pandas-v1.3.4.zip",
+      "size": 12216558,
+      "checksum": "md5:55973c76aa828210394b6a79a15b2783",
+      "links": {
+        "self": "https://zenodo.org/api/records/5574486/files/pandas-dev/pandas-v1.3.4.zip/content"
+      }
+    }
+  ],
+  "swh": {},
+  "owners": [
+    {
+      "id": "76185"
+    }
+  ],
+  "status": "published",
+  "stats": {
+    "downloads": 3913,
+    "unique_downloads": 3680,
+    "views": 94867,
+    "unique_views": 82071,
+    "version_downloads": 75,
+    "version_unique_downloads": 69,
+    "version_unique_views": 1811,
+    "version_views": 2092
+  },
+  "state": "done",
+  "submitted": true
+}

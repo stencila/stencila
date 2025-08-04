@@ -1,0 +1,355 @@
+---
+source: rust/codec-zenodo/tests/examples.rs
+expression: node
+---
+{
+  "type": "SoftwareSourceCode",
+  "name": "pandas-dev/pandas: Pandas 1.3.4",
+  "doi": "10.5281/zenodo.5574486",
+  "repository": "https://github.com/pandas-dev/pandas/tree/v1.3.4",
+  "version": "v1.3.4",
+  "programmingLanguage": "",
+  "description": "This is a patch release in the 1.3.x series and includes some regression fixes and bug fixes. We recommend that all users upgrade to this version. See the full whatsnew for a list of all the changes. The release will be available on the defaults and conda-forge channels: conda install pandas Or via PyPI: python3 -m pip install --upgrade pandas Please report any issues with the release on the pandas issue tracker .",
+  "url": "https://github.com/pandas-dev/pandas/tree/v1.3.4",
+  "authors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Reback"
+      ],
+      "givenNames": [
+        "Jeff"
+      ],
+      "name": "Jeff Reback"
+    },
+    {
+      "type": "Person",
+      "name": "jbrockmendel"
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "@ursa-labs / @rstudio"
+        }
+      ],
+      "familyNames": [
+        "McKinney"
+      ],
+      "givenNames": [
+        "Wes"
+      ],
+      "name": "Wes McKinney"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Van",
+        "Den",
+        "Bossche"
+      ],
+      "givenNames": [
+        "Joris"
+      ],
+      "name": "Joris Van den Bossche"
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "@microsoft"
+        }
+      ],
+      "familyNames": [
+        "Augspurger"
+      ],
+      "givenNames": [
+        "Tom"
+      ],
+      "name": "Tom Augspurger"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Cloud"
+      ],
+      "givenNames": [
+        "Phillip"
+      ],
+      "name": "Phillip Cloud"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Hawkins"
+      ],
+      "givenNames": [
+        "Simon"
+      ],
+      "name": "Simon Hawkins"
+    },
+    {
+      "type": "Person",
+      "name": "gfyoung"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Roeschke"
+      ],
+      "givenNames": [
+        "Matthew"
+      ],
+      "name": "Matthew Roeschke"
+    },
+    {
+      "type": "Person",
+      "name": "Sinhrks"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Klein"
+      ],
+      "givenNames": [
+        "Adam"
+      ],
+      "name": "Adam Klein"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Petersen"
+      ],
+      "givenNames": [
+        "Terji"
+      ],
+      "name": "Terji Petersen"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Tratner"
+      ],
+      "givenNames": [
+        "Jeff"
+      ],
+      "name": "Jeff Tratner"
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "@Tubitv"
+        }
+      ],
+      "familyNames": [
+        "She"
+      ],
+      "givenNames": [
+        "Chang"
+      ],
+      "name": "Chang She"
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "innobi"
+        }
+      ],
+      "familyNames": [
+        "Ayd"
+      ],
+      "givenNames": [
+        "William"
+      ],
+      "name": "William Ayd"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Hoefler"
+      ],
+      "givenNames": [
+        "Patrick"
+      ],
+      "name": "Patrick Hoefler"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Naveh"
+      ],
+      "givenNames": [
+        "Shahar"
+      ],
+      "name": "Shahar Naveh"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Garcia"
+      ],
+      "givenNames": [
+        "Marc"
+      ],
+      "name": "Marc Garcia"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Schendel"
+      ],
+      "givenNames": [
+        "Jeremy"
+      ],
+      "name": "Jeremy Schendel"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Hayden"
+      ],
+      "givenNames": [
+        "Andy"
+      ],
+      "name": "Andy Hayden"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Saxton"
+      ],
+      "givenNames": [
+        "Daniel"
+      ],
+      "name": "Daniel Saxton"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Darbyshire"
+      ],
+      "name": "JHM Darbyshire"
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "84.51"
+        }
+      ],
+      "familyNames": [
+        "Shadrach"
+      ],
+      "givenNames": [
+        "Richard"
+      ],
+      "name": "Richard Shadrach"
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "@Gousto"
+        }
+      ],
+      "familyNames": [
+        "Gorelli"
+      ],
+      "givenNames": [
+        "Marco",
+        "Edward"
+      ],
+      "name": "Marco Edward Gorelli"
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Washington University in St. Louis"
+        }
+      ],
+      "familyNames": [
+        "Li"
+      ],
+      "givenNames": [
+        "Fangchen"
+      ],
+      "name": "Fangchen Li"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Zeitlin"
+      ],
+      "givenNames": [
+        "Matthew"
+      ],
+      "name": "Matthew Zeitlin"
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Leibniz Rechenzentrum"
+        }
+      ],
+      "familyNames": [
+        "Jancauskas"
+      ],
+      "givenNames": [
+        "Vytautas"
+      ],
+      "name": "Vytautas Jancauskas"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "McMaster"
+      ],
+      "givenNames": [
+        "Ali"
+      ],
+      "name": "Ali McMaster"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Battiston"
+      ],
+      "givenNames": [
+        "Pietro"
+      ],
+      "name": "Pietro Battiston"
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "HCA Healthcare"
+        }
+      ],
+      "familyNames": [
+        "Seabold"
+      ],
+      "givenNames": [
+        "Skipper"
+      ],
+      "name": "Skipper Seabold"
+    }
+  ],
+  "licenses": [
+    "other-open"
+  ]
+}
