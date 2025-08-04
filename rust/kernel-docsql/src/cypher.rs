@@ -1552,83 +1552,71 @@ fn kwargs_insert(kwargs: Kwargs, key: &str, value: Value) -> Kwargs {
 /// Extract identifiers from a single node
 ///
 /// Returns alternative identifiers for the document that can be used to fetch it.
-/// Handles both PropertyValue objects and plain string URLs in the identifiers array.
 fn extract_identifiers(node: &Node) -> Vec<String> {
     match node {
         Node::Article(article) => {
-            let mut identifiers = Vec::new();
-
-            // Try DOI first (most reliable)
-            if let Some(doi) = &article.doi {
-                identifiers.push(format!("https://doi.org/{doi}"));
-            }
-
-            // Then try other identifiers from the identifiers array
-            for id in article.options.identifiers.iter().flatten() {
-                match id {
-                    PropertyValueOrString::String(value)
-                    | PropertyValueOrString::PropertyValue(PropertyValue {
-                        value: Primitive::String(value),
-                        ..
-                    }) if value.starts_with("http") => {
-                        if codecs::codec_for_identifier(value).is_some() {
-                            identifiers.push(value.clone());
-                        }
-                    }
-                    PropertyValueOrString::PropertyValue(PropertyValue {
-                        property_id: Some(prop_id),
-                        value: Primitive::String(value),
-                        ..
-                    }) => match prop_id.as_str() {
-                        "pmc" | "pmcid" => {
-                            identifiers.push(format!(
-                                "https://www.ncbi.nlm.nih.gov/pmc/articles/{value}/"
-                            ));
-                        }
-                        "arxiv" => {
-                            identifiers.push(format!("https://arxiv.org/abs/{value}"));
-                        }
-                        "biorxiv" => {
-                            identifiers.push(format!("https://www.biorxiv.org/content/{value}"));
-                        }
-                        "medrxiv" => {
-                            identifiers.push(format!("https://www.medrxiv.org/content/{value}"));
-                        }
-                        _ => {}
-                    },
-                    _ => {}
-                }
-            }
-
-            identifiers
+            extract_work_identifiers(article.doi.as_ref(), &article.options.identifiers)
+        }
+        Node::Datatable(datatable) => {
+            extract_work_identifiers(datatable.doi.as_ref(), &datatable.options.identifiers)
         }
         Node::SoftwareSourceCode(code) => {
-            let mut identifiers = Vec::new();
-
-            if let Some(id) = &code.id {
-                if id.starts_with("http") && codecs::codec_for_identifier(id).is_some() {
-                    identifiers.push(id.clone());
-                }
-            }
-
-            for id in code.options.identifiers.iter().flatten() {
-                match id {
-                    PropertyValueOrString::String(value)
-                    | PropertyValueOrString::PropertyValue(PropertyValue {
-                        value: Primitive::String(value),
-                        ..
-                    }) if value.starts_with("http") => {
-                        if codecs::codec_for_identifier(value).is_some() {
-                            identifiers.push(value.clone());
-                        }
-                    }
-                    _ => {}
-                }
-            }
-
-            identifiers
+            extract_work_identifiers(code.doi.as_ref(), &code.options.identifiers)
         }
-        // Future: Add support for other node types like SoftwareApplication
         _ => Vec::new(),
     }
+}
+
+/// Extract identifiers from CreativeWork types (Article, Datatable, etc.)
+///
+/// Handles DOI and various academic/preprint identifiers that are common to creative works.
+fn extract_work_identifiers(
+    doi: Option<&String>,
+    identifiers: &Option<Vec<PropertyValueOrString>>,
+) -> Vec<String> {
+    let mut result = Vec::new();
+
+    // Try DOI first (most reliable)
+    if let Some(doi) = doi {
+        result.push(format!("https://doi.org/{doi}"));
+    }
+
+    // Then try other identifiers from the identifiers array
+    for id in identifiers.iter().flatten() {
+        match id {
+            PropertyValueOrString::String(value)
+            | PropertyValueOrString::PropertyValue(PropertyValue {
+                value: Primitive::String(value),
+                ..
+            }) if value.starts_with("http") => {
+                if codecs::codec_for_identifier(value).is_some() {
+                    result.push(value.clone());
+                }
+            }
+            PropertyValueOrString::PropertyValue(PropertyValue {
+                property_id: Some(prop_id),
+                value: Primitive::String(value),
+                ..
+            }) => match prop_id.as_str() {
+                "pmc" | "pmcid" => {
+                    result.push(format!(
+                        "https://www.ncbi.nlm.nih.gov/pmc/articles/{value}/"
+                    ));
+                }
+                "arxiv" => {
+                    result.push(format!("https://arxiv.org/abs/{value}"));
+                }
+                "biorxiv" => {
+                    result.push(format!("https://www.biorxiv.org/content/{value}"));
+                }
+                "medrxiv" => {
+                    result.push(format!("https://www.medrxiv.org/content/{value}"));
+                }
+                _ => {}
+            },
+            _ => {}
+        }
+    }
+
+    result
 }
