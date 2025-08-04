@@ -1,0 +1,23 @@
+zenodo.records().limit(5)
+---
+GET https://zenodo.org/api/records?size=5
+
+
+zenodo.records().skip(10)
+---
+GET https://zenodo.org/api/records?size=10&page=2
+
+
+zenodo.records().skip(20).limit(5)
+---
+GET https://zenodo.org/api/records?size=5&page=5
+
+
+zenodo.records(search = "data").limit(10)
+---
+GET https://zenodo.org/api/records?q=data&size=10
+
+
+zenodo.records(.type = "dataset").skip(5).limit(5)
+---
+GET https://zenodo.org/api/records?type=dataset&size=5&page=2

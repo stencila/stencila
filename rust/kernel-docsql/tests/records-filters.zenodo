@@ -1,0 +1,33 @@
+zenodo.records(.access = "open")
+---
+GET https://zenodo.org/api/records?access_right=open
+
+
+zenodo.records(.type = "dataset")
+---
+GET https://zenodo.org/api/records?type=dataset
+
+
+zenodo.records(.communities = "ecfunded")
+---
+GET https://zenodo.org/api/records?communities=ecfunded
+
+
+zenodo.records(.license = "cc-by-4.0")
+---
+GET https://zenodo.org/api/records?license=cc-by-4.0
+
+
+zenodo.records(.doi = "10.5281/zenodo.1234567")
+---
+GET https://zenodo.org/api/records?doi=10.5281/zenodo.1234567
+
+
+zenodo.records(.is_open = true)
+---
+GET https://zenodo.org/api/records?access_right=open
+
+
+zenodo.records(.status = "published")
+---
+GET https://zenodo.org/api/records?status=published

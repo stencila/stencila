@@ -1,0 +1,38 @@
+zenodo.datasets()
+---
+GET https://zenodo.org/api/records?type=dataset
+
+
+zenodo.datasets(search = "climate")
+---
+GET https://zenodo.org/api/records?type=dataset&q=climate
+
+
+zenodo.publications()
+---
+GET https://zenodo.org/api/records?type=publication
+
+
+zenodo.publications(.creators ~= "Smith")
+---
+GET https://zenodo.org/api/records?type=publication&q=Smith
+
+
+zenodo.software()
+---
+GET https://zenodo.org/api/records?type=software
+
+
+zenodo.software(.keywords = "python")
+---
+GET https://zenodo.org/api/records?type=software&q=python
+
+
+zenodo.posters()
+---
+GET https://zenodo.org/api/records?type=poster
+
+
+zenodo.presentations()
+---
+GET https://zenodo.org/api/records?type=presentation

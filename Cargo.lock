@@ -4064,6 +4064,7 @@ dependencies = [
  "codec-github",
  "codec-openalex",
  "codec-text-trait",
+ "codec-zenodo",
  "codecs",
  "common-dev",
  "embed",

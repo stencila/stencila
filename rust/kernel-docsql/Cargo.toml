@@ -7,6 +7,7 @@ edition = "2024"
 codec-openalex = { path = "../codec-openalex" }
 codec-github = { path = "../codec-github" }
 codec-text-trait = { path = "../codec-text-trait" }
+codec-zenodo = { path = "../codec-zenodo" }
 codecs = { path = "../codecs" }
 embed = { path = "../embed" }
 kernel-docsdb = { path = "../kernel-docsdb" }

@@ -1,0 +1,38 @@
+zenodo.records(search = "machine learning")
+---
+GET https://zenodo.org/api/records?q=machine+learning
+
+
+zenodo.records("climate data")
+---
+GET https://zenodo.org/api/records?q=climate+data
+
+
+zenodo.records(.title ~= "neural networks")
+---
+GET https://zenodo.org/api/records?q=neural+networks
+
+
+zenodo.records(.description ~= "COVID-19")
+---
+GET https://zenodo.org/api/records?q=COVID-19
+
+
+zenodo.records(.creators ~= "Smith")
+---
+GET https://zenodo.org/api/records?q=Smith
+
+
+zenodo.records(.keywords = "genomics")
+---
+GET https://zenodo.org/api/records?q=genomics
+
+
+zenodo.records(.keywords ~= "artificial intelligence")
+---
+GET https://zenodo.org/api/records?q=artificial+intelligence
+
+
+zenodo.records(like = "deep learning")
+---
+Semantic similarity filtering is not available for Zenodo, use `search` instead

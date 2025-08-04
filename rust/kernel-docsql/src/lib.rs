@@ -31,6 +31,7 @@ mod github;
 mod nodes;
 mod openalex;
 mod subquery;
+mod zenodo;
 
 use cypher::{
     CypherQuery, CypherQueryLabelled, CypherQueryNodeType, CypherQuerySectionType,
@@ -41,6 +42,7 @@ use github::{GitHubQuery, add_github_functions};
 use nodes::{NodeProxies, NodeProxy};
 use openalex::{OpenAlexQuery, add_openalex_functions};
 use subquery::add_subquery_functions;
+use zenodo::{ZenodoQuery, add_zenodo_functions};
 
 use crate::docsql::{GLOBAL_NAMES, strip_comments};
 
@@ -194,6 +196,7 @@ impl KernelInstance for DocsQLKernelInstance {
         add_subquery_functions(&mut env);
         add_openalex_functions(&mut env, &messages);
         add_github_functions(&mut env, &messages);
+        add_zenodo_functions(&mut env, &messages);
 
         #[cfg(debug_assertions)]
         if code.contains("test") {
@@ -333,6 +336,11 @@ impl KernelInstance for DocsQLKernelInstance {
                 }
                 query.nodes()
             } else if let Some(query) = value.downcast_object::<GitHubQuery>() {
+                if query.is_base() {
+                    return should_use_db_method(statement.trim());
+                }
+                query.nodes()
+            } else if let Some(query) = value.downcast_object::<ZenodoQuery>() {
                 if query.is_base() {
                     return should_use_db_method(statement.trim());
                 }
