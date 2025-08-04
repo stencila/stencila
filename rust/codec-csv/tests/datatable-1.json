@@ -1,0 +1,49 @@
+{
+  "type": "Datatable",
+  "columns": [
+    {
+      "type": "DatatableColumn",
+      "name": "id",
+      "values": [1, 2, 3, null],
+      "validator": {
+        "type": "ArrayValidator",
+        "itemsValidator": {
+          "type": "IntegerValidator"
+        }
+      }
+    },
+    {
+      "type": "DatatableColumn",
+      "name": "name",
+      "values": ["Alice", "Bob", null, "Diana"],
+      "validator": {
+        "type": "ArrayValidator",
+        "itemsValidator": {
+          "type": "StringValidator"
+        }
+      }
+    },
+    {
+      "type": "DatatableColumn",
+      "name": "score",
+      "values": [95.5, 87.2, 92.8, null],
+      "validator": {
+        "type": "ArrayValidator",
+        "itemsValidator": {
+          "type": "NumberValidator"
+        }
+      }
+    },
+    {
+      "type": "DatatableColumn",
+      "name": "active",
+      "values": [true, false, true, null],
+      "validator": {
+        "type": "ArrayValidator",
+        "itemsValidator": {
+          "type": "BooleanValidator"
+        }
+      }
+    }
+  ]
+}

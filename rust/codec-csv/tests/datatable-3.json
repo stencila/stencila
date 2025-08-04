@@ -1,0 +1,49 @@
+{
+  "type": "Datatable",
+  "columns": [
+    {
+      "type": "DatatableColumn",
+      "name": "mixed_numbers",
+      "values": [-999, 1.5, 42, 0],
+      "validator": {
+        "type": "ArrayValidator",
+        "itemsValidator": {
+          "type": "NumberValidator"
+        }
+      }
+    },
+    {
+      "type": "DatatableColumn",
+      "name": "edge_cases",
+      "values": ["", " ", "NULL", "true"],
+      "validator": {
+        "type": "ArrayValidator",
+        "itemsValidator": {
+          "type": "StringValidator"
+        }
+      }
+    },
+    {
+      "type": "DatatableColumn",
+      "name": "all_nulls",
+      "values": [null, null, null, null],
+      "validator": {
+        "type": "ArrayValidator",
+        "itemsValidator": {
+          "type": "StringValidator"
+        }
+      }
+    },
+    {
+      "type": "DatatableColumn",
+      "name": "extremes",
+      "values": [1.7976931348623157e308, -1.7976931348623157e308, 4.9406564584124654e-324, 0.0],
+      "validator": {
+        "type": "ArrayValidator",
+        "itemsValidator": {
+          "type": "NumberValidator"
+        }
+      }
+    }
+  ]
+}

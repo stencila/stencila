@@ -17,6 +17,7 @@ codec-arxiv = { path = "../codec-arxiv" }
 codec-cbor = { path = "../codec-cbor" }
 codec-cff = { path = "../codec-cff" }
 codec-csl = { path = "../codec-csl" }
+codec-csv = { path = "../codec-csv" }
 codec-debug = { path = "../codec-debug" }
 codec-directory = { path = "../codec-directory" }
 codec-docx = { path = "../codec-docx" }

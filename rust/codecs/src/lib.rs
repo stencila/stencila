@@ -44,6 +44,7 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(codec_cbor::CborCodec) as Box<dyn Codec>,
         Box::new(codec_cff::CffCodec),
         Box::new(codec_csl::CslCodec),
+        Box::new(codec_csv::CsvCodec),
         Box::new(codec_debug::DebugCodec),
         Box::new(codec_docx::DocxCodec),
         // DomCodec supports to HTML and because listed here before HtmlCodec
