@@ -12,10 +12,10 @@ codecs = { path = "../codecs" }
 embed = { path = "../embed" }
 kernel-docsdb = { path = "../kernel-docsdb" }
 kernel-jinja = { path = "../kernel-jinja" }
-version = { path = "../version" }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
+secrets = { path = "../secrets" }
 
 [lints]
 workspace = true

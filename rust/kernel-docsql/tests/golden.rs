@@ -12,7 +12,7 @@ use kernel_jinja::kernel::{
         eyre::{Result, bail},
         glob::glob,
         itertools::Itertools,
-        reqwest::{Client, header::USER_AGENT},
+        serde_json,
         tokio::{
             self,
             sync::{mpsc, watch},
@@ -20,7 +20,7 @@ use kernel_jinja::kernel::{
     },
     schema::{CodeChunk, Node, Null},
 };
-use version::STENCILA_USER_AGENT;
+use secrets;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn golden() -> Result<()> {
@@ -47,11 +47,13 @@ async fn golden() -> Result<()> {
         glob(&(pattern.clone() + "/*.cypher"))?
             .flatten()
             .chain(glob(&(pattern.clone() + "/*.openalex"))?.flatten())
-            .chain(glob(&(pattern + "/*.github"))?.flatten())
+            .chain(glob(&(pattern.clone() + "/*.github"))?.flatten())
+            .chain(glob(&(pattern + "/*.zenodo"))?.flatten())
             .collect()
     };
 
     let update = env::var("UPDATE_GOLDEN").is_ok();
+    let github_auth = secrets::env_or_get("GITHUB_TOKEN").ok();
 
     for path in test_paths {
         let contents = read_to_string(&path)?;
@@ -62,7 +64,7 @@ async fn golden() -> Result<()> {
         let filename = filename.to_string_lossy();
 
         let mut tests = contents.split("\n\n").map(String::from).collect_vec();
-        for test in tests.iter_mut() {
+        for (test_index, test) in tests.iter_mut().enumerate() {
             let mut parts = test.split("---");
 
             let docsql = parts.next().unwrap_or_default().trim();
@@ -93,15 +95,36 @@ async fn golden() -> Result<()> {
                     filename, docsql
                 );
 
+                // For API queries, also execute the query and and save results to JSON
                 if env::var_os("NO_HTTP").is_none()
                     && env::var_os("CI").is_none() // Don't run HTTP requests on CI yet
                     && actual.starts_with("GET ")
+                    && (filename.ends_with(".openalex") || filename.ends_with(".zenodo") 
+                        || (filename.ends_with(".github") && 
+                            (!actual.starts_with("GET https://api.github.com/search/code") || github_auth.is_some())))
                 {
-                    let url = actual.strip_prefix("GET ").unwrap_or(&actual);
-                    if filename.ends_with(".openalex") {
-                        validate_openalex_url(url).await?;
-                    } else if filename.ends_with(".github") {
-                        validate_github_url(url).await?;
+                    let (node_outputs, node_messages) = kernel.execute(docsql).await?;
+
+                    if node_messages.is_empty() && !node_outputs.is_empty() {
+                        // Create JSON filename from test file name, query type, and index
+                        let (base_name, query_type) =
+                            if let Some(base) = filename.strip_suffix(".openalex") {
+                                (base, "openalex")
+                            } else if let Some(base) = filename.strip_suffix(".github") {
+                                (base, "github")
+                            } else if let Some(base) = filename.strip_suffix(".zenodo") {
+                                (base, "zenodo")
+                            } else {
+                                (filename.as_ref(), "unknown")
+                            };
+
+                        let json_filename =
+                            format!("{}-{}-{}.json", base_name, query_type, test_index + 1);
+                        let json_path = path.with_file_name(json_filename);
+
+                        // Convert nodes to JSON and save
+                        let json_content = serde_json::to_string_pretty(&node_outputs)?;
+                        write(&json_path, json_content)?;
                     }
                 }
             } else {
@@ -114,49 +137,6 @@ async fn golden() -> Result<()> {
             contents.push('\n');
             write(path, contents)?;
         }
-    }
-
-    Ok(())
-}
-
-/// Validate an OpenAlex URL by making an HTTP GET request
-async fn validate_openalex_url(url: &str) -> Result<()> {
-    let client = Client::new();
-
-    // Add a user agent to be respectful to the OpenAlex API
-    let response = client
-        .get(url)
-        .header(USER_AGENT, STENCILA_USER_AGENT)
-        .send()
-        .await?;
-
-    if !response.status().is_success() {
-        let status = response.status();
-        let body = response.text().await?;
-        bail!("OpenAlex API request `{url}` failed with status {status}:\n\n{body}");
-    }
-
-    Ok(())
-}
-
-/// Validate a GitHub URL by making an HTTP GET request
-async fn validate_github_url(url: &str) -> Result<()> {
-    let client = Client::new();
-
-    // Build request with appropriate headers for GitHub API
-    let mut request = client.get(url).header(USER_AGENT, STENCILA_USER_AGENT);
-
-    // Add GitHub token if available for authentication
-    if let Ok(token) = env::var("GITHUB_TOKEN") {
-        request = request.header("Authorization", format!("Bearer {token}"));
-    }
-
-    let response = request.send().await?;
-
-    if !response.status().is_success() {
-        let status = response.status();
-        let body = response.text().await?;
-        bail!("GitHub API request `{url}` failed with status {status}:\n\n{body}");
     }
 
     Ok(())

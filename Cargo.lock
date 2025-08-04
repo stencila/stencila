@@ -4070,7 +4070,7 @@ dependencies = [
  "embed",
  "kernel-docsdb",
  "kernel-jinja",
- "version",
+ "secrets",
 ]
 
 [[package]]
