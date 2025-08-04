@@ -18,11 +18,10 @@ use crate::{
 impl Schemas {
     /// Generate a Kuzu database schema from Stencila Schema
     ///
-    /// For each node type in the Stencila Schema we create a node table e.g
+    /// For each node type in the Stencila Schema we create a node table with
+    /// table properties for primitive properties (e.g. strings, numbers) e.g.
     ///
     /// CREATE NODE TABLE Paragraph (...)
-    ///
-    /// with table properties for primitive properties (e.g. strings, numbers).
     ///
     /// For entity type properties we create relationship tables which have `TO`
     /// and `FROM` pairs for every possible parent-child combination. e.g.
@@ -38,42 +37,62 @@ impl Schemas {
 
         let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../node-db/src");
 
-        // Mostly config or derived properties unlikely to be queried for
-        // so avoid bloating db with them
+        // Skip properties that users are never likely to want to use in query filters
         let skip_props = [
             // General
             "type",
             "id",
-            // Articles & other creative works
-            "extra",
+            // Blanket exclusions, regardless of type
+            "abstract", // Provided for by the derived `abstract` text field for Article and not often used for other creative work types
+            "alternateNames",
+            "archive",
+            "bitrate",
+            "caption", // Provided for by the derived `caption` text field for most creative work types that have caption
             "config",
-            "text",
+            "embedUrl",
+            "executionInstance",
+            "extra",
+            "frontmatter",
+            "headings",
             "images",
+            "labelOnly",
+            "mathml",
+            "pageEnd",
+            "pageStart",
+            "pagination",
+            "text",
+            "title", // Provided for by the derived `title` text field for Article and not often used for other creative work types
             "thumbnail",
             "transcript",
-            "headings",
-            "archive",
-            "Article.source",
-            "Article.commit",
-            // Others (not excluded by skip_types below)
-            "executionInstance",
-            "mathml",
+            "transferEncoding",
             "value",
-            "labelOnly",
+            // Articles
+            "Article.executionMode",
+            "Article.executionCount",
+            "Article.executionRequired",
+            "Article.executionStatus",
+            "Article.executionEnded",
+            "Article.executionDuration",
+            "Table.notes", // Provided for by the derived `notes` text field
             // Avoid many paragraph nodes for each table cell with `text`
             // same as the `text` of the table cell itself (most table cells have a single paragraph)
             "TableCell.content",
+            "TableCell.name",
+            "TableCell.columnSpan",
+            "TableCell.rowSpan",
+            "TableCell.horizontalAlignment",
+            "TableCell.horizontalAlignmentCharacter",
+            "TableCell.verticalAlignment",
             // Exclude list item position as it is provided by the position calculated from the node path
             "ListItem.position",
             // Exclude unnecessary citation properties
             "Citation.citationPrefix",
             "Citation.citationSuffix",
-            "Citation.pagination",
             "Citation.content", // Provided for by the derived `text` field
+            // Exclude ForBlock iterations and otherwise properties
+            "ForBlock.iterations",
+            "ForBlock.otherwise",
             // Exclude unnecessary reference properties
-            "Reference.pageStart",
-            "Reference.pageEnd",
-            "Reference.pagination",
             "Reference.title", // Provided for by the derived `title` text field
             // Exclude unnecessary properties of periodicals, publication volumes and issues
             "Periodical.abstract",
@@ -105,7 +124,6 @@ impl Schemas {
             "PublicationIssue.images",
             "PublicationIssue.keywords",
             "PublicationIssue.name",
-            "PublicationIssue.pagination",
             "PublicationIssue.references",
             "PublicationIssue.title",
             "PublicationIssue.url",
@@ -125,7 +143,6 @@ impl Schemas {
             "PublicationVolume.images",
             "PublicationVolume.keywords",
             "PublicationVolume.name",
-            "PublicationVolume.pagination",
             "PublicationVolume.references",
             "PublicationVolume.title",
             "PublicationVolume.url",
@@ -156,8 +173,6 @@ impl Schemas {
             "CompilationDigest",
             "CompilationMessage",
             "ContactPoint",
-            "Datatable",
-            "DatatableColumn",
             "DefinedTerm",
             "Emphasis",
             "Enumeration",
@@ -181,13 +196,14 @@ impl Schemas {
             "PromptBlock",
             "PropertyValue",
             "ProvenanceCount",
-            "SoftwareSourceCode",
+            "SoftwareApplication",
             "Strikeout",
             "Strong",
             "Subscript",
             "SuggestionBlock",
             "SuggestionInline",
             "Superscript",
+            "Thing",
             "Underline",
             "Unknown",
             "Walkthrough",
@@ -257,7 +273,13 @@ impl Schemas {
                     ("abstract", "to_text(&self.r#abstract)"),
                 ],
             ),
-            ("Table", vec![("caption", "to_text(&self.caption)")]),
+            (
+                "Table",
+                vec![
+                    ("caption", "to_text(&self.caption)"),
+                    ("notes", "to_text(&self.notes)"),
+                ],
+            ),
             ("Figure", vec![("caption", "to_text(&self.caption)")]),
             ("CodeChunk", vec![("caption", "to_text(&self.caption)")]),
             ("Paragraph", vec![("text", "to_text(self)")]),

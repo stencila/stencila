@@ -46,7 +46,6 @@ impl DatabaseNode for Admonition {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
-            (NodeProperty::Title, relations(self.title.iter().flatten())),
             (NodeProperty::Content, relations(self.content.iter())),
             (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
@@ -95,7 +94,6 @@ impl DatabaseNode for Article {
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
-            (NodeProperty::AlternateNames, self.options.alternate_names.to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
             (NodeProperty::Description, self.description.to_kuzu_type(), self.description.to_kuzu_value()),
             (NodeProperty::Name, self.options.name.to_kuzu_type(), self.options.name.to_kuzu_value()),
             (NodeProperty::Url, self.options.url.to_kuzu_type(), self.options.url.to_kuzu_value()),
@@ -109,14 +107,7 @@ impl DatabaseNode for Article {
             (NodeProperty::Keywords, self.keywords.to_kuzu_type(), self.keywords.to_kuzu_value()),
             (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
             (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
-            (NodeProperty::ExecutionMode, self.execution_mode.to_kuzu_type(), self.execution_mode.to_kuzu_value()),
-            (NodeProperty::ExecutionCount, self.options.execution_count.to_kuzu_type(), self.options.execution_count.to_kuzu_value()),
-            (NodeProperty::ExecutionRequired, self.options.execution_required.to_kuzu_type(), self.options.execution_required.to_kuzu_value()),
-            (NodeProperty::ExecutionStatus, self.options.execution_status.to_kuzu_type(), self.options.execution_status.to_kuzu_value()),
-            (NodeProperty::ExecutionEnded, self.options.execution_ended.to_kuzu_type(), self.options.execution_ended.to_kuzu_value()),
-            (NodeProperty::ExecutionDuration, self.options.execution_duration.to_kuzu_type(), self.options.execution_duration.to_kuzu_value()),
-            (NodeProperty::Pagination, self.options.pagination.to_kuzu_type(), self.options.pagination.to_kuzu_value()),
-            (NodeProperty::Frontmatter, self.frontmatter.to_kuzu_type(), self.frontmatter.to_kuzu_value()),
+            (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
             (NodeProperty::Title, LogicalType::String, to_text(&self.title).to_kuzu_value()),
             (NodeProperty::Abstract, LogicalType::String, to_text(&self.r#abstract).to_kuzu_value()),
             (embeddings_property(), embeddings_type(), Null.to_kuzu_value())
@@ -125,12 +116,10 @@ impl DatabaseNode for Article {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
-            (NodeProperty::Abstract, relations(self.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.authors.iter().flatten())),
             (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
             (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
             (NodeProperty::References, relations(self.references.iter().flatten())),
-            (NodeProperty::Title, relations(self.title.iter().flatten())),
             (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
@@ -151,7 +140,6 @@ impl DatabaseNode for AudioObject {
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
-            (NodeProperty::AlternateNames, self.options.alternate_names.to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
             (NodeProperty::Description, self.options.description.to_kuzu_type(), self.options.description.to_kuzu_value()),
             (NodeProperty::Name, self.options.name.to_kuzu_type(), self.options.name.to_kuzu_value()),
             (NodeProperty::Url, self.options.url.to_kuzu_type(), self.options.url.to_kuzu_value()),
@@ -166,23 +154,18 @@ impl DatabaseNode for AudioObject {
             (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
             (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
             (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
-            (NodeProperty::Bitrate, self.options.bitrate.to_kuzu_type(), self.options.bitrate.to_kuzu_value()),
             (NodeProperty::ContentSize, self.options.content_size.to_kuzu_type(), self.options.content_size.to_kuzu_value()),
             (NodeProperty::ContentUrl, self.content_url.to_kuzu_type(), self.content_url.to_kuzu_value()),
-            (NodeProperty::EmbedUrl, self.options.embed_url.to_kuzu_type(), self.options.embed_url.to_kuzu_value()),
             (NodeProperty::MediaType, self.media_type.to_kuzu_type(), self.media_type.to_kuzu_value())
         ]
     }
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
-            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
             (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
             (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
-            (NodeProperty::References, relations(self.options.references.iter().flatten())),
-            (NodeProperty::Title, relations(self.title.iter().flatten())),
-            (NodeProperty::Caption, relations(self.caption.iter().flatten()))
+            (NodeProperty::References, relations(self.options.references.iter().flatten()))
         ]
     }
 }
@@ -285,7 +268,6 @@ impl DatabaseNode for Claim {
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
-            (NodeProperty::AlternateNames, self.options.alternate_names.to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
             (NodeProperty::Description, self.options.description.to_kuzu_type(), self.options.description.to_kuzu_value()),
             (NodeProperty::Name, self.options.name.to_kuzu_type(), self.options.name.to_kuzu_value()),
             (NodeProperty::Url, self.options.url.to_kuzu_type(), self.options.url.to_kuzu_value()),
@@ -307,12 +289,10 @@ impl DatabaseNode for Claim {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
-            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.authors.iter().flatten())),
             (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
             (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
             (NodeProperty::References, relations(self.options.references.iter().flatten())),
-            (NodeProperty::Title, relations(self.options.title.iter().flatten())),
             (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
@@ -382,8 +362,7 @@ impl DatabaseNode for CodeChunk {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
-            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
-            (NodeProperty::Caption, relations(self.caption.iter().flatten()))
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -419,6 +398,75 @@ impl DatabaseNode for CodeExpression {
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Authors, relations(self.authors.iter().flatten()))
+        ]
+    }
+}
+
+impl DatabaseNode for Datatable {
+    fn node_type(&self) -> NodeType {
+        NodeType::Datatable
+    }
+
+    fn node_id(&self) -> NodeId {
+        Datatable::node_id(self)
+    }
+    
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
+    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
+        vec![
+            (NodeProperty::Description, self.options.description.to_kuzu_type(), self.options.description.to_kuzu_value()),
+            (NodeProperty::Name, self.options.name.to_kuzu_type(), self.options.name.to_kuzu_value()),
+            (NodeProperty::Url, self.options.url.to_kuzu_type(), self.options.url.to_kuzu_value()),
+            (NodeProperty::Doi, self.doi.to_kuzu_type(), self.doi.to_kuzu_value()),
+            (NodeProperty::DateCreated, self.options.date_created.to_kuzu_type(), self.options.date_created.to_kuzu_value()),
+            (NodeProperty::DateReceived, self.options.date_received.to_kuzu_type(), self.options.date_received.to_kuzu_value()),
+            (NodeProperty::DateAccepted, self.options.date_accepted.to_kuzu_type(), self.options.date_accepted.to_kuzu_value()),
+            (NodeProperty::DateModified, self.options.date_modified.to_kuzu_type(), self.options.date_modified.to_kuzu_value()),
+            (NodeProperty::DatePublished, self.options.date_published.to_kuzu_type(), self.options.date_published.to_kuzu_value()),
+            (NodeProperty::Genre, self.options.genre.to_kuzu_type(), self.options.genre.to_kuzu_value()),
+            (NodeProperty::Keywords, self.options.keywords.to_kuzu_type(), self.options.keywords.to_kuzu_value()),
+            (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
+            (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
+            (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value())
+        ]
+    }
+
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
+        vec![
+            (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
+            (NodeProperty::References, relations(self.options.references.iter().flatten())),
+            (NodeProperty::Columns, relations(self.columns.iter()))
+        ]
+    }
+}
+
+impl DatabaseNode for DatatableColumn {
+    fn node_type(&self) -> NodeType {
+        NodeType::DatatableColumn
+    }
+
+    fn node_id(&self) -> NodeId {
+        DatatableColumn::node_id(self)
+    }
+    
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
+    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
+        vec![
+            (NodeProperty::Name, self.name.to_kuzu_type(), self.name.to_kuzu_value())
+        ]
+    }
+
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
+        vec![
+            
         ]
     }
 }
@@ -465,7 +513,6 @@ impl DatabaseNode for Figure {
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
-            (NodeProperty::AlternateNames, self.options.alternate_names.to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
             (NodeProperty::Description, self.options.description.to_kuzu_type(), self.options.description.to_kuzu_value()),
             (NodeProperty::Name, self.options.name.to_kuzu_type(), self.options.name.to_kuzu_value()),
             (NodeProperty::Url, self.options.url.to_kuzu_type(), self.options.url.to_kuzu_value()),
@@ -488,13 +535,10 @@ impl DatabaseNode for Figure {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
-            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.authors.iter().flatten())),
             (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
             (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
             (NodeProperty::References, relations(self.options.references.iter().flatten())),
-            (NodeProperty::Title, relations(self.options.title.iter().flatten())),
-            (NodeProperty::Caption, relations(self.caption.iter().flatten())),
             (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
@@ -518,7 +562,6 @@ impl DatabaseNode for File {
             (NodeProperty::Name, self.name.to_kuzu_type(), self.name.to_kuzu_value()),
             (NodeProperty::Path, self.path.to_kuzu_type(), self.path.to_kuzu_value()),
             (NodeProperty::MediaType, self.media_type.to_kuzu_type(), self.media_type.to_kuzu_value()),
-            (NodeProperty::TransferEncoding, self.options.transfer_encoding.to_kuzu_type(), self.options.transfer_encoding.to_kuzu_value()),
             (NodeProperty::Size, self.size.to_kuzu_type(), self.size.to_kuzu_value()),
             (NodeProperty::Content, self.content.to_kuzu_type(), self.content.to_kuzu_value())
         ]
@@ -563,9 +606,7 @@ impl DatabaseNode for ForBlock {
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Authors, relations(self.authors.iter().flatten())),
-            (NodeProperty::Content, relations(self.content.iter())),
-            (NodeProperty::Otherwise, relations(self.otherwise.iter().flatten())),
-            (NodeProperty::Iterations, relations(self.iterations.iter().flatten()))
+            (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
 }
@@ -708,7 +749,6 @@ impl DatabaseNode for ImageObject {
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
-            (NodeProperty::AlternateNames, self.options.alternate_names.to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
             (NodeProperty::Description, self.options.description.to_kuzu_type(), self.options.description.to_kuzu_value()),
             (NodeProperty::Name, self.options.name.to_kuzu_type(), self.options.name.to_kuzu_value()),
             (NodeProperty::Url, self.options.url.to_kuzu_type(), self.options.url.to_kuzu_value()),
@@ -723,23 +763,18 @@ impl DatabaseNode for ImageObject {
             (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
             (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
             (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
-            (NodeProperty::Bitrate, self.options.bitrate.to_kuzu_type(), self.options.bitrate.to_kuzu_value()),
             (NodeProperty::ContentSize, self.options.content_size.to_kuzu_type(), self.options.content_size.to_kuzu_value()),
             (NodeProperty::ContentUrl, self.content_url.to_kuzu_type(), self.content_url.to_kuzu_value()),
-            (NodeProperty::EmbedUrl, self.options.embed_url.to_kuzu_type(), self.options.embed_url.to_kuzu_value()),
             (NodeProperty::MediaType, self.media_type.to_kuzu_type(), self.media_type.to_kuzu_value())
         ]
     }
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
-            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
             (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
             (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
-            (NodeProperty::References, relations(self.options.references.iter().flatten())),
-            (NodeProperty::Title, relations(self.title.iter().flatten())),
-            (NodeProperty::Caption, relations(self.caption.iter().flatten()))
+            (NodeProperty::References, relations(self.options.references.iter().flatten()))
         ]
     }
 }
@@ -794,7 +829,6 @@ impl DatabaseNode for Link {
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::Target, self.target.to_kuzu_type(), self.target.to_kuzu_value()),
-            (NodeProperty::Title, self.title.to_kuzu_type(), self.title.to_kuzu_value()),
             (NodeProperty::Rel, self.rel.to_kuzu_type(), self.rel.to_kuzu_value())
         ]
     }
@@ -848,7 +882,6 @@ impl DatabaseNode for ListItem {
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
-            (NodeProperty::AlternateNames, self.options.alternate_names.to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
             (NodeProperty::Description, self.options.description.to_kuzu_type(), self.options.description.to_kuzu_value()),
             (NodeProperty::Name, self.options.name.to_kuzu_type(), self.options.name.to_kuzu_value()),
             (NodeProperty::Url, self.options.url.to_kuzu_type(), self.options.url.to_kuzu_value()),
@@ -934,7 +967,6 @@ impl DatabaseNode for MediaObject {
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
-            (NodeProperty::AlternateNames, self.options.alternate_names.to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
             (NodeProperty::Description, self.options.description.to_kuzu_type(), self.options.description.to_kuzu_value()),
             (NodeProperty::Name, self.options.name.to_kuzu_type(), self.options.name.to_kuzu_value()),
             (NodeProperty::Url, self.options.url.to_kuzu_type(), self.options.url.to_kuzu_value()),
@@ -949,22 +981,18 @@ impl DatabaseNode for MediaObject {
             (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
             (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
             (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
-            (NodeProperty::Bitrate, self.options.bitrate.to_kuzu_type(), self.options.bitrate.to_kuzu_value()),
             (NodeProperty::ContentSize, self.options.content_size.to_kuzu_type(), self.options.content_size.to_kuzu_value()),
             (NodeProperty::ContentUrl, self.content_url.to_kuzu_type(), self.content_url.to_kuzu_value()),
-            (NodeProperty::EmbedUrl, self.options.embed_url.to_kuzu_type(), self.options.embed_url.to_kuzu_value()),
             (NodeProperty::MediaType, self.media_type.to_kuzu_type(), self.media_type.to_kuzu_value())
         ]
     }
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
-            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
             (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
             (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
-            (NodeProperty::References, relations(self.options.references.iter().flatten())),
-            (NodeProperty::Title, relations(self.options.title.iter().flatten()))
+            (NodeProperty::References, relations(self.options.references.iter().flatten()))
         ]
     }
 }
@@ -1010,7 +1038,6 @@ impl DatabaseNode for Organization {
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
-            (NodeProperty::AlternateNames, self.options.alternate_names.to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
             (NodeProperty::Description, self.options.description.to_kuzu_type(), self.options.description.to_kuzu_value()),
             (NodeProperty::Name, self.name.to_kuzu_type(), self.name.to_kuzu_value()),
             (NodeProperty::Url, self.options.url.to_kuzu_type(), self.options.url.to_kuzu_value()),
@@ -1103,7 +1130,6 @@ impl DatabaseNode for Periodical {
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
-            (NodeProperty::AlternateNames, self.options.alternate_names.to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
             (NodeProperty::Description, self.options.description.to_kuzu_type(), self.options.description.to_kuzu_value()),
             (NodeProperty::Name, self.name.to_kuzu_type(), self.name.to_kuzu_value()),
             (NodeProperty::Url, self.options.url.to_kuzu_type(), self.options.url.to_kuzu_value()),
@@ -1140,7 +1166,6 @@ impl DatabaseNode for Person {
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
-            (NodeProperty::AlternateNames, self.options.alternate_names.to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
             (NodeProperty::Url, self.options.url.to_kuzu_type(), self.options.url.to_kuzu_value()),
             (NodeProperty::Orcid, self.orcid.to_kuzu_type(), self.orcid.to_kuzu_value()),
             (NodeProperty::FamilyNames, self.family_names.to_kuzu_type(), self.family_names.to_kuzu_value()),
@@ -1379,13 +1404,13 @@ impl DatabaseNode for Sentence {
     }
 }
 
-impl DatabaseNode for SoftwareApplication {
+impl DatabaseNode for SoftwareSourceCode {
     fn node_type(&self) -> NodeType {
-        NodeType::SoftwareApplication
+        NodeType::SoftwareSourceCode
     }
 
     fn node_id(&self) -> NodeId {
-        SoftwareApplication::node_id(self)
+        SoftwareSourceCode::node_id(self)
     }
     
     fn primary_key(&self) -> Value {
@@ -1394,7 +1419,6 @@ impl DatabaseNode for SoftwareApplication {
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
-            (NodeProperty::AlternateNames, self.options.alternate_names.to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
             (NodeProperty::Description, self.options.description.to_kuzu_type(), self.options.description.to_kuzu_value()),
             (NodeProperty::Name, self.name.to_kuzu_type(), self.name.to_kuzu_value()),
             (NodeProperty::Url, self.options.url.to_kuzu_type(), self.options.url.to_kuzu_value()),
@@ -1406,23 +1430,21 @@ impl DatabaseNode for SoftwareApplication {
             (NodeProperty::DatePublished, self.options.date_published.to_kuzu_type(), self.options.date_published.to_kuzu_value()),
             (NodeProperty::Genre, self.options.genre.to_kuzu_type(), self.options.genre.to_kuzu_value()),
             (NodeProperty::Keywords, self.options.keywords.to_kuzu_type(), self.options.keywords.to_kuzu_value()),
-            (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
-            (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
-            (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
-            (NodeProperty::SoftwareVersion, self.options.software_version.to_kuzu_type(), self.options.software_version.to_kuzu_value()),
-            (NodeProperty::OperatingSystem, self.options.operating_system.to_kuzu_type(), self.options.operating_system.to_kuzu_value())
+            (NodeProperty::Repository, self.repository.to_kuzu_type(), self.repository.to_kuzu_value()),
+            (NodeProperty::Path, self.path.to_kuzu_type(), self.path.to_kuzu_value()),
+            (NodeProperty::Commit, self.commit.to_kuzu_type(), self.commit.to_kuzu_value()),
+            (NodeProperty::ProgrammingLanguage, self.programming_language.to_kuzu_type(), self.programming_language.to_kuzu_value()),
+            (NodeProperty::CodeSampleType, self.options.code_sample_type.to_kuzu_type(), self.options.code_sample_type.to_kuzu_value()),
+            (NodeProperty::RuntimePlatform, self.options.runtime_platform.to_kuzu_type(), self.options.runtime_platform.to_kuzu_value())
         ]
     }
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
-            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
             (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
             (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
-            (NodeProperty::References, relations(self.options.references.iter().flatten())),
-            (NodeProperty::Title, relations(self.options.title.iter().flatten())),
-            (NodeProperty::SoftwareRequirements, relations(self.options.software_requirements.iter().flatten()))
+            (NodeProperty::References, relations(self.options.references.iter().flatten()))
         ]
     }
 }
@@ -1502,7 +1524,6 @@ impl DatabaseNode for Table {
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
-            (NodeProperty::AlternateNames, self.options.alternate_names.to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
             (NodeProperty::Description, self.options.description.to_kuzu_type(), self.options.description.to_kuzu_value()),
             (NodeProperty::Name, self.options.name.to_kuzu_type(), self.options.name.to_kuzu_value()),
             (NodeProperty::Url, self.options.url.to_kuzu_type(), self.options.url.to_kuzu_value()),
@@ -1519,21 +1540,18 @@ impl DatabaseNode for Table {
             (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
             (NodeProperty::Label, self.label.to_kuzu_type(), self.label.to_kuzu_value()),
             (NodeProperty::LabelAutomatically, self.label_automatically.to_kuzu_type(), self.label_automatically.to_kuzu_value()),
-            (NodeProperty::Caption, LogicalType::String, to_text(&self.caption).to_kuzu_value())
+            (NodeProperty::Caption, LogicalType::String, to_text(&self.caption).to_kuzu_value()),
+            (NodeProperty::Notes, LogicalType::String, to_text(&self.notes).to_kuzu_value())
         ]
     }
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
-            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.authors.iter().flatten())),
             (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
             (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
             (NodeProperty::References, relations(self.options.references.iter().flatten())),
-            (NodeProperty::Title, relations(self.options.title.iter().flatten())),
-            (NodeProperty::Caption, relations(self.caption.iter().flatten())),
-            (NodeProperty::Rows, relations(self.rows.iter())),
-            (NodeProperty::Notes, relations(self.notes.iter().flatten()))
+            (NodeProperty::Rows, relations(self.rows.iter()))
         ]
     }
 }
@@ -1554,12 +1572,6 @@ impl DatabaseNode for TableCell {
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::CellType, self.cell_type.to_kuzu_type(), self.cell_type.to_kuzu_value()),
-            (NodeProperty::Name, self.options.name.to_kuzu_type(), self.options.name.to_kuzu_value()),
-            (NodeProperty::ColumnSpan, self.options.column_span.to_kuzu_type(), self.options.column_span.to_kuzu_value()),
-            (NodeProperty::RowSpan, self.options.row_span.to_kuzu_type(), self.options.row_span.to_kuzu_value()),
-            (NodeProperty::HorizontalAlignment, self.horizontal_alignment.to_kuzu_type(), self.horizontal_alignment.to_kuzu_value()),
-            (NodeProperty::HorizontalAlignmentCharacter, self.horizontal_alignment_character.to_kuzu_type(), self.horizontal_alignment_character.to_kuzu_value()),
-            (NodeProperty::VerticalAlignment, self.vertical_alignment.to_kuzu_type(), self.vertical_alignment.to_kuzu_value()),
             (NodeProperty::Text, LogicalType::String, to_text(self).to_kuzu_value())
         ]
     }
@@ -1623,35 +1635,6 @@ impl DatabaseNode for ThematicBreak {
     }
 }
 
-impl DatabaseNode for Thing {
-    fn node_type(&self) -> NodeType {
-        NodeType::Thing
-    }
-
-    fn node_id(&self) -> NodeId {
-        Thing::node_id(self)
-    }
-    
-    fn primary_key(&self) -> Value {
-        self.node_id().to_kuzu_value()
-    }
-    
-    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
-        vec![
-            (NodeProperty::AlternateNames, self.options.alternate_names.to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
-            (NodeProperty::Description, self.options.description.to_kuzu_type(), self.options.description.to_kuzu_value()),
-            (NodeProperty::Name, self.options.name.to_kuzu_type(), self.options.name.to_kuzu_value()),
-            (NodeProperty::Url, self.options.url.to_kuzu_type(), self.options.url.to_kuzu_value())
-        ]
-    }
-
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
-        vec![
-            
-        ]
-    }
-}
-
 impl DatabaseNode for Variable {
     fn node_type(&self) -> NodeType {
         NodeType::Variable
@@ -1697,7 +1680,6 @@ impl DatabaseNode for VideoObject {
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
-            (NodeProperty::AlternateNames, self.options.alternate_names.to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
             (NodeProperty::Description, self.options.description.to_kuzu_type(), self.options.description.to_kuzu_value()),
             (NodeProperty::Name, self.options.name.to_kuzu_type(), self.options.name.to_kuzu_value()),
             (NodeProperty::Url, self.options.url.to_kuzu_type(), self.options.url.to_kuzu_value()),
@@ -1712,23 +1694,18 @@ impl DatabaseNode for VideoObject {
             (NodeProperty::Repository, self.options.repository.to_kuzu_type(), self.options.repository.to_kuzu_value()),
             (NodeProperty::Path, self.options.path.to_kuzu_type(), self.options.path.to_kuzu_value()),
             (NodeProperty::Commit, self.options.commit.to_kuzu_type(), self.options.commit.to_kuzu_value()),
-            (NodeProperty::Bitrate, self.options.bitrate.to_kuzu_type(), self.options.bitrate.to_kuzu_value()),
             (NodeProperty::ContentSize, self.options.content_size.to_kuzu_type(), self.options.content_size.to_kuzu_value()),
             (NodeProperty::ContentUrl, self.content_url.to_kuzu_type(), self.content_url.to_kuzu_value()),
-            (NodeProperty::EmbedUrl, self.options.embed_url.to_kuzu_type(), self.options.embed_url.to_kuzu_value()),
             (NodeProperty::MediaType, self.media_type.to_kuzu_type(), self.media_type.to_kuzu_value())
         ]
     }
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
-            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
             (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
             (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
-            (NodeProperty::References, relations(self.options.references.iter().flatten())),
-            (NodeProperty::Title, relations(self.title.iter().flatten())),
-            (NodeProperty::Caption, relations(self.caption.iter().flatten()))
+            (NodeProperty::References, relations(self.options.references.iter().flatten()))
         ]
     }
 }
@@ -1748,6 +1725,8 @@ impl DatabaseNode for Node {
             Node::CodeBlock(node) => node.node_type(),
             Node::CodeChunk(node) => node.node_type(),
             Node::CodeExpression(node) => node.node_type(),
+            Node::Datatable(node) => node.node_type(),
+            Node::DatatableColumn(node) => node.node_type(),
             Node::Directory(node) => node.node_type(),
             Node::Figure(node) => node.node_type(),
             Node::File(node) => node.node_type(),
@@ -1778,14 +1757,13 @@ impl DatabaseNode for Node {
             Node::Reference(node) => node.node_type(),
             Node::Section(node) => node.node_type(),
             Node::Sentence(node) => node.node_type(),
-            Node::SoftwareApplication(node) => node.node_type(),
+            Node::SoftwareSourceCode(node) => node.node_type(),
             Node::StyledBlock(node) => node.node_type(),
             Node::StyledInline(node) => node.node_type(),
             Node::Table(node) => node.node_type(),
             Node::TableCell(node) => node.node_type(),
             Node::TableRow(node) => node.node_type(),
             Node::ThematicBreak(node) => node.node_type(),
-            Node::Thing(node) => node.node_type(),
             Node::Variable(node) => node.node_type(),
             Node::VideoObject(node) => node.node_type(),
             _ => NodeType::Unknown
@@ -1805,6 +1783,8 @@ impl DatabaseNode for Node {
             Node::CodeBlock(node) => node.node_id(),
             Node::CodeChunk(node) => node.node_id(),
             Node::CodeExpression(node) => node.node_id(),
+            Node::Datatable(node) => node.node_id(),
+            Node::DatatableColumn(node) => node.node_id(),
             Node::Directory(node) => node.node_id(),
             Node::Figure(node) => node.node_id(),
             Node::File(node) => node.node_id(),
@@ -1835,14 +1815,13 @@ impl DatabaseNode for Node {
             Node::Reference(node) => node.node_id(),
             Node::Section(node) => node.node_id(),
             Node::Sentence(node) => node.node_id(),
-            Node::SoftwareApplication(node) => node.node_id(),
+            Node::SoftwareSourceCode(node) => node.node_id(),
             Node::StyledBlock(node) => node.node_id(),
             Node::StyledInline(node) => node.node_id(),
             Node::Table(node) => node.node_id(),
             Node::TableCell(node) => node.node_id(),
             Node::TableRow(node) => node.node_id(),
             Node::ThematicBreak(node) => node.node_id(),
-            Node::Thing(node) => node.node_id(),
             Node::Variable(node) => node.node_id(),
             Node::VideoObject(node) => node.node_id(),
             _ => NodeId::null()
@@ -1862,6 +1841,8 @@ impl DatabaseNode for Node {
             Node::CodeBlock(node) => node.primary_key(),
             Node::CodeChunk(node) => node.primary_key(),
             Node::CodeExpression(node) => node.primary_key(),
+            Node::Datatable(node) => node.primary_key(),
+            Node::DatatableColumn(node) => node.primary_key(),
             Node::Directory(node) => node.primary_key(),
             Node::Figure(node) => node.primary_key(),
             Node::File(node) => node.primary_key(),
@@ -1892,14 +1873,13 @@ impl DatabaseNode for Node {
             Node::Reference(node) => node.primary_key(),
             Node::Section(node) => node.primary_key(),
             Node::Sentence(node) => node.primary_key(),
-            Node::SoftwareApplication(node) => node.primary_key(),
+            Node::SoftwareSourceCode(node) => node.primary_key(),
             Node::StyledBlock(node) => node.primary_key(),
             Node::StyledInline(node) => node.primary_key(),
             Node::Table(node) => node.primary_key(),
             Node::TableCell(node) => node.primary_key(),
             Node::TableRow(node) => node.primary_key(),
             Node::ThematicBreak(node) => node.primary_key(),
-            Node::Thing(node) => node.primary_key(),
             Node::Variable(node) => node.primary_key(),
             Node::VideoObject(node) => node.primary_key(),
             _ => Value::Null(LogicalType::Any)
@@ -1919,6 +1899,8 @@ impl DatabaseNode for Node {
             Node::CodeBlock(node) => node.node_table(),
             Node::CodeChunk(node) => node.node_table(),
             Node::CodeExpression(node) => node.node_table(),
+            Node::Datatable(node) => node.node_table(),
+            Node::DatatableColumn(node) => node.node_table(),
             Node::Directory(node) => node.node_table(),
             Node::Figure(node) => node.node_table(),
             Node::File(node) => node.node_table(),
@@ -1949,14 +1931,13 @@ impl DatabaseNode for Node {
             Node::Reference(node) => node.node_table(),
             Node::Section(node) => node.node_table(),
             Node::Sentence(node) => node.node_table(),
-            Node::SoftwareApplication(node) => node.node_table(),
+            Node::SoftwareSourceCode(node) => node.node_table(),
             Node::StyledBlock(node) => node.node_table(),
             Node::StyledInline(node) => node.node_table(),
             Node::Table(node) => node.node_table(),
             Node::TableCell(node) => node.node_table(),
             Node::TableRow(node) => node.node_table(),
             Node::ThematicBreak(node) => node.node_table(),
-            Node::Thing(node) => node.node_table(),
             Node::Variable(node) => node.node_table(),
             Node::VideoObject(node) => node.node_table(),
             _ => Vec::new()
@@ -1976,6 +1957,8 @@ impl DatabaseNode for Node {
             Node::CodeBlock(node) => node.rel_tables(),
             Node::CodeChunk(node) => node.rel_tables(),
             Node::CodeExpression(node) => node.rel_tables(),
+            Node::Datatable(node) => node.rel_tables(),
+            Node::DatatableColumn(node) => node.rel_tables(),
             Node::Directory(node) => node.rel_tables(),
             Node::Figure(node) => node.rel_tables(),
             Node::File(node) => node.rel_tables(),
@@ -2006,14 +1989,13 @@ impl DatabaseNode for Node {
             Node::Reference(node) => node.rel_tables(),
             Node::Section(node) => node.rel_tables(),
             Node::Sentence(node) => node.rel_tables(),
-            Node::SoftwareApplication(node) => node.rel_tables(),
+            Node::SoftwareSourceCode(node) => node.rel_tables(),
             Node::StyledBlock(node) => node.rel_tables(),
             Node::StyledInline(node) => node.rel_tables(),
             Node::Table(node) => node.rel_tables(),
             Node::TableCell(node) => node.rel_tables(),
             Node::TableRow(node) => node.rel_tables(),
             Node::ThematicBreak(node) => node.rel_tables(),
-            Node::Thing(node) => node.rel_tables(),
             Node::Variable(node) => node.rel_tables(),
             Node::VideoObject(node) => node.rel_tables(),
             _ => Vec::new()
@@ -2278,7 +2260,6 @@ impl DatabaseNode for Author {
         match self {
             Author::Person(node) => node.node_type(),
             Author::Organization(node) => node.node_type(),
-            Author::SoftwareApplication(node) => node.node_type(),
             Author::AuthorRole(node) => node.node_type(),
             _ => NodeType::Unknown
         }
@@ -2288,7 +2269,6 @@ impl DatabaseNode for Author {
         match self {
             Author::Person(node) => node.node_id(),
             Author::Organization(node) => node.node_id(),
-            Author::SoftwareApplication(node) => node.node_id(),
             Author::AuthorRole(node) => node.node_id(),
             _ => NodeId::null()
         }
@@ -2298,7 +2278,6 @@ impl DatabaseNode for Author {
         match self {
             Author::Person(node) => node.primary_key(),
             Author::Organization(node) => node.primary_key(),
-            Author::SoftwareApplication(node) => node.primary_key(),
             Author::AuthorRole(node) => node.primary_key(),
             _ => Value::Null(LogicalType::Any)
         }
@@ -2308,7 +2287,6 @@ impl DatabaseNode for Author {
         match self {
             Author::Person(node) => node.node_table(),
             Author::Organization(node) => node.node_table(),
-            Author::SoftwareApplication(node) => node.node_table(),
             Author::AuthorRole(node) => node.node_table(),
             _ => Vec::new()
         }
@@ -2318,7 +2296,6 @@ impl DatabaseNode for Author {
         match self {
             Author::Person(node) => node.rel_tables(),
             Author::Organization(node) => node.rel_tables(),
-            Author::SoftwareApplication(node) => node.rel_tables(),
             Author::AuthorRole(node) => node.rel_tables(),
             _ => Vec::new()
         }
@@ -2331,8 +2308,6 @@ impl DatabaseNode for AuthorRoleAuthor {
         match self {
             AuthorRoleAuthor::Person(node) => node.node_type(),
             AuthorRoleAuthor::Organization(node) => node.node_type(),
-            AuthorRoleAuthor::SoftwareApplication(node) => node.node_type(),
-            AuthorRoleAuthor::Thing(node) => node.node_type(),
             _ => NodeType::Unknown
         }
     }
@@ -2341,8 +2316,6 @@ impl DatabaseNode for AuthorRoleAuthor {
         match self {
             AuthorRoleAuthor::Person(node) => node.node_id(),
             AuthorRoleAuthor::Organization(node) => node.node_id(),
-            AuthorRoleAuthor::SoftwareApplication(node) => node.node_id(),
-            AuthorRoleAuthor::Thing(node) => node.node_id(),
             _ => NodeId::null()
         }
     }
@@ -2351,8 +2324,6 @@ impl DatabaseNode for AuthorRoleAuthor {
         match self {
             AuthorRoleAuthor::Person(node) => node.primary_key(),
             AuthorRoleAuthor::Organization(node) => node.primary_key(),
-            AuthorRoleAuthor::SoftwareApplication(node) => node.primary_key(),
-            AuthorRoleAuthor::Thing(node) => node.primary_key(),
             _ => Value::Null(LogicalType::Any)
         }
     }
@@ -2361,8 +2332,6 @@ impl DatabaseNode for AuthorRoleAuthor {
         match self {
             AuthorRoleAuthor::Person(node) => node.node_table(),
             AuthorRoleAuthor::Organization(node) => node.node_table(),
-            AuthorRoleAuthor::SoftwareApplication(node) => node.node_table(),
-            AuthorRoleAuthor::Thing(node) => node.node_table(),
             _ => Vec::new()
         }
     }
@@ -2371,8 +2340,6 @@ impl DatabaseNode for AuthorRoleAuthor {
         match self {
             AuthorRoleAuthor::Person(node) => node.rel_tables(),
             AuthorRoleAuthor::Organization(node) => node.rel_tables(),
-            AuthorRoleAuthor::SoftwareApplication(node) => node.rel_tables(),
-            AuthorRoleAuthor::Thing(node) => node.rel_tables(),
             _ => Vec::new()
         }
     }
