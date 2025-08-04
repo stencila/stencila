@@ -95,9 +95,8 @@ async fn golden() -> Result<()> {
                     filename, docsql
                 );
 
-                // For API queries, also execute the query and and save results to JSON
-                if env::var_os("NO_HTTP").is_none()
-                    && env::var_os("CI").is_none() // Don't run HTTP requests on CI yet
+                // For API queries, also execute the query and save results to JSON when explicitly requested
+                if env::var("EXECUTE_QUERIES").is_ok()
                     && actual.starts_with("GET ")
                     && (filename.ends_with(".openalex") || filename.ends_with(".zenodo") 
                         || (filename.ends_with(".github") && 
