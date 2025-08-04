@@ -71,6 +71,7 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(codec_png::PngCodec),
         Box::<codec_swb::SwbCodec>::default(),
         Box::new(codec_text::TextCodec),
+        Box::new(codec_xlsx::XlsxCodec),
         Box::new(codec_yaml::YamlCodec),
     ];
 
