@@ -1572,7 +1572,6 @@ fn extract_identifiers(node: &Node) -> Vec<String> {
                         value: Primitive::String(value),
                         ..
                     }) if value.starts_with("http") => {
-                        // Check if this URL is supported by one of our codecs
                         if codecs::codec_for_identifier(value).is_some() {
                             identifiers.push(value.clone());
                         }
@@ -1599,6 +1598,32 @@ fn extract_identifiers(node: &Node) -> Vec<String> {
                         }
                         _ => {}
                     },
+                    _ => {}
+                }
+            }
+
+            identifiers
+        }
+        Node::SoftwareSourceCode(code) => {
+            let mut identifiers = Vec::new();
+
+            if let Some(id) = &code.id {
+                if id.starts_with("http") && codecs::codec_for_identifier(id).is_some() {
+                    identifiers.push(id.clone());
+                }
+            }
+
+            for id in code.options.identifiers.iter().flatten() {
+                match id {
+                    PropertyValueOrString::String(value)
+                    | PropertyValueOrString::PropertyValue(PropertyValue {
+                        value: Primitive::String(value),
+                        ..
+                    }) if value.starts_with("http") => {
+                        if codecs::codec_for_identifier(value).is_some() {
+                            identifiers.push(value.clone());
+                        }
+                    }
                     _ => {}
                 }
             }
