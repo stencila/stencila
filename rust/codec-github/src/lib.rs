@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use codec::{
     Codec, DecodeInfo, DecodeOptions,
     common::{
@@ -6,9 +8,13 @@ use codec::{
         serde::de::DeserializeOwned,
         serde_json,
     },
-    schema::{self, Node},
+    format::Format,
+    schema::{Article, Node, SoftwareSourceCode, SoftwareSourceCodeOptions, Text},
     status::Status,
 };
+use codec_ipynb::IpynbCodec;
+use codec_latex::LatexCodec;
+use codec_markdown::MarkdownCodec;
 
 pub mod client;
 pub mod decode;
@@ -59,7 +65,7 @@ impl GithubCodec {
     /// Decode a Stencila [`Node`] from a GitHub identifier (URL)
     pub async fn from_identifier(
         identifier: &str,
-        _options: Option<DecodeOptions>,
+        options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
         let Some(file_info) = decode::extract_github_identifier(identifier) else {
             bail!("Not a recognized GitHub URL")
@@ -67,66 +73,50 @@ impl GithubCodec {
 
         // Fetch the raw content
         let content_bytes = decode::fetch_github_file(&file_info).await?;
-
-        // For now, we'll return the content as a string in a SoftwareSourceCode node
-        // In the future, this should delegate to the appropriate codec based on file type
         let content = String::from_utf8(content_bytes)?;
 
-        // Create a SoftwareSourceCode node with the fetched content
-        let node = Node::SoftwareSourceCode(schema::SoftwareSourceCode {
-            name: file_info
-                .path
-                .split('/')
-                .next_back()
-                .unwrap_or("")
-                .to_string(),
-            programming_language: determine_programming_language(&file_info.path).to_string(),
-            repository: Some(format!(
-                "https://github.com/{}/{}",
-                file_info.owner, file_info.repo
-            )),
-            path: Some(file_info.path.clone()),
-            commit: file_info.ref_.clone(),
-            options: Box::new(schema::SoftwareSourceCodeOptions {
-                text: Some(schema::Text::from(content)),
-                url: Some(identifier.to_string()),
-                ..Default::default()
-            }),
-            ..Default::default()
-        });
+        // Determine the format from the file path
+        let path = PathBuf::from(&file_info.path);
+        let format = Format::from_path(&path);
 
-        Ok((node, DecodeInfo::none()))
-    }
-}
+        // Delegate to the appropriate codec based on format
+        let (mut node, info) = match format {
+            Format::Ipynb => IpynbCodec.from_str(&content, options).await?,
+            Format::Latex => LatexCodec.from_str(&content, options).await?,
+            Format::Markdown | Format::Myst | Format::Qmd | Format::Smd => {
+                MarkdownCodec.from_str(&content, options).await?
+            }
+            _ => {
+                // For other formats, return as SoftwareSourceCode
+                let node = Node::SoftwareSourceCode(SoftwareSourceCode {
+                    name: file_info.file_name(),
+                    programming_language: file_info.lang(),
+                    options: Box::new(SoftwareSourceCodeOptions {
+                        text: Some(Text::from(content)),
+                        url: Some(identifier.to_string()),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                });
+                (node, DecodeInfo::none())
+            }
+        };
 
-/// Determine programming language from file extension
-fn determine_programming_language(path: &str) -> &'static str {
-    let ext = path.split('.').next_back().unwrap_or("");
-    match ext.to_lowercase().as_str() {
-        "rs" => "rust",
-        "py" => "python",
-        "js" | "mjs" | "cjs" => "javascript",
-        "ts" | "tsx" => "typescript",
-        "java" => "java",
-        "c" => "c",
-        "cpp" | "cxx" | "cc" => "cpp",
-        "cs" => "csharp",
-        "go" => "go",
-        "rb" => "ruby",
-        "php" => "php",
-        "swift" => "swift",
-        "kt" | "kts" => "kotlin",
-        "scala" => "scala",
-        "r" => "r",
-        "sh" | "bash" => "bash",
-        "sql" => "sql",
-        "html" | "htm" => "html",
-        "css" => "css",
-        "md" | "markdown" => "markdown",
-        "json" => "json",
-        "xml" => "xml",
-        "yaml" | "yml" => "yaml",
-        _ => "text",
+        // Set repository, path & commit properties on the work
+        let repository = Some(file_info.repo_url());
+        let path = Some(file_info.path);
+        let commit = file_info.ref_;
+        if let Node::Article(Article { options, .. }) = &mut node {
+            options.repository = repository;
+            options.path = path;
+            options.commit = commit;
+        } else if let Node::SoftwareSourceCode(code) = &mut node {
+            code.repository = repository;
+            code.path = path;
+            code.commit = commit;
+        }
+
+        Ok((node, info))
     }
 }
 

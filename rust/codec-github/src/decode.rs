@@ -18,6 +18,47 @@ pub struct GithubFileInfo {
     pub ref_: Option<String>,
 }
 
+impl GithubFileInfo {
+    pub fn repo_url(&self) -> String {
+        ["https://github.com/", &self.owner, "/", &self.repo].concat()
+    }
+
+    pub fn file_name(&self) -> String {
+        self.path.split('/').next_back().unwrap_or("").to_string()
+    }
+
+    pub fn lang(&self) -> String {
+        let ext = self.path.split('.').next_back().unwrap_or("");
+        match ext.to_lowercase().as_str() {
+            "rs" => "rust",
+            "py" => "python",
+            "js" | "mjs" | "cjs" => "javascript",
+            "ts" | "tsx" => "typescript",
+            "java" => "java",
+            "c" => "c",
+            "cpp" | "cxx" | "cc" => "cpp",
+            "cs" => "csharp",
+            "go" => "go",
+            "rb" => "ruby",
+            "php" => "php",
+            "swift" => "swift",
+            "kt" | "kts" => "kotlin",
+            "scala" => "scala",
+            "r" => "r",
+            "sh" | "bash" => "bash",
+            "sql" => "sql",
+            "html" | "htm" => "html",
+            "css" => "css",
+            "md" | "markdown" => "markdown",
+            "json" => "json",
+            "xml" => "xml",
+            "yaml" | "yml" => "yaml",
+            _ => "text",
+        }
+        .to_string()
+    }
+}
+
 /// Extract GitHub file information from an identifier (URL)
 ///
 /// Supports the following URL patterns:

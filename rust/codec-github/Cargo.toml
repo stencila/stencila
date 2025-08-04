@@ -6,6 +6,9 @@ edition = "2024"
 [dependencies]
 base64 = { workspace = true }
 codec = { path = "../codec" }
+codec-ipynb = { path = "../codec-ipynb" }
+codec-latex = { path = "../codec-latex" }
+codec-markdown = { path = "../codec-markdown" }
 governor = {workspace = true}
 secrets = { path = "../secrets" }
 serde = { workspace = true }
