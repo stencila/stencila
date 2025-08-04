@@ -15,17 +15,27 @@ GET https://zenodo.org/api/records?sort=mostrecent
 
 zenodo.records().sort("date")
 ---
-GET https://zenodo.org/api/records?sort=mostrecent
+GET https://zenodo.org/api/records?sort=-mostrecent
 
 
 zenodo.records().sort("published")
 ---
-GET https://zenodo.org/api/records?sort=mostrecent
+GET https://zenodo.org/api/records?sort=-mostrecent
 
 
 zenodo.records(search = "climate").sort("recent")
 ---
 GET https://zenodo.org/api/records?q=climate&sort=mostrecent
+
+
+zenodo.records().sort("date", "desc")
+---
+GET https://zenodo.org/api/records?sort=mostrecent
+
+
+zenodo.records().sort("published", "asc")
+---
+GET https://zenodo.org/api/records?sort=-mostrecent
 
 
 zenodo.records().sort("popularity")

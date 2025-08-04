@@ -269,10 +269,11 @@ impl ZenodoQuery {
         let mut query = self.clone();
 
         // Zenodo supports: bestmatch (default) or mostrecent
-        // Map common sort properties to Zenodo's sort options
-        let sort_value = match property {
-            "relevance" | "best" | "bestmatch" => "bestmatch",
-            "date" | "recent" | "mostrecent" | "published" | "publication_date" => "mostrecent",
+        // Map common sort properties to Zenodo's sort options and determine default direction
+        let (sort_value, default_ascending) = match property {
+            "relevance" | "best" | "bestmatch" => ("bestmatch", true),
+            "recent" | "mostrecent" => ("mostrecent", false), // mostrecent implies desc by default
+            "date" | "published" | "publication_date" => ("mostrecent", true), // date fields default to asc
             _ => {
                 return Err(Error::new(
                     ErrorKind::InvalidOperation,
@@ -281,12 +282,32 @@ impl ZenodoQuery {
             }
         };
 
-        query.sort = Some(sort_value.to_string());
+        // Handle sort direction with minus prefix
+        let sort_with_direction = if let Some(dir) = direction {
+            let want_descending = match dir.to_lowercase().as_str() {
+                "desc" | "descending" | "d" => true,
+                "asc" | "ascending" | "a" => false,
+                _ => !default_ascending, // use default if direction is unclear
+            };
+            
+            if sort_value == "mostrecent" && want_descending {
+                "mostrecent".to_string() // mostrecent is naturally descending
+            } else if sort_value == "mostrecent" && !want_descending {
+                "-mostrecent".to_string() // use minus to make it ascending
+            } else {
+                // bestmatch doesn't support direction changes
+                sort_value.to_string()
+            }
+        } else {
+            // No explicit direction - use property-specific default
+            if sort_value == "mostrecent" && default_ascending {
+                "-mostrecent".to_string() // make date sorts ascending by default
+            } else {
+                sort_value.to_string()
+            }
+        };
 
-        // Ignore direction as Zenodo doesn't support it
-        if direction.is_some() {
-            tracing::debug!("Zenodo API doesn't support sort direction, ignoring");
-        }
+        query.sort = Some(sort_with_direction);
 
         Ok(query)
     }
