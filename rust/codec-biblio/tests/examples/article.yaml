@@ -1,0 +1,81 @@
+a1:
+  type: article
+  title: Kinetics and luminescence of the excitations of a nonequilibrium polariton condensate
+  author:
+  - Doan, T. D.
+  - Tran Thoai, D. B.
+  - Haug, Hartmut
+  date: 2020-10-14
+  page-range: 165126-165139
+  serial-number:
+    doi: 10.1103/PhysRevB.102.165126
+  parent:
+    type: periodical
+    title: Physical Review B
+    publisher: American Physical Society
+    issue: '16'
+    volume: '102'
+a2:
+  type: article
+  title: Teaching medicine with the help of "Dr. House"
+  author:
+  - Jerrentrup, Andreas
+  - Mueller, Tobias
+  - Glowalla, Ulrich
+  - Herder, Meike
+  - Henrichs, Nadine
+  - Neubauer, Andreas
+  - Schaefer, Juergen R.
+  date: 2018-03-13
+  serial-number:
+    doi: 10.1371/journal.pone.0193972
+  parent:
+    type: periodical
+    title: PLoS ONE
+    issue: '3'
+    volume: '13'
+a3:
+  type: article
+  title: 'Quantum Computing: Progress and Prospects'
+  author:
+  - Nielsen, Michael A.
+  - Chuang, Isaac L.
+  date: 2022-03-15
+  page-range: 234-245
+  serial-number:
+    doi: 10.1038/s41567-022-01234-5
+  parent:
+    type: periodical
+    title: Nature Physics
+    publisher: Nature Publishing Group
+    issue: '3'
+    volume: '18'
+a4:
+  type: article
+  title: Defining the Really Habitable Zone
+  author:
+  - Pedbost, Marven F.
+  - Pomalgu, Trillean
+  - Lintott, Chris
+  - Eisner, Nora
+  - Nicholson, Belinda
+  date: 2020
+  url: https://arxiv.org/abs/2003.13722
+  parent:
+    type: repository
+    title: arXiv
+a5:
+  type: article
+  title: 'ZygOS: Achieving Low Tail Latency for Microsecond-Scale Networked Tasks'
+  author:
+  - Prekas, George
+  - Kogias, Marios
+  - Bugnion, Edouard
+  date: 2017
+  page-range: 325-341
+  serial-number:
+    doi: 10.1145/3132747.3132780
+  parent:
+    type: proceedings
+    title: Proceedings of the 26th Symposium on Operating Systems Principles
+    publisher: Association for Computing Machinery

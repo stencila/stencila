@@ -1,0 +1,358 @@
+---
+source: rust/codec-biblio/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "references": [
+    {
+      "type": "Reference",
+      "id": "a1",
+      "workType": "Article",
+      "doi": "10.1103/PhysRevB.102.165126",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Doan"
+          ],
+          "givenNames": [
+            "T.",
+            "D."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tran Thoai"
+          ],
+          "givenNames": [
+            "D.",
+            "B."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haug"
+          ],
+          "givenNames": [
+            "Hartmut"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020-09-13"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Kinetics and luminescence of the excitations of a nonequilibrium polariton condensate"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Physical Review B",
+            "publisher": {
+              "type": "Organization",
+              "name": "American Physical Society"
+            }
+          },
+          "volumeNumber": "102"
+        },
+        "issueNumber": "16"
+      },
+      "pageStart": 165126,
+      "pageEnd": 165139
+    },
+    {
+      "type": "Reference",
+      "id": "a2",
+      "workType": "Article",
+      "doi": "10.1371/journal.pone.0193972",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jerrentrup"
+          ],
+          "givenNames": [
+            "Andreas"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mueller"
+          ],
+          "givenNames": [
+            "Tobias"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Glowalla"
+          ],
+          "givenNames": [
+            "Ulrich"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Herder"
+          ],
+          "givenNames": [
+            "Meike"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Henrichs"
+          ],
+          "givenNames": [
+            "Nadine"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Neubauer"
+          ],
+          "givenNames": [
+            "Andreas"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schaefer"
+          ],
+          "givenNames": [
+            "Juergen",
+            "R."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018-02-12"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Teaching medicine with the help of \"Dr. House\""
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "PLoS ONE"
+          },
+          "volumeNumber": "13"
+        },
+        "issueNumber": "3"
+      }
+    },
+    {
+      "type": "Reference",
+      "id": "a3",
+      "workType": "Article",
+      "doi": "10.1038/s41567-022-01234-5",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nielsen"
+          ],
+          "givenNames": [
+            "Michael",
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chuang"
+          ],
+          "givenNames": [
+            "Isaac",
+            "L."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022-02-14"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Quantum Computing: Progress and Prospects"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Nature Physics",
+            "publisher": {
+              "type": "Organization",
+              "name": "Nature Publishing Group"
+            }
+          },
+          "volumeNumber": "18"
+        },
+        "issueNumber": "3"
+      },
+      "pageStart": 234,
+      "pageEnd": 245
+    },
+    {
+      "type": "Reference",
+      "id": "a4",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pedbost"
+          ],
+          "givenNames": [
+            "Marven",
+            "F."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pomalgu"
+          ],
+          "givenNames": [
+            "Trillean"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lintott"
+          ],
+          "givenNames": [
+            "Chris"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Eisner"
+          ],
+          "givenNames": [
+            "Nora"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nicholson"
+          ],
+          "givenNames": [
+            "Belinda"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Defining the Really Habitable Zone"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "arXiv"
+      },
+      "url": "https://arxiv.org/abs/2003.13722"
+    },
+    {
+      "type": "Reference",
+      "id": "a5",
+      "workType": "Article",
+      "doi": "10.1145/3132747.3132780",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Prekas"
+          ],
+          "givenNames": [
+            "George"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kogias"
+          ],
+          "givenNames": [
+            "Marios"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bugnion"
+          ],
+          "givenNames": [
+            "Edouard"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2017"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "ZygOS: Achieving Low Tail Latency for Microsecond-Scale Networked Tasks"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "Proceedings of the 26th Symposium on Operating Systems Principles",
+        "publisher": {
+          "type": "Organization",
+          "name": "Association for Computing Machinery"
+        }
+      },
+      "pageStart": 325,
+      "pageEnd": 341
+    }
+  ],
+  "content": []
+}
