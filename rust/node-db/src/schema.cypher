@@ -1314,6 +1314,7 @@ CREATE REL TABLE IF NOT EXISTS `editors` (
   FROM `Figure` TO `Person`,
   FROM `ImageObject` TO `Person`,
   FROM `MediaObject` TO `Person`,
+  FROM `Reference` TO `Person`,
   FROM `SoftwareSourceCode` TO `Person`,
   FROM `Table` TO `Person`,
   FROM `VideoObject` TO `Person`,

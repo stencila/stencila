@@ -19,12 +19,18 @@
     "workType",
     "doi",
     "authors",
+    "editors",
+    "publisher",
     "date",
     "title",
     "isPartOf",
+    "volumeNumber",
+    "issueNumber",
     "pageStart",
     "pageEnd",
     "pagination",
+    "version",
+    "identifiers",
     "url"
   ],
   "properties": {
@@ -74,6 +80,42 @@
         "$ref": "Author.schema.json"
       }
     },
+    "editors": {
+      "@id": "schema:editor",
+      "description": "People who edited the referenced work.",
+      "$comment": "Note that, consistent with schema.org, this property can only include\na `Person`, unlike `authors` which can also include `Organization`.\n",
+      "aliases": [
+        "editor"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Person.schema.json"
+      }
+    },
+    "publisher": {
+      "@id": "schema:publisher",
+      "description": "A publisher of the referenced work.",
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
+      "anyOf": [
+        {
+          "$ref": "Person.schema.json"
+        },
+        {
+          "$ref": "Organization.schema.json"
+        }
+      ]
+    },
     "date": {
       "@id": "schema:date",
       "description": "Date of first publication.",
@@ -109,6 +151,38 @@
         "is_part_of"
       ],
       "$ref": "CreativeWorkVariant.schema.json"
+    },
+    "volumeNumber": {
+      "@id": "schema:volumeNumber",
+      "description": "Identifies the volume of publication or multi-part work; for example, \"iii\" or \"2\".",
+      "aliases": [
+        "volume-number",
+        "volume_number"
+      ],
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "issueNumber": {
+      "@id": "schema:issueNumber",
+      "description": "Identifies the issue of a serial publication; for example, \"3\" or \"12\".",
+      "aliases": [
+        "issue-number",
+        "issue_number"
+      ],
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        }
+      ]
     },
     "pageStart": {
       "@id": "schema:pageStart",
@@ -146,6 +220,44 @@
       "@id": "schema:pagination",
       "description": "Any description of pages that is not separated into pageStart and pageEnd; for example, \"1-6, 9, 55\".",
       "type": "string"
+    },
+    "version": {
+      "@id": "schema:version",
+      "description": "The version/edition of the referenced work.",
+      "$comment": "In this case `string` is listed as an alternative before `number` to\navoid semantic version numbers e.g. `1.0` being parsed, and subsequently\nencoded, as `1` thereby resulting in loss of information.\n",
+      "strip": [
+        "metadata"
+      ],
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    },
+    "identifiers": {
+      "@id": "schema:identifier",
+      "description": "Any kind of identifier for the referenced work.",
+      "$comment": "Some identifiers have specific properties e.g the `doi` property.\nThese should be used in preference to this property which is intended\nfor identifiers that do not yet have a specific property like ISBN.\nIdentifiers can be represented as strings, but using a `PropertyValue`\nwill usually be better because it allows for `propertyID` (i.e. the type of identifier).\n",
+      "aliases": [
+        "identifier"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "PropertyValue.schema.json"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
     },
     "url": {
       "@id": "schema:url",

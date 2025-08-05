@@ -9,12 +9,18 @@ core:
   - workType
   - doi
   - authors
+  - editors
+  - publisher
   - date
   - title
   - isPartOf
+  - volumeNumber
+  - issueNumber
   - pageStart
   - pageEnd
   - pagination
+  - version
+  - identifiers
   - url
 properties:
   workType:
@@ -33,6 +39,28 @@ properties:
       $ref: Author
     serde:
       deserializeWith: option_one_or_many_string_or_object
+  editors:
+    "@id": schema:editor
+    description: People who edited the referenced work.
+    $comment: |
+      Note that, consistent with schema.org, this property can only include
+      a `Person`, unlike `authors` which can also include `Organization`.
+    type: array
+    items:
+      $ref: Person
+    strip: [metadata]
+    serde:
+      deserializeWith: option_one_or_many_string_or_object
+  publisher:
+    "@id": schema:publisher
+    description: |
+      A publisher of the referenced work.
+    anyOf:
+      - $ref: Person
+      - $ref: Organization
+    strip: [metadata]
+    serde:
+      deserializeWith: option_string_or_object
   date:
     "@id": schema:date
     description: Date of first publication.
@@ -59,6 +87,20 @@ properties:
     "@id": schema:isPartOf
     description: An other `CreativeWork` that the reference is a part of.
     $ref: CreativeWorkVariant
+  volumeNumber:
+    "@id": schema:volumeNumber
+    description: |
+      Identifies the volume of publication or multi-part work; for example, "iii" or "2".
+    anyOf:
+      - type: integer
+      - type: string
+  issueNumber:
+    "@id": schema:issueNumber
+    description: |
+      Identifies the issue of a serial publication; for example, "3" or "12".
+    anyOf:
+      - type: integer
+      - type: string
   pageStart:
     "@id": schema:pageStart
     description: The page on which the article starts; for example "135" or "xiii".
@@ -77,6 +119,32 @@ properties:
       Any description of pages that is not separated into pageStart and pageEnd;
       for example, "1-6, 9, 55".
     type: string
+  version:
+    "@id": schema:version
+    description: The version/edition of the referenced work.
+    $comment: |
+      In this case `string` is listed as an alternative before `number` to
+      avoid semantic version numbers e.g. `1.0` being parsed, and subsequently
+      encoded, as `1` thereby resulting in loss of information.
+    anyOf:
+      - type: string
+      - type: number
+    strip: [metadata]
+  identifiers:
+    "@id": schema:identifier
+    description: Any kind of identifier for the referenced work.
+    $comment: |
+      Some identifiers have specific properties e.g the `doi` property.
+      These should be used in preference to this property which is intended
+      for identifiers that do not yet have a specific property like ISBN.
+      Identifiers can be represented as strings, but using a `PropertyValue`
+      will usually be better because it allows for `propertyID` (i.e. the type of identifier).
+    type: array
+    items:
+      anyOf:
+        - $ref: PropertyValue
+        - type: string
+    strip: [metadata]
   url:
     "@id": schema:url
     description: The URL of the referenced work.

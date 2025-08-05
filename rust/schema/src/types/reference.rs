@@ -8,7 +8,11 @@ use super::creative_work_variant::CreativeWorkVariant;
 use super::date::Date;
 use super::inline::Inline;
 use super::integer_or_string::IntegerOrString;
+use super::person::Person;
+use super::person_or_organization::PersonOrOrganization;
+use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
+use super::string_or_number::StringOrNumber;
 
 /// A reference to a creative work, including books, movies, photographs, software programs, etc.
 #[skip_serializing_none]
@@ -39,6 +43,17 @@ pub struct Reference {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     pub authors: Option<Vec<Author>>,
 
+    /// People who edited the referenced work.
+    #[serde(alias = "editor")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
+    #[strip(metadata)]
+    pub editors: Option<Vec<Person>>,
+
+    /// A publisher of the referenced work.
+    #[serde(default, deserialize_with = "option_string_or_object")]
+    #[strip(metadata)]
+    pub publisher: Option<PersonOrOrganization>,
+
     /// Date of first publication.
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[dom(with = "Date::to_dom_attr")]
@@ -55,6 +70,14 @@ pub struct Reference {
     #[serde(alias = "is-part-of", alias = "is_part_of")]
     pub is_part_of: Option<Box<CreativeWorkVariant>>,
 
+    /// Identifies the volume of publication or multi-part work; for example, "iii" or "2".
+    #[serde(alias = "volume-number", alias = "volume_number")]
+    pub volume_number: Option<IntegerOrString>,
+
+    /// Identifies the issue of a serial publication; for example, "3" or "12".
+    #[serde(alias = "issue-number", alias = "issue_number")]
+    pub issue_number: Option<IntegerOrString>,
+
     /// The page on which the article starts; for example "135" or "xiii".
     #[serde(alias = "page-start", alias = "page_start")]
     pub page_start: Option<IntegerOrString>,
@@ -65,6 +88,16 @@ pub struct Reference {
 
     /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
     pub pagination: Option<String>,
+
+    /// The version/edition of the referenced work.
+    #[strip(metadata)]
+    pub version: Option<StringOrNumber>,
+
+    /// Any kind of identifier for the referenced work.
+    #[serde(alias = "identifier")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(metadata)]
+    pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// The URL of the referenced work.
     pub url: Option<String>,

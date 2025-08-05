@@ -46,9 +46,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "identifiers",
       "rdfs:comment": "Any kind of identifier for any kind of Thing.",
-      "schema:domainIncludes": {
-        "@id": "schema:Thing"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
       "schema:rangeIncludes": [
         {
           "@id": "schema:PropertyValue"

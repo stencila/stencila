@@ -46,9 +46,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "identifiers",
       "rdfs:comment": "Any kind of identifier for any kind of Thing.",
-      "schema:domainIncludes": {
-        "@id": "schema:Thing"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
       "schema:rangeIncludes": [
         {
           "@id": "schema:PropertyValue"
@@ -317,9 +322,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "editors",
       "rdfs:comment": "People who edited the `CreativeWork`.",
-      "schema:domainIncludes": {
-        "@id": "schema:CreativeWork"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Person"
       }
@@ -530,9 +540,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "publisher",
       "rdfs:comment": "A publisher of the CreativeWork.",
-      "schema:domainIncludes": {
-        "@id": "schema:CreativeWork"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
       "schema:rangeIncludes": [
         {
           "@id": "schema:Person"
@@ -638,9 +653,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "version",
       "rdfs:comment": "The version of the creative work.",
-      "schema:domainIncludes": {
-        "@id": "schema:CreativeWork"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
       "schema:rangeIncludes": [
         {
           "@id": "schema:Text"

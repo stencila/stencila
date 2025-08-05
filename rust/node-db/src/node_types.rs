@@ -1347,7 +1347,8 @@ impl DatabaseNode for Reference {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
-            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
+            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.editors.iter().flatten()))
         ]
     }
 }

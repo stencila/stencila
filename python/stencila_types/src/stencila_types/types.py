@@ -2776,6 +2776,12 @@ class Reference(Entity):
     authors: list[Author] | None = None
     """The authors of the work."""
 
+    editors: list[Person] | None = None
+    """People who edited the referenced work."""
+
+    publisher: Person | Organization | None = None
+    """A publisher of the referenced work."""
+
     date: Date | None = None
     """Date of first publication."""
 
@@ -2785,6 +2791,12 @@ class Reference(Entity):
     is_part_of: CreativeWorkVariant | None = None
     """An other `CreativeWork` that the reference is a part of."""
 
+    volume_number: int | str | None = None
+    """Identifies the volume of publication or multi-part work; for example, "iii" or "2"."""
+
+    issue_number: int | str | None = None
+    """Identifies the issue of a serial publication; for example, "3" or "12"."""
+
     page_start: int | str | None = None
     """The page on which the article starts; for example "135" or "xiii"."""
 
@@ -2793,6 +2805,12 @@ class Reference(Entity):
 
     pagination: str | None = None
     """Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55"."""
+
+    version: str | float | None = None
+    """The version/edition of the referenced work."""
+
+    identifiers: list[PropertyValue | str] | None = None
+    """Any kind of identifier for the referenced work."""
 
     url: str | None = None
     """The URL of the referenced work."""

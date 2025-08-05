@@ -108,6 +108,45 @@
       }
     },
     {
+      "@id": "schema:editor",
+      "@type": "rdfs:Property",
+      "rdfs:label": "editors",
+      "rdfs:comment": "People who edited the referenced work.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Person"
+      }
+    },
+    {
+      "@id": "schema:publisher",
+      "@type": "rdfs:Property",
+      "rdfs:label": "publisher",
+      "rdfs:comment": "A publisher of the referenced work.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:Person"
+        },
+        {
+          "@id": "schema:Organization"
+        }
+      ]
+    },
+    {
       "@id": "schema:date",
       "@type": "rdfs:Property",
       "rdfs:label": "date",
@@ -153,6 +192,50 @@
         },
         {
           "@id": "stencila:Reference"
+        }
+      ]
+    },
+    {
+      "@id": "schema:volumeNumber",
+      "@type": "rdfs:Property",
+      "rdfs:label": "volumeNumber",
+      "rdfs:comment": "Identifies the volume of publication or multi-part work; for example, \"iii\" or \"2\".",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:PublicationVolume"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:Number"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
+    },
+    {
+      "@id": "schema:issueNumber",
+      "@type": "rdfs:Property",
+      "rdfs:label": "issueNumber",
+      "rdfs:comment": "Identifies the issue of a serial publication; for example, \"3\" or \"12\".",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:PublicationIssue"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:Number"
+        },
+        {
+          "@id": "schema:Text"
         }
       ]
     },
@@ -243,6 +326,50 @@
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
+    },
+    {
+      "@id": "schema:version",
+      "@type": "rdfs:Property",
+      "rdfs:label": "version",
+      "rdfs:comment": "The version/edition of the referenced work.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:Text"
+        },
+        {
+          "@id": "schema:Number"
+        }
+      ]
+    },
+    {
+      "@id": "schema:identifier",
+      "@type": "rdfs:Property",
+      "rdfs:label": "identifiers",
+      "rdfs:comment": "Any kind of identifier for the referenced work.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:PropertyValue"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
     },
     {
       "@id": "schema:url",
