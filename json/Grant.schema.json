@@ -136,7 +136,7 @@
       ],
       "type": "array",
       "items": {
-        "$ref": "ThingType.schema.json"
+        "$ref": "ThingVariant.schema.json"
       }
     },
     "sponsors": {

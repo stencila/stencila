@@ -6,7 +6,7 @@ use super::image_object::ImageObject;
 use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
-use super::thing_type::ThingType;
+use super::thing_variant::ThingVariant;
 
 /// A grant, typically financial or otherwise quantifiable, of resources.
 #[skip_serializing_none]
@@ -74,7 +74,7 @@ pub struct GrantOptions {
     /// Indicates an item funded or sponsored through a Grant.
     #[serde(alias = "funded-items", alias = "funded_items", alias = "fundedItem", alias = "funded-item", alias = "funded_item")]
     #[serde(default, deserialize_with = "option_one_or_many")]
-    pub funded_items: Option<Vec<ThingType>>,
+    pub funded_items: Option<Vec<ThingVariant>>,
 
     /// A person or organization that supports a thing through a pledge, promise, or financial contribution.
     #[serde(alias = "sponsor")]

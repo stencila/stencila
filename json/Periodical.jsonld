@@ -132,6 +132,23 @@
       }
     },
     {
+      "@id": "stencila:workType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "workType",
+      "rdfs:comment": "The type of `CreativeWork` (e.g. article, book, software application).",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CreativeWorkType"
+      }
+    },
+    {
       "@id": "stencila:doi",
       "@type": "rdfs:Property",
       "rdfs:label": "doi",

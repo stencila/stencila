@@ -4,9 +4,9 @@ use roxmltree::Node;
 use codec::{
     Losses,
     schema::{
-        Article, Author, Block, CreativeWorkType, Date, Heading, IntegerOrString, Organization,
+        Article, Author, Block, CreativeWorkVariant, Date, Heading, IntegerOrString, Organization,
         OrganizationOptions, Person, PersonOptions, PersonOrOrganization, Primitive, PropertyValue,
-        PropertyValueOrString, PublicationVolume, StringOrNumber, ThingType,
+        PropertyValueOrString, PublicationVolume, StringOrNumber, ThingVariant,
     },
 };
 
@@ -106,7 +106,7 @@ fn decode_subj_group(path: &str, node: &Node, article: &mut Article, losses: &mu
     }
     let Some(subject) = subject else { return };
 
-    let item = ThingType::PropertyValue(PropertyValue {
+    let item = ThingVariant::PropertyValue(PropertyValue {
         property_id: subject_type,
         value: Primitive::String(subject),
         ..Default::default()
@@ -250,7 +250,7 @@ fn decode_volume(path: &str, node: &Node, article: &mut Article, losses: &mut Lo
 
     if let Ok(volume_number) = node.text().unwrap_or_default().parse() {
         if article.options.parts.is_none() {
-            article.options.parts = Some(vec![CreativeWorkType::PublicationVolume(
+            article.options.parts = Some(vec![CreativeWorkVariant::PublicationVolume(
                 PublicationVolume {
                     volume_number: Some(IntegerOrString::Integer(volume_number)),
                     ..Default::default()

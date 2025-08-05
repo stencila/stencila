@@ -6,7 +6,7 @@ use codec::{
         serde_with::skip_serializing_none,
     },
     schema::{
-        Article, ArticleOptions, Author, Block, CreativeWorkType, Date, IntegerOrString,
+        Article, ArticleOptions, Author, Block, CreativeWorkVariant, Date, IntegerOrString,
         Organization, Paragraph, Periodical, PeriodicalOptions, PersonOrOrganization, Primitive,
         PropertyValue, PropertyValueOrString, PublicationIssue, PublicationVolume, Reference,
         shortcuts::{p, t},
@@ -352,25 +352,25 @@ impl From<ReferenceValue> for Reference {
             // If we have volume/issue info, create the hierarchy
             if let Some(vol) = ref_value.volume {
                 let publication_volume = PublicationVolume {
-                    is_part_of: Some(Box::new(CreativeWorkType::Periodical(periodical))),
+                    is_part_of: Some(Box::new(CreativeWorkVariant::Periodical(periodical))),
                     volume_number: Some(IntegerOrString::String(vol)),
                     ..Default::default()
                 };
 
                 if let Some(iss) = ref_value.issue {
                     let publication_issue = PublicationIssue {
-                        is_part_of: Some(Box::new(CreativeWorkType::PublicationVolume(
+                        is_part_of: Some(Box::new(CreativeWorkVariant::PublicationVolume(
                             publication_volume,
                         ))),
                         issue_number: Some(IntegerOrString::String(iss)),
                         ..Default::default()
                     };
-                    Box::new(CreativeWorkType::PublicationIssue(publication_issue))
+                    Box::new(CreativeWorkVariant::PublicationIssue(publication_issue))
                 } else {
-                    Box::new(CreativeWorkType::PublicationVolume(publication_volume))
+                    Box::new(CreativeWorkVariant::PublicationVolume(publication_volume))
                 }
             } else {
-                Box::new(CreativeWorkType::Periodical(periodical))
+                Box::new(CreativeWorkVariant::Periodical(periodical))
             }
         });
 
@@ -520,7 +520,7 @@ fn create_publication_info(
     volume: Option<&OrdinaryField>,
     issue: Option<&OrdinaryField>,
     page: Option<&str>,
-) -> Option<CreativeWorkType> {
+) -> Option<CreativeWorkVariant> {
     let periodical_name = match container_title {
         Value::String(value) => value.to_string(),
         Value::Array(value) => value
@@ -547,7 +547,7 @@ fn create_publication_info(
         };
 
         let mut publication_volume = PublicationVolume {
-            is_part_of: Some(Box::new(CreativeWorkType::Periodical(periodical))),
+            is_part_of: Some(Box::new(CreativeWorkVariant::Periodical(periodical))),
             volume_number: Some(IntegerOrString::String(volume_str)),
             ..Default::default()
         };
@@ -560,7 +560,7 @@ fn create_publication_info(
             };
 
             let mut publication_issue = PublicationIssue {
-                is_part_of: Some(Box::new(CreativeWorkType::PublicationVolume(
+                is_part_of: Some(Box::new(CreativeWorkVariant::PublicationVolume(
                     publication_volume,
                 ))),
                 issue_number: Some(IntegerOrString::String(issue_str)),
@@ -572,16 +572,16 @@ fn create_publication_info(
                 publication_issue.options.page_end = extract_page_end(page_range);
             }
 
-            Some(CreativeWorkType::PublicationIssue(publication_issue))
+            Some(CreativeWorkVariant::PublicationIssue(publication_issue))
         } else {
             if let Some(page_range) = page {
                 publication_volume.options.page_start = extract_page_start(page_range);
                 publication_volume.options.page_end = extract_page_end(page_range);
             }
-            Some(CreativeWorkType::PublicationVolume(publication_volume))
+            Some(CreativeWorkVariant::PublicationVolume(publication_volume))
         }
     } else {
-        Some(CreativeWorkType::Periodical(periodical))
+        Some(CreativeWorkVariant::Periodical(periodical))
     }
 }
 

@@ -1,0 +1,80 @@
+title: CreativeWorkType
+"@id": stencila:CreativeWorkType
+extends: Enumeration
+category: works
+description: The kind of a creative work.
+$comment: |
+  This list includes all the types derived from `CreativeWork` within this schema,
+  as well as types listed at https://schema.org/CreativeWork and, items from
+  DataCite's list of resource type (https://datacite-metadata-schema.readthedocs.io/en/4.6/properties/resourcetype/).
+anyOf:
+  - const: Article
+    "@id": stencila:ArticleCreativeWorkType
+  - const: AudioObject
+    "@id": stencila:AudioObjectCreativeWorkType
+  - const: Blog
+    "@id": stencila:BlogCreativeWorkType
+  - const: Book
+    "@id": stencila:BookCreativeWorkType
+  - const: Chapter
+    "@id": stencila:ChapterCreativeWorkType
+  - const: Chat
+    "@id": stencila:ChatCreativeWorkType
+  - const: Claim
+    "@id": stencila:ClaimCreativeWorkType
+  - const: Collection
+    "@id": stencila:CollectionCreativeWorkType
+  - const: Comment
+    "@id": stencila:CommentCreativeWorkType
+  - const: Dataset
+    "@id": stencila:DatasetCreativeWorkType
+  - const: Datatable
+    "@id": stencila:DatatableCreativeWorkType
+  - const: Drawing
+    "@id": stencila:DrawingCreativeWorkType
+  - const: Figure
+    "@id": stencila:FigureCreativeWorkType
+  - const: ImageObject
+    "@id": stencila:ImageObjectCreativeWorkType
+  - const: Legislation
+    "@id": stencila:LegislationCreativeWorkType
+  - const: Manuscript
+    "@id": stencila:ManuscriptCreativeWorkType
+  - const: Map
+    "@id": stencila:MapCreativeWorkType
+  - const: MediaObject
+    "@id": stencila:MediaObjectCreativeWorkType
+  - const: Periodical
+    "@id": stencila:PeriodicalCreativeWorkType
+  - const: Photograph
+    "@id": stencila:PhotographCreativeWorkType
+  - const: Poster
+    "@id": stencila:PosterCreativeWorkType
+  - const: Presentation
+    "@id": stencila:PresentationCreativeWorkType
+  - const: Prompt
+    "@id": stencila:PromptCreativeWorkType
+  - const: PublicationIssue
+    "@id": stencila:PublicationIssueCreativeWorkType
+  - const: PublicationVolume
+    "@id": stencila:PublicationVolumeCreativeWorkType
+  - const: Report
+    "@id": stencila:ReportCreativeWorkType
+  - const: Review
+    "@id": stencila:ReviewCreativeWorkType
+  - const: SoftwareApplication
+    "@id": stencila:SoftwareApplicationCreativeWorkType
+  - const: SoftwareRepository
+    "@id": stencila:SoftwareRepositoryCreativeWorkType
+  - const: SoftwareSourceCode
+    "@id": stencila:SoftwareSourceCodeCreativeWorkType
+  - const: Table
+    "@id": stencila:TableCreativeWorkType
+  - const: Thesis
+    "@id": stencila:TableCreativeWorkType
+  - const: VideoObject
+    "@id": stencila:VideoObjectCreativeWorkType
+  - const: WebPage
+    "@id": stencila:WebPageCreativeWorkType
+  - const: Workflow
+    "@id": stencila:WorkflowCreativeWorkType

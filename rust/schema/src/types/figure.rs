@@ -7,7 +7,8 @@ use super::block::Block;
 use super::boolean::Boolean;
 use super::comment::Comment;
 use super::creative_work_type::CreativeWorkType;
-use super::creative_work_type_or_string::CreativeWorkTypeOrString;
+use super::creative_work_variant::CreativeWorkVariant;
+use super::creative_work_variant_or_string::CreativeWorkVariantOrString;
 use super::date::Date;
 use super::grant_or_monetary_grant::GrantOrMonetaryGrant;
 use super::image_object::ImageObject;
@@ -20,7 +21,7 @@ use super::reference::Reference;
 use super::string::String;
 use super::string_or_number::StringOrNumber;
 use super::text::Text;
-use super::thing_type::ThingType;
+use super::thing_variant::ThingVariant;
 
 /// Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
 #[skip_serializing_none]
@@ -43,6 +44,11 @@ pub struct Figure {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,
+
+    /// The type of `CreativeWork` (e.g. article, book, software application).
+    #[serde(alias = "work-type", alias = "work_type")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub work_type: Option<CreativeWorkType>,
 
     /// The work's Digital Object Identifier (https://doi.org/).
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
@@ -157,7 +163,7 @@ pub struct FigureOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub about: Option<Vec<ThingType>>,
+    pub about: Option<Vec<ThingVariant>>,
 
     /// A short description that summarizes a `CreativeWork`.
     #[serde(default, deserialize_with = "option_one_or_many")]
@@ -262,21 +268,21 @@ pub struct FigureOptions {
     #[serde(alias = "is-part-of", alias = "is_part_of")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub is_part_of: Option<CreativeWorkType>,
+    pub is_part_of: Option<CreativeWorkVariant>,
 
     /// License documents that applies to this content, typically indicated by URL, but may be a `CreativeWork` itself.
     #[serde(alias = "license")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub licenses: Option<Vec<CreativeWorkTypeOrString>>,
+    pub licenses: Option<Vec<CreativeWorkVariantOrString>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     #[serde(alias = "hasParts", alias = "part")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(content)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub parts: Option<Vec<CreativeWorkType>>,
+    pub parts: Option<Vec<CreativeWorkVariant>>,
 
     /// A publisher of the CreativeWork.
     #[serde(default, deserialize_with = "option_string_or_object")]

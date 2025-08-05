@@ -1,6 +1,6 @@
-use crate::{CreativeWorkType, Inline, Node, prelude::*, replicate};
+use crate::{CreativeWorkVariant, Inline, Node, prelude::*, replicate};
 
-impl CreativeWorkType {
+impl CreativeWorkVariant {
     // TODO: add similar methods for doi(), authors etc, OR have a
     // CreativeWorkTrait and implement that for each subtype.
 
@@ -9,13 +9,13 @@ impl CreativeWorkType {
         macro_rules! works {
             ($( $variant:ident ),*) => {
                 match self {
-                   CreativeWorkType::Article(node) => node.title.as_ref().and_then(|title| replicate(title).ok()),
-                   CreativeWorkType::AudioObject(node) => node.title.as_ref().and_then(|title| replicate(title).ok()),
-                   CreativeWorkType::ImageObject(node) => node.title.as_ref().and_then(|title| replicate(title).ok()),
-                   CreativeWorkType::VideoObject(node) => node.title.as_ref().and_then(|title| replicate(title).ok()),
-                   CreativeWorkType::Chat(node) => node.title.as_ref().and_then(|title| replicate(title).ok()),
-                   CreativeWorkType::Prompt(node) => replicate(&node.title).ok(),
-                   $(CreativeWorkType::$variant(node) => node.options.title.as_ref().and_then(|title| replicate(title).ok()),)*
+                   CreativeWorkVariant::Article(node) => node.title.as_ref().and_then(|title| replicate(title).ok()),
+                   CreativeWorkVariant::AudioObject(node) => node.title.as_ref().and_then(|title| replicate(title).ok()),
+                   CreativeWorkVariant::ImageObject(node) => node.title.as_ref().and_then(|title| replicate(title).ok()),
+                   CreativeWorkVariant::VideoObject(node) => node.title.as_ref().and_then(|title| replicate(title).ok()),
+                   CreativeWorkVariant::Chat(node) => node.title.as_ref().and_then(|title| replicate(title).ok()),
+                   CreativeWorkVariant::Prompt(node) => replicate(&node.title).ok(),
+                   $(CreativeWorkVariant::$variant(node) => node.options.title.as_ref().and_then(|title| replicate(title).ok()),)*
                 }
             };
         }
@@ -37,15 +37,15 @@ impl CreativeWorkType {
     }
 }
 
-impl TryFrom<Node> for CreativeWorkType {
+impl TryFrom<Node> for CreativeWorkVariant {
     type Error = ErrReport;
 
     fn try_from(node: Node) -> Result<Self, Self::Error> {
         macro_rules! works {
             ($( $variant:ident ),*) => {
                 match node {
-                    $(Node::$variant(node) => Ok(CreativeWorkType::$variant(node)),)*
-                    _ => bail!("Unable to convert Node::{} to CreativeWorkType", node.node_type())
+                    $(Node::$variant(node) => Ok(CreativeWorkVariant::$variant(node)),)*
+                    _ => bail!("Unable to convert Node::{} to CreativeWorkVariant", node.node_type())
                 }
             };
         }

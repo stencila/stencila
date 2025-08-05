@@ -1,5 +1,5 @@
 {
-  "title": "ThingType",
+  "title": "ThingVariant",
   "description": "Union type for all types that are descended from `Thing`",
   "anyOf": [
     {

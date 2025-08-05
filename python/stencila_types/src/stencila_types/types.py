@@ -237,6 +237,48 @@ class ConfigPublishZenodoAccessRight(StrEnum):
     Closed = "Closed"
 
 
+class CreativeWorkType(StrEnum):
+    """
+    The kind of a creative work.
+    """
+
+    Article = "Article"
+    AudioObject = "AudioObject"
+    Blog = "Blog"
+    Book = "Book"
+    Chapter = "Chapter"
+    Chat = "Chat"
+    Claim = "Claim"
+    Collection = "Collection"
+    Comment = "Comment"
+    Dataset = "Dataset"
+    Datatable = "Datatable"
+    Drawing = "Drawing"
+    Figure = "Figure"
+    ImageObject = "ImageObject"
+    Legislation = "Legislation"
+    Manuscript = "Manuscript"
+    Map = "Map"
+    MediaObject = "MediaObject"
+    Periodical = "Periodical"
+    Photograph = "Photograph"
+    Poster = "Poster"
+    Presentation = "Presentation"
+    Prompt = "Prompt"
+    PublicationIssue = "PublicationIssue"
+    PublicationVolume = "PublicationVolume"
+    Report = "Report"
+    Review = "Review"
+    SoftwareApplication = "SoftwareApplication"
+    SoftwareRepository = "SoftwareRepository"
+    SoftwareSourceCode = "SoftwareSourceCode"
+    Table = "Table"
+    Thesis = "Thesis"
+    VideoObject = "VideoObject"
+    WebPage = "WebPage"
+    Workflow = "Workflow"
+
+
 class ExecutionBounds(StrEnum):
     """
     The bounds placed on the execution of a document node.
@@ -571,10 +613,13 @@ class CreativeWork(Thing):
 
     type: Literal["CreativeWork"] = "CreativeWork"
 
+    work_type: CreativeWorkType | None = None
+    """The type of `CreativeWork` (e.g. article, book, software application)."""
+
     doi: str | None = None
     """The work's Digital Object Identifier (https://doi.org/)."""
 
-    about: list[ThingType] | None = None
+    about: list[ThingVariant] | None = None
     """The subject matter of the content."""
 
     abstract: list[Block] | None = None
@@ -625,13 +670,13 @@ class CreativeWork(Thing):
     keywords: list[str] | None = None
     """Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas."""
 
-    is_part_of: CreativeWorkType | None = None
+    is_part_of: CreativeWorkVariant | None = None
     """An item or other CreativeWork that this CreativeWork is a part of."""
 
-    licenses: list[CreativeWorkType | str] | None = None
+    licenses: list[CreativeWorkVariant | str] | None = None
     """License documents that applies to this content, typically indicated by URL, but may be a `CreativeWork` itself."""
 
-    parts: list[CreativeWorkType] | None = None
+    parts: list[CreativeWorkVariant] | None = None
     """Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more."""
 
     publisher: Person | Organization | None = None
@@ -784,7 +829,7 @@ class Grant(Thing):
 
     type: Literal["Grant"] = "Grant"
 
-    funded_items: list[ThingType] | None = None
+    funded_items: list[ThingVariant] | None = None
     """Indicates an item funded or sponsored through a Grant."""
 
     sponsors: list[Person | Organization] | None = None
@@ -2722,8 +2767,11 @@ class Reference(Entity):
 
     type: Literal["Reference"] = "Reference"
 
+    work_type: CreativeWorkType | None = None
+    """The type of `CreativeWork` being referenced(e.g. Article, Book, Dataset)."""
+
     doi: str | None = None
-    """The Digital Object Identifier (https://doi.org/) or the work being referenced."""
+    """The Digital Object Identifier (https://doi.org/) of the work being referenced."""
 
     authors: list[Author] | None = None
     """The authors of the work."""
@@ -2734,7 +2782,7 @@ class Reference(Entity):
     title: list[Inline] | None = None
     """The title of the referenced work."""
 
-    is_part_of: CreativeWorkType | None = None
+    is_part_of: CreativeWorkVariant | None = None
     """An other `CreativeWork` that the reference is a part of."""
 
     page_start: int | str | None = None
@@ -2755,7 +2803,7 @@ class Review(CreativeWork):
 
     type: Literal["Review"] = "Review"
 
-    item_reviewed: ThingType | None = None
+    item_reviewed: ThingVariant | None = None
     """The item that is being reviewed."""
 
     review_aspect: str | None = None
@@ -3275,7 +3323,7 @@ Union type in block content node types.
 """
 
 
-CreativeWorkType = Union[
+CreativeWorkVariant = Union[
     Article,
     AudioObject,
     Chat,
@@ -3545,7 +3593,7 @@ Union type for all types in this schema, including primitives and entities
 """
 
 
-ThingType = Union[
+ThingVariant = Union[
     Article,
     AudioObject,
     Brand,
@@ -3750,7 +3798,7 @@ UNIONS = [
     Author,
     AuthorRoleAuthor,
     Block,
-    CreativeWorkType,
+    CreativeWorkVariant,
     ExecutionDependantNode,
     ExecutionDependencyNode,
     Hint,
@@ -3758,14 +3806,14 @@ UNIONS = [
     MessagePart,
     Node,
     Primitive,
-    ThingType,
+    ThingVariant,
     Validator,
 ]
 
 
 ANON_UNIONS = [
     Citation | Text,
-    CreativeWorkType | str,
+    CreativeWorkVariant | str,
     File | Directory,
     Grant | MonetaryGrant,
     Person | Organization,

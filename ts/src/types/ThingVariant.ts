@@ -35,7 +35,7 @@ import { type VideoObject } from "./VideoObject.js";
 /**
  * Union type for all types that are descended from `Thing`
  */
-export type ThingType =
+export type ThingVariant =
   Article |
   AudioObject |
   Brand |

@@ -193,7 +193,7 @@ impl Schemas {
 
         let creative_work_types = self
             .schemas
-            .get("CreativeWorkType")
+            .get("CreativeWorkVariant")
             .and_then(|schema| schema.any_of.as_ref())
             .expect("should always exist")
             .iter()

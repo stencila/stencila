@@ -11,7 +11,7 @@ use codec::{
         tracing,
     },
     schema::{
-        Article, Author, Block, CreativeWorkType, Date, Inline, IntegerOrString, Node, Periodical,
+        Article, Author, Block, CreativeWorkVariant, Date, Inline, IntegerOrString, Node, Periodical,
         Person, PublicationIssue, PublicationVolume, Reference, shortcuts::t,
     },
 };
@@ -986,7 +986,7 @@ fn parse_single_page(page_text: &str) -> Option<IntegerOrString> {
 }
 
 /// Parse volume and issue information, creating proper nested structure
-fn parse_volume_and_issue_info(volume_info: &str, periodical: Periodical) -> Box<CreativeWorkType> {
+fn parse_volume_and_issue_info(volume_info: &str, periodical: Periodical) -> Box<CreativeWorkVariant> {
     // Check if there's an issue number in parentheses like "14(4)"
     if let Some(open_paren) = volume_info.find('(') {
         if let Some(close_paren) = volume_info[open_paren..].find(')') {
@@ -996,36 +996,36 @@ fn parse_volume_and_issue_info(volume_info: &str, periodical: Periodical) -> Box
             if !volume_part.is_empty() && !issue_part.is_empty() {
                 // Create nested structure: PublicationIssue -> PublicationVolume -> Periodical
                 let publication_volume = PublicationVolume {
-                    is_part_of: Some(Box::new(CreativeWorkType::Periodical(periodical))),
+                    is_part_of: Some(Box::new(CreativeWorkVariant::Periodical(periodical))),
                     volume_number: Some(IntegerOrString::String(volume_part.to_string())),
                     ..Default::default()
                 };
 
                 let publication_issue = PublicationIssue {
-                    is_part_of: Some(Box::new(CreativeWorkType::PublicationVolume(
+                    is_part_of: Some(Box::new(CreativeWorkVariant::PublicationVolume(
                         publication_volume,
                     ))),
                     issue_number: Some(IntegerOrString::String(issue_part.to_string())),
                     ..Default::default()
                 };
 
-                return Box::new(CreativeWorkType::PublicationIssue(publication_issue));
+                return Box::new(CreativeWorkVariant::PublicationIssue(publication_issue));
             }
         }
     }
 
     // No issue found, just volume
     let publication_volume = PublicationVolume {
-        is_part_of: Some(Box::new(CreativeWorkType::Periodical(periodical))),
+        is_part_of: Some(Box::new(CreativeWorkVariant::Periodical(periodical))),
         volume_number: Some(IntegerOrString::String(volume_info.to_string())),
         ..Default::default()
     };
 
-    Box::new(CreativeWorkType::PublicationVolume(publication_volume))
+    Box::new(CreativeWorkVariant::PublicationVolume(publication_volume))
 }
 
 type PublicationInfo = (
-    Box<CreativeWorkType>,
+    Box<CreativeWorkVariant>,
     Option<IntegerOrString>,
     Option<IntegerOrString>,
     Option<String>,
@@ -1056,8 +1056,8 @@ fn parse_publication_block(text: &str) -> Option<PublicationInfo> {
                 };
 
                 return Some((
-                    Box::new(CreativeWorkType::PublicationVolume(PublicationVolume {
-                        is_part_of: Some(Box::new(CreativeWorkType::Periodical(periodical))),
+                    Box::new(CreativeWorkVariant::PublicationVolume(PublicationVolume {
+                        is_part_of: Some(Box::new(CreativeWorkVariant::Periodical(periodical))),
                         volume_number: Some(IntegerOrString::String(arxiv_id.to_string())),
                         ..Default::default()
                     })),

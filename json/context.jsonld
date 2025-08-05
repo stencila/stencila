@@ -54,6 +54,7 @@
     "ContactPoint": "schema:ContactPoint",
     "Cord": "stencila:Cord",
     "CreativeWork": "schema:CreativeWork",
+    "CreativeWorkType": "stencila:CreativeWorkType",
     "Datatable": "stencila:Datatable",
     "DatatableColumn": "stencila:DatatableColumn",
     "DatatableColumnHint": "stencila:DatatableColumnHint",
@@ -464,6 +465,7 @@
     "variable": "stencila:variable",
     "version": "schema:version",
     "verticalAlignment": "stencila:verticalAlignment",
-    "volumeNumber": "schema:volumeNumber"
+    "volumeNumber": "schema:volumeNumber",
+    "workType": "stencila:workType"
   }
 }

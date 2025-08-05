@@ -6,6 +6,7 @@ description: A reference to a creative work, including books, movies, photograph
 markdown:
   derive: false
 core:
+  - workType
   - doi
   - authors
   - date
@@ -15,9 +16,13 @@ core:
   - pageEnd
   - pagination
 properties:
+  workType:
+    "@id": stencila:workType
+    description: The type of `CreativeWork` being referenced(e.g. Article, Book, Dataset).
+    $ref: CreativeWorkType
   doi:
     "@id": stencila:doi
-    description: The Digital Object Identifier (https://doi.org/) or the work being referenced.
+    description: The Digital Object Identifier (https://doi.org/) of the work being referenced.
     type: string
   authors:
     "@id": schema:author
@@ -52,7 +57,7 @@ properties:
   isPartOf:
     "@id": schema:isPartOf
     description: An other `CreativeWork` that the reference is a part of.
-    $ref: CreativeWorkType
+    $ref: CreativeWorkVariant
   pageStart:
     "@id": schema:pageStart
     description: The page on which the article starts; for example "135" or "xiii".

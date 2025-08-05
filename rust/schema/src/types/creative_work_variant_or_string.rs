@@ -2,15 +2,15 @@
 
 use crate::prelude::*;
 
-use super::creative_work_type::CreativeWorkType;
+use super::creative_work_variant::CreativeWorkVariant;
 use super::string::String;
 
-/// [`CreativeWorkType`] or [`String`]
+/// [`CreativeWorkVariant`] or [`String`]
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(untagged, crate = "common::serde")]
-pub enum CreativeWorkTypeOrString {
+pub enum CreativeWorkVariantOrString {
     #[default]
-    CreativeWorkType(CreativeWorkType),
+    CreativeWorkVariant(CreativeWorkVariant),
 
     String(String),
 }

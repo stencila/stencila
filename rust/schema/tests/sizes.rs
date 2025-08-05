@@ -33,7 +33,7 @@ macro_rules! sizes {
 #[allow(clippy::print_stderr)]
 fn sizes() {
     sizes!(
-        CreativeWorkType,
+        CreativeWorkVariant,
         Article,
         AudioObject,
         Chat,

@@ -1,11 +1,11 @@
 ---
-title: Thing Type
+title: Thing Variant
 description: Union type for all types that are descended from `Thing`
 config:
   publish:
     ghost:
       type: post
-      slug: thing-type
+      slug: thing-variant
       state: publish
       tags:
       - '#doc'
@@ -15,7 +15,7 @@ config:
 
 # Members
 
-The `ThingType` type has these members:
+The `ThingVariant` type has these members:
 
 - [`Article`](https://stencila.ghost.io/docs/reference/schema/article)
 - [`AudioObject`](https://stencila.ghost.io/docs/reference/schema/audio-object)
@@ -52,14 +52,14 @@ The `ThingType` type has these members:
 
 # Bindings
 
-The `ThingType` type is represented in:
+The `ThingVariant` type is represented in:
 
-- [JSON-LD](https://stencila.org/ThingType.jsonld)
-- [JSON Schema](https://stencila.org/ThingType.schema.json)
-- Python type [`ThingType`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/thing_type.py)
-- Rust type [`ThingType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/thing_type.rs)
-- TypeScript type [`ThingType`](https://github.com/stencila/stencila/blob/main/ts/src/types/ThingType.ts)
+- [JSON-LD](https://stencila.org/ThingVariant.jsonld)
+- [JSON Schema](https://stencila.org/ThingVariant.schema.json)
+- Python type [`ThingVariant`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/thing_variant.py)
+- Rust type [`ThingVariant`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/thing_variant.rs)
+- TypeScript type [`ThingVariant`](https://github.com/stencila/stencila/blob/main/ts/src/types/ThingVariant.ts)
 
 # Source
 
-This documentation was generated from [`ThingType.yaml`](https://github.com/stencila/stencila/blob/main/schema/ThingType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
+This documentation was generated from [`ThingVariant.yaml`](https://github.com/stencila/stencila/blob/main/schema/ThingVariant.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

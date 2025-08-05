@@ -52,7 +52,7 @@ The `ConfigPublishZenodo` type can be encoded (serialized) to, and/or decoded (d
 | [IPYNB](https://stencila.ghost.io/docs/reference/formats/ipynb)                     |          |          |         |
 | [Microsoft Word DOCX](https://stencila.ghost.io/docs/reference/formats/docx)        |          |          |         |
 | [Google Docs DOCX](https://stencila.ghost.io/docs/reference/formats/gdocx)          |          |          |         |
-| [OpenDocument ODT](https://stencila.ghost.io/docs/reference/formats/odt)            |          |          |         |
+| [OpenDocument Text](https://stencila.ghost.io/docs/reference/formats/odt)           |          |          |         |
 | [TeX](https://stencila.ghost.io/docs/reference/formats/tex)                         |          |          |         |
 | [JSON](https://stencila.ghost.io/docs/reference/formats/json)                       |          |          |         |
 | [JSON+Zip](https://stencila.ghost.io/docs/reference/formats/json.zip)               |          |          |         |
@@ -66,6 +66,13 @@ The `ConfigPublishZenodo` type can be encoded (serialized) to, and/or decoded (d
 | [Pandoc AST](https://stencila.ghost.io/docs/reference/formats/pandoc)               |          |          |         |
 | [CSL-JSON](https://stencila.ghost.io/docs/reference/formats/csl)                    |          |          |         |
 | [Citation File Format](https://stencila.ghost.io/docs/reference/formats/cff)        |          |          |         |
+| [CSV](https://stencila.ghost.io/docs/reference/formats/csv)                         |          |          |         |
+| [TSV](https://stencila.ghost.io/docs/reference/formats/tsv)                         |          |          |         |
+| [Apache Parquet](https://stencila.ghost.io/docs/reference/formats/parquet)          |          |          |         |
+| [Apache Arrow](https://stencila.ghost.io/docs/reference/formats/arrow)              |          |          |         |
+| [Microsoft Excel XLSX](https://stencila.ghost.io/docs/reference/formats/xlsx)       |          |          |         |
+| [Microsoft Excel XLS](https://stencila.ghost.io/docs/reference/formats/xls)         |          |          |         |
+| [OpenDocument Spreadsheet](https://stencila.ghost.io/docs/reference/formats/ods)    |          |          |         |
 | [PNG](https://stencila.ghost.io/docs/reference/formats/png)                         |          |          |         |
 | [Directory](https://stencila.ghost.io/docs/reference/formats/directory)             |          |          |         |
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)         |          |          |         |

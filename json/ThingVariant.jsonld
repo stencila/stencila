@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/ThingType",
-  "name": "ThingType",
+  "@id": "https://stencila.org/ThingVariant",
+  "name": "ThingVariant",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -11,7 +11,7 @@
     {
       "@id": null,
       "@type": "rdfs:Class",
-      "rdfs:label": "ThingType",
+      "rdfs:label": "ThingVariant",
       "rdfs:comment": "Union type for all types that are descended from `Thing`"
     }
   ]

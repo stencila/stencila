@@ -33,6 +33,7 @@
   ],
   "core": [
     "id",
+    "workType",
     "doi",
     "mediaType",
     "caption",
@@ -148,6 +149,15 @@
       "type": "string",
       "format": "uri"
     },
+    "workType": {
+      "@id": "stencila:workType",
+      "description": "The type of `CreativeWork` (e.g. article, book, software application).",
+      "aliases": [
+        "work-type",
+        "work_type"
+      ],
+      "$ref": "CreativeWorkType.schema.json"
+    },
     "doi": {
       "@id": "stencila:doi",
       "description": "The work's Digital Object Identifier (https://doi.org/).",
@@ -162,7 +172,7 @@
       ],
       "type": "array",
       "items": {
-        "$ref": "ThingType.schema.json"
+        "$ref": "ThingVariant.schema.json"
       }
     },
     "abstract": {
@@ -504,7 +514,7 @@
       "strip": [
         "metadata"
       ],
-      "$ref": "CreativeWorkType.schema.json"
+      "$ref": "CreativeWorkVariant.schema.json"
     },
     "licenses": {
       "@id": "schema:license",
@@ -522,7 +532,7 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "CreativeWorkType.schema.json"
+            "$ref": "CreativeWorkVariant.schema.json"
           },
           {
             "type": "string",
@@ -546,7 +556,7 @@
       },
       "type": "array",
       "items": {
-        "$ref": "CreativeWorkType.schema.json"
+        "$ref": "CreativeWorkVariant.schema.json"
       }
     },
     "publisher": {

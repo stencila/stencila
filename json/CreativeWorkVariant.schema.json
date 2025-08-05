@@ -1,0 +1,64 @@
+{
+  "title": "CreativeWorkVariant",
+  "category": "works",
+  "description": "Union type for all types that are descended from `CreativeWork`",
+  "anyOf": [
+    {
+      "$ref": "Article.schema.json"
+    },
+    {
+      "$ref": "AudioObject.schema.json"
+    },
+    {
+      "$ref": "Chat.schema.json"
+    },
+    {
+      "$ref": "Claim.schema.json"
+    },
+    {
+      "$ref": "Collection.schema.json"
+    },
+    {
+      "$ref": "Comment.schema.json"
+    },
+    {
+      "$ref": "Datatable.schema.json"
+    },
+    {
+      "$ref": "Figure.schema.json"
+    },
+    {
+      "$ref": "ImageObject.schema.json"
+    },
+    {
+      "$ref": "MediaObject.schema.json"
+    },
+    {
+      "$ref": "Periodical.schema.json"
+    },
+    {
+      "$ref": "Prompt.schema.json"
+    },
+    {
+      "$ref": "PublicationIssue.schema.json"
+    },
+    {
+      "$ref": "PublicationVolume.schema.json"
+    },
+    {
+      "$ref": "Review.schema.json"
+    },
+    {
+      "$ref": "SoftwareApplication.schema.json"
+    },
+    {
+      "$ref": "SoftwareSourceCode.schema.json"
+    },
+    {
+      "$ref": "Table.schema.json"
+    },
+    {
+      "$ref": "VideoObject.schema.json"
+    }
+  ]
+}

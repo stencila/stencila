@@ -1,5 +1,6 @@
 use codec::schema::{
-    CreativeWorkTypeOrString, Node, SoftwareSourceCode, SoftwareSourceCodeOptions, StringOrNumber,
+    CreativeWorkVariantOrString, Node, SoftwareSourceCode, SoftwareSourceCodeOptions,
+    StringOrNumber,
 };
 use serde::Deserialize;
 
@@ -209,7 +210,7 @@ impl From<RepositorySearchItem> for SoftwareSourceCode {
         let licenses = repo.license.and_then(|license| {
             license
                 .spdx_id
-                .map(|spdx_id| vec![CreativeWorkTypeOrString::String(spdx_id)])
+                .map(|spdx_id| vec![CreativeWorkVariantOrString::String(spdx_id)])
         });
 
         // Map topics as keywords

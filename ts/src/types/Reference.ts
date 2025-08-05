@@ -2,6 +2,7 @@
 
 import { Author } from "./Author.js";
 import { CreativeWorkType } from "./CreativeWorkType.js";
+import { CreativeWorkVariant } from "./CreativeWorkVariant.js";
 import { Date } from "./Date.js";
 import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
@@ -15,7 +16,12 @@ export class Reference extends Entity {
   type: "Reference";
 
   /**
-   * The Digital Object Identifier (https://doi.org/) or the work being referenced.
+   * The type of `CreativeWork` being referenced(e.g. Article, Book, Dataset).
+   */
+  workType?: CreativeWorkType;
+
+  /**
+   * The Digital Object Identifier (https://doi.org/) of the work being referenced.
    */
   doi?: string;
 
@@ -37,7 +43,7 @@ export class Reference extends Entity {
   /**
    * An other `CreativeWork` that the reference is a part of.
    */
-  isPartOf?: CreativeWorkType;
+  isPartOf?: CreativeWorkVariant;
 
   /**
    * The page on which the article starts; for example "135" or "xiii".

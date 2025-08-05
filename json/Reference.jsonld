@@ -18,10 +18,27 @@
       }
     },
     {
+      "@id": "stencila:workType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "workType",
+      "rdfs:comment": "The type of `CreativeWork` being referenced(e.g. Article, Book, Dataset).",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CreativeWorkType"
+      }
+    },
+    {
       "@id": "stencila:doi",
       "@type": "rdfs:Property",
       "rdfs:label": "doi",
-      "rdfs:comment": "The Digital Object Identifier (https://doi.org/) or the work being referenced.",
+      "rdfs:comment": "The Digital Object Identifier (https://doi.org/) of the work being referenced.",
       "schema:domainIncludes": [
         {
           "@id": "schema:CreativeWork"

@@ -1,6 +1,6 @@
 ---
 title: Creative Work Type
-description: Union type for all types that are descended from `CreativeWork`
+description: The kind of a creative work.
 config:
   publish:
     ghost:
@@ -13,29 +13,50 @@ config:
       - Works
 ---
 
+This list includes all the types derived from `CreativeWork` within this schema,
+as well as types listed at https://schema.org/CreativeWork and, items from
+DataCite's list of resource type (https://datacite-metadata-schema.readthedocs.io/en/4.6/properties/resourcetype/).
+
+
 # Members
 
 The `CreativeWorkType` type has these members:
 
-- [`Article`](https://stencila.ghost.io/docs/reference/schema/article)
-- [`AudioObject`](https://stencila.ghost.io/docs/reference/schema/audio-object)
-- [`Chat`](https://stencila.ghost.io/docs/reference/schema/chat)
-- [`Claim`](https://stencila.ghost.io/docs/reference/schema/claim)
-- [`Collection`](https://stencila.ghost.io/docs/reference/schema/collection)
-- [`Comment`](https://stencila.ghost.io/docs/reference/schema/comment)
-- [`Datatable`](https://stencila.ghost.io/docs/reference/schema/datatable)
-- [`Figure`](https://stencila.ghost.io/docs/reference/schema/figure)
-- [`ImageObject`](https://stencila.ghost.io/docs/reference/schema/image-object)
-- [`MediaObject`](https://stencila.ghost.io/docs/reference/schema/media-object)
-- [`Periodical`](https://stencila.ghost.io/docs/reference/schema/periodical)
-- [`Prompt`](https://stencila.ghost.io/docs/reference/schema/prompt)
-- [`PublicationIssue`](https://stencila.ghost.io/docs/reference/schema/publication-issue)
-- [`PublicationVolume`](https://stencila.ghost.io/docs/reference/schema/publication-volume)
-- [`Review`](https://stencila.ghost.io/docs/reference/schema/review)
-- [`SoftwareApplication`](https://stencila.ghost.io/docs/reference/schema/software-application)
-- [`SoftwareSourceCode`](https://stencila.ghost.io/docs/reference/schema/software-source-code)
-- [`Table`](https://stencila.ghost.io/docs/reference/schema/table)
-- [`VideoObject`](https://stencila.ghost.io/docs/reference/schema/video-object)
+- `Article`
+- `AudioObject`
+- `Blog`
+- `Book`
+- `Chapter`
+- `Chat`
+- `Claim`
+- `Collection`
+- `Comment`
+- `Dataset`
+- `Datatable`
+- `Drawing`
+- `Figure`
+- `ImageObject`
+- `Legislation`
+- `Manuscript`
+- `Map`
+- `MediaObject`
+- `Periodical`
+- `Photograph`
+- `Poster`
+- `Presentation`
+- `Prompt`
+- `PublicationIssue`
+- `PublicationVolume`
+- `Report`
+- `Review`
+- `SoftwareApplication`
+- `SoftwareRepository`
+- `SoftwareSourceCode`
+- `Table`
+- `Thesis`
+- `VideoObject`
+- `WebPage`
+- `Workflow`
 
 # Bindings
 

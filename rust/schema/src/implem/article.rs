@@ -2,7 +2,7 @@ use codec_markdown_trait::to_markdown;
 use common::serde_yaml;
 
 use crate::{
-    Article, Block, Collection, CollectionOptions, CreativeWorkType, Inline, RawBlock, Reference,
+    Article, Block, Collection, CollectionOptions, CreativeWorkVariant, Inline, RawBlock, Reference,
     SoftwareSourceCode, prelude::*, replicate, shortcuts::t,
 };
 
@@ -34,7 +34,7 @@ impl Article {
 
     /// Get the `is_part_of` property of an article, or generate it from its
     /// `repository` property, if any
-    pub fn is_part_of(&self) -> Option<Box<CreativeWorkType>> {
+    pub fn is_part_of(&self) -> Option<Box<CreativeWorkVariant>> {
         if let Some(is_part_of) = &self.options.is_part_of {
             return replicate(is_part_of).ok().map(Box::new);
         };
@@ -44,7 +44,7 @@ impl Article {
                 .strip_prefix("https://github.com/")
                 .or_else(|| repo.strip_prefix("https://gitlab.com/"))
             {
-                return Some(Box::new(CreativeWorkType::SoftwareSourceCode(
+                return Some(Box::new(CreativeWorkVariant::SoftwareSourceCode(
                     SoftwareSourceCode {
                         name: name.to_string(),
                         repository: Some(repo.clone()),
@@ -52,7 +52,7 @@ impl Article {
                     },
                 )));
             } else {
-                return Some(Box::new(CreativeWorkType::Collection(Collection {
+                return Some(Box::new(CreativeWorkVariant::Collection(Collection {
                     options: Box::new(CollectionOptions {
                         url: Some(repo.clone()),
                         ..Default::default()

@@ -16,6 +16,7 @@
   ],
   "core": [
     "id",
+    "workType",
     "doi",
     "authors",
     "date",
@@ -44,9 +45,18 @@
       },
       "type": "string"
     },
+    "workType": {
+      "@id": "stencila:workType",
+      "description": "The type of `CreativeWork` being referenced(e.g. Article, Book, Dataset).",
+      "aliases": [
+        "work-type",
+        "work_type"
+      ],
+      "$ref": "CreativeWorkType.schema.json"
+    },
     "doi": {
       "@id": "stencila:doi",
-      "description": "The Digital Object Identifier (https://doi.org/) or the work being referenced.",
+      "description": "The Digital Object Identifier (https://doi.org/) of the work being referenced.",
       "type": "string"
     },
     "authors": {
@@ -97,7 +107,7 @@
         "is-part-of",
         "is_part_of"
       ],
-      "$ref": "CreativeWorkType.schema.json"
+      "$ref": "CreativeWorkVariant.schema.json"
     },
     "pageStart": {
       "@id": "schema:pageStart",

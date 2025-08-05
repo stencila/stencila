@@ -26,7 +26,7 @@ The `Grant` type has these properties:
 | `images`         | Images of the item.                                                                                  | [`ImageObject`](https://stencila.ghost.io/docs/reference/schema/image-object)*                                                                             | [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)   | [`schema:image`](https://schema.org/image)                 | `image`                                                                                   |
 | `name`           | The name of the item.                                                                                | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                         | [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)   | [`schema:name`](https://schema.org/name)                   | -                                                                                         |
 | `url`            | The URL of the item.                                                                                 | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                         | [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)   | [`schema:url`](https://schema.org/url)                     | -                                                                                         |
-| `fundedItems`    | Indicates an item funded or sponsored through a Grant.                                               | [`ThingType`](https://stencila.ghost.io/docs/reference/schema/thing-type)*                                                                                 | -                                                                  | [`schema:fundedItem`](https://schema.org/fundedItem)       | `funded-items`, `funded_items`, `fundedItem`, `funded-item`, `funded_item`                |
+| `fundedItems`    | Indicates an item funded or sponsored through a Grant.                                               | [`ThingVariant`](https://stencila.ghost.io/docs/reference/schema/thing-variant)*                                                                           | -                                                                  | [`schema:fundedItem`](https://schema.org/fundedItem)       | `funded-items`, `funded_items`, `fundedItem`, `funded-item`, `funded_item`                |
 | `sponsors`       | A person or organization that supports a thing through a pledge, promise, or financial contribution. | ([`Person`](https://stencila.ghost.io/docs/reference/schema/person) \| [`Organization`](https://stencila.ghost.io/docs/reference/schema/organization))*    | -                                                                  | [`schema:sponsor`](https://schema.org/sponsor)             | `sponsor`                                                                                 |
 
 # Related
@@ -57,7 +57,7 @@ The `Grant` type can be encoded (serialized) to, and/or decoded (deserialized) f
 | [IPYNB](https://stencila.ghost.io/docs/reference/formats/ipynb)                     | 🔷 Low loss   | 🔷 Low loss   |         |
 | [Microsoft Word DOCX](https://stencila.ghost.io/docs/reference/formats/docx)        | 🔷 Low loss   | 🔷 Low loss   |         |
 | [Google Docs DOCX](https://stencila.ghost.io/docs/reference/formats/gdocx)          |              |              |         |
-| [OpenDocument ODT](https://stencila.ghost.io/docs/reference/formats/odt)            | 🔷 Low loss   | 🔷 Low loss   |         |
+| [OpenDocument Text](https://stencila.ghost.io/docs/reference/formats/odt)           | 🔷 Low loss   | 🔷 Low loss   |         |
 | [TeX](https://stencila.ghost.io/docs/reference/formats/tex)                         | 🔷 Low loss   | 🔷 Low loss   |         |
 | [JSON](https://stencila.ghost.io/docs/reference/formats/json)                       | 🟢 No loss    | 🟢 No loss    |         |
 | [JSON+Zip](https://stencila.ghost.io/docs/reference/formats/json.zip)               | 🟢 No loss    | 🟢 No loss    |         |
@@ -71,6 +71,13 @@ The `Grant` type can be encoded (serialized) to, and/or decoded (deserialized) f
 | [Pandoc AST](https://stencila.ghost.io/docs/reference/formats/pandoc)               | 🔷 Low loss   | 🔷 Low loss   |         |
 | [CSL-JSON](https://stencila.ghost.io/docs/reference/formats/csl)                    |              |              |         |
 | [Citation File Format](https://stencila.ghost.io/docs/reference/formats/cff)        |              |              |         |
+| [CSV](https://stencila.ghost.io/docs/reference/formats/csv)                         |              |              |         |
+| [TSV](https://stencila.ghost.io/docs/reference/formats/tsv)                         |              |              |         |
+| [Apache Parquet](https://stencila.ghost.io/docs/reference/formats/parquet)          |              |              |         |
+| [Apache Arrow](https://stencila.ghost.io/docs/reference/formats/arrow)              |              |              |         |
+| [Microsoft Excel XLSX](https://stencila.ghost.io/docs/reference/formats/xlsx)       |              |              |         |
+| [Microsoft Excel XLS](https://stencila.ghost.io/docs/reference/formats/xls)         |              |              |         |
+| [OpenDocument Spreadsheet](https://stencila.ghost.io/docs/reference/formats/ods)    |              |              |         |
 | [PNG](https://stencila.ghost.io/docs/reference/formats/png)                         | ⚠️ High loss |              |         |
 | [Directory](https://stencila.ghost.io/docs/reference/formats/directory)             |              |              |         |
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)         |              |              |         |

@@ -1,64 +1,271 @@
 {
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/CreativeWorkType.schema.json",
+  "@id": "stencila:CreativeWorkType",
   "title": "CreativeWorkType",
+  "extends": [
+    "Enumeration"
+  ],
   "category": "works",
-  "description": "Union type for all types that are descended from `CreativeWork`",
+  "description": "The kind of a creative work.",
+  "$comment": "This list includes all the types derived from `CreativeWork` within this schema,\nas well as types listed at https://schema.org/CreativeWork and, items from\nDataCite's list of resource type (https://datacite-metadata-schema.readthedocs.io/en/4.6/properties/resourcetype/).\n",
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "alternateNames": {
+      "@id": "schema:alternateName",
+      "description": "Alternate names (aliases) for the item.",
+      "aliases": [
+        "alternate-names",
+        "alternate_names",
+        "alternateName",
+        "alternate-name",
+        "alternate_name"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_csv_or_array"
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "description": {
+      "@id": "schema:description",
+      "description": "A description of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "type": "string"
+    },
+    "identifiers": {
+      "@id": "schema:identifier",
+      "description": "Any kind of identifier for any kind of Thing.",
+      "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "aliases": [
+        "identifier"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "PropertyValue.schema.json"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "images": {
+      "@id": "schema:image",
+      "description": "Images of the item.",
+      "aliases": [
+        "image"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ImageObject.schema.json"
+      }
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "type": "string"
+    },
+    "url": {
+      "@id": "schema:url",
+      "description": "The URL of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "type": "string",
+      "format": "uri"
+    }
+  },
   "anyOf": [
     {
-      "$ref": "Article.schema.json"
+      "@id": "stencila:ArticleCreativeWorkType",
+      "const": "Article"
     },
     {
-      "$ref": "AudioObject.schema.json"
+      "@id": "stencila:AudioObjectCreativeWorkType",
+      "const": "AudioObject"
     },
     {
-      "$ref": "Chat.schema.json"
+      "@id": "stencila:BlogCreativeWorkType",
+      "const": "Blog"
     },
     {
-      "$ref": "Claim.schema.json"
+      "@id": "stencila:BookCreativeWorkType",
+      "const": "Book"
     },
     {
-      "$ref": "Collection.schema.json"
+      "@id": "stencila:ChapterCreativeWorkType",
+      "const": "Chapter"
     },
     {
-      "$ref": "Comment.schema.json"
+      "@id": "stencila:ChatCreativeWorkType",
+      "const": "Chat"
     },
     {
-      "$ref": "Datatable.schema.json"
+      "@id": "stencila:ClaimCreativeWorkType",
+      "const": "Claim"
     },
     {
-      "$ref": "Figure.schema.json"
+      "@id": "stencila:CollectionCreativeWorkType",
+      "const": "Collection"
     },
     {
-      "$ref": "ImageObject.schema.json"
+      "@id": "stencila:CommentCreativeWorkType",
+      "const": "Comment"
     },
     {
-      "$ref": "MediaObject.schema.json"
+      "@id": "stencila:DatasetCreativeWorkType",
+      "const": "Dataset"
     },
     {
-      "$ref": "Periodical.schema.json"
+      "@id": "stencila:DatatableCreativeWorkType",
+      "const": "Datatable"
     },
     {
-      "$ref": "Prompt.schema.json"
+      "@id": "stencila:DrawingCreativeWorkType",
+      "const": "Drawing"
     },
     {
-      "$ref": "PublicationIssue.schema.json"
+      "@id": "stencila:FigureCreativeWorkType",
+      "const": "Figure"
     },
     {
-      "$ref": "PublicationVolume.schema.json"
+      "@id": "stencila:ImageObjectCreativeWorkType",
+      "const": "ImageObject"
     },
     {
-      "$ref": "Review.schema.json"
+      "@id": "stencila:LegislationCreativeWorkType",
+      "const": "Legislation"
     },
     {
-      "$ref": "SoftwareApplication.schema.json"
+      "@id": "stencila:ManuscriptCreativeWorkType",
+      "const": "Manuscript"
     },
     {
-      "$ref": "SoftwareSourceCode.schema.json"
+      "@id": "stencila:MapCreativeWorkType",
+      "const": "Map"
     },
     {
-      "$ref": "Table.schema.json"
+      "@id": "stencila:MediaObjectCreativeWorkType",
+      "const": "MediaObject"
     },
     {
-      "$ref": "VideoObject.schema.json"
+      "@id": "stencila:PeriodicalCreativeWorkType",
+      "const": "Periodical"
+    },
+    {
+      "@id": "stencila:PhotographCreativeWorkType",
+      "const": "Photograph"
+    },
+    {
+      "@id": "stencila:PosterCreativeWorkType",
+      "const": "Poster"
+    },
+    {
+      "@id": "stencila:PresentationCreativeWorkType",
+      "const": "Presentation"
+    },
+    {
+      "@id": "stencila:PromptCreativeWorkType",
+      "const": "Prompt"
+    },
+    {
+      "@id": "stencila:PublicationIssueCreativeWorkType",
+      "const": "PublicationIssue"
+    },
+    {
+      "@id": "stencila:PublicationVolumeCreativeWorkType",
+      "const": "PublicationVolume"
+    },
+    {
+      "@id": "stencila:ReportCreativeWorkType",
+      "const": "Report"
+    },
+    {
+      "@id": "stencila:ReviewCreativeWorkType",
+      "const": "Review"
+    },
+    {
+      "@id": "stencila:SoftwareApplicationCreativeWorkType",
+      "const": "SoftwareApplication"
+    },
+    {
+      "@id": "stencila:SoftwareRepositoryCreativeWorkType",
+      "const": "SoftwareRepository"
+    },
+    {
+      "@id": "stencila:SoftwareSourceCodeCreativeWorkType",
+      "const": "SoftwareSourceCode"
+    },
+    {
+      "@id": "stencila:TableCreativeWorkType",
+      "const": "Table"
+    },
+    {
+      "@id": "stencila:TableCreativeWorkType",
+      "const": "Thesis"
+    },
+    {
+      "@id": "stencila:VideoObjectCreativeWorkType",
+      "const": "VideoObject"
+    },
+    {
+      "@id": "stencila:WebPageCreativeWorkType",
+      "const": "WebPage"
+    },
+    {
+      "@id": "stencila:WorkflowCreativeWorkType",
+      "const": "Workflow"
     }
   ]
 }

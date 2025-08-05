@@ -4,7 +4,7 @@ use codec::{
     Losses,
     common::itertools::Itertools,
     schema::{
-        Article, Author, CreativeWorkType, Date, IntegerOrString, Periodical, Person,
+        Article, Author, CreativeWorkVariant, Date, IntegerOrString, Periodical, Person,
         PublicationVolume, Reference,
     },
 };
@@ -117,10 +117,10 @@ fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Re
     let authors = (!authors.is_empty()).then_some(authors);
 
     let is_part_of = if source.is_some() && volume_number.is_some() {
-        Some(Box::new(CreativeWorkType::PublicationVolume(
+        Some(Box::new(CreativeWorkVariant::PublicationVolume(
             PublicationVolume {
                 volume_number,
-                is_part_of: Some(Box::new(CreativeWorkType::Periodical(Periodical {
+                is_part_of: Some(Box::new(CreativeWorkVariant::Periodical(Periodical {
                     name: source,
                     ..Default::default()
                 }))),

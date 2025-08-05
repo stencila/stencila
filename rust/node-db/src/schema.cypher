@@ -574,6 +574,7 @@ CREATE NODE TABLE IF NOT EXISTS `RawBlock` (
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Reference` (
+  `workType` STRING,
   `doi` STRING,
   `date` DATE,
   `title` STRING,

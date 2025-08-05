@@ -6,7 +6,7 @@ use codec::{
         serde_with::skip_serializing_none,
     },
     schema::{
-        Article, ArticleOptions, Author, CreativeWorkType, CreativeWorkTypeOrString, Date,
+        Article, ArticleOptions, Author, CreativeWorkVariant, CreativeWorkVariantOrString, Date,
         IntegerOrString, Organization, Periodical, PeriodicalOptions, Person, PersonOptions,
         PersonOrOrganization, Primitive, PropertyValue, PropertyValueOrString, PublicationIssue,
         PublicationIssueOptions, PublicationVolume, PublicationVolumeOptions, SoftwareApplication,
@@ -391,7 +391,7 @@ impl From<CitationFile> for SoftwareSourceCode {
         let licenses = cff
             .license
             .or(cff.license_url)
-            .map(|license| vec![CreativeWorkTypeOrString::String(license)]);
+            .map(|license| vec![CreativeWorkVariantOrString::String(license)]);
 
         let mut identifiers = Vec::new();
         if let Some(ids) = cff.identifiers {
@@ -440,7 +440,7 @@ impl From<CitationFile> for SoftwareApplication {
         let licenses = cff
             .license
             .or(cff.license_url)
-            .map(|license| vec![CreativeWorkTypeOrString::String(license)]);
+            .map(|license| vec![CreativeWorkVariantOrString::String(license)]);
 
         let mut identifiers = Vec::new();
         if let Some(ids) = cff.identifiers {
@@ -485,7 +485,7 @@ fn create_publication_info(
     page_range: Option<&str>,
     start_page: Option<&str>,
     end_page: Option<&str>,
-) -> CreativeWorkType {
+) -> CreativeWorkVariant {
     let periodical = Periodical {
         name: Some(journal_name.to_string()),
         options: Box::new(PeriodicalOptions {
@@ -496,7 +496,7 @@ fn create_publication_info(
 
     if let Some(vol) = volume {
         let mut publication_volume = PublicationVolume {
-            is_part_of: Some(Box::new(CreativeWorkType::Periodical(periodical))),
+            is_part_of: Some(Box::new(CreativeWorkVariant::Periodical(periodical))),
             volume_number: Some(IntegerOrString::String(vol.clone())),
             options: Box::new(PublicationVolumeOptions {
                 ..Default::default()
@@ -506,7 +506,7 @@ fn create_publication_info(
 
         if let Some(iss) = issue {
             let mut publication_issue = PublicationIssue {
-                is_part_of: Some(Box::new(CreativeWorkType::PublicationVolume(
+                is_part_of: Some(Box::new(CreativeWorkVariant::PublicationVolume(
                     publication_volume,
                 ))),
                 issue_number: Some(IntegerOrString::String(iss.clone())),
@@ -528,7 +528,7 @@ fn create_publication_info(
                     end_page.map(|p| IntegerOrString::String(p.to_string()));
             }
 
-            CreativeWorkType::PublicationIssue(publication_issue)
+            CreativeWorkVariant::PublicationIssue(publication_issue)
         } else {
             // Add page information to the volume level if no issue
             if let Some(page_range) = page_range {
@@ -542,10 +542,10 @@ fn create_publication_info(
                     end_page.map(|p| IntegerOrString::String(p.to_string()));
             }
 
-            CreativeWorkType::PublicationVolume(publication_volume)
+            CreativeWorkVariant::PublicationVolume(publication_volume)
         }
     } else {
-        CreativeWorkType::Periodical(periodical)
+        CreativeWorkVariant::Periodical(periodical)
     }
 }
 

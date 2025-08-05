@@ -5,7 +5,7 @@ use node_id::NodeId;
 use node_type::{NodeProperty, NodeType};
 
 use crate::{
-    Array, Block, Boolean, Citation, CreativeWorkType, IfBlockClause, Inline, Integer, ListItem,
+    Array, Block, Boolean, Citation, CreativeWorkVariant, IfBlockClause, Inline, Integer, ListItem,
     Node, Null, Number, Object, SuggestionBlock, SuggestionInline, TableCell, TableRow,
     UnsignedInteger, WalkthroughStep,
 };
@@ -55,7 +55,7 @@ pub trait Visitor: Sized {
     }
 
     /// Visit a `CreativeWork` node type
-    fn visit_work(&mut self, work: &CreativeWorkType) -> WalkControl {
+    fn visit_work(&mut self, work: &CreativeWorkVariant) -> WalkControl {
         WalkControl::Continue
     }
 
@@ -152,7 +152,7 @@ pub trait VisitorMut: Sized {
     }
 
     /// Visit, and potentially mutate, a `CreativeWork` node type
-    fn visit_work(&mut self, work: &mut CreativeWorkType) -> WalkControl {
+    fn visit_work(&mut self, work: &mut CreativeWorkVariant) -> WalkControl {
         WalkControl::Continue
     }
 
@@ -244,7 +244,7 @@ pub trait VisitorAsync: Send + Sync {
     /// Visit, and potentially mutate, a `CreativeWork` node type
     fn visit_work(
         &mut self,
-        work: &mut CreativeWorkType,
+        work: &mut CreativeWorkVariant,
     ) -> impl Future<Output = Result<WalkControl>> + Send {
         async { Ok(WalkControl::Continue) }
     }

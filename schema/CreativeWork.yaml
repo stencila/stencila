@@ -8,8 +8,13 @@ $comment: |
   It extends schema.org `CreativeWork` by, adding several properties including `dateAccepted`
   and `fundedBy`.
 core:
+  - workType
   - doi
 properties:
+  workType:
+    "@id": stencila:workType
+    description: The type of `CreativeWork` (e.g. article, book, software application).
+    $ref: CreativeWorkType
   doi:
     "@id": stencila:doi
     description: The work's Digital Object Identifier (https://doi.org/).
@@ -24,7 +29,7 @@ properties:
       subject areas the creative work relates to).
     type: array
     items:
-      $ref: ThingType
+      $ref: ThingVariant
     strip: [metadata]
   abstract:
     "@id": schema:abstract
@@ -225,7 +230,7 @@ properties:
     "@id": schema:isPartOf
     description: |
       An item or other CreativeWork that this CreativeWork is a part of.
-    $ref: CreativeWorkType
+    $ref: CreativeWorkVariant
     strip: [metadata]
   licenses:
     "@id": schema:license
@@ -235,7 +240,7 @@ properties:
     type: array
     items:
       anyOf:
-        - $ref: CreativeWorkType
+        - $ref: CreativeWorkVariant
         - type: string
           pattern: url
     strip: [metadata]
@@ -252,7 +257,7 @@ properties:
       such as Articles, Datatables, Tables and more.
     type: array
     items:
-      $ref: CreativeWorkType
+      $ref: CreativeWorkVariant
     strip: [content]
     dom:
       elem: section

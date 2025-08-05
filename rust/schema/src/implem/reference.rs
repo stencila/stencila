@@ -1,4 +1,4 @@
-use crate::{Article, CreativeWorkType, Reference, prelude::*, replicate};
+use crate::{Article, CreativeWorkVariant, Reference, prelude::*, replicate};
 
 impl From<&Node> for Reference {
     fn from(node: &Node) -> Self {
@@ -9,10 +9,10 @@ impl From<&Node> for Reference {
     }
 }
 
-impl From<&CreativeWorkType> for Reference {
-    fn from(work: &CreativeWorkType) -> Self {
+impl From<&CreativeWorkVariant> for Reference {
+    fn from(work: &CreativeWorkVariant) -> Self {
         match work {
-            CreativeWorkType::Article(article) => Reference::from(article),
+            CreativeWorkVariant::Article(article) => Reference::from(article),
             _ => Reference {
                 title: work.title(),
                 ..Default::default()

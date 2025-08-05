@@ -30,7 +30,7 @@ use format::Format;
 use kernels::Kernels;
 use node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
 use schema::{
-    Article, Block, Collection, CreativeWorkType, ExecutionBounds, Node, NodeId, NodeType,
+    Article, Block, Collection, CreativeWorkVariant, ExecutionBounds, Node, NodeId, NodeType,
 };
 
 use crate::track::DocumentRemote;
@@ -288,7 +288,7 @@ impl Query {
             Node::Collection(Collection::new(
                 nodes
                     .into_iter()
-                    .map(TryInto::<CreativeWorkType>::try_into)
+                    .map(TryInto::<CreativeWorkVariant>::try_into)
                     .try_collect()?,
             ))
         } else if nodes.iter().all(|node| node.node_type().is_block()) {

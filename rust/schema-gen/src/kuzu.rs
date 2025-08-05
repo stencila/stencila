@@ -66,6 +66,7 @@ impl Schemas {
             "transcript",
             "transferEncoding",
             "value",
+            "workType",
             // Articles
             "Article.executionMode",
             "Article.executionCount",
@@ -158,6 +159,9 @@ impl Schemas {
             "Organization.departments",
         ];
 
+        // Props on specific types that should not be excluded
+        let no_skip_props = ["CreativeWork.workType", "Reference.workType"];
+
         let skip_types = [
             // Object types for which tables are not created
             "AppendixBreak",
@@ -232,8 +236,8 @@ impl Schemas {
             "Duration",
             // Union types (and variant object types) not expanded
             "Node",
-            "ThingType",
-            "CreativeWorkType",
+            "ThingVariant",
+            "CreativeWorkVariant",
             "Primitive",
             // .. hints
             "Hint",
@@ -342,8 +346,9 @@ impl Schemas {
             let mut properties = Vec::new();
             let mut relations = Vec::new();
             for (name, property) in &schema.properties {
-                if skip_props.contains(&name.as_str())
-                    || skip_props.contains(&format!("{title}.{name}").as_str())
+                if (skip_props.contains(&name.as_str())
+                    || skip_props.contains(&format!("{title}.{name}").as_str()))
+                    && !no_skip_props.contains(&format!("{title}.{name}").as_str())
                 {
                     continue;
                 }
@@ -462,7 +467,7 @@ impl Schemas {
                             let schema = self
                                 .schemas
                                 .get(ref_type)
-                                .ok_or_eyre("schema should exist")?;
+                                .ok_or_eyre(format!("schema should exist: {ref_type}"))?;
 
                             if schema.is_enumeration() {
                                 properties.push((name, "STRING", on_options));

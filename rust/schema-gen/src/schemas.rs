@@ -163,7 +163,7 @@ impl Schemas {
             }
             any_of.sort_by(|a, b| a.r#ref.cmp(&b.r#ref));
 
-            let title = format!("{base}Type");
+            let title = format!("{base}Variant");
             self.schemas.insert(
                 title.clone(),
                 Schema {

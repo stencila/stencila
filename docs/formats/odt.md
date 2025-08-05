@@ -37,7 +37,7 @@ Stencila provides lossy bidirectional conversion to ODT powered by [Pandoc](http
 
 # Support
 
-Stencila supports these operations for OpenDocument ODT:
+Stencila supports these operations for OpenDocument Text:
 
 - decoding from a file
 - encoding to a file

@@ -8,7 +8,7 @@ use codec::{
         indexmap::IndexMap,
     },
     schema::{
-        self, Article, ArticleOptions, Block, CreativeWork, CreativeWorkOptions, CreativeWorkType,
+        self, Article, ArticleOptions, Block, CreativeWork, CreativeWorkOptions, CreativeWorkVariant,
         CreativeWorkTypeOrString, Date, Inline, IntegerOrString, Node, Organization,
         OrganizationOptions, Paragraph, Periodical, Person, PersonOptions, PublicationIssue,
         PublicationVolume,
@@ -429,7 +429,7 @@ impl From<Work> for Node {
 fn create_publication_info(
     source: Option<&DehydratedSource>,
     biblio: Option<&Biblio>,
-) -> Option<Box<CreativeWorkType>> {
+) -> Option<Box<CreativeWorkVariant>> {
     // Get periodical name from source
     let periodical_name = source
         .and_then(|s| s.display_name.as_ref())
@@ -444,35 +444,35 @@ fn create_publication_info(
     if let Some(bib) = biblio {
         if let Some(volume_str) = &bib.volume {
             let publication_volume = PublicationVolume {
-                is_part_of: Some(Box::new(CreativeWorkType::Periodical(periodical))),
+                is_part_of: Some(Box::new(CreativeWorkVariant::Periodical(periodical))),
                 volume_number: Some(IntegerOrString::String(volume_str.clone())),
                 ..Default::default()
             };
 
             if let Some(issue_str) = &bib.issue {
                 let publication_issue = PublicationIssue {
-                    is_part_of: Some(Box::new(CreativeWorkType::PublicationVolume(
+                    is_part_of: Some(Box::new(CreativeWorkVariant::PublicationVolume(
                         publication_volume,
                     ))),
                     issue_number: Some(IntegerOrString::String(issue_str.clone())),
                     ..Default::default()
                 };
 
-                Some(Box::new(CreativeWorkType::PublicationIssue(
+                Some(Box::new(CreativeWorkVariant::PublicationIssue(
                     publication_issue,
                 )))
             } else {
-                Some(Box::new(CreativeWorkType::PublicationVolume(
+                Some(Box::new(CreativeWorkVariant::PublicationVolume(
                     publication_volume,
                 )))
             }
         } else {
             // No volume, just periodical
-            Some(Box::new(CreativeWorkType::Periodical(periodical)))
+            Some(Box::new(CreativeWorkVariant::Periodical(periodical)))
         }
     } else {
         // No biblio, just periodical
-        Some(Box::new(CreativeWorkType::Periodical(periodical)))
+        Some(Box::new(CreativeWorkVariant::Periodical(periodical)))
     }
 }
 

@@ -4,7 +4,8 @@ import { Author } from "./Author.js";
 import { Block } from "./Block.js";
 import { Comment } from "./Comment.js";
 import { CreativeWorkType } from "./CreativeWorkType.js";
-import { CreativeWorkTypeOrString } from "./CreativeWorkTypeOrString.js";
+import { CreativeWorkVariant } from "./CreativeWorkVariant.js";
+import { CreativeWorkVariantOrString } from "./CreativeWorkVariantOrString.js";
 import { Date } from "./Date.js";
 import { GrantOrMonetaryGrant } from "./GrantOrMonetaryGrant.js";
 import { Inline } from "./Inline.js";
@@ -15,7 +16,7 @@ import { Reference } from "./Reference.js";
 import { StringOrNumber } from "./StringOrNumber.js";
 import { Text } from "./Text.js";
 import { Thing } from "./Thing.js";
-import { ThingType } from "./ThingType.js";
+import { ThingVariant } from "./ThingVariant.js";
 
 /**
  * A creative work, including books, movies, photographs, software programs, etc.
@@ -25,6 +26,11 @@ export class CreativeWork extends Thing {
   type: "CreativeWork";
 
   /**
+   * The type of `CreativeWork` (e.g. article, book, software application).
+   */
+  workType?: CreativeWorkType;
+
+  /**
    * The work's Digital Object Identifier (https://doi.org/).
    */
   doi?: string;
@@ -32,7 +38,7 @@ export class CreativeWork extends Thing {
   /**
    * The subject matter of the content.
    */
-  about?: ThingType[];
+  about?: ThingVariant[];
 
   /**
    * A short description that summarizes a `CreativeWork`.
@@ -117,17 +123,17 @@ export class CreativeWork extends Thing {
   /**
    * An item or other CreativeWork that this CreativeWork is a part of.
    */
-  isPartOf?: CreativeWorkType;
+  isPartOf?: CreativeWorkVariant;
 
   /**
    * License documents that applies to this content, typically indicated by URL, but may be a `CreativeWork` itself.
    */
-  licenses?: CreativeWorkTypeOrString[];
+  licenses?: CreativeWorkVariantOrString[];
 
   /**
    * Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
    */
-  parts?: CreativeWorkType[];
+  parts?: CreativeWorkVariant[];
 
   /**
    * A publisher of the CreativeWork.

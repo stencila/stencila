@@ -11,7 +11,7 @@ properties:
   itemReviewed:
     '@id': schema:itemReviewed
     description: The item that is being reviewed.
-    $ref: ThingType
+    $ref: ThingVariant
   reviewAspect:
     '@id': schema:reviewAspect
     description: The part or facet of the item that is being reviewed.

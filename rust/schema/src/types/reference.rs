@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 use super::author::Author;
 use super::creative_work_type::CreativeWorkType;
+use super::creative_work_variant::CreativeWorkVariant;
 use super::date::Date;
 use super::inline::Inline;
 use super::integer_or_string::IntegerOrString;
@@ -26,7 +27,11 @@ pub struct Reference {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// The Digital Object Identifier (https://doi.org/) or the work being referenced.
+    /// The type of `CreativeWork` being referenced(e.g. Article, Book, Dataset).
+    #[serde(alias = "work-type", alias = "work_type")]
+    pub work_type: Option<CreativeWorkType>,
+
+    /// The Digital Object Identifier (https://doi.org/) of the work being referenced.
     pub doi: Option<String>,
 
     /// The authors of the work.
@@ -48,7 +53,7 @@ pub struct Reference {
 
     /// An other `CreativeWork` that the reference is a part of.
     #[serde(alias = "is-part-of", alias = "is_part_of")]
-    pub is_part_of: Option<Box<CreativeWorkType>>,
+    pub is_part_of: Option<Box<CreativeWorkVariant>>,
 
     /// The page on which the article starts; for example "135" or "xiii".
     #[serde(alias = "page-start", alias = "page_start")]
