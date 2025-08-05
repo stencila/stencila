@@ -577,6 +577,7 @@ CREATE NODE TABLE IF NOT EXISTS `Reference` (
   `workType` STRING,
   `doi` STRING,
   `date` DATE,
+  `url` STRING,
   `title` STRING,
   PRIMARY KEY (`doi`)
 );

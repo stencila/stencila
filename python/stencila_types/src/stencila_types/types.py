@@ -2794,6 +2794,9 @@ class Reference(Entity):
     pagination: str | None = None
     """Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55"."""
 
+    url: str | None = None
+    """The URL of the referenced work."""
+
 
 @dataclass(kw_only=True, repr=False)
 class Review(CreativeWork):

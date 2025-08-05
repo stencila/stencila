@@ -66,6 +66,9 @@ pub struct Reference {
     /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
     pub pagination: Option<String>,
 
+    /// The URL of the referenced work.
+    pub url: Option<String>,
+
     /// A unique identifier for a node within a document
     #[serde(skip)]
     pub uid: NodeUid

@@ -60,6 +60,11 @@ export class Reference extends Entity {
    */
   pagination?: string;
 
+  /**
+   * The URL of the referenced work.
+   */
+  url?: string;
+
   constructor(options?: Partial<Reference>) {
     super();
     this.type = "Reference";

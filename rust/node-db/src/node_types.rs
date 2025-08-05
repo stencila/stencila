@@ -1340,6 +1340,7 @@ impl DatabaseNode for Reference {
             (NodeProperty::WorkType, self.work_type.to_kuzu_type(), self.work_type.to_kuzu_value()),
             (NodeProperty::Doi, self.doi.to_kuzu_type(), self.doi.to_kuzu_value()),
             (NodeProperty::Date, self.date.to_kuzu_type(), self.date.to_kuzu_value()),
+            (NodeProperty::Url, self.url.to_kuzu_type(), self.url.to_kuzu_value()),
             (NodeProperty::Title, LogicalType::String, to_text(&self.title).to_kuzu_value())
         ]
     }

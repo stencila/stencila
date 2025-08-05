@@ -124,9 +124,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "url",
       "rdfs:comment": "The URL of the item.",
-      "schema:domainIncludes": {
-        "@id": "schema:Thing"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }

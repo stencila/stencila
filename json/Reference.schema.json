@@ -24,7 +24,8 @@
     "isPartOf",
     "pageStart",
     "pageEnd",
-    "pagination"
+    "pagination",
+    "url"
   ],
   "properties": {
     "type": {
@@ -145,6 +146,12 @@
       "@id": "schema:pagination",
       "description": "Any description of pages that is not separated into pageStart and pageEnd; for example, \"1-6, 9, 55\".",
       "type": "string"
+    },
+    "url": {
+      "@id": "schema:url",
+      "description": "The URL of the referenced work.",
+      "type": "string",
+      "format": "uri"
     }
   }
 }

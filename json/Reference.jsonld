@@ -243,6 +243,23 @@
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
+    },
+    {
+      "@id": "schema:url",
+      "@type": "rdfs:Property",
+      "rdfs:label": "url",
+      "rdfs:comment": "The URL of the referenced work.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
     }
   ]
 }
