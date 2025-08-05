@@ -1,4 +1,6 @@
-use crate::{Article, CreativeWorkVariant, Reference, prelude::*, replicate};
+use crate::{
+    Article, CreativeWork, CreativeWorkType, CreativeWorkVariant, Reference, prelude::*, replicate,
+};
 
 impl From<&Node> for Reference {
     fn from(node: &Node) -> Self {
@@ -14,6 +16,8 @@ impl From<&CreativeWorkVariant> for Reference {
         match work {
             CreativeWorkVariant::Article(article) => Reference::from(article),
             _ => Reference {
+                work_type: Some(work.work_type()),
+                doi: work.doi(),
                 title: work.title(),
                 ..Default::default()
             },
@@ -21,9 +25,42 @@ impl From<&CreativeWorkVariant> for Reference {
     }
 }
 
+impl From<&CreativeWork> for Reference {
+    fn from(work: &CreativeWork) -> Self {
+        Self {
+            work_type: work.work_type,
+            doi: work.doi.clone(),
+            authors: work
+                .options
+                .authors
+                .as_ref()
+                .and_then(|authors| replicate(authors).ok()),
+            date: work
+                .options
+                .date_published
+                .as_ref()
+                .or(work.options.date_modified.as_ref())
+                .and_then(|date| replicate(date).ok()),
+            title: work
+                .options
+                .title
+                .as_ref()
+                .and_then(|title| replicate(title).ok()),
+            is_part_of: work
+                .options
+                .is_part_of
+                .as_ref()
+                .and_then(|is_part_of| replicate(is_part_of).ok())
+                .map(Box::new),
+            ..Default::default()
+        }
+    }
+}
+
 impl From<&Article> for Reference {
     fn from(article: &Article) -> Self {
         Self {
+            work_type: Some(CreativeWorkType::Article),
             doi: article.doi.clone(),
             authors: article
                 .authors
