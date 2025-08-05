@@ -1,0 +1,272 @@
+---
+source: rust/codec-biblio/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "references": [
+    {
+      "type": "Reference",
+      "id": "b1",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Cormen"
+          ],
+          "givenNames": [
+            "Thomas",
+            "H."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Leiserson"
+          ],
+          "givenNames": [
+            "Charles",
+            "E."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rivest"
+          ],
+          "givenNames": [
+            "Ronald",
+            "L."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Stein"
+          ],
+          "givenNames": [
+            "Clifford"
+          ]
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "MIT Press",
+        "address": "Cambridge, MA"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2009"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Introduction to Algorithms"
+          }
+        }
+      ],
+      "pagination": "1312 pages",
+      "version": "3",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "isbn",
+          "value": "978-0262033848"
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "id": "b2",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Donne"
+          ],
+          "givenNames": [
+            "John"
+          ]
+        }
+      ],
+      "editors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Stringer"
+          ],
+          "givenNames": [
+            "Gary",
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pebworth"
+          ],
+          "givenNames": [
+            "Ted-Larry"
+          ]
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Indiana University Press",
+        "address": "Bloomington"
+      },
+      "date": {
+        "type": "Date",
+        "value": "1995"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The \"Anniversaries\" and the \"Epicedes and Obsequies\""
+          }
+        }
+      ],
+      "volumeNumber": 6
+    },
+    {
+      "type": "Reference",
+      "id": "b3",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Duval"
+          ],
+          "givenNames": [
+            "Fred"
+          ]
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Dargaud"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Renaissance, Les Déracinés"
+          }
+        }
+      ],
+      "volumeNumber": 1,
+      "version": "1"
+    },
+    {
+      "type": "Reference",
+      "id": "b4",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gamma"
+          ],
+          "givenNames": [
+            "Erich"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Helm"
+          ],
+          "givenNames": [
+            "Richard"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Johnson"
+          ],
+          "givenNames": [
+            "Ralph"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Vlissides"
+          ],
+          "givenNames": [
+            "John"
+          ]
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Addison-Wesley Professional",
+        "address": "Boston, MA"
+      },
+      "date": {
+        "type": "Date",
+        "value": "1994"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Design Patterns: Elements of Reusable Object-Oriented Software"
+          }
+        }
+      ],
+      "pagination": "395 pages",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "isbn",
+          "value": "978-0201633610"
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "id": "b5",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Günther-Haug"
+          ],
+          "givenNames": [
+            "Barbara"
+          ]
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "MVG",
+        "address": "München"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Den Boden unter den Füßen verlieren"
+          }
+        }
+      ]
+    }
+  ],
+  "content": []
+}

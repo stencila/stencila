@@ -3,7 +3,8 @@ use codec::{
     schema::{
         Author, Cord, CreativeWorkType, CreativeWorkVariant, Date, Inline, IntegerOrString,
         Organization, Periodical, PeriodicalOptions, Person, PersonOrOrganization,
-        PublicationIssue, PublicationVolume, Reference, Text,
+        PostalAddressOrString, PropertyValue, PropertyValueOrString, PublicationIssue,
+        PublicationVolume, Reference, StringOrNumber, Text,
     },
 };
 use hayagriva::{
@@ -13,6 +14,12 @@ use hayagriva::{
         Person as HPerson, QualifiedUrl,
     },
 };
+
+// Constants for repeated string literals
+const DOI_KEY: &str = "doi";
+const ISBN_KEY: &str = "isbn";
+const IDENTIFIER_KEY: &str = "identifier";
+const PAGES_SUFFIX: &str = " pages";
 
 /// Convert a Hayagriva Entry to a Stencila Reference
 pub fn entry_to_reference(entry: &Entry) -> Result<Reference> {
@@ -30,38 +37,8 @@ pub fn entry_to_reference(entry: &Entry) -> Result<Reference> {
         })]
     });
 
-    // Extract authors
-    let authors = entry.authors().and_then(|authors| {
-        let ref_authors: Vec<Author> = authors
-            .iter()
-            .filter(|person| !person.name.is_empty())
-            .map(|person| {
-                // Hayagriva stores the family name in `name` and given names in `given_name`
-                let family = person.name.as_str();
-                let given = person.given_name.as_deref().unwrap_or("");
-
-                // Split given names by spaces to handle multiple given names
-                let given_names = if given.is_empty() {
-                    None
-                } else {
-                    Some(
-                        given
-                            .split_whitespace()
-                            .map(|s| s.to_string())
-                            .collect::<Vec<_>>(),
-                    )
-                };
-
-                Author::Person(Person {
-                    family_names: Some(vec![family.to_string()]),
-                    given_names,
-                    ..Default::default()
-                })
-            })
-            .collect();
-
-        (!ref_authors.is_empty()).then_some(ref_authors)
-    });
+    // Extract contributors (authors and editors)
+    let (authors, editors) = extract_contributors(entry);
 
     // Extract date
     let date = entry.date().map(|date| {
@@ -81,7 +58,7 @@ pub fn entry_to_reference(entry: &Entry) -> Result<Reference> {
     let doi = entry.doi().map(|doi| doi.to_string()).or_else(|| {
         entry
             .serial_number()
-            .and_then(|serial_numbers| serial_numbers.0.get("doi").cloned())
+            .and_then(|serial_numbers| serial_numbers.0.get(DOI_KEY).cloned())
     });
 
     // Extract URL
@@ -179,19 +156,85 @@ pub fn entry_to_reference(entry: &Entry) -> Result<Reference> {
             }
         });
 
+    // Extract publisher (including location)
+    let publisher = entry.publisher().and_then(|publisher| {
+        publisher.name().map(|pub_name| {
+            let mut org = Organization {
+                name: Some(pub_name.to_string()),
+                ..Default::default()
+            };
+
+            // Extract location if available
+            if let Some(location) = entry.location() {
+                let location_str = location.to_string();
+                // Store location in address for now - this is the closest field we have
+                org.options.address = Some(PostalAddressOrString::String(location_str));
+            }
+
+            PersonOrOrganization::Organization(org)
+        })
+    });
+
+    // Extract version/edition - always treat as string to preserve formatting
+    let version = entry.edition().map(|edition| {
+        let edition_str = maybe_typed_to_string(edition);
+        StringOrNumber::String(edition_str)
+    });
+
+    // Extract volume number (for books, different from publication volume)
+    let volume_number = extract_numeric_field(entry.volume());
+
+    // Extract issue number (for serials, different from publication issue)
+    let issue_number = extract_numeric_field(entry.issue());
+
+    // Extract identifiers from serial numbers
+    let identifiers = entry.serial_number().and_then(|serial_numbers| {
+        let mut ids = Vec::new();
+
+        // Add ISBN if present
+        if let Some(isbn) = serial_numbers.0.get(ISBN_KEY) {
+            ids.push(create_property_value(ISBN_KEY, isbn));
+        }
+
+        // Add other serial numbers
+        for (key, value) in &serial_numbers.0 {
+            if key != ISBN_KEY && key != DOI_KEY {
+                // DOI is handled separately
+                ids.push(create_property_value(key, value));
+            }
+        }
+
+        (!ids.is_empty()).then_some(ids)
+    });
+
+    // Extract page-total and convert to pagination if no other pagination exists
+    let pagination_from_total = entry.page_total().map(|total| {
+        let total_str = total.to_string();
+        format!("{total_str}{PAGES_SUFFIX}")
+    });
+
+    // Use page-total pagination if no other pagination exists
+    let final_pagination = pagination.or(pagination_from_total);
+
     // Construct the Reference
     Ok(Reference {
         work_type,
         id,
         title,
         authors,
+        editors,
         date,
         doi,
         url,
         is_part_of,
         page_start,
         page_end,
-        pagination,
+        pagination: final_pagination,
+        publisher,
+        version,
+        volume_number,
+        issue_number,
+        identifiers,
         ..Default::default()
     })
 }
@@ -225,49 +268,8 @@ pub fn reference_to_entry(reference: &Reference) -> Result<Entry> {
         entry.set_title(FormatString::from(title_str));
     }
 
-    // Set authors
-    if let Some(authors) = &reference.authors {
-        let persons: Vec<HPerson> = authors
-            .iter()
-            .filter_map(|author| match author {
-                Author::Person(person) => {
-                    // Hayagriva expects family name, then given names
-                    let family = person
-                        .family_names
-                        .as_ref()
-                        .map(|names| names.join(" "))
-                        .unwrap_or_default();
-                    let given = person
-                        .given_names
-                        .as_ref()
-                        .map(|names| names.join(" "))
-                        .unwrap_or_default();
-
-                    if !family.is_empty() {
-                        // Create a string in the format "Family, Given"
-                        let name_str = if given.is_empty() {
-                            family
-                        } else {
-                            format!("{family}, {given}")
-                        };
-
-                        HPerson::from_strings(vec![&name_str]).ok()
-                    } else {
-                        None
-                    }
-                }
-                Author::Organization(org) => org
-                    .name
-                    .as_ref()
-                    .and_then(|name| HPerson::from_strings(vec![name]).ok()),
-                _ => None,
-            })
-            .collect();
-
-        if !persons.is_empty() {
-            entry.set_authors(persons);
-        }
-    }
+    // Set contributors (authors and editors)
+    set_contributors(&mut entry, reference);
 
     // Set date
     if let Some(date) = &reference.date {
@@ -291,9 +293,80 @@ pub fn reference_to_entry(reference: &Reference) -> Result<Entry> {
         handle_periodical_container(&mut entry, container.as_ref());
     }
 
-    // Set page numbers
+    // Set publisher and location
+    if let Some(publisher) = &reference.publisher {
+        match publisher {
+            PersonOrOrganization::Organization(org) => {
+                if let Some(pub_name) = &org.name {
+                    let publisher = hayagriva::types::Publisher::new(
+                        Some(FormatString::from(pub_name.clone())),
+                        None,
+                    );
+                    entry.set_publisher(publisher);
+
+                    // Set location if available in address field
+                    if let Some(address) = &org.options.address {
+                        let location_str = match address {
+                            PostalAddressOrString::String(s) => s.clone(),
+                            PostalAddressOrString::PostalAddress(addr) => {
+                                // Extract street address or locality as location
+                                addr.street_address
+                                    .clone()
+                                    .or_else(|| addr.address_locality.clone())
+                                    .unwrap_or_default()
+                            }
+                        };
+                        if !location_str.is_empty() {
+                            entry.set_location(FormatString::from(location_str));
+                        }
+                    }
+                }
+            }
+            PersonOrOrganization::Person(person) => {
+                // Handle person publisher - combine names
+                let name_str = format_person_name(&person.family_names, &person.given_names);
+
+                if !name_str.is_empty() {
+                    let publisher =
+                        hayagriva::types::Publisher::new(Some(FormatString::from(name_str)), None);
+                    entry.set_publisher(publisher);
+                }
+            }
+        }
+    }
+
+    // Set version/edition
+    if let Some(version) = &reference.version {
+        let edition_str = match version {
+            StringOrNumber::String(s) => s.clone(),
+            StringOrNumber::Number(n) => n.to_string(),
+        };
+        entry.set_edition(MaybeTyped::String(edition_str));
+    }
+
+    // Set volume number (for books)
+    if let Some(volume_number) = &reference.volume_number {
+        entry.set_volume(integer_or_string_to_maybe_numeric(volume_number));
+    }
+
+    // Set issue number (for serials)
+    if let Some(issue_number) = &reference.issue_number {
+        entry.set_issue(integer_or_string_to_maybe_numeric(issue_number));
+    }
+
+    // Set page numbers - prioritize page-total over pagination for total pages
     if let Some(pagination) = &reference.pagination {
-        entry.set_page_range(MaybeTyped::String(pagination.clone()));
+        // Check if pagination is in "X pages" format for page-total
+        if pagination.ends_with(PAGES_SUFFIX) {
+            let page_count = pagination.trim_end_matches(PAGES_SUFFIX);
+            if let Ok(count) = page_count.parse::<i32>() {
+                entry.set_page_total(Numeric::new(count));
+            } else {
+                entry.set_page_range(MaybeTyped::String(pagination.clone()));
+            }
+        } else {
+            entry.set_page_range(MaybeTyped::String(pagination.clone()));
+        }
     } else {
         match (&reference.page_start, &reference.page_end) {
             (Some(start), Some(end)) => {
@@ -311,17 +384,216 @@ pub fn reference_to_entry(reference: &Reference) -> Result<Entry> {
         }
     }
 
-    // Convert DOI back to serial numbers if needed
-    // Note: Other serial numbers (ISBN, ISSN, etc.) are lost in the round-trip
-    // since Reference doesn't have fields for them
+    // Convert identifiers and DOI to serial numbers
+    let mut serial_map = std::collections::BTreeMap::new();
+
+    // Add DOI if present
     if let Some(doi) = &reference.doi {
-        let mut serial_map = std::collections::BTreeMap::new();
-        serial_map.insert("doi".to_string(), doi.clone());
+        serial_map.insert(DOI_KEY.to_string(), doi.clone());
+    }
+
+    // Add identifiers from the identifiers field
+    if let Some(identifiers) = &reference.identifiers {
+        for identifier in identifiers {
+            match identifier {
+                PropertyValueOrString::PropertyValue(prop_val) => {
+                    if let Some(property_id) = &prop_val.property_id {
+                        if let codec::schema::Primitive::String(value) = &prop_val.value {
+                            serial_map.insert(property_id.clone(), value.clone());
+                        }
+                    }
+                }
+                PropertyValueOrString::String(s) => {
+                    // For string identifiers without property ID, use generic key
+                    serial_map.insert(IDENTIFIER_KEY.to_string(), s.clone());
+                }
+            }
+        }
+    }
+
+    // Set serial numbers if we have any
+    if !serial_map.is_empty() {
         let serial_numbers = hayagriva::types::SerialNumber(serial_map);
         entry.set_serial_number(serial_numbers);
     }
 
     Ok(entry)
+}
+
+// Helper functions for common patterns
+
+/// Create a PropertyValue for identifiers
+/// 
+/// Creates a PropertyValue with the given property ID and string value.
+fn create_property_value(property_id: &str, value: &str) -> PropertyValueOrString {
+    PropertyValueOrString::PropertyValue(PropertyValue {
+        property_id: Some(property_id.to_string()),
+        value: codec::schema::Primitive::String(value.to_string()),
+        ..Default::default()
+    })
+}
+
+/// Extract a numeric field from a Hayagriva entry
+/// 
+/// Converts a MaybeTyped value to IntegerOrString, handling both typed and string variants.
+fn extract_numeric_field<T: ToString>(value: Option<&MaybeTyped<T>>) -> Option<IntegerOrString> {
+    value.map(|v| {
+        let str_value = maybe_typed_to_string(v);
+        string_to_integer_or_string(&str_value)
+    })
+}
+
+/// Format person names for display
+/// 
+/// Combines family and given names with appropriate formatting.
+/// Returns formatted name or empty string if no family name exists.
+fn format_person_name(family_names: &Option<Vec<String>>, given_names: &Option<Vec<String>>) -> String {
+    let family = family_names
+        .as_ref()
+        .map(|names| names.join(" "))
+        .unwrap_or_default();
+    let given = given_names
+        .as_ref()
+        .map(|names| names.join(" "))
+        .unwrap_or_default();
+
+    if family.is_empty() {
+        String::new()
+    } else if given.is_empty() {
+        family
+    } else {
+        format!("{given} {family}")
+    }
+}
+
+// Person conversion helpers
+
+/// Convert a Hayagriva person to a Stencila Person
+/// 
+/// Extracts family and given names from Hayagriva's person format and converts
+/// them to Stencila's Person structure with separate family_names and given_names fields.
+fn hayagriva_person_to_stencila_person(person: &HPerson) -> Person {
+    let family = person.name.as_str();
+    let given = person.given_name.as_deref().unwrap_or("");
+
+    let given_names = if given.is_empty() {
+        None
+    } else {
+        Some(
+            given
+                .split_whitespace()
+                .map(|s| s.to_string())
+                .collect::<Vec<_>>(),
+        )
+    };
+
+    Person {
+        family_names: Some(vec![family.to_string()]),
+        given_names,
+        ..Default::default()
+    }
+}
+
+/// Convert a Hayagriva person to a Stencila Author
+/// 
+/// Wraps the person conversion in an Author::Person variant.
+fn hayagriva_person_to_stencila_author(person: &HPerson) -> Author {
+    Author::Person(hayagriva_person_to_stencila_person(person))
+}
+
+/// Convert a Stencila Person to a Hayagriva person
+/// 
+/// Combines family and given names into the format expected by Hayagriva.
+/// Returns None if the person has no family name.
+fn stencila_person_to_hayagriva_person(person: &Person) -> Option<HPerson> {
+    let family = person
+        .family_names
+        .as_ref()
+        .map(|names| names.join(" "))
+        .unwrap_or_default();
+    let given = person
+        .given_names
+        .as_ref()
+        .map(|names| names.join(" "))
+        .unwrap_or_default();
+
+    if !family.is_empty() {
+        let name_str = if given.is_empty() {
+            family
+        } else {
+            format!("{family}, {given}")
+        };
+        HPerson::from_strings(vec![&name_str]).ok()
+    } else {
+        None
+    }
+}
+
+/// Convert a Stencila Author to a Hayagriva person
+/// 
+/// Handles both Person and Organization authors, converting organizations
+/// to person entries using the organization name.
+fn stencila_author_to_hayagriva_person(author: &Author) -> Option<HPerson> {
+    match author {
+        Author::Person(person) => stencila_person_to_hayagriva_person(person),
+        Author::Organization(org) => org
+            .name
+            .as_ref()
+            .and_then(|name| HPerson::from_strings(vec![name]).ok()),
+        _ => None,
+    }
+}
+
+/// Extract contributors (authors and editors) from a Hayagriva entry
+/// 
+/// Returns a tuple of (authors, editors) converted to Stencila format.
+fn extract_contributors(entry: &Entry) -> (Option<Vec<Author>>, Option<Vec<Person>>) {
+    let authors = entry.authors().and_then(|authors| {
+        let ref_authors: Vec<Author> = authors
+            .iter()
+            .filter(|person| !person.name.is_empty())
+            .map(hayagriva_person_to_stencila_author)
+            .collect();
+        (!ref_authors.is_empty()).then_some(ref_authors)
+    });
+
+    let editors = entry.editors().and_then(|editors| {
+        let ref_editors: Vec<Person> = editors
+            .iter()
+            .filter(|person| !person.name.is_empty())
+            .map(hayagriva_person_to_stencila_person)
+            .collect();
+        (!ref_editors.is_empty()).then_some(ref_editors)
+    });
+
+    (authors, editors)
+}
+
+/// Set contributors (authors and editors) on a Hayagriva entry
+/// 
+/// Converts Stencila authors and editors to Hayagriva format and sets them on the entry.
+fn set_contributors(entry: &mut Entry, reference: &Reference) {
+    if let Some(authors) = &reference.authors {
+        let persons: Vec<HPerson> = authors
+            .iter()
+            .filter_map(stencila_author_to_hayagriva_person)
+            .collect();
+
+        if !persons.is_empty() {
+            entry.set_authors(persons);
+        }
+    }
+
+    if let Some(editors) = &reference.editors {
+        let persons: Vec<HPerson> = editors
+            .iter()
+            .filter_map(stencila_person_to_hayagriva_person)
+            .collect();
+
+        if !persons.is_empty() {
+            entry.set_editors(persons);
+        }
+    }
 }
 
 /// Convert Hayagriva [`EntryType`] to Stencila [`CreativeWorkType`]
@@ -401,7 +673,7 @@ fn work_type_to_entry_type(work_type: &CreativeWorkType) -> EntryType {
 }
 
 /// Convert IntegerOrString to MaybeTyped<Numeric> for Hayagriva
-/// 
+///
 /// Hayagriva uses MaybeTyped<Numeric> for fields like volume and issue numbers.
 /// This helper converts our IntegerOrString type to the appropriate MaybeTyped variant.
 fn integer_or_string_to_maybe_numeric(value: &IntegerOrString) -> MaybeTyped<Numeric> {
@@ -412,7 +684,7 @@ fn integer_or_string_to_maybe_numeric(value: &IntegerOrString) -> MaybeTyped<Num
 }
 
 /// Convert IntegerOrString to MaybeTyped<PageRanges> for Hayagriva page ranges
-/// 
+///
 /// When setting page ranges in Hayagriva, we need to convert our IntegerOrString
 /// to either a structured PageRanges object (for numeric pages) or keep as string.
 fn integer_or_string_to_maybe_page_ranges(value: &IntegerOrString) -> MaybeTyped<PageRanges> {
@@ -427,7 +699,7 @@ fn integer_or_string_to_maybe_page_ranges(value: &IntegerOrString) -> MaybeTyped
 }
 
 /// Convert IntegerOrString to String
-/// 
+///
 /// Simple utility to convert our IntegerOrString type to a plain String,
 /// used when we need string representations for page ranges or other fields.
 fn integer_or_string_to_string(value: &IntegerOrString) -> String {
@@ -438,7 +710,7 @@ fn integer_or_string_to_string(value: &IntegerOrString) -> String {
 }
 
 /// Convert string to IntegerOrString, attempting numeric parsing first
-/// 
+///
 /// Tries to parse the string as an integer first, and if that fails,
 /// stores it as a string. This is useful for page numbers and other fields
 /// that might be either numeric or contain non-numeric characters.
@@ -451,7 +723,7 @@ fn string_to_integer_or_string(value: &str) -> IntegerOrString {
 }
 
 /// Convert MaybeTyped<T> to String where T: ToString
-/// 
+///
 /// Hayagriva uses MaybeTyped<T> for fields that can be either structured data
 /// or raw strings. This helper extracts a string representation from either variant.
 /// Used for volume numbers, issue numbers, and page ranges.
@@ -463,16 +735,16 @@ fn maybe_typed_to_string<T: ToString>(value: &MaybeTyped<T>) -> String {
 }
 
 /// Determine Hayagriva EntryType from journal/periodical name patterns
-/// 
+///
 /// Analyzes the journal name to determine the most appropriate Hayagriva EntryType.
 /// This helps with proper citation formatting by distinguishing between:
 /// - Proceedings (conference proceedings)
 /// - Repository (preprint servers like arXiv)
 /// - Periodical (regular journals, default case)
-/// 
+///
 /// # Arguments
 /// * `journal_name` - The name of the journal/periodical to analyze
-/// 
+///
 /// # Returns
 /// The most appropriate EntryType based on name patterns
 fn determine_journal_entry_type(journal_name: &str) -> EntryType {
@@ -490,14 +762,14 @@ fn determine_journal_entry_type(journal_name: &str) -> EntryType {
 }
 
 /// Extract publisher from periodical options and convert to Hayagriva Publisher
-/// 
+///
 /// Extracts publisher information from a Stencila Periodical and converts it
 /// to the format expected by Hayagriva. Only handles Organization publishers
 /// (not Person publishers) as this is the most common case for academic publishing.
-/// 
+///
 /// # Arguments
 /// * `periodical` - The Stencila Periodical to extract publisher from
-/// 
+///
 /// # Returns
 /// Some(Publisher) if an organization publisher is found, None otherwise
 fn extract_publisher_from_periodical(
@@ -515,15 +787,15 @@ fn extract_publisher_from_periodical(
 }
 
 /// Create a Hayagriva parent entry for a journal/periodical
-/// 
+///
 /// Creates a complete Hayagriva Entry representing the parent publication
 /// (journal, conference proceedings, etc.) with appropriate type, title, and
 /// publisher information. This is used as the parent entry for articles.
-/// 
+///
 /// # Arguments
 /// * `journal_name` - The name of the journal/periodical
 /// * `periodical` - The Stencila Periodical containing additional metadata
-/// 
+///
 /// # Returns
 /// A fully configured Hayagriva Entry representing the parent publication
 fn create_hayagriva_parent_entry(journal_name: &str, periodical: &Periodical) -> Entry {
@@ -539,15 +811,15 @@ fn create_hayagriva_parent_entry(journal_name: &str, periodical: &Periodical) ->
 }
 
 /// Convert inline content to string representation
-/// 
+///
 /// Converts Stencila Inline content to a plain string. Text content is extracted
 /// directly, while other inline types (like emphasis, links, etc.) are converted
 /// to their debug representation as a fallback. This is primarily used for
 /// extracting title text for bibliography entries.
-/// 
+///
 /// # Arguments
 /// * `inline` - The Inline content to convert
-/// 
+///
 /// # Returns
 /// String representation of the inline content
 fn inline_to_string(inline: &Inline) -> String {
@@ -558,18 +830,18 @@ fn inline_to_string(inline: &Inline) -> String {
 }
 
 /// Parse ISO date string into Hayagriva Date
-/// 
+///
 /// Parses various date string formats into Hayagriva's Date structure.
 /// Supports:
 /// - Year only: "2023"
 /// - Year-month: "2023-03"
 /// - Full ISO date: "2023-03-15"
-/// 
+///
 /// Returns None for invalid date strings or formats that can't be parsed.
-/// 
+///
 /// # Arguments
 /// * `date_str` - The date string to parse
-/// 
+///
 /// # Returns
 /// Some(HDate) if parsing succeeds, None otherwise
 fn parse_iso_date(date_str: &str) -> Option<HDate> {
@@ -611,20 +883,20 @@ fn parse_iso_date(date_str: &str) -> Option<HDate> {
 }
 
 /// Handle periodical container and set volume/issue information on entry
-/// 
+///
 /// Processes different types of publication containers (Periodical, PublicationVolume,
 /// PublicationIssue) and sets up the appropriate parent relationships and metadata
 /// in the Hayagriva entry. This consolidates the logic that was previously duplicated
 /// across three large match arms.
-/// 
+///
 /// The function handles the hierarchical nature of academic publishing:
 /// - Periodical: Simple journal with no volume/issue
 /// - PublicationVolume: Journal with volume information
 /// - PublicationIssue: Journal with both volume and issue information
-/// 
+///
 /// Volume and issue numbers are set either on the parent entry (for periodicals)
 /// or on the main entry (for other publication types like proceedings).
-/// 
+///
 /// # Arguments
 /// * `entry` - The Hayagriva entry to modify (mutable reference)
 /// * `container` - The publication container to process
@@ -706,4 +978,3 @@ fn handle_periodical_container(entry: &mut Entry, container: &CreativeWorkVarian
         _ => {}
     }
 }
-

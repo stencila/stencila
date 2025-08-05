@@ -1,0 +1,55 @@
+b1:
+  type: book
+  title: Introduction to Algorithms
+  author:
+  - Cormen, Thomas H.
+  - Leiserson, Charles E.
+  - Rivest, Ronald L.
+  - Stein, Clifford
+  date: 2009
+  publisher: MIT Press
+  location: Cambridge, MA
+  edition: '3'
+  page-total: 1312
+  serial-number:
+    isbn: 978-0262033848
+b2:
+  type: book
+  title: The "Anniversaries" and the "Epicedes and Obsequies"
+  author: Donne, John
+  date: 1995
+  editor:
+  - Stringer, Gary A.
+  - Pebworth, Ted-Larry
+  publisher: Indiana University Press
+  location: Bloomington
+  volume: 6
+b3:
+  type: book
+  title: Renaissance, Les Déracinés
+  author: Duval, Fred
+  date: 2018
+  publisher: Dargaud
+  volume: 1
+  edition: '1'
+b4:
+  type: book
+  title: 'Design Patterns: Elements of Reusable Object-Oriented Software'
+  author:
+  - Gamma, Erich
+  - Helm, Richard
+  - Johnson, Ralph
+  - Vlissides, John
+  date: 1994
+  publisher: Addison-Wesley Professional
+  location: Boston, MA
+  page-total: 395
+  serial-number:
+    isbn: 978-0201633610
+b5:
+  type: book
+  title: Den Boden unter den Füßen verlieren
+  author: Günther-Haug, Barbara
+  date: 2020
+  publisher: MVG
+  location: München
