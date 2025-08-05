@@ -45,13 +45,12 @@ impl Codec for TextCodec {
         node: &Node,
         _options: Option<EncodeOptions>,
     ) -> Result<(String, EncodeInfo)> {
-        let (text, losses) = node.to_text();
-        Ok((
-            text,
-            EncodeInfo {
-                losses,
-                ..Default::default()
-            },
-        ))
+        let mut text = node.to_text();
+
+        if text.ends_with("\n\n") {
+            text.pop();
+        }
+
+        Ok((text, EncodeInfo::none()))
     }
 }

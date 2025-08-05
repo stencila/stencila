@@ -1,12 +1,12 @@
 //! Provides the `TextCodec` derive macro for structs and enums in Stencila Schema
 
-use syn::{Data, DataEnum, DataStruct, DeriveInput, Fields, PathSegment, Type, parse_macro_input};
+use syn::{Data, DataEnum, DataStruct, DeriveInput, Fields, parse_macro_input};
 
 use common::{proc_macro2::TokenStream, quote::quote};
 
 /// Derive the `TextCodec` trait for a `struct` or an `enum`
 #[proc_macro_derive(TextCodec)]
-pub fn derive_to_html(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+pub fn derive_to_text(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
     let tokens = match &input.data {
@@ -20,101 +20,99 @@ pub fn derive_to_html(input: proc_macro::TokenStream) -> proc_macro::TokenStream
 
 /// Derive the `TextCodec` trait for a `struct`
 fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
-    let struct_name = &input.ident;
+    let struct_ident = &input.ident;
+
+    let struct_name = struct_ident.to_string();
+    let struct_name = struct_name.as_str();
 
     if struct_name == "Text" {
         // Instead of having attributes for skipping / having special
         // function (as with other codecs), just use this one-off if clause
         return quote! {
             impl TextCodec for Text {
-                fn to_text(&self) -> (String, Losses) {
-                    (self.value.to_string(), Losses::none())
+                fn to_text(&self) -> String {
+                    self.value.to_string()
                 }
             }
         };
     }
 
-    // Do not record loss of structure for options structs
-    let losses = if struct_name.to_string().ends_with("Options") {
-        quote!(Losses::none())
-    } else {
-        quote!(Losses::one(concat!(stringify!(#struct_name), "#")))
-    };
-
+    // Only treat certain properties as having text content. This avoid string
+    // properties like `programmingLanguage` and enums like `List.order` from
+    // being included in text. Use only the one, main "content" field for a struct.
     let mut fields = TokenStream::new();
     for field in &data.fields {
-        let field_indent = &field.ident;
-        let field_name = field
-            .ident
-            .as_ref()
-            .map(|ident| ident.to_string())
-            .unwrap_or_default();
-
-        if field_name == "r#type"
-            || field_name == "uid"
-            || field_name == "authors"
-            || field_name == "provenance"
-        {
+        let Some(field_ident) = &field.ident else {
             continue;
+        };
+        let field_name = field_ident.to_string();
+        let field_name = field_name.as_str();
+
+        if matches!(
+            field_name,
+            | "content" // Content of most block and inline types
+                | "items" // List content
+                | "rows" // Table content
+                | "cells" // TableRow content
+                | "code" // Code and math content
+        ) {
+            fields.extend(quote! {
+                let mut text = self.#field_ident.to_text();
+            });
+            break;
         }
-
-        let Type::Path(type_path) = &field.ty else {
-            continue;
-        };
-        let Some(PathSegment {
-            ident: field_type, ..
-        }) = type_path.path.segments.last()
-        else {
-            continue;
-        };
-
-        // Only treat certain properties as having text content. This avoid string properties like
-        // `programmingLanguage` and enums like `List.order` from being included in text.
-        let field = if [
-            "abstract",
-            "caption",
-            "cells",
-            "code",
-            "content",
-            "description",
-            "rows",
-            "title",
-            "value",
-        ]
-        .contains(&field_name.as_str())
-        {
-            quote! {
-                let (field_text, field_losses) = self.#field_indent.to_text();
-                if !text.is_empty() && !text.ends_with(" ") {
-                    text.push(' ');
-                }
-                text.push_str(&field_text);
-                losses.merge(field_losses);
-            }
-        } else if field_type == "Option" {
-            quote! {
-                if self.#field_indent.is_some() {
-                    losses.add_prop(self, stringify!(#field_name));
-                }
-            }
-        } else {
-            quote! {
-                losses.add_prop(self, stringify!(#field_name));
-            }
-        };
-
-        fields.extend(field);
     }
 
+    // Modify end for certain node types to give some whitespace structuring to
+    // the otherwise plain text content
+    let end = if matches!(
+        struct_name,
+        "CodeBlock"
+            | "CodeChunk"
+            | "Figure"
+            | "Heading"
+            | "MathBlock"
+            | "Paragraph"
+            | "RawBlock"
+            | "Table"
+    ) {
+        quote! {
+            if !text.ends_with('\n') {
+                text.push('\n');
+            }
+            if !text.ends_with("\n\n") {
+                text.push('\n');
+            }
+        }
+    } else if matches!(struct_name, "TableRow") {
+        quote! {
+            while text.ends_with(' ') {
+                text.pop();
+            }
+            if !text.ends_with('\n') {
+                text.push('\n');
+            }
+        }
+    } else if matches!(struct_name, "TableCell") {
+        quote! {
+            while text.ends_with('\n') {
+                text.pop();
+            }
+            text.push(' ');
+        }
+    } else {
+        quote! {}
+    };
+
     quote! {
-        impl TextCodec for #struct_name {
-            fn to_text(&self) -> (String, Losses) {
+        impl TextCodec for #struct_ident {
+            fn to_text(&self) -> String {
                 let mut text = String::new();
-                let mut losses = #losses;
 
                 #fields
+                #end
 
-                (text, losses)
+                text
             }
         }
     }
@@ -122,9 +120,9 @@ fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
 
 /// Derive the `TextCodec` trait for an `enum`
 fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
-    let enum_name = &input.ident;
+    let enum_ident = &input.ident;
 
-    let mut cases = TokenStream::new();
+    let mut variants = TokenStream::new();
     for variant in &data.variants {
         let variant_name = &variant.ident;
         let case = match &variant.fields {
@@ -132,17 +130,17 @@ fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
                 Self::#variant_name(v) => v.to_text(),
             },
             Fields::Unit => quote! {
-                Self::#variant_name => (stringify!(#variant_name).to_string(), Losses::none()),
+                Self::#variant_name => stringify!(#variant_name).to_string(),
             },
         };
-        cases.extend(case)
+        variants.extend(case)
     }
 
     quote! {
-        impl TextCodec for #enum_name {
-            fn to_text(&self) -> (String, Losses) {
+        impl TextCodec for #enum_ident {
+            fn to_text(&self) -> String {
                 match self {
-                    #cases
+                    #variants
                 }
             }
         }

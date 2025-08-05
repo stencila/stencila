@@ -1,1 +1,5 @@
-An image , with a caption A cat , with a caption and title The cat A cat Some audio A video 
+An image , with a caption , with a caption and title 
+
+Some audio 
+
+A video 

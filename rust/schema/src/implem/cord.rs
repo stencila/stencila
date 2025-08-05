@@ -946,7 +946,7 @@ impl MarkdownCodec for Cord {
 }
 
 impl TextCodec for Cord {
-    fn to_text(&self) -> (String, Losses) {
-        (self.to_string(), Losses::none())
+    fn to_text(&self) -> String {
+        self.to_string()
     }
 }

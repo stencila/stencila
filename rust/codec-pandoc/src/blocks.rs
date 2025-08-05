@@ -805,7 +805,7 @@ fn code_chunk_to_pandoc(
         attributes.push(("label".into(), label.into()));
     }
     if let Some(caption) = &chunk.caption {
-        attributes.push(("caption".into(), to_text(caption)));
+        attributes.push(("caption".into(), to_text(caption).trim().into()));
     }
 
     let attrs = pandoc::Attr {

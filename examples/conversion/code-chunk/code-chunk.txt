@@ -1,2 +1,24 @@
-With no language: No language With language: # Some python code
-a = 3 With language and execution mode: // Javascript With label: # Chunk 1A Code figure with caption: plot(y~x) Y against X. Code table with caption: head(mtcars) Some cars.
+With no language:
+
+No language
+
+With language:
+
+# Some python code
+a = 3
+
+With language and execution mode:
+
+// Javascript
+
+With label:
+
+# Chunk 1A
+
+Code figure with caption:
+
+plot(y~x)
+
+Code table with caption:
+
+head(mtcars)

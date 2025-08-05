@@ -1,1 +1,11 @@
-A note With a title A warning Foldable, but unfolded Folded with a title Foldable Nested admonitions This is the first inner-inner admonition This is the second inner-inner admonition
+A note
+
+A warning
+
+Foldable, but unfolded
+
+Foldable
+
+This is the first inner-inner admonition
+
+This is the second inner-inner admonition

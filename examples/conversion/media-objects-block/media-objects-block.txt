@@ -1,1 +1,1 @@
-Test of media objects as blocks 
+Test of media objects as blocks

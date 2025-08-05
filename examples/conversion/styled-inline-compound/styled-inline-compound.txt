@@ -1,1 +1,1 @@
-A styled inlines containing other compound inline nodes: text-blue-600 emphasis , link 
+A styled inlines containing other compound inline nodes: text-blue-600

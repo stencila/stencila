@@ -1,1 +1,5 @@
-A paragraph before first appendix break. A paragraph after first appendix break. Two consecutive appendix breaks follow this paragraph. 
+A paragraph before first appendix break.
+
+A paragraph after first appendix break.
+
+Two consecutive appendix breaks follow this paragraph.

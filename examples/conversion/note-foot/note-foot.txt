@@ -1,1 +1,13 @@
-This example only has footnotes (not end or side notes) for compatibility with Markdown roundtrip conversions: A paragraph , a First paragraph. Second paragraph. , a A paragraph. A code block A quote block .
+This example only has footnotes (not end or side notes) for compatibility with Markdown roundtrip conversions: A paragraph
+
+, a First paragraph.
+
+Second paragraph.
+
+, a A paragraph.
+
+A code block
+
+A quote block
+
+.

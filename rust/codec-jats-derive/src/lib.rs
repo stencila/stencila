@@ -130,11 +130,10 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             }
         } else if let Some(attr) = field_attr.attr {
             quote! {
-                let (field_text, field_losses) = self.#field_name.to_text();
+                let field_text = self.#field_name.to_text();
                 if !field_text.is_empty() {
                     attrs.push((#attr.to_string(), field_text));
                 }
-                losses.merge(field_losses);
             }
         } else if let Some(elem) = field_attr.elem {
             quote! {

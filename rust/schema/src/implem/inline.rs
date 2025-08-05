@@ -182,7 +182,7 @@ impl From<Vec<Inline>> for Inline {
             inlines.swap_remove(0)
         } else {
             // Collapse inlines into a single inline text node
-            Inline::Text(Text::from(inlines.to_text().0))
+            Inline::Text(Text::from(inlines.to_text()))
         }
     }
 }
@@ -229,7 +229,7 @@ impl From<Block> for Inline {
             },
 
             // Fallback to inline text
-            _ => Inline::Text(Text::from(block.to_text().0)),
+            _ => Inline::Text(Text::from(block.to_text())),
         }
     }
 }

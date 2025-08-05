@@ -50,28 +50,24 @@ impl HtmlCodec for Null {
 
 impl JatsCodec for Null {
     fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses) {
-        let (content, losses) = self.to_text();
-        (String::new(), Vec::new(), content, losses)
+        (String::new(), Vec::new(), self.to_text(), Losses::none())
     }
 }
 
 impl LatexCodec for Null {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
-        let (text, losses) = self.to_text();
-        context.str(&text).merge_losses(losses);
+        context.str(&self.to_text());
     }
 }
 
 impl MarkdownCodec for Null {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        let (text, losses) = self.to_text();
-        context.push_str(&text);
-        context.merge_losses(losses);
+        context.push_str(&self.to_text());
     }
 }
 
 impl TextCodec for Null {
-    fn to_text(&self) -> (String, Losses) {
-        (self.to_string(), Losses::one("Null@"))
+    fn to_text(&self) -> String {
+        self.to_string()
     }
 }

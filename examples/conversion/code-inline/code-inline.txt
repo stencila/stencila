@@ -1,1 +1,3 @@
-A code fragment: 2 * pi * r^2 . With language: 6 * 7 .
+A code fragment: 2 * pi * r^2.
+
+With language: 6 * 7.

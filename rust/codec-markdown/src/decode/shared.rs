@@ -337,7 +337,7 @@ fn object_node(input: &mut Located<&str>) -> ModalResult<Node> {
 
 /// Convert a [`Node`] to a `String`
 pub fn node_to_string(node: Node) -> String {
-    node.to_text().0
+    node.to_text()
 }
 
 /// Convert a [`Node`] to a type that has [`FromStr`] implemented

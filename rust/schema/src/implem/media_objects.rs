@@ -11,11 +11,11 @@ macro_rules! html_attrs {
         let mut attrs = vec![attr("src", $object.content_url.as_str())];
 
         if let Some(caption) = &$object.caption {
-            attrs.push(attr("alt", &caption.to_text().0))
+            attrs.push(attr("alt", caption.to_text().trim()))
         }
 
         if let Some(title) = &$object.title {
-            attrs.push(attr("title", &title.to_text().0))
+            attrs.push(attr("title", title.to_text().trim()))
         }
 
         attrs
@@ -47,8 +47,8 @@ macro_rules! jats_content {
         if let Some(caption) = &$object.caption {
             use codec_jats_trait::encode::escape;
 
-            let caption = caption.to_text().0;
-            content.push_str(&["<alt-text>", &escape(caption), "</alt-text>"].concat())
+            let caption = caption.to_text();
+            content.push_str(&["<alt-text>", &escape(caption.trim()), "</alt-text>"].concat())
         }
 
         content

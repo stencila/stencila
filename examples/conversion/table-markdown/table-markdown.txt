@@ -1,1 +1,12 @@
-A table in Markdown with cell contents other than just text Emphasized header Code header Code inline Strong cell Code expression  2 * 2 E = mc^2 H 2 0 A table in Markdown with horizontal alignment specified for columns Left Center Right L1 C1 R1 L2 C2 R2
+A table in Markdown with cell contents other than just text
+
+Emphasized header Code header
+Code inline Strong cell
+Code expression  2 * 2
+E = mc^2 H20
+
+A table in Markdown with horizontal alignment specified for columns
+
+Left Center Right
+L1 C1 R1
+L2 C2 R2

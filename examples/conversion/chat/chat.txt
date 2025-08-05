@@ -1,1 +1,7 @@
-You are a friendly, enthusiastic, but terse, assistant. Hello Hi there! Repeat 
+You are a friendly, enthusiastic, but terse, assistant.
+
+Hello
+
+Hi there!
+
+Repeat

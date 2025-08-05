@@ -72,38 +72,32 @@ impl HtmlCodec for Array {
 
 impl LatexCodec for Array {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
-        let (text, losses) = self.to_text();
-        context.str(&text).merge_losses(losses);
+        context.str(&self.to_text());
     }
 }
 
 impl MarkdownCodec for Array {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        let (text, losses) = self.to_text();
-        context.push_str(&text);
-        context.merge_losses(losses);
+        context.push_str(&self.to_text());
     }
 }
 
 impl TextCodec for Array {
-    fn to_text(&self) -> (String, Losses) {
+    fn to_text(&self) -> String {
         let mut text = String::new();
-        let mut losses = Losses::one("Array#");
 
         for (index, item) in self.iter().enumerate() {
             if index != 0 {
                 text.push(' ');
             }
 
-            let (item_text, item_losses) = item.to_text();
-            text.push_str(&item_text);
-            losses.merge(item_losses);
+            text.push_str(&item.to_text());
         }
 
         if !text.is_empty() {
             text.push(' ');
         }
 
-        (text, losses)
+        text
     }
 }
