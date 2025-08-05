@@ -2,8 +2,8 @@ use codec::{
     common::{eyre::Result, reqwest::Url},
     schema::{
         Author, Cord, CreativeWorkType, CreativeWorkVariant, Date, Inline, IntegerOrString,
-        Organization, Periodical, Person, PersonOrOrganization, PublicationIssue,
-        PublicationVolume, Reference, Text,
+        Organization, Periodical, PeriodicalOptions, Person, PersonOrOrganization,
+        PublicationIssue, PublicationVolume, Reference, Text,
     },
 };
 use hayagriva::{
@@ -16,31 +16,30 @@ use hayagriva::{
 
 /// Convert a Hayagriva Entry to a Stencila Reference
 pub fn entry_to_reference(entry: &Entry) -> Result<Reference> {
-    let mut reference = Reference::new();
+    // Extract work type
+    let work_type = entry_type_to_work_type(entry.entry_type());
 
-    // Set work type
-    reference.work_type = entry_type_to_work_type(entry.entry_type());
+    // Extract ID
+    let id = Some(entry.key().to_string());
 
-    // Set ID
-    reference.id = Some(entry.key().to_string());
-
-    // Set title
-    if let Some(title) = entry.title() {
-        reference.title = Some(vec![Inline::Text(Text {
+    // Extract title
+    let title = entry.title().map(|title| {
+        vec![Inline::Text(Text {
             value: Cord::from(title.to_string()),
             ..Default::default()
-        })]);
-    }
+        })]
+    });
 
-    // Set authors
-    if let Some(authors) = entry.authors() {
-        let mut ref_authors = vec![];
-        for person in authors {
-            // Hayagriva stores the family name in `name` and given names in `given_name`
-            let family = person.name.as_str();
-            let given = person.given_name.as_deref().unwrap_or("");
+    // Extract authors
+    let authors = entry.authors().and_then(|authors| {
+        let ref_authors: Vec<Author> = authors
+            .iter()
+            .filter(|person| !person.name.is_empty())
+            .map(|person| {
+                // Hayagriva stores the family name in `name` and given names in `given_name`
+                let family = person.name.as_str();
+                let given = person.given_name.as_deref().unwrap_or("");
 
-            if !family.is_empty() {
                 // Split given names by spaces to handle multiple given names
                 let given_names = if given.is_empty() {
                     None
@@ -53,47 +52,45 @@ pub fn entry_to_reference(entry: &Entry) -> Result<Reference> {
                     )
                 };
 
-                ref_authors.push(Author::Person(Person {
+                Author::Person(Person {
                     family_names: Some(vec![family.to_string()]),
                     given_names,
                     ..Default::default()
-                }));
-            }
-        }
-        if !ref_authors.is_empty() {
-            reference.authors = Some(ref_authors);
-        }
-    }
+                })
+            })
+            .collect();
 
-    // Set date
-    if let Some(date) = entry.date() {
+        (!ref_authors.is_empty()).then_some(ref_authors)
+    });
+
+    // Extract date
+    let date = entry.date().map(|date| {
         let date_string = match (date.month, date.day) {
             (Some(month), Some(day)) => format!("{:04}-{:02}-{:02}", date.year, month, day),
             (Some(month), None) => format!("{:04}-{:02}", date.year, month),
             _ => format!("{:04}", date.year),
         };
 
-        reference.date = Some(Date {
+        Date {
             value: date_string,
             ..Default::default()
-        });
-    }
+        }
+    });
 
-    // Set DOI
-    if let Some(doi) = entry.doi() {
-        reference.doi = Some(doi.to_string());
-    }
+    // Extract DOI - prioritize direct DOI, fallback to serial numbers
+    let doi = entry.doi().map(|doi| doi.to_string()).or_else(|| {
+        entry
+            .serial_number()
+            .and_then(|serial_numbers| serial_numbers.0.get("doi").cloned())
+    });
 
-    // Set URL
-    if let Some(url) = entry.url() {
-        reference.url = Some(url.to_string());
-    }
+    // Extract URL
+    let url = entry.url().map(|url| url.to_string());
 
-    // Set container/journal from parents and volume/issue
+    // Extract container/journal from parents and volume/issue
     // Note: Hayagriva stores volume/issue at the parent level for periodicals
     let parents = entry.parents();
-
-    if let Some(first_parent) = parents.first() {
+    let is_part_of = parents.first().and_then(|first_parent| {
         let parent_type = first_parent.entry_type();
 
         // Extract volume/issue from parent (for periodicals) or from entry (for other types)
@@ -106,22 +103,24 @@ pub fn entry_to_reference(entry: &Entry) -> Result<Reference> {
             (entry.volume(), entry.issue())
         };
 
-        if let Some(journal_name) = first_parent.title() {
-            let mut periodical = Periodical {
+        first_parent.title().map(|journal_name| {
+            let publisher = first_parent.publisher().and_then(|publisher| {
+                publisher.name().map(|pub_name| {
+                    PersonOrOrganization::Organization(Organization {
+                        name: Some(pub_name.to_string()),
+                        ..Default::default()
+                    })
+                })
+            });
+
+            let periodical = Periodical {
                 name: Some(journal_name.to_string()),
+                options: Box::new(PeriodicalOptions {
+                    publisher,
+                    ..Default::default()
+                }),
                 ..Default::default()
             };
-
-            // Extract publisher from parent
-            if let Some(publisher) = first_parent.publisher() {
-                if let Some(pub_name) = publisher.name() {
-                    periodical.options.publisher =
-                        Some(PersonOrOrganization::Organization(Organization {
-                            name: Some(pub_name.to_string()),
-                            ..Default::default()
-                        }));
-                }
-            }
 
             // Build the publication hierarchy
             let mut base: CreativeWorkVariant = CreativeWorkVariant::Periodical(periodical);
@@ -156,47 +155,54 @@ pub fn entry_to_reference(entry: &Entry) -> Result<Reference> {
                 base = CreativeWorkVariant::PublicationIssue(pub_issue);
             }
 
-            reference.is_part_of = Some(Box::new(base));
-        }
-    }
+            Box::new(base)
+        })
+    });
 
-    // Set page range
-    if let Some(page_range) = entry.page_range() {
-        let page_str = match page_range {
-            MaybeTyped::Typed(n) => n.to_string(),
-            MaybeTyped::String(s) => s.clone(),
-        };
+    // Extract page information
+    let (page_start, page_end, pagination) =
+        entry.page_range().map_or((None, None, None), |page_range| {
+            let page_str = match page_range {
+                MaybeTyped::Typed(n) => n.to_string(),
+                MaybeTyped::String(s) => s.clone(),
+            };
 
-        // Try to parse page range
-        if page_str.contains('-') {
-            let parts: Vec<&str> = page_str.split('-').collect();
-            if parts.len() == 2 {
-                reference.page_start = Some(string_to_integer_or_string(parts[0].trim()));
-                reference.page_end = Some(string_to_integer_or_string(parts[1].trim()));
+            // Try to parse page range
+            if page_str.contains('-') {
+                let parts: Vec<&str> = page_str.split('-').collect();
+                if parts.len() == 2 {
+                    (
+                        Some(string_to_integer_or_string(parts[0].trim())),
+                        Some(string_to_integer_or_string(parts[1].trim())),
+                        None,
+                    )
+                } else {
+                    (None, None, Some(page_str))
+                }
             } else {
-                reference.pagination = Some(page_str);
+                (
+                    Some(string_to_integer_or_string(page_str.trim())),
+                    None,
+                    None,
+                )
             }
-        } else {
-            reference.page_start = Some(string_to_integer_or_string(page_str.trim()));
-        }
-    }
+        });
 
-    // Extract serial numbers - for now we only handle DOI from serial numbers
-    // since Reference doesn't have an identifiers field
-    if let Some(serial_numbers) = entry.serial_number() {
-        // SerialNumber is a BTreeMap, so we access fields through the map
-        if let Some(doi) = serial_numbers.0.get("doi") {
-            // Only set DOI if not already set
-            if reference.doi.is_none() {
-                reference.doi = Some(doi.clone());
-            }
-        }
-
-        // TODO: Handle other serial numbers (ISBN, ISSN, etc.) when Reference schema supports them
-        // For now, these are lost in the conversion
-    }
-
-    Ok(reference)
+    // Construct the Reference
+    Ok(Reference {
+        work_type,
+        id,
+        title,
+        authors,
+        date,
+        doi,
+        url,
+        is_part_of,
+        page_start,
+        page_end,
+        pagination,
+        ..Default::default()
+    })
 }
 
 /// Convert a Stencila Reference to a Hayagriva Entry
