@@ -5,11 +5,17 @@ w1:
   date: 2024
   url: https://portal.brain-map.org/
 w2:
-  type: web
-  title: NASA Climate Change and Global Warming
-  date: 2023
-  url: https://climate.nasa.gov/
+  type: blog
+  title: Methods in Ecology and Evolution Blog
+  author: British Ecological Society
+  date: 2024
+  url: https://methodsblog.com/
 w3:
+  type: web
+  title: Jupyter Notebook Documentation
+  date: 2023
+  url: https://jupyter-notebook.readthedocs.io/
+w4:
   type: web
   title: The Computational Biology Lab
   author:
@@ -21,14 +27,8 @@ w3:
     type: web
     title: Stanford School of Medicine
     url: https://med.stanford.edu/
-w4:
-  type: web
-  title: Jupyter Notebook Documentation
-  date: 2023
-  url: https://jupyter-notebook.readthedocs.io/
 w5:
-  type: blog
-  title: Methods in Ecology and Evolution Blog
-  author: British Ecological Society
-  date: 2024
-  url: https://methodsblog.com/
+  type: web
+  title: NASA Climate Change and Global Warming
+  date: 2023
+  url: https://climate.nasa.gov/

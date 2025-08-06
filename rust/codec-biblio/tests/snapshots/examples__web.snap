@@ -34,6 +34,32 @@ expression: node
     {
       "type": "Reference",
       "id": "w2",
+      "workType": "Blog",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "British Ecological Society"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Methods in Ecology and Evolution Blog"
+          }
+        }
+      ],
+      "url": "https://methodsblog.com/"
+    },
+    {
+      "type": "Reference",
+      "id": "w3",
       "workType": "WebPage",
       "date": {
         "type": "Date",
@@ -43,15 +69,15 @@ expression: node
         {
           "type": "Text",
           "value": {
-            "string": "NASA Climate Change and Global Warming"
+            "string": "Jupyter Notebook Documentation"
           }
         }
       ],
-      "url": "https://climate.nasa.gov/"
+      "url": "https://jupyter-notebook.readthedocs.io/"
     },
     {
       "type": "Reference",
-      "id": "w3",
+      "id": "w4",
       "workType": "WebPage",
       "authors": [
         {
@@ -84,7 +110,7 @@ expression: node
       ],
       "isPartOf": {
         "type": "Reference",
-        "id": "w3_parent",
+        "id": "w4_parent",
         "workType": "WebPage",
         "title": [
           {
@@ -100,7 +126,7 @@ expression: node
     },
     {
       "type": "Reference",
-      "id": "w4",
+      "id": "w5",
       "workType": "WebPage",
       "date": {
         "type": "Date",
@@ -110,37 +136,11 @@ expression: node
         {
           "type": "Text",
           "value": {
-            "string": "Jupyter Notebook Documentation"
+            "string": "NASA Climate Change and Global Warming"
           }
         }
       ],
-      "url": "https://jupyter-notebook.readthedocs.io/"
-    },
-    {
-      "type": "Reference",
-      "id": "w5",
-      "workType": "Blog",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "British Ecological Society"
-          ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2024"
-      },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Methods in Ecology and Evolution Blog"
-          }
-        }
-      ],
-      "url": "https://methodsblog.com/"
+      "url": "https://climate.nasa.gov/"
     }
   ],
   "content": []
