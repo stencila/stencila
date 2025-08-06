@@ -1,0 +1,147 @@
+---
+source: rust/codec-biblio/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "references": [
+    {
+      "type": "Reference",
+      "id": "w1",
+      "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Allen Institute"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Allen Brain Atlas - Interactive Brain Explorer"
+          }
+        }
+      ],
+      "url": "https://portal.brain-map.org/"
+    },
+    {
+      "type": "Reference",
+      "id": "w2",
+      "workType": "WebPage",
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "NASA Climate Change and Global Warming"
+          }
+        }
+      ],
+      "url": "https://climate.nasa.gov/"
+    },
+    {
+      "type": "Reference",
+      "id": "w3",
+      "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Martinez"
+          ],
+          "givenNames": [
+            "Carlos"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Team Members"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The Computational Biology Lab"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "id": "w3_parent",
+        "workType": "WebPage",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Stanford School of Medicine"
+            }
+          }
+        ],
+        "url": "https://med.stanford.edu/"
+      },
+      "url": "https://compbio.stanford.edu/"
+    },
+    {
+      "type": "Reference",
+      "id": "w4",
+      "workType": "WebPage",
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Jupyter Notebook Documentation"
+          }
+        }
+      ],
+      "url": "https://jupyter-notebook.readthedocs.io/"
+    },
+    {
+      "type": "Reference",
+      "id": "w5",
+      "workType": "Blog",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "British Ecological Society"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Methods in Ecology and Evolution Blog"
+          }
+        }
+      ],
+      "url": "https://methodsblog.com/"
+    }
+  ],
+  "content": []
+}
