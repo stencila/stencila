@@ -59,7 +59,7 @@ async fn cbor_hash() -> Result<()> {
     canonicalize(&mut article).await?;
 
     if let Node::Article(Article { doi: Some(doi), .. }) = article {
-        assert_eq!(doi, "10.0000/stencila.aOoQvBTTtbA")
+        assert_eq!(doi, "10.0000/stencila.wK_lgMM7hCM")
     } else {
         bail!("No DOI")
     };

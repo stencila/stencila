@@ -24,7 +24,7 @@ async fn basic() -> Result<()> {
     assert_json_snapshot!(article, @r#"
     {
       "type": "Article",
-      "doi": "10.0000/stencila.aOoQvBTTtbA",
+      "doi": "10.0000/stencila.wK_lgMM7hCM",
       "references": [
         {
           "type": "Reference",

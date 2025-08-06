@@ -142,7 +142,18 @@
             "string": "R package “circular”"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Circular Statistics (version 0.4-94)"
+            }
+          }
+        ]
+      }
     },
     {
       "type": "Reference",
@@ -213,11 +224,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Plant Biol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plant Biol"
+            }
+          }
+        ],
         "volumeNumber": 23
       },
       "pageStart": 728,
@@ -302,11 +317,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Science"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Science"
+            }
+          }
+        ],
         "volumeNumber": 353
       },
       "pageStart": 587,
@@ -366,11 +385,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Photochem Photobiol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Photochem Photobiol"
+            }
+          }
+        ],
         "volumeNumber": 52
       },
       "pageStart": 229,
@@ -431,11 +454,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Philos Trans R Soc B Biol Sci"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Philos Trans R Soc B Biol Sci"
+            }
+          }
+        ],
         "volumeNumber": 372
       },
       "pageStart": 20160256
@@ -495,11 +522,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Front Physiol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Front Physiol"
+            }
+          }
+        ],
         "volumeNumber": 12
       },
       "pageStart": 776826
@@ -542,11 +573,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Taiwania"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Taiwania"
+            }
+          }
+        ],
         "volumeNumber": 63
       },
       "pageStart": 89,
@@ -579,11 +614,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Planta"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Planta"
+            }
+          }
+        ],
         "volumeNumber": 42
       },
       "pageStart": 220,
@@ -618,11 +657,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "J Plant Growth Regul"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Plant Growth Regul"
+            }
+          }
+        ],
         "volumeNumber": 30
       },
       "pageStart": 242,
@@ -745,11 +788,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "New Phytol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "New Phytol"
+            }
+          }
+        ],
         "volumeNumber": 232
       },
       "pageStart": 868,
@@ -793,11 +840,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "J Apic Res"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Apic Res"
+            }
+          }
+        ],
         "volumeNumber": 39
       },
       "pageStart": 37,
@@ -908,11 +959,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Science"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Science"
+            }
+          }
+        ],
         "volumeNumber": 309
       },
       "pageStart": 630,
@@ -967,11 +1022,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Evolution"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Evolution"
+            }
+          }
+        ],
         "volumeNumber": 62
       },
       "pageStart": 979,
@@ -1032,6 +1091,17 @@
           }
         }
       ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Systematics, Evolution and Biogeography of the Compositae"
+            }
+          }
+        ]
+      },
       "pageStart": 171,
       "pageEnd": 189
     },
@@ -1073,11 +1143,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Rev Genet"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Rev Genet"
+            }
+          }
+        ],
         "volumeNumber": 16
       },
       "pageStart": 598,
@@ -1149,11 +1223,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Braz J Bot"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Braz J Bot"
+            }
+          }
+        ],
         "volumeNumber": 36
       },
       "pageStart": 247,
@@ -1196,11 +1274,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Mol Cell Endocrinol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Mol Cell Endocrinol"
+            }
+          }
+        ],
         "volumeNumber": 349
       },
       "pageStart": 76,
@@ -1244,11 +1326,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Trends Plant Sci"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Trends Plant Sci"
+            }
+          }
+        ],
         "volumeNumber": 11
       },
       "pageStart": 550,
@@ -1300,11 +1386,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "J Plant Res"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Plant Res"
+            }
+          }
+        ],
         "volumeNumber": 131
       },
       "pageStart": 59,
@@ -1383,11 +1473,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Genes Dev"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Genes Dev"
+            }
+          }
+        ],
         "volumeNumber": 16
       },
       "pageStart": 2006,
@@ -1419,6 +1513,17 @@
           }
         }
       ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Systematics, Evolution and Biogeography of the Compositae"
+            }
+          }
+        ]
+      },
       "pageStart": 131,
       "pageEnd": 138
     },
@@ -1564,11 +1669,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "J Biol Rhythms"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Biol Rhythms"
+            }
+          }
+        ],
         "volumeNumber": 35
       },
       "pageStart": 134,
@@ -1611,6 +1720,17 @@
           }
         }
       ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Fungal Physiology and Immunopathogenesis, Current Topics in Microbiology and Immunology"
+            }
+          }
+        ]
+      },
       "pageStart": 121,
       "pageEnd": 156
     },
@@ -1653,11 +1773,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Botany"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Botany"
+            }
+          }
+        ],
         "volumeNumber": 93
       },
       "pageStart": 307,
@@ -1712,11 +1836,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Field Crops Res"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Field Crops Res"
+            }
+          }
+        ],
         "volumeNumber": 103
       },
       "pageStart": 229,
@@ -1784,7 +1912,18 @@
             "string": "Hormonal influence on photocontrol of the protandry in the genus Helianthus"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Exp Bot"
+            }
+          }
+        ]
+      }
     },
     {
       "type": "Reference",
@@ -1864,11 +2003,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Proc Natl Acad Sci"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Proc Natl Acad Sci"
+            }
+          }
+        ],
         "volumeNumber": 116
       },
       "pageStart": 14083,
@@ -1912,11 +2055,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Field Crops Res"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Field Crops Res"
+            }
+          }
+        ],
         "volumeNumber": 4
       },
       "pageStart": 155,
@@ -1950,11 +2097,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Genes"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Genes"
+            }
+          }
+        ],
         "volumeNumber": 10
       },
       "pageStart": 811
@@ -1988,11 +2139,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Biol Basel"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Biol Basel"
+            }
+          }
+        ],
         "volumeNumber": 8
       }
     },
@@ -2158,11 +2313,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "PLoS Genet"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "PLoS Genet"
+            }
+          }
+        ],
         "volumeNumber": 4
       },
       "pageStart": "e14"
@@ -2276,11 +2435,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Science"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Science"
+            }
+          }
+        ],
         "volumeNumber": 302
       },
       "pageStart": 1049,
@@ -2365,11 +2528,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Curr Biol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Curr Biol"
+            }
+          }
+        ],
         "volumeNumber": 14
       },
       "pageStart": 1367,
@@ -2414,11 +2581,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "J Biol Rhythms"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Biol Rhythms"
+            }
+          }
+        ],
         "volumeNumber": 36
       },
       "pageStart": 315,
@@ -2533,11 +2704,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Plant Cell Physiol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plant Cell Physiol"
+            }
+          }
+        ],
         "volumeNumber": 62
       },
       "pageStart": 883,
@@ -2581,11 +2756,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Isr J Bot"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Isr J Bot"
+            }
+          }
+        ],
         "volumeNumber": 39
       },
       "pageStart": 197,
@@ -2658,11 +2837,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Proc Natl Acad Sci U A"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Proc Natl Acad Sci U A"
+            }
+          }
+        ],
         "volumeNumber": 95
       },
       "pageStart": 8660,
@@ -2707,11 +2890,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Field Crops Res"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Field Crops Res"
+            }
+          }
+        ],
         "volumeNumber": 11
       },
       "pageStart": 1,
@@ -2735,6 +2922,17 @@
       "date": {
         "type": "Date",
         "value": "2009"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Systematics, Evolution, and Biogeography of Compositae, Madroño"
+            }
+          }
+        ]
       }
     },
     {
@@ -2776,11 +2974,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Am Nat"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Am Nat"
+            }
+          }
+        ],
         "volumeNumber": 98
       },
       "pageStart": 261,
@@ -2802,11 +3004,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Sci Agric"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Sci Agric"
+            }
+          }
+        ],
         "volumeNumber": 21
       },
       "pageStart": 167,
@@ -2849,11 +3055,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Chronobiol Int"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Chronobiol Int"
+            }
+          }
+        ],
         "volumeNumber": 19
       },
       "pageStart": 807,
@@ -2898,11 +3108,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Curr Opin Genet Dev"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Curr Opin Genet Dev"
+            }
+          }
+        ],
         "volumeNumber": 22
       },
       "pageStart": 600,
@@ -2954,11 +3168,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Proc Natl Acad Sci U S A"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Proc Natl Acad Sci U S A"
+            }
+          }
+        ],
         "volumeNumber": 102
       },
       "pageStart": 7742,
@@ -3011,11 +3229,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Rev Drug Discov"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Rev Drug Discov"
+            }
+          }
+        ],
         "volumeNumber": 20
       },
       "pageStart": 287,
@@ -3070,11 +3292,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Plant Physiol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plant Physiol"
+            }
+          }
+        ],
         "volumeNumber": 41
       },
       "pageStart": 1343,
@@ -3128,11 +3354,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Methods"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Methods"
+            }
+          }
+        ],
         "volumeNumber": 9
       },
       "pageStart": 671,
@@ -3166,6 +3396,17 @@
           }
         }
       ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Agronomy Monographs"
+            }
+          }
+        ]
+      },
       "pageStart": 67,
       "pageEnd": 111
     },
@@ -3235,11 +3476,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Proc Natl Acad Sci"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Proc Natl Acad Sci"
+            }
+          }
+        ],
         "volumeNumber": 113
       },
       "pageStart": 686,
@@ -3309,11 +3554,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "N Z J Bot"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "N Z J Bot"
+            }
+          }
+        ],
         "volumeNumber": 54
       },
       "pageStart": 498,
@@ -3358,11 +3607,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Ecology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Ecology"
+            }
+          }
+        ],
         "volumeNumber": 63
       },
       "pageStart": 1790
@@ -3446,11 +3699,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Plant J"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plant J"
+            }
+          }
+        ],
         "volumeNumber": 66
       },
       "pageStart": 480,
@@ -3691,11 +3948,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "J Open Source Softw"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Open Source Softw"
+            }
+          }
+        ],
         "volumeNumber": 4
       },
       "pageStart": 1686
@@ -3746,11 +4007,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Development"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Development"
+            }
+          }
+        ],
         "volumeNumber": 147
       },
       "pageStart": "dev181446"
@@ -3794,11 +4059,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Rev Mol Cell Biol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Rev Mol Cell Biol"
+            }
+          }
+        ],
         "volumeNumber": 4
       },
       "pageStart": 265,
@@ -3878,11 +4147,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "New Phytol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "New Phytol"
+            }
+          }
+        ],
         "volumeNumber": 209
       },
       "pageStart": 1058,
@@ -3963,11 +4236,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "J Integr Plant Biol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Integr Plant Biol"
+            }
+          }
+        ],
         "volumeNumber": 59
       },
       "pageStart": 180,
@@ -4066,11 +4343,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Proc Natl Acad Sci"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Proc Natl Acad Sci"
+            }
+          }
+        ],
         "volumeNumber": 118
       },
       "pageStart": "e2016304118"
@@ -4142,11 +4423,15 @@
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "PLoS ONE"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "PLoS ONE"
+            }
+          }
+        ],
         "volumeNumber": 9
       },
       "pageStart": "e96462"

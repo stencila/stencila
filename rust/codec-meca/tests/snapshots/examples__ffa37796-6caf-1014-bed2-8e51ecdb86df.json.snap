@@ -123,12 +123,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Briefings in Bioinformatics"
-        },
-        "volumeNumber": 19
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Briefings in Bioinformatics"
+            }
+          }
+        ],
+        "volumeNumber": 19,
+        "issueNumber": 6
       },
       "pageStart": 1236,
       "pageEnd": 1246
@@ -160,12 +165,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "IEEE Transactions on Pattern Analysis and Machine Intelligence"
-        },
-        "volumeNumber": 35
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "IEEE Transactions on Pattern Analysis and Machine Intelligence"
+            }
+          }
+        ],
+        "volumeNumber": 35,
+        "issueNumber": 8
       },
       "pageStart": 1798,
       "pageEnd": 1828
@@ -198,12 +208,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Communications"
-        },
-        "volumeNumber": 16
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Communications"
+            }
+          }
+        ],
+        "volumeNumber": 16,
+        "issueNumber": 1
       },
       "pageStart": 1624
     },
@@ -225,6 +240,17 @@ expression: article
       "date": {
         "type": "Date",
         "value": "2013"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Auto-Encoding Variational Bayes"
+            }
+          }
+        ]
       }
     },
     {
@@ -254,12 +280,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Statistical Science"
-        },
-        "volumeNumber": 34
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Statistical Science"
+            }
+          }
+        ],
+        "volumeNumber": 34,
+        "issueNumber": 2
       }
     },
     {
@@ -290,12 +321,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "The Lancet"
-        },
-        "volumeNumber": 392
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Lancet"
+            }
+          }
+        ],
+        "volumeNumber": 392,
+        "issueNumber": 10159
       },
       "pageStart": 1736,
       "pageEnd": 1788
@@ -328,12 +364,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Surgical Clinics of North America"
-        },
-        "volumeNumber": 100
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Surgical Clinics of North America"
+            }
+          }
+        ],
+        "volumeNumber": 100,
+        "issueNumber": 3
       },
       "pageStart": 469,
       "pageEnd": 481
@@ -365,11 +406,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Current Opinion in Biotechnology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Current Opinion in Biotechnology"
+            }
+          }
+        ],
         "volumeNumber": 58
       },
       "pageStart": 161,
@@ -391,12 +436,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature"
-        },
-        "volumeNumber": 409
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature"
+            }
+          }
+        ],
+        "volumeNumber": 409,
+        "issueNumber": 6822
       },
       "pageStart": 860,
       "pageEnd": 921
@@ -428,12 +478,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Methods"
-        },
-        "volumeNumber": 6
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Methods"
+            }
+          }
+        ],
+        "volumeNumber": 6,
+        "issueNumber": 5
       },
       "pageStart": 377,
       "pageEnd": 382
@@ -465,12 +520,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Reviews Genetics"
-        },
-        "volumeNumber": 10
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Reviews Genetics"
+            }
+          }
+        ],
+        "volumeNumber": 10,
+        "issueNumber": 1
       },
       "pageStart": 57,
       "pageEnd": 63
@@ -503,12 +563,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Genetics"
-        },
-        "volumeNumber": 33
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Genetics"
+            }
+          }
+        ],
+        "volumeNumber": 33,
+        "issueNumber": "S3"
       },
       "pageStart": 311,
       "pageEnd": 323
@@ -541,12 +606,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Cell Metabolism"
-        },
-        "volumeNumber": 6
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cell Metabolism"
+            }
+          }
+        ],
+        "volumeNumber": 6,
+        "issueNumber": 5
       },
       "pageStart": 348,
       "pageEnd": 351
@@ -579,12 +649,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Science"
-        },
-        "volumeNumber": 353
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Science"
+            }
+          }
+        ],
+        "volumeNumber": 353,
+        "issueNumber": 6294
       },
       "pageStart": 78,
       "pageEnd": 82
@@ -616,12 +691,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Briefings in Bioinformatics"
-        },
-        "volumeNumber": 22
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Briefings in Bioinformatics"
+            }
+          }
+        ],
+        "volumeNumber": 22,
+        "issueNumber": 6
       },
       "pageStart": "bbab315"
     },
@@ -652,12 +732,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Clinical Cancer Research"
-        },
-        "volumeNumber": 24
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Clinical Cancer Research"
+            }
+          }
+        ],
+        "volumeNumber": 24,
+        "issueNumber": 6
       },
       "pageStart": 1248,
       "pageEnd": 1259
@@ -689,12 +774,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Reviews Clinical Oncology"
-        },
-        "volumeNumber": 15
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Reviews Clinical Oncology"
+            }
+          }
+        ],
+        "volumeNumber": 15,
+        "issueNumber": 2
       },
       "pageStart": 81,
       "pageEnd": 94
@@ -716,6 +806,17 @@ expression: article
       "date": {
         "type": "Date",
         "value": "2024"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Computationally reconstructing the evolution of cancer progression risk"
+            }
+          }
+        ]
       }
     },
     {
@@ -746,12 +847,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Proceedings of the National Academy of Sciences"
-        },
-        "volumeNumber": 107
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Proceedings of the National Academy of Sciences"
+            }
+          }
+        ],
+        "volumeNumber": 107,
+        "issueNumber": "Suppl_1"
       },
       "pageStart": 1725,
       "pageEnd": 1730
@@ -784,11 +890,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Biomedical Informatics"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Biomedical Informatics"
+            }
+          }
+        ],
         "volumeNumber": 160
       },
       "pageStart": 104751
@@ -816,11 +926,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "IEEE Access"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "IEEE Access"
+            }
+          }
+        ],
         "volumeNumber": 8
       },
       "pageStart": 90615,
@@ -853,12 +967,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "BMC Medical Informatics and Decision Making"
-        },
-        "volumeNumber": 20
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "BMC Medical Informatics and Decision Making"
+            }
+          }
+        ],
+        "volumeNumber": 20,
+        "issueNumber": "S3"
       },
       "pageStart": 129
     },
@@ -889,12 +1008,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Cancer"
-        },
-        "volumeNumber": 5
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Cancer"
+            }
+          }
+        ],
+        "volumeNumber": 5,
+        "issueNumber": 9
       },
       "pageStart": 1334,
       "pageEnd": 1351
@@ -926,12 +1050,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal for Immunotherapy of Cancer"
-        },
-        "volumeNumber": 12
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal for Immunotherapy of Cancer"
+            }
+          }
+        ],
+        "volumeNumber": 12,
+        "issueNumber": 10
       },
       "pageStart": "e010008"
     },
@@ -962,11 +1091,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Seminars in Cancer Biology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Seminars in Cancer Biology"
+            }
+          }
+        ],
         "volumeNumber": 91
       },
       "pageStart": 35,
@@ -1000,12 +1133,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Arabian Journal for Science and Engineering"
-        },
-        "volumeNumber": 50
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Arabian Journal for Science and Engineering"
+            }
+          }
+        ],
+        "volumeNumber": 50,
+        "issueNumber": 2
       },
       "pageStart": 1339,
       "pageEnd": 1352
@@ -1035,7 +1173,18 @@ expression: article
             "string": "CopyVAE: a variational autoencoder-based approach for copy number variation inference using single-cell transcriptomics"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Bioinformatics, page btae284"
+            }
+          }
+        ]
+      }
     },
     {
       "type": "Reference",
@@ -1064,12 +1213,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nucleic Acids Research"
-        },
-        "volumeNumber": 50
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nucleic Acids Research"
+            }
+          }
+        ],
+        "volumeNumber": 50,
+        "issueNumber": 22
       },
       "pageStart": "e131",
       "pageEnd": "e131"
@@ -1101,12 +1255,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Bioinformatics"
-        },
-        "volumeNumber": 37
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Bioinformatics"
+            }
+          }
+        ],
+        "volumeNumber": 37,
+        "issueNumber": 21
       },
       "pageStart": 3715,
       "pageEnd": 3722
@@ -1138,12 +1297,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Communications"
-        },
-        "volumeNumber": 15
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Communications"
+            }
+          }
+        ],
+        "volumeNumber": 15,
+        "issueNumber": 1
       },
       "pageStart": 338
     },
@@ -1174,12 +1338,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Insights into Imaging"
-        },
-        "volumeNumber": 14
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Insights into Imaging"
+            }
+          }
+        ],
+        "volumeNumber": 14,
+        "issueNumber": 1
       },
       "pageStart": 207
     },
@@ -1210,12 +1379,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Communications"
-        },
-        "volumeNumber": 14
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Communications"
+            }
+          }
+        ],
+        "volumeNumber": 14,
+        "issueNumber": 1
       },
       "pageStart": 3459
     },
@@ -1247,12 +1421,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Communications"
-        },
-        "volumeNumber": 15
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Communications"
+            }
+          }
+        ],
+        "volumeNumber": 15,
+        "issueNumber": 1
       },
       "pageStart": 4596
     },
@@ -1283,12 +1462,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Cancer Research"
-        },
-        "volumeNumber": 84
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cancer Research"
+            }
+          }
+        ],
+        "volumeNumber": 84,
+        "issueNumber": 10
       },
       "pageStart": 1719,
       "pageEnd": 1732
@@ -1320,12 +1504,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Medicine"
-        },
-        "volumeNumber": 29
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Medicine"
+            }
+          }
+        ],
+        "volumeNumber": 29,
+        "issueNumber": 5
       },
       "pageStart": 1113,
       "pageEnd": 1122
@@ -1357,11 +1546,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Frontiers in Genetics"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Frontiers in Genetics"
+            }
+          }
+        ],
         "volumeNumber": 10
       },
       "pageStart": 617
@@ -1394,11 +1587,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Methods"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Methods"
+            }
+          }
+        ],
         "volumeNumber": 166
       },
       "pageStart": 66,
@@ -1431,12 +1628,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Cells"
-        },
-        "volumeNumber": 10
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cells"
+            }
+          }
+        ],
+        "volumeNumber": 10,
+        "issueNumber": 12
       },
       "pageStart": 3268
     },
@@ -1468,12 +1670,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Communications"
-        },
-        "volumeNumber": 14
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Communications"
+            }
+          }
+        ],
+        "volumeNumber": 14,
+        "issueNumber": 1
       },
       "pageStart": 470
     },
@@ -1505,11 +1712,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Radiotherapy and Oncology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Radiotherapy and Oncology"
+            }
+          }
+        ],
         "volumeNumber": 192
       },
       "pageStart": 110106
@@ -1542,12 +1753,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "iScience"
-        },
-        "volumeNumber": 23
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "iScience"
+            }
+          }
+        ],
+        "volumeNumber": 23,
+        "issueNumber": 11
       },
       "pageStart": 101655
     },
@@ -1578,12 +1794,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Bioinformatics"
-        },
-        "volumeNumber": 40
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Bioinformatics"
+            }
+          }
+        ],
+        "volumeNumber": 40,
+        "issueNumber": "Supplement_1"
       },
       "pageStart": "i180",
       "pageEnd": "i188"
@@ -1616,12 +1837,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "JAMA"
-        },
-        "volumeNumber": 304
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "JAMA"
+            }
+          }
+        ],
+        "volumeNumber": 304,
+        "issueNumber": 15
       },
       "pageStart": 1726
     },
@@ -1652,12 +1878,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Genes & Diseases"
-        },
-        "volumeNumber": 5
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Genes & Diseases"
+            }
+          }
+        ],
+        "volumeNumber": 5,
+        "issueNumber": 2
       },
       "pageStart": 77,
       "pageEnd": 106
@@ -1690,12 +1921,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "BMC Cancer"
-        },
-        "volumeNumber": 22
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "BMC Cancer"
+            }
+          }
+        ],
+        "volumeNumber": 22,
+        "issueNumber": 1
       },
       "pageStart": 612
     },
@@ -1726,11 +1962,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Computational and Structural Biotechnology Journal"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Computational and Structural Biotechnology Journal"
+            }
+          }
+        ],
         "volumeNumber": 18
       },
       "pageStart": 2639,
@@ -1763,12 +2003,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Communications"
-        },
-        "volumeNumber": 15
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Communications"
+            }
+          }
+        ],
+        "volumeNumber": 15,
+        "issueNumber": 1
       },
       "pageStart": 6112
     },
@@ -1800,12 +2045,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Oncotarget"
-        },
-        "volumeNumber": 8
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Oncotarget"
+            }
+          }
+        ],
+        "volumeNumber": 8,
+        "issueNumber": 65
       },
       "pageStart": 109436,
       "pageEnd": 109456
@@ -1838,12 +2088,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "BMC Bioinformatics"
-        },
-        "volumeNumber": 21
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "BMC Bioinformatics"
+            }
+          }
+        ],
+        "volumeNumber": 21,
+        "issueNumber": 1
       },
       "pageStart": 119
     },
@@ -1874,12 +2129,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Briefings in Bioinformatics"
-        },
-        "volumeNumber": 22
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Briefings in Bioinformatics"
+            }
+          }
+        ],
+        "volumeNumber": 22,
+        "issueNumber": 6
       },
       "pageStart": "bbab270"
     },
@@ -1910,12 +2170,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Biotechnology"
-        },
-        "volumeNumber": 32
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Biotechnology"
+            }
+          }
+        ],
+        "volumeNumber": 32,
+        "issueNumber": 4
       },
       "pageStart": 381,
       "pageEnd": 386
@@ -1948,12 +2213,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Genome Biology"
-        },
-        "volumeNumber": 20
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Genome Biology"
+            }
+          }
+        ],
+        "volumeNumber": 20,
+        "issueNumber": 1
       },
       "pageStart": 59
     },
@@ -1984,12 +2254,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Bioinformatics"
-        },
-        "volumeNumber": 37
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Bioinformatics"
+            }
+          }
+        ],
+        "volumeNumber": 37,
+        "issueNumber": 11
       },
       "pageStart": 1535,
       "pageEnd": 1543
@@ -2021,12 +2296,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Bioinformatics"
-        },
-        "volumeNumber": 40
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Bioinformatics"
+            }
+          }
+        ],
+        "volumeNumber": 40,
+        "issueNumber": 11
       },
       "pageStart": "btae663"
     },
@@ -2047,6 +2327,17 @@ expression: article
       "date": {
         "type": "Date",
         "value": "2022"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "conST: an interpretable multi-modal contrastive learning framework for spatial transcriptomics"
+            }
+          }
+        ]
       }
     },
     {
@@ -2076,12 +2367,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Communications"
-        },
-        "volumeNumber": 14
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Communications"
+            }
+          }
+        ],
+        "volumeNumber": 14,
+        "issueNumber": 1
       },
       "pageStart": 8260
     },
@@ -2112,12 +2408,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Communications"
-        },
-        "volumeNumber": 13
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Communications"
+            }
+          }
+        ],
+        "volumeNumber": 13,
+        "issueNumber": 1
       },
       "pageStart": 5962
     },
@@ -2148,12 +2449,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature"
-        },
-        "volumeNumber": 634
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature"
+            }
+          }
+        ],
+        "volumeNumber": 634,
+        "issueNumber": 8036
       },
       "pageStart": 1178,
       "pageEnd": 1186
@@ -2185,11 +2491,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "NeuroImage"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "NeuroImage"
+            }
+          }
+        ],
         "volumeNumber": 236
       },
       "pageStart": 118009
@@ -2221,12 +2531,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "PLOS Computational Biology"
-        },
-        "volumeNumber": 14
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "PLOS Computational Biology"
+            }
+          }
+        ],
+        "volumeNumber": 14,
+        "issueNumber": 2
       },
       "pageStart": "e1005991"
     },
@@ -2257,12 +2572,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "npj Systems Biology and Applications"
-        },
-        "volumeNumber": 9
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "npj Systems Biology and Applications"
+            }
+          }
+        ],
+        "volumeNumber": 9,
+        "issueNumber": 1
       },
       "pageStart": 54
     },
@@ -2292,7 +2612,18 @@ expression: article
             "string": "The PRISMA 2020 statement: an updated guideline for reporting systematic reviews"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "BMJ"
+            }
+          }
+        ]
+      }
     }
   ],
   "title": [

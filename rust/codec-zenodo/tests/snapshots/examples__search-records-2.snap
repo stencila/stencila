@@ -7,7 +7,7 @@ expression: node
   "name": "Artifact Virtual Machine for \"Mechanizing Refinement Types\"",
   "doi": "10.5281/zenodo.8425176",
   "programmingLanguage": "",
-  "description": "This is a VirtualBox file in OVF format containing a Debian 12.2 Virtual Machine with all necessary dependencies to run (check) the mechanized proofs from the POPL 2024 paper &quot;Mechanizing Refinement Types.&quot;",
+  "description": "This is a VirtualBox file in OVF format containing a Debian 12.2 Virtual Machine with all necessary dependencies to run (check) the mechanized proofs from the POPL 2024 paper &quot;Mechanizing Refinement Types.&quot;\n",
   "url": "https://doi.org/10.5281/zenodo.8425176",
   "authors": [
     {

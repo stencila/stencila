@@ -183,12 +183,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Physiological Reviews"
-        },
-        "volumeNumber": 96
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Physiological Reviews"
+            }
+          }
+        ],
+        "volumeNumber": 96,
+        "issueNumber": 1
       },
       "pageStart": 253,
       "pageEnd": 305
@@ -279,12 +284,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "The Journal of Cell Biology"
-        },
-        "volumeNumber": 154
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Journal of Cell Biology"
+            }
+          }
+        ],
+        "volumeNumber": 154,
+        "issueNumber": 2
       },
       "pageStart": 415,
       "pageEnd": 426
@@ -317,12 +327,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Genetics"
-        },
-        "volumeNumber": 77
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Genetics"
+            }
+          }
+        ],
+        "volumeNumber": 77,
+        "issueNumber": 1
       },
       "pageStart": 71,
       "pageEnd": 94
@@ -471,12 +486,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature"
-        },
-        "volumeNumber": 499
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature"
+            }
+          }
+        ],
+        "volumeNumber": 499,
+        "issueNumber": 7458
       },
       "pageStart": 295,
       "pageEnd": 300
@@ -520,12 +540,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Molecular Genetics and Metabolism"
-        },
-        "volumeNumber": 107
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Molecular Genetics and Metabolism"
+            }
+          }
+        ],
+        "volumeNumber": 107,
+        "issueNumber": 4
       },
       "pageStart": 635,
       "pageEnd": 647
@@ -589,12 +614,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Reviews Disease Primers"
-        },
-        "volumeNumber": 7
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Reviews Disease Primers"
+            }
+          }
+        ],
+        "volumeNumber": 7,
+        "issueNumber": 1
       },
       "pageStart": 13
     },
@@ -671,12 +701,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "G3 Genes|Genomes|Genetics"
-        },
-        "volumeNumber": 5
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "G3 Genes|Genomes|Genetics"
+            }
+          }
+        ],
+        "volumeNumber": 5,
+        "issueNumber": 7
       },
       "pageStart": 1371,
       "pageEnd": 1378
@@ -777,12 +812,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Genome Biology"
-        },
-        "volumeNumber": 8
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Genome Biology"
+            }
+          }
+        ],
+        "volumeNumber": 8,
+        "issueNumber": 9
       },
       "pageStart": "R188"
     },
@@ -980,12 +1020,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Proceedings of the National Academy of Sciences"
-        },
-        "volumeNumber": 116
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Proceedings of the National Academy of Sciences"
+            }
+          }
+        ],
+        "volumeNumber": 116,
+        "issueNumber": 9
       },
       "pageStart": 3508,
       "pageEnd": 3517
@@ -1047,11 +1092,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Frontiers in Physiology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Frontiers in Physiology"
+            }
+          }
+        ],
         "volumeNumber": 12
       },
       "pageStart": 647010
@@ -1102,12 +1151,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Biotechnology"
-        },
-        "volumeNumber": 19
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Biotechnology"
+            }
+          }
+        ],
+        "volumeNumber": 19,
+        "issueNumber": 2
       },
       "pageStart": 137,
       "pageEnd": 141
@@ -1150,12 +1204,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Cell and Tissue Research"
-        },
-        "volumeNumber": 339
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cell and Tissue Research"
+            }
+          }
+        ],
+        "volumeNumber": 339,
+        "issueNumber": 1
       },
       "pageStart": 71,
       "pageEnd": 82
@@ -1209,12 +1268,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Methods"
-        },
-        "volumeNumber": 9
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Methods"
+            }
+          }
+        ],
+        "volumeNumber": 9,
+        "issueNumber": 7
       },
       "pageStart": 671,
       "pageEnd": 675
