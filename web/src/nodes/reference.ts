@@ -1,4 +1,4 @@
-import { Author, CreativeWorkType, CreativeWorkVariant } from '@stencila/types'
+import { Author, CreativeWorkType, Reference as ReferenceType, Text } from '@stencila/types'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
@@ -28,7 +28,7 @@ export class Reference extends Entity {
   date?: string
 
   @property({ attribute: 'is-part-of', type: Object })
-  isPartOf?: CreativeWorkVariant
+  isPartOf?: ReferenceType
 
   @property({ attribute: 'page-start' })
   pageStart?: string
@@ -232,17 +232,36 @@ function dateYear(date: string): string {
 /**
  * Render the `isPartOf` property as a string
  */
-function partOf(work: CreativeWorkVariant): string {
-  switch (work.type) {
-    case 'PublicationIssue':
-      return `${work.isPartOf ? `${partOf(work.isPartOf)} ` : ''}(${work.issueNumber ?? ''})`
-    case 'PublicationVolume':
-      return `${work.isPartOf ? `${partOf(work.isPartOf)} ` : ''}${work.volumeNumber ?? ''}`
-    case 'SoftwareSourceCode':
-      return work.name  ?? ''
-    default:
-      return work.name
+function partOf(ref: ReferenceType): string {
+  // Build the title with volume/issue info
+  let result = ''
+  
+  // Get the title from the reference
+  if (ref.title) {
+    result = ref.title.map(inline => {
+      if (typeof inline === 'string') return inline
+      if (typeof inline === 'number') return inline.toString()
+      if (typeof inline === 'boolean') return inline.toString()
+      if (inline && typeof inline === 'object' && 'type' in inline) {
+        if (inline.type === 'Text') {
+          return (inline as Text).value || ''
+        }
+      }
+      return ''
+    }).join('')
   }
+  
+  // Add volume number if present
+  if (ref.volumeNumber) {
+    result += ` ${ref.volumeNumber}`
+  }
+  
+  // Add issue number in parentheses if present
+  if (ref.issueNumber) {
+    result += ` (${ref.issueNumber})`
+  }
+  
+  return result
 }
 
 /**
@@ -270,11 +289,7 @@ function createUrl(reference: Reference): string | null {
     return `https://doi.org/${reference.doi}`
   }
 
-  if (reference.isPartOf?.type === 'SoftwareSourceCode' && reference.isPartOf.repository) {
-    return reference.isPartOf.repository
-  }
-
-  if (reference.isPartOf?.type === 'Collection' && reference.isPartOf.url) {
+  if (reference.isPartOf?.url) {
     return reference.isPartOf.url
   }
 
