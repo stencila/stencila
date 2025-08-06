@@ -487,7 +487,7 @@ impl Inspect for CodeChunk {
             .caption
             .as_ref()
             .and_then(|caption| caption.first())
-            .map(|first| first.to_text().0)
+            .map(|first| first.to_text())
         {
             if !detail.is_empty() {
                 detail.push_str(": ");
@@ -676,7 +676,7 @@ impl Inspect for Heading {
 
         let (detail, provenance) = if !inspector.in_table_cell {
             (
-                self.content.first().map(|first| first.to_text().0),
+                self.content.first().map(|first| first.to_text()),
                 self.provenance.clone(),
             )
         } else {
@@ -700,7 +700,7 @@ impl Inspect for Paragraph {
     fn inspect(&self, inspector: &mut Inspector) {
         let (detail, provenance) = if !inspector.in_table_cell {
             (
-                self.content.first().map(|first| first.to_text().0),
+                self.content.first().map(|first| first.to_text()),
                 self.provenance.clone(),
             )
         } else {
@@ -918,7 +918,7 @@ macro_rules! captioned {
                     .caption
                     .as_ref()
                     .and_then(|caption| caption.first())
-                    .map(|first| first.to_text().0)
+                    .map(|first| first.to_text())
                 {
                     if !detail.is_empty() {
                         detail.push_str(": ");

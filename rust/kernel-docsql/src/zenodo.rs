@@ -103,12 +103,15 @@ impl ZenodoQuery {
 
         // Extract the property name and operator from the arg
         let (property_name, operator) = decode_filter(arg_name);
-        
+
         // Remove leading dot from property name if present (from .property syntax)
         let property_name = property_name.trim_start_matches('.');
 
         // Error early for unhandled operators
-        if matches!(operator, Operator::Has | Operator::NoMatch | Operator::Starts | Operator::Ends) {
+        if matches!(
+            operator,
+            Operator::Has | Operator::NoMatch | Operator::Starts | Operator::Ends
+        ) {
             return Err(Error::new(
                 ErrorKind::InvalidOperation,
                 format!("The {operator} operator is not supported for Zenodo queries"),
@@ -195,7 +198,8 @@ impl ZenodoQuery {
                     // Convenience filter for open access
                     if arg_value.kind() == ValueKind::Bool {
                         if arg_value.is_true() {
-                            self.filters.push(("access_right".to_string(), "open".to_string()));
+                            self.filters
+                                .push(("access_right".to_string(), "open".to_string()));
                         } else {
                             // Not open could be any of: embargoed, restricted, closed
                             return Err(Error::new(
@@ -247,7 +251,8 @@ impl ZenodoQuery {
                     && let Ok(mut iter) = arg_value.try_iter()
                 {
                     if let Some(first) = iter.next() {
-                        self.filters.push((filter_name.to_string(), format_filter_value(&first)?));
+                        self.filters
+                            .push((filter_name.to_string(), format_filter_value(&first)?));
                     }
                 } else {
                     self.filters.push((filter_name.to_string(), filter_value));
@@ -289,7 +294,7 @@ impl ZenodoQuery {
                 "asc" | "ascending" | "a" => false,
                 _ => !default_ascending, // use default if direction is unclear
             };
-            
+
             if sort_value == "mostrecent" && want_descending {
                 "mostrecent".to_string() // mostrecent is naturally descending
             } else if sort_value == "mostrecent" && !want_descending {
@@ -366,7 +371,7 @@ impl ZenodoQuery {
 
         // Build URL manually to avoid unnecessary encoding
         let mut url = "https://zenodo.org/api/records".to_string();
-        
+
         if !params.is_empty() {
             url.push('?');
             for (i, (name, value)) in params.iter().enumerate() {
@@ -379,7 +384,7 @@ impl ZenodoQuery {
                 url.push_str(&value.replace(' ', "+"));
             }
         }
-        
+
         url
     }
 
@@ -473,7 +478,7 @@ fn format_filter_value(value: &Value) -> Result<String, Error> {
             return Err(Error::new(
                 ErrorKind::InvalidOperation,
                 format!("Invalid filter value kind: {kind}"),
-            ))
+            ));
         }
     })
 }
@@ -549,7 +554,9 @@ impl Object for ZenodoQuery {
 
                 // Add type filter if specified
                 if let Some(type_value) = type_filter {
-                    query.filters.push(("type".to_string(), type_value.to_string()));
+                    query
+                        .filters
+                        .push(("type".to_string(), type_value.to_string()));
                 }
 
                 // Apply method arguments

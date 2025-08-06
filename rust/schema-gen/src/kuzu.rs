@@ -421,8 +421,9 @@ impl Schemas {
                                         vec![format!("FROM `{title}` TO `{ref_type}`")]
                                     };
 
-                                    relations
-                                        .push((name, on_options, is_option, is_box, is_array, ref_type));
+                                    relations.push((
+                                        name, on_options, is_option, is_box, is_array, ref_type,
+                                    ));
 
                                     if primary_keys.contains_key(&ref_type.as_str())
                                         || ref_type == "Author"
@@ -496,7 +497,8 @@ impl Schemas {
                                 vec![format!("FROM `{title}` TO `{ref_type}`")]
                             };
 
-                            relations.push((name, on_options, is_option, is_box, is_array, ref_type));
+                            relations
+                                .push((name, on_options, is_option, is_box, is_array, ref_type));
 
                             if primary_keys.contains_key(&ref_type.as_str())
                                 || ref_type == "Author"
@@ -590,40 +592,42 @@ impl Schemas {
 
             let implem_rel_tables = relations
                 .into_iter()
-                .map(|(name, on_options, is_option, is_box, is_array, ref_type)| {
-                    let property = name.to_pascal_case();
+                .map(
+                    |(name, on_options, is_option, is_box, is_array, ref_type)| {
+                        let property = name.to_pascal_case();
 
-                    let mut field = name.to_snake_case();
-                    if field == "abstract" {
-                        field = "r#abstract".to_string();
-                    }
-
-                    if on_options {
-                        field = ["options.", &field].concat()
-                    };
-
-                    let collect = if ref_type == "AuthorRoleAuthor" {
-                        format!("vec![(self.{field}.node_type(), self.{field}.primary_key())]")
-                    } else {
-                        let mut collect = format!("self.{field}");
-
-                        if is_option || is_array {
-                            collect += ".iter()"
+                        let mut field = name.to_snake_case();
+                        if field == "abstract" {
+                            field = "r#abstract".to_string();
                         }
 
-                        if is_box {
-                            collect += ".map(|boxed| boxed.as_ref())";
-                        }
+                        if on_options {
+                            field = ["options.", &field].concat()
+                        };
 
-                        if is_option && is_array {
-                            collect += ".flatten()"
-                        }
+                        let collect = if ref_type == "AuthorRoleAuthor" {
+                            format!("vec![(self.{field}.node_type(), self.{field}.primary_key())]")
+                        } else {
+                            let mut collect = format!("self.{field}");
 
-                        format!("relations({collect})")
-                    };
+                            if is_option || is_array {
+                                collect += ".iter()"
+                            }
 
-                    format!("(NodeProperty::{property}, {collect})")
-                })
+                            if is_box {
+                                collect += ".map(|boxed| boxed.as_ref())";
+                            }
+
+                            if is_option && is_array {
+                                collect += ".flatten()"
+                            }
+
+                            format!("relations({collect})")
+                        };
+
+                        format!("(NodeProperty::{property}, {collect})")
+                    },
+                )
                 .join(",\n            ");
 
             implems.push(format!(

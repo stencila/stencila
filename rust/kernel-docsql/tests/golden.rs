@@ -20,7 +20,6 @@ use kernel_jinja::kernel::{
     },
     schema::{CodeChunk, Node, Null},
 };
-use secrets;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn golden() -> Result<()> {
@@ -98,9 +97,11 @@ async fn golden() -> Result<()> {
                 // For API queries, also execute the query and save results to JSON when explicitly requested
                 if env::var("EXECUTE_QUERIES").is_ok()
                     && actual.starts_with("GET ")
-                    && (filename.ends_with(".openalex") || filename.ends_with(".zenodo") 
-                        || (filename.ends_with(".github") && 
-                            (!actual.starts_with("GET https://api.github.com/search/code") || github_auth.is_some())))
+                    && (filename.ends_with(".openalex")
+                        || filename.ends_with(".zenodo")
+                        || (filename.ends_with(".github")
+                            && (!actual.starts_with("GET https://api.github.com/search/code")
+                                || github_auth.is_some())))
                 {
                     let (node_outputs, node_messages) = kernel.execute(docsql).await?;
 

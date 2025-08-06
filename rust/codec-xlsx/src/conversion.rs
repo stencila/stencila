@@ -150,16 +150,14 @@ fn infer_validator_from_data(values: &[Primitive]) -> ArrayValidator {
         }
         _ => {
             // Mixed types - prefer numeric if we have numbers/integers, otherwise string
-            Some(Box::new(
-                if type_counts.contains_key("number") {
-                    Validator::NumberValidator(NumberValidator::new())
-                } else if type_counts.contains_key("integer") {
-                    Validator::IntegerValidator(IntegerValidator::new())
-                } else {
-                    // Mixed non-numeric types, fall back to string
-                    Validator::StringValidator(StringValidator::new())
-                },
-            ))
+            Some(Box::new(if type_counts.contains_key("number") {
+                Validator::NumberValidator(NumberValidator::new())
+            } else if type_counts.contains_key("integer") {
+                Validator::IntegerValidator(IntegerValidator::new())
+            } else {
+                // Mixed non-numeric types, fall back to string
+                Validator::StringValidator(StringValidator::new())
+            }))
         }
     };
 
