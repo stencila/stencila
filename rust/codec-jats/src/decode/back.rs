@@ -3,10 +3,7 @@ use roxmltree::Node;
 use codec::{
     Losses,
     common::itertools::Itertools,
-    schema::{
-        Article, Author, CreativeWorkVariant, Date, IntegerOrString, Periodical, Person,
-        PublicationVolume, Reference,
-    },
+    schema::{Article, Author, Date, Person, Reference, shortcuts::t},
 };
 
 use super::{
@@ -62,6 +59,7 @@ fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Re
     let mut title = None;
     let mut source = None;
     let mut volume_number = None;
+    let mut issue_number = None;
     let mut page_start = None;
     let mut page_end = None;
 
@@ -83,29 +81,13 @@ fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Re
         } else if child_tag == "source" {
             source = child.text().map(String::from);
         } else if child_tag == "volume" {
-            if let Some(value) = child.text() {
-                volume_number = if let Ok(num) = value.parse::<i64>() {
-                    Some(IntegerOrString::Integer(num))
-                } else {
-                    Some(IntegerOrString::String(value.into()))
-                }
-            }
+            volume_number = child.text().map(Into::into);
+        } else if child_tag == "issue" {
+            issue_number = child.text().map(Into::into);
         } else if child_tag == "fpage" {
-            if let Some(value) = child.text() {
-                page_start = if let Ok(num) = value.parse::<i64>() {
-                    Some(IntegerOrString::Integer(num))
-                } else {
-                    Some(IntegerOrString::String(value.into()))
-                };
-            }
+            page_start = child.text().map(Into::into);
         } else if child_tag == "lpage" {
-            if let Some(value) = child.text() {
-                page_end = if let Ok(num) = value.parse::<i64>() {
-                    Some(IntegerOrString::Integer(num))
-                } else {
-                    Some(IntegerOrString::String(value.into()))
-                };
-            }
+            page_end = child.text().map(Into::into);
         } else if child_tag == "pub-id" {
             let id_type = child.attribute("pub-id-type");
             if id_type == Some("doi") {
@@ -116,20 +98,14 @@ fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Re
 
     let authors = (!authors.is_empty()).then_some(authors);
 
-    let is_part_of = if source.is_some() && volume_number.is_some() {
-        Some(Box::new(CreativeWorkVariant::PublicationVolume(
-            PublicationVolume {
-                volume_number,
-                is_part_of: Some(Box::new(CreativeWorkVariant::Periodical(Periodical {
-                    name: source,
-                    ..Default::default()
-                }))),
-                ..Default::default()
-            },
-        )))
-    } else {
-        None
-    };
+    let is_part_of = source
+        .map(|title| Reference {
+            title: Some(vec![t(title)]),
+            volume_number,
+            issue_number,
+            ..Default::default()
+        })
+        .map(Box::new);
 
     Reference {
         id: Some(id.into()),

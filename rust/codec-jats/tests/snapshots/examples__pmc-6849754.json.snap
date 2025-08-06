@@ -470,11 +470,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Plant, Cell Environ."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plant, Cell Environ."
+            }
+          }
+        ],
         "volumeNumber": 30
       },
       "pageStart": 258,
@@ -552,11 +556,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Ecol. Appl."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Ecol. Appl."
+            }
+          }
+        ],
         "volumeNumber": 25
       },
       "pageStart": 2349,
@@ -634,11 +642,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Geosci. Model Dev."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Geosci. Model Dev."
+            }
+          }
+        ],
         "volumeNumber": 9
       },
       "pageStart": 587,
@@ -716,11 +728,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "New Phytol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "New Phytol."
+            }
+          }
+        ],
         "volumeNumber": 214
       },
       "pageStart": 1002,
@@ -789,11 +805,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Plant, Cell Environ."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plant, Cell Environ."
+            }
+          }
+        ],
         "volumeNumber": 24
       },
       "pageStart": 253,
@@ -871,11 +891,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Tree Physiol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Tree Physiol."
+            }
+          }
+        ],
         "volumeNumber": 20
       },
       "pageStart": 179,
@@ -898,6 +922,17 @@ expression: article
       "date": {
         "type": "Date",
         "value": "\n          1971"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Ratio Correlation: A Manual for Students of Petrology and Geochemistry"
+            }
+          }
+        ]
       }
     },
     {
@@ -954,11 +989,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Oecologia"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Oecologia"
+            }
+          }
+        ],
         "volumeNumber": 93
       },
       "pageStart": 63,
@@ -1080,11 +1119,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Glob. Chang. Biol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Glob. Chang. Biol."
+            }
+          }
+        ],
         "volumeNumber": 19
       },
       "pageStart": 3790,
@@ -1162,11 +1205,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Geosci. Model Dev."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Geosci. Model Dev."
+            }
+          }
+        ],
         "volumeNumber": 10
       },
       "pageStart": 689,
@@ -1244,11 +1291,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "New Phytol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "New Phytol."
+            }
+          }
+        ],
         "volumeNumber": 210
       },
       "pageStart": 1130,
@@ -1326,11 +1377,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Plant, Cell Environ."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plant, Cell Environ."
+            }
+          }
+        ],
         "volumeNumber": 33
       },
       "pageStart": 959,
@@ -1408,11 +1463,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Oecologia"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Oecologia"
+            }
+          }
+        ],
         "volumeNumber": 178
       },
       "pageStart": 659,
@@ -1490,11 +1549,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Biogeosciences"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Biogeosciences"
+            }
+          }
+        ],
         "volumeNumber": 14
       },
       "pageStart": 481,
@@ -1589,11 +1652,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Ecol. Lett."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Ecol. Lett."
+            }
+          }
+        ],
         "volumeNumber": 14
       },
       "pageStart": 349,
@@ -1721,7 +1788,18 @@ expression: article
             "string": " and temperatures"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Univ. West. Sydney"
+            }
+          }
+        ]
+      }
     },
     {
       "type": "Reference",
@@ -1750,11 +1828,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Oecologia"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Oecologia"
+            }
+          }
+        ],
         "volumeNumber": 78
       },
       "pageStart": 9,
@@ -1796,11 +1878,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Plant, Cell Environ."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plant, Cell Environ."
+            }
+          }
+        ],
         "volumeNumber": 24
       },
       "pageStart": 755,
@@ -1833,11 +1919,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Philos. Trans. R. Soc. London. B, Biol. Sci."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Philos. Trans. R. Soc. London. B, Biol. Sci."
+            }
+          }
+        ],
         "volumeNumber": 323
       },
       "pageStart": "357 LP",
@@ -1879,11 +1969,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Funct. Plant Biol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Funct. Plant Biol."
+            }
+          }
+        ],
         "volumeNumber": 11
       },
       "pageStart": 191,
@@ -1934,11 +2028,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Planta"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Planta"
+            }
+          }
+        ],
         "volumeNumber": 149
       },
       "pageStart": 78,
@@ -2023,11 +2121,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Planta"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Planta"
+            }
+          }
+        ],
         "volumeNumber": 165
       },
       "pageStart": 249,
@@ -2087,11 +2189,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Int. J. Climatol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Int. J. Climatol."
+            }
+          }
+        ],
         "volumeNumber": 34
       },
       "pageStart": 623,
@@ -2186,11 +2292,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "J. Phys. Chem. Ref. Data"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J. Phys. Chem. Ref. Data"
+            }
+          }
+        ],
         "volumeNumber": 38
       },
       "pageStart": 101,
@@ -2223,11 +2333,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "BIOTROPIA‐The Southeast Asian J. Trop. Biol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "BIOTROPIA‐The Southeast Asian J. Trop. Biol"
+            }
+          }
+        ],
         "volumeNumber": 25
       },
       "pageStart": 29,
@@ -2269,11 +2383,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Plant, Cell Environ."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plant, Cell Environ."
+            }
+          }
+        ],
         "volumeNumber": 30
       },
       "pageStart": 1176,
@@ -2333,11 +2451,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Glob. Chang. Biol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Glob. Chang. Biol."
+            }
+          }
+        ],
         "volumeNumber": 15
       },
       "pageStart": 976
@@ -2414,11 +2536,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Glob. Chang. Biol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Glob. Chang. Biol."
+            }
+          }
+        ],
         "volumeNumber": 17
       },
       "pageStart": 2905,
@@ -2460,11 +2586,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat. Plants"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat. Plants"
+            }
+          }
+        ],
         "volumeNumber": 3
       },
       "pageStart": 16201
@@ -2514,11 +2644,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Agric. For. Meteorol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Agric. For. Meteorol."
+            }
+          }
+        ],
         "volumeNumber": 150
       },
       "pageStart": 443,
@@ -2577,11 +2711,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Plant Physiol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plant Physiol."
+            }
+          }
+        ],
         "volumeNumber": 83
       },
       "pageStart": 1032,
@@ -2686,11 +2824,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "PLoS ONE"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "PLoS ONE"
+            }
+          }
+        ],
         "volumeNumber": 7
       },
       "pageStart": "e38345"
@@ -2767,11 +2909,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Glob. Ecol. Biogeogr."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Glob. Ecol. Biogeogr."
+            }
+          }
+        ],
         "volumeNumber": 24
       },
       "pageStart": 706,
@@ -2849,11 +2995,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Plant, Cell Environ."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plant, Cell Environ."
+            }
+          }
+        ],
         "volumeNumber": 25
       },
       "pageStart": 1167,
@@ -2931,11 +3081,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Glob. Chang. Biol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Glob. Chang. Biol."
+            }
+          }
+        ],
         "volumeNumber": 17
       },
       "pageStart": 2134,
@@ -3013,11 +3167,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Plant, Cell Environ."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plant, Cell Environ."
+            }
+          }
+        ],
         "volumeNumber": 25
       },
       "pageStart": 343,
@@ -3077,11 +3235,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Plant Ecol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plant Ecol."
+            }
+          }
+        ],
         "volumeNumber": 192
       },
       "pageStart": 277,
@@ -3132,11 +3294,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "J. Exp. Bot."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J. Exp. Bot."
+            }
+          }
+        ],
         "volumeNumber": 60
       },
       "pageStart": 2433,
@@ -3187,11 +3353,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "New Phytol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "New Phytol."
+            }
+          }
+        ],
         "volumeNumber": 205
       },
       "pageStart": 973,
@@ -3260,11 +3430,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Ecol. Lett."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Ecol. Lett."
+            }
+          }
+        ],
         "volumeNumber": 17
       },
       "pageStart": 82,
@@ -3297,11 +3471,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Photosynth. Res."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Photosynth. Res."
+            }
+          }
+        ],
         "volumeNumber": 119
       },
       "pageStart": 15,
@@ -3379,11 +3557,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "New Phytol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "New Phytol."
+            }
+          }
+        ],
         "volumeNumber": 213
       },
       "pageStart": 22,
@@ -3469,11 +3651,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "New Phytol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "New Phytol."
+            }
+          }
+        ],
         "volumeNumber": 216
       },
       "pageStart": 1090,
@@ -3551,11 +3737,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Glob. Chang. Biol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Glob. Chang. Biol."
+            }
+          }
+        ],
         "volumeNumber": 23
       },
       "pageStart": 2783,
@@ -3633,11 +3823,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Remote Sens. Environ."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Remote Sens. Environ."
+            }
+          }
+        ],
         "volumeNumber": 167
       },
       "pageStart": 78,
@@ -3670,11 +3864,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "J. Exp. Bot."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J. Exp. Bot."
+            }
+          }
+        ],
         "volumeNumber": 59
       },
       "pageStart": 1647,
@@ -3752,11 +3950,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature"
+            }
+          }
+        ],
         "volumeNumber": 540
       },
       "pageStart": 567
@@ -3814,11 +4016,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Glob. Chang. Biol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Glob. Chang. Biol."
+            }
+          }
+        ],
         "volumeNumber": 19
       },
       "pageStart": 45,
@@ -3860,11 +4066,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Ecology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Ecology"
+            }
+          }
+        ],
         "volumeNumber": 98
       },
       "pageStart": 2978
@@ -3905,11 +4115,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Glob. Chang. Biol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Glob. Chang. Biol."
+            }
+          }
+        ],
         "volumeNumber": 23
       },
       "pageStart": 4840,
@@ -3951,11 +4165,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Ecology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Ecology"
+            }
+          }
+        ],
         "volumeNumber": 99
       },
       "pageStart": 1610,
@@ -4033,11 +4251,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Rev. Geophys."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Rev. Geophys."
+            }
+          }
+        ],
         "volumeNumber": 52
       },
       "pageStart": 412,
@@ -4115,11 +4337,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Plant, Cell Environ."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plant, Cell Environ."
+            }
+          }
+        ],
         "volumeNumber": 40
       },
       "pageStart": 816,
@@ -4179,11 +4405,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Oecologia"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Oecologia"
+            }
+          }
+        ],
         "volumeNumber": 173
       },
       "pageStart": 1179,
@@ -4269,11 +4499,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Science"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Science"
+            }
+          }
+        ],
         "volumeNumber": 353
       },
       "pageStart": 72,
@@ -4351,11 +4585,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Perspect. Plant Ecol. Evol. Syst."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Perspect. Plant Ecol. Evol. Syst."
+            }
+          }
+        ],
         "volumeNumber": 0
       },
       "pageStart": "\n          0000",
@@ -4433,11 +4671,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Biogeosciences"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Biogeosciences"
+            }
+          }
+        ],
         "volumeNumber": 15
       },
       "pageStart": 3461,
@@ -4479,11 +4721,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Planta"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Planta"
+            }
+          }
+        ],
         "volumeNumber": 153
       },
       "pageStart": 376,
@@ -4578,11 +4824,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Ecol. Evol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Ecol. Evol."
+            }
+          }
+        ],
         "volumeNumber": 4
       },
       "pageStart": 3218,
@@ -4677,11 +4927,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "New Phytol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "New Phytol."
+            }
+          }
+        ],
         "volumeNumber": 215
       },
       "pageStart": 1370,
@@ -4759,11 +5013,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Ecology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Ecology"
+            }
+          }
+        ],
         "volumeNumber": 99
       },
       "pageStart": 500,
@@ -4841,11 +5099,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "New Phytol."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "New Phytol."
+            }
+          }
+        ],
         "volumeNumber": 213
       },
       "pageStart": 976,
@@ -4923,11 +5185,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat. Plants"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat. Plants"
+            }
+          }
+        ],
         "volumeNumber": 3
       },
       "pageStart": 734,
@@ -5005,11 +5271,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Water Resour. Res."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Water Resour. Res."
+            }
+          }
+        ],
         "volumeNumber": 50
       },
       "pageStart": 7505,
@@ -5087,11 +5357,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Plant, Cell Environ."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plant, Cell Environ."
+            }
+          }
+        ],
         "volumeNumber": 22
       },
       "pageStart": 1281,
@@ -5142,11 +5416,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Am. Nat."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Am. Nat."
+            }
+          }
+        ],
         "volumeNumber": 161
       },
       "pageStart": 98,
@@ -5250,6 +5528,17 @@ expression: article
       "date": {
         "type": "Date",
         "value": "\n          2009"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Mixed Effects Models and Extensions in Ecology"
+            }
+          }
+        ]
       }
     }
   ],

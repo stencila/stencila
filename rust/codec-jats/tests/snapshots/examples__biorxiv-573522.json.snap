@@ -187,11 +187,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Neurophysiology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Neurophysiology"
+            }
+          }
+        ],
         "volumeNumber": 72
       },
       "pageStart": 2743,
@@ -261,11 +265,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Neurosci"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Neurosci"
+            }
+          }
+        ],
         "volumeNumber": 8
       },
       "pageStart": 1263,
@@ -299,11 +307,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Comparative Neurology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Comparative Neurology"
+            }
+          }
+        ],
         "volumeNumber": 163
       },
       "pageStart": 329,
@@ -347,11 +359,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Trends in Neurosciences"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Trends in Neurosciences"
+            }
+          }
+        ],
         "volumeNumber": 13
       },
       "pageStart": 99,
@@ -498,11 +514,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Neuron"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Neuron"
+            }
+          }
+        ],
         "volumeNumber": 56
       },
       "pageStart": 866,
@@ -554,11 +574,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Neurophysiology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Neurophysiology"
+            }
+          }
+        ],
         "volumeNumber": 85
       },
       "pageStart": 714,
@@ -602,11 +626,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "J Neurosci"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Neurosci"
+            }
+          }
+        ],
         "volumeNumber": 22
       },
       "pageStart": 1618,
@@ -650,11 +678,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Neuron"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Neuron"
+            }
+          }
+        ],
         "volumeNumber": 47
       },
       "pageStart": 101,
@@ -698,11 +730,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Neuron"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Neuron"
+            }
+          }
+        ],
         "volumeNumber": 49
       },
       "pageStart": 357,
@@ -766,11 +802,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "J Neurosci"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Neurosci"
+            }
+          }
+        ],
         "volumeNumber": 35
       },
       "pageStart": 4515,
@@ -897,11 +937,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature"
+            }
+          }
+        ],
         "volumeNumber": 425
       },
       "pageStart": 917,
@@ -980,11 +1024,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Neurosci"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Neurosci"
+            }
+          }
+        ],
         "volumeNumber": 16
       },
       "pageStart": 949,
@@ -1017,11 +1065,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Current Biology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Current Biology"
+            }
+          }
+        ],
         "volumeNumber": 11
       },
       "pageStart": "R10",
@@ -1094,11 +1146,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Neuroendocrinology n/a:e"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Neuroendocrinology n/a:e"
+            }
+          }
+        ],
         "volumeNumber": 13202
       }
     },
@@ -1130,11 +1186,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Chemical Senses"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Chemical Senses"
+            }
+          }
+        ],
         "volumeNumber": 30
       },
       "pageStart": "i250",
@@ -1230,11 +1290,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "eNeuro"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "eNeuro"
+            }
+          }
+        ],
         "volumeNumber": 6
       },
       "pageStart": 234,
@@ -1356,6 +1420,17 @@ expression: article
           }
         }
       ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Neurosci"
+            }
+          }
+        ]
+      },
       "pageStart": 1,
       "pageEnd": 13
     },
@@ -1387,11 +1462,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Scholarpedia"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Scholarpedia"
+            }
+          }
+        ],
         "volumeNumber": 1
       },
       "pageStart": 1300
@@ -1423,11 +1502,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Frontiers in Systems Neuroscience"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Frontiers in Systems Neuroscience"
+            }
+          }
+        ],
         "volumeNumber": 7
       }
     },
@@ -1499,11 +1582,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "J Neurosci"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Neurosci"
+            }
+          }
+        ],
         "volumeNumber": 35
       },
       "pageStart": 13020,
@@ -1556,11 +1643,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Frontiers in Behavioral Neuroscience"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Frontiers in Behavioral Neuroscience"
+            }
+          }
+        ],
         "volumeNumber": 14
       }
     },
@@ -1699,11 +1790,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Neurosci"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Neurosci"
+            }
+          }
+        ],
         "volumeNumber": 22
       },
       "pageStart": 1834,
@@ -1747,11 +1842,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Comparative Neurology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Comparative Neurology"
+            }
+          }
+        ],
         "volumeNumber": 178
       },
       "pageStart": 255,
@@ -1804,11 +1903,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature"
+            }
+          }
+        ],
         "volumeNumber": 398
       },
       "pageStart": 338,
@@ -1904,11 +2007,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Current Biology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Current Biology"
+            }
+          }
+        ],
         "volumeNumber": 33
       },
       "pageStart": 4857,
@@ -1942,11 +2049,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Trends in Neurosciences"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Trends in Neurosciences"
+            }
+          }
+        ],
         "volumeNumber": 20
       },
       "pageStart": 38,
@@ -1988,11 +2099,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Neurophysiology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Neurophysiology"
+            }
+          }
+        ],
         "volumeNumber": 92
       },
       "pageStart": 1285,
@@ -2036,11 +2151,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "J Comp Neurol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Comp Neurol"
+            }
+          }
+        ],
         "volumeNumber": 216
       },
       "pageStart": 264,
@@ -2073,11 +2192,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Neurosci"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Neurosci"
+            }
+          }
+        ],
         "volumeNumber": 15
       },
       "pageStart": 793,
@@ -2155,11 +2278,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Rev Neurosci"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Rev Neurosci"
+            }
+          }
+        ],
         "volumeNumber": 5
       },
       "pageStart": 793,
@@ -2193,11 +2320,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Brain Research Bulletin"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Brain Research Bulletin"
+            }
+          }
+        ],
         "volumeNumber": 10
       },
       "pageStart": 497,
@@ -2276,11 +2407,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Frontiers in Neuroanatomy"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Frontiers in Neuroanatomy"
+            }
+          }
+        ],
         "volumeNumber": 16
       }
     },
@@ -2321,11 +2456,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Comparative Neurology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Comparative Neurology"
+            }
+          }
+        ],
         "volumeNumber": 233
       },
       "pageStart": 517,
@@ -2369,11 +2508,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "J Neurosci"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Neurosci"
+            }
+          }
+        ],
         "volumeNumber": 40
       },
       "pageStart": 4335,
@@ -2452,11 +2595,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Neuron"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Neuron"
+            }
+          }
+        ],
         "volumeNumber": 80
       },
       "pageStart": 1232,
@@ -2568,11 +2715,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "eLife"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "eLife"
+            }
+          }
+        ],
         "volumeNumber": 9
       },
       "pageStart": "e59003"
@@ -2605,11 +2756,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Comparative Neurology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Comparative Neurology"
+            }
+          }
+        ],
         "volumeNumber": 150
       },
       "pageStart": 87,
@@ -2662,11 +2817,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Neurophysiology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Neurophysiology"
+            }
+          }
+        ],
         "volumeNumber": 69
       },
       "pageStart": 1350,
@@ -2709,11 +2868,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Neuroscience Methods"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Neuroscience Methods"
+            }
+          }
+        ],
         "volumeNumber": 348
       },
       "pageStart": 109005
@@ -2756,11 +2919,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Comparative Neurology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Comparative Neurology"
+            }
+          }
+        ],
         "volumeNumber": 471
       },
       "pageStart": 314,
@@ -2803,11 +2970,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Comparative Neurology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Comparative Neurology"
+            }
+          }
+        ],
         "volumeNumber": 161
       },
       "pageStart": 31,
@@ -2876,11 +3047,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Head and Neck Diseases"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Head and Neck Diseases"
+            }
+          }
+        ],
         "volumeNumber": 128
       },
       "pageStart": 18,
@@ -2986,11 +3161,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "iScience"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "iScience"
+            }
+          }
+        ],
         "volumeNumber": 24
       },
       "pageStart": 102381
@@ -3042,11 +3221,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Comparative Neurology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Comparative Neurology"
+            }
+          }
+        ],
         "volumeNumber": 177
       },
       "pageStart": 381,
@@ -3119,11 +3302,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Brain Struct Funct"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Brain Struct Funct"
+            }
+          }
+        ],
         "volumeNumber": 222
       },
       "pageStart": 3615,
@@ -3177,11 +3364,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Comparative Neurology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Comparative Neurology"
+            }
+          }
+        ],
         "volumeNumber": 524
       },
       "pageStart": 759,
@@ -3263,11 +3454,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "J Neurosci"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Neurosci"
+            }
+          }
+        ],
         "volumeNumber": 31
       },
       "pageStart": 12149,

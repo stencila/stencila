@@ -182,11 +182,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Rev Cancer"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Rev Cancer"
+            }
+          }
+        ],
         "volumeNumber": 18
       },
       "pageStart": 296,
@@ -250,11 +254,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Br J Cancer"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Br J Cancer"
+            }
+          }
+        ],
         "volumeNumber": 124
       },
       "pageStart": 102,
@@ -326,12 +334,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Sig Transduct Target Ther"
-        },
-        "volumeNumber": 5
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Sig Transduct Target Ther"
+            }
+          }
+        ],
+        "volumeNumber": 5,
+        "issueNumber": 28
       }
     },
     {
@@ -399,11 +412,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Histochem Cell Biol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Histochem Cell Biol"
+            }
+          }
+        ],
         "volumeNumber": 130
       },
       "pageStart": 1147,
@@ -454,11 +471,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "IntraVital"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "IntraVital"
+            }
+          }
+        ],
         "volumeNumber": 1
       },
       "pageStart": 32,
@@ -500,11 +521,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Rev Mol Cell Biol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Rev Mol Cell Biol"
+            }
+          }
+        ],
         "volumeNumber": 17
       },
       "pageStart": 97,
@@ -538,11 +563,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Science"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Science"
+            }
+          }
+        ],
         "volumeNumber": 302
       },
       "pageStart": 1704,
@@ -585,12 +614,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Cold Spring Harb Perspect Biol"
-        },
-        "volumeNumber": 7
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cold Spring Harb Perspect Biol"
+            }
+          }
+        ],
+        "volumeNumber": 7,
+        "issueNumber": "a005959"
       }
     },
     {
@@ -629,11 +663,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Rev Cancer"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Rev Cancer"
+            }
+          }
+        ],
         "volumeNumber": 3
       },
       "pageStart": 362,
@@ -675,11 +713,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Cell"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cell"
+            }
+          }
+        ],
         "volumeNumber": 147
       },
       "pageStart": 992,
@@ -712,11 +754,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Cell Biol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Cell Biol"
+            }
+          }
+        ],
         "volumeNumber": 15
       },
       "pageStart": 751,
@@ -776,11 +822,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Cell. Mol. Life Sci"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cell. Mol. Life Sci"
+            }
+          }
+        ],
         "volumeNumber": 67
       },
       "pageStart": 63,
@@ -824,11 +874,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Cell Biol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Cell Biol"
+            }
+          }
+        ],
         "volumeNumber": 17
       },
       "pageStart": 955,
@@ -870,11 +924,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Rev Mol Cell Biol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Rev Mol Cell Biol"
+            }
+          }
+        ],
         "volumeNumber": 9
       },
       "pageStart": 730,
@@ -944,11 +1002,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Cell Science"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Cell Science"
+            }
+          }
+        ],
         "volumeNumber": 124
       },
       "pageStart": 1256,
@@ -1010,11 +1072,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Trends in Cell Biology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Trends in Cell Biology"
+            }
+          }
+        ],
         "volumeNumber": 34
       },
       "pageStart": 838,
@@ -1087,11 +1153,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature"
+            }
+          }
+        ],
         "volumeNumber": 435
       },
       "pageStart": 365,
@@ -1153,11 +1223,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Proc. Natl. Acad. Sci. U.S.A"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Proc. Natl. Acad. Sci. U.S.A"
+            }
+          }
+        ],
         "volumeNumber": 109
       },
       "pageStart": 14434,
@@ -1190,11 +1264,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Cell"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cell"
+            }
+          }
+        ],
         "volumeNumber": 160
       },
       "pageStart": 659,
@@ -1228,11 +1306,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "eLife"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "eLife"
+            }
+          }
+        ],
         "volumeNumber": 4
       },
       "pageStart": "e08314"
@@ -1293,11 +1375,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "The Journal of Cell Biology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Journal of Cell Biology"
+            }
+          }
+        ],
         "volumeNumber": 175
       },
       "pageStart": 477,
@@ -1330,11 +1416,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Cell"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cell"
+            }
+          }
+        ],
         "volumeNumber": 160
       },
       "pageStart": 673,
@@ -1385,11 +1475,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Trends in Cell Biology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Trends in Cell Biology"
+            }
+          }
+        ],
         "volumeNumber": 26
       },
       "pageStart": 420,
@@ -1422,11 +1516,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Proc Natl Acad Sci USA"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Proc Natl Acad Sci USA"
+            }
+          }
+        ],
         "volumeNumber": 118
       },
       "pageStart": "e2018480118"
@@ -1459,11 +1557,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Cold Spring Harbor Perspectives in Biology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cold Spring Harbor Perspectives in Biology"
+            }
+          }
+        ],
         "volumeNumber": 2
       },
       "pageStart": "a003392",
@@ -1526,11 +1628,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "MBoC"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MBoC"
+            }
+          }
+        ],
         "volumeNumber": 9
       },
       "pageStart": 1863,
@@ -1563,11 +1669,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "The Journal of Cell Biology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Journal of Cell Biology"
+            }
+          }
+        ],
         "volumeNumber": 160
       },
       "pageStart": 17,
@@ -1638,11 +1748,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Science"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Science"
+            }
+          }
+        ],
         "volumeNumber": 305
       },
       "pageStart": 1782,
@@ -1675,11 +1789,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Cell"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cell"
+            }
+          }
+        ],
         "volumeNumber": 148
       },
       "pageStart": 973,
@@ -1732,12 +1850,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Commun"
-        },
-        "volumeNumber": 7
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Commun"
+            }
+          }
+        ],
+        "volumeNumber": 7,
+        "issueNumber": 13119
       }
     },
     {
@@ -1787,11 +1910,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Rev Mol Cell Biol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Rev Mol Cell Biol"
+            }
+          }
+        ],
         "volumeNumber": 22
       },
       "pageStart": 529,
@@ -1833,11 +1960,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "The Journal of cell biology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Journal of cell biology"
+            }
+          }
+        ],
         "volumeNumber": 133
       },
       "pageStart": 1403,
@@ -1870,7 +2001,19 @@ expression: article
             "string": "Rigidity percolation and active advection synergize in the actomyosin cortex to drive amoeboid cell motility"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Developmental Cell"
+            }
+          }
+        ],
+        "issueNumber": "S1534580724004015"
+      }
     },
     {
       "type": "Reference",
@@ -1900,11 +2043,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Developmental Cell"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Developmental Cell"
+            }
+          }
+        ],
         "volumeNumber": 46
       },
       "pageStart": 9,
@@ -1937,11 +2084,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Cell"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cell"
+            }
+          }
+        ],
         "volumeNumber": 161
       },
       "pageStart": 374,
@@ -1974,11 +2125,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Immunol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Immunol"
+            }
+          }
+        ],
         "volumeNumber": 19
       },
       "pageStart": 606,
@@ -2030,11 +2185,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Developmental Cell"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Developmental Cell"
+            }
+          }
+        ],
         "volumeNumber": 7
       },
       "pageStart": 413,
@@ -2077,11 +2236,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Science"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Science"
+            }
+          }
+        ],
         "volumeNumber": 245
       },
       "pageStart": 718,
@@ -2142,11 +2305,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Developmental Cell"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Developmental Cell"
+            }
+          }
+        ],
         "volumeNumber": 9
       },
       "pageStart": 197,
@@ -2216,11 +2383,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Proc. Natl. Acad. Sci. U.S.A"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Proc. Natl. Acad. Sci. U.S.A"
+            }
+          }
+        ],
         "volumeNumber": 107
       },
       "pageStart": 22558,
@@ -2290,11 +2461,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature"
+            }
+          }
+        ],
         "volumeNumber": 631
       },
       "pageStart": 415,
@@ -2327,11 +2502,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Cell"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cell"
+            }
+          }
+        ],
         "volumeNumber": 146
       },
       "pageStart": 593,
@@ -2365,11 +2544,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Cell"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cell"
+            }
+          }
+        ],
         "volumeNumber": 172
       },
       "pageStart": 305,
@@ -2440,11 +2623,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Current Biology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Current Biology"
+            }
+          }
+        ],
         "volumeNumber": 6
       },
       "pageStart": 1445,
@@ -2478,11 +2665,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Cell"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cell"
+            }
+          }
+        ],
         "volumeNumber": 69
       },
       "pageStart": 413,
@@ -2516,11 +2707,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Cell"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cell"
+            }
+          }
+        ],
         "volumeNumber": 64
       },
       "pageStart": 281,
@@ -2553,11 +2748,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "eLife"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "eLife"
+            }
+          }
+        ],
         "volumeNumber": 10
       },
       "pageStart": "e61037"
@@ -2607,11 +2806,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Physiology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Physiology"
+            }
+          }
+        ],
         "volumeNumber": 25
       },
       "pageStart": 85,
@@ -2654,11 +2857,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Biochemical Society Transactions"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Biochemical Society Transactions"
+            }
+          }
+        ],
         "volumeNumber": 45
       },
       "pageStart": 229,
@@ -2691,11 +2898,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "J Cellular Molecular Medi"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Cellular Molecular Medi"
+            }
+          }
+        ],
         "volumeNumber": 23
       },
       "pageStart": 8453,
@@ -2755,11 +2966,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Biochimica et Biophysica Acta (BBA) - Reviews on Cancer"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Biochimica et Biophysica Acta (BBA) - Reviews on Cancer"
+            }
+          }
+        ],
         "volumeNumber": 1877
       },
       "pageStart": 188754
@@ -2792,11 +3007,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "eLife"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "eLife"
+            }
+          }
+        ],
         "volumeNumber": 12
       },
       "pageStart": "e82863"
@@ -2837,11 +3056,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "The Journal of Cell Biology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Journal of Cell Biology"
+            }
+          }
+        ],
         "volumeNumber": 143
       },
       "pageStart": 501,
@@ -2893,11 +3116,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Current Biology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Current Biology"
+            }
+          }
+        ],
         "volumeNumber": 8
       },
       "pageStart": 343,
@@ -2932,11 +3159,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Biological Chemistry"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Biological Chemistry"
+            }
+          }
+        ],
         "volumeNumber": 279
       },
       "pageStart": 7840,
@@ -2969,11 +3200,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Cell"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cell"
+            }
+          }
+        ],
         "volumeNumber": 168
       },
       "pageStart": 159,
@@ -3007,12 +3242,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Cell Reports"
-        },
-        "volumeNumber": 37
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cell Reports"
+            }
+          }
+        ],
+        "volumeNumber": 37,
+        "issueNumber": 110181
       }
     },
     {
@@ -3080,11 +3320,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Proc. Natl. Acad. Sci. U.S.A"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Proc. Natl. Acad. Sci. U.S.A"
+            }
+          }
+        ],
         "volumeNumber": 96
       },
       "pageStart": 8779,
@@ -3138,11 +3382,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Science"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Science"
+            }
+          }
+        ],
         "volumeNumber": 301
       },
       "pageStart": 1541,
@@ -3176,11 +3424,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature"
+            }
+          }
+        ],
         "volumeNumber": 461
       },
       "pageStart": 104,
@@ -3223,11 +3475,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature"
+            }
+          }
+        ],
         "volumeNumber": 328
       },
       "pageStart": 814,
@@ -3280,11 +3536,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Trends in Cell Biology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Trends in Cell Biology"
+            }
+          }
+        ],
         "volumeNumber": 24
       },
       "pageStart": 26,
@@ -3336,11 +3596,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Current Opinion in Cell Biology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Current Opinion in Cell Biology"
+            }
+          }
+        ],
         "volumeNumber": 62
       },
       "pageStart": 123,
@@ -3382,11 +3646,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Trends in Cell Biology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Trends in Cell Biology"
+            }
+          }
+        ],
         "volumeNumber": 22
       },
       "pageStart": 515,
@@ -3419,11 +3687,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Science"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Science"
+            }
+          }
+        ],
         "volumeNumber": 370
       }
     },
@@ -3484,11 +3756,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "MBoC"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MBoC"
+            }
+          }
+        ],
         "volumeNumber": 32
       },
       "pageStart": 1772,
@@ -3522,11 +3798,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "The Journal of Cell Biology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Journal of Cell Biology"
+            }
+          }
+        ],
         "volumeNumber": 165
       },
       "pageStart": 735,
@@ -3595,11 +3875,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Science"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Science"
+            }
+          }
+        ],
         "volumeNumber": 368
       },
       "pageStart": 1205,
@@ -3632,11 +3916,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Cell Science"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Cell Science"
+            }
+          }
+        ],
         "volumeNumber": 122
       },
       "pageStart": 3492,
@@ -3670,11 +3958,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Commun"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Commun"
+            }
+          }
+        ],
         "volumeNumber": 5
       },
       "pageStart": 4255
@@ -3706,11 +3998,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Proc. Natl. Acad. Sci. U.S.A"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Proc. Natl. Acad. Sci. U.S.A"
+            }
+          }
+        ],
         "volumeNumber": 108
       },
       "pageStart": 1943,
@@ -3753,11 +4049,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Biology of the Cell"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Biology of the Cell"
+            }
+          }
+        ],
         "volumeNumber": 98
       },
       "pageStart": 547,
@@ -3801,11 +4101,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature"
+            }
+          }
+        ],
         "volumeNumber": 352
       },
       "pageStart": 126,
@@ -3868,11 +4172,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Neuron"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Neuron"
+            }
+          }
+        ],
         "volumeNumber": 16
       },
       "pageStart": 769,
@@ -3906,11 +4214,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Developmental Cell"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Developmental Cell"
+            }
+          }
+        ],
         "volumeNumber": 55
       },
       "pageStart": 723,
@@ -3944,11 +4256,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Current Biology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Current Biology"
+            }
+          }
+        ],
         "volumeNumber": 25
       },
       "pageStart": 175,
@@ -4000,11 +4316,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Rev Mol Cell Biol"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Rev Mol Cell Biol"
+            }
+          }
+        ],
         "volumeNumber": 4
       },
       "pageStart": 33,
@@ -4059,11 +4379,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Biological Chemistry"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Biological Chemistry"
+            }
+          }
+        ],
         "volumeNumber": 277
       },
       "pageStart": 4589,
@@ -4096,11 +4420,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "EMBO J"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "EMBO J"
+            }
+          }
+        ],
         "volumeNumber": 25
       },
       "pageStart": 4215,
@@ -4133,11 +4461,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "eLife"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "eLife"
+            }
+          }
+        ],
         "volumeNumber": 11
       },
       "pageStart": "e73150"
@@ -4170,11 +4502,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature"
+            }
+          }
+        ],
         "volumeNumber": 615
       },
       "pageStart": 517,
@@ -4243,11 +4579,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Methods in Cell Biology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Methods in Cell Biology"
+            }
+          }
+        ],
         "volumeNumber": 121
       },
       "pageStart": 213,
@@ -4298,11 +4638,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Methods in Enzymology"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Methods in Enzymology"
+            }
+          }
+        ],
         "volumeNumber": 504
       },
       "pageStart": 183,
@@ -4344,11 +4688,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nat Protoc"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nat Protoc"
+            }
+          }
+        ],
         "volumeNumber": 9
       },
       "pageStart": 1931,
@@ -4381,11 +4729,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nucleic Acids Research"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nucleic Acids Research"
+            }
+          }
+        ],
         "volumeNumber": 46
       },
       "pageStart": "W467",
@@ -4419,11 +4771,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Biophysical Journal"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Biophysical Journal"
+            }
+          }
+        ],
         "volumeNumber": 41
       },
       "pageStart": 95,
@@ -4485,11 +4841,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Traffic"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Traffic"
+            }
+          }
+        ],
         "volumeNumber": 13
       },
       "pageStart": 1589,
@@ -4531,12 +4891,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "JORS"
-        },
-        "volumeNumber": 9
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "JORS"
+            }
+          }
+        ],
+        "volumeNumber": 9,
+        "issueNumber": 12
       }
     }
   ],
