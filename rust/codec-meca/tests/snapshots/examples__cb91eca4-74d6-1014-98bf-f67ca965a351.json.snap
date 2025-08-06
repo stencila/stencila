@@ -304,12 +304,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Genetics"
-        },
-        "volumeNumber": 198
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Genetics"
+            }
+          }
+        ],
+        "volumeNumber": 198,
+        "issueNumber": 3
       },
       "pageStart": 837,
       "pageEnd": 846
@@ -341,12 +346,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Genetics"
-        },
-        "volumeNumber": 77
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Genetics"
+            }
+          }
+        ],
+        "volumeNumber": 77,
+        "issueNumber": 1
       },
       "pageStart": 71,
       "pageEnd": 94
@@ -481,12 +491,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Communications"
-        },
-        "volumeNumber": 12
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Communications"
+            }
+          }
+        ],
+        "volumeNumber": 12,
+        "issueNumber": 1
       },
       "pageStart": 2668
     },
@@ -604,12 +619,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Biotechnology"
-        },
-        "volumeNumber": 32
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Biotechnology"
+            }
+          }
+        ],
+        "volumeNumber": 32,
+        "issueNumber": 12
       },
       "pageStart": 1262,
       "pageEnd": 1267
@@ -696,12 +716,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "G3"
-        },
-        "volumeNumber": 7
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "G3"
+            }
+          }
+        ],
+        "volumeNumber": 7,
+        "issueNumber": 5
       },
       "pageStart": 1429,
       "pageEnd": 1437
@@ -813,11 +838,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "eLife"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "eLife"
+            }
+          }
+        ],
         "volumeNumber": 5
       }
     },
@@ -896,12 +925,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "G3"
-        },
-        "volumeNumber": 7
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "G3"
+            }
+          }
+        ],
+        "volumeNumber": 7,
+        "issueNumber": 2
       },
       "pageStart": 607,
       "pageEnd": 615
@@ -983,11 +1017,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "eLife"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "eLife"
+            }
+          }
+        ],
         "volumeNumber": 5
       }
     },
@@ -1037,12 +1075,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "elegans. International Journal of Molecular Sciences"
-        },
-        "volumeNumber": 23
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "elegans. International Journal of Molecular Sciences"
+            }
+          }
+        ],
+        "volumeNumber": 23,
+        "issueNumber": 24
       },
       "pageStart": 15863
     },
@@ -1101,7 +1144,18 @@ expression: article
             "string": "Interpreting the pathogenicity of Joubert Syndrome missense variants in Caenorhabditis elegans"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Disease Models & Mechanisms"
+            }
+          }
+        ]
+      }
     },
     {
       "type": "Reference",
@@ -1169,12 +1223,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Development (Cambridge, England)"
-        },
-        "volumeNumber": 149
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Development (Cambridge, England)"
+            }
+          }
+        ],
+        "volumeNumber": 149,
+        "issueNumber": 7
       },
       "pageStart": "dev200332"
     },
@@ -1233,12 +1292,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Genetics"
-        },
-        "volumeNumber": 201
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Genetics"
+            }
+          }
+        ],
+        "volumeNumber": 201,
+        "issueNumber": 1
       },
       "pageStart": 47,
       "pageEnd": 54
@@ -1337,12 +1401,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "The EMBO Journal"
-        },
-        "volumeNumber": 40
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The EMBO Journal"
+            }
+          }
+        ],
+        "volumeNumber": 40,
+        "issueNumber": 3
       },
       "pageStart": "e105280"
     },
@@ -1499,12 +1568,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Cell Biology"
-        },
-        "volumeNumber": 24
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Cell Biology"
+            }
+          }
+        ],
+        "volumeNumber": 24,
+        "issueNumber": 2
       },
       "pageStart": 217,
       "pageEnd": 229
@@ -1644,12 +1718,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature Methods"
-        },
-        "volumeNumber": 10
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Methods"
+            }
+          }
+        ],
+        "volumeNumber": 10,
+        "issueNumber": 5
       },
       "pageStart": 407,
       "pageEnd": 409
@@ -1730,12 +1809,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "G3 (Bethesda, Md"
-        },
-        "volumeNumber": 9
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "G3 (Bethesda, Md"
+            }
+          }
+        ],
+        "volumeNumber": 9,
+        "issueNumber": 7
       },
       "pageStart": 2195,
       "pageEnd": 2198
@@ -1767,6 +1851,17 @@ expression: article
           }
         }
       ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "WormBook: The Online Review of C. Elegans Biology"
+            }
+          }
+        ]
+      },
       "pageStart": 1,
       "pageEnd": 11
     },
@@ -1897,12 +1992,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Science Advances"
-        },
-        "volumeNumber": 7
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Science Advances"
+            }
+          }
+        ],
+        "volumeNumber": 7,
+        "issueNumber": 6
       },
       "pageStart": "eabd9941"
     },
@@ -1952,12 +2052,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Genome Biology"
-        },
-        "volumeNumber": 16
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Genome Biology"
+            }
+          }
+        ],
+        "volumeNumber": 16,
+        "issueNumber": 1
       },
       "pageStart": 218
     }

@@ -421,6 +421,21 @@ expression: specs
     "supports_to_string": true,
     "supports_to_path": true
   },
+  "xlsx": {
+    "status": "beta",
+    "supports_from_formats": {
+      "xlsx": "LowLoss",
+      "xls": "LowLoss",
+      "ods": "LowLoss"
+    },
+    "supports_from_bytes": false,
+    "supports_from_string": true,
+    "supports_from_path": true,
+    "supports_to_formats": {},
+    "supports_to_bytes": false,
+    "supports_to_string": true,
+    "supports_to_path": true
+  },
   "yaml": {
     "status": "stable",
     "supports_from_formats": {

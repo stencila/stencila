@@ -9,7 +9,7 @@ expression: node
   "repository": "https://github.com/pandas-dev/pandas/tree/v1.3.4",
   "version": "v1.3.4",
   "programmingLanguage": "",
-  "description": "This is a patch release in the 1.3.x series and includes some regression fixes and bug fixes. We recommend that all users upgrade to this version. See the full whatsnew for a list of all the changes. The release will be available on the defaults and conda-forge channels: conda install pandas Or via PyPI: python3 -m pip install --upgrade pandas Please report any issues with the release on the pandas issue tracker .",
+  "description": "This is a patch release in the 1.3.x series and includes some regression fixes and bug fixes. We recommend that all users upgrade to this version.\n\nSee thefull whatsnewfor a list of all the changes.\n\nThe release will be available on the defaults and conda-forge channels:\n\nconda install pandas\n\nOr via PyPI:\n\npython3 -m pip install --upgrade pandas\n\nPlease report any issues with the release on thepandas issue tracker.\n",
   "url": "https://github.com/pandas-dev/pandas/tree/v1.3.4",
   "authors": [
     {
