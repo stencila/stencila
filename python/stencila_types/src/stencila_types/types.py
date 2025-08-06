@@ -2788,8 +2788,8 @@ class Reference(Entity):
     title: list[Inline] | None = None
     """The title of the referenced work."""
 
-    is_part_of: CreativeWorkVariant | None = None
-    """An other `CreativeWork` that the reference is a part of."""
+    is_part_of: Reference | None = None
+    """Another `Reference` that this reference is a part of."""
 
     volume_number: int | str | None = None
     """Identifies the volume of publication or multi-part work; for example, "iii" or "2"."""

@@ -85,8 +85,8 @@ properties:
       elem: span
   isPartOf:
     "@id": schema:isPartOf
-    description: An other `CreativeWork` that the reference is a part of.
-    $ref: CreativeWorkVariant
+    description: Another `Reference` that this reference is a part of.
+    $ref: Reference
   volumeNumber:
     "@id": schema:volumeNumber
     description: |

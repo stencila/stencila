@@ -4,7 +4,6 @@ use crate::prelude::*;
 
 use super::author::Author;
 use super::creative_work_type::CreativeWorkType;
-use super::creative_work_variant::CreativeWorkVariant;
 use super::date::Date;
 use super::inline::Inline;
 use super::integer_or_string::IntegerOrString;
@@ -66,9 +65,9 @@ pub struct Reference {
     #[dom(elem = "span")]
     pub title: Option<Vec<Inline>>,
 
-    /// An other `CreativeWork` that the reference is a part of.
+    /// Another `Reference` that this reference is a part of.
     #[serde(alias = "is-part-of", alias = "is_part_of")]
-    pub is_part_of: Option<Box<CreativeWorkVariant>>,
+    pub is_part_of: Option<Box<Reference>>,
 
     /// Identifies the volume of publication or multi-part work; for example, "iii" or "2".
     #[serde(alias = "volume-number", alias = "volume_number")]

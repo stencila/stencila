@@ -2,7 +2,6 @@
 
 import { Author } from "./Author.js";
 import { CreativeWorkType } from "./CreativeWorkType.js";
-import { CreativeWorkVariant } from "./CreativeWorkVariant.js";
 import { Date } from "./Date.js";
 import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
@@ -55,9 +54,9 @@ export class Reference extends Entity {
   title?: Inline[];
 
   /**
-   * An other `CreativeWork` that the reference is a part of.
+   * Another `Reference` that this reference is a part of.
    */
-  isPartOf?: CreativeWorkVariant;
+  isPartOf?: Reference;
 
   /**
    * Identifies the volume of publication or multi-part work; for example, "iii" or "2".

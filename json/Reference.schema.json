@@ -145,12 +145,12 @@
     },
     "isPartOf": {
       "@id": "schema:isPartOf",
-      "description": "An other `CreativeWork` that the reference is a part of.",
+      "description": "Another `Reference` that this reference is a part of.",
       "aliases": [
         "is-part-of",
         "is_part_of"
       ],
-      "$ref": "CreativeWorkVariant.schema.json"
+      "$ref": "Reference.schema.json"
     },
     "volumeNumber": {
       "@id": "schema:volumeNumber",

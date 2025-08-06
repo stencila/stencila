@@ -316,6 +316,7 @@ macro_rules! enumeration {
 
 enumeration!(
     AdmonitionType,
+    CreativeWorkType,
     ExecutionMode,
     ExecutionBounds,
     ExecutionStatus,

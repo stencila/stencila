@@ -2,8 +2,8 @@ use codec_markdown_trait::to_markdown;
 use common::serde_yaml;
 
 use crate::{
-    Article, Block, Collection, CollectionOptions, CreativeWorkVariant, Inline, RawBlock, Reference,
-    SoftwareSourceCode, prelude::*, replicate, shortcuts::t,
+    Article, Block, CreativeWorkType, Inline, RawBlock, Reference, prelude::*, replicate,
+    shortcuts::t,
 };
 
 impl Article {
@@ -32,37 +32,31 @@ impl Article {
         None
     }
 
-    /// Get the `is_part_of` property of an article, or generate it from its
+    /// Create a [`Reference`] from the `is_part_of` of an article, or from its
     /// `repository` property, if any
-    pub fn is_part_of(&self) -> Option<Box<CreativeWorkVariant>> {
+    pub fn is_part_of(&self) -> Option<Reference> {
         if let Some(is_part_of) = &self.options.is_part_of {
-            return replicate(is_part_of).ok().map(Box::new);
-        };
-
-        if let Some(repo) = &self.options.repository {
+            Some(Reference::from(is_part_of))
+        } else if let Some(repo) = self.options.repository.clone() {
             if let Some(name) = repo
                 .strip_prefix("https://github.com/")
                 .or_else(|| repo.strip_prefix("https://gitlab.com/"))
             {
-                return Some(Box::new(CreativeWorkVariant::SoftwareSourceCode(
-                    SoftwareSourceCode {
-                        name: name.to_string(),
-                        repository: Some(repo.clone()),
-                        ..Default::default()
-                    },
-                )));
-            } else {
-                return Some(Box::new(CreativeWorkVariant::Collection(Collection {
-                    options: Box::new(CollectionOptions {
-                        url: Some(repo.clone()),
-                        ..Default::default()
-                    }),
+                Some(Reference {
+                    work_type: Some(CreativeWorkType::SoftwareRepository),
+                    title: Some(vec![t(name)]),
+                    url: Some(repo),
                     ..Default::default()
-                })));
+                })
+            } else {
+                Some(Reference {
+                    url: Some(repo),
+                    ..Default::default()
+                })
             }
+        } else {
+            None
         }
-
-        None
     }
 
     pub fn to_jats_special(&self) -> (String, Losses) {

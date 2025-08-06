@@ -185,7 +185,7 @@
       "@id": "schema:isPartOf",
       "@type": "rdfs:Property",
       "rdfs:label": "isPartOf",
-      "rdfs:comment": "An other `CreativeWork` that the reference is a part of.",
+      "rdfs:comment": "Another `Reference` that this reference is a part of.",
       "schema:domainIncludes": [
         {
           "@id": "schema:CreativeWork"
@@ -193,7 +193,10 @@
         {
           "@id": "stencila:Reference"
         }
-      ]
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Reference"
+      }
     },
     {
       "@id": "schema:volumeNumber",

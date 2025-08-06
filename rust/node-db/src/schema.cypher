@@ -1321,6 +1321,11 @@ CREATE REL TABLE IF NOT EXISTS `editors` (
   MANY_MANY
 );
 
+CREATE REL TABLE IF NOT EXISTS `isPartOf` (
+  FROM `Reference` TO `Reference`,
+  MANY_MANY
+);
+
 CREATE REL TABLE IF NOT EXISTS `parentOrganization` (
   FROM `Organization` TO `Organization`,
   MANY_MANY

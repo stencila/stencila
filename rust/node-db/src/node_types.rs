@@ -1348,7 +1348,8 @@ impl DatabaseNode for Reference {
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Authors, relations(self.authors.iter().flatten())),
-            (NodeProperty::Editors, relations(self.editors.iter().flatten()))
+            (NodeProperty::Editors, relations(self.editors.iter().flatten())),
+            (NodeProperty::IsPartOf, relations(self.is_part_of.iter().map(|boxed| boxed.as_ref())))
         ]
     }
 }

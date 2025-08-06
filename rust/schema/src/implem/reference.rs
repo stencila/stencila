@@ -50,8 +50,7 @@ impl From<&CreativeWork> for Reference {
                 .options
                 .is_part_of
                 .as_ref()
-                .and_then(|is_part_of| replicate(is_part_of).ok())
-                .map(Box::new),
+                .map(|is_part_of| Box::new(Reference::from(is_part_of))),
             ..Default::default()
         }
     }
@@ -72,7 +71,7 @@ impl From<&Article> for Reference {
                 .or(article.date_modified.as_ref())
                 .and_then(|date| replicate(date).ok()),
             title: article.title(),
-            is_part_of: article.is_part_of(),
+            is_part_of: article.is_part_of().map(Box::new),
             page_start: article.options.page_start.clone(),
             page_end: article.options.page_end.clone(),
             pagination: article.options.pagination.clone(),
