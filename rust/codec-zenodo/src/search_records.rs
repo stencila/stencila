@@ -3,7 +3,7 @@ use std::{path::PathBuf, str::FromStr};
 use codec::{
     format::Format,
     schema::{
-        Article, ArticleOptions, Author, Block, CreativeWorkTypeOrString, Datatable,
+        Article, ArticleOptions, Author, Block, CreativeWorkVariantOrString, Datatable,
         DatatableOptions, Date, Grant, GrantOptions, GrantOrMonetaryGrant, Inline, Node,
         Organization, Paragraph, Person, PersonOptions, PropertyValueOrString, Reference,
         SoftwareSourceCode, SoftwareSourceCodeOptions, StringOrNumber, Text,
@@ -253,7 +253,7 @@ impl From<Record> for Article {
                 licenses: metadata
                     .license
                     .as_ref()
-                    .map(|license| vec![CreativeWorkTypeOrString::String(license.id.clone())]),
+                    .map(|license| vec![CreativeWorkVariantOrString::String(license.id.clone())]),
                 contributors: if !metadata.contributors.is_empty() {
                     Some(
                         metadata
@@ -319,7 +319,7 @@ impl From<Record> for Datatable {
                 licenses: metadata
                     .license
                     .as_ref()
-                    .map(|license| vec![CreativeWorkTypeOrString::String(license.id.clone())]),
+                    .map(|license| vec![CreativeWorkVariantOrString::String(license.id.clone())]),
                 ..Default::default()
             }),
             ..Default::default()
@@ -443,7 +443,7 @@ impl From<Record> for SoftwareSourceCode {
                 licenses: metadata
                     .license
                     .as_ref()
-                    .map(|license| vec![CreativeWorkTypeOrString::String(license.id.clone())]),
+                    .map(|license| vec![CreativeWorkVariantOrString::String(license.id.clone())]),
                 ..Default::default()
             }),
             ..Default::default()

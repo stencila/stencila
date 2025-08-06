@@ -8,10 +8,10 @@ use codec::{
         indexmap::IndexMap,
     },
     schema::{
-        self, Article, ArticleOptions, Block, CreativeWork, CreativeWorkOptions, CreativeWorkVariant,
-        CreativeWorkTypeOrString, Date, Inline, IntegerOrString, Node, Organization,
-        OrganizationOptions, Paragraph, Periodical, Person, PersonOptions, PublicationIssue,
-        PublicationVolume,
+        self, Article, ArticleOptions, Block, CreativeWork, CreativeWorkOptions,
+        CreativeWorkVariant, CreativeWorkVariantOrString, Date, Inline, IntegerOrString, Node,
+        Organization, OrganizationOptions, Paragraph, Periodical, Person, PersonOptions,
+        PublicationIssue, PublicationVolume,
     },
 };
 
@@ -299,7 +299,7 @@ impl From<Work> for Article {
         let licenses = work.primary_location.as_ref().and_then(|primary_location| {
             primary_location.license.as_ref().map(|license_str| {
                 let normalized_license = normalize_license(license_str);
-                vec![CreativeWorkTypeOrString::String(normalized_license)]
+                vec![CreativeWorkVariantOrString::String(normalized_license)]
             })
         });
 
@@ -393,7 +393,7 @@ impl From<Work> for CreativeWork {
         let licenses = work.primary_location.as_ref().and_then(|primary_location| {
             primary_location.license.as_ref().map(|license_str| {
                 let normalized_license = normalize_license(license_str);
-                vec![CreativeWorkTypeOrString::String(normalized_license)]
+                vec![CreativeWorkVariantOrString::String(normalized_license)]
             })
         });
 
