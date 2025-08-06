@@ -1,0 +1,611 @@
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Text",
+        "value": {
+          "string": "Doan, T. D."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Tran Thoai, D. B."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Haug, Hartmut"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Kinetics and luminescence of the excitations of a nonequilibrium polariton condensate"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Physical Review B"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "102"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "16"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "165126–165139"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "10 2020"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ","
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " doi: "
+        }
+      },
+      {
+        "type": "Link",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "10.1103/PhysRevB.102.165126"
+            }
+          }
+        ],
+        "target": "https://doi.org/10.1103/PhysRevB.102.165126"
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "."
+        }
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Text",
+        "value": {
+          "string": "Jerrentrup, Andreas"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Teaching medicine with the help of \"Dr. House\""
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "PLoS ONE"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "13"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "3"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "3 2018"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ","
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " doi: "
+        }
+      },
+      {
+        "type": "Link",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "10.1371/journal.pone.0193972"
+            }
+          }
+        ],
+        "target": "https://doi.org/10.1371/journal.pone.0193972"
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "."
+        }
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Text",
+        "value": {
+          "string": "Nielsen, Michael A."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Chuang, Isaac L."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Quantum Computing: Progress and Prospects"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Physics"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "18"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "3"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "234–245"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "3 2022"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ","
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " doi: "
+        }
+      },
+      {
+        "type": "Link",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "10.1038/s41567-022-01234-5"
+            }
+          }
+        ],
+        "target": "https://doi.org/10.1038/s41567-022-01234-5"
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "."
+        }
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Text",
+        "value": {
+          "string": "Pedbost, Marven F."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Pomalgu, Trillean"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Lintott, Chris"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Eisner, Nora"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Nicholson, Belinda"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Defining the Really Habitable Zone"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2020"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". Available: "
+        }
+      },
+      {
+        "type": "Link",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "https://arxiv.org/abs/2003.13722"
+            }
+          }
+        ],
+        "target": "https://arxiv.org/abs/2003.13722"
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Text",
+        "value": {
+          "string": "Prekas, George"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Kogias, Marios"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Bugnion, Edouard"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "ZygOS: Achieving Low Tail Latency for Microsecond-Scale Networked Tasks"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Proceedings of the 26th Symposium on Operating Systems Principles"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Association for Computing Machinery"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " 2017"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "325–341"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " doi: "
+        }
+      },
+      {
+        "type": "Link",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "10.1145/3132747.3132780"
+            }
+          }
+        ],
+        "target": "https://doi.org/10.1145/3132747.3132780"
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "."
+        }
+      }
+    ]
+  }
+]

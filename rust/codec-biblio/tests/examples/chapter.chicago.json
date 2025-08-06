@@ -1,0 +1,532 @@
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Text",
+        "value": {
+          "string": "Carroll, Lewis"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "1865"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Down the Rabbit-Hole"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Alice's Adventures in Wonderland"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "by "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Carroll, Lewis"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "1–8"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Macmillan"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "."
+        }
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Text",
+        "value": {
+          "string": "Eddy, Sean R"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2001"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Hidden Markov Models in Computational Biology"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Bioinformatics: The Machine Learning Approach"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Baldi, Pierre"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Brunak, Søren"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", 2"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "83–106"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "MIT Press"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "."
+        }
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Text",
+        "value": {
+          "string": "Melville, Herman"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "1851"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Call Me Ishmael"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Moby-Dick; Or, The Whale"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "by "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Melville, Herman"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "1–7"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Harper & Brothers"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "."
+        }
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Text",
+        "value": {
+          "string": "Milne, A. A"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "1926"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "In Which We Are Introduced to Winnie-the-Pooh and Some Bees, And the Stories Begin"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Winnie-the-Pooh"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "by "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Milne, A. A."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "3–17"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Methuen & Co."
+        }
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Text",
+        "value": {
+          "string": "Ramey, Chet"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "2011"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Bash"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Architecture of Open Source Applications"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Brown, Amy"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Wilson, Greg"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "29–47"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Lulu.com"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Link",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "http://aosabook.org/en/index.html"
+            }
+          }
+        ],
+        "target": "http://aosabook.org/en/index.html"
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "."
+        }
+      }
+    ]
+  }
+]

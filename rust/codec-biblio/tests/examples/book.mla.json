@@ -1,0 +1,304 @@
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Text",
+        "value": {
+          "string": "Cormen, Thomas H"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Introduction to Algorithms"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "3"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "MIT Press"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ",."
+        }
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Text",
+        "value": {
+          "string": "Donne, John"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The \"Anniversaries\" and the \"Epicedes and Obsequies\""
+            }
+          }
+        ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Stringer, Gary A."
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": " "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Pebworth, Ted-Larry"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "6"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Indiana University Press"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ",."
+        }
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Text",
+        "value": {
+          "string": "Duval, Fred"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Renaissance, Les Déracinés"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "1"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "1"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Dargaud"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ",."
+        }
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Text",
+        "value": {
+          "string": "Gamma, Erich"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Design Patterns: Elements of Reusable Object-Oriented Software"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Addison-Wesley Professional"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ",."
+        }
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Text",
+        "value": {
+          "string": "Günther-Haug, Barbara"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Den Boden Unter Den Füßen Verlieren"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "MVG"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ",."
+        }
+      }
+    ]
+  }
+]
