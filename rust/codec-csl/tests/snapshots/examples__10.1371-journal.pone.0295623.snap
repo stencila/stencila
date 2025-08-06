@@ -103,15 +103,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Sports Med"
-          },
-          "volumeNumber": "33"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Sports Med"
+            }
+          }
+        ],
+        "volumeNumber": "33",
         "issueNumber": "13"
       },
       "pageStart": "973"
@@ -140,11 +142,16 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Sports Med"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Sports Med"
+            }
+          }
+        ],
         "volumeNumber": "48"
       },
       "pageStart": "97"
@@ -173,11 +180,16 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Front Psychol"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Front Psychol"
+            }
+          }
+        ],
         "volumeNumber": "11"
       },
       "pageStart": "664"
@@ -205,8 +217,16 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "Periodical",
-        "name": "Eur J Sports Sci"
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Eur J Sports Sci"
+            }
+          }
+        ]
       },
       "pageStart": "1"
     },
@@ -234,15 +254,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Plos one"
-          },
-          "volumeNumber": "15"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Plos one"
+            }
+          }
+        ],
+        "volumeNumber": "15",
         "issueNumber": "6"
       },
       "pageStart": "e0233796"
@@ -271,15 +293,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Sports Med Open"
-          },
-          "volumeNumber": "6"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Sports Med Open"
+            }
+          }
+        ],
+        "volumeNumber": "6",
         "issueNumber": "1"
       },
       "pageStart": "1"
@@ -308,15 +332,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "PloS one"
-          },
-          "volumeNumber": "13"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "PloS one"
+            }
+          }
+        ],
+        "volumeNumber": "13",
         "issueNumber": "9"
       },
       "pageStart": "e0202811"
@@ -345,15 +371,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "J Strength Cond Res"
-          },
-          "volumeNumber": "29"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Strength Cond Res"
+            }
+          }
+        ],
+        "volumeNumber": "29",
         "issueNumber": "8"
       },
       "pageStart": "2086"
@@ -382,15 +410,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Biol Sport"
-          },
-          "volumeNumber": "40"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Biol Sport"
+            }
+          }
+        ],
+        "volumeNumber": "40",
         "issueNumber": "1"
       },
       "pageStart": "149"
@@ -419,15 +449,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "J Strength Cond Res"
-          },
-          "volumeNumber": "30"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Strength Cond Res"
+            }
+          }
+        ],
+        "volumeNumber": "30",
         "issueNumber": "5"
       },
       "pageStart": "1348"
@@ -456,15 +488,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "J Strength Cond Res"
-          },
-          "volumeNumber": "29"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Strength Cond Res"
+            }
+          }
+        ],
+        "volumeNumber": "29",
         "issueNumber": "4"
       },
       "pageStart": "980"
@@ -493,15 +527,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "J Sports Sci"
-          },
-          "volumeNumber": "36"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Sports Sci"
+            }
+          }
+        ],
+        "volumeNumber": "36",
         "issueNumber": "6"
       },
       "pageStart": "645"
@@ -530,15 +566,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "J Sports Sci"
-          },
-          "volumeNumber": "36"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Sports Sci"
+            }
+          }
+        ],
+        "volumeNumber": "36",
         "issueNumber": "21"
       },
       "pageStart": "2399"
@@ -567,15 +605,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "J Strength Cond Res"
-          },
-          "volumeNumber": "28"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Strength Cond Res"
+            }
+          }
+        ],
+        "volumeNumber": "28",
         "issueNumber": "10"
       },
       "pageStart": "2724"
@@ -604,15 +644,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Int J Sports Physiol Perform"
-          },
-          "volumeNumber": "14"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Int J Sports Physiol Perform"
+            }
+          }
+        ],
+        "volumeNumber": "14",
         "issueNumber": "9"
       },
       "pageStart": "1205"
@@ -641,15 +683,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Sports Biomechanics"
-          },
-          "volumeNumber": "18"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Sports Biomechanics"
+            }
+          }
+        ],
+        "volumeNumber": "18",
         "issueNumber": "3"
       },
       "pageStart": "277"
@@ -678,15 +722,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Int J Sports Physiol Perform"
-          },
-          "volumeNumber": "5"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Int J Sports Physiol Perform"
+            }
+          }
+        ],
+        "volumeNumber": "5",
         "issueNumber": "4"
       },
       "pageStart": "546"
@@ -715,15 +761,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "J Strength Cond Res"
-          },
-          "volumeNumber": "25"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Strength Cond Res"
+            }
+          }
+        ],
+        "volumeNumber": "25",
         "issueNumber": "2"
       },
       "pageStart": "556"
@@ -752,15 +800,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Sports Med"
-          },
-          "volumeNumber": "46"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Sports Med"
+            }
+          }
+        ],
+        "volumeNumber": "46",
         "issueNumber": "5"
       },
       "pageStart": "641"
@@ -788,8 +838,16 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "Periodical",
-        "name": "Edition Sauramps médical"
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Edition Sauramps médical"
+            }
+          }
+        ]
       },
       "pageStart": "4035"
     },
@@ -816,11 +874,16 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Can J Appl Sport Sci"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Can J Appl Sport Sci"
+            }
+          }
+        ],
         "volumeNumber": "5"
       },
       "pageStart": "77"
@@ -897,15 +960,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "J Strength Cond Res"
-          },
-          "volumeNumber": "25"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Strength Cond Res"
+            }
+          }
+        ],
+        "volumeNumber": "25",
         "issueNumber": "12"
       },
       "pageStart": "3342"
@@ -935,15 +1000,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "J Sci Med Sport"
-          },
-          "volumeNumber": "13"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Sci Med Sport"
+            }
+          }
+        ],
+        "volumeNumber": "13",
         "issueNumber": "1"
       },
       "pageStart": "90"
@@ -972,15 +1039,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "J Sports Sci"
-          },
-          "volumeNumber": "30"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Sports Sci"
+            }
+          }
+        ],
+        "volumeNumber": "30",
         "issueNumber": "15"
       },
       "pageStart": "1683"
@@ -1009,15 +1078,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "J Strength Cond Res"
-          },
-          "volumeNumber": "26"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Strength Cond Res"
+            }
+          }
+        ],
+        "volumeNumber": "26",
         "issueNumber": "10"
       },
       "pageStart": "2698"
@@ -1046,15 +1117,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "J Sports Sci"
-          },
-          "volumeNumber": "25"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Sports Sci"
+            }
+          }
+        ],
+        "volumeNumber": "25",
         "issueNumber": "8"
       },
       "pageStart": "895"
@@ -1083,15 +1156,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "J Strength Cond Res"
-          },
-          "volumeNumber": "32"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Strength Cond Res"
+            }
+          }
+        ],
+        "volumeNumber": "32",
         "issueNumber": "5"
       },
       "pageStart": "1316"
@@ -1120,15 +1195,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Int J Sports Physiol Perform"
-          },
-          "volumeNumber": "11"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Int J Sports Physiol Perform"
+            }
+          }
+        ],
+        "volumeNumber": "11",
         "issueNumber": "3"
       },
       "pageStart": "400"
@@ -1157,15 +1234,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "J Sci Med Sport"
-          },
-          "volumeNumber": "20"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J Sci Med Sport"
+            }
+          }
+        ],
+        "volumeNumber": "20",
         "issueNumber": "4"
       },
       "pageStart": "409"
@@ -1194,15 +1273,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Eur J Sports Sci"
-          },
-          "volumeNumber": "14"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Eur J Sports Sci"
+            }
+          }
+        ],
+        "volumeNumber": "14",
         "issueNumber": "1"
       },
       "pageStart": "S8"
@@ -1231,15 +1312,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Int J Sports Physiol Perform"
-          },
-          "volumeNumber": "15"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Int J Sports Physiol Perform"
+            }
+          }
+        ],
+        "volumeNumber": "15",
         "issueNumber": "4"
       },
       "pageStart": "520"

@@ -138,15 +138,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Journal of the American Statistical Association"
-          },
-          "volumeNumber": "55"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of the American Statistical Association"
+            }
+          }
+        ],
+        "volumeNumber": "55",
         "issueNumber": "292"
       },
       "pageStart": "650"
@@ -197,15 +199,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "The Journal of Agrobiotechnology Management & Economics"
-          },
-          "volumeNumber": "4"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Journal of Agrobiotechnology Management & Economics"
+            }
+          }
+        ],
+        "volumeNumber": "4",
         "issueNumber": "2"
       },
       "pageStart": "137"
@@ -301,11 +305,16 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "The Journal of Agrobiotechnology Management & Economics"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Journal of Agrobiotechnology Management & Economics"
+            }
+          }
+        ],
         "volumeNumber": "6"
       },
       "pageStart": "79"

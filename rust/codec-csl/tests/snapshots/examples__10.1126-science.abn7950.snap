@@ -435,11 +435,16 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Nature"
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature"
+            }
+          }
+        ],
         "volumeNumber": "579"
       },
       "pageStart": "233"
@@ -1117,11 +1122,16 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Sci. Rep."
-        },
+        "type": "Reference",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Sci. Rep."
+            }
+          }
+        ],
         "volumeNumber": "12"
       },
       "pageStart": "9371"

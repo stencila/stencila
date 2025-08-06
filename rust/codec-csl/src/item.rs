@@ -338,41 +338,21 @@ impl From<ReferenceValue> for Reference {
         // Create title from available title fields
         let title = ref_value
             .article_title
-            .or(ref_value.volume_title)
-            .or(ref_value.unstructured.clone()) // fallback to unstructured for title
+            .or(ref_value.unstructured)
+            .or(ref_value.volume_title.clone())
             .map(|title_str| vec![t(&title_str)]);
 
-        // Create publication hierarchy if journal info is available
-        let is_part_of = ref_value.journal_title.map(|journal_name| {
-            let periodical = Periodical {
-                name: Some(journal_name),
+        // Create is_part_of if journal info is available
+        let is_part_of = ref_value
+            .journal_title
+            .map(|journal_title| Reference {
+                work_type: Some(codec::schema::CreativeWorkType::Periodical),
+                title: Some(vec![t(&journal_title)]),
+                issue_number: ref_value.issue.map(IntegerOrString::String),
+                volume_number: ref_value.volume.map(IntegerOrString::String),
                 ..Default::default()
-            };
-
-            // If we have volume/issue info, create the hierarchy
-            if let Some(vol) = ref_value.volume {
-                let publication_volume = PublicationVolume {
-                    is_part_of: Some(Box::new(CreativeWorkVariant::Periodical(periodical))),
-                    volume_number: Some(IntegerOrString::String(vol)),
-                    ..Default::default()
-                };
-
-                if let Some(iss) = ref_value.issue {
-                    let publication_issue = PublicationIssue {
-                        is_part_of: Some(Box::new(CreativeWorkVariant::PublicationVolume(
-                            publication_volume,
-                        ))),
-                        issue_number: Some(IntegerOrString::String(iss)),
-                        ..Default::default()
-                    };
-                    Box::new(CreativeWorkVariant::PublicationIssue(publication_issue))
-                } else {
-                    Box::new(CreativeWorkVariant::PublicationVolume(publication_volume))
-                }
-            } else {
-                Box::new(CreativeWorkVariant::Periodical(periodical))
-            }
-        });
+            })
+            .map(Box::new);
 
         // Extract page start from first-page
         let page_start = ref_value.first_page.map(IntegerOrString::String);
@@ -384,8 +364,6 @@ impl From<ReferenceValue> for Reference {
             title,
             is_part_of,
             page_start,
-            page_end: None, // CSL references typically only have first-page
-            pagination: None,
             ..Default::default()
         }
     }
