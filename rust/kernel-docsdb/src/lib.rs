@@ -449,21 +449,6 @@ impl DocsDBKernelInstance {
     /// For each document (which may have multiple identifiers), tries each
     /// identifier in order until one succeeds. Returns the number of documents
     /// successfully added. Uses parallel processing for efficiency.
-    ///
-    /// # Arguments
-    /// * `documents` - Each inner Vec contains alternative identifiers for one document
-    ///
-    /// # Examples
-    /// ```
-    /// // Single document with single identifier
-    /// instance.add_documents(&vec![vec!["https://doi.org/10.1101/2021.11.24.469827".to_string()]]).await?;
-    ///
-    /// // Multiple documents with fallback identifiers
-    /// instance.add_documents(&vec![
-    ///     vec!["https://doi.org/10.1234/abc".to_string(), "pmc:PMC123456".to_string()],
-    ///     vec!["https://arxiv.org/abs/2101.00000".to_string()]
-    /// ]).await?;
-    /// ```
     pub async fn add_documents(&mut self, documents: &[Vec<String>]) -> Result<usize> {
         let Ok(mut db) = self
             .workspace_db
