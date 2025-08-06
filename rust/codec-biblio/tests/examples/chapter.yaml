@@ -1,0 +1,90 @@
+c1:
+  type: chapter
+  title: Down the Rabbit-Hole
+  author: Carroll, Lewis
+  page-range: 1-8
+  serial-number:
+    serial: '1'
+  parent:
+    type: book
+    title: Alice's Adventures in Wonderland
+    author: Carroll, Lewis
+    date: 1865
+    publisher: Macmillan
+    location: London
+    serial-number:
+      isbn: 978-0-14-043761-4
+    page-total: 96
+c2:
+  type: chapter
+  title: Hidden Markov Models in Computational Biology
+  author: Eddy, Sean R.
+  page-range: 83-106
+  serial-number:
+    serial: '4'
+  parent:
+    type: book
+    title: 'Bioinformatics: The Machine Learning Approach'
+    date: 2001
+    editor:
+    - Baldi, Pierre
+    - Brunak, Søren
+    publisher: MIT Press
+    location: Cambridge, MA
+    edition: '2'
+    serial-number:
+      isbn: 978-0-262-02506-5
+    page-total: 452
+c3:
+  type: chapter
+  title: Call me Ishmael
+  author: Melville, Herman
+  page-range: 1-7
+  serial-number:
+    serial: '1'
+  parent:
+    type: book
+    title: Moby-Dick; or, The Whale
+    author: Melville, Herman
+    date: 1851
+    publisher: Harper & Brothers
+    location: New York
+    serial-number:
+      isbn: 978-0-14-243724-7
+    page-total: 635
+c4:
+  type: chapter
+  title: In Which We Are Introduced to Winnie-the-Pooh and Some Bees, and the Stories Begin
+  author: Milne, A. A.
+  page-range: 3-17
+  serial-number:
+    serial: '1'
+  parent:
+    type: book
+    title: Winnie-the-Pooh
+    author: Milne, A. A.
+    date: 1926
+    publisher: Methuen & Co.
+    location: London
+    serial-number:
+      isbn: 978-0-525-44442-1
+    page-total: 158
+c5:
+  type: chapter
+  title: Bash
+  author: Ramey, Chet
+  page-range: 29-47
+  serial-number:
+    serial: '2'
+  parent:
+    type: book
+    title: The Architecture of Open Source Applications
+    date: 2011
+    editor:
+    - Brown, Amy
+    - Wilson, Greg
+    publisher: Lulu.com
+    url: http://aosabook.org/en/index.html
+    serial-number:
+      isbn: 978-1-257-63801-7
+    page-total: 432

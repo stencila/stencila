@@ -1,0 +1,397 @@
+---
+source: rust/codec-biblio/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "references": [
+    {
+      "type": "Reference",
+      "id": "c1",
+      "workType": "Chapter",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Carroll"
+          ],
+          "givenNames": [
+            "Lewis"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Down the Rabbit-Hole"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Collection",
+        "workType": "Book",
+        "parts": [],
+        "identifiers": [
+          {
+            "type": "PropertyValue",
+            "propertyId": "isbn",
+            "value": "978-0-14-043761-4"
+          }
+        ],
+        "authors": [
+          {
+            "type": "Person",
+            "familyNames": [
+              "Carroll"
+            ],
+            "givenNames": [
+              "Lewis"
+            ]
+          }
+        ],
+        "datePublished": {
+          "type": "Date",
+          "value": "1865"
+        },
+        "publisher": {
+          "type": "Organization",
+          "name": "Macmillan",
+          "address": "London"
+        },
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Alice's Adventures in Wonderland"
+            }
+          }
+        ]
+      },
+      "pageStart": 1,
+      "pageEnd": 8,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "serial",
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "id": "c2",
+      "workType": "Chapter",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Eddy"
+          ],
+          "givenNames": [
+            "Sean",
+            "R."
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Hidden Markov Models in Computational Biology"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Collection",
+        "workType": "Book",
+        "parts": [],
+        "identifiers": [
+          {
+            "type": "PropertyValue",
+            "propertyId": "isbn",
+            "value": "978-0-262-02506-5"
+          }
+        ],
+        "editors": [
+          {
+            "type": "Person",
+            "familyNames": [
+              "Baldi"
+            ],
+            "givenNames": [
+              "Pierre"
+            ]
+          },
+          {
+            "type": "Person",
+            "familyNames": [
+              "Brunak"
+            ],
+            "givenNames": [
+              "Søren"
+            ]
+          }
+        ],
+        "datePublished": {
+          "type": "Date",
+          "value": "2001"
+        },
+        "publisher": {
+          "type": "Organization",
+          "name": "MIT Press",
+          "address": "Cambridge, MA"
+        },
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Bioinformatics: The Machine Learning Approach"
+            }
+          }
+        ],
+        "version": "2"
+      },
+      "pageStart": 83,
+      "pageEnd": 106,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "serial",
+          "value": "4"
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "id": "c3",
+      "workType": "Chapter",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Melville"
+          ],
+          "givenNames": [
+            "Herman"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Call me Ishmael"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Collection",
+        "workType": "Book",
+        "parts": [],
+        "identifiers": [
+          {
+            "type": "PropertyValue",
+            "propertyId": "isbn",
+            "value": "978-0-14-243724-7"
+          }
+        ],
+        "authors": [
+          {
+            "type": "Person",
+            "familyNames": [
+              "Melville"
+            ],
+            "givenNames": [
+              "Herman"
+            ]
+          }
+        ],
+        "datePublished": {
+          "type": "Date",
+          "value": "1851"
+        },
+        "publisher": {
+          "type": "Organization",
+          "name": "Harper & Brothers",
+          "address": "New York"
+        },
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Moby-Dick; or, The Whale"
+            }
+          }
+        ]
+      },
+      "pageStart": 1,
+      "pageEnd": 7,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "serial",
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "id": "c4",
+      "workType": "Chapter",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Milne"
+          ],
+          "givenNames": [
+            "A.",
+            "A."
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "In Which We Are Introduced to Winnie-the-Pooh and Some Bees, and the Stories Begin"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Collection",
+        "workType": "Book",
+        "parts": [],
+        "identifiers": [
+          {
+            "type": "PropertyValue",
+            "propertyId": "isbn",
+            "value": "978-0-525-44442-1"
+          }
+        ],
+        "authors": [
+          {
+            "type": "Person",
+            "familyNames": [
+              "Milne"
+            ],
+            "givenNames": [
+              "A.",
+              "A."
+            ]
+          }
+        ],
+        "datePublished": {
+          "type": "Date",
+          "value": "1926"
+        },
+        "publisher": {
+          "type": "Organization",
+          "name": "Methuen & Co.",
+          "address": "London"
+        },
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Winnie-the-Pooh"
+            }
+          }
+        ]
+      },
+      "pageStart": 3,
+      "pageEnd": 17,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "serial",
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "id": "c5",
+      "workType": "Chapter",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ramey"
+          ],
+          "givenNames": [
+            "Chet"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Bash"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Collection",
+        "workType": "Book",
+        "parts": [],
+        "identifiers": [
+          {
+            "type": "PropertyValue",
+            "propertyId": "isbn",
+            "value": "978-1-257-63801-7"
+          }
+        ],
+        "url": "http://aosabook.org/en/index.html",
+        "editors": [
+          {
+            "type": "Person",
+            "familyNames": [
+              "Brown"
+            ],
+            "givenNames": [
+              "Amy"
+            ]
+          },
+          {
+            "type": "Person",
+            "familyNames": [
+              "Wilson"
+            ],
+            "givenNames": [
+              "Greg"
+            ]
+          }
+        ],
+        "datePublished": {
+          "type": "Date",
+          "value": "2011"
+        },
+        "publisher": {
+          "type": "Organization",
+          "name": "Lulu.com"
+        },
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Architecture of Open Source Applications"
+            }
+          }
+        ]
+      },
+      "pageStart": 29,
+      "pageEnd": 47,
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "propertyId": "serial",
+          "value": "2"
+        }
+      ]
+    }
+  ],
+  "content": []
+}

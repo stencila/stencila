@@ -54,20 +54,23 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Physical Review B",
-            "publisher": {
-              "type": "Organization",
-              "name": "American Physical Society"
-            }
-          },
-          "volumeNumber": "102"
+        "type": "Reference",
+        "id": "a1_parent",
+        "workType": "Periodical",
+        "publisher": {
+          "type": "Organization",
+          "name": "American Physical Society"
         },
-        "issueNumber": "16"
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Physical Review B"
+            }
+          }
+        ],
+        "volumeNumber": 102,
+        "issueNumber": 16
       },
       "pageStart": 165126,
       "pageEnd": 165139
@@ -156,16 +159,19 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "PLoS ONE"
-          },
-          "volumeNumber": "13"
-        },
-        "issueNumber": "3"
+        "type": "Reference",
+        "id": "a2_parent",
+        "workType": "Periodical",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "PLoS ONE"
+            }
+          }
+        ],
+        "volumeNumber": 13,
+        "issueNumber": 3
       }
     },
     {
@@ -208,20 +214,23 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Nature Physics",
-            "publisher": {
-              "type": "Organization",
-              "name": "Nature Publishing Group"
-            }
-          },
-          "volumeNumber": "18"
+        "type": "Reference",
+        "id": "a3_parent",
+        "workType": "Periodical",
+        "publisher": {
+          "type": "Organization",
+          "name": "Nature Publishing Group"
         },
-        "issueNumber": "3"
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Physics"
+            }
+          }
+        ],
+        "volumeNumber": 18,
+        "issueNumber": 3
       },
       "pageStart": 234,
       "pageEnd": 245
@@ -291,8 +300,17 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "Periodical",
-        "name": "arXiv"
+        "type": "Reference",
+        "id": "a4_parent",
+        "workType": "SoftwareRepository",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "arXiv"
+            }
+          }
+        ]
       },
       "url": "https://arxiv.org/abs/2003.13722"
     },
@@ -343,12 +361,21 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "Periodical",
-        "name": "Proceedings of the 26th Symposium on Operating Systems Principles",
+        "type": "Reference",
+        "id": "a5_parent",
+        "workType": "Collection",
         "publisher": {
           "type": "Organization",
           "name": "Association for Computing Machinery"
-        }
+        },
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Proceedings of the 26th Symposium on Operating Systems Principles"
+            }
+          }
+        ]
       },
       "pageStart": 325,
       "pageEnd": 341

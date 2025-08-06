@@ -1,24 +1,25 @@
 use codec::{
     common::{eyre::Result, reqwest::Url},
     schema::{
-        Author, Cord, CreativeWorkType, CreativeWorkVariant, Date, Inline, IntegerOrString,
-        Organization, Periodical, PeriodicalOptions, Person, PersonOrOrganization,
-        PostalAddressOrString, PropertyValue, PropertyValueOrString, PublicationIssue,
-        PublicationVolume, Reference, StringOrNumber, Text,
+        Author, Cord, CreativeWorkType, Date,
+        Inline, IntegerOrString, Organization, Person,
+        PersonOrOrganization, PostalAddressOrString, Primitive, PropertyValue,
+        PropertyValueOrString, Reference, StringOrNumber,
+        Text,
     },
 };
 use hayagriva::{
     Entry,
     types::{
         Date as HDate, EntryType, FormatString, MaybeTyped, Numeric, PageRanges, PageRangesPart,
-        Person as HPerson, QualifiedUrl,
+        Person as HPerson, QualifiedUrl, SerialNumber,
     },
 };
 
 // Constants for repeated string literals
 const DOI_KEY: &str = "doi";
 const ISBN_KEY: &str = "isbn";
-const IDENTIFIER_KEY: &str = "identifier";
+const IDENTIFIER_KEY: &str = "serial";
 const PAGES_SUFFIX: &str = " pages";
 
 /// Convert a Hayagriva Entry to a Stencila Reference
@@ -64,69 +65,97 @@ pub fn entry_to_reference(entry: &Entry) -> Result<Reference> {
     // Extract URL
     let url = entry.url().map(|url| url.to_string());
 
-    // Extract container/journal from parents and volume/issue
-    // Note: Hayagriva stores volume/issue at the parent level for periodicals
+    // Extract container/parent work as a Reference
     let parents = entry.parents();
     let is_part_of = parents.first().and_then(|first_parent| {
-        let parent_type = first_parent.entry_type();
+        first_parent.title().map(|parent_title| {
+            // Create a parent Reference based on the parent entry
+            let parent_work_type = entry_type_to_work_type(first_parent.entry_type());
+            
+            // Extract contributors (authors and editors) from parent
+            let (parent_authors, parent_editors) = extract_contributors(first_parent);
+            
+            // Extract date from parent
+            let parent_date = first_parent.date().map(|date| {
+                let date_string = match (date.month, date.day) {
+                    (Some(month), Some(day)) => {
+                        format!("{:04}-{:02}-{:02}", date.year, month, day)
+                    }
+                    (Some(month), None) => format!("{:04}-{:02}", date.year, month),
+                    _ => format!("{:04}", date.year),
+                };
+                Date {
+                    value: date_string,
+                    ..Default::default()
+                }
+            });
 
-        // Extract volume/issue from parent (for periodicals) or from entry (for other types)
-        let (volume, issue) = if matches!(parent_type, EntryType::Periodical | EntryType::Newspaper)
-        {
-            // For periodicals, volume/issue are typically stored in the parent
-            (first_parent.volume(), first_parent.issue())
-        } else {
-            // For other types, check the entry itself
-            (entry.volume(), entry.issue())
-        };
-
-        first_parent.title().map(|journal_name| {
-            let publisher = first_parent.publisher().and_then(|publisher| {
+            // Extract publisher from parent
+            let parent_publisher = first_parent.publisher().and_then(|publisher| {
                 publisher.name().map(|pub_name| {
-                    PersonOrOrganization::Organization(Organization {
+                    let mut org = Organization {
                         name: Some(pub_name.to_string()),
                         ..Default::default()
-                    })
+                    };
+
+                    // Add location if available
+                    if let Some(location) = first_parent.location() {
+                        let location_str = location.to_string();
+                        org.options.address =
+                            Some(PostalAddressOrString::String(location_str));
+                    }
+
+                    PersonOrOrganization::Organization(org)
                 })
             });
 
-            let periodical = Periodical {
-                name: Some(journal_name.to_string()),
-                options: Box::new(PeriodicalOptions {
-                    publisher,
+            // Extract version/edition from parent
+            let parent_version = first_parent.edition().map(|edition| {
+                let edition_str = maybe_typed_to_string(edition);
+                StringOrNumber::String(edition_str)
+            });
+
+            // Extract identifiers from parent
+            let parent_identifiers = first_parent.serial_number().and_then(|serial_numbers| {
+                let mut ids = Vec::new();
+                for (key, value) in &serial_numbers.0 {
+                    ids.push(create_property_value(key, value));
+                }
+                (!ids.is_empty()).then_some(ids)
+            });
+
+            // Extract URL from parent
+            let parent_url = first_parent.url().map(|url| url.to_string());
+
+            // Extract page-total from parent and convert to pagination
+            let parent_pagination = first_parent.page_total().map(|total| {
+                let total_str = total.to_string();
+                format!("{total_str}{PAGES_SUFFIX}")
+            });
+
+            // Extract volume and issue numbers for parent
+            let parent_volume_number = extract_numeric_field(first_parent.volume());
+            let parent_issue_number = extract_numeric_field(first_parent.issue());
+
+            Box::new(Reference {
+                work_type: parent_work_type,
+                id: Some(format!("{}_parent", entry.key())), // Generate a unique ID for the parent
+                title: Some(vec![Inline::Text(Text {
+                    value: Cord::from(parent_title.to_string()),
                     ..Default::default()
-                }),
+                })]),
+                authors: parent_authors,
+                editors: parent_editors,
+                date: parent_date,
+                publisher: parent_publisher,
+                version: parent_version,
+                identifiers: parent_identifiers,
+                url: parent_url,
+                pagination: parent_pagination,
+                volume_number: parent_volume_number,
+                issue_number: parent_issue_number,
                 ..Default::default()
-            };
-
-            // Build the publication hierarchy
-            let mut base: CreativeWorkVariant = CreativeWorkVariant::Periodical(periodical);
-
-            // Add volume layer if present
-            if let Some(vol) = volume {
-                let volume_str = maybe_typed_to_string(vol);
-
-                let pub_vol = PublicationVolume {
-                    is_part_of: Some(Box::new(base)),
-                    volume_number: Some(IntegerOrString::String(volume_str)),
-                    ..Default::default()
-                };
-                base = CreativeWorkVariant::PublicationVolume(pub_vol);
-            }
-
-            // Add issue layer if present
-            if let Some(issue) = issue {
-                let issue_str = maybe_typed_to_string(issue);
-
-                let pub_issue = PublicationIssue {
-                    is_part_of: Some(Box::new(base)),
-                    issue_number: Some(IntegerOrString::String(issue_str)),
-                    ..Default::default()
-                };
-                base = CreativeWorkVariant::PublicationIssue(pub_issue);
-            }
-
-            Box::new(base)
+            })
         })
     });
 
@@ -248,8 +277,8 @@ pub fn reference_to_entry(reference: &Reference) -> Result<Entry> {
         work_type_to_entry_type(work_type)
     } else if let Some(container) = &reference.is_part_of {
         // Fallback to determining from container type
-        match container.as_ref() {
-            CreativeWorkVariant::Periodical(_) => EntryType::Article,
+        match container.work_type {
+            Some(CreativeWorkType::Periodical) => EntryType::Article,
             _ => EntryType::Misc,
         }
     } else {
@@ -288,9 +317,9 @@ pub fn reference_to_entry(reference: &Reference) -> Result<Entry> {
         entry.set_url(QualifiedUrl::new(url, None));
     }
 
-    // Handle is_part_of (container/parent work) and extract volume/issue
+    // Handle is_part_of (container/parent work) - simplified since it's now a Reference
     if let Some(container) = &reference.is_part_of {
-        handle_periodical_container(&mut entry, container.as_ref());
+        handle_reference_container(&mut entry, container.as_ref());
     }
 
     // Set publisher and location
@@ -398,7 +427,7 @@ pub fn reference_to_entry(reference: &Reference) -> Result<Entry> {
             match identifier {
                 PropertyValueOrString::PropertyValue(prop_val) => {
                     if let Some(property_id) = &prop_val.property_id {
-                        if let codec::schema::Primitive::String(value) = &prop_val.value {
+                        if let Primitive::String(value) = &prop_val.value {
                             serial_map.insert(property_id.clone(), value.clone());
                         }
                     }
@@ -413,7 +442,7 @@ pub fn reference_to_entry(reference: &Reference) -> Result<Entry> {
 
     // Set serial numbers if we have any
     if !serial_map.is_empty() {
-        let serial_numbers = hayagriva::types::SerialNumber(serial_map);
+        let serial_numbers = SerialNumber(serial_map);
         entry.set_serial_number(serial_numbers);
     }
 
@@ -423,19 +452,15 @@ pub fn reference_to_entry(reference: &Reference) -> Result<Entry> {
 // Helper functions for common patterns
 
 /// Create a PropertyValue for identifiers
-/// 
-/// Creates a PropertyValue with the given property ID and string value.
 fn create_property_value(property_id: &str, value: &str) -> PropertyValueOrString {
     PropertyValueOrString::PropertyValue(PropertyValue {
         property_id: Some(property_id.to_string()),
-        value: codec::schema::Primitive::String(value.to_string()),
+        value: Primitive::String(value.to_string()),
         ..Default::default()
     })
 }
 
 /// Extract a numeric field from a Hayagriva entry
-/// 
-/// Converts a MaybeTyped value to IntegerOrString, handling both typed and string variants.
 fn extract_numeric_field<T: ToString>(value: Option<&MaybeTyped<T>>) -> Option<IntegerOrString> {
     value.map(|v| {
         let str_value = maybe_typed_to_string(v);
@@ -444,10 +469,10 @@ fn extract_numeric_field<T: ToString>(value: Option<&MaybeTyped<T>>) -> Option<I
 }
 
 /// Format person names for display
-/// 
-/// Combines family and given names with appropriate formatting.
-/// Returns formatted name or empty string if no family name exists.
-fn format_person_name(family_names: &Option<Vec<String>>, given_names: &Option<Vec<String>>) -> String {
+fn format_person_name(
+    family_names: &Option<Vec<String>>,
+    given_names: &Option<Vec<String>>,
+) -> String {
     let family = family_names
         .as_ref()
         .map(|names| names.join(" "))
@@ -469,9 +494,6 @@ fn format_person_name(family_names: &Option<Vec<String>>, given_names: &Option<V
 // Person conversion helpers
 
 /// Convert a Hayagriva person to a Stencila Person
-/// 
-/// Extracts family and given names from Hayagriva's person format and converts
-/// them to Stencila's Person structure with separate family_names and given_names fields.
 fn hayagriva_person_to_stencila_person(person: &HPerson) -> Person {
     let family = person.name.as_str();
     let given = person.given_name.as_deref().unwrap_or("");
@@ -495,16 +517,11 @@ fn hayagriva_person_to_stencila_person(person: &HPerson) -> Person {
 }
 
 /// Convert a Hayagriva person to a Stencila Author
-/// 
-/// Wraps the person conversion in an Author::Person variant.
 fn hayagriva_person_to_stencila_author(person: &HPerson) -> Author {
     Author::Person(hayagriva_person_to_stencila_person(person))
 }
 
 /// Convert a Stencila Person to a Hayagriva person
-/// 
-/// Combines family and given names into the format expected by Hayagriva.
-/// Returns None if the person has no family name.
 fn stencila_person_to_hayagriva_person(person: &Person) -> Option<HPerson> {
     let family = person
         .family_names
@@ -530,9 +547,6 @@ fn stencila_person_to_hayagriva_person(person: &Person) -> Option<HPerson> {
 }
 
 /// Convert a Stencila Author to a Hayagriva person
-/// 
-/// Handles both Person and Organization authors, converting organizations
-/// to person entries using the organization name.
 fn stencila_author_to_hayagriva_person(author: &Author) -> Option<HPerson> {
     match author {
         Author::Person(person) => stencila_person_to_hayagriva_person(person),
@@ -545,8 +559,6 @@ fn stencila_author_to_hayagriva_person(author: &Author) -> Option<HPerson> {
 }
 
 /// Extract contributors (authors and editors) from a Hayagriva entry
-/// 
-/// Returns a tuple of (authors, editors) converted to Stencila format.
 fn extract_contributors(entry: &Entry) -> (Option<Vec<Author>>, Option<Vec<Person>>) {
     let authors = entry.authors().and_then(|authors| {
         let ref_authors: Vec<Author> = authors
@@ -570,8 +582,6 @@ fn extract_contributors(entry: &Entry) -> (Option<Vec<Author>>, Option<Vec<Perso
 }
 
 /// Set contributors (authors and editors) on a Hayagriva entry
-/// 
-/// Converts Stencila authors and editors to Hayagriva format and sets them on the entry.
 fn set_contributors(entry: &mut Entry, reference: &Reference) {
     if let Some(authors) = &reference.authors {
         let persons: Vec<HPerson> = authors
@@ -638,7 +648,7 @@ fn work_type_to_entry_type(work_type: &CreativeWorkType) -> EntryType {
         CreativeWorkType::Blog => EntryType::Blog,
         CreativeWorkType::Book => EntryType::Book,
         CreativeWorkType::Chapter => EntryType::Chapter,
-        CreativeWorkType::Collection => EntryType::Anthology,
+        CreativeWorkType::Collection => EntryType::Proceedings,
         CreativeWorkType::Comment => EntryType::Post,
         CreativeWorkType::Drawing => EntryType::Artwork,
         CreativeWorkType::ImageObject => EntryType::Artwork,
@@ -673,9 +683,6 @@ fn work_type_to_entry_type(work_type: &CreativeWorkType) -> EntryType {
 }
 
 /// Convert IntegerOrString to MaybeTyped<Numeric> for Hayagriva
-///
-/// Hayagriva uses MaybeTyped<Numeric> for fields like volume and issue numbers.
-/// This helper converts our IntegerOrString type to the appropriate MaybeTyped variant.
 fn integer_or_string_to_maybe_numeric(value: &IntegerOrString) -> MaybeTyped<Numeric> {
     match value {
         IntegerOrString::Integer(i) => MaybeTyped::Typed(Numeric::new(*i as i32)),
@@ -684,9 +691,6 @@ fn integer_or_string_to_maybe_numeric(value: &IntegerOrString) -> MaybeTyped<Num
 }
 
 /// Convert IntegerOrString to MaybeTyped<PageRanges> for Hayagriva page ranges
-///
-/// When setting page ranges in Hayagriva, we need to convert our IntegerOrString
-/// to either a structured PageRanges object (for numeric pages) or keep as string.
 fn integer_or_string_to_maybe_page_ranges(value: &IntegerOrString) -> MaybeTyped<PageRanges> {
     match value {
         IntegerOrString::Integer(i) => {
@@ -699,9 +703,6 @@ fn integer_or_string_to_maybe_page_ranges(value: &IntegerOrString) -> MaybeTyped
 }
 
 /// Convert IntegerOrString to String
-///
-/// Simple utility to convert our IntegerOrString type to a plain String,
-/// used when we need string representations for page ranges or other fields.
 fn integer_or_string_to_string(value: &IntegerOrString) -> String {
     match value {
         IntegerOrString::Integer(i) => i.to_string(),
@@ -710,10 +711,6 @@ fn integer_or_string_to_string(value: &IntegerOrString) -> String {
 }
 
 /// Convert string to IntegerOrString, attempting numeric parsing first
-///
-/// Tries to parse the string as an integer first, and if that fails,
-/// stores it as a string. This is useful for page numbers and other fields
-/// that might be either numeric or contain non-numeric characters.
 fn string_to_integer_or_string(value: &str) -> IntegerOrString {
     if let Ok(i) = value.parse::<i64>() {
         IntegerOrString::Integer(i)
@@ -723,10 +720,6 @@ fn string_to_integer_or_string(value: &str) -> IntegerOrString {
 }
 
 /// Convert MaybeTyped<T> to String where T: ToString
-///
-/// Hayagriva uses MaybeTyped<T> for fields that can be either structured data
-/// or raw strings. This helper extracts a string representation from either variant.
-/// Used for volume numbers, issue numbers, and page ranges.
 fn maybe_typed_to_string<T: ToString>(value: &MaybeTyped<T>) -> String {
     match value {
         MaybeTyped::Typed(t) => t.to_string(),
@@ -734,94 +727,7 @@ fn maybe_typed_to_string<T: ToString>(value: &MaybeTyped<T>) -> String {
     }
 }
 
-/// Determine Hayagriva EntryType from journal/periodical name patterns
-///
-/// Analyzes the journal name to determine the most appropriate Hayagriva EntryType.
-/// This helps with proper citation formatting by distinguishing between:
-/// - Proceedings (conference proceedings)
-/// - Repository (preprint servers like arXiv)
-/// - Periodical (regular journals, default case)
-///
-/// # Arguments
-/// * `journal_name` - The name of the journal/periodical to analyze
-///
-/// # Returns
-/// The most appropriate EntryType based on name patterns
-fn determine_journal_entry_type(journal_name: &str) -> EntryType {
-    let journal_lower = journal_name.to_lowercase();
-    if journal_lower.starts_with("proceedings") {
-        EntryType::Proceedings
-    } else if matches!(
-        journal_lower.as_str(),
-        "arxiv" | "biorxiv" | "medrxiv" | "chemrxiv" | "peerj preprints"
-    ) {
-        EntryType::Repository
-    } else {
-        EntryType::Periodical
-    }
-}
-
-/// Extract publisher from periodical options and convert to Hayagriva Publisher
-///
-/// Extracts publisher information from a Stencila Periodical and converts it
-/// to the format expected by Hayagriva. Only handles Organization publishers
-/// (not Person publishers) as this is the most common case for academic publishing.
-///
-/// # Arguments
-/// * `periodical` - The Stencila Periodical to extract publisher from
-///
-/// # Returns
-/// Some(Publisher) if an organization publisher is found, None otherwise
-fn extract_publisher_from_periodical(
-    periodical: &Periodical,
-) -> Option<hayagriva::types::Publisher> {
-    if let Some(PersonOrOrganization::Organization(org)) = &periodical.options.publisher {
-        if let Some(pub_name) = &org.name {
-            return Some(hayagriva::types::Publisher::new(
-                Some(FormatString::from(pub_name.clone())),
-                None,
-            ));
-        }
-    }
-    None
-}
-
-/// Create a Hayagriva parent entry for a journal/periodical
-///
-/// Creates a complete Hayagriva Entry representing the parent publication
-/// (journal, conference proceedings, etc.) with appropriate type, title, and
-/// publisher information. This is used as the parent entry for articles.
-///
-/// # Arguments
-/// * `journal_name` - The name of the journal/periodical
-/// * `periodical` - The Stencila Periodical containing additional metadata
-///
-/// # Returns
-/// A fully configured Hayagriva Entry representing the parent publication
-fn create_hayagriva_parent_entry(journal_name: &str, periodical: &Periodical) -> Entry {
-    let parent_type = determine_journal_entry_type(journal_name);
-    let mut parent = Entry::new(journal_name, parent_type);
-    parent.set_title(FormatString::from(journal_name.to_string()));
-
-    if let Some(publisher) = extract_publisher_from_periodical(periodical) {
-        parent.set_publisher(publisher);
-    }
-
-    parent
-}
-
 /// Convert inline content to string representation
-///
-/// Converts Stencila Inline content to a plain string. Text content is extracted
-/// directly, while other inline types (like emphasis, links, etc.) are converted
-/// to their debug representation as a fallback. This is primarily used for
-/// extracting title text for bibliography entries.
-///
-/// # Arguments
-/// * `inline` - The Inline content to convert
-///
-/// # Returns
-/// String representation of the inline content
 fn inline_to_string(inline: &Inline) -> String {
     match inline {
         Inline::Text(Text { value, .. }) => value.to_string(),
@@ -830,20 +736,6 @@ fn inline_to_string(inline: &Inline) -> String {
 }
 
 /// Parse ISO date string into Hayagriva Date
-///
-/// Parses various date string formats into Hayagriva's Date structure.
-/// Supports:
-/// - Year only: "2023"
-/// - Year-month: "2023-03"
-/// - Full ISO date: "2023-03-15"
-///
-/// Returns None for invalid date strings or formats that can't be parsed.
-///
-/// # Arguments
-/// * `date_str` - The date string to parse
-///
-/// # Returns
-/// Some(HDate) if parsing succeeds, None otherwise
 fn parse_iso_date(date_str: &str) -> Option<HDate> {
     // Try to parse the string as a year first
     if let Ok(year) = date_str.parse::<i32>() {
@@ -882,99 +774,142 @@ fn parse_iso_date(date_str: &str) -> Option<HDate> {
     }
 }
 
-/// Handle periodical container and set volume/issue information on entry
-///
-/// Processes different types of publication containers (Periodical, PublicationVolume,
-/// PublicationIssue) and sets up the appropriate parent relationships and metadata
-/// in the Hayagriva entry. This consolidates the logic that was previously duplicated
-/// across three large match arms.
-///
-/// The function handles the hierarchical nature of academic publishing:
-/// - Periodical: Simple journal with no volume/issue
-/// - PublicationVolume: Journal with volume information
-/// - PublicationIssue: Journal with both volume and issue information
-///
-/// Volume and issue numbers are set either on the parent entry (for periodicals)
-/// or on the main entry (for other publication types like proceedings).
-///
-/// # Arguments
-/// * `entry` - The Hayagriva entry to modify (mutable reference)
-/// * `container` - The publication container to process
-fn handle_periodical_container(entry: &mut Entry, container: &CreativeWorkVariant) {
-    match container {
-        CreativeWorkVariant::Periodical(periodical) => {
-            if let Some(journal_name) = &periodical.name {
-                let parent = create_hayagriva_parent_entry(journal_name, periodical);
-                entry.set_parents(vec![parent]);
+/// Handle reference container and set parent information on entry
+fn handle_reference_container(entry: &mut Entry, container: &Reference) {
+    // Create a parent entry from the Reference
+    if let Some(container_title) = &container.title {
+        let title_str = container_title
+            .iter()
+            .map(inline_to_string)
+            .collect::<Vec<_>>()
+            .join("");
+
+        let parent_type = container.work_type
+            .as_ref()
+            .map(work_type_to_entry_type)
+            .unwrap_or(EntryType::Misc);
+
+        let mut parent = Entry::new("parent", parent_type);
+        parent.set_title(FormatString::from(title_str));
+
+        // Set contributors
+        set_contributors(&mut parent, container);
+
+        // Set date
+        if let Some(date) = &container.date {
+            if let Some(parsed_date) = parse_iso_date(&date.value) {
+                parent.set_date(parsed_date);
             }
         }
-        CreativeWorkVariant::PublicationVolume(pub_vol) => {
-            let vol_num = pub_vol.volume_number.as_ref();
 
-            if let Some(CreativeWorkVariant::Periodical(periodical)) =
-                pub_vol.is_part_of.as_ref().map(|b| b.as_ref())
-            {
-                if let Some(journal_name) = &periodical.name {
-                    let mut parent = create_hayagriva_parent_entry(journal_name, periodical);
-                    let parent_type = determine_journal_entry_type(journal_name);
+        // Set publisher
+        if let Some(publisher) = &container.publisher {
+            match publisher {
+                PersonOrOrganization::Organization(org) => {
+                    if let Some(pub_name) = &org.name {
+                        let pub_obj = hayagriva::types::Publisher::new(
+                            Some(FormatString::from(pub_name.clone())),
+                            None,
+                        );
+                        parent.set_publisher(pub_obj);
 
-                    if parent_type == EntryType::Periodical {
-                        // For periodicals, set volume on the parent
-                        if let Some(vol) = vol_num {
-                            parent.set_volume(integer_or_string_to_maybe_numeric(vol));
+                        // Set location if available
+                        if let Some(address) = &org.options.address {
+                            let location_str = match address {
+                                PostalAddressOrString::String(s) => s.clone(),
+                                PostalAddressOrString::PostalAddress(addr) => addr
+                                    .street_address
+                                    .clone()
+                                    .or_else(|| addr.address_locality.clone())
+                                    .unwrap_or_default(),
+                            };
+                            if !location_str.is_empty() {
+                                parent.set_location(FormatString::from(location_str));
+                            }
                         }
+                    }
+                }
+                PersonOrOrganization::Person(_) => {
+                    // Handle person publisher if needed
+                }
+            }
+        }
+
+        // Set edition/version if available
+        if let Some(version) = &container.version {
+            let edition = match version {
+                StringOrNumber::String(s) => MaybeTyped::String(s.clone()),
+                StringOrNumber::Number(n) => MaybeTyped::Typed(Numeric::new(*n as i32)),
+            };
+            parent.set_edition(edition);
+        }
+
+        // Set volume and issue if available - ensure they're stored as integers when possible
+        if let Some(volume_number) = &container.volume_number {
+            match volume_number {
+                IntegerOrString::Integer(i) => parent.set_volume(MaybeTyped::Typed(Numeric::new(*i as i32))),
+                IntegerOrString::String(s) => {
+                    if let Ok(i) = s.parse::<i32>() {
+                        parent.set_volume(MaybeTyped::Typed(Numeric::new(i)));
                     } else {
-                        // For non-periodicals, set on the entry itself
-                        if let Some(vol) = vol_num {
-                            entry.set_volume(integer_or_string_to_maybe_numeric(vol));
-                        }
-                    }
-
-                    entry.set_parents(vec![parent]);
-                }
-            }
-        }
-        CreativeWorkVariant::PublicationIssue(pub_issue) => {
-            let issue_num = pub_issue.issue_number.as_ref();
-
-            if let Some(CreativeWorkVariant::PublicationVolume(pub_vol)) =
-                pub_issue.is_part_of.as_ref().map(|b| b.as_ref())
-            {
-                let vol_num = pub_vol.volume_number.as_ref();
-
-                if let Some(CreativeWorkVariant::Periodical(periodical)) =
-                    pub_vol.is_part_of.as_ref().map(|b| b.as_ref())
-                {
-                    if let Some(journal_name) = &periodical.name {
-                        let mut parent = create_hayagriva_parent_entry(journal_name, periodical);
-                        let parent_type = determine_journal_entry_type(journal_name);
-
-                        let vol = vol_num.map(integer_or_string_to_maybe_numeric);
-                        let issue = issue_num.map(integer_or_string_to_maybe_numeric);
-
-                        if parent_type == EntryType::Periodical {
-                            // For periodicals, set volume/issue on the parent
-                            if let Some(vol) = vol {
-                                parent.set_volume(vol);
-                            }
-                            if let Some(issue) = issue {
-                                parent.set_issue(issue);
-                            }
-                        } else {
-                            // For non-periodicals, set on the entry itself
-                            if let Some(vol) = vol {
-                                entry.set_volume(vol);
-                            }
-                            if let Some(issue) = issue {
-                                entry.set_issue(issue);
-                            }
-                        }
-
-                        entry.set_parents(vec![parent]);
+                        parent.set_volume(MaybeTyped::String(s.clone()));
                     }
                 }
             }
         }
-        _ => {}
+
+        if let Some(issue_number) = &container.issue_number {
+            match issue_number {
+                IntegerOrString::Integer(i) => parent.set_issue(MaybeTyped::Typed(Numeric::new(*i as i32))),
+                IntegerOrString::String(s) => {
+                    if let Ok(i) = s.parse::<i32>() {
+                        parent.set_issue(MaybeTyped::Typed(Numeric::new(i)));
+                    } else {
+                        parent.set_issue(MaybeTyped::String(s.clone()));
+                    }
+                }
+            }
+        }
+
+        // Set page-total if pagination is available
+        if let Some(pagination) = &container.pagination {
+            if pagination.ends_with(PAGES_SUFFIX) {
+                let page_count = pagination.trim_end_matches(PAGES_SUFFIX);
+                if let Ok(count) = page_count.parse::<i32>() {
+                    parent.set_page_total(Numeric::new(count));
+                }
+            }
+        }
+
+        // Set identifiers (ISBN, etc.)
+        if let Some(identifiers) = &container.identifiers {
+            let mut serial_numbers = std::collections::BTreeMap::new();
+            for identifier in identifiers {
+                if let PropertyValueOrString::PropertyValue(prop_val) = identifier {
+                    if let Some(prop_id) = &prop_val.property_id {
+                        if let Primitive::String(value) = &prop_val.value {
+                            if prop_id.to_lowercase() == "isbn" {
+                                serial_numbers.insert(ISBN_KEY.to_string(), value.clone());
+                            } else {
+                                serial_numbers.insert(prop_id.clone(), value.clone());
+                            }
+                        }
+                    }
+                }
+            }
+            if !serial_numbers.is_empty() {
+                use hayagriva::types::SerialNumber;
+                parent.set_serial_number(SerialNumber(serial_numbers));
+            }
+        }
+
+        // Set URL if available
+        if let Some(url_str) = &container.url {
+            if let Ok(url) = Url::parse(url_str) {
+                parent.set_url(QualifiedUrl::new(url, None));
+            }
+        }
+
+        entry.set_parents(vec![parent]);
     }
 }
