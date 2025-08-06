@@ -29,16 +29,9 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "Collection",
+        "type": "Reference",
+        "id": "c1_parent",
         "workType": "Book",
-        "parts": [],
-        "identifiers": [
-          {
-            "type": "PropertyValue",
-            "propertyId": "isbn",
-            "value": "978-0-14-043761-4"
-          }
-        ],
         "authors": [
           {
             "type": "Person",
@@ -50,14 +43,14 @@ expression: node
             ]
           }
         ],
-        "datePublished": {
-          "type": "Date",
-          "value": "1865"
-        },
         "publisher": {
           "type": "Organization",
           "name": "Macmillan",
           "address": "London"
+        },
+        "date": {
+          "type": "Date",
+          "value": "1865"
         },
         "title": [
           {
@@ -65,6 +58,14 @@ expression: node
             "value": {
               "string": "Alice's Adventures in Wonderland"
             }
+          }
+        ],
+        "pagination": "96 pages",
+        "identifiers": [
+          {
+            "type": "PropertyValue",
+            "propertyId": "isbn",
+            "value": "978-0-14-043761-4"
           }
         ]
       },
@@ -103,16 +104,9 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "Collection",
+        "type": "Reference",
+        "id": "c2_parent",
         "workType": "Book",
-        "parts": [],
-        "identifiers": [
-          {
-            "type": "PropertyValue",
-            "propertyId": "isbn",
-            "value": "978-0-262-02506-5"
-          }
-        ],
         "editors": [
           {
             "type": "Person",
@@ -133,14 +127,14 @@ expression: node
             ]
           }
         ],
-        "datePublished": {
-          "type": "Date",
-          "value": "2001"
-        },
         "publisher": {
           "type": "Organization",
           "name": "MIT Press",
           "address": "Cambridge, MA"
+        },
+        "date": {
+          "type": "Date",
+          "value": "2001"
         },
         "title": [
           {
@@ -150,7 +144,15 @@ expression: node
             }
           }
         ],
-        "version": "2"
+        "pagination": "452 pages",
+        "version": "2",
+        "identifiers": [
+          {
+            "type": "PropertyValue",
+            "propertyId": "isbn",
+            "value": "978-0-262-02506-5"
+          }
+        ]
       },
       "pageStart": 83,
       "pageEnd": 106,
@@ -186,16 +188,9 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "Collection",
+        "type": "Reference",
+        "id": "c3_parent",
         "workType": "Book",
-        "parts": [],
-        "identifiers": [
-          {
-            "type": "PropertyValue",
-            "propertyId": "isbn",
-            "value": "978-0-14-243724-7"
-          }
-        ],
         "authors": [
           {
             "type": "Person",
@@ -207,14 +202,14 @@ expression: node
             ]
           }
         ],
-        "datePublished": {
-          "type": "Date",
-          "value": "1851"
-        },
         "publisher": {
           "type": "Organization",
           "name": "Harper & Brothers",
           "address": "New York"
+        },
+        "date": {
+          "type": "Date",
+          "value": "1851"
         },
         "title": [
           {
@@ -222,6 +217,14 @@ expression: node
             "value": {
               "string": "Moby-Dick; or, The Whale"
             }
+          }
+        ],
+        "pagination": "635 pages",
+        "identifiers": [
+          {
+            "type": "PropertyValue",
+            "propertyId": "isbn",
+            "value": "978-0-14-243724-7"
           }
         ]
       },
@@ -260,16 +263,9 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "Collection",
+        "type": "Reference",
+        "id": "c4_parent",
         "workType": "Book",
-        "parts": [],
-        "identifiers": [
-          {
-            "type": "PropertyValue",
-            "propertyId": "isbn",
-            "value": "978-0-525-44442-1"
-          }
-        ],
         "authors": [
           {
             "type": "Person",
@@ -282,14 +278,14 @@ expression: node
             ]
           }
         ],
-        "datePublished": {
-          "type": "Date",
-          "value": "1926"
-        },
         "publisher": {
           "type": "Organization",
           "name": "Methuen & Co.",
           "address": "London"
+        },
+        "date": {
+          "type": "Date",
+          "value": "1926"
         },
         "title": [
           {
@@ -297,6 +293,14 @@ expression: node
             "value": {
               "string": "Winnie-the-Pooh"
             }
+          }
+        ],
+        "pagination": "158 pages",
+        "identifiers": [
+          {
+            "type": "PropertyValue",
+            "propertyId": "isbn",
+            "value": "978-0-525-44442-1"
           }
         ]
       },
@@ -334,17 +338,9 @@ expression: node
         }
       ],
       "isPartOf": {
-        "type": "Collection",
+        "type": "Reference",
+        "id": "c5_parent",
         "workType": "Book",
-        "parts": [],
-        "identifiers": [
-          {
-            "type": "PropertyValue",
-            "propertyId": "isbn",
-            "value": "978-1-257-63801-7"
-          }
-        ],
-        "url": "http://aosabook.org/en/index.html",
         "editors": [
           {
             "type": "Person",
@@ -365,13 +361,13 @@ expression: node
             ]
           }
         ],
-        "datePublished": {
-          "type": "Date",
-          "value": "2011"
-        },
         "publisher": {
           "type": "Organization",
           "name": "Lulu.com"
+        },
+        "date": {
+          "type": "Date",
+          "value": "2011"
         },
         "title": [
           {
@@ -380,7 +376,16 @@ expression: node
               "string": "The Architecture of Open Source Applications"
             }
           }
-        ]
+        ],
+        "pagination": "432 pages",
+        "identifiers": [
+          {
+            "type": "PropertyValue",
+            "propertyId": "isbn",
+            "value": "978-1-257-63801-7"
+          }
+        ],
+        "url": "http://aosabook.org/en/index.html"
       },
       "pageStart": 29,
       "pageEnd": 47,

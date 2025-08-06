@@ -13,8 +13,8 @@ a1:
     type: periodical
     title: Physical Review B
     publisher: American Physical Society
-    issue: '16'
-    volume: '102'
+    issue: 16
+    volume: 102
 a2:
   type: article
   title: Teaching medicine with the help of "Dr. House"
@@ -32,8 +32,8 @@ a2:
   parent:
     type: periodical
     title: PLoS ONE
-    issue: '3'
-    volume: '13'
+    issue: 3
+    volume: 13
 a3:
   type: article
   title: 'Quantum Computing: Progress and Prospects'
@@ -48,8 +48,8 @@ a3:
     type: periodical
     title: Nature Physics
     publisher: Nature Publishing Group
-    issue: '3'
-    volume: '18'
+    issue: 3
+    volume: 18
 a4:
   type: article
   title: Defining the Really Habitable Zone

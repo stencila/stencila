@@ -9,9 +9,9 @@ use codec::{
     status::Status,
 };
 
+pub mod conversion;
 pub mod decode;
 pub mod encode;
-pub mod conversion;
 
 /// A codec for bibliographic content
 pub struct BiblioCodec;

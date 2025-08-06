@@ -1,11 +1,9 @@
 use codec::{
     common::{eyre::Result, reqwest::Url},
     schema::{
-        Author, Cord, CreativeWorkType, Date,
-        Inline, IntegerOrString, Organization, Person,
+        Author, Cord, CreativeWorkType, Date, Inline, IntegerOrString, Organization, Person,
         PersonOrOrganization, PostalAddressOrString, Primitive, PropertyValue,
-        PropertyValueOrString, Reference, StringOrNumber,
-        Text,
+        PropertyValueOrString, Reference, StringOrNumber, Text,
     },
 };
 use hayagriva::{
@@ -71,10 +69,10 @@ pub fn entry_to_reference(entry: &Entry) -> Result<Reference> {
         first_parent.title().map(|parent_title| {
             // Create a parent Reference based on the parent entry
             let parent_work_type = entry_type_to_work_type(first_parent.entry_type());
-            
+
             // Extract contributors (authors and editors) from parent
             let (parent_authors, parent_editors) = extract_contributors(first_parent);
-            
+
             // Extract date from parent
             let parent_date = first_parent.date().map(|date| {
                 let date_string = match (date.month, date.day) {
@@ -101,8 +99,7 @@ pub fn entry_to_reference(entry: &Entry) -> Result<Reference> {
                     // Add location if available
                     if let Some(location) = first_parent.location() {
                         let location_str = location.to_string();
-                        org.options.address =
-                            Some(PostalAddressOrString::String(location_str));
+                        org.options.address = Some(PostalAddressOrString::String(location_str));
                     }
 
                     PersonOrOrganization::Organization(org)
@@ -784,7 +781,8 @@ fn handle_reference_container(entry: &mut Entry, container: &Reference) {
             .collect::<Vec<_>>()
             .join("");
 
-        let parent_type = container.work_type
+        let parent_type = container
+            .work_type
             .as_ref()
             .map(work_type_to_entry_type)
             .unwrap_or(EntryType::Misc);
@@ -847,7 +845,9 @@ fn handle_reference_container(entry: &mut Entry, container: &Reference) {
         // Set volume and issue if available - ensure they're stored as integers when possible
         if let Some(volume_number) = &container.volume_number {
             match volume_number {
-                IntegerOrString::Integer(i) => parent.set_volume(MaybeTyped::Typed(Numeric::new(*i as i32))),
+                IntegerOrString::Integer(i) => {
+                    parent.set_volume(MaybeTyped::Typed(Numeric::new(*i as i32)))
+                }
                 IntegerOrString::String(s) => {
                     if let Ok(i) = s.parse::<i32>() {
                         parent.set_volume(MaybeTyped::Typed(Numeric::new(i)));
@@ -860,7 +860,9 @@ fn handle_reference_container(entry: &mut Entry, container: &Reference) {
 
         if let Some(issue_number) = &container.issue_number {
             match issue_number {
-                IntegerOrString::Integer(i) => parent.set_issue(MaybeTyped::Typed(Numeric::new(*i as i32))),
+                IntegerOrString::Integer(i) => {
+                    parent.set_issue(MaybeTyped::Typed(Numeric::new(*i as i32)))
+                }
                 IntegerOrString::String(s) => {
                     if let Ok(i) = s.parse::<i32>() {
                         parent.set_issue(MaybeTyped::Typed(Numeric::new(i)));
