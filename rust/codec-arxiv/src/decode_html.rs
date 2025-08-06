@@ -11,8 +11,8 @@ use codec::{
         tracing,
     },
     schema::{
-        Article, Author, Block, CreativeWorkVariant, Date, Inline, IntegerOrString, Node, Periodical,
-        Person, PublicationIssue, PublicationVolume, Reference, shortcuts::t,
+        Article, Author, Block, Date, Inline, IntegerOrString, Node, Person, Reference,
+        shortcuts::t,
     },
 };
 
@@ -791,14 +791,6 @@ fn decode_reference(parser: &Parser, tag: &HTMLTag) -> Option<Reference> {
         .flatten()
         .map(|bytes| bytes.as_utf8_str().to_string());
 
-    let mut authors = Vec::new();
-    let mut date = None;
-    let mut title = None;
-    let mut publication_info = None;
-    let mut page_start = None;
-    let mut page_end = None;
-    let mut pagination = None;
-
     // Find all ltx_bibblock spans
     let mut bibblocks = Vec::new();
     for child in tag
@@ -821,8 +813,15 @@ fn decode_reference(parser: &Parser, tag: &HTMLTag) -> Option<Reference> {
     }
 
     // Parse bibblocks in order
-    for (i, block) in bibblocks.iter().enumerate() {
-        match i {
+    let mut authors = Vec::new();
+    let mut date = None;
+    let mut title = None;
+    let mut is_part_of = None;
+    let mut page_start = None;
+    let mut page_end = None;
+    let mut pagination = None;
+    for (index, block) in bibblocks.iter().enumerate() {
+        match index {
             0 => {
                 // First block: author details and year
                 let (parsed_authors, parsed_date) = parse_author_block(block);
@@ -833,28 +832,15 @@ fn decode_reference(parser: &Parser, tag: &HTMLTag) -> Option<Reference> {
                 // Second block: title
                 title = Some(vec![t(block.trim_end_matches('.'))]);
             }
-            2 => {
-                // Third block: publication details
-                if let Some((pub_info, start_page, end_page, page_info)) =
+            _ => {
+                // Additional blocks: publication details
+                if let Some((part_of, start_page, end_page, page_info)) =
                     parse_publication_block(block)
                 {
-                    publication_info = Some(pub_info);
+                    is_part_of = Some(part_of);
                     page_start = start_page;
                     page_end = end_page;
                     pagination = page_info;
-                }
-            }
-            _ => {
-                // Additional blocks - could be more publication details
-                if publication_info.is_none() {
-                    if let Some((pub_info, start_page, end_page, page_info)) =
-                        parse_publication_block(block)
-                    {
-                        publication_info = Some(pub_info);
-                        page_start = start_page;
-                        page_end = end_page;
-                        pagination = page_info;
-                    }
                 }
             }
         }
@@ -871,7 +857,7 @@ fn decode_reference(parser: &Parser, tag: &HTMLTag) -> Option<Reference> {
             },
             date,
             title,
-            is_part_of: publication_info,
+            is_part_of,
             page_start,
             page_end,
             pagination,
@@ -935,6 +921,120 @@ fn parse_author_block(text: &str) -> (Vec<Author>, Option<Date>) {
     (authors, date)
 }
 
+type PublicationInfo = (
+    Box<Reference>,
+    Option<IntegerOrString>,
+    Option<IntegerOrString>,
+    Option<String>,
+);
+
+/// Parse publication block to extract venue information and page range
+fn parse_publication_block(text: &str) -> Option<PublicationInfo> {
+    // Check for arXiv preprint pattern - simple string parsing
+    if text.contains("arXiv") {
+        // Find arXiv: pattern
+        if let Some(start) = text.find("arXiv:") {
+            let after_arxiv = &text[start + 6..];
+            // Extract the arXiv number (digits.digits format)
+            let mut end = 0;
+            for (i, ch) in after_arxiv.char_indices() {
+                if ch.is_ascii_digit() || ch == '.' {
+                    end = i + 1;
+                } else {
+                    break;
+                }
+            }
+
+            if end > 0 {
+                //let arxiv_id = &after_arxiv[..end];
+                return Some((
+                    Box::new(Reference {
+                        title: Some(vec![t("arXiv")]),
+                        ..Default::default()
+                    }),
+                    None,
+                    None,
+                    None,
+                ));
+            }
+        }
+    }
+
+    // Check for journal pattern (italic text followed by volume/pages)
+    if let Some(comma_pos) = text.find(',') {
+        let journal_part = text[..comma_pos].trim();
+        let details_part = text[comma_pos + 1..].trim();
+
+        // If journal_part is not empty, create periodical
+        if !journal_part.is_empty() {
+            // Parse volume/issue and page information
+            let (volume_info, page_info) = if let Some(colon_pos) = details_part.find(':') {
+                let vol_part = details_part[..colon_pos].trim();
+                let page_part = details_part[colon_pos + 1..].trim();
+                (vol_part, Some(page_part))
+            } else {
+                (details_part.trim(), None)
+            };
+
+            // Check if there's an issue number in parentheses like "14(4)"
+            let (volume_number, issue_number) = if let Some(open_paren) = volume_info.find('(') {
+                if let Some(close_paren) = volume_info[open_paren..].find(')') {
+                    (
+                        Some(IntegerOrString::from(&volume_info[..open_paren])),
+                        Some(IntegerOrString::from(
+                            &volume_info[(open_paren + 1)..(open_paren + close_paren)],
+                        )),
+                    )
+                } else {
+                    (Some(IntegerOrString::from(volume_info)), None)
+                }
+            } else {
+                (Some(IntegerOrString::from(volume_info)), None)
+            };
+
+            // Parse page range if present
+            let (page_start, page_end, pagination) = if let Some(pages) = page_info {
+                let (start, end) = parse_page_range(pages);
+                // Check if we got a clean range (both start and end are integers)
+                let is_clean_range = matches!(
+                    (&start, &end),
+                    (
+                        Some(IntegerOrString::Integer(_)),
+                        Some(IntegerOrString::Integer(_))
+                    )
+                );
+
+                if is_clean_range {
+                    // Clean numeric range, use page_start and page_end
+                    (start, end, None)
+                } else if start.is_some() || end.is_some() {
+                    // Partial or string-based parsing, prefer pagination with structured pages as fallback
+                    (start, end, Some(pages.trim().to_string()))
+                } else {
+                    // Parsing failed completely, use pagination only
+                    (None, None, Some(pages.trim().to_string()))
+                }
+            } else {
+                (None, None, None)
+            };
+
+            return Some((
+                Box::new(Reference {
+                    title: Some(vec![t(journal_part)]),
+                    volume_number,
+                    issue_number,
+                    ..Default::default()
+                }),
+                page_start,
+                page_end,
+                pagination,
+            ));
+        }
+    }
+
+    None
+}
+
 /// Parse page range like "1221–1244." or "1125-1161" into start and end pages
 fn parse_page_range(page_info: &str) -> (Option<IntegerOrString>, Option<IntegerOrString>) {
     let trimmed = page_info.trim().trim_end_matches('.');
@@ -974,153 +1074,5 @@ fn parse_single_page(page_text: &str) -> Option<IntegerOrString> {
         return None;
     }
 
-    // Try to parse as integer
-    if cleaned.chars().all(|c| c.is_ascii_digit()) {
-        if let Ok(page_num) = cleaned.parse::<i64>() {
-            return Some(IntegerOrString::Integer(page_num));
-        }
-    }
-
-    // Fall back to string
-    Some(IntegerOrString::String(cleaned.to_string()))
-}
-
-/// Parse volume and issue information, creating proper nested structure
-fn parse_volume_and_issue_info(volume_info: &str, periodical: Periodical) -> Box<CreativeWorkVariant> {
-    // Check if there's an issue number in parentheses like "14(4)"
-    if let Some(open_paren) = volume_info.find('(') {
-        if let Some(close_paren) = volume_info[open_paren..].find(')') {
-            let volume_part = volume_info[..open_paren].trim();
-            let issue_part = &volume_info[open_paren + 1..open_paren + close_paren];
-
-            if !volume_part.is_empty() && !issue_part.is_empty() {
-                // Create nested structure: PublicationIssue -> PublicationVolume -> Periodical
-                let publication_volume = PublicationVolume {
-                    is_part_of: Some(Box::new(CreativeWorkVariant::Periodical(periodical))),
-                    volume_number: Some(IntegerOrString::String(volume_part.to_string())),
-                    ..Default::default()
-                };
-
-                let publication_issue = PublicationIssue {
-                    is_part_of: Some(Box::new(CreativeWorkVariant::PublicationVolume(
-                        publication_volume,
-                    ))),
-                    issue_number: Some(IntegerOrString::String(issue_part.to_string())),
-                    ..Default::default()
-                };
-
-                return Box::new(CreativeWorkVariant::PublicationIssue(publication_issue));
-            }
-        }
-    }
-
-    // No issue found, just volume
-    let publication_volume = PublicationVolume {
-        is_part_of: Some(Box::new(CreativeWorkVariant::Periodical(periodical))),
-        volume_number: Some(IntegerOrString::String(volume_info.to_string())),
-        ..Default::default()
-    };
-
-    Box::new(CreativeWorkVariant::PublicationVolume(publication_volume))
-}
-
-type PublicationInfo = (
-    Box<CreativeWorkVariant>,
-    Option<IntegerOrString>,
-    Option<IntegerOrString>,
-    Option<String>,
-);
-
-/// Parse publication block to extract venue information and page range
-fn parse_publication_block(text: &str) -> Option<PublicationInfo> {
-    // Check for arXiv preprint pattern - simple string parsing
-    if text.contains("arXiv") {
-        // Find arXiv: pattern
-        if let Some(start) = text.find("arXiv:") {
-            let after_arxiv = &text[start + 6..];
-            // Extract the arXiv number (digits.digits format)
-            let mut end = 0;
-            for (i, ch) in after_arxiv.char_indices() {
-                if ch.is_ascii_digit() || ch == '.' {
-                    end = i + 1;
-                } else {
-                    break;
-                }
-            }
-
-            if end > 0 {
-                let arxiv_id = &after_arxiv[..end];
-                let periodical = Periodical {
-                    name: Some("arXiv".to_string()),
-                    ..Default::default()
-                };
-
-                return Some((
-                    Box::new(CreativeWorkVariant::PublicationVolume(PublicationVolume {
-                        is_part_of: Some(Box::new(CreativeWorkVariant::Periodical(periodical))),
-                        volume_number: Some(IntegerOrString::String(arxiv_id.to_string())),
-                        ..Default::default()
-                    })),
-                    None,
-                    None,
-                    None,
-                ));
-            }
-        }
-    }
-
-    // Check for journal pattern (italic text followed by volume/pages)
-    if let Some(comma_pos) = text.find(',') {
-        let journal_part = text[..comma_pos].trim();
-        let details_part = text[comma_pos + 1..].trim();
-
-        // If journal_part is not empty, create periodical
-        if !journal_part.is_empty() {
-            let periodical = Periodical {
-                name: Some(journal_part.to_string()),
-                ..Default::default()
-            };
-
-            // Parse volume/issue and page information
-            let (volume_info, page_info) = if let Some(colon_pos) = details_part.find(':') {
-                let vol_part = details_part[..colon_pos].trim();
-                let page_part = details_part[colon_pos + 1..].trim();
-                (vol_part, Some(page_part))
-            } else {
-                (details_part.trim(), None)
-            };
-
-            let creative_work = parse_volume_and_issue_info(volume_info, periodical);
-
-            // Parse page range if present
-            let (page_start, page_end, pagination) = if let Some(pages) = page_info {
-                let (start, end) = parse_page_range(pages);
-                // Check if we got a clean range (both start and end are integers)
-                let is_clean_range = matches!(
-                    (&start, &end),
-                    (
-                        Some(IntegerOrString::Integer(_)),
-                        Some(IntegerOrString::Integer(_))
-                    )
-                );
-
-                if is_clean_range {
-                    // Clean numeric range, use page_start and page_end
-                    (start, end, None)
-                } else if start.is_some() || end.is_some() {
-                    // Partial or string-based parsing, prefer pagination with structured pages as fallback
-                    (start, end, Some(pages.trim().to_string()))
-                } else {
-                    // Parsing failed completely, use pagination only
-                    (None, None, Some(pages.trim().to_string()))
-                }
-            } else {
-                (None, None, None)
-            };
-
-            return Some((creative_work, page_start, page_end, pagination));
-        }
-    }
-
-    None
+    Some(IntegerOrString::from(cleaned))
 }

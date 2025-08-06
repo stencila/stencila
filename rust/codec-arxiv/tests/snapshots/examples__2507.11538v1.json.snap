@@ -128,11 +128,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  Companion Proceedings of the ACM on Web Conference 2025"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  Companion Proceedings of the ACM on Web Conference 2025"
+            }
+          }
+        ],
         "volumeNumber": "WWW ’25, pp.  893–897. ACM, May 2025."
       }
     },
@@ -863,15 +867,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "In Luis Chiruzzo"
-          },
-          "volumeNumber": "Alan Ritter, and Lu Wang"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In Luis Chiruzzo"
+            }
+          }
+        ],
+        "volumeNumber": "Alan Ritter, and Lu Wang ",
         "issueNumber": "eds."
       },
       "pageStart": "Human Language Technologies (Volume 1: Long Papers) , pp.  12247",
@@ -1494,15 +1499,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "In Lun-Wei Ku"
-          },
-          "volumeNumber": "Andre Martins, and Vivek Srikumar"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In Lun-Wei Ku"
+            }
+          }
+        ],
+        "volumeNumber": "Andre Martins, and Vivek Srikumar ",
         "issueNumber": "eds."
       },
       "pageStart": "ACL 2024 , pp.  13025",
@@ -2654,11 +2660,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  Conference on Empirical Methods in Natural Language Processing"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  Conference on Empirical Methods in Natural Language Processing"
+            }
+          }
+        ],
         "volumeNumber": "2024."
       }
     },

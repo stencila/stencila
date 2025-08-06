@@ -185,16 +185,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Statistical Methods in Medical Research"
-          },
-          "volumeNumber": "32"
-        },
-        "issueNumber": "8"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Statistical Methods in Medical Research"
+            }
+          }
+        ],
+        "volumeNumber": 32,
+        "issueNumber": 8
       },
       "pageStart": 1494,
       "pageEnd": 1510
@@ -233,12 +234,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "arXiv"
-        },
-        "volumeNumber": "2405.05781"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "arXiv"
+            }
+          }
+        ]
       }
     },
     {
@@ -283,15 +287,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Bernoulli"
-          },
-          "volumeNumber": "25"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Bernoulli"
+            }
+          }
+        ],
+        "volumeNumber": 25,
         "issueNumber": "4B"
       },
       "pageStart": 3276,
@@ -331,16 +336,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Journal of the Royal Statistical Society Series C (Applied Statistics)"
-          },
-          "volumeNumber": "65"
-        },
-        "issueNumber": "4"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of the Royal Statistical Society Series C (Applied Statistics)"
+            }
+          }
+        ],
+        "volumeNumber": 65,
+        "issueNumber": 4
       },
       "pageStart": 619,
       "pageEnd": 640
@@ -371,16 +377,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Journal of the Royal Statistical Society Series B (Methodological)"
-          },
-          "volumeNumber": "36"
-        },
-        "issueNumber": "2"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of the Royal Statistical Society Series B (Methodological)"
+            }
+          }
+        ],
+        "volumeNumber": 36,
+        "issueNumber": 2
       },
       "pageStart": 192,
       "pageEnd": 236
@@ -435,11 +442,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  Advances in Neural Information Processing Systems"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  Advances in Neural Information Processing Systems"
+            }
+          }
+        ],
         "volumeNumber": "volume 35, pages 9768–9783. Curran Associates, Inc."
       }
     },
@@ -515,12 +526,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "The Pan African Medical Journal"
-        },
-        "volumeNumber": "46"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Pan African Medical Journal"
+            }
+          }
+        ],
+        "volumeNumber": 46
       },
       "pageStart": 73,
       "pageEnd": 73
@@ -575,16 +590,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "British Medical Journal"
-          },
-          "volumeNumber": "321"
-        },
-        "issueNumber": "7252"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "British Medical Journal"
+            }
+          }
+        ],
+        "volumeNumber": 321,
+        "issueNumber": 7252
       },
       "pageStart": 36,
       "pageEnd": 39
@@ -639,16 +655,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Bayesian Analysis"
-          },
-          "volumeNumber": "14"
-        },
-        "issueNumber": "4"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Bayesian Analysis"
+            }
+          }
+        ],
+        "volumeNumber": 14,
+        "issueNumber": 4
       },
       "pageStart": 1221,
       "pageEnd": 1244
@@ -687,16 +704,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Journal of the American Statistical Association"
-          },
-          "volumeNumber": "90"
-        },
-        "issueNumber": "430"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of the American Statistical Association"
+            }
+          }
+        ],
+        "volumeNumber": 90,
+        "issueNumber": 430
       },
       "pageStart": 577,
       "pageEnd": 588
@@ -727,16 +745,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "The Annals of Statistics"
-          },
-          "volumeNumber": "1"
-        },
-        "issueNumber": "2"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Annals of Statistics"
+            }
+          }
+        ],
+        "volumeNumber": 1,
+        "issueNumber": 2
       },
       "pageStart": 209,
       "pageEnd": 230
@@ -815,12 +834,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Periodontology"
-        },
-        "volumeNumber": "80"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Periodontology"
+            }
+          }
+        ],
+        "volumeNumber": 80
       },
       "pageStart": 1062,
       "pageEnd": 1068
@@ -859,16 +882,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Periodontology 2000"
-          },
-          "volumeNumber": "62"
-        },
-        "issueNumber": "1"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Periodontology 2000"
+            }
+          }
+        ],
+        "volumeNumber": 62,
+        "issueNumber": 1
       },
       "pageStart": 59,
       "pageEnd": 94
@@ -899,11 +923,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "PhD thesis"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "PhD thesis"
+            }
+          }
+        ],
         "volumeNumber": "University of North Carolina at Chapel Hill."
       }
     },
@@ -957,16 +985,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Biostatistics"
-          },
-          "volumeNumber": "21"
-        },
-        "issueNumber": "1"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Biostatistics"
+            }
+          }
+        ],
+        "volumeNumber": 21,
+        "issueNumber": 1
       },
       "pageStart": 50,
       "pageEnd": 68
@@ -997,12 +1026,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Lifetime Data Analysis"
-        },
-        "volumeNumber": "5"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Lifetime Data Analysis"
+            }
+          }
+        ],
+        "volumeNumber": 5
       },
       "pageStart": 239,
       "pageEnd": 264
@@ -1033,12 +1066,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Frontiers in Public Health"
-        },
-        "volumeNumber": "5"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Frontiers in Public Health"
+            }
+          }
+        ],
+        "volumeNumber": 5
       },
       "pageStart": 277176,
       "pageEnd": 277176
@@ -1077,12 +1114,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of the American Statistical Association"
-        },
-        "volumeNumber": "96"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of the American Statistical Association"
+            }
+          }
+        ],
+        "volumeNumber": 96
       },
       "pageStart": 161,
       "pageEnd": 173
@@ -1135,12 +1176,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Clinical Periodontology"
-        },
-        "volumeNumber": "45"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Clinical Periodontology"
+            }
+          }
+        ],
+        "volumeNumber": 45
       },
       "pageStart": 1365,
       "pageEnd": 1374
@@ -1219,16 +1264,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Biometrics"
-          },
-          "volumeNumber": "74"
-        },
-        "issueNumber": "2"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Biometrics"
+            }
+          }
+        ],
+        "volumeNumber": 74,
+        "issueNumber": 2
       },
       "pageStart": 636,
       "pageEnd": 644
@@ -1275,16 +1321,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Statistica Neerlandica"
-          },
-          "volumeNumber": "71"
-        },
-        "issueNumber": "1"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Statistica Neerlandica"
+            }
+          }
+        ],
+        "volumeNumber": 71,
+        "issueNumber": 1
       },
       "pageStart": 31,
       "pageEnd": 57
@@ -1323,16 +1370,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Biometrika"
-          },
-          "volumeNumber": "94"
-        },
-        "issueNumber": "2"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Biometrika"
+            }
+          }
+        ],
+        "volumeNumber": 94,
+        "issueNumber": 2
       },
       "pageStart": 496,
       "pageEnd": 501
@@ -1371,16 +1419,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Mathematical Geosciences"
-          },
-          "volumeNumber": "49"
-        },
-        "issueNumber": "5"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Mathematical Geosciences"
+            }
+          }
+        ],
+        "volumeNumber": 49,
+        "issueNumber": 5
       },
       "pageStart": 557,
       "pageEnd": 582
@@ -1456,16 +1505,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Journal of Clinical Periodontology"
-          },
-          "volumeNumber": "41"
-        },
-        "issueNumber": "9"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Clinical Periodontology"
+            }
+          }
+        ],
+        "volumeNumber": 41,
+        "issueNumber": 9
       },
       "pageStart": 837,
       "pageEnd": 845
@@ -1525,16 +1575,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Statistical Methods in Medical Research"
-          },
-          "volumeNumber": "18"
-        },
-        "issueNumber": "2"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Statistical Methods in Medical Research"
+            }
+          }
+        ],
+        "volumeNumber": 18,
+        "issueNumber": 2
       },
       "pageStart": 195,
       "pageEnd": 222
@@ -1581,16 +1632,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Journal of Nonparametric Statistics"
-          },
-          "volumeNumber": "23"
-        },
-        "issueNumber": "4"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Nonparametric Statistics"
+            }
+          }
+        ],
+        "volumeNumber": 23,
+        "issueNumber": 4
       },
       "pageStart": 867,
       "pageEnd": 884
@@ -1637,12 +1689,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Machine Learning Research: Workshop and Conference Proceedings"
-        },
-        "volumeNumber": "9"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Machine Learning Research: Workshop and Conference Proceedings"
+            }
+          }
+        ],
+        "volumeNumber": 9
       },
       "pageStart": 541,
       "pageEnd": 548
@@ -1673,16 +1729,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Combinatorics"
-          },
-          "volumeNumber": "Probability and Computing , 11"
-        },
-        "issueNumber": "5"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Combinatorics"
+            }
+          }
+        ],
+        "volumeNumber": "Probability and Computing , 11",
+        "issueNumber": 5
       },
       "pageStart": 501,
       "pageEnd": 514
@@ -1763,12 +1820,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Statistics and Computing"
-        },
-        "volumeNumber": "30"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Statistics and Computing"
+            }
+          }
+        ],
+        "volumeNumber": 30
       },
       "pageStart": 839,
       "pageEnd": 853
@@ -1807,16 +1868,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Annals of Applied Statistics"
-          },
-          "volumeNumber": "4"
-        },
-        "issueNumber": "1"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Annals of Applied Statistics"
+            }
+          }
+        ],
+        "volumeNumber": 4,
+        "issueNumber": 1
       },
       "pageStart": 439,
       "pageEnd": 459
@@ -1847,12 +1909,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Statistica Sinica"
-        },
-        "volumeNumber": "4"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Statistica Sinica"
+            }
+          }
+        ],
+        "volumeNumber": 4
       },
       "pageStart": 639,
       "pageEnd": 650
@@ -1883,16 +1949,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Journal of the Royal Statistical Society. Series B (Methodological)"
-          },
-          "volumeNumber": "38"
-        },
-        "issueNumber": "3"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of the Royal Statistical Society. Series B (Methodological)"
+            }
+          }
+        ],
+        "volumeNumber": 38,
+        "issueNumber": 3
       },
       "pageStart": 290,
       "pageEnd": 295
@@ -1929,11 +1996,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Chapman and Hall/CRC"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Chapman and Hall/CRC"
+            }
+          }
+        ],
         "volumeNumber": "1st edition."
       }
     },
@@ -1963,11 +2034,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "PhD thesis"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "PhD thesis"
+            }
+          }
+        ],
         "volumeNumber": "University of Kentucky."
       }
     },
@@ -2005,16 +2080,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Computational Statistics and Data Analysis"
-          },
-          "volumeNumber": "56"
-        },
-        "issueNumber": "9"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Computational Statistics and Data Analysis"
+            }
+          }
+        ],
+        "volumeNumber": 56,
+        "issueNumber": 9
       },
       "pageStart": 2729,
       "pageEnd": 2741
@@ -2053,12 +2129,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "J. Comput. Graph. Stat."
-        },
-        "volumeNumber": "17"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J. Comput. Graph. Stat."
+            }
+          }
+        ],
+        "volumeNumber": 17
       },
       "pageStart": 21,
       "pageEnd": 37
@@ -2097,16 +2177,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Journal of the Canadian Dental Association"
-          },
-          "volumeNumber": "66"
-        },
-        "issueNumber": "11"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of the Canadian Dental Association"
+            }
+          }
+        ],
+        "volumeNumber": 66,
+        "issueNumber": 11
       },
       "pageStart": 594,
       "pageEnd": 599
@@ -2145,16 +2226,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Journal of Computational and Graphical Statistics"
-          },
-          "volumeNumber": "3"
-        },
-        "issueNumber": "4"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Computational and Graphical Statistics"
+            }
+          }
+        ],
+        "volumeNumber": 3,
+        "issueNumber": 4
       },
       "pageStart": 409,
       "pageEnd": 432
@@ -2185,12 +2267,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Australian Dental Journal"
-        },
-        "volumeNumber": "54"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Australian Dental Journal"
+            }
+          }
+        ],
+        "volumeNumber": 54
       },
       "pageStart": "S44",
       "pageEnd": "S50",
@@ -2254,12 +2340,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Lifetime Data Analysis"
-        },
-        "volumeNumber": "21"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Lifetime Data Analysis"
+            }
+          }
+        ],
+        "volumeNumber": 21
       },
       "pageStart": 241,
       "pageEnd": 258

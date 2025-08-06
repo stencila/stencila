@@ -127,12 +127,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Advances in Neural Information Processing Systems"
-        },
-        "volumeNumber": "35"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Advances in Neural Information Processing Systems"
+            }
+          }
+        ],
+        "volumeNumber": 35
       },
       "pageStart": 29944,
       "pageEnd": "29959, 2022",
@@ -206,11 +210,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  International Workshop on Neural-Symbolic Learning and Reasoning (NeSy)"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  International Workshop on Neural-Symbolic Learning and Reasoning (NeSy)"
+            }
+          }
+        ],
         "volumeNumber": "2022."
       }
     },
@@ -246,12 +254,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "arXiv"
-        },
-        "volumeNumber": "2504.07055"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "arXiv"
+            }
+          }
+        ]
       }
     },
     {
@@ -286,11 +297,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "CoRR"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "CoRR"
+            }
+          }
+        ],
         "volumeNumber": "abs/cs/0511042, 2005."
       }
     },
@@ -345,12 +360,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Artificial Intelligence"
-        },
-        "volumeNumber": "303"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Artificial Intelligence"
+            }
+          }
+        ],
+        "volumeNumber": 303
       },
       "pageStart": "103649, 2022",
       "pageEnd": "103649, 2022",
@@ -405,11 +424,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  Proceedings of 24th International Joint Conference on Artificial Intelligence (IJCAI)"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  Proceedings of 24th International Joint Conference on Artificial Intelligence (IJCAI)"
+            }
+          }
+        ],
         "volumeNumber": "pages 2770–2776. AAAI Press/International Joint Conferences on Artificial Intelligence, 2015."
       }
     },
@@ -557,11 +580,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "CoRR"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "CoRR"
+            }
+          }
+        ],
         "volumeNumber": "abs/1711.03902, 2017."
       }
     },
@@ -597,15 +624,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Artificial Intelligence"
-          },
-          "volumeNumber": "172"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Artificial Intelligence"
+            }
+          }
+        ],
+        "volumeNumber": 172,
         "issueNumber": "6-7"
       },
       "pageStart": 772,
@@ -652,11 +680,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "UCLA. URL: http://starai. cs. ucla. edu/papers/ProbCirc20. pdf"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "UCLA. URL: http://starai. cs. ucla. edu/papers/ProbCirc20. pdf"
+            }
+          }
+        ],
         "volumeNumber": "page 6, 2020."
       }
     },
@@ -683,11 +715,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  Annales de l’institut Fourier"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  Annales de l’institut Fourier"
+            }
+          }
+        ],
         "volumeNumber": "volume 5, pages 131–295, 1954."
       }
     },
@@ -733,12 +769,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Artificial Intelligence Research"
-        },
-        "volumeNumber": "67"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Artificial Intelligence Research"
+            }
+          }
+        ],
+        "volumeNumber": 67
       },
       "pageStart": 285,
       "pageEnd": "325, 2020",
@@ -794,12 +834,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "arXiv"
-        },
-        "volumeNumber": "2107.10295"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "arXiv"
+            }
+          }
+        ]
       }
     },
     {
@@ -871,11 +914,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "FLAP"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "FLAP"
+            }
+          }
+        ],
         "volumeNumber": "6, 2019."
       }
     },
@@ -912,11 +959,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  Proceedings of the international conference on automated planning and scheduling"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  Proceedings of the international conference on automated planning and scheduling"
+            }
+          }
+        ],
         "volumeNumber": "volume 31, pages 122–130, 2021."
       }
     },
@@ -959,11 +1010,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  Ijcai"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  Ijcai"
+            }
+          }
+        ],
         "volumeNumber": "volume 13, pages 854–860, 2013."
       }
     },
@@ -1018,11 +1073,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Morgan & Claypool Publishers"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Morgan & Claypool Publishers"
+            }
+          }
+        ],
         "volumeNumber": "2016."
       }
     },
@@ -1077,11 +1136,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In Christian Bessiere"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In Christian Bessiere"
+            }
+          }
+        ],
         "volumeNumber": "editor,  Proceedings of the Twenty-Ninth International Joint Conference on Artificial Intelligence, IJCAI-20 , pages 4943–4950. International Joint Conferences on Artificial Intelligence Organization, 7 2020."
       }
     },
@@ -1157,11 +1220,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "UAI"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "UAI"
+            }
+          }
+        ],
         "volumeNumber": "2023."
       }
     },
@@ -1228,12 +1295,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "arXiv"
-        },
-        "volumeNumber": "2307.08411"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "arXiv"
+            }
+          }
+        ]
       }
     },
     {
@@ -1277,11 +1347,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Artif. Intell."
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Artif. Intell."
+            }
+          }
+        ],
         "volumeNumber": "244, 2017."
       }
     },
@@ -1353,11 +1427,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  ICLR"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  ICLR"
+            }
+          }
+        ],
         "volumeNumber": "2019."
       }
     },
@@ -1405,12 +1483,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Artificial Intelligence"
-        },
-        "volumeNumber": "337"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Artificial Intelligence"
+            }
+          }
+        ],
+        "volumeNumber": 337
       },
       "pageStart": "104227, 2024",
       "pageEnd": "104227, 2024",
@@ -1457,11 +1539,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  European Conference on Symbolic and Quantitative Approaches to Reasoning and Uncertainty"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  European Conference on Symbolic and Quantitative Approaches to Reasoning and Uncertainty"
+            }
+          }
+        ],
         "volumeNumber": "pages 53–57. Springer, 1991."
       }
     },
@@ -1533,11 +1619,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  International Conference on Machine Learning"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  International Conference on Machine Learning"
+            }
+          }
+        ],
         "volumeNumber": "pages 1931–1941. PMLR, 2019."
       }
     },
@@ -1574,11 +1664,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Artificial Intelligence Review"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Artificial Intelligence Review"
+            }
+          }
+        ],
         "volumeNumber": "2023."
       }
     },
@@ -1668,11 +1762,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Neuro-Symbolic Artificial Intelligence: The State of the Art"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Neuro-Symbolic Artificial Intelligence: The State of the Art"
+            }
+          }
+        ],
         "volumeNumber": "2022."
       }
     },
@@ -1708,11 +1806,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  ICLP/SLP"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  ICLP/SLP"
+            }
+          }
+        ],
         "volumeNumber": "volume 88, pages 1070–1080. Cambridge, MA, 1988."
       }
     },
@@ -1743,16 +1845,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Fuzzy sets and systems"
-          },
-          "volumeNumber": "40"
-        },
-        "issueNumber": "3"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Fuzzy sets and systems"
+            }
+          }
+        ],
+        "volumeNumber": 40,
+        "issueNumber": 3
       },
       "pageStart": 431,
       "pageEnd": "450, 1991",
@@ -1795,11 +1898,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "IOS Press"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "IOS Press"
+            }
+          }
+        ],
         "volumeNumber": "2021."
       }
     },
@@ -1826,16 +1933,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Communications of the ACM"
-          },
-          "volumeNumber": "65"
-        },
-        "issueNumber": "4"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Communications of the ACM"
+            }
+          }
+        ],
+        "volumeNumber": 65,
+        "issueNumber": 4
       },
       "pageStart": 56,
       "pageEnd": "57, 2022",
@@ -1883,11 +1991,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  International Conference on Neural-Symbolic Learning and Reasoning"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  International Conference on Neural-Symbolic Learning and Reasoning"
+            }
+          }
+        ],
         "volumeNumber": "pages 312–330. Springer, 2024."
       }
     },
@@ -1914,16 +2026,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "AI Mag."
-          },
-          "volumeNumber": "43"
-        },
-        "issueNumber": "1"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "AI Mag."
+            }
+          }
+        ],
+        "volumeNumber": 43,
+        "issueNumber": 1
       },
       "pageStart": 93,
       "pageEnd": "104, 2022",
@@ -1973,12 +2086,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Applied Logic"
-        },
-        "volumeNumber": "22"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Applied Logic"
+            }
+          }
+        ],
+        "volumeNumber": 22
       },
       "pageStart": 46,
       "pageEnd": "62, July 2017",
@@ -2025,11 +2142,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "CoRR"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "CoRR"
+            }
+          }
+        ],
         "volumeNumber": "abs/1808.08441, 2018."
       }
     },
@@ -2074,15 +2195,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Proceedings of the ACM on Programming Languages"
-          },
-          "volumeNumber": "7"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Proceedings of the ACM on Programming Languages"
+            }
+          }
+        ],
+        "volumeNumber": 7,
         "issueNumber": "PLDI"
       },
       "pageStart": 1463,
@@ -2121,11 +2243,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Logic"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Logic"
+            }
+          }
+        ],
         "volumeNumber": "semantics, metamathematics , pages 38–59, 1956."
       }
     },
@@ -2162,12 +2288,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Advances in Neural Information Processing Systems"
-        },
-        "volumeNumber": "36"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Advances in Neural Information Processing Systems"
+            }
+          }
+        ],
+        "volumeNumber": 36
       },
       "pageStart": 60804,
       "pageEnd": "60820, 2023",
@@ -2215,12 +2345,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "arXiv"
-        },
-        "volumeNumber": "2412.07331"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "arXiv"
+            }
+          }
+        ]
       }
     },
     {
@@ -2283,11 +2416,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  NeurIPS"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  NeurIPS"
+            }
+          }
+        ],
         "volumeNumber": "2018."
       }
     },
@@ -2351,12 +2488,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Artificial Intelligence"
-        },
-        "volumeNumber": "298"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Artificial Intelligence"
+            }
+          }
+        ],
+        "volumeNumber": 298
       },
       "pageStart": "103504, September 2021",
       "pageEnd": "103504, September 2021",
@@ -2394,11 +2535,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  Uncertainty in Artificial Intelligence"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  Uncertainty in Artificial Intelligence"
+            }
+          }
+        ],
         "volumeNumber": "pages 908–917. PMLR, 2021."
       }
     },
@@ -2452,11 +2597,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  Joint European Conference on Machine Learning and Knowledge Discovery in Databases"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  Joint European Conference on Machine Learning and Knowledge Discovery in Databases"
+            }
+          }
+        ],
         "volumeNumber": "pages 517–532. Springer, 2019."
       }
     },
@@ -2511,11 +2660,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Artificial Intelligence"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Artificial Intelligence"
+            }
+          }
+        ],
         "volumeNumber": "page 104062, 2024."
       }
     },
@@ -2552,12 +2705,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Artificial Intelligence"
-        },
-        "volumeNumber": "340"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Artificial Intelligence"
+            }
+          }
+        ],
+        "volumeNumber": 340
       },
       "pageStart": "104273, 2025",
       "pageEnd": "104273, 2025",
@@ -2631,12 +2788,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "arXiv"
-        },
-        "volumeNumber": "2205.14268"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "arXiv"
+            }
+          }
+        ]
       }
     },
     {
@@ -2671,11 +2831,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Advances in neural information processing systems"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Advances in neural information processing systems"
+            }
+          }
+        ],
         "volumeNumber": "30, 2017."
       }
     },
@@ -2702,16 +2866,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "International Journal of Approximate Reasoning"
-          },
-          "volumeNumber": "5"
-        },
-        "issueNumber": "1"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "International Journal of Approximate Reasoning"
+            }
+          }
+        ],
+        "volumeNumber": 5,
+        "issueNumber": 1
       },
       "pageStart": 45,
       "pageEnd": "88, 1991",
@@ -2750,12 +2915,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "arXiv"
-        },
-        "volumeNumber": "1606.04422"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "arXiv"
+            }
+          }
+        ]
       }
     },
     {
@@ -2835,11 +3003,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  International Conference on Probabilistic Graphical Models"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  International Conference on Probabilistic Graphical Models"
+            }
+          }
+        ],
         "volumeNumber": "pages 401–412. PMLR, 2020."
       }
     },
@@ -2894,16 +3066,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Machine Learning"
-          },
-          "volumeNumber": "112"
-        },
-        "issueNumber": "5"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Machine Learning"
+            }
+          }
+        ],
+        "volumeNumber": 112,
+        "issueNumber": 5
       },
       "pageStart": 1465,
       "pageEnd": "1497, 2023",
@@ -2969,11 +3142,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  Proceedings of the 19th International Conference on Principles of Knowledge Representation and Reasoning"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  Proceedings of the 19th International Conference on Principles of Knowledge Representation and Reasoning"
+            }
+          }
+        ],
         "volumeNumber": "pages 463–473, 8 2022."
       }
     },
@@ -3036,11 +3213,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  Proceedings of 24th International Conference on Logic"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  Proceedings of 24th International Conference on Logic"
+            }
+          }
+        ],
         "volumeNumber": "volume 94, pages 473–493, 2023."
       }
     },
@@ -3103,12 +3284,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Journal of Artificial Intelligence Research"
-        },
-        "volumeNumber": "62"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Artificial Intelligence Research"
+            }
+          }
+        ],
+        "volumeNumber": 62
       },
       "pageStart": 69,
       "pageEnd": "100, 2018",
@@ -3146,11 +3331,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  The Thirteenth International Conference on Learning Representations"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  The Thirteenth International Conference on Learning Representations"
+            }
+          }
+        ],
         "volumeNumber": "2025."
       }
     },
@@ -3177,16 +3366,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Transactions of the Society of Instrument and Control Engineers"
-          },
-          "volumeNumber": "8"
-        },
-        "issueNumber": "2"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Transactions of the Society of Instrument and Control Engineers"
+            }
+          }
+        ],
+        "volumeNumber": 8,
+        "issueNumber": 2
       },
       "pageStart": 218,
       "pageEnd": "226, 1972",
@@ -3224,11 +3414,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "IEEE Transactions on Robotics"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "IEEE Transactions on Robotics"
+            }
+          }
+        ],
         "volumeNumber": "2024."
       }
     },
@@ -3273,11 +3467,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  Proceedings of the AAAI conference on artificial intelligence"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  Proceedings of the AAAI conference on artificial intelligence"
+            }
+          }
+        ],
         "volumeNumber": "volume 35, pages 5051–5060, 2021."
       }
     },
@@ -3344,12 +3542,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "arXiv"
-        },
-        "volumeNumber": "2102.11965"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "arXiv"
+            }
+          }
+        ]
       }
     },
     {
@@ -3386,15 +3587,16 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "J. Web Eng."
-          },
-          "volumeNumber": "18"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "J. Web Eng."
+            }
+          }
+        ],
+        "volumeNumber": 18,
         "issueNumber": "1-3"
       },
       "pageStart": 97,
@@ -3452,11 +3654,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  International Conference on Neural-Symbolic Learning and Reasoning"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  International Conference on Neural-Symbolic Learning and Reasoning"
+            }
+          }
+        ],
         "volumeNumber": "pages 219–239. Springer, 2024."
       }
     },
@@ -3483,11 +3689,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  Logics for concurrency: structure versus automata"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  Logics for concurrency: structure versus automata"
+            }
+          }
+        ],
         "volumeNumber": "pages 238–266. Springer, 2005."
       }
     },
@@ -3523,11 +3733,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Springer Science & Business Media"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Springer Science & Business Media"
+            }
+          }
+        ],
         "volumeNumber": "2010."
       }
     },
@@ -3590,11 +3804,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  ACL"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  ACL"
+            }
+          }
+        ],
         "volumeNumber": "2019."
       }
     },
@@ -3649,11 +3867,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  Proceedings of the AAAI Conference on Artificial Intelligence"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  Proceedings of the AAAI Conference on Artificial Intelligence"
+            }
+          }
+        ],
         "volumeNumber": "volume 36, pages 10090–10100, 2022a."
       }
     },
@@ -3708,11 +3930,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  Proceedings of the AAAI Conference on Artificial Intelligence"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  Proceedings of the AAAI Conference on Artificial Intelligence"
+            }
+          }
+        ],
         "volumeNumber": "volume 36, pages 10090–10100, 2022b."
       }
     },
@@ -3777,11 +4003,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  ICML"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  ICML"
+            }
+          }
+        ],
         "volumeNumber": "2018."
       }
     },
@@ -3826,11 +4056,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Advances in neural information processing systems"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Advances in neural information processing systems"
+            }
+          }
+        ],
         "volumeNumber": "30, 2017."
       }
     },
@@ -3885,11 +4119,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  Proceedings of the Thirty-Second International Joint Conference on Artificial Intelligence"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  Proceedings of the Thirty-Second International Joint Conference on Artificial Intelligence"
+            }
+          }
+        ],
         "volumeNumber": "pages 5739–5749, 2023."
       }
     },
@@ -3934,11 +4172,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "In  Proceedings of the Twenty-Ninth International Joint Conference on Artificial Intelligence"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "In  Proceedings of the Twenty-Ninth International Joint Conference on Artificial Intelligence"
+            }
+          }
+        ],
         "volumeNumber": "IJCAI , pages 1755–1762, 2020."
       }
     },
@@ -3965,11 +4207,15 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationVolume",
-        "isPartOf": {
-          "type": "Periodical",
-          "name": "Information and Control"
-        },
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Information and Control"
+            }
+          }
+        ],
         "volumeNumber": "1965."
       }
     },
@@ -3997,16 +4243,17 @@ expression: article
         }
       ],
       "isPartOf": {
-        "type": "PublicationIssue",
-        "isPartOf": {
-          "type": "PublicationVolume",
-          "isPartOf": {
-            "type": "Periodical",
-            "name": "Fuzzy sets and systems"
-          },
-          "volumeNumber": "1"
-        },
-        "issueNumber": "1"
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Fuzzy sets and systems"
+            }
+          }
+        ],
+        "volumeNumber": 1,
+        "issueNumber": 1
       },
       "pageStart": 3,
       "pageEnd": "28, 1978",
