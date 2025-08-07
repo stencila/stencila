@@ -25,7 +25,7 @@ pub fn authors(input: &mut &str) -> Result<Vec<Author>> {
 
 /// Parse a single author in various formats
 pub fn author(input: &mut &str) -> Result<Author> {
-    alt((person_family_given, person_given_family)).parse_next(input)
+    alt((person_family_given, person_given_family, organization)).parse_next(input)
 }
 
 /// Parse multiple persons separated by various delimiters
@@ -91,6 +91,11 @@ pub fn person_family_given(input: &mut &str) -> Result<Author> {
 /// - missing period after initials
 /// - given names rather than initials
 ///
+/// To avoid matching "John Smith" etc to an organization, this requires that
+/// first name and family names are (a) not all caps, (b) contains a word
+/// generally only used by organizations and not people (e.g. "Institute",
+/// "Association")
+///
 /// As used for second and subsequent authors in MLA.
 pub fn person_given_family(input: &mut &str) -> Result<Author> {
     (
@@ -129,6 +134,11 @@ pub fn person_given_family(input: &mut &str) -> Result<Author> {
             multispace1,
         ),
     )
+        .verify(
+            |(first, _initials, family_names): &(&str, Option<Vec<&str>>, Vec<&str>)| {
+                !is_likely_organization(first, family_names)
+            },
+        )
         .map(
             |(first, initials, family_names): (&str, Option<Vec<&str>>, Vec<&str>)| {
                 let mut given_names = vec![first.to_string()];
@@ -164,6 +174,81 @@ fn organization(input: &mut &str) -> Result<Author> {
 fn is_hyphen(c: char) -> bool {
     // Hyphen-minus, En dash, Hyphen, Figure dash, Em dash, Horizontal bar, Minus sign
     matches!(c, '-' | '–' | '‐' | '‒' | '—' | '―' | '−')
+}
+
+/// Check if a parsed name is likely an organization rather than a person
+///
+/// Returns true if:
+/// - All words are in ALL CAPS
+/// - Contains organizational keywords like "Institute", "Association", etc.
+fn is_likely_organization(first: &str, family_names: &[&str]) -> bool {
+    let all_words: Vec<&str> = std::iter::once(first)
+        .chain(family_names.iter().copied())
+        .collect();
+
+    // Check if all words are in ALL CAPS (indicating likely organization)
+    // But exclude single letters or short initials with periods
+    if all_words.len() >= 2
+        && all_words.iter().all(|word| {
+            let clean_word = word.trim_end_matches('.');
+            // Must be longer than 2 chars to be considered "all caps organization"
+            clean_word.len() > 2
+                && clean_word
+                    .chars()
+                    .all(|c| !c.is_alphabetic() || c.is_uppercase())
+        })
+    {
+        return true;
+    }
+
+    // Check for organizational keywords
+    let org_keywords = [
+        "Institute",
+        "Institution",
+        "Association",
+        "Organization",
+        "Organisation",
+        "Foundation",
+        "Society",
+        "Academy",
+        "University",
+        "College",
+        "School",
+        "Department",
+        "Ministry",
+        "Agency",
+        "Bureau",
+        "Office",
+        "Center",
+        "Centre",
+        "Council",
+        "Committee",
+        "Board",
+        "Group",
+        "Corporation",
+        "Company",
+        "Ltd",
+        "Inc",
+        "LLC",
+        "Trust",
+        "Fund",
+        "Bank",
+        "Union",
+        "Federation",
+        "Alliance",
+        "Consortium",
+        "Partnership",
+        "Network",
+        "Authority",
+        "Commission",
+        "Service",
+    ];
+    all_words.iter().any(|word| {
+        let clean_word = word.trim_end_matches('.');
+        org_keywords
+            .iter()
+            .any(|keyword| clean_word.eq_ignore_ascii_case(keyword))
+    })
 }
 
 #[cfg(test)]
