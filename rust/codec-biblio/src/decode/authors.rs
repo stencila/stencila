@@ -24,6 +24,26 @@ pub fn author(input: &mut &str) -> Result<Author> {
     alt((person_family_initials, organization)).parse_next(input)
 }
 
+/// Parse multiple persons separated by various delimiters
+pub fn persons(input: &mut &str) -> Result<Vec<Person>> {
+    separated(
+        1..,
+        person,
+        (multispace0, alt(("&", "and", ",", ", &")), multispace0),
+    )
+    .parse_next(input)
+}
+
+/// Parse a single person in various formats
+pub fn person(input: &mut &str) -> Result<Person> {
+    alt((person_family_initials,))
+        .map(|author| match author {
+            Author::Person(person) => person,
+            _ => Person::default(),
+        })
+        .parse_next(input)
+}
+
 /// Parse person in "Family, F. M." format and deviations
 ///
 /// Handles deviations:
