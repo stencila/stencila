@@ -82,10 +82,8 @@ mod tests {
 
     #[test]
     fn test_article() -> Result<()> {
-        // Author, A. B., & Author, B. C. (1999). Title of article. Title of Journal, 1(2) 34-56. https://doi.org/xyz
-
         let reference = apa(
-            &mut "Author, A. B., & Author, B. C. (1999). Title of article. Title of Journal, 1(2) 34-56. https://doi.org/xyz",
+            &mut "Author, A. B., & Author, C. D. (1999). Title of article. Title of Journal, 1(2) 34-56. https://doi.org/xyz",
         )?;
 
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
@@ -104,6 +102,7 @@ mod tests {
         );
         assert!(reference.page_start.is_some());
         assert!(reference.page_end.is_some());
+        assert!(reference.doi.is_some());
 
         Ok(())
     }

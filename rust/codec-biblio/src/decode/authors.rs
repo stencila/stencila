@@ -7,7 +7,7 @@ use winnow::{
     token::{take_till, take_while},
 };
 
-use codec::schema::{Author, Person};
+use codec::schema::{Author, Organization, Person};
 
 /// Parse multiple authors separated by various delimiters
 pub fn authors(input: &mut &str) -> Result<Vec<Author>> {
@@ -21,7 +21,7 @@ pub fn authors(input: &mut &str) -> Result<Vec<Author>> {
 
 /// Parse a single author in various formats
 pub fn author(input: &mut &str) -> Result<Author> {
-    alt((person_family_initials,)).parse_next(input)
+    alt((person_family_initials, organization)).parse_next(input)
 }
 
 /// Parse person in "Family, F. M." format and deviations
@@ -58,6 +58,21 @@ fn person_family_initials(input: &mut &str) -> Result<Author> {
         .parse_next(input)
 }
 
+/// Parse an organization
+///
+/// Generally, used as a fallback if the string does not match expected format
+/// for a [`Person`].
+fn organization(input: &mut &str) -> Result<Author> {
+    take_while(2.., |c: char| !c.is_ascii_punctuation())
+        .map(|name: &str| {
+            Author::Organization(Organization {
+                name: Some(name.to_string()),
+                ..Default::default()
+            })
+        })
+        .parse_next(input)
+}
+
 #[cfg(test)]
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
@@ -66,15 +81,18 @@ mod tests {
 
     #[test]
     fn test_authors() -> Result<()> {
-        // Mainly a test of separators. Use specific tests below for testing author variations
+        // Single person
         let items = authors(&mut "Author, A. B.")?;
         assert_eq!(items.len(), 1);
 
+        // Two people with ampersand
         let items = authors(&mut "Author, A. B., & Author, B. C.")?;
         assert_eq!(items.len(), 2);
 
         Ok(())
     }
+    // In the following tests we parse using `authors` as a test of differentiating between different
+    // authors types and that the sub-parsers to not conflict
 
     #[test]
     fn test_person_family_initials() -> Result<()> {
@@ -83,7 +101,7 @@ mod tests {
             family_names,
             given_names,
             ..
-        }) = person_family_initials(&mut "Smith, J. A.")?
+        }) = author(&mut "Smith, J. A.")?
         {
             assert_eq!(family_names, Some(vec!["Smith".to_string()]));
             assert_eq!(given_names, Some(vec!["J.".to_string(), "A.".to_string()]));
@@ -96,7 +114,7 @@ mod tests {
             family_names,
             given_names,
             ..
-        }) = person_family_initials(&mut "Smith, J A.")?
+        }) = author(&mut "Smith, J A.")?
         {
             assert_eq!(family_names, Some(vec!["Smith".to_string()]));
             assert_eq!(given_names, Some(vec!["J".to_string(), "A.".to_string()]));
@@ -109,7 +127,7 @@ mod tests {
             family_names,
             given_names,
             ..
-        }) = person_family_initials(&mut "One Two, John A.")?
+        }) = author(&mut "One Two, John A.")?
         {
             assert_eq!(family_names, Some(vec!["One Two".to_string()]));
             assert_eq!(
@@ -125,7 +143,7 @@ mod tests {
             family_names,
             given_names,
             ..
-        }) = person_family_initials(&mut "Johnson, M.")?
+        }) = author(&mut "Johnson, M.")?
         {
             assert_eq!(family_names, Some(vec!["Johnson".to_string()]));
             assert_eq!(given_names, Some(vec!["M.".to_string()]));
@@ -138,7 +156,7 @@ mod tests {
             family_names,
             given_names,
             ..
-        }) = person_family_initials(&mut "Wilson, R")?
+        }) = author(&mut "Wilson, R")?
         {
             assert_eq!(family_names, Some(vec!["Wilson".to_string()]));
             assert_eq!(given_names, Some(vec!["R".to_string()]));
@@ -151,7 +169,7 @@ mod tests {
             family_names,
             given_names,
             ..
-        }) = person_family_initials(&mut "Brown, A. B. C.")?
+        }) = author(&mut "Brown, A. B. C.")?
         {
             assert_eq!(family_names, Some(vec!["Brown".to_string()]));
             assert_eq!(
@@ -167,7 +185,7 @@ mod tests {
             family_names,
             given_names,
             ..
-        }) = person_family_initials(&mut "Garcia, Maria J.")?
+        }) = author(&mut "Garcia, Maria J.")?
         {
             assert_eq!(family_names, Some(vec!["Garcia".to_string()]));
             assert_eq!(
@@ -183,7 +201,7 @@ mod tests {
             family_names,
             given_names,
             ..
-        }) = person_family_initials(&mut "Smith-Jones, K. L.")?
+        }) = author(&mut "Smith-Jones, K. L.")?
         {
             assert_eq!(family_names, Some(vec!["Smith-Jones".to_string()]));
             assert_eq!(given_names, Some(vec!["K.".to_string(), "L.".to_string()]));
@@ -196,7 +214,7 @@ mod tests {
             family_names,
             given_names,
             ..
-        }) = person_family_initials(&mut "Williams, Mary Elizabeth")?
+        }) = author(&mut "Williams, Mary Elizabeth")?
         {
             assert_eq!(family_names, Some(vec!["Williams".to_string()]));
             assert_eq!(
@@ -212,12 +230,65 @@ mod tests {
             family_names,
             given_names,
             ..
-        }) = person_family_initials(&mut "Van Der Berg, P. Q.")?
+        }) = author(&mut "Van Der Berg, P. Q.")?
         {
             assert_eq!(family_names, Some(vec!["Van Der Berg".to_string()]));
             assert_eq!(given_names, Some(vec!["P.".to_string(), "Q.".to_string()]));
         } else {
             unreachable!("expected person")
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_organization() -> Result<()> {
+        // Simple organization
+        if let Author::Organization(org) = author(&mut "World Health Organization")? {
+            assert_eq!(org.name, Some("World Health Organization".to_string()));
+        } else {
+            unreachable!("expected organization")
+        }
+
+        // Organization with numbers
+        if let Author::Organization(org) = author(&mut "Group of 20")? {
+            assert_eq!(org.name, Some("Group of 20".to_string()));
+        } else {
+            unreachable!("expected organization")
+        }
+
+        // University
+        if let Author::Organization(org) = author(&mut "University of California")? {
+            assert_eq!(org.name, Some("University of California".to_string()));
+        } else {
+            unreachable!("expected organization")
+        }
+
+        // Government agency
+        if let Author::Organization(org) = author(&mut "Environmental Protection Agency")? {
+            assert_eq!(
+                org.name,
+                Some("Environmental Protection Agency".to_string())
+            );
+        } else {
+            unreachable!("expected organization")
+        }
+
+        // International organization
+        if let Author::Organization(org) = author(&mut "UNESCO")? {
+            assert_eq!(org.name, Some("UNESCO".to_string()));
+        } else {
+            unreachable!("expected organization")
+        }
+
+        // Research institute
+        if let Author::Organization(org) = author(&mut "Max Planck Institute for Biology")? {
+            assert_eq!(
+                org.name,
+                Some("Max Planck Institute for Biology".to_string())
+            );
+        } else {
+            unreachable!("expected organization")
         }
 
         Ok(())
