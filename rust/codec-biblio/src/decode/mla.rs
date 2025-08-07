@@ -54,11 +54,7 @@ pub fn mla(input: &mut &str) -> Result<Reference> {
 fn article(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse one or more authors
-        delimited(
-            multispace0,
-            mla_authors,
-            (multispace0, opt("."), multispace0),
-        ),
+        mla_authors,
         // Title: Parse article title in quotes
         mla_quoted_title,
         // Journal: Parse journal name ending with comma
@@ -108,7 +104,7 @@ fn article(input: &mut &str) -> Result<Reference> {
 fn book(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse book authors
-        preceded(multispace0, authors),
+        mla_authors,
         // Title: Parse book title (italicized/underlined in print)
         mla_unquoted_title,
         // Publisher: Parse publisher ending with comma
@@ -146,7 +142,7 @@ fn book(input: &mut &str) -> Result<Reference> {
 fn chapter(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse chapter authors
-        preceded(multispace0, authors),
+        mla_authors,
         // Chapter Title: Parse chapter title in quotes
         mla_quoted_title,
         // Book Title: Parse book title before comma
@@ -207,7 +203,7 @@ fn chapter(input: &mut &str) -> Result<Reference> {
 fn web(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse web authors (may be missing)
-        opt(preceded(multispace0, authors)),
+        opt(mla_authors),
         // Title: Parse web page title in quotes
         mla_quoted_title,
         // Website: Parse website name ending with comma
@@ -239,18 +235,57 @@ fn web(input: &mut &str) -> Result<Reference> {
         .parse_next(input)
 }
 
+/// Parse authors in MLA citation format with flexible author patterns
 ///
+/// This parser handles the various author formats used in MLA citations:
+///
+/// **Single Author:**
+/// - `"Johnson, Maria."` - Family name first, followed by given name(s)
+///
+/// **Multiple Authors (2 authors):**
+/// - `"Johnson, Maria, and John Smith."` - First author in family-first format,
+///   second author in given-first format, connected by "and"
+/// - `"Johnson, Maria and John Smith."` - Same but without comma before "and"
+///
+/// **Multiple Authors (3+ authors):**
+/// - `"Johnson, Maria, et al."` - First author followed by "et al" for brevity
+///
+/// **Format Details:**
+///
+/// - First author always uses "Family, Given" format (person_family_given)
+/// - Subsequent authors use "Given Family" format (person_given_family)
+/// - Optional trailing period is handled
+/// - Flexible whitespace handling around separators
+/// - Comma before "and" is optional per MLA guidelines
 fn mla_authors(input: &mut &str) -> Result<Vec<Author>> {
-    alt((
-        ((
-            person_family_given,
-            (multispace0, opt(","), multispace0, "and", multispace1),
-            person_given_family,
-        )
-            .map(|(first, _, second)| vec![first, second])),
-        ((person_family_given, "et al").map(|(first, _)| vec![first])),
-        person_family_given.map(|first| vec![first]),
-    ))
+    delimited(
+        multispace0,
+        alt((
+            // Two authors: "Johnson, Maria, and John Smith" or "Johnson, Maria and John Smith"
+            ((
+                person_family_given,
+                (
+                    multispace0,
+                    opt(","),
+                    multispace0,
+                    alt(("and", "&")),
+                    multispace1,
+                ),
+                person_given_family,
+            )
+                .map(|(first, _, second)| vec![first, second])),
+            // Multiple authors with et al: "Johnson, Maria, et al." or "Johnson, Maria et al"
+            ((
+                person_family_given,
+                (multispace0, opt(","), multispace0),
+                alt(("et al.", "et al")),
+            )
+                .map(|(first, _, _)| vec![first])),
+            // Single author: "Johnson, Maria"
+            person_family_given.map(|first| vec![first]),
+        )),
+        (multispace0, opt("."), multispace0),
+    )
     .parse_next(input)
 }
 
@@ -267,9 +302,13 @@ fn mla_quoted_title(input: &mut &str) -> Result<Vec<Inline>> {
 
 /// Parse book title (no quotes, often italicized in print)
 fn mla_unquoted_title(input: &mut &str) -> Result<Vec<Inline>> {
-    delimited(multispace0, take_until(1.., '.'), ".")
-        .map(|title: &str| vec![t(title.trim())])
-        .parse_next(input)
+    delimited(
+        multispace0,
+        take_until(1.., '.'),
+        preceded(".", multispace0),
+    )
+    .map(|title: &str| vec![t(title.trim())])
+    .parse_next(input)
 }
 
 /// Parse volume number
@@ -304,9 +343,160 @@ fn mla_issue(input: &mut &str) -> Result<IntegerOrString> {
 
 #[cfg(test)]
 mod tests {
+    use codec::schema::Person;
     use codec_text_trait::to_text;
 
     use super::*;
+
+    #[test]
+    fn test_mla_authors() -> Result<()> {
+        // Single author with period
+        assert_eq!(
+            mla_authors(&mut r#"Johnson, Maria."#)?,
+            vec![Author::Person(Person {
+                given_names: Some(vec!["Maria".to_string()]),
+                family_names: Some(vec!["Johnson".to_string()]),
+                ..Default::default()
+            })]
+        );
+
+        // Single author without period
+        assert_eq!(
+            mla_authors(&mut r#"Smith, John"#)?,
+            vec![Author::Person(Person {
+                given_names: Some(vec!["John".to_string()]),
+                family_names: Some(vec!["Smith".to_string()]),
+                ..Default::default()
+            })]
+        );
+
+        // Single author with initials
+        assert_eq!(
+            mla_authors(&mut r#"Brown, A. B."#)?,
+            vec![Author::Person(Person {
+                given_names: Some(vec!["A.".to_string(), "B.".to_string()]),
+                family_names: Some(vec!["Brown".to_string()]),
+                ..Default::default()
+            })]
+        );
+
+        // Two authors with comma before "and"
+        assert_eq!(
+            mla_authors(&mut r#"Johnson, Maria, and John Smith."#)?,
+            vec![
+                Author::Person(Person {
+                    given_names: Some(vec!["Maria".to_string()]),
+                    family_names: Some(vec!["Johnson".to_string()]),
+                    ..Default::default()
+                }),
+                Author::Person(Person {
+                    given_names: Some(vec!["John".to_string()]),
+                    family_names: Some(vec!["Smith".to_string()]),
+                    ..Default::default()
+                })
+            ]
+        );
+
+        // Two authors without comma before "and"
+        assert_eq!(
+            mla_authors(&mut r#"Garcia, Maria and Jane Doe."#)?,
+            vec![
+                Author::Person(Person {
+                    given_names: Some(vec!["Maria".to_string()]),
+                    family_names: Some(vec!["Garcia".to_string()]),
+                    ..Default::default()
+                }),
+                Author::Person(Person {
+                    given_names: Some(vec!["Jane".to_string()]),
+                    family_names: Some(vec!["Doe".to_string()]),
+                    ..Default::default()
+                })
+            ]
+        );
+
+        // Two authors with initials
+        assert_eq!(
+            mla_authors(&mut r#"Wilson, R. A., and B. C. Taylor."#)?,
+            vec![
+                Author::Person(Person {
+                    given_names: Some(vec!["R.".to_string(), "A.".to_string()]),
+                    family_names: Some(vec!["Wilson".to_string()]),
+                    ..Default::default()
+                }),
+                Author::Person(Person {
+                    given_names: Some(vec!["B.".to_string(), "C.".to_string()]),
+                    family_names: Some(vec!["Taylor".to_string()]),
+                    ..Default::default()
+                })
+            ]
+        );
+
+        // Multiple authors with "et al." (with period)
+        assert_eq!(
+            mla_authors(&mut r#"Johnson, Maria, et al."#)?,
+            vec![Author::Person(Person {
+                given_names: Some(vec!["Maria".to_string()]),
+                family_names: Some(vec!["Johnson".to_string()]),
+                ..Default::default()
+            })]
+        );
+
+        // Multiple authors with "et al" (without period)
+        assert_eq!(
+            mla_authors(&mut r#"Smith, John, et al"#)?,
+            vec![Author::Person(Person {
+                given_names: Some(vec!["John".to_string()]),
+                family_names: Some(vec!["Smith".to_string()]),
+                ..Default::default()
+            })]
+        );
+
+        // Multiple authors with "et al" without comma
+        assert_eq!(
+            mla_authors(&mut r#"Brown, Alice et al."#)?,
+            vec![Author::Person(Person {
+                given_names: Some(vec!["Alice".to_string()]),
+                family_names: Some(vec!["Brown".to_string()]),
+                ..Default::default()
+            })]
+        );
+
+        // Complex names with hyphens and apostrophes
+        assert_eq!(
+            mla_authors(&mut r#"Smith-Jones, Mary-Ann, and Kevin O'Connor."#)?,
+            vec![
+                Author::Person(Person {
+                    given_names: Some(vec!["Mary-Ann".to_string()]),
+                    family_names: Some(vec!["Smith-Jones".to_string()]),
+                    ..Default::default()
+                }),
+                Author::Person(Person {
+                    given_names: Some(vec!["Kevin".to_string()]),
+                    family_names: Some(vec!["O'Connor".to_string()]),
+                    ..Default::default()
+                })
+            ]
+        );
+
+        // With extra whitespace
+        assert_eq!(
+            mla_authors(&mut r#"  Johnson,   Maria  ,  and   John   Smith  .  "#)?,
+            vec![
+                Author::Person(Person {
+                    given_names: Some(vec!["Maria".to_string()]),
+                    family_names: Some(vec!["Johnson".to_string()]),
+                    ..Default::default()
+                }),
+                Author::Person(Person {
+                    given_names: Some(vec!["John".to_string()]),
+                    family_names: Some(vec!["Smith".to_string()]),
+                    ..Default::default()
+                })
+            ]
+        );
+
+        Ok(())
+    }
 
     #[test]
     fn test_mla_quoted_title() -> Result<()> {
