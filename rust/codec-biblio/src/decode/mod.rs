@@ -10,6 +10,13 @@ use codec::{
 
 use crate::conversion::entry_to_reference;
 
+mod apa;
+mod authors;
+mod date;
+mod doi;
+mod pages;
+mod references;
+
 /// Decode Hayagriva YAML to a set of Stencila [`Reference`] nodes
 pub fn yaml(yaml: &str) -> Result<Vec<Reference>> {
     let library = from_yaml_str(yaml)?;
@@ -38,8 +45,7 @@ pub fn bibtex(bibtex: &str) -> Result<Vec<Reference>> {
     Ok(references)
 }
 
-/// Decode Plain text into a set of Stencila [`Reference`] nodes
-pub fn text(_text: &str) -> Result<Vec<Reference>> {
-    // TODO: Implement a winnow parser for plain text citations
-    todo!()
+/// Decode plain text into a set of Stencila [`Reference`] nodes
+pub fn text(mut text: &str) -> Result<Vec<Reference>> {
+    Ok(references::references(&mut text).unwrap_or_default())
 }
