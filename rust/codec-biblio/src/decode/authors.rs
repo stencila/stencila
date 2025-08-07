@@ -3,7 +3,7 @@
 use winnow::{
     Parser, Result,
     ascii::{multispace0, multispace1},
-    combinator::{alt, preceded, separated, terminated},
+    combinator::{alt, opt, peek, preceded, separated, terminated},
     token::{take_till, take_while},
 };
 
@@ -14,14 +14,18 @@ pub fn authors(input: &mut &str) -> Result<Vec<Author>> {
     separated(
         1..,
         author,
-        (multispace0, alt(("&", "and", ",", ", &")), multispace0),
+        (
+            multispace0,
+            alt((", &", ", and", "&", "and", ",")),
+            multispace0,
+        ),
     )
     .parse_next(input)
 }
 
 /// Parse a single author in various formats
 pub fn author(input: &mut &str) -> Result<Author> {
-    alt((person_family_initials, organization)).parse_next(input)
+    alt((person_family_given, person_given_family)).parse_next(input)
 }
 
 /// Parse multiple persons separated by various delimiters
@@ -36,7 +40,7 @@ pub fn persons(input: &mut &str) -> Result<Vec<Person>> {
 
 /// Parse a single person in various formats
 pub fn person(input: &mut &str) -> Result<Person> {
-    alt((person_family_initials,))
+    alt((person_family_given,))
         .map(|author| match author {
             Author::Person(person) => person,
             _ => Person::default(),
@@ -45,6 +49,8 @@ pub fn person(input: &mut &str) -> Result<Person> {
 }
 
 /// Parse person in "Family, F. M." format and deviations
+///
+/// As used for all authors in APA and first author in MLA.
 ///
 /// Handles deviations:
 ///
@@ -56,7 +62,7 @@ pub fn person(input: &mut &str) -> Result<Person> {
 ///
 /// Note that the terminating period is intentionally included in the given
 /// names to indicate it is an initial, not a complete given name.
-fn person_family_initials(input: &mut &str) -> Result<Author> {
+pub fn person_family_given(input: &mut &str) -> Result<Author> {
     (
         terminated(take_till(2.., |c: char| c == ','), ","),
         preceded(
@@ -68,13 +74,75 @@ fn person_family_initials(input: &mut &str) -> Result<Author> {
             ),
         ),
     )
-        .map(|(family_name, given_names): (&str, Vec<&str>)| {
+        .map(|(family_names, given_names): (&str, Vec<&str>)| {
             Author::Person(Person {
-                family_names: Some(vec![family_name.to_string()]),
+                family_names: Some(family_names.split_whitespace().map(String::from).collect()),
                 given_names: Some(given_names.into_iter().map(String::from).collect()),
                 ..Default::default()
             })
         })
+        .parse_next(input)
+}
+
+/// Parse person in "First M. Family" or "F. M. Family" format and deviations
+///
+/// Handles deviations:
+///
+/// - missing period after initials
+/// - given names rather than initials
+///
+/// As used for second and subsequent authors in MLA.
+pub fn person_given_family(input: &mut &str) -> Result<Author> {
+    (
+        // First name or initial
+        terminated(
+            (
+                take_while(1..=1, |c: char| c.is_uppercase() && c.is_alphabetic()),
+                opt(alt((
+                    take_while(1.., |c: char| c.is_alphabetic() || is_hyphen(c)),
+                    ".",
+                ))),
+            )
+                .take(),
+            multispace1,
+        ),
+        // Other initials
+        opt(terminated(
+            separated(
+                1..,
+                terminated(
+                    (
+                        take_while(1..=1, |c: char| c.is_uppercase() && c.is_alphabetic()),
+                        opt("."),
+                    )
+                        .take(),
+                    peek(multispace1),
+                ),
+                multispace1,
+            ),
+            multispace1,
+        )),
+        // Family names
+        separated(
+            1..,
+            take_while(1.., |c: char| c.is_alphabetic() || is_hyphen(c)),
+            multispace1,
+        ),
+    )
+        .map(
+            |(first, initials, family_names): (&str, Option<Vec<&str>>, Vec<&str>)| {
+                let mut given_names = vec![first.to_string()];
+                if let Some(initials) = initials {
+                    given_names.append(&mut initials.into_iter().map(String::from).collect());
+                }
+
+                Author::Person(Person {
+                    given_names: Some(given_names),
+                    family_names: Some(family_names.into_iter().map(String::from).collect()),
+                    ..Default::default()
+                })
+            },
+        )
         .parse_next(input)
 }
 
@@ -93,6 +161,11 @@ fn organization(input: &mut &str) -> Result<Author> {
         .parse_next(input)
 }
 
+fn is_hyphen(c: char) -> bool {
+    // Hyphen-minus, En dash, Hyphen, Figure dash, Em dash, Horizontal bar, Minus sign
+    matches!(c, '-' | '–' | '‐' | '‒' | '—' | '―' | '−')
+}
+
 #[cfg(test)]
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
@@ -109,13 +182,17 @@ mod tests {
         let items = authors(&mut "Author, A. B., & Author, B. C.")?;
         assert_eq!(items.len(), 2);
 
+        // Two people with and
+        let items = authors(&mut "Author, A. B., and B. C. Author")?;
+        assert_eq!(items.len(), 2);
+
         Ok(())
     }
     // In the following tests we parse using `authors` as a test of differentiating between different
     // authors types and that the sub-parsers to not conflict
 
     #[test]
-    fn test_person_family_initials() -> Result<()> {
+    fn test_person_family_given() -> Result<()> {
         // Standard format with periods after initials
         if let Author::Person(Person {
             family_names,
@@ -149,7 +226,10 @@ mod tests {
             ..
         }) = author(&mut "One Two, John A.")?
         {
-            assert_eq!(family_names, Some(vec!["One Two".to_string()]));
+            assert_eq!(
+                family_names,
+                Some(vec!["One".to_string(), "Two".to_string()])
+            );
             assert_eq!(
                 given_names,
                 Some(vec!["John".to_string(), "A.".to_string()])
@@ -252,8 +332,136 @@ mod tests {
             ..
         }) = author(&mut "Van Der Berg, P. Q.")?
         {
-            assert_eq!(family_names, Some(vec!["Van Der Berg".to_string()]));
+            assert_eq!(
+                family_names,
+                Some(vec![
+                    "Van".to_string(),
+                    "Der".to_string(),
+                    "Berg".to_string()
+                ])
+            );
             assert_eq!(given_names, Some(vec!["P.".to_string(), "Q.".to_string()]));
+        } else {
+            unreachable!("expected person")
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_person_given_family() -> Result<()> {
+        // Standard format with periods after initials
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = author(&mut "J. A. Smith")?
+        {
+            assert_eq!(family_names, Some(vec!["Smith".to_string()]));
+            assert_eq!(given_names, Some(vec!["J.".to_string(), "A.".to_string()]));
+        } else {
+            unreachable!("expected person")
+        }
+
+        // Missing periods after some initials
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = author(&mut "J A Smith")?
+        {
+            assert_eq!(family_names, Some(vec!["Smith".to_string()]));
+            assert_eq!(given_names, Some(vec!["J".to_string(), "A".to_string()]));
+        } else {
+            unreachable!("expected person")
+        }
+
+        // Full first name and initial
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = author(&mut "John A. Smith")?
+        {
+            assert_eq!(family_names, Some(vec!["Smith".to_string()]));
+            assert_eq!(
+                given_names,
+                Some(vec!["John".to_string(), "A.".to_string()])
+            );
+        } else {
+            unreachable!("expected person")
+        }
+
+        // Single initial
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = author(&mut "M. Johnson")?
+        {
+            assert_eq!(family_names, Some(vec!["Johnson".to_string()]));
+            assert_eq!(given_names, Some(vec!["M.".to_string()]));
+        } else {
+            unreachable!("expected person")
+        }
+
+        // Multiple initials, all with periods
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = author(&mut "A. B. C. Brown")?
+        {
+            assert_eq!(family_names, Some(vec!["Brown".to_string()]));
+            assert_eq!(
+                given_names,
+                Some(vec!["A.".to_string(), "B.".to_string(), "C.".to_string()])
+            );
+        } else {
+            unreachable!("expected person")
+        }
+
+        // Mixed initials and full names
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = author(&mut "Maria J. Garcia")?
+        {
+            assert_eq!(family_names, Some(vec!["Garcia".to_string()]));
+            assert_eq!(
+                given_names,
+                Some(vec!["Maria".to_string(), "J.".to_string()])
+            );
+        } else {
+            unreachable!("expected person")
+        }
+
+        // Hyphenated family name
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = author(&mut "K. L. Smith-Jones")?
+        {
+            assert_eq!(given_names, Some(vec!["K.".to_string(), "L.".to_string()]));
+            assert_eq!(family_names, Some(vec!["Smith-Jones".to_string()]));
+        } else {
+            unreachable!("expected person")
+        }
+
+        // Compound family name and additional spacing
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = author(&mut "S  I. Sanchez   Gomez")?
+        {
+            assert_eq!(given_names, Some(vec!["S".to_string(), "I.".to_string()]));
+            assert_eq!(
+                family_names,
+                Some(vec!["Sanchez".to_string(), "Gomez".to_string()])
+            );
         } else {
             unreachable!("expected person")
         }

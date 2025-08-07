@@ -7,10 +7,10 @@
 
 use std::str::FromStr;
 
-use codec::schema::{Date, Inline};
+use codec::schema::{Author, Date, Inline};
 use winnow::{
     Parser, Result,
-    ascii::{digit1, multispace0, multispace1},
+    ascii::{Caseless, digit1, multispace0, multispace1},
     combinator::{alt, delimited, opt, preceded},
     token::{take_until, take_while},
 };
@@ -20,7 +20,7 @@ use codec::schema::{
 };
 
 use crate::decode::{
-    authors::{authors, persons},
+    authors::{authors, person_family_given, person_given_family, persons},
     date::year,
     doi::doi_or_url,
     pages::pages,
@@ -54,23 +54,19 @@ pub fn mla(input: &mut &str) -> Result<Reference> {
 fn article(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse one or more authors
-        preceded(multispace0, authors),
+        delimited(
+            multispace0,
+            mla_authors,
+            (multispace0, opt("."), multispace0),
+        ),
         // Title: Parse article title in quotes
         mla_quoted_title,
         // Journal: Parse journal name ending with comma
         delimited(multispace0, take_until(1.., ','), ","),
         // Volume: Optional volume with "vol." prefix
-        opt(delimited(
-            multispace0,
-            preceded(alt(("vol. ", "vol.", "Vol. ", "Vol.")), digit1),
-            alt((",", multispace0)),
-        )),
+        opt(mla_volume),
         // Issue: Optional issue with "no." prefix
-        opt(delimited(
-            multispace0,
-            preceded(alt(("no. ", "no.", "No. ", "No.")), digit1),
-            alt((",", multispace0)),
-        )),
+        opt(mla_issue),
         // Year: Publication year
         delimited(multispace0, year, alt((",", multispace0))),
         // Pages: Optional page range with "pp." or "p." prefix
@@ -89,14 +85,12 @@ fn article(input: &mut &str) -> Result<Reference> {
                 title: Some(title),
                 is_part_of: Some(Box::new(Reference {
                     title: Some(vec![t(journal.trim())]),
-                    volume_number: volume.map(IntegerOrString::from),
-                    issue_number: issue.map(IntegerOrString::from),
+                    volume_number: volume,
+                    issue_number: issue,
                     ..Default::default()
                 })),
                 date: Some(year),
-                doi: doi_or_url
-                    .as_ref()
-                    .and_then(|doi_or_url| doi_or_url.doi.clone()),
+                doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                 url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
                 ..pages.unwrap_or_default()
             },
@@ -245,12 +239,27 @@ fn web(input: &mut &str) -> Result<Reference> {
         .parse_next(input)
 }
 
+///
+fn mla_authors(input: &mut &str) -> Result<Vec<Author>> {
+    alt((
+        ((
+            person_family_given,
+            (multispace0, opt(","), multispace0, "and", multispace1),
+            person_given_family,
+        )
+            .map(|(first, _, second)| vec![first, second])),
+        ((person_family_given, "et al").map(|(first, _)| vec![first])),
+        person_family_given.map(|first| vec![first]),
+    ))
+    .parse_next(input)
+}
+
 /// Parse title in quotes format "Title"
 fn mla_quoted_title(input: &mut &str) -> Result<Vec<Inline>> {
     delimited(
-        (multispace0, "\""),
-        take_until(1.., '"'),
-        ("\"", opt((multispace0, "."))),
+        (multispace0, alt(("\"", "“"))),
+        take_while(1.., |c: char| c != '"' && c != '”'),
+        (alt(("\"", "”")), multispace0),
     )
     .map(|title: &str| vec![t(title.trim())])
     .parse_next(input)
@@ -263,6 +272,36 @@ fn mla_unquoted_title(input: &mut &str) -> Result<Vec<Inline>> {
         .parse_next(input)
 }
 
+/// Parse volume number
+fn mla_volume(input: &mut &str) -> Result<IntegerOrString> {
+    delimited(
+        multispace0,
+        delimited(
+            (Caseless("vol"), multispace0, opt("."), multispace0),
+            digit1,
+            multispace0,
+        ),
+        alt((",", multispace0)),
+    )
+    .map(IntegerOrString::from)
+    .parse_next(input)
+}
+
+/// Parse issue number
+fn mla_issue(input: &mut &str) -> Result<IntegerOrString> {
+    delimited(
+        multispace0,
+        delimited(
+            (Caseless("no"), multispace0, opt("."), multispace0),
+            digit1,
+            multispace0,
+        ),
+        alt((",", multispace0)),
+    )
+    .map(IntegerOrString::from)
+    .parse_next(input)
+}
+
 #[cfg(test)]
 mod tests {
     use codec_text_trait::to_text;
@@ -270,17 +309,75 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_mla_quoted_title() -> Result<()> {
+        assert_eq!(
+            mla_quoted_title(&mut r#""The title" "#)?,
+            vec![t("The title")]
+        );
+
+        assert_eq!(
+            mla_quoted_title(&mut r#" “The title”"#)?,
+            vec![t("The title")]
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_mla_volume() -> Result<()> {
+        assert_eq!(mla_volume(&mut " vol. 1,")?, IntegerOrString::Integer(1));
+        assert_eq!(
+            mla_volume(&mut " vol . 123 ")?,
+            IntegerOrString::Integer(123)
+        );
+        assert_eq!(mla_volume(&mut "VOL 456,")?, IntegerOrString::Integer(456));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_mla_issue() -> Result<()> {
+        assert_eq!(mla_issue(&mut " no. 1,")?, IntegerOrString::Integer(1));
+        assert_eq!(
+            mla_issue(&mut "  no . 123 ")?,
+            IntegerOrString::Integer(123)
+        );
+        assert_eq!(mla_issue(&mut "NO   456,")?, IntegerOrString::Integer(456));
+
+        Ok(())
+    }
+
+    #[test]
     fn test_article() -> Result<()> {
-        // Canonical example with all components
         let reference = mla(
-            &mut "Smith, John A., and Jane B. Doe. \"Understanding Climate Change.\" Environmental Science, vol. 15, no. 3, 2023, pp. 45-67. https://doi.org/10.1234/example",
+            &mut "Author, A. B., and B. C. Author. “Title of Article.” Title of Journal, vol. 1, no. 2, 1999, pp. 34-56",
+        )?;
+        assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
+        assert!(reference.authors.is_some());
+        assert_eq!(reference.title, Some(vec![t("Title of Article.")]));
+        assert_eq!(
+            reference.is_part_of,
+            Some(Box::new(Reference {
+                title: Some(vec![t("Title of Journal")]),
+                volume_number: Some(IntegerOrString::Integer(1)),
+                issue_number: Some(IntegerOrString::Integer(2)),
+                ..Default::default()
+            }))
+        );
+        assert!(reference.date.is_some());
+        assert!(reference.page_start.is_some());
+        assert!(reference.page_end.is_some());
+
+        // Example with all components and non-standard whitespace
+        let reference = mla(
+            &mut "Smith, John A., and Jane B. Doe.\"Understanding Climate Change.\" Environmental Science, vol. 15 , no.3 , 2023, pp. 45-67. https://doi.org/10.1234/example",
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
         assert!(reference.authors.is_some());
         assert!(reference.date.is_some());
         assert_eq!(
             reference.title.map(|title| to_text(&title)),
-            Some("Understanding Climate Change".to_string())
+            Some("Understanding Climate Change.".to_string())
         );
         assert_eq!(
             reference
@@ -295,10 +392,10 @@ mod tests {
 
         // Without issue number
         let reference = mla(
-            &mut "Brown, Alice. \"Research Methods.\" Science Journal, vol. 10, 2020, pp. 100-115.",
+            &mut "Brown, Alice. \"Research Methods.\" Science Journal, vol. 10, 2020, pp. 100-115",
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
-        assert!(reference.is_part_of.unwrap().issue_number.is_none());
+        assert!(reference.is_part_of.expect("to be").issue_number.is_none());
 
         // Without pages
         let reference = mla(&mut "Wilson, Mark. \"New Discoveries.\" Nature, vol. 500, 2021.")?;
