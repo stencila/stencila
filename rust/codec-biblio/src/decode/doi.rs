@@ -29,6 +29,7 @@ pub fn doi<'s>(input: &mut &'s str) -> Result<String> {
         .parse_next(input)
 }
 
+#[derive(Clone)]
 pub struct DoiOrUrl {
     pub doi: Option<String>,
     pub url: Option<String>,
@@ -38,7 +39,7 @@ pub struct DoiOrUrl {
 pub fn doi_or_url(input: &mut &str) -> Result<DoiOrUrl> {
     alt((doi, url))
         .map(|id| {
-            if id.starts_with("pat") {
+            if id.starts_with("10.") {
                 DoiOrUrl {
                     doi: Some(id),
                     url: None,

@@ -20,7 +20,7 @@ use codec::schema::{
 use crate::decode::{
     authors::{authors, persons},
     date::year,
-    doi::doi,
+    doi::doi_or_url,
     pages::pages,
     url::url,
 };
@@ -79,12 +79,11 @@ fn article(input: &mut &str) -> Result<Reference> {
         // Pages: Optional page range or single page
         // Can end with period or whitespace
         opt(delimited(multispace0, pages, alt((".", multispace0)))),
-        // DOI: Optional Digital Object Identifier
-        // Can be a URL, prefixed, or bare DOI format
-        opt(delimited(multispace0, doi, alt((".", multispace0)))),
+        // DOI or URL
+        opt(delimited(multispace0, doi_or_url, alt((".", multispace0)))),
     )
         .map(
-            |(authors, date, title, journal, (volume, issue), pages, doi)| Reference {
+            |(authors, date, title, journal, (volume, issue), pages, doi_or_url)| Reference {
                 work_type: Some(CreativeWorkType::Article),
                 authors: Some(authors),
                 date: Some(date),
@@ -95,7 +94,8 @@ fn article(input: &mut &str) -> Result<Reference> {
                     issue_number: issue.map(IntegerOrString::from),
                     ..Default::default()
                 })),
-                doi: doi.map(String::from),
+                doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
+                url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
                 ..pages.unwrap_or_default()
             },
         )
@@ -119,11 +119,11 @@ fn book(input: &mut &str) -> Result<Reference> {
         apa_title,
         // Publisher: Parse publisher ending with period
         delimited(multispace0, take_until(1.., '.'), "."),
-        // DOI: Optional Digital Object Identifier
-        opt(delimited(multispace0, doi, alt((".", multispace0)))),
+        // DOI or URL
+        opt(delimited(multispace0, doi_or_url, alt((".", multispace0)))),
     )
         // Map the parsed components into a Reference struct
-        .map(|(authors, date, title, publisher, doi)| Reference {
+        .map(|(authors, date, title, publisher, doi_or_url)| Reference {
             work_type: Some(CreativeWorkType::Book),
             authors: Some(authors),
             date: Some(date),
@@ -132,7 +132,8 @@ fn book(input: &mut &str) -> Result<Reference> {
                 name: Some(publisher.trim().to_string()),
                 ..Default::default()
             })),
-            doi: doi.map(String::from),
+            doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
+            url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
             ..Default::default()
         })
         .parse_next(input)
@@ -186,12 +187,22 @@ fn chapter(input: &mut &str) -> Result<Reference> {
             take_while(1.., |c: char| c != '.'),
             opt("."),
         )),
-        // DOI: Optional Digital Object Identifier
-        opt(delimited(multispace0, doi, alt((".", multispace0)))),
+        // DOI or URL
+        opt(delimited(multispace0, doi_or_url, alt((".", multispace0)))),
     )
         // Map the parsed components into a Reference struct
         .map(
-            |(authors, date, chapter_title, _, editors, book_title, pages, publisher, doi)| {
+            |(
+                authors,
+                date,
+                chapter_title,
+                _,
+                editors,
+                book_title,
+                pages,
+                publisher,
+                doi_or_url,
+            )| {
                 Reference {
                     work_type: Some(CreativeWorkType::Chapter),
                     authors: Some(authors),
@@ -208,7 +219,8 @@ fn chapter(input: &mut &str) -> Result<Reference> {
                         }),
                         ..Default::default()
                     })),
-                    doi: doi.map(String::from),
+                    doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
+                    url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
                     ..pages.unwrap_or_default()
                 }
             },
@@ -290,7 +302,7 @@ mod tests {
     fn test_article() -> Result<()> {
         // Canonical example with all components
         let reference = apa(
-            &mut "Author, A. B., & Author, C. D. (1999). Title of article. Title of Journal, 1(2) 34-56. https://doi.org/xyz",
+            &mut "Author, A. B., & Author, C. D. (1999). Title of article. Title of Journal, 1(2) 34-56. https://doi.org/10.1234/abc",
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
         assert!(reference.authors.is_some());
@@ -308,6 +320,7 @@ mod tests {
         );
         assert!(reference.page_start.is_some());
         assert!(reference.page_end.is_some());
+        assert_eq!(reference.url, None);
         assert!(reference.doi.is_some());
 
         // Without issue number
