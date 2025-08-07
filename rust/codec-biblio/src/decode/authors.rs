@@ -3,8 +3,8 @@
 use winnow::{
     Parser, Result,
     ascii::{multispace0, multispace1},
-    combinator::{alt, opt, peek, preceded, separated, terminated},
-    token::{take_till, take_while},
+    combinator::{alt, not, opt, peek, preceded, separated, terminated},
+    token::{take, take_while},
 };
 
 use codec::schema::{Author, Organization, Person};
@@ -64,20 +64,18 @@ pub fn person(input: &mut &str) -> Result<Person> {
 /// names to indicate it is an initial, not a complete given name.
 pub fn person_family_given(input: &mut &str) -> Result<Author> {
     (
-        terminated(take_till(2.., |c: char| c == ','), ","),
+        // Family names
+        terminated(separated(1.., name, multispace1), ","),
+        // Given names or initials
         preceded(
             multispace0,
-            separated(
-                1..,
-                take_while(1.., |c: char| (c.is_alphabetic() || c == '.') && c != ' '),
-                multispace1,
-            ),
+            separated(1.., alt((initial, name)), multispace1),
         ),
     )
-        .map(|(family_names, given_names): (&str, Vec<&str>)| {
+        .map(|(family_names, given_names): (Vec<String>, Vec<String>)| {
             Author::Person(Person {
-                family_names: Some(family_names.split_whitespace().map(String::from).collect()),
-                given_names: Some(given_names.into_iter().map(String::from).collect()),
+                family_names: Some(family_names),
+                given_names: Some(given_names),
                 ..Default::default()
             })
         })
@@ -99,48 +97,23 @@ pub fn person_family_given(input: &mut &str) -> Result<Author> {
 /// As used for second and subsequent authors in MLA.
 pub fn person_given_family(input: &mut &str) -> Result<Author> {
     (
-        // First name or initial
-        terminated(
-            (
-                take_while(1..=1, |c: char| c.is_uppercase() && c.is_alphabetic()),
-                opt(alt((
-                    take_while(1.., |c: char| c.is_alphabetic() || is_hyphen(c)),
-                    ".",
-                ))),
-            )
-                .take(),
-            multispace1,
-        ),
+        // First given name or initial
+        terminated(alt((initial, name)), multispace1),
         // Other initials
         opt(terminated(
-            separated(
-                1..,
-                terminated(
-                    (
-                        take_while(1..=1, |c: char| c.is_uppercase() && c.is_alphabetic()),
-                        opt("."),
-                    )
-                        .take(),
-                    peek(multispace1),
-                ),
-                multispace1,
-            ),
+            separated(1.., initial, multispace1),
             multispace1,
         )),
         // Family names
-        separated(
-            1..,
-            take_while(1.., |c: char| c.is_alphabetic() || is_hyphen(c)),
-            multispace1,
-        ),
+        separated(1.., name, multispace1),
     )
         .verify(
-            |(first, _initials, family_names): &(&str, Option<Vec<&str>>, Vec<&str>)| {
+            |(first, _initials, family_names): &(String, Option<Vec<String>>, Vec<String>)| {
                 !is_likely_organization(first, family_names)
             },
         )
         .map(
-            |(first, initials, family_names): (&str, Option<Vec<&str>>, Vec<&str>)| {
+            |(first, initials, family_names): (String, Option<Vec<String>>, Vec<String>)| {
                 let mut given_names = vec![first.to_string()];
                 if let Some(initials) = initials {
                     given_names.append(&mut initials.into_iter().map(String::from).collect());
@@ -171,9 +144,60 @@ fn organization(input: &mut &str) -> Result<Author> {
         .parse_next(input)
 }
 
+/// Parse a proper name: starts with uppercase letter, followed by alphabetic characters or hyphens
+///
+/// This parser matches personal names, family names, and place names that follow standard
+/// capitalization conventions. It handles:
+///
+/// - Simple names: "Smith", "John", "Mary"
+/// - Hyphenated names: "Smith-Jones", "Jean-Pierre", "St-Pierre"
+/// - Names with various Unicode hyphens: "García-López", "O'Connor"
+/// - Multi-part names when used in sequences: "Van Der Berg"
+///
+/// The parser requires the first character to be uppercase and alphabetic, followed by
+/// one or more characters that are either alphabetic or hyphen variants. This ensures
+/// proper name capitalization while allowing for hyphenated compound names.
+///
+/// Used in both family name and given name parsing contexts.
+fn name(input: &mut &str) -> Result<String> {
+    (
+        take_while(1..=1, |c: char| c.is_uppercase() && c.is_alphabetic()),
+        take_while(1.., |c: char| {
+            c.is_alphabetic() || is_hyphen(c) || is_apostrophe(c)
+        }),
+    )
+        .take()
+        .map(|s: &str| s.to_string())
+        .parse_next(input)
+}
+
+/// Parse an initial: single uppercase alphabetic character, optionally with a period
+///
+/// This parser matches patterns like "A", "B.", "M", "J." and takes the period if present.
+/// The result includes the period to indicate it's an initial rather than a full name.
+fn initial(input: &mut &str) -> Result<String> {
+    (
+        take(1usize).verify(|s: &str| {
+            let chars: Vec<char> = s.chars().collect();
+            chars.len() == 1 && chars[0].is_uppercase() && chars[0].is_alphabetic()
+        }),
+        opt("."),
+        // Ensure no more alphabetic characters follow (to distinguish from names)
+        peek(not(take_while(1.., |c: char| c.is_alphabetic()))),
+    )
+        .take()
+        .map(|s: &str| s.to_string())
+        .parse_next(input)
+}
+
 fn is_hyphen(c: char) -> bool {
     // Hyphen-minus, En dash, Hyphen, Figure dash, Em dash, Horizontal bar, Minus sign
     matches!(c, '-' | '–' | '‐' | '‒' | '—' | '―' | '−')
+}
+
+fn is_apostrophe(c: char) -> bool {
+    // Apostrophe, right single quotation mark
+    matches!(c, '\'' | '\u{2019}')
 }
 
 /// Check if a parsed name is likely an organization rather than a person
@@ -181,10 +205,8 @@ fn is_hyphen(c: char) -> bool {
 /// Returns true if:
 /// - All words are in ALL CAPS
 /// - Contains organizational keywords like "Institute", "Association", etc.
-fn is_likely_organization(first: &str, family_names: &[&str]) -> bool {
-    let all_words: Vec<&str> = std::iter::once(first)
-        .chain(family_names.iter().copied())
-        .collect();
+fn is_likely_organization(first: &String, family_names: &[String]) -> bool {
+    let all_words: Vec<&String> = std::iter::once(first).chain(family_names.iter()).collect();
 
     // Check if all words are in ALL CAPS (indicating likely organization)
     // But exclude single letters or short initials with periods
@@ -256,6 +278,66 @@ mod tests {
     use common_dev::pretty_assertions::assert_eq;
 
     use super::*;
+
+    #[test]
+    fn test_name() -> Result<()> {
+        // Simple names
+        assert_eq!(name(&mut "Smith"), Ok("Smith".to_string()));
+        assert_eq!(name(&mut "John"), Ok("John".to_string()));
+        assert_eq!(name(&mut "Mary"), Ok("Mary".to_string()));
+
+        // Hyphenated names with standard hyphen
+        assert_eq!(name(&mut "Smith-Jones"), Ok("Smith-Jones".to_string()));
+        assert_eq!(name(&mut "Jean-Pierre"), Ok("Jean-Pierre".to_string()));
+
+        // Names with Unicode hyphens
+        assert_eq!(name(&mut "García-López"), Ok("García-López".to_string()));
+        assert_eq!(name(&mut "O'Connor"), Ok("O'Connor".to_string()));
+
+        // Multi-character names (minimum 2 chars to avoid clash with initials)
+        assert_eq!(name(&mut "St"), Ok("St".to_string()));
+        assert_eq!(name(&mut "Du"), Ok("Du".to_string()));
+
+        // Should not match single letters (reserved for initials)
+        assert!(name(&mut "A").is_err());
+        assert!(name(&mut "B").is_err());
+
+        // Should not match lowercase start
+        assert!(name(&mut "smith").is_err());
+        assert!(name(&mut "john").is_err());
+
+        // Should not match numbers or special chars at start
+        assert!(name(&mut "3Smith").is_err());
+        assert!(name(&mut "@John").is_err());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_initial() -> Result<()> {
+        // Standard initials with periods
+        assert_eq!(initial(&mut "A."), Ok("A.".to_string()));
+        assert_eq!(initial(&mut "B."), Ok("B.".to_string()));
+        assert_eq!(initial(&mut "Z."), Ok("Z.".to_string()));
+
+        // Initials without periods
+        assert_eq!(initial(&mut "A"), Ok("A".to_string()));
+        assert_eq!(initial(&mut "M"), Ok("M".to_string()));
+
+        // Should not match lowercase
+        assert!(initial(&mut "a.").is_err());
+        assert!(initial(&mut "m").is_err());
+
+        // Should not match multiple characters
+        assert!(initial(&mut "AB").is_err());
+        assert!(initial(&mut "John").is_err());
+
+        // Should not match non-alphabetic
+        assert!(initial(&mut "1.").is_err());
+        assert!(initial(&mut "@").is_err());
+
+        Ok(())
+    }
 
     #[test]
     fn test_authors() -> Result<()> {
