@@ -12,10 +12,15 @@ use crate::conversion::entry_to_reference;
 
 mod apa;
 mod authors;
+//mod chicago;
 mod date;
 mod doi;
+//mod ieee;
+mod mla;
 mod pages;
 mod references;
+//mod vancouver;
+mod url;
 
 /// Decode Hayagriva YAML to a set of Stencila [`Reference`] nodes
 pub fn yaml(yaml: &str) -> Result<Vec<Reference>> {

@@ -5,16 +5,16 @@
 //! the standard components of APA references including authors, publication dates,
 //! titles, journal information, volume/issue numbers, page ranges, and DOIs.
 
-use codec::schema::{Date, Inline, PropertyValueOrString};
 use winnow::{
     Parser, Result,
     ascii::{digit1, multispace0, multispace1},
-    combinator::{alt, delimited, not, opt, preceded, terminated},
+    combinator::{alt, delimited, opt, preceded, terminated},
     token::{take_until, take_while},
 };
 
 use codec::schema::{
-    CreativeWorkType, IntegerOrString, Organization, PersonOrOrganization, Reference, shortcuts::t,
+    CreativeWorkType, Date, Inline, IntegerOrString, Organization, PersonOrOrganization, Reference,
+    shortcuts::t,
 };
 
 use crate::decode::{
@@ -22,6 +22,7 @@ use crate::decode::{
     date::year,
     doi::doi,
     pages::pages,
+    url::url,
 };
 
 /// Parse a Stencila [`Reference`] from an APA reference list item
@@ -232,39 +233,23 @@ fn web(input: &mut &str) -> Result<Reference> {
         apa_title,
         // Website: Parse website name ending with period
         delimited(multispace0, take_until(1.., '.'), "."),
-        // URL: Capture non-DOI URLs starting with http/https
-        preceded(
-            multispace0,
-            (
-                alt(("https://", "http://")),
-                // Ensure it's not a DOI URL by checking it doesn't start with doi.org, dx.doi.org, or www.doi.org
-                preceded(
-                    not(alt(("doi.org/", "dx.doi.org/", "www.doi.org/"))),
-                    take_while(1.., |c: char| !c.is_ascii_whitespace()),
-                ),
-            ),
-        ),
+        // URL: Capture non-DOI URLs
+        preceded(multispace0, url),
     )
         // Map the parsed components into a Reference struct
-        .map(
-            |(authors, date, title, website, (protocol, domain))| Reference {
-                work_type: Some(CreativeWorkType::WebPage),
-                authors,
-                date: Some(date),
-                title: Some(title),
-                // Website information stored as nested Reference in is_part_of
-                is_part_of: Some(Box::new(Reference {
-                    title: Some(vec![t(website.trim())]),
-                    ..Default::default()
-                })),
-                // Store full URL as identifier
-                identifiers: Some(vec![PropertyValueOrString::String(format!(
-                    "{}{}",
-                    protocol, domain
-                ))]),
+        .map(|(authors, date, title, website, url)| Reference {
+            work_type: Some(CreativeWorkType::WebPage),
+            authors,
+            date: Some(date),
+            title: Some(title),
+            // Website information stored as nested Reference in is_part_of
+            is_part_of: Some(Box::new(Reference {
+                title: Some(vec![t(website.trim())]),
                 ..Default::default()
-            },
-        )
+            })),
+            url: Some(url),
+            ..Default::default()
+        })
         .parse_next(input)
 }
 
@@ -494,7 +479,7 @@ mod tests {
                 .map(|title| to_text(&title)),
             Some("MDN Web Docs".to_string())
         );
-        assert!(reference.identifiers.is_some());
+        assert!(reference.url.is_some());
 
         // Without author (common for web resources)
         let reference =

@@ -8,10 +8,12 @@
 
 use winnow::{
     Parser, Result,
-    ascii::multispace0,
-    combinator::{alt, preceded},
+    ascii::{Caseless, multispace0},
+    combinator::{alt, opt, preceded},
     token::take_while,
 };
+
+use crate::decode::url::url;
 
 /// Parse DOI information from a string
 ///
@@ -21,14 +23,40 @@ use winnow::{
 /// 1. DOI URLs (https://doi.org/, http://dx.doi.org/, etc.)
 /// 2. Prefixed DOIs (doi:, DOI:, etc.)
 /// 3. Bare DOIs (starting with 10.)
-pub fn doi<'s>(input: &mut &'s str) -> Result<&'s str> {
-    alt((doi_url, doi_prefixed, doi_bare)).parse_next(input)
+pub fn doi<'s>(input: &mut &'s str) -> Result<String> {
+    alt((doi_url, doi_prefixed, doi_bare))
+        .map(String::from)
+        .parse_next(input)
+}
+
+pub struct DoiOrUrl {
+    pub doi: Option<String>,
+    pub url: Option<String>,
+}
+
+/// Get a DOI or URL
+pub fn doi_or_url(input: &mut &str) -> Result<DoiOrUrl> {
+    alt((doi, url))
+        .map(|id| {
+            if id.starts_with("pat") {
+                DoiOrUrl {
+                    doi: Some(id),
+                    url: None,
+                }
+            } else {
+                DoiOrUrl {
+                    doi: None,
+                    url: Some(id),
+                }
+            }
+        })
+        .parse_next(input)
 }
 
 /// Parse DOI URLs
 ///
 /// Recognizes URLs like "https://doi.org/10.1234/example" or "http://dx.doi.org/10.1234/example"
-pub fn doi_url<'s>(input: &mut &'s str) -> Result<&'s str> {
+fn doi_url<'s>(input: &mut &'s str) -> Result<&'s str> {
     preceded(
         alt((
             "https://doi.org/",
@@ -46,14 +74,18 @@ pub fn doi_url<'s>(input: &mut &'s str) -> Result<&'s str> {
 /// Parse prefixed DOIs
 ///
 /// Recognizes DOIs with prefixes like "doi:10.1234/example" or "DOI:10.1234/example"
-pub fn doi_prefixed<'s>(input: &mut &'s str) -> Result<&'s str> {
-    preceded((alt(("doi:", "DOI:", "Doi:")), multispace0), doi_bare).parse_next(input)
+fn doi_prefixed<'s>(input: &mut &'s str) -> Result<&'s str> {
+    preceded(
+        (Caseless("doi"), multispace0, opt(":"), multispace0),
+        doi_bare,
+    )
+    .parse_next(input)
 }
 
 /// Parse bare DOIs
 ///
 /// Matches DOI strings that start with "10." followed by the registrant and suffix
-pub fn doi_bare<'s>(input: &mut &'s str) -> Result<&'s str> {
+fn doi_bare<'s>(input: &mut &'s str) -> Result<&'s str> {
     take_while(1.., |c: char| is_valid_doi_char(c)).parse_next(input)
 }
 

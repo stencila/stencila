@@ -8,7 +8,11 @@ use winnow::{
 
 use codec::schema::Reference;
 
-use crate::decode::apa::apa;
+use super::apa::apa;
+//use super::chicago::chicago;
+//use super::ieee::ieee;
+use super::mla::mla;
+//use super::vancouver::vancouver;
 
 /// Parse a list of Stencila [`Reference`]s from a string
 pub fn references(input: &mut &str) -> Result<Vec<Reference>> {
@@ -17,5 +21,5 @@ pub fn references(input: &mut &str) -> Result<Vec<Reference>> {
 
 /// Parse a Stencila [`Reference`]s from a string
 pub fn reference(input: &mut &str) -> Result<Reference> {
-    alt((apa,)).parse_next(input)
+    alt((apa, mla)).parse_next(input)
 }
