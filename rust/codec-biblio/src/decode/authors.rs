@@ -131,17 +131,26 @@ pub fn person_given_family(input: &mut &str) -> Result<Author> {
 
 /// Parse an organization
 ///
+/// Parses a list of whitespace separated names and them joins them to avoid
+/// trailing whitespace being consumed.
+///
 /// Generally, used as a fallback if the string does not match expected format
 /// for a [`Person`].
 fn organization(input: &mut &str) -> Result<Author> {
-    take_while(2.., |c: char| !c.is_ascii_punctuation())
-        .map(|name: &str| {
-            Author::Organization(Organization {
-                name: Some(name.to_string()),
-                ..Default::default()
-            })
+    separated(
+        1..,
+        take_while(2.., |c: char| {
+            c.is_alphabetic() || c.is_numeric() || is_hyphen(c)
+        }),
+        multispace1,
+    )
+    .map(|name: Vec<&str>| {
+        Author::Organization(Organization {
+            name: Some(name.join(" ")),
+            ..Default::default()
         })
-        .parse_next(input)
+    })
+    .parse_next(input)
 }
 
 /// Parse a proper name: starts with uppercase letter, followed by alphabetic characters or hyphens

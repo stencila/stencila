@@ -9,7 +9,7 @@ use winnow::{
     Parser, Result,
     ascii::{digit1, multispace0, multispace1},
     combinator::{alt, delimited, opt, preceded, terminated},
-    token::{take_until, take_while},
+    token::take_while,
 };
 
 use codec::schema::{
@@ -37,8 +37,9 @@ use crate::decode::{
 /// - Book chapters
 /// - Web resources
 ///
-/// Future work may include book chapters, conference papers, etc.
+/// Future work may include conference papers, etc.
 pub fn apa(input: &mut &str) -> Result<Reference> {
+    // Order is important for correct matching!
     alt((article, chapter, web, book)).parse_next(input)
 }
 
@@ -52,20 +53,16 @@ pub fn apa(input: &mut &str) -> Result<Reference> {
 fn article(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse one or more authors (persons or organizations)
-        // Handles leading whitespace before the first author
-        preceded(multispace0, authors),
+        authors,
         // Date: Parse year in parentheses format "(YYYY)"
-        apa_year,
+        preceded(apa_separator, apa_year),
         // Title: Parse article title ending with a period
-        apa_title,
-        // Journal: Parse journal name ending with a comma
-        // Captures everything up to the first comma
-        delimited(multispace0, take_until(1.., ','), ","),
+        preceded(apa_separator, apa_title),
+        // Journal: Parse journal name
+        preceded(apa_separator, take_while(1.., |c: char| c != ',')),
         // Volume and Issue: Parse volume number with optional issue in parentheses
-        // Format: Volume or Volume(Issue)
-        // Volume is required (digits), issue is optional
-        delimited(
-            multispace0,
+        preceded(
+            apa_separator,
             (
                 digit1, // Volume number (required)
                 opt(delimited(
@@ -74,13 +71,11 @@ fn article(input: &mut &str) -> Result<Reference> {
                     (multispace0, ")"),
                 )),
             ),
-            multispace0,
         ),
-        // Pages: Optional page range or single page
-        // Can end with period or whitespace
-        opt(delimited(multispace0, pages, alt((".", multispace0)))),
+        // Pages: Optional page range
+        opt(preceded(apa_separator, apa_pages)),
         // DOI or URL
-        opt(delimited(multispace0, doi_or_url, alt((".", multispace0)))),
+        opt(preceded(apa_separator, doi_or_url)),
     )
         .map(
             |(authors, date, title, journal, (volume, issue), pages, doi_or_url)| Reference {
@@ -112,15 +107,15 @@ fn article(input: &mut &str) -> Result<Reference> {
 fn book(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse book authors
-        preceded(multispace0, authors),
+        authors,
         // Date: Parse year in parentheses format "(YYYY)"
-        apa_year,
+        preceded(apa_separator, apa_year),
         // Title: Parse book title ending with a period
-        apa_title,
-        // Publisher: Parse publisher ending with period
-        delimited(multispace0, take_until(1.., '.'), "."),
+        preceded(apa_separator, apa_title),
+        // Publisher: Parse publisher
+        preceded(apa_separator, take_while(1.., |c: char| c != '.')),
         // DOI or URL
-        opt(delimited(multispace0, doi_or_url, alt((".", multispace0)))),
+        opt(preceded(apa_separator, doi_or_url)),
     )
         // Map the parsed components into a Reference struct
         .map(|(authors, date, title, publisher, doi_or_url)| Reference {
@@ -149,13 +144,13 @@ fn book(input: &mut &str) -> Result<Reference> {
 fn chapter(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse chapter authors
-        preceded(multispace0, authors),
+        authors,
         // Date: Parse year in parentheses
-        apa_year,
+        preceded(apa_separator, apa_year),
         // Chapter Title: Parse chapter title ending with period
-        apa_title,
+        preceded(apa_separator, apa_title),
         // "In" keyword with space
-        delimited(multispace0, "In", multispace1),
+        delimited(apa_separator, "In", multispace1),
         // Editors: before (Ed.) or (Eds.)
         // Allows for variations such as (Ed) ( Eds) ( Ed. )
         terminated(
@@ -174,21 +169,17 @@ fn chapter(input: &mut &str) -> Result<Reference> {
             ),
         ),
         // Book Title: Parse book title before opening parenthesis
-        preceded(multispace0, take_until(1.., '(')),
+        preceded(multispace0, take_while(1.., |c: char| c != '(')),
         // Pages: Parse page range in parentheses
         opt(delimited(
-            (multispace0, "(", multispace0),
+            (alt((apa_separator, multispace0)), "(", multispace0),
             pages,
             (multispace0, ")", opt((multispace0, "."))),
         )),
-        // Publisher: Parse publisher ending with period
-        opt(delimited(
-            multispace0,
-            take_while(1.., |c: char| c != '.'),
-            opt("."),
-        )),
+        // Publisher: Parse publisher
+        opt(preceded(apa_separator, take_while(1.., |c: char| c != '.'))),
         // DOI or URL
-        opt(delimited(multispace0, doi_or_url, alt((".", multispace0)))),
+        opt(preceded(apa_separator, doi_or_url)),
     )
         // Map the parsed components into a Reference struct
         .map(
@@ -238,15 +229,15 @@ fn chapter(input: &mut &str) -> Result<Reference> {
 fn web(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse web authors (may be missing for some web content)
-        opt(preceded(multispace0, authors)),
+        opt(terminated(authors, apa_separator)),
         // Date: Parse year in parentheses format "(YYYY)"
         apa_year,
         // Title: Parse web page title ending with a period
-        apa_title,
-        // Website: Parse website name ending with period
-        delimited(multispace0, take_until(1.., '.'), "."),
-        // URL: Capture non-DOI URLs
-        preceded(multispace0, url),
+        preceded(apa_separator, apa_title),
+        // Website: Parse website name
+        preceded(apa_separator, take_while(1.., |c: char| c != '.')),
+        // URL: Web address
+        preceded(apa_separator, url),
     )
         // Map the parsed components into a Reference struct
         .map(|(authors, date, title, website, url)| Reference {
@@ -267,23 +258,36 @@ fn web(input: &mut &str) -> Result<Reference> {
 
 /// Parse year in parentheses format "(YYYY)"
 ///
-/// Allows optional whitespace and trailing period
+/// Allows optional whitespacewithin parentheses
 fn apa_year(input: &mut &str) -> Result<Date> {
-    delimited(
-        (multispace0, "(", multispace0),
-        year,
-        (multispace0, ")", opt((multispace0, "."))),
-    )
-    .parse_next(input)
+    delimited(("(", multispace0), year, (multispace0, ")")).parse_next(input)
 }
 
 /// Parse article title ending with a period
 ///
 /// Captures everything up to the first period
 fn apa_title(input: &mut &str) -> Result<Vec<Inline>> {
-    delimited(multispace0, take_until(1.., '.'), ".")
+    take_while(1.., |c: char| c != '.')
         .map(|title: &str| vec![t(title.trim())])
         .parse_next(input)
+}
+
+/// Parse page numbers with APA formatting
+fn apa_pages(input: &mut &str) -> Result<Reference> {
+    pages.parse_next(input)
+}
+
+/// Parse a separator between parts of an APA reference
+///
+/// This is a lenient parser for anything that may be used as a separator
+/// between parts of an APA reference. Making it lenient allows the `apa` parser
+/// to be more robust to deviations in punctuation and whitespace.
+fn apa_separator<'s>(input: &mut &'s str) -> Result<&'s str> {
+    alt((
+        (multispace0, alt((",", ".")), multispace0).take(),
+        multispace1,
+    ))
+    .parse_next(input)
 }
 
 #[cfg(test)]
@@ -340,9 +344,7 @@ mod tests {
         assert!(reference.doi.is_none());
 
         // With extra whitespace
-        let reference = apa(
-            &mut "  Wilson, M.   (  2022  ) .   Title here  .   Journal Name  ,   12  (  4  )   100-110  .",
-        )?;
+        let reference = apa(&mut "Wilson, M.    (  2022  ) .   Title here  . Journal Name   , 12 (4  )  100-110.")?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
         assert!(reference.authors.is_some());
 
@@ -407,7 +409,7 @@ mod tests {
         assert_eq!(reference.authors.unwrap().len(), 2);
 
         // With extra whitespace
-        let reference = apa(&mut "  Taylor, L.   ( 2018 ) .  Book Title  .  Publisher Name  .")?;
+        let reference = apa(&mut "Taylor, L.  ( 2018   ).   Book Title.    Publisher Name.")?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Book));
 
         Ok(())
@@ -465,7 +467,7 @@ mod tests {
 
         // With extra whitespace
         let reference = apa(
-            &mut "  Miller, A.   ( 2018 ) .  Chapter title  . In  Editor, E.  ( Ed. ) ,  Book Title  ( 5-10 ) .  Publisher  .",
+            &mut "Miller, A.   ( 2018  ).  Chapter title. In Editor, E.  (Ed.) ,  Book Title   (5-10). Publisher.",
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
 
@@ -515,7 +517,7 @@ mod tests {
 
         // With extra whitespace
         let reference = apa(
-            &mut "  Brown, K.   ( 2021 ) .  Web accessibility guide  .  Accessibility Hub  .  https://a11y.com/guide  ",
+            &mut "Brown, K.  ( 2021 ). Web accessibility guide .  Accessibility Hub .  https://a11y.com/guide",
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::WebPage));
 
