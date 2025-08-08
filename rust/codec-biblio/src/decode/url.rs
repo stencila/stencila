@@ -5,7 +5,7 @@ use winnow::{
 };
 
 /// Parse a URL
-pub fn url<'s>(input: &mut &'s str) -> Result<String> {
+pub fn url(input: &mut &str) -> Result<String> {
     (
         alt(("https://", "http://")),
         preceded(

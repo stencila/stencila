@@ -23,7 +23,7 @@ use crate::decode::url::url;
 /// 1. DOI URLs (https://doi.org/, http://dx.doi.org/, etc.)
 /// 2. Prefixed DOIs (doi:, DOI:, etc.)
 /// 3. Bare DOIs (starting with 10.)
-pub fn doi<'s>(input: &mut &'s str) -> Result<String> {
+pub fn doi(input: &mut &str) -> Result<String> {
     alt((doi_url, doi_prefixed, doi_bare))
         .map(String::from)
         .parse_next(input)

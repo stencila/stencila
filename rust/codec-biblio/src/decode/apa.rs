@@ -347,7 +347,9 @@ mod tests {
         assert!(reference.doi.is_none());
 
         // With extra whitespace
-        let reference = apa(&mut "Wilson, M.    (  2022  ) .   Title here  . Journal Name   , 12 (4  )  100-110.")?;
+        let reference = apa(
+            &mut "Wilson, M.    (  2022  ) .   Title here  . Journal Name   , 12 (4  )  100-110.",
+        )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
         assert!(reference.authors.is_some());
 
@@ -440,10 +442,7 @@ mod tests {
             Some("Handbook of Psychology".to_string())
         );
         assert_eq!(
-            reference
-                .is_part_of
-                .and_then(|book| book.publisher)
-                .map(|publisher| publisher),
+            reference.is_part_of.and_then(|book| book.publisher),
             Some(PersonOrOrganization::Organization(Organization {
                 name: Some("Academic Press".to_string()),
                 ..Default::default()

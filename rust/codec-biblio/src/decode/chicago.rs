@@ -421,7 +421,7 @@ mod tests {
                 .is_part_of
                 .as_ref()
                 .and_then(|journal| journal.title.as_ref())
-                .map(|title| to_text(title)),
+                .map(to_text),
             Some("Environmental Science".to_string())
         );
         assert_eq!(
@@ -487,7 +487,7 @@ mod tests {
                 .is_part_of
                 .as_ref()
                 .and_then(|book| book.title.as_ref())
-                .map(|title| to_text(title)),
+                .map(to_text),
             Some("Handbook of Methods".to_string())
         );
         assert!(reference.page_start.is_some());
@@ -508,7 +508,7 @@ mod tests {
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
         assert_eq!(reference.authors.unwrap().len(), 2);
-        assert!(reference.is_part_of.unwrap().editors.unwrap().len() >= 1);
+        assert!(!reference.is_part_of.unwrap().editors.unwrap().is_empty());
 
         Ok(())
     }
@@ -530,7 +530,7 @@ mod tests {
                 .is_part_of
                 .as_ref()
                 .and_then(|site| site.title.as_ref())
-                .map(|title| to_text(title)),
+                .map(to_text),
             Some("Tech Resources".to_string())
         );
         assert!(reference.url.is_some());

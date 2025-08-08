@@ -153,12 +153,12 @@ pub fn person_given_family(input: &mut &str) -> Result<Author> {
             |(first, initials, family_names): (String, Option<Vec<String>>, Vec<String>)| {
                 let mut given_names = vec![first.to_string()];
                 if let Some(initials) = initials {
-                    given_names.append(&mut initials.into_iter().map(String::from).collect());
+                    given_names.append(&mut initials.into_iter().collect());
                 }
 
                 Author::Person(Person {
                     given_names: Some(given_names),
-                    family_names: Some(family_names.into_iter().map(String::from).collect()),
+                    family_names: Some(family_names.into_iter().collect()),
                     ..Default::default()
                 })
             },
