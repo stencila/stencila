@@ -40,7 +40,7 @@ pub fn persons(input: &mut &str) -> Result<Vec<Person>> {
 
 /// Parse a single person in various formats
 pub fn person(input: &mut &str) -> Result<Person> {
-    alt((person_family_given,))
+    alt((person_family_given, person_given_family))
         .map(|author| match author {
             Author::Person(person) => person,
             _ => Person::default(),

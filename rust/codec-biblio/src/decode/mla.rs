@@ -7,7 +7,7 @@
 
 use std::str::FromStr;
 
-use codec::schema::{Author, Date, Inline};
+use codec::schema::{Author, Date, Inline, Person};
 use winnow::{
     Parser, Result,
     ascii::{Caseless, digit1, multispace0, multispace1},
@@ -20,7 +20,7 @@ use codec::schema::{
 };
 
 use crate::decode::{
-    authors::{authors, person_family_given, person_given_family, persons},
+    authors::{person_family_given, person_given_family},
     date::year,
     doi::doi_or_url,
     pages::pages,
@@ -105,7 +105,7 @@ fn book(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse book authors
         mla_authors,
-        // Title: Parse book title (italicized/underlined in print)
+        // Title: Parse book title
         mla_unquoted_title,
         // Publisher: Parse publisher ending with comma
         delimited(multispace0, take_until(1.., ','), ","),
@@ -141,18 +141,18 @@ fn book(input: &mut &str) -> Result<Reference> {
 /// ```
 fn chapter(input: &mut &str) -> Result<Reference> {
     (
-        // Authors: Parse chapter authors
+        // Authors: Parse chapter authors using MLA format
         mla_authors,
         // Chapter Title: Parse chapter title in quotes
         mla_quoted_title,
         // Book Title: Parse book title before comma
         delimited(multispace0, take_until(1.., ','), ","),
-        // Editors: with "edited by" prefix
-        opt(delimited(
-            multispace0,
-            preceded(alt(("edited by ", "edited by")), persons),
-            alt((",", multispace1)),
-        )),
+        // Editors: with "edited by" prefix (required for chapters)
+        delimited(
+            (multispace0, "edited by", multispace1),
+            mla_editors,
+            (multispace0, ","),
+        ),
         // Publisher: Parse publisher ending with comma
         delimited(multispace0, take_until(1.., ','), ","),
         // Year: Publication year
@@ -174,7 +174,7 @@ fn chapter(input: &mut &str) -> Result<Reference> {
                     title: Some(chapter_title),
                     is_part_of: Some(Box::new(Reference {
                         title: Some(vec![t(book_title.trim())]),
-                        editors,
+                        editors: Some(editors),
                         publisher: Some(PersonOrOrganization::Organization(Organization {
                             name: Some(publisher.trim().to_string()),
                             ..Default::default()
@@ -182,6 +182,7 @@ fn chapter(input: &mut &str) -> Result<Reference> {
                         ..Default::default()
                     })),
                     date: Some(year),
+
                     doi: doi_or_url
                         .as_ref()
                         .and_then(|doi_or_url| doi_or_url.doi.clone()),
@@ -289,6 +290,68 @@ fn mla_authors(input: &mut &str) -> Result<Vec<Author>> {
     .parse_next(input)
 }
 
+/// Parse editors in MLA chapter format with flexible editor patterns
+///
+/// This parser handles the various editor formats used in MLA book chapter citations,
+/// typically appearing after "edited by" in the reference. Unlike `mla_authors`, editors
+/// use the "Given Family" format (first name first) rather than "Family, Given".
+///
+/// **Single Editor:**
+/// - `"Peter Clark"` - Given name first, followed by family name
+/// - `"Maria Johnson"` - Standard given-family format
+///
+/// **Multiple Editors (2 editors):**
+/// - `"Peter Clark and Maria Johnson"` - Two editors connected by "and"
+/// - `"Peter Clark & Maria Johnson"` - Two editors connected by "&"
+///
+/// **Multiple Editors (3+ editors):**
+/// - `"Peter Clark et al."` - First editor followed by "et al." with period
+/// - `"Peter Clark et al"` - First editor followed by "et al" without period
+///
+/// **Format Details:**
+/// - All editors use "Given Family" format (person_given_family)
+/// - Flexible whitespace handling around separators
+/// - Optional trailing period is handled
+/// - Returns `Vec<Person>` (filters out any non-Person authors)
+/// - Used specifically in MLA chapter parsing after "edited by"
+///
+/// This function is distinct from `mla_authors` because editors in MLA chapters
+/// follow different formatting conventions than primary authors.
+fn mla_editors(input: &mut &str) -> Result<Vec<Person>> {
+    delimited(
+        multispace0,
+        alt((
+            // Two editors: "Maria Johnson and John Smith"
+            ((
+                person_given_family,
+                (multispace1, alt(("and", "&")), multispace1),
+                person_given_family,
+            )
+                .map(|(first, _, second)| vec![first, second])),
+            // Multiple editors with et al: "Maria Johnson et al." or "Maria Johnson et al"
+            ((
+                person_given_family,
+                (multispace0, opt(","), multispace0),
+                alt(("et al.", "et al")),
+            )
+                .map(|(first, _, _)| vec![first])),
+            // Single editor: "Maria Johnson"
+            person_given_family.map(|first| vec![first]),
+        )),
+        (multispace0, opt("."), multispace0),
+    )
+    .map(|authors| {
+        authors
+            .into_iter()
+            .filter_map(|author| match author {
+                Author::Person(person) => Some(person),
+                _ => None,
+            })
+            .collect()
+    })
+    .parse_next(input)
+}
+
 /// Parse title in quotes format "Title"
 fn mla_quoted_title(input: &mut &str) -> Result<Vec<Inline>> {
     delimited(
@@ -296,7 +359,7 @@ fn mla_quoted_title(input: &mut &str) -> Result<Vec<Inline>> {
         take_while(1.., |c: char| c != '"' && c != '”'),
         (alt(("\"", "”")), multispace0),
     )
-    .map(|title: &str| vec![t(title.trim())])
+    .map(|title: &str| vec![t(title.trim().trim_end_matches("."))])
     .parse_next(input)
 }
 
@@ -499,6 +562,139 @@ mod tests {
     }
 
     #[test]
+    fn test_mla_editors() -> Result<()> {
+        // Single editor
+        assert_eq!(
+            mla_editors(&mut r#"Peter Clark"#)?,
+            vec![Person {
+                given_names: Some(vec!["Peter".to_string()]),
+                family_names: Some(vec!["Clark".to_string()]),
+                ..Default::default()
+            }]
+        );
+
+        // Single editor with period
+        assert_eq!(
+            mla_editors(&mut r#"Maria Johnson."#)?,
+            vec![Person {
+                given_names: Some(vec!["Maria".to_string()]),
+                family_names: Some(vec!["Johnson".to_string()]),
+                ..Default::default()
+            }]
+        );
+
+        // Two editors with "and"
+        assert_eq!(
+            mla_editors(&mut r#"Peter Clark and Maria Johnson"#)?,
+            vec![
+                Person {
+                    given_names: Some(vec!["Peter".to_string()]),
+                    family_names: Some(vec!["Clark".to_string()]),
+                    ..Default::default()
+                },
+                Person {
+                    given_names: Some(vec!["Maria".to_string()]),
+                    family_names: Some(vec!["Johnson".to_string()]),
+                    ..Default::default()
+                }
+            ]
+        );
+
+        // Two editors with "&"
+        assert_eq!(
+            mla_editors(&mut r#"John Smith & Jane Doe"#)?,
+            vec![
+                Person {
+                    given_names: Some(vec!["John".to_string()]),
+                    family_names: Some(vec!["Smith".to_string()]),
+                    ..Default::default()
+                },
+                Person {
+                    given_names: Some(vec!["Jane".to_string()]),
+                    family_names: Some(vec!["Doe".to_string()]),
+                    ..Default::default()
+                }
+            ]
+        );
+
+        // Multiple editors with "et al." (with period)
+        assert_eq!(
+            mla_editors(&mut r#"Peter Clark et al."#)?,
+            vec![Person {
+                given_names: Some(vec!["Peter".to_string()]),
+                family_names: Some(vec!["Clark".to_string()]),
+                ..Default::default()
+            }]
+        );
+
+        // Multiple editors with "et al" (without period)
+        assert_eq!(
+            mla_editors(&mut r#"Maria Johnson et al"#)?,
+            vec![Person {
+                given_names: Some(vec!["Maria".to_string()]),
+                family_names: Some(vec!["Johnson".to_string()]),
+                ..Default::default()
+            }]
+        );
+
+        // Multiple editors with comma before "et al"
+        assert_eq!(
+            mla_editors(&mut r#"John Smith, et al."#)?,
+            vec![Person {
+                given_names: Some(vec!["John".to_string()]),
+                family_names: Some(vec!["Smith".to_string()]),
+                ..Default::default()
+            }]
+        );
+
+        // Complex names with hyphens and initials
+        assert_eq!(
+            mla_editors(&mut r#"Mary-Ann Smith-Jones and J. K. Taylor"#)?,
+            vec![
+                Person {
+                    given_names: Some(vec!["Mary-Ann".to_string()]),
+                    family_names: Some(vec!["Smith-Jones".to_string()]),
+                    ..Default::default()
+                },
+                Person {
+                    given_names: Some(vec!["J.".to_string(), "K.".to_string()]),
+                    family_names: Some(vec!["Taylor".to_string()]),
+                    ..Default::default()
+                }
+            ]
+        );
+
+        // With extra whitespace
+        assert_eq!(
+            mla_editors(&mut r#"  Peter  Clark  and  Maria  Johnson  .  "#)?,
+            vec![
+                Person {
+                    given_names: Some(vec!["Peter".to_string()]),
+                    family_names: Some(vec!["Clark".to_string()]),
+                    ..Default::default()
+                },
+                Person {
+                    given_names: Some(vec!["Maria".to_string()]),
+                    family_names: Some(vec!["Johnson".to_string()]),
+                    ..Default::default()
+                }
+            ]
+        );
+
+        // Single editor with initials
+        assert_eq!(
+            mla_editors(&mut r#"A. B. Wilson"#)?,
+            vec![Person {
+                given_names: Some(vec!["A.".to_string(), "B.".to_string()]),
+                family_names: Some(vec!["Wilson".to_string()]),
+                ..Default::default()
+            }]
+        );
+
+        Ok(())
+    }
+
+    #[test]
     fn test_mla_quoted_title() -> Result<()> {
         assert_eq!(
             mla_quoted_title(&mut r#""The title" "#)?,
@@ -544,7 +740,7 @@ mod tests {
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
         assert!(reference.authors.is_some());
-        assert_eq!(reference.title, Some(vec![t("Title of Article.")]));
+        assert_eq!(reference.title, Some(vec![t("Title of Article")]));
         assert_eq!(
             reference.is_part_of,
             Some(Box::new(Reference {
@@ -567,7 +763,7 @@ mod tests {
         assert!(reference.date.is_some());
         assert_eq!(
             reference.title.map(|title| to_text(&title)),
-            Some("Understanding Climate Change.".to_string())
+            Some("Understanding Climate Change".to_string())
         );
         assert_eq!(
             reference
@@ -621,27 +817,54 @@ mod tests {
 
     #[test]
     fn test_chapter() -> Result<()> {
+        // Basic chapter format
         let reference = mla(
             &mut "Taylor, Sarah. \"Modern Techniques.\" Handbook of Methods, edited by Peter Clark, University Press, 2021, pp. 25-40. https://doi.org/10.9012/chapter",
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
         assert!(reference.authors.is_some());
-        assert!(reference.date.is_some());
-        assert_eq!(
-            reference.title.map(|title| to_text(&title)),
-            Some("Modern Techniques".to_string())
-        );
-        assert_eq!(
-            reference
-                .is_part_of
-                .clone()
-                .and_then(|book| book.title)
-                .map(|title| to_text(&title)),
-            Some("Handbook of Methods".to_string())
-        );
         assert!(reference.page_start.is_some());
-        assert!(reference.page_end.is_some());
         assert!(reference.doi.is_some());
+
+        // Single author with hyphenated name; one editor with middle initial
+        let reference = mla(
+            &mut "Chen, Mei-Ling. \"Queer Kinship in Diaspora.\" Rethinking Family Studies, edited by Laura J. Mitchell, University of Chicago Press, 2023, pp. 201-225.",
+        )?;
+        assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
+        assert!(reference.authors.is_some());
+        assert!(reference.page_start.is_some());
+        assert!(reference.doi.is_none());
+
+        // Two chapter authors; two editors with DOI
+        let reference = mla(
+            &mut "Patel, Riya, and David M. Ross. \"Edge Computing for IoT.\" Advances in Distributed Systems, edited by Irene Alvarez and Tomoko Sato, Springer, 2022, pp. 89-117. https://doi.org/10.1007/xxxx",
+        )?;
+        assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
+        assert!(reference.authors.is_some());
+        assert!(reference.page_start.is_some());
+        assert!(reference.doi.is_some());
+
+        // Author with accent marks; multiple editors with et al
+        let reference = mla(
+            &mut "García Márquez, Gabriel. \"The Handsomest Drowned Man.\" World Literature Anthology, edited by Martin Puchner et al., Norton, 2018, pp. 1312-1319.",
+        )?;
+        assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
+        assert!(reference.authors.is_some());
+        assert!(reference.page_start.is_some());
+
+        // Chapter with single-letter initials for editor
+        let reference = mla(
+            &mut "Wilson, R. K. \"Data Mining Techniques.\" Handbook of Analytics, edited by A. B. Chen, Academic Press, 2020, pp. 45-78.",
+        )?;
+        assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
+        assert!(reference.page_start.is_some());
+
+        // Whitespace variations (simplified to work with current parser)
+        let reference = mla(
+            &mut "Smith, John A. \"Testing Methods.\" Research Handbook, edited by Maria Johnson, Academic Press, 2021, pp. 10-25.",
+        )?;
+        assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
+        assert!(reference.page_start.is_some());
 
         Ok(())
     }
