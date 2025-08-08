@@ -25,7 +25,13 @@ pub fn authors(input: &mut &str) -> Result<Vec<Author>> {
 
 /// Parse a single author in various formats
 pub fn author(input: &mut &str) -> Result<Author> {
-    alt((person_family_given, person_given_family, organization)).parse_next(input)
+    alt((
+        person_family_initials,
+        person_family_given,
+        person_given_family,
+        organization,
+    ))
+    .parse_next(input)
 }
 
 /// Parse multiple persons separated by various delimiters
@@ -44,6 +50,37 @@ pub fn person(input: &mut &str) -> Result<Person> {
         .map(|author| match author {
             Author::Person(person) => person,
             _ => Person::default(),
+        })
+        .parse_next(input)
+}
+
+/// Parse person in "Family, F. M." format
+///
+/// As used for Vancouver where is is necessary to be strick about ending
+/// periods to avoid consuming the start of the title.
+///
+/// See `person_family_given` for a more lenient parser which allows for deviations
+/// such as missing periods and complete given names.
+pub fn person_family_initials(input: &mut &str) -> Result<Author> {
+    (
+        // Family names
+        terminated(separated(1.., name, multispace1), ","),
+        // Given names or initials
+        preceded(
+            multispace0,
+            separated(
+                1..,
+                (initial_letter, ".").take().map(String::from),
+                multispace1,
+            ),
+        ),
+    )
+        .map(|(family_names, given_names): (Vec<String>, Vec<String>)| {
+            Author::Person(Person {
+                family_names: Some(family_names),
+                given_names: Some(given_names),
+                ..Default::default()
+            })
         })
         .parse_next(input)
 }
@@ -180,16 +217,23 @@ fn name(input: &mut &str) -> Result<String> {
         .parse_next(input)
 }
 
+/// Parse a single uppercase letter for an initial
+fn initial_letter<'s>(input: &mut &'s str) -> Result<&'s str> {
+    take(1usize)
+        .verify(|s: &str| {
+            let chars: Vec<char> = s.chars().collect();
+            chars.len() == 1 && chars[0].is_uppercase() && chars[0].is_alphabetic()
+        })
+        .parse_next(input)
+}
+
 /// Parse an initial: single uppercase alphabetic character, optionally with a period
 ///
 /// This parser matches patterns like "A", "B.", "M", "J." and takes the period if present.
 /// The result includes the period to indicate it's an initial rather than a full name.
 fn initial(input: &mut &str) -> Result<String> {
     (
-        take(1usize).verify(|s: &str| {
-            let chars: Vec<char> = s.chars().collect();
-            chars.len() == 1 && chars[0].is_uppercase() && chars[0].is_alphabetic()
-        }),
+        initial_letter,
         opt("."),
         // Ensure no more alphabetic characters follow (to distinguish from names)
         peek(not(take_while(1.., |c: char| c.is_alphabetic()))),
@@ -520,6 +564,95 @@ mod tests {
         } else {
             unreachable!("expected person")
         }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_person_family_initials() -> Result<()> {
+        // Standard format with periods after initials
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = person_family_initials(&mut "Smith, J. A.")?
+        {
+            assert_eq!(family_names, Some(vec!["Smith".to_string()]));
+            assert_eq!(given_names, Some(vec!["J.".to_string(), "A.".to_string()]));
+        } else {
+            unreachable!("expected person")
+        }
+
+        // Single initial with period
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = person_family_initials(&mut "Johnson, M.")?
+        {
+            assert_eq!(family_names, Some(vec!["Johnson".to_string()]));
+            assert_eq!(given_names, Some(vec!["M.".to_string()]));
+        } else {
+            unreachable!("expected person")
+        }
+
+        // Multiple initials, all with periods
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = person_family_initials(&mut "Brown, A. B. C.")?
+        {
+            assert_eq!(family_names, Some(vec!["Brown".to_string()]));
+            assert_eq!(
+                given_names,
+                Some(vec!["A.".to_string(), "B.".to_string(), "C.".to_string()])
+            );
+        } else {
+            unreachable!("expected person")
+        }
+
+        // Compound family name
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = person_family_initials(&mut "Van Der Berg, P. Q.")?
+        {
+            assert_eq!(
+                family_names,
+                Some(vec![
+                    "Van".to_string(),
+                    "Der".to_string(),
+                    "Berg".to_string()
+                ])
+            );
+            assert_eq!(given_names, Some(vec!["P.".to_string(), "Q.".to_string()]));
+        } else {
+            unreachable!("expected person")
+        }
+
+        // Hyphenated family name
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = person_family_initials(&mut "Smith-Jones, K. L.")?
+        {
+            assert_eq!(family_names, Some(vec!["Smith-Jones".to_string()]));
+            assert_eq!(given_names, Some(vec!["K.".to_string(), "L.".to_string()]));
+        } else {
+            unreachable!("expected person")
+        }
+
+        // Should fail without periods (strict format requirement)
+        assert!(person_family_initials(&mut "Smith, J A").is_err());
+
+        // Should fail with full names instead of initials
+        assert!(person_family_initials(&mut "Smith, John Andrew").is_err());
+
+        // Should fail without comma
+        assert!(person_family_initials(&mut "Smith J. A.").is_err());
 
         Ok(())
     }
