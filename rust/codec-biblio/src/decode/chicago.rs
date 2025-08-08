@@ -425,11 +425,11 @@ mod tests {
             Some("Environmental Science".to_string())
         );
         assert_eq!(
-            reference.is_part_of.as_ref().unwrap().volume_number,
+            reference.is_part_of.as_ref().and_then(|part_of| part_of.volume_number.as_ref()).cloned(),
             Some(IntegerOrString::Integer(15))
         );
         assert_eq!(
-            reference.is_part_of.as_ref().unwrap().issue_number,
+            reference.is_part_of.as_ref().and_then(|part_of| part_of.issue_number.as_ref()).cloned(),
             Some(IntegerOrString::Integer(3))
         );
         assert!(reference.date.is_some());
@@ -465,7 +465,7 @@ mod tests {
         let reference =
             book(&mut r#"Smith, John, and Jane Doe. Research Methods. Science Publishers, 2021."#)?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Book));
-        assert_eq!(reference.authors.unwrap().len(), 2);
+        assert_eq!(reference.authors.map(|authors| authors.len()), Some(2));
 
         Ok(())
     }
@@ -507,8 +507,8 @@ mod tests {
             &mut r#"Patel, Riya, and David Ross. "Computing Systems." In Technology Handbook, edited by Irene Alvarez and Tomoko Sato, 89-117. Springer, 2022."#,
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
-        assert_eq!(reference.authors.unwrap().len(), 2);
-        assert!(!reference.is_part_of.unwrap().editors.unwrap().is_empty());
+        assert_eq!(reference.authors.map(|authors| authors.len()), Some(2));
+        assert!(reference.is_part_of.as_ref().and_then(|part_of| part_of.editors.as_ref()).map(|editors| !editors.is_empty()).unwrap_or(false));
 
         Ok(())
     }

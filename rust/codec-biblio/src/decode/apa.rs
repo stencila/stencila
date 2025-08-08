@@ -333,7 +333,7 @@ mod tests {
         // Without issue number
         let reference = apa(&mut "Smith, J. (2020). Research methods. Science Journal, 15 45-60.")?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
-        assert!(reference.is_part_of.unwrap().issue_number.is_none());
+        assert!(reference.is_part_of.as_ref().map(|part_of| part_of.issue_number.is_none()).unwrap_or(false));
 
         // Without pages
         let reference = apa(&mut "Jones, A. (2021). New findings. Nature, 500(1).")?;
@@ -361,7 +361,7 @@ mod tests {
         // Single author
         let reference = apa(&mut "Taylor, S. (2023). Solo work. Solo Journal, 1(1) 1-5.")?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
-        assert_eq!(reference.authors.unwrap().len(), 1);
+        assert_eq!(reference.authors.map(|authors| authors.len()), Some(1));
 
         // Organization as author
         let reference = apa(
@@ -411,7 +411,7 @@ mod tests {
         let reference =
             apa(&mut "Wilson, M., & Davis, R. (2021). Statistical Methods. Tech Press.")?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Book));
-        assert_eq!(reference.authors.unwrap().len(), 2);
+        assert_eq!(reference.authors.map(|authors| authors.len()), Some(2));
 
         // With extra whitespace
         let reference = apa(&mut "Taylor, L.  ( 2018   ).   Book Title.    Publisher Name.")?;
@@ -457,7 +457,7 @@ mod tests {
             &mut "Brown, K. (2019). Data analysis. In Wilson, M., & Davis, R. (Eds.), Statistical Methods (45-60). Publisher Name.",
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
-        assert!(reference.is_part_of.unwrap().editors.is_some());
+        assert!(reference.is_part_of.as_ref().map(|part_of| part_of.editors.is_some()).unwrap_or(false));
         assert_eq!(reference.doi, None);
 
         // Without DOI
@@ -509,7 +509,7 @@ mod tests {
             &mut "Wilson, M., & Davis, R. (2022). JavaScript best practices. Tech Blog. https://techblog.com/js-practices",
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::WebPage));
-        assert_eq!(reference.authors.unwrap().len(), 2);
+        assert_eq!(reference.authors.map(|authors| authors.len()), Some(2));
 
         // With organization as author
         let reference = apa(

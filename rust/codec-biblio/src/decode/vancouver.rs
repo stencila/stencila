@@ -448,7 +448,7 @@ mod tests {
             vancouver(&mut "Smith, J. A study on cancer prevention. BMJ. 2002;324(7337):577-81.")?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
         assert!(reference.authors.is_some());
-        assert_eq!(reference.authors.as_ref().unwrap().len(), 1);
+        assert_eq!(reference.authors.map(|authors| authors.len()), Some(1));
         assert_eq!(
             reference.title.map(|title| to_text(&title)),
             Some("A study on cancer prevention".to_string())
@@ -471,7 +471,7 @@ mod tests {
             &mut "Smith, J., Jones, A., & Brown, K. Multiple author study. Nature. 2023;500(1):15-30.",
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
-        assert_eq!(reference.authors.as_ref().unwrap().len(), 3);
+        assert_eq!(reference.authors.map(|authors| authors.len()), Some(3));
 
         // Without pages
         let reference = vancouver(&mut "Brown, K. Research methods. Science. 2022;10(3).")?;
@@ -482,16 +482,9 @@ mod tests {
         let reference =
             vancouver(&mut "Wilson, M. Data analysis. Journal of Statistics. 2021;15:45-67.")?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
-        assert!(
-            reference
-                .is_part_of
-                .as_ref()
-                .unwrap()
-                .issue_number
-                .is_none()
-        );
+        assert!(reference.is_part_of.as_ref().map(|part_of| part_of.issue_number.is_none()).unwrap_or(false));
         assert_eq!(
-            reference.is_part_of.as_ref().unwrap().volume_number,
+            reference.is_part_of.as_ref().and_then(|part_of| part_of.volume_number.as_ref()).cloned(),
             Some(IntegerOrString::Integer(15))
         );
 
@@ -506,7 +499,7 @@ mod tests {
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Book));
         assert!(reference.authors.is_some());
-        assert_eq!(reference.authors.as_ref().unwrap().len(), 2);
+        assert_eq!(reference.authors.map(|authors| authors.len()), Some(2));
         assert_eq!(
             reference.title.map(|title| to_text(&title)),
             Some("Programming Guide".to_string())
@@ -518,7 +511,7 @@ mod tests {
         let reference =
             vancouver(&mut "Brown, K.. Data Analysis Methods. Boston: Academic Press; 2022.")?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Book));
-        assert_eq!(reference.authors.as_ref().unwrap().len(), 1);
+        assert_eq!(reference.authors.map(|authors| authors.len()), Some(1));
 
         // Book without place (just publisher)
         let reference =
