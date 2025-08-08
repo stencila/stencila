@@ -19,6 +19,7 @@ mod mla;
 mod pages;
 mod references;
 mod url;
+mod vancouver;
 
 /// Decode Hayagriva YAML to a set of Stencila [`Reference`] nodes
 pub fn yaml(yaml: &str) -> Result<Vec<Reference>> {

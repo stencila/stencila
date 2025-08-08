@@ -11,6 +11,7 @@ use codec::schema::Reference;
 use super::apa::apa;
 use super::chicago::chicago;
 use super::mla::mla;
+use super::vancouver::vancouver;
 
 /// Parse a list of Stencila [`Reference`]s from a string
 pub fn references(input: &mut &str) -> Result<Vec<Reference>> {
@@ -19,5 +20,5 @@ pub fn references(input: &mut &str) -> Result<Vec<Reference>> {
 
 /// Parse a Stencila [`Reference`]s from a string
 pub fn reference(input: &mut &str) -> Result<Reference> {
-    alt((apa, chicago, mla)).parse_next(input)
+    alt((apa, chicago, mla, vancouver)).parse_next(input)
 }
