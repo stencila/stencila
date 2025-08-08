@@ -11,7 +11,7 @@ use codec::schema::{Author, Date, Inline, Person};
 use winnow::{
     Parser, Result,
     ascii::{Caseless, digit1, multispace0, multispace1},
-    combinator::{alt, delimited, opt, preceded},
+    combinator::{alt, delimited, opt, preceded, terminated},
     token::{take_until, take_while},
 };
 
@@ -41,7 +41,8 @@ use crate::decode::{
 ///
 /// Future work may include newspapers, magazines, conference papers, etc.
 pub fn mla(input: &mut &str) -> Result<Reference> {
-    alt((article, chapter, web, book)).parse_next(input)
+    // Order is important for correct matching!
+    alt((web, article, chapter, book)).parse_next(input)
 }
 
 /// Parse an MLA journal article reference
@@ -56,23 +57,19 @@ fn article(input: &mut &str) -> Result<Reference> {
         // Authors: Parse one or more authors
         mla_authors,
         // Title: Parse article title in quotes
-        mla_quoted_title,
+        preceded(mla_separator, mla_quoted_title),
         // Journal: Parse journal name ending with comma
-        delimited(multispace0, take_until(1.., ','), ","),
+        preceded(mla_separator, take_while(1.., |c: char| c != ',')),
         // Volume: Optional volume with "vol." prefix
-        opt(mla_volume),
+        opt(preceded(mla_separator, mla_volume)),
         // Issue: Optional issue with "no." prefix
-        opt(mla_issue),
+        opt(preceded(mla_separator, mla_issue)),
         // Year: Publication year
-        delimited(multispace0, year, alt((",", multispace0))),
+        preceded(mla_separator, year),
         // Pages: Optional page range with "pp." or "p." prefix
-        opt(delimited(
-            multispace0,
-            preceded(alt(("pp. ", "pp.", "p. ", "p.")), pages),
-            alt((".", ",", multispace0)),
-        )),
+        opt(preceded(mla_separator, mla_pages)),
         // DOI or URL
-        opt(delimited(multispace0, doi_or_url, alt((".", multispace0)))),
+        opt(preceded(mla_separator, doi_or_url)),
     )
         .map(
             |(authors, title, journal, volume, issue, year, pages, doi_or_url)| Reference {
@@ -103,16 +100,16 @@ fn article(input: &mut &str) -> Result<Reference> {
 /// ```
 fn book(input: &mut &str) -> Result<Reference> {
     (
-        // Authors: Parse book authors
+        // Authors: Parse one or more authors
         mla_authors,
-        // Title: Parse book title
-        mla_unquoted_title,
+        // Title: Parse unquoted title
+        preceded(mla_separator, mla_unquoted_title),
         // Publisher: Parse publisher ending with comma
-        delimited(multispace0, take_until(1.., ','), ","),
+        preceded(mla_separator, take_while(1.., |c: char| c != ',')),
         // Year: Publication year
-        delimited(multispace0, year, alt((".", multispace0))),
+        preceded(mla_separator, year),
         // DOI or URL
-        opt(delimited(multispace0, doi_or_url, alt((".", multispace0)))),
+        opt(preceded(mla_separator, doi_or_url)),
     )
         .map(|(authors, title, publisher, year, doi_or_url)| Reference {
             work_type: Some(CreativeWorkType::Book),
@@ -141,30 +138,22 @@ fn book(input: &mut &str) -> Result<Reference> {
 /// ```
 fn chapter(input: &mut &str) -> Result<Reference> {
     (
-        // Authors: Parse chapter authors using MLA format
+        // Authors: Parse one or more authors
         mla_authors,
         // Chapter Title: Parse chapter title in quotes
-        mla_quoted_title,
+        preceded(mla_separator, mla_quoted_title),
         // Book Title: Parse book title before comma
-        delimited(multispace0, take_until(1.., ','), ","),
+        preceded(mla_separator, take_while(1.., |c: char| c != ',')),
         // Editors: with "edited by" prefix (required for chapters)
-        delimited(
-            (multispace0, "edited by", multispace1),
-            mla_editors,
-            (multispace0, ","),
-        ),
+        preceded((mla_separator, "edited by", multispace1), mla_editors),
         // Publisher: Parse publisher ending with comma
-        delimited(multispace0, take_until(1.., ','), ","),
+        preceded(mla_separator, take_while(1.., |c: char| c != ',')),
         // Year: Publication year
-        delimited(multispace0, year, alt((",", multispace1))),
+        preceded(mla_separator, year),
         // Pages: Optional page range with "pp." prefix
-        opt(delimited(
-            multispace0,
-            preceded(alt(("pp. ", "pp.", "p. ", "p.")), pages),
-            alt((".", ",", multispace1)),
-        )),
+        opt(preceded(mla_separator, mla_pages)),
         // DOI or URL
-        opt(delimited(multispace0, doi_or_url, alt((".", multispace0)))),
+        opt(preceded(mla_separator, doi_or_url)),
     )
         .map(
             |(authors, chapter_title, book_title, editors, publisher, year, pages, doi_or_url)| {
@@ -203,20 +192,20 @@ fn chapter(input: &mut &str) -> Result<Reference> {
 /// ```
 fn web(input: &mut &str) -> Result<Reference> {
     (
-        // Authors: Parse web authors (may be missing)
-        opt(mla_authors),
+        // Authors: Parse one or more authors (optional)
+        opt(terminated(mla_authors, mla_separator)),
         // Title: Parse web page title in quotes
         mla_quoted_title,
-        // Website: Parse website name ending with comma
-        delimited(multispace0, take_until(1.., ','), ","),
+        // Website: Parse website name before comma
+        preceded(mla_separator, take_while(1.., |c: char| c != ',')),
         // Date: Publication date or year
-        delimited(multispace0, alt((digit1, take_until(1.., ','))), ","),
-        // URL: Web address
-        preceded(multispace0, url),
+        preceded(mla_separator, take_while(1.., |c: char| c != ',')),
+        // URL: Web address (required)
+        preceded(mla_separator, url),
         // Access date: Optional "Accessed Date" information
         opt(preceded(
-            multispace0,
-            preceded("Accessed ", take_while(1.., |c: char| c != '.')),
+            (mla_separator, "Accessed", multispace0),
+            take_while(1.., |c: char| c != '.'),
         )),
     )
         .map(
@@ -259,34 +248,30 @@ fn web(input: &mut &str) -> Result<Reference> {
 /// - Flexible whitespace handling around separators
 /// - Comma before "and" is optional per MLA guidelines
 fn mla_authors(input: &mut &str) -> Result<Vec<Author>> {
-    delimited(
-        multispace0,
-        alt((
-            // Two authors: "Johnson, Maria, and John Smith" or "Johnson, Maria and John Smith"
-            ((
-                person_family_given,
-                (
-                    multispace0,
-                    opt(","),
-                    multispace0,
-                    alt(("and", "&")),
-                    multispace1,
-                ),
-                person_given_family,
-            )
-                .map(|(first, _, second)| vec![first, second])),
-            // Multiple authors with et al: "Johnson, Maria, et al." or "Johnson, Maria et al"
-            ((
-                person_family_given,
-                (multispace0, opt(","), multispace0),
-                alt(("et al.", "et al")),
-            )
-                .map(|(first, _, _)| vec![first])),
-            // Single author: "Johnson, Maria"
-            person_family_given.map(|first| vec![first]),
-        )),
-        (multispace0, opt("."), multispace0),
-    )
+    alt((
+        // Two authors: "Johnson, Maria, and John Smith" or "Johnson, Maria and John Smith"
+        ((
+            person_family_given,
+            (
+                multispace0,
+                opt(","),
+                multispace0,
+                alt(("and", "&")),
+                multispace1,
+            ),
+            person_given_family,
+        )
+            .map(|(first, _, second)| vec![first, second])),
+        // Multiple authors with et al: "Johnson, Maria, et al." or "Johnson, Maria et al"
+        ((
+            person_family_given,
+            (multispace0, opt(","), multispace0),
+            alt(("et al.", "et al")),
+        )
+            .map(|(first, _, _)| vec![first])),
+        // Single author: "Johnson, Maria"
+        person_family_given.map(|first| vec![first]),
+    ))
     .parse_next(input)
 }
 
@@ -318,28 +303,24 @@ fn mla_authors(input: &mut &str) -> Result<Vec<Author>> {
 /// This function is distinct from `mla_authors` because editors in MLA chapters
 /// follow different formatting conventions than primary authors.
 fn mla_editors(input: &mut &str) -> Result<Vec<Person>> {
-    delimited(
-        multispace0,
-        alt((
-            // Two editors: "Maria Johnson and John Smith"
-            ((
-                person_given_family,
-                (multispace1, alt(("and", "&")), multispace1),
-                person_given_family,
-            )
-                .map(|(first, _, second)| vec![first, second])),
-            // Multiple editors with et al: "Maria Johnson et al." or "Maria Johnson et al"
-            ((
-                person_given_family,
-                (multispace0, opt(","), multispace0),
-                alt(("et al.", "et al")),
-            )
-                .map(|(first, _, _)| vec![first])),
-            // Single editor: "Maria Johnson"
-            person_given_family.map(|first| vec![first]),
-        )),
-        (multispace0, opt("."), multispace0),
-    )
+    alt((
+        // Two editors: "Maria Johnson and John Smith"
+        ((
+            person_given_family,
+            (multispace1, alt(("and", "&")), multispace1),
+            person_given_family,
+        )
+            .map(|(first, _, second)| vec![first, second])),
+        // Multiple editors with et al: "Maria Johnson et al." or "Maria Johnson et al"
+        ((
+            person_given_family,
+            (multispace0, opt(","), multispace0),
+            alt(("et al.", "et al")),
+        )
+            .map(|(first, _, _)| vec![first])),
+        // Single editor: "Maria Johnson"
+        person_given_family.map(|first| vec![first]),
+    ))
     .map(|authors| {
         authors
             .into_iter()
@@ -355,9 +336,9 @@ fn mla_editors(input: &mut &str) -> Result<Vec<Person>> {
 /// Parse title in quotes format "Title"
 fn mla_quoted_title(input: &mut &str) -> Result<Vec<Inline>> {
     delimited(
-        (multispace0, alt(("\"", "“"))),
+        alt(("\"", "“")),
         take_while(1.., |c: char| c != '"' && c != '”'),
-        (alt(("\"", "”")), multispace0),
+        alt(("\"", "”")),
     )
     .map(|title: &str| vec![t(title.trim().trim_end_matches("."))])
     .parse_next(input)
@@ -365,25 +346,16 @@ fn mla_quoted_title(input: &mut &str) -> Result<Vec<Inline>> {
 
 /// Parse book title (no quotes, often italicized in print)
 fn mla_unquoted_title(input: &mut &str) -> Result<Vec<Inline>> {
-    delimited(
-        multispace0,
-        take_until(1.., '.'),
-        preceded(".", multispace0),
-    )
-    .map(|title: &str| vec![t(title.trim())])
-    .parse_next(input)
+    take_until(1.., '.')
+        .map(|title: &str| vec![t(title.trim())])
+        .parse_next(input)
 }
 
 /// Parse volume number
 fn mla_volume(input: &mut &str) -> Result<IntegerOrString> {
-    delimited(
-        multispace0,
-        delimited(
-            (Caseless("vol"), multispace0, opt("."), multispace0),
-            digit1,
-            multispace0,
-        ),
-        alt((",", multispace0)),
+    preceded(
+        (Caseless("vol"), multispace0, opt("."), multispace0),
+        digit1,
     )
     .map(IntegerOrString::from)
     .parse_next(input)
@@ -391,16 +363,26 @@ fn mla_volume(input: &mut &str) -> Result<IntegerOrString> {
 
 /// Parse issue number
 fn mla_issue(input: &mut &str) -> Result<IntegerOrString> {
-    delimited(
-        multispace0,
-        delimited(
-            (Caseless("no"), multispace0, opt("."), multispace0),
-            digit1,
-            multispace0,
-        ),
-        alt((",", multispace0)),
-    )
-    .map(IntegerOrString::from)
+    preceded((Caseless("no"), multispace0, opt("."), multispace0), digit1)
+        .map(IntegerOrString::from)
+        .parse_next(input)
+}
+
+/// Parse page numbers
+fn mla_pages(input: &mut &str) -> Result<Reference> {
+    preceded((alt(("pp.", "p.")), multispace0), pages).parse_next(input)
+}
+
+/// Parse a separator between parts of an MLA reference
+///
+/// This is a lenient parser for anything that may be used as a separator
+/// between parts of an MLA reference. Making it lenient allows the `mla` parser
+/// to be more robust to deviations in punctuation and whitespace.
+fn mla_separator<'s>(input: &mut &'s str) -> Result<&'s str> {
+    alt((
+        (multispace0, alt((",", ".")), multispace0).take(),
+        multispace1,
+    ))
     .parse_next(input)
 }
 
@@ -413,17 +395,7 @@ mod tests {
 
     #[test]
     fn test_mla_authors() -> Result<()> {
-        // Single author with period
-        assert_eq!(
-            mla_authors(&mut r#"Johnson, Maria."#)?,
-            vec![Author::Person(Person {
-                given_names: Some(vec!["Maria".to_string()]),
-                family_names: Some(vec!["Johnson".to_string()]),
-                ..Default::default()
-            })]
-        );
-
-        // Single author without period
+        // Single author
         assert_eq!(
             mla_authors(&mut r#"Smith, John"#)?,
             vec![Author::Person(Person {
@@ -445,7 +417,7 @@ mod tests {
 
         // Two authors with comma before "and"
         assert_eq!(
-            mla_authors(&mut r#"Johnson, Maria, and John Smith."#)?,
+            mla_authors(&mut r#"Johnson, Maria, and John Smith"#)?,
             vec![
                 Author::Person(Person {
                     given_names: Some(vec!["Maria".to_string()]),
@@ -462,7 +434,7 @@ mod tests {
 
         // Two authors without comma before "and"
         assert_eq!(
-            mla_authors(&mut r#"Garcia, Maria and Jane Doe."#)?,
+            mla_authors(&mut r#"Garcia, Maria and Jane Doe"#)?,
             vec![
                 Author::Person(Person {
                     given_names: Some(vec!["Maria".to_string()]),
@@ -479,7 +451,7 @@ mod tests {
 
         // Two authors with initials
         assert_eq!(
-            mla_authors(&mut r#"Wilson, R. A., and B. C. Taylor."#)?,
+            mla_authors(&mut r#"Wilson, R. A., and B. C. Taylor"#)?,
             vec![
                 Author::Person(Person {
                     given_names: Some(vec!["R.".to_string(), "A.".to_string()]),
@@ -526,7 +498,7 @@ mod tests {
 
         // Complex names with hyphens and apostrophes
         assert_eq!(
-            mla_authors(&mut r#"Smith-Jones, Mary-Ann, and Kevin O'Connor."#)?,
+            mla_authors(&mut r#"Smith-Jones, Mary-Ann, and Kevin O'Connor"#)?,
             vec![
                 Author::Person(Person {
                     given_names: Some(vec!["Mary-Ann".to_string()]),
@@ -543,7 +515,7 @@ mod tests {
 
         // With extra whitespace
         assert_eq!(
-            mla_authors(&mut r#"  Johnson,   Maria  ,  and   John   Smith  .  "#)?,
+            mla_authors(&mut r#"Johnson,   Maria  ,  and   John   Smith"#)?,
             vec![
                 Author::Person(Person {
                     given_names: Some(vec!["Maria".to_string()]),
@@ -575,7 +547,7 @@ mod tests {
 
         // Single editor with period
         assert_eq!(
-            mla_editors(&mut r#"Maria Johnson."#)?,
+            mla_editors(&mut r#"Maria Johnson"#)?,
             vec![Person {
                 given_names: Some(vec!["Maria".to_string()]),
                 family_names: Some(vec!["Johnson".to_string()]),
@@ -666,7 +638,7 @@ mod tests {
 
         // With extra whitespace
         assert_eq!(
-            mla_editors(&mut r#"  Peter  Clark  and  Maria  Johnson  .  "#)?,
+            mla_editors(&mut r#"Peter  Clark  and  Maria  Johnson"#)?,
             vec![
                 Person {
                     given_names: Some(vec!["Peter".to_string()]),
@@ -697,12 +669,12 @@ mod tests {
     #[test]
     fn test_mla_quoted_title() -> Result<()> {
         assert_eq!(
-            mla_quoted_title(&mut r#""The title" "#)?,
+            mla_quoted_title(&mut r#""The title""#)?,
             vec![t("The title")]
         );
 
         assert_eq!(
-            mla_quoted_title(&mut r#" “The title”"#)?,
+            mla_quoted_title(&mut r#"“The title.”"#)?,
             vec![t("The title")]
         );
 
@@ -711,24 +683,18 @@ mod tests {
 
     #[test]
     fn test_mla_volume() -> Result<()> {
-        assert_eq!(mla_volume(&mut " vol. 1,")?, IntegerOrString::Integer(1));
-        assert_eq!(
-            mla_volume(&mut " vol . 123 ")?,
-            IntegerOrString::Integer(123)
-        );
-        assert_eq!(mla_volume(&mut "VOL 456,")?, IntegerOrString::Integer(456));
+        assert_eq!(mla_volume(&mut "vol. 1")?, IntegerOrString::Integer(1));
+        assert_eq!(mla_volume(&mut "vol . 123")?, IntegerOrString::Integer(123));
+        assert_eq!(mla_volume(&mut "VOL 456")?, IntegerOrString::Integer(456));
 
         Ok(())
     }
 
     #[test]
     fn test_mla_issue() -> Result<()> {
-        assert_eq!(mla_issue(&mut " no. 1,")?, IntegerOrString::Integer(1));
-        assert_eq!(
-            mla_issue(&mut "  no . 123 ")?,
-            IntegerOrString::Integer(123)
-        );
-        assert_eq!(mla_issue(&mut "NO   456,")?, IntegerOrString::Integer(456));
+        assert_eq!(mla_issue(&mut "no. 1")?, IntegerOrString::Integer(1));
+        assert_eq!(mla_issue(&mut "no . 123")?, IntegerOrString::Integer(123));
+        assert_eq!(mla_issue(&mut "NO   456")?, IntegerOrString::Integer(456));
 
         Ok(())
     }
@@ -888,7 +854,7 @@ mod tests {
                 .map(|title| to_text(&title)),
             Some("Tech Resources".to_string())
         );
-        assert!(reference.identifiers.is_some());
+        assert!(reference.url.is_some());
 
         // Without author
         let reference =
