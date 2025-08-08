@@ -40,7 +40,10 @@ use crate::decode::{
 /// Future work may include conference papers, etc.
 pub fn apa(input: &mut &str) -> Result<Reference> {
     // Order is important for correct matching!
-    alt((article, chapter, web, book)).parse_next(input)
+    // Most specific patterns first: chapter (has "In" keyword),
+    // then article (has vol./issue), then web (quoted title),
+    // then book (unquoted title)
+    alt((chapter, article, web, book)).parse_next(input)
 }
 
 /// Parse an APA journal article reference

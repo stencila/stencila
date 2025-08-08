@@ -42,7 +42,10 @@ use crate::decode::{
 /// Future work may include newspapers, magazines, conference papers, etc.
 pub fn mla(input: &mut &str) -> Result<Reference> {
     // Order is important for correct matching!
-    alt((web, article, chapter, book)).parse_next(input)
+    // Most specific patterns first: chapter (has "edited by" keyword),
+    // then web (has URL), then article (has vol./no.),
+    // then book (unquoted title)
+    alt((chapter, web, article, book)).parse_next(input)
 }
 
 /// Parse an MLA journal article reference
