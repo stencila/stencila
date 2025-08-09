@@ -264,15 +264,22 @@ pub fn ellipses(input: &mut &str) -> Result<Author> {
 ///
 /// Used in both family name and given name parsing contexts.
 fn name(input: &mut &str) -> Result<String> {
-    (
-        take_while(1..=1, |c: char| c.is_uppercase() && c.is_alphabetic()),
-        take_while(1..=1, |c: char| {
-            (c.is_lowercase() && c.is_alphabetic()) || is_apostrophe(c)
-        }),
-        take_while(0.., |c: char| {
-            c.is_alphabetic() || is_hyphen(c) || is_apostrophe(c)
-        }),
-    )
+    (alt((
+        // Standard first uppercase then rest lowercase
+        (
+            take_while(1..=1, |c: char| c.is_uppercase() && c.is_alphabetic()),
+            take_while(1..=1, |c: char| {
+                (c.is_lowercase() && c.is_alphabetic()) || is_apostrophe(c)
+            }),
+            take_while(0.., |c: char| {
+                c.is_alphabetic() || is_hyphen(c) || is_apostrophe(c)
+            }),
+        )
+            .take(),
+        // All lowercase parts of names
+        "de",  // e.g de Blasio
+        "van", // e.g. van Winkle
+    )),)
         .take()
         .map(|s: &str| s.to_string())
         .parse_next(input)
