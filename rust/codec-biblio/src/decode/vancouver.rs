@@ -5,7 +5,7 @@
 //! Vancouver references including authors, titles, journal information, publication dates,
 //! volume/issue numbers, page ranges, and URLs/DOIs.
 
-use codec::schema::{Inline, PersonOptions};
+use codec::schema::{Inline, OrganizationOptions, PersonOptions, PostalAddressOrString};
 use winnow::{
     Parser, Result,
     ascii::{Caseless, digit1, multispace0, multispace1},
@@ -65,21 +65,21 @@ fn article(input: &mut &str) -> Result<Reference> {
         // Year: Publication year
         preceded(vancouver_separator, year),
         // Semicolon separator before volume
-        preceded(vancouver_separator, vancouver_volume),
+        opt(preceded(vancouver_separator, vancouver_volume)),
         // Pages: Optional page range after colon
         opt(preceded(vancouver_separator, vancouver_pages)),
         // DOI or URL (optional)
         opt(preceded(vancouver_separator, doi_or_url)),
     )
         .map(
-            |(authors, title, journal, date, (volume, issue), pages, doi_or_url)| Reference {
+            |(authors, title, journal, date, volume_issue, pages, doi_or_url)| Reference {
                 work_type: Some(CreativeWorkType::Article),
                 authors: Some(authors),
                 title: Some(title),
                 is_part_of: Some(Box::new(Reference {
                     title: Some(journal),
-                    volume_number: Some(volume),
-                    issue_number: issue,
+                    volume_number: volume_issue.clone().map(|(volume,..)| volume),
+                    issue_number: volume_issue.and_then(|(..,issue)| issue),
                     ..Default::default()
                 })),
                 date: Some(date),
@@ -105,24 +105,22 @@ fn book(input: &mut &str) -> Result<Reference> {
         // Title: Parse book title ending with period
         preceded(vancouver_separator, vancouver_title),
         // Place: Publisher: Parse place and publisher with colon separator
-        preceded(vancouver_separator, vancouver_publisher),
+        opt(preceded(vancouver_separator, vancouver_publisher)),
         // Year: Publication year after semicolon
-        preceded(vancouver_separator, year),
+        opt(preceded(vancouver_separator, year)),
         // DOI or URL (optional)
         opt(preceded(vancouver_separator, doi_or_url)),
     )
-        .map(
-            |(authors, title, (_place, publisher), date, doi_or_url)| Reference {
-                work_type: Some(CreativeWorkType::Book),
-                authors: Some(authors),
-                date: Some(date),
-                title: Some(title),
-                publisher: Some(publisher),
-                doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
-                url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
-                ..Default::default()
-            },
-        )
+        .map(|(authors, title, publisher, date, doi_or_url)| Reference {
+            work_type: Some(CreativeWorkType::Book),
+            authors: Some(authors),
+            date,
+            title: Some(title),
+            publisher,
+            doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
+            url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
+            ..Default::default()
+        })
         .parse_next(input)
 }
 
@@ -140,32 +138,15 @@ fn chapter(input: &mut &str) -> Result<Reference> {
         // Chapter Title: Parse chapter title ending with period
         preceded(vancouver_separator, vancouver_title),
         // "In:" keyword
-        preceded(vancouver_separator, "In:"),
+        preceded(vancouver_separator, (Caseless("In"), opt(":"))),
         // Editors: Parse editors after "In:" (Vancouver format)
-        preceded(
-            vancouver_separator,
-            separated(
-                1..,
-                alt((person_family_initials, organization)).map(|author| match author {
-                    Author::Person(person) => person,
-                    Author::Organization(Organization { name, .. }) => Person {
-                        options: Box::new(PersonOptions {
-                            name,
-                            ..Default::default()
-                        }),
-                        ..Default::default()
-                    }, // Convert org to person for editors
-                    _ => Person::default(), // Handle other author types as default person
-                }),
-                (multispace0, alt((",", ", &", "&", "and")), multispace0),
-            ),
-        ),
+        preceded(vancouver_separator, vancouver_editors),
         // Book Title: Parse book title after editors
-        preceded(vancouver_separator, vancouver_title),
+        opt(preceded(vancouver_separator, vancouver_title)),
         // Place: Publisher: Parse place and publisher
-        preceded(vancouver_separator, vancouver_publisher),
+        opt(preceded(vancouver_separator, vancouver_publisher)),
         // Year: Publication year after semicolon
-        preceded(vancouver_separator, year),
+        opt(preceded(vancouver_separator, year)),
         // Pages: Optional pages with "p." prefix
         opt(preceded(
             (vancouver_separator, alt(("p.", "pp.")), multispace0),
@@ -207,7 +188,7 @@ fn chapter(input: &mut &str) -> Result<Reference> {
                 _,
                 editors,
                 book_title,
-                (_place, publisher),
+                publisher,
                 date,
                 pages,
                 doi_or_url,
@@ -215,12 +196,12 @@ fn chapter(input: &mut &str) -> Result<Reference> {
                 Reference {
                     work_type: Some(CreativeWorkType::Chapter),
                     authors: Some(authors),
-                    date: Some(date),
                     title: Some(chapter_title),
+                    date,
                     is_part_of: Some(Box::new(Reference {
-                        title: Some(book_title),
+                        title: book_title,
                         editors: Some(editors),
-                        publisher: Some(publisher),
+                        publisher,
                         ..Default::default()
                     })),
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
@@ -262,14 +243,18 @@ fn web(input: &mut &str) -> Result<Reference> {
             ("[", multispace0, Caseless("Internet"), multispace0, "]"),
         ),
         // "Available from:" prefix
-        preceded(
+        opt(preceded(
             (
                 vancouver_separator,
-                Caseless("Available from:"),
+                Caseless("Available"),
+                multispace1,
+                opt(Caseless("from")),
+                multispace0,
+                opt(":"),
                 multispace0,
             ),
             url,
-        ),
+        )),
         // Citation date: Optional "[cited Date]" information
         opt(delimited(
             (
@@ -287,7 +272,7 @@ fn web(input: &mut &str) -> Result<Reference> {
             work_type: Some(CreativeWorkType::WebPage),
             authors,
             title: Some(title),
-            url: Some(url),
+            url,
             ..Default::default()
         })
         .parse_next(input)
@@ -343,32 +328,51 @@ fn vancouver_pages(input: &mut &str) -> Result<Reference> {
     pages.parse_next(input)
 }
 
+/// Parse editors in Vancouver formatting
+fn vancouver_editors(input: &mut &str) -> Result<Vec<Person>> {
+    separated(
+        1..,
+        alt((person_family_initials, organization)).map(|author| match author {
+            Author::Person(person) => person,
+            Author::Organization(Organization { name, .. }) => Person {
+                options: Box::new(PersonOptions {
+                    name,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            _ => Person::default(),
+        }),
+        (
+            multispace0,
+            alt((", and", ", &", "&", "and", ",")),
+            multispace0,
+        ),
+    )
+    .parse_next(input)
+}
+
 /// Parse place and publisher in Vancouver format
 ///
 /// Parses "Place: Publisher" or just "Publisher" format.
-/// Returns a tuple of (optional place, publisher organization).
-fn vancouver_publisher(input: &mut &str) -> Result<(Option<String>, PersonOrOrganization)> {
-    take_while(1.., |c: char| c != ';')
-        .map(|vancouver_publisher: &str| {
-            if let Some(colon_pos) = vancouver_publisher.find(':') {
-                let place_part = &vancouver_publisher[..colon_pos];
-                let publisher_part = &vancouver_publisher[colon_pos + 1..];
-                (
-                    Some(place_part.trim().to_string()),
-                    PersonOrOrganization::Organization(Organization {
-                        name: Some(publisher_part.trim().to_string()),
-                        ..Default::default()
-                    }),
-                )
-            } else {
-                (
-                    None,
-                    PersonOrOrganization::Organization(Organization {
-                        name: Some(vancouver_publisher.trim().to_string()),
-                        ..Default::default()
-                    }),
-                )
-            }
+fn vancouver_publisher(input: &mut &str) -> Result<PersonOrOrganization> {
+    (
+        opt(terminated(
+            take_while(2.., |c: char| c != ':' && c != ';'),
+            ":",
+        )),
+        take_while(2.., |c: char| c != '.' && c != ';'),
+    )
+        .map(|(place, name): (Option<&str>, &str)| {
+            PersonOrOrganization::Organization(Organization {
+                name: Some(name.trim().to_string()),
+                options: Box::new(OrganizationOptions {
+                    address: place
+                        .map(|place| PostalAddressOrString::String(place.trim().to_string())),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            })
         })
         .parse_next(input)
 }
@@ -376,6 +380,7 @@ fn vancouver_publisher(input: &mut &str) -> Result<(Option<String>, PersonOrOrga
 #[cfg(test)]
 mod tests {
     use codec_text_trait::to_text;
+    use common_dev::pretty_assertions::assert_eq;
 
     use super::*;
 
@@ -452,28 +457,34 @@ mod tests {
     #[test]
     fn test_vancouver_publisher() -> Result<()> {
         // Place and publisher with colon
-        let (place, publisher) = vancouver_publisher(&mut "New York: Tech Press")?;
-        assert_eq!(place, Some("New York".to_string()));
+        let publisher = vancouver_publisher(&mut "New York, USA:Tech Press")?;
         if let PersonOrOrganization::Organization(org) = publisher {
             assert_eq!(org.name, Some("Tech Press".to_string()));
+            assert_eq!(
+                org.options.address,
+                Some(PostalAddressOrString::String("New York, USA".to_string()))
+            );
         } else {
             unreachable!("expected organization")
         }
 
         // Just publisher (no place)
-        let (place, publisher) = vancouver_publisher(&mut "Academic Press")?;
-        assert_eq!(place, None);
+        let publisher = vancouver_publisher(&mut "Academic Press")?;
         if let PersonOrOrganization::Organization(org) = publisher {
             assert_eq!(org.name, Some("Academic Press".to_string()));
+            assert_eq!(org.options.address, None);
         } else {
             unreachable!("expected organization")
         }
 
         // With extra whitespace
-        let (place, publisher) = vancouver_publisher(&mut "  Boston  :  University Press  ")?;
-        assert_eq!(place, Some("Boston".to_string()));
+        let publisher = vancouver_publisher(&mut "  Boston  :  University Press  ")?;
         if let PersonOrOrganization::Organization(org) = publisher {
             assert_eq!(org.name, Some("University Press".to_string()));
+            assert_eq!(
+                org.options.address,
+                Some(PostalAddressOrString::String("Boston".to_string()))
+            );
         } else {
             unreachable!("expected organization")
         }

@@ -161,11 +161,14 @@ fn chapter(input: &mut &str) -> Result<Reference> {
         // Chapter Title: Parse chapter title in quotes
         preceded(chicago_separator, chicago_quoted_title),
         // "In" keyword
-        preceded(chicago_separator, "In"),
+        preceded(chicago_separator, Caseless("In")),
         // Book Title: Parse book title (unquoted) until comma
         preceded(multispace1, take_while(1.., |c: char| c != ',')),
         // Editors: preceded by "edited by"
-        preceded((chicago_separator, "edited by", multispace1), persons),
+        opt(preceded(
+            (chicago_separator, Caseless("edited by"), multispace1),
+            persons,
+        )),
         // Pages: Optional page range after comma
         opt(preceded(
             (chicago_separator, opt("pp."), multispace0),
@@ -202,7 +205,7 @@ fn chapter(input: &mut &str) -> Result<Reference> {
                     title: Some(chapter_title),
                     is_part_of: Some(Box::new(Reference {
                         title: Some(vec![t(book_title.trim())]),
-                        editors: Some(editors),
+                        editors,
                         publisher: publisher.map(|pub_name| {
                             PersonOrOrganization::Organization(Organization {
                                 name: Some(pub_name.trim().to_string()),
@@ -238,7 +241,7 @@ fn web(input: &mut &str) -> Result<Reference> {
         preceded(chicago_separator, take_while(1.., |c: char| c != '.')),
         // Access date: Optional "Accessed Date" information
         opt(preceded(
-            (chicago_separator, "Accessed", multispace1),
+            (chicago_separator, Caseless("Accessed"), multispace1),
             take_while(1.., |c: char| c != '.'),
         )),
         // URL: Web address
@@ -314,6 +317,7 @@ fn chicago_pages(input: &mut &str) -> Result<Reference> {
 #[cfg(test)]
 mod tests {
     use codec_text_trait::to_text;
+    use common_dev::pretty_assertions::assert_eq;
 
     use super::*;
 

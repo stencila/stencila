@@ -7,7 +7,7 @@
 
 use winnow::{
     Parser, Result,
-    ascii::{digit1, multispace0, multispace1},
+    ascii::{Caseless, digit1, multispace0, multispace1},
     combinator::{alt, delimited, opt, preceded, terminated},
     token::take_while,
 };
@@ -116,7 +116,7 @@ fn book(input: &mut &str) -> Result<Reference> {
         // Title: Parse book title ending with a period
         preceded(apa_separator, apa_title),
         // Publisher: Parse publisher
-        preceded(apa_separator, take_while(1.., |c: char| c != '.')),
+        opt(preceded(apa_separator, take_while(1.., |c: char| c != '.'))),
         // DOI or URL
         opt(preceded(apa_separator, doi_or_url)),
     )
@@ -126,10 +126,12 @@ fn book(input: &mut &str) -> Result<Reference> {
             authors: Some(authors),
             date: Some(date),
             title: Some(title),
-            publisher: Some(PersonOrOrganization::Organization(Organization {
-                name: Some(publisher.trim().to_string()),
-                ..Default::default()
-            })),
+            publisher: publisher.map(|publisher| {
+                PersonOrOrganization::Organization(Organization {
+                    name: Some(publisher.trim().to_string()),
+                    ..Default::default()
+                })
+            }),
             doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
             url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
             ..Default::default()
@@ -153,19 +155,21 @@ fn chapter(input: &mut &str) -> Result<Reference> {
         // Chapter Title: Parse chapter title ending with period
         preceded(apa_separator, apa_title),
         // "In" keyword with space
-        delimited(apa_separator, "In", multispace1),
+        delimited(apa_separator, Caseless("In"), multispace1),
         // Editors: before (Ed.) or (Eds.)
         // Allows for variations such as (Ed) ( Eds) ( Ed. )
         terminated(
             persons,
             (
-                opt(delimited(
+                opt((
                     multispace0,
-                    delimited(
-                        ("(", multispace0),
-                        (alt(("Eds", "Ed")), opt(".")),
-                        (multispace0, ")"),
-                    ),
+                    "(",
+                    multispace0,
+                    Caseless("Ed"),
+                    opt("s"),
+                    opt("."),
+                    multispace0,
+                    ")",
                     multispace0,
                 )),
                 (multispace0, ",", multispace0),
@@ -296,6 +300,7 @@ fn apa_separator<'s>(input: &mut &'s str) -> Result<&'s str> {
 #[cfg(test)]
 mod tests {
     use codec_text_trait::to_text;
+    use common_dev::pretty_assertions::assert_eq;
 
     use super::*;
 

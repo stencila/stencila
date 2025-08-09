@@ -110,11 +110,11 @@ fn book(input: &mut &str) -> Result<Reference> {
         // Publisher: Parse publisher ending with comma
         preceded(mla_separator, take_while(1.., |c: char| c != ',')),
         // Year: Publication year
-        preceded(mla_separator, year),
+        opt(preceded(mla_separator, year)),
         // DOI or URL
         opt(preceded(mla_separator, doi_or_url)),
     )
-        .map(|(authors, title, publisher, year, doi_or_url)| Reference {
+        .map(|(authors, title, publisher, date, doi_or_url)| Reference {
             work_type: Some(CreativeWorkType::Book),
             authors: Some(authors),
             title: Some(title),
@@ -122,7 +122,7 @@ fn book(input: &mut &str) -> Result<Reference> {
                 name: Some(publisher.trim().to_string()),
                 ..Default::default()
             })),
-            date: Some(year),
+            date,
             doi: doi_or_url
                 .as_ref()
                 .and_then(|doi_or_url| doi_or_url.doi.clone()),
@@ -393,6 +393,7 @@ fn mla_separator<'s>(input: &mut &'s str) -> Result<&'s str> {
 mod tests {
     use codec::schema::Person;
     use codec_text_trait::to_text;
+    use common_dev::pretty_assertions::assert_eq;
 
     use super::*;
 
