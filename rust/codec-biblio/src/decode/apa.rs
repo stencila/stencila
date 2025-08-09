@@ -22,6 +22,7 @@ use crate::decode::{
     date::year,
     doi::doi_or_url,
     pages::pages,
+    preprints::preprint_server,
     url::url,
 };
 
@@ -61,33 +62,55 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         // Title: Parse article title ending with a period
         preceded(apa_separator, apa_title),
         // Journal: Parse journal name
-        preceded(apa_separator, take_while(1.., |c: char| c != ',')),
-        // Volume and Issue: Parse volume number with optional issue in parentheses
         preceded(
             apa_separator,
-            (
-                digit1, // Volume number (required)
-                opt(delimited(
-                    (multispace0, "(", multispace0),
-                    digit1, // Issue number (optional)
-                    (multispace0, ")"),
-                )),
-            ),
+            alt((
+                terminated(preprint_server, opt((multispace1, Caseless("preprint")))),
+                take_while(1.., |c: char| c != ','),
+            )),
         ),
-        // Pages: Optional page range
-        opt(preceded(apa_separator, apa_pages)),
+        preceded(
+            apa_separator,
+            alt((
+                (
+                    (preprint_server, multispace0, ":", multispace0).map(|_| (None, None)),
+                    take_while(1.., |c: char| !c.is_whitespace()).map(|id: &str| {
+                        Some(Reference {
+                            pagination: Some(id.trim_end_matches(['.', ',', ';']).to_string()),
+                            ..Default::default()
+                        })
+                    }),
+                ),
+                (
+                    // Volume and Issue: volume number with optional issue in parentheses
+                    (
+                        digit1.map(|vol| Some(vol)),
+                        opt(delimited(
+                            (multispace0, "(", multispace0),
+                            digit1,
+                            (multispace0, ")"),
+                        )),
+                    ),
+                    // Pages: Optional page range
+                    opt(preceded(
+                        alt((apa_separator, (multispace0, ":", multispace0).take())),
+                        apa_pages,
+                    )),
+                ),
+            )),
+        ),
         // DOI or URL
         opt(preceded(apa_separator, doi_or_url)),
     )
         .map(
-            |(authors, date, title, journal, (volume, issue), pages, doi_or_url)| Reference {
+            |(authors, date, title, journal, ((volume, issue), pages), doi_or_url)| Reference {
                 work_type: Some(CreativeWorkType::Article),
                 authors: Some(authors),
                 date: Some(date),
                 title: Some(title),
                 is_part_of: Some(Box::new(Reference {
                     title: Some(vec![t(journal)]),
-                    volume_number: Some(IntegerOrString::from(volume)),
+                    volume_number: volume.map(IntegerOrString::from),
                     issue_number: issue.map(IntegerOrString::from),
                     ..Default::default()
                 })),
@@ -266,11 +289,12 @@ pub fn web(input: &mut &str) -> Result<Reference> {
             authors,
             date: Some(date),
             title: Some(title),
-            // Website information stored as nested Reference in is_part_of
-            is_part_of: Some(Box::new(Reference {
-                title: website.map(|website| vec![t(website.trim())]),
-                ..Default::default()
-            })),
+            is_part_of: website.map(|title| {
+                Box::new(Reference {
+                    title: Some(vec![t(title)]),
+                    ..Default::default()
+                })
+            }),
             url: Some(url),
             ..Default::default()
         })
@@ -406,6 +430,27 @@ mod tests {
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
         assert!(reference.doi.is_some());
+
+        // Colon between volume/issue and pages
+        let reference = apa(
+            &mut "Anyaso-Samuel, S., Bandyopadhyay, D., and Datta, S. (2023). Pseudo-value regression of clustered multistate current status data with informative cluster sizes. Statistical Methods in Medical Research, 32(8):1494–1510.",
+        )?;
+        assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
+        assert_eq!(reference.page_end, Some(IntegerOrString::Integer(1510)));
+
+        // arxiv as publisher
+        let reference = apa(
+            &mut "Anyaso-Samuel, S. and Datta, S. (2024). Nonparametric estimation of a future entry time distribution given the knowledge of a past state occupation in a progressive multistate model with current status data. arXiv preprint arXiv:2405.05781.",
+        )?;
+        assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
+        assert_eq!(
+            reference.is_part_of,
+            Some(Box::new(Reference {
+                title: Some(vec![t("arXiv")]),
+                ..Default::default()
+            }))
+        );
+        assert_eq!(reference.pagination, Some("2405.05781".into()));
 
         Ok(())
     }

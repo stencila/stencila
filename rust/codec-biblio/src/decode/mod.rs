@@ -19,6 +19,7 @@ mod fallback;
 mod ieee;
 mod mla;
 mod pages;
+mod preprints;
 mod publisher;
 mod references;
 mod url;
