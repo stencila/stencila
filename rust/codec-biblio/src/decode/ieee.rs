@@ -13,9 +13,8 @@ use winnow::{
 };
 
 use codec::schema::{
-    Author, CreativeWorkType, Date, Inline, IntegerOrString, Organization, OrganizationOptions,
-    Person, PersonOptions, PersonOrOrganization, PostalAddressOrString, Reference, StringOrNumber,
-    shortcuts::t,
+    Author, CreativeWorkType, Date, Inline, IntegerOrString, Organization, Person, PersonOptions,
+    Reference, StringOrNumber, shortcuts::t,
 };
 
 use crate::decode::{
@@ -23,6 +22,7 @@ use crate::decode::{
     date::year,
     doi::doi_or_url,
     pages::pages,
+    publisher::place_publisher,
     url::url,
 };
 
@@ -120,7 +120,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         )),
         // Edition
         opt(preceded(ieee_separator, ieee_edition)),
-        opt(preceded(ieee_separator, ieee_publisher)),
+        opt(preceded(ieee_separator, place_publisher)),
         // Year: Publication year
         opt(preceded(ieee_separator, year)),
         // Pages: Optional page range with "pp." or "p." prefix
@@ -181,7 +181,7 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // Edition: Optional edition (1st ed., 2nd ed., etc.)
         opt(preceded(ieee_separator, ieee_edition)),
         // Publisher: Parse place and publisher
-        opt(preceded(ieee_separator, ieee_publisher)),
+        opt(preceded(ieee_separator, place_publisher)),
         // Year: Publication year
         opt(preceded(ieee_separator, year)),
         // DOI or URL
@@ -379,33 +379,9 @@ fn ieee_edition(input: &mut &str) -> Result<StringOrNumber> {
     .parse_next(input)
 }
 
-/// Parse place and publisher in IEEE format
-///
-/// Parses "Place: Publisher" or just "Publisher" format.
-fn ieee_publisher(input: &mut &str) -> Result<PersonOrOrganization> {
-    (
-        opt(terminated(
-            take_while(2.., |c: char| c != ':' && c != '.'),
-            ":",
-        )),
-        take_while(2.., |c: char| c != ',' && c != '.'),
-    )
-        .map(|(place, name): (Option<&str>, &str)| {
-            PersonOrOrganization::Organization(Organization {
-                name: Some(name.trim().to_string()),
-                options: Box::new(OrganizationOptions {
-                    address: place
-                        .map(|place| PostalAddressOrString::String(place.trim().to_string())),
-                    ..Default::default()
-                }),
-                ..Default::default()
-            })
-        })
-        .parse_next(input)
-}
-
 #[cfg(test)]
 mod tests {
+    use codec::schema::{OrganizationOptions, PersonOrOrganization, PostalAddressOrString};
     use codec_text_trait::to_text;
     use common_dev::pretty_assertions::assert_eq;
 
@@ -817,7 +793,7 @@ mod tests {
         assert!(reference.authors.is_some());
         assert_eq!(
             reference.url,
-            Some("https://developer.mozilla.org/api.".to_string())
+            Some("https://developer.mozilla.org/api".to_string())
         );
 
         // Web resource with case variations in [Online]

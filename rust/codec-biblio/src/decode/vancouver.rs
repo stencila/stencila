@@ -5,7 +5,6 @@
 //! Vancouver references including authors, titles, journal information, publication dates,
 //! volume/issue numbers, page ranges, and URLs/DOIs.
 
-use codec::schema::{Inline, OrganizationOptions, PersonOptions, PostalAddressOrString};
 use winnow::{
     Parser, Result,
     ascii::{Caseless, digit1, multispace0, multispace1},
@@ -14,16 +13,12 @@ use winnow::{
 };
 
 use codec::schema::{
-    Author, CreativeWorkType, IntegerOrString, Organization, Person, PersonOrOrganization,
+    Author, CreativeWorkType, Inline, IntegerOrString, Organization, Person, PersonOptions,
     Reference, shortcuts::t,
 };
 
 use crate::decode::{
-    authors::{authors, organization, person_family_initials},
-    date::year,
-    doi::doi_or_url,
-    pages::pages,
-    url::url,
+    authors::{authors, organization, person_family_initials}, date::year, doi::doi_or_url, pages::pages, publisher::place_publisher, url::url
 };
 
 /// Parse a Stencila [`Reference`] from a Vancouver reference list item
@@ -104,7 +99,7 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // Title: Parse book title ending with period
         preceded(vancouver_separator, vancouver_title),
         // Place: Publisher: Parse place and publisher with colon separator
-        opt(preceded(vancouver_separator, vancouver_publisher)),
+        opt(preceded(vancouver_separator, place_publisher)),
         // Year: Publication year after semicolon
         opt(preceded(vancouver_separator, year)),
         // DOI or URL (optional)
@@ -143,7 +138,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         // Book Title: Parse book title after editors
         opt(preceded(vancouver_separator, vancouver_title)),
         // Place: Publisher: Parse place and publisher
-        opt(preceded(vancouver_separator, vancouver_publisher)),
+        opt(preceded(vancouver_separator, place_publisher)),
         // Year: Publication year after semicolon
         opt(preceded(vancouver_separator, year)),
         // Pages: Optional pages with "p." prefix
@@ -351,31 +346,6 @@ fn vancouver_editors(input: &mut &str) -> Result<Vec<Person>> {
     .parse_next(input)
 }
 
-/// Parse place and publisher in Vancouver format
-///
-/// Parses "Place: Publisher" or just "Publisher" format.
-fn vancouver_publisher(input: &mut &str) -> Result<PersonOrOrganization> {
-    (
-        opt(terminated(
-            take_while(2.., |c: char| c != ':' && c != ';'),
-            ":",
-        )),
-        take_while(2.., |c: char| c != '.' && c != ';'),
-    )
-        .map(|(place, name): (Option<&str>, &str)| {
-            PersonOrOrganization::Organization(Organization {
-                name: Some(name.trim().to_string()),
-                options: Box::new(OrganizationOptions {
-                    address: place
-                        .map(|place| PostalAddressOrString::String(place.trim().to_string())),
-                    ..Default::default()
-                }),
-                ..Default::default()
-            })
-        })
-        .parse_next(input)
-}
-
 #[cfg(test)]
 mod tests {
     use codec_text_trait::to_text;
@@ -449,44 +419,6 @@ mod tests {
                 Some(IntegerOrString::Integer(456))
             )
         );
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_vancouver_publisher() -> Result<()> {
-        // Place and publisher with colon
-        let publisher = vancouver_publisher(&mut "New York, USA:Tech Press")?;
-        if let PersonOrOrganization::Organization(org) = publisher {
-            assert_eq!(org.name, Some("Tech Press".to_string()));
-            assert_eq!(
-                org.options.address,
-                Some(PostalAddressOrString::String("New York, USA".to_string()))
-            );
-        } else {
-            unreachable!("expected organization")
-        }
-
-        // Just publisher (no place)
-        let publisher = vancouver_publisher(&mut "Academic Press")?;
-        if let PersonOrOrganization::Organization(org) = publisher {
-            assert_eq!(org.name, Some("Academic Press".to_string()));
-            assert_eq!(org.options.address, None);
-        } else {
-            unreachable!("expected organization")
-        }
-
-        // With extra whitespace
-        let publisher = vancouver_publisher(&mut "  Boston  :  University Press  ")?;
-        if let PersonOrOrganization::Organization(org) = publisher {
-            assert_eq!(org.name, Some("University Press".to_string()));
-            assert_eq!(
-                org.options.address,
-                Some(PostalAddressOrString::String("Boston".to_string()))
-            );
-        } else {
-            unreachable!("expected organization")
-        }
 
         Ok(())
     }
