@@ -37,8 +37,7 @@ use crate::decode::{
 /// - Books
 /// - Book chapters
 /// - Web resources
-///
-/// Future work may include newspapers, magazines, conference papers, etc.
+#[allow(unused)]
 pub fn vancouver(input: &mut &str) -> Result<Reference> {
     // Order is important for correct matching!
     // Most specific patterns first: chapter (has "In:" keyword),
@@ -54,7 +53,7 @@ pub fn vancouver(input: &mut &str) -> Result<Reference> {
 /// ```text
 /// Author AB. Title of article. Journal Name. Year;Volume(Issue):Pages.
 /// ```
-fn article(input: &mut &str) -> Result<Reference> {
+pub fn article(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse one or more authors terminated before title
         authors,
@@ -98,7 +97,7 @@ fn article(input: &mut &str) -> Result<Reference> {
 /// ```text
 /// Author AB. Book Title. Place: Publisher; Year.
 /// ```
-fn book(input: &mut &str) -> Result<Reference> {
+pub fn book(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse one or more authors terminated before title
         authors,
@@ -131,7 +130,7 @@ fn book(input: &mut &str) -> Result<Reference> {
 /// ```text
 /// Author AB. Chapter Title. In: Editor CD. Book Title. Place: Publisher; Year. p. Pages.
 /// ```
-fn chapter(input: &mut &str) -> Result<Reference> {
+pub fn chapter(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse chapter authors terminated before title
         authors,
@@ -220,7 +219,7 @@ fn chapter(input: &mut &str) -> Result<Reference> {
 /// ```text
 /// Author AB. Title [Internet]. Available from: URL [cited Date].
 /// ```
-fn web(input: &mut &str) -> Result<Reference> {
+pub fn web(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse web authors (optional)
         opt(terminated(

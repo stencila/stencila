@@ -36,8 +36,7 @@ use crate::decode::{
 /// - Books
 /// - Book chapters
 /// - Web resources
-///
-/// Future work may include conference papers, etc.
+#[allow(unused)]
 pub fn apa(input: &mut &str) -> Result<Reference> {
     // Order is important for correct matching!
     // Most specific patterns first: chapter (has "In" keyword),
@@ -53,7 +52,7 @@ pub fn apa(input: &mut &str) -> Result<Reference> {
 /// ```text
 /// Author, A. B., & Author, C. D. (Year). Title of article. Journal Name, Volume(Issue), pages. DOI
 /// ```
-fn article(input: &mut &str) -> Result<Reference> {
+pub fn article(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse one or more authors (persons or organizations)
         authors,
@@ -107,7 +106,7 @@ fn article(input: &mut &str) -> Result<Reference> {
 /// ```text
 /// Author, A. B. (Year). Book title. Publisher. DOI
 /// ```
-fn book(input: &mut &str) -> Result<Reference> {
+pub fn book(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse book authors
         authors,
@@ -146,7 +145,7 @@ fn book(input: &mut &str) -> Result<Reference> {
 /// ```text
 /// Author, A. B. (Year). Chapter title. In Editor, E. D. (Ed.), Book title (pages). Publisher. DOI
 /// ```
-fn chapter(input: &mut &str) -> Result<Reference> {
+pub fn chapter(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse chapter authors
         authors,
@@ -158,7 +157,7 @@ fn chapter(input: &mut &str) -> Result<Reference> {
         delimited(apa_separator, Caseless("In"), multispace1),
         // Editors: before (Ed.) or (Eds.)
         // Allows for variations such as (Ed) ( Eds) ( Ed. )
-        terminated(
+        opt(terminated(
             persons,
             (
                 opt((
@@ -174,7 +173,7 @@ fn chapter(input: &mut &str) -> Result<Reference> {
                 )),
                 (multispace0, ",", multispace0),
             ),
-        ),
+        )),
         // Book Title: Parse book title before opening parenthesis
         preceded(multispace0, take_while(1.., |c: char| c != '(')),
         // Pages: Parse page range in parentheses
@@ -208,7 +207,7 @@ fn chapter(input: &mut &str) -> Result<Reference> {
                     title: Some(chapter_title),
                     is_part_of: Some(Box::new(Reference {
                         title: Some(vec![t(book_title.trim().to_string())]),
-                        editors: Some(editors),
+                        editors,
                         publisher: publisher.map(|publisher| {
                             PersonOrOrganization::Organization(Organization {
                                 name: Some(publisher.trim().to_string()),
@@ -233,7 +232,7 @@ fn chapter(input: &mut &str) -> Result<Reference> {
 /// ```text
 /// Author, A. B. (Year). Title of webpage. Website Name. URL
 /// ```
-fn web(input: &mut &str) -> Result<Reference> {
+pub fn web(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse web authors (may be missing for some web content)
         opt(terminated(authors, apa_separator)),
@@ -242,9 +241,24 @@ fn web(input: &mut &str) -> Result<Reference> {
         // Title: Parse web page title ending with a period
         preceded(apa_separator, apa_title),
         // Website: Parse website name
-        preceded(apa_separator, take_while(1.., |c: char| c != '.')),
+        opt(preceded(
+            apa_separator,
+            take_while(1.., |c: char| c != '.')
+                .verify(|chars: &str| !chars.contains("https://") && !chars.contains("https://")),
+        )),
         // URL: Web address
-        preceded(apa_separator, url),
+        preceded(
+            (
+                apa_separator,
+                opt((
+                    Caseless("Retrieved"),
+                    opt((multispace1, Caseless("from"))),
+                    opt((multispace0, ":")),
+                    multispace0,
+                )),
+            ),
+            url,
+        ),
     )
         // Map the parsed components into a Reference struct
         .map(|(authors, date, title, website, url)| Reference {
@@ -254,7 +268,7 @@ fn web(input: &mut &str) -> Result<Reference> {
             title: Some(title),
             // Website information stored as nested Reference in is_part_of
             is_part_of: Some(Box::new(Reference {
-                title: Some(vec![t(website.trim())]),
+                title: website.map(|website| vec![t(website.trim())]),
                 ..Default::default()
             })),
             url: Some(url),
@@ -534,11 +548,20 @@ mod tests {
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::WebPage));
 
-        // With extra whitespace
+        // With extra whitespace, no website title
+        let reference =
+            apa(&mut "Brown, K. (2021 ).  Web accessibility guide.  https://a11y.com/guide")?;
+        assert_eq!(reference.work_type, Some(CreativeWorkType::WebPage));
+        assert_eq!(reference.url, Some("https://a11y.com/guide".into()));
+
         let reference = apa(
-            &mut "Brown, K.  ( 2021 ). Web accessibility guide .  Accessibility Hub .  https://a11y.com/guide",
+            &mut "Birla, N. (2019). Vehicle Dataset from CarDekho. Retrieved from: https://www.kaggle.com/datasets/nehalbirla/vehicle-dataset-from-cardekho",
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::WebPage));
+        assert_eq!(
+            reference.url,
+            Some("https://www.kaggle.com/datasets/nehalbirla/vehicle-dataset-from-cardekho".into())
+        );
 
         Ok(())
     }

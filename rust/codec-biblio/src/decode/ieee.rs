@@ -37,8 +37,7 @@ use crate::decode::{
 /// - Book chapters
 /// - Books
 /// - Web resources
-///
-/// Future work may include conference papers, etc.
+#[allow(unused)]
 pub fn ieee(input: &mut &str) -> Result<Reference> {
     // Order is important for correct matching!
     // Most specific patterns first: chapter (has "in" keyword),
@@ -54,7 +53,7 @@ pub fn ieee(input: &mut &str) -> Result<Reference> {
 /// ```text
 /// A. B. Smith, C. D. Jones, and E. F. Williams, "Title of article," J. Abbrev., vol. 12, no. 6, p. e028456, Mar. 2023.
 /// ```
-fn article(input: &mut &str) -> Result<Reference> {
+pub fn article(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse one or more authors
         authors,
@@ -103,7 +102,7 @@ fn article(input: &mut &str) -> Result<Reference> {
 /// ```text
 /// K. L. Thompson and M. N. Davis, "Chapter title" in Book Title, J. K. Roberts and P. Q. Anderson, Eds., 4th ed. Philadelphia, PA, USA: Elsevier, 2023, pp. 156–189.
 /// ```
-fn chapter(input: &mut &str) -> Result<Reference> {
+pub fn chapter(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse chapter authors
         authors,
@@ -170,7 +169,7 @@ fn chapter(input: &mut &str) -> Result<Reference> {
 /// ```text
 /// A. B. Smith and C. D. Jones, Book Title, Edition. Place: Publisher, Year.
 /// ```
-fn book(input: &mut &str) -> Result<Reference> {
+pub fn book(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse book authors terminated before title
         ieee_book_authors,
@@ -211,7 +210,7 @@ fn book(input: &mut &str) -> Result<Reference> {
 /// ```text
 /// World Health Organization, Title [Online]. Available: https://example.com/doc.pdf. [Accessed: Aug. 9, 2024].
 /// ```
-fn web(input: &mut &str) -> Result<Reference> {
+pub fn web(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse web author
         alt((person_given_family, organization)),

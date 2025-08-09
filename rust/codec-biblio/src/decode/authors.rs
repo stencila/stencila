@@ -24,7 +24,9 @@ pub fn authors(input: &mut &str) -> Result<Vec<Author>> {
         authors
             .into_iter()
             .filter(|author| match author {
-                Author::Organization(org) => org.name != Some("et al".to_string()),
+                Author::Organization(org) => {
+                    org.name != Some("et al".to_string()) && org.name != Some("...".to_string())
+                }
                 _ => true,
             })
             .collect()
@@ -40,6 +42,7 @@ pub fn author(input: &mut &str) -> Result<Author> {
         person_family_given,
         person_given_family,
         organization,
+        ellipses,
         etal,
     ))
     .parse_next(input)
@@ -221,11 +224,24 @@ pub fn organization(input: &mut &str) -> Result<Author> {
     .parse_next(input)
 }
 
+/// Parse "et al" (an variations as an author)
 pub fn etal(input: &mut &str) -> Result<Author> {
     alt(("et. al.", "et al.", "et al"))
         .map(|_| {
             Author::Organization(Organization {
                 name: Some("et al".into()),
+                ..Default::default()
+            })
+        })
+        .parse_next(input)
+}
+
+/// Parse "..." (ellipses as an author)
+pub fn ellipses(input: &mut &str) -> Result<Author> {
+    alt(("...", "\u{2026}"))
+        .map(|_| {
+            Author::Organization(Organization {
+                name: Some("...".into()),
                 ..Default::default()
             })
         })

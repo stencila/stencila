@@ -38,8 +38,7 @@ use crate::decode::{
 /// - Books
 /// - Book chapters
 /// - Web resources
-///
-/// Future work may include newspapers, magazines, conference papers, etc.
+#[allow(unused)]
 pub fn mla(input: &mut &str) -> Result<Reference> {
     // Order is important for correct matching!
     // Most specific patterns first: chapter (has "edited by" keyword),
@@ -55,7 +54,7 @@ pub fn mla(input: &mut &str) -> Result<Reference> {
 /// ```text
 /// Author, First. "Title of Article." Journal Name, vol. Volume, no. Issue, Year, pp. Pages. DOI/URL
 /// ```
-fn article(input: &mut &str) -> Result<Reference> {
+pub fn article(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse one or more authors
         mla_authors,
@@ -101,7 +100,7 @@ fn article(input: &mut &str) -> Result<Reference> {
 /// ```text
 /// Author, First. Title of Book. Publisher, Year. DOI/URL
 /// ```
-fn book(input: &mut &str) -> Result<Reference> {
+pub fn book(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse one or more authors
         mla_authors,
@@ -139,7 +138,7 @@ fn book(input: &mut &str) -> Result<Reference> {
 /// ```text
 /// Author, First. "Chapter Title." Book Title, edited by Editor Name, Publisher, Year, pp. Pages. DOI/URL
 /// ```
-fn chapter(input: &mut &str) -> Result<Reference> {
+pub fn chapter(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse one or more authors
         mla_authors,
@@ -193,7 +192,7 @@ fn chapter(input: &mut &str) -> Result<Reference> {
 /// ```text
 /// Author, First. "Title of Webpage." Website Name, Date, URL. Accessed Date.
 /// ```
-fn web(input: &mut &str) -> Result<Reference> {
+pub fn web(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse one or more authors (optional)
         opt(terminated(mla_authors, mla_separator)),
@@ -250,7 +249,7 @@ fn web(input: &mut &str) -> Result<Reference> {
 /// - Optional trailing period is handled
 /// - Flexible whitespace handling around separators
 /// - Comma before "and" is optional per MLA guidelines
-fn mla_authors(input: &mut &str) -> Result<Vec<Author>> {
+pub fn mla_authors(input: &mut &str) -> Result<Vec<Author>> {
     alt((
         // Two authors: "Johnson, Maria, and John Smith" or "Johnson, Maria and John Smith"
         ((
@@ -305,7 +304,7 @@ fn mla_authors(input: &mut &str) -> Result<Vec<Author>> {
 ///
 /// This function is distinct from `mla_authors` because editors in MLA chapters
 /// follow different formatting conventions than primary authors.
-fn mla_editors(input: &mut &str) -> Result<Vec<Person>> {
+pub fn mla_editors(input: &mut &str) -> Result<Vec<Person>> {
     alt((
         // Two editors: "Maria Johnson and John Smith"
         ((

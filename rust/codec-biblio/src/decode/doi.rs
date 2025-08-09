@@ -87,14 +87,32 @@ fn doi_prefixed<'s>(input: &mut &'s str) -> Result<&'s str> {
 ///
 /// Matches DOI strings that start with "10." followed by the registrant and suffix
 fn doi_bare<'s>(input: &mut &'s str) -> Result<&'s str> {
-    take_while(1.., |c: char| is_valid_doi_char(c)).parse_next(input)
+    (
+        "10.",
+        take_while(4.., |c: char| c.is_numeric()),
+        "/",
+        alt((
+            // Allow for balanced parentheses in DOIs
+            (
+                take_while(1.., |c: char| is_valid_doi_char(c)),
+                "(",
+                take_while(1.., |c: char| is_valid_doi_char(c)),
+                ")",
+                opt(take_while(1.., |c: char| is_valid_doi_char(c))),
+            )
+                .take(),
+            take_while(1.., |c: char| is_valid_doi_char(c)),
+        )),
+    )
+        .take()
+        .parse_next(input)
 }
 
 /// Check if a character is valid in a DOI
 ///
 /// DOIs can contain alphanumeric characters and various punctuation marks
 fn is_valid_doi_char(c: char) -> bool {
-    c.is_ascii_alphanumeric() || matches!(c, '-' | '_' | '.' | ';' | '(' | ')' | '/' | ':')
+    c.is_ascii_alphanumeric() || matches!(c, '-' | '_' | '.' | ';' | '/' | ':')
 }
 
 #[cfg(test)]

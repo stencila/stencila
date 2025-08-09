@@ -37,8 +37,7 @@ use crate::decode::{
 /// - Books  
 /// - Book chapters
 /// - Web resources
-///
-/// Future work may include newspapers, magazines, conference papers, etc.
+#[allow(unused)]
 pub fn chicago(input: &mut &str) -> Result<Reference> {
     // Order is important for correct matching!
     // Most specific patterns first: chapter (has "In" keyword),
@@ -55,7 +54,7 @@ pub fn chicago(input: &mut &str) -> Result<Reference> {
 /// ```text
 /// Author Last, First. "Title of Article." Journal Name vol. Volume, no. Issue (Date): pages. DOI/URL.
 /// ```
-fn article(input: &mut &str) -> Result<Reference> {
+pub fn article(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse one or more authors
         authors,
@@ -115,7 +114,7 @@ fn article(input: &mut &str) -> Result<Reference> {
 /// ```text
 /// Author Last, First. Book Title. Publisher, Year. DOI/URL.
 /// ```
-fn book(input: &mut &str) -> Result<Reference> {
+pub fn book(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse one or more authors
         authors,
@@ -154,7 +153,7 @@ fn book(input: &mut &str) -> Result<Reference> {
 /// ```text
 /// Author Last, First. "Chapter Title." In Book Title, edited by Editor Name, pages. Publisher, Year.
 /// ```
-fn chapter(input: &mut &str) -> Result<Reference> {
+pub fn chapter(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse chapter authors
         authors,
@@ -231,7 +230,7 @@ fn chapter(input: &mut &str) -> Result<Reference> {
 /// ```text
 /// Author Last, First. "Title of Webpage." Website Name. Accessed Date. URL.
 /// ```
-fn web(input: &mut &str) -> Result<Reference> {
+pub fn web(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse web authors (optional)
         opt(terminated(authors, chicago_separator)),
