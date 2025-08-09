@@ -15,6 +15,7 @@ mod authors;
 mod chicago;
 mod date;
 mod doi;
+mod ieee;
 mod mla;
 mod pages;
 mod references;

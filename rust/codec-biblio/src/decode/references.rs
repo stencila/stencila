@@ -10,6 +10,7 @@ use codec::schema::Reference;
 
 use super::apa::apa;
 use super::chicago::chicago;
+use super::ieee::ieee;
 use super::mla::mla;
 use super::vancouver::vancouver;
 
@@ -20,5 +21,5 @@ pub fn references(input: &mut &str) -> Result<Vec<Reference>> {
 
 /// Parse a Stencila [`Reference`]s from a string
 pub fn reference(input: &mut &str) -> Result<Reference> {
-    alt((apa, chicago, mla, vancouver)).parse_next(input)
+    alt((apa, chicago, ieee, mla, vancouver)).parse_next(input)
 }
