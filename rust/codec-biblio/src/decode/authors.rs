@@ -20,6 +20,15 @@ pub fn authors(input: &mut &str) -> Result<Vec<Author>> {
             multispace0,
         ),
     )
+    .map(|authors: Vec<Author>| {
+        authors
+            .into_iter()
+            .filter(|author| match author {
+                Author::Organization(org) => org.name != Some("et al".to_string()),
+                _ => true,
+            })
+            .collect()
+    })
     .parse_next(input)
 }
 
@@ -31,6 +40,7 @@ pub fn author(input: &mut &str) -> Result<Author> {
         person_family_given,
         person_given_family,
         organization,
+        etal,
     ))
     .parse_next(input)
 }
@@ -209,6 +219,17 @@ pub fn organization(input: &mut &str) -> Result<Author> {
         })
     })
     .parse_next(input)
+}
+
+pub fn etal(input: &mut &str) -> Result<Author> {
+    alt(("et. al.", "et al.", "et al"))
+        .map(|_| {
+            Author::Organization(Organization {
+                name: Some("et al".into()),
+                ..Default::default()
+            })
+        })
+        .parse_next(input)
 }
 
 /// Parse a proper name: starts with uppercase letter, followed by alphabetic characters or hyphens
@@ -435,6 +456,10 @@ mod tests {
         // Two people with and
         let items = authors(&mut "Author, A. B., and B. C. Author")?;
         assert_eq!(items.len(), 2);
+
+        // With et al
+        let items = authors(&mut "L. Chen, S. Martinez, R. Johnson, et al.")?;
+        assert_eq!(items.len(), 3);
 
         Ok(())
     }
