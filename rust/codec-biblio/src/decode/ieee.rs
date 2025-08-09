@@ -35,14 +35,16 @@ use crate::decode::{
 ///
 /// - Journal articles
 /// - Book chapters
+/// - Books
 /// - Web resources
 ///
-/// Future work may include books, conference papers, etc.
+/// Future work may include conference papers, etc.
 pub fn ieee(input: &mut &str) -> Result<Reference> {
     // Order is important for correct matching!
     // Most specific patterns first: chapter (has "in" keyword),
-    // web (has [Online] marker), then article (has vol./no. pattern)
-    alt((chapter, web, article)).parse_next(input)
+    // web (has [Online] marker), article (has quoted title + vol./no.),
+    // then book (unquoted title, least specific)
+    alt((chapter, web, article, book)).parse_next(input)
 }
 
 /// Parse an IEEE journal article reference
@@ -118,19 +120,7 @@ fn chapter(input: &mut &str) -> Result<Reference> {
             (ieee_separator, Caseless("Ed"), opt("s"), opt(".")),
         )),
         // Edition
-        opt(preceded(
-            ieee_separator,
-            terminated(
-                (
-                    digit1,
-                    alt(("st", "nd", "rd", "th")),
-                    multispace1,
-                    Caseless("ed"),
-                )
-                    .take(),
-                opt("."),
-            ),
-        )),
+        opt(preceded(ieee_separator, ieee_edition)),
         opt(preceded(ieee_separator, ieee_publisher)),
         // Year: Publication year
         opt(preceded(ieee_separator, year)),
@@ -159,7 +149,7 @@ fn chapter(input: &mut &str) -> Result<Reference> {
                     is_part_of: Some(Box::new(Reference {
                         title: Some(vec![t(book_title.trim())]),
                         editors,
-                        version: edition.map(StringOrNumber::from),
+                        version: edition,
                         publisher,
                         ..Default::default()
                     })),
@@ -168,6 +158,47 @@ fn chapter(input: &mut &str) -> Result<Reference> {
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
                     ..pages.unwrap_or_default()
                 }
+            },
+        )
+        .parse_next(input)
+}
+
+/// Parse an IEEE book reference
+///
+/// Parses IEEE-style book references with the following expected format:
+///
+/// ```text
+/// A. B. Smith and C. D. Jones, Book Title, Edition. Place: Publisher, Year.
+/// ```
+fn book(input: &mut &str) -> Result<Reference> {
+    (
+        // Authors: Parse book authors terminated before title
+        ieee_book_authors,
+        // Title: Parse book title before comma or period
+        preceded(
+            ieee_separator,
+            take_while(1.., |c: char| c != ',' && c != '.'),
+        ),
+        // Edition: Optional edition (1st ed., 2nd ed., etc.)
+        opt(preceded(ieee_separator, ieee_edition)),
+        // Publisher: Parse place and publisher
+        opt(preceded(ieee_separator, ieee_publisher)),
+        // Year: Publication year
+        opt(preceded(ieee_separator, year)),
+        // DOI or URL
+        opt(preceded(ieee_separator, doi_or_url)),
+    )
+        .map(
+            |(authors, title, edition, publisher, date, doi_or_url)| Reference {
+                work_type: Some(CreativeWorkType::Book),
+                authors: Some(authors),
+                title: Some(vec![t(title.trim())]),
+                version: edition,
+                publisher,
+                date,
+                doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
+                url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
+                ..Default::default()
             },
         )
         .parse_next(input)
@@ -312,6 +343,40 @@ fn ieee_editors(input: &mut &str) -> Result<Vec<Person>> {
             multispace0,
         ),
     )
+    .parse_next(input)
+}
+
+/// Parse book authors - custom parser that stops at book title
+fn ieee_book_authors(input: &mut &str) -> Result<Vec<Author>> {
+    use crate::decode::authors::{organization, person_family_initials, person_given_family};
+
+    // Try to parse multiple authors separated by " and " first
+    alt((
+        // Case 1: "Author A and Author B" (no comma separation between authors)
+        separated(
+            1..,
+            alt((person_family_initials, person_given_family, organization)),
+            (multispace1, "and", multispace1),
+        ),
+        // Case 2: Single author
+        alt((person_family_initials, person_given_family, organization)).map(|author| vec![author]),
+    ))
+    .parse_next(input)
+}
+
+/// Parse edition in IEEE format (1st ed., 2nd ed., etc.)
+fn ieee_edition(input: &mut &str) -> Result<StringOrNumber> {
+    terminated(
+        (
+            digit1,
+            alt(("st", "nd", "rd", "th")),
+            multispace1,
+            Caseless("ed"),
+        )
+            .take(),
+        opt("."),
+    )
+    .map(StringOrNumber::from)
     .parse_next(input)
 }
 
@@ -624,6 +689,66 @@ mod tests {
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
         assert!(reference.authors.is_some());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_book() -> Result<()> {
+        // Basic IEEE book format - single author
+        let reference = ieee(&mut r#"J. Smith, Programming Guide. Tech Press, 2023."#)?;
+        assert_eq!(reference.work_type, Some(CreativeWorkType::Book));
+        assert_eq!(reference.authors.map(|authors| authors.len()), Some(1));
+        assert_eq!(
+            reference.title.map(|title| to_text(&title)),
+            Some("Programming Guide".to_string())
+        );
+        assert!(reference.version.is_none());
+        assert!(reference.publisher.is_some());
+        assert!(reference.date.is_some());
+        assert!(reference.doi.is_none());
+
+        // Book with two authors using "and"
+        let reference = ieee(
+            &mut r#"J. A. Brown and K. C. Wilson, Advanced Algorithms. Cambridge: MIT Press, 2020."#,
+        )?;
+        assert_eq!(reference.work_type, Some(CreativeWorkType::Book));
+        assert_eq!(reference.authors.map(|authors| authors.len()), Some(2));
+        assert_eq!(
+            reference.title.map(|title| to_text(&title)),
+            Some("Advanced Algorithms".to_string())
+        );
+        assert!(reference.publisher.is_some());
+
+        // Book with edition
+        let reference =
+            ieee(&mut r#"L. Martinez, Database Systems, 4th ed. Chicago: Database Press, 2024."#)?;
+        assert_eq!(reference.work_type, Some(CreativeWorkType::Book));
+        assert_eq!(
+            reference.title.map(|title| to_text(&title)),
+            Some("Database Systems".to_string())
+        );
+        assert_eq!(
+            reference.version.clone(),
+            Some(StringOrNumber::from("4th ed"))
+        );
+
+        // Book with DOI
+        let reference = ieee(
+            &mut r#"R. Garcia, Web Development Guide. San Francisco: Tech Books, 2021. https://doi.org/10.1234/example"#,
+        )?;
+        assert_eq!(reference.work_type, Some(CreativeWorkType::Book));
+        assert!(reference.doi.is_some());
+
+        // Minimal book format
+        let reference = ieee(&mut r#"C. Johnson, Basic Programming Concepts."#)?;
+        assert_eq!(reference.work_type, Some(CreativeWorkType::Book));
+        assert_eq!(
+            reference.title.map(|title| to_text(&title)),
+            Some("Basic Programming Concepts".to_string())
+        );
+        assert!(reference.publisher.is_none());
+        assert!(reference.date.is_none());
 
         Ok(())
     }
