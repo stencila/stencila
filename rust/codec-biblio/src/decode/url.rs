@@ -13,6 +13,8 @@ pub fn url(input: &mut &str) -> Result<String> {
             take_while(1.., |c: char| !c.is_ascii_whitespace()),
         ),
     )
-        .map(|(prefix, suffix)| [prefix, suffix].concat())
+        .map(|(prefix, suffix): (&str, &str)| {
+            [prefix, suffix.trim_end_matches(['.', ',', ';'])].concat()
+        })
         .parse_next(input)
 }
