@@ -11,7 +11,7 @@ use codec::schema::{
 /// Parse place and publisher in Vancouver and IEEE format
 ///
 /// Parses "Place: Publisher" or just "Publisher" format.
-/// Avoids matching against
+/// Avoids matching against URLs and DOIs
 pub fn place_publisher(input: &mut &str) -> Result<PersonOrOrganization> {
     (
         opt(terminated(
@@ -31,10 +31,26 @@ pub fn place_publisher(input: &mut &str) -> Result<PersonOrOrganization> {
                 .as_ref()
                 .and_then(|place| place.split_whitespace().rev().next())
             {
-                if matches!(place, "http" | "https" | "url" | "doi") {
+                // Place should contain some alphabetic chars
+                if !place.chars().any(|c: char| c.is_alphabetic()) {
+                    return false;
+                }
+
+                // Last word in place should not be one of these...
+                if matches!(
+                    place.to_lowercase().as_str(),
+                    "http" | "https" | "url" | "doi"
+                ) {
                     return false;
                 }
             }
+
+            // Name should contain some alphabetic chars
+            if !name.chars().any(|c: char| c.is_alphabetic()) {
+                return false;
+            }
+
+            // Name should not start with two slashes
             !name.starts_with("//")
         })
         .map(|(place, name)| {
@@ -94,7 +110,12 @@ mod tests {
         // Test URL, DOI etc avoidance
         assert!(place_publisher(&mut "https://example.com").is_err());
         assert!(place_publisher(&mut "doi:10.1234/xyz").is_err());
+        assert!(place_publisher(&mut "DOI: 10.1234/xyz").is_err());
         assert!(place_publisher(&mut "Some content before doi:10.1234/xyz").is_err());
+
+        // Test volume:pages avoidance
+        assert!(place_publisher(&mut "10:123-456").is_err());
+        assert!(place_publisher(&mut "10 (4) :123 - 456").is_err());
 
         Ok(())
     }
