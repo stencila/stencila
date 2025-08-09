@@ -78,8 +78,8 @@ fn article(input: &mut &str) -> Result<Reference> {
                 title: Some(title),
                 is_part_of: Some(Box::new(Reference {
                     title: Some(journal),
-                    volume_number: volume_issue.clone().map(|(volume,..)| volume),
-                    issue_number: volume_issue.and_then(|(..,issue)| issue),
+                    volume_number: volume_issue.clone().map(|(volume, ..)| volume),
+                    issue_number: volume_issue.and_then(|(.., issue)| issue),
                     ..Default::default()
                 })),
                 date: Some(date),
