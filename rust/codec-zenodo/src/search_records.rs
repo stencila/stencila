@@ -90,13 +90,7 @@ fn bibliographic_references_to_references(record: &Record) -> Vec<Reference> {
         .metadata
         .references
         .iter()
-        .map(|ref_string| {
-            // Use the reference string as the title
-            Reference {
-                title: Some(vec![Inline::Text(Text::from(ref_string.clone()))]),
-                ..Default::default()
-            }
-        })
+        .flat_map(|item| codec_biblio::decode::text(item).into_iter().flatten())
         .collect()
 }
 

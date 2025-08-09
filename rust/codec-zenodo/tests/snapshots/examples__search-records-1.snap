@@ -77,88 +77,388 @@ expression: node
   "references": [
     {
       "type": "Reference",
+      "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Birla"
+          ],
+          "givenNames": [
+            "N."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "1.\tBirla, N. (2019). Vehicle Dataset from CarDekho. Retrieved from: https://www.kaggle.com/datasets/nehalbirla/vehicle-dataset-from-cardekho"
+            "string": "Vehicle Dataset from CarDekho"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference"
+      },
+      "url": "https://www.kaggle.com/datasets/nehalbirla/vehicle-dataset-from-cardekho"
+    },
+    {
+      "type": "Reference",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pedregosa"
+          ],
+          "givenNames": [
+            "F."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Varoquaux"
+          ],
+          "givenNames": [
+            "G."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gramfort"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Michel"
+          ],
+          "givenNames": [
+            "V."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Thirion"
+          ],
+          "givenNames": [
+            "B."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Grisel"
+          ],
+          "givenNames": [
+            "O."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Duchesnay"
+          ],
+          "givenNames": [
+            "E."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2011"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Scikit-learn: Machine learning in Python"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Machine Learning Research"
+            }
+          }
+        ],
+        "volumeNumber": 12
+      },
+      "pageStart": 2825,
+      "pageEnd": 2830
+    },
+    {
+      "type": "Reference",
+      "workType": "Chapter",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "McKinney"
+          ],
+          "givenNames": [
+            "W."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2010"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Data structures for statistical computing in Python"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Proceedings of the 9th Python in Science Conference"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Reference",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hunter"
+          ],
+          "givenNames": [
+            "J.",
+            "D."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2007"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Matplotlib: A 2D graphics environment"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Computing in Science & Engineering"
+            }
+          }
+        ],
+        "volumeNumber": 9,
+        "issueNumber": 3
+      },
+      "pageStart": 90,
+      "pageEnd": 95
+    },
+    {
+      "type": "Reference",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Waskom"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Seaborn: statistical data visualization"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Open Source Software"
+            }
+          }
+        ],
+        "volumeNumber": 6,
+        "issueNumber": 60
+      },
+      "pageStart": 3021
+    },
+    {
+      "type": "Reference",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "James"
+          ],
+          "givenNames": [
+            "G."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Witten"
+          ],
+          "givenNames": [
+            "D."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hastie"
+          ],
+          "givenNames": [
+            "T."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tibshirani"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Springer"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2013"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "An Introduction to Statistical Learning: with Applications in R"
           }
         }
       ]
     },
     {
       "type": "Reference",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tibshirani"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1996"
+      },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "2.\tPedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., ... & Duchesnay, E. (2011). Scikit-learn: Machine learning in Python. Journal of Machine Learning Research, 12, 2825–2830."
+            "string": "Regression shrinkage and selection via the Lasso"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of the Royal Statistical Society: Series B (Methodological)"
+            }
+          }
+        ],
+        "volumeNumber": 58,
+        "issueNumber": 1
+      },
+      "pageStart": 267,
+      "pageEnd": 288
     },
     {
       "type": "Reference",
-      "title": [
+      "workType": "Book",
+      "authors": [
         {
-          "type": "Text",
-          "value": {
-            "string": "3.\tMcKinney, W. (2010). Data structures for statistical computing in Python. In Proceedings of the 9th Python in Science Conference (pp. 51–56)."
-          }
+          "type": "Person",
+          "familyNames": [
+            "Raschka"
+          ],
+          "givenNames": [
+            "S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mirjalili"
+          ],
+          "givenNames": [
+            "V."
+          ]
         }
-      ]
-    },
-    {
-      "type": "Reference",
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Packt Publishing Ltd"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2017"
+      },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "4.\tHunter, J. D. (2007). Matplotlib: A 2D graphics environment. Computing in Science & Engineering, 9(3), 90–95."
-          }
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "5.\tWaskom, M. (2021). Seaborn: statistical data visualization. Journal of Open Source Software, 6(60), 3021."
-          }
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "6.\tJames, G., Witten, D., Hastie, T., & Tibshirani, R. (2013). An Introduction to Statistical Learning: with Applications in R. Springer."
-          }
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "7.\tTibshirani, R. (1996). Regression shrinkage and selection via the Lasso. Journal of the Royal Statistical Society: Series B (Methodological), 58(1), 267-288."
-          }
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "8.\tRaschka, S., & Mirjalili, V. (2017). Python Machine Learning: Machine Learning and Deep Learning with Python, scikit-learn, and TensorFlow 2. Packt Publishing Ltd."
+            "string": "Python Machine Learning: Machine Learning and Deep Learning with Python, scikit-learn, and TensorFlow 2"
           }
         }
       ]
