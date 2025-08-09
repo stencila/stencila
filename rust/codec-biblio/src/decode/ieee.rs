@@ -23,6 +23,7 @@ use crate::decode::{
     doi::doi_or_url,
     pages::pages,
     publisher::place_publisher,
+    terminator::terminator,
     url::url,
 };
 
@@ -74,22 +75,26 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         opt(preceded(ieee_separator, ieee_date)),
         // DOI or URL
         opt(preceded(ieee_separator, doi_or_url)),
+        // Optional terminator
+        opt(terminator),
     )
         .map(
-            |(authors, title, journal, volume, issue, pages, date, doi_or_url)| Reference {
-                work_type: Some(CreativeWorkType::Article),
-                authors: Some(authors),
-                title: Some(title),
-                is_part_of: Some(Box::new(Reference {
-                    title: journal.map(|journal| vec![t(journal.trim())]),
-                    volume_number: volume,
-                    issue_number: issue,
-                    ..Default::default()
-                })),
-                date,
-                doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
-                url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
-                ..pages.unwrap_or_default()
+            |(authors, title, journal, volume, issue, pages, date, doi_or_url, _terminator)| {
+                Reference {
+                    work_type: Some(CreativeWorkType::Article),
+                    authors: Some(authors),
+                    title: Some(title),
+                    is_part_of: Some(Box::new(Reference {
+                        title: journal.map(|journal| vec![t(journal.trim())]),
+                        volume_number: volume,
+                        issue_number: issue,
+                        ..Default::default()
+                    })),
+                    date,
+                    doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
+                    url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
+                    ..pages.unwrap_or_default()
+                }
             },
         )
         .parse_next(input)
@@ -127,6 +132,8 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         opt(preceded(ieee_separator, ieee_pages)),
         // DOI or URL
         opt(preceded(ieee_separator, doi_or_url)),
+        // Optional terminator
+        opt(terminator),
     )
         .map(
             |(
@@ -140,6 +147,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
                 date,
                 pages,
                 doi_or_url,
+                _terminator,
             )| {
                 Reference {
                     work_type: Some(CreativeWorkType::Chapter),
@@ -186,9 +194,11 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         opt(preceded(ieee_separator, year)),
         // DOI or URL
         opt(preceded(ieee_separator, doi_or_url)),
+        // Optional terminator
+        opt(terminator),
     )
         .map(
-            |(authors, title, edition, publisher, date, doi_or_url)| Reference {
+            |(authors, title, edition, publisher, date, doi_or_url, _terminator)| Reference {
                 work_type: Some(CreativeWorkType::Book),
                 authors: Some(authors),
                 title: Some(vec![t(title.trim())]),
@@ -250,8 +260,10 @@ pub fn web(input: &mut &str) -> Result<Reference> {
             take_while(1.., |c: char| c != ']'),
             "]",
         )),
+        // Optional terminator
+        opt(terminator),
     )
-        .map(|(author, title, _, url, _date)| Reference {
+        .map(|(author, title, _, url, _date, _terminator)| Reference {
             work_type: Some(CreativeWorkType::WebPage),
             authors: Some(vec![author]),
             title: Some(title),

@@ -23,6 +23,7 @@ use crate::decode::{
     doi::doi_or_url,
     pages::pages,
     preprints::preprint_server,
+    terminator::terminator,
     url::url,
 };
 
@@ -101,22 +102,26 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         ),
         // DOI or URL
         opt(preceded(apa_separator, doi_or_url)),
+        // Optional terminator
+        opt(terminator),
     )
         .map(
-            |(authors, date, title, journal, ((volume, issue), pages), doi_or_url)| Reference {
-                work_type: Some(CreativeWorkType::Article),
-                authors: Some(authors),
-                date: Some(date),
-                title: Some(title),
-                is_part_of: Some(Box::new(Reference {
-                    title: Some(vec![t(journal)]),
-                    volume_number: volume.map(IntegerOrString::from),
-                    issue_number: issue.map(IntegerOrString::from),
-                    ..Default::default()
-                })),
-                doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
-                url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
-                ..pages.unwrap_or_default()
+            |(authors, date, title, journal, ((volume, issue), pages), doi_or_url, _terminator)| {
+                Reference {
+                    work_type: Some(CreativeWorkType::Article),
+                    authors: Some(authors),
+                    date: Some(date),
+                    title: Some(title),
+                    is_part_of: Some(Box::new(Reference {
+                        title: Some(vec![t(journal)]),
+                        volume_number: volume.map(IntegerOrString::from),
+                        issue_number: issue.map(IntegerOrString::from),
+                        ..Default::default()
+                    })),
+                    doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
+                    url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
+                    ..pages.unwrap_or_default()
+                }
             },
         )
         .parse_next(input)
@@ -141,23 +146,27 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         opt(preceded(apa_separator, take_while(1.., |c: char| c != '.'))),
         // DOI or URL
         opt(preceded(apa_separator, doi_or_url)),
+        // Optional terminator
+        opt(terminator),
     )
         // Map the parsed components into a Reference struct
-        .map(|(authors, date, title, publisher, doi_or_url)| Reference {
-            work_type: Some(CreativeWorkType::Book),
-            authors: Some(authors),
-            date: Some(date),
-            title: Some(title),
-            publisher: publisher.map(|publisher| {
-                PersonOrOrganization::Organization(Organization {
-                    name: Some(publisher.trim().to_string()),
-                    ..Default::default()
-                })
-            }),
-            doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
-            url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
-            ..Default::default()
-        })
+        .map(
+            |(authors, date, title, publisher, doi_or_url, _terminator)| Reference {
+                work_type: Some(CreativeWorkType::Book),
+                authors: Some(authors),
+                date: Some(date),
+                title: Some(title),
+                publisher: publisher.map(|publisher| {
+                    PersonOrOrganization::Organization(Organization {
+                        name: Some(publisher.trim().to_string()),
+                        ..Default::default()
+                    })
+                }),
+                doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
+                url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
+                ..Default::default()
+            },
+        )
         .parse_next(input)
 }
 
@@ -209,6 +218,8 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         opt(preceded(apa_separator, take_while(1.., |c: char| c != '.'))),
         // DOI or URL
         opt(preceded(apa_separator, doi_or_url)),
+        // Optional terminator
+        opt(terminator),
     )
         // Map the parsed components into a Reference struct
         .map(
@@ -216,12 +227,13 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
                 authors,
                 date,
                 chapter_title,
-                _,
+                _in,
                 editors,
                 book_title,
                 pages,
                 publisher,
                 doi_or_url,
+                _terminator,
             )| {
                 Reference {
                     work_type: Some(CreativeWorkType::Chapter),
@@ -282,22 +294,26 @@ pub fn web(input: &mut &str) -> Result<Reference> {
             ),
             url,
         ),
+        // Optional terminator
+        opt(terminator),
     )
         // Map the parsed components into a Reference struct
-        .map(|(authors, date, title, website, url)| Reference {
-            work_type: Some(CreativeWorkType::WebPage),
-            authors,
-            date: Some(date),
-            title: Some(title),
-            is_part_of: website.map(|title| {
-                Box::new(Reference {
-                    title: Some(vec![t(title)]),
-                    ..Default::default()
-                })
-            }),
-            url: Some(url),
-            ..Default::default()
-        })
+        .map(
+            |(authors, date, title, website, url, _terminator)| Reference {
+                work_type: Some(CreativeWorkType::WebPage),
+                authors,
+                date: Some(date),
+                title: Some(title),
+                is_part_of: website.map(|title| {
+                    Box::new(Reference {
+                        title: Some(vec![t(title)]),
+                        ..Default::default()
+                    })
+                }),
+                url: Some(url),
+                ..Default::default()
+            },
+        )
         .parse_next(input)
 }
 

@@ -18,7 +18,13 @@ use codec::schema::{
 };
 
 use crate::decode::{
-    authors::{authors, organization, person_family_initials}, date::year, doi::doi_or_url, pages::pages, publisher::place_publisher, url::url
+    authors::{authors, organization, person_family_initials},
+    date::year,
+    doi::doi_or_url,
+    pages::pages,
+    publisher::place_publisher,
+    terminator::terminator,
+    url::url,
 };
 
 /// Parse a Stencila [`Reference`] from a Vancouver reference list item
@@ -64,22 +70,26 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         opt(preceded(vancouver_separator, vancouver_pages)),
         // DOI or URL (optional)
         opt(preceded(vancouver_separator, doi_or_url)),
+        // Optional terminator
+        opt(terminator),
     )
         .map(
-            |(authors, title, journal, date, volume_issue, pages, doi_or_url)| Reference {
-                work_type: Some(CreativeWorkType::Article),
-                authors: Some(authors),
-                title: Some(title),
-                is_part_of: Some(Box::new(Reference {
-                    title: Some(journal),
-                    volume_number: volume_issue.clone().map(|(volume, ..)| volume),
-                    issue_number: volume_issue.and_then(|(.., issue)| issue),
-                    ..Default::default()
-                })),
-                date: Some(date),
-                doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
-                url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
-                ..pages.unwrap_or_default()
+            |(authors, title, journal, date, volume_issue, pages, doi_or_url, _terminator)| {
+                Reference {
+                    work_type: Some(CreativeWorkType::Article),
+                    authors: Some(authors),
+                    title: Some(title),
+                    is_part_of: Some(Box::new(Reference {
+                        title: Some(journal),
+                        volume_number: volume_issue.clone().map(|(volume, ..)| volume),
+                        issue_number: volume_issue.and_then(|(.., issue)| issue),
+                        ..Default::default()
+                    })),
+                    date: Some(date),
+                    doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
+                    url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
+                    ..pages.unwrap_or_default()
+                }
             },
         )
         .parse_next(input)
@@ -104,17 +114,21 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         opt(preceded(vancouver_separator, year)),
         // DOI or URL (optional)
         opt(preceded(vancouver_separator, doi_or_url)),
+        // Optional terminator
+        opt(terminator),
     )
-        .map(|(authors, title, publisher, date, doi_or_url)| Reference {
-            work_type: Some(CreativeWorkType::Book),
-            authors: Some(authors),
-            date,
-            title: Some(title),
-            publisher,
-            doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
-            url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
-            ..Default::default()
-        })
+        .map(
+            |(authors, title, publisher, date, doi_or_url, _terminator)| Reference {
+                work_type: Some(CreativeWorkType::Book),
+                authors: Some(authors),
+                date,
+                title: Some(title),
+                publisher,
+                doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
+                url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
+                ..Default::default()
+            },
+        )
         .parse_next(input)
 }
 
@@ -174,18 +188,21 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
                     }),
             )),
         )),
+        // Optional terminator
+        opt(terminator),
     )
         .map(
             |(
                 authors,
                 chapter_title,
-                _,
+                _in,
                 editors,
                 book_title,
                 publisher,
                 date,
                 pages,
                 doi_or_url,
+                _terminator,
             )| {
                 Reference {
                     work_type: Some(CreativeWorkType::Chapter),
@@ -261,8 +278,10 @@ pub fn web(input: &mut &str) -> Result<Reference> {
             take_while(1.., |c: char| c != ']'),
             "]",
         )),
+        // Optional terminator
+        opt(terminator),
     )
-        .map(|(authors, title, _, url, _date)| Reference {
+        .map(|(authors, title, _, url, _date, _terminator)| Reference {
             work_type: Some(CreativeWorkType::WebPage),
             authors,
             title: Some(title),

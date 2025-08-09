@@ -23,6 +23,7 @@ use crate::decode::{
     authors::{authors, persons},
     doi::doi_or_url,
     pages::pages,
+    terminator::terminator,
     url::url,
 };
 
@@ -86,22 +87,26 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         opt(preceded((multispace0, ":", multispace0), chicago_pages)),
         // DOI or URL
         opt(preceded(chicago_separator, doi_or_url)),
+        // Optional terminator
+        opt(terminator),
     )
         .map(
-            |(authors, title, journal, volume, issue, date, pages, doi_or_url)| Reference {
-                work_type: Some(CreativeWorkType::Article),
-                authors: Some(authors),
-                title: Some(title),
-                is_part_of: Some(Box::new(Reference {
-                    title: Some(vec![t(journal.trim())]),
-                    volume_number: Some(volume),
-                    issue_number: issue,
-                    ..Default::default()
-                })),
-                date: date.and_then(|d| Date::from_str(d).ok()),
-                doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
-                url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
-                ..pages.unwrap_or_default()
+            |(authors, title, journal, volume, issue, date, pages, doi_or_url, _terminator)| {
+                Reference {
+                    work_type: Some(CreativeWorkType::Article),
+                    authors: Some(authors),
+                    title: Some(title),
+                    is_part_of: Some(Box::new(Reference {
+                        title: Some(vec![t(journal.trim())]),
+                        volume_number: Some(volume),
+                        issue_number: issue,
+                        ..Default::default()
+                    })),
+                    date: date.and_then(|d| Date::from_str(d).ok()),
+                    doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
+                    url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
+                    ..pages.unwrap_or_default()
+                }
             },
         )
         .parse_next(input)
@@ -129,20 +134,24 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         ),
         // DOI or URL
         opt(preceded(chicago_separator, doi_or_url)),
+        // Optional terminator
+        opt(terminator),
     )
-        .map(|(authors, title, publisher, year, doi_or_url)| Reference {
-            work_type: Some(CreativeWorkType::Book),
-            authors: Some(authors),
-            title: Some(title),
-            publisher: Some(PersonOrOrganization::Organization(Organization {
-                name: Some(publisher.trim().to_string()),
+        .map(
+            |(authors, title, publisher, year, doi_or_url, _terminator)| Reference {
+                work_type: Some(CreativeWorkType::Book),
+                authors: Some(authors),
+                title: Some(title),
+                publisher: Some(PersonOrOrganization::Organization(Organization {
+                    name: Some(publisher.trim().to_string()),
+                    ..Default::default()
+                })),
+                date: Date::from_str(year.trim()).ok(),
+                doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
+                url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
                 ..Default::default()
-            })),
-            date: Date::from_str(year.trim()).ok(),
-            doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
-            url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
-            ..Default::default()
-        })
+            },
+        )
         .parse_next(input)
 }
 
@@ -185,18 +194,21 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         )),
         // DOI or URL
         opt(preceded(chicago_separator, doi_or_url)),
+        // Optional terminator
+        opt(terminator),
     )
         .map(
             |(
                 authors,
                 chapter_title,
-                _,
+                _in,
                 book_title,
                 editors,
                 pages,
                 publisher,
                 year,
                 doi_or_url,
+                _terminator,
             )| {
                 Reference {
                     work_type: Some(CreativeWorkType::Chapter),
@@ -245,18 +257,22 @@ pub fn web(input: &mut &str) -> Result<Reference> {
         )),
         // URL: Web address
         preceded(chicago_separator, url),
+        // Optional terminator
+        opt(terminator),
     )
-        .map(|(authors, title, website, _access_date, url)| Reference {
-            work_type: Some(CreativeWorkType::WebPage),
-            authors,
-            title: Some(title),
-            is_part_of: Some(Box::new(Reference {
-                title: Some(vec![t(website.trim())]),
+        .map(
+            |(authors, title, website, _access_date, url, _terminator)| Reference {
+                work_type: Some(CreativeWorkType::WebPage),
+                authors,
+                title: Some(title),
+                is_part_of: Some(Box::new(Reference {
+                    title: Some(vec![t(website.trim())]),
+                    ..Default::default()
+                })),
+                url: Some(url),
                 ..Default::default()
-            })),
-            url: Some(url),
-            ..Default::default()
-        })
+            },
+        )
         .parse_next(input)
 }
 

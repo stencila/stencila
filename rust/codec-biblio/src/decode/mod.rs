@@ -22,6 +22,7 @@ mod pages;
 mod preprints;
 mod publisher;
 mod references;
+mod terminator;
 mod url;
 mod vancouver;
 
