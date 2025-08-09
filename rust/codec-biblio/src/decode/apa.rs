@@ -333,7 +333,13 @@ mod tests {
         // Without issue number
         let reference = apa(&mut "Smith, J. (2020). Research methods. Science Journal, 15 45-60.")?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
-        assert!(reference.is_part_of.as_ref().map(|part_of| part_of.issue_number.is_none()).unwrap_or(false));
+        assert!(
+            reference
+                .is_part_of
+                .as_ref()
+                .map(|part_of| part_of.issue_number.is_none())
+                .unwrap_or(false)
+        );
 
         // Without pages
         let reference = apa(&mut "Jones, A. (2021). New findings. Nature, 500(1).")?;
@@ -457,7 +463,13 @@ mod tests {
             &mut "Brown, K. (2019). Data analysis. In Wilson, M., & Davis, R. (Eds.), Statistical Methods (45-60). Publisher Name.",
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
-        assert!(reference.is_part_of.as_ref().map(|part_of| part_of.editors.is_some()).unwrap_or(false));
+        assert!(
+            reference
+                .is_part_of
+                .as_ref()
+                .map(|part_of| part_of.editors.is_some())
+                .unwrap_or(false)
+        );
         assert_eq!(reference.doi, None);
 
         // Without DOI
