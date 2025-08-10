@@ -101,9 +101,6 @@ expression: node
           }
         }
       ],
-      "isPartOf": {
-        "type": "Reference"
-      },
       "url": "https://www.kaggle.com/datasets/nehalbirla/vehicle-dataset-from-cardekho"
     },
     {
