@@ -171,17 +171,4 @@ mod tests {
         assert!(reference.title.is_none());
         Ok(())
     }
-
-    #[test]
-    fn debug_doi_parser() -> Result<()> {
-        use crate::decode::doi::doi;
-
-        let result1 = doi.parse_peek("Climate");
-        let result2 = doi.parse_peek("10.1234/example");
-
-        eprintln!("DOI parser on 'Climate': {:?}", result1);
-        eprintln!("DOI parser on '10.1234/example': {:?}", result2);
-
-        Ok(())
-    }
 }

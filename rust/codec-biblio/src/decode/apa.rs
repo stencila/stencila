@@ -85,7 +85,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
                 (
                     // Volume and Issue: volume number with optional issue in parentheses
                     (
-                        digit1.map(|vol| Some(vol)),
+                        digit1.map(Some),
                         opt(delimited(
                             (multispace0, "(", multispace0),
                             digit1,

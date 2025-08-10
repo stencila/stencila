@@ -17,6 +17,7 @@ mod date;
 mod doi;
 mod fallback;
 mod ieee;
+mod lncs;
 mod mla;
 mod pages;
 mod preprints;

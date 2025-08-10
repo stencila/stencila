@@ -2,11 +2,13 @@
 
 use winnow::{
     Parser, Result,
-    ascii::{digit1, multispace0, multispace1, newline},
-    combinator::{alt, opt, preceded, repeat, separated},
+    ascii::{digit1, multispace0, multispace1},
+    combinator::{alt, opt, preceded},
 };
 
 use codec::schema::Reference;
+
+use crate::decode::lncs;
 
 use super::apa;
 use super::chicago;
@@ -14,11 +16,6 @@ use super::fallback::fallback;
 use super::ieee;
 use super::mla;
 use super::vancouver;
-
-/// Parse a list of Stencila [`Reference`]s from a string
-pub fn references(input: &mut &str) -> Result<Vec<Reference>> {
-    separated(0.., reference, repeat::<_, _, (), _, _>(1.., newline)).parse_next(input)
-}
 
 /// Parse a Stencila [`Reference`] from a string
 ///
@@ -43,30 +40,43 @@ pub fn reference(input: &mut &str) -> Result<Reference> {
         // to list individual types like this so that, for example, an APA
         // article is not parsed prematurely as a Vancouver book.
         alt((
-            // Chapter
-            vancouver::chapter,
-            ieee::chapter,
-            apa::chapter,
-            chicago::chapter,
-            mla::chapter,
+            // Chapter or conference paper
+            alt((
+                lncs::conference,
+                vancouver::chapter,
+                ieee::chapter,
+                apa::chapter,
+                chicago::chapter,
+                mla::chapter,
+                lncs::chapter,
+            )),
             // Article
-            vancouver::article,
-            ieee::article,
-            apa::article,
-            chicago::article,
-            mla::article,
+            alt((
+                vancouver::article,
+                ieee::article,
+                apa::article,
+                chicago::article,
+                mla::article,
+                lncs::article,
+            )),
             // Web
-            vancouver::web,
-            ieee::web,
-            apa::web,
-            chicago::web,
-            mla::web,
+            alt((
+                vancouver::web,
+                ieee::web,
+                apa::web,
+                chicago::web,
+                mla::web,
+                lncs::web,
+            )),
             // Book
-            apa::book,
-            vancouver::book,
-            ieee::book,
-            chicago::book,
-            mla::book,
+            alt((
+                apa::book,
+                vancouver::book,
+                ieee::book,
+                chicago::book,
+                mla::book,
+                lncs::web,
+            )),
             // Fallback
             fallback,
         )),
@@ -155,6 +165,91 @@ mod tests {
                 ..Default::default()
             }))
         );
+
+        Ok(())
+    }
+
+    // References extracted from arXiv 2507.09057v1 HTML as plain text that had issues
+    #[test]
+    fn arxiv_2507_09057v1() -> Result<()> {
+        let r = reference(
+            &mut "American Dental Association (2022). Eruption Charts. https://www.mouthhealthy.org/all-topics-a-z/eruption-charts.",
+        )?;
+        assert_eq!(r.work_type, Some(CreativeWorkType::WebPage));
+        assert_eq!(
+            r.url,
+            Some("https://www.mouthhealthy.org/all-topics-a-z/eruption-charts".into())
+        );
+
+        let r = reference(
+            &mut "Anyaso-Samuel, S., Bandyopadhyay, D., and Datta, S. (2023). Pseudo-value regression of clustered multistate current status data with informative cluster sizes. Statistical Methods in Medical Research, 32(8):1494–1510.",
+        )?;
+        assert_eq!(r.work_type, Some(CreativeWorkType::Article));
+        assert_eq!(r.page_end, Some(IntegerOrString::Integer(1510)));
+
+        let r = reference(
+            &mut "Anyaso-Samuel, S. and Datta, S. (2024). Nonparametric estimation of a future entry time distribution given the knowledge of a past state occupation in a progressive multistate model with current status data. arXiv preprint arXiv:2405.05781.",
+        )?;
+        assert_eq!(r.work_type, Some(CreativeWorkType::Article));
+        assert_eq!(r.pagination, Some("2405.05781".into()));
+
+        let r = reference(
+            &mut "Bietti, A., Bruna, J., Sanford, C., and Song, M. J. (2022). Learning single-index models with shallow neural networks. In Advances in Neural Information Processing Systems, volume 35, pages 9768–9783. Curran Associates, Inc.",
+        )?;
+        assert_eq!(r.work_type, Some(CreativeWorkType::Chapter));
+        assert_eq!(
+            r.is_part_of
+                .and_then(|book| book.title)
+                .map(|title| to_text(&title)),
+            Some("Advances in Neural Information Processing Systems, volume 35, pages 9768–9783. Curran Associates, Inc.".to_string())
+        );
+        assert_eq!(r.page_end, None);
+
+        let r = reference(
+            &mut "Escobar, M. D. and West, M. (1995). Bayesian density estimation and inference using mixtures. Journal of the American Statistical Association, 90(430):577–588.",
+        )?;
+        assert_eq!(r.work_type, Some(CreativeWorkType::Article));
+        assert_eq!(r.page_end, Some(IntegerOrString::Integer(588)));
+
+        let r = reference(
+            &mut "Mdala, I., Olsen, I., Haffajee, A. D., Socransky, S. S., Thoresen, M., and de Blasio, B. F. (2014). Comparing clinical attachment level and pocket depth for predicting periodontal disease progression in healthy sites of patients with chronic periodontitis using multi-state markov models. Journal of Clinical Periodontology, 41(9):837–845.",
+        )?;
+        assert_eq!(r.work_type, Some(CreativeWorkType::Article));
+        assert_eq!(r.page_end, Some(IntegerOrString::Integer(845)));
+
+        Ok(())
+    }
+
+    // References extracted from arXiv 2507.09057v1 HTML as plain text that had issues
+    #[test]
+    fn arxiv_2507_11127v1() -> Result<()> {
+        let r = reference(
+            &mut "Kareem Ahmed, Stefano Teso, Kai-Wei Chang, Guy Van den Broeck, and Antonio Vergari. Semantic probabilistic layers for neuro-symbolic learning. Advances in Neural Information Processing Systems, 35:29944–29959, 2022.",
+        )?;
+        assert_eq!(r.work_type, Some(CreativeWorkType::Article));
+        assert_eq!(r.page_end, Some(IntegerOrString::Integer(29959)));
+        assert!(r.date.is_some());
+
+        let r = reference(
+            &mut "Vaishak Belle, Andrea Passerini, Guy Van den Broeck, et al. Probabilistic inference in hybrid domains by weighted model integration. In Proceedings of 24th International Joint Conference on Artificial Intelligence (IJCAI), pages 2770–2776. AAAI Press/International Joint Conferences on Artificial Intelligence, 2015.",
+        )?;
+        assert_eq!(r.work_type, Some(CreativeWorkType::Article));
+        assert_eq!(
+            r.title.map(|title| to_text(&title)),
+            Some(
+                "Probabilistic inference in hybrid domains by weighted model integration"
+                    .to_string()
+            )
+        );
+        assert_eq!(r.is_part_of.clone().and_then(|book| book.editors), None);
+        assert_eq!(
+            r.is_part_of
+                .and_then(|book| book.title)
+                .map(|title| to_text(&title)),
+            Some("Proceedings of 24th International Joint Conference on Artificial Intelligence (IJCAI)".to_string())
+        );
+        assert_eq!(r.page_end, Some(IntegerOrString::Integer(2776)));
+        assert!(r.date.is_some());
 
         Ok(())
     }
