@@ -30,7 +30,7 @@ pub fn pages(input: &mut &str) -> Result<Reference> {
 /// Whitespace around the dash is allowed.
 pub fn page_range(input: &mut &str) -> Result<Reference> {
     preceded(
-        (opt("pp"), opt("."), multispace0),
+        (opt("p"), opt("p"), opt("."), multispace0),
         (
             digit1,
             (multispace0, take_while(1..=2, is_hyphen), multispace0),

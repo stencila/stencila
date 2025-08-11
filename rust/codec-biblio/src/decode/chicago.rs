@@ -84,7 +84,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
             ),
         )),
         // Pages: Optional page range with colon prefix
-        opt(preceded((multispace0, ":", multispace0), chicago_pages)),
+        opt(preceded((multispace0, ":", multispace0), pages)),
         // DOI or URL
         opt(preceded(chicago_separator, doi_or_url)),
         // Optional terminator
@@ -324,11 +324,6 @@ fn chicago_issue(input: &mut &str) -> Result<IntegerOrString> {
     preceded((Caseless("no"), multispace0, opt("."), multispace0), digit1)
         .map(IntegerOrString::from)
         .parse_next(input)
-}
-
-/// Parse page numbers with Chicago formatting
-fn chicago_pages(input: &mut &str) -> Result<Reference> {
-    pages.parse_next(input)
 }
 
 #[cfg(test)]

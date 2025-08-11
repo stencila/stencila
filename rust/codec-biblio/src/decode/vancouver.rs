@@ -67,7 +67,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         // Semicolon separator before volume
         opt(preceded(vancouver_separator, vancouver_volume)),
         // Pages: Optional page range after colon
-        opt(preceded(vancouver_separator, vancouver_pages)),
+        opt(preceded(vancouver_separator, pages)),
         // DOI or URL (optional)
         opt(preceded(vancouver_separator, doi_or_url)),
         // Optional terminator
@@ -156,10 +156,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         // Year: Publication year after semicolon
         opt(preceded(vancouver_separator, year_az)),
         // Pages: Optional pages with "p." prefix
-        opt(preceded(
-            (vancouver_separator, alt(("p.", "pp.")), multispace0),
-            vancouver_pages,
-        )),
+        opt(preceded(vancouver_separator, pages)),
         // DOI or URL (optional) - handle Vancouver "Available from:" format
         opt(preceded(
             vancouver_separator,
@@ -334,13 +331,6 @@ fn vancouver_volume(input: &mut &str) -> Result<(IntegerOrString, Option<Integer
         .parse_next(input)
 }
 
-/// Parse page numbers with Vancouver formatting
-///
-/// Vancouver pages come directly after a colon (:) in articles
-fn vancouver_pages(input: &mut &str) -> Result<Reference> {
-    pages.parse_next(input)
-}
-
 /// Parse editors in Vancouver formatting
 fn vancouver_editors(input: &mut &str) -> Result<Vec<Person>> {
     separated(
@@ -438,25 +428,6 @@ mod tests {
                 Some(IntegerOrString::Integer(456))
             )
         );
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_vancouver_pages() -> Result<()> {
-        // Single page
-        let result = vancouver_pages(&mut "123")?;
-        assert!(result.page_start.is_some());
-
-        // Page range
-        let result = vancouver_pages(&mut "123-456")?;
-        assert!(result.page_start.is_some());
-        assert!(result.page_end.is_some());
-
-        // Page range with spaces
-        let result = vancouver_pages(&mut "123 - 456")?;
-        assert!(result.page_start.is_some());
-        assert!(result.page_end.is_some());
 
         Ok(())
     }
