@@ -19,7 +19,7 @@ use codec::schema::{
 
 use crate::decode::{
     authors::{authors, organization, person_family_initials},
-    date::year,
+    date::year_az,
     doi::doi_or_url,
     pages::pages,
     publisher::place_publisher,
@@ -63,7 +63,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         // Journal: Parse journal name ending with period
         preceded(vancouver_separator, vancouver_title),
         // Year: Publication year
-        preceded(vancouver_separator, year),
+        preceded(vancouver_separator, year_az),
         // Semicolon separator before volume
         opt(preceded(vancouver_separator, vancouver_volume)),
         // Pages: Optional page range after colon
@@ -111,7 +111,7 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // Place: Publisher: Parse place and publisher with colon separator
         opt(preceded(vancouver_separator, place_publisher)),
         // Year: Publication year after semicolon
-        preceded(vancouver_separator, year),
+        preceded(vancouver_separator, year_az),
         // DOI or URL (optional)
         opt(preceded(vancouver_separator, doi_or_url)),
         // Optional terminator
@@ -154,7 +154,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         // Place: Publisher: Parse place and publisher
         opt(preceded(vancouver_separator, place_publisher)),
         // Year: Publication year after semicolon
-        opt(preceded(vancouver_separator, year)),
+        opt(preceded(vancouver_separator, year_az)),
         // Pages: Optional pages with "p." prefix
         opt(preceded(
             (vancouver_separator, alt(("p.", "pp.")), multispace0),

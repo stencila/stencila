@@ -3,7 +3,7 @@
 use winnow::{
     Parser, Result,
     ascii::digit1,
-    combinator::{not, peek, terminated},
+    combinator::{not, peek, terminated, opt},
     token::take_while,
 };
 
@@ -19,6 +19,15 @@ pub fn year(input: &mut &str) -> Result<Date> {
         value: year.into(),
         ..Default::default()
     })
+    .parse_next(input)
+}
+
+/// Parse a 4 digit year with optionally a single suffix a-z
+pub fn year_az(input: &mut &str) -> Result<Date> {
+    terminated(
+        year,
+        opt(take_while(1..=1, |c: char| c.is_ascii_lowercase())),
+    )
     .parse_next(input)
 }
 

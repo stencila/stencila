@@ -19,7 +19,7 @@ use codec::schema::{
 
 use crate::decode::{
     authors::{authors, persons},
-    date::year,
+    date::year_az,
     doi::doi_or_url,
     pages::pages,
     preprints::preprint_server,
@@ -321,7 +321,7 @@ pub fn web(input: &mut &str) -> Result<Reference> {
 ///
 /// Allows optional whitespacewithin parentheses
 fn apa_year(input: &mut &str) -> Result<Date> {
-    delimited(("(", multispace0), year, (multispace0, ")")).parse_next(input)
+    delimited(("(", multispace0), year_az, (multispace0, ")")).parse_next(input)
 }
 
 /// Parse article title ending with a period

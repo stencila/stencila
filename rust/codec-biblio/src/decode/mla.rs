@@ -21,7 +21,7 @@ use codec::schema::{
 
 use crate::decode::{
     authors::{person_family_given, person_given_family},
-    date::year,
+    date::year_az,
     doi::doi_or_url,
     pages::pages,
     url::url,
@@ -67,7 +67,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         // Issue: Optional issue with "no." prefix
         opt(preceded(mla_separator, mla_issue)),
         // Year: Publication year
-        preceded(mla_separator, year),
+        preceded(mla_separator, year_az),
         // Pages: Optional page range with "pp." or "p." prefix
         opt(preceded(mla_separator, mla_pages)),
         // DOI or URL
@@ -109,7 +109,7 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // Publisher: Parse publisher ending with comma
         opt(preceded(mla_separator, take_while(1.., |c: char| c != ','))),
         // Year: Publication year
-        preceded(mla_separator, year),
+        preceded(mla_separator, year_az),
         // DOI or URL
         opt(preceded(mla_separator, doi_or_url)),
     )
@@ -153,7 +153,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         // Publisher: Parse publisher ending with comma
         preceded(mla_separator, take_while(1.., |c: char| c != ',')),
         // Year: Publication year
-        preceded(mla_separator, year),
+        preceded(mla_separator, year_az),
         // Pages: Optional page range with "pp." prefix
         opt(preceded(mla_separator, mla_pages)),
         // DOI or URL

@@ -17,7 +17,7 @@ use codec::schema::{
 
 use crate::decode::{
     authors::{authors, organization, person_given_family},
-    date::year,
+    date::year_az,
     doi::doi_or_url,
     pages::pages,
     publisher::publisher_place,
@@ -60,7 +60,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         // DOI or URL
         opt(preceded(lncs_separator, doi_or_url)),
         // Date
-        opt(preceded(lncs_separator, year)),
+        opt(preceded(lncs_separator, year_az)),
         // Optional terminator
         opt(terminator),
     )
@@ -111,7 +111,7 @@ pub fn conference(input: &mut &str) -> Result<Reference> {
         // DOI or URL
         opt(preceded(lncs_separator, doi_or_url)),
         // Year
-        opt(preceded(lncs_separator, year)),
+        opt(preceded(lncs_separator, year_az)),
         // Optional terminator
         opt(terminator),
     )
@@ -179,7 +179,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         // DOI or URL
         opt(preceded(lncs_separator, doi_or_url)),
         // Year
-        opt(preceded(lncs_separator, year)),
+        opt(preceded(lncs_separator, year_az)),
         // Optional terminator
         opt(terminator),
     )
@@ -236,7 +236,7 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // DOI or URL
         opt(preceded(lncs_separator, doi_or_url)),
         // Year: Publication year
-        preceded(lncs_separator, year),
+        preceded(lncs_separator, year_az),
         // Optional terminator
         opt(terminator),
     )
@@ -279,7 +279,7 @@ pub fn web(input: &mut &str) -> Result<Reference> {
                 opt(":"),
                 multispace0,
             ),
-            url,
+            take_while(1.., |c: char| c != '.' && c != ';'),
         )),
         // Optional terminator
         opt(terminator),
