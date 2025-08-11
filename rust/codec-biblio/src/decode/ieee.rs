@@ -69,8 +69,8 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         opt(preceded(ieee_separator, ieee_volume)),
         // Issue: Optional issue with "no." prefix
         opt(preceded(ieee_separator, ieee_issue)),
-        // Pages: Optional page range with "p." or "pp." prefix
-        opt(preceded(ieee_separator, ieee_pages)),
+        // Pages
+        opt(preceded(ieee_separator, pages)),
         // Date: Publication date (month and year or just year)
         opt(preceded(ieee_separator, ieee_date)),
         // DOI or URL
@@ -128,8 +128,8 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         opt(preceded(ieee_separator, place_publisher)),
         // Year: Publication year
         opt(preceded(ieee_separator, year)),
-        // Pages: Optional page range with "pp." or "p." prefix
-        opt(preceded(ieee_separator, ieee_pages)),
+        // Pages
+        opt(preceded(ieee_separator, pages)),
         // DOI or URL
         opt(preceded(ieee_separator, doi_or_url)),
         // Optional terminator
@@ -309,11 +309,6 @@ fn ieee_issue(input: &mut &str) -> Result<IntegerOrString> {
     preceded(("no.", multispace0), digit1)
         .map(IntegerOrString::from)
         .parse_next(input)
-}
-
-/// Parse page numbers with IEEE formatting (p. or pp. prefix)
-fn ieee_pages(input: &mut &str) -> Result<Reference> {
-    preceded((alt(("pp.", "p.")), multispace0), pages).parse_next(input)
 }
 
 /// Parse IEEE date format (e.g., "Mar. 2023" or "2023")

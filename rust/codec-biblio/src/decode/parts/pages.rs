@@ -3,11 +3,13 @@
 use winnow::{
     Parser, Result,
     ascii::{digit1, multispace0},
-    combinator::alt,
+    combinator::{alt, opt, preceded},
     token::take_while,
 };
 
 use codec::schema::{IntegerOrString, Reference};
+
+use crate::decode::parts::chars::is_hyphen;
 
 /// Parse pagination information from a string
 ///
@@ -15,8 +17,8 @@ use codec::schema::{IntegerOrString, Reference};
 /// a [`Reference`] struct with the appropriate page fields populated. The parser
 /// attempts to match in order:
 ///
-/// 1. Page ranges (e.g., "1-10", "23–45")
-/// 2. Single pages (e.g., "42", "7")
+/// 1. Page ranges (e.g., "1-10", "pp. 23–45")
+/// 2. Single pages (e.g., "42", "p. 7")
 /// 3. General pagination strings (e.g., "xii", "A1-A10")
 pub fn pages(input: &mut &str) -> Result<Reference> {
     alt((page_range, page_single, pagination)).parse_next(input)
@@ -24,33 +26,30 @@ pub fn pages(input: &mut &str) -> Result<Reference> {
 
 /// Parse a page range with start and end pages
 ///
-/// Recognizes numeric page ranges separated by various dash characters including
-/// hyphen-minus, en dash, hyphen, non-breaking hyphen, figure dash, em dash,
-/// horizontal bar, and minus sign. Whitespace around the dash is allowed.
+/// Recognizes numeric page ranges separated by one or two hyphens.
+/// Whitespace around the dash is allowed.
 pub fn page_range(input: &mut &str) -> Result<Reference> {
-    (
-        digit1,
+    preceded(
+        (opt("pp"), opt("."), multispace0),
         (
-            multispace0,
-            // Hyphen-minus, En dash, Hyphen, Non-breaking hyphen, Figure dash, Em dash, Horizontal bar, Minus sign
-            alt(("-", "–", "‐", "-", "‒", "—", "―", "−")),
-            multispace0,
+            digit1,
+            (multispace0, take_while(1..=2, is_hyphen), multispace0),
+            digit1,
         ),
-        digit1,
     )
-        .map(|(start, _, end): (&str, _, &str)| Reference {
-            page_start: Some(IntegerOrString::from(start)),
-            page_end: Some(IntegerOrString::from(end)),
-            ..Default::default()
-        })
-        .parse_next(input)
+    .map(|(start, _, end): (&str, _, &str)| Reference {
+        page_start: Some(IntegerOrString::from(start)),
+        page_end: Some(IntegerOrString::from(end)),
+        ..Default::default()
+    })
+    .parse_next(input)
 }
 
 /// Parse a single page number
 ///
 /// Matches a sequence of digits and sets it as the page_start in the Reference.
 pub fn page_single(input: &mut &str) -> Result<Reference> {
-    digit1
+    preceded((opt("p"), opt("."), multispace0), digit1)
         .map(|page| Reference {
             page_start: Some(IntegerOrString::from(page)),
             ..Default::default()
@@ -64,12 +63,15 @@ pub fn page_single(input: &mut &str) -> Result<Reference> {
 /// sequences, or other complex page identifiers. Accepts any sequence of
 /// non-punctuation characters.
 pub fn pagination(input: &mut &str) -> Result<Reference> {
-    take_while(1.., |c: char| !c.is_ascii_punctuation())
-        .map(|pagination: &str| Reference {
-            pagination: Some(pagination.into()),
-            ..Default::default()
-        })
-        .parse_next(input)
+    preceded(
+        (opt("p"), opt("p"), opt("."), multispace0),
+        take_while(1.., |c: char| !c.is_ascii_punctuation()),
+    )
+    .map(|pagination: &str| Reference {
+        pagination: Some(pagination.into()),
+        ..Default::default()
+    })
+    .parse_next(input)
 }
 
 #[cfg(test)]

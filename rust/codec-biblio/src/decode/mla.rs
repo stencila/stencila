@@ -68,8 +68,8 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         opt(preceded(mla_separator, mla_issue)),
         // Year: Publication year
         preceded(mla_separator, year_az),
-        // Pages: Optional page range with "pp." or "p." prefix
-        opt(preceded(mla_separator, mla_pages)),
+        // Pages
+        opt(preceded(mla_separator, pages)),
         // DOI or URL
         opt(preceded(mla_separator, doi_or_url)),
     )
@@ -154,8 +154,8 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         preceded(mla_separator, take_while(1.., |c: char| c != ',')),
         // Year: Publication year
         preceded(mla_separator, year_az),
-        // Pages: Optional page range with "pp." prefix
-        opt(preceded(mla_separator, mla_pages)),
+        // Pages
+        opt(preceded(mla_separator, pages)),
         // DOI or URL
         opt(preceded(mla_separator, doi_or_url)),
     )
@@ -370,11 +370,6 @@ fn mla_issue(input: &mut &str) -> Result<IntegerOrString> {
     preceded((Caseless("no"), multispace0, opt("."), multispace0), digit1)
         .map(IntegerOrString::from)
         .parse_next(input)
-}
-
-/// Parse page numbers
-fn mla_pages(input: &mut &str) -> Result<Reference> {
-    preceded((alt(("pp.", "p.")), multispace0), pages).parse_next(input)
 }
 
 /// Parse a separator between parts of an MLA reference

@@ -183,10 +183,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
             persons,
         )),
         // Pages: Optional page range after comma
-        opt(preceded(
-            (chicago_separator, opt("pp."), multispace0),
-            chicago_pages,
-        )),
+        opt(preceded(chicago_separator, pages)),
         // Publisher: Parse publisher ending with comma
         opt(preceded(
             chicago_separator,

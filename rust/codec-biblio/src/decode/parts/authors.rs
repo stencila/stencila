@@ -9,6 +9,8 @@ use winnow::{
 
 use codec::schema::{Author, Organization, Person};
 
+use crate::decode::parts::chars::{is_apostrophe, is_hyphen, one_apostrophe, one_hyphen};
+
 /// Parse multiple authors separated by various delimiters
 pub fn authors(input: &mut &str) -> Result<Vec<Author>> {
     separated(
@@ -274,7 +276,7 @@ fn name(input: &mut &str) -> Result<String> {
         (
             take_while(1..=1, |c: char| c.is_uppercase() && c.is_alphabetic()),
             take_while(1.., |c: char| c.is_lowercase() && c.is_alphabetic()),
-            take_while(1..=1, |c: char| is_hyphen(c)),
+            one_hyphen,
             take_while(1..=1, |c: char| c.is_uppercase() && c.is_alphabetic()),
             take_while(1.., |c: char| c.is_lowercase() && c.is_alphabetic()),
         )
@@ -282,7 +284,7 @@ fn name(input: &mut &str) -> Result<String> {
         // Single uppercase, apostrophe, uppercase, rest lowercase e.g. O'Connor
         (
             take_while(1..=1, |c: char| c.is_uppercase() && c.is_alphabetic()),
-            take_while(1..=1, |c: char| is_apostrophe(c)),
+            one_apostrophe,
             take_while(1..=1, |c: char| c.is_uppercase() && c.is_alphabetic()),
             take_while(1.., |c: char| c.is_lowercase() && c.is_alphabetic()),
         )
@@ -290,7 +292,7 @@ fn name(input: &mut &str) -> Result<String> {
         // Multiple lowercase, apostrophe, uppercase, rest lowercase e.g. de'Angelo
         (
             take_while(1..=3, |c: char| c.is_lowercase() && c.is_alphabetic()),
-            take_while(1..=1, |c: char| is_apostrophe(c)),
+            one_apostrophe,
             take_while(1..=1, |c: char| c.is_uppercase() && c.is_alphabetic()),
             take_while(1.., |c: char| c.is_lowercase() && c.is_alphabetic()),
         )
@@ -348,16 +350,6 @@ fn initial(input: &mut &str) -> Result<String> {
             }
         })
         .parse_next(input)
-}
-
-fn is_hyphen(c: char) -> bool {
-    // Hyphen-minus, En dash, Hyphen, Figure dash, Em dash, Horizontal bar, Minus sign
-    matches!(c, '-' | '–' | '‐' | '‒' | '—' | '―' | '−')
-}
-
-fn is_apostrophe(c: char) -> bool {
-    // Apostrophe, right single quotation mark
-    matches!(c, '\'' | '\u{2019}')
 }
 
 /// Check if a parsed name is likely an organization rather than a person

@@ -1,4 +1,5 @@
 pub mod authors;
+pub mod chars;
 pub mod date;
 pub mod doi;
 pub mod pages;
