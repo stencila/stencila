@@ -1,4 +1,4 @@
-import { Author, CreativeWorkType, Reference as ReferenceType, Text } from '@stencila/types'
+import { Author, CreativeWorkType, Reference as ReferenceType, Text , Inline } from '@stencila/types'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
@@ -36,8 +36,11 @@ export class Reference extends Entity {
   @property({ attribute: 'page-end' })
   pageEnd?: string
 
-  @property({ attribute: 'pagination' })
+  @property()
   pagination?: string
+
+  @property()
+  text?: string  
 
   override render() {
     const cite = this.closestGlobally('stencila-citation') as Citation | null
@@ -86,6 +89,11 @@ export class Reference extends Entity {
   }
 
   renderWithinTooltip() {
+    if (this.text) {
+      return html`<div class="font-sans text-xs">${this.text}</div>`
+    }
+
+
     // Links do not work within a <sl-tooltip>, nor does copy and pasting, so
     // this does not include the DOI
 
@@ -105,6 +113,10 @@ export class Reference extends Entity {
   }
 
   renderWithinReferences() {
+    if (this.text) {
+      return html`<div class="mt-3">${this.text}</div>`
+    }
+
     const authors = this.authors
       ? this.authors.map(authorNameInitialsDotted).join(', ')
       : 'Anon'
@@ -129,6 +141,10 @@ export class Reference extends Entity {
   }
 
   renderDefault() {
+    if (this.text) {
+      return html`<div class="font-sans text-xs">${this.text}</div>`
+    }
+
     const authors = this.authors
       ? this.authors.map(authorNameInitialsDotted).join(', ')
       : ''
@@ -230,7 +246,7 @@ function dateYear(date: string): string {
 }
 
 /**
- * Render the `isPartOf` property as a string
+ * Render the `isPartOf` property
  */
 function partOf(ref: ReferenceType): string {
   // Build the title with volume/issue info
@@ -238,17 +254,20 @@ function partOf(ref: ReferenceType): string {
   
   // Get the title from the reference
   if (ref.title) {
-    result = ref.title.map(inline => {
+    function inlineToString(inline:Inline) {
       if (typeof inline === 'string') return inline
       if (typeof inline === 'number') return inline.toString()
       if (typeof inline === 'boolean') return inline.toString()
       if (inline && typeof inline === 'object' && 'type' in inline) {
         if (inline.type === 'Text') {
-          return (inline as Text).value || ''
+          return (inline as Text).value.string || ''
+        } else if ('content' in inline) {
+          inline.content.map(inlineToString).join('')
         }
       }
       return ''
-    }).join('')
+    }
+    result = ref.title.map(inlineToString).join('')
   }
   
   // Add volume number if present
