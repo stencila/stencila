@@ -22,3 +22,33 @@ pub fn url(input: &mut &str) -> Result<String> {
     })
     .parse_next(input)
 }
+
+#[cfg(test)]
+mod tests {
+    use common_dev::pretty_assertions::assert_eq;
+
+    use super::*;
+
+    #[test]
+    fn test_url() -> Result<()> {
+        assert_eq!(url(&mut "https://example.com")?, "https://example.com");
+        assert_eq!(url(&mut "http://example.com")?, "http://example.com");
+
+        assert_eq!(url(&mut "URL https://example.com")?, "https://example.com");
+        assert_eq!(
+            url(&mut "urL https://example.com/some/path.html")?,
+            "https://example.com/some/path.html"
+        );
+        assert_eq!(
+            url(&mut "urL : https://example.com?a=1&b=2")?,
+            "https://example.com?a=1&b=2"
+        );
+
+        assert_eq!(
+            url(&mut "https://example.com/some/path.html.")?,
+            "https://example.com/some/path.html"
+        );
+
+        Ok(())
+    }
+}
