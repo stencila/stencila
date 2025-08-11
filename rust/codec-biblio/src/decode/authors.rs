@@ -265,15 +265,43 @@ pub fn ellipses(input: &mut &str) -> Result<Author> {
 /// Used in both family name and given name parsing contexts.
 fn name(input: &mut &str) -> Result<String> {
     alt((
+        // Hyphenated name e.g. Smith-Jones
+        (
+            take_while(1..=1, |c: char| c.is_uppercase() && c.is_alphabetic()),
+            take_while(1.., |c: char| c.is_lowercase() && c.is_alphabetic()),
+            take_while(1..=1, |c: char| is_hyphen(c)),
+            take_while(1..=1, |c: char| c.is_uppercase() && c.is_alphabetic()),
+            take_while(1.., |c: char| c.is_lowercase() && c.is_alphabetic()),
+        )
+            .take(),
+        // Single uppercase, apostrophe, uppercase, rest lowercase e.g. O'Connor
+        (
+            take_while(1..=1, |c: char| c.is_uppercase() && c.is_alphabetic()),
+            take_while(1..=1, |c: char| is_apostrophe(c)),
+            take_while(1..=1, |c: char| c.is_uppercase() && c.is_alphabetic()),
+            take_while(1.., |c: char| c.is_lowercase() && c.is_alphabetic()),
+        )
+            .take(),
+        // Multiple lowercase, apostrophe, uppercase, rest lowercase e.g. de'Angelo
+        (
+            take_while(1..=3, |c: char| c.is_lowercase() && c.is_alphabetic()),
+            take_while(1..=1, |c: char| is_apostrophe(c)),
+            take_while(1..=1, |c: char| c.is_uppercase() && c.is_alphabetic()),
+            take_while(1.., |c: char| c.is_lowercase() && c.is_alphabetic()),
+        )
+            .take(),
+        // Uppercase, lowercase mix eg. McKinney
+        (
+            take_while(1..=1, |c: char| c.is_uppercase() && c.is_alphabetic()),
+            take_while(1.., |c: char| c.is_lowercase() && c.is_alphabetic()),
+            take_while(1..=1, |c: char| c.is_uppercase() && c.is_alphabetic()),
+            take_while(1.., |c: char| c.is_lowercase() && c.is_alphabetic()),
+        )
+            .take(),
         // Standard first uppercase then rest lowercase
         (
             take_while(1..=1, |c: char| c.is_uppercase() && c.is_alphabetic()),
-            take_while(1..=1, |c: char| {
-                (c.is_lowercase() && c.is_alphabetic()) || is_apostrophe(c)
-            }),
-            take_while(0.., |c: char| {
-                c.is_alphabetic() || is_hyphen(c) || is_apostrophe(c)
-            }),
+            take_while(1.., |c: char| c.is_lowercase() && c.is_alphabetic()),
         )
             .take(),
         // All lowercase parts of names
@@ -281,7 +309,6 @@ fn name(input: &mut &str) -> Result<String> {
         "de",  // e.g de Blasio
         "van", // e.g. van Winkle
     ))
-    .take()
     .map(|s: &str| s.to_string())
     .parse_next(input)
 }
@@ -421,6 +448,7 @@ mod tests {
         // Names with Unicode hyphens
         assert_eq!(name(&mut "García-López"), Ok("García-López".to_string()));
         assert_eq!(name(&mut "O'Connor"), Ok("O'Connor".to_string()));
+        assert_eq!(name(&mut "d'Angelo"), Ok("d'Angelo".to_string()));
 
         // Multi-character names (minimum 2 chars to avoid clash with initials)
         assert_eq!(name(&mut "St"), Ok("St".to_string()));
