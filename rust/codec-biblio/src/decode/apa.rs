@@ -17,7 +17,7 @@ use codec::schema::{
     shortcuts::t,
 };
 
-use crate::decode::{
+use crate::decode::parts::{
     authors::{authors, persons},
     date::year_az,
     doi::doi_or_url,

@@ -19,7 +19,7 @@ use winnow::{
 
 use codec::schema::{CreativeWorkType, Reference};
 
-use crate::decode::doi::{DoiOrUrl, doi_or_url};
+use crate::decode::parts::doi::{DoiOrUrl, doi_or_url};
 
 /// Main fallback parser for unstructured bibliographic text
 pub fn fallback(input: &mut &str) -> Result<Reference> {

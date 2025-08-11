@@ -19,7 +19,7 @@ use codec::schema::{
     CreativeWorkType, IntegerOrString, Organization, PersonOrOrganization, Reference, shortcuts::t,
 };
 
-use crate::decode::{
+use crate::decode::parts::{
     authors::{person_family_given, person_given_family},
     date::year_az,
     doi::doi_or_url,

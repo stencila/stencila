@@ -17,7 +17,7 @@ use codec::schema::{
     Reference, shortcuts::t,
 };
 
-use crate::decode::{
+use crate::decode::parts::{
     authors::{authors, organization, person_family_initials},
     date::year_az,
     doi::doi_or_url,
@@ -175,12 +175,12 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
                             let url_part = &s[url_start..];
                             let url_end =
                                 url_part.find(char::is_whitespace).unwrap_or(url_part.len());
-                            crate::decode::doi::DoiOrUrl {
+                            crate::decode::parts::doi::DoiOrUrl {
                                 doi: None,
                                 url: Some(url_part[..url_end].to_string()),
                             }
                         } else {
-                            crate::decode::doi::DoiOrUrl {
+                            crate::decode::parts::doi::DoiOrUrl {
                                 doi: None,
                                 url: Some(s.to_string()), // Fallback to full string
                             }

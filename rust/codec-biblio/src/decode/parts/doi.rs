@@ -13,7 +13,7 @@ use winnow::{
     token::take_while,
 };
 
-use crate::decode::url::url;
+use crate::decode::parts::url::url;
 
 /// Parse DOI information from a string
 ///

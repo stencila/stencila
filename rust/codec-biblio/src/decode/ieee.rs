@@ -17,7 +17,7 @@ use codec::schema::{
     Reference, StringOrNumber, shortcuts::t,
 };
 
-use crate::decode::{
+use crate::decode::parts::{
     authors::{authors, organization, person_given_family},
     date::year,
     doi::doi_or_url,
@@ -359,7 +359,7 @@ fn ieee_editors(input: &mut &str) -> Result<Vec<Person>> {
 
 /// Parse book authors - custom parser that stops at book title
 fn ieee_book_authors(input: &mut &str) -> Result<Vec<Author>> {
-    use crate::decode::authors::{organization, person_family_initials, person_given_family};
+    use crate::decode::parts::authors::{organization, person_family_initials, person_given_family};
 
     // Try to parse multiple authors separated by " and " first
     alt((

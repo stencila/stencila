@@ -15,7 +15,7 @@ use codec::schema::{
     Reference, StringOrNumber, shortcuts::t,
 };
 
-use crate::decode::{
+use crate::decode::parts::{
     authors::{authors, organization, person_given_family},
     date::year_az,
     doi::doi_or_url,

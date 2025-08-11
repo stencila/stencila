@@ -11,20 +11,13 @@ use codec::{
 use crate::{conversion::entry_to_reference, decode::references::reference};
 
 mod apa;
-mod authors;
 mod chicago;
-mod date;
-mod doi;
 mod fallback;
 mod ieee;
 mod lncs;
 mod mla;
-mod pages;
-mod preprints;
-mod publisher;
+mod parts;
 mod references;
-mod terminator;
-mod url;
 mod vancouver;
 
 /// Decode Hayagriva YAML to a set of Stencila [`Reference`] nodes
