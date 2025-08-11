@@ -254,7 +254,7 @@ function partOf(ref: ReferenceType): string {
   
   // Get the title from the reference
   if (ref.title) {
-    function inlineToString(inline:Inline) {
+    function inlineToString(inline: Inline) {
       if (typeof inline === 'string') return inline
       if (typeof inline === 'number') return inline.toString()
       if (typeof inline === 'boolean') return inline.toString()
@@ -262,7 +262,7 @@ function partOf(ref: ReferenceType): string {
         if (inline.type === 'Text') {
           return (inline as Text).value.string || ''
         } else if ('content' in inline) {
-          inline.content.map(inlineToString).join('')
+          (inline.content as Inline[]).map((inline) => inlineToString(inline)).join('')
         }
       }
       return ''
