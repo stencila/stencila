@@ -127,4 +127,8 @@ fn sizes() {
         UnsignedInteger,
         Number
     );
+
+    eprintln!("\n");
+
+    sizes!(ListItem, Reference, TableRow, TableCell);
 }

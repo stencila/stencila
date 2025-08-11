@@ -101,6 +101,9 @@ pub struct Reference {
     /// The URL of the referenced work.
     pub url: Option<String>,
 
+    /// Plain text representation of the referenced work.
+    pub text: Option<String>,
+
     /// A unique identifier for a node within a document
     #[serde(skip)]
     pub uid: NodeUid

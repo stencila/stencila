@@ -2815,6 +2815,9 @@ class Reference(Entity):
     url: str | None = None
     """The URL of the referenced work."""
 
+    text: str | None = None
+    """Plain text representation of the referenced work."""
+
 
 @dataclass(kw_only=True, repr=False)
 class Review(CreativeWork):

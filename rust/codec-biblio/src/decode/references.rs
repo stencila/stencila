@@ -115,9 +115,7 @@ pub fn reference(input: &mut &str) -> Result<Reference> {
 
 #[cfg(test)]
 mod tests {
-    use codec::schema::{
-        CreativeWorkType, IntegerOrString, Organization, PersonOrOrganization, shortcuts::t,
-    };
+    use codec::schema::{CreativeWorkType, IntegerOrString, Organization, PersonOrOrganization};
     use codec_text_trait::to_text;
     use common_dev::pretty_assertions::assert_eq;
 
@@ -129,21 +127,21 @@ mod tests {
         let r = reference(&mut "Plain text with no structure, DOI or URL")?;
         assert_eq!(r.work_type, None);
         assert_eq!(
-            r.title,
-            Some(vec![t("Plain text with no structure, DOI or URL")])
+            r.text,
+            Some("Plain text with no structure, DOI or URL".into())
         );
         assert_eq!(r.doi, None);
         assert_eq!(r.url, None);
 
         let r = reference(&mut "Plain text with a doi 10.12345/xyz")?;
         assert_eq!(r.work_type, None);
-        assert_eq!(r.title, Some(vec![t("Plain text with a")]));
+        assert_eq!(r.text, Some("Plain text with a".into()));
         assert_eq!(r.doi, Some("10.12345/xyz".into()));
         assert_eq!(r.url, None);
 
         let r = reference(&mut "Plain text with a url https://example.org")?;
         assert_eq!(r.work_type, Some(CreativeWorkType::WebPage));
-        assert_eq!(r.title, Some(vec![t("Plain text with a")]));
+        assert_eq!(r.text, Some("Plain text with a".into()));
         assert_eq!(r.doi, None);
         assert_eq!(r.url, Some("https://example.org".into()));
 

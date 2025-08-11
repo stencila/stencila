@@ -22,6 +22,7 @@ core:
   - version
   - identifiers
   - url
+  - text
 properties:
   workType:
     "@id": stencila:workType
@@ -150,3 +151,10 @@ properties:
     description: The URL of the referenced work.
     type: string
     format: uri
+  text:
+    "@id": schema:text
+    description: Plain text representation of the referenced work.
+    $comment: |
+      Used when the properties of a reference can not be extract from plain text.
+      In those circumstances, we fallback to using this `text` property.
+    type: string

@@ -574,9 +574,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "text",
       "rdfs:comment": "The textual content of this creative work.",
-      "schema:domainIncludes": {
-        "@id": "schema:CreativeWork"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }

@@ -31,7 +31,8 @@
     "pagination",
     "version",
     "identifiers",
-    "url"
+    "url",
+    "text"
   ],
   "properties": {
     "type": {
@@ -264,6 +265,12 @@
       "description": "The URL of the referenced work.",
       "type": "string",
       "format": "uri"
+    },
+    "text": {
+      "@id": "schema:text",
+      "description": "Plain text representation of the referenced work.",
+      "$comment": "Used when the properties of a reference can not be extract from plain text.\nIn those circumstances, we fallback to using this `text` property.\n",
+      "type": "string"
     }
   }
 }
