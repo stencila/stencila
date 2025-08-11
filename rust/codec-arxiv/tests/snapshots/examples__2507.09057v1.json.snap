@@ -118,16 +118,11 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib1",
+      "workType": "WebPage",
       "authors": [
         {
-          "type": "Person",
-          "familyNames": [
-            "Association"
-          ],
-          "givenNames": [
-            "American",
-            "Dental"
-          ]
+          "type": "Organization",
+          "name": "American Dental Association"
         }
       ],
       "date": {
@@ -141,35 +136,40 @@ expression: article
             "string": "Eruption Charts"
           }
         }
-      ]
+      ],
+      "url": "https://www.mouthhealthy.org/all-topics-a-z/eruption-charts"
     },
     {
       "type": "Reference",
       "id": "bib.bib2",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Anyaso-Samuel"
+          "familyNames": [
+            "Anyaso-Samuel"
+          ],
+          "givenNames": [
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "S."
+          "familyNames": [
+            "Bandyopadhyay"
+          ],
+          "givenNames": [
+            "D."
+          ]
         },
         {
           "type": "Person",
-          "name": "Bandyopadhyay"
-        },
-        {
-          "type": "Person",
-          "name": "D."
-        },
-        {
-          "type": "Person",
-          "name": "Datta"
-        },
-        {
-          "type": "Person",
-          "name": "S"
+          "familyNames": [
+            "Datta"
+          ],
+          "givenNames": [
+            "S."
+          ]
         }
       ],
       "date": {
@@ -203,22 +203,25 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib3",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Anyaso-Samuel"
+          "familyNames": [
+            "Anyaso-Samuel"
+          ],
+          "givenNames": [
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "S."
-        },
-        {
-          "type": "Person",
-          "name": "Datta"
-        },
-        {
-          "type": "Person",
-          "name": "S"
+          "familyNames": [
+            "Datta"
+          ],
+          "givenNames": [
+            "S."
+          ]
         }
       ],
       "date": {
@@ -243,35 +246,40 @@ expression: article
             }
           }
         ]
-      }
+      },
+      "pagination": "2405.05781"
     },
     {
       "type": "Reference",
       "id": "bib.bib4",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Balabdaoui"
+          "familyNames": [
+            "Balabdaoui"
+          ],
+          "givenNames": [
+            "F."
+          ]
         },
         {
           "type": "Person",
-          "name": "F."
+          "familyNames": [
+            "Durot"
+          ],
+          "givenNames": [
+            "C."
+          ]
         },
         {
           "type": "Person",
-          "name": "Durot"
-        },
-        {
-          "type": "Person",
-          "name": "C."
-        },
-        {
-          "type": "Person",
-          "name": "Jankowski"
-        },
-        {
-          "type": "Person",
-          "name": "H"
+          "familyNames": [
+            "Jankowski"
+          ],
+          "givenNames": [
+            "H."
+          ]
         }
       ],
       "date": {
@@ -296,31 +304,31 @@ expression: article
             }
           }
         ],
-        "volumeNumber": 25,
-        "issueNumber": "4B"
-      },
-      "pageStart": 3276,
-      "pageEnd": 3310
+        "volumeNumber": 25
+      }
     },
     {
       "type": "Reference",
       "id": "bib.bib5",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Bandyopadhyay"
+          "familyNames": [
+            "Bandyopadhyay"
+          ],
+          "givenNames": [
+            "D."
+          ]
         },
         {
           "type": "Person",
-          "name": "D."
-        },
-        {
-          "type": "Person",
-          "name": "Canale"
-        },
-        {
-          "type": "Person",
-          "name": "A"
+          "familyNames": [
+            "Canale"
+          ],
+          "givenNames": [
+            "A."
+          ]
         }
       ],
       "date": {
@@ -354,14 +362,16 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib6",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Besag"
-        },
-        {
-          "type": "Person",
-          "name": "J"
+          "familyNames": [
+            "Besag"
+          ],
+          "givenNames": [
+            "J."
+          ]
         }
       ],
       "date": {
@@ -395,38 +405,44 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib7",
+      "workType": "Chapter",
       "authors": [
         {
           "type": "Person",
-          "name": "Bietti"
+          "familyNames": [
+            "Bietti"
+          ],
+          "givenNames": [
+            "A."
+          ]
         },
         {
           "type": "Person",
-          "name": "A."
+          "familyNames": [
+            "Bruna"
+          ],
+          "givenNames": [
+            "J."
+          ]
         },
         {
           "type": "Person",
-          "name": "Bruna"
+          "familyNames": [
+            "Sanford"
+          ],
+          "givenNames": [
+            "C."
+          ]
         },
         {
           "type": "Person",
-          "name": "J."
-        },
-        {
-          "type": "Person",
-          "name": "Sanford"
-        },
-        {
-          "type": "Person",
-          "name": "C."
-        },
-        {
-          "type": "Person",
-          "name": "Song"
-        },
-        {
-          "type": "Person",
-          "name": "M. J"
+          "familyNames": [
+            "Song"
+          ],
+          "givenNames": [
+            "M.",
+            "J."
+          ]
         }
       ],
       "date": {
@@ -447,19 +463,19 @@ expression: article
           {
             "type": "Text",
             "value": {
-              "string": "In  Advances in Neural Information Processing Systems"
+              "string": "Advances in Neural Information Processing Systems, volume 35, pages 9768–9783. Curran Associates, Inc."
             }
           }
-        ],
-        "volumeNumber": "volume 35, pages 9768–9783. Curran Associates, Inc."
+        ]
       }
     },
     {
       "type": "Reference",
       "id": "bib.bib8",
+      "workType": "Article",
       "authors": [
         {
-          "type": "Person",
+          "type": "Organization",
           "name": "CDC"
         }
       ],
@@ -471,46 +487,64 @@ expression: article
         {
           "type": "Text",
           "value": {
-            "string": "Plan and Operation of Third National Health and Nutrition Examination Survey, 1988-1994 "
+            "string": "Plan and Operation of Third National Health and Nutrition Examination Survey, 1988-1994"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Number"
+            }
+          }
+        ],
+        "volumeNumber": 32
+      },
+      "pagination": "in Vital and Health Statistics"
     },
     {
       "type": "Reference",
       "id": "bib.bib9",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Chraibi"
+          "familyNames": [
+            "Chraibi"
+          ],
+          "givenNames": [
+            "R."
+          ]
         },
         {
           "type": "Person",
-          "name": "R."
+          "familyNames": [
+            "Baaddi"
+          ],
+          "givenNames": [
+            "H."
+          ]
         },
         {
           "type": "Person",
-          "name": "Baaddi"
+          "familyNames": [
+            "Akerzoul"
+          ],
+          "givenNames": [
+            "N."
+          ]
         },
         {
           "type": "Person",
-          "name": "H."
-        },
-        {
-          "type": "Person",
-          "name": "Akerzoul"
-        },
-        {
-          "type": "Person",
-          "name": "N."
-        },
-        {
-          "type": "Person",
-          "name": "Touré"
-        },
-        {
-          "type": "Person",
-          "name": "B"
+          "familyNames": [
+            "Touré"
+          ],
+          "givenNames": [
+            "B."
+          ]
         }
       ],
       "date": {
@@ -537,44 +571,48 @@ expression: article
         ],
         "volumeNumber": 46
       },
-      "pageStart": 73,
-      "pageEnd": 73
+      "pageStart": 73
     },
     {
       "type": "Reference",
       "id": "bib.bib10",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Coventry"
+          "familyNames": [
+            "Coventry"
+          ],
+          "givenNames": [
+            "J."
+          ]
         },
         {
           "type": "Person",
-          "name": "J."
+          "familyNames": [
+            "Griffiths"
+          ],
+          "givenNames": [
+            "G."
+          ]
         },
         {
           "type": "Person",
-          "name": "Griffiths"
+          "familyNames": [
+            "Scully"
+          ],
+          "givenNames": [
+            "C."
+          ]
         },
         {
           "type": "Person",
-          "name": "G."
-        },
-        {
-          "type": "Person",
-          "name": "Scully"
-        },
-        {
-          "type": "Person",
-          "name": "C."
-        },
-        {
-          "type": "Person",
-          "name": "Tonetti"
-        },
-        {
-          "type": "Person",
-          "name": "M"
+          "familyNames": [
+            "Tonetti"
+          ],
+          "givenNames": [
+            "M."
+          ]
         }
       ],
       "date": {
@@ -608,38 +646,44 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib11",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Datta"
+          "familyNames": [
+            "Datta"
+          ],
+          "givenNames": [
+            "A."
+          ]
         },
         {
           "type": "Person",
-          "name": "A."
+          "familyNames": [
+            "Banerjee"
+          ],
+          "givenNames": [
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "Banerjee"
+          "familyNames": [
+            "Hodges"
+          ],
+          "givenNames": [
+            "J.",
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "S."
-        },
-        {
-          "type": "Person",
-          "name": "Hodges"
-        },
-        {
-          "type": "Person",
-          "name": "J. S."
-        },
-        {
-          "type": "Person",
-          "name": "Gao"
-        },
-        {
-          "type": "Person",
-          "name": "L"
+          "familyNames": [
+            "Gao"
+          ],
+          "givenNames": [
+            "L."
+          ]
         }
       ],
       "date": {
@@ -673,22 +717,26 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib12",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Escobar"
+          "familyNames": [
+            "Escobar"
+          ],
+          "givenNames": [
+            "M.",
+            "D."
+          ]
         },
         {
           "type": "Person",
-          "name": "M. D."
-        },
-        {
-          "type": "Person",
-          "name": "West"
-        },
-        {
-          "type": "Person",
-          "name": "M"
+          "familyNames": [
+            "West"
+          ],
+          "givenNames": [
+            "M."
+          ]
         }
       ],
       "date": {
@@ -722,14 +770,17 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib13",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Ferguson"
-        },
-        {
-          "type": "Person",
-          "name": "T. S"
+          "familyNames": [
+            "Ferguson"
+          ],
+          "givenNames": [
+            "T.",
+            "S."
+          ]
         }
       ],
       "date": {
@@ -763,62 +814,77 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib14",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Fernandes"
+          "familyNames": [
+            "Fernandes"
+          ],
+          "givenNames": [
+            "J.",
+            "K."
+          ]
         },
         {
           "type": "Person",
-          "name": "J. K."
+          "familyNames": [
+            "Wiegand"
+          ],
+          "givenNames": [
+            "R.",
+            "E."
+          ]
         },
         {
           "type": "Person",
-          "name": "Wiegand"
+          "familyNames": [
+            "Salinas"
+          ],
+          "givenNames": [
+            "C.",
+            "F."
+          ]
         },
         {
           "type": "Person",
-          "name": "R. E."
+          "familyNames": [
+            "Grossi"
+          ],
+          "givenNames": [
+            "S.",
+            "G."
+          ]
         },
         {
           "type": "Person",
-          "name": "Salinas"
+          "familyNames": [
+            "Sanders"
+          ],
+          "givenNames": [
+            "J.",
+            "J."
+          ]
         },
         {
           "type": "Person",
-          "name": "C. F."
+          "familyNames": [
+            "Lopes-Virella"
+          ],
+          "givenNames": [
+            "M.",
+            "F."
+          ]
         },
         {
           "type": "Person",
-          "name": "Grossi"
-        },
-        {
-          "type": "Person",
-          "name": "S. G."
-        },
-        {
-          "type": "Person",
-          "name": "Sanders"
-        },
-        {
-          "type": "Person",
-          "name": "J. J."
-        },
-        {
-          "type": "Person",
-          "name": "Lopes-Virella"
-        },
-        {
-          "type": "Person",
-          "name": "M. F."
-        },
-        {
-          "type": "Person",
-          "name": "Slate"
-        },
-        {
-          "type": "Person",
-          "name": "E. H"
+          "familyNames": [
+            "Slate"
+          ],
+          "givenNames": [
+            "E.",
+            "H."
+          ]
         }
       ],
       "date": {
@@ -851,22 +917,27 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib15",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Genco"
+          "familyNames": [
+            "Genco"
+          ],
+          "givenNames": [
+            "R.",
+            "J."
+          ]
         },
         {
           "type": "Person",
-          "name": "R. J."
-        },
-        {
-          "type": "Person",
-          "name": "Borgnakke"
-        },
-        {
-          "type": "Person",
-          "name": "W. S"
+          "familyNames": [
+            "Borgnakke"
+          ],
+          "givenNames": [
+            "W.",
+            "S."
+          ]
         }
       ],
       "date": {
@@ -887,29 +958,33 @@ expression: article
           {
             "type": "Text",
             "value": {
-              "string": "Periodontology 2000"
+              "string": "Periodontology"
             }
           }
         ],
-        "volumeNumber": 62,
-        "issueNumber": 1
+        "volumeNumber": 2000
       },
-      "pageStart": 59,
-      "pageEnd": 94
+      "pageStart": 62
     },
     {
       "type": "Reference",
       "id": "bib.bib16",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
-          "name": "Gu"
-        },
-        {
-          "type": "Person",
-          "name": "Y"
+          "familyNames": [
+            "Gu"
+          ],
+          "givenNames": [
+            "Y."
+          ]
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "PhD thesis, University of North Carolina at Chapel Hill"
+      },
       "date": {
         "type": "Date",
         "value": "2023"
@@ -918,58 +993,54 @@ expression: article
         {
           "type": "Text",
           "value": {
-            "string": "Statistical Methods for Analyzing Interval-Censored Multi-State Data "
+            "string": "Statistical Methods for Analyzing Interval-Censored Multi-State Data"
           }
         }
-      ],
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "PhD thesis"
-            }
-          }
-        ],
-        "volumeNumber": "University of North Carolina at Chapel Hill."
-      }
+      ]
     },
     {
       "type": "Reference",
       "id": "bib.bib17",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Henderson"
+          "familyNames": [
+            "Henderson"
+          ],
+          "givenNames": [
+            "N.",
+            "C."
+          ]
         },
         {
           "type": "Person",
-          "name": "N. C."
+          "familyNames": [
+            "Louis"
+          ],
+          "givenNames": [
+            "T.",
+            "A."
+          ]
         },
         {
           "type": "Person",
-          "name": "Louis"
+          "familyNames": [
+            "Rosner"
+          ],
+          "givenNames": [
+            "G.",
+            "L."
+          ]
         },
         {
           "type": "Person",
-          "name": "T. A."
-        },
-        {
-          "type": "Person",
-          "name": "Rosner"
-        },
-        {
-          "type": "Person",
-          "name": "G. L."
-        },
-        {
-          "type": "Person",
-          "name": "Varadhan"
-        },
-        {
-          "type": "Person",
-          "name": "R"
+          "familyNames": [
+            "Varadhan"
+          ],
+          "givenNames": [
+            "R."
+          ]
         }
       ],
       "date": {
@@ -1003,14 +1074,16 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib18",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Hougaard"
-        },
-        {
-          "type": "Person",
-          "name": "P"
+          "familyNames": [
+            "Hougaard"
+          ],
+          "givenNames": [
+            "P."
+          ]
         }
       ],
       "date": {
@@ -1043,14 +1116,16 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib19",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Ioannidou"
-        },
-        {
-          "type": "Person",
-          "name": "E"
+          "familyNames": [
+            "Ioannidou"
+          ],
+          "givenNames": [
+            "E."
+          ]
         }
       ],
       "date": {
@@ -1077,28 +1152,31 @@ expression: article
         ],
         "volumeNumber": 5
       },
-      "pageStart": 277176,
-      "pageEnd": 277176
+      "pageStart": 277176
     },
     {
       "type": "Reference",
       "id": "bib.bib20",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Ishwaran"
+          "familyNames": [
+            "Ishwaran"
+          ],
+          "givenNames": [
+            "H."
+          ]
         },
         {
           "type": "Person",
-          "name": "H."
-        },
-        {
-          "type": "Person",
-          "name": "James"
-        },
-        {
-          "type": "Person",
-          "name": "L. F"
+          "familyNames": [
+            "James"
+          ],
+          "givenNames": [
+            "L.",
+            "F."
+          ]
         }
       ],
       "date": {
@@ -1131,35 +1209,33 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib21",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Kindler"
-        },
-        {
-          "type": "Person",
-          "name": "S."
-        },
-        {
-          "type": "Person",
-          "name": "Holtfreter"
-        },
-        {
-          "type": "Person",
-          "name": "B."
-        },
-        {
-          "type": "Person",
-          "name": "Koppe"
-        },
-        {
-          "type": "Person",
-          "name": "T."
+          "familyNames": [
+            "Kindler"
+          ],
+          "givenNames": [
+            "S."
+          ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Al"
+            "Holtfreter"
+          ],
+          "givenNames": [
+            "B."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Koppe"
+          ],
+          "givenNames": [
+            "T."
           ]
         }
       ],
@@ -1193,62 +1269,75 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib22",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Koslovsky"
+          "familyNames": [
+            "Koslovsky"
+          ],
+          "givenNames": [
+            "M.",
+            "D."
+          ]
         },
         {
           "type": "Person",
-          "name": "M. D."
+          "familyNames": [
+            "Swartz"
+          ],
+          "givenNames": [
+            "M.",
+            "D."
+          ]
         },
         {
           "type": "Person",
-          "name": "Swartz"
+          "familyNames": [
+            "Chan"
+          ],
+          "givenNames": [
+            "W."
+          ]
         },
         {
           "type": "Person",
-          "name": "M. D."
+          "familyNames": [
+            "Leon-Novelo"
+          ],
+          "givenNames": [
+            "L."
+          ]
         },
         {
           "type": "Person",
-          "name": "Chan"
+          "familyNames": [
+            "Wilkinson"
+          ],
+          "givenNames": [
+            "A.",
+            "V."
+          ]
         },
         {
           "type": "Person",
-          "name": "W."
+          "familyNames": [
+            "Kendzor"
+          ],
+          "givenNames": [
+            "D.",
+            "E."
+          ]
         },
         {
           "type": "Person",
-          "name": "Leon-Novelo"
-        },
-        {
-          "type": "Person",
-          "name": "L."
-        },
-        {
-          "type": "Person",
-          "name": "Wilkinson"
-        },
-        {
-          "type": "Person",
-          "name": "A. V."
-        },
-        {
-          "type": "Person",
-          "name": "Kendzor"
-        },
-        {
-          "type": "Person",
-          "name": "D. E."
-        },
-        {
-          "type": "Person",
-          "name": "Businelle"
-        },
-        {
-          "type": "Person",
-          "name": "M. S"
+          "familyNames": [
+            "Businelle"
+          ],
+          "givenNames": [
+            "M.",
+            "S."
+          ]
         }
       ],
       "date": {
@@ -1282,30 +1371,34 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib23",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Lan"
+          "familyNames": [
+            "Lan"
+          ],
+          "givenNames": [
+            "L."
+          ]
         },
         {
           "type": "Person",
-          "name": "L."
+          "familyNames": [
+            "Bandyopadhyay"
+          ],
+          "givenNames": [
+            "D."
+          ]
         },
         {
           "type": "Person",
-          "name": "Bandyopadhyay"
-        },
-        {
-          "type": "Person",
-          "name": "D."
-        },
-        {
-          "type": "Person",
-          "name": "Datta"
-        },
-        {
-          "type": "Person",
-          "name": "S"
+          "familyNames": [
+            "Datta"
+          ],
+          "givenNames": [
+            "S."
+          ]
         }
       ],
       "date": {
@@ -1339,22 +1432,25 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib24",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Lin"
+          "familyNames": [
+            "Lin"
+          ],
+          "givenNames": [
+            "W."
+          ]
         },
         {
           "type": "Person",
-          "name": "W."
-        },
-        {
-          "type": "Person",
-          "name": "Kulasekera"
-        },
-        {
-          "type": "Person",
-          "name": "K"
+          "familyNames": [
+            "Kulasekera"
+          ],
+          "givenNames": [
+            "K."
+          ]
         }
       ],
       "date": {
@@ -1388,22 +1484,25 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib25",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Maatouk"
+          "familyNames": [
+            "Maatouk"
+          ],
+          "givenNames": [
+            "H."
+          ]
         },
         {
           "type": "Person",
-          "name": "H."
-        },
-        {
-          "type": "Person",
-          "name": "Bay"
-        },
-        {
-          "type": "Person",
-          "name": "X"
+          "familyNames": [
+            "Bay"
+          ],
+          "givenNames": [
+            "X."
+          ]
         }
       ],
       "date": {
@@ -1437,59 +1536,65 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib26",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Mdala"
-        },
-        {
-          "type": "Person",
-          "name": "I."
-        },
-        {
-          "type": "Person",
-          "name": "Olsen"
-        },
-        {
-          "type": "Person",
-          "name": "I."
-        },
-        {
-          "type": "Person",
-          "name": "Haffajee"
-        },
-        {
-          "type": "Person",
-          "name": "A. D."
-        },
-        {
-          "type": "Person",
-          "name": "Socransky"
-        },
-        {
-          "type": "Person",
-          "name": "S. S."
-        },
-        {
-          "type": "Person",
-          "name": "Thoresen"
-        },
-        {
-          "type": "Person",
-          "name": "M."
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Blasio"
+            "Mdala"
           ],
           "givenNames": [
-            "De"
+            "I."
           ]
         },
         {
           "type": "Person",
-          "name": "B. F"
+          "familyNames": [
+            "Olsen"
+          ],
+          "givenNames": [
+            "I."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haffajee"
+          ],
+          "givenNames": [
+            "A.",
+            "D."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Socransky"
+          ],
+          "givenNames": [
+            "S.",
+            "S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Thoresen"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "de",
+            "Blasio"
+          ],
+          "givenNames": [
+            "B.",
+            "F."
+          ]
         }
       ],
       "date": {
@@ -1523,43 +1628,45 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib27",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Meira-Machado"
-        },
-        {
-          "type": "Person",
-          "name": "L."
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Uña-Alvarez"
+            "Meira-Machado"
           ],
           "givenNames": [
-            "De"
+            "L."
           ]
         },
         {
           "type": "Person",
-          "name": "J."
+          "familyNames": [
+            "de",
+            "Uña-Alvarez"
+          ],
+          "givenNames": [
+            "J."
+          ]
         },
         {
           "type": "Person",
-          "name": "Cadarso-Suárez"
+          "familyNames": [
+            "Cadarso-Suárez"
+          ],
+          "givenNames": [
+            "C."
+          ]
         },
         {
           "type": "Person",
-          "name": "C."
-        },
-        {
-          "type": "Person",
-          "name": "Andersen"
-        },
-        {
-          "type": "Person",
-          "name": "P. K"
+          "familyNames": [
+            "Andersen"
+          ],
+          "givenNames": [
+            "P.",
+            "K."
+          ]
         }
       ],
       "date": {
@@ -1593,30 +1700,37 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib28",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Meyer"
+          "familyNames": [
+            "Meyer"
+          ],
+          "givenNames": [
+            "M.",
+            "C."
+          ]
         },
         {
           "type": "Person",
-          "name": "M. C."
+          "familyNames": [
+            "Hackstadt"
+          ],
+          "givenNames": [
+            "A.",
+            "J."
+          ]
         },
         {
           "type": "Person",
-          "name": "Hackstadt"
-        },
-        {
-          "type": "Person",
-          "name": "A. J."
-        },
-        {
-          "type": "Person",
-          "name": "Hoeting"
-        },
-        {
-          "type": "Person",
-          "name": "J. A"
+          "familyNames": [
+            "Hoeting"
+          ],
+          "givenNames": [
+            "J.",
+            "A."
+          ]
         }
       ],
       "date": {
@@ -1650,30 +1764,36 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib29",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Murray"
+          "familyNames": [
+            "Murray"
+          ],
+          "givenNames": [
+            "I."
+          ]
         },
         {
           "type": "Person",
-          "name": "I."
+          "familyNames": [
+            "Adams"
+          ],
+          "givenNames": [
+            "R.",
+            "P."
+          ]
         },
         {
           "type": "Person",
-          "name": "Adams"
-        },
-        {
-          "type": "Person",
-          "name": "R. P."
-        },
-        {
-          "type": "Person",
-          "name": "MacKay"
-        },
-        {
-          "type": "Person",
-          "name": "D. J"
+          "familyNames": [
+            "MacKay"
+          ],
+          "givenNames": [
+            "D.",
+            "J."
+          ]
         }
       ],
       "date": {
@@ -1706,16 +1826,22 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib30",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
-          "name": "Pitman"
-        },
-        {
-          "type": "Person",
-          "name": "J"
+          "familyNames": [
+            "Pitman"
+          ],
+          "givenNames": [
+            "J."
+          ]
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Combinatorics, Probability and Computing, 11(5):501–514"
+      },
       "date": {
         "type": "Date",
         "value": "2002"
@@ -1727,44 +1853,39 @@ expression: article
             "string": "Poisson–Dirichlet and GEM invariant distributions for split-and-merge transformations of an interval partition"
           }
         }
-      ],
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Combinatorics"
-            }
-          }
-        ],
-        "volumeNumber": "Probability and Computing , 11",
-        "issueNumber": 5
-      },
-      "pageStart": 501,
-      "pageEnd": 514
+      ]
     },
     {
       "type": "Reference",
       "id": "bib.bib31",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
-          "name": "Rasmussen"
+          "familyNames": [
+            "Rasmussen"
+          ],
+          "givenNames": [
+            "C.",
+            "E."
+          ]
         },
         {
           "type": "Person",
-          "name": "C. E."
-        },
-        {
-          "type": "Person",
-          "name": "Williams"
-        },
-        {
-          "type": "Person",
-          "name": "C. K. I"
+          "familyNames": [
+            "Williams"
+          ],
+          "givenNames": [
+            "C.",
+            "K.",
+            "I."
+          ]
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "MIT Press"
+      },
       "date": {
         "type": "Date",
         "value": "2006"
@@ -1773,7 +1894,7 @@ expression: article
         {
           "type": "Text",
           "value": {
-            "string": "Gaussian Processes for Machine Learning "
+            "string": "Gaussian Processes for Machine Learning"
           }
         }
       ]
@@ -1781,30 +1902,34 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib32",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Ray"
+          "familyNames": [
+            "Ray"
+          ],
+          "givenNames": [
+            "P."
+          ]
         },
         {
           "type": "Person",
-          "name": "P."
+          "familyNames": [
+            "Pati"
+          ],
+          "givenNames": [
+            "D."
+          ]
         },
         {
           "type": "Person",
-          "name": "Pati"
-        },
-        {
-          "type": "Person",
-          "name": "D."
-        },
-        {
-          "type": "Person",
-          "name": "Bhattacharya"
-        },
-        {
-          "type": "Person",
-          "name": "A"
+          "familyNames": [
+            "Bhattacharya"
+          ],
+          "givenNames": [
+            "A."
+          ]
         }
       ],
       "date": {
@@ -1837,22 +1962,25 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib33",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Reich"
+          "familyNames": [
+            "Reich"
+          ],
+          "givenNames": [
+            "B."
+          ]
         },
         {
           "type": "Person",
-          "name": "B."
-        },
-        {
-          "type": "Person",
-          "name": "Bandyopadhyay"
-        },
-        {
-          "type": "Person",
-          "name": "D"
+          "familyNames": [
+            "Bandyopadhyay"
+          ],
+          "givenNames": [
+            "D."
+          ]
         }
       ],
       "date": {
@@ -1886,14 +2014,16 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib34",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Sethuraman"
-        },
-        {
-          "type": "Person",
-          "name": "J"
+          "familyNames": [
+            "Sethuraman"
+          ],
+          "givenNames": [
+            "J."
+          ]
         }
       ],
       "date": {
@@ -1926,101 +2056,32 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib35",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Turnbull"
-        },
-        {
-          "type": "Person",
-          "name": "B. W"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "1976"
-      },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "The empirical distribution function with arbitrarily grouped, censored and truncated data"
-          }
-        }
-      ],
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Journal of the Royal Statistical Society. Series B (Methodological)"
-            }
-          }
-        ],
-        "volumeNumber": 38,
-        "issueNumber": 3
-      },
-      "pageStart": 290,
-      "pageEnd": 295
+      "text": "Turnbull, B. W. (1976). The empirical distribution function with arbitrarily grouped, censored and truncated data. Journal of the Royal Statistical Society. Series B (Methodological), 38(3):290–295"
     },
     {
       "type": "Reference",
       "id": "bib.bib36",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "Den",
-            "Hout"
-          ],
-          "givenNames": [
-            "Van"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "A"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2016"
-      },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Multi-State Survival Models for Interval-Censored Data "
-          }
-        }
-      ],
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Chapman and Hall/CRC"
-            }
-          }
-        ],
-        "volumeNumber": "1st edition."
-      }
+      "text": "van den Hout, A. (2016). Multi-State Survival Models for Interval-Censored Data. Chapman and Hall/CRC, 1st edition"
     },
     {
       "type": "Reference",
       "id": "bib.bib37",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
-          "name": "Wan"
-        },
-        {
-          "type": "Person",
-          "name": "L"
+          "familyNames": [
+            "Wan"
+          ],
+          "givenNames": [
+            "L."
+          ]
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "PhD thesis, University of Kentucky"
+      },
       "date": {
         "type": "Date",
         "value": "2016"
@@ -2029,42 +2090,34 @@ expression: article
         {
           "type": "Text",
           "value": {
-            "string": "Continuous Time Multi-State Models for Interval Censored Data "
+            "string": "Continuous Time Multi-State Models for Interval Censored Data"
           }
         }
-      ],
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "PhD thesis"
-            }
-          }
-        ],
-        "volumeNumber": "University of Kentucky."
-      }
+      ]
     },
     {
       "type": "Reference",
       "id": "bib.bib38",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Wang"
+          "familyNames": [
+            "Wang"
+          ],
+          "givenNames": [
+            "J."
+          ]
         },
         {
           "type": "Person",
-          "name": "J."
-        },
-        {
-          "type": "Person",
-          "name": "Ghosh"
-        },
-        {
-          "type": "Person",
-          "name": "S. K"
+          "familyNames": [
+            "Ghosh"
+          ],
+          "givenNames": [
+            "S.",
+            "K."
+          ]
         }
       ],
       "date": {
@@ -2098,33 +2151,32 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib39",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Wang"
+          "familyNames": [
+            "Wang"
+          ],
+          "givenNames": [
+            "X."
+          ]
         },
         {
           "type": "Person",
-          "name": "X."
-        },
-        {
-          "type": "Person",
-          "name": "Li"
-        },
-        {
-          "type": "Person",
-          "name": "F"
+          "familyNames": [
+            "Li"
+          ],
+          "givenNames": [
+            "F."
+          ]
         }
       ],
-      "date": {
-        "type": "Date",
-        "value": "2008"
-      },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "Isotonic smoothing spline regression"
+            "string": "(2008)"
           }
         }
       ],
@@ -2134,7 +2186,7 @@ expression: article
           {
             "type": "Text",
             "value": {
-              "string": "J. Comput. Graph. Stat."
+              "string": "Isotonic smoothing spline regression. J. Comput. Graph. Stat."
             }
           }
         ],
@@ -2146,22 +2198,27 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib40",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Wiebe"
+          "familyNames": [
+            "Wiebe"
+          ],
+          "givenNames": [
+            "C.",
+            "B."
+          ]
         },
         {
           "type": "Person",
-          "name": "C. B."
-        },
-        {
-          "type": "Person",
-          "name": "Putnins"
-        },
-        {
-          "type": "Person",
-          "name": "E. E"
+          "familyNames": [
+            "Putnins"
+          ],
+          "givenNames": [
+            "E.",
+            "E."
+          ]
         }
       ],
       "date": {
@@ -2195,22 +2252,26 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib41",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Wood"
+          "familyNames": [
+            "Wood"
+          ],
+          "givenNames": [
+            "A.",
+            "T."
+          ]
         },
         {
           "type": "Person",
-          "name": "A. T."
-        },
-        {
-          "type": "Person",
-          "name": "Chan"
-        },
-        {
-          "type": "Person",
-          "name": "G"
+          "familyNames": [
+            "Chan"
+          ],
+          "givenNames": [
+            "G."
+          ]
         }
       ],
       "date": {
@@ -2221,7 +2282,7 @@ expression: article
         {
           "type": "Text",
           "value": {
-            "string": "Simulation of stationary Gaussian processes in  [ 0 , 1 ] d superscript 0 1 𝑑 [0,1]^{d} [ 0 , 1 ] start_POSTSUPERSCRIPT italic_d end_POSTSUPERSCRIPT "
+            "string": "Simulation of stationary Gaussian processes in [0,1]dsuperscript01𝑑[0,1]^{d}[ 0 , 1 ] start_POSTSUPERSCRIPT italic_d end_POSTSUPERSCRIPT"
           }
         }
       ],
@@ -2244,87 +2305,57 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib42",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Zee"
-        },
-        {
-          "type": "Person",
-          "name": "K.-Y"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2009"
-      },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Smoking and Periodontal Disease"
-          }
-        }
-      ],
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Australian Dental Journal"
-            }
-          }
-        ],
-        "volumeNumber": 54
-      },
-      "pageStart": "S44",
-      "pageEnd": "S50",
-      "pagination": "S44–S50."
+      "text": "Zee, K.-Y. (2009). Smoking and Periodontal Disease. Australian Dental Journal, 54:S44–S50"
     },
     {
       "type": "Reference",
       "id": "bib.bib43",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Zhao"
+          "familyNames": [
+            "Zhao"
+          ],
+          "givenNames": [
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "S."
+          "familyNames": [
+            "Hu"
+          ],
+          "givenNames": [
+            "T."
+          ]
         },
         {
           "type": "Person",
-          "name": "Hu"
+          "familyNames": [
+            "Ma"
+          ],
+          "givenNames": [
+            "L."
+          ]
         },
         {
           "type": "Person",
-          "name": "T."
+          "familyNames": [
+            "Wang"
+          ],
+          "givenNames": [
+            "P."
+          ]
         },
         {
           "type": "Person",
-          "name": "Ma"
-        },
-        {
-          "type": "Person",
-          "name": "L."
-        },
-        {
-          "type": "Person",
-          "name": "Wang"
-        },
-        {
-          "type": "Person",
-          "name": "P."
-        },
-        {
-          "type": "Person",
-          "name": "Sun"
-        },
-        {
-          "type": "Person",
-          "name": "J"
+          "familyNames": [
+            "Sun"
+          ],
+          "givenNames": [
+            "J."
+          ]
         }
       ],
       "date": {

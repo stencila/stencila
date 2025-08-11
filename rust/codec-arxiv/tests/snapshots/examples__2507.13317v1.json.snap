@@ -87,834 +87,1470 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib1",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Abadi M. G."
+          "familyNames": [
+            "Abadi"
+          ],
+          "givenNames": [
+            "M.",
+            "G."
+          ]
         },
         {
           "type": "Person",
-          "name": "Navarro J. F."
+          "familyNames": [
+            "Navarro"
+          ],
+          "givenNames": [
+            "J.",
+            "F."
+          ]
         },
         {
           "type": "Person",
-          "name": "Fardal M."
+          "familyNames": [
+            "Fardal"
+          ],
+          "givenNames": [
+            "M."
+          ]
         },
         {
           "type": "Person",
-          "name": "Babul A."
+          "familyNames": [
+            "Babul"
+          ],
+          "givenNames": [
+            "A."
+          ]
         },
         {
           "type": "Person",
-          "name": "Steinmetz M"
+          "familyNames": [
+            "Steinmetz"
+          ],
+          "givenNames": [
+            "M."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2010"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 407
+      },
+      "pageStart": 435
     },
     {
       "type": "Reference",
       "id": "bib.bib2",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Acuto A."
-        },
-        {
-          "type": "Person",
-          "name": "McCarthy I. G."
-        },
-        {
-          "type": "Person",
-          "name": "Kwan J."
-        },
-        {
-          "type": "Person",
-          "name": "Salcido J."
-        },
-        {
-          "type": "Person",
-          "name": "Stafford S. G."
-        },
-        {
-          "type": "Person",
-          "name": "Font A. S"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2021"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib3",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Ade P."
+          "familyNames": [
+            "Acuto"
+          ],
+          "givenNames": [
+            "A."
+          ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Al"
+            "McCarthy"
+          ],
+          "givenNames": [
+            "I.",
+            "G."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kwan"
+          ],
+          "givenNames": [
+            "J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Salcido"
+          ],
+          "givenNames": [
+            "J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Stafford"
+          ],
+          "givenNames": [
+            "S.",
+            "G."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Font"
+          ],
+          "givenNames": [
+            "A.",
+            "S."
           ]
         }
       ],
       "date": {
         "type": "Date",
-        "value": "2019"
+        "value": "2021"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 508
+      },
+      "pageStart": 3519
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib3",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ade"
+          ],
+          "givenNames": [
+            "P."
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": ", 2019, J"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cosmology Astropart. Phys"
+            }
+          }
+        ],
+        "volumeNumber": 2019
       }
     },
     {
       "type": "Reference",
       "id": "bib.bib4",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Anbajagane D."
+          "familyNames": [
+            "Anbajagane"
+          ],
+          "givenNames": [
+            "D."
+          ]
         },
         {
           "type": "Person",
-          "name": "Pandey S."
+          "familyNames": [
+            "Pandey"
+          ],
+          "givenNames": [
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "Chang C"
+          "familyNames": [
+            "Chang"
+          ],
+          "givenNames": [
+            "C."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2024"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Open Journal of Astrophysics"
+            }
+          }
+        ],
+        "volumeNumber": 7
+      },
+      "pageStart": 108
     },
     {
       "type": "Reference",
       "id": "bib.bib5",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Angulo R. E."
+          "familyNames": [
+            "Angulo"
+          ],
+          "givenNames": [
+            "R.",
+            "E."
+          ]
         },
         {
           "type": "Person",
-          "name": "Zennaro M."
+          "familyNames": [
+            "Zennaro"
+          ],
+          "givenNames": [
+            "M."
+          ]
         },
         {
           "type": "Person",
-          "name": "Contreras S."
+          "familyNames": [
+            "Contreras"
+          ],
+          "givenNames": [
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "Aricò G."
+          "familyNames": [
+            "Aricò"
+          ],
+          "givenNames": [
+            "G."
+          ]
         },
         {
           "type": "Person",
-          "name": "Pellejero-Ibañez M."
+          "familyNames": [
+            "Pellejero-Ibañez"
+          ],
+          "givenNames": [
+            "M."
+          ]
         },
         {
           "type": "Person",
-          "name": "Stücker J"
+          "familyNames": [
+            "Stücker"
+          ],
+          "givenNames": [
+            "J."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2021"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 507
+      },
+      "pageStart": 5869
     },
     {
       "type": "Reference",
       "id": "bib.bib6",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Aricò G."
+          "familyNames": [
+            "Aricò"
+          ],
+          "givenNames": [
+            "G."
+          ]
         },
         {
           "type": "Person",
-          "name": "Angulo R. E"
+          "familyNames": [
+            "Angulo"
+          ],
+          "givenNames": [
+            "R.",
+            "E."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2024"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "A&A"
+            }
+          }
+        ],
+        "volumeNumber": 690
+      },
+      "pagination": "A188 "
     },
     {
       "type": "Reference",
       "id": "bib.bib7",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Aricò G."
+          "familyNames": [
+            "Aricò"
+          ],
+          "givenNames": [
+            "G."
+          ]
         },
         {
           "type": "Person",
-          "name": "Angulo R. E."
+          "familyNames": [
+            "Angulo"
+          ],
+          "givenNames": [
+            "R.",
+            "E."
+          ]
         },
         {
           "type": "Person",
-          "name": "Hernández-Monteagudo C."
+          "familyNames": [
+            "Hernández-Monteagudo"
+          ],
+          "givenNames": [
+            "C."
+          ]
         },
         {
           "type": "Person",
-          "name": "Contreras S."
+          "familyNames": [
+            "Contreras"
+          ],
+          "givenNames": [
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "Zennaro M."
+          "familyNames": [
+            "Zennaro"
+          ],
+          "givenNames": [
+            "M."
+          ]
         },
         {
           "type": "Person",
-          "name": "Pellejero-Ibañez M."
+          "familyNames": [
+            "Pellejero-Ibañez"
+          ],
+          "givenNames": [
+            "M."
+          ]
         },
         {
           "type": "Person",
-          "name": "Rosas-Guevara Y"
+          "familyNames": [
+            "Rosas-Guevara"
+          ],
+          "givenNames": [
+            "Y."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2020"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 495
+      },
+      "pageStart": 4800
     },
     {
       "type": "Reference",
       "id": "bib.bib8",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Aricò G."
+          "familyNames": [
+            "Aricò"
+          ],
+          "givenNames": [
+            "G."
+          ]
         },
         {
           "type": "Person",
-          "name": "Angulo R. E."
+          "familyNames": [
+            "Angulo"
+          ],
+          "givenNames": [
+            "R.",
+            "E."
+          ]
         },
         {
           "type": "Person",
-          "name": "Hernández-Monteagudo C."
+          "familyNames": [
+            "Hernández-Monteagudo"
+          ],
+          "givenNames": [
+            "C."
+          ]
         },
         {
           "type": "Person",
-          "name": "Contreras S."
+          "familyNames": [
+            "Contreras"
+          ],
+          "givenNames": [
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "Zennaro M"
+          "familyNames": [
+            "Zennaro"
+          ],
+          "givenNames": [
+            "M."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2021"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 503
+      },
+      "pageStart": 3596
     },
     {
       "type": "Reference",
       "id": "bib.bib9",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
-          "name": "Arnaud K. A."
+          "familyNames": [
+            "Arnaud"
+          ],
+          "givenNames": [
+            "K.",
+            "A."
+          ]
         },
         {
           "type": "Person",
-          "name": "Smith R. K."
+          "familyNames": [
+            "Smith"
+          ],
+          "givenNames": [
+            "R.",
+            "K."
+          ]
         },
         {
           "type": "Person",
-          "name": "Siemiginowska A."
+          "familyNames": [
+            "Siemiginowska"
+          ],
+          "givenNames": [
+            "A."
+          ]
         },
         {
           "type": "Person",
-          "name": "Edgar R. J."
+          "familyNames": [
+            "Edgar"
+          ],
+          "givenNames": [
+            "R.",
+            "J."
+          ]
         },
         {
           "type": "Person",
-          "name": "Grant C. E."
+          "familyNames": [
+            "Grant"
+          ],
+          "givenNames": [
+            "C.",
+            "E."
+          ]
         },
         {
           "type": "Person",
-          "name": "Kuntz K. D."
+          "familyNames": [
+            "Kuntz"
+          ],
+          "givenNames": [
+            "K.",
+            "D."
+          ]
         },
         {
           "type": "Person",
-          "name": "Schwartz D. A"
+          "familyNames": [
+            "Schwartz"
+          ],
+          "givenNames": [
+            "D.",
+            "A."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2011"
-      }
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "in AAS/High Energy Astrophysics Division #12. p. 21.02"
+          }
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "bib.bib10",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Asgari M."
+          "familyNames": [
+            "Asgari"
+          ],
+          "givenNames": [
+            "M."
+          ]
         },
         {
           "type": "Person",
-          "name": "Mead A. J."
+          "familyNames": [
+            "Mead"
+          ],
+          "givenNames": [
+            "A.",
+            "J."
+          ]
         },
         {
           "type": "Person",
-          "name": "Heymans C"
+          "familyNames": [
+            "Heymans"
+          ],
+          "givenNames": [
+            "C."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2023"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Open Journal of Astrophysics"
+            }
+          }
+        ],
+        "volumeNumber": 6
+      },
+      "pageStart": 39
     },
     {
       "type": "Reference",
       "id": "bib.bib11",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Battaglia N."
+          "familyNames": [
+            "Battaglia"
+          ],
+          "givenNames": [
+            "N."
+          ]
         },
         {
           "type": "Person",
-          "name": "Bond J. R."
+          "familyNames": [
+            "Bond"
+          ],
+          "givenNames": [
+            "J.",
+            "R."
+          ]
         },
         {
           "type": "Person",
-          "name": "Pfrommer C."
+          "familyNames": [
+            "Pfrommer"
+          ],
+          "givenNames": [
+            "C."
+          ]
         },
         {
           "type": "Person",
-          "name": "Sievers J. L"
+          "familyNames": [
+            "Sievers"
+          ],
+          "givenNames": [
+            "J.",
+            "L."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2012"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ApJ"
+            }
+          }
+        ],
+        "volumeNumber": 758
+      },
+      "pageStart": 75
     },
     {
       "type": "Reference",
       "id": "bib.bib12",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Battaglia N."
+          "familyNames": [
+            "Battaglia"
+          ],
+          "givenNames": [
+            "N."
+          ]
         },
         {
           "type": "Person",
-          "name": "Ferraro S."
+          "familyNames": [
+            "Ferraro"
+          ],
+          "givenNames": [
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "Schaan E."
+          "familyNames": [
+            "Schaan"
+          ],
+          "givenNames": [
+            "E."
+          ]
         },
         {
           "type": "Person",
-          "name": "Spergel D. N"
+          "familyNames": [
+            "Spergel"
+          ],
+          "givenNames": [
+            "D.",
+            "N."
+          ]
         }
       ],
-      "date": {
-        "type": "Date",
-        "value": "2017"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "2017, J"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cosmology Astropart. Phys"
+            }
+          }
+        ],
+        "volumeNumber": 2017
       }
     },
     {
       "type": "Reference",
       "id": "bib.bib13",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Batten A. J."
-        },
-        {
-          "type": "Person",
-          "name": "Duffy A. R."
-        },
-        {
-          "type": "Person",
-          "name": "Flynn C."
-        },
-        {
-          "type": "Person",
-          "name": "Gupta V."
-        },
-        {
-          "type": "Person",
-          "name": "Ryan-Weber E."
-        },
-        {
-          "type": "Person",
-          "name": "Wijers N"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2022"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib14",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Beck A. M."
+          "familyNames": [
+            "Batten"
+          ],
+          "givenNames": [
+            "A.",
+            "J."
+          ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Al"
+            "Duffy"
+          ],
+          "givenNames": [
+            "A.",
+            "R."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Flynn"
+          ],
+          "givenNames": [
+            "C."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gupta"
+          ],
+          "givenNames": [
+            "V."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ryan-Weber"
+          ],
+          "givenNames": [
+            "E."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wijers"
+          ],
+          "givenNames": [
+            "N."
           ]
         }
       ],
       "date": {
         "type": "Date",
-        "value": "2016"
-      }
+        "value": "2022"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 512
+      },
+      "pagination": "L49 "
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib14",
+      "text": "Beck A. M., et al., 2016, MNRAS, 455, 2110"
     },
     {
       "type": "Reference",
       "id": "bib.bib15",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Behroozi P. S."
+          "familyNames": [
+            "Behroozi"
+          ],
+          "givenNames": [
+            "P.",
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "Wechsler R. H."
+          "familyNames": [
+            "Wechsler"
+          ],
+          "givenNames": [
+            "R.",
+            "H."
+          ]
         },
         {
           "type": "Person",
-          "name": "Conroy C"
+          "familyNames": [
+            "Conroy"
+          ],
+          "givenNames": [
+            "C."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2013"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ApJ"
+            }
+          }
+        ],
+        "volumeNumber": 770
+      },
+      "pageStart": 57
     },
     {
       "type": "Reference",
       "id": "bib.bib16",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Biffi V."
+          "familyNames": [
+            "Biffi"
+          ],
+          "givenNames": [
+            "V."
+          ]
         },
         {
           "type": "Person",
-          "name": "Dolag K."
+          "familyNames": [
+            "Dolag"
+          ],
+          "givenNames": [
+            "K."
+          ]
         },
         {
           "type": "Person",
-          "name": "Merloni A"
+          "familyNames": [
+            "Merloni"
+          ],
+          "givenNames": [
+            "A."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2018"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Monthly Notices of the Royal Astronomical Society"
+            }
+          }
+        ],
+        "volumeNumber": 481
+      },
+      "pageStart": 2213
     },
     {
       "type": "Reference",
       "id": "bib.bib17",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Bigwood L."
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Al"
-          ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2024"
-      }
+      "text": "Bigwood L., et al., 2024, MNRAS, 534, 655"
     },
     {
       "type": "Reference",
       "id": "bib.bib18",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Borgani S."
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Al"
-          ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2004"
-      }
+      "text": "Borgani S., et al., 2004, MNRAS, 348, 1078"
     },
     {
       "type": "Reference",
       "id": "bib.bib19",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Cacciato M."
-        },
-        {
-          "type": "Person",
-          "name": "Lahav O."
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Den",
-            "Bosch"
+            "Cacciato"
           ],
           "givenNames": [
-            "Van"
+            "M."
           ]
         },
         {
           "type": "Person",
-          "name": "Hoekstra H."
+          "familyNames": [
+            "Lahav"
+          ],
+          "givenNames": [
+            "O."
+          ]
         },
         {
           "type": "Person",
-          "name": "Dekel A"
+          "familyNames": [
+            "van",
+            "den",
+            "Bosch"
+          ],
+          "givenNames": [
+            "F.",
+            "C."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hoekstra"
+          ],
+          "givenNames": [
+            "H."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dekel"
+          ],
+          "givenNames": [
+            "A."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2012"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 426
+      },
+      "pageStart": 566
     },
     {
       "type": "Reference",
       "id": "bib.bib20",
+      "workType": "Article",
       "authors": [
-        {
-          "type": "Person",
-          "name": "Castro T."
-        },
-        {
-          "type": "Person",
-          "name": "Borgani S."
-        },
-        {
-          "type": "Person",
-          "name": "Dolag K."
-        },
-        {
-          "type": "Person",
-          "name": "Marra V."
-        },
-        {
-          "type": "Person",
-          "name": "Quartin M."
-        },
-        {
-          "type": "Person",
-          "name": "Saro A."
-        },
-        {
-          "type": "Person",
-          "name": "Sefusatti E"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2020"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib21",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Chisari N. E."
-        },
-        {
-          "type": "Person",
-          "name": "et al."
-        },
-        {
-          "type": "Person",
-          "name": "2019a"
-        },
         {
           "type": "Person",
           "familyNames": [
-            "Astrophysics"
+            "Castro"
           ],
           "givenNames": [
-            "Open",
-            "Journal",
-            "Of"
-          ],
-          "honorificPrefix": "The"
+            "T."
+          ]
         },
-        {
-          "type": "Person",
-          "name": "2"
-        },
-        {
-          "type": "Person",
-          "name": "4"
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib22",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Chisari N. E."
-        },
-        {
-          "type": "Person",
-          "name": "et al."
-        },
-        {
-          "type": "Person",
-          "name": "2019b"
-        },
-        {
-          "type": "Person",
-          "name": "ApJS"
-        },
-        {
-          "type": "Person",
-          "name": "242"
-        },
-        {
-          "type": "Person",
-          "name": "2"
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib23",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Cooray A."
-        },
-        {
-          "type": "Person",
-          "name": "Sheth R"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2002"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib24",
-      "authors": [
         {
           "type": "Person",
           "familyNames": [
-            "Et"
+            "Borgani"
           ],
           "givenNames": [
-            "Collaboration"
-          ],
-          "honorificPrefix": "Desi.",
-          "honorificSuffix": "al."
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2022"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib25",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Dalal N."
-        },
-        {
-          "type": "Person",
-          "name": "To C.-H."
-        },
-        {
-          "type": "Person",
-          "name": "Hirata C."
-        },
-        {
-          "type": "Person",
-          "name": "Hyeon-Shin T."
-        },
-        {
-          "type": "Person",
-          "name": "Hilton M."
-        },
-        {
-          "type": "Person",
-          "name": "Pandey S."
-        },
-        {
-          "type": "Person",
-          "name": "Bond J. R"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2025"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib26",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Diemer B."
-        },
-        {
-          "type": "Person",
-          "name": "Kravtsov A. V"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2015"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib27",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Dolag K."
-        },
-        {
-          "type": "Person",
-          "name": "Komatsu E."
-        },
-        {
-          "type": "Person",
-          "name": "Sunyaev R"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2016"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib28",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Dolag K."
+            "S."
+          ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Al"
+            "Dolag"
+          ],
+          "givenNames": [
+            "K."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Marra"
+          ],
+          "givenNames": [
+            "V."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Quartin"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Saro"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sefusatti"
+          ],
+          "givenNames": [
+            "E."
           ]
         }
       ],
       "date": {
         "type": "Date",
-        "value": "2025"
-      }
+        "value": "2020"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Monthly Notices of the Royal Astronomical Society"
+            }
+          }
+        ],
+        "volumeNumber": 500
+      },
+      "pageStart": 2316
     },
     {
       "type": "Reference",
-      "id": "bib.bib29",
+      "id": "bib.bib21",
+      "text": "Chisari N. E., et al., 2019a, The Open Journal of Astrophysics, 2, 4"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib22",
+      "text": "Chisari N. E., et al., 2019b, ApJS, 242, 2"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib23",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Duffy A. R."
-        },
-        {
-          "type": "Person",
-          "name": "Schaye J."
-        },
-        {
-          "type": "Person",
-          "name": "Kay S. T."
+          "familyNames": [
+            "Cooray"
+          ],
+          "givenNames": [
+            "A."
+          ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Sheth"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2002"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Physics Reports"
+            }
+          }
+        ],
+        "volumeNumber": 372
+      },
+      "pageStart": 1
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib24",
+      "text": "DESI Collaboration et al., 2022, AJ, 164, 207"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib25",
+      "text": "Dalal N., To C.-H., Hirata C., Hyeon-Shin T., Hilton M., Pandey S., Bond J. R., 2025, arXiv e-prints, p. arXiv:2507.04476"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib26",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Diemer"
+          ],
+          "givenNames": [
+            "B."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kravtsov"
+          ],
+          "givenNames": [
+            "A.",
+            "V."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2015"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ApJ"
+            }
+          }
+        ],
+        "volumeNumber": 799
+      },
+      "pageStart": 108
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib27",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dolag"
+          ],
+          "givenNames": [
+            "K."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Komatsu"
+          ],
+          "givenNames": [
+            "E."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sunyaev"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2016"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Monthly Notices of the Royal Astronomical Society"
+            }
+          }
+        ],
+        "volumeNumber": 463
+      },
+      "pageStart": 1797
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib28",
+      "text": "Dolag K., et al., 2025, arXiv e-prints, p. arXiv:2504.01061"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib29",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Duffy"
+          ],
+          "givenNames": [
+            "A.",
+            "R."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schaye"
+          ],
+          "givenNames": [
+            "J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kay"
+          ],
+          "givenNames": [
+            "S.",
+            "T."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dalla",
             "Vecchia"
           ],
           "givenNames": [
-            "Dalla"
+            "C."
           ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2008"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 390
+      },
+      "pagination": "L64 "
     },
     {
       "type": "Reference",
       "id": "bib.bib30",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Ettori S."
+          "familyNames": [
+            "Ettori"
+          ],
+          "givenNames": [
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "Morandi A."
+          "familyNames": [
+            "Morandi"
+          ],
+          "givenNames": [
+            "A."
+          ]
         },
         {
           "type": "Person",
-          "name": "Tozzi P."
+          "familyNames": [
+            "Tozzi"
+          ],
+          "givenNames": [
+            "P."
+          ]
         },
         {
           "type": "Person",
-          "name": "Balestra I."
+          "familyNames": [
+            "Balestra"
+          ],
+          "givenNames": [
+            "I."
+          ]
         },
         {
           "type": "Person",
-          "name": "Borgani S."
+          "familyNames": [
+            "Borgani"
+          ],
+          "givenNames": [
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "Rosati P."
+          "familyNames": [
+            "Rosati"
+          ],
+          "givenNames": [
+            "P."
+          ]
         },
         {
           "type": "Person",
-          "name": "Lovisari L."
+          "familyNames": [
+            "Lovisari"
+          ],
+          "givenNames": [
+            "L."
+          ]
         },
         {
           "type": "Person",
-          "name": "Terenziani F"
+          "familyNames": [
+            "Terenziani"
+          ],
+          "givenNames": [
+            "F."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2009"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "A&A"
+            }
+          }
+        ],
+        "volumeNumber": 501
+      },
+      "pageStart": 61
     },
     {
       "type": "Reference",
       "id": "bib.bib31",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -923,1223 +1559,1633 @@ expression: article
           ],
           "givenNames": [
             "Euclid"
-          ],
-          "honorificSuffix": "et al."
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2021"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib32",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "Collaboration"
-          ],
-          "givenNames": [
-            "Euclid"
-          ],
-          "honorificSuffix": "et al."
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2024"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib33",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "Collaboration"
-          ],
-          "givenNames": [
-            "Euclid"
-          ],
-          "honorificSuffix": "et al."
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2025"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib34",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Fang X."
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Al"
           ]
         }
       ],
       "date": {
         "type": "Date",
-        "value": "2024"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib35",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Fedeli C"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2014"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib36",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Ferreira T."
-        },
-        {
-          "type": "Person",
-          "name": "Alonso D."
-        },
-        {
-          "type": "Person",
-          "name": "Garcia-Garcia C."
-        },
-        {
-          "type": "Person",
-          "name": "Chisari N. E"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2024"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib37",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Foreman S."
-        },
-        {
-          "type": "Person",
-          "name": "Coulton W."
-        },
-        {
-          "type": "Person",
-          "name": "Villaescusa-Navarro F."
-        },
-        {
-          "type": "Person",
-          "name": "Barreira A"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2020"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib38",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Ghirardini V."
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Al"
-          ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2024"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib39",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Giri S. K."
-        },
-        {
-          "type": "Person",
-          "name": "Schneider A"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2021"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib40",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Grandis S."
-        },
-        {
-          "type": "Person",
-          "name": "Aricò G."
-        },
-        {
-          "type": "Person",
-          "name": "Schneider A."
-        },
-        {
-          "type": "Person",
-          "name": "Linke L"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2024"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib41",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Greco J. P."
-        },
-        {
-          "type": "Person",
-          "name": "Hill J. C."
-        },
-        {
-          "type": "Person",
-          "name": "Spergel D. N."
-        },
-        {
-          "type": "Person",
-          "name": "Battaglia N"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2015"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib42",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Green S. B."
-        },
-        {
-          "type": "Person",
-          "name": "Aung H."
-        },
-        {
-          "type": "Person",
-          "name": "Nagai D."
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Den",
-            "Bosch"
-          ],
-          "givenNames": [
-            "Van"
-          ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2020"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib43",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Gupta N."
-        },
-        {
-          "type": "Person",
-          "name": "Saro A."
-        },
-        {
-          "type": "Person",
-          "name": "Mohr J. J."
-        },
-        {
-          "type": "Person",
-          "name": "Dolag K."
-        },
-        {
-          "type": "Person",
-          "name": "Liu J"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2017"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib44",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Hearin A. P."
-        },
-        {
-          "type": "Person",
-          "name": "Zentner A. R."
-        },
-        {
-          "type": "Person",
-          "name": "Ma Z"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2012"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib45",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Hill J. C."
-        },
-        {
-          "type": "Person",
-          "name": "Baxter E. J."
-        },
-        {
-          "type": "Person",
-          "name": "Lidz A."
-        },
-        {
-          "type": "Person",
-          "name": "Greco J. P."
-        },
-        {
-          "type": "Person",
-          "name": "Jain B"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2018"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib46",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Hirschmann M."
-        },
-        {
-          "type": "Person",
-          "name": "Dolag K."
-        },
-        {
-          "type": "Person",
-          "name": "Saro A."
-        },
-        {
-          "type": "Person",
-          "name": "Bachmann L."
-        },
-        {
-          "type": "Person",
-          "name": "Borgani S."
-        },
-        {
-          "type": "Person",
-          "name": "Burkert A"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2014"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib47",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Huang H.-J."
-        },
-        {
-          "type": "Person",
-          "name": "Eifler T."
-        },
-        {
-          "type": "Person",
-          "name": "Mandelbaum R."
-        },
-        {
-          "type": "Person",
-          "name": "Dodelson S"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2019"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib48",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Ivezić Ž."
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Al"
-          ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2019"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib49",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Khaire V."
-        },
-        {
-          "type": "Person",
-          "name": "Hu T."
-        },
-        {
-          "type": "Person",
-          "name": "Hennawi J. F."
-        },
-        {
-          "type": "Person",
-          "name": "Walther M."
-        },
-        {
-          "type": "Person",
-          "name": "Davies F."
-        },
-        {
-          "type": "Person",
-          "name": "2024a"
-        },
-        {
-          "type": "Person",
-          "name": "MNRAS"
-        },
-        {
-          "type": "Person",
-          "name": "527"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "4545"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib50",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Khaire V."
-        },
-        {
-          "type": "Person",
-          "name": "Hu T."
-        },
-        {
-          "type": "Person",
-          "name": "Hennawi J. F."
-        },
-        {
-          "type": "Person",
-          "name": "Burchett J. N."
-        },
-        {
-          "type": "Person",
-          "name": "Walther M."
-        },
-        {
-          "type": "Person",
-          "name": "Davies F."
-        },
-        {
-          "type": "Person",
-          "name": "2024b"
-        },
-        {
-          "type": "Person",
-          "name": "MNRAS"
-        },
-        {
-          "type": "Person",
-          "name": "534"
-        },
-        {
-          "type": "Person",
-          "name": "465"
+        "value": ", 2021, MNRAS, 505, 2840"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "et al"
+          }
         }
       ]
     },
     {
       "type": "Reference",
-      "id": "bib.bib51",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Komatsu E."
-        },
-        {
-          "type": "Person",
-          "name": "Seljak U"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2001"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib52",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Komatsu E."
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Al"
-          ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2011"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib53",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Kovač M."
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Al"
-          ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2025"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib54",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Krause E."
-        },
-        {
-          "type": "Person",
-          "name": "Eifler T"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2017"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib55",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Kravtsov A. V."
-        },
-        {
-          "type": "Person",
-          "name": "Vikhlinin A. A."
-        },
-        {
-          "type": "Person",
-          "name": "Meshcheryakov A. V"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2018"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib56",
+      "id": "bib.bib32",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
           "familyNames": [
-            "Posta"
+            "Collaboration"
           ],
           "givenNames": [
-            "La"
+            "Euclid"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": ", 2024, A&A, 684, A138"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "et al"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib33",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Collaboration"
+          ],
+          "givenNames": [
+            "Euclid"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": ", 2025, A&A, 697, A1"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "et al"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib34",
+      "text": "Fang X., et al., 2024, MNRAS, 527, 9581"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib35",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Fedeli"
+          ],
+          "givenNames": [
+            "C."
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "2014, J"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cosmology Astropart. Phys"
+            }
+          }
+        ],
+        "volumeNumber": 2014
+      }
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib36",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ferreira"
+          ],
+          "givenNames": [
+            "T."
           ]
         },
         {
           "type": "Person",
-          "name": "Alonso D."
+          "familyNames": [
+            "Alonso"
+          ],
+          "givenNames": [
+            "D."
+          ]
         },
         {
           "type": "Person",
-          "name": "Chisari N. E."
+          "familyNames": [
+            "Garcia-Garcia"
+          ],
+          "givenNames": [
+            "C."
+          ]
         },
         {
           "type": "Person",
-          "name": "Ferreira T."
+          "familyNames": [
+            "Chisari"
+          ],
+          "givenNames": [
+            "N.",
+            "E."
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "2024, Phys"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Rev. Lett."
+            }
+          }
+        ],
+        "volumeNumber": 133
+      }
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib37",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Foreman"
+          ],
+          "givenNames": [
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "García-García C"
+          "familyNames": [
+            "Coulton"
+          ],
+          "givenNames": [
+            "W."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Villaescusa-Navarro"
+          ],
+          "givenNames": [
+            "F."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Barreira"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 498
+      },
+      "pageStart": 2887
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib38",
+      "text": "Ghirardini V., et al., 2024, A&A, 689, A298"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib39",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Giri"
+          ],
+          "givenNames": [
+            "S.",
+            "K."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schneider"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "2021, J"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cosmology Astropart. Phys"
+            }
+          }
+        ],
+        "volumeNumber": 2021
+      }
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib40",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Grandis"
+          ],
+          "givenNames": [
+            "S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Aricò"
+          ],
+          "givenNames": [
+            "G."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schneider"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Linke"
+          ],
+          "givenNames": [
+            "L."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2024"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 528
+      },
+      "pageStart": 4379
     },
     {
       "type": "Reference",
-      "id": "bib.bib57",
+      "id": "bib.bib41",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Lange J. U"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2023"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib58",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Laureijs R."
+          "familyNames": [
+            "Greco"
+          ],
+          "givenNames": [
+            "J.",
+            "P."
+          ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Al"
+            "Hill"
+          ],
+          "givenNames": [
+            "J.",
+            "C."
           ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2011"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib59",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Lewis A."
-        },
-        {
-          "type": "Person",
-          "name": "Challinor A"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2011"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib60",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Lewis A."
-        },
-        {
-          "type": "Person",
-          "name": "Challinor A."
-        },
-        {
-          "type": "Person",
-          "name": "Lasenby A"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2000"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib61",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Lustig P."
         },
         {
           "type": "Person",
           "familyNames": [
-            "Al"
+            "Spergel"
+          ],
+          "givenNames": [
+            "D.",
+            "N."
           ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2022"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib62",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Martizzi D."
-        },
-        {
-          "type": "Person",
-          "name": "Teyssier R."
-        },
-        {
-          "type": "Person",
-          "name": "Moore B"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2013"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib63",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "McDonald M."
         },
         {
           "type": "Person",
           "familyNames": [
-            "Al"
+            "Battaglia"
+          ],
+          "givenNames": [
+            "N."
           ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2014"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib64",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Mead A. J."
-        },
-        {
-          "type": "Person",
-          "name": "Verde L"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2021"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib65",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Mead A. J."
-        },
-        {
-          "type": "Person",
-          "name": "Peacock J. A."
-        },
-        {
-          "type": "Person",
-          "name": "Heymans C."
-        },
-        {
-          "type": "Person",
-          "name": "Joudaki S."
-        },
-        {
-          "type": "Person",
-          "name": "Heavens A. F"
         }
       ],
       "date": {
         "type": "Date",
         "value": "2015"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ApJ"
+            }
+          }
+        ],
+        "volumeNumber": 808
+      },
+      "pageStart": 151
     },
     {
       "type": "Reference",
-      "id": "bib.bib66",
+      "id": "bib.bib42",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Mead A. J."
-        },
-        {
-          "type": "Person",
-          "name": "Tröster T."
-        },
-        {
-          "type": "Person",
-          "name": "Heymans C."
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Waerbeke"
+            "Green"
           ],
           "givenNames": [
-            "Van"
+            "S.",
+            "B."
           ]
         },
         {
           "type": "Person",
-          "name": "McCarthy I. G"
+          "familyNames": [
+            "Aung"
+          ],
+          "givenNames": [
+            "H."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nagai"
+          ],
+          "givenNames": [
+            "D."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "van",
+            "den",
+            "Bosch"
+          ],
+          "givenNames": [
+            "F.",
+            "C."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2020"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 496
+      },
+      "pageStart": 2743
     },
     {
       "type": "Reference",
-      "id": "bib.bib67",
+      "id": "bib.bib43",
+      "workType": "Article",
       "authors": [
-        {
-          "type": "Person",
-          "name": "Mead A. J."
-        },
-        {
-          "type": "Person",
-          "name": "Brieden S."
-        },
-        {
-          "type": "Person",
-          "name": "Tröster T."
-        },
-        {
-          "type": "Person",
-          "name": "Heymans C"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2021"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib68",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Medlock I."
-        },
-        {
-          "type": "Person",
-          "name": "Nagai D."
-        },
         {
           "type": "Person",
           "familyNames": [
-            "Alc\\’azar"
+            "Gupta"
           ],
           "givenNames": [
-            "Angl\\’es"
+            "N."
           ]
         },
         {
           "type": "Person",
-          "name": "Gebhardt M"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2025"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib69",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Moster B. P."
+          "familyNames": [
+            "Saro"
+          ],
+          "givenNames": [
+            "A."
+          ]
         },
         {
           "type": "Person",
-          "name": "Naab T."
+          "familyNames": [
+            "Mohr"
+          ],
+          "givenNames": [
+            "J.",
+            "J."
+          ]
         },
         {
           "type": "Person",
-          "name": "White S. D. M"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2013"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib70",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Mummery B. O."
+          "familyNames": [
+            "Dolag"
+          ],
+          "givenNames": [
+            "K."
+          ]
         },
         {
           "type": "Person",
-          "name": "McCarthy I. G."
-        },
-        {
-          "type": "Person",
-          "name": "Bird S."
-        },
-        {
-          "type": "Person",
-          "name": "Schaye J"
+          "familyNames": [
+            "Liu"
+          ],
+          "givenNames": [
+            "J."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2017"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Monthly Notices of the Royal Astronomical Society"
+            }
+          }
+        ],
+        "volumeNumber": 469
+      },
+      "pageStart": 3069
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib44",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hearin"
+          ],
+          "givenNames": [
+            "A.",
+            "P."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zentner"
+          ],
+          "givenNames": [
+            "A.",
+            "R."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ma"
+          ],
+          "givenNames": [
+            "Z."
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "2012, J"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cosmology Astropart. Phys"
+            }
+          }
+        ],
+        "volumeNumber": 2012
       }
     },
     {
       "type": "Reference",
-      "id": "bib.bib71",
+      "id": "bib.bib45",
+      "text": "Hill J. C., Baxter E. J., Lidz A., Greco J. P., Jain B., 2018, Phys. Rev. D, 97, 083501"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib46",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Nelson K."
+          "familyNames": [
+            "Hirschmann"
+          ],
+          "givenNames": [
+            "M."
+          ]
         },
         {
           "type": "Person",
-          "name": "Lau E. T."
+          "familyNames": [
+            "Dolag"
+          ],
+          "givenNames": [
+            "K."
+          ]
         },
         {
           "type": "Person",
-          "name": "Nagai D"
+          "familyNames": [
+            "Saro"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bachmann"
+          ],
+          "givenNames": [
+            "L."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Borgani"
+          ],
+          "givenNames": [
+            "S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Burkert"
+          ],
+          "givenNames": [
+            "A."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2014"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 442
+      },
+      "pageStart": 2304
     },
     {
       "type": "Reference",
-      "id": "bib.bib72",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Nelson D."
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Al"
-          ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2019"
-      }
+      "id": "bib.bib47",
+      "text": "Huang H.-J., Eifler T., Mandelbaum R., Dodelson S., 2019, MNRAS, 488, 1652"
     },
     {
       "type": "Reference",
-      "id": "bib.bib73",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Nicola A."
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Al"
-          ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2022"
-      }
+      "id": "bib.bib48",
+      "text": "Ivezić Ž., et al., 2019, ApJ, 873, 111"
     },
     {
       "type": "Reference",
-      "id": "bib.bib74",
+      "id": "bib.bib49",
+      "text": "Khaire V., Hu T., Hennawi J. F., Walther M., Davies F., 2024a, MNRAS, 527, 4545"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib50",
+      "text": "Khaire V., Hu T., Hennawi J. F., Burchett J. N., Walther M., Davies F., 2024b, MNRAS, 534, 465"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib51",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
           "familyNames": [
-            "Committee"
+            "Komatsu"
           ],
           "givenNames": [
-            "Observations",
-            "Time",
-            "Allocation"
+            "E."
           ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Committees"
+            "Seljak"
           ],
           "givenNames": [
-            "Community",
-            "Survey",
-            "Definition"
+            "U."
           ]
         }
       ],
       "date": {
         "type": "Date",
-        "value": "2025"
-      }
+        "value": "2001"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 327
+      },
+      "pageStart": 1353
     },
     {
       "type": "Reference",
-      "id": "bib.bib75",
+      "id": "bib.bib52",
+      "text": "Komatsu E., et al., 2011, ApJS, 192, 18"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib53",
+      "text": "Kovač M., et al., 2025, arXiv e-prints, p. arXiv:2507.07991"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib54",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Oguri M."
+          "familyNames": [
+            "Krause"
+          ],
+          "givenNames": [
+            "E."
+          ]
         },
         {
           "type": "Person",
-          "name": "Hamana T"
+          "familyNames": [
+            "Eifler"
+          ],
+          "givenNames": [
+            "T."
+          ]
         }
       ],
       "date": {
         "type": "Date",
-        "value": "2011"
-      }
+        "value": "2017"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 470
+      },
+      "pageStart": 2100
     },
     {
       "type": "Reference",
-      "id": "bib.bib76",
+      "id": "bib.bib55",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Osato K."
+          "familyNames": [
+            "Kravtsov"
+          ],
+          "givenNames": [
+            "A.",
+            "V."
+          ]
         },
         {
           "type": "Person",
-          "name": "Nagai D"
+          "familyNames": [
+            "Vikhlinin"
+          ],
+          "givenNames": [
+            "A.",
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Meshcheryakov"
+          ],
+          "givenNames": [
+            "A.",
+            "V."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Astronomy Letters"
+            }
+          }
+        ],
+        "volumeNumber": 44
+      },
+      "pageStart": 8
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib56",
+      "text": "La Posta A., Alonso D., Chisari N. E., Ferreira T., García-García C., 2024, arXiv e-prints, p. arXiv:2412.12081"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib57",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lange"
+          ],
+          "givenNames": [
+            "J.",
+            "U."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2023"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Monthly Notices of the Royal Astronomical Society"
+            }
+          }
+        ],
+        "volumeNumber": 525
+      },
+      "pageStart": 3181
     },
     {
       "type": "Reference",
-      "id": "bib.bib77",
+      "id": "bib.bib58",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Pakmor R."
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Al"
+            "Laureijs"
+          ],
+          "givenNames": [
+            "R."
           ]
         }
       ],
       "date": {
         "type": "Date",
-        "value": "2023"
+        "value": "3193"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": ", 2011, arXiv e-prints, p"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "arXiv:1110"
+            }
+          }
+        ]
       }
     },
     {
       "type": "Reference",
-      "id": "bib.bib78",
+      "id": "bib.bib59",
+      "text": "Lewis A., Challinor A., 2011, CAMB: Code for Anisotropies in the Microwave Background, Astrophysics Source Code Library, record ascl:1102.026"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib60",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Pandey S."
+          "familyNames": [
+            "Lewis"
+          ],
+          "givenNames": [
+            "A."
+          ]
         },
         {
           "type": "Person",
-          "name": "Baxter E. J."
+          "familyNames": [
+            "Challinor"
+          ],
+          "givenNames": [
+            "A."
+          ]
         },
         {
           "type": "Person",
-          "name": "Hill J. C"
+          "familyNames": [
+            "Lasenby"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2000"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ApJ"
+            }
+          }
+        ],
+        "volumeNumber": 538
+      },
+      "pageStart": 473
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib61",
+      "text": "Lustig P., et al., 2022, Monthly Notices of the Royal Astronomical Society, 518, 5953"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib62",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Martizzi"
+          ],
+          "givenNames": [
+            "D."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Teyssier"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Moore"
+          ],
+          "givenNames": [
+            "B."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2013"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 432
+      },
+      "pageStart": 1947
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib63",
+      "text": "McDonald M., et al., 2014, ApJ, 794, 67"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib64",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mead"
+          ],
+          "givenNames": [
+            "A.",
+            "J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Verde"
+          ],
+          "givenNames": [
+            "L."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 503
+      },
+      "pageStart": 3095
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib65",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mead"
+          ],
+          "givenNames": [
+            "A.",
+            "J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Peacock"
+          ],
+          "givenNames": [
+            "J.",
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Heymans"
+          ],
+          "givenNames": [
+            "C."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Joudaki"
+          ],
+          "givenNames": [
+            "S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Heavens"
+          ],
+          "givenNames": [
+            "A.",
+            "F."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2015"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 454
+      },
+      "pageStart": 1958
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib66",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mead"
+          ],
+          "givenNames": [
+            "A.",
+            "J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tröster"
+          ],
+          "givenNames": [
+            "T."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Heymans"
+          ],
+          "givenNames": [
+            "C."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Van",
+            "Waerbeke"
+          ],
+          "givenNames": [
+            "L."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "McCarthy"
+          ],
+          "givenNames": [
+            "I.",
+            "G."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2020"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "A&A"
+            }
+          }
+        ],
+        "volumeNumber": 641
+      },
+      "pagination": "A130 "
     },
     {
       "type": "Reference",
-      "id": "bib.bib79",
+      "id": "bib.bib67",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Pandey S."
-        },
-        {
-          "type": "Person",
-          "name": "Salcido J."
-        },
-        {
-          "type": "Person",
-          "name": "To C.-H."
-        },
-        {
-          "type": "Person",
-          "name": "Hill J. C."
-        },
-        {
-          "type": "Person",
-          "name": "Anbajagane D."
-        },
-        {
-          "type": "Person",
-          "name": "Baxter E. J."
-        },
-        {
-          "type": "Person",
-          "name": "McCarthy I. G"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2024"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib80",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Pandey S."
+          "familyNames": [
+            "Mead"
+          ],
+          "givenNames": [
+            "A.",
+            "J."
+          ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Al"
+            "Brieden"
+          ],
+          "givenNames": [
+            "S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tröster"
+          ],
+          "givenNames": [
+            "T."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Heymans"
+          ],
+          "givenNames": [
+            "C."
           ]
         }
       ],
       "date": {
         "type": "Date",
-        "value": "2025"
-      }
+        "value": "2021"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 502
+      },
+      "pageStart": 1401
     },
     {
       "type": "Reference",
-      "id": "bib.bib81",
+      "id": "bib.bib68",
+      "text": "Medlock I., Nagai D., Angl\\’es Alc\\’azar D., Gebhardt M., 2025, arXiv e-prints, p. arXiv:2501.17922"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib69",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Pandya V."
+          "familyNames": [
+            "Moster"
+          ],
+          "givenNames": [
+            "B.",
+            "P."
+          ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Al"
+            "Naab"
+          ],
+          "givenNames": [
+            "T."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "White"
+          ],
+          "givenNames": [
+            "S.",
+            "D.",
+            "M."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2013"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 428
+      },
+      "pageStart": 3121
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib70",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mummery"
+          ],
+          "givenNames": [
+            "B.",
+            "O."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "McCarthy"
+          ],
+          "givenNames": [
+            "I.",
+            "G."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bird"
+          ],
+          "givenNames": [
+            "S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schaye"
+          ],
+          "givenNames": [
+            "J."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2017"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 471
+      },
+      "pageStart": 227
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib71",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nelson"
+          ],
+          "givenNames": [
+            "K."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lau"
+          ],
+          "givenNames": [
+            "E.",
+            "T."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nagai"
+          ],
+          "givenNames": [
+            "D."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2014"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ApJ"
+            }
+          }
+        ],
+        "volumeNumber": 792
+      },
+      "pageStart": 25
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib72",
+      "text": "Nelson D., et al., 2019, Computational Astrophysics and Cosmology, 6, 2"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib73",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nicola"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": ", 2022, J"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cosmology Astropart. Phys"
+            }
+          }
+        ],
+        "volumeNumber": 2022
+      }
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib74",
+      "text": "Observations Time Allocation Committee R., Community Survey Definition Committees C., 2025, arXiv e-prints, p. arXiv:2505.10574"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib75",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Oguri"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hamana"
+          ],
+          "givenNames": [
+            "T."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2011"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 414
+      },
+      "pageStart": 1851
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib76",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Osato"
+          ],
+          "givenNames": [
+            "K."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nagai"
+          ],
+          "givenNames": [
+            "D."
           ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2023"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 519
+      },
+      "pageStart": 2069
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib77",
+      "text": "Pakmor R., et al., 2023, MNRAS, 524, 2539"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib78",
+      "text": "Pandey S., Baxter E. J., Hill J. C., 2020, Phys. Rev. D, 101, 043525"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib79",
+      "text": "Pandey S., Salcido J., To C.-H., Hill J. C., Anbajagane D., Baxter E. J., McCarthy I. G., 2024, arXiv e-prints, p. arXiv:2401.18072"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib80",
+      "text": "Pandey S., et al., 2025, arXiv e-prints, p. arXiv:2506.07432"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib81",
+      "text": "Pandya V., et al., 2023, ApJ, 956, 118"
     },
     {
       "type": "Reference",
       "id": "bib.bib82",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -2148,1132 +3194,1438 @@ expression: article
           ],
           "givenNames": [
             "Planck"
-          ],
-          "honorificSuffix": "et al."
+          ]
         }
       ],
       "date": {
         "type": "Date",
-        "value": "2013"
-      }
+        "value": ", 2013, A&A, 557, A52"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "et al"
+          }
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "bib.bib83",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Popesso P."
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Al"
-          ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2024"
-      }
+      "text": "Popesso P., et al., 2024, arXiv e-prints, p. arXiv:2411.16555"
     },
     {
       "type": "Reference",
       "id": "bib.bib84",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "R. S. P."
-        },
-        {
-          "type": "Person",
-          "name": "Krause E."
-        },
-        {
-          "type": "Person",
-          "name": "Dolag K."
-        },
-        {
-          "type": "Person",
-          "name": "Benabed K."
-        },
-        {
-          "type": "Person",
-          "name": "Eifler T."
-        },
-        {
-          "type": "Person",
-          "name": "Ayçoberry E."
-        },
-        {
-          "type": "Person",
-          "name": "Dubois Y"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2025"
-      }
+      "text": "R. S. P., Krause E., Dolag K., Benabed K., Eifler T., Ayçoberry E., Dubois Y., 2025, J. Cosmology Astropart. Phys, 2025, 041"
     },
     {
       "type": "Reference",
       "id": "bib.bib85",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Reischke R."
-        },
-        {
-          "type": "Person",
-          "name": "Neumann D."
-        },
-        {
-          "type": "Person",
-          "name": "Bertmann K. A."
-        },
-        {
-          "type": "Person",
-          "name": "Hagstotz S."
-        },
-        {
-          "type": "Person",
-          "name": "Hildebrandt H"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2023"
-      }
+      "text": "Reischke R., Neumann D., Bertmann K. A., Hagstotz S., Hildebrandt H., 2023, arXiv e-prints, p. arXiv:2309.09766"
     },
     {
       "type": "Reference",
       "id": "bib.bib86",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Remus R.-S."
-        },
-        {
-          "type": "Person",
-          "name": "Dolag K."
-        },
-        {
-          "type": "Person",
-          "name": "Hoffmann T. L"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2017"
-      }
+      "text": "Remus R.-S., Dolag K., Hoffmann T. L., 2017, Galaxies, 5, 49"
     },
     {
       "type": "Reference",
       "id": "bib.bib87",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Schaye J."
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Al"
-          ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2023"
-      }
+      "text": "Schaye J., et al., 2023, MNRAS, 526, 4978"
     },
     {
       "type": "Reference",
       "id": "bib.bib88",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Schmidt F"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2016"
-      }
+      "text": "Schmidt F., 2016, Phys. Rev. D, 93, 063512"
     },
     {
       "type": "Reference",
       "id": "bib.bib89",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Schneider A."
+          "familyNames": [
+            "Schneider"
+          ],
+          "givenNames": [
+            "A."
+          ]
         },
         {
           "type": "Person",
-          "name": "Teyssier R"
+          "familyNames": [
+            "Teyssier"
+          ],
+          "givenNames": [
+            "R."
+          ]
         }
       ],
-      "date": {
-        "type": "Date",
-        "value": "2015"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "2015, J"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cosmology Astropart. Phys"
+            }
+          }
+        ],
+        "volumeNumber": 2015
       }
     },
     {
       "type": "Reference",
       "id": "bib.bib90",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Schneider A."
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Al"
+            "Schneider"
+          ],
+          "givenNames": [
+            "A."
           ]
         }
       ],
-      "date": {
-        "type": "Date",
-        "value": "2016"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": ", 2016, J"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cosmology Astropart. Phys"
+            }
+          }
+        ],
+        "volumeNumber": 2016
       }
     },
     {
       "type": "Reference",
       "id": "bib.bib91",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Schneider A."
-        },
-        {
-          "type": "Person",
-          "name": "Teyssier R."
-        },
-        {
-          "type": "Person",
-          "name": "Stadel J."
-        },
-        {
-          "type": "Person",
-          "name": "Chisari N. E."
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Brun"
+            "Schneider"
           ],
           "givenNames": [
-            "Le"
+            "A."
           ]
         },
         {
           "type": "Person",
-          "name": "Amara A."
+          "familyNames": [
+            "Teyssier"
+          ],
+          "givenNames": [
+            "R."
+          ]
         },
         {
           "type": "Person",
-          "name": "Refregier A"
+          "familyNames": [
+            "Stadel"
+          ],
+          "givenNames": [
+            "J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chisari"
+          ],
+          "givenNames": [
+            "N.",
+            "E."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Le",
+            "Brun"
+          ],
+          "givenNames": [
+            "A.",
+            "M.",
+            "C."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Amara"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Refregier"
+          ],
+          "givenNames": [
+            "A."
+          ]
         }
       ],
-      "date": {
-        "type": "Date",
-        "value": "2019"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "2019, J"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cosmology Astropart. Phys"
+            }
+          }
+        ],
+        "volumeNumber": 2019
       }
     },
     {
       "type": "Reference",
       "id": "bib.bib92",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Schneider A."
+          "familyNames": [
+            "Schneider"
+          ],
+          "givenNames": [
+            "A."
+          ]
         },
         {
           "type": "Person",
-          "name": "Giri S. K."
+          "familyNames": [
+            "Giri"
+          ],
+          "givenNames": [
+            "S.",
+            "K."
+          ]
         },
         {
           "type": "Person",
-          "name": "Amodeo S."
+          "familyNames": [
+            "Amodeo"
+          ],
+          "givenNames": [
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "Refregier A"
+          "familyNames": [
+            "Refregier"
+          ],
+          "givenNames": [
+            "A."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2022"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 514
+      },
+      "pageStart": 3802
     },
     {
       "type": "Reference",
       "id": "bib.bib93",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Schneider A."
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Al"
-          ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2025"
-      }
+      "text": "Schneider A., et al., 2025, arXiv e-prints, p. arXiv:2507.07892"
     },
     {
       "type": "Reference",
       "id": "bib.bib94",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Semboloni E."
-        },
-        {
-          "type": "Person",
-          "name": "Hoekstra H."
-        },
-        {
-          "type": "Person",
-          "name": "Schaye J."
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Daalen"
+            "Semboloni"
           ],
           "givenNames": [
-            "Van"
+            "E."
           ]
         },
         {
           "type": "Person",
-          "name": "McCarthy I. G"
+          "familyNames": [
+            "Hoekstra"
+          ],
+          "givenNames": [
+            "H."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schaye"
+          ],
+          "givenNames": [
+            "J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "van",
+            "Daalen"
+          ],
+          "givenNames": [
+            "M.",
+            "P."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "McCarthy"
+          ],
+          "givenNames": [
+            "I.",
+            "G."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2011"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 417
+      },
+      "pageStart": 2020
     },
     {
       "type": "Reference",
       "id": "bib.bib95",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Sharma K."
-        },
-        {
-          "type": "Person",
-          "name": "Krause E."
-        },
-        {
-          "type": "Person",
-          "name": "Ravi V."
-        },
-        {
-          "type": "Person",
-          "name": "Reischke R."
-        },
-        {
-          "type": "Person",
-          "name": "Pranjal R. S."
-        },
-        {
-          "type": "Person",
-          "name": "Connor L"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2025"
-      }
+      "text": "Sharma K., Krause E., Ravi V., Reischke R., Pranjal R. S., Connor L., 2025, arXiv e-prints, p. arXiv:2504.18745"
     },
     {
       "type": "Reference",
       "id": "bib.bib96",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Shaw L. D."
+          "familyNames": [
+            "Shaw"
+          ],
+          "givenNames": [
+            "L.",
+            "D."
+          ]
         },
         {
           "type": "Person",
-          "name": "Nagai D."
+          "familyNames": [
+            "Nagai"
+          ],
+          "givenNames": [
+            "D."
+          ]
         },
         {
           "type": "Person",
-          "name": "Bhattacharya S."
+          "familyNames": [
+            "Bhattacharya"
+          ],
+          "givenNames": [
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "Lau E. T"
+          "familyNames": [
+            "Lau"
+          ],
+          "givenNames": [
+            "E.",
+            "T."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2010"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ApJ"
+            }
+          }
+        ],
+        "volumeNumber": 725
+      },
+      "pageStart": 1452
     },
     {
       "type": "Reference",
       "id": "bib.bib97",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Sheth R. K."
+          "familyNames": [
+            "Sheth"
+          ],
+          "givenNames": [
+            "R.",
+            "K."
+          ]
         },
         {
           "type": "Person",
-          "name": "Tormen G"
+          "familyNames": [
+            "Tormen"
+          ],
+          "givenNames": [
+            "G."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "1999"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 308
+      },
+      "pageStart": 119
     },
     {
       "type": "Reference",
       "id": "bib.bib98",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Singh P."
+          "familyNames": [
+            "Singh"
+          ],
+          "givenNames": [
+            "P."
+          ]
         },
         {
           "type": "Person",
-          "name": "Majumdar S."
+          "familyNames": [
+            "Majumdar"
+          ],
+          "givenNames": [
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "Nath B. B."
+          "familyNames": [
+            "Nath"
+          ],
+          "givenNames": [
+            "B.",
+            "B."
+          ]
         },
         {
           "type": "Person",
-          "name": "Refregier A."
+          "familyNames": [
+            "Refregier"
+          ],
+          "givenNames": [
+            "A."
+          ]
         },
         {
           "type": "Person",
-          "name": "Silk J"
+          "familyNames": [
+            "Silk"
+          ],
+          "givenNames": [
+            "J."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2016"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 456
+      },
+      "pageStart": 1495
     },
     {
       "type": "Reference",
       "id": "bib.bib99",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Springel V."
+          "familyNames": [
+            "Springel"
+          ],
+          "givenNames": [
+            "V."
+          ]
         },
         {
           "type": "Person",
-          "name": "Hernquist L"
+          "familyNames": [
+            "Hernquist"
+          ],
+          "givenNames": [
+            "L."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2003"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Monthly Notices of the Royal Astronomical Society"
+            }
+          }
+        ],
+        "volumeNumber": 339
+      },
+      "pageStart": 289
     },
     {
       "type": "Reference",
       "id": "bib.bib100",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Springel V."
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Matteo"
-          ],
-          "givenNames": [
-            "Di"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "Hernquist L."
-        },
-        {
-          "type": "Person",
-          "name": "2005a"
-        },
-        {
-          "type": "Person",
-          "name": "MNRAS"
-        },
-        {
-          "type": "Person",
-          "name": "361"
-        },
-        {
-          "type": "Person",
-          "name": "776"
-        }
-      ]
+      "text": "Springel V., Di Matteo T., Hernquist L., 2005a, MNRAS, 361, 776"
     },
     {
       "type": "Reference",
       "id": "bib.bib101",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Springel V."
-        },
-        {
-          "type": "Person",
-          "name": "et al."
-        },
-        {
-          "type": "Person",
-          "name": "2005b"
-        },
-        {
-          "type": "Person",
-          "name": "Nature"
-        },
-        {
-          "type": "Person",
-          "name": "435"
-        },
-        {
-          "type": "Person",
-          "name": "629"
-        }
-      ]
+      "text": "Springel V., et al., 2005b, Nature, 435, 629"
     },
     {
       "type": "Reference",
       "id": "bib.bib102",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Steinborn L. K."
-        },
-        {
-          "type": "Person",
-          "name": "Dolag K."
-        },
-        {
-          "type": "Person",
-          "name": "Comerford J. M."
-        },
-        {
-          "type": "Person",
-          "name": "Hirschmann M."
-        },
-        {
-          "type": "Person",
-          "name": "Remus R.-S."
-        },
-        {
-          "type": "Person",
-          "name": "Teklu A. F"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2016"
-      }
+      "text": "Steinborn L. K., Dolag K., Comerford J. M., Hirschmann M., Remus R.-S., Teklu A. F., 2016, Monthly Notices of the Royal Astronomical Society, 458, 1013"
     },
     {
       "type": "Reference",
       "id": "bib.bib103",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Sunyaev R. A."
+          "familyNames": [
+            "Sunyaev"
+          ],
+          "givenNames": [
+            "R.",
+            "A."
+          ]
         },
         {
           "type": "Person",
-          "name": "Zeldovich Y. B"
+          "familyNames": [
+            "Zeldovich"
+          ],
+          "givenNames": [
+            "Y.",
+            "B."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "1970"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Comments on Astrophysics and Space Physics"
+            }
+          }
+        ],
+        "volumeNumber": 2
+      },
+      "pageStart": 66
     },
     {
       "type": "Reference",
       "id": "bib.bib104",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Sunyaev R. A."
+          "familyNames": [
+            "Sunyaev"
+          ],
+          "givenNames": [
+            "R.",
+            "A."
+          ]
         },
         {
           "type": "Person",
-          "name": "Zeldovich Y. B"
+          "familyNames": [
+            "Zeldovich"
+          ],
+          "givenNames": [
+            "Y.",
+            "B."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "1972"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Comments on Astrophysics and Space Physics"
+            }
+          }
+        ],
+        "volumeNumber": 4
+      },
+      "pageStart": 173
     },
     {
       "type": "Reference",
       "id": "bib.bib105",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Sunyaev R. A."
-        },
-        {
-          "type": "Person",
-          "name": "Zeldovich I. B."
-        },
-        {
-          "type": "Person",
-          "name": "1980a"
-        },
-        {
-          "type": "Person",
-          "name": "ARA"
-        },
-        {
-          "type": "Person",
-          "name": "A"
-        },
-        {
-          "type": "Person",
-          "name": "18"
-        },
-        {
-          "type": "Person",
-          "name": "537"
-        }
-      ]
+      "text": "Sunyaev R. A., Zeldovich I. B., 1980a, ARA&A, 18, 537"
     },
     {
       "type": "Reference",
       "id": "bib.bib106",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Sunyaev R. A."
-        },
-        {
-          "type": "Person",
-          "name": "Zeldovich Y. B."
-        },
-        {
-          "type": "Person",
-          "name": "1980b"
-        },
-        {
-          "type": "Person",
-          "name": "MNRAS"
-        },
-        {
-          "type": "Person",
-          "name": "190"
-        },
-        {
-          "type": "Person",
-          "name": "413"
-        }
-      ]
+      "text": "Sunyaev R. A., Zeldovich Y. B., 1980b, MNRAS, 190, 413"
     },
     {
       "type": "Reference",
       "id": "bib.bib107",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Takahashi R."
+          "familyNames": [
+            "Takahashi"
+          ],
+          "givenNames": [
+            "R."
+          ]
         },
         {
           "type": "Person",
-          "name": "Sato M."
+          "familyNames": [
+            "Sato"
+          ],
+          "givenNames": [
+            "M."
+          ]
         },
         {
           "type": "Person",
-          "name": "Nishimichi T."
+          "familyNames": [
+            "Nishimichi"
+          ],
+          "givenNames": [
+            "T."
+          ]
         },
         {
           "type": "Person",
-          "name": "Taruya A."
+          "familyNames": [
+            "Taruya"
+          ],
+          "givenNames": [
+            "A."
+          ]
         },
         {
           "type": "Person",
-          "name": "Oguri M"
+          "familyNames": [
+            "Oguri"
+          ],
+          "givenNames": [
+            "M."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2012"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ApJ"
+            }
+          }
+        ],
+        "volumeNumber": 761
+      },
+      "pageStart": 152
     },
     {
       "type": "Reference",
       "id": "bib.bib108",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "Collaboration"
-          ],
-          "givenNames": [
-            "Dark",
-            "Energy",
-            "Science"
-          ],
-          "honorificPrefix": "The Lsst.",
-          "honorificSuffix": "et al."
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2018"
-      }
+      "text": "The LSST Dark Energy Science Collaboration et al., 2018, arXiv e-prints, p. arXiv:1809.01669"
     },
     {
       "type": "Reference",
       "id": "bib.bib109",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Theis A."
-        },
-        {
-          "type": "Person",
-          "name": "Hagstotz S."
-        },
-        {
-          "type": "Person",
-          "name": "Reischke R."
-        },
-        {
-          "type": "Person",
-          "name": "Weller J"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2024"
-      }
+      "text": "Theis A., Hagstotz S., Reischke R., Weller J., 2024, arXiv e-prints, p. arXiv:2403.08611"
     },
     {
       "type": "Reference",
       "id": "bib.bib110",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Tillman M. T."
+          "familyNames": [
+            "Tillman"
+          ],
+          "givenNames": [
+            "M.",
+            "T."
+          ]
         },
         {
           "type": "Person",
-          "name": "Burkhart B."
+          "familyNames": [
+            "Burkhart"
+          ],
+          "givenNames": [
+            "B."
+          ]
         },
         {
           "type": "Person",
-          "name": "Tonnesen S."
+          "familyNames": [
+            "Tonnesen"
+          ],
+          "givenNames": [
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "Bird S."
+          "familyNames": [
+            "Bird"
+          ],
+          "givenNames": [
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "Bryan G. L"
+          "familyNames": [
+            "Bryan"
+          ],
+          "givenNames": [
+            "G.",
+            "L."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2025"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ApJ"
+            }
+          }
+        ],
+        "volumeNumber": 980
+      },
+      "pageStart": 72
     },
     {
       "type": "Reference",
       "id": "bib.bib111",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Tinker J. L."
+          "familyNames": [
+            "Tinker"
+          ],
+          "givenNames": [
+            "J.",
+            "L."
+          ]
         },
         {
           "type": "Person",
-          "name": "Weinberg D. H."
+          "familyNames": [
+            "Weinberg"
+          ],
+          "givenNames": [
+            "D.",
+            "H."
+          ]
         },
         {
           "type": "Person",
-          "name": "Zheng Z."
+          "familyNames": [
+            "Zheng"
+          ],
+          "givenNames": [
+            "Z."
+          ]
         },
         {
           "type": "Person",
-          "name": "Zehavi I"
+          "familyNames": [
+            "Zehavi"
+          ],
+          "givenNames": [
+            "I."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2005"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ApJ"
+            }
+          }
+        ],
+        "volumeNumber": 631
+      },
+      "pageStart": 41
     },
     {
       "type": "Reference",
       "id": "bib.bib112",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Tinker J. L."
+          "familyNames": [
+            "Tinker"
+          ],
+          "givenNames": [
+            "J.",
+            "L."
+          ]
         },
         {
           "type": "Person",
-          "name": "Robertson B. E."
+          "familyNames": [
+            "Robertson"
+          ],
+          "givenNames": [
+            "B.",
+            "E."
+          ]
         },
         {
           "type": "Person",
-          "name": "Kravtsov A. V."
+          "familyNames": [
+            "Kravtsov"
+          ],
+          "givenNames": [
+            "A.",
+            "V."
+          ]
         },
         {
           "type": "Person",
-          "name": "Klypin A."
+          "familyNames": [
+            "Klypin"
+          ],
+          "givenNames": [
+            "A."
+          ]
         },
         {
           "type": "Person",
-          "name": "Warren M. S."
+          "familyNames": [
+            "Warren"
+          ],
+          "givenNames": [
+            "M.",
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "Yepes G."
+          "familyNames": [
+            "Yepes"
+          ],
+          "givenNames": [
+            "G."
+          ]
         },
         {
           "type": "Person",
-          "name": "Gottlöber S"
+          "familyNames": [
+            "Gottlöber"
+          ],
+          "givenNames": [
+            "S."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2010"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ApJ"
+            }
+          }
+        ],
+        "volumeNumber": 724
+      },
+      "pageStart": 878
     },
     {
       "type": "Reference",
       "id": "bib.bib113",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "To C.-H."
-        },
-        {
-          "type": "Person",
-          "name": "Pandey S."
-        },
-        {
-          "type": "Person",
-          "name": "Krause E."
-        },
-        {
-          "type": "Person",
-          "name": "Dalal N."
-        },
-        {
-          "type": "Person",
-          "name": "Anbajagane D."
-        },
-        {
-          "type": "Person",
-          "name": "Weinberg D. H"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2024"
-      }
+      "text": "To C.-H., Pandey S., Krause E., Dalal N., Anbajagane D., Weinberg D. H., 2024, J. Cosmology Astropart. Phys, 2024, 037"
     },
     {
       "type": "Reference",
       "id": "bib.bib114",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Tornatore L."
+          "familyNames": [
+            "Tornatore"
+          ],
+          "givenNames": [
+            "L."
+          ]
         },
         {
           "type": "Person",
-          "name": "Borgani S."
+          "familyNames": [
+            "Borgani"
+          ],
+          "givenNames": [
+            "S."
+          ]
         },
         {
           "type": "Person",
-          "name": "Dolag K."
+          "familyNames": [
+            "Dolag"
+          ],
+          "givenNames": [
+            "K."
+          ]
         },
         {
           "type": "Person",
-          "name": "Matteucci F"
+          "familyNames": [
+            "Matteucci"
+          ],
+          "givenNames": [
+            "F."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2007"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Monthly Notices of the Royal Astronomical Society"
+            }
+          }
+        ],
+        "volumeNumber": 382
+      },
+      "pageStart": 1050
     },
     {
       "type": "Reference",
       "id": "bib.bib115",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Tröster T."
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Al"
-          ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2022"
-      }
+      "text": "Tröster T., et al., 2022, A&A, 660, A27"
     },
     {
       "type": "Reference",
       "id": "bib.bib116",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Velliscig M."
+          "familyNames": [
+            "Velliscig"
+          ],
+          "givenNames": [
+            "M."
+          ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "van",
             "Daalen"
           ],
           "givenNames": [
-            "Van"
+            "M.",
+            "P."
           ]
         },
         {
           "type": "Person",
-          "name": "Schaye J."
-        },
-        {
-          "type": "Person",
-          "name": "McCarthy I. G."
-        },
-        {
-          "type": "Person",
-          "name": "Cacciato M."
+          "familyNames": [
+            "Schaye"
+          ],
+          "givenNames": [
+            "J."
+          ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "McCarthy"
+          ],
+          "givenNames": [
+            "I.",
+            "G."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Cacciato"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Le",
             "Brun"
           ],
           "givenNames": [
-            "Le"
+            "A.",
+            "M.",
+            "C."
           ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Dalla",
             "Vecchia"
           ],
           "givenNames": [
-            "Dalla"
+            "C."
           ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2014"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 442
+      },
+      "pageStart": 2641
     },
     {
       "type": "Reference",
       "id": "bib.bib117",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Villaescusa-Navarro F"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2018"
-      }
+      "text": "Villaescusa-Navarro F., 2018, Pylians: Python libraries for the analysis of numerical simulations, Astrophysics Source Code Library, record ascl:1811.008 (ascl:1811.008)"
     },
     {
       "type": "Reference",
       "id": "bib.bib118",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Voit G. M"
+          "familyNames": [
+            "Voit"
+          ],
+          "givenNames": [
+            "G.",
+            "M."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2005"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Reviews of Modern Physics"
+            }
+          }
+        ],
+        "volumeNumber": 77
+      },
+      "pageStart": 207
     },
     {
       "type": "Reference",
       "id": "bib.bib119",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Watson D. F."
+          "familyNames": [
+            "Watson"
+          ],
+          "givenNames": [
+            "D.",
+            "F."
+          ]
         },
         {
           "type": "Person",
-          "name": "Conroy C"
+          "familyNames": [
+            "Conroy"
+          ],
+          "givenNames": [
+            "C."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2013"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ApJ"
+            }
+          }
+        ],
+        "volumeNumber": 772
+      },
+      "pageStart": 139
     },
     {
       "type": "Reference",
       "id": "bib.bib120",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Wechsler R. H."
+          "familyNames": [
+            "Wechsler"
+          ],
+          "givenNames": [
+            "R.",
+            "H."
+          ]
         },
         {
           "type": "Person",
-          "name": "Tinker J. L"
+          "familyNames": [
+            "Tinker"
+          ],
+          "givenNames": [
+            "J.",
+            "L."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2018"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ARA&A"
+            }
+          }
+        ],
+        "volumeNumber": 56
+      },
+      "pageStart": 435
     },
     {
       "type": "Reference",
       "id": "bib.bib121",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Wiersma R. P. C."
-        },
-        {
-          "type": "Person",
-          "name": "Schaye J."
-        },
-        {
-          "type": "Person",
-          "name": "Theuns T."
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Vecchia"
+            "Wiersma"
           ],
           "givenNames": [
-            "Dalla"
+            "R.",
+            "P.",
+            "C."
           ]
         },
         {
           "type": "Person",
-          "name": "Tornatore L"
+          "familyNames": [
+            "Schaye"
+          ],
+          "givenNames": [
+            "J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Theuns"
+          ],
+          "givenNames": [
+            "T."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dalla",
+            "Vecchia"
+          ],
+          "givenNames": [
+            "C."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tornatore"
+          ],
+          "givenNames": [
+            "L."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2009"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 399
+      },
+      "pageStart": 574
     },
     {
       "type": "Reference",
       "id": "bib.bib122",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Zehavi I."
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Al"
-          ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2004"
-      }
+      "text": "Zehavi I., et al., 2004, ApJ, 608, 16"
     },
     {
       "type": "Reference",
       "id": "bib.bib123",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Zentner A. R."
-        },
-        {
-          "type": "Person",
-          "name": "Rudd D. H."
-        },
-        {
-          "type": "Person",
-          "name": "Hu W"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2008"
-      }
+      "text": "Zentner A. R., Rudd D. H., Hu W., 2008, Phys. Rev. D, 77, 043507"
     },
     {
       "type": "Reference",
       "id": "bib.bib124",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
           "familyNames": [
+            "van",
             "Daalen"
           ],
           "givenNames": [
-            "Van"
+            "M.",
+            "P."
           ]
         },
         {
           "type": "Person",
-          "name": "Schaye J."
-        },
-        {
-          "type": "Person",
-          "name": "Booth C. M."
+          "familyNames": [
+            "Schaye"
+          ],
+          "givenNames": [
+            "J."
+          ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Booth"
+          ],
+          "givenNames": [
+            "C.",
+            "M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dalla",
             "Vecchia"
           ],
           "givenNames": [
-            "Dalla"
+            "C."
           ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2011"
-      }
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 415
+      },
+      "pageStart": 3649
     }
   ],
   "title": [

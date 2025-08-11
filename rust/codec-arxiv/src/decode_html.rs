@@ -10,10 +10,7 @@ use codec::{
         regex::Regex,
         tracing,
     },
-    schema::{
-        Article, Author, Block, Date, Inline, IntegerOrString, Node, Person, Reference,
-        shortcuts::t,
-    },
+    schema::{Article, Author, Block, Inline, Node, Person, Reference, shortcuts::t},
 };
 
 use super::decode::arxiv_id_to_doi;
@@ -791,8 +788,8 @@ fn decode_reference(parser: &Parser, tag: &HTMLTag) -> Option<Reference> {
         .flatten()
         .map(|bytes| bytes.as_utf8_str().to_string());
 
-    // Find all ltx_bibblock spans
-    let mut bibblocks = Vec::new();
+    // Collect the text from all ltx_bibblock spans
+    let mut reference = String::new();
     for child in tag
         .children()
         .top()
@@ -803,276 +800,22 @@ fn decode_reference(parser: &Parser, tag: &HTMLTag) -> Option<Reference> {
             if child_tag.name().as_utf8_str() == "span" {
                 let class = get_class(child_tag);
                 if class.contains("ltx_bibblock") {
-                    let text = get_text(parser, child_tag).trim().to_string();
+                    let text = decode_html_entities(&child_tag.inner_text(parser));
+                    let text = text.trim();
                     if !text.is_empty() {
-                        bibblocks.push(text);
+                        reference.push_str(text);
+                        reference.push(' ');
                     }
                 }
             }
         }
     }
+    let reference = reference.replace("\u{a0}", " ").replace("\n", " ");
 
-    // Parse bibblocks in order
-    let mut authors = Vec::new();
-    let mut date = None;
-    let mut title = None;
-    let mut is_part_of = None;
-    let mut page_start = None;
-    let mut page_end = None;
-    let mut pagination = None;
-    for (index, block) in bibblocks.iter().enumerate() {
-        match index {
-            0 => {
-                // First block: author details and year
-                let (parsed_authors, parsed_date) = parse_author_block(block);
-                authors = parsed_authors;
-                date = parsed_date;
-            }
-            1 => {
-                // Second block: title
-                title = Some(vec![t(block.trim_end_matches('.'))]);
-            }
-            _ => {
-                // Additional blocks: publication details
-                if let Some((part_of, start_page, end_page, page_info)) =
-                    parse_publication_block(block)
-                {
-                    is_part_of = Some(part_of);
-                    page_start = start_page;
-                    page_end = end_page;
-                    pagination = page_info;
-                }
-            }
-        }
-    }
-
-    // If we have at least some content, create the reference
-    if !bibblocks.is_empty() {
-        Some(Reference {
-            id,
-            authors: if authors.is_empty() {
-                None
-            } else {
-                Some(authors)
-            },
-            date,
-            title,
-            is_part_of,
-            page_start,
-            page_end,
-            pagination,
-            ..Default::default()
-        })
-    } else {
-        None
-    }
-}
-
-/// Parse author block text to extract authors and date
-fn parse_author_block(text: &str) -> (Vec<Author>, Option<Date>) {
-    // Extract year from the end - simple string parsing instead of regex
-    let mut date = None;
-    let mut author_text = text;
-    let author_text_string: String;
-
-    // Look for year pattern like "(2023)" at the end
-    if let Some(open_paren) = text.rfind('(') {
-        if let Some(close_paren) = text[open_paren..].find(')') {
-            let year_part = &text[open_paren + 1..open_paren + close_paren];
-            if year_part.len() == 4 && year_part.chars().all(|c| c.is_ascii_digit()) {
-                date = Some(Date {
-                    value: year_part.to_string(),
-                    ..Default::default()
-                });
-                author_text = &text[..open_paren];
-            }
-        }
-    }
-
-    // If no parentheses, look for 4-digit year embedded in the text
-    if date.is_none() {
-        // Split by commas first to handle cases like "Author1, Author2, 2010, Journal"
-        let parts: Vec<&str> = text.split(',').map(|s| s.trim()).collect();
-
-        // Find the first part that's a 4-digit year
-        let mut year_index = None;
-        for (i, part) in parts.iter().enumerate() {
-            let clean_part = part.trim_end_matches('.');
-            if clean_part.len() == 4 && clean_part.chars().all(|c| c.is_ascii_digit()) {
-                date = Some(Date {
-                    value: clean_part.to_string(),
-                    ..Default::default()
-                });
-                year_index = Some(i);
-                break;
-            }
-        }
-
-        // If we found a year, only take the parts before it as authors
-        if let Some(idx) = year_index {
-            author_text_string = parts[..idx].join(", ");
-            author_text = &author_text_string;
-        }
-    }
-
-    // Parse authors
-    let authors = decode_authors_from_text(author_text.trim().trim_end_matches(','));
-
-    (authors, date)
-}
-
-type PublicationInfo = (
-    Box<Reference>,
-    Option<IntegerOrString>,
-    Option<IntegerOrString>,
-    Option<String>,
-);
-
-/// Parse publication block to extract venue information and page range
-fn parse_publication_block(text: &str) -> Option<PublicationInfo> {
-    // Check for arXiv preprint pattern - simple string parsing
-    if text.contains("arXiv") {
-        // Find arXiv: pattern
-        if let Some(start) = text.find("arXiv:") {
-            let after_arxiv = &text[start + 6..];
-            // Extract the arXiv number (digits.digits format)
-            let mut end = 0;
-            for (i, ch) in after_arxiv.char_indices() {
-                if ch.is_ascii_digit() || ch == '.' {
-                    end = i + 1;
-                } else {
-                    break;
-                }
-            }
-
-            if end > 0 {
-                //let arxiv_id = &after_arxiv[..end];
-                return Some((
-                    Box::new(Reference {
-                        title: Some(vec![t("arXiv")]),
-                        ..Default::default()
-                    }),
-                    None,
-                    None,
-                    None,
-                ));
-            }
-        }
-    }
-
-    // Check for journal pattern (italic text followed by volume/pages)
-    if let Some(comma_pos) = text.find(',') {
-        let journal_part = text[..comma_pos].trim();
-        let details_part = text[comma_pos + 1..].trim();
-
-        // If journal_part is not empty, create periodical
-        if !journal_part.is_empty() {
-            // Parse volume/issue and page information
-            let (volume_info, page_info) = if let Some(colon_pos) = details_part.find(':') {
-                let vol_part = details_part[..colon_pos].trim();
-                let page_part = details_part[colon_pos + 1..].trim();
-                (vol_part, Some(page_part))
-            } else {
-                (details_part.trim(), None)
-            };
-
-            // Check if there's an issue number in parentheses like "14(4)"
-            let (volume_number, issue_number) = if let Some(open_paren) = volume_info.find('(') {
-                if let Some(close_paren) = volume_info[open_paren..].find(')') {
-                    (
-                        Some(IntegerOrString::from(&volume_info[..open_paren])),
-                        Some(IntegerOrString::from(
-                            &volume_info[(open_paren + 1)..(open_paren + close_paren)],
-                        )),
-                    )
-                } else {
-                    (Some(IntegerOrString::from(volume_info)), None)
-                }
-            } else {
-                (Some(IntegerOrString::from(volume_info)), None)
-            };
-
-            // Parse page range if present
-            let (page_start, page_end, pagination) = if let Some(pages) = page_info {
-                let (start, end) = parse_page_range(pages);
-                // Check if we got a clean range (both start and end are integers)
-                let is_clean_range = matches!(
-                    (&start, &end),
-                    (
-                        Some(IntegerOrString::Integer(_)),
-                        Some(IntegerOrString::Integer(_))
-                    )
-                );
-
-                if is_clean_range {
-                    // Clean numeric range, use page_start and page_end
-                    (start, end, None)
-                } else if start.is_some() || end.is_some() {
-                    // Partial or string-based parsing, prefer pagination with structured pages as fallback
-                    (start, end, Some(pages.trim().to_string()))
-                } else {
-                    // Parsing failed completely, use pagination only
-                    (None, None, Some(pages.trim().to_string()))
-                }
-            } else {
-                (None, None, None)
-            };
-
-            return Some((
-                Box::new(Reference {
-                    title: Some(vec![t(journal_part)]),
-                    volume_number,
-                    issue_number,
-                    ..Default::default()
-                }),
-                page_start,
-                page_end,
-                pagination,
-            ));
-        }
-    }
-
-    None
-}
-
-/// Parse page range like "1221–1244." or "1125-1161" into start and end pages
-fn parse_page_range(page_info: &str) -> (Option<IntegerOrString>, Option<IntegerOrString>) {
-    let trimmed = page_info.trim().trim_end_matches('.');
-
-    // Try splitting by different dash characters
-    let parts: Vec<&str> = if trimmed.contains('–') {
-        trimmed.split('–').collect()
-    } else if trimmed.contains('—') {
-        trimmed.split('—').collect()
-    } else if trimmed.contains('-') {
-        trimmed.split('-').collect()
-    } else {
-        vec![trimmed]
-    };
-
-    if parts.len() >= 2 {
-        // Page range found
-        let start_part = parts[0].trim();
-        let end_part = parts[1].trim();
-
-        let page_start = parse_single_page(start_part);
-        let page_end = parse_single_page(end_part);
-
-        (page_start, page_end)
-    } else {
-        // Single page number
-        let page_num = parse_single_page(trimmed);
-        (page_num.clone(), page_num)
-    }
-}
-
-/// Parse a single page number, handling both numeric and text formats
-fn parse_single_page(page_text: &str) -> Option<IntegerOrString> {
-    let cleaned = page_text.trim().trim_end_matches('.');
-
-    if cleaned.is_empty() {
-        return None;
-    }
-
-    Some(IntegerOrString::from(cleaned))
+    // Parse reference and give it the id
+    codec_biblio::decode::text(&reference)
+        .into_iter()
+        .flatten()
+        .next()
+        .map(|reference| Reference { id, ..reference })
 }

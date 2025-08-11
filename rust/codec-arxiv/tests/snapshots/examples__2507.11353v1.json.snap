@@ -92,297 +92,479 @@ expression: article
   "references": [
     {
       "type": "Reference",
-      "id": "bib.bib2",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Acharya"
-        },
-        {
-          "type": "Person",
-          "name": "V. V."
-        },
-        {
-          "type": "Person",
-          "name": "Berner"
-        },
-        {
-          "type": "Person",
-          "name": "R."
-        },
-        {
-          "type": "Person",
-          "name": "Engle"
-        },
-        {
-          "type": "Person",
-          "name": "R."
-        },
-        {
-          "type": "Person",
-          "name": "Jung"
-        },
-        {
-          "type": "Person",
-          "name": "H."
-        },
-        {
-          "type": "Person",
-          "name": "Stroebel"
-        },
-        {
-          "type": "Person",
-          "name": "J."
-        },
-        {
-          "type": "Person",
-          "name": "Zeng"
-        },
-        {
-          "type": "Person",
-          "name": "X."
-        },
-        {
-          "type": "Person",
-          "name": "Zhao"
-        },
-        {
-          "type": "Person",
-          "name": "Y. (2023)"
-        },
-        {
-          "type": "Person",
-          "name": "‘Climate"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Testing’"
-          ],
-          "givenNames": [
-            "Stress"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Economics"
-          ],
-          "givenNames": [
-            "Annual",
-            "Review",
-            "Of",
-            "Financial"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "291–326"
-        }
-      ]
+      "id": "bib.bib1"
     },
     {
       "type": "Reference",
-      "id": "bib.bib3",
+      "id": "bib.bib2",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Achdou"
+          "familyNames": [
+            "Acharya"
+          ],
+          "givenNames": [
+            "V.",
+            "V."
+          ]
         },
         {
           "type": "Person",
-          "name": "Y."
+          "familyNames": [
+            "Berner"
+          ],
+          "givenNames": [
+            "R."
+          ]
         },
         {
           "type": "Person",
-          "name": "Carlier"
+          "familyNames": [
+            "Engle"
+          ],
+          "givenNames": [
+            "R."
+          ]
         },
         {
           "type": "Person",
-          "name": "G."
+          "familyNames": [
+            "Jung"
+          ],
+          "givenNames": [
+            "H."
+          ]
         },
         {
           "type": "Person",
-          "name": "Tonon"
+          "familyNames": [
+            "Stroebel"
+          ],
+          "givenNames": [
+            "J."
+          ]
         },
         {
           "type": "Person",
-          "name": "D"
+          "familyNames": [
+            "Zeng"
+          ],
+          "givenNames": [
+            "X."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhao"
+          ],
+          "givenNames": [
+            "Y."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2023"
-      }
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Climate stress testing"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Annual Review of Financial Economics"
+            }
+          }
+        ],
+        "volumeNumber": 15,
+        "issueNumber": 1
+      },
+      "pageStart": 291,
+      "pageEnd": 326
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib3",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Achdou"
+          ],
+          "givenNames": [
+            "Y."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Carlier"
+          ],
+          "givenNames": [
+            "G."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tonon"
+          ],
+          "givenNames": [
+            "D."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A mean field model for the interactions between firms on the markets of their inputs"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Mathematics and Financial Economics"
+            }
+          }
+        ],
+        "volumeNumber": 18
+      },
+      "pageStart": 177,
+      "pageEnd": 211
     },
     {
       "type": "Reference",
       "id": "bib.bib4",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Achdou"
-        },
-        {
-          "type": "Person",
-          "name": "Y."
-        },
-        {
-          "type": "Person",
-          "name": "Han"
-        },
-        {
-          "type": "Person",
-          "name": "J."
-        },
-        {
-          "type": "Person",
-          "name": "Lasry"
-        },
-        {
-          "type": "Person",
-          "name": "J.-M."
-        },
-        {
-          "type": "Person",
-          "name": "Lions"
-        },
-        {
-          "type": "Person",
-          "name": "P.-L."
-        },
-        {
-          "type": "Person",
-          "name": "Moll"
-        },
-        {
-          "type": "Person",
-          "name": "B."
-        },
-        {
-          "type": "Person",
-          "name": "(2022)"
-        },
-        {
-          "type": "Person",
-          "name": "‘Income"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Distribution"
-          ],
-          "givenNames": [
-            "Wealth"
-          ],
-          "honorificSuffix": "IN"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Approach’"
-          ],
-          "givenNames": [
-            "MacRoeconomics:",
-            "Continuous-Time"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Studies"
-          ],
-          "givenNames": [
-            "Review",
-            "Of",
-            "Economic"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "89 (1)"
-        },
-        {
-          "type": "Person",
-          "name": "45–86"
-        }
-      ]
+      "text": "Achdou, Y., Han, J., Lasry, J.-M., Lions, P.-L. and Moll, B. (2022), ‘Income and wealth distribution in macroeconomics: A continuous-time approach’, Review of Economic Studies 89(1), 45–86"
     },
     {
       "type": "Reference",
       "id": "bib.bib5",
+      "workType": "Book",
       "authors": [
         {
-          "type": "Person",
+          "type": "Organization",
           "name": "ACPR"
         }
       ],
       "date": {
         "type": "Date",
         "value": "2020"
-      }
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Scenarios and main assumptions of the ACPR pilot climate exercise, Technical report, Autorité de contrôle prudentiel et de résolution"
+          }
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "bib.bib6",
+      "workType": "WebPage",
+      "url": "https://ssrn.com/abstract=4043923",
+      "text": "Adenot, T., Briere, M., Counathe, P., Jouanneau, M., Le Berthe, T. and Le Guenedal, T. (2022), ‘Cascading effects of carbon price through the value chain: Impact on firm’s valuation’. Available at SSRN"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib7",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Adenot"
-        },
-        {
-          "type": "Person",
-          "name": "T."
-        },
-        {
-          "type": "Person",
-          "name": "Briere"
-        },
-        {
-          "type": "Person",
-          "name": "M."
-        },
-        {
-          "type": "Person",
-          "name": "Counathe"
-        },
-        {
-          "type": "Person",
-          "name": "P."
-        },
-        {
-          "type": "Person",
-          "name": "Jouanneau"
-        },
-        {
-          "type": "Person",
-          "name": "M."
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Berthe"
+            "Agliardi"
           ],
           "givenNames": [
-            "Le"
+            "E."
           ]
         },
         {
           "type": "Person",
-          "name": "T."
-        },
+          "familyNames": [
+            "Agliardi"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Pricing climate-related risks in the bond market"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Financial Stability"
+            }
+          }
+        ],
+        "volumeNumber": 54
+      },
+      "pageStart": 100868
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib8",
+      "workType": "Article",
+      "authors": [
         {
           "type": "Person",
           "familyNames": [
-            "Guenedal"
+            "Aïd"
           ],
           "givenNames": [
-            "Le"
+            "R."
           ]
         },
         {
           "type": "Person",
-          "name": "T"
+          "familyNames": [
+            "Dumitrescu"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tankov"
+          ],
+          "givenNames": [
+            "P."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The entry and exit game in the electricity markets: A mean-field game approach"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Dynamics and Games"
+            }
+          }
+        ],
+        "volumeNumber": 8,
+        "issueNumber": 4
+      },
+      "pageStart": 331,
+      "pageEnd": 358
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib9",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Alvarez"
+          ],
+          "givenNames": [
+            "F.",
+            "E."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lippi"
+          ],
+          "givenNames": [
+            "F."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Souganidis"
+          ],
+          "givenNames": [
+            "P."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Price setting with strategic complementarities as a mean field game"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Econometrica"
+            }
+          }
+        ],
+        "volumeNumber": 91,
+        "issueNumber": 6
+      },
+      "pageStart": 2005,
+      "pageEnd": 2039
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib10",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Arrow"
+          ],
+          "givenNames": [
+            "K.",
+            "J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chenery"
+          ],
+          "givenNames": [
+            "H.",
+            "B."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Minhas"
+          ],
+          "givenNames": [
+            "B.",
+            "S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Solow"
+          ],
+          "givenNames": [
+            "R.",
+            "M."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1961"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Capital-labor substitution and economic efficiency"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Review of Economics and Statistics"
+            }
+          }
+        ],
+        "volumeNumber": 43,
+        "issueNumber": 3
+      },
+      "pageStart": 225,
+      "pageEnd": 250
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib11",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Organization",
+          "name": "Basel Committee on Banking Supervision"
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Climate-related risk drivers and their transmission channels"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib12",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Organization",
+          "name": "Basel Committee on Banking Supervision"
         }
       ],
       "date": {
@@ -393,2063 +575,1059 @@ expression: article
         {
           "type": "Text",
           "value": {
-            "string": "Available at SSRN:  https://ssrn.com/abstract=4043923 "
+            "string": "Principles for the effective management and supervision of climate-related financial risks"
           }
         }
       ]
     },
     {
       "type": "Reference",
-      "id": "bib.bib7",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Agliardi"
-        },
-        {
-          "type": "Person",
-          "name": "E."
-        },
-        {
-          "type": "Person",
-          "name": "Agliardi"
-        },
-        {
-          "type": "Person",
-          "name": "R"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2021"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib8",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Aïd"
-        },
-        {
-          "type": "Person",
-          "name": "R."
-        },
-        {
-          "type": "Person",
-          "name": "Dumitrescu"
-        },
-        {
-          "type": "Person",
-          "name": "R."
-        },
-        {
-          "type": "Person",
-          "name": "Tankov"
-        },
-        {
-          "type": "Person",
-          "name": "P. (2021)"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Entry"
-          ],
-          "givenNames": [
-            "‘The"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Markets:"
-          ],
-          "givenNames": [
-            "Exit",
-            "Game",
-            "The",
-            "Electricity"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Approach’"
-          ],
-          "givenNames": [
-            "Mean-Field",
-            "Game"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Dynamics"
-          ],
-          "givenNames": [
-            "Journal",
-            "Of"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "Games   8 (4)"
-        },
-        {
-          "type": "Person",
-          "name": "331–358"
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib9",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Alvarez"
-        },
-        {
-          "type": "Person",
-          "name": "F. E."
-        },
-        {
-          "type": "Person",
-          "name": "Lippi"
-        },
-        {
-          "type": "Person",
-          "name": "F."
-        },
-        {
-          "type": "Person",
-          "name": "Souganidis"
-        },
-        {
-          "type": "Person",
-          "name": "P. (2023)"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "As"
-          ],
-          "givenNames": [
-            "‘Price",
-            "Setting",
-            "With",
-            "Strategic",
-            "Complementarities"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Game’"
-          ],
-          "givenNames": [
-            "Mean",
-            "Field"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "Econometrica   91 (6)"
-        },
-        {
-          "type": "Person",
-          "name": "2005–2039"
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib10",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Arrow"
-        },
-        {
-          "type": "Person",
-          "name": "K. J."
-        },
-        {
-          "type": "Person",
-          "name": "Chenery"
-        },
-        {
-          "type": "Person",
-          "name": "H. B."
-        },
-        {
-          "type": "Person",
-          "name": "Minhas"
-        },
-        {
-          "type": "Person",
-          "name": "B. S."
-        },
-        {
-          "type": "Person",
-          "name": "Solow"
-        },
-        {
-          "type": "Person",
-          "name": "R. M."
-        },
-        {
-          "type": "Person",
-          "name": "(1961)"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Substitution"
-          ],
-          "givenNames": [
-            "‘Capital-Labor"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Efficiency’"
-          ],
-          "givenNames": [
-            "Economic"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Economics"
-          ],
-          "givenNames": [
-            "Review",
-            "Of"
-          ],
-          "honorificPrefix": "The"
-        },
-        {
-          "type": "Person",
-          "name": "Statistics   43 (3)"
-        },
-        {
-          "type": "Person",
-          "name": "225–250"
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib11",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "Supervision"
-          ],
-          "givenNames": [
-            "Basel",
-            "Committee",
-            "On",
-            "Banking"
-          ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2021"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib12",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "Supervision"
-          ],
-          "givenNames": [
-            "Basel",
-            "Committee",
-            "On",
-            "Banking"
-          ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2022"
-      }
-    },
-    {
-      "type": "Reference",
       "id": "bib.bib13",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Bassiére"
-        },
-        {
-          "type": "Person",
-          "name": "A."
-        },
-        {
-          "type": "Person",
-          "name": "Dumitrescu"
-        },
-        {
-          "type": "Person",
-          "name": "R."
-        },
-        {
-          "type": "Person",
-          "name": "Tankov"
-        },
-        {
-          "type": "Person",
-          "name": "P"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2024"
-      }
+      "text": "Bassiére, A., Dumitrescu, R. and Tankov, P. (2024), A mean-field game model of electricity market dynamics, in F. Benth and A. Veraart, eds, ‘Quantitative Energy Finance’, Springer, Cham"
     },
     {
       "type": "Reference",
       "id": "bib.bib14",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Battiston"
-        },
-        {
-          "type": "Person",
-          "name": "S."
-        },
-        {
-          "type": "Person",
-          "name": "Mandel"
-        },
-        {
-          "type": "Person",
-          "name": "A."
-        },
-        {
-          "type": "Person",
-          "name": "Monasterolo"
-        },
-        {
-          "type": "Person",
-          "name": "I."
-        },
-        {
-          "type": "Person",
-          "name": "Schütze"
-        },
-        {
-          "type": "Person",
-          "name": "F."
-        },
-        {
-          "type": "Person",
-          "name": "Visentin"
-        },
-        {
-          "type": "Person",
-          "name": "G. (2017)"
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Stress-Test"
+            "Battiston"
           ],
           "givenNames": [
-            "Climate"
+            "S."
           ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "System’"
+            "Mandel"
           ],
           "givenNames": [
-            "Financial"
-          ],
-          "honorificPrefix": "Of. The"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Change"
-          ],
-          "givenNames": [
-            "Nature",
-            "Climate"
+            "A."
           ]
         },
         {
           "type": "Person",
-          "name": "283–288"
+          "familyNames": [
+            "Monasterolo"
+          ],
+          "givenNames": [
+            "I."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schütze"
+          ],
+          "givenNames": [
+            "F."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Visentin"
+          ],
+          "givenNames": [
+            "G."
+          ]
         }
-      ]
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2017"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A climate stress-test of the financial system"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature Climate Change"
+            }
+          }
+        ],
+        "volumeNumber": 7,
+        "issueNumber": 4
+      },
+      "pageStart": 283,
+      "pageEnd": 288
     },
     {
       "type": "Reference",
       "id": "bib.bib15",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
-          "name": "Bélanger"
-        },
-        {
-          "type": "Person",
-          "name": "A."
-        },
-        {
-          "type": "Person",
-          "name": "Shreve"
-        },
-        {
-          "type": "Person",
-          "name": "S. E."
-        },
-        {
-          "type": "Person",
-          "name": "Wong"
-        },
-        {
-          "type": "Person",
-          "name": "D. (2004)"
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Risk’"
+            "Bélanger"
           ],
           "givenNames": [
-            "Framework",
-            "For",
-            "Pricing",
-            "Credit"
-          ],
-          "honorificPrefix": "‘A Gen."
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Mathematics"
-          ],
-          "givenNames": [
-            "Mathematical",
-            "Finance:",
-            "An",
-            "International",
-            "Journal",
-            "Of"
+            "A."
           ]
         },
         {
           "type": "Person",
-          "name": "Statistics"
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Economics"
+            "Shreve"
           ],
           "givenNames": [
-            "Financial"
+            "S.",
+            "E."
           ]
         },
         {
           "type": "Person",
-          "name": "317–350"
+          "familyNames": [
+            "Wong"
+          ],
+          "givenNames": [
+            "D."
+          ]
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Mathematical Finance: An International Journal of Mathematics, Statistics and Financial Economics 14(3), 317–350"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2004"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A general framework for pricing credit risk"
+          }
         }
       ]
     },
     {
       "type": "Reference",
       "id": "bib.bib16",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
-          "name": "Bensoussan"
+          "familyNames": [
+            "Bensoussan"
+          ],
+          "givenNames": [
+            "A."
+          ]
         },
         {
           "type": "Person",
-          "name": "A."
+          "familyNames": [
+            "Frehse"
+          ],
+          "givenNames": [
+            "J."
+          ]
         },
         {
           "type": "Person",
-          "name": "Frehse"
-        },
-        {
-          "type": "Person",
-          "name": "J."
-        },
-        {
-          "type": "Person",
-          "name": "Yam"
-        },
-        {
-          "type": "Person",
-          "name": "P"
+          "familyNames": [
+            "Yam"
+          ],
+          "givenNames": [
+            "P."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2013"
-      }
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Mean Field Games and Mean Field Type Control Theory, SpringerBriefs in Mathematics, Springer, New York"
+          }
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "bib.bib17",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
-          "name": "Bertsekas"
-        },
-        {
-          "type": "Person",
-          "name": "D. P"
+          "familyNames": [
+            "Bertsekas"
+          ],
+          "givenNames": [
+            "D.",
+            "P."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "1999"
-      }
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Nonlinear Programming, 2nd edn, Athena Scientific, Belmont, MA"
+          }
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "bib.bib18",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Bertucci"
-        },
-        {
-          "type": "Person",
-          "name": "C"
+          "familyNames": [
+            "Bertucci"
+          ],
+          "givenNames": [
+            "C."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2018"
-      }
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Optimal stopping in mean field games, an obstacle problem approach"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal de Mathématiques Pures et Appliquées"
+            }
+          }
+        ],
+        "volumeNumber": 120
+      },
+      "pageStart": 165,
+      "pageEnd": 194
     },
     {
       "type": "Reference",
       "id": "bib.bib19",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
-          "name": "Blair"
-        },
-        {
-          "type": "Person",
-          "name": "P. D."
-        },
-        {
-          "type": "Person",
-          "name": "Miller"
-        },
-        {
-          "type": "Person",
-          "name": "R. E. (2009)"
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Foundations"
+            "Blair"
           ],
           "givenNames": [
-            "Input-output",
-            "Analysis:"
+            "P.",
+            "D."
           ]
         },
         {
           "type": "Person",
-          "name": "Extensions (2nd edition)"
+          "familyNames": [
+            "Miller"
+          ],
+          "givenNames": [
+            "R.",
+            "E."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2009"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Input-output Analysis: Foundations and Extensions (2nd edition), Cambridge University Press"
+          }
         }
       ]
     },
     {
       "type": "Reference",
       "id": "bib.bib20",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Borkar"
-        },
-        {
-          "type": "Person",
-          "name": "V."
+          "familyNames": [
+            "Borkar"
+          ],
+          "givenNames": [
+            "V."
+          ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Suresh",
             "Kumar"
           ],
           "givenNames": [
-            "Suresh"
+            "K."
           ]
-        },
-        {
-          "type": "Person",
-          "name": "K. (2010)"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Optimization’"
-          ],
-          "givenNames": [
-            "‘Mckean-Vlasov",
-            "Limit",
-            "In",
-            "Portfolio"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Analysis"
-          ],
-          "givenNames": [
-            "Stochastic"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "Applications   28 (5)"
-        },
-        {
-          "type": "Person",
-          "name": "884–906"
         }
-      ]
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2010"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Mckean-vlasov limit in portfolio optimization"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Stochastic Analysis and Applications"
+            }
+          }
+        ],
+        "volumeNumber": 28,
+        "issueNumber": 5
+      },
+      "pageStart": 884,
+      "pageEnd": 906
     },
     {
       "type": "Reference",
       "id": "bib.bib21",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Bouchet"
-        },
-        {
-          "type": "Person",
-          "name": "V."
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Guenedal"
-          ],
-          "givenNames": [
-            "Le"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "T"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2020"
-      },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Available at SSRN:  https://ssrn.com/abstract=3574486 "
-          }
-        }
-      ]
+      "workType": "WebPage",
+      "url": "https://ssrn.com/abstract=3574486",
+      "text": "Bouchet, V. and Le Guenedal, T. (2020), ‘Credit risk sensitivity to carbon price’. Available at SSRN"
     },
     {
       "type": "Reference",
       "id": "bib.bib22",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Bouveret"
-        },
-        {
-          "type": "Person",
-          "name": "G."
-        },
-        {
-          "type": "Person",
-          "name": "Chassagneux"
-        },
-        {
-          "type": "Person",
-          "name": "J.-F."
-        },
-        {
-          "type": "Person",
-          "name": "Ibbou"
-        },
-        {
-          "type": "Person",
-          "name": "S."
-        },
-        {
-          "type": "Person",
-          "name": "Jacquier"
-        },
-        {
-          "type": "Person",
-          "name": "A."
-        },
-        {
-          "type": "Person",
-          "name": "Sopgoui"
-        },
-        {
-          "type": "Person",
-          "name": "L"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2023"
-      },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Available at SSRN:  https://ssrn.com/abstract=4518564 "
-          }
-        }
-      ]
+      "workType": "WebPage",
+      "url": "https://ssrn.com/abstract=4518564",
+      "text": "Bouveret, G., Chassagneux, J.-F., Ibbou, S., Jacquier, A. and Sopgoui, L. (2023), ‘Propagation of a carbon price in credit portfolio through macroeconomic factors’. Available at SSRN"
     },
     {
       "type": "Reference",
       "id": "bib.bib23",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Bouveret"
-        },
-        {
-          "type": "Person",
-          "name": "G."
-        },
-        {
-          "type": "Person",
-          "name": "Dumitrescu"
-        },
-        {
-          "type": "Person",
-          "name": "R."
-        },
-        {
-          "type": "Person",
-          "name": "Tankov"
-        },
-        {
-          "type": "Person",
-          "name": "P. (2020)"
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Relaxed"
+            "Bouveret"
           ],
           "givenNames": [
-            "‘Mean-Field",
-            "Games",
-            "Of",
-            "Optimal",
-            "Stopping:"
+            "G."
           ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Approach’"
+            "Dumitrescu"
           ],
           "givenNames": [
-            "Solution"
+            "R."
           ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Control"
+            "Tankov"
           ],
           "givenNames": [
-            "Journal",
-            "On"
-          ],
-          "honorificPrefix": "Siam."
-        },
-        {
-          "type": "Person",
-          "name": "Optimization   58 (4)"
-        },
-        {
-          "type": "Person",
-          "name": "1795–1821"
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib24",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Campiglio"
-        },
-        {
-          "type": "Person",
-          "name": "E."
-        },
-        {
-          "type": "Person",
-          "name": "Dafermos"
-        },
-        {
-          "type": "Person",
-          "name": "Y."
-        },
-        {
-          "type": "Person",
-          "name": "Monnin"
-        },
-        {
-          "type": "Person",
-          "name": "P."
-        },
-        {
-          "type": "Person",
-          "name": "Ryan-Collins"
-        },
-        {
-          "type": "Person",
-          "name": "J."
-        },
-        {
-          "type": "Person",
-          "name": "Schotten"
-        },
-        {
-          "type": "Person",
-          "name": "G."
-        },
-        {
-          "type": "Person",
-          "name": "Tanaka"
-        },
-        {
-          "type": "Person",
-          "name": "M. (2018)"
-        },
-        {
-          "type": "Person",
-          "name": "‘Climate"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Banks"
-          ],
-          "givenNames": [
-            "Change",
-            "Challenges",
-            "For",
-            "Central"
+            "P."
           ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Regulators’"
-          ],
-          "givenNames": [
-            "Financial"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "Nature"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Change"
-          ],
-          "givenNames": [
-            "Climate"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "462–468"
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib25",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Capasso"
-        },
-        {
-          "type": "Person",
-          "name": "G."
-        },
-        {
-          "type": "Person",
-          "name": "Gianfrate"
-        },
-        {
-          "type": "Person",
-          "name": "G."
-        },
-        {
-          "type": "Person",
-          "name": "Spinelli"
-        },
-        {
-          "type": "Person",
-          "name": "M"
         }
       ],
       "date": {
         "type": "Date",
         "value": "2020"
-      }
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Mean-field games of optimal stopping: a relaxed solution approach"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "SIAM Journal on Control and Optimization"
+            }
+          }
+        ],
+        "volumeNumber": 58,
+        "issueNumber": 4
+      },
+      "pageStart": 1795,
+      "pageEnd": 1821
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib24",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Campiglio"
+          ],
+          "givenNames": [
+            "E."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dafermos"
+          ],
+          "givenNames": [
+            "Y."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Monnin"
+          ],
+          "givenNames": [
+            "P."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ryan-Collins"
+          ],
+          "givenNames": [
+            "J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schotten"
+          ],
+          "givenNames": [
+            "G."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tanaka"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Climate change challenges for central banks and financial regulators"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature climate change"
+            }
+          }
+        ],
+        "volumeNumber": 8,
+        "issueNumber": 6
+      },
+      "pageStart": 462,
+      "pageEnd": 468
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib25",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Capasso"
+          ],
+          "givenNames": [
+            "G."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gianfrate"
+          ],
+          "givenNames": [
+            "G."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Spinelli"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Climate change and credit risk"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Cleaner Production"
+            }
+          }
+        ],
+        "volumeNumber": 266
+      },
+      "pageStart": 121634
     },
     {
       "type": "Reference",
       "id": "bib.bib26",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Carmona"
-        },
-        {
-          "type": "Person",
-          "name": "R."
-        },
-        {
-          "type": "Person",
-          "name": "Delarue"
-        },
-        {
-          "type": "Person",
-          "name": "F. (2015)"
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Equations"
+            "Carmona"
           ],
           "givenNames": [
-            "‘Forward-Backward",
-            "Stochastic",
-            "Differential"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "controlled"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Dynamics’"
-          ],
-          "givenNames": [
-            "McKean–Vlasov"
+            "R."
           ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Probability"
+            "Delarue"
           ],
           "givenNames": [
-            "Annals",
-            "Of"
+            "F."
           ]
-        },
-        {
-          "type": "Person",
-          "name": "2647–2700"
         }
-      ]
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2015"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Forward–backward stochastic differential equations and controlled McKean–Vlasov dynamics"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Annals of Probability"
+            }
+          }
+        ],
+        "volumeNumber": 43,
+        "issueNumber": 5
+      },
+      "pageStart": 2647,
+      "pageEnd": 2700
     },
     {
       "type": "Reference",
       "id": "bib.bib27",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
-          "name": "Carmona"
-        },
-        {
-          "type": "Person",
-          "name": "R."
-        },
-        {
-          "type": "Person",
-          "name": "Delarue"
-        },
-        {
-          "type": "Person",
-          "name": "F. (2018 a )"
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "With"
+            "Carmona"
           ],
           "givenNames": [
-            "Probabilistic",
-            "Theory",
-            "Of",
-            "Mean",
-            "Field",
-            "Games"
+            "R."
           ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "FBSDEs"
+            "Delarue"
           ],
           "givenNames": [
-            "Applications",
-            "Mean",
-            "Field"
+            "F."
           ]
-        },
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "title": [
         {
-          "type": "Person",
-          "name": "Control"
-        },
-        {
-          "type": "Person",
-          "name": "Games"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Theory"
-          ],
-          "givenNames": [
-            "Probability"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Modelling"
-          ],
-          "givenNames": [
-            "Stochastic"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "Springer"
+          "type": "Text",
+          "value": {
+            "string": "Probabilistic Theory of Mean Field Games with Applications I: Mean Field FBSDEs, Control, and Games, Probability Theory and Stochastic Modelling, Springer"
+          }
         }
       ]
     },
     {
       "type": "Reference",
       "id": "bib.bib28",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
-          "name": "Carmona"
-        },
-        {
-          "type": "Person",
-          "name": "R."
-        },
-        {
-          "type": "Person",
-          "name": "Delarue"
-        },
-        {
-          "type": "Person",
-          "name": "F. (2018 b )"
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "With"
+            "Carmona"
           ],
           "givenNames": [
-            "Probabilistic",
-            "Theory",
-            "Of",
-            "Mean",
-            "Field",
-            "Games"
+            "R."
           ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Noise"
+            "Delarue"
           ],
           "givenNames": [
-            "Applications",
-            "Mean",
-            "Field",
-            "Games",
-            "With",
-            "Common"
+            "F."
           ]
-        },
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "title": [
         {
-          "type": "Person",
-          "familyNames": [
-            "Equations"
-          ],
-          "givenNames": [
-            "Master"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Theory"
-          ],
-          "givenNames": [
-            "Probability"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Modelling"
-          ],
-          "givenNames": [
-            "Stochastic"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "Springer"
+          "type": "Text",
+          "value": {
+            "string": "Probabilistic Theory of Mean Field Games with Applications II: Mean Field Games with Common Noise and Master Equations, Probability Theory and Stochastic Modelling, Springer"
+          }
         }
       ]
     },
     {
       "type": "Reference",
       "id": "bib.bib29",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Considine"
-        },
-        {
-          "type": "Person",
-          "name": "T. J."
-        },
-        {
-          "type": "Person",
-          "name": "Larson"
-        },
-        {
-          "type": "Person",
-          "name": "D. F. (2006)"
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Production’"
+            "Considine"
           ],
           "givenNames": [
-            "‘The",
-            "Environment",
-            "As",
-            "Factor",
-            "Of"
+            "T.",
+            "J."
           ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Economics"
+            "Larson"
           ],
           "givenNames": [
-            "Journal",
-            "Of",
-            "Environmental"
+            "D.",
+            "F."
           ]
-        },
-        {
-          "type": "Person",
-          "name": "management   52 (3)"
-        },
-        {
-          "type": "Person",
-          "name": "645–662"
         }
-      ]
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2006"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The environment as a factor of production"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Environmental Economics and management"
+            }
+          }
+        ],
+        "volumeNumber": 52,
+        "issueNumber": 3
+      },
+      "pageStart": 645,
+      "pageEnd": 662
     },
     {
       "type": "Reference",
       "id": "bib.bib30",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
-          "name": "Conway"
-        },
-        {
-          "type": "Person",
-          "name": "J. B"
+          "familyNames": [
+            "Conway"
+          ],
+          "givenNames": [
+            "J.",
+            "B."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "1985"
-      }
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A Course in Functional Analysis, Springer-Verlag, New York"
+          }
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "bib.bib31",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Dumitrescu"
+          "familyNames": [
+            "Dumitrescu"
+          ],
+          "givenNames": [
+            "R."
+          ]
         },
         {
           "type": "Person",
-          "name": "R."
+          "familyNames": [
+            "Leutscher"
+          ],
+          "givenNames": [
+            "M."
+          ]
         },
         {
           "type": "Person",
-          "name": "Leutscher"
-        },
-        {
-          "type": "Person",
-          "name": "M."
-        },
-        {
-          "type": "Person",
-          "name": "Tankov"
-        },
-        {
-          "type": "Person",
-          "name": "P"
+          "familyNames": [
+            "Tankov"
+          ],
+          "givenNames": [
+            "P."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2021"
-      }
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Control and optimal stopping mean field games: a linear programming approach"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Electronic Journal of Probability"
+            }
+          }
+        ],
+        "volumeNumber": 26
+      },
+      "pageStart": 1,
+      "pageEnd": 49
     },
     {
       "type": "Reference",
       "id": "bib.bib32",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Dumitrescu"
-        },
-        {
-          "type": "Person",
-          "name": "R."
-        },
-        {
-          "type": "Person",
-          "name": "Leutscher"
-        },
-        {
-          "type": "Person",
-          "name": "M."
-        },
-        {
-          "type": "Person",
-          "name": "Tankov"
-        },
-        {
-          "type": "Person",
-          "name": "P. (2023)"
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "For"
+            "Dumitrescu"
           ],
           "givenNames": [
-            "‘Linear",
-            "Programming",
-            "Fictitious",
-            "Play",
-            "Algorithm"
+            "R."
           ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Stopping"
+            "Leutscher"
           ],
           "givenNames": [
-            "Mean",
-            "Field",
-            "Games",
-            "With",
-            "Optimal"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "absorption’"
-        },
-        {
-          "type": "Person",
-          "name": "ESAIM:"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Modelling"
-          ],
-          "givenNames": [
-            "Mathematical"
+            "M."
           ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Analysis"
+            "Tankov"
           ],
           "givenNames": [
-            "Numerical"
+            "P."
           ]
-        },
-        {
-          "type": "Person",
-          "name": "953–990"
         }
-      ]
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Linear programming fictitious play algorithm for mean field games with optimal stopping and absorption"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ESAIM: Mathematical Modelling and Numerical Analysis"
+            }
+          }
+        ],
+        "volumeNumber": 57,
+        "issueNumber": 2
+      },
+      "pageStart": 953,
+      "pageEnd": 990
     },
     {
       "type": "Reference",
       "id": "bib.bib33",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Ebert"
-        },
-        {
-          "type": "Person",
-          "name": "U."
-        },
-        {
-          "type": "Person",
-          "name": "Welsch"
-        },
-        {
-          "type": "Person",
-          "name": "H. (2007)"
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Emissions"
+            "Ebert"
           ],
           "givenNames": [
-            "‘Environmental"
+            "U."
           ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "The"
+            "Welsch"
           ],
           "givenNames": [
-            "Production",
-            "Economics:",
-            "Implications"
+            "H."
           ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Balance’"
-          ],
-          "givenNames": [
-            "Materials"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Economics"
-          ],
-          "givenNames": [
-            "American",
-            "Journal",
-            "Of",
-            "Agricultural"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "287–293"
         }
-      ]
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2007"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Environmental emissions and production economics: implications of the materials balance"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "American Journal of Agricultural Economics"
+            }
+          }
+        ],
+        "volumeNumber": 89,
+        "issueNumber": 2
+      },
+      "pageStart": 287,
+      "pageEnd": 293
     },
     {
       "type": "Reference",
       "id": "bib.bib34",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
-          "name": "Ekeland"
-        },
-        {
-          "type": "Person",
-          "name": "I."
-        },
-        {
-          "type": "Person",
-          "name": "Témam"
-        },
-        {
-          "type": "Person",
-          "name": "R. (1999)"
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Analysis"
+            "Ekeland"
           ],
           "givenNames": [
-            "Convex"
+            "I."
           ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Problems"
+            "Témam"
           ],
           "givenNames": [
-            "Variational"
+            "R."
           ]
-        },
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1999"
+      },
+      "title": [
         {
-          "type": "Person",
-          "familyNames": [
-            "Applied"
-          ],
-          "givenNames": [
-            "Classics",
-            "In"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "Mathematics"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Industrial"
-          ],
-          "givenNames": [
-            "Society",
-            "For"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Mathematics"
-          ],
-          "givenNames": [
-            "Applied"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "Philadephia"
+          "type": "Text",
+          "value": {
+            "string": "Convex Analysis and Variational Problems, Classics in Applied Mathematics, Society for Industrial and Applied Mathematics (SIAM), Philadephia"
+          }
         }
       ]
     },
     {
       "type": "Reference",
       "id": "bib.bib35",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
-          "name": "Escribe"
+          "familyNames": [
+            "Escribe"
+          ],
+          "givenNames": [
+            "C."
+          ]
         },
         {
           "type": "Person",
-          "name": "C."
+          "familyNames": [
+            "Garnier"
+          ],
+          "givenNames": [
+            "J."
+          ]
         },
         {
           "type": "Person",
-          "name": "Garnier"
-        },
-        {
-          "type": "Person",
-          "name": "J."
-        },
-        {
-          "type": "Person",
-          "name": "Gobet"
-        },
-        {
-          "type": "Person",
-          "name": "E"
+          "familyNames": [
+            "Gobet"
+          ],
+          "givenNames": [
+            "E."
+          ]
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Dynamic Games and Applications"
+      },
       "date": {
         "type": "Date",
         "value": "2024"
-      }
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A mean field game model for renewable investment under long-term uncertainty and risk aversion"
+          }
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "bib.bib36",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Frankovic"
-        },
-        {
-          "type": "Person",
-          "name": "I. (2024)"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "do",
-            "Carbon",
-            "Prices"
-          ],
-          "givenNames": [
-            "‘How"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Europe"
-          ],
-          "givenNames": [
-            "Spill",
-            "Over",
-            "Along",
-            "Global",
-            "Supply",
-            "Chains?",
-            "The",
-            "Impact"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "germany’"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Modeling"
-          ],
-          "givenNames": [
-            "Journal",
-            "Of",
-            "Policy"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "887–907"
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib37",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Frey"
-        },
-        {
-          "type": "Person",
-          "name": "R."
-        },
-        {
-          "type": "Person",
-          "name": "Schmidt"
-        },
-        {
-          "type": "Person",
-          "name": "T. (2009)"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Information’"
-          ],
-          "givenNames": [
-            "‘Pricing",
-            "Corporate",
-            "Securities",
-            "Under",
-            "Noisy",
-            "Asset"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Finance"
-          ],
-          "givenNames": [
-            "Mathematical"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "403–421"
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib38",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Golosov"
-        },
-        {
-          "type": "Person",
-          "name": "M."
-        },
-        {
-          "type": "Person",
-          "name": "Hassler"
-        },
-        {
-          "type": "Person",
-          "name": "J."
-        },
-        {
-          "type": "Person",
-          "name": "Krusell"
-        },
-        {
-          "type": "Person",
-          "name": "P."
-        },
-        {
-          "type": "Person",
-          "name": "Tsyvinski"
-        },
-        {
-          "type": "Person",
-          "name": "A."
-        },
-        {
-          "type": "Person",
-          "name": "(2014)"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "In"
-          ],
-          "givenNames": [
-            "‘Optimal",
-            "Taxes",
-            "On",
-            "Fossil",
-            "Fuel"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Equilibrium’"
-          ],
-          "givenNames": [
-            "General"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "Econometrica   82 (1)"
-        },
-        {
-          "type": "Person",
-          "name": "41–88"
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib39",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Guéant"
-        },
-        {
-          "type": "Person",
-          "name": "O."
-        },
-        {
-          "type": "Person",
-          "name": "Lasry"
-        },
-        {
-          "type": "Person",
-          "name": "J.-M."
-        },
-        {
-          "type": "Person",
-          "name": "Lions"
-        },
-        {
-          "type": "Person",
-          "name": "P.-L"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2010"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib40",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Jeanblanc"
-        },
-        {
-          "type": "Person",
-          "name": "M."
-        },
-        {
-          "type": "Person",
-          "name": "Yor"
-        },
-        {
-          "type": "Person",
-          "name": "M."
-        },
-        {
-          "type": "Person",
-          "name": "Chesney"
-        },
-        {
-          "type": "Person",
-          "name": "M"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2009"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib41",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Krueger"
-        },
-        {
-          "type": "Person",
-          "name": "P."
-        },
-        {
-          "type": "Person",
-          "name": "Sautner"
-        },
-        {
-          "type": "Person",
-          "name": "Z."
-        },
-        {
-          "type": "Person",
-          "name": "Starks"
-        },
-        {
-          "type": "Person",
-          "name": "L. T. (2020)"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Institutional"
-          ],
-          "givenNames": [
-            "‘The",
-            "Importance",
-            "Of",
-            "Climate",
-            "Risks",
-            "For"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "investors’"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Studies"
-          ],
-          "givenNames": [
-            "Review",
-            "Of",
-            "Financial"
-          ],
-          "honorificPrefix": "The"
-        },
-        {
-          "type": "Person",
-          "name": "1067–1111"
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib42",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Lasry"
-        },
-        {
-          "type": "Person",
-          "name": "J.-M."
-        },
-        {
-          "type": "Person",
-          "name": "Lions"
-        },
-        {
-          "type": "Person",
-          "name": "P.-L. (2007)"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Games’"
-          ],
-          "givenNames": [
-            "‘Mean",
-            "Field"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Mathematics"
-          ],
-          "givenNames": [
-            "Japanese",
-            "Journal",
-            "Of"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "229–260"
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib43",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
           "familyNames": [
-            "Guenedal"
+            "Frankovic"
           ],
           "givenNames": [
-            "Le"
+            "I."
           ]
-        },
-        {
-          "type": "Person",
-          "name": "T."
-        },
-        {
-          "type": "Person",
-          "name": "Tankov"
-        },
-        {
-          "type": "Person",
-          "name": "P"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2025"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib44",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Leland"
-        },
-        {
-          "type": "Person",
-          "name": "H. E."
-        },
-        {
-          "type": "Person",
-          "name": "Toft"
-        },
-        {
-          "type": "Person",
-          "name": "K. B. (1996)"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Structure"
-          ],
-          "givenNames": [
-            "‘Optimal",
-            "Capital"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Bankruptcy"
-          ],
-          "givenNames": [
-            "Endogenous"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Structure"
-          ],
-          "givenNames": [
-            "Term"
-          ],
-          "honorificPrefix": "The"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Spreads’"
-          ],
-          "givenNames": [
-            "Credit"
-          ],
-          "honorificPrefix": "Of."
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Finance"
-          ],
-          "givenNames": [
-            "Journal",
-            "Of"
-          ],
-          "honorificPrefix": "The"
-        },
-        {
-          "type": "Person",
-          "name": "987–1019"
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib45",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Liang"
-        },
-        {
-          "type": "Person",
-          "name": "Z."
-        },
-        {
-          "type": "Person",
-          "name": "Zhang"
-        },
-        {
-          "type": "Person",
-          "name": "K"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2024"
-      }
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib46",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Löschenbrand"
-        },
-        {
-          "type": "Person",
-          "name": "S."
-        },
-        {
-          "type": "Person",
-          "name": "Maier"
-        },
-        {
-          "type": "Person",
-          "name": "M."
-        },
-        {
-          "type": "Person",
-          "name": "Millischer"
-        },
-        {
-          "type": "Person",
-          "name": "L."
-        },
-        {
-          "type": "Person",
-          "name": "Resch"
-        },
-        {
-          "type": "Person",
-          "name": "F"
         }
       ],
       "date": {
@@ -2460,618 +1638,1094 @@ expression: article
         {
           "type": "Text",
           "value": {
-            "string": "Available at SSRN:  https://ssrn.com/abstract=4572907 "
+            "string": "How do carbon prices spill over along global supply chains? the impact on europe and germany"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Policy Modeling"
+            }
+          }
+        ],
+        "volumeNumber": 46,
+        "issueNumber": 5
+      },
+      "pageStart": 887,
+      "pageEnd": 907
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib37",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Frey"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schmidt"
+          ],
+          "givenNames": [
+            "T."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2009"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Pricing corporate securities under noisy asset information"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Mathematical Finance"
+            }
+          }
+        ],
+        "volumeNumber": 19,
+        "issueNumber": 3
+      },
+      "pageStart": 403,
+      "pageEnd": 421
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib38",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Golosov"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hassler"
+          ],
+          "givenNames": [
+            "J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Krusell"
+          ],
+          "givenNames": [
+            "P."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tsyvinski"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2014"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Optimal taxes on fossil fuel in general equilibrium"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Econometrica"
+            }
+          }
+        ],
+        "volumeNumber": 82,
+        "issueNumber": 1
+      },
+      "pageStart": 41,
+      "pageEnd": 88
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib39",
+      "text": "Guéant, O., Lasry, J.-M. and Lions, P.-L. (2010), Mean field games and applications, in ‘Paris-Princeton Lectures on Mathematical Finance 2010’, Vol. 2003 of Lecture Notes in Mathematics, Springer-Verlag Berlin Heidelberg"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib40",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jeanblanc"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yor"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chesney"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2009"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Mathematical Methods for Financial Markets, Springer Finance, second edn, Springer, Berlin"
           }
         }
       ]
     },
     {
       "type": "Reference",
-      "id": "bib.bib47",
+      "id": "bib.bib41",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Mardones"
+          "familyNames": [
+            "Krueger"
+          ],
+          "givenNames": [
+            "P."
+          ]
         },
         {
           "type": "Person",
-          "name": "C."
+          "familyNames": [
+            "Sautner"
+          ],
+          "givenNames": [
+            "Z."
+          ]
         },
         {
           "type": "Person",
-          "name": "Mena"
-        },
-        {
-          "type": "Person",
-          "name": "C"
+          "familyNames": [
+            "Starks"
+          ],
+          "givenNames": [
+            "L.",
+            "T."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2020"
-      }
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The importance of climate risks for institutional investors"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Review of Financial Studies"
+            }
+          }
+        ],
+        "volumeNumber": 33,
+        "issueNumber": 3
+      },
+      "pageStart": 1067,
+      "pageEnd": 1111
     },
     {
       "type": "Reference",
-      "id": "bib.bib48",
+      "id": "bib.bib42",
+      "text": "Lasry, J.-M. and Lions, P.-L. (2007), ‘Mean field games’, Japanese Journal of Mathematics 2(1), 229–260"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib43",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Mardones"
+          "familyNames": [
+            "Le",
+            "Guenedal"
+          ],
+          "givenNames": [
+            "T."
+          ]
         },
         {
           "type": "Person",
-          "name": "C."
-        },
-        {
-          "type": "Person",
-          "name": "Muñoz"
-        },
-        {
-          "type": "Person",
-          "name": "T"
+          "familyNames": [
+            "Tankov"
+          ],
+          "givenNames": [
+            "P."
+          ]
         }
       ],
       "date": {
         "type": "Date",
+        "value": "2025"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Corporate debt value under transition scenario uncertainty"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Mathematical Finance"
+            }
+          }
+        ],
+        "volumeNumber": 35
+      },
+      "pageStart": 40,
+      "pageEnd": 73
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib44",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Leland"
+          ],
+          "givenNames": [
+            "H.",
+            "E."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Toft"
+          ],
+          "givenNames": [
+            "K.",
+            "B."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1996"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Optimal capital structure, endogenous bankruptcy, and the term structure of credit spreads"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The journal of finance"
+            }
+          }
+        ],
+        "volumeNumber": 51,
+        "issueNumber": 3
+      },
+      "pageStart": 987,
+      "pageEnd": 1019
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib45",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liang"
+          ],
+          "givenNames": [
+            "Z."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhang"
+          ],
+          "givenNames": [
+            "K."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A mean field game approach to relative investment–consumption games with habit formation"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Mathematics and Financial Economics"
+            }
+          }
+        ],
+        "volumeNumber": 18
+      },
+      "pageStart": 577,
+      "pageEnd": 622
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib46",
+      "workType": "WebPage",
+      "url": "https://ssrn.com/abstract=4572907",
+      "text": "Löschenbrand, S., Maier, M., Millischer, L. and Resch, F. (2024), ‘Credit risk where it’s due: Carbon pricing and firm defaults’. Available at SSRN"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib47",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mardones"
+          ],
+          "givenNames": [
+            "C."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mena"
+          ],
+          "givenNames": [
+            "C."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Economic, environmental and distributive analysis of the taxes to global and local air pollutants in chile"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Cleaner Production"
+            }
+          }
+        ],
+        "volumeNumber": 259
+      },
+      "pageStart": 120893
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib48",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mardones"
+          ],
+          "givenNames": [
+            "C."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Muñoz"
+          ],
+          "givenNames": [
+            "T."
+          ]
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Environment, Development and Sustainability 20, 2545–2563"
+      },
+      "date": {
+        "type": "Date",
         "value": "2018"
-      }
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Environmental taxation for reducing greenhouse gases emissions in chile: an input-output analysis"
+          }
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "bib.bib49",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
-          "name": "Mas-Colell"
+          "familyNames": [
+            "Mas-Colell"
+          ],
+          "givenNames": [
+            "A."
+          ]
         },
         {
           "type": "Person",
-          "name": "A."
+          "familyNames": [
+            "Whinston"
+          ],
+          "givenNames": [
+            "M.",
+            "D."
+          ]
         },
         {
           "type": "Person",
-          "name": "Whinston"
-        },
-        {
-          "type": "Person",
-          "name": "M. D."
-        },
-        {
-          "type": "Person",
-          "name": "Green"
-        },
-        {
-          "type": "Person",
-          "name": "J. R"
+          "familyNames": [
+            "Green"
+          ],
+          "givenNames": [
+            "J.",
+            "R."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "1995"
-      }
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Microeconomic Theory, Oxford Univerity Press"
+          }
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "bib.bib50",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Matsumura"
+          "familyNames": [
+            "Matsumura"
+          ],
+          "givenNames": [
+            "K."
+          ]
         },
         {
           "type": "Person",
-          "name": "K."
+          "familyNames": [
+            "Naka"
+          ],
+          "givenNames": [
+            "T."
+          ]
         },
         {
           "type": "Person",
-          "name": "Naka"
-        },
-        {
-          "type": "Person",
-          "name": "T."
-        },
-        {
-          "type": "Person",
-          "name": "Sudo"
-        },
-        {
-          "type": "Person",
-          "name": "N"
+          "familyNames": [
+            "Sudo"
+          ],
+          "givenNames": [
+            "N."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2024"
-      }
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Analysis of the transmission of carbon taxes using a multi-sector dsge"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Energy Economics"
+            }
+          }
+        ],
+        "volumeNumber": 136
+      },
+      "pageStart": 107642
     },
     {
       "type": "Reference",
       "id": "bib.bib51",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Merton"
-        },
-        {
-          "type": "Person",
-          "name": "R. C. (1974)"
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Of"
+            "Merton"
           ],
           "givenNames": [
-            "‘On",
-            "The",
-            "Pricing"
+            "R.",
+            "C."
           ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Rates’"
-          ],
-          "givenNames": [
-            "Debt:",
-            "The",
-            "Risk",
-            "Structure",
-            "Interest"
-          ],
-          "honorificPrefix": "Corporate"
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Of"
-          ],
-          "givenNames": [
-            "Journal"
-          ],
-          "honorificPrefix": "The"
-        },
-        {
-          "type": "Person",
-          "name": "Finance   29 (2)"
-        },
-        {
-          "type": "Person",
-          "name": "449–470"
         }
-      ]
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1974"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "On the pricing of corporate debt: the risk structure of interest rates"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Journal of Finance"
+            }
+          }
+        ],
+        "volumeNumber": 29,
+        "issueNumber": 2
+      },
+      "pageStart": 449,
+      "pageEnd": 470
     },
     {
       "type": "Reference",
       "id": "bib.bib52",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Miao"
-        },
-        {
-          "type": "Person",
-          "name": "J. (2005)"
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Structure"
+            "Miao"
           ],
           "givenNames": [
-            "‘Optimal",
-            "Capital"
+            "J."
           ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Dynamics’"
-          ],
-          "givenNames": [
-            "Industry"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Finance"
-          ],
-          "givenNames": [
-            "Journal",
-            "Of"
-          ],
-          "honorificPrefix": "The"
-        },
-        {
-          "type": "Person",
-          "name": "2621–2659"
         }
-      ]
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2005"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Optimal capital structure and industry dynamics"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Journal of Finance"
+            }
+          }
+        ],
+        "volumeNumber": 60,
+        "issueNumber": 6
+      },
+      "pageStart": 2621,
+      "pageEnd": 2659
     },
     {
       "type": "Reference",
       "id": "bib.bib53",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Neuhoff"
-        },
-        {
-          "type": "Person",
-          "name": "K."
-        },
-        {
-          "type": "Person",
-          "name": "Ritz"
-        },
-        {
-          "type": "Person",
-          "name": "R. (2019)"
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Sectors’"
+            "Neuhoff"
           ],
           "givenNames": [
-            "‘Carbon",
-            "Cost",
-            "Pass-Through",
-            "In",
-            "Industrial"
+            "K."
           ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Journal"
+            "Ritz"
           ],
           "givenNames": [
-            "Energy"
-          ],
-          "honorificPrefix": "The"
-        },
-        {
-          "type": "Person",
-          "name": "40 (1)"
-        },
-        {
-          "type": "Person",
-          "name": "157–189"
+            "R."
+          ]
         }
-      ]
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Carbon cost pass-through in industrial sectors"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Energy Journal"
+            }
+          }
+        ],
+        "volumeNumber": 40,
+        "issueNumber": 1
+      },
+      "pageStart": 157,
+      "pageEnd": 189
     },
     {
       "type": "Reference",
       "id": "bib.bib54",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Reinders"
-        },
-        {
-          "type": "Person",
-          "name": "H. J."
-        },
-        {
-          "type": "Person",
-          "name": "Schoenmaker"
-        },
-        {
-          "type": "Person",
-          "name": "D."
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Dijk"
+            "Reinders"
           ],
           "givenNames": [
-            "Van"
+            "H.",
+            "J."
           ]
         },
         {
           "type": "Person",
-          "name": "M"
+          "familyNames": [
+            "Schoenmaker"
+          ],
+          "givenNames": [
+            "D."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "van",
+            "Dijk"
+          ],
+          "givenNames": [
+            "M."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2023"
-      }
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A finance approach to climate stress testing"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of International Money and Finance"
+            }
+          }
+        ],
+        "volumeNumber": 131
+      },
+      "pageStart": 102797
     },
     {
       "type": "Reference",
       "id": "bib.bib55",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
-          "name": "Rockafellar"
-        },
-        {
-          "type": "Person",
-          "name": "R. T"
+          "familyNames": [
+            "Rockafellar"
+          ],
+          "givenNames": [
+            "R.",
+            "T."
+          ]
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "J"
+      },
       "date": {
         "type": "Date",
         "value": "1970"
-      }
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Convex Analysis, Princeton Mathematical Series, Princeton University Press, Princeton, N"
+          }
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "bib.bib56",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Schmidt"
-        },
-        {
-          "type": "Person",
-          "name": "T."
-        },
-        {
-          "type": "Person",
-          "name": "Novikov"
-        },
-        {
-          "type": "Person",
-          "name": "A. (2008)"
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Boundary’"
+            "Schmidt"
           ],
           "givenNames": [
-            "Structural",
-            "Model",
-            "With",
-            "Unobserved",
-            "Default"
+            "T."
           ]
         },
         {
           "type": "Person",
-          "name": "Applied"
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Finance"
+            "Novikov"
           ],
           "givenNames": [
-            "Mathematical"
+            "A."
           ]
-        },
-        {
-          "type": "Person",
-          "name": "183–203"
         }
-      ]
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2008"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A structural model with unobserved default boundary"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Applied mathematical finance"
+            }
+          }
+        ],
+        "volumeNumber": 15,
+        "issueNumber": 2
+      },
+      "pageStart": 183,
+      "pageEnd": 203
     },
     {
       "type": "Reference",
       "id": "bib.bib57",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Uzawa"
-        },
-        {
-          "type": "Person",
-          "name": "H. (1962)"
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "With"
+            "Uzawa"
           ],
           "givenNames": [
-            "‘Production",
-            "Functions"
+            "H."
           ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Substitution’"
-          ],
-          "givenNames": [
-            "Constant",
-            "Elasticities"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Economics"
-          ],
-          "givenNames": [
-            "Review",
-            "Of"
-          ],
-          "honorificPrefix": "The"
-        },
-        {
-          "type": "Person",
-          "name": "Statistics   29 (4)"
-        },
-        {
-          "type": "Person",
-          "name": "291–299"
         }
-      ]
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1962"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Production functions with constant elasticities of substitution"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Review of Economics and Statistics"
+            }
+          }
+        ],
+        "volumeNumber": 29,
+        "issueNumber": 4
+      },
+      "pageStart": 291,
+      "pageEnd": 299
     },
     {
       "type": "Reference",
       "id": "bib.bib58",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "der",
-            "Ploeg"
-          ],
-          "givenNames": [
-            "Van"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "F."
-        },
-        {
-          "type": "Person",
-          "name": "Rezai"
-        },
-        {
-          "type": "Person",
-          "name": "A"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "2021"
-      }
+      "text": "van der Ploeg, F. and Rezai, A. (2021), ‘Optimal carbon pricing in general equilibrium: Temperature caps and stranded assets in an extended annual dsge model’, Journal of Environmental Economics and Management 110, 102522"
     },
     {
       "type": "Reference",
       "id": "bib.bib59",
-      "authors": [
-        {
-          "type": "Person",
-          "name": "Varian"
-        },
-        {
-          "type": "Person",
-          "name": "H"
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "1992"
-      }
+      "text": "Varian, H. (1992), Microeconomic Analysis, W.W. Norton & Company"
     },
     {
       "type": "Reference",
       "id": "bib.bib60",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Wang"
+          "familyNames": [
+            "Wang"
+          ],
+          "givenNames": [
+            "J."
+          ]
         },
         {
           "type": "Person",
-          "name": "J."
+          "familyNames": [
+            "Qiang"
+          ],
+          "givenNames": [
+            "H."
+          ]
         },
         {
           "type": "Person",
-          "name": "Qiang"
+          "familyNames": [
+            "Liang"
+          ],
+          "givenNames": [
+            "Y."
+          ]
         },
         {
           "type": "Person",
-          "name": "H."
+          "familyNames": [
+            "Huang"
+          ],
+          "givenNames": [
+            "X."
+          ]
         },
         {
           "type": "Person",
-          "name": "Liang"
-        },
-        {
-          "type": "Person",
-          "name": "Y."
-        },
-        {
-          "type": "Person",
-          "name": "Huang"
-        },
-        {
-          "type": "Person",
-          "name": "X."
-        },
-        {
-          "type": "Person",
-          "name": "Zhong"
-        },
-        {
-          "type": "Person",
-          "name": "W"
+          "familyNames": [
+            "Zhong"
+          ],
+          "givenNames": [
+            "W."
+          ]
         }
       ],
       "date": {
         "type": "Date",
         "value": "2024"
-      }
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "How carbon risk affects corporate debt defaults: Evidence from paris agreement"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Energy Economics"
+            }
+          }
+        ],
+        "volumeNumber": 129
+      },
+      "pageStart": 107275
     },
     {
       "type": "Reference",
       "id": "bib.bib61",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
-          "name": "Wei"
-        },
-        {
-          "type": "Person",
-          "name": "T."
-        },
-        {
-          "type": "Person",
-          "name": "Aaheim"
-        },
-        {
-          "type": "Person",
-          "name": "A. (2023)"
-        },
-        {
-          "type": "Person",
           "familyNames": [
-            "Models"
+            "Wei"
           ],
           "givenNames": [
-            "‘Climate",
-            "Change",
-            "Adaptation",
-            "Based",
-            "On",
-            "Computable",
-            "General",
-            "Equilibrium"
+            "T."
           ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Review’"
+            "Aaheim"
           ],
           "givenNames": [
-            "Systematic"
+            "A."
           ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Strategies"
-          ],
-          "givenNames": [
-            "International",
-            "Journal",
-            "Of",
-            "Climate",
-            "Change"
-          ]
-        },
-        {
-          "type": "Person",
-          "name": "Management   15 (4)"
-        },
-        {
-          "type": "Person",
-          "name": "561–576"
         }
-      ]
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Climate change adaptation based on computable general equilibrium models – a systematic review"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "International Journal of Climate Change Strategies and Management"
+            }
+          }
+        ],
+        "volumeNumber": 15,
+        "issueNumber": 4
+      },
+      "pageStart": 561,
+      "pageEnd": 576
     }
   ],
   "title": [

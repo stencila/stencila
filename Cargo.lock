@@ -1194,6 +1194,7 @@ version = "0.0.0"
 dependencies = [
  "base64 0.22.1",
  "codec",
+ "codec-biblio",
  "codec-latex",
  "codec-pdf",
  "common-dev",
@@ -1718,6 +1719,7 @@ version = "0.0.0"
 dependencies = [
  "base64 0.22.1",
  "codec",
+ "codec-biblio",
  "codec-csv",
  "codec-html",
  "codec-ipynb",

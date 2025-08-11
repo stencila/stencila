@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 base64 = { workspace = true }
 codec = { path = "../codec" }
+codec-biblio = { path = "../codec-biblio" }
 codec-latex = { path = "../codec-latex" }
 codec-pdf = { path = "../codec-pdf" }
 tl = { workspace = true }

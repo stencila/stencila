@@ -81,172 +81,59 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib1",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "Chan"
-          ],
-          "givenNames": [
-            "Brian"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Chen"
-          ],
-          "givenNames": [
-            "Chao-Ting"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Cheng"
-          ],
-          "givenNames": [
-            "Jui-Hung"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Huang"
-          ],
-          "givenNames": [
-            "Hen-Hsen"
-          ]
-        }
-      ],
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Don’t do rag: When cache-augmented generation is all you need for knowledge tasks"
-          }
-        }
-      ],
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "In  Companion Proceedings of the ACM on Web Conference 2025"
-            }
-          }
-        ],
-        "volumeNumber": "WWW ’25, pp.  893–897. ACM, May 2025."
-      }
+      "doi": "10.1145/3701716.3715490.",
+      "text": "Brian J. Chan, Chao-Ting Chen, Jui-Hung Cheng, and Hen-Hsen Huang. Don’t do rag: When cache-augmented generation is all you need for knowledge tasks. In Companion Proceedings of the ACM on Web Conference 2025, WWW ’25, pp. 893–897. ACM, May 2025"
     },
     {
       "type": "Reference",
       "id": "bib.bib2",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
           "familyNames": [
+            "Yeounoh",
             "Chung"
           ],
           "givenNames": [
-            "Yeounoh"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Gaurav",
+            "T.",
             "Kakkar"
-          ],
-          "givenNames": [
-            "Gaurav"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Gan"
-          ],
-          "givenNames": [
-            "Yu"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Milne"
-          ],
-          "givenNames": [
-            "Brenton"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Ozcan"
-          ],
-          "givenNames": [
-            "Fatma"
           ]
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Is long context all you need? leveraging llm’s extended context for nl2sql"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "Is long context all you need? leveraging llm’s extended context for nl2sql, 2025"
+            "string": "Yu Gan, Brenton Milne, and Fatma Ozcan"
           }
         }
-      ]
+      ],
+      "url": "https://arxiv.org/abs/2501.12372"
     },
     {
       "type": "Reference",
       "id": "bib.bib3",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "de",
-            "Langis"
-          ],
-          "givenNames": [
-            "Karin"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Koo"
-          ],
-          "givenNames": [
-            "Ryan"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Kang"
-          ],
-          "givenNames": [
-            "Dongyeop"
-          ]
-        }
-      ],
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Dynamic multi-reward weighting for multi-style controllable generation, 2024"
-          }
-        }
-      ]
+      "workType": "WebPage",
+      "url": "https://arxiv.org/abs/2402.14146",
+      "text": "Karin de Langis, Ryan Koo, and Dongyeop Kang. Dynamic multi-reward weighting for multi-style controllable generation, 2024"
     },
     {
       "type": "Reference",
       "id": "bib.bib4",
+      "workType": "WebPage",
       "authors": [
         {
-          "type": "Person",
+          "type": "Organization",
           "name": "DeepSeek-AI"
         }
       ],
@@ -257,11 +144,13 @@ expression: article
             "string": "Deepseek-r1: Incentivizing reasoning capability in llms via reinforcement learning, 2025"
           }
         }
-      ]
+      ],
+      "url": "https://arxiv.org/abs/2501.12948"
     },
     {
       "type": "Reference",
       "id": "bib.bib5",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -282,204 +171,59 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "Serial position effects of large language models, 2024"
+            "string": "Serial position effects of large language models"
           }
         }
-      ]
+      ],
+      "url": "https://arxiv.org/abs/2406.15981"
     },
     {
       "type": "Reference",
       "id": "bib.bib6",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
           "familyNames": [
+            "Yun",
             "He"
           ],
           "givenNames": [
-            "Yun"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Di",
             "Jin"
-          ],
-          "givenNames": [
-            "Di"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Wang"
-          ],
-          "givenNames": [
-            "Chaoqi"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Bi"
-          ],
-          "givenNames": [
-            "Chloe"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Mandyam"
-          ],
-          "givenNames": [
-            "Karishma"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Zhang"
-          ],
-          "givenNames": [
-            "Hejia"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Zhu"
-          ],
-          "givenNames": [
-            "Chen"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Li"
-          ],
-          "givenNames": [
-            "Ning"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Xu"
-          ],
-          "givenNames": [
-            "Tengyu"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Lv"
-          ],
-          "givenNames": [
-            "Hongjiang"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Bhosale"
-          ],
-          "givenNames": [
-            "Shruti"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Zhu"
-          ],
-          "givenNames": [
-            "Chenguang"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Sankararaman"
-          ],
-          "givenNames": [
-            "Karthik",
-            "Abinav"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Helenowski"
-          ],
-          "givenNames": [
-            "Eryk"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Kambadur"
-          ],
-          "givenNames": [
-            "Melanie"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Tayade"
-          ],
-          "givenNames": [
-            "Aditya"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Ma"
-          ],
-          "givenNames": [
-            "Hao"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Fang"
-          ],
-          "givenNames": [
-            "Han"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Wang"
-          ],
-          "givenNames": [
-            "Sinong"
           ]
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Multi-if: Benchmarking llms on multi-turn and multilingual instructions following"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "Multi-if: Benchmarking llms on multi-turn and multilingual instructions following, 2024"
+            "string": "Chaoqi Wang, Chloe Bi, Karishma Mandyam, Hejia Zhang, Chen Zhu, Ning Li, Tengyu Xu, Hongjiang Lv, Shruti Bhosale, Chenguang Zhu, Karthik Abinav Sankararaman, Eryk Helenowski, Melanie Kambadur, Aditya Tayade, Hao Ma, Han Fang, and Sinong Wang"
           }
         }
-      ]
+      ],
+      "url": "https://arxiv.org/abs/2410.15553"
     },
     {
       "type": "Reference",
       "id": "bib.bib7",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -500,267 +244,129 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "Llm agents display human biases but exhibit distinct learning patterns, 2025"
+            "string": "Llm agents display human biases but exhibit distinct learning patterns"
           }
         }
-      ]
+      ],
+      "url": "https://arxiv.org/abs/2503.10248"
     },
     {
       "type": "Reference",
       "id": "bib.bib8",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
           "familyNames": [
+            "Yerin",
             "Hwang"
           ],
           "givenNames": [
-            "Yerin"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Yongil",
             "Kim"
-          ],
-          "givenNames": [
-            "Yongil"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Koo"
-          ],
-          "givenNames": [
-            "Jahyun"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Kang"
-          ],
-          "givenNames": [
-            "Taegwan"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Bae"
-          ],
-          "givenNames": [
-            "Hyunkyung"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Jung"
-          ],
-          "givenNames": [
-            "Kyomin"
           ]
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Llms can be easily confused by instructional distractions"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "Llms can be easily confused by instructional distractions, 2025"
+            "string": "Jahyun Koo, Taegwan Kang, Hyunkyung Bae, and Kyomin Jung"
           }
         }
-      ]
+      ],
+      "url": "https://arxiv.org/abs/2502.04362"
     },
     {
       "type": "Reference",
       "id": "bib.bib9",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
           "familyNames": [
+            "Yuxin",
             "Jiang"
           ],
           "givenNames": [
-            "Yuxin"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Yufei",
             "Wang"
-          ],
-          "givenNames": [
-            "Yufei"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Zeng"
-          ],
-          "givenNames": [
-            "Xingshan"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Zhong"
-          ],
-          "givenNames": [
-            "Wanjun"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Li"
-          ],
-          "givenNames": [
-            "Liangyou"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Mi"
-          ],
-          "givenNames": [
-            "Fei"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Shang"
-          ],
-          "givenNames": [
-            "Lifeng"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Jiang"
-          ],
-          "givenNames": [
-            "Xin"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Liu"
-          ],
-          "givenNames": [
-            "Qun"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Wang"
-          ],
-          "givenNames": [
-            "Wei"
           ]
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Followbench: A multi-level fine-grained constraints following benchmark for large language models"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "Followbench: A multi-level fine-grained constraints following benchmark for large language models, 2024"
+            "string": "Xingshan Zeng, Wanjun Zhong, Liangyou Li, Fei Mi, Lifeng Shang, Xin Jiang, Qun Liu, and Wei Wang"
           }
         }
-      ]
+      ],
+      "url": "https://arxiv.org/abs/2310.20410"
     },
     {
       "type": "Reference",
       "id": "bib.bib10",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
           "familyNames": [
+            "Yimin",
             "Jing"
           ],
           "givenNames": [
-            "Yimin"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Renren",
             "Jin"
-          ],
-          "givenNames": [
-            "Renren"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Hu"
-          ],
-          "givenNames": [
-            "Jiahao"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Qiu"
-          ],
-          "givenNames": [
-            "Huishi"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Wang"
-          ],
-          "givenNames": [
-            "Xiaohua"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Wang"
-          ],
-          "givenNames": [
-            "Peng"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Xiong"
-          ],
-          "givenNames": [
-            "Deyi"
           ]
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Followeval: A multi-dimensional benchmark for assessing the instruction-following capability of large language models"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "Followeval: A multi-dimensional benchmark for assessing the instruction-following capability of large language models, 2023"
+            "string": "Jiahao Hu, Huishi Qiu, Xiaohua Wang, Peng Wang, and Deyi Xiong"
           }
         }
-      ]
+      ],
+      "url": "https://arxiv.org/abs/2311.09829"
     },
     {
       "type": "Reference",
       "id": "bib.bib11",
+      "workType": "WebPage",
       "authors": [
         {
           "type": "Person",
@@ -779,416 +385,135 @@ expression: article
             "string": "Agent-s: Llm agentic workflow to automate standard operating procedures, 2025"
           }
         }
-      ]
+      ],
+      "url": "https://arxiv.org/abs/2503.15520"
     },
     {
       "type": "Reference",
       "id": "bib.bib12",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "Liu"
-          ],
-          "givenNames": [
-            "Yixin"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Shi"
-          ],
-          "givenNames": [
-            "Kejian"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Fabbri"
-          ],
-          "givenNames": [
-            "Alexander"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Zhao"
-          ],
-          "givenNames": [
-            "Yilun"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Wang"
-          ],
-          "givenNames": [
-            "PeiFeng"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Wu"
-          ],
-          "givenNames": [
-            "Chien-Sheng"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Joty"
-          ],
-          "givenNames": [
-            "Shafiq"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Cohan"
-          ],
-          "givenNames": [
-            "Arman"
-          ]
-        }
-      ],
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "ReIFE: Re-evaluating instruction-following evaluation"
-          }
-        }
-      ],
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "In Luis Chiruzzo"
-            }
-          }
-        ],
-        "volumeNumber": "Alan Ritter, and Lu Wang ",
-        "issueNumber": "eds."
-      },
-      "pageStart": "Human Language Technologies (Volume 1: Long Papers) , pp.  12247",
-      "pageEnd": "12287, Albuquerque, New Mexico, April 2025. Association for Computational Linguistics",
-      "pagination": "Human Language Technologies (Volume 1: Long Papers) , pp.  12247–12287, Albuquerque, New Mexico, April 2025. Association for Computational Linguistics."
+      "workType": "WebPage",
+      "url": "https://aclanthology.org/2025.naacl-long.610/",
+      "text": "Yixin Liu, Kejian Shi, Alexander Fabbri, Yilun Zhao, PeiFeng Wang, Chien-Sheng Wu, Shafiq Joty, and Arman Cohan. ReIFE: Re-evaluating instruction-following evaluation. In Luis Chiruzzo, Alan Ritter, and Lu Wang (eds.), Proceedings of the 2025 Conference of the Nations of the Americas Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pp. 12247–12287, Albuquerque, New Mexico, April 2025. Association for Computational Linguistics. ISBN 979-8-89176-189-6"
     },
     {
       "type": "Reference",
       "id": "bib.bib13",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "Lou"
-          ],
-          "givenNames": [
-            "Renze"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Zhang"
-          ],
-          "givenNames": [
-            "Kai"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Yin"
-          ],
-          "givenNames": [
-            "Wenpeng"
-          ]
-        }
-      ],
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Large language model instruction following: A survey of progresses and challenges, 2024"
-          }
-        }
-      ]
+      "workType": "WebPage",
+      "url": "https://arxiv.org/abs/2303.10475",
+      "text": "Renze Lou, Kai Zhang, and Wenpeng Yin. Large language model instruction following: A survey of progresses and challenges, 2024"
     },
     {
       "type": "Reference",
       "id": "bib.bib14",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
           "familyNames": [
+            "Karime",
             "Maamari"
           ],
           "givenNames": [
-            "Karime"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Fadhil",
             "Abubaker"
-          ],
-          "givenNames": [
-            "Fadhil"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Jaroslawicz"
-          ],
-          "givenNames": [
-            "Daniel"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Mhedhbi"
-          ],
-          "givenNames": [
-            "Amine"
           ]
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "The death of schema linking? text-to-sql in the age of well-reasoned language models"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "The death of schema linking? text-to-sql in the age of well-reasoned language models, 2024"
+            "string": "Daniel Jaroslawicz, and Amine Mhedhbi"
           }
         }
-      ]
+      ],
+      "url": "https://arxiv.org/abs/2408.07702"
     },
     {
       "type": "Reference",
       "id": "bib.bib15",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
           "familyNames": [
+            "Aman",
             "Madaan"
           ],
           "givenNames": [
-            "Aman"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Niket",
             "Tandon"
-          ],
-          "givenNames": [
-            "Niket"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Gupta"
-          ],
-          "givenNames": [
-            "Prakhar"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Hallinan"
-          ],
-          "givenNames": [
-            "Skyler"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Gao"
-          ],
-          "givenNames": [
-            "Luyu"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Wiegreffe"
-          ],
-          "givenNames": [
-            "Sarah"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Alon"
-          ],
-          "givenNames": [
-            "Uri"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Dziri"
-          ],
-          "givenNames": [
-            "Nouha"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Prabhumoye"
-          ],
-          "givenNames": [
-            "Shrimai"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Yang"
-          ],
-          "givenNames": [
-            "Yiming"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Gupta"
-          ],
-          "givenNames": [
-            "Shashank"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Majumder"
-          ],
-          "givenNames": [
-            "Bodhisattwa",
-            "Prasad"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Hermann"
-          ],
-          "givenNames": [
-            "Katherine"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Welleck"
-          ],
-          "givenNames": [
-            "Sean"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Yazdanbakhsh"
-          ],
-          "givenNames": [
-            "Amir"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Clark"
-          ],
-          "givenNames": [
-            "Peter"
           ]
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Self-refine: Iterative refinement with self-feedback"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "Self-refine: Iterative refinement with self-feedback, 2023"
+            "string": "Prakhar Gupta, Skyler Hallinan, Luyu Gao, Sarah Wiegreffe, Uri Alon, Nouha Dziri, Shrimai Prabhumoye, Yiming Yang, Shashank Gupta, Bodhisattwa Prasad Majumder, Katherine Hermann, Sean Welleck, Amir Yazdanbakhsh, and Peter Clark"
           }
         }
-      ]
+      ],
+      "url": "https://arxiv.org/abs/2303.17651"
     },
     {
       "type": "Reference",
       "id": "bib.bib16",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
           "familyNames": [
+            "Swaroop",
             "Mishra"
           ],
           "givenNames": [
-            "Swaroop"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Daniel",
             "Khashabi"
-          ],
-          "givenNames": [
-            "Daniel"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Baral"
-          ],
-          "givenNames": [
-            "Chitta"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Hajishirzi"
-          ],
-          "givenNames": [
-            "Hannaneh"
           ]
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Cross-task generalization via natural language crowdsourcing instructions"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "Cross-task generalization via natural language crowdsourcing instructions, 2022"
+            "string": "Chitta Baral, and Hannaneh Hajishirzi"
           }
         }
-      ]
+      ],
+      "url": "https://arxiv.org/abs/2104.08773"
     },
     {
       "type": "Reference",
       "id": "bib.bib17",
+      "workType": "WebPage",
       "authors": [
         {
-          "type": "Person",
+          "type": "Organization",
           "name": "OpenAI"
         }
       ],
@@ -1199,190 +524,43 @@ expression: article
             "string": "Openai o1 system card, 2024"
           }
         }
-      ]
+      ],
+      "url": "https://arxiv.org/abs/2412.16720"
     },
     {
       "type": "Reference",
       "id": "bib.bib18",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
           "familyNames": [
+            "Long",
             "Ouyang"
           ],
           "givenNames": [
-            "Long"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Jeff",
             "Wu"
-          ],
-          "givenNames": [
-            "Jeff"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Xu",
             "Jiang"
           ],
           "givenNames": [
-            "Xu"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Diogo",
             "Almeida"
-          ],
-          "givenNames": [
-            "Diogo"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Wainwright"
-          ],
-          "givenNames": [
             "Carroll"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Mishkin"
           ],
           "givenNames": [
-            "Pamela"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Zhang"
-          ],
-          "givenNames": [
-            "Chong"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Agarwal"
-          ],
-          "givenNames": [
-            "Sandhini"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Slama"
-          ],
-          "givenNames": [
-            "Katarina"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Ray"
-          ],
-          "givenNames": [
-            "Alex"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Schulman"
-          ],
-          "givenNames": [
-            "John"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Hilton"
-          ],
-          "givenNames": [
-            "Jacob"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Kelton"
-          ],
-          "givenNames": [
-            "Fraser"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Miller"
-          ],
-          "givenNames": [
-            "Luke"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Simens"
-          ],
-          "givenNames": [
-            "Maddie"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Askell"
-          ],
-          "givenNames": [
-            "Amanda"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Welinder"
-          ],
-          "givenNames": [
-            "Peter"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Christiano"
-          ],
-          "givenNames": [
-            "Paul"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Leike"
-          ],
-          "givenNames": [
-            "Jan"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Lowe"
-          ],
-          "givenNames": [
-            "Ryan"
+            "L."
           ]
         }
       ],
@@ -1390,111 +568,7 @@ expression: article
         {
           "type": "Text",
           "value": {
-            "string": "Training language models to follow instructions with human feedback, 2022"
-          }
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib19",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "Qin"
-          ],
-          "givenNames": [
-            "Yiwei"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Song"
-          ],
-          "givenNames": [
-            "Kaiqiang"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Hu"
-          ],
-          "givenNames": [
-            "Yebowen"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Yao"
-          ],
-          "givenNames": [
-            "Wenlin"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Cho"
-          ],
-          "givenNames": [
-            "Sangwoo"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Wang"
-          ],
-          "givenNames": [
-            "Xiaoyang"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Wu"
-          ],
-          "givenNames": [
-            "Xuansheng"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Liu"
-          ],
-          "givenNames": [
-            "Fei"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Liu"
-          ],
-          "givenNames": [
-            "Pengfei"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Yu"
-          ],
-          "givenNames": [
-            "Dong"
-          ]
-        }
-      ],
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "InFoBench: Evaluating instruction following ability in large language models"
+            "string": "Wainwright, Pamela Mishkin, Chong Zhang, Sandhini Agarwal, Katarina Slama, Alex Ray, John Schulman, Jacob Hilton, Fraser Kelton, Luke Miller, Maddie Simens, Amanda Askell, Peter Welinder, Paul Christiano, Jan Leike, and Ryan Lowe"
           }
         }
       ],
@@ -1504,393 +578,259 @@ expression: article
           {
             "type": "Text",
             "value": {
-              "string": "In Lun-Wei Ku"
+              "string": "Training language models to follow instructions with human feedback"
             }
           }
         ],
-        "volumeNumber": "Andre Martins, and Vivek Srikumar ",
-        "issueNumber": "eds."
+        "volumeNumber": 2022
       },
-      "pageStart": "ACL 2024 , pp.  13025",
-      "pageEnd": "13048, Bangkok, Thailand, August 2024. Association for Computational Linguistics",
-      "pagination": "ACL 2024 , pp.  13025–13048, Bangkok, Thailand, August 2024. Association for Computational Linguistics."
+      "url": "https://arxiv.org/abs/2203.02155"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib19",
+      "doi": "10.18653/v1/2024.findings-acl.772.",
+      "text": "Yiwei Qin, Kaiqiang Song, Yebowen Hu, Wenlin Yao, Sangwoo Cho, Xiaoyang Wang, Xuansheng Wu, Fei Liu, Pengfei Liu, and Dong Yu. InFoBench: Evaluating instruction following ability in large language models. In Lun-Wei Ku, Andre Martins, and Vivek Srikumar (eds.), Findings of the Association for Computational Linguistics: ACL 2024, pp. 13025–13048, Bangkok, Thailand, August 2024. Association for Computational Linguistics"
     },
     {
       "type": "Reference",
       "id": "bib.bib20",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
           "familyNames": [
+            "Victor",
             "Sanh"
           ],
           "givenNames": [
-            "Victor"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Albert",
             "Webson"
-          ],
-          "givenNames": [
-            "Albert"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Colin",
             "Raffel"
           ],
           "givenNames": [
-            "Colin"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Stephen",
+            "H.",
             "Bach"
-          ],
-          "givenNames": [
-            "Stephen"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Lintang",
             "Sutawika"
           ],
           "givenNames": [
-            "Lintang"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Zaid",
             "Alyafeai"
-          ],
-          "givenNames": [
-            "Zaid"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Antoine",
             "Chaffin"
           ],
           "givenNames": [
-            "Antoine"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Arnaud",
             "Stiegler"
-          ],
-          "givenNames": [
-            "Arnaud"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Teven",
             "Le",
             "Scao"
           ],
           "givenNames": [
-            "Teven"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Arun",
             "Raja"
-          ],
-          "givenNames": [
-            "Arun"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Manan",
             "Dey"
           ],
           "givenNames": [
-            "Manan"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "M.",
+            "Saiful",
             "Bari"
-          ],
-          "givenNames": [
-            "Saiful"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Canwen",
             "Xu"
           ],
           "givenNames": [
-            "Canwen"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Urmish",
             "Thakker"
-          ],
-          "givenNames": [
-            "Urmish"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Sharma"
-          ],
-          "givenNames": [
             "Shanya",
+            "Sharma",
             "Sharma"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Szczechla"
           ],
           "givenNames": [
-            "Eliza"
+            "Eliza",
+            "Szczechla"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Taewoon",
             "Kim"
           ],
           "givenNames": [
-            "Taewoon"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Gunjan",
             "Chhablani"
-          ],
-          "givenNames": [
-            "Gunjan"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Nihal",
             "Nayak"
           ],
           "givenNames": [
-            "Nihal"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Debajyoti",
             "Datta"
-          ],
-          "givenNames": [
-            "Debajyoti"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Jonathan",
             "Chang"
           ],
           "givenNames": [
-            "Jonathan"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Jiang"
-          ],
-          "givenNames": [
             "Mike",
-            "Tian-Jian"
+            "Tian-Jian",
+            "Jiang"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Han",
             "Wang"
           ],
           "givenNames": [
-            "Han"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Matteo",
             "Manica"
-          ],
-          "givenNames": [
-            "Matteo"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Sheng",
             "Shen"
           ],
           "givenNames": [
-            "Sheng"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Yong"
-          ],
-          "givenNames": [
             "Zheng",
-            "Xin"
+            "Xin",
+            "Yong"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Harshit",
             "Pandey"
           ],
           "givenNames": [
-            "Harshit"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Rachel",
             "Bawden"
-          ],
-          "givenNames": [
-            "Rachel"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Thomas",
             "Wang"
           ],
           "givenNames": [
-            "Thomas"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Trishala",
             "Neeraj"
-          ],
-          "givenNames": [
-            "Trishala"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Jos",
             "Rozen"
           ],
           "givenNames": [
-            "Jos"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Abheesht",
             "Sharma"
-          ],
-          "givenNames": [
-            "Abheesht"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Andrea",
             "Santilli"
           ],
           "givenNames": [
-            "Andrea"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Thibault",
             "Fevry"
-          ],
-          "givenNames": [
-            "Thibault"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Jason",
+            "Alan",
             "Fries"
           ],
           "givenNames": [
-            "Jason",
-            "Alan"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Ryan",
             "Teehan"
-          ],
-          "givenNames": [
-            "Ryan"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Tali",
             "Bers"
           ],
           "givenNames": [
-            "Tali"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Stella",
             "Biderman"
-          ],
-          "givenNames": [
-            "Stella"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
+            "Leo",
             "Gao"
           ],
           "givenNames": [
-            "Leo"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Thomas",
             "Wolf"
-          ],
-          "givenNames": [
-            "Thomas"
           ]
         },
         {
           "type": "Person",
           "familyNames": [
-            "Rush"
+            "Alexander"
           ],
           "givenNames": [
-            "Alexander"
+            "M."
           ]
         }
       ],
@@ -1898,82 +838,63 @@ expression: article
         {
           "type": "Text",
           "value": {
-            "string": "Multitask prompted training enables zero-shot task generalization, 2022"
+            "string": "Rush"
           }
         }
-      ]
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Multitask prompted training enables zero-shot task generalization"
+            }
+          }
+        ],
+        "volumeNumber": 2022
+      },
+      "url": "https://arxiv.org/abs/2110.08207"
     },
     {
       "type": "Reference",
       "id": "bib.bib21",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
           "familyNames": [
+            "Chiyu",
             "Song"
           ],
           "givenNames": [
-            "Chiyu"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Zhanchao",
             "Zhou"
-          ],
-          "givenNames": [
-            "Zhanchao"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Yan"
-          ],
-          "givenNames": [
-            "Jianhao"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Fei"
-          ],
-          "givenNames": [
-            "Yuejiao"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Lan"
-          ],
-          "givenNames": [
-            "Zhenzhong"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Zhang"
-          ],
-          "givenNames": [
-            "Yue"
           ]
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Dynamics of instruction fine-tuning for chinese large language models"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "Dynamics of instruction fine-tuning for chinese large language models, 2025"
+            "string": "Jianhao Yan, Yuejiao Fei, Zhenzhong Lan, and Yue Zhang"
           }
         }
-      ]
+      ],
+      "url": "https://arxiv.org/abs/2310.19651"
     },
     {
       "type": "Reference",
       "id": "bib.bib22",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1989,673 +910,7 @@ expression: article
         {
           "type": "Text",
           "value": {
-            "string": "Gemini 1.5: Unlocking multimodal understanding across millions of tokens of context, 2024"
-          }
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib23",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "Wang"
-          ],
-          "givenNames": [
-            "Yizhong"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Mishra"
-          ],
-          "givenNames": [
-            "Swaroop"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Alipoormolabashi"
-          ],
-          "givenNames": [
-            "Pegah"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Kordi"
-          ],
-          "givenNames": [
-            "Yeganeh"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Mirzaei"
-          ],
-          "givenNames": [
-            "Amirreza"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Arunkumar"
-          ],
-          "givenNames": [
-            "Anjana"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Ashok"
-          ],
-          "givenNames": [
-            "Arjun"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Dhanasekaran"
-          ],
-          "givenNames": [
-            "Arut",
-            "Selvan"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Naik"
-          ],
-          "givenNames": [
-            "Atharva"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Stap"
-          ],
-          "givenNames": [
-            "David"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Pathak"
-          ],
-          "givenNames": [
-            "Eshaan"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Karamanolakis"
-          ],
-          "givenNames": [
-            "Giannis"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Lai"
-          ],
-          "givenNames": [
-            "Haizhi",
-            "Gary"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Purohit"
-          ],
-          "givenNames": [
-            "Ishan"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Mondal"
-          ],
-          "givenNames": [
-            "Ishani"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Anderson"
-          ],
-          "givenNames": [
-            "Jacob"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Kuznia"
-          ],
-          "givenNames": [
-            "Kirby"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Doshi"
-          ],
-          "givenNames": [
-            "Krima"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Patel"
-          ],
-          "givenNames": [
-            "Maitreya"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Pal"
-          ],
-          "givenNames": [
-            "Kuntal",
-            "Kumar"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Moradshahi"
-          ],
-          "givenNames": [
-            "Mehrad"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Parmar"
-          ],
-          "givenNames": [
-            "Mihir"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Purohit"
-          ],
-          "givenNames": [
-            "Mirali"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Varshney"
-          ],
-          "givenNames": [
-            "Neeraj"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Kaza"
-          ],
-          "givenNames": [
-            "Phani",
-            "Rohitha"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Verma"
-          ],
-          "givenNames": [
-            "Pulkit"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Puri"
-          ],
-          "givenNames": [
-            "Ravsehaj",
-            "Singh"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Karia"
-          ],
-          "givenNames": [
-            "Rushang"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Sampat"
-          ],
-          "givenNames": [
-            "Shailaja",
-            "Keyur"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Doshi"
-          ],
-          "givenNames": [
-            "Savan"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Mishra"
-          ],
-          "givenNames": [
-            "Siddhartha"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Reddy"
-          ],
-          "givenNames": [
-            "Sujan"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Patro"
-          ],
-          "givenNames": [
-            "Sumanta"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Dixit"
-          ],
-          "givenNames": [
-            "Tanay"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Shen"
-          ],
-          "givenNames": [
-            "Xudong"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Baral"
-          ],
-          "givenNames": [
-            "Chitta"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Choi"
-          ],
-          "givenNames": [
-            "Yejin"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Smith"
-          ],
-          "givenNames": [
-            "Noah"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Hajishirzi"
-          ],
-          "givenNames": [
-            "Hannaneh"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Khashabi"
-          ],
-          "givenNames": [
-            "Daniel"
-          ]
-        }
-      ],
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Super-naturalinstructions: Generalization via declarative instructions on 1600+ nlp tasks, 2022"
-          }
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib24",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "Wei"
-          ],
-          "givenNames": [
-            "Jason"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Bosma"
-          ],
-          "givenNames": [
-            "Maarten"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Zhao"
-          ],
-          "givenNames": [
-            "Vincent"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Guu"
-          ],
-          "givenNames": [
-            "Kelvin"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Yu"
-          ],
-          "givenNames": [
-            "Adams",
-            "Wei"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Lester"
-          ],
-          "givenNames": [
-            "Brian"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Du"
-          ],
-          "givenNames": [
-            "Nan"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Dai"
-          ],
-          "givenNames": [
-            "Andrew"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Le"
-          ],
-          "givenNames": [
-            "Quoc"
-          ]
-        }
-      ],
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Finetuned language models are zero-shot learners, 2022"
-          }
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib25",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "Wen"
-          ],
-          "givenNames": [
-            "Bosi"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Ke"
-          ],
-          "givenNames": [
-            "Pei"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Gu"
-          ],
-          "givenNames": [
-            "Xiaotao"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Wu"
-          ],
-          "givenNames": [
-            "Lindong"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Huang"
-          ],
-          "givenNames": [
-            "Hao"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Zhou"
-          ],
-          "givenNames": [
-            "Jinfeng"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Li"
-          ],
-          "givenNames": [
-            "Wenchuang"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Hu"
-          ],
-          "givenNames": [
-            "Binxin"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Gao"
-          ],
-          "givenNames": [
-            "Wendy"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Xu"
-          ],
-          "givenNames": [
-            "Jiaxin"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Liu"
-          ],
-          "givenNames": [
-            "Yiming"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Tang"
-          ],
-          "givenNames": [
-            "Jie"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Wang"
-          ],
-          "givenNames": [
-            "Hongning"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Huang"
-          ],
-          "givenNames": [
-            "Minlie"
-          ]
-        }
-      ],
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Benchmarking complex instruction-following with multiple constraints composition, 2024"
-          }
-        }
-      ]
-    },
-    {
-      "type": "Reference",
-      "id": "bib.bib26",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "Xing"
-          ],
-          "givenNames": [
-            "Bowen"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Liao"
-          ],
-          "givenNames": [
-            "Lizi"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Huang"
-          ],
-          "givenNames": [
-            "Minlie"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Tsang"
-          ],
-          "givenNames": [
-            "Ivor"
-          ]
-        }
-      ],
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Dc-instruct: An effective framework for generative multi-intent spoken language understanding"
+            "string": "Gemini 1"
           }
         }
       ],
@@ -2665,293 +920,259 @@ expression: article
           {
             "type": "Text",
             "value": {
-              "string": "In  Conference on Empirical Methods in Natural Language Processing"
+              "string": "5: Unlocking multimodal understanding across millions of tokens of context"
             }
           }
         ],
-        "volumeNumber": "2024."
-      }
+        "volumeNumber": 2024
+      },
+      "url": "https://arxiv.org/abs/2403.05530"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib23",
+      "workType": "WebPage",
+      "url": "https://arxiv.org/abs/2204.07705",
+      "text": "Yizhong Wang, Swaroop Mishra, Pegah Alipoormolabashi, Yeganeh Kordi, Amirreza Mirzaei, Anjana Arunkumar, Arjun Ashok, Arut Selvan Dhanasekaran, Atharva Naik, David Stap, Eshaan Pathak, Giannis Karamanolakis, Haizhi Gary Lai, Ishan Purohit, Ishani Mondal, Jacob Anderson, Kirby Kuznia, Krima Doshi, Maitreya Patel, Kuntal Kumar Pal, Mehrad Moradshahi, Mihir Parmar, Mirali Purohit, Neeraj Varshney, Phani Rohitha Kaza, Pulkit Verma, Ravsehaj Singh Puri, Rushang Karia, Shailaja Keyur Sampat, Savan Doshi, Siddhartha Mishra, Sujan Reddy, Sumanta Patro, Tanay Dixit, Xudong Shen, Chitta Baral, Yejin Choi, Noah A. Smith, Hannaneh Hajishirzi, and Daniel Khashabi. Super-naturalinstructions: Generalization via declarative instructions on 1600+ nlp tasks, 2022"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib24",
+      "workType": "WebPage",
+      "url": "https://arxiv.org/abs/2109.01652",
+      "text": "Jason Wei, Maarten Bosma, Vincent Y. Zhao, Kelvin Guu, Adams Wei Yu, Brian Lester, Nan Du, Andrew M. Dai, and Quoc V. Le. Finetuned language models are zero-shot learners, 2022"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib25",
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bosi",
+            "Wen"
+          ],
+          "givenNames": [
+            "Pei",
+            "Ke"
+          ]
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Benchmarking complex instruction-following with multiple constraints composition"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Xiaotao Gu, Lindong Wu, Hao Huang, Jinfeng Zhou, Wenchuang Li, Binxin Hu, Wendy Gao, Jiaxin Xu, Yiming Liu, Jie Tang, Hongning Wang, and Minlie Huang"
+          }
+        }
+      ],
+      "url": "https://arxiv.org/abs/2407.03978"
+    },
+    {
+      "type": "Reference",
+      "id": "bib.bib26",
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bowen",
+            "Xing"
+          ],
+          "givenNames": [
+            "Lizi",
+            "Liao"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Huang"
+          ],
+          "givenNames": [
+            "Minlie"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ivor"
+          ],
+          "givenNames": [
+            "W."
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Tsang"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Dc-instruct: An effective framework for generative multi-intent spoken language understanding. In Conference on Empirical Methods in Natural Language Processing"
+            }
+          }
+        ],
+        "volumeNumber": 2024
+      },
+      "url": "https://api.semanticscholar.org/CorpusID:273820915"
     },
     {
       "type": "Reference",
       "id": "bib.bib27",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
           "familyNames": [
+            "Wujiang",
             "Xu"
           ],
           "givenNames": [
-            "Wujiang"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Kai",
             "Mei"
-          ],
-          "givenNames": [
-            "Kai"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Gao"
-          ],
-          "givenNames": [
-            "Hang"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Tan"
-          ],
-          "givenNames": [
-            "Juntao"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Liang"
-          ],
-          "givenNames": [
-            "Zujie"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Zhang"
-          ],
-          "givenNames": [
-            "Yongfeng"
           ]
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "A-mem: Agentic memory for llm agents"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "A-mem: Agentic memory for llm agents, 2025"
+            "string": "Hang Gao, Juntao Tan, Zujie Liang, and Yongfeng Zhang"
           }
         }
-      ]
+      ],
+      "url": "https://arxiv.org/abs/2502.12110"
     },
     {
       "type": "Reference",
       "id": "bib.bib28",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
           "familyNames": [
+            "Jie",
             "Zeng"
           ],
           "givenNames": [
-            "Jie"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Qianyu",
             "He"
-          ],
-          "givenNames": [
-            "Qianyu"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Ren"
-          ],
-          "givenNames": [
-            "Qingyu"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Liang"
-          ],
-          "givenNames": [
-            "Jiaqing"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Xiao"
-          ],
-          "givenNames": [
-            "Yanghua"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Zhou"
-          ],
-          "givenNames": [
-            "Weikang"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Sun"
-          ],
-          "givenNames": [
-            "Zeye"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Yu"
-          ],
-          "givenNames": [
-            "Fei"
           ]
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Order matters: Investigate the position bias in multi-constraint instruction following"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "Order matters: Investigate the position bias in multi-constraint instruction following, 2025"
+            "string": "Qingyu Ren, Jiaqing Liang, Yanghua Xiao, Weikang Zhou, Zeye Sun, and Fei Yu"
           }
         }
-      ]
+      ],
+      "url": "https://arxiv.org/abs/2502.17204"
     },
     {
       "type": "Reference",
       "id": "bib.bib29",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
           "familyNames": [
+            "Zhiyuan",
             "Zeng"
           ],
           "givenNames": [
-            "Zhiyuan"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Jiatong",
             "Yu"
-          ],
-          "givenNames": [
-            "Jiatong"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Gao"
-          ],
-          "givenNames": [
-            "Tianyu"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Meng"
-          ],
-          "givenNames": [
-            "Yu"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Goyal"
-          ],
-          "givenNames": [
-            "Tanya"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Chen"
-          ],
-          "givenNames": [
-            "Danqi"
           ]
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Evaluating large language models at evaluating instruction following"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "Evaluating large language models at evaluating instruction following, 2024"
+            "string": "Tianyu Gao, Yu Meng, Tanya Goyal, and Danqi Chen"
           }
         }
-      ]
+      ],
+      "url": "https://arxiv.org/abs/2310.07641"
     },
     {
       "type": "Reference",
       "id": "bib.bib30",
+      "workType": "Book",
       "authors": [
         {
           "type": "Person",
           "familyNames": [
+            "Hanzhang",
             "Zhou"
           ],
           "givenNames": [
-            "Hanzhang"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
+            "Zijian",
             "Feng"
-          ],
-          "givenNames": [
-            "Zijian"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Zhu"
-          ],
-          "givenNames": [
-            "Zixiao"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Qian"
-          ],
-          "givenNames": [
-            "Junlang"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Mao"
-          ],
-          "givenNames": [
-            "Kezhi"
           ]
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Unibias: Unveiling and mitigating llm bias through internal attention and ffn manipulation"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "Unibias: Unveiling and mitigating llm bias through internal attention and ffn manipulation, 2024"
+            "string": "Zixiao Zhu, Junlang Qian, and Kezhi Mao"
           }
         }
-      ]
+      ],
+      "url": "https://arxiv.org/abs/2405.20612"
     }
   ],
   "title": [
