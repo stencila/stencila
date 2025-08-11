@@ -3,6 +3,19 @@ source: rust/codecs/tests/specs.rs
 expression: specs
 ---
 {
+  "arxiv": {
+    "status": "under-development",
+    "supports_from_formats": {
+      "html": "HighLoss"
+    },
+    "supports_from_bytes": false,
+    "supports_from_string": true,
+    "supports_from_path": true,
+    "supports_to_formats": {},
+    "supports_to_bytes": false,
+    "supports_to_string": true,
+    "supports_to_path": true
+  },
   "cbor": {
     "status": "stable",
     "supports_from_formats": {
