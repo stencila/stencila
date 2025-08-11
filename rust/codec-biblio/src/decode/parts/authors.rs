@@ -9,7 +9,7 @@ use winnow::{
 
 use codec::schema::{Author, Organization, Person};
 
-use crate::decode::parts::chars::{is_apostrophe, is_hyphen, one_apostrophe, one_hyphen};
+use crate::decode::parts::chars::{is_hyphen, one_apostrophe, one_hyphen};
 
 /// Parse multiple authors separated by various delimiters
 pub fn authors(input: &mut &str) -> Result<Vec<Author>> {

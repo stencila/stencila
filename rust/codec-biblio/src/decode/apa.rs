@@ -1,9 +1,11 @@
-//! Parsers that parse Stencila [`Reference`] nodes from strings in APA reference list format
+//! Parsers that parse Stencila [`Reference`] nodes from strings in APA, and
+//! similar, reference list formats
 //!
-//! This module provides parsers for extracting bibliographic information from APA
-//! (American Psychological Association) style reference citations. The parsers handle
-//! the standard components of APA references including authors, publication dates,
-//! titles, journal information, volume/issue numbers, page ranges, and DOIs.
+//! This module provides parsers for extracting bibliographic information from
+//! APA (American Psychological Association) style reference citations. The
+//! parsers handle the standard components of APA references including authors,
+//! publication dates, titles, journal information, volume/issue numbers, page
+//! ranges, and DOIs.
 
 use winnow::{
     Parser, Result,
@@ -19,8 +21,10 @@ use codec::schema::{
 
 use crate::decode::parts::{
     authors::{authors, persons},
+    chars::{is_close_quote, one_close_quote, one_open_quote},
     date::year_az,
     doi::doi_or_url,
+    journal::journal_no_comma,
     pages::pages,
     preprints::preprint_server,
     terminator::terminator,
@@ -29,15 +33,7 @@ use crate::decode::parts::{
 
 /// Parse a Stencila [`Reference`] from an APA reference list item
 ///
-/// This is the main entry point for parsing APA-style references. It attempts to
-/// identify the type of reference and parse accordingly.
-///
-/// Currently supported reference types:
-///
-/// - Journal articles
-/// - Books
-/// - Book chapters
-/// - Web resources
+/// This is the main entry point for parsing APA and Harvard style references.
 #[allow(unused)]
 pub fn apa(input: &mut &str) -> Result<Reference> {
     // Order is important for correct matching!
@@ -62,18 +58,20 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         preceded(apa_separator, apa_year),
         // Title: Parse article title ending with a period
         preceded(apa_separator, apa_title),
-        // Journal: Parse journal name
+        // Journal
         preceded(
             apa_separator,
             alt((
-                terminated(preprint_server, opt((multispace1, Caseless("preprint")))),
-                take_while(1.., |c: char| c != ','),
+                journal_no_comma,
+                //terminated(preprint_server, opt((multispace1, Caseless("preprint")))),
+                //take_while(1.., |c: char| c != ','),
             )),
         ),
         preceded(
             apa_separator,
             alt((
                 (
+                    // Preprint server
                     (preprint_server, multispace0, ":", multispace0).map(|_| (None, None)),
                     take_while(1.., |c: char| !c.is_whitespace()).map(|id: &str| {
                         Some(Reference {
@@ -95,7 +93,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
                     // Pages: Optional page range
                     opt(preceded(
                         alt((apa_separator, (multispace0, ":", multispace0).take())),
-                        apa_pages,
+                        pages,
                     )),
                 ),
             )),
@@ -319,23 +317,26 @@ pub fn web(input: &mut &str) -> Result<Reference> {
 
 /// Parse year in parentheses format "(YYYY)"
 ///
-/// Allows optional whitespacewithin parentheses
+/// Allows optional whitespace within parentheses
 fn apa_year(input: &mut &str) -> Result<Date> {
     delimited(("(", multispace0), year_az, (multispace0, ")")).parse_next(input)
 }
 
 /// Parse article title ending with a period
 ///
-/// Captures everything up to the first period
+/// Captures everything up to the first period. Optional quotes to allow for
+/// Harvard formatted titles.
 fn apa_title(input: &mut &str) -> Result<Vec<Inline>> {
-    take_while(1.., |c: char| c != '.')
-        .map(|title: &str| vec![t(title.trim())])
-        .parse_next(input)
-}
-
-/// Parse page numbers with APA formatting
-fn apa_pages(input: &mut &str) -> Result<Reference> {
-    pages.parse_next(input)
+    alt((
+        delimited(
+            one_open_quote,
+            take_while(1.., |c: char| !is_close_quote(c)),
+            one_close_quote,
+        ),
+        take_while(1.., |c: char| c != '.'),
+    ))
+    .map(|title: &str| vec![t(title.trim_start().trim_end_matches(['.', ' ']))])
+    .parse_next(input)
 }
 
 /// Parse a separator between parts of an APA reference

@@ -2,6 +2,7 @@ pub mod authors;
 pub mod chars;
 pub mod date;
 pub mod doi;
+pub mod journal;
 pub mod pages;
 pub mod preprints;
 pub mod publisher;

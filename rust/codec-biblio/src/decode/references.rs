@@ -96,14 +96,14 @@ pub fn reference(input: &mut &str) -> Result<Reference> {
                 false
             } else {
                 // Parsing matched partially but there was some unmatched content at the end
-                let index = error.offset().saturating_sub(1);
-                let remaining = input[index..]
+                let span = error.char_span();
+                let remaining = input[span.start..]
                     .chars()
                     .filter(|c| c.is_alphanumeric())
                     .count();
                 let total = input.chars().filter(|c| c.is_alphanumeric()).count();
 
-                tracing::debug!("Unmatched content: {}", &input[index..]);
+                tracing::debug!("Unmatched content: {}", &input[span.start..]);
 
                 remaining < 3 || (total > 0 && (remaining * 100 / total) < 10)
             };
@@ -171,6 +171,16 @@ mod tests {
             &mut "2.\tPedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., ... & Duchesnay, E. (2011). Scikit-learn: Machine learning in Python. Journal of Machine Learning Research, 12, 2825–2830.",
         )?;
         assert_eq!(r.work_type, Some(CreativeWorkType::Article));
+        assert_eq!(
+            r.title.map(|title| to_text(&title)),
+            Some("Scikit-learn: Machine learning in Python".to_string())
+        );
+        assert_eq!(
+            r.is_part_of
+                .and_then(|journal| journal.title)
+                .map(|title| to_text(&title)),
+            Some("Journal of Machine Learning Research".to_string())
+        );
         assert_eq!(r.page_end, Some(IntegerOrString::Integer(2830)));
 
         let r = reference(
@@ -314,7 +324,6 @@ mod tests {
         Ok(())
     }
 
-
     // References extracted from arXiv 2507.13317v1 HTML as plain text that had issues
     #[test]
     fn arxiv_2507_13317v1() -> Result<()> {
@@ -323,6 +332,25 @@ mod tests {
         )?;
         assert_eq!(r.work_type, Some(CreativeWorkType::Article));
         assert_eq!(r.page_start, Some(IntegerOrString::Integer(435)));
+        assert!(r.date.is_some());
+
+        Ok(())
+    }
+
+    // References extracted from arXiv 2507.11353v1 HTML as plain text that had issues
+    #[test]
+    fn arxiv_2507_11353v1() -> Result<()> {
+        let r = apa::article(
+            &mut "Acharya, V. V., Berner, R., Engle, R., Jung, H., Stroebel, J., Zeng, X. and Zhao, Y. (2023), ‘Climate stress testing’, Annual Review of Financial Economics 15(1), 291–326.",
+        )?;
+        assert_eq!(r.work_type, Some(CreativeWorkType::Article));
+        assert_eq!(
+            r.is_part_of
+                .and_then(|journal| journal.title)
+                .map(|title| to_text(&title)),
+            Some("Annual Review of Financial Economics".to_string())
+        );
+        assert_eq!(r.page_end, Some(IntegerOrString::Integer(326)));
         assert!(r.date.is_some());
 
         Ok(())
