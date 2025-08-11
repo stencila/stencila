@@ -6,7 +6,7 @@ use winnow::{
     combinator::{alt, opt, preceded},
 };
 
-use codec::schema::Reference;
+use codec::{common::tracing, schema::Reference};
 
 use crate::decode::lncs;
 
@@ -24,7 +24,7 @@ use super::vancouver;
 /// popular formats falling back to just trying to extract a DOI (since that
 /// is the most valuable bibliographic information).
 pub fn reference(input: &mut &str) -> Result<Reference> {
-    preceded(
+    let mut parser = preceded(
         // Ignore any numbering prefix for the reference
         opt((
             multispace0,
@@ -75,24 +75,82 @@ pub fn reference(input: &mut &str) -> Result<Reference> {
                 ieee::book,
                 chicago::book,
                 mla::book,
-                lncs::web,
+                lncs::book,
             )),
-            // Fallback
-            fallback,
         )),
-    )
-    .parse_next(input)
+    );
+
+    // Drive the parser with the expectation that it will be able to parse all input into a reference
+    match parser.parse(input) {
+        Ok(reference) => Ok(reference),
+        Err(error) => {
+            // The parse could not consume all input so decide, based on how far it got whether to use
+            // the result, or to use fallback parser. Do this base on proportion of alphanumeric chars
+            // parsed (crude measure of proportion of information captured).
+            let use_partial = if error.offset() >= input.len() {
+                // Parsing got all the way to the end without success
+                false
+            } else {
+                // Parsing matched partially but there was some unmatched content at the end
+                let index = error.offset().saturating_sub(1);
+                let remaining = input[index..]
+                    .chars()
+                    .filter(|c| c.is_alphanumeric())
+                    .count();
+                let total = input.chars().filter(|c| c.is_alphanumeric()).count();
+
+                tracing::debug!("Unmatched content: {}", &input[index..]);
+
+                remaining < 3 || (total > 0 && (remaining * 100 / total) < 10)
+            };
+
+            if use_partial {
+                parser.parse_next(input).or_else(|_| fallback(input))
+            } else {
+                fallback(input)
+            }
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use codec::schema::{CreativeWorkType, IntegerOrString, Organization, PersonOrOrganization};
+    use codec::schema::{
+        CreativeWorkType, IntegerOrString, Organization, PersonOrOrganization, shortcuts::t,
+    };
     use codec_text_trait::to_text;
     use common_dev::pretty_assertions::assert_eq;
 
     use super::*;
 
-    /// Plain text reference in https://zenodo.org/api/records/15308198
+    /// Test of use of fallback parser when large proportion of records are not match
+    #[test]
+    fn fallback() -> Result<()> {
+        let r = reference(&mut "Plain text with no structure, DOI or URL")?;
+        assert_eq!(r.work_type, None);
+        assert_eq!(
+            r.title,
+            Some(vec![t("Plain text with no structure, DOI or URL")])
+        );
+        assert_eq!(r.doi, None);
+        assert_eq!(r.url, None);
+
+        let r = reference(&mut "Plain text with a doi 10.12345/xyz")?;
+        assert_eq!(r.work_type, None);
+        assert_eq!(r.title, Some(vec![t("Plain text with a")]));
+        assert_eq!(r.doi, Some("10.12345/xyz".into()));
+        assert_eq!(r.url, None);
+
+        let r = reference(&mut "Plain text with a url https://example.org")?;
+        assert_eq!(r.work_type, Some(CreativeWorkType::WebPage));
+        assert_eq!(r.title, Some(vec![t("Plain text with a")]));
+        assert_eq!(r.doi, None);
+        assert_eq!(r.url, Some("https://example.org".into()));
+
+        Ok(())
+    }
+
+    /// Plain text references in https://zenodo.org/api/records/15308198
     ///
     /// These tests are principally to check for routing to the correct parser
     /// so only check the work type and the last property.
