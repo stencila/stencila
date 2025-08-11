@@ -29,10 +29,11 @@ impl Codec for ArxivCodec {
         Status::UnderDevelopment
     }
 
-    fn supports_from_format(&self, _format: &Format) -> CodecSupport {
-        // Note: does not declare support for decoding any formats but user should
-        // still be able to do specify this codec using `stencila convert some.html --from arxiv`
-        CodecSupport::None
+    fn supports_from_format(&self, format: &Format) -> CodecSupport {
+        match format {
+            Format::Html => CodecSupport::HighLoss,
+            _ => CodecSupport::None,
+        }
     }
 
     fn supports_to_format(&self, _format: &Format) -> CodecSupport {

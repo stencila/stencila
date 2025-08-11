@@ -73,6 +73,9 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(codec_text::TextCodec),
         Box::new(codec_xlsx::XlsxCodec),
         Box::new(codec_yaml::YamlCodec),
+        // arXiv codec support from HTML but because after all others supporting HTML
+        // will need to be explicitly chosen
+        Box::new(codec_arxiv::ArxivCodec),
     ];
 
     // TODO: make plugins a dependency and append codecs to list
@@ -97,29 +100,43 @@ pub fn get(
     direction: Option<CodecDirection>,
 ) -> Result<Box<dyn Codec>> {
     if let Some(name) = name {
-        list()
+        if let Some(codec) = list()
             .into_iter()
             .find_map(|codec| (codec.name() == name).then_some(codec))
-            .ok_or_else(|| eyre!("Unable to find a codec with name `{name}`"))
-    } else if let Some(format) = format {
-        list()
-            .into_iter()
-            .find_map(|codec| {
-                match direction {
-                    Some(CodecDirection::Decode) => {
-                        codec.supports_from_format(format).is_supported()
-                    }
-                    Some(CodecDirection::Encode) => codec.supports_to_format(format).is_supported(),
-                    None => {
-                        codec.supports_from_format(format).is_supported()
-                            || codec.supports_to_format(format).is_supported()
-                    }
+        {
+            return Ok(codec);
+        }
+    }
+
+    if let Some(format) = format {
+        if let Some(codec) = list().into_iter().find_map(|codec| {
+            match direction {
+                Some(CodecDirection::Decode) => codec.supports_from_format(format).is_supported(),
+                Some(CodecDirection::Encode) => codec.supports_to_format(format).is_supported(),
+                None => {
+                    codec.supports_from_format(format).is_supported()
+                        || codec.supports_to_format(format).is_supported()
                 }
-                .then_some(codec)
-            })
-            .ok_or_else(|| eyre!("Unable to find a codec supporting format `{format}`"))
-    } else {
-        bail!("One of `name` or `format` must be supplied")
+            }
+            .then_some(codec)
+        }) {
+            return Ok(codec);
+        }
+    }
+
+    let dir = match direction {
+        Some(CodecDirection::Decode) => "decoding from ",
+        Some(CodecDirection::Encode) => "encoding from ",
+        None => "",
+    };
+
+    match (name, format) {
+        (Some(name), Some(format)) => {
+            bail!("Unable to find a codec with name `{name}` or supporting {dir}format `{format}`")
+        }
+        (Some(name), None) => bail!("Unable to find a codec with name `{name}`"),
+        (None, Some(format)) => bail!("Unable to find a codec supporting format `{format}`"),
+        (None, None) => bail!("At least one of `name` or `format` must be supplied"),
     }
 }
 
@@ -250,6 +267,8 @@ pub async fn from_url(input: &str, options: Option<DecodeOptions>) -> Result<Nod
         return from_path(&PathBuf::from(path), options).await;
     }
 
+    let codec = options.as_ref().and_then(|options| options.codec.as_ref());
+
     let url = Url::parse(input)?;
     match url.scheme() {
         "http" | "https" => {
@@ -279,7 +298,7 @@ pub async fn from_url(input: &str, options: Option<DecodeOptions>) -> Result<Nod
                 });
 
             // Check there is a codec that supports the format
-            let codec = get(None, Some(&format), Some(CodecDirection::Decode))?;
+            let codec = get(codec, Some(&format), Some(CodecDirection::Decode))?;
 
             let options = Some(DecodeOptions {
                 format: Some(format.clone()),

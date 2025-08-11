@@ -76,6 +76,8 @@ impl DecodeOptions {
         input: Option<&Path>,
         strip_options: StripOptions,
     ) -> codecs::DecodeOptions {
+        let codec = self.from.clone();
+
         let format = self.from.as_ref().map_or_else(
             || input.map(Format::from_path),
             |name| Some(Format::from_name(name)),
@@ -84,6 +86,7 @@ impl DecodeOptions {
         let coarse = self.coarse.then_some(true).or(self.fine.then_some(false));
 
         codecs::DecodeOptions {
+            codec,
             format,
             coarse,
             cache: self.cache.clone(),
@@ -189,6 +192,8 @@ impl EncodeOptions {
         default_format: Format,
         strip_options: StripOptions,
     ) -> codecs::EncodeOptions {
+        let codec = self.to.clone();
+
         let format = self
             .to
             .as_ref()
@@ -222,6 +227,7 @@ impl EncodeOptions {
         let from_path = input.map(PathBuf::from);
 
         codecs::EncodeOptions {
+            codec,
             format,
             compact,
             highlight,
