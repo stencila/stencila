@@ -3,7 +3,7 @@
 use winnow::{
     Parser, Result,
     ascii::digit1,
-    combinator::{not, peek, terminated, opt},
+    combinator::{not, opt, peek, terminated},
     token::take_while,
 };
 
