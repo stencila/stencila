@@ -88,9 +88,9 @@ pub fn person_family_initials(input: &mut &str) -> Result<Author> {
         .parse_next(input)
 }
 
-/// Parse person in "Family, F. M." format
+/// Parse person in "Family, F. M." and "Family F. M."" formats
 ///
-/// Used where it is necessary to be strick about ending periods to avoid
+/// Used where it is necessary to be strict about ending periods to avoid
 /// consuming the start of the title.
 ///
 /// See `person_family_given` for a more lenient parser which allows for
@@ -98,7 +98,7 @@ pub fn person_family_initials(input: &mut &str) -> Result<Author> {
 pub fn person_family_initial_periods(input: &mut &str) -> Result<Author> {
     (
         // Family names
-        terminated(separated(1.., name, multispace1), ","),
+        terminated(separated(1.., name, multispace1), opt(",")),
         // Initials with period
         preceded(
             multispace0,
@@ -206,7 +206,8 @@ pub fn person_given_family(input: &mut &str) -> Result<Author> {
 /// trailing whitespace being consumed.
 ///
 /// Generally, used as a fallback if the string does not match expected format
-/// for a [`Person`].
+/// for a [`Person`]. As such is reasonably lenient, although does not allow
+/// the first name to be a number to avoid consuming year etc.
 pub fn organization(input: &mut &str) -> Result<Author> {
     separated(
         1..,
@@ -215,9 +216,13 @@ pub fn organization(input: &mut &str) -> Result<Author> {
         }),
         multispace1,
     )
-    .map(|name: Vec<&str>| {
+    .verify(|names: &Vec<&str>| match names.first() {
+        Some(name) => !name.chars().all(|c| c.is_numeric()),
+        None => false,
+    })
+    .map(|names: Vec<&str>| {
         Author::Organization(Organization {
-            name: Some(name.join(" ")),
+            name: Some(names.join(" ")),
             ..Default::default()
         })
     })
@@ -508,6 +513,10 @@ mod tests {
         // Two people with and
         let items = authors(&mut "Author, A. B., and B. C. Author")?;
         assert_eq!(items.len(), 2);
+
+        // No comma after family names
+        let items = authors(&mut "Author A. B., Author C., Author D.")?;
+        assert_eq!(items.len(), 3);
 
         // With et al
         let items = authors(&mut "L. Chen, S. Martinez, R. Johnson, et al.")?;
@@ -815,6 +824,19 @@ mod tests {
         {
             assert_eq!(family_names, Some(vec!["Smith-Jones".to_string()]));
             assert_eq!(given_names, Some(vec!["K.".to_string(), "L.".to_string()]));
+        } else {
+            unreachable!("expected person")
+        }
+
+        // No comma after family names
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = author(&mut "Smith P. A.")?
+        {
+            assert_eq!(family_names, Some(vec!["Smith".to_string()]));
+            assert_eq!(given_names, Some(vec!["P.".to_string(), "A.".to_string()]));
         } else {
             unreachable!("expected person")
         }

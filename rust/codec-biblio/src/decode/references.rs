@@ -8,7 +8,7 @@ use winnow::{
 
 use codec::{common::tracing, schema::Reference};
 
-use crate::decode::lncs;
+use crate::decode::{apj, lncs};
 
 use super::apa;
 use super::chicago;
@@ -49,6 +49,7 @@ pub fn reference(input: &mut &str) -> Result<Reference> {
                 chicago::chapter,
                 mla::chapter,
                 lncs::chapter,
+                apj::chapter,
             )),
             // Article
             alt((
@@ -58,6 +59,7 @@ pub fn reference(input: &mut &str) -> Result<Reference> {
                 chicago::article,
                 mla::article,
                 lncs::article,
+                apj::article,
             )),
             // Web
             alt((
@@ -67,6 +69,7 @@ pub fn reference(input: &mut &str) -> Result<Reference> {
                 chicago::web,
                 mla::web,
                 lncs::web,
+                apj::web,
             )),
             // Book
             alt((
@@ -76,6 +79,7 @@ pub fn reference(input: &mut &str) -> Result<Reference> {
                 chicago::book,
                 mla::book,
                 lncs::book,
+                apj::book,
             )),
         )),
     );
@@ -305,6 +309,20 @@ mod tests {
             Some("Proceedings of 24th International Joint Conference on Artificial Intelligence (IJCAI)".to_string())
         );
         assert_eq!(r.page_end, Some(IntegerOrString::Integer(2776)));
+        assert!(r.date.is_some());
+
+        Ok(())
+    }
+
+
+    // References extracted from arXiv 2507.13317v1 HTML as plain text that had issues
+    #[test]
+    fn arxiv_2507_13317v1() -> Result<()> {
+        let r = reference(
+            &mut "Abadi M. G., Navarro J. F., Fardal M., Babul A., Steinmetz M., 2010, MNRAS, 407, 435",
+        )?;
+        assert_eq!(r.work_type, Some(CreativeWorkType::Article));
+        assert_eq!(r.page_start, Some(IntegerOrString::Integer(435)));
         assert!(r.date.is_some());
 
         Ok(())

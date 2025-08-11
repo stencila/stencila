@@ -19,7 +19,7 @@ pub fn place_publisher(input: &mut &str) -> Result<PersonOrOrganization> {
             take_while(2.., |c: char| c != ':' && c != '.'),
             ":",
         )),
-        take_while(2.., |c: char| c != '.' && c != ',' && c != ';'),
+        take_while(2.., |c: char| c != '.' && c != ',' && c != ';' && c != ')'),
     )
         .map(|(place, name): (Option<&str>, &str)| {
             (
