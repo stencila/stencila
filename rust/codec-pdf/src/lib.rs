@@ -59,7 +59,7 @@ impl Codec for PdfCodec {
         path: &Path,
         options: Option<DecodeOptions>,
     ) -> Result<(Node, Option<Node>, DecodeInfo)> {
-        let md_path = pdf_to_md(path).await?;
+        let md_path = pdf_to_md(path, None).await?;
 
         MarkdownCodec.from_path(&md_path, options).await
     }
