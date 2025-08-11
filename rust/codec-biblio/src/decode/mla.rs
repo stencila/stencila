@@ -107,9 +107,9 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // Title: Parse unquoted title
         preceded(mla_separator, mla_unquoted_title),
         // Publisher: Parse publisher ending with comma
-        preceded(mla_separator, take_while(1.., |c: char| c != ',')),
+        opt(preceded(mla_separator, take_while(1.., |c: char| c != ','))),
         // Year: Publication year
-        opt(preceded(mla_separator, year)),
+        preceded(mla_separator, year),
         // DOI or URL
         opt(preceded(mla_separator, doi_or_url)),
     )
@@ -117,11 +117,13 @@ pub fn book(input: &mut &str) -> Result<Reference> {
             work_type: Some(CreativeWorkType::Book),
             authors: Some(authors),
             title: Some(title),
-            publisher: Some(PersonOrOrganization::Organization(Organization {
-                name: Some(publisher.trim().to_string()),
-                ..Default::default()
-            })),
-            date,
+            publisher: publisher.map(|publisher| {
+                PersonOrOrganization::Organization(Organization {
+                    name: Some(publisher.trim().to_string()),
+                    ..Default::default()
+                })
+            }),
+            date: Some(date),
             doi: doi_or_url
                 .as_ref()
                 .and_then(|doi_or_url| doi_or_url.doi.clone()),

@@ -191,7 +191,7 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // Publisher: Parse place and publisher
         opt(preceded(ieee_separator, place_publisher)),
         // Year: Publication year
-        opt(preceded(ieee_separator, year)),
+        preceded(ieee_separator, year),
         // DOI or URL
         opt(preceded(ieee_separator, doi_or_url)),
         // Optional terminator
@@ -204,7 +204,7 @@ pub fn book(input: &mut &str) -> Result<Reference> {
                 title: Some(vec![t(title.trim())]),
                 version: edition,
                 publisher,
-                date,
+                date: Some(date),
                 doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                 url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
                 ..Default::default()
@@ -727,15 +727,8 @@ mod tests {
         assert_eq!(reference.work_type, Some(CreativeWorkType::Book));
         assert!(reference.doi.is_some());
 
-        // Minimal book format
-        let reference = ieee(&mut r#"C. Johnson, Basic Programming Concepts."#)?;
-        assert_eq!(reference.work_type, Some(CreativeWorkType::Book));
-        assert_eq!(
-            reference.title.map(|title| to_text(&title)),
-            Some("Basic Programming Concepts".to_string())
-        );
-        assert!(reference.publisher.is_none());
-        assert!(reference.date.is_none());
+        // Fails without date
+        assert!(ieee(&mut r#"C. Johnson, Basic Programming Concepts."#).is_err());
 
         Ok(())
     }

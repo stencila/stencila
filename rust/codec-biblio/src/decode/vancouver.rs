@@ -111,7 +111,7 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // Place: Publisher: Parse place and publisher with colon separator
         opt(preceded(vancouver_separator, place_publisher)),
         // Year: Publication year after semicolon
-        opt(preceded(vancouver_separator, year)),
+        preceded(vancouver_separator, year),
         // DOI or URL (optional)
         opt(preceded(vancouver_separator, doi_or_url)),
         // Optional terminator
@@ -121,7 +121,7 @@ pub fn book(input: &mut &str) -> Result<Reference> {
             |(authors, title, publisher, date, doi_or_url, _terminator)| Reference {
                 work_type: Some(CreativeWorkType::Book),
                 authors: Some(authors),
-                date,
+                date: Some(date),
                 title: Some(title),
                 publisher,
                 doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),

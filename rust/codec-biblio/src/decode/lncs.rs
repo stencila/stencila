@@ -236,7 +236,7 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // DOI or URL
         opt(preceded(lncs_separator, doi_or_url)),
         // Year: Publication year
-        opt(preceded(lncs_separator, year)),
+        preceded(lncs_separator, year),
         // Optional terminator
         opt(terminator),
     )
@@ -247,7 +247,7 @@ pub fn book(input: &mut &str) -> Result<Reference> {
                 title: Some(title),
                 version: edition,
                 publisher,
-                date,
+                date: Some(date),
                 doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                 url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
                 ..Default::default()
