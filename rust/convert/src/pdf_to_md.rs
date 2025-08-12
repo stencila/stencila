@@ -20,7 +20,7 @@ use dirs::closest_artifacts_for;
 use secrets::MISTRAL_API_KEY;
 use tools::{AsyncToolCommand, is_installed};
 
-use crate::md_to_md::clean_md;
+use crate::md_to_md::{clean_md, clean_md_page};
 
 #[derive(Debug, Display, EnumIter)]
 #[strum(crate = "common::strum")]
@@ -184,7 +184,8 @@ pub async fn pdf_to_md_mistral(pdf_path: &Path) -> Result<PathBuf> {
             // Note: only one newline here to avoid splitting paragraphs unnecessarily
             md.push('\n');
         }
-        md.push_str(&page.markdown);
+        let cleaned_page = clean_md_page(&page.markdown);
+        md.push_str(&cleaned_page);
 
         // Write Base64 encoded images to directory
         for image in page.images {
