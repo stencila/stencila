@@ -20,6 +20,8 @@ use dirs::closest_artifacts_for;
 use secrets::MISTRAL_API_KEY;
 use tools::{AsyncToolCommand, is_installed};
 
+use crate::md_to_md::clean_md;
+
 #[derive(Debug, Display, EnumIter)]
 #[strum(crate = "common::strum")]
 enum Tool {
@@ -75,8 +77,6 @@ pub async fn pdf_to_md(pdf: &Path, tool: Option<&str>) -> Result<PathBuf> {
         }
     };
 
-    tracing::info!("Converting PDF to Markdown using `{tool}`; this may take some time");
-
     match tool {
         Tool::Mistral => pdf_to_md_mistral(pdf).await,
         _ => pdf_to_md_local(pdf, tool).await,
@@ -100,6 +100,8 @@ pub async fn pdf_to_md_local(pdf: &Path, tool: Tool) -> Result<PathBuf> {
 
         _ => bail!("Non-local PDF to Markdown tool `{tool}`"),
     };
+
+    tracing::info!("Converting PDF to Markdown locally using `{tool}`; this may take some time");
 
     let output = command.output().await?;
     if !output.status.success() {
@@ -147,7 +149,7 @@ pub async fn pdf_to_md_mistral(pdf_path: &Path) -> Result<PathBuf> {
         let api_key = secrets::env_or_get(MISTRAL_API_KEY)?;
 
         // Send request
-        tracing::debug!("Sending PDF to Mistral OCR API");
+        tracing::info!("Converting PDF to Markdown using Mistral OCR; this may take some time");
         let client = reqwest::Client::new();
         let pdf_base64 = general_purpose::STANDARD.encode(&pdf_bytes);
         let payload = MistralOcrRequest::new(&pdf_base64);
@@ -162,7 +164,7 @@ pub async fn pdf_to_md_mistral(pdf_path: &Path) -> Result<PathBuf> {
         // Bail on fail
         if !response.status().is_success() {
             let error_text = response.text().await?;
-            bail!("Mistral OCR API request failed: {}", error_text);
+            bail!("Mistral OCR request failed: {}", error_text);
         }
 
         // Store response text
@@ -179,7 +181,8 @@ pub async fn pdf_to_md_mistral(pdf_path: &Path) -> Result<PathBuf> {
     let mut md = String::new();
     for (index, page) in response.pages.into_iter().enumerate() {
         if index > 0 {
-            md.push_str("\n\n");
+            // Note: only one newline here to avoid splitting paragraphs unnecessarily
+            md.push('\n');
         }
         md.push_str(&page.markdown);
 
@@ -205,9 +208,12 @@ pub async fn pdf_to_md_mistral(pdf_path: &Path) -> Result<PathBuf> {
         }
     }
 
-    // Write the accumulated Markdown to file
+    // Clean the accumulated Markdown
+    let cleaned_md = clean_md(&md);
+
+    // Write the cleaned Markdown to file
     let md_path = artifacts_path.join("output.md");
-    write(&md_path, md).await?;
+    write(&md_path, cleaned_md).await?;
 
     Ok(md_path)
 }

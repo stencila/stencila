@@ -16,6 +16,7 @@ version = { path = "../version" }
 web-dist = { path = "../web-dist" }
 
 [dev-dependencies]
+common-dev = { path = "../common-dev" }
 test-log = { workspace = true }
 
 [lints]

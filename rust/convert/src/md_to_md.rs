@@ -23,12 +23,18 @@ fn remove_line_numbers(md: &str) -> String {
     // First, find all lines containing potential line numbers Must be a number
     // followed by whitespace (not a list numbering). Can be after heading
     // hashes.
+    static ONLY_NUMBER_REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"^(\d+)\s*$").expect("invalid regex"));
     static STARTING_NUMBER_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"^(#{1,6}\s*)?(\d+)(\s+.*)").expect("invalid regex"));
+        Lazy::new(|| Regex::new(r"^(#{1,6}\s*)?(\d+)\s+(.*)$").expect("invalid regex"));
+
     let lines = md
         .lines()
         .map(|line| {
-            if let Some(captures) = STARTING_NUMBER_REGEX.captures(line) {
+            if let Some(captures) = ONLY_NUMBER_REGEX.captures(line) {
+                let number: usize = captures[1].parse().unwrap_or_default();
+                Some((number, String::new()))
+            } else if let Some(captures) = STARTING_NUMBER_REGEX.captures(line) {
                 let hashes = captures
                     .get(1)
                     .map(|hashes| hashes.as_str())
@@ -218,30 +224,30 @@ mod tests {
         // Line numbers with headers
         let input = "# 1 Header One\n## 2 Header Two\n3 Regular text\n4 More text\n5 Final text";
         assert_snapshot!(remove_line_numbers(input), @r"
-        #  Header One
-        ##  Header Two
-         Regular text
-         More text
-         Final text
+        # Header One
+        ## Header Two
+        Regular text
+        More text
+        Final text
         ");
 
         // Mixed content: some lines with numbers, some without
         let input = "1 Numbered line\nNon-numbered line\n2 Another numbered\n3 Yet another\n4 Fourth\n5 Fifth";
         assert_snapshot!(remove_line_numbers(input), @r"
-         Numbered line
+        Numbered line
         Non-numbered line
-         Another numbered
-         Yet another
-         Fourth
-         Fifth
+        Another numbered
+        Yet another
+        Fourth
+        Fifth
         ");
 
         // Non-monotonic numbers (should detect some patterns)
         let input = "5 Line five\n3 Line three\n7 Line seven\n1 Line one";
         assert_snapshot!(remove_line_numbers(input), @r"
-         Line five
+        Line five
         3 Line three
-         Line seven
+        Line seven
         1 Line one
         ");
 
@@ -264,12 +270,12 @@ mod tests {
         // Line numbers with different header levels
         let input = "# 1 Main Header\n## 2 Subheader\n### 3 Sub-subheader\n#### 4 Deep header\n##### 5 Deeper\n###### 6 Deepest";
         assert_snapshot!(remove_line_numbers(input), @r"
-        #  Main Header
-        ##  Subheader
-        ###  Sub-subheader
-        ####  Deep header
-        #####  Deeper
-        ######  Deepest
+        # Main Header
+        ## Subheader
+        ### Sub-subheader
+        #### Deep header
+        ##### Deeper
+        ###### Deepest
         ");
 
         // No line numbers
@@ -294,17 +300,25 @@ mod tests {
         // Mixed: some monotonic sequences, some not
         let input = "1 First\n2 Second\n3 Third\n4 Fourth\n5 Fifth\n2 Reset\n7 Continue\n8 More\n9 Even more\n10 Last";
         assert_snapshot!(remove_line_numbers(input), @r"
-         First
-         Second
-         Third
-         Fourth
-         Fifth
+        First
+        Second
+        Third
+        Fourth
+        Fifth
         2 Reset
-         Continue
-         More
-         Even more
-         Last
+        Continue
+        More
+        Even more
+        Last
         ");
+
+        // Numbered list items should not be changed
+        let input = "1. one\n2. two\n3. three\n4. four\n5. five\n6. six";
+        assert_eq!(remove_line_numbers(input), input);
+
+        // Just numbers separated by blank lines: should all be removed
+        let input = "133\n\n134\n\n135\n\n136\n\n137\n\n138\n\n139\n\n140\n\n141\n\n142";
+        assert_snapshot!(remove_line_numbers(input).trim(), @r"");
 
         // Empty string
         let input = "";
