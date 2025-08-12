@@ -654,8 +654,8 @@ impl Move {
 
 /// Clean the current workspace
 ///
-/// Untracks any deleted files and removes any unnecessary files from the
-/// .stencila folder in the current workspace.
+/// Un-tracks any deleted files and removes any unnecessary cache files, and all
+/// artifact directories, from the .stencila folder in the current workspace.
 #[derive(Debug, Parser)]
 #[command(after_long_help = CLEAN_AFTER_LONG_HELP)]
 pub struct Clean;

@@ -29,8 +29,8 @@ use common::{
     tracing,
 };
 use dirs::{
-    DB_FILE, DOCS_FILE, STORE_DIR, closest_stencila_dir, stencila_db_file, stencila_docs_file,
-    stencila_store_dir, workspace_dir, workspace_relative_path,
+    DB_FILE, DOCS_FILE, STORE_DIR, closest_stencila_dir, stencila_artifacts_dir, stencila_db_file,
+    stencila_docs_file, stencila_store_dir, workspace_dir, workspace_relative_path,
 };
 
 use crate::Document;
@@ -652,7 +652,7 @@ impl Document {
         Ok(())
     }
 
-    /// Untrack all files that have been deleted and ensure no unneeded cache file stored
+    /// Untrack all files that have been deleted, ensure no unneeded cache files, and remove all artifacts
     pub async fn clean(dir: &Path) -> Result<()> {
         let statuses = match Document::tracking_all(dir).await? {
             Some(statuses) => statuses,
@@ -664,6 +664,11 @@ impl Document {
 
         let stencila_dir = closest_stencila_dir(dir, false).await?;
         let workspace_dir = workspace_dir(&stencila_dir)?;
+
+        let answer = ask::ask(&format!("Are you sure you want to clean {}? Unused cache files, and all artifact directories, within it will be deleted.", stencila_dir.display())).await?;
+        if answer.is_no() {
+            return Ok(());
+        }
 
         // Untrack all deleted paths
         for (path, tracking) in statuses {
@@ -688,6 +693,12 @@ impl Document {
             if !entries.iter().any(|(.., entry)| entry.id == id) {
                 remove_file(path).await?;
             }
+        }
+
+        // Remove all artifacts
+        let artifacts_dir = stencila_artifacts_dir(&stencila_dir, false).await?;
+        if artifacts_dir.exists() {
+            remove_dir_all(artifacts_dir).await?;
         }
 
         Ok(())
