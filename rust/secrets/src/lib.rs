@@ -1,7 +1,7 @@
 use std::env;
 
 use common::{
-    eyre::{Result, bail},
+    eyre::{Context, Result, bail},
     itertools::Itertools,
     once_cell::sync::Lazy,
     serde::Serialize,
@@ -59,48 +59,58 @@ impl Secret {
     }
 }
 
+// Constants exported to avoid typos when using public functions
+
+pub const STENCILA_API_TOKEN: &str = "STENCILA_API_TOKEN";
+pub const ANTHROPIC_API_KEY: &str = "ANTHROPIC_API_KEY";
+pub const GOOGLE_AI_API_KEY: &str = "GOOGLE_AI_API_KEY";
+pub const GITHUB_TOKEN: &str = "GITHUB_TOKEN";
+pub const OPENAI_API_KEY: &str = "OPENAI_API_KEY";
+pub const MISTRAL_API_KEY: &str = "MISTRAL_API_KEY";
+pub const GHOST_ADMIN_API_KEY: &str = "GHOST_ADMIN_API_KEY";
+
 /// A list of secrets used by Stencila
 static SECRETS: Lazy<Vec<Secret>> = Lazy::new(|| {
     vec![
         Secret::new(
             SecretCategory::AiApiKey,
-            "STENCILA_API_TOKEN",
+            STENCILA_API_TOKEN,
             "Stencila API Token",
             "Used for Stencila Cloud's model router and other services",
         ),
         Secret::new(
             SecretCategory::AiApiKey,
-            "ANTHROPIC_API_KEY",
+            ANTHROPIC_API_KEY,
             "Anthropic API Key",
             "Used to access the Anthropic API",
         ),
         Secret::new(
             SecretCategory::AiApiKey,
-            "GOOGLE_AI_API_KEY",
+            GOOGLE_AI_API_KEY,
             "Google AI API Key",
             "Used to access the Google AI API",
         ),
         Secret::new(
             SecretCategory::RestApiKey,
-            "GITHUB_TOKEN",
+            GITHUB_TOKEN,
             "GitHub API Token",
             "Used to access the GitHub REST API",
         ),
         Secret::new(
             SecretCategory::AiApiKey,
-            "OPENAI_API_KEY",
+            OPENAI_API_KEY,
             "OpenAI API Key",
             "Used to access the OpenAI API",
         ),
         Secret::new(
             SecretCategory::AiApiKey,
-            "MISTRAL_API_KEY",
+            MISTRAL_API_KEY,
             "Mistral API Key",
             "Used to access the Mistral API",
         ),
         Secret::new(
             SecretCategory::ReadWriteApiKey,
-            "GHOST_ADMIN_API_KEY",
+            GHOST_ADMIN_API_KEY,
             "Ghost Admin API Key",
             "Used to read from and publish to Ghost",
         ),
@@ -223,7 +233,9 @@ pub fn get(name: &str) -> Result<String> {
 /// Get an environment variable or secret
 #[tracing::instrument]
 pub fn env_or_get(name: &str) -> Result<String> {
-    env::var(name).or_else(|_| get(name))
+    env::var(name).or_else(|_| get(name)).wrap_err_with(|| {
+        format!("Secret {name} is not available as an environment variable or on the keyring")
+    })
 }
 
 /// Delete a secret
