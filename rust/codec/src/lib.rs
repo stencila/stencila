@@ -487,6 +487,17 @@ pub struct DecodeOptions {
     pub tool_args: Vec<String>,
 }
 
+impl DecodeOptions {
+    /// Set `tool` and `tool_args` properties
+    pub fn with_tool(self, tool: Option<String>, tool_args: Vec<String>) -> Self {
+        Self {
+            tool,
+            tool_args,
+            ..self
+        }
+    }
+}
+
 /// Encoding options
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Eq, Serialize, Deserialize)]

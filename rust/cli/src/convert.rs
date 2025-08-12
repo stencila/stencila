@@ -34,11 +34,19 @@ pub struct Cli {
     #[command(flatten)]
     strip_options: StripOptions,
 
+    /// The tool to use for decoding inputs
+    ///
+    /// Only supported for formats that use alternative external tools for
+    /// decoding inputs and ignored otherwise. Use `--tool` for specifying the
+    /// tool to use for encoding outputs.
+    #[arg(long)]
+    from_tool: Option<String>,
+
     /// The tool to use for encoding outputs (e.g. pandoc)
     ///
     /// Only supported for formats that use alternative external tools for encoding and ignored otherwise.
-    /// Note: this tool is not used for decoding from the input, only for encoding to the output.
-    #[arg(long)]
+    /// Use `--from-tool` for specifying the tool to use for decoding inputs.
+    #[arg(long, alias = "to-tool")]
     tool: Option<String>,
 
     /// Arguments to pass through to the tool using for encoding
@@ -82,6 +90,7 @@ impl Cli {
             decode_options,
             encode_options,
             strip_options,
+            from_tool,
             tool,
             tool_args,
         } = self;
@@ -93,7 +102,9 @@ impl Cli {
 
         let input = input.as_deref().unwrap_or("-");
 
-        let decode_options = decode_options.build(input_path.as_deref(), strip_options.clone());
+        let decode_options = decode_options
+            .build(input_path.as_deref(), strip_options.clone())
+            .with_tool(from_tool, Vec::new());
         let node = codecs::from_identifier(input, Some(decode_options)).await?;
 
         if outputs.is_empty() || outputs.iter().all(|path| path.to_string_lossy() == "-") {
