@@ -11,7 +11,7 @@ use codec::schema::{Author, Date, Inline, Person};
 use winnow::{
     Parser, Result,
     ascii::{multispace0, multispace1},
-    combinator::{alt, delimited, opt, preceded, terminated},
+    combinator::{alt, opt, preceded, terminated},
     token::{take_until, take_while},
 };
 
@@ -24,6 +24,7 @@ use crate::decode::parts::{
     date::year_az,
     doi::doi_or_url,
     pages::pages,
+    title::quoted_title,
     url::url,
     volume::{no_prefixed_issue, vol_prefixed_volume},
 };
@@ -57,10 +58,10 @@ pub fn mla(input: &mut &str) -> Result<Reference> {
 /// ```
 pub fn article(input: &mut &str) -> Result<Reference> {
     (
-        // Authors: Parse one or more authors
+        // Authors
         mla_authors,
-        // Title: Parse article title in quotes
-        preceded(mla_separator, mla_quoted_title),
+        // Title
+        preceded(mla_separator, quoted_title),
         // Journal: Parse journal name ending with comma
         preceded(mla_separator, take_while(1.., |c: char| c != ',')),
         // Volume
@@ -103,7 +104,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
 /// ```
 pub fn book(input: &mut &str) -> Result<Reference> {
     (
-        // Authors: Parse one or more authors
+        // Authors
         mla_authors,
         // Title: Parse unquoted title
         preceded(mla_separator, mla_unquoted_title),
@@ -143,10 +144,10 @@ pub fn book(input: &mut &str) -> Result<Reference> {
 /// ```
 pub fn chapter(input: &mut &str) -> Result<Reference> {
     (
-        // Authors: Parse one or more authors
+        // Authors
         mla_authors,
-        // Chapter Title: Parse chapter title in quotes
-        preceded(mla_separator, mla_quoted_title),
+        // Chapter Title
+        preceded(mla_separator, quoted_title),
         // Book Title: Parse book title before comma
         preceded(mla_separator, take_while(1.., |c: char| c != ',')),
         // Editors: with "edited by" prefix (required for chapters)
@@ -197,10 +198,10 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
 /// ```
 pub fn web(input: &mut &str) -> Result<Reference> {
     (
-        // Authors: Parse one or more authors (optional)
+        // Authors
         opt(terminated(mla_authors, mla_separator)),
-        // Title: Parse web page title in quotes
-        mla_quoted_title,
+        // Title
+        quoted_title,
         // Website: Parse website name before comma
         preceded(mla_separator, take_while(1.., |c: char| c != ',')),
         // Date: Publication date or year
@@ -335,17 +336,6 @@ pub fn mla_editors(input: &mut &str) -> Result<Vec<Person>> {
             })
             .collect()
     })
-    .parse_next(input)
-}
-
-/// Parse title in quotes format "Title"
-fn mla_quoted_title(input: &mut &str) -> Result<Vec<Inline>> {
-    delimited(
-        alt(("\"", "“")),
-        take_while(1.., |c: char| c != '"' && c != '”'),
-        alt(("\"", "”")),
-    )
-    .map(|title: &str| vec![t(title.trim().trim_end_matches("."))])
     .parse_next(input)
 }
 
@@ -645,21 +635,6 @@ mod tests {
                 family_names: Some(vec!["Wilson".to_string()]),
                 ..Default::default()
             }]
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_mla_quoted_title() -> Result<()> {
-        assert_eq!(
-            mla_quoted_title(&mut r#""The title""#)?,
-            vec![t("The title")]
-        );
-
-        assert_eq!(
-            mla_quoted_title(&mut r#"“The title.”"#)?,
-            vec![t("The title")]
         );
 
         Ok(())

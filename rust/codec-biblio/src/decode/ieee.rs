@@ -13,8 +13,8 @@ use winnow::{
 };
 
 use codec::schema::{
-    Author, CreativeWorkType, Date, Inline, Organization, Person, PersonOptions, Reference,
-    StringOrNumber, shortcuts::t,
+    Author, CreativeWorkType, Date, Organization, Person, PersonOptions, Reference, StringOrNumber,
+    shortcuts::t,
 };
 
 use crate::decode::parts::{
@@ -24,6 +24,7 @@ use crate::decode::parts::{
     pages::pages,
     publisher::place_publisher,
     terminator::terminator,
+    title::quoted_title,
     url::url,
     volume::{no_prefixed_issue, vol_prefixed_volume},
 };
@@ -59,8 +60,8 @@ pub fn article(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse one or more authors
         authors,
-        // Title: Parse article title in quotes
-        preceded(ieee_separator, ieee_quoted_title),
+        // Title
+        preceded(ieee_separator, quoted_title),
         // Journal: Parse journal name ending with comma
         opt(preceded(
             ieee_separator,
@@ -112,8 +113,8 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse chapter authors
         authors,
-        // Chapter Title: Parse chapter title in quotes
-        preceded(ieee_separator, ieee_quoted_title),
+        // Chapter Title
+        preceded(ieee_separator, quoted_title),
         // "in" keyword
         preceded(ieee_separator, Caseless("in")),
         // Book Title: Parse book title before comma
@@ -284,17 +285,6 @@ fn ieee_separator<'s>(input: &mut &'s str) -> Result<&'s str> {
         (multispace0, alt((",", ".", ";")), multispace0).take(),
         multispace1,
     ))
-    .parse_next(input)
-}
-
-/// Parse title in quotes format "Title"
-fn ieee_quoted_title(input: &mut &str) -> Result<Vec<Inline>> {
-    delimited(
-        alt(("\"", "\u{201c}")),
-        take_while(1.., |c: char| c != '"' && c != '\u{201d}'),
-        alt(("\"", "\u{201d}")),
-    )
-    .map(|title: &str| vec![t(title.trim().trim_end_matches(['.', ',']))])
     .parse_next(input)
 }
 

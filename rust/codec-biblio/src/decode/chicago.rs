@@ -24,6 +24,7 @@ use crate::decode::parts::{
     doi::doi_or_url,
     pages::pages,
     terminator::terminator,
+    title::quoted_title,
     url::url,
     volume::{no_prefixed_issue, vol_prefixed_volume},
 };
@@ -60,8 +61,8 @@ pub fn article(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse one or more authors
         authors,
-        // Title: Parse article title in quotes
-        preceded(chicago_separator, chicago_quoted_title),
+        // Title
+        preceded(chicago_separator, quoted_title),
         // Journal: Parse journal name until " vol." or other separators
         preceded(
             chicago_separator,
@@ -172,8 +173,8 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse chapter authors
         authors,
-        // Chapter Title: Parse chapter title in quotes
-        preceded(chicago_separator, chicago_quoted_title),
+        // Chapter Title
+        preceded(chicago_separator, quoted_title),
         // "In" keyword
         preceded(chicago_separator, Caseless("In")),
         // Book Title: Parse book title (unquoted) until comma
@@ -249,8 +250,8 @@ pub fn web(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse web authors (optional)
         opt(terminated(authors, chicago_separator)),
-        // Title: Parse web page title in quotes
-        chicago_quoted_title,
+        // Title
+        quoted_title,
         // Website: Parse website name
         preceded(chicago_separator, take_while(1.., |c: char| c != '.')),
         // Access date: Optional "Accessed Date" information
@@ -292,17 +293,6 @@ fn chicago_separator<'s>(input: &mut &'s str) -> Result<&'s str> {
     .parse_next(input)
 }
 
-/// Parse title in quotes format "Title"
-fn chicago_quoted_title(input: &mut &str) -> Result<Vec<Inline>> {
-    delimited(
-        alt(("\"", "\u{201c}")),
-        take_while(1.., |c: char| c != '"' && c != '\u{201d}'),
-        alt(("\"", "\u{201d}")),
-    )
-    .map(|title: &str| vec![t(title.trim().trim_end_matches("."))])
-    .parse_next(input)
-}
-
 /// Parse book title (no quotes, unquoted in plain text)
 fn chicago_title(input: &mut &str) -> Result<Vec<Inline>> {
     take_until(1.., '.')
@@ -324,27 +314,6 @@ mod tests {
         assert_eq!(chicago_separator(&mut ". ")?.trim(), ".");
         assert_eq!(chicago_separator(&mut "  ")?.trim(), "");
         assert_eq!(chicago_separator(&mut " , ")?.trim(), ",");
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_chicago_quoted_title() -> Result<()> {
-        assert_eq!(
-            chicago_quoted_title(&mut r#""The title""#)?,
-            vec![t("The title")]
-        );
-
-        assert_eq!(
-            chicago_quoted_title(&mut r#""The title.""#)?,
-            vec![t("The title")]
-        );
-
-        // Test with smart quotes
-        assert_eq!(
-            chicago_quoted_title(&mut "\u{201c}Smart quotes\u{201d}")?,
-            vec![t("Smart quotes")]
-        );
 
         Ok(())
     }

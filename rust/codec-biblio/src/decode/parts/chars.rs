@@ -61,27 +61,92 @@ pub fn one_hyphen<'s>(input: &mut &'s str) -> Result<&'s str> {
     take_while(1..=1, is_hyphen).parse_next(input)
 }
 
-/// Check if a character is an opening quotation mark
+/// Check if a character is a double opening quotation mark
 ///
-/// Recognizes various opening quote characters to handle different text encodings
+/// Recognizes various double opening quote characters to handle different text encodings
 /// and typographic conventions in bibliographic titles and quoted text.
-pub fn is_open_quote(c: char) -> bool {
+pub fn is_double_open_quote(c: char) -> bool {
     matches!(
         c,
         '"'     // U+0022 QUOTATION MARK
-    | '\''  // U+0027 APOSTROPHE
-    | '“'   // U+201C LEFT DOUBLE QUOTATION MARK
+    | '\u{201C}'   // U+201C LEFT DOUBLE QUOTATION MARK
     | '„'   // U+201E DOUBLE LOW-9 QUOTATION MARK
     | '‟'   // U+201F DOUBLE HIGH-REVERSED-9 QUOTATION MARK
     | '〝'   // U+301D REVERSED DOUBLE PRIME QUOTATION MARK
     | '«'   // U+00AB LEFT-POINTING DOUBLE ANGLE QUOTATION MARK
     | '﹁'   // U+FE41 PRESENTATION FORM FOR VERTICAL LEFT CORNER BRACKET
-    | '﹃'   // U+FE43 PRESENTATION FORM FOR VERTICAL LEFT WHITE CORNER BRACKET
-    | '‘'   // U+2018 LEFT SINGLE QUOTATION MARK
+    | '﹃' // U+FE43 PRESENTATION FORM FOR VERTICAL LEFT WHITE CORNER BRACKET
+    )
+}
+
+/// Check if a character is a single opening quotation mark
+///
+/// Recognizes various single opening quote characters to handle different text encodings
+/// and typographic conventions in bibliographic titles and quoted text.
+pub fn is_single_open_quote(c: char) -> bool {
+    matches!(
+        c,
+        '\''  // U+0027 APOSTROPHE
+    | '\u{2018}'   // U+2018 LEFT SINGLE QUOTATION MARK
     | '‚'   // U+201A SINGLE LOW-9 QUOTATION MARK
     | '‛'   // U+201B SINGLE HIGH-REVERSED-9 QUOTATION MARK
     | '‹' // U+2039 SINGLE LEFT-POINTING ANGLE QUOTATION MARK
     )
+}
+
+/// Check if a character is a double closing quotation mark
+///
+/// Recognizes various double closing quote characters to properly parse the end of
+/// quoted content in bibliographic data from different sources.
+pub fn is_double_close_quote(c: char) -> bool {
+    matches!(
+        c,
+        '"'     // U+0022 QUOTATION MARK
+    | '\u{201D}'   // U+201D RIGHT DOUBLE QUOTATION MARK
+    | '‟'   // U+201F DOUBLE HIGH-REVERSED-9 QUOTATION MARK
+    | '〞'   // U+301E DOUBLE PRIME QUOTATION MARK
+    | '»'   // U+00BB RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
+    | '﹂'   // U+FE42 PRESENTATION FORM FOR VERTICAL RIGHT CORNER BRACKET
+    | '﹄' // U+FE44 PRESENTATION FORM FOR VERTICAL RIGHT WHITE CORNER BRACKET
+    )
+}
+
+/// Check if a character is a single closing quotation mark
+///
+/// Recognizes various single closing quote characters to properly parse the end of
+/// quoted content in bibliographic data from different sources.
+pub fn is_single_close_quote(c: char) -> bool {
+    matches!(
+        c,
+        '\''  // U+0027 APOSTROPHE
+    | '\u{2019}'   // U+2019 RIGHT SINGLE QUOTATION MARK
+    | '‛'   // U+201B SINGLE HIGH-REVERSED-9 QUOTATION MARK
+    | '›' // U+203A SINGLE RIGHT-POINTING ANGLE QUOTATION MARK
+    )
+}
+
+/// Check if a character is an opening quotation mark (single or double)
+///
+/// Recognizes various opening quote characters to handle different text encodings
+/// and typographic conventions in bibliographic titles and quoted text.
+pub fn is_open_quote(c: char) -> bool {
+    is_double_open_quote(c) || is_single_open_quote(c)
+}
+
+/// Parse exactly one double opening quote character
+///
+/// Used to identify the start of double-quoted titles, phrases, or other quoted content
+/// in bibliographic references while handling various quote styles.
+pub fn one_double_open_quote<'s>(input: &mut &'s str) -> Result<&'s str> {
+    take_while(1..=1, is_double_open_quote).parse_next(input)
+}
+
+/// Parse exactly one single opening quote character
+///
+/// Used to identify the start of single-quoted titles, phrases, or other quoted content
+/// in bibliographic references while handling various quote styles.
+pub fn one_single_open_quote<'s>(input: &mut &'s str) -> Result<&'s str> {
+    take_while(1..=1, is_single_open_quote).parse_next(input)
 }
 
 /// Parse exactly one opening quote character
@@ -92,25 +157,28 @@ pub fn one_open_quote<'s>(input: &mut &'s str) -> Result<&'s str> {
     take_while(1..=1, is_open_quote).parse_next(input)
 }
 
-/// Check if a character is a closing quotation mark
+/// Check if a character is a closing quotation mark (single or double)
 ///
 /// Recognizes various closing quote characters to properly parse the end of
 /// quoted content in bibliographic data from different sources.
 pub fn is_close_quote(c: char) -> bool {
-    matches!(
-        c,
-        '"'     // U+0022 QUOTATION MARK
-    | '\''  // U+0027 APOSTROPHE
-    | '”'   // U+201D RIGHT DOUBLE QUOTATION MARK
-    | '‟'   // U+201F DOUBLE HIGH-REVERSED-9 QUOTATION MARK
-    | '〞'   // U+301E DOUBLE PRIME QUOTATION MARK
-    | '»'   // U+00BB RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
-    | '﹂'   // U+FE42 PRESENTATION FORM FOR VERTICAL RIGHT CORNER BRACKET
-    | '﹄'   // U+FE44 PRESENTATION FORM FOR VERTICAL RIGHT WHITE CORNER BRACKET
-    | '’'   // U+2019 RIGHT SINGLE QUOTATION MARK
-    | '‛'   // U+201B SINGLE HIGH-REVERSED-9 QUOTATION MARK
-    | '›' // U+203A SINGLE RIGHT-POINTING ANGLE QUOTATION MARK
-    )
+    is_double_close_quote(c) || is_single_close_quote(c)
+}
+
+/// Parse exactly one double closing quote character
+///
+/// Used to identify the end of double-quoted titles, phrases, or other quoted content
+/// in bibliographic references while handling various quote styles.
+pub fn one_double_close_quote<'s>(input: &mut &'s str) -> Result<&'s str> {
+    take_while(1..=1, is_double_close_quote).parse_next(input)
+}
+
+/// Parse exactly one single closing quote character
+///
+/// Used to identify the end of single-quoted titles, phrases, or other quoted content
+/// in bibliographic references while handling various quote styles.
+pub fn one_single_close_quote<'s>(input: &mut &'s str) -> Result<&'s str> {
+    take_while(1..=1, is_single_close_quote).parse_next(input)
 }
 
 /// Parse exactly one closing quote character

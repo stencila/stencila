@@ -7,5 +7,6 @@ pub mod pages;
 pub mod preprints;
 pub mod publisher;
 pub mod terminator;
+pub mod title;
 pub mod url;
 pub mod volume;

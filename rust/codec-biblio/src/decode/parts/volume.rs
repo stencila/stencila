@@ -33,18 +33,36 @@ mod tests {
 
     #[test]
     fn test_volume() -> Result<()> {
-        assert_eq!(vol_prefixed_volume(&mut "vol. 1")?, IntegerOrString::Integer(1));
-        assert_eq!(vol_prefixed_volume(&mut "vol . 123")?, IntegerOrString::Integer(123));
-        assert_eq!(vol_prefixed_volume(&mut "VOL 456")?, IntegerOrString::Integer(456));
+        assert_eq!(
+            vol_prefixed_volume(&mut "vol. 1")?,
+            IntegerOrString::Integer(1)
+        );
+        assert_eq!(
+            vol_prefixed_volume(&mut "vol . 123")?,
+            IntegerOrString::Integer(123)
+        );
+        assert_eq!(
+            vol_prefixed_volume(&mut "VOL 456")?,
+            IntegerOrString::Integer(456)
+        );
 
         Ok(())
     }
 
     #[test]
     fn test_issue() -> Result<()> {
-        assert_eq!(no_prefixed_issue(&mut "no. 1")?, IntegerOrString::Integer(1));
-        assert_eq!(no_prefixed_issue(&mut "no . 123")?, IntegerOrString::Integer(123));
-        assert_eq!(no_prefixed_issue(&mut "NO   456")?, IntegerOrString::Integer(456));
+        assert_eq!(
+            no_prefixed_issue(&mut "no. 1")?,
+            IntegerOrString::Integer(1)
+        );
+        assert_eq!(
+            no_prefixed_issue(&mut "no . 123")?,
+            IntegerOrString::Integer(123)
+        );
+        assert_eq!(
+            no_prefixed_issue(&mut "NO   456")?,
+            IntegerOrString::Integer(456)
+        );
 
         Ok(())
     }
