@@ -1616,6 +1616,7 @@ dependencies = [
  "codec",
  "codec-latex",
  "codec-markdown",
+ "codec-utils",
  "convert",
 ]
 
@@ -2091,8 +2092,10 @@ dependencies = [
  "base64 0.22.1",
  "codec-utils",
  "common",
+ "dirs 0.0.0",
  "headless_chrome",
  "rand 0.9.1",
+ "secrets",
  "test-log",
  "tools",
  "version",

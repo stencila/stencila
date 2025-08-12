@@ -1,14 +1,23 @@
 use std::{
+    fs,
     path::{Path, PathBuf},
     str::FromStr,
 };
 
+use base64::{Engine as _, engine::general_purpose};
+
 use common::{
-    eyre::{OptionExt, Report, Result, bail},
+    eyre::{Context, OptionExt, Report, Result, bail},
+    reqwest, seahash,
+    serde::{Deserialize, Serialize},
+    serde_json,
     strum::{Display, EnumIter, IntoEnumIterator},
     tempfile::tempdir,
+    tokio::fs::{read_to_string, write},
     tracing,
 };
+use dirs::closest_artifacts_for;
+use secrets::MISTRAL_API_KEY;
 use tools::{AsyncToolCommand, is_installed};
 
 #[derive(Debug, Display, EnumIter)]
@@ -23,6 +32,10 @@ enum Tool {
     #[strum(serialize = "mistral")]
     Mistral,
 }
+
+// Prefixes used for artifact directories cp2m = "convert PDF to Markdown"
+
+const MISTRAL_ARTIFACT_PREFIX: &str = "cp2mmi";
 
 impl FromStr for Tool {
     type Err = Report;
@@ -41,33 +54,33 @@ impl FromStr for Tool {
 /// Convert a PDF file to a Markdown file
 #[tracing::instrument]
 pub async fn pdf_to_md(pdf: &Path, tool: Option<&str>) -> Result<PathBuf> {
-    // TODO: remove
-    return pdf_to_md_mistral(pdf).await;
-
     let tool = match tool {
+        // Use the specified tool
         Some(tool) => Tool::from_str(tool)?,
         None => {
-            let mut tool = Tool::Mineru;
-            for tool_ in Tool::iter() {
-                if is_installed(&tool_.to_string())? {
-                    tool = tool_;
-                    break;
+            if secrets::env_or_get(MISTRAL_API_KEY).is_ok() {
+                // If a Mistral API key is available, use that
+                Tool::Mistral
+            } else {
+                // Check if any of the local tools are available, defaulting to Mineru
+                let mut tool = Tool::Mineru;
+                for tool_ in Tool::iter() {
+                    if is_installed(&tool_.to_string())? {
+                        tool = tool_;
+                        break;
+                    }
                 }
+                tool
             }
-            tool
         }
     };
+
+    tracing::info!("Converting PDF to Markdown using `{tool}`; this may take some time");
 
     match tool {
         Tool::Mistral => pdf_to_md_mistral(pdf).await,
         _ => pdf_to_md_local(pdf, tool).await,
     }
-}
-
-/// Convert a PDF file to a Markdown file using a local tool
-#[tracing::instrument]
-pub async fn pdf_to_md_mistral(pdf: &Path) -> Result<PathBuf> {
-    bail!("Mistral PDF to Markdown not yet implemented")
 }
 
 /// Convert a PDF file to a Markdown file using a local tool
@@ -88,7 +101,6 @@ pub async fn pdf_to_md_local(pdf: &Path, tool: Tool) -> Result<PathBuf> {
         _ => bail!("Non-local PDF to Markdown tool `{tool}`"),
     };
 
-    tracing::info!("Converting PDF to Markdown using `{tool}`; this may take some time");
     let output = command.output().await?;
     if !output.status.success() {
         let stdout = String::from_utf8_lossy(&output.stdout);
@@ -113,4 +125,166 @@ pub async fn pdf_to_md_local(pdf: &Path, tool: Tool) -> Result<PathBuf> {
     tracing::debug!("Converted PDF to {}", path.display());
 
     Ok(path)
+}
+
+/// Convert a PDF file to a Markdown file using Mistral OCR API
+#[tracing::instrument]
+pub async fn pdf_to_md_mistral(pdf_path: &Path) -> Result<PathBuf> {
+    // Read PDF
+    let pdf_bytes = fs::read(pdf_path)?;
+
+    // Get / create a new artifacts directory
+    let digest = seahash::hash(&pdf_bytes);
+    let key = format!("{MISTRAL_ARTIFACT_PREFIX}-{digest:x}");
+    let artifacts_path = closest_artifacts_for(pdf_path, &key).await?;
+
+    // Read or get response JSON
+    let response_path = artifacts_path.join("response.json");
+    let response_json = if response_path.exists() {
+        read_to_string(response_path).await?
+    } else {
+        // Get API key
+        let api_key = secrets::env_or_get(MISTRAL_API_KEY)?;
+
+        // Send request
+        tracing::debug!("Sending PDF to Mistral OCR API");
+        let client = reqwest::Client::new();
+        let pdf_base64 = general_purpose::STANDARD.encode(&pdf_bytes);
+        let payload = MistralOcrRequest::new(&pdf_base64);
+        let response = client
+            .post("https://api.mistral.ai/v1/ocr")
+            .header("Authorization", format!("Bearer {api_key}"))
+            .header("Content-Type", "application/json")
+            .json(&payload)
+            .send()
+            .await?;
+
+        // Bail on fail
+        if !response.status().is_success() {
+            let error_text = response.text().await?;
+            bail!("Mistral OCR API request failed: {}", error_text);
+        }
+
+        // Store response text
+        let json = response.text().await?;
+        write(response_path, &json).await?;
+
+        json
+    };
+
+    // Parse response JSON
+    let response: MistralOcrResponse = serde_json::from_str(&response_json)?;
+
+    // Accumulate Markdown and save images from all pages
+    let mut md = String::new();
+    for (index, page) in response.pages.into_iter().enumerate() {
+        if index > 0 {
+            md.push_str("\n\n");
+        }
+        md.push_str(&page.markdown);
+
+        // Write Base64 encoded images to directory
+        for image in page.images {
+            if let Some(mut image_base64) = image.image_base64 {
+                if let Some(pos) = image_base64.find(";base64,") {
+                    image_base64 = image_base64[(pos + 8)..].to_string();
+                }
+
+                let image_path = artifacts_path.join(&image.id);
+                let image_bytes = general_purpose::STANDARD
+                    .decode(&image_base64)
+                    .wrap_err_with(|| {
+                        format!(
+                            "Unable to decode Base64 image `{}`: {}...",
+                            image.id,
+                            &image_base64[..image_base64.len().min(20)]
+                        )
+                    })?;
+                write(&image_path, image_bytes).await?;
+            }
+        }
+    }
+
+    // Write the accumulated Markdown to file
+    let md_path = artifacts_path.join("output.md");
+    write(&md_path, md).await?;
+
+    Ok(md_path)
+}
+
+#[derive(Serialize)]
+#[serde(crate = "common::serde")]
+struct MistralOcrRequest {
+    model: String,
+
+    document: MistralOcrDocument,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    include_image_base64: Option<bool>,
+}
+
+impl MistralOcrRequest {
+    fn new(pdf_base64: &str) -> Self {
+        Self {
+            model: "mistral-ocr-latest".to_string(),
+            document: MistralOcrDocument {
+                doc_type: "document_url".to_string(),
+                document_url: format!("data:application/pdf;base64,{pdf_base64}"),
+            },
+            include_image_base64: Some(true),
+        }
+    }
+}
+
+#[derive(Serialize)]
+#[serde(crate = "common::serde")]
+struct MistralOcrDocument {
+    #[serde(rename = "type")]
+    doc_type: String,
+
+    document_url: String,
+}
+
+#[derive(Deserialize)]
+#[serde(crate = "common::serde")]
+struct MistralOcrResponse {
+    pages: Vec<MistralOcrPage>,
+}
+
+#[allow(dead_code)]
+#[derive(Deserialize)]
+#[serde(crate = "common::serde")]
+struct MistralOcrPage {
+    index: usize,
+
+    markdown: String,
+
+    #[serde(default)]
+    images: Vec<MistralOcrImage>,
+
+    dimensions: MistralOcrDimensions,
+}
+
+#[allow(dead_code)]
+#[derive(Deserialize)]
+#[serde(crate = "common::serde")]
+struct MistralOcrImage {
+    id: String,
+
+    top_left_x: f64,
+    top_left_y: f64,
+    bottom_right_x: f64,
+    bottom_right_y: f64,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    image_base64: Option<String>,
+}
+
+#[allow(dead_code)]
+#[derive(Deserialize)]
+#[serde(crate = "common::serde")]
+struct MistralOcrDimensions {
+    dpi: f64,
+    height: f64,
+    width: f64,
 }
