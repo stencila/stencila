@@ -7,10 +7,10 @@ pub fn clean_md(md: &str) -> String {
     let md = remove_line_numbers(md);
     let md = remove_extra_blank_lines(&md);
     let md = remove_header_formatting(&md);
-    ensure_isolated_block_images(&md)
+    ensure_isolated_blocks(&md)
 }
 
-/// Removes line numbers
+/// Remove line numbers
 ///
 /// PDFs often have line numbering and whilst some OCR will remove those, this
 /// is not always successful and some remain.
@@ -86,7 +86,7 @@ fn remove_line_numbers(md: &str) -> String {
     cleaned_lines.join("\n")
 }
 
-/// Removes unnecessary blank lines
+/// Remove unnecessary blank lines
 ///
 /// OCR can generate multiple successive blank lines, particularly after
 /// `remove_line_numbers` is run on the output.
@@ -167,21 +167,25 @@ fn remove_header_formatting(md: &str) -> String {
     result.join("\n")
 }
 
-/// Ensure blank lines around block level images (those at start of line)
+/// Ensure blank lines around heading and block level images
 ///
-/// OCR can generate a Markdown image on its own line, but not separated
-/// from the previous, or next, paragraph. This ensures such images are isolated
-/// to that they are treated as figure content.
-fn ensure_isolated_block_images(md: &str) -> String {
-    static IMAGE_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"^\!\[[^\]]*\]\([^\)]*\)").expect("invalid regex"));
+/// After running `remove_line_numbers` heading can end up without blank lines
+/// before or after.
+///
+/// OCR can generate a Markdown image on its own line, but not separated from
+/// the previous, or next, paragraph. This ensures such images are isolated to
+/// that they are treated as figure content.
+fn ensure_isolated_blocks(md: &str) -> String {
+    static LINE_REGEX: Lazy<Regex> = Lazy::new(|| {
+        Regex::new(r"(^\!\[[^\]]*\]\([^\)]*\)\s*$)|(^#{1,6})").expect("invalid regex")
+    });
 
     let lines: Vec<&str> = md.lines().collect();
     let mut result = Vec::new();
 
     for (index, line) in lines.iter().enumerate() {
-        // Check if current line is a block image (starts with ![)
-        if IMAGE_REGEX.is_match(line) {
+        // Check if current line is a heading or image
+        if LINE_REGEX.is_match(line) {
             // Add blank line before if previous line exists and is not blank
             if index > 0 {
                 let prev_line = lines[index - 1];
@@ -190,7 +194,7 @@ fn ensure_isolated_block_images(md: &str) -> String {
                 }
             }
 
-            // Add the image line
+            // Add the line
             result.push(line);
 
             // Add blank line after if next line exists and is not blank
@@ -425,10 +429,10 @@ mod tests {
     }
 
     #[test]
-    fn test_ensure_isolated_block_images() {
+    fn test_ensure_isolated_blocks() {
         // Basic case: image between text
         let input = "Before\n![image.png]()\nAfter";
-        assert_snapshot!(ensure_isolated_block_images(input), @r"
+        assert_snapshot!(ensure_isolated_blocks(input), @r"
         Before
         
         ![image.png]()
@@ -438,7 +442,7 @@ mod tests {
 
         // Image at start of text
         let input = "![start.png]()\nAfter text";
-        assert_snapshot!(ensure_isolated_block_images(input), @r"
+        assert_snapshot!(ensure_isolated_blocks(input), @r"
         ![start.png]()
         
         After text
@@ -446,7 +450,7 @@ mod tests {
 
         // Image at end of text
         let input = "Before text\n![end.png]()";
-        assert_snapshot!(ensure_isolated_block_images(input), @r"
+        assert_snapshot!(ensure_isolated_blocks(input), @r"
         Before text
         
         ![end.png]()
@@ -455,7 +459,7 @@ mod tests {
 
         // Multiple images
         let input = "Text\n![first.png]()\n![second.png]()\nMore text";
-        assert_snapshot!(ensure_isolated_block_images(input), @r"
+        assert_snapshot!(ensure_isolated_blocks(input), @r"
         Text
         
         ![first.png]()
@@ -467,7 +471,7 @@ mod tests {
 
         // Image already isolated
         let input = "Text\n\n![isolated.png]()\n\nMore text";
-        assert_snapshot!(ensure_isolated_block_images(input), @r"
+        assert_snapshot!(ensure_isolated_blocks(input), @r"
         Text
         
         ![isolated.png]()
@@ -477,7 +481,7 @@ mod tests {
 
         // Image with alt text and title
         let input = "Text\n![Alt text](image.png 'Title')\nMore";
-        assert_snapshot!(ensure_isolated_block_images(input), @r"
+        assert_snapshot!(ensure_isolated_blocks(input), @r"
         Text
         
         ![Alt text](image.png 'Title')
@@ -487,18 +491,101 @@ mod tests {
 
         // Not a block image (inline)
         let input = "This is inline ![small](icon.png) image text";
-        assert_snapshot!(ensure_isolated_block_images(input), @r"
+        assert_snapshot!(ensure_isolated_blocks(input), @r"
         This is inline ![small](icon.png) image text
         ");
 
         // Empty lines around image
         let input = "\n\n![image.png]()\n\n";
-        assert_snapshot!(ensure_isolated_block_images(input), @r"
+        assert_snapshot!(ensure_isolated_blocks(input), @r"
         
         
         ![image.png]()
         
         
+        ");
+
+        // Heading between text
+        let input = "Before text\n# Main Heading\nAfter text";
+        assert_snapshot!(ensure_isolated_blocks(input), @r"
+        Before text
+        
+        # Main Heading
+        
+        After text
+        ");
+
+        // Multiple headings
+        let input = "Text\n# Heading One\n## Heading Two\nMore text";
+        assert_snapshot!(ensure_isolated_blocks(input), @r"
+        Text
+        
+        # Heading One
+        
+        ## Heading Two
+        
+        More text
+        ");
+
+        // Heading at start
+        let input = "# Start Heading\nContent follows";
+        assert_snapshot!(ensure_isolated_blocks(input), @r"
+        # Start Heading
+        
+        Content follows
+        ");
+
+        // Heading at end
+        let input = "Content before\n## End Heading";
+        assert_snapshot!(ensure_isolated_blocks(input), @r"
+        Content before
+        
+        ## End Heading
+        
+        ");
+
+        // Heading already isolated
+        let input = "Text\n\n### Already Isolated\n\nMore text";
+        assert_snapshot!(ensure_isolated_blocks(input), @r"
+        Text
+        
+        ### Already Isolated
+        
+        More text
+        ");
+
+        // Mixed headings and images
+        let input = "Text\n# Heading\n![image.png]()\n#### Sub Heading\nFinal text";
+        assert_snapshot!(ensure_isolated_blocks(input), @r"
+        Text
+        
+        # Heading
+        
+        ![image.png]()
+        
+        #### Sub Heading
+        
+        Final text
+        ");
+
+        // All heading levels
+        let input = "Text\n# H1\n## H2\n### H3\n#### H4\n##### H5\n###### H6\nMore text";
+        assert_snapshot!(ensure_isolated_blocks(input), @r"
+        Text
+        
+        # H1
+        
+        ## H2
+        
+        ### H3
+        
+        #### H4
+        
+        ##### H5
+        
+        ###### H6
+        
+        More text
         ");
     }
 
