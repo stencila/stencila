@@ -2460,7 +2460,63 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib47",
-      "text": "Huang H.-J., Eifler T., Mandelbaum R., Dodelson S., 2019, MNRAS, 488, 1652"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Huang"
+          ],
+          "givenNames": [
+            "H.",
+            "-J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Eifler"
+          ],
+          "givenNames": [
+            "T."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mandelbaum"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dodelson"
+          ],
+          "givenNames": [
+            "S."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 488
+      },
+      "pageStart": 1652
     },
     {
       "type": "Reference",
@@ -3609,7 +3665,55 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib86",
-      "text": "Remus R.-S., Dolag K., Hoffmann T. L., 2017, Galaxies, 5, 49"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Remus"
+          ],
+          "givenNames": [
+            "R.",
+            "-S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dolag"
+          ],
+          "givenNames": [
+            "K."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hoffmann"
+          ],
+          "givenNames": [
+            "T.",
+            "L."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2017"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Galaxies"
+            }
+          }
+        ],
+        "volumeNumber": 5
+      },
+      "pageStart": 49
     },
     {
       "type": "Reference",
@@ -4225,7 +4329,84 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib102",
-      "text": "Steinborn L. K., Dolag K., Comerford J. M., Hirschmann M., Remus R.-S., Teklu A. F., 2016, Monthly Notices of the Royal Astronomical Society, 458, 1013"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Steinborn"
+          ],
+          "givenNames": [
+            "L.",
+            "K."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dolag"
+          ],
+          "givenNames": [
+            "K."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Comerford"
+          ],
+          "givenNames": [
+            "J.",
+            "M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hirschmann"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Remus"
+          ],
+          "givenNames": [
+            "R.",
+            "-S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Teklu"
+          ],
+          "givenNames": [
+            "A.",
+            "F."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2016"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Monthly Notices of the Royal Astronomical Society"
+            }
+          }
+        ],
+        "volumeNumber": 458
+      },
+      "pageStart": 1013
     },
     {
       "type": "Reference",
@@ -4631,7 +4812,85 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib113",
-      "text": "To C.-H., Pandey S., Krause E., Dalal N., Anbajagane D., Weinberg D. H., 2024, J. Cosmology Astropart. Phys, 2024, 037"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "To"
+          ],
+          "givenNames": [
+            "C.",
+            "-H."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pandey"
+          ],
+          "givenNames": [
+            "S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Krause"
+          ],
+          "givenNames": [
+            "E."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dalal"
+          ],
+          "givenNames": [
+            "N."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Anbajagane"
+          ],
+          "givenNames": [
+            "D."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Weinberg"
+          ],
+          "givenNames": [
+            "D.",
+            "H."
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "2024, J"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Cosmology Astropart. Phys"
+            }
+          }
+        ],
+        "volumeNumber": 2024
+      }
     },
     {
       "type": "Reference",

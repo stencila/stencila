@@ -110,7 +110,12 @@ pub fn person_family_initial_periods(input: &mut &str) -> Result<Author> {
                 // Parse remaining initials
                 repeat(
                     0..,
-                    preceded(multispace0, (initial_letter, ".").take().map(String::from)),
+                    preceded(
+                        multispace0,
+                        (opt(one_hyphen), initial_letter, ".")
+                            .take()
+                            .map(String::from),
+                    ),
                 ),
             )
                 .map(|(first, rest): (String, Vec<String>)| {

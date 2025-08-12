@@ -7,8 +7,9 @@ use winnow::{
 
 use crate::decode::parts::{chars::one_hyphen, preprints::preprint_server};
 
-/// Parse a journal name not containing a period or comma
+/// Parse a journal name not containing a comma
 ///
+/// Allows for period within name to allow for abbreviations.
 /// Parses a list of whitespace separated names and them joins them to avoid
 /// trailing whitespace being consumed.
 ///
@@ -25,7 +26,7 @@ pub fn journal_no_comma(input: &mut &str) -> Result<String> {
                 "&",
                 ":",
                 one_hyphen,
-                take_while(1.., |c: char| c != '.' && c != ',' && !c.is_whitespace()).verify(
+                take_while(1.., |c: char| c != ',' && !c.is_whitespace()).verify(
                     |name: &str| {
                         !name
                             .chars()

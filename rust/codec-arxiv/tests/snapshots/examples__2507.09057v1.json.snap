@@ -2025,7 +2025,46 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib35",
-      "text": "Turnbull, B. W. (1976). The empirical distribution function with arbitrarily grouped, censored and truncated data. Journal of the Royal Statistical Society. Series B (Methodological), 38(3):290–295"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Turnbull"
+          ],
+          "givenNames": [
+            "B.",
+            "W."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1976"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The empirical distribution function with arbitrarily grouped, censored and truncated data"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of the Royal Statistical Society. Series B (Methodological)"
+            }
+          }
+        ],
+        "volumeNumber": 38,
+        "issueNumber": 3
+      },
+      "pageStart": 290,
+      "pageEnd": 295
     },
     {
       "type": "Reference",
@@ -2141,11 +2180,15 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2008"
+      },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "(2008)"
+            "string": "Isotonic smoothing spline regression"
           }
         }
       ],
@@ -2155,7 +2198,7 @@ expression: article
           {
             "type": "Text",
             "value": {
-              "string": "Isotonic smoothing spline regression. J. Comput. Graph. Stat."
+              "string": "J. Comput. Graph. Stat."
             }
           }
         ],
@@ -2274,7 +2317,45 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib42",
-      "text": "Zee, K.-Y. (2009). Smoking and Periodontal Disease. Australian Dental Journal, 54:S44–S50"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zee"
+          ],
+          "givenNames": [
+            "K.",
+            "-Y."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2009"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Smoking and Periodontal Disease"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Australian Dental Journal"
+            }
+          }
+        ],
+        "volumeNumber": 54
+      },
+      "pageStart": "S44",
+      "pageEnd": "S50"
     },
     {
       "type": "Reference",

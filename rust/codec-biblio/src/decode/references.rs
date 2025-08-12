@@ -394,4 +394,49 @@ mod tests {
 
         Ok(())
     }
+
+    // References extracted from biRxiv 2025.05.12.25325848v3 PDF as plain text that had issues
+    #[test]
+    fn biorxiv_2025_05_12_25325848v3() -> Result<()> {
+        // No space between initials, and abbreviated journal name
+        let r = reference(
+            &mut r#"Pfohl, S.R., Kim, R.B., Coan, G.S., and Mitchell, C.S. (2018). Unraveling the complexity of amyotrophic lateral sclerosis survival prediction. Front. Neuroinform. 12"#,
+        )?;
+        assert_eq!(r.work_type, Some(CreativeWorkType::Article));
+        assert!(r.date.is_some());
+        assert_eq!(
+            r.is_part_of
+                .clone()
+                .and_then(|journal| journal.title)
+                .map(|title| to_text(&title)),
+            Some("Front. Neuroinform.".to_string())
+        );
+        assert_eq!(
+            r.is_part_of
+                .and_then(|journal| journal.volume_number.clone()),
+            Some(IntegerOrString::Integer(12))
+        );
+
+        // Hyphen before second initial
+        let r = reference(
+            &mut r#"Beghi, E., Chiò, A., Couratier, P., Esteban, J., Hardiman, O., Logroscino, G., Millul, A., Mitchell, D., Preux, P.-M., Pupillo, E., et al. (2011). The epidemiology and treatment of ALS: focus on the heterogeneity of the disease and critical appraisal of therapeutic trials. Amyotroph. Lateral Scler. 12, 1-10"#,
+        )?;
+        assert_eq!(r.work_type, Some(CreativeWorkType::Article));
+        assert!(r.date.is_some());
+        assert_eq!(
+            r.is_part_of
+                .clone()
+                .and_then(|journal| journal.title)
+                .map(|title| to_text(&title)),
+            Some("Amyotroph. Lateral Scler.".to_string())
+        );
+        assert_eq!(
+            r.is_part_of
+                .and_then(|journal| journal.volume_number.clone()),
+            Some(IntegerOrString::Integer(12))
+        );
+        assert_eq!(r.page_end, Some(IntegerOrString::Integer(10)));
+
+        Ok(())
+    }
 }

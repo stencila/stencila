@@ -255,7 +255,83 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib4",
-      "text": "Achdou, Y., Han, J., Lasry, J.-M., Lions, P.-L. and Moll, B. (2022), ‘Income and wealth distribution in macroeconomics: A continuous-time approach’, Review of Economic Studies 89(1), 45–86"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Achdou"
+          ],
+          "givenNames": [
+            "Y."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Han"
+          ],
+          "givenNames": [
+            "J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lasry"
+          ],
+          "givenNames": [
+            "J.",
+            "-M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lions"
+          ],
+          "givenNames": [
+            "P.",
+            "-L."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Moll"
+          ],
+          "givenNames": [
+            "B."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Income and wealth distribution in macroeconomics: A continuous-time approach"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Review of Economic Studies"
+            }
+          }
+        ],
+        "volumeNumber": 89,
+        "issueNumber": 1
+      },
+      "pageStart": 45,
+      "pageEnd": 86
     },
     {
       "type": "Reference",
@@ -1783,7 +1859,54 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib39",
-      "text": "Guéant, O., Lasry, J.-M. and Lions, P.-L. (2010), Mean field games and applications, in ‘Paris-Princeton Lectures on Mathematical Finance 2010’, Vol. 2003 of Lecture Notes in Mathematics, Springer-Verlag Berlin Heidelberg"
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Guéant"
+          ],
+          "givenNames": [
+            "O."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lasry"
+          ],
+          "givenNames": [
+            "J.",
+            "-M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lions"
+          ],
+          "givenNames": [
+            "P.",
+            "-L."
+          ]
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "2003 of Lecture Notes in Mathematics, Springer-Verlag Berlin Heidelberg"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2010"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Mean field games and applications, in ‘Paris-Princeton Lectures on Mathematical Finance 2010’, Vol"
+          }
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1896,7 +2019,56 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib42",
-      "text": "Lasry, J.-M. and Lions, P.-L. (2007), ‘Mean field games’, Japanese Journal of Mathematics 2(1), 229–260"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lasry"
+          ],
+          "givenNames": [
+            "J.",
+            "-M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lions"
+          ],
+          "givenNames": [
+            "P.",
+            "-L."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2007"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Mean field games"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Japanese Journal of Mathematics"
+            }
+          }
+        ],
+        "volumeNumber": 2,
+        "issueNumber": 1
+      },
+      "pageStart": 229,
+      "pageEnd": 260
     },
     {
       "type": "Reference",
