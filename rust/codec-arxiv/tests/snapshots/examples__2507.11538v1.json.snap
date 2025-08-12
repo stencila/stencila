@@ -81,7 +81,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib1",
-      "doi": "10.1145/3701716.3715490.",
+      "doi": "10.1145/3701716.3715490",
       "text": "Brian J. Chan, Chao-Ting Chen, Jui-Hung Cheng, and Hen-Hsen Huang. Don’t do rag: When cache-augmented generation is all you need for knowledge tasks. In Companion Proceedings of the ACM on Web Conference 2025, WWW ’25, pp. 893–897. ACM, May 2025"
     },
     {
@@ -589,7 +589,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib19",
-      "doi": "10.18653/v1/2024.findings-acl.772.",
+      "doi": "10.18653/v1/2024.findings-acl.772",
       "text": "Yiwei Qin, Kaiqiang Song, Yebowen Hu, Wenlin Yao, Sangwoo Cho, Xiaoyang Wang, Xuansheng Wu, Fei Liu, Pengfei Liu, and Dong Yu. InFoBench: Evaluating instruction following ability in large language models. In Lun-Wei Ku, Andre Martins, and Vivek Srikumar (eds.), Findings of the Association for Computational Linguistics: ACL 2024, pp. 13025–13048, Bangkok, Thailand, August 2024. Association for Computational Linguistics"
     },
     {

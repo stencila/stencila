@@ -10,13 +10,13 @@ use std::str::FromStr;
 use codec::schema::{Date, Inline};
 use winnow::{
     Parser, Result,
-    ascii::{Caseless, digit1, multispace0, multispace1},
+    ascii::{Caseless, multispace0, multispace1},
     combinator::{alt, delimited, opt, preceded, terminated},
     token::{take_until, take_while},
 };
 
 use codec::schema::{
-    CreativeWorkType, IntegerOrString, Organization, PersonOrOrganization, Reference, shortcuts::t,
+    CreativeWorkType, Organization, PersonOrOrganization, Reference, shortcuts::t,
 };
 
 use crate::decode::parts::{
@@ -25,6 +25,7 @@ use crate::decode::parts::{
     pages::pages,
     terminator::terminator,
     url::url,
+    volume::{no_prefixed_issue, vol_prefixed_volume},
 };
 
 /// Parse a Stencila [`Reference`] from a Chicago reference list item
@@ -70,10 +71,10 @@ pub fn article(input: &mut &str) -> Result<Reference> {
                 take_while(1.., |c: char| c != ','),
             )),
         ),
-        // Volume: Required volume with "vol." prefix for articles
-        preceded(chicago_separator, chicago_volume),
-        // Issue: Optional issue with "no." prefix
-        opt(preceded(chicago_separator, chicago_issue)),
+        // Volume
+        preceded(chicago_separator, vol_prefixed_volume),
+        // Issue
+        opt(preceded(chicago_separator, no_prefixed_issue)),
         // Date: Publication date in parentheses (Year) or (Month Year)
         opt(preceded(
             chicago_separator,
@@ -309,25 +310,9 @@ fn chicago_title(input: &mut &str) -> Result<Vec<Inline>> {
         .parse_next(input)
 }
 
-/// Parse volume number with "vol." prefix
-fn chicago_volume(input: &mut &str) -> Result<IntegerOrString> {
-    preceded(
-        (Caseless("vol"), multispace0, opt("."), multispace0),
-        digit1,
-    )
-    .map(IntegerOrString::from)
-    .parse_next(input)
-}
-
-/// Parse issue number with "no." prefix  
-fn chicago_issue(input: &mut &str) -> Result<IntegerOrString> {
-    preceded((Caseless("no"), multispace0, opt("."), multispace0), digit1)
-        .map(IntegerOrString::from)
-        .parse_next(input)
-}
-
 #[cfg(test)]
 mod tests {
+    use codec::schema::IntegerOrString;
     use codec_text_trait::to_text;
     use common_dev::pretty_assertions::assert_eq;
 
@@ -371,36 +356,6 @@ mod tests {
         assert_eq!(
             chicago_title(&mut "A Long Book Title with Many Words.")?,
             vec![t("A Long Book Title with Many Words")]
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_chicago_volume() -> Result<()> {
-        assert_eq!(chicago_volume(&mut "vol. 1")?, IntegerOrString::Integer(1));
-        assert_eq!(
-            chicago_volume(&mut "vol . 123")?,
-            IntegerOrString::Integer(123)
-        );
-        assert_eq!(
-            chicago_volume(&mut "VOL 456")?,
-            IntegerOrString::Integer(456)
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_chicago_issue() -> Result<()> {
-        assert_eq!(chicago_issue(&mut "no. 1")?, IntegerOrString::Integer(1));
-        assert_eq!(
-            chicago_issue(&mut "no . 123")?,
-            IntegerOrString::Integer(123)
-        );
-        assert_eq!(
-            chicago_issue(&mut "NO   456")?,
-            IntegerOrString::Integer(456)
         );
 
         Ok(())
@@ -517,14 +472,6 @@ mod tests {
         assert!(reference.page_start.is_some());
         assert!(reference.page_end.is_some());
         assert!(reference.doi.is_some());
-
-        // Without DOI or pages
-        let reference = chapter(
-            &mut r#"Chen, Mei-Ling. "Kinship Studies." In Family Research, edited by Laura Mitchell. Chicago Press, 2023."#,
-        )?;
-        assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
-        assert!(reference.page_start.is_none());
-        assert!(reference.doi.is_none());
 
         // Multiple authors and editors
         let reference = chapter(

@@ -443,7 +443,7 @@ expression: article
         ],
         "volumeNumber": 690
       },
-      "pagination": "A188 "
+      "pageStart": "A188"
     },
     {
       "type": "Reference",
@@ -947,7 +947,7 @@ expression: article
         ],
         "volumeNumber": 512
       },
-      "pagination": "L49 "
+      "pageStart": "L49"
     },
     {
       "type": "Reference",
@@ -1592,7 +1592,7 @@ expression: article
         ],
         "volumeNumber": 390
       },
-      "pagination": "L64 "
+      "pageStart": "L64"
     },
     {
       "type": "Reference",
@@ -1754,7 +1754,7 @@ expression: article
         ],
         "volumeNumber": 684
       },
-      "pagination": "A138 "
+      "pageStart": "A138"
     },
     {
       "type": "Reference",
@@ -1787,7 +1787,7 @@ expression: article
         ],
         "volumeNumber": 697
       },
-      "pagination": "A1 "
+      "pageStart": "A1"
     },
     {
       "type": "Reference",
@@ -2013,7 +2013,7 @@ expression: article
         ],
         "volumeNumber": 689
       },
-      "pagination": "A298 "
+      "pageStart": "A298"
     },
     {
       "type": "Reference",
@@ -3083,7 +3083,7 @@ expression: article
         ],
         "volumeNumber": 641
       },
-      "pagination": "A130 "
+      "pageStart": "A130"
     },
     {
       "type": "Reference",
@@ -3589,7 +3589,7 @@ expression: article
         ],
         "volumeNumber": 557
       },
-      "pagination": "A52 "
+      "pageStart": "A52"
     },
     {
       "type": "Reference",
@@ -4724,7 +4724,7 @@ expression: article
         ],
         "volumeNumber": 660
       },
-      "pagination": "A27 "
+      "pageStart": "A27"
     },
     {
       "type": "Reference",

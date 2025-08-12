@@ -8,3 +8,4 @@ pub mod preprints;
 pub mod publisher;
 pub mod terminator;
 pub mod url;
+pub mod volume;

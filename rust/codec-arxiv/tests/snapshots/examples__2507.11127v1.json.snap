@@ -647,13 +647,13 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib16",
-      "doi": "10.2200/S00692ED1V01Y201601AIM032.",
+      "doi": "10.2200/S00692ED1V01Y201601AIM032",
       "text": "Luc De Raedt, Kristian Kersting, Sriraam Natarajan, and David Poole. Statistical Relational Artificial Intelligence: Logic, Probability, and Computation. Morgan & Claypool Publishers, 2016"
     },
     {
       "type": "Reference",
       "id": "bib.bib17",
-      "doi": "10.24963/ijcai.2020/688.",
+      "doi": "10.24963/ijcai.2020/688",
       "text": "Luc De Raedt, Sebastijan Dumančić, Robin Manhaeve, and Giuseppe Marra. From statistical relational to neuro-symbolic artificial intelligence. In Christian Bessiere, editor, Proceedings of the Twenty-Ninth International Joint Conference on Artificial Intelligence, IJCAI-20, pages 4943–4950. International Joint Conferences on Artificial Intelligence Organization, 7 2020"
     },
     {
@@ -1037,7 +1037,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib25",
-      "doi": "10.1007/s10462-023-10448-w.",
+      "doi": "10.1007/s10462-023-10448-w",
       "text": "Artur d’Avila Garcez and Luís C. Lamb. Neurosymbolic AI: The 3rd Wave. Artificial Intelligence Review, 2023"
     },
     {
@@ -1169,7 +1169,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib29",
-      "doi": "10.3233/FAIA342.",
+      "doi": "10.3233/FAIA342",
       "text": "Pascal Hitzler and Md. Kamruzzaman Sarker, editors. Neuro-Symbolic Artificial Intelligence: The State of the Art, volume 342 of Frontiers in Artificial Intelligence and Applications. IOS Press, 2021. ISBN 978-1-64368-244-0"
     },
     {
@@ -1275,13 +1275,13 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib32",
-      "doi": "10.1609/aimag.v43i1.19122.",
+      "doi": "10.1609/aimag.v43i1.19122",
       "text": "Henry A. Kautz. The third AI summer: AAAI Robert S. Engelmore memorial lecture. AI Mag., 43(1):93–104, 2022"
     },
     {
       "type": "Reference",
       "id": "bib.bib33",
-      "doi": "10.1016/j.jal.2016.11.031.",
+      "doi": "10.1016/j.jal.2016.11.031",
       "text": "Angelika Kimmig, Guy Van den Broeck, and Luc De Raedt. Algebraic model counting. Journal of Applied Logic, 22:46–62, July 2017. ISSN 15708683"
     },
     {
@@ -1466,7 +1466,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib40",
-      "doi": "10.1016/j.artint.2021.103504.",
+      "doi": "10.1016/j.artint.2021.103504",
       "text": "Robin Manhaeve, Sebastijan Dumančić, Angelika Kimmig, Thomas Demeester, and Luc De Raedt. Neural probabilistic logic programming in DeepProbLog. Artificial Intelligence, 298:103504, September 2021. ISSN 00043702"
     },
     {
@@ -2039,7 +2039,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib51",
-      "doi": "10.24963/kr.2022/48.",
+      "doi": "10.24963/kr.2022/48",
       "text": "Arseny Skryagin, Wolfgang Stammer, Daniel Ochs, Devendra Singh Dhami, and Kristian Kersting. Neural-Probabilistic Answer Set Programming. In Proceedings of the 19th International Conference on Principles of Knowledge Representation and Reasoning, pages 463–473, 8 2022"
     },
     {
@@ -2288,7 +2288,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib59",
-      "doi": "10.13052/jwe1540-9589.18133.",
+      "doi": "10.13052/jwe1540-9589.18133",
       "text": "Frank van Harmelen and Annette ten Teije. A boxology of design patterns for hybrid learning and reasoning systems. J. Web Eng., 18(1-3):97–124, 2019"
     },
     {
@@ -2397,7 +2397,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib63",
-      "doi": "10.18653/v1/p19-1618.",
+      "doi": "10.18653/v1/p19-1618",
       "text": "Leon Weber, Pasquale Minervini, Jannes Münchmeyer, Ulf Leser, and Tim Rocktäschel. Nlprolog: Reasoning with weak unification for question answering in natural language. In ACL, 2019"
     },
     {

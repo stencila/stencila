@@ -59,14 +59,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         // Title: Parse article title ending with a period
         preceded(apa_separator, apa_title),
         // Journal
-        preceded(
-            apa_separator,
-            alt((
-                journal_no_comma,
-                //terminated(preprint_server, opt((multispace1, Caseless("preprint")))),
-                //take_while(1.., |c: char| c != ','),
-            )),
-        ),
+        preceded(apa_separator, alt((journal_no_comma,))),
         preceded(
             apa_separator,
             alt((

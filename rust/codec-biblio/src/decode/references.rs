@@ -366,11 +366,30 @@ mod tests {
         assert_eq!(r.work_type, Some(CreativeWorkType::Article));
         assert_eq!(
             r.is_part_of
+                .clone()
                 .and_then(|journal| journal.title)
                 .map(|title| to_text(&title)),
             Some("Nat Rev Drug Discov".to_string())
         );
+        assert_eq!(
+            r.is_part_of
+                .and_then(|journal| journal.issue_number.clone()),
+            Some(IntegerOrString::Integer(3))
+        );
         assert_eq!(r.page_end, Some(IntegerOrString::Integer(214)));
+        assert!(r.date.is_some());
+
+        // Non-numeric issue and pages
+        let r = reference(
+            &mut r#"A. P. Davis, T. C. Wiegers, R. J. Johnson, D. Sciaky, J. Wiegers, and C. J. Mattingly, "Comparative Toxicogenomics database (CTD): Update 2023," Nucleic Acids Res, vol. 51, no. D1, pp. D1257-D1262, 2023"#,
+        )?;
+        assert_eq!(r.work_type, Some(CreativeWorkType::Article));
+        assert_eq!(
+            r.is_part_of
+                .and_then(|journal| journal.issue_number.clone()),
+            Some(IntegerOrString::String("D1".into()))
+        );
+        assert_eq!(r.page_end, Some(IntegerOrString::String("D1262".into())));
         assert!(r.date.is_some());
 
         Ok(())

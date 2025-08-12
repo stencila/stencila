@@ -2,7 +2,7 @@
 
 use winnow::{
     Parser, Result,
-    ascii::{digit1, multispace0},
+    ascii::multispace0,
     combinator::{alt, opt, preceded},
     token::take_while,
 };
@@ -32,9 +32,9 @@ pub fn page_range(input: &mut &str) -> Result<Reference> {
     preceded(
         (opt("p"), opt("p"), opt("."), multispace0),
         (
-            digit1,
+            take_while(1.., |c: char| c.is_alphanumeric()),
             (multispace0, take_while(1..=2, is_hyphen), multispace0),
-            digit1,
+            take_while(1.., |c: char| c.is_alphanumeric()),
         ),
     )
     .map(|(start, _, end): (&str, _, &str)| Reference {
@@ -49,12 +49,15 @@ pub fn page_range(input: &mut &str) -> Result<Reference> {
 ///
 /// Matches a sequence of digits and sets it as the page_start in the Reference.
 pub fn page_single(input: &mut &str) -> Result<Reference> {
-    preceded((opt("p"), opt("."), multispace0), digit1)
-        .map(|page| Reference {
-            page_start: Some(IntegerOrString::from(page)),
-            ..Default::default()
-        })
-        .parse_next(input)
+    preceded(
+        (opt("p"), opt("."), multispace0),
+        take_while(1.., |c: char| c.is_alphanumeric()),
+    )
+    .map(|page| Reference {
+        page_start: Some(IntegerOrString::from(page)),
+        ..Default::default()
+    })
+    .parse_next(input)
 }
 
 /// Parse general pagination strings
@@ -65,7 +68,7 @@ pub fn page_single(input: &mut &str) -> Result<Reference> {
 pub fn pagination(input: &mut &str) -> Result<Reference> {
     preceded(
         (opt("p"), opt("p"), opt("."), multispace0),
-        take_while(1.., |c: char| !c.is_ascii_punctuation()),
+        take_while(1.., |c: char| c.is_alphanumeric()),
     )
     .map(|pagination: &str| Reference {
         pagination: Some(pagination.into()),
@@ -152,7 +155,7 @@ mod tests {
     }
 
     #[test]
-    fn test_pagination() -> Result<()> {
+    fn test_non_numeric() -> Result<()> {
         // Roman numerals
         let Reference {
             page_start,
@@ -160,21 +163,21 @@ mod tests {
             pagination,
             ..
         } = pages(&mut "xii")?;
-        assert_eq!(page_start, None);
+        assert_eq!(page_start, Some(IntegerOrString::from("xii")));
         assert_eq!(page_end, None);
-        assert_eq!(pagination, Some("xii".to_string()));
+        assert_eq!(pagination, None);
 
         // Alphanumeric
-        let Reference { pagination, .. } = pages(&mut "A1")?;
-        assert_eq!(pagination, Some("A1".to_string()));
+        let Reference { page_start, .. } = pages(&mut "A1")?;
+        assert_eq!(page_start, Some(IntegerOrString::from("A1")));
 
         // Complex pagination
-        let Reference { pagination, .. } = pages(&mut "S123")?;
-        assert_eq!(pagination, Some("S123".to_string()));
+        let Reference { page_start, .. } = pages(&mut "S123")?;
+        assert_eq!(page_start, Some(IntegerOrString::from("S123")));
 
         // Mixed case
-        let Reference { pagination, .. } = pages(&mut "Appendix")?;
-        assert_eq!(pagination, Some("Appendix".to_string()));
+        let Reference { page_start, .. } = pages(&mut "Appendix")?;
+        assert_eq!(page_start, Some(IntegerOrString::from("Appendix")));
 
         Ok(())
     }

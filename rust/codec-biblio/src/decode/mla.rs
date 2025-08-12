@@ -10,13 +10,13 @@ use std::str::FromStr;
 use codec::schema::{Author, Date, Inline, Person};
 use winnow::{
     Parser, Result,
-    ascii::{Caseless, digit1, multispace0, multispace1},
+    ascii::{multispace0, multispace1},
     combinator::{alt, delimited, opt, preceded, terminated},
     token::{take_until, take_while},
 };
 
 use codec::schema::{
-    CreativeWorkType, IntegerOrString, Organization, PersonOrOrganization, Reference, shortcuts::t,
+    CreativeWorkType, Organization, PersonOrOrganization, Reference, shortcuts::t,
 };
 
 use crate::decode::parts::{
@@ -25,6 +25,7 @@ use crate::decode::parts::{
     doi::doi_or_url,
     pages::pages,
     url::url,
+    volume::{no_prefixed_issue, vol_prefixed_volume},
 };
 
 /// Parse a Stencila [`Reference`] from an MLA reference list item
@@ -62,10 +63,10 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         preceded(mla_separator, mla_quoted_title),
         // Journal: Parse journal name ending with comma
         preceded(mla_separator, take_while(1.., |c: char| c != ',')),
-        // Volume: Optional volume with "vol." prefix
-        opt(preceded(mla_separator, mla_volume)),
-        // Issue: Optional issue with "no." prefix
-        opt(preceded(mla_separator, mla_issue)),
+        // Volume
+        opt(preceded(mla_separator, vol_prefixed_volume)),
+        // Issue
+        opt(preceded(mla_separator, no_prefixed_issue)),
         // Year: Publication year
         preceded(mla_separator, year_az),
         // Pages
@@ -355,23 +356,6 @@ fn mla_unquoted_title(input: &mut &str) -> Result<Vec<Inline>> {
         .parse_next(input)
 }
 
-/// Parse volume number
-fn mla_volume(input: &mut &str) -> Result<IntegerOrString> {
-    preceded(
-        (Caseless("vol"), multispace0, opt("."), multispace0),
-        digit1,
-    )
-    .map(IntegerOrString::from)
-    .parse_next(input)
-}
-
-/// Parse issue number
-fn mla_issue(input: &mut &str) -> Result<IntegerOrString> {
-    preceded((Caseless("no"), multispace0, opt("."), multispace0), digit1)
-        .map(IntegerOrString::from)
-        .parse_next(input)
-}
-
 /// Parse a separator between parts of an MLA reference
 ///
 /// This is a lenient parser for anything that may be used as a separator
@@ -387,7 +371,7 @@ fn mla_separator<'s>(input: &mut &'s str) -> Result<&'s str> {
 
 #[cfg(test)]
 mod tests {
-    use codec::schema::Person;
+    use codec::schema::{IntegerOrString, Person};
     use codec_text_trait::to_text;
     use common_dev::pretty_assertions::assert_eq;
 
@@ -677,24 +661,6 @@ mod tests {
             mla_quoted_title(&mut r#"“The title.”"#)?,
             vec![t("The title")]
         );
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_mla_volume() -> Result<()> {
-        assert_eq!(mla_volume(&mut "vol. 1")?, IntegerOrString::Integer(1));
-        assert_eq!(mla_volume(&mut "vol . 123")?, IntegerOrString::Integer(123));
-        assert_eq!(mla_volume(&mut "VOL 456")?, IntegerOrString::Integer(456));
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_mla_issue() -> Result<()> {
-        assert_eq!(mla_issue(&mut "no. 1")?, IntegerOrString::Integer(1));
-        assert_eq!(mla_issue(&mut "no . 123")?, IntegerOrString::Integer(123));
-        assert_eq!(mla_issue(&mut "NO   456")?, IntegerOrString::Integer(456));
 
         Ok(())
     }

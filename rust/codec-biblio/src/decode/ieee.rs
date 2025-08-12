@@ -13,8 +13,8 @@ use winnow::{
 };
 
 use codec::schema::{
-    Author, CreativeWorkType, Date, Inline, IntegerOrString, Organization, Person, PersonOptions,
-    Reference, StringOrNumber, shortcuts::t,
+    Author, CreativeWorkType, Date, Inline, Organization, Person, PersonOptions, Reference,
+    StringOrNumber, shortcuts::t,
 };
 
 use crate::decode::parts::{
@@ -25,6 +25,7 @@ use crate::decode::parts::{
     publisher::place_publisher,
     terminator::terminator,
     url::url,
+    volume::{no_prefixed_issue, vol_prefixed_volume},
 };
 
 /// Parse a Stencila [`Reference`] from an IEEE reference list item
@@ -65,10 +66,10 @@ pub fn article(input: &mut &str) -> Result<Reference> {
             ieee_separator,
             take_while(1.., |c: char| c != ','),
         )),
-        // Volume: Parse volume with "vol." prefix
-        opt(preceded(ieee_separator, ieee_volume)),
-        // Issue: Optional issue with "no." prefix
-        opt(preceded(ieee_separator, ieee_issue)),
+        // Volume
+        opt(preceded(ieee_separator, vol_prefixed_volume)),
+        // Issue
+        opt(preceded(ieee_separator, no_prefixed_issue)),
         // Pages
         opt(preceded(ieee_separator, pages)),
         // Date: Publication date (month and year or just year)
@@ -297,20 +298,6 @@ fn ieee_quoted_title(input: &mut &str) -> Result<Vec<Inline>> {
     .parse_next(input)
 }
 
-/// Parse volume number with "vol." prefix
-fn ieee_volume(input: &mut &str) -> Result<IntegerOrString> {
-    preceded(("vol.", multispace0), digit1)
-        .map(IntegerOrString::from)
-        .parse_next(input)
-}
-
-/// Parse issue number with "no." prefix
-fn ieee_issue(input: &mut &str) -> Result<IntegerOrString> {
-    preceded(("no.", multispace0), digit1)
-        .map(IntegerOrString::from)
-        .parse_next(input)
-}
-
 /// Parse IEEE date format (e.g., "Mar. 2023" or "2023")
 fn ieee_date(input: &mut &str) -> Result<Date> {
     alt((
@@ -390,7 +377,9 @@ fn ieee_edition(input: &mut &str) -> Result<StringOrNumber> {
 
 #[cfg(test)]
 mod tests {
-    use codec::schema::{OrganizationOptions, PersonOrOrganization, PostalAddressOrString};
+    use codec::schema::{
+        IntegerOrString, OrganizationOptions, PersonOrOrganization, PostalAddressOrString,
+    };
     use codec_text_trait::to_text;
     use common_dev::pretty_assertions::assert_eq;
 
