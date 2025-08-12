@@ -7,7 +7,8 @@ pub fn clean_md(md: &str) -> String {
     let md = remove_line_numbers(md);
     let md = remove_extra_blank_lines(&md);
     let md = remove_header_formatting(&md);
-    ensure_isolated_blocks(&md)
+    let md = ensure_isolated_blocks(&md);
+    listify_references(&md)
 }
 
 /// Remove line numbers
@@ -206,6 +207,58 @@ fn ensure_isolated_blocks(md: &str) -> String {
             }
         } else {
             result.push(line);
+        }
+    }
+
+    result.join("\n")
+}
+
+/// Ensure that references are isolated from one another
+///
+/// OCR can produce references that are neither a numeric list (have a starting
+/// number and dot but no blank line between them, which is ok) or a separate
+/// paragraphs.
+///
+/// This function modifies Markdown reference lists where each line starts with
+/// a number, or a number surrounded by punctuation, by making them into a
+/// numbered list. e.g.
+///
+/// 1 => 1.
+/// 1: => 1.
+/// 1) => 1.
+/// [1] => 1.
+/// (1) => 1.
+fn listify_references(md: &str) -> String {
+    static HEADING_REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"^#{1,3}(.*)").expect("invalid regex"));
+
+    static NUMBERED_REGEX: Lazy<Regex> = Lazy::new(|| {
+        Regex::new(r"^\s*[\(\[]*\s*(\d+)\s*[\)\]\:\;]*\s*(.*)$").expect("invalid regex")
+    });
+
+    let mut result = Vec::new();
+    let mut in_references = false;
+
+    for line in md.lines() {
+        if let Some(text) = HEADING_REGEX
+            .captures(line)
+            .and_then(|captures| captures.get(1))
+        {
+            in_references = matches!(text.as_str().trim(), "References" | "Bibliography");
+            result.push(line.to_string());
+        } else if !in_references {
+            result.push(line.to_string());
+        } else if let Some(captures) = NUMBERED_REGEX.captures(line) {
+            // Transform the reference format
+            let transformed = if captures[2].starts_with(".") {
+                captures[0].to_string()
+            } else {
+                [&captures[1], ". ", &captures[2]].concat()
+            };
+            result.push(transformed);
+        } else {
+            // In references section but not a numbered line, keep as is
+            result.push(line.to_string());
         }
     }
 
@@ -681,6 +734,198 @@ mod tests {
         More text
         ## Another Header
         Final text
+        ");
+    }
+
+    #[test]
+    fn test_listify_references() {
+        // Basic references section
+        let input = r"# References
+
+1 First reference here
+2 Second reference
+3 Third reference";
+        assert_snapshot!(listify_references(input), @r"
+        # References
+
+        1. First reference here
+        2. Second reference
+        3. Third reference
+        ");
+
+        // References with existing dot format
+        let input = r"## References
+
+1. First reference with colon
+2. Second reference with colon
+3. Third reference with colon";
+        assert_snapshot!(listify_references(input), @r"
+        ## References
+
+        1. First reference with colon
+        2. Second reference with colon
+        3. Third reference with colon
+        ");
+
+        // References with colon format
+        let input = r"## References
+
+1: First reference with colon
+2: Second reference with colon
+3: Third reference with colon";
+        assert_snapshot!(listify_references(input), @r"
+        ## References
+
+        1. First reference with colon
+        2. Second reference with colon
+        3. Third reference with colon
+        ");
+
+        // References with parentheses format
+        let input = r"### Bibliography
+
+1) First reference with parenthesis
+2) Second reference with parenthesis
+3) Third reference with parenthesis";
+        assert_snapshot!(listify_references(input), @r"
+        ### Bibliography
+
+        1. First reference with parenthesis
+        2. Second reference with parenthesis
+        3. Third reference with parenthesis
+        ");
+
+        // References with square brackets
+        let input = r"# References
+
+[1] First reference in brackets
+[2] Second reference in brackets
+[3] Third reference in brackets";
+        assert_snapshot!(listify_references(input), @r"
+        # References
+
+        1. First reference in brackets
+        2. Second reference in brackets
+        3. Third reference in brackets
+        ");
+
+        // References with round brackets
+        let input = r"# Bibliography
+
+(1) First reference in parentheses
+(2) Second reference in parentheses
+(3) Third reference in parentheses";
+        assert_snapshot!(listify_references(input), @r"
+        # Bibliography
+
+        1. First reference in parentheses
+        2. Second reference in parentheses
+        3. Third reference in parentheses
+        ");
+
+        // Mixed formats in references
+        let input = r"# References
+
+1 First reference
+2: Second reference with colon
+[3] Third reference in brackets
+(4) Fourth reference in parentheses
+5) Fifth reference with closing paren";
+        assert_snapshot!(listify_references(input), @r"
+        # References
+
+        1. First reference
+        2. Second reference with colon
+        3. Third reference in brackets
+        4. Fourth reference in parentheses
+        5. Fifth reference with closing paren
+        ");
+
+        // Content before references section should not be modified
+        let input = r"# Introduction
+
+Some text with 1 number that shouldn't change
+Another line with [2] brackets
+
+## References
+
+1 First actual reference
+2 Second actual reference";
+        assert_snapshot!(listify_references(input), @r"
+        # Introduction
+
+        Some text with 1 number that shouldn't change
+        Another line with [2] brackets
+
+        ## References
+        
+        1. First actual reference
+        2. Second actual reference
+        ");
+
+        // No references section
+        let input = r"# Introduction
+
+Some text with 1 number
+Another line with [2] brackets
+Regular content";
+        assert_snapshot!(listify_references(input), @r"
+        # Introduction
+        
+        Some text with 1 number
+        Another line with [2] brackets
+        Regular content
+        ");
+
+        // Multiple sections with only references processed
+        let input = r"# Methods
+
+1 This should not change
+2 This should not change
+
+# References
+
+1 This should change
+2 This should change
+
+# Conclusion
+
+3 This should not change";
+        assert_snapshot!(listify_references(input), @r"
+        # Methods
+
+        1 This should not change
+        2 This should not change
+
+        # References
+
+        1. This should change
+        2. This should change
+
+        # Conclusion
+
+        3 This should not change
+        ");
+
+        // Empty references section
+        let input = r"# References
+";
+        assert_snapshot!(listify_references(input), @r"
+        # References
+        ");
+
+        // References with extra whitespace
+        let input = r"#   References
+   
+  1   First reference with spaces
+  [2]   Second reference with spaces  
+   (3)    Third reference with spaces   ";
+        assert_snapshot!(listify_references(input), @r"
+        #   References
+           
+        1. First reference with spaces
+        2. Second reference with spaces  
+        3. Third reference with spaces
         ");
     }
 }
