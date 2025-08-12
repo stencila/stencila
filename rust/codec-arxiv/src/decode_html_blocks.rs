@@ -930,18 +930,14 @@ pub fn decode_theorem_or_proof(
     tag: &HTMLTag,
     context: &mut ArxivDecodeContext,
 ) -> Block {
-    let class = tag
-        .attributes()
-        .class()
-        .map(|cls| cls.as_utf8_str())
-        .unwrap_or_default();
+    let class = get_class(tag);
 
     // Determine claim type from class
     let claim_type = if class.contains("proposition") {
         ClaimType::Proposition
     } else if class.contains("lemma") {
         ClaimType::Lemma
-    } else if class.contains("corollary") {
+    } else if class.contains("ltx_theorem_cor") || class.contains("corollary") {
         ClaimType::Corollary
     } else if class.contains("proof") {
         ClaimType::Proof
