@@ -255,7 +255,7 @@ expression: article
         {
           "type": "Text",
           "value": {
-            "string": ", 2019, J"
+            "string": "2019, J"
           }
         }
       ],
@@ -952,7 +952,36 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib14",
-      "text": "Beck A. M., et al., 2016, MNRAS, 455, 2110"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Beck"
+          ],
+          "givenNames": [
+            "A.",
+            "M."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2016"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 455
+      },
+      "pageStart": 2110
     },
     {
       "type": "Reference",
@@ -1061,12 +1090,68 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib17",
-      "text": "Bigwood L., et al., 2024, MNRAS, 534, 655"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bigwood"
+          ],
+          "givenNames": [
+            "L."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 534
+      },
+      "pageStart": 655
     },
     {
       "type": "Reference",
       "id": "bib.bib18",
-      "text": "Borgani S., et al., 2004, MNRAS, 348, 1078"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Borgani"
+          ],
+          "givenNames": [
+            "S."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2004"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 348
+      },
+      "pageStart": 1078
     },
     {
       "type": "Reference",
@@ -1230,12 +1315,70 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib21",
-      "text": "Chisari N. E., et al., 2019a, The Open Journal of Astrophysics, 2, 4"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chisari"
+          ],
+          "givenNames": [
+            "N.",
+            "E."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Open Journal of Astrophysics"
+            }
+          }
+        ],
+        "volumeNumber": 2
+      },
+      "pageStart": 4
     },
     {
       "type": "Reference",
       "id": "bib.bib22",
-      "text": "Chisari N. E., et al., 2019b, ApJS, 242, 2"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chisari"
+          ],
+          "givenNames": [
+            "N.",
+            "E."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ApJS"
+            }
+          }
+        ],
+        "volumeNumber": 242
+      },
+      "pageStart": 2
     },
     {
       "type": "Reference",
@@ -1550,7 +1693,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib31",
-      "workType": "Book",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1564,21 +1707,26 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": ", 2021, MNRAS, 505, 2840"
+        "value": "2021"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "et al"
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
           }
-        }
-      ]
+        ],
+        "volumeNumber": 505
+      },
+      "pageStart": 2840
     },
     {
       "type": "Reference",
       "id": "bib.bib32",
-      "workType": "Book",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1592,21 +1740,26 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": ", 2024, A&A, 684, A138"
+        "value": "2024"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "et al"
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "A&A"
+            }
           }
-        }
-      ]
+        ],
+        "volumeNumber": 684
+      },
+      "pagination": "A138 "
     },
     {
       "type": "Reference",
       "id": "bib.bib33",
-      "workType": "Book",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1620,21 +1773,54 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": ", 2025, A&A, 697, A1"
+        "value": "2025"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "et al"
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "A&A"
+            }
           }
-        }
-      ]
+        ],
+        "volumeNumber": 697
+      },
+      "pagination": "A1 "
     },
     {
       "type": "Reference",
       "id": "bib.bib34",
-      "text": "Fang X., et al., 2024, MNRAS, 527, 9581"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Fang"
+          ],
+          "givenNames": [
+            "X."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 527
+      },
+      "pageStart": 9581
     },
     {
       "type": "Reference",
@@ -1799,7 +1985,35 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib38",
-      "text": "Ghirardini V., et al., 2024, A&A, 689, A298"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ghirardini"
+          ],
+          "givenNames": [
+            "V."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "A&A"
+            }
+          }
+        ],
+        "volumeNumber": 689
+      },
+      "pagination": "A298 "
     },
     {
       "type": "Reference",
@@ -2251,7 +2465,35 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib48",
-      "text": "Ivezić Ž., et al., 2019, ApJ, 873, 111"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ivezić"
+          ],
+          "givenNames": [
+            "Ž."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ApJ"
+            }
+          }
+        ],
+        "volumeNumber": 873
+      },
+      "pageStart": 111
     },
     {
       "type": "Reference",
@@ -2308,7 +2550,35 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib52",
-      "text": "Komatsu E., et al., 2011, ApJS, 192, 18"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Komatsu"
+          ],
+          "givenNames": [
+            "E."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2011"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ApJS"
+            }
+          }
+        ],
+        "volumeNumber": 192
+      },
+      "pageStart": 18
     },
     {
       "type": "Reference",
@@ -2453,41 +2723,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib58",
-      "workType": "Article",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "Laureijs"
-          ],
-          "givenNames": [
-            "R."
-          ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "3193"
-      },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": ", 2011, arXiv e-prints, p"
-          }
-        }
-      ],
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "arXiv:1110"
-            }
-          }
-        ]
-      }
+      "text": "Laureijs R., et al., 2011, arXiv e-prints, p. arXiv:1110.3193"
     },
     {
       "type": "Reference",
@@ -2548,7 +2784,35 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib61",
-      "text": "Lustig P., et al., 2022, Monthly Notices of the Royal Astronomical Society, 518, 5953"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lustig"
+          ],
+          "givenNames": [
+            "P."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Monthly Notices of the Royal Astronomical Society"
+            }
+          }
+        ],
+        "volumeNumber": 518
+      },
+      "pageStart": 5953
     },
     {
       "type": "Reference",
@@ -2604,7 +2868,35 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib63",
-      "text": "McDonald M., et al., 2014, ApJ, 794, 67"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "McDonald"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2014"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ApJ"
+            }
+          }
+        ],
+        "volumeNumber": 794
+      },
+      "pageStart": 67
     },
     {
       "type": "Reference",
@@ -3030,7 +3322,35 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib72",
-      "text": "Nelson D., et al., 2019, Computational Astrophysics and Cosmology, 6, 2"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nelson"
+          ],
+          "givenNames": [
+            "D."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Computational Astrophysics and Cosmology"
+            }
+          }
+        ],
+        "volumeNumber": 6
+      },
+      "pageStart": 2
     },
     {
       "type": "Reference",
@@ -3051,7 +3371,7 @@ expression: article
         {
           "type": "Text",
           "value": {
-            "string": ", 2022, J"
+            "string": "2022, J"
           }
         }
       ],
@@ -3160,7 +3480,35 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib77",
-      "text": "Pakmor R., et al., 2023, MNRAS, 524, 2539"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pakmor"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 524
+      },
+      "pageStart": 2539
     },
     {
       "type": "Reference",
@@ -3180,12 +3528,40 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib81",
-      "text": "Pandya V., et al., 2023, ApJ, 956, 118"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pandya"
+          ],
+          "givenNames": [
+            "V."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ApJ"
+            }
+          }
+        ],
+        "volumeNumber": 956
+      },
+      "pageStart": 118
     },
     {
       "type": "Reference",
       "id": "bib.bib82",
-      "workType": "Book",
+      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -3199,16 +3575,21 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": ", 2013, A&A, 557, A52"
+        "value": "2013"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "et al"
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "A&A"
+            }
           }
-        }
-      ]
+        ],
+        "volumeNumber": 557
+      },
+      "pagination": "A52 "
     },
     {
       "type": "Reference",
@@ -3233,7 +3614,35 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib87",
-      "text": "Schaye J., et al., 2023, MNRAS, 526, 4978"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schaye"
+          ],
+          "givenNames": [
+            "J."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "MNRAS"
+            }
+          }
+        ],
+        "volumeNumber": 526
+      },
+      "pageStart": 4978
     },
     {
       "type": "Reference",
@@ -3304,7 +3713,7 @@ expression: article
         {
           "type": "Text",
           "value": {
-            "string": ", 2016, J"
+            "string": "2016, J"
           }
         }
       ],
@@ -3783,7 +4192,35 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib101",
-      "text": "Springel V., et al., 2005b, Nature, 435, 629"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Springel"
+          ],
+          "givenNames": [
+            "V."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2005"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Nature"
+            }
+          }
+        ],
+        "volumeNumber": 435
+      },
+      "pageStart": 629
     },
     {
       "type": "Reference",
@@ -4259,7 +4696,35 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib115",
-      "text": "Tröster T., et al., 2022, A&A, 660, A27"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tröster"
+          ],
+          "givenNames": [
+            "T."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "A&A"
+            }
+          }
+        ],
+        "volumeNumber": 660
+      },
+      "pagination": "A27 "
     },
     {
       "type": "Reference",
@@ -4556,7 +5021,35 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib122",
-      "text": "Zehavi I., et al., 2004, ApJ, 608, 16"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zehavi"
+          ],
+          "givenNames": [
+            "I."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2004"
+      },
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "ApJ"
+            }
+          }
+        ],
+        "volumeNumber": 608
+      },
+      "pageStart": 16
     },
     {
       "type": "Reference",

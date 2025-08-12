@@ -9,7 +9,7 @@ use codec::{
     status::Status,
 };
 
-pub mod conversion;
+mod conversion;
 pub mod decode;
 pub mod encode;
 

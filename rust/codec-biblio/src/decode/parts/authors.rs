@@ -13,22 +13,23 @@ use crate::decode::parts::chars::{is_hyphen, one_apostrophe, one_hyphen};
 
 /// Parse multiple authors separated by various delimiters
 pub fn authors(input: &mut &str) -> Result<Vec<Author>> {
-    separated(
-        1..,
-        author,
-        (
-            multispace0,
-            alt((", &", ", and", "&", "and", ",")),
-            multispace0,
+    terminated(
+        separated(
+            1..,
+            author,
+            (
+                multispace0,
+                alt((", &", ", and", "&", "and", ",")),
+                multispace0,
+            ),
         ),
+        opt((multispace0, opt(","), multispace0, etal)),
     )
     .map(|authors: Vec<Author>| {
         authors
             .into_iter()
             .filter(|author| match author {
-                Author::Organization(org) => {
-                    org.name != Some("et al".to_string()) && org.name != Some("...".to_string())
-                }
+                Author::Organization(org) => org.name != Some("...".to_string()),
                 _ => true,
             })
             .collect()
@@ -45,7 +46,6 @@ pub fn author(input: &mut &str) -> Result<Author> {
         person_given_family,
         organization,
         ellipses,
-        etal,
     ))
     .parse_next(input)
 }
@@ -219,7 +219,7 @@ pub fn organization(input: &mut &str) -> Result<Author> {
         multispace1,
     )
     .verify(|names: &Vec<&str>| match names.first() {
-        Some(name) => !name.chars().all(|c| c.is_numeric()),
+        Some(name) => !matches!(*name, "et" | "al") && !name.chars().all(|c| c.is_numeric()),
         None => false,
     })
     .map(|names: Vec<&str>| {
@@ -232,14 +232,9 @@ pub fn organization(input: &mut &str) -> Result<Author> {
 }
 
 /// Parse "et al" (an variations as an author)
-pub fn etal(input: &mut &str) -> Result<Author> {
-    alt(("et. al.", "et al.", "et al"))
-        .map(|_| {
-            Author::Organization(Organization {
-                name: Some("et al".into()),
-                ..Default::default()
-            })
-        })
+pub fn etal(input: &mut &str) -> Result<()> {
+    ("et", opt("."), multispace0, "al", opt("."))
+        .map(|_| ())
         .parse_next(input)
 }
 
@@ -513,6 +508,26 @@ mod tests {
         // With et al
         let items = authors(&mut "L. Chen, S. Martinez, R. Johnson, et al.")?;
         assert_eq!(items.len(), 3);
+        assert_eq!(
+            items.last().cloned(),
+            Some(Author::Person(Person {
+                given_names: Some(vec!["R.".into()]),
+                family_names: Some(vec!["Johnson".into()]),
+                ..Default::default()
+            }))
+        );
+
+        // With et al without preceding comma
+        let mut items = authors(&mut "L. Chen et al.")?;
+        assert_eq!(items.len(), 1);
+        assert_eq!(
+            items.pop(),
+            Some(Author::Person(Person {
+                given_names: Some(vec!["L.".into()]),
+                family_names: Some(vec!["Chen".into()]),
+                ..Default::default()
+            }))
+        );
 
         Ok(())
     }

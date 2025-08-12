@@ -340,7 +340,7 @@ mod tests {
     // References extracted from arXiv 2507.11353v1 HTML as plain text that had issues
     #[test]
     fn arxiv_2507_11353v1() -> Result<()> {
-        let r = apa::article(
+        let r = reference(
             &mut "Acharya, V. V., Berner, R., Engle, R., Jung, H., Stroebel, J., Zeng, X. and Zhao, Y. (2023), ‘Climate stress testing’, Annual Review of Financial Economics 15(1), 291–326.",
         )?;
         assert_eq!(r.work_type, Some(CreativeWorkType::Article));
@@ -351,6 +351,26 @@ mod tests {
             Some("Annual Review of Financial Economics".to_string())
         );
         assert_eq!(r.page_end, Some(IntegerOrString::Integer(326)));
+        assert!(r.date.is_some());
+
+        Ok(())
+    }
+
+    // References extracted from biRxiv 2024.12.10.627863v2 PDF as plain text that had issues
+    #[test]
+    fn biorxiv_2024_12_10_627863v2() -> Result<()> {
+        // "et al" without a preceding comma was unrecognized
+        let r = reference(
+            &mut r#"S. M. Paul et al., "How to improve R&D productivity: The pharmaceutical industry's grand challenge," Nat Rev Drug Discov, vol. 9, no. 3, pp. 203-214, 2010."#,
+        )?;
+        assert_eq!(r.work_type, Some(CreativeWorkType::Article));
+        assert_eq!(
+            r.is_part_of
+                .and_then(|journal| journal.title)
+                .map(|title| to_text(&title)),
+            Some("Nat Rev Drug Discov".to_string())
+        );
+        assert_eq!(r.page_end, Some(IntegerOrString::Integer(214)));
         assert!(r.date.is_some());
 
         Ok(())
