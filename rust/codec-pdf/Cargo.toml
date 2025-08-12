@@ -9,6 +9,7 @@ codec-latex = { path = "../codec-latex" }
 codec-markdown = { path = "../codec-markdown" }
 codec-utils = { path = "../codec-utils" }
 convert = { path = "../convert" }
+media-embed = { path = "../media-embed" }
 
 [lints]
 workspace = true

@@ -1618,6 +1618,7 @@ dependencies = [
  "codec-markdown",
  "codec-utils",
  "convert",
+ "media-embed",
 ]
 
 [[package]]

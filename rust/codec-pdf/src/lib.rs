@@ -12,6 +12,7 @@ use codec::{
     status::Status,
 };
 use codec_latex::LatexCodec;
+use media_embed::embed_media;
 
 /// A codec for PDF
 pub struct PdfCodec;
@@ -67,6 +68,9 @@ impl Codec for PdfCodec {
 
         // Decode the Markdown file to a node
         let (mut node, orig, info) = MarkdownCodec.from_path(&md_path, options).await?;
+
+        // Embed any image files
+        embed_media(&mut node, &md_path)?;
 
         // Set source information, so that it refers to the PDF, not the temporary Markdown file
         if let Node::Article(Article { options, .. }) = &mut node {

@@ -1,6 +1,9 @@
 use std::path::{Path, PathBuf};
 
-use common::{eyre::Result, tracing};
+use common::{
+    eyre::{Result, bail},
+    tracing,
+};
 use format::Format;
 use schema::{Block, ImageObject, Inline, VisitorMut, WalkControl, WalkNode};
 
@@ -12,6 +15,18 @@ pub fn embed_media<T>(node: &mut T, dir: &Path) -> Result<()>
 where
     T: WalkNode,
 {
+    let dir = if dir.is_file()
+        && let Some(parent) = dir.parent()
+    {
+        parent
+    } else {
+        dir
+    };
+
+    if !dir.exists() {
+        bail!("Directory does not exist: {}", dir.display());
+    }
+
     let mut walker = Walker {
         dir: dir.into(),
         tiff_to: Some(Format::Png),
