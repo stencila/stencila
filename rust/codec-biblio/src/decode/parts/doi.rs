@@ -25,7 +25,7 @@ use crate::decode::parts::url::url;
 /// 3. Bare DOIs (starting with 10.)
 pub fn doi(input: &mut &str) -> Result<String> {
     alt((doi_url, doi_prefixed, doi_bare))
-        .map(String::from)
+        .map(|doi| doi.trim_end_matches(['.', ',', ';']).to_string())
         .parse_next(input)
 }
 
