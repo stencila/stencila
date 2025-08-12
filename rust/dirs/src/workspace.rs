@@ -13,6 +13,7 @@ pub const STENCILA_DIR: &str = ".stencila";
 pub const CONFIG_FILE: &str = "config.yaml";
 pub const DOCS_FILE: &str = "docs.json";
 pub const STORE_DIR: &str = "store";
+pub const ARTIFACTS_DIR: &str = "artifacts";
 pub const DB_FILE: &str = "db.kuzu";
 
 #[derive(SmartDefault)]
@@ -88,6 +89,17 @@ pub async fn stencila_store_dir(stencila_dir: &Path, ensure: bool) -> Result<Pat
     }
 
     Ok(store_dir)
+}
+
+/// Get the path of the `.stencila/artifacts` directory and optionally ensure it exists
+pub async fn stencila_artifacts_dir(stencila_dir: &Path, ensure: bool) -> Result<PathBuf> {
+    let artifacts_dir = stencila_dir.join(ARTIFACTS_DIR);
+
+    if ensure && !artifacts_dir.exists() {
+        create_dir_all(&artifacts_dir).await?;
+    }
+
+    Ok(artifacts_dir)
 }
 
 /// Get the path of the `.stencila/db.kuzu` file and optionally ensure its parent exists
@@ -169,6 +181,21 @@ pub async fn closest_stencila_dir(path: &Path, ensure: bool) -> Result<PathBuf> 
     }
 
     Ok(stencila_dir)
+}
+
+/// Get or create a new directory within the closest `.stencila/artifacts` directory
+/// with specified unique key
+/// 
+/// Used for caching artifacts such as downloaded files or costly API responses.
+/// It is up to the caller to generate unique keys.
+pub async fn closest_artifacts_for(path: &Path, key: &str) -> Result<PathBuf> {
+    let stencila_dir = closest_stencila_dir(path, true).await?;
+    let artifacts_dir = stencila_artifacts_dir(&stencila_dir, true).await?;
+
+    let artifact_dir = artifacts_dir.join(key);
+    create_dir_all(&artifact_dir).await?;
+
+    Ok(artifact_dir)
 }
 
 /// Get the path of the closest `.stencila/config.yaml` file to a path
