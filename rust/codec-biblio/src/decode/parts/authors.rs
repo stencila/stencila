@@ -90,7 +90,7 @@ pub fn person_family_initials(input: &mut &str) -> Result<Author> {
         .parse_next(input)
 }
 
-/// Parse person in "Family, F. M." and "Family F. M."" formats
+/// Parse person in "Family, F. M.", "Family F. M.", and "Family F.M." formats
 ///
 /// Used where it is necessary to be strict about ending periods to avoid
 /// consuming the start of the title.
@@ -104,11 +104,20 @@ pub fn person_family_initial_periods(input: &mut &str) -> Result<Author> {
         // Initials with period
         preceded(
             multispace0,
-            separated(
-                1..,
+            (
+                // Parse first initial
                 (initial_letter, ".").take().map(String::from),
-                multispace1,
-            ),
+                // Parse remaining initials
+                repeat(
+                    0..,
+                    preceded(multispace0, (initial_letter, ".").take().map(String::from)),
+                ),
+            )
+                .map(|(first, rest): (String, Vec<String>)| {
+                    let mut all = vec![first];
+                    all.extend(rest);
+                    all
+                }),
         ),
     )
         .map(|(family_names, given_names): (Vec<String>, Vec<String>)| {
@@ -848,6 +857,48 @@ mod tests {
             unreachable!("expected person")
         }
 
+        // Concatenated initials with comma
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = author(&mut "Pfohl, S.R.")?
+        {
+            assert_eq!(family_names, Some(vec!["Pfohl".to_string()]));
+            assert_eq!(given_names, Some(vec!["S.".to_string(), "R.".to_string()]));
+        } else {
+            unreachable!("expected person")
+        }
+
+        // Concatenated initials without comma
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = author(&mut "Kim R.B.")?
+        {
+            assert_eq!(family_names, Some(vec!["Kim".to_string()]));
+            assert_eq!(given_names, Some(vec!["R.".to_string(), "B.".to_string()]));
+        } else {
+            unreachable!("expected person")
+        }
+
+        // Three concatenated initials
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = author(&mut "Mitchell, C.S.T.")?
+        {
+            assert_eq!(family_names, Some(vec!["Mitchell".to_string()]));
+            assert_eq!(
+                given_names,
+                Some(vec!["C.".to_string(), "S.".to_string(), "T.".to_string()])
+            );
+        } else {
+            unreachable!("expected person")
+        }
+
         Ok(())
     }
 
@@ -949,6 +1000,67 @@ mod tests {
                 family_names,
                 Some(vec!["Sanchez".to_string(), "Gomez".to_string()])
             );
+        } else {
+            unreachable!("expected person")
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_authors_concatenated_initials() -> Result<()> {
+        // Test the full example from the user
+        let items = authors(&mut "Pfohl, S.R., Kim, R.B., Coan, G.S., and Mitchell, C.S.")?;
+        assert_eq!(items.len(), 4);
+
+        // Check first author
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = &items[0]
+        {
+            assert_eq!(family_names, &Some(vec!["Pfohl".to_string()]));
+            assert_eq!(given_names, &Some(vec!["S.".to_string(), "R.".to_string()]));
+        } else {
+            unreachable!("expected person")
+        }
+
+        // Check second author
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = &items[1]
+        {
+            assert_eq!(family_names, &Some(vec!["Kim".to_string()]));
+            assert_eq!(given_names, &Some(vec!["R.".to_string(), "B.".to_string()]));
+        } else {
+            unreachable!("expected person")
+        }
+
+        // Check third author
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = &items[2]
+        {
+            assert_eq!(family_names, &Some(vec!["Coan".to_string()]));
+            assert_eq!(given_names, &Some(vec!["G.".to_string(), "S.".to_string()]));
+        } else {
+            unreachable!("expected person")
+        }
+
+        // Check fourth author
+        if let Author::Person(Person {
+            family_names,
+            given_names,
+            ..
+        }) = &items[3]
+        {
+            assert_eq!(family_names, &Some(vec!["Mitchell".to_string()]));
+            assert_eq!(given_names, &Some(vec!["C.".to_string(), "S.".to_string()]));
         } else {
             unreachable!("expected person")
         }
