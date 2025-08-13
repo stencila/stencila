@@ -59,16 +59,39 @@ impl VisitorMut for Walker {
     }
 
     fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
-        if let Inline::MathInline(math) = inline {
-            // Detect superscript with empty base as produced by some OCR
-            // for citations.
-            static SUPERSCRIPT_REGEX: Lazy<Regex> =
-                Lazy::new(|| Regex::new(r"\{\s*\}\^\{(.*?)\}").expect("invalid regex"));
-            if let Some(captures) = SUPERSCRIPT_REGEX.captures(&math.code) {
-                if let Some(sequence) = maybe_citation_sequence(&captures[1]) {
-                    *inline = citation_sequence_to_inline(sequence);
+        // These citation regexes all capture `[\d+\,\-\s]+` (digits, commas, dashes, spaces) but note that
+        // `maybe_citation_sequence` also checks for correct arrangement of those
+
+        // Detect square brackets containing only numbers, commas and dashes as
+        // produced by some OCR for bracketed citations as used in Vancouver, IEEE citation styles
+        static BRACKETS_REGEX: Lazy<Regex> =
+            Lazy::new(|| Regex::new(r"\[([\d+\,\-\s]+)\]").expect("invalid regex"));
+
+        // Detect parentheses containing only numbers, commas and dashes as
+        // produced by some OCR of citations
+        static PARENS_REGEX: Lazy<Regex> =
+            Lazy::new(|| Regex::new(r"\(([\d+\,\-\s]+)\)").expect("invalid regex"));
+
+        // Detect superscript with empty base as produced by some OCR for
+        // superscript citations as used in ACS, AMA, Chicago citation
+        // styles
+        static MATH_SUP_REGEX: Lazy<Regex> =
+            Lazy::new(|| Regex::new(r"\{\s*\}\^\{([\d+\,\-\s]+)\}").expect("invalid regex"));
+
+        match inline {
+            Inline::MathInline(math) => {
+                if let Some(captures) = MATH_SUP_REGEX
+                    .captures(&math.code)
+                    .or(BRACKETS_REGEX.captures(&math.code))
+                    .or(PARENS_REGEX.captures(&math.code))
+                {
+                    if let Some(sequence) = maybe_citation_sequence(&captures[1]) {
+                        *inline = citation_sequence_to_inline(sequence);
+                    }
                 }
             }
+
+            _ => {}
         }
 
         WalkControl::Continue
@@ -78,7 +101,7 @@ impl VisitorMut for Walker {
 /// Detect if a string matches a sequence of citation numbers separated by commas and dashes
 ///
 /// Returns a vector of numbers, commas, and dashes if the string only contains those,
-/// commas and dashes are always between numbers, and all numbers are less than 500.
+/// commas and dashes are always between numbers, and all numbers are greater than 0 and less than 500.
 /// Return `None` otherwise.
 fn maybe_citation_sequence(string: &str) -> Option<Vec<String>> {
     let mut sequence = Vec::new();
@@ -102,9 +125,9 @@ fn maybe_citation_sequence(string: &str) -> Option<Vec<String>> {
                     return None;
                 }
 
-                // Check if the current number is valid (< 500)
+                // Check if the current number is valid (> 0 and < 500)
                 if let Ok(num) = current_number.parse::<u32>() {
-                    if num >= 500 {
+                    if num == 0 || num >= 500 {
                         return None;
                     }
                 } else {
@@ -127,7 +150,7 @@ fn maybe_citation_sequence(string: &str) -> Option<Vec<String>> {
     // Handle the last number if there is one
     if !current_number.is_empty() {
         if let Ok(num) = current_number.parse::<u32>() {
-            if num >= 500 {
+            if num == 0 || num >= 500 {
                 return None;
             }
             sequence.push(current_number);
@@ -224,15 +247,12 @@ mod tests {
             ("1", vec!["1"]),
             ("42", vec!["42"]),
             ("499", vec!["499"]),
-            ("0", vec!["0"]),
             // Comma separated
             ("1,2,3", vec!["1", ",", "2", ",", "3"]),
             ("5,10,15", vec!["5", ",", "10", ",", "15"]),
-            ("0,1", vec!["0", ",", "1"]),
             // Dash separated
             ("1-3", vec!["1", "-", "3"]),
             ("10-20", vec!["10", "-", "20"]),
-            ("0-2", vec!["0", "-", "2"]),
             // Mixed separators
             ("1,3-5,7", vec!["1", ",", "3", "-", "5", ",", "7"]),
             (
@@ -259,8 +279,8 @@ mod tests {
             // Empty/whitespace only
             "", "   ", // Non-numeric characters
             "a", "1a", "1,a", "1.2", "1,2,abc", // Invalid separators
-            ",1", "1,", "-1", "1-", "1,,2", "1--2", "1,-2", "1-,2", // Numbers >= 500
-            "500", "1000", "1,500", "499,500", // Other characters
+            ",1", "1,", "-1", "1-", "1,,2", "1--2", "1,-2", "1-,2", // Numbers <= 0 or >= 500
+            "0", "500", "1000", "1,500", "499,500", "0,1", "0-2", // Other characters
             "1;2", "1:2", "1&2", "1+2", "1/2", "1|2",
         ];
 
