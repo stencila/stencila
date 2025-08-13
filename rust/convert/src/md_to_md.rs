@@ -261,7 +261,10 @@ fn listify_references(md: &str) -> String {
             .captures(line)
             .and_then(|captures| captures.get(1))
         {
-            in_references = matches!(text.as_str().trim(), "References" | "Bibliography");
+            in_references = matches!(
+                text.as_str().to_lowercase().trim(),
+                "references" | "bibliography"
+            );
             result.push(line.to_string());
         } else if !in_references {
             result.push(line.to_string());
