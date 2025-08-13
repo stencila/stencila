@@ -911,13 +911,13 @@ expression: article
       ],
       "date": {
         "type": "Date",
-        "value": "2013"
+        "value": "2000"
       },
       "title": [
         {
           "type": "Text",
           "value": {
-            "string": "Risk factors for Periodontal Disease"
+            "string": "(2013)"
           }
         }
       ],
@@ -927,13 +927,15 @@ expression: article
           {
             "type": "Text",
             "value": {
-              "string": "Periodontology"
+              "string": "Risk factors for Periodontal Disease. Periodontology"
             }
           }
         ],
-        "volumeNumber": 2000
+        "volumeNumber": 62,
+        "issueNumber": 1
       },
-      "pageStart": 62
+      "pageStart": 59,
+      "pageEnd": 94
     },
     {
       "type": "Reference",
