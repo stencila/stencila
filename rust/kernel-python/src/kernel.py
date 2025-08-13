@@ -299,7 +299,8 @@ try:
             "length": length,
             "itemTypes": [items_type],
             "nulls": (
-                np.count_nonzero(np.isnan(array)) if length and convert_type else None
+                np.count_nonzero(np.isnan(array)).max()
+                if length and convert_type else None
             ),
             "minimum": (
                 convert_type(np.nanmin(array)) if length and convert_type else None
