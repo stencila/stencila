@@ -1,7 +1,7 @@
 use std::{
     collections::HashMap,
     fmt::Display,
-    fs::remove_file,
+    fs::{read_to_string, remove_file},
     io::{BufWriter, Write},
     path::Path,
     sync::Arc,
@@ -440,23 +440,40 @@ impl NodeDatabase {
             let mut buffer = BufWriter::new(&csv);
             writeln!(&mut buffer, "{}", properties.join(","))?;
             for (position, node_path, node_ancestors, node_id, values) in entries {
+                let mut need_comma = false;
                 for value in values {
-                    let value = if let Value::Timestamp(value) = value {
-                        value.format(&TIMESTAMP_FORMAT)?
-                    } else {
-                        value.to_string()
+                    if need_comma {
+                        write!(&mut buffer, ",")?;
+                    }
+
+                    let field = match value {
+                        Value::Null(..) => "NULL".to_string(),
+                        Value::String(string) => {
+                            if string.is_empty() {
+                                "\"\"".to_string()
+                            } else {
+                                escape_csv_field(string)
+                            }
+                        }
+                        Value::Timestamp(value) => value.format(&TIMESTAMP_FORMAT)?,
+                        value => escape_csv_field(value.to_string()),
                     };
-                    let field = escape_csv_field(value.to_string());
-                    write!(&mut buffer, "{field},")?;
+
+                    write!(&mut buffer, "{field}")?;
+                    need_comma = true;
                 }
 
                 if node_id_is_pk {
-                    writeln!(
+                    if need_comma {
+                        write!(&mut buffer, ",")?;
+                    }
+
+                    write!(
                         &mut buffer,
-                        "{doc_id},{node_id},{node_path},{node_ancestors},{position}"
+                        "{doc_id},{node_id},{node_path},{node_ancestors},{position}\n"
                     )?;
                 } else {
-                    writeln!(&mut buffer)?;
+                    write!(&mut buffer, "\n")?;
                 }
             }
             buffer.flush()?;
@@ -465,9 +482,14 @@ impl NodeDatabase {
             let ignore_errors = !node_id_is_pk;
 
             let filename = csv.path().to_string_lossy();
-            connection.query(&format!(
+            if let Err(error) = connection.query(&format!(
                 "COPY `{node_type}` FROM '{filename}' (header=true, ignore_errors={ignore_errors}, file_format='csv', auto_detect=false);"
-            )).wrap_err_with(|| eyre!("Error copying into `{node_type}` from CSV with `{}`", properties.join(", ")))?;
+            )) {
+                // Show error with first 100 lines of CSV
+                let csv = read_to_string(csv.path())?;
+                let csv = csv.lines().take(100).join("\n");
+                bail!("Error copying into `{node_type}` from CSV with `{}`\n\n{error}\n\n{csv}", properties.join(", "))
+            }
         }
 
         Ok(())
@@ -589,9 +611,15 @@ impl NodeDatabase {
 }
 
 fn escape_csv_field(field: String) -> String {
-    if field.contains(',') || field.contains('\n') || field.contains('"') {
-        let escaped = field.replace("\"", "\"\"").replace("\n", "\\n");
-        format!("\"{escaped}\"")
+    if field
+        .chars()
+        .any(|c| c == ',' || c == '\n' || c == '\r' || c == '"')
+    {
+        let escaped = field
+            .replace("\"", "\"\"")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r");
+        ["\"", &escaped, "\""].concat()
     } else {
         field
     }
