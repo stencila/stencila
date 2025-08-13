@@ -174,7 +174,8 @@ fn maybe_citation_sequence(string: &str) -> Option<Vec<String>> {
 /// 1,3-5,7  => 1, 3, 4, 5, 7
 fn citation_sequence_to_inline(mut sequence: Vec<String>) -> Inline {
     if sequence.len() == 1 {
-        Inline::Citation(Citation::new(sequence.swap_remove(0)))
+        let num = sequence.swap_remove(0);
+        Inline::Citation(Citation::new(format!("ref-{num}")))
     } else {
         let mut citations = Vec::new();
         let mut index = 0;
@@ -191,7 +192,7 @@ fn citation_sequence_to_inline(mut sequence: Vec<String>) -> Inline {
 
                 // Expand the range
                 for num in start_num..=end_num {
-                    citations.push(Citation::new(num.to_string()));
+                    citations.push(Citation::new(format!("ref-{num}")));
                 }
 
                 // Skip the dash and end number
@@ -203,7 +204,7 @@ fn citation_sequence_to_inline(mut sequence: Vec<String>) -> Inline {
                 }
             } else {
                 // Single number
-                citations.push(Citation::new(current.clone()));
+                citations.push(Citation::new(format!("ref-{current}")));
                 index += 1;
 
                 // Skip comma if present
@@ -227,7 +228,7 @@ fn list_to_references(list: &List) -> Option<Vec<Reference>> {
             .and_then(|mut refs| refs.pop())
         {
             references.push(Reference {
-                id: Some((index + 1).to_string()),
+                id: Some(format!("ref-{}", index + 1)),
                 ..reference
             });
         };
@@ -237,7 +238,22 @@ fn list_to_references(list: &List) -> Option<Vec<Reference>> {
 
 #[cfg(test)]
 mod tests {
+    use common::eyre::{Result, bail};
+    use common_dev::pretty_assertions::assert_eq;
+    use schema::shortcuts::{ct, ctg, mi, p};
+
     use super::*;
+
+    #[test]
+    fn test_math_inline() {
+        let mut node = p([mi("{ }^{1}", Some("tex"))]);
+        structuring(&mut node);
+        assert_eq!(node, p([ct("ref-1")]));
+
+        let mut node = p([mi("{ }^{1-3}", Some("tex"))]);
+        structuring(&mut node);
+        assert_eq!(node, p([ctg(["ref-1", "ref-2", "ref-3"])]));
+    }
 
     #[test]
     fn test_maybe_citation_sequence() {
@@ -294,14 +310,14 @@ mod tests {
     }
 
     #[test]
-    fn test_citation_sequence_to_inline() {
+    fn test_citation_sequence_to_inline() -> Result<()> {
         // Test single citation
         let single_sequence = vec!["5".to_string()];
         match citation_sequence_to_inline(single_sequence) {
             Inline::Citation(citation) => {
-                assert_eq!(citation.target, "5");
+                assert_eq!(citation.target, "ref-5");
             }
-            _ => panic!("Expected Citation for single element"),
+            _ => bail!("Expected Citation for single element"),
         }
 
         // Test comma-separated citations
@@ -315,11 +331,11 @@ mod tests {
         match citation_sequence_to_inline(comma_sequence) {
             Inline::CitationGroup(group) => {
                 assert_eq!(group.items.len(), 3);
-                assert_eq!(group.items[0].target, "1");
-                assert_eq!(group.items[1].target, "3");
-                assert_eq!(group.items[2].target, "7");
+                assert_eq!(group.items[0].target, "ref-1");
+                assert_eq!(group.items[1].target, "ref-3");
+                assert_eq!(group.items[2].target, "ref-7");
             }
-            _ => panic!("Expected CitationGroup for comma-separated"),
+            _ => bail!("Expected CitationGroup for comma-separated"),
         }
 
         // Test range expansion
@@ -327,11 +343,11 @@ mod tests {
         match citation_sequence_to_inline(range_sequence) {
             Inline::CitationGroup(group) => {
                 assert_eq!(group.items.len(), 3);
-                assert_eq!(group.items[0].target, "1");
-                assert_eq!(group.items[1].target, "2");
-                assert_eq!(group.items[2].target, "3");
+                assert_eq!(group.items[0].target, "ref-1");
+                assert_eq!(group.items[1].target, "ref-2");
+                assert_eq!(group.items[2].target, "ref-3");
             }
-            _ => panic!("Expected CitationGroup for range"),
+            _ => bail!("Expected CitationGroup for range"),
         }
 
         // Test mixed: 1,3-5,7 => 1, 3, 4, 5, 7
@@ -347,13 +363,13 @@ mod tests {
         match citation_sequence_to_inline(mixed_sequence) {
             Inline::CitationGroup(group) => {
                 assert_eq!(group.items.len(), 5);
-                assert_eq!(group.items[0].target, "1");
-                assert_eq!(group.items[1].target, "3");
-                assert_eq!(group.items[2].target, "4");
-                assert_eq!(group.items[3].target, "5");
-                assert_eq!(group.items[4].target, "7");
+                assert_eq!(group.items[0].target, "ref-1");
+                assert_eq!(group.items[1].target, "ref-3");
+                assert_eq!(group.items[2].target, "ref-4");
+                assert_eq!(group.items[3].target, "ref-5");
+                assert_eq!(group.items[4].target, "ref-7");
             }
-            _ => panic!("Expected CitationGroup for mixed sequence"),
+            _ => bail!("Expected CitationGroup for mixed sequence"),
         }
 
         // Test multiple ranges: 2-4,8,10-12
@@ -371,15 +387,17 @@ mod tests {
         match citation_sequence_to_inline(multi_range_sequence) {
             Inline::CitationGroup(group) => {
                 assert_eq!(group.items.len(), 7); // 2,3,4,8,10,11,12
-                assert_eq!(group.items[0].target, "2");
-                assert_eq!(group.items[1].target, "3");
-                assert_eq!(group.items[2].target, "4");
-                assert_eq!(group.items[3].target, "8");
-                assert_eq!(group.items[4].target, "10");
-                assert_eq!(group.items[5].target, "11");
-                assert_eq!(group.items[6].target, "12");
+                assert_eq!(group.items[0].target, "ref-2");
+                assert_eq!(group.items[1].target, "ref-3");
+                assert_eq!(group.items[2].target, "ref-4");
+                assert_eq!(group.items[3].target, "ref-8");
+                assert_eq!(group.items[4].target, "ref-10");
+                assert_eq!(group.items[5].target, "ref-11");
+                assert_eq!(group.items[6].target, "ref-12");
             }
-            _ => panic!("Expected CitationGroup for multi-range sequence"),
+            _ => bail!("Expected CitationGroup for multi-range sequence"),
         }
+
+        Ok(())
     }
 }
