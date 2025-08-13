@@ -441,7 +441,12 @@ impl Document {
 
     /// Add documents to a workspace database
     #[tracing::instrument(skip(identifiers))]
-    pub async fn add_docs(stencila_dir: &Path, identifiers: &[String]) -> Result<()> {
+    pub async fn add_docs(
+        stencila_dir: &Path,
+        identifiers: &[String],
+        should_canonicalize: bool,
+        should_sentencize: bool,
+    ) -> Result<()> {
         let db_path = stencila_db_file(stencila_dir, true).await?;
         let mut db = NodeDatabase::new(&db_path)?;
 
@@ -461,8 +466,13 @@ impl Document {
                 (doc_id, store_path, root)
             };
 
-            canonicalize(&mut root).await?;
-            sentencize(&mut root);
+            if should_canonicalize {
+                canonicalize(&mut root).await?;
+            }
+
+            if should_sentencize {
+                sentencize(&mut root);
+            }
 
             // Store root node
             codec_json::to_path(
@@ -786,7 +796,7 @@ impl Document {
             .into_keys()
             .map(|path| path.to_string_lossy().to_string())
             .collect_vec();
-        Self::add_docs(&stencila_dir, &identifiers).await?;
+        Self::add_docs(&stencila_dir, &identifiers, true, true).await?;
 
         Ok(())
     }

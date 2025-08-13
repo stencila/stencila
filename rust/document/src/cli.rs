@@ -502,6 +502,14 @@ pub struct Add {
     /// The documents to add to the workspace database
     #[arg(num_args = 1.., required = true)]
     documents: Vec<String>,
+
+    /// Do not canonicalize the document
+    #[arg(long)]
+    no_canonicalize: bool,
+
+    /// Do not split document paragraphs into sentences
+    #[arg(long)]
+    no_sentencize: bool,
 }
 
 pub static ADD_AFTER_LONG_HELP: &str = cstr!(
@@ -541,7 +549,13 @@ impl Add {
         };
 
         let stencila_dir = closest_stencila_dir(&base_path, true).await?;
-        Document::add_docs(&stencila_dir, &self.documents).await
+        Document::add_docs(
+            &stencila_dir,
+            &self.documents,
+            !self.no_canonicalize,
+            !self.no_sentencize,
+        )
+        .await
     }
 }
 
