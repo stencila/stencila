@@ -8,14 +8,7 @@ use winnow::{
 
 use codec::{common::tracing, schema::Reference};
 
-use crate::decode::{apj, lncs};
-
-use super::apa;
-use super::chicago;
-use super::fallback::fallback;
-use super::ieee;
-use super::mla;
-use super::vancouver;
+use crate::decode::{acs, apa, apj, chicago, fallback::fallback, ieee, lncs, mla, vancouver};
 
 /// Parse a Stencila [`Reference`] from a string
 ///
@@ -44,6 +37,7 @@ pub fn reference(input: &mut &str) -> Result<Reference> {
             alt((
                 lncs::conference,
                 vancouver::chapter,
+                acs::chapter,
                 ieee::chapter,
                 apa::chapter,
                 chicago::chapter,
@@ -54,6 +48,7 @@ pub fn reference(input: &mut &str) -> Result<Reference> {
             // Article
             alt((
                 vancouver::article,
+                acs::article,
                 ieee::article,
                 apa::article,
                 chicago::article,
@@ -75,6 +70,7 @@ pub fn reference(input: &mut &str) -> Result<Reference> {
             alt((
                 apa::book,
                 vancouver::book,
+                acs::article,
                 ieee::book,
                 chicago::book,
                 mla::book,

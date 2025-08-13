@@ -9,12 +9,16 @@ use winnow::{
 
 use codec::schema::Date;
 
-/// Parse a 4 digit year
+/// Parse a 4 digit year in range 1200-2050
 pub fn year(input: &mut &str) -> Result<Date> {
     terminated(
         take_while(4..=4, |c: char| c.is_ascii_digit()),
         not(peek(digit1)),
     )
+    .verify(|year: &str| {
+        year.parse()
+            .map_or_else(|_| false, |year: u32| year >= 1200 && year <= 2050)
+    })
     .map(|year: &str| Date {
         value: year.into(),
         ..Default::default()
@@ -39,13 +43,15 @@ mod tests {
 
     #[test]
     fn test_year() -> Result<()> {
-        let date = year(&mut "1000")?;
-        assert_eq!(date.year(), Some(1000));
+        let date = year(&mut "1200")?;
+        assert_eq!(date.year(), Some(1200));
 
-        let date = year(&mut "9999")?;
-        assert_eq!(date.year(), Some(9999));
+        let date = year(&mut "2050")?;
+        assert_eq!(date.year(), Some(2050));
 
         assert!(year(&mut "123").is_err());
+        assert!(year(&mut "1199").is_err());
+        assert!(year(&mut "2051").is_err());
         assert!(year(&mut "12345").is_err());
 
         Ok(())

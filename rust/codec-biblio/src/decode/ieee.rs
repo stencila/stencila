@@ -25,7 +25,7 @@ use crate::decode::parts::{
     publisher::place_publisher,
     separator::separator,
     terminator::terminator,
-    title::quoted_title,
+    title::title_quoted,
     url::url,
     volume::{no_prefixed_issue, vol_prefixed_volume},
 };
@@ -62,7 +62,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         // Authors: Parse one or more authors
         authors,
         // Title
-        preceded(separator, quoted_title),
+        preceded(separator, title_quoted),
         // Journal: Parse journal name ending with comma
         opt(preceded(separator, take_while(1.., |c: char| c != ','))),
         // Volume
@@ -112,7 +112,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         // Authors: Parse chapter authors
         authors,
         // Chapter Title
-        preceded(separator, quoted_title),
+        preceded(separator, title_quoted),
         // "in" keyword
         preceded(separator, Caseless("in")),
         // Book Title: Parse book title before comma

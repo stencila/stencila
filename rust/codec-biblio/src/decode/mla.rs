@@ -7,12 +7,12 @@
 
 use std::str::FromStr;
 
-use codec::schema::{Author, Date, Inline, Person};
+use codec::schema::{Author, Date, Person};
 use winnow::{
     Parser, Result,
     ascii::{multispace0, multispace1},
     combinator::{alt, opt, preceded, terminated},
-    token::{take_until, take_while},
+    token::take_while,
 };
 
 use codec::schema::{
@@ -25,7 +25,7 @@ use crate::decode::parts::{
     doi::doi_or_url,
     pages::pages,
     separator::separator,
-    title::quoted_title,
+    title::{title_period_terminated, title_quoted},
     url::url,
     volume::{no_prefixed_issue, vol_prefixed_volume},
 };
@@ -62,7 +62,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         // Authors
         mla_authors,
         // Title
-        preceded(separator, quoted_title),
+        preceded(separator, title_quoted),
         // Journal: Parse journal name ending with comma
         preceded(separator, take_while(1.., |c: char| c != ',')),
         // Volume
@@ -108,7 +108,7 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // Authors
         mla_authors,
         // Title: Parse unquoted title
-        preceded(separator, mla_unquoted_title),
+        preceded(separator, title_period_terminated),
         // Publisher: Parse publisher ending with comma
         opt(preceded(separator, take_while(1.., |c: char| c != ','))),
         // Year: Publication year
@@ -148,7 +148,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         // Authors
         mla_authors,
         // Chapter Title
-        preceded(separator, quoted_title),
+        preceded(separator, title_quoted),
         // Book Title: Parse book title before comma
         preceded(separator, take_while(1.., |c: char| c != ',')),
         // Editors: with "edited by" prefix (required for chapters)
@@ -202,7 +202,7 @@ pub fn web(input: &mut &str) -> Result<Reference> {
         // Authors
         opt(terminated(mla_authors, separator)),
         // Title
-        quoted_title,
+        title_quoted,
         // Website: Parse website name before comma
         preceded(separator, take_while(1.., |c: char| c != ',')),
         // Date: Publication date or year
@@ -338,13 +338,6 @@ pub fn mla_editors(input: &mut &str) -> Result<Vec<Person>> {
             .collect()
     })
     .parse_next(input)
-}
-
-/// Parse book title (no quotes, often italicized in print)
-fn mla_unquoted_title(input: &mut &str) -> Result<Vec<Inline>> {
-    take_until(1.., '.')
-        .map(|title: &str| vec![t(title.trim())])
-        .parse_next(input)
 }
 
 #[cfg(test)]

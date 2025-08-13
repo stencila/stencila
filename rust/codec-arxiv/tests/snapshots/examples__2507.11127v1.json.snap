@@ -706,6 +706,10 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
       "title": [
         {
           "type": "Text",
@@ -723,8 +727,7 @@ expression: article
               "string": "UAI"
             }
           }
-        ],
-        "volumeNumber": 2023
+        ]
       }
     },
     {
@@ -768,6 +771,10 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
       "title": [
         {
           "type": "Text",
@@ -785,8 +792,7 @@ expression: article
               "string": "Neurosymbolic ai for reasoning on biomedical knowledge graphs. arXiv preprint arXiv:2307.08411"
             }
           }
-        ],
-        "volumeNumber": 2023
+        ]
       }
     },
     {
@@ -1097,6 +1103,10 @@ expression: article
           "name": "COPPE Gerson Zaverucha"
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
       "title": [
         {
           "type": "Text",
@@ -1114,8 +1124,7 @@ expression: article
               "string": "Neuro-Symbolic Artificial Intelligence: The State of the Art"
             }
           }
-        ],
-        "volumeNumber": 2022
+        ]
       }
     },
     {
@@ -1854,45 +1863,9 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib48",
-      "workType": "Book",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "Serafini"
-          ],
-          "givenNames": [
-            "Luciano"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "d’Avila",
-            "Garcez"
-          ],
-          "givenNames": [
-            "Artur"
-          ]
-        }
-      ],
-      "publisher": {
-        "type": "Organization",
-        "name": "arXiv:1606.04422 [cs]"
-      },
-      "date": {
-        "type": "Date",
-        "value": "July 2016"
-      },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Logic Tensor Networks: Deep Learning and Logical Reasoning from Data and Knowledge"
-          }
-        }
-      ],
-      "url": "http://arxiv.org/abs/1606.04422"
+      "workType": "WebPage",
+      "url": "http://arxiv.org/abs/1606.04422",
+      "text": "Luciano Serafini and Artur d’Avila Garcez. Logic Tensor Networks: Deep Learning and Logical Reasoning from Data and Knowledge. arXiv:1606.04422 [cs], July 2016"
     },
     {
       "type": "Reference",
@@ -2164,6 +2137,10 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
       "title": [
         {
           "type": "Text",
@@ -2181,8 +2158,7 @@ expression: article
               "string": "Beyond the convexity assumption: Realistic tabular data generation under quantifier-free real linear constraints. In The Thirteenth International Conference on Learning Representations"
             }
           }
-        ],
-        "volumeNumber": 2025
+        ]
       }
     },
     {
@@ -2252,6 +2228,10 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
       "title": [
         {
           "type": "Text",
@@ -2269,8 +2249,7 @@ expression: article
               "string": "IEEE Transactions on Robotics"
             }
           }
-        ],
-        "volumeNumber": 2024
+        ]
       }
     },
     {
@@ -2656,6 +2635,10 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "1965"
+      },
       "title": [
         {
           "type": "Text",
@@ -2673,8 +2656,7 @@ expression: article
               "string": "Fuzzy sets. Information and Control"
             }
           }
-        ],
-        "volumeNumber": 1965
+        ]
       }
     },
     {

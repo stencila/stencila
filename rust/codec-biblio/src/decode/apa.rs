@@ -21,7 +21,6 @@ use codec::schema::{
 
 use crate::decode::parts::{
     authors::{authors, persons},
-    chars::{is_close_quote, one_close_quote, one_open_quote},
     date::year_az,
     doi::doi_or_url,
     journal::journal_no_comma,
@@ -29,6 +28,7 @@ use crate::decode::parts::{
     preprints::preprint_server,
     separator::separator,
     terminator::terminator,
+    title::{title_period_terminated, title_quoted},
     url::url,
 };
 
@@ -105,7 +105,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
                     date: Some(date),
                     title: Some(title),
                     is_part_of: Some(Box::new(Reference {
-                        title: Some(vec![t(journal)]),
+                        title: Some(journal),
                         volume_number: volume.map(IntegerOrString::from),
                         issue_number: issue.map(IntegerOrString::from),
                         ..Default::default()
@@ -321,16 +321,7 @@ fn apa_year(input: &mut &str) -> Result<Date> {
 /// Captures everything up to the first period. Optional quotes to allow for
 /// Harvard formatted titles.
 fn apa_title(input: &mut &str) -> Result<Vec<Inline>> {
-    alt((
-        delimited(
-            one_open_quote,
-            take_while(1.., |c: char| !is_close_quote(c)),
-            one_close_quote,
-        ),
-        take_while(1.., |c: char| c != '.'),
-    ))
-    .map(|title: &str| vec![t(title.trim_start().trim_end_matches(['.', ' ']))])
-    .parse_next(input)
+    alt((title_quoted, title_period_terminated)).parse_next(input)
 }
 
 #[cfg(test)]

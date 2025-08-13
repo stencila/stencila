@@ -7,24 +7,35 @@ use winnow::{
 
 use codec::schema::IntegerOrString;
 
-/// Parse volume number with "vol." prefix
+/// Parse a volume
+pub fn volume(input: &mut &str) -> Result<IntegerOrString> {
+    take_while(1.., |c: char| c.is_alphanumeric())
+        .map(IntegerOrString::from)
+        .parse_next(input)
+}
+
+/// Parse volume with "vol." prefix
 pub fn vol_prefixed_volume(input: &mut &str) -> Result<IntegerOrString> {
     preceded(
         (Caseless("vol"), multispace0, opt("."), multispace0),
-        take_while(1.., |c: char| c.is_alphanumeric()),
+        volume,
     )
     .map(IntegerOrString::from)
     .parse_next(input)
 }
 
-/// Parse issue number with "no." prefix  
+/// Parse an issue
+pub fn issue(input: &mut &str) -> Result<IntegerOrString> {
+    take_while(1.., |c: char| c.is_alphanumeric())
+        .map(IntegerOrString::from)
+        .parse_next(input)
+}
+
+/// Parse issue with "no." prefix  
 pub fn no_prefixed_issue(input: &mut &str) -> Result<IntegerOrString> {
-    preceded(
-        (Caseless("no"), multispace0, opt("."), multispace0),
-        take_while(1.., |c: char| c.is_alphanumeric()),
-    )
-    .map(IntegerOrString::from)
-    .parse_next(input)
+    preceded((Caseless("no"), multispace0, opt("."), multispace0), issue)
+        .map(IntegerOrString::from)
+        .parse_next(input)
 }
 
 #[cfg(test)]

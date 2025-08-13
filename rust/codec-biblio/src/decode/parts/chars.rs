@@ -153,6 +153,7 @@ pub fn one_single_open_quote<'s>(input: &mut &'s str) -> Result<&'s str> {
 ///
 /// Used to identify the start of quoted titles, phrases, or other quoted content
 /// in bibliographic references while handling various quote styles.
+#[allow(dead_code)]
 pub fn one_open_quote<'s>(input: &mut &'s str) -> Result<&'s str> {
     take_while(1..=1, is_open_quote).parse_next(input)
 }
@@ -185,6 +186,7 @@ pub fn one_single_close_quote<'s>(input: &mut &'s str) -> Result<&'s str> {
 ///
 /// Used to identify the end of quoted titles, phrases, or other quoted content
 /// in bibliographic references while handling various quote styles.
+#[allow(dead_code)]
 pub fn one_close_quote<'s>(input: &mut &'s str) -> Result<&'s str> {
     take_while(1..=1, is_close_quote).parse_next(input)
 }

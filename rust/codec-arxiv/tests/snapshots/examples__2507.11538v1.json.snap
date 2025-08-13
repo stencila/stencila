@@ -564,6 +564,10 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
       "title": [
         {
           "type": "Text",
@@ -582,9 +586,9 @@ expression: article
             }
           }
         ],
-        "volumeNumber": 2022
+        "volumeNumber": "URL"
       },
-      "url": "https://arxiv.org/abs/2203.02155"
+      "pageStart": "https"
     },
     {
       "type": "Reference",
@@ -834,6 +838,10 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
       "title": [
         {
           "type": "Text",
@@ -852,9 +860,9 @@ expression: article
             }
           }
         ],
-        "volumeNumber": 2022
+        "volumeNumber": "URL"
       },
-      "url": "https://arxiv.org/abs/2110.08207"
+      "pageStart": "https"
     },
     {
       "type": "Reference",
@@ -980,59 +988,9 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib26",
-      "workType": "Article",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "Bowen",
-            "Xing"
-          ],
-          "givenNames": [
-            "Lizi",
-            "Liao"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Huang"
-          ],
-          "givenNames": [
-            "Minlie"
-          ]
-        },
-        {
-          "type": "Person",
-          "familyNames": [
-            "Ivor"
-          ],
-          "givenNames": [
-            "W."
-          ]
-        }
-      ],
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Tsang"
-          }
-        }
-      ],
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Dc-instruct: An effective framework for generative multi-intent spoken language understanding. In Conference on Empirical Methods in Natural Language Processing"
-            }
-          }
-        ],
-        "volumeNumber": 2024
-      },
-      "url": "https://api.semanticscholar.org/CorpusID:273820915"
+      "workType": "WebPage",
+      "url": "https://api.semanticscholar.org/CorpusID:273820915",
+      "text": "Bowen Xing, Lizi Liao, Minlie Huang, and Ivor W. Tsang. Dc-instruct: An effective framework for generative multi-intent spoken language understanding. In Conference on Empirical Methods in Natural Language Processing, 2024"
     },
     {
       "type": "Reference",

@@ -251,6 +251,10 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
       "title": [
         {
           "type": "Text",
@@ -269,7 +273,7 @@ expression: article
             }
           }
         ],
-        "volumeNumber": 2019
+        "volumeNumber": 56
       }
     },
     {
@@ -848,6 +852,10 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2017"
+      },
       "title": [
         {
           "type": "Text",
@@ -866,7 +874,7 @@ expression: article
             }
           }
         ],
-        "volumeNumber": 2017
+        "volumeNumber": 40
       }
     },
     {
@@ -1837,6 +1845,10 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2014"
+      },
       "title": [
         {
           "type": "Text",
@@ -1855,7 +1867,7 @@ expression: article
             }
           }
         ],
-        "volumeNumber": 2014
+        "volumeNumber": 28
       }
     },
     {
@@ -2040,6 +2052,10 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
       "title": [
         {
           "type": "Text",
@@ -2058,7 +2074,7 @@ expression: article
             }
           }
         ],
-        "volumeNumber": 2021
+        "volumeNumber": 46
       }
     },
     {
@@ -2353,6 +2369,10 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2012"
+      },
       "title": [
         {
           "type": "Text",
@@ -2371,7 +2391,7 @@ expression: article
             }
           }
         ],
-        "volumeNumber": 2012
+        "volumeNumber": 34
       }
     },
     {
@@ -2779,41 +2799,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib58",
-      "workType": "Article",
-      "authors": [
-        {
-          "type": "Person",
-          "familyNames": [
-            "Laureijs"
-          ],
-          "givenNames": [
-            "R."
-          ]
-        }
-      ],
-      "date": {
-        "type": "Date",
-        "value": "3193"
-      },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "2011, arXiv e-prints, p"
-          }
-        }
-      ],
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "arXiv:1110"
-            }
-          }
-        ]
-      }
+      "text": "Laureijs R., et al., 2011, arXiv e-prints, p. arXiv:1110.3193"
     },
     {
       "type": "Reference",
@@ -3457,6 +3443,10 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
       "title": [
         {
           "type": "Text",
@@ -3475,7 +3465,7 @@ expression: article
             }
           }
         ],
-        "volumeNumber": 2022
+        "volumeNumber": 46
       }
     },
     {
@@ -3811,6 +3801,10 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2015"
+      },
       "title": [
         {
           "type": "Text",
@@ -3829,7 +3823,7 @@ expression: article
             }
           }
         ],
-        "volumeNumber": 2015
+        "volumeNumber": 49
       }
     },
     {
@@ -3847,6 +3841,10 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2016"
+      },
       "title": [
         {
           "type": "Text",
@@ -3865,7 +3863,7 @@ expression: article
             }
           }
         ],
-        "volumeNumber": 2016
+        "volumeNumber": 47
       }
     },
     {
@@ -3941,6 +3939,10 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
       "title": [
         {
           "type": "Text",
@@ -3959,7 +3961,7 @@ expression: article
             }
           }
         ],
-        "volumeNumber": 2019
+        "volumeNumber": 20
       }
     },
     {
@@ -4905,6 +4907,10 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
       "title": [
         {
           "type": "Text",
@@ -4923,7 +4929,7 @@ expression: article
             }
           }
         ],
-        "volumeNumber": 2024
+        "volumeNumber": 37
       }
     },
     {

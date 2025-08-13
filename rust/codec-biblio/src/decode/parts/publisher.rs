@@ -1,7 +1,7 @@
 use winnow::{
     Parser, Result,
     ascii::{multispace0, multispace1},
-    combinator::{opt, preceded, separated, terminated},
+    combinator::{alt, opt, preceded, separated, terminated},
     token::take_while,
 };
 
@@ -74,7 +74,7 @@ pub fn publisher_place(input: &mut &str) -> Result<PersonOrOrganization> {
     (
         take_while(2.., |c: char| c != ',' && c != '.' && !c.is_numeric()),
         opt(preceded(
-            opt((multispace0, ",", multispace0)),
+            opt((multispace0, alt((",", ":")), multispace0)),
             separated(
                 1..,
                 take_while(1.., |c: char| !c.is_whitespace()).verify(|part: &str| {
@@ -87,6 +87,12 @@ pub fn publisher_place(input: &mut &str) -> Result<PersonOrOrganization> {
             ),
         )),
     )
+        .verify(|(name, _place): &(&str, Option<Vec<&str>>)| {
+            !(name.ends_with("http")
+                || name.ends_with("https")
+                || name.ends_with("doi")
+                || name.ends_with("url"))
+        })
         .map(|(name, place): (&str, Option<Vec<&str>>)| {
             let address = place
                 .map(|place| {

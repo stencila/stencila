@@ -11,8 +11,8 @@ use winnow::{
 };
 
 use codec::schema::{
-    Author, CreativeWorkType, Inline, IntegerOrString, Organization, Person, PersonOptions,
-    Reference, StringOrNumber, shortcuts::t,
+    Author, CreativeWorkType, IntegerOrString, Organization, Person, PersonOptions, Reference,
+    StringOrNumber, shortcuts::t,
 };
 
 use crate::decode::parts::{
@@ -23,6 +23,7 @@ use crate::decode::parts::{
     publisher::publisher_place,
     separator::separator,
     terminator::terminator,
+    title::title_period_terminated,
     url::url,
 };
 
@@ -46,7 +47,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         // Authors
         authors,
         // Title
-        preceded(separator, lncs_title),
+        preceded(separator, title_period_terminated),
         // Journal
         preceded(separator, take_while(1.., |c: char| c != ',')),
         // Volume
@@ -97,7 +98,7 @@ pub fn conference(input: &mut &str) -> Result<Reference> {
         // Authors
         authors,
         // Chapter Title
-        preceded(separator, lncs_title),
+        preceded(separator, title_period_terminated),
         // "in" keyword
         preceded(separator, Caseless("In")),
         // Proceedings Title
@@ -154,7 +155,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         // Authors
         authors,
         // Chapter Title
-        preceded(separator, lncs_title),
+        preceded(separator, title_period_terminated),
         // "in" keyword
         preceded(separator, Caseless("In")),
         // Editors
@@ -223,7 +224,7 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // Authors
         authors,
         // Title
-        preceded(separator, lncs_title),
+        preceded(separator, title_period_terminated),
         // Edition: Optional edition (1st ed., 2nd ed., etc.)
         opt(preceded(separator, lncs_edition)),
         // Publisher: Parse place and publisher
@@ -261,7 +262,7 @@ pub fn web(input: &mut &str) -> Result<Reference> {
         // Authors
         alt((person_given_family, organization)),
         // Title
-        preceded(separator, lncs_title),
+        preceded(separator, title_period_terminated),
         // URL
         preceded(separator, url),
         // Last assessed
@@ -286,13 +287,6 @@ pub fn web(input: &mut &str) -> Result<Reference> {
             url: Some(url),
             ..Default::default()
         })
-        .parse_next(input)
-}
-
-/// Parse title
-fn lncs_title(input: &mut &str) -> Result<Vec<Inline>> {
-    take_while(1.., |c: char| c != '.')
-        .map(|title: &str| vec![t(title.trim().trim_end_matches(['.', ',']))])
         .parse_next(input)
 }
 

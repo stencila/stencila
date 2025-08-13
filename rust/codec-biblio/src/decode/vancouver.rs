@@ -7,14 +7,13 @@
 
 use winnow::{
     Parser, Result,
-    ascii::{Caseless, digit1, multispace0, multispace1},
+    ascii::{Caseless, multispace0, multispace1},
     combinator::{alt, delimited, opt, preceded, separated, terminated},
     token::take_while,
 };
 
 use codec::schema::{
-    Author, CreativeWorkType, Inline, IntegerOrString, Organization, Person, PersonOptions,
-    Reference, shortcuts::t,
+    Author, CreativeWorkType, Organization, Person, PersonOptions, Reference, shortcuts::t,
 };
 
 use crate::decode::parts::{
@@ -25,7 +24,9 @@ use crate::decode::parts::{
     publisher::place_publisher,
     separator::separator,
     terminator::terminator,
+    title::title_period_terminated,
     url::url,
+    volume::{issue, volume},
 };
 
 /// Parse a Stencila [`Reference`] from a Vancouver reference list item
@@ -57,17 +58,23 @@ pub fn vancouver(input: &mut &str) -> Result<Reference> {
 /// ```
 pub fn article(input: &mut &str) -> Result<Reference> {
     (
-        // Authors: Parse one or more authors terminated before title
+        // Authors
         authors,
-        // Title: Parse article title ending with period
-        preceded(separator, vancouver_title),
-        // Journal: Parse journal name ending with period
-        preceded(separator, vancouver_title),
-        // Year: Publication year
+        // Title
+        preceded(separator, title_period_terminated),
+        // Journal
+        preceded(separator, title_period_terminated),
+        // Year
         preceded(separator, year_az),
-        // Semicolon separator before volume
-        opt(preceded(separator, vancouver_volume)),
-        // Pages: Optional page range after colon
+        // Volume
+        opt(preceded(separator, volume)),
+        // Issue
+        opt(delimited(
+            (multispace0, "(", multispace0),
+            issue,
+            (multispace0, ")", multispace0),
+        )),
+        // Pages
         opt(preceded(separator, pages)),
         // DOI or URL (optional)
         opt(preceded(separator, doi_or_url)),
@@ -75,15 +82,15 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         opt(terminator),
     )
         .map(
-            |(authors, title, journal, date, volume_issue, pages, doi_or_url, _terminator)| {
+            |(authors, title, journal, date, volume, issue, pages, doi_or_url, _terminator)| {
                 Reference {
                     work_type: Some(CreativeWorkType::Article),
                     authors: Some(authors),
                     title: Some(title),
                     is_part_of: Some(Box::new(Reference {
                         title: Some(journal),
-                        volume_number: volume_issue.clone().map(|(volume, ..)| volume),
-                        issue_number: volume_issue.and_then(|(.., issue)| issue),
+                        volume_number: volume,
+                        issue_number: issue,
                         ..Default::default()
                     })),
                     date: Some(date),
@@ -108,7 +115,7 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // Authors: Parse one or more authors terminated before title
         authors,
         // Title: Parse book title ending with period
-        preceded(separator, vancouver_title),
+        preceded(separator, title_period_terminated),
         // Place: Publisher: Parse place and publisher with colon separator
         opt(preceded(separator, place_publisher)),
         // Year: Publication year after semicolon
@@ -145,13 +152,13 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         // Authors: Parse chapter authors terminated before title
         authors,
         // Chapter Title: Parse chapter title ending with period
-        preceded(separator, vancouver_title),
+        preceded(separator, title_period_terminated),
         // "In:" keyword
         preceded(separator, (Caseless("In"), opt(":"))),
         // Editors: Parse editors after "In:" (Vancouver format)
         preceded(separator, vancouver_editors),
         // Book Title: Parse book title after editors
-        opt(preceded(separator, vancouver_title)),
+        opt(preceded(separator, title_period_terminated)),
         // Place: Publisher: Parse place and publisher
         opt(preceded(separator, place_publisher)),
         // Year: Publication year after semicolon
@@ -283,36 +290,6 @@ pub fn web(input: &mut &str) -> Result<Reference> {
         .parse_next(input)
 }
 
-/// Parse title format for Vancouver references
-///
-/// Vancouver titles are typically plain text ending with a period
-fn vancouver_title(input: &mut &str) -> Result<Vec<Inline>> {
-    take_while(1.., |c: char| c != '.')
-        .map(|title: &str| vec![t(title.trim())])
-        .parse_next(input)
-}
-
-/// Parse volume and issue in Vancouver format (Volume(Issue))
-///
-/// Vancouver format: Year;Volume(Issue) - this parses the Volume(Issue) part
-fn vancouver_volume(input: &mut &str) -> Result<(IntegerOrString, Option<IntegerOrString>)> {
-    (
-        digit1, // Volume number (required)
-        opt(delimited(
-            (multispace0, "(", multispace0),
-            digit1, // Issue number (optional)
-            (multispace0, ")"),
-        )),
-    )
-        .map(|(volume, issue)| {
-            (
-                IntegerOrString::from(volume),
-                issue.map(IntegerOrString::from),
-            )
-        })
-        .parse_next(input)
-}
-
 /// Parse editors in Vancouver formatting
 fn vancouver_editors(input: &mut &str) -> Result<Vec<Person>> {
     separated(
@@ -339,68 +316,11 @@ fn vancouver_editors(input: &mut &str) -> Result<Vec<Person>> {
 
 #[cfg(test)]
 mod tests {
+    use codec::schema::IntegerOrString;
     use codec_text_trait::to_text;
     use common_dev::pretty_assertions::assert_eq;
 
     use super::*;
-
-    #[test]
-    fn test_vancouver_title() -> Result<()> {
-        assert_eq!(
-            vancouver_title(&mut "Understanding climate change.")?,
-            vec![t("Understanding climate change")]
-        );
-
-        assert_eq!(
-            vancouver_title(&mut "  The effects of global warming  .")?,
-            vec![t("The effects of global warming")]
-        );
-
-        assert_eq!(
-            vancouver_title(&mut "Research methods in biomedical sciences.")?,
-            vec![t("Research methods in biomedical sciences")]
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_vancouver_volume() -> Result<()> {
-        // Volume only
-        assert_eq!(
-            vancouver_volume(&mut "15")?,
-            (IntegerOrString::Integer(15), None)
-        );
-
-        // Volume with issue
-        assert_eq!(
-            vancouver_volume(&mut "15(3)")?,
-            (
-                IntegerOrString::Integer(15),
-                Some(IntegerOrString::Integer(3))
-            )
-        );
-
-        // Volume with issue and whitespace
-        assert_eq!(
-            vancouver_volume(&mut "15( 3 )")?,
-            (
-                IntegerOrString::Integer(15),
-                Some(IntegerOrString::Integer(3))
-            )
-        );
-
-        // Large volume and issue numbers
-        assert_eq!(
-            vancouver_volume(&mut "123(456)")?,
-            (
-                IntegerOrString::Integer(123),
-                Some(IntegerOrString::Integer(456))
-            )
-        );
-
-        Ok(())
-    }
 
     #[test]
     fn test_article() -> Result<()> {
@@ -443,20 +363,19 @@ mod tests {
         let reference =
             vancouver(&mut "Wilson M. Data analysis. Journal of Statistics. 2021;15:45-67.")?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
-        assert!(
+        assert_eq!(
             reference
                 .is_part_of
-                .as_ref()
-                .map(|part_of| part_of.issue_number.is_none())
-                .unwrap_or(false)
+                .clone()
+                .and_then(|part_of| part_of.volume_number),
+            Some(IntegerOrString::Integer(15))
         );
         assert_eq!(
             reference
                 .is_part_of
-                .as_ref()
-                .and_then(|part_of| part_of.volume_number.as_ref())
-                .cloned(),
-            Some(IntegerOrString::Integer(15))
+                .clone()
+                .and_then(|part_of| part_of.issue_number),
+            None
         );
 
         Ok(())

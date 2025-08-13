@@ -19,7 +19,7 @@ pub fn authors(input: &mut &str) -> Result<Vec<Author>> {
             author,
             (
                 multispace0,
-                alt((", &", ", and", "&", "and", ",")),
+                alt((", &", ", and", "&", "and", ",", ";")),
                 multispace0,
             ),
         ),

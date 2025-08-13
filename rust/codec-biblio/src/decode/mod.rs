@@ -10,6 +10,7 @@ use codec::{
 
 use crate::{conversion::entry_to_reference, decode::references::reference};
 
+mod acs;
 mod apa;
 mod apj;
 mod chicago;

@@ -7,7 +7,7 @@
 
 use std::str::FromStr;
 
-use codec::schema::{Date, Inline};
+use codec::schema::Date;
 use winnow::{
     Parser, Result,
     ascii::{Caseless, multispace0, multispace1},
@@ -25,7 +25,7 @@ use crate::decode::parts::{
     pages::pages,
     separator::separator,
     terminator::terminator,
-    title::quoted_title,
+    title::{title_period_terminated, title_quoted},
     url::url,
     volume::{no_prefixed_issue, vol_prefixed_volume},
 };
@@ -63,7 +63,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         // Authors: Parse one or more authors
         authors,
         // Title
-        preceded(separator, quoted_title),
+        preceded(separator, title_quoted),
         // Journal: Parse journal name until " vol." or other separators
         preceded(
             separator,
@@ -124,13 +124,13 @@ pub fn article(input: &mut &str) -> Result<Reference> {
 /// ```
 pub fn book(input: &mut &str) -> Result<Reference> {
     (
-        // Authors: Parse one or more authors
+        // Authors
         authors,
-        // Title: Parse unquoted book title (ending with period)
-        preceded(separator, chicago_title),
-        // Publisher: Parse publisher ending with comma
+        // Title
+        preceded(separator, title_period_terminated),
+        // Publisher
         opt(preceded(separator, take_while(1.., |c: char| c != ','))),
-        // Year: Publication year
+        // Year
         preceded(separator, take_while(1.., |c: char| c != '.' && c != 'h')),
         // DOI or URL
         opt(preceded(separator, doi_or_url)),
@@ -169,7 +169,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         // Authors: Parse chapter authors
         authors,
         // Chapter Title
-        preceded(separator, quoted_title),
+        preceded(separator, title_quoted),
         // "In" keyword
         preceded(separator, Caseless("In")),
         // Book Title: Parse book title (unquoted) until comma
@@ -240,7 +240,7 @@ pub fn web(input: &mut &str) -> Result<Reference> {
         // Authors: Parse web authors (optional)
         opt(terminated(authors, separator)),
         // Title
-        quoted_title,
+        title_quoted,
         // Website: Parse website name
         preceded(separator, take_while(1.., |c: char| c != '.')),
         // Access date: Optional "Accessed Date" information
@@ -269,13 +269,6 @@ pub fn web(input: &mut &str) -> Result<Reference> {
         .parse_next(input)
 }
 
-/// Parse book title (no quotes, unquoted in plain text)
-fn chicago_title(input: &mut &str) -> Result<Vec<Inline>> {
-    take_until(1.., '.')
-        .map(|title: &str| vec![t(title.trim())])
-        .parse_next(input)
-}
-
 #[cfg(test)]
 mod tests {
     use codec::schema::IntegerOrString;
@@ -283,18 +276,6 @@ mod tests {
     use common_dev::pretty_assertions::assert_eq;
 
     use super::*;
-
-    #[test]
-    fn test_chicago_title() -> Result<()> {
-        assert_eq!(chicago_title(&mut "Book Title.")?, vec![t("Book Title")]);
-
-        assert_eq!(
-            chicago_title(&mut "A Long Book Title with Many Words.")?,
-            vec![t("A Long Book Title with Many Words")]
-        );
-
-        Ok(())
-    }
 
     #[test]
     fn test_article() -> Result<()> {
