@@ -322,8 +322,10 @@ fn name(input: &mut &str) -> Result<String> {
             .take(),
         // All lowercase parts of names
         "den", // e.g den Broeck
+        "der", // e.g van der Flier
         "de",  // e.g de Blasio
-        "van", // e.g. van Winkle
+        "du",  // e.g du Maine
+        "van", // e.g van Winkle
     ))
     .map(|s: &str| s.to_string())
     .parse_next(input)

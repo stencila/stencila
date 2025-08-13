@@ -23,6 +23,7 @@ use crate::decode::parts::{
     doi::doi_or_url,
     pages::pages,
     publisher::place_publisher,
+    separator::separator,
     terminator::terminator,
     url::url,
 };
@@ -59,17 +60,17 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         // Authors: Parse one or more authors terminated before title
         authors,
         // Title: Parse article title ending with period
-        preceded(vancouver_separator, vancouver_title),
+        preceded(separator, vancouver_title),
         // Journal: Parse journal name ending with period
-        preceded(vancouver_separator, vancouver_title),
+        preceded(separator, vancouver_title),
         // Year: Publication year
-        preceded(vancouver_separator, year_az),
+        preceded(separator, year_az),
         // Semicolon separator before volume
-        opt(preceded(vancouver_separator, vancouver_volume)),
+        opt(preceded(separator, vancouver_volume)),
         // Pages: Optional page range after colon
-        opt(preceded(vancouver_separator, pages)),
+        opt(preceded(separator, pages)),
         // DOI or URL (optional)
-        opt(preceded(vancouver_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
         // Optional terminator
         opt(terminator),
     )
@@ -107,13 +108,13 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // Authors: Parse one or more authors terminated before title
         authors,
         // Title: Parse book title ending with period
-        preceded(vancouver_separator, vancouver_title),
+        preceded(separator, vancouver_title),
         // Place: Publisher: Parse place and publisher with colon separator
-        opt(preceded(vancouver_separator, place_publisher)),
+        opt(preceded(separator, place_publisher)),
         // Year: Publication year after semicolon
-        preceded(vancouver_separator, year_az),
+        preceded(separator, year_az),
         // DOI or URL (optional)
-        opt(preceded(vancouver_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
         // Optional terminator
         opt(terminator),
     )
@@ -144,22 +145,22 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         // Authors: Parse chapter authors terminated before title
         authors,
         // Chapter Title: Parse chapter title ending with period
-        preceded(vancouver_separator, vancouver_title),
+        preceded(separator, vancouver_title),
         // "In:" keyword
-        preceded(vancouver_separator, (Caseless("In"), opt(":"))),
+        preceded(separator, (Caseless("In"), opt(":"))),
         // Editors: Parse editors after "In:" (Vancouver format)
-        preceded(vancouver_separator, vancouver_editors),
+        preceded(separator, vancouver_editors),
         // Book Title: Parse book title after editors
-        opt(preceded(vancouver_separator, vancouver_title)),
+        opt(preceded(separator, vancouver_title)),
         // Place: Publisher: Parse place and publisher
-        opt(preceded(vancouver_separator, place_publisher)),
+        opt(preceded(separator, place_publisher)),
         // Year: Publication year after semicolon
-        opt(preceded(vancouver_separator, year_az)),
+        opt(preceded(separator, year_az)),
         // Pages: Optional pages with "p." prefix
-        opt(preceded(vancouver_separator, pages)),
+        opt(preceded(separator, pages)),
         // DOI or URL (optional) - handle Vancouver "Available from:" format
         opt(preceded(
-            vancouver_separator,
+            separator,
             alt((
                 // Try standard DOI first (starts with "doi:" or "10.")
                 doi_or_url,
@@ -241,7 +242,7 @@ pub fn web(input: &mut &str) -> Result<Reference> {
                 )),
                 (multispace0, ",", multispace0),
             ),
-            vancouver_separator,
+            separator,
         )),
         // Title: Parse web page title
         take_while(1.., |c: char| c != '.' && c != '[').map(|title: &str| vec![t(title.trim())]),
@@ -253,7 +254,7 @@ pub fn web(input: &mut &str) -> Result<Reference> {
         // "Available from:" prefix
         opt(preceded(
             (
-                vancouver_separator,
+                separator,
                 Caseless("Available"),
                 multispace1,
                 opt(Caseless("from")),
@@ -265,13 +266,7 @@ pub fn web(input: &mut &str) -> Result<Reference> {
         )),
         // Citation date: Optional "[cited Date]" information
         opt(delimited(
-            (
-                vancouver_separator,
-                "[",
-                multispace0,
-                Caseless("cited"),
-                multispace0,
-            ),
+            (separator, "[", multispace0, Caseless("cited"), multispace0),
             take_while(1.., |c: char| c != ']'),
             "]",
         )),
@@ -286,19 +281,6 @@ pub fn web(input: &mut &str) -> Result<Reference> {
             ..Default::default()
         })
         .parse_next(input)
-}
-
-/// Parse a separator between parts of a Vancouver reference
-///
-/// This is a lenient parser for anything that may be used as a separator
-/// between parts of a Vancouver reference. Making it lenient allows the `vancouver` parser
-/// to be more robust to deviations in punctuation and whitespace.
-fn vancouver_separator<'s>(input: &mut &'s str) -> Result<&'s str> {
-    alt((
-        (multispace0, alt((".", ";", ":")), multispace0).take(),
-        multispace1,
-    ))
-    .parse_next(input)
 }
 
 /// Parse title format for Vancouver references
@@ -361,18 +343,6 @@ mod tests {
     use common_dev::pretty_assertions::assert_eq;
 
     use super::*;
-
-    #[test]
-    fn test_vancouver_separator() -> Result<()> {
-        assert_eq!(vancouver_separator(&mut ". ")?.trim(), ".");
-        assert_eq!(vancouver_separator(&mut "; ")?.trim(), ";");
-        assert_eq!(vancouver_separator(&mut ": ")?.trim(), ":");
-        assert_eq!(vancouver_separator(&mut "  ")?.trim(), "");
-        assert_eq!(vancouver_separator(&mut " . ")?.trim(), ".");
-        assert_eq!(vancouver_separator(&mut " ; ")?.trim(), ";");
-
-        Ok(())
-    }
 
     #[test]
     fn test_vancouver_title() -> Result<()> {

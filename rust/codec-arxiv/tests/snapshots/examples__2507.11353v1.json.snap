@@ -2763,7 +2763,54 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib58",
-      "text": "van der Ploeg, F. and Rezai, A. (2021), ‘Optimal carbon pricing in general equilibrium: Temperature caps and stranded assets in an extended annual dsge model’, Journal of Environmental Economics and Management 110, 102522"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "van",
+            "der",
+            "Ploeg"
+          ],
+          "givenNames": [
+            "F."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rezai"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Optimal carbon pricing in general equilibrium: Temperature caps and stranded assets in an extended annual dsge model"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Journal of Environmental Economics and Management"
+            }
+          }
+        ],
+        "volumeNumber": 110
+      },
+      "pageStart": 102522
     },
     {
       "type": "Reference",

@@ -23,6 +23,7 @@ use crate::decode::parts::{
     authors::{authors, persons},
     doi::doi_or_url,
     pages::pages,
+    separator::separator,
     terminator::terminator,
     title::quoted_title,
     url::url,
@@ -62,10 +63,10 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         // Authors: Parse one or more authors
         authors,
         // Title
-        preceded(chicago_separator, quoted_title),
+        preceded(separator, quoted_title),
         // Journal: Parse journal name until " vol." or other separators
         preceded(
-            chicago_separator,
+            separator,
             alt((
                 take_until(1.., " vol."),
                 take_until(1.., " ("),
@@ -73,12 +74,12 @@ pub fn article(input: &mut &str) -> Result<Reference> {
             )),
         ),
         // Volume
-        preceded(chicago_separator, vol_prefixed_volume),
+        preceded(separator, vol_prefixed_volume),
         // Issue
-        opt(preceded(chicago_separator, no_prefixed_issue)),
+        opt(preceded(separator, no_prefixed_issue)),
         // Date: Publication date in parentheses (Year) or (Month Year)
         opt(preceded(
-            chicago_separator,
+            separator,
             delimited(
                 ("(", multispace0),
                 take_while(1.., |c: char| c != ')'),
@@ -88,7 +89,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         // Pages: Optional page range with colon prefix
         opt(preceded((multispace0, ":", multispace0), pages)),
         // DOI or URL
-        opt(preceded(chicago_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
         // Optional terminator
         opt(terminator),
     )
@@ -126,19 +127,13 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // Authors: Parse one or more authors
         authors,
         // Title: Parse unquoted book title (ending with period)
-        preceded(chicago_separator, chicago_title),
+        preceded(separator, chicago_title),
         // Publisher: Parse publisher ending with comma
-        opt(preceded(
-            chicago_separator,
-            take_while(1.., |c: char| c != ','),
-        )),
+        opt(preceded(separator, take_while(1.., |c: char| c != ','))),
         // Year: Publication year
-        preceded(
-            chicago_separator,
-            take_while(1.., |c: char| c != '.' && c != 'h'),
-        ),
+        preceded(separator, take_while(1.., |c: char| c != '.' && c != 'h')),
         // DOI or URL
-        opt(preceded(chicago_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
         // Optional terminator
         opt(terminator),
     )
@@ -174,30 +169,24 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         // Authors: Parse chapter authors
         authors,
         // Chapter Title
-        preceded(chicago_separator, quoted_title),
+        preceded(separator, quoted_title),
         // "In" keyword
-        preceded(chicago_separator, Caseless("In")),
+        preceded(separator, Caseless("In")),
         // Book Title: Parse book title (unquoted) until comma
         preceded(multispace1, take_while(1.., |c: char| c != ',')),
         // Editors: preceded by "edited by"
         opt(preceded(
-            (chicago_separator, Caseless("edited by"), multispace1),
+            (separator, Caseless("edited by"), multispace1),
             persons,
         )),
         // Pages: Optional page range after comma
-        opt(preceded(chicago_separator, pages)),
+        opt(preceded(separator, pages)),
         // Publisher: Parse publisher ending with comma
-        opt(preceded(
-            chicago_separator,
-            take_while(1.., |c: char| c != ','),
-        )),
+        opt(preceded(separator, take_while(1.., |c: char| c != ','))),
         // Year: Publication year
-        opt(preceded(
-            chicago_separator,
-            take_while(1.., |c: char| c != '.'),
-        )),
+        opt(preceded(separator, take_while(1.., |c: char| c != '.'))),
         // DOI or URL
-        opt(preceded(chicago_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
         // Optional terminator
         opt(terminator),
     )
@@ -249,18 +238,18 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
 pub fn web(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse web authors (optional)
-        opt(terminated(authors, chicago_separator)),
+        opt(terminated(authors, separator)),
         // Title
         quoted_title,
         // Website: Parse website name
-        preceded(chicago_separator, take_while(1.., |c: char| c != '.')),
+        preceded(separator, take_while(1.., |c: char| c != '.')),
         // Access date: Optional "Accessed Date" information
         opt(preceded(
-            (chicago_separator, Caseless("Accessed"), multispace1),
+            (separator, Caseless("Accessed"), multispace1),
             take_while(1.., |c: char| c != '.'),
         )),
         // URL: Web address
-        preceded(chicago_separator, url),
+        preceded(separator, url),
         // Optional terminator
         opt(terminator),
     )
@@ -280,19 +269,6 @@ pub fn web(input: &mut &str) -> Result<Reference> {
         .parse_next(input)
 }
 
-/// Parse a separator between parts of a Chicago reference
-///
-/// This is a lenient parser for anything that may be used as a separator
-/// between parts of a Chicago reference. Making it lenient allows the `chicago` parser
-/// to be more robust to deviations in punctuation and whitespace.
-fn chicago_separator<'s>(input: &mut &'s str) -> Result<&'s str> {
-    alt((
-        (multispace0, alt((",", ".")), multispace0).take(),
-        multispace1,
-    ))
-    .parse_next(input)
-}
-
 /// Parse book title (no quotes, unquoted in plain text)
 fn chicago_title(input: &mut &str) -> Result<Vec<Inline>> {
     take_until(1.., '.')
@@ -307,16 +283,6 @@ mod tests {
     use common_dev::pretty_assertions::assert_eq;
 
     use super::*;
-
-    #[test]
-    fn test_chicago_separator() -> Result<()> {
-        assert_eq!(chicago_separator(&mut ", ")?.trim(), ",");
-        assert_eq!(chicago_separator(&mut ". ")?.trim(), ".");
-        assert_eq!(chicago_separator(&mut "  ")?.trim(), "");
-        assert_eq!(chicago_separator(&mut " , ")?.trim(), ",");
-
-        Ok(())
-    }
 
     #[test]
     fn test_chicago_title() -> Result<()> {

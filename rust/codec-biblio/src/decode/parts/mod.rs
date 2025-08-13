@@ -6,6 +6,7 @@ pub mod journal;
 pub mod pages;
 pub mod preprints;
 pub mod publisher;
+pub mod separator;
 pub mod terminator;
 pub mod title;
 pub mod url;

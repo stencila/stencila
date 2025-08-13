@@ -21,6 +21,7 @@ use crate::decode::parts::{
     doi::doi_or_url,
     pages::pages,
     publisher::publisher_place,
+    separator::separator,
     terminator::terminator,
     url::url,
 };
@@ -45,22 +46,22 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         // Authors
         authors,
         // Title
-        preceded(lncs_separator, lncs_title),
+        preceded(separator, lncs_title),
         // Journal
-        preceded(lncs_separator, take_while(1.., |c: char| c != ',')),
+        preceded(separator, take_while(1.., |c: char| c != ',')),
         // Volume
-        preceded(lncs_separator, digit1),
+        preceded(separator, digit1),
         // Issue
         opt(preceded(
-            opt(lncs_separator),
+            opt(separator),
             delimited(("(", multispace0), digit1, (multispace0, ")")),
         )),
         // Pages
         opt(preceded((multispace0, ":", multispace0), pages)),
         // DOI or URL
-        opt(preceded(lncs_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
         // Date
-        opt(preceded(lncs_separator, year_az)),
+        opt(preceded(separator, year_az)),
         // Optional terminator
         opt(terminator),
     )
@@ -96,22 +97,19 @@ pub fn conference(input: &mut &str) -> Result<Reference> {
         // Authors
         authors,
         // Chapter Title
-        preceded(lncs_separator, lncs_title),
+        preceded(separator, lncs_title),
         // "in" keyword
-        preceded(lncs_separator, Caseless("In")),
+        preceded(separator, Caseless("In")),
         // Proceedings Title
-        preceded(lncs_separator, take_while(1.., |c: char| c != ',')),
+        preceded(separator, take_while(1.., |c: char| c != ',')),
         // Pages
-        opt(preceded(
-            (lncs_separator, Caseless("pages"), multispace0),
-            pages,
-        )),
+        opt(preceded((separator, Caseless("pages"), multispace0), pages)),
         // Publisher
-        opt(preceded(lncs_separator, publisher_place)),
+        opt(preceded(separator, publisher_place)),
         // DOI or URL
-        opt(preceded(lncs_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
         // Year
-        opt(preceded(lncs_separator, year_az)),
+        opt(preceded(separator, year_az)),
         // Optional terminator
         opt(terminator),
     )
@@ -156,30 +154,27 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         // Authors
         authors,
         // Chapter Title
-        preceded(lncs_separator, lncs_title),
+        preceded(separator, lncs_title),
         // "in" keyword
-        preceded(lncs_separator, Caseless("In")),
+        preceded(separator, Caseless("In")),
         // Editors
         delimited(
-            lncs_separator,
+            separator,
             lncs_editors,
-            (lncs_separator, Caseless("editor"), opt("s"), opt(",")),
+            (separator, Caseless("editor"), opt("s"), opt(",")),
         ),
         // Book Title
-        preceded(lncs_separator, take_while(1.., |c: char| c != ',')),
+        preceded(separator, take_while(1.., |c: char| c != ',')),
         // Edition
-        opt(preceded(lncs_separator, lncs_edition)),
+        opt(preceded(separator, lncs_edition)),
         // Pages
-        opt(preceded(
-            (lncs_separator, Caseless("pages"), multispace0),
-            pages,
-        )),
+        opt(preceded((separator, Caseless("pages"), multispace0), pages)),
         // Publisher
-        opt(preceded(lncs_separator, publisher_place)),
+        opt(preceded(separator, publisher_place)),
         // DOI or URL
-        opt(preceded(lncs_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
         // Year
-        opt(preceded(lncs_separator, year_az)),
+        opt(preceded(separator, year_az)),
         // Optional terminator
         opt(terminator),
     )
@@ -228,15 +223,15 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // Authors
         authors,
         // Title
-        preceded(lncs_separator, lncs_title),
+        preceded(separator, lncs_title),
         // Edition: Optional edition (1st ed., 2nd ed., etc.)
-        opt(preceded(lncs_separator, lncs_edition)),
+        opt(preceded(separator, lncs_edition)),
         // Publisher: Parse place and publisher
-        opt(preceded(lncs_separator, publisher_place)),
+        opt(preceded(separator, publisher_place)),
         // DOI or URL
-        opt(preceded(lncs_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
         // Year: Publication year
-        preceded(lncs_separator, year_az),
+        preceded(separator, year_az),
         // Optional terminator
         opt(terminator),
     )
@@ -266,13 +261,13 @@ pub fn web(input: &mut &str) -> Result<Reference> {
         // Authors
         alt((person_given_family, organization)),
         // Title
-        preceded(lncs_separator, lncs_title),
+        preceded(separator, lncs_title),
         // URL
-        preceded(lncs_separator, url),
+        preceded(separator, url),
         // Last assessed
         opt(preceded(
             (
-                lncs_separator,
+                separator,
                 Caseless("last"),
                 opt((multispace1, Caseless("accessed"))),
                 multispace0,
@@ -292,19 +287,6 @@ pub fn web(input: &mut &str) -> Result<Reference> {
             ..Default::default()
         })
         .parse_next(input)
-}
-
-/// Parse a separator between parts of an LNCS reference
-///
-/// This is a lenient parser for anything that may be used as a separator
-/// between parts of an LNCS reference. Making it lenient allows the `lncs` parser
-/// to be more robust to deviations in punctuation and whitespace.
-fn lncs_separator<'s>(input: &mut &'s str) -> Result<&'s str> {
-    alt((
-        (multispace0, alt((",", ".", ";")), multispace0).take(),
-        multispace1,
-    ))
-    .parse_next(input)
 }
 
 /// Parse title

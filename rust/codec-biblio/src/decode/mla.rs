@@ -24,6 +24,7 @@ use crate::decode::parts::{
     date::year_az,
     doi::doi_or_url,
     pages::pages,
+    separator::separator,
     title::quoted_title,
     url::url,
     volume::{no_prefixed_issue, vol_prefixed_volume},
@@ -61,19 +62,19 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         // Authors
         mla_authors,
         // Title
-        preceded(mla_separator, quoted_title),
+        preceded(separator, quoted_title),
         // Journal: Parse journal name ending with comma
-        preceded(mla_separator, take_while(1.., |c: char| c != ',')),
+        preceded(separator, take_while(1.., |c: char| c != ',')),
         // Volume
-        opt(preceded(mla_separator, vol_prefixed_volume)),
+        opt(preceded(separator, vol_prefixed_volume)),
         // Issue
-        opt(preceded(mla_separator, no_prefixed_issue)),
+        opt(preceded(separator, no_prefixed_issue)),
         // Year: Publication year
-        preceded(mla_separator, year_az),
+        preceded(separator, year_az),
         // Pages
-        opt(preceded(mla_separator, pages)),
+        opt(preceded(separator, pages)),
         // DOI or URL
-        opt(preceded(mla_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
     )
         .map(
             |(authors, title, journal, volume, issue, year, pages, doi_or_url)| Reference {
@@ -107,13 +108,13 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // Authors
         mla_authors,
         // Title: Parse unquoted title
-        preceded(mla_separator, mla_unquoted_title),
+        preceded(separator, mla_unquoted_title),
         // Publisher: Parse publisher ending with comma
-        opt(preceded(mla_separator, take_while(1.., |c: char| c != ','))),
+        opt(preceded(separator, take_while(1.., |c: char| c != ','))),
         // Year: Publication year
-        preceded(mla_separator, year_az),
+        preceded(separator, year_az),
         // DOI or URL
-        opt(preceded(mla_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
     )
         .map(|(authors, title, publisher, date, doi_or_url)| Reference {
             work_type: Some(CreativeWorkType::Book),
@@ -147,19 +148,19 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         // Authors
         mla_authors,
         // Chapter Title
-        preceded(mla_separator, quoted_title),
+        preceded(separator, quoted_title),
         // Book Title: Parse book title before comma
-        preceded(mla_separator, take_while(1.., |c: char| c != ',')),
+        preceded(separator, take_while(1.., |c: char| c != ',')),
         // Editors: with "edited by" prefix (required for chapters)
-        preceded((mla_separator, "edited by", multispace1), mla_editors),
+        preceded((separator, "edited by", multispace1), mla_editors),
         // Publisher: Parse publisher ending with comma
-        preceded(mla_separator, take_while(1.., |c: char| c != ',')),
+        preceded(separator, take_while(1.., |c: char| c != ',')),
         // Year: Publication year
-        preceded(mla_separator, year_az),
+        preceded(separator, year_az),
         // Pages
-        opt(preceded(mla_separator, pages)),
+        opt(preceded(separator, pages)),
         // DOI or URL
-        opt(preceded(mla_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
     )
         .map(
             |(authors, chapter_title, book_title, editors, publisher, year, pages, doi_or_url)| {
@@ -199,18 +200,18 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
 pub fn web(input: &mut &str) -> Result<Reference> {
     (
         // Authors
-        opt(terminated(mla_authors, mla_separator)),
+        opt(terminated(mla_authors, separator)),
         // Title
         quoted_title,
         // Website: Parse website name before comma
-        preceded(mla_separator, take_while(1.., |c: char| c != ',')),
+        preceded(separator, take_while(1.., |c: char| c != ',')),
         // Date: Publication date or year
-        preceded(mla_separator, take_while(1.., |c: char| c != ',')),
+        preceded(separator, take_while(1.., |c: char| c != ',')),
         // URL: Web address (required)
-        preceded(mla_separator, url),
+        preceded(separator, url),
         // Access date: Optional "Accessed Date" information
         opt(preceded(
-            (mla_separator, "Accessed", multispace0),
+            (separator, "Accessed", multispace0),
             take_while(1.., |c: char| c != '.'),
         )),
     )
@@ -344,19 +345,6 @@ fn mla_unquoted_title(input: &mut &str) -> Result<Vec<Inline>> {
     take_until(1.., '.')
         .map(|title: &str| vec![t(title.trim())])
         .parse_next(input)
-}
-
-/// Parse a separator between parts of an MLA reference
-///
-/// This is a lenient parser for anything that may be used as a separator
-/// between parts of an MLA reference. Making it lenient allows the `mla` parser
-/// to be more robust to deviations in punctuation and whitespace.
-fn mla_separator<'s>(input: &mut &'s str) -> Result<&'s str> {
-    alt((
-        (multispace0, alt((",", ".")), multispace0).take(),
-        multispace1,
-    ))
-    .parse_next(input)
 }
 
 #[cfg(test)]

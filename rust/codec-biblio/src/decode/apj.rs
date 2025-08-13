@@ -9,7 +9,7 @@
 
 use winnow::{
     Parser, Result,
-    ascii::{Caseless, digit1, multispace0, multispace1},
+    ascii::{Caseless, digit1, multispace0},
     combinator::{alt, delimited, opt, preceded, separated},
     token::take_while,
 };
@@ -25,6 +25,7 @@ use crate::decode::parts::{
     doi::doi_or_url,
     pages::pages,
     publisher::place_publisher,
+    separator::separator,
     terminator::terminator,
     url::url,
 };
@@ -49,15 +50,15 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         // Authors
         authors,
         // Date
-        preceded(apj_separator, year_az),
+        preceded(separator, year_az),
         // Journal
-        preceded(apj_separator, take_while(1.., |c: char| c != ',')),
+        preceded(separator, take_while(1.., |c: char| c != ',')),
         // Volume
-        preceded(apj_separator, digit1),
+        preceded(separator, digit1),
         // Pages
-        opt(preceded(apj_separator, pages)),
+        opt(preceded(separator, pages)),
         // DOI or URL
-        opt(preceded(apj_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
         // Optional terminator
         opt(terminator),
     )
@@ -89,23 +90,23 @@ pub fn conference(input: &mut &str) -> Result<Reference> {
         // Authors
         authors,
         // Year
-        preceded(apj_separator, year_az),
+        preceded(separator, year_az),
         // "in" keyword
-        preceded(apj_separator, Caseless("in")),
+        preceded(separator, Caseless("in")),
         // Proceedings Title
-        preceded(apj_separator, take_while(1.., |c: char| c != ',')),
+        preceded(separator, take_while(1.., |c: char| c != ',')),
         // Pages
-        opt(preceded(apj_separator, pages)),
+        opt(preceded(separator, pages)),
         // Publisher
         opt(preceded(
-            apj_separator,
+            separator,
             alt((
                 delimited(("(", multispace0), place_publisher, (multispace0, ")")),
                 place_publisher,
             )),
         )),
         // DOI or URL
-        opt(preceded(apj_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
         // Optional terminator
         opt(terminator),
     )
@@ -139,17 +140,17 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         // Authors
         authors,
         // Year
-        preceded(apj_separator, year_az),
+        preceded(separator, year_az),
         // Chapter Title
-        preceded(apj_separator, apj_title),
+        preceded(separator, apj_title),
         // "in" keyword
-        preceded(apj_separator, Caseless("in")),
+        preceded(separator, Caseless("in")),
         // Book Title
-        preceded(apj_separator, apj_book_title),
+        preceded(separator, apj_book_title),
         // Editors
         opt(preceded(
             (
-                apj_separator,
+                separator,
                 multispace0,
                 Caseless("ed"),
                 opt("s"),
@@ -160,16 +161,16 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         )),
         // Publisher
         opt(preceded(
-            opt(apj_separator),
+            opt(separator),
             alt((
                 delimited(("(", multispace0), place_publisher, (multispace0, ")")),
                 place_publisher,
             )),
         )),
         // Pages
-        opt(preceded(apj_separator, pages)),
+        opt(preceded(separator, pages)),
         // DOI or URL
-        opt(preceded(apj_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
         // Optional terminator
         opt(terminator),
     )
@@ -216,19 +217,19 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // Authors
         authors,
         // Year
-        preceded(apj_separator, year_az),
+        preceded(separator, year_az),
         // Book Title
-        preceded(apj_separator, apj_book_title),
+        preceded(separator, apj_book_title),
         // Publisher
         opt(preceded(
-            opt(apj_separator),
+            opt(separator),
             alt((
                 delimited(("(", multispace0), place_publisher, (multispace0, ")")),
                 place_publisher,
             )),
         )),
         // DOI or URL
-        opt(preceded(apj_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
         // Optional terminator
         opt(terminator),
     )
@@ -257,13 +258,13 @@ pub fn web(input: &mut &str) -> Result<Reference> {
         // Authors
         authors,
         // Year
-        preceded(apj_separator, year_az),
+        preceded(separator, year_az),
         // Title
-        preceded(apj_separator, apj_title),
+        preceded(separator, apj_title),
         // Website Title
-        opt(preceded(apj_separator, apj_title)),
+        opt(preceded(separator, apj_title)),
         // URL
-        preceded(apj_separator, url),
+        preceded(separator, url),
         // Optional terminator
         opt(terminator),
     )
@@ -278,19 +279,6 @@ pub fn web(input: &mut &str) -> Result<Reference> {
             },
         )
         .parse_next(input)
-}
-
-/// Parse a separator between parts of an ApJ reference
-///
-/// This is a lenient parser for anything that may be used as a separator
-/// between parts of an ApJ reference. Making it lenient allows the `apj` parser
-/// to be more robust to deviations in punctuation and whitespace.
-fn apj_separator<'s>(input: &mut &'s str) -> Result<&'s str> {
-    alt((
-        (multispace0, alt((",", ";")), multispace0).take(),
-        multispace1,
-    ))
-    .parse_next(input)
 }
 
 /// Parse title

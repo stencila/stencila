@@ -23,6 +23,7 @@ use crate::decode::parts::{
     doi::doi_or_url,
     pages::pages,
     publisher::place_publisher,
+    separator::separator,
     terminator::terminator,
     title::quoted_title,
     url::url,
@@ -61,22 +62,19 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         // Authors: Parse one or more authors
         authors,
         // Title
-        preceded(ieee_separator, quoted_title),
+        preceded(separator, quoted_title),
         // Journal: Parse journal name ending with comma
-        opt(preceded(
-            ieee_separator,
-            take_while(1.., |c: char| c != ','),
-        )),
+        opt(preceded(separator, take_while(1.., |c: char| c != ','))),
         // Volume
-        opt(preceded(ieee_separator, vol_prefixed_volume)),
+        opt(preceded(separator, vol_prefixed_volume)),
         // Issue
-        opt(preceded(ieee_separator, no_prefixed_issue)),
+        opt(preceded(separator, no_prefixed_issue)),
         // Pages
-        opt(preceded(ieee_separator, pages)),
+        opt(preceded(separator, pages)),
         // Date: Publication date (month and year or just year)
-        opt(preceded(ieee_separator, ieee_date)),
+        opt(preceded(separator, ieee_date)),
         // DOI or URL
-        opt(preceded(ieee_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
         // Optional terminator
         opt(terminator),
     )
@@ -114,26 +112,26 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         // Authors: Parse chapter authors
         authors,
         // Chapter Title
-        preceded(ieee_separator, quoted_title),
+        preceded(separator, quoted_title),
         // "in" keyword
-        preceded(ieee_separator, Caseless("in")),
+        preceded(separator, Caseless("in")),
         // Book Title: Parse book title before comma
-        preceded(ieee_separator, take_while(1.., |c: char| c != ',')),
+        preceded(separator, take_while(1.., |c: char| c != ',')),
         // Editors: before Ed. or Eds.
         opt(delimited(
-            ieee_separator,
+            separator,
             ieee_editors,
-            (ieee_separator, Caseless("Ed"), opt("s"), opt(".")),
+            (separator, Caseless("Ed"), opt("s"), opt(".")),
         )),
         // Edition
-        opt(preceded(ieee_separator, ieee_edition)),
-        opt(preceded(ieee_separator, place_publisher)),
+        opt(preceded(separator, ieee_edition)),
+        opt(preceded(separator, place_publisher)),
         // Year: Publication year
-        opt(preceded(ieee_separator, year)),
+        opt(preceded(separator, year)),
         // Pages
-        opt(preceded(ieee_separator, pages)),
+        opt(preceded(separator, pages)),
         // DOI or URL
-        opt(preceded(ieee_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
         // Optional terminator
         opt(terminator),
     )
@@ -184,18 +182,15 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // Authors: Parse book authors terminated before title
         ieee_book_authors,
         // Title: Parse book title before comma or period
-        preceded(
-            ieee_separator,
-            take_while(1.., |c: char| c != ',' && c != '.'),
-        ),
+        preceded(separator, take_while(1.., |c: char| c != ',' && c != '.')),
         // Edition: Optional edition (1st ed., 2nd ed., etc.)
-        opt(preceded(ieee_separator, ieee_edition)),
+        opt(preceded(separator, ieee_edition)),
         // Publisher: Parse place and publisher
-        opt(preceded(ieee_separator, place_publisher)),
+        opt(preceded(separator, place_publisher)),
         // Year: Publication year
-        preceded(ieee_separator, year),
+        preceded(separator, year),
         // DOI or URL
-        opt(preceded(ieee_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
         // Optional terminator
         opt(terminator),
     )
@@ -228,7 +223,7 @@ pub fn web(input: &mut &str) -> Result<Reference> {
         alt((person_given_family, organization)),
         // Title: Parse web page title
         preceded(
-            ieee_separator,
+            separator,
             take_while(1.., |c: char| c != '.' && c != '[')
                 .map(|title: &str| vec![t(title.trim())]),
         ),
@@ -240,7 +235,7 @@ pub fn web(input: &mut &str) -> Result<Reference> {
         // "Available from:" prefix
         opt(preceded(
             (
-                ieee_separator,
+                separator,
                 Caseless("Available"),
                 multispace0,
                 opt(":"),
@@ -251,7 +246,7 @@ pub fn web(input: &mut &str) -> Result<Reference> {
         // Citation date: Optional "[cited Date]" information
         opt(delimited(
             (
-                ieee_separator,
+                separator,
                 "[",
                 multispace0,
                 Caseless("Accessed"),
@@ -273,19 +268,6 @@ pub fn web(input: &mut &str) -> Result<Reference> {
             ..Default::default()
         })
         .parse_next(input)
-}
-
-/// Parse a separator between parts of an IEEE reference
-///
-/// This is a lenient parser for anything that may be used as a separator
-/// between parts of an IEEE reference. Making it lenient allows the `ieee` parser
-/// to be more robust to deviations in punctuation and whitespace.
-fn ieee_separator<'s>(input: &mut &'s str) -> Result<&'s str> {
-    alt((
-        (multispace0, alt((",", ".", ";")), multispace0).take(),
-        multispace1,
-    ))
-    .parse_next(input)
 }
 
 /// Parse IEEE date format (e.g., "Mar. 2023" or "2023")

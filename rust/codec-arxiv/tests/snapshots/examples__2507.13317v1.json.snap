@@ -2779,7 +2779,41 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib58",
-      "text": "Laureijs R., et al., 2011, arXiv e-prints, p. arXiv:1110.3193"
+      "workType": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Laureijs"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "3193"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "2011, arXiv e-prints, p"
+          }
+        }
+      ],
+      "isPartOf": {
+        "type": "Reference",
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "arXiv:1110"
+            }
+          }
+        ]
+      }
     },
     {
       "type": "Reference",

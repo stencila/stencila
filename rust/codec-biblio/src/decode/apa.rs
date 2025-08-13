@@ -27,6 +27,7 @@ use crate::decode::parts::{
     journal::journal_no_comma,
     pages::pages,
     preprints::preprint_server,
+    separator::separator,
     terminator::terminator,
     url::url,
 };
@@ -55,13 +56,13 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         // Authors: Parse one or more authors (persons or organizations)
         authors,
         // Date: Parse year in parentheses format "(YYYY)"
-        preceded(apa_separator, apa_year),
+        preceded(separator, apa_year),
         // Title: Parse article title ending with a period
-        preceded(apa_separator, apa_title),
+        preceded(separator, apa_title),
         // Journal
-        preceded(apa_separator, alt((journal_no_comma,))),
+        preceded(separator, alt((journal_no_comma,))),
         preceded(
-            apa_separator,
+            separator,
             alt((
                 (
                     // Preprint server
@@ -85,14 +86,14 @@ pub fn article(input: &mut &str) -> Result<Reference> {
                     ),
                     // Pages: Optional page range
                     opt(preceded(
-                        alt((apa_separator, (multispace0, ":", multispace0).take())),
+                        alt((separator, (multispace0, ":", multispace0).take())),
                         pages,
                     )),
                 ),
             )),
         ),
         // DOI or URL
-        opt(preceded(apa_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
         // Optional terminator
         opt(terminator),
     )
@@ -130,13 +131,13 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // Authors: Parse book authors
         authors,
         // Date: Parse year in parentheses format "(YYYY)"
-        preceded(apa_separator, apa_year),
+        preceded(separator, apa_year),
         // Title: Parse book title ending with a period
-        preceded(apa_separator, apa_title),
+        preceded(separator, apa_title),
         // Publisher: Parse publisher
-        opt(preceded(apa_separator, take_while(1.., |c: char| c != '.'))),
+        opt(preceded(separator, take_while(1.., |c: char| c != '.'))),
         // DOI or URL
-        opt(preceded(apa_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
         // Optional terminator
         opt(terminator),
     )
@@ -173,11 +174,11 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         // Authors: Parse chapter authors
         authors,
         // Date: Parse year in parentheses
-        preceded(apa_separator, apa_year),
+        preceded(separator, apa_year),
         // Chapter Title: Parse chapter title ending with period
-        preceded(apa_separator, apa_title),
+        preceded(separator, apa_title),
         // "In" keyword with space
-        delimited(apa_separator, Caseless("In"), multispace1),
+        delimited(separator, Caseless("In"), multispace1),
         // Editors: before (Ed.) or (Eds.)
         // Allows for variations such as (Ed) ( Eds) ( Ed. )
         opt(terminated(
@@ -201,14 +202,14 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         preceded(multispace0, take_while(1.., |c: char| c != '(')),
         // Pages: Parse page range in parentheses
         opt(delimited(
-            (alt((apa_separator, multispace0)), "(", multispace0),
+            (alt((separator, multispace0)), "(", multispace0),
             pages,
             (multispace0, ")", opt((multispace0, "."))),
         )),
         // Publisher: Parse publisher
-        opt(preceded(apa_separator, take_while(1.., |c: char| c != '.'))),
+        opt(preceded(separator, take_while(1.., |c: char| c != '.'))),
         // DOI or URL
-        opt(preceded(apa_separator, doi_or_url)),
+        opt(preceded(separator, doi_or_url)),
         // Optional terminator
         opt(terminator),
     )
@@ -261,21 +262,21 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
 pub fn web(input: &mut &str) -> Result<Reference> {
     (
         // Authors: Parse web authors (may be missing for some web content)
-        opt(terminated(authors, apa_separator)),
+        opt(terminated(authors, separator)),
         // Date: Parse year in parentheses format "(YYYY)"
         apa_year,
         // Title: Parse web page title ending with a period
-        preceded(apa_separator, apa_title),
+        preceded(separator, apa_title),
         // Website: Parse website name
         opt(preceded(
-            apa_separator,
+            separator,
             take_while(1.., |c: char| c != '.')
                 .verify(|chars: &str| !chars.contains("https://") && !chars.contains("https://")),
         )),
         // URL: Web address
         preceded(
             (
-                apa_separator,
+                separator,
                 opt((
                     Caseless("Retrieved"),
                     opt((multispace1, Caseless("from"))),
@@ -329,19 +330,6 @@ fn apa_title(input: &mut &str) -> Result<Vec<Inline>> {
         take_while(1.., |c: char| c != '.'),
     ))
     .map(|title: &str| vec![t(title.trim_start().trim_end_matches(['.', ' ']))])
-    .parse_next(input)
-}
-
-/// Parse a separator between parts of an APA reference
-///
-/// This is a lenient parser for anything that may be used as a separator
-/// between parts of an APA reference. Making it lenient allows the `apa` parser
-/// to be more robust to deviations in punctuation and whitespace.
-fn apa_separator<'s>(input: &mut &'s str) -> Result<&'s str> {
-    alt((
-        (multispace0, alt((",", ".")), multispace0).take(),
-        multispace1,
-    ))
     .parse_next(input)
 }
 
