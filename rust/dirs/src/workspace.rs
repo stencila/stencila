@@ -185,7 +185,7 @@ pub async fn closest_stencila_dir(path: &Path, ensure: bool) -> Result<PathBuf> 
 
 /// Get or create a new directory within the closest `.stencila/artifacts` directory
 /// with specified unique key
-/// 
+///
 /// Used for caching artifacts such as downloaded files or costly API responses.
 /// It is up to the caller to generate unique keys.
 pub async fn closest_artifacts_for(path: &Path, key: &str) -> Result<PathBuf> {

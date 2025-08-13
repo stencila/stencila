@@ -22,17 +22,13 @@ struct Walker {
 
 impl VisitorMut for Walker {
     fn visit_node(&mut self, node: &mut Node) -> WalkControl {
-        match node {
-            Node::Article(article) => {
-                self.walk(article);
+        if let Node::Article(article) = node {
+            self.walk(article);
 
-                // If any references were collected then assign to article
-                if let Some(references) = self.references.take() {
-                    article.references = Some(references);
-                }
+            // If any references were collected then assign to article
+            if let Some(references) = self.references.take() {
+                article.references = Some(references);
             }
-
-            _ => {}
         }
 
         WalkControl::Continue
@@ -45,10 +41,8 @@ impl VisitorMut for Walker {
                 let text = to_text(&heading.content).to_lowercase();
                 if matches!(text.trim(), "references" | "bibliography") {
                     self.in_references = true;
-                } else {
-                    if heading.level <= 3 {
-                        self.in_references = false;
-                    }
+                } else if heading.level <= 3 {
+                    self.in_references = false;
                 }
             }
 
@@ -65,20 +59,16 @@ impl VisitorMut for Walker {
     }
 
     fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
-        match inline {
-            Inline::MathInline(math) => {
-                // Detect superscript with empty base as produced by some OCR
-                // for citations.
-                static SUPERSCRIPT_REGEX: Lazy<Regex> =
-                    Lazy::new(|| Regex::new(r"\{\s*\}\^\{(.*?)\}").expect("invalid regex"));
-                if let Some(captures) = SUPERSCRIPT_REGEX.captures(&math.code) {
-                    if let Some(sequence) = maybe_citation_sequence(&captures[1]) {
-                        *inline = citation_sequence_to_inline(sequence);
-                    }
+        if let Inline::MathInline(math) = inline {
+            // Detect superscript with empty base as produced by some OCR
+            // for citations.
+            static SUPERSCRIPT_REGEX: Lazy<Regex> =
+                Lazy::new(|| Regex::new(r"\{\s*\}\^\{(.*?)\}").expect("invalid regex"));
+            if let Some(captures) = SUPERSCRIPT_REGEX.captures(&math.code) {
+                if let Some(sequence) = maybe_citation_sequence(&captures[1]) {
+                    *inline = citation_sequence_to_inline(sequence);
                 }
             }
-
-            _ => {}
         }
 
         WalkControl::Continue
@@ -260,8 +250,7 @@ mod tests {
             assert_eq!(
                 maybe_citation_sequence(input),
                 Some(expected_strings),
-                "Failed for input: {}",
-                input
+                "Failed for input: {input}"
             );
         }
 
@@ -279,8 +268,7 @@ mod tests {
             assert_eq!(
                 maybe_citation_sequence(input),
                 None,
-                "Should be None for input: {}",
-                input
+                "Should be None for input: {input}"
             );
         }
     }

@@ -468,12 +468,12 @@ impl NodeDatabase {
                         write!(&mut buffer, ",")?;
                     }
 
-                    write!(
+                    writeln!(
                         &mut buffer,
-                        "{doc_id},{node_id},{node_path},{node_ancestors},{position}\n"
+                        "{doc_id},{node_id},{node_path},{node_ancestors},{position}"
                     )?;
                 } else {
-                    write!(&mut buffer, "\n")?;
+                    writeln!(&mut buffer)?;
                 }
             }
             buffer.flush()?;

@@ -17,7 +17,7 @@ pub fn year(input: &mut &str) -> Result<Date> {
     )
     .verify(|year: &str| {
         year.parse()
-            .map_or_else(|_| false, |year: u32| year >= 1200 && year <= 2050)
+            .map_or_else(|_| false, |year: u32| (1200..=2050).contains(&year))
     })
     .map(|year: &str| Date {
         value: year.into(),
