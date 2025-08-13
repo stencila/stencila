@@ -242,22 +242,22 @@ fn ensure_isolated_blocks(md: &str) -> String {
 ///
 /// ```text
 /// 1 => 1.
-/// 1: => 1.
+/// 1. => 1.
 /// 1) => 1.
 /// [1] => 1.
 /// (1) => 1.
 /// ```
 fn listify_references(md: &str) -> String {
     static HEADING_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"^#{1,3}(.*)").expect("invalid regex"));
+        Lazy::new(|| Regex::new(r"^#{1,4}(.*)").expect("invalid regex"));
 
     static NUMBERED_REGEX: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"^\s*[\(\[]*\s*(\d+)\s*[\)\]\:\;]*\s*(.*)$").expect("invalid regex")
+        Regex::new(r"^\s*[\(\[]*\s*(\d+)\s*[\)\]\.]*\s*(.*)$").expect("invalid regex")
     });
 
     let mut result = Vec::new();
     let mut in_references = false;
-
+    let mut last_reference_number = 0u32;
     for line in md.lines() {
         if let Some(text) = HEADING_REGEX
             .captures(line)
@@ -271,12 +271,22 @@ fn listify_references(md: &str) -> String {
         } else if !in_references {
             result.push(line.to_string());
         } else if let Some(captures) = NUMBERED_REGEX.captures(line) {
-            // Transform the reference format
-            let transformed = if captures[2].starts_with(".") {
-                captures[0].to_string()
+            let reference_number: u32 = captures[1].parse().expect("is only digits");
+            let rest = &captures[2];
+
+            // If the number is lower than, or a big jump up from, the last
+            // number it id likely some part of the reference that happens to be a number
+            // followed by punctuation at the start of the line e.g "2006." so just indent
+            // it by two spaces.
+            let transformed = if reference_number > last_reference_number
+                && reference_number < last_reference_number + 5
+            {
+                last_reference_number = reference_number;
+                format!("{reference_number}. {rest}")
             } else {
-                [&captures[1], ". ", &captures[2]].concat()
+                format!("    {line}")
             };
+
             result.push(transformed);
         } else {
             // In references section but not a numbered line, keep as is
@@ -789,20 +799,6 @@ mod tests {
         3. Third reference with colon
         ");
 
-        // References with colon format
-        let input = r"## References
-
-1: First reference with colon
-2: Second reference with colon
-3: Third reference with colon";
-        assert_snapshot!(listify_references(input), @r"
-        ## References
-
-        1. First reference with colon
-        2. Second reference with colon
-        3. Third reference with colon
-        ");
-
         // References with parentheses format
         let input = r"### Bibliography
 
@@ -849,7 +845,7 @@ mod tests {
         let input = r"# References
 
 1 First reference
-2: Second reference with colon
+2. Second reference with dot
 [3] Third reference in brackets
 (4) Fourth reference in parentheses
 5) Fifth reference with closing paren";
@@ -857,7 +853,7 @@ mod tests {
         # References
 
         1. First reference
-        2. Second reference with colon
+        2. Second reference with dot
         3. Third reference in brackets
         4. Fourth reference in parentheses
         5. Fifth reference with closing paren
@@ -948,6 +944,26 @@ Regular content";
         1. First reference with spaces
         2. Second reference with spaces  
         3. Third reference with spaces
+        ");
+
+        // References with non-sequential numbers (should be indented)
+        let input = r"# References
+
+1 First reference
+2 Second reference  
+2006. This looks like a year and should be indented
+3 Third reference
+10 Large jump should be indented
+4 Fourth reference continues sequence";
+        assert_snapshot!(listify_references(input), @r"
+        # References
+
+        1. First reference
+        2. Second reference  
+            2006. This looks like a year and should be indented
+        3. Third reference
+            10 Large jump should be indented
+        4. Fourth reference continues sequence
         ");
     }
 }
