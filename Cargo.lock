@@ -1619,6 +1619,7 @@ dependencies = [
  "codec-utils",
  "convert",
  "media-embed",
+ "node-structuring",
 ]
 
 [[package]]
@@ -5368,6 +5369,17 @@ dependencies = [
  "common",
  "darling",
  "syn 2.0.103",
+]
+
+[[package]]
+name = "node-structuring"
+version = "0.0.0"
+dependencies = [
+ "codec-biblio",
+ "codec-text-trait",
+ "common",
+ "common-dev",
+ "schema",
 ]
 
 [[package]]

@@ -1,0 +1,16 @@
+[package]
+name = "node-structuring"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+common = { path = "../common" }
+schema = { path = "../schema" }
+codec-biblio = { path = "../codec-biblio" }
+codec-text-trait = { path = "../codec-text-trait" }
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }
+
+[lints]
+workspace = true

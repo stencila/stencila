@@ -1,9 +1,5 @@
 use std::path::Path;
 
-use codec_markdown::MarkdownCodec;
-use codec_utils::git_info;
-use convert::{latex_to_pdf, pdf_to_md};
-
 use codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, NodeType,
     common::{async_trait::async_trait, eyre::Result},
@@ -12,7 +8,11 @@ use codec::{
     status::Status,
 };
 use codec_latex::LatexCodec;
+use codec_markdown::MarkdownCodec;
+use codec_utils::git_info;
+use convert::{latex_to_pdf, pdf_to_md};
 use media_embed::embed_media;
+use node_structuring::structuring;
 
 /// A codec for PDF
 pub struct PdfCodec;
@@ -68,6 +68,9 @@ impl Codec for PdfCodec {
 
         // Decode the Markdown file to a node
         let (mut node, orig, info) = MarkdownCodec.from_path(&md_path, options).await?;
+
+        // Increase structure of the node
+        structuring(&mut node);
 
         // Embed any image files
         embed_media(&mut node, &md_path)?;

@@ -10,6 +10,7 @@ codec-markdown = { path = "../codec-markdown" }
 codec-utils = { path = "../codec-utils" }
 convert = { path = "../convert" }
 media-embed = { path = "../media-embed" }
+node-structuring = { path = "../node-structuring" }
 
 [lints]
 workspace = true
