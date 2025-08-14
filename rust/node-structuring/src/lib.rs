@@ -1,4 +1,3 @@
-
 use schema::WalkNode;
 
 use crate::{collector::Collector, replacer::Replacer};

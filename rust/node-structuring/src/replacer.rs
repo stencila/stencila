@@ -1,5 +1,7 @@
 use schema::{
-    Admonition, Block, Emphasis, ForBlock, Heading, IfBlockClause, IncludeBlock, Inline, Node, Paragraph, Section, Strikeout, Strong, StyledBlock, StyledInline, Subscript, Superscript, Underline, VisitorMut, WalkControl
+    Admonition, Block, Emphasis, ForBlock, Heading, IfBlockClause, IncludeBlock, Inline, Node,
+    Paragraph, Section, Strikeout, Strong, StyledBlock, StyledInline, Subscript, Superscript,
+    Underline, VisitorMut, WalkControl,
 };
 
 use crate::Collector;
