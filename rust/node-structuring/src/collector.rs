@@ -65,6 +65,13 @@ impl VisitorMut for Collector {
     }
 
     fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
+        if self.in_references {
+            // Do not do the following if in references section since things like
+            // number in brackets are normal parts of the formatting of references,
+            // not citations!
+            return WalkControl::Continue;
+        }
+
         match inline {
             Inline::MathInline(math) => self.visit_math_inline(math),
             Inline::Text(text) => self.visit_text(text),
