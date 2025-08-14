@@ -323,14 +323,59 @@ pub fn name(input: &mut &str) -> Result<String> {
             take_while(1.., |c: char| c.is_lowercase() && c.is_alphabetic()),
         )
             .take(),
-        // All lowercase parts of names
-        "den", // e.g den Broeck
-        "der", // e.g van der Flier
-        "de",  // e.g de Blasio
-        "du",  // e.g du Maine
-        "van", // e.g van Winkle
+        // All lowercase name particles
+        name_particles,
     ))
     .map(|s: &str| s.to_string())
+    .parse_next(input)
+}
+
+/// Name particles
+///
+/// Note that order is important, longer prefixes should come first so that they
+/// are matched first.
+pub fn name_particles<'s>(input: &mut &'s str) -> Result<&'s str> {
+    alt((
+        alt((
+            "abu",   // Arabic: e.g abu Bakr
+            "al",    // Arabic: e.g al Rashid
+            "bat",   // Hebrew: e.g bat Cohen
+            "ben",   // Hebrew/Arabic: e.g ben David
+            "bin",   // Arabic/Malay: e.g bin Abdullah
+            "bte",   // Malay: e.g bte Ismail
+            "bti",   // Malay: e.g bti Rahman
+            "dal",   // Italian: e.g dal Pozzo
+            "das",   // Portuguese: e.g das Neves
+            "da",    // Italian/Portuguese: e.g da Silva
+            "degli", // Italian: e.g degli Esposti
+            "della", // Italian: e.g della Rosa
+            "delle", // Italian: e.g delle Grazie
+            "dello", // Italian: e.g dello Russo
+            "del",   // Italian/Spanish: e.g del Campo
+            "den",   // Dutch: e.g den Broeck
+            "der",   // German/Dutch: e.g van der Flier
+            "des",   // French: e.g des Jardins
+            "de",    // Spanish/French/Italian: e.g de Blasio
+            "di",    // Italian: e.g di Marco
+        )),
+        alt((
+            "dos", // Portuguese: e.g dos Santos
+            "do",  // Portuguese: e.g do Santos
+            "du",  // French: e.g du Maine
+            "el",  // Spanish: e.g el Khoury
+            "ibn", // Arabic: e.g ibn Sina
+            "la",  // Spanish/Italian: e.g la Torre
+            "le",  // French: e.g le Blanc
+            "li",  // Chinese: e.g li Wei
+            "lo",  // Italian: e.g lo Bianco
+            "mac", // Scottish/Irish e.g mac Donald
+            "mc",  // Scottish/Irish e.g mc Carthy
+            "te",  // Dutch: e.g te Velde
+            "van", // Dutch: e.g van Winkle
+            "von", // German: e.g von Neumann
+            "zu",  // German: e.g zu Guttenberg
+        )),
+    ))
     .parse_next(input)
 }
 
