@@ -1,0 +1,122 @@
+use schema::{
+    Admonition, Block, Emphasis, ForBlock, Heading, IfBlockClause, IncludeBlock, Inline, Node, Paragraph, Section, Strikeout, Strong, StyledBlock, StyledInline, Subscript, Superscript, Underline, VisitorMut, WalkControl
+};
+
+use crate::Collector;
+
+/// Replaces nodes and node properties with nodes collected by a [`Collector`]
+pub(super) struct Replacer {
+    collector: Collector,
+}
+
+impl VisitorMut for Replacer {
+    fn visit_node(&mut self, node: &mut Node) -> WalkControl {
+        if let Node::Article(article) = node {
+            // Replace blocks in the content of the article
+            self.replace_blocks(&mut article.content);
+
+            // If any references were collected then assign them to article
+            if let Some(references) = self.collector.references.take() {
+                article.references = Some(references);
+            }
+        }
+
+        WalkControl::Continue
+    }
+
+    fn visit_block(&mut self, block: &mut Block) -> WalkControl {
+        if let Block::Admonition(Admonition { content, .. })
+        | Block::IncludeBlock(IncludeBlock {
+            content: Some(content),
+            ..
+        })
+        | Block::Section(Section { content, .. })
+        | Block::StyledBlock(StyledBlock { content, .. }) = block
+        {
+            // Apply replacements to nested block content
+            self.replace_blocks(content);
+        } else if let Block::ForBlock(ForBlock {
+            content,
+            iterations,
+            ..
+        }) = block
+        {
+            // Apply replacements to nested block content
+            self.replace_blocks(content);
+            if let Some(iterations) = iterations {
+                self.replace_blocks(iterations);
+            }
+        } else if let Block::Paragraph(Paragraph { content, .. })
+        | Block::Heading(Heading { content, .. }) = block
+        {
+            // Apply replacements to nested inline content
+            self.replace_inlines(content);
+        }
+
+        WalkControl::Continue
+    }
+
+    fn visit_if_block_clause(&mut self, clause: &mut IfBlockClause) -> WalkControl {
+        // Apply replacements to nested block content
+        self.replace_blocks(&mut clause.content);
+
+        WalkControl::Continue
+    }
+
+    fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
+        if let Inline::Emphasis(Emphasis { content, .. })
+        | Inline::Strikeout(Strikeout { content, .. })
+        | Inline::Strong(Strong { content, .. })
+        | Inline::StyledInline(StyledInline { content, .. })
+        | Inline::Subscript(Subscript { content, .. })
+        | Inline::Superscript(Superscript { content, .. })
+        | Inline::Underline(Underline { content, .. }) = inline
+        {
+            // Apply replacements to nested inline content
+            self.replace_inlines(content);
+        }
+
+        WalkControl::Continue
+    }
+}
+
+impl Replacer {
+    /// Create a [`Replacer`] from a [`Collector`]
+    pub fn new(collector: Collector) -> Self {
+        Self { collector }
+    }
+
+    /// Replace blocks within a vector of blocks
+    fn replace_blocks(&mut self, blocks: &mut Vec<Block>) {
+        let mut new_blocks = Vec::with_capacity(blocks.len());
+
+        for block in blocks.drain(..) {
+            if let Some(node_id) = block.node_id() {
+                if let Some(replacements) = self.collector.block_replacements.remove(&node_id) {
+                    new_blocks.extend(replacements);
+                    continue;
+                }
+            }
+            new_blocks.push(block);
+        }
+
+        *blocks = new_blocks;
+    }
+
+    /// Replace inlines within a vector of inlines
+    fn replace_inlines(&mut self, inlines: &mut Vec<Inline>) {
+        let mut new_inlines = Vec::with_capacity(inlines.len());
+
+        for inline in inlines.drain(..) {
+            if let Some(node_id) = inline.node_id() {
+                if let Some(replacements) = self.collector.inline_replacements.remove(&node_id) {
+                    new_inlines.extend(replacements);
+                    continue;
+                }
+            }
+            new_inlines.push(inline);
+        }
+
+        *inlines = new_inlines;
+    }
+}
