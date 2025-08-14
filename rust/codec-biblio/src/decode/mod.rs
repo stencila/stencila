@@ -12,6 +12,7 @@ mod acs;
 mod apa;
 mod apj;
 mod chicago;
+mod citations;
 mod fallback;
 mod ieee;
 mod lncs;

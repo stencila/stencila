@@ -334,6 +334,11 @@ pub fn name(input: &mut &str) -> Result<String> {
     .parse_next(input)
 }
 
+/// Parse one or mode whitespace separated names
+pub fn names(input: &mut &str) -> Result<Vec<String>> {
+    separated(1.., name, multispace1).parse_next(input)
+}
+
 /// Parse a single uppercase letter for an initial
 fn initial_letter<'s>(input: &mut &'s str) -> Result<&'s str> {
     take(1usize)
