@@ -77,6 +77,7 @@ expression: node
   "references": [
     {
       "type": "Reference",
+      "id": "birla-2019",
       "workType": "WebPage",
       "authors": [
         {
@@ -105,6 +106,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "id": "pedregosa-et-al-2011",
       "workType": "Article",
       "authors": [
         {
@@ -200,6 +202,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "id": "mckinney-2010",
       "workType": "Chapter",
       "authors": [
         {
@@ -240,6 +243,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "id": "hunter-2007",
       "workType": "Article",
       "authors": [
         {
@@ -283,6 +287,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "id": "waskom-2021",
       "workType": "Article",
       "authors": [
         {
@@ -324,6 +329,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "id": "james-et-al-2013",
       "workType": "Book",
       "authors": [
         {
@@ -382,6 +388,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "id": "tibshirani-1996",
       "workType": "Article",
       "authors": [
         {
@@ -424,6 +431,7 @@ expression: node
     },
     {
       "type": "Reference",
+      "id": "raschka-and-mirjalili-2017",
       "workType": "Book",
       "authors": [
         {
