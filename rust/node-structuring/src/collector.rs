@@ -131,28 +131,32 @@ impl Collector {
         let mut last_end = 0;
         let text_value = &text.value;
 
-        // Collect all matches from both regexes with their positions
-        let mut matches: Vec<(usize, usize, String)> = Vec::new();
+        // Collect all valid citation matches with their positions
+        let mut matches: Vec<(usize, usize, Vec<String>)> = Vec::new();
 
         // Find bracket citations [1,2,3]
         for capture in CITE_BRACKETS_REGEX.captures_iter(text_value) {
             if let Some(m) = capture.get(0) {
-                matches.push((m.start(), m.end(), capture[1].to_string()));
+                if let Some(sequence) = maybe_citation_sequence(&capture[1]) {
+                    matches.push((m.start(), m.end(), sequence));
+                }
             }
         }
 
         // Find parentheses citations (1,2,3)
         for capture in CITE_PARENS_REGEX.captures_iter(text_value) {
             if let Some(m) = capture.get(0) {
-                matches.push((m.start(), m.end(), capture[1].to_string()));
+                if let Some(sequence) = maybe_citation_sequence(&capture[1]) {
+                    matches.push((m.start(), m.end(), sequence));
+                }
             }
         }
 
         // Sort matches by position to process them in order
         matches.sort_by_key(|&(start, _, _)| start);
 
-        // Process each match
-        for (start, end, citation_text) in matches {
+        // Process each valid match
+        for (start, end, sequence) in matches {
             // Skip overlapping matches
             if start < last_end {
                 continue;
@@ -166,13 +170,8 @@ impl Collector {
                 }
             }
 
-            // Check if this is a valid citation sequence
-            if let Some(sequence) = maybe_citation_sequence(&citation_text) {
-                replacements.push(citation_sequence_to_inline(sequence));
-            } else {
-                // If not a valid citation, keep the original text
-                replacements.push(t(&text_value[start..end]));
-            }
+            // Add the citation
+            replacements.push(citation_sequence_to_inline(sequence));
 
             last_end = end;
         }

@@ -218,3 +218,66 @@ fn test_math_inline_to_citation() {
     structuring(&mut node);
     assert_eq!(node, p([mi("[1a,2]", Some("tex"))]));
 }
+
+#[test]
+fn test_text_to_citations() {
+    // Simple bracketed citation
+    let mut node = p([t("See reference [1] for details.")]);
+    structuring(&mut node);
+    assert_eq!(node, p([t("See reference "), ct("ref-1"), t(" for details.")]));
+
+    // Simple parenthetical citation
+    let mut node = p([t("This is documented (5) in the literature.")]);
+    structuring(&mut node);
+    assert_eq!(node, p([t("This is documented "), ct("ref-5"), t(" in the literature.")]));
+
+    // Range expansion in brackets
+    let mut node = p([t("Studies [1-3] show consistent results.")]);
+    structuring(&mut node);
+    assert_eq!(node, p([t("Studies "), ctg(["ref-1", "ref-2", "ref-3"]), t(" show consistent results.")]));
+
+    // Comma-separated citations in brackets
+    let mut node = p([t("Multiple sources [1,3,5] confirm this.")]);
+    structuring(&mut node);
+    assert_eq!(node, p([t("Multiple sources "), ctg(["ref-1", "ref-3", "ref-5"]), t(" confirm this.")]));
+
+    // Mixed range and individual citations
+    let mut node = p([t("References [2-4,8] are relevant.")]);
+    structuring(&mut node);
+    assert_eq!(node, p([t("References "), ctg(["ref-2", "ref-3", "ref-4", "ref-8"]), t(" are relevant.")]));
+
+    // Citations with whitespace in parentheses
+    let mut node = p([t("See ( 10 , 12 ) for more information.")]);
+    structuring(&mut node);
+    assert_eq!(node, p([t("See "), ctg(["ref-10", "ref-12"]), t(" for more information.")]));
+
+    // Multiple citations in same text
+    let mut node = p([t("First [1] and second [3] citations.")]);
+    structuring(&mut node);
+    assert_eq!(node, p([t("First "), ct("ref-1"), t(" and second "), ct("ref-3"), t(" citations.")]));
+
+    // Complex range with multiple parts
+    let mut node = p([t("Studies [15-17,20,25-27] are comprehensive.")]);
+    structuring(&mut node);
+    assert_eq!(
+        node,
+        p([t("Studies "), ctg([
+            "ref-15", "ref-16", "ref-17", "ref-20", "ref-25", "ref-26", "ref-27"
+        ]), t(" are comprehensive.")])
+    );
+
+    // Invalid citation (contains zero) should not be converted
+    let mut node = p([t("Invalid [0,1] citation.")]);
+    structuring(&mut node);
+    assert_eq!(node, p([t("Invalid [0,1] citation.")]));
+
+    // Invalid citation (contains letters) should not be converted
+    let mut node = p([t("Invalid [1a,2] citation.")]);
+    structuring(&mut node);
+    assert_eq!(node, p([t("Invalid [1a,2] citation.")]));
+
+    // Text without citations should remain unchanged
+    let mut node = p([t("Just normal text without any citations.")]);
+    structuring(&mut node);
+    assert_eq!(node, p([t("Just normal text without any citations.")]));
+}
