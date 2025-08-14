@@ -1,12 +1,13 @@
 use winnow::{
     Parser, Result,
     ascii::{multispace0, multispace1},
-    combinator::{alt, delimited, separated, terminated},
+    combinator::{alt, delimited, opt, preceded, separated, terminated},
+    token::take_while,
 };
 
 use codec::{
     common::itertools::Itertools,
-    schema::{Author, Citation, CitationGroup, CitationMode, Inline, Person},
+    schema::{Author, Citation, CitationGroup, CitationMode, CitationOptions, Inline, Person},
 };
 
 use crate::decode::{
@@ -69,14 +70,33 @@ fn author_year_narrative(input: &mut &str) -> Result<Citation> {
 ///
 /// Parses strings like "Smith 1990", "Smith & Jones, 1990a" as found within
 /// parenthetical citations such as "(Smith 1990)".
+///
+/// Allows for optional prefix suffix.
 fn author_year_item(input: &mut &str) -> Result<Citation> {
     (
         authors,
         alt(((multispace0, ",", multispace0).take(), multispace1)),
         year_az,
+        opt(preceded(
+            (multispace0, ",", multispace0),
+            (
+                alt(("pp", "p")),
+                opt("."),
+                multispace0,
+                take_while(1.., |c: char| {
+                    c.is_alphanumeric() || c == '-' || c == ' ' || c == '.'
+                }),
+            )
+                .take()
+                .map(String::from),
+        )),
     )
-        .map(|(authors, _, date_suffix)| Citation {
-            target: generate_id(&authors, &Some(date_suffix)),
+        .map(|(authors, _, date_with_suffix, citation_suffix)| Citation {
+            target: generate_id(&authors, &Some(date_with_suffix)),
+            options: Box::new(CitationOptions {
+                citation_suffix,
+                ..Default::default()
+            }),
             ..Default::default()
         })
         .parse_next(input)
@@ -185,6 +205,37 @@ mod tests {
             _ => unreachable!("expected citation group"),
         }
 
+        // Citation with page suffix
+        let inline = author_year(&mut "(Smith 1990, p. 15)")?;
+        match inline {
+            Inline::Citation(Citation {
+                target, options, ..
+            }) => {
+                assert_eq!(target, "smith-1990");
+                assert_eq!(options.citation_suffix, Some("p. 15".to_string()));
+            }
+            _ => unreachable!("expected single citation"),
+        }
+
+        // Citation group with page suffixes
+        let inline = author_year(&mut "(Smith 1990, pp. 1-5; Jones 2020, p. 10)")?;
+        match inline {
+            Inline::CitationGroup(group) => {
+                assert_eq!(group.items.len(), 2);
+                assert_eq!(group.items[0].target, "smith-1990");
+                assert_eq!(
+                    group.items[0].options.citation_suffix,
+                    Some("pp. 1-5".to_string())
+                );
+                assert_eq!(group.items[1].target, "jones-2020");
+                assert_eq!(
+                    group.items[1].options.citation_suffix,
+                    Some("p. 10".to_string())
+                );
+            }
+            _ => unreachable!("expected citation group"),
+        }
+
         Ok(())
     }
 
@@ -258,6 +309,42 @@ mod tests {
         // Complex multi-part names
         let citation = author_year_item(&mut "Von Der Leyen & Garcia-Martinez 2021")?;
         assert_eq!(citation.target, "von-der-leyen-and-garcia-martinez-2021");
+
+        // Citation suffixes - page numbers
+        let citation = author_year_item(&mut "Smith 1990, p. 15")?;
+        assert_eq!(citation.target, "smith-1990");
+        assert_eq!(citation.options.citation_suffix, Some("p. 15".to_string()));
+
+        let citation = author_year_item(&mut "Jones 2020, pp. 22-24")?;
+        assert_eq!(citation.target, "jones-2020");
+        assert_eq!(
+            citation.options.citation_suffix,
+            Some("pp. 22-24".to_string())
+        );
+
+        let citation = author_year_item(&mut "Brown 2021, p15")?;
+        assert_eq!(citation.target, "brown-2021");
+        assert_eq!(citation.options.citation_suffix, Some("p15".to_string()));
+
+        let citation = author_year_item(&mut "Wilson 2019, pp123-456")?;
+        assert_eq!(citation.target, "wilson-2019");
+        assert_eq!(
+            citation.options.citation_suffix,
+            Some("pp123-456".to_string())
+        );
+
+        // Citation with year suffix and page suffix
+        let citation = author_year_item(&mut "Taylor 2023a, p. 10")?;
+        assert_eq!(citation.target, "taylor-2023a");
+        assert_eq!(citation.options.citation_suffix, Some("p. 10".to_string()));
+
+        // Multi-author with page suffix
+        let citation = author_year_item(&mut "Smith & Jones 1995, pp. 1-5")?;
+        assert_eq!(citation.target, "smith-and-jones-1995");
+        assert_eq!(
+            citation.options.citation_suffix,
+            Some("pp. 1-5".to_string())
+        );
 
         // Non-matches - invalid years
         assert!(author_year_item(&mut "Smith 1199").is_err()); // Year too early
