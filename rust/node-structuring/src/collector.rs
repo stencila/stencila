@@ -353,7 +353,7 @@ fn maybe_citation_sequence(string: &str) -> Option<Vec<String>> {
 ///
 /// Returns a tuple of (figure_number, cleaned_paragraph) if the paragraph
 /// starts with "Figure X" or "Fig X" where X is a number. The cleaned paragraph
-/// has the figure prefix removed from the first text node.
+/// has the figure prefix removed from the text content, handling nested inline elements.
 fn maybe_figure_caption(paragraph: &Paragraph) -> Option<(String, Paragraph)> {
     let text = to_text(paragraph);
 
@@ -361,24 +361,146 @@ fn maybe_figure_caption(paragraph: &Paragraph) -> Option<(String, Paragraph)> {
         let figure_number = captures[1].to_string();
         let matched_text = captures.get(0)?.as_str();
 
-        // Clone the paragraph and remove the matched prefix from the first text node
+        // Clone the paragraph and remove the matched prefix
         let mut cleaned_paragraph = paragraph.clone();
-        if let Some(Inline::Text(text_node)) = cleaned_paragraph.content.first_mut() {
-            let original_value = &text_node.value;
-            if let Some(stripped) = original_value.strip_prefix(matched_text) {
-                let remaining_text = stripped.trim_start();
-                if remaining_text.is_empty() {
-                    // If the text node is now empty, remove it entirely
-                    cleaned_paragraph.content.remove(0);
-                } else {
-                    text_node.value = remaining_text.into();
-                }
-            }
-        }
+        remove_prefix_from_inlines(&mut cleaned_paragraph.content, matched_text);
 
         Some((figure_number, cleaned_paragraph))
     } else {
         None
+    }
+}
+
+/// Recursively remove a prefix from the beginning of a vector of inline elements
+///
+/// This function handles nested inline elements like Emphasis, Strong, Underline, etc. that might
+/// contain the text to be removed. It modifies the inlines vector in place.
+fn remove_prefix_from_inlines(inlines: &mut Vec<Inline>, prefix: &str) {
+    if prefix.is_empty() || inlines.is_empty() {
+        return;
+    }
+
+    // Clone the first element to avoid borrowing issues
+    let first_inline = inlines[0].clone();
+    match first_inline {
+        Inline::Text(text_node) => {
+            handle_text_prefix_removal(&text_node, inlines, prefix);
+        }
+        Inline::Emphasis(emphasis) => {
+            handle_nested_inline_prefix_removal(&emphasis.content, inlines, prefix);
+        }
+        Inline::Strong(strong) => {
+            handle_nested_inline_prefix_removal(&strong.content, inlines, prefix);
+        }
+        Inline::Underline(underline) => {
+            handle_nested_inline_prefix_removal(&underline.content, inlines, prefix);
+        }
+        Inline::Strikeout(strikeout) => {
+            handle_nested_inline_prefix_removal(&strikeout.content, inlines, prefix);
+        }
+        Inline::Subscript(subscript) => {
+            handle_nested_inline_prefix_removal(&subscript.content, inlines, prefix);
+        }
+        Inline::Superscript(superscript) => {
+            handle_nested_inline_prefix_removal(&superscript.content, inlines, prefix);
+        }
+        Inline::StyledInline(styled) => {
+            handle_nested_inline_prefix_removal(&styled.content, inlines, prefix);
+        }
+        _ => {
+            // For other inline types that don't contain nested content,
+            // check if they match the prefix entirely
+            let inline_text = to_text(&vec![first_inline]);
+            if prefix.starts_with(&inline_text) {
+                let remaining_prefix = &prefix[inline_text.len()..];
+                inlines.remove(0);
+                remove_prefix_from_inlines(inlines, remaining_prefix);
+            }
+        }
+    }
+}
+
+/// Handle prefix removal for text nodes
+fn handle_text_prefix_removal(text_node: &Text, inlines: &mut Vec<Inline>, prefix: &str) {
+    if let Some(stripped) = text_node.value.strip_prefix(prefix) {
+        let remaining_text = stripped.trim_start();
+        if remaining_text.is_empty() {
+            // Remove the entire text node if it becomes empty
+            inlines.remove(0);
+        } else {
+            // Update the text node with the remaining text
+            if let Inline::Text(ref mut text) = inlines[0] {
+                text.value = remaining_text.into();
+            }
+        }
+    } else if prefix.starts_with(&*text_node.value) {
+        // The prefix spans multiple inline elements
+        let remaining_prefix = &prefix[text_node.value.len()..];
+        inlines.remove(0); // Remove this text node entirely
+        remove_prefix_from_inlines(inlines, remaining_prefix);
+    }
+}
+
+/// Handle prefix removal for inline elements with nested content
+fn handle_nested_inline_prefix_removal(
+    nested_content: &[Inline],
+    inlines: &mut Vec<Inline>,
+    prefix: &str,
+) {
+    let nested_text = to_text(&nested_content.to_vec());
+    if prefix.starts_with(&nested_text) {
+        // The prefix spans beyond this nested element
+        let remaining_prefix = &prefix[nested_text.len()..];
+        inlines.remove(0); // Remove this nested element entirely
+        remove_prefix_from_inlines(inlines, remaining_prefix);
+    } else if nested_text.starts_with(prefix) {
+        // The prefix is entirely within this nested element
+        // We need to get a mutable reference to the nested content
+        match &mut inlines[0] {
+            Inline::Emphasis(emphasis) => {
+                remove_prefix_from_inlines(&mut emphasis.content, prefix);
+                if emphasis.content.is_empty() {
+                    inlines.remove(0);
+                }
+            }
+            Inline::Strong(strong) => {
+                remove_prefix_from_inlines(&mut strong.content, prefix);
+                if strong.content.is_empty() {
+                    inlines.remove(0);
+                }
+            }
+            Inline::Underline(underline) => {
+                remove_prefix_from_inlines(&mut underline.content, prefix);
+                if underline.content.is_empty() {
+                    inlines.remove(0);
+                }
+            }
+            Inline::Strikeout(strikeout) => {
+                remove_prefix_from_inlines(&mut strikeout.content, prefix);
+                if strikeout.content.is_empty() {
+                    inlines.remove(0);
+                }
+            }
+            Inline::Subscript(subscript) => {
+                remove_prefix_from_inlines(&mut subscript.content, prefix);
+                if subscript.content.is_empty() {
+                    inlines.remove(0);
+                }
+            }
+            Inline::Superscript(superscript) => {
+                remove_prefix_from_inlines(&mut superscript.content, prefix);
+                if superscript.content.is_empty() {
+                    inlines.remove(0);
+                }
+            }
+            Inline::StyledInline(styled) => {
+                remove_prefix_from_inlines(&mut styled.content, prefix);
+                if styled.content.is_empty() {
+                    inlines.remove(0);
+                }
+            }
+            _ => {}
+        }
     }
 }
 

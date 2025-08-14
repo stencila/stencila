@@ -2,8 +2,9 @@ use codec_text_trait::to_text;
 use common::eyre::{Result, bail};
 use common_dev::pretty_assertions::assert_eq;
 use schema::{
-    AdmonitionType, Article, Block, ImageObject, Node,
-    shortcuts::{ct, ctg, h1, li, mi, ol, p, sec, stb, t},
+    AdmonitionType, Article, Block, ImageObject, Inline, Node, Strikeout, Strong, Superscript,
+    Underline,
+    shortcuts::{ct, ctg, em, h1, li, mi, ol, p, sec, stb, t},
 };
 
 use crate::structuring;
@@ -481,7 +482,7 @@ fn image_and_caption_multiple_figures() -> Result<()> {
         p([t("Figure 1. First caption.")]),
         p([t("Some intervening text.")]),
         p([t("Figure 2: Second caption.")]),
-        imb("test2.jpg".into()),
+        imb("test2.jpg"),
     ]));
     structuring(&mut article);
     let Node::Article(Article { content, .. }) = article else {
@@ -525,7 +526,7 @@ fn images_and_not_captions() -> Result<()> {
         p([t("This is not a figure caption.")]),
         p([t("Figure 1. This caption has no image following.")]),
         p([t("More text.")]),
-        imb("test.jpg".into()),
+        imb("test.jpg"),
     ]));
     structuring(&mut article);
     let Node::Article(Article { content, .. }) = article else {
@@ -727,7 +728,7 @@ fn nested_figures_in_various_blocks() -> Result<()> {
         sec([
             h1([t("Subsection")]),
             p([t("Figure 3. Nested section caption.")]),
-            imb("subsection.jpg".into()),
+            imb("subsection.jpg"),
         ]),
     ])]));
 
@@ -778,7 +779,7 @@ fn mixed_nested_and_top_level_figures() -> Result<()> {
         sec([
             h1([t("Section")]),
             p([t("Figure 2. Nested caption.")]),
-            imb("mixed2.jpg".into()),
+            imb("mixed2.jpg"),
         ]),
     ]));
 
@@ -807,6 +808,313 @@ fn mixed_nested_and_top_level_figures() -> Result<()> {
         bail!("Section should contain figure")
     };
     assert_eq!(figure2.label, Some("2".into()));
+
+    Ok(())
+}
+
+#[test]
+fn figure_caption_with_nested_inline_elements() -> Result<()> {
+    // Test figure caption starting with emphasis
+    let mut article = Node::Article(Article::new(vec![
+        imb("emphasis.jpg"),
+        p([em([t("Figure 1.")]), t(" Caption with emphasis at start.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+
+    assert_eq!(content.len(), 1, "Should have 1 block after structuring");
+    let Block::Figure(figure) = &content[0] else {
+        bail!("Should have figure block")
+    };
+
+    assert_eq!(
+        figure.label,
+        Some("1".into()),
+        "Figure should have label '1'"
+    );
+    let caption = figure.caption.as_ref().expect("Figure should have caption");
+    let caption_text = to_text(&caption[0]);
+    assert_eq!(
+        caption_text.trim(),
+        "Caption with emphasis at start.",
+        "Caption should be properly cleaned"
+    );
+
+    // Test figure caption starting with strong
+    let mut article2 = Node::Article(Article::new(vec![
+        imb("strong.jpg"),
+        p([
+            Inline::Strong(Strong::new(vec![t("Fig 2:")])),
+            t(" Caption with strong at start."),
+        ]),
+    ]));
+    structuring(&mut article2);
+    let Node::Article(Article { content, .. }) = article2 else {
+        bail!("Should be an article")
+    };
+
+    assert_eq!(content.len(), 1, "Should have 1 block after structuring");
+    let Block::Figure(figure2) = &content[0] else {
+        bail!("Should have figure block")
+    };
+
+    assert_eq!(
+        figure2.label,
+        Some("2".into()),
+        "Figure should have label '2'"
+    );
+    let caption2 = figure2
+        .caption
+        .as_ref()
+        .expect("Figure should have caption");
+    let caption_text2 = to_text(&caption2[0]);
+    assert_eq!(
+        caption_text2.trim(),
+        "Caption with strong at start.",
+        "Caption should be properly cleaned"
+    );
+
+    // Test figure caption where prefix spans multiple inline elements
+    let mut article3 = Node::Article(Article::new(vec![
+        imb("multi.jpg"),
+        p([
+            em([t("Figure")]),
+            t(" 3. "),
+            Inline::Strong(Strong::new(vec![t("Caption")])),
+            t(" with multiple elements."),
+        ]),
+    ]));
+    structuring(&mut article3);
+    let Node::Article(Article { content, .. }) = article3 else {
+        bail!("Should be an article")
+    };
+
+    assert_eq!(content.len(), 1, "Should have 1 block after structuring");
+    let Block::Figure(figure3) = &content[0] else {
+        bail!("Should have figure block")
+    };
+
+    assert_eq!(
+        figure3.label,
+        Some("3".into()),
+        "Figure should have label '3'"
+    );
+    let caption3 = figure3
+        .caption
+        .as_ref()
+        .expect("Figure should have caption");
+    let caption_text3 = to_text(&caption3[0]);
+    assert_eq!(
+        caption_text3.trim(),
+        "Caption with multiple elements.",
+        "Caption should be properly cleaned after removing multi-element prefix"
+    );
+
+    // Test figure caption where prefix is entirely within emphasis
+    let mut article4 = Node::Article(Article::new(vec![
+        imb("within.jpg"),
+        p([
+            em([t("Figure 4. Some text within emphasis")]),
+            t(" and more text outside."),
+        ]),
+    ]));
+    structuring(&mut article4);
+    let Node::Article(Article { content, .. }) = article4 else {
+        bail!("Should be an article")
+    };
+
+    assert_eq!(content.len(), 1, "Should have 1 block after structuring");
+    let Block::Figure(figure4) = &content[0] else {
+        bail!("Should have figure block")
+    };
+
+    assert_eq!(
+        figure4.label,
+        Some("4".into()),
+        "Figure should have label '4'"
+    );
+    let caption4 = figure4
+        .caption
+        .as_ref()
+        .expect("Figure should have caption");
+    let caption_text4 = to_text(&caption4[0]);
+    assert_eq!(
+        caption_text4.trim(),
+        "Some text within emphasis and more text outside.",
+        "Caption should preserve remaining emphasis content and following text"
+    );
+
+    // Test nested emphasis and strong
+    let mut article5 = Node::Article(Article::new(vec![
+        imb("nested.jpg"),
+        p([
+            em([Inline::Strong(Strong::new(vec![t("Fig")])), t(" 5.")]),
+            t(" Nested emphasis and strong at start."),
+        ]),
+    ]));
+    structuring(&mut article5);
+    let Node::Article(Article { content, .. }) = article5 else {
+        bail!("Should be an article")
+    };
+
+    assert_eq!(content.len(), 1, "Should have 1 block after structuring");
+    let Block::Figure(figure5) = &content[0] else {
+        bail!("Should have figure block")
+    };
+
+    assert_eq!(
+        figure5.label,
+        Some("5".into()),
+        "Figure should have label '5'"
+    );
+    let caption5 = figure5
+        .caption
+        .as_ref()
+        .expect("Figure should have caption");
+    let caption_text5 = to_text(&caption5[0]);
+    assert_eq!(
+        caption_text5.trim(),
+        "Nested emphasis and strong at start.",
+        "Caption should handle nested inline elements"
+    );
+
+    // Test edge case: entire first inline element gets removed
+    let mut article6 = Node::Article(Article::new(vec![
+        imb("entire.jpg"),
+        p([
+            em([t("Figure 6.")]),
+            t(" Rest of caption after complete removal."),
+        ]),
+    ]));
+    structuring(&mut article6);
+    let Node::Article(Article { content, .. }) = article6 else {
+        bail!("Should be an article")
+    };
+
+    assert_eq!(content.len(), 1, "Should have 1 block after structuring");
+    let Block::Figure(figure6) = &content[0] else {
+        bail!("Should have figure block")
+    };
+
+    assert_eq!(
+        figure6.label,
+        Some("6".into()),
+        "Figure should have label '6'"
+    );
+    let caption6 = figure6
+        .caption
+        .as_ref()
+        .expect("Figure should have caption");
+    let caption_text6 = to_text(&caption6[0]);
+    assert_eq!(
+        caption_text6.trim(),
+        "Rest of caption after complete removal.",
+        "Caption should handle complete removal of first inline element"
+    );
+
+    // Test figure caption starting with underline
+    let mut article7 = Node::Article(Article::new(vec![
+        imb("underline.jpg"),
+        p([
+            Inline::Underline(Underline::new(vec![t("Figure 7.")])),
+            t(" Caption with underline at start."),
+        ]),
+    ]));
+    structuring(&mut article7);
+    let Node::Article(Article { content, .. }) = article7 else {
+        bail!("Should be an article")
+    };
+
+    assert_eq!(content.len(), 1, "Should have 1 block after structuring");
+    let Block::Figure(figure7) = &content[0] else {
+        bail!("Should have figure block")
+    };
+
+    assert_eq!(
+        figure7.label,
+        Some("7".into()),
+        "Figure should have label '7'"
+    );
+    let caption7 = figure7
+        .caption
+        .as_ref()
+        .expect("Figure should have caption");
+    let caption_text7 = to_text(&caption7[0]);
+    assert_eq!(
+        caption_text7.trim(),
+        "Caption with underline at start.",
+        "Caption should handle underline prefix removal"
+    );
+
+    // Test figure caption starting with strikeout
+    let mut article8 = Node::Article(Article::new(vec![
+        imb("strikeout.jpg"),
+        p([
+            Inline::Strikeout(Strikeout::new(vec![t("Fig 8:")])),
+            t(" Caption with strikeout at start."),
+        ]),
+    ]));
+    structuring(&mut article8);
+    let Node::Article(Article { content, .. }) = article8 else {
+        bail!("Should be an article")
+    };
+
+    assert_eq!(content.len(), 1, "Should have 1 block after structuring");
+    let Block::Figure(figure8) = &content[0] else {
+        bail!("Should have figure block")
+    };
+
+    assert_eq!(
+        figure8.label,
+        Some("8".into()),
+        "Figure should have label '8'"
+    );
+    let caption8 = figure8
+        .caption
+        .as_ref()
+        .expect("Figure should have caption");
+    let caption_text8 = to_text(&caption8[0]);
+    assert_eq!(
+        caption_text8.trim(),
+        "Caption with strikeout at start.",
+        "Caption should handle strikeout prefix removal"
+    );
+
+    // Test complex nested elements: superscript containing figure prefix
+    let mut article9 = Node::Article(Article::new(vec![
+        imb("complex.jpg"),
+        p([
+            Inline::Superscript(Superscript::new(vec![t("Figure 9.")])),
+            t(" Complex nested caption."),
+        ]),
+    ]));
+    structuring(&mut article9);
+    let Node::Article(Article { content, .. }) = article9 else {
+        bail!("Should be an article")
+    };
+
+    assert_eq!(content.len(), 1, "Should have 1 block after structuring");
+    let Block::Figure(figure9) = &content[0] else {
+        bail!("Should have figure block")
+    };
+
+    assert_eq!(
+        figure9.label,
+        Some("9".into()),
+        "Figure should have label '9'"
+    );
+    let caption9 = figure9
+        .caption
+        .as_ref()
+        .expect("Figure should have caption");
+    let caption_text9 = to_text(&caption9[0]);
+    assert_eq!(
+        caption_text9.trim(),
+        "Complex nested caption.",
+        "Caption should handle superscript prefix removal"
+    );
 
     Ok(())
 }
