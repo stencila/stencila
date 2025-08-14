@@ -19,15 +19,18 @@ use codec::schema::{
     CreativeWorkType, Organization, PersonOrOrganization, Reference, shortcuts::t,
 };
 
-use crate::decode::parts::{
-    authors::{person_family_given, person_given_family},
-    date::year_az,
-    doi::doi_or_url,
-    pages::pages,
-    separator::separator,
-    title::{title_period_terminated, title_quoted},
-    url::url,
-    volume::{no_prefixed_issue, vol_prefixed_volume},
+use crate::decode::{
+    parts::{
+        authors::{person_family_given, person_given_family},
+        date::year_az,
+        doi::doi_or_url,
+        pages::pages,
+        separator::separator,
+        title::{title_period_terminated, title_quoted},
+        url::url,
+        volume::{no_prefixed_issue, vol_prefixed_volume},
+    },
+    reference::generate_id,
 };
 
 /// Parse a Stencila [`Reference`] from an MLA reference list item
@@ -77,20 +80,23 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         opt(preceded(separator, doi_or_url)),
     )
         .map(
-            |(authors, title, journal, volume, issue, year, pages, doi_or_url)| Reference {
-                work_type: Some(CreativeWorkType::Article),
-                authors: Some(authors),
-                title: Some(title),
-                is_part_of: Some(Box::new(Reference {
-                    title: Some(vec![t(journal.trim())]),
-                    volume_number: volume,
-                    issue_number: issue,
-                    ..Default::default()
-                })),
-                date: Some(year),
-                doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
-                url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
-                ..pages.unwrap_or_default()
+            |(authors, title, journal, volume, issue, (date, suffix), pages, doi_or_url)| {
+                Reference {
+                    work_type: Some(CreativeWorkType::Article),
+                    id: Some(generate_id(&authors, &Some((date.clone(), suffix)))),
+                    authors: Some(authors),
+                    title: Some(title),
+                    is_part_of: Some(Box::new(Reference {
+                        title: Some(vec![t(journal.trim())]),
+                        volume_number: volume,
+                        issue_number: issue,
+                        ..Default::default()
+                    })),
+                    date: Some(date),
+                    doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
+                    url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
+                    ..pages.unwrap_or_default()
+                }
             },
         )
         .parse_next(input)
@@ -116,23 +122,26 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // DOI or URL
         opt(preceded(separator, doi_or_url)),
     )
-        .map(|(authors, title, publisher, date, doi_or_url)| Reference {
-            work_type: Some(CreativeWorkType::Book),
-            authors: Some(authors),
-            title: Some(title),
-            publisher: publisher.map(|publisher| {
-                PersonOrOrganization::Organization(Organization {
-                    name: Some(publisher.trim().to_string()),
-                    ..Default::default()
-                })
-            }),
-            date: Some(date),
-            doi: doi_or_url
-                .as_ref()
-                .and_then(|doi_or_url| doi_or_url.doi.clone()),
-            url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
-            ..Default::default()
-        })
+        .map(
+            |(authors, title, publisher, (date, suffix), doi_or_url)| Reference {
+                work_type: Some(CreativeWorkType::Book),
+                id: Some(generate_id(&authors, &Some((date.clone(), suffix)))),
+                authors: Some(authors),
+                title: Some(title),
+                publisher: publisher.map(|publisher| {
+                    PersonOrOrganization::Organization(Organization {
+                        name: Some(publisher.trim().to_string()),
+                        ..Default::default()
+                    })
+                }),
+                date: Some(date),
+                doi: doi_or_url
+                    .as_ref()
+                    .and_then(|doi_or_url| doi_or_url.doi.clone()),
+                url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
+                ..Default::default()
+            },
+        )
         .parse_next(input)
 }
 
@@ -163,9 +172,19 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         opt(preceded(separator, doi_or_url)),
     )
         .map(
-            |(authors, chapter_title, book_title, editors, publisher, year, pages, doi_or_url)| {
+            |(
+                authors,
+                chapter_title,
+                book_title,
+                editors,
+                publisher,
+                (date, suffix),
+                pages,
+                doi_or_url,
+            )| {
                 Reference {
                     work_type: Some(CreativeWorkType::Chapter),
+                    id: Some(generate_id(&authors, &Some((date.clone(), suffix)))),
                     authors: Some(authors),
                     title: Some(chapter_title),
                     is_part_of: Some(Box::new(Reference {
@@ -177,8 +196,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
                         })),
                         ..Default::default()
                     })),
-                    date: Some(year),
-
+                    date: Some(date),
                     doi: doi_or_url
                         .as_ref()
                         .and_then(|doi_or_url| doi_or_url.doi.clone()),

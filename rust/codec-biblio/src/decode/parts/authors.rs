@@ -7,7 +7,10 @@ use winnow::{
     token::{take, take_while},
 };
 
-use codec::schema::{Author, Organization, Person};
+use codec::{
+    common::inflector::Inflector,
+    schema::{Author, Organization, Person},
+};
 
 use crate::decode::parts::chars::{is_hyphen, one_apostrophe, one_hyphen};
 
@@ -279,7 +282,7 @@ pub fn ellipses(input: &mut &str) -> Result<Author> {
 /// proper name capitalization while allowing for hyphenated compound names.
 ///
 /// Used in both family name and given name parsing contexts.
-fn name(input: &mut &str) -> Result<String> {
+pub fn name(input: &mut &str) -> Result<String> {
     alt((
         // Hyphenated name e.g. Smith-Jones
         (
@@ -434,6 +437,28 @@ fn is_likely_organization(first: &String, family_names: &[String]) -> bool {
             .iter()
             .any(|keyword| clean_word.eq_ignore_ascii_case(keyword))
     })
+}
+
+/// Extract a name from an [Author] for id generation
+pub fn extract_name(author: &Author) -> String {
+    match author {
+        Author::Person(Person {
+            family_names: Some(names),
+            ..
+        }) => names.join("-"),
+        Author::Person(Person {
+            given_names: Some(names),
+            ..
+        }) => names.join("-"),
+        Author::Organization(org) => org
+            .name
+            .as_ref()
+            .map(|name| name.split_whitespace().collect::<Vec<&str>>().join("-"))
+            .unwrap_or_else(|| "unknown".to_string()),
+        _ => "unknown".to_string(),
+    }
+    .to_lowercase()
+    .to_kebab_case()
 }
 
 #[cfg(test)]
@@ -1126,5 +1151,48 @@ mod tests {
         }
 
         Ok(())
+    }
+
+    #[test]
+    fn test_extract_name() {
+        // Person with family name
+        let person = Author::Person(Person {
+            family_names: Some(vec!["Smith".to_string()]),
+            given_names: Some(vec!["John".to_string()]),
+            ..Default::default()
+        });
+        assert_eq!(extract_name(&person), "smith");
+
+        // Person with multiple family names
+        let person = Author::Person(Person {
+            family_names: Some(vec![
+                "Van".to_string(),
+                "Der".to_string(),
+                "Berg".to_string(),
+            ]),
+            ..Default::default()
+        });
+        assert_eq!(extract_name(&person), "van-der-berg");
+
+        // Person with only given name
+        let person = Author::Person(Person {
+            given_names: Some(vec!["Mary".to_string()]),
+            ..Default::default()
+        });
+        assert_eq!(extract_name(&person), "mary");
+
+        // Person with multiple given names
+        let person = Author::Person(Person {
+            given_names: Some(vec!["Mary".to_string(), "Jane".to_string()]),
+            ..Default::default()
+        });
+        assert_eq!(extract_name(&person), "mary-jane");
+
+        // Organization - all words concatenated
+        let org = Author::Organization(Organization {
+            name: Some("World Health Organization".to_string()),
+            ..Default::default()
+        });
+        assert_eq!(extract_name(&org), "world-health-organization");
     }
 }

@@ -8,17 +8,20 @@ use winnow::{
 
 use codec::schema::{Author, CreativeWorkType, Organization, Person, PersonOptions, Reference};
 
-use crate::decode::parts::{
-    authors::{authors, organization, person_family_initials},
-    date::year_az,
-    doi::doi_or_url,
-    journal::journal_no_comma,
-    pages::pages,
-    publisher::publisher_place,
-    separator::separator,
-    terminator::terminator,
-    title::{title_period_terminated, title_semicolon_terminated},
-    volume::{issue, volume},
+use crate::decode::{
+    parts::{
+        authors::{authors, organization, person_family_initials},
+        date::year_az,
+        doi::doi_or_url,
+        journal::journal_no_comma,
+        pages::pages,
+        publisher::publisher_place,
+        separator::separator,
+        terminator::terminator,
+        title::{title_period_terminated, title_semicolon_terminated},
+        volume::{issue, volume},
+    },
+    reference::generate_id,
 };
 
 /// Parse a Stencila [`Reference`] from a ACS reference list item
@@ -59,9 +62,20 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         opt(terminator),
     )
         .map(
-            |(authors, title, journal, date, volume, issue, pages, doi_or_url, _terminator)| {
+            |(
+                authors,
+                title,
+                journal,
+                (date, suffix),
+                volume,
+                issue,
+                pages,
+                doi_or_url,
+                _terminator,
+            )| {
                 Reference {
                     work_type: Some(CreativeWorkType::Article),
+                    id: Some(generate_id(&authors, &Some((date.clone(), suffix)))),
                     authors: Some(authors),
                     title: Some(title),
                     is_part_of: Some(Box::new(Reference {
@@ -101,8 +115,9 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         opt(terminator),
     )
         .map(
-            |(authors, title, publisher, date, doi_or_url, _terminator)| Reference {
+            |(authors, title, publisher, (date, suffix), doi_or_url, _terminator)| Reference {
                 work_type: Some(CreativeWorkType::Book),
+                id: Some(generate_id(&authors, &Some((date.clone(), suffix)))),
                 authors: Some(authors),
                 date: Some(date),
                 title: Some(title),
@@ -151,16 +166,17 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
                 editors,
                 book_title,
                 publisher,
-                date,
+                date_suffix,
                 pages,
                 doi_or_url,
                 _terminator,
             )| {
                 Reference {
                     work_type: Some(CreativeWorkType::Chapter),
+                    id: Some(generate_id(&authors, &date_suffix)),
                     authors: Some(authors),
                     title: Some(chapter_title),
-                    date,
+                    date: date_suffix.map(|(date, ..)| date),
                     is_part_of: Some(Box::new(Reference {
                         title: book_title,
                         editors: Some(editors),

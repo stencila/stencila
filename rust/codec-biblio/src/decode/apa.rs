@@ -19,17 +19,20 @@ use codec::schema::{
     shortcuts::t,
 };
 
-use crate::decode::parts::{
-    authors::{authors, persons},
-    date::year_az,
-    doi::doi_or_url,
-    journal::journal_no_comma,
-    pages::pages,
-    preprints::preprint_server,
-    separator::separator,
-    terminator::terminator,
-    title::{title_period_terminated, title_quoted},
-    url::url,
+use crate::decode::{
+    parts::{
+        authors::{authors, persons},
+        date::year_az,
+        doi::doi_or_url,
+        journal::journal_no_comma,
+        pages::pages,
+        preprints::preprint_server,
+        separator::separator,
+        terminator::terminator,
+        title::{title_period_terminated, title_quoted},
+        url::url,
+    },
+    reference::generate_id,
 };
 
 /// Parse a Stencila [`Reference`] from an APA reference list item
@@ -98,9 +101,18 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         opt(terminator),
     )
         .map(
-            |(authors, date, title, journal, ((volume, issue), pages), doi_or_url, _terminator)| {
+            |(
+                authors,
+                (date, suffix),
+                title,
+                journal,
+                ((volume, issue), pages),
+                doi_or_url,
+                _terminator,
+            )| {
                 Reference {
                     work_type: Some(CreativeWorkType::Article),
+                    id: Some(generate_id(&authors, &Some((date.clone(), suffix)))),
                     authors: Some(authors),
                     date: Some(date),
                     title: Some(title),
@@ -143,8 +155,9 @@ pub fn book(input: &mut &str) -> Result<Reference> {
     )
         // Map the parsed components into a Reference struct
         .map(
-            |(authors, date, title, publisher, doi_or_url, _terminator)| Reference {
+            |(authors, (date, suffix), title, publisher, doi_or_url, _terminator)| Reference {
                 work_type: Some(CreativeWorkType::Book),
+                id: Some(generate_id(&authors, &Some((date.clone(), suffix)))),
                 authors: Some(authors),
                 date: Some(date),
                 title: Some(title),
@@ -217,7 +230,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         .map(
             |(
                 authors,
-                date,
+                (date, suffix),
                 chapter_title,
                 _in,
                 editors,
@@ -229,6 +242,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
             )| {
                 Reference {
                     work_type: Some(CreativeWorkType::Chapter),
+                    id: Some(generate_id(&authors, &Some((date.clone(), suffix)))),
                     authors: Some(authors),
                     date: Some(date),
                     title: Some(chapter_title),
@@ -291,8 +305,12 @@ pub fn web(input: &mut &str) -> Result<Reference> {
     )
         // Map the parsed components into a Reference struct
         .map(
-            |(authors, date, title, website, url, _terminator)| Reference {
+            |(authors, (date, suffix), title, website, url, _terminator)| Reference {
                 work_type: Some(CreativeWorkType::WebPage),
+                id: Some(generate_id(
+                    &authors.clone().unwrap_or_default(),
+                    &Some((date.clone(), suffix)),
+                )),
                 authors,
                 date: Some(date),
                 title: Some(title),
@@ -312,7 +330,7 @@ pub fn web(input: &mut &str) -> Result<Reference> {
 /// Parse year in parentheses format "(YYYY)"
 ///
 /// Allows optional whitespace within parentheses
-fn apa_year(input: &mut &str) -> Result<Date> {
+fn apa_year(input: &mut &str) -> Result<(Date, Option<String>)> {
     delimited(("(", multispace0), year_az, (multispace0, ")")).parse_next(input)
 }
 

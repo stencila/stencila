@@ -8,8 +8,6 @@ use codec::{
     schema::Reference,
 };
 
-use crate::{conversion::entry_to_reference, decode::references::reference};
-
 mod acs;
 mod apa;
 mod apj;
@@ -19,8 +17,11 @@ mod ieee;
 mod lncs;
 mod mla;
 mod parts;
+mod reference;
 mod references;
 mod vancouver;
+
+use crate::{conversion::entry_to_reference, decode::references::reference};
 
 /// Decode Hayagriva YAML to a set of Stencila [`Reference`] nodes
 pub fn yaml(yaml: &str) -> Result<Vec<Reference>> {

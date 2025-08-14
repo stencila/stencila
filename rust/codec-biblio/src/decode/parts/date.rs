@@ -26,13 +26,13 @@ pub fn year(input: &mut &str) -> Result<Date> {
     .parse_next(input)
 }
 
-/// Parse a 4 digit year with optionally a single suffix a-z
-pub fn year_az(input: &mut &str) -> Result<Date> {
-    terminated(
+/// Parse a 4 digit year with an optional single suffix a-z (e.g 2010a)
+pub fn year_az(input: &mut &str) -> Result<(Date, Option<String>)> {
+    (
         year,
-        opt(take_while(1..=1, |c: char| c.is_ascii_lowercase())),
+        opt(take_while(1..=1, |c: char| c.is_ascii_lowercase()).map(String::from)),
     )
-    .parse_next(input)
+        .parse_next(input)
 }
 
 #[cfg(test)]
@@ -53,6 +53,23 @@ mod tests {
         assert!(year(&mut "1199").is_err());
         assert!(year(&mut "2051").is_err());
         assert!(year(&mut "12345").is_err());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_year_az() -> Result<()> {
+        let (date, suffix) = year_az(&mut "2023")?;
+        assert_eq!(date.year(), Some(2023));
+        assert_eq!(suffix, None);
+
+        let (date, suffix) = year_az(&mut "2023a")?;
+        assert_eq!(date.year(), Some(2023));
+        assert_eq!(suffix, Some("a".to_string()));
+
+        let (date, suffix) = year_az(&mut "2023z")?;
+        assert_eq!(date.year(), Some(2023));
+        assert_eq!(suffix, Some("z".to_string()));
 
         Ok(())
     }
