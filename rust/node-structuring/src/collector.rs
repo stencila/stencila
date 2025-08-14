@@ -4,8 +4,8 @@ use codec_text_trait::to_text;
 use common::{once_cell::sync::Lazy, regex::Regex};
 use schema::{
     Admonition, Article, Block, Citation, CitationGroup, Figure, ForBlock, Heading, IncludeBlock,
-    Inline, List, MathInline, Node, NodeId, Paragraph, Reference, Section, StyledBlock, Text,
-    VisitorMut, WalkControl, shortcuts::t,
+    Inline, List, ListOrder, MathInline, Node, NodeId, Paragraph, Reference, Section, StyledBlock,
+    Text, VisitorMut, WalkControl, shortcuts::t,
 };
 
 /// Walks over the node collecting replacements and references
@@ -197,17 +197,20 @@ impl Collector {
     /// [`Reference`]s to assign to the root node.
     fn visit_list(&mut self, list: &List) {
         if self.in_references {
+            let is_numeric = matches!(list.order, ListOrder::Ascending);
+
             let mut references = Vec::new();
             for (index, item) in list.items.iter().enumerate() {
                 let text = to_text(item);
-                if let Some(reference) = codec_biblio::decode::text(&text)
+                if let Some(mut reference) = codec_biblio::decode::text(&text)
                     .ok()
                     .and_then(|mut refs| refs.pop())
                 {
-                    references.push(Reference {
-                        id: Some(format!("ref-{}", index + 1)),
-                        ..reference
-                    });
+                    // If the list is numeric then set the id to the reference
+                    if is_numeric {
+                        reference.id = Some(format!("ref-{}", index + 1));
+                    }
+                    references.push(reference);
                 };
             }
 
