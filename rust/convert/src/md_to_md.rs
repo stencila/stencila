@@ -185,24 +185,28 @@ fn remove_header_formatting(md: &str) -> String {
     result.join("\n")
 }
 
-/// Ensure blank lines around heading and block level images
+/// Ensure blank lines around headings, block level images, and table/figure captions
 ///
 /// After running `remove_line_numbers` heading can end up without blank lines
 /// before or after.
 ///
 /// OCR can generate a Markdown image on its own line, but not separated from
-/// the previous, or next, paragraph. This ensures such images are isolated to
+/// the previous, or next, paragraph. This ensures such images are isolated so
 /// that they are treated as figure content.
+///
+/// Similarly, detects lines that look like table or figure captions (starting with "Table X"
+/// or "Figure X") and ensures there is a blank line before and after them. This helps with
+/// proper caption recognition during document structuring.
 fn ensure_isolated_blocks(md: &str) -> String {
     static LINE_REGEX: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"(^\!\[[^\]]*\]\([^\)]*\)\s*$)|(^#{1,6})").expect("invalid regex")
+        Regex::new(r"(^\!\[[^\]]*\]\([^\)]*\)\s*$)|(^#{1,6})|(^(?i)(?:Table|Figure|Fig\.?)\s*\d+[.:\-\s]*)").expect("invalid regex")
     });
 
     let lines: Vec<&str> = md.lines().collect();
     let mut result = Vec::new();
 
     for (index, line) in lines.iter().enumerate() {
-        // Check if current line is a heading or image
+        // Check if current line is a heading, image, or table/figure caption
         if LINE_REGEX.is_match(line) {
             // Add blank line before if previous line exists and is not blank
             if index > 0 {
@@ -671,6 +675,44 @@ mod tests {
         ###### H6
         
         More text
+        ");
+
+        // Table caption isolation
+        let input = "Before text\nTable 1. This is a table caption\nAfter text";
+        assert_snapshot!(ensure_isolated_blocks(input), @r"
+        Before text
+
+        Table 1. This is a table caption
+
+        After text
+        ");
+
+        // Figure caption isolation
+        let input = "Before text\nFigure 2: This is a figure caption\nAfter text";
+        assert_snapshot!(ensure_isolated_blocks(input), @r"
+        Before text
+
+        Figure 2: This is a figure caption
+
+        After text
+        ");
+
+        // Mixed content: headings, images, and captions
+        let input = "Text\n# Heading\n![image.png]()\nTable 1. Data overview\n#### Sub Heading\nFigure 1: Visual\nFinal text";
+        assert_snapshot!(ensure_isolated_blocks(input), @r"
+        Text
+
+        # Heading
+
+        ![image.png]()
+
+        Table 1. Data overview
+
+        #### Sub Heading
+
+        Figure 1: Visual
+
+        Final text
         ");
     }
 
