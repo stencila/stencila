@@ -45,24 +45,24 @@ impl VisitorMut for Collector {
     }
 }
 
-// These citation regexes all capture `[\d+\,\-\s]+` (digits, commas, dashes, spaces) but note that
+// These citation regexes all capture `[\d+\,\-–—\s]+` (digits, commas, hyphens, en/em dashes, spaces) but note that
 // `maybe_citation_sequence` also checks for correct arrangement of those
 
 // Detect square brackets containing only numbers, commas and dashes as
 // produced by some OCR for bracketed citations as used in Vancouver, IEEE citation styles
 static CITE_BRACKETS_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"\[([\d+\,\-\s]+)\]").expect("invalid regex"));
+    Lazy::new(|| Regex::new(r"\[([\d+\,\-–—\s]+)\]").expect("invalid regex"));
 
 // Detect parentheses containing only numbers, commas and dashes as
 // produced by some OCR of citations
 static CITE_PARENS_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"\(([\d+\,\-\s]+)\)").expect("invalid regex"));
+    Lazy::new(|| Regex::new(r"\(([\d+\,\-–—\s]+)\)").expect("invalid regex"));
 
 // Detect superscript with empty base as produced by some OCR for
 // superscript citations as used in ACS, AMA, Chicago citation
 // styles
 static CITE_MATH_SUP_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"\{\s*\}\^\{([\d+\,\-\s]+)\}").expect("invalid regex"));
+    Lazy::new(|| Regex::new(r"\{\s*\}\^\{([\d+\,\-–—\s]+)\}").expect("invalid regex"));
 
 impl Collector {
     /// Visit a [`Heading`] node
@@ -196,6 +196,7 @@ impl Collector {
 ///
 /// Returns a vector of numbers, commas, and dashes if the string only contains those,
 /// commas and dashes are always between numbers, and all numbers are greater than 0 and less than 500.
+/// Supports hyphens (-), en dashes (–), and em dashes (—) as range separators.
 /// Return `None` otherwise.
 fn maybe_citation_sequence(string: &str) -> Option<Vec<String>> {
     let mut sequence = Vec::new();
@@ -214,7 +215,7 @@ fn maybe_citation_sequence(string: &str) -> Option<Vec<String>> {
                 last_was_separator = false;
                 expecting_number = false;
             }
-            ',' | '-' => {
+            ',' | '-' | '–' | '—' => {
                 if current_number.is_empty() || last_was_separator || expecting_number {
                     return None;
                 }
@@ -229,7 +230,13 @@ fn maybe_citation_sequence(string: &str) -> Option<Vec<String>> {
                 }
 
                 sequence.push(current_number.clone());
-                sequence.push(ch.to_string());
+                // Normalize all dash types to hyphen for consistent processing
+                let separator = if matches!(ch, '–' | '—') {
+                    "-"
+                } else {
+                    &ch.to_string()
+                };
+                sequence.push(separator.to_string());
                 current_number.clear();
                 last_was_separator = true;
                 expecting_number = true;
@@ -330,13 +337,21 @@ mod tests {
             // Comma separated
             ("1,2,3", vec!["1", ",", "2", ",", "3"]),
             ("5,10,15", vec!["5", ",", "10", ",", "15"]),
-            // Dash separated
+            // Dash separated (hyphen, en dash, em dash)
             ("1-3", vec!["1", "-", "3"]),
             ("10-20", vec!["10", "-", "20"]),
+            ("1–3", vec!["1", "-", "3"]), // en dash normalized to hyphen
+            ("10—20", vec!["10", "-", "20"]), // em dash normalized to hyphen
             // Mixed separators
             ("1,3-5,7", vec!["1", ",", "3", "-", "5", ",", "7"]),
+            ("1,3–5,7", vec!["1", ",", "3", "-", "5", ",", "7"]), // en dash
+            ("1,3—5,7", vec!["1", ",", "3", "-", "5", ",", "7"]), // em dash
             (
                 "2-4,8,10-12",
+                vec!["2", "-", "4", ",", "8", ",", "10", "-", "12"],
+            ),
+            (
+                "2–4,8,10—12", // mixed dash types
                 vec!["2", "-", "4", ",", "8", ",", "10", "-", "12"],
             ),
             // With whitespace

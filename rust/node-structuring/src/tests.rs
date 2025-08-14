@@ -217,6 +217,16 @@ fn test_math_inline_to_citation() {
     let mut node = p([mi("[1a,2]", Some("tex"))]);
     structuring(&mut node);
     assert_eq!(node, p([mi("[1a,2]", Some("tex"))]));
+
+    // Test en dash in math
+    let mut node = p([mi("{ }^{2–4}", Some("tex"))]);
+    structuring(&mut node);
+    assert_eq!(node, p([ctg(["ref-2", "ref-3", "ref-4"])]));
+
+    // Test em dash in math
+    let mut node = p([mi("[15—17]", Some("tex"))]);
+    structuring(&mut node);
+    assert_eq!(node, p([ctg(["ref-15", "ref-16", "ref-17"])]));
 }
 
 #[test]
@@ -331,4 +341,40 @@ fn test_text_to_citations() {
     let mut node = p([t("Just normal text without any citations.")]);
     structuring(&mut node);
     assert_eq!(node, p([t("Just normal text without any citations.")]));
+
+    // Test en dash ranges
+    let mut node = p([t("Studies [1–3] show consistent results.")]);
+    structuring(&mut node);
+    assert_eq!(
+        node,
+        p([
+            t("Studies "),
+            ctg(["ref-1", "ref-2", "ref-3"]),
+            t(" show consistent results.")
+        ])
+    );
+
+    // Test em dash ranges
+    let mut node = p([t("References [2—4,8] are relevant.")]);
+    structuring(&mut node);
+    assert_eq!(
+        node,
+        p([
+            t("References "),
+            ctg(["ref-2", "ref-3", "ref-4", "ref-8"]),
+            t(" are relevant.")
+        ])
+    );
+
+    // Test mixed dash types in parentheses
+    let mut node = p([t("Multiple (1–3,5—7) citations.")]);
+    structuring(&mut node);
+    assert_eq!(
+        node,
+        p([
+            t("Multiple "),
+            ctg(["ref-1", "ref-2", "ref-3", "ref-5", "ref-6", "ref-7"]),
+            t(" citations.")
+        ])
+    );
 }
