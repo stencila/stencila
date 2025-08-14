@@ -1,14 +1,21 @@
+use codec_text_trait::to_text;
 use common::eyre::{Result, bail};
 use common_dev::pretty_assertions::assert_eq;
 use schema::{
-    Article, Node,
-    shortcuts::{ct, ctg, h1, li, mi, ol, p, t},
+    AdmonitionType, Article, Block, ImageObject, Node,
+    shortcuts::{ct, ctg, h1, li, mi, ol, p, sec, stb, t},
 };
 
 use crate::structuring;
 
+/// Shortcut for creating an [`Block::ImageObject`] since there is
+/// no shortcut for that
+fn imb(url: &str) -> Block {
+    Block::ImageObject(ImageObject::new(url.into()))
+}
+
 #[test]
-fn test_reference_list_to_references() -> Result<()> {
+fn reference_list_to_references() -> Result<()> {
     // Single reference with DOI
     let mut article = Node::Article(Article::new(vec![
         h1([t("References")]),
@@ -162,7 +169,7 @@ fn test_reference_list_to_references() -> Result<()> {
 }
 
 #[test]
-fn test_math_inline_to_citation() {
+fn math_inline_to_citation() {
     // Simple superscript citation
     let mut node = p([mi("{ }^{1}", Some("tex"))]);
     structuring(&mut node);
@@ -230,7 +237,7 @@ fn test_math_inline_to_citation() {
 }
 
 #[test]
-fn test_text_to_citations() {
+fn text_to_citations() {
     // Simple bracketed citation
     let mut node = p([t("See reference [1] for details.")]);
     structuring(&mut node);
@@ -377,4 +384,429 @@ fn test_text_to_citations() {
             t(" citations.")
         ])
     );
+}
+
+#[test]
+fn image_then_caption_to_figure() -> Result<()> {
+    let mut article = Node::Article(Article::new(vec![
+        imb("test.jpg"),
+        p([t("Figure 1. This is a test caption.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+
+    assert_eq!(content.len(), 1, "Should have 1 block after structuring");
+
+    let Block::Figure(figure) = &content[0] else {
+        bail!("Should have figure block")
+    };
+
+    assert_eq!(
+        figure.label,
+        Some("1".into()),
+        "Figure should have label '1'"
+    );
+    assert_eq!(figure.content.len(), 1, "Figure should have 1 content item");
+    assert!(
+        matches!(figure.content[0], Block::ImageObject(_)),
+        "Figure content should be ImageObject"
+    );
+
+    let caption = figure.caption.as_ref().expect("Figure should have caption");
+    assert_eq!(caption.len(), 1, "Caption should have 1 block");
+
+    let Block::Paragraph(caption_para) = &caption[0] else {
+        bail!("Caption should be paragraph")
+    };
+
+    let caption_text = to_text(caption_para);
+    assert_eq!(
+        caption_text.trim(),
+        "This is a test caption.",
+        "Caption text should be cleaned"
+    );
+
+    Ok(())
+}
+
+#[test]
+fn caption_then_image_to_figure() -> Result<()> {
+    let mut article = Node::Article(Article::new(vec![
+        p([t("Fig 2: Another test caption.")]),
+        imb("test.jpg"),
+    ]));
+
+    structuring(&mut article);
+
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+
+    assert_eq!(content.len(), 1, "Should have 1 block after structuring");
+
+    let Block::Figure(figure) = &content[0] else {
+        bail!("Should have figure block")
+    };
+
+    assert_eq!(
+        figure.label,
+        Some("2".into()),
+        "Figure should have label '2'"
+    );
+    assert_eq!(figure.content.len(), 1, "Figure should have 1 content item");
+    assert!(
+        matches!(figure.content[0], Block::ImageObject(_)),
+        "Figure content should be ImageObject"
+    );
+
+    let caption = figure.caption.as_ref().expect("Figure should have caption");
+    assert_eq!(caption.len(), 1, "Caption should have 1 block");
+
+    let caption_text = to_text(&caption[0]);
+    assert_eq!(
+        caption_text.trim(),
+        "Another test caption.",
+        "Caption text should be cleaned"
+    );
+
+    Ok(())
+}
+
+#[test]
+fn image_and_caption_multiple_figures() -> Result<()> {
+    let mut article = Node::Article(Article::new(vec![
+        imb("test1.jpg"),
+        p([t("Figure 1. First caption.")]),
+        p([t("Some intervening text.")]),
+        p([t("Figure 2: Second caption.")]),
+        imb("test2.jpg".into()),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+
+    assert_eq!(content.len(), 3, "Should have 3 blocks after structuring");
+
+    // First figure
+    let Block::Figure(figure1) = &content[0] else {
+        bail!("First block should be figure")
+    };
+    assert_eq!(
+        figure1.label,
+        Some("1".into()),
+        "First figure should have label '1'"
+    );
+
+    // Intervening text
+    let Block::Paragraph(_) = &content[1] else {
+        bail!("Second block should be paragraph")
+    };
+
+    // Second figure
+    let Block::Figure(figure2) = &content[2] else {
+        bail!("Third block should be figure")
+    };
+    assert_eq!(
+        figure2.label,
+        Some("2".into()),
+        "Second figure should have label '2'"
+    );
+
+    Ok(())
+}
+
+#[test]
+fn images_and_not_captions() -> Result<()> {
+    let mut article = Node::Article(Article::new(vec![
+        imb("test.jpg"),
+        p([t("This is not a figure caption.")]),
+        p([t("Figure 1. This caption has no image following.")]),
+        p([t("More text.")]),
+        imb("test.jpg".into()),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+
+    assert_eq!(content.len(), 5,);
+
+    // All blocks should remain as-is
+    assert!(matches!(content[0], Block::ImageObject(_)));
+    assert!(matches!(content[1], Block::Paragraph(_)));
+    assert!(matches!(content[2], Block::Paragraph(_)));
+    assert!(matches!(content[3], Block::Paragraph(_)));
+    assert!(matches!(content[4], Block::ImageObject(_)));
+
+    Ok(())
+}
+
+#[test]
+fn image_and_caption_edge_cases() -> Result<()> {
+    // Test case insensitive matching
+    let mut article1 = Node::Article(Article::new(vec![
+        imb("test1.jpg"),
+        p([t("FIGURE 1. Uppercase caption.")]),
+    ]));
+
+    structuring(&mut article1);
+
+    let Node::Article(Article { content, .. }) = article1 else {
+        bail!("Should be an article")
+    };
+
+    assert_eq!(content.len(), 1, "Should have 1 block after structuring");
+    assert!(
+        matches!(content[0], Block::Figure(_)),
+        "Should create figure from uppercase"
+    );
+
+    // Test various figure prefix formats
+    let test_cases = [
+        "Figure 5. Standard format",
+        "Fig 10: Colon separator",
+        "Fig. 20 Dot format",
+        "figure 99 - Dash separator",
+    ];
+
+    for (i, case) in test_cases.iter().enumerate() {
+        let mut article = Node::Article(Article::new(vec![
+            imb(&format!("test{}.jpg", i + 2)),
+            p([t(case)]),
+        ]));
+
+        structuring(&mut article);
+
+        let Node::Article(Article { content, .. }) = article else {
+            bail!("Should be an article")
+        };
+
+        assert_eq!(
+            content.len(),
+            1,
+            "Case {i} should have 1 block after structuring"
+        );
+        let Block::Figure(figure) = &content[0] else {
+            bail!("Case {i} should create figure")
+        };
+
+        assert!(figure.label.is_some(), "Case {i} should have label");
+    }
+
+    // Test that nested content IS processed (figures work in sections too)
+    use schema::shortcuts::sec;
+
+    let mut article_nested = Node::Article(Article::new(vec![sec([
+        h1([t("Section")]),
+        imb("nested.jpg"),
+        p([t(
+            "Figure 1. This should be structured even when nested in a section.",
+        )]),
+    ])]));
+
+    structuring(&mut article_nested);
+
+    let Node::Article(Article { content, .. }) = article_nested else {
+        bail!("Should be an article")
+    };
+
+    assert_eq!(content.len(), 1, "Should still have 1 top-level block");
+    let Block::Section(section) = &content[0] else {
+        bail!("Should be section")
+    };
+
+    // The content inside the section should be structured into a figure
+    assert_eq!(
+        section.content.len(),
+        2,
+        "Section should have 2 blocks after structuring"
+    );
+    assert!(
+        matches!(section.content[0], Block::Heading(_)),
+        "First should be heading"
+    );
+    assert!(
+        matches!(section.content[1], Block::Figure(_)),
+        "Second should be figure"
+    );
+
+    // Verify the figure was created correctly
+    if let Block::Figure(figure) = &section.content[1] {
+        assert_eq!(
+            figure.label,
+            Some("1".into()),
+            "Figure should have label '1'"
+        );
+        assert!(figure.caption.is_some(), "Figure should have caption");
+    }
+
+    Ok(())
+}
+
+#[test]
+fn nested_figures_in_various_blocks() -> Result<()> {
+    use schema::shortcuts::{adm, sec};
+
+    // Test figure in admonition
+    let mut article1 = Node::Article(Article::new(vec![adm(
+        AdmonitionType::Note,
+        Some("Note Title"),
+        [
+            p([t("This is an admonition.")]),
+            imb("admonition.jpg"),
+            p([t("Figure 1. Caption inside admonition.")]),
+        ],
+    )]));
+
+    structuring(&mut article1);
+
+    let Node::Article(Article { content, .. }) = article1 else {
+        bail!("Should be an article")
+    };
+
+    assert_eq!(content.len(), 1);
+    let Block::Admonition(admonition) = &content[0] else {
+        bail!("Should be admonition")
+    };
+
+    assert_eq!(
+        admonition.content.len(),
+        2,
+        "Admonition should have 2 blocks after structuring"
+    );
+    assert!(
+        matches!(admonition.content[0], Block::Paragraph(_)),
+        "First should be paragraph"
+    );
+    assert!(
+        matches!(admonition.content[1], Block::Figure(_)),
+        "Second should be figure"
+    );
+
+    if let Block::Figure(figure) = &admonition.content[1] {
+        assert_eq!(figure.label, Some("1".into()));
+    }
+
+    // Test figure in styled block
+    let mut article2 = Node::Article(Article::new(vec![stb(
+        "info",
+        [imb("styled.jpg"), p([t("Fig 2: Caption in styled block.")])],
+    )]));
+
+    structuring(&mut article2);
+
+    let Node::Article(Article { content, .. }) = article2 else {
+        bail!("Should be an article")
+    };
+
+    assert_eq!(content.len(), 1);
+    let Block::StyledBlock(styled) = &content[0] else {
+        bail!("Should be styled block")
+    };
+
+    assert_eq!(
+        styled.content.len(),
+        1,
+        "Styled block should have 1 block after structuring"
+    );
+    assert!(
+        matches!(styled.content[0], Block::Figure(_)),
+        "Should be figure"
+    );
+
+    if let Block::Figure(figure) = &styled.content[0] {
+        assert_eq!(figure.label, Some("2".into()));
+    }
+
+    // Test nested sections
+    let mut article3 = Node::Article(Article::new(vec![sec([
+        h1([t("Main Section")]),
+        sec([
+            h1([t("Subsection")]),
+            p([t("Figure 3. Nested section caption.")]),
+            imb("subsection.jpg".into()),
+        ]),
+    ])]));
+
+    structuring(&mut article3);
+
+    let Node::Article(Article { content, .. }) = article3 else {
+        bail!("Should be an article")
+    };
+
+    assert_eq!(content.len(), 1);
+    let Block::Section(main_section) = &content[0] else {
+        bail!("Should be section")
+    };
+
+    assert_eq!(main_section.content.len(), 2);
+    let Block::Section(subsection) = &main_section.content[1] else {
+        bail!("Should be subsection")
+    };
+
+    assert_eq!(
+        subsection.content.len(),
+        2,
+        "Subsection should have 2 blocks after structuring"
+    );
+    assert!(
+        matches!(subsection.content[0], Block::Heading(_)),
+        "First should be heading"
+    );
+    assert!(
+        matches!(subsection.content[1], Block::Figure(_)),
+        "Second should be figure"
+    );
+
+    if let Block::Figure(figure) = &subsection.content[1] {
+        assert_eq!(figure.label, Some("3".into()));
+    }
+
+    Ok(())
+}
+
+#[test]
+fn mixed_nested_and_top_level_figures() -> Result<()> {
+    let mut article = Node::Article(Article::new(vec![
+        // Top-level Image + Caption
+        imb("mixed1jpg"),
+        p([t("Figure 1. Top-level caption.")]),
+        // Nested Caption + Image in section
+        sec([
+            h1([t("Section")]),
+            p([t("Figure 2. Nested caption.")]),
+            imb("mixed2.jpg".into()),
+        ]),
+    ]));
+
+    structuring(&mut article);
+
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+
+    // Should have: Figure(1), Section containing Figure(2)
+    assert_eq!(content.len(), 2);
+
+    // Check first top-level figure
+    let Block::Figure(figure1) = &content[0] else {
+        bail!("First should be figure")
+    };
+    assert_eq!(figure1.label, Some("1".into()));
+
+    // Check section containing nested figure
+    let Block::Section(section) = &content[1] else {
+        bail!("Second should be section")
+    };
+    assert_eq!(section.content.len(), 2); // heading + figure
+
+    let Block::Figure(figure2) = &section.content[1] else {
+        bail!("Section should contain figure")
+    };
+    assert_eq!(figure2.label, Some("2".into()));
+
+    Ok(())
 }

@@ -3,7 +3,8 @@ use std::collections::HashMap;
 use codec_text_trait::to_text;
 use common::{once_cell::sync::Lazy, regex::Regex};
 use schema::{
-    Block, Citation, CitationGroup, Heading, Inline, List, MathInline, NodeId, Reference, Text,
+    Admonition, Article, Block, Citation, CitationGroup, Figure, ForBlock, Heading, IncludeBlock,
+    Inline, List, MathInline, Node, NodeId, Paragraph, Reference, Section, StyledBlock, Text,
     VisitorMut, WalkControl, shortcuts::t,
 };
 
@@ -24,10 +25,39 @@ pub(super) struct Collector {
 }
 
 impl VisitorMut for Collector {
+    fn visit_node(&mut self, node: &mut Node) -> WalkControl {
+        if let Node::Article(Article { content, .. }) = node {
+            self.visit_blocks(content);
+        }
+
+        WalkControl::Continue
+    }
+
     fn visit_block(&mut self, block: &mut Block) -> WalkControl {
         match block {
             Block::Heading(heading) => self.visit_heading(heading),
             Block::List(list) => self.visit_list(list),
+
+            // Process nested block content for figure detection
+            Block::Admonition(Admonition { content, .. })
+            | Block::IncludeBlock(IncludeBlock {
+                content: Some(content),
+                ..
+            })
+            | Block::Section(Section { content, .. })
+            | Block::StyledBlock(StyledBlock { content, .. }) => {
+                self.visit_blocks(content);
+            }
+            Block::ForBlock(ForBlock {
+                content,
+                iterations,
+                ..
+            }) => {
+                self.visit_blocks(content);
+                if let Some(iterations) = iterations {
+                    self.visit_blocks(iterations);
+                }
+            }
             _ => {}
         }
 
@@ -64,7 +94,60 @@ static CITE_PARENS_REGEX: Lazy<Regex> =
 static CITE_MATH_SUP_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"\{\s*\}\^\{([\d+\,\-–—\s]+)\}").expect("invalid regex"));
 
+// Detect figure captions like "Figure 1.", "Fig 2:", "Figure 12 -", etc.
+static FIGURE_CAPTION_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"(?i)^(?:Figure|Fig\.?)\s*(\d+)[.:\-\s]*").expect("invalid regex"));
+
 impl Collector {
+    /// Visit a vector of blocks such as Article or Section content
+    ///
+    /// Detects adjacent ImageObject and figure caption pairs in the article content
+    /// and creates Figure block replacements.
+    fn visit_blocks(&mut self, blocks: &[Block]) {
+        let mut index = 0;
+        while index < blocks.len().saturating_sub(1) {
+            let current = &blocks[index];
+            let next = &blocks[index + 1];
+
+            // Check for ImageObject followed by caption
+            if let (Block::ImageObject(image), Block::Paragraph(caption_para)) = (current, next) {
+                if let Some((figure_number, cleaned_caption)) = maybe_figure_caption(caption_para) {
+                    let mut figure = Figure::new(vec![current.clone()]);
+                    figure.caption = Some(vec![Block::Paragraph(cleaned_caption)]);
+                    figure.label = Some(figure_number);
+
+                    // Replace first block with figure, second with empty
+                    self.block_replacements
+                        .insert(image.node_id(), vec![Block::Figure(figure)]);
+                    self.block_replacements
+                        .insert(caption_para.node_id(), vec![]);
+
+                    index += 2; // Skip both blocks
+                    continue;
+                }
+            }
+
+            // Check for caption followed by ImageObject
+            if let (Block::Paragraph(caption_para), Block::ImageObject(image)) = (current, next) {
+                if let Some((figure_number, cleaned_caption)) = maybe_figure_caption(caption_para) {
+                    let mut figure = Figure::new(vec![next.clone()]);
+                    figure.caption = Some(vec![Block::Paragraph(cleaned_caption)]);
+                    figure.label = Some(figure_number);
+
+                    // Replace first block with figure, second with empty
+                    self.block_replacements
+                        .insert(caption_para.node_id(), vec![Block::Figure(figure)]);
+                    self.block_replacements.insert(image.node_id(), vec![]);
+
+                    index += 2; // Skip both blocks
+                    continue;
+                }
+            }
+
+            index += 1;
+        }
+    }
+
     /// Visit a [`Heading`] node
     ///
     /// Tracks when entering or leaving the References/Bibliography section
@@ -264,6 +347,39 @@ fn maybe_citation_sequence(string: &str) -> Option<Vec<String>> {
     }
 
     (!sequence.is_empty()).then_some(sequence)
+}
+
+/// Detect if a paragraph matches a figure caption pattern
+///
+/// Returns a tuple of (figure_number, cleaned_paragraph) if the paragraph
+/// starts with "Figure X" or "Fig X" where X is a number. The cleaned paragraph
+/// has the figure prefix removed from the first text node.
+fn maybe_figure_caption(paragraph: &Paragraph) -> Option<(String, Paragraph)> {
+    let text = to_text(paragraph);
+
+    if let Some(captures) = FIGURE_CAPTION_REGEX.captures(&text) {
+        let figure_number = captures[1].to_string();
+        let matched_text = captures.get(0)?.as_str();
+
+        // Clone the paragraph and remove the matched prefix from the first text node
+        let mut cleaned_paragraph = paragraph.clone();
+        if let Some(Inline::Text(text_node)) = cleaned_paragraph.content.first_mut() {
+            let original_value = &text_node.value;
+            if let Some(stripped) = original_value.strip_prefix(matched_text) {
+                let remaining_text = stripped.trim_start();
+                if remaining_text.is_empty() {
+                    // If the text node is now empty, remove it entirely
+                    cleaned_paragraph.content.remove(0);
+                } else {
+                    text_node.value = remaining_text.into();
+                }
+            }
+        }
+
+        Some((figure_number, cleaned_paragraph))
+    } else {
+        None
+    }
 }
 
 /// Transform a sequence of citation numbers, commas and dashes into a
@@ -478,5 +594,105 @@ mod tests {
         }
 
         Ok(())
+    }
+
+    #[test]
+    fn test_maybe_figure_caption() {
+        use schema::shortcuts::p;
+
+        // Valid figure captions
+        let test_cases = [
+            ("Figure 1. This is a caption", "1", "This is a caption"),
+            ("Fig 2: Another caption", "2", "Another caption"),
+            ("Figure 12 - A longer caption", "12", "A longer caption"),
+            ("Fig. 5 Some caption", "5", "Some caption"),
+            ("FIGURE 3. Case insensitive", "3", "Case insensitive"),
+            ("figure 7: lowercase", "7", "lowercase"),
+        ];
+
+        for (input, expected_number, expected_text) in test_cases {
+            let block = p([t(input)]);
+            let Block::Paragraph(paragraph) = block else {
+                panic!("Expected paragraph block");
+            };
+            let result = maybe_figure_caption(&paragraph);
+
+            assert!(result.is_some(), "Should detect figure caption: {input}");
+            let (figure_number, cleaned_paragraph) = result.expect("Should detect figure caption");
+            assert_eq!(
+                figure_number, expected_number,
+                "Wrong figure number for: {input}"
+            );
+
+            let cleaned_text = to_text(&cleaned_paragraph);
+            assert_eq!(
+                cleaned_text.trim(),
+                expected_text,
+                "Wrong cleaned text for: {input}"
+            );
+        }
+
+        // Invalid cases - should return None
+        let invalid_cases = [
+            "Just regular text",
+            "Figure without number",
+            "Fig A: with letter instead of number",
+            "Not a figure caption",
+            "Figure: missing number",
+            "fig missing number",
+        ];
+
+        for input in invalid_cases {
+            let block = p([t(input)]);
+            let Block::Paragraph(paragraph) = block else {
+                panic!("Expected paragraph block");
+            };
+            let result = maybe_figure_caption(&paragraph);
+            assert!(
+                result.is_none(),
+                "Should not detect figure caption: {input}"
+            );
+        }
+
+        // Test with complex paragraph structure
+        let complex_block = p([
+            t("Figure 5. This caption has "),
+            schema::shortcuts::em([t("emphasis")]),
+            t(" and more text."),
+        ]);
+        let Block::Paragraph(complex_paragraph) = complex_block else {
+            panic!("Expected paragraph block");
+        };
+        let result = maybe_figure_caption(&complex_paragraph);
+        assert!(
+            result.is_some(),
+            "Should handle complex paragraph structure"
+        );
+        let (figure_number, cleaned_paragraph) =
+            result.expect("Should detect complex figure caption");
+        assert_eq!(figure_number, "5");
+
+        let cleaned_text = to_text(&cleaned_paragraph);
+        assert_eq!(
+            cleaned_text.trim(),
+            "This caption has emphasis and more text."
+        );
+
+        // Test edge case: figure prefix is the entire first text node
+        let edge_block = p([t("Figure 1. "), t("Second text node with caption.")]);
+        let Block::Paragraph(edge_paragraph) = edge_block else {
+            panic!("Expected paragraph block");
+        };
+        let result = maybe_figure_caption(&edge_paragraph);
+        assert!(
+            result.is_some(),
+            "Should handle prefix as entire first text node"
+        );
+        let (figure_number, cleaned_paragraph) =
+            result.expect("Should detect edge case figure caption");
+        assert_eq!(figure_number, "1");
+
+        let cleaned_text = to_text(&cleaned_paragraph);
+        assert_eq!(cleaned_text.trim(), "Second text node with caption.");
     }
 }
