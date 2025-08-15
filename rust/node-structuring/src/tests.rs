@@ -3,8 +3,8 @@ use common::eyre::{Result, bail};
 use common_dev::pretty_assertions::assert_eq;
 use schema::{
     AdmonitionType, Article, Block, ImageObject, Inline, Node, Strikeout, Strong, Superscript,
-    Table, TableCell, TableRow, Underline,
-    shortcuts::{ct, ctg, em, h1, li, mi, ol, p, sec, stb, t},
+    Underline,
+    shortcuts::{ct, ctg, em, h1, li, mi, ol, p, sec, stb, t, tbl},
 };
 
 use crate::structuring;
@@ -15,18 +15,23 @@ fn imb(url: &str) -> Block {
     Block::ImageObject(ImageObject::new(url.into()))
 }
 
-/// Shortcut for creating a simple [`Block::Table`] with basic content
-fn table_block() -> Block {
-    let header_row = TableRow::new(vec![
-        TableCell::new(vec![p([t("Header 1")])]),
-        TableCell::new(vec![p([t("Header 2")])]),
-    ]);
-    let data_row = TableRow::new(vec![
-        TableCell::new(vec![p([t("Data 1")])]),
-        TableCell::new(vec![p([t("Data 2")])]),
-    ]);
-    let table = Table::new(vec![header_row, data_row]);
-    Block::Table(table)
+/// Test detection of headings matching references section
+#[test]
+fn references_detection() -> Result<()> {
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("References")]),
+        p([t("Author, A. B. (2020). Reference.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article {
+        references: Some(..),
+        ..
+    }) = article
+    else {
+        bail!("Should have references")
+    };
+
+    Ok(())
 }
 
 #[test]
@@ -1137,7 +1142,7 @@ fn figure_caption_with_nested_inline_elements() -> Result<()> {
 fn caption_then_table_to_table_with_caption() -> Result<()> {
     let mut article = Node::Article(Article::new(vec![
         p([t("Table 1. This is a test table caption.")]),
-        table_block(),
+        tbl([]),
     ]));
     structuring(&mut article);
     let Node::Article(Article { content, .. }) = article else {
@@ -1181,7 +1186,7 @@ fn table_caption_with_different_formats() -> Result<()> {
     ];
 
     for (i, (caption_text, expected_number, expected_caption)) in test_cases.iter().enumerate() {
-        let mut article = Node::Article(Article::new(vec![p([t(caption_text)]), table_block()]));
+        let mut article = Node::Article(Article::new(vec![p([t(caption_text)]), tbl([])]));
 
         structuring(&mut article);
 
@@ -1222,7 +1227,7 @@ fn table_caption_with_nested_inline_elements() -> Result<()> {
     // Test table caption starting with emphasis
     let mut article1 = Node::Article(Article::new(vec![
         p([em([t("Table 1.")]), t(" Caption with emphasis at start.")]),
-        table_block(),
+        tbl([]),
     ]));
     structuring(&mut article1);
     let Node::Article(Article { content, .. }) = article1 else {
@@ -1253,7 +1258,7 @@ fn table_caption_with_nested_inline_elements() -> Result<()> {
             Inline::Strong(Strong::new(vec![t("Table 2:")])),
             t(" Caption with strong at start."),
         ]),
-        table_block(),
+        tbl([]),
     ]));
     structuring(&mut article2);
     let Node::Article(Article { content, .. }) = article2 else {
@@ -1285,7 +1290,7 @@ fn table_caption_with_nested_inline_elements() -> Result<()> {
 fn table_without_caption_unchanged() -> Result<()> {
     let mut article = Node::Article(Article::new(vec![
         p([t("This is not a table caption.")]),
-        table_block(),
+        tbl([]),
         p([t("Table 1. This caption has no table following.")]),
         p([t("More text.")]),
     ]));
@@ -1319,7 +1324,7 @@ fn table_caption_in_nested_sections() -> Result<()> {
     let mut article = Node::Article(Article::new(vec![sec([
         h1([t("Section")]),
         p([t("Table 1. This table is in a section.")]),
-        table_block(),
+        tbl([]),
     ])]));
 
     structuring(&mut article);
@@ -1369,10 +1374,10 @@ fn table_caption_in_nested_sections() -> Result<()> {
 fn multiple_table_captions() -> Result<()> {
     let mut article = Node::Article(Article::new(vec![
         p([t("Table 1. First table caption.")]),
-        table_block(),
+        tbl([]),
         p([t("Some intervening text.")]),
         p([t("Table 2: Second table caption.")]),
-        table_block(),
+        tbl([]),
     ]));
     structuring(&mut article);
     let Node::Article(Article { content, .. }) = article else {

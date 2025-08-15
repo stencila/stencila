@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use codec_biblio::decode::text_to_references;
 use codec_text_trait::to_text;
 use common::{once_cell::sync::Lazy, regex::Regex};
 use schema::{
@@ -36,6 +37,7 @@ impl VisitorMut for Collector {
     fn visit_block(&mut self, block: &mut Block) -> WalkControl {
         match block {
             Block::Heading(heading) => self.visit_heading(heading),
+            Block::Paragraph(paragraph) => self.visit_paragraph(paragraph),
             Block::List(list) => self.visit_list(list),
 
             // Process nested block content for figure detection
@@ -45,9 +47,7 @@ impl VisitorMut for Collector {
                 ..
             })
             | Block::Section(Section { content, .. })
-            | Block::StyledBlock(StyledBlock { content, .. }) => {
-                self.visit_blocks(content);
-            }
+            | Block::StyledBlock(StyledBlock { content, .. }) => self.visit_blocks(content),
             Block::ForBlock(ForBlock {
                 content,
                 iterations,
@@ -57,11 +57,11 @@ impl VisitorMut for Collector {
                 if let Some(iterations) = iterations {
                     self.visit_blocks(iterations);
                 }
+                WalkControl::Continue
             }
-            _ => {}
-        }
 
-        WalkControl::Continue
+            _ => WalkControl::Continue,
+        }
     }
 
     fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
@@ -114,7 +114,7 @@ impl Collector {
     ///
     /// Detects adjacent ImageObject and figure caption pairs in the article content
     /// and creates Figure block replacements.
-    fn visit_blocks(&mut self, blocks: &[Block]) {
+    fn visit_blocks(&mut self, blocks: &[Block]) -> WalkControl {
         let mut index = 0;
         while index < blocks.len().saturating_sub(1) {
             let current = &blocks[index];
@@ -175,13 +175,15 @@ impl Collector {
 
             index += 1;
         }
+
+        WalkControl::Continue
     }
 
     /// Visit a [`Heading`] node
     ///
     /// Tracks when entering or leaving the References/Bibliography section
     /// to determine if subsequent lists should be treated as reference citations.
-    fn visit_heading(&mut self, heading: &Heading) {
+    fn visit_heading(&mut self, heading: &Heading) -> WalkControl {
         // Detect if entering references section
         let text = to_text(&heading.content).to_lowercase();
         if matches!(text.trim(), "references" | "bibliography") {
@@ -189,23 +191,41 @@ impl Collector {
         } else if heading.level <= 3 {
             self.in_references = false;
         }
+
+        WalkControl::Continue
+    }
+
+    /// Visit a [`Paragraph`] node
+    ///
+    /// If in the references section, parses the paragraph as a [`Reference`].
+    fn visit_paragraph(&mut self, paragraph: &Paragraph) -> WalkControl {
+        if self.in_references {
+            let text = to_text(paragraph);
+            let refs = text_to_references(&text);
+            if !refs.is_empty() {
+                if let Some(references) = self.references.as_mut() {
+                    references.extend(refs);
+                } else {
+                    self.references = Some(refs);
+                }
+            }
+        }
+
+        WalkControl::Continue
     }
 
     /// Visit a [`List`] node
     ///
     /// If in the references section, transforms the list to a set of
     /// [`Reference`]s to assign to the root node.
-    fn visit_list(&mut self, list: &List) {
+    fn visit_list(&mut self, list: &List) -> WalkControl {
         if self.in_references {
             let is_numeric = matches!(list.order, ListOrder::Ascending);
 
             let mut references = Vec::new();
             for (index, item) in list.items.iter().enumerate() {
                 let text = to_text(item);
-                if let Some(mut reference) = codec_biblio::decode::text(&text)
-                    .ok()
-                    .and_then(|mut refs| refs.pop())
-                {
+                if let Some(mut reference) = text_to_references(&text).pop() {
                     // If the list is numeric then set the id to the reference
                     if is_numeric {
                         reference.id = Some(format!("ref-{}", index + 1));
@@ -217,6 +237,11 @@ impl Collector {
             if !references.is_empty() {
                 self.references = Some(references);
             }
+
+            // Break walk because content in each item already processed
+            WalkControl::Break
+        } else {
+            WalkControl::Continue
         }
     }
 
