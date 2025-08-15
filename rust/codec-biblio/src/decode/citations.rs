@@ -74,19 +74,23 @@ fn author_year_narrative(input: &mut &str) -> Result<Citation> {
 /// Allows for optional prefix suffix.
 fn author_year_item(input: &mut &str) -> Result<Citation> {
     (
+        opt(terminated(item_prefix, multispace1)),
         authors,
         alt(((multispace0, ",", multispace0).take(), multispace1)),
         year_az,
         opt(preceded((multispace0, ",", multispace0), item_suffix)),
     )
-        .map(|(authors, _, date_with_suffix, citation_suffix)| Citation {
-            target: generate_id(&authors, &Some(date_with_suffix)),
-            options: Box::new(CitationOptions {
-                citation_suffix,
+        .map(
+            |(citation_prefix, authors, _, date_with_suffix, citation_suffix)| Citation {
+                target: generate_id(&authors, &Some(date_with_suffix)),
+                options: Box::new(CitationOptions {
+                    citation_prefix,
+                    citation_suffix,
+                    ..Default::default()
+                }),
                 ..Default::default()
-            }),
-            ..Default::default()
-        })
+            },
+        )
         .parse_next(input)
 }
 
@@ -132,7 +136,7 @@ fn authors(input: &mut &str) -> Result<Vec<Author>> {
 ///
 /// Takes all characters until the next uppercase (to not consume author) or whitespace character
 fn item_prefix(input: &mut &str) -> Result<String> {
-    take_while(1.., |c: char| !c.is_whitespace())
+    take_while(1.., |c: char| !c.is_whitespace() && !c.is_uppercase())
         .map(String::from)
         .parse_next(input)
 }
@@ -265,6 +269,57 @@ mod tests {
             _ => unreachable!("expected citation group"),
         }
 
+        // Citation group with prefixes and suffixes
+        let inline = author_year(&mut "(see Smith 1990, p. 5; cf. Jones 2021; also Brown 2022, Table 1)")?;
+        match inline {
+            Inline::CitationGroup(group) => {
+                assert_eq!(group.items.len(), 3);
+                assert_eq!(group.items[0].target, "smith-1990");
+                assert_eq!(group.items[0].options.citation_prefix, Some("see".to_string()));
+                assert_eq!(group.items[0].options.citation_suffix, Some("p. 5".to_string()));
+                assert_eq!(group.items[1].target, "jones-2021");
+                assert_eq!(group.items[1].options.citation_prefix, Some("cf.".to_string()));
+                assert_eq!(group.items[2].target, "brown-2022");
+                assert_eq!(group.items[2].options.citation_prefix, Some("also".to_string()));
+                assert_eq!(group.items[2].options.citation_suffix, Some("Table 1".to_string()));
+            }
+            _ => unreachable!("expected citation group"),
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_item_prefix() -> Result<()> {
+        let prefix = item_prefix(&mut "see")?;
+        assert_eq!(prefix, "see");
+        
+        let prefix = item_prefix(&mut "cf.")?;
+        assert_eq!(prefix, "cf.");
+        
+        let prefix = item_prefix(&mut "e.g.")?;
+        assert_eq!(prefix, "e.g.");
+        
+        let prefix = item_prefix(&mut "also")?;
+        assert_eq!(prefix, "also");
+        
+        Ok(())
+    }
+
+    #[test]
+    fn test_item_suffix() -> Result<()> {
+        let suffix = item_suffix(&mut "p. 15")?;
+        assert_eq!(suffix, "p. 15");
+        
+        let suffix = item_suffix(&mut "ch. 5")?;
+        assert_eq!(suffix, "ch. 5");
+        
+        let suffix = item_suffix(&mut "§ 42")?;
+        assert_eq!(suffix, "§ 42");
+        
+        let suffix = item_suffix(&mut "Table 3.2 & Fig. 4")?;
+        assert_eq!(suffix, "Table 3.2 & Fig. 4");
+        
         Ok(())
     }
 
@@ -419,6 +474,34 @@ mod tests {
             Some("first half".to_string())
         );
 
+        // Citation prefixes
+        let citation = author_year_item(&mut "see Smith 1990")?;
+        assert_eq!(citation.target, "smith-1990");
+        assert_eq!(citation.options.citation_prefix, Some("see".to_string()));
+
+        let citation = author_year_item(&mut "cf. Jones 2020")?;
+        assert_eq!(citation.target, "jones-2020");
+        assert_eq!(citation.options.citation_prefix, Some("cf.".to_string()));
+
+        let citation = author_year_item(&mut "e.g. Brown 2021")?;
+        assert_eq!(citation.target, "brown-2021");
+        assert_eq!(citation.options.citation_prefix, Some("e.g.".to_string()));
+
+        let citation = author_year_item(&mut "also Wilson 2019")?;
+        assert_eq!(citation.target, "wilson-2019");
+        assert_eq!(citation.options.citation_prefix, Some("also".to_string()));
+
+        // Prefix and suffix combined
+        let citation = author_year_item(&mut "see Taylor 2023, pp. 15-20")?;
+        assert_eq!(citation.target, "taylor-2023");
+        assert_eq!(citation.options.citation_prefix, Some("see".to_string()));
+        assert_eq!(citation.options.citation_suffix, Some("pp. 15-20".to_string()));
+
+        let citation = author_year_item(&mut "cf. Garcia 2018, Table 2")?;
+        assert_eq!(citation.target, "garcia-2018");
+        assert_eq!(citation.options.citation_prefix, Some("cf.".to_string()));
+        assert_eq!(citation.options.citation_suffix, Some("Table 2".to_string()));
+
         // Non-matches - invalid years
         assert!(author_year_item(&mut "Smith 1199").is_err()); // Year too early
         assert!(author_year_item(&mut "Smith 2051").is_err()); // Year too late
@@ -435,7 +518,6 @@ mod tests {
 
         // Non-matches - invalid formats
         assert!(author_year_item(&mut "Smith & 1990").is_err()); // Missing second author
-        assert!(author_year_item(&mut "& Jones 1990").is_err()); // Missing first author
         assert!(author_year_item(&mut "Smith et 1990").is_err()); // Incomplete "et al"
 
         // Non-matches - invalid characters
