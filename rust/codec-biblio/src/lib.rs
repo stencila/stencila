@@ -67,7 +67,7 @@ impl Codec for BiblioCodec {
         let references = match format {
             Format::Yaml => decode::yaml(text)?,
             Format::Bibtex => decode::bibtex(text)?,
-            Format::Text => decode::text(text)?,
+            Format::Text => decode::text_to_references(text),
             _ => bail!("Unsupported format: {format}"),
         };
 

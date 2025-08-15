@@ -8,7 +8,7 @@ use winnow::{
 use codec::{
     common::itertools::Itertools,
     schema::{
-        Author, Citation, CitationGroup, CitationMode, CitationOptions, Cord, Inline, Person,
+        Author, Citation, CitationGroup, CitationMode, CitationOptions, Inline, Person,
         shortcuts::t,
     },
 };
@@ -23,7 +23,7 @@ use crate::decode::{
 
 /// Parse author-year citations within text returning a vector of inlines that
 /// are either [Inline::Text], [Inline::Citation], or [Inline::CitationGroup]
-fn author_year_and_text(input: &mut &str) -> Result<Vec<Inline>> {
+pub(crate) fn author_year_and_text(input: &mut &str) -> Result<Vec<Inline>> {
     repeat(
         1..,
         alt((

@@ -90,7 +90,7 @@ fn bibliographic_references_to_references(record: &Record) -> Vec<Reference> {
         .metadata
         .references
         .iter()
-        .flat_map(|item| codec_biblio::decode::text(item).into_iter().flatten())
+        .flat_map(|item| codec_biblio::decode::text_to_references(item).into_iter())
         .collect()
 }
 

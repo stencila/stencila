@@ -813,9 +813,8 @@ fn decode_reference(parser: &Parser, tag: &HTMLTag) -> Option<Reference> {
     let reference = reference.replace("\u{a0}", " ").replace("\n", " ");
 
     // Parse reference and give it the id
-    codec_biblio::decode::text(&reference)
+    codec_biblio::decode::text_to_references(&reference)
         .into_iter()
-        .flatten()
         .next()
         .map(|reference| Reference { id, ..reference })
 }
