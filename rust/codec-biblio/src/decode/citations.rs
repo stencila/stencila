@@ -1,13 +1,16 @@
 use winnow::{
     Parser, Result,
     ascii::{multispace0, multispace1},
-    combinator::{alt, delimited, opt, preceded, separated, terminated},
-    token::take_while,
+    combinator::{alt, delimited, not, opt, preceded, repeat, separated, terminated},
+    token::{any, take_while},
 };
 
 use codec::{
     common::itertools::Itertools,
-    schema::{Author, Citation, CitationGroup, CitationMode, CitationOptions, Inline, Person},
+    schema::{
+        Author, Citation, CitationGroup, CitationMode, CitationOptions, Cord, Inline, Person,
+        shortcuts::t,
+    },
 };
 
 use crate::decode::{
@@ -17,6 +20,32 @@ use crate::decode::{
     },
     reference::generate_id,
 };
+
+/// Parse author-year citations within text returning a vector of inlines that
+/// are either [Inline::Text], [Inline::Citation], or [Inline::CitationGroup]
+fn author_year_and_text(input: &mut &str) -> Result<Vec<Inline>> {
+    repeat(
+        1..,
+        alt((
+            author_year,
+            preceded(not(author_year), any)
+                .take()
+                .map(|text: &str| t(text)),
+        )),
+    )
+    .map(|inlines: Vec<Inline>| {
+        let mut folded = Vec::new();
+        for inline in inlines {
+            if let (Some(Inline::Text(last)), Inline::Text(text)) = (folded.last_mut(), &inline) {
+                last.value.push_str(&text.value);
+            } else {
+                folded.push(inline);
+            }
+        }
+        folded
+    })
+    .parse_next(input)
+}
 
 /// Parse an author-year citation (either parenthetical or
 /// narrative) or citation group.
@@ -155,7 +184,195 @@ fn item_suffix(input: &mut &str) -> Result<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use codec::schema::shortcuts::{ct, ctg};
     use common_dev::pretty_assertions::assert_eq;
+
+    // Shortcut for a narrative citation
+    fn ctn(target: &str) -> Inline {
+        Inline::Citation(Citation {
+            target: target.into(),
+            citation_mode: Some(CitationMode::Narrative),
+            ..Default::default()
+        })
+    }
+
+    #[test]
+    fn test_author_year_text() -> Result<()> {
+        // Simple text with narrative citation
+        let inlines = author_year_and_text(&mut "According to Smith (1990),..")?;
+        assert_eq!(
+            inlines,
+            vec![t("According to "), ctn("smith-1990"), t(",..")]
+        );
+
+        // Simple text with parenthetical citation
+        let inlines = author_year_and_text(&mut "The theory holds (Smith 1990).")?;
+        assert_eq!(
+            inlines,
+            vec![t("The theory holds "), ct("smith-1990"), t(".")]
+        );
+
+        // Simple text with citation group using semicolon separator
+        let inlines = author_year_and_text(&mut "The theory holds (Smith 1990; Jones 1991).")?;
+        assert_eq!(
+            inlines,
+            vec![
+                t("The theory holds "),
+                ctg(["smith-1990", "jones-1991"]),
+                t(".")
+            ]
+        );
+
+        // Text with multiple narrative citations
+        let inlines =
+            author_year_and_text(&mut "Smith (1990) argued that Jones (2000) was correct.")?;
+        assert_eq!(
+            inlines,
+            vec![
+                ctn("smith-1990"),
+                t(" argued that "),
+                ctn("jones-2000"),
+                t(" was correct.")
+            ]
+        );
+
+        // Text with multiple parenthetical citations
+        let inlines =
+            author_year_and_text(&mut "Studies show (Brown 1995) and (Wilson 2001) findings.")?;
+        assert_eq!(
+            inlines,
+            vec![
+                t("Studies show "),
+                ct("brown-1995"),
+                t(" and "),
+                ct("wilson-2001"),
+                t(" findings.")
+            ]
+        );
+
+        // Text with mixed citation types
+        let inlines = author_year_and_text(
+            &mut "According to Davis (2010), multiple studies (Taylor 2015; Miller 2020) confirm this.",
+        )?;
+        assert_eq!(
+            inlines,
+            vec![
+                t("According to "),
+                ctn("davis-2010"),
+                t(", multiple studies "),
+                ctg(["taylor-2015", "miller-2020"]),
+                t(" confirm this.")
+            ]
+        );
+
+        // Text with no citations (plain text)
+        let inlines =
+            author_year_and_text(&mut "This is just regular text without any citations.")?;
+        assert_eq!(
+            inlines,
+            vec![t("This is just regular text without any citations.")]
+        );
+
+        // Text starting with a citation
+        let inlines =
+            author_year_and_text(&mut "Smith (1990) was the first to discover this phenomenon.")?;
+        assert_eq!(
+            inlines,
+            vec![
+                ctn("smith-1990"),
+                t(" was the first to discover this phenomenon.")
+            ]
+        );
+
+        // Text ending with a citation
+        let inlines = author_year_and_text(&mut "This discovery was made by Smith (1990)")?;
+        assert_eq!(
+            inlines,
+            vec![t("This discovery was made by "), ctn("smith-1990")]
+        );
+
+        // Text with citation containing prefixes and suffixes
+        let inlines =
+            author_year_and_text(&mut "Research shows (see Jones 2020, p. 15) that this is true.")?;
+        assert_eq!(inlines.len(), 3);
+        assert_eq!(inlines[0], t("Research shows "));
+        match &inlines[1] {
+            Inline::Citation(citation) => {
+                assert_eq!(citation.target, "jones-2020");
+                assert_eq!(citation.options.citation_prefix, Some("see".to_string()));
+                assert_eq!(citation.options.citation_suffix, Some("p. 15".to_string()));
+            }
+            _ => panic!("Expected citation"),
+        }
+        assert_eq!(inlines[2], t(" that this is true."));
+
+        // Text with adjacent text that should be folded together
+        let inlines = author_year_and_text(&mut "Hello world from the author.")?;
+        assert_eq!(inlines, vec![t("Hello world from the author.")]);
+
+        // Text with special characters around citations
+        let inlines =
+            author_year_and_text(&mut "The study (Smith 1990) shows: important findings!")?;
+        assert_eq!(
+            inlines,
+            vec![
+                t("The study "),
+                ct("smith-1990"),
+                t(" shows: important findings!")
+            ]
+        );
+
+        // Text with parentheses that are not citations
+        let inlines = author_year_and_text(&mut "Some text (not a citation) and more text.")?;
+        assert_eq!(
+            inlines,
+            vec![t("Some text (not a citation) and more text.")]
+        );
+
+        // Text with year but no valid author format
+        let inlines = author_year_and_text(&mut "The year (1990) was significant.")?;
+        assert_eq!(inlines, vec![t("The year (1990) was significant.")]);
+
+        // Citation with et al
+        let inlines = author_year_and_text(
+            &mut "Studies by Johnson et al. (2019) show interesting results.",
+        )?;
+        assert_eq!(
+            inlines,
+            vec![
+                t("Studies by "),
+                ctn("johnson-et-al-2019"),
+                t(" show interesting results.")
+            ]
+        );
+
+        // Citation with two authors using ampersand
+        let inlines =
+            author_year_and_text(&mut "The work of Smith & Jones (1995) was groundbreaking.")?;
+        assert_eq!(
+            inlines,
+            vec![
+                t("The work of "),
+                ctn("smith-and-jones-1995"),
+                t(" was groundbreaking.")
+            ]
+        );
+
+        // Citation with complex citation group with different separators
+        let inlines = author_year_and_text(
+            &mut "Multiple studies (Brown 2010; Davis, 2015; Wilson 2020) support this.",
+        )?;
+        assert_eq!(
+            inlines,
+            vec![
+                t("Multiple studies "),
+                ctg(["brown-2010", "davis-2015", "wilson-2020"]),
+                t(" support this.")
+            ]
+        );
+
+        Ok(())
+    }
 
     #[test]
     fn test_author_year() -> Result<()> {
@@ -270,18 +487,34 @@ mod tests {
         }
 
         // Citation group with prefixes and suffixes
-        let inline = author_year(&mut "(see Smith 1990, p. 5; cf. Jones 2021; also Brown 2022, Table 1)")?;
+        let inline =
+            author_year(&mut "(see Smith 1990, p. 5; cf. Jones 2021; also Brown 2022, Table 1)")?;
         match inline {
             Inline::CitationGroup(group) => {
                 assert_eq!(group.items.len(), 3);
                 assert_eq!(group.items[0].target, "smith-1990");
-                assert_eq!(group.items[0].options.citation_prefix, Some("see".to_string()));
-                assert_eq!(group.items[0].options.citation_suffix, Some("p. 5".to_string()));
+                assert_eq!(
+                    group.items[0].options.citation_prefix,
+                    Some("see".to_string())
+                );
+                assert_eq!(
+                    group.items[0].options.citation_suffix,
+                    Some("p. 5".to_string())
+                );
                 assert_eq!(group.items[1].target, "jones-2021");
-                assert_eq!(group.items[1].options.citation_prefix, Some("cf.".to_string()));
+                assert_eq!(
+                    group.items[1].options.citation_prefix,
+                    Some("cf.".to_string())
+                );
                 assert_eq!(group.items[2].target, "brown-2022");
-                assert_eq!(group.items[2].options.citation_prefix, Some("also".to_string()));
-                assert_eq!(group.items[2].options.citation_suffix, Some("Table 1".to_string()));
+                assert_eq!(
+                    group.items[2].options.citation_prefix,
+                    Some("also".to_string())
+                );
+                assert_eq!(
+                    group.items[2].options.citation_suffix,
+                    Some("Table 1".to_string())
+                );
             }
             _ => unreachable!("expected citation group"),
         }
@@ -293,16 +526,16 @@ mod tests {
     fn test_item_prefix() -> Result<()> {
         let prefix = item_prefix(&mut "see")?;
         assert_eq!(prefix, "see");
-        
+
         let prefix = item_prefix(&mut "cf.")?;
         assert_eq!(prefix, "cf.");
-        
+
         let prefix = item_prefix(&mut "e.g.")?;
         assert_eq!(prefix, "e.g.");
-        
+
         let prefix = item_prefix(&mut "also")?;
         assert_eq!(prefix, "also");
-        
+
         Ok(())
     }
 
@@ -310,16 +543,16 @@ mod tests {
     fn test_item_suffix() -> Result<()> {
         let suffix = item_suffix(&mut "p. 15")?;
         assert_eq!(suffix, "p. 15");
-        
+
         let suffix = item_suffix(&mut "ch. 5")?;
         assert_eq!(suffix, "ch. 5");
-        
+
         let suffix = item_suffix(&mut "§ 42")?;
         assert_eq!(suffix, "§ 42");
-        
+
         let suffix = item_suffix(&mut "Table 3.2 & Fig. 4")?;
         assert_eq!(suffix, "Table 3.2 & Fig. 4");
-        
+
         Ok(())
     }
 
@@ -495,12 +728,18 @@ mod tests {
         let citation = author_year_item(&mut "see Taylor 2023, pp. 15-20")?;
         assert_eq!(citation.target, "taylor-2023");
         assert_eq!(citation.options.citation_prefix, Some("see".to_string()));
-        assert_eq!(citation.options.citation_suffix, Some("pp. 15-20".to_string()));
+        assert_eq!(
+            citation.options.citation_suffix,
+            Some("pp. 15-20".to_string())
+        );
 
         let citation = author_year_item(&mut "cf. Garcia 2018, Table 2")?;
         assert_eq!(citation.target, "garcia-2018");
         assert_eq!(citation.options.citation_prefix, Some("cf.".to_string()));
-        assert_eq!(citation.options.citation_suffix, Some("Table 2".to_string()));
+        assert_eq!(
+            citation.options.citation_suffix,
+            Some("Table 2".to_string())
+        );
 
         // Non-matches - invalid years
         assert!(author_year_item(&mut "Smith 1199").is_err()); // Year too early
