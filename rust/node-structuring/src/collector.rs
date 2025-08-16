@@ -184,9 +184,13 @@ impl Collector {
     /// Tracks when entering or leaving the References/Bibliography section
     /// to determine if subsequent lists should be treated as reference citations.
     fn visit_heading(&mut self, heading: &Heading) -> WalkControl {
+        static REFERENCES_REGEX: Lazy<Regex> = Lazy::new(|| {
+            Regex::new(r"(?i)^\s*(?:\d+\.?\s*|[a-z]\.?\s*|[ivx]+\.?\s*)?(references?|bibliography|works?\s+cited|literature\s+cited|citations?|sources?|reference\s+list|further\s+reading|additional\s+sources|for\s+further\s+information)\s*$").expect("invalid regex")
+        });
+
         // Detect if entering references section
         let text = to_text(&heading.content).to_lowercase();
-        if matches!(text.trim(), "references" | "bibliography") {
+        if REFERENCES_REGEX.is_match(&text) {
             self.in_references = true;
         } else if heading.level <= 3 {
             self.in_references = false;

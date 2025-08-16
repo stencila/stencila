@@ -18,6 +18,7 @@ fn imb(url: &str) -> Block {
 /// Test detection of headings matching references section
 #[test]
 fn references_detection() -> Result<()> {
+    // Basic "References" heading
     let mut article = Node::Article(Article::new(vec![
         h1([t("References")]),
         p([t("Author, A. B. (2020). Reference.")]),
@@ -29,6 +30,146 @@ fn references_detection() -> Result<()> {
     }) = article
     else {
         bail!("Should have references")
+    };
+
+    // Test "Works Cited" (MLA style)
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("Works Cited")]),
+        p([t("Smith, John. \"Article Title.\" Journal Name, 2023.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article {
+        references: Some(..),
+        ..
+    }) = article
+    else {
+        bail!("Should detect 'Works Cited'")
+    };
+
+    // Test "Literature Cited"
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("Literature Cited")]),
+        p([t("Author. Title. Publisher, 2023.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article {
+        references: Some(..),
+        ..
+    }) = article
+    else {
+        bail!("Should detect 'Literature Cited'")
+    };
+
+    // Test "Citations"
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("Citations")]),
+        p([t("Reference entry here.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article {
+        references: Some(..),
+        ..
+    }) = article
+    else {
+        bail!("Should detect 'Citations'")
+    };
+
+    // Test "Sources"
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("Sources")]),
+        p([t("Source entry here.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article {
+        references: Some(..),
+        ..
+    }) = article
+    else {
+        bail!("Should detect 'Sources'")
+    };
+
+    // Test "Reference List"
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("Reference List")]),
+        p([t("Reference entry here.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article {
+        references: Some(..),
+        ..
+    }) = article
+    else {
+        bail!("Should detect 'Reference List'")
+    };
+
+    // Test numbered heading "1. References"
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("1. References")]),
+        p([t("Reference entry here.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article {
+        references: Some(..),
+        ..
+    }) = article
+    else {
+        bail!("Should detect numbered 'References'")
+    };
+
+    // Test lettered heading "A. Bibliography"
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("A. Bibliography")]),
+        p([t("Reference entry here.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article {
+        references: Some(..),
+        ..
+    }) = article
+    else {
+        bail!("Should detect lettered 'Bibliography'")
+    };
+
+    // Test Roman numeral heading "VI. References"
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("VI. References")]),
+        p([t("Reference entry here.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article {
+        references: Some(..),
+        ..
+    }) = article
+    else {
+        bail!("Should detect Roman numeral 'References'")
+    };
+
+    // Test "Further Reading"
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("Further Reading")]),
+        p([t("Reading material here.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article {
+        references: Some(..),
+        ..
+    }) = article
+    else {
+        bail!("Should detect 'Further Reading'")
+    };
+
+    // Test "Additional Sources"
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("Additional Sources")]),
+        p([t("Source entry here.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article {
+        references: Some(..),
+        ..
+    }) = article
+    else {
+        bail!("Should detect 'Additional Sources'")
     };
 
     Ok(())
