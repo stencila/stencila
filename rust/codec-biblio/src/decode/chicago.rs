@@ -5,8 +5,6 @@
 //! the standard components of Chicago references including authors, titles, publisher
 //! information, publication dates, volume/issue numbers, page ranges, and DOIs/URLs.
 
-use std::str::FromStr;
-
 use codec::schema::Date;
 use winnow::{
     Parser, Result,
@@ -19,15 +17,19 @@ use codec::schema::{
     CreativeWorkType, Organization, PersonOrOrganization, Reference, shortcuts::t,
 };
 
-use crate::decode::parts::{
-    authors::{authors, persons},
-    doi::doi_or_url,
-    pages::pages,
-    separator::separator,
-    terminator::terminator,
-    title::{title_period_terminated, title_quoted},
-    url::url,
-    volume::{no_prefixed_issue, vol_prefixed_volume},
+use crate::decode::{
+    parts::{
+        authors::{authors, persons},
+        date::year_az,
+        doi::doi_or_url,
+        pages::pages,
+        separator::separator,
+        terminator::terminator,
+        title::{title_period_terminated, title_quoted},
+        url::url,
+        volume::{no_prefixed_issue, vol_prefixed_volume},
+    },
+    reference::generate_id,
 };
 
 /// Parse a Stencila [`Reference`] from a Chicago reference list item
@@ -82,7 +84,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
             separator,
             delimited(
                 ("(", multispace0),
-                take_while(1.., |c: char| c != ')'),
+                take_while(1.., |c: char| c != ')').map(|date: &str| Date::new(date.into())),
                 (multispace0, ")"),
             ),
         )),
@@ -97,6 +99,10 @@ pub fn article(input: &mut &str) -> Result<Reference> {
             |(authors, title, journal, volume, issue, date, pages, doi_or_url, _terminator)| {
                 Reference {
                     work_type: Some(CreativeWorkType::Article),
+                    id: Some(generate_id(
+                        &authors,
+                        &date.clone().map(|date| (date, None)),
+                    )),
                     authors: Some(authors),
                     title: Some(title),
                     is_part_of: Some(Box::new(Reference {
@@ -105,7 +111,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
                         issue_number: issue,
                         ..Default::default()
                     })),
-                    date: date.and_then(|d| Date::from_str(d).ok()),
+                    date,
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
                     ..pages.unwrap_or_default()
@@ -131,15 +137,16 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // Publisher
         opt(preceded(separator, take_while(1.., |c: char| c != ','))),
         // Year
-        preceded(separator, take_while(1.., |c: char| c != '.' && c != 'h')),
+        preceded(separator, year_az),
         // DOI or URL
         opt(preceded(separator, doi_or_url)),
         // Optional terminator
         opt(terminator),
     )
         .map(
-            |(authors, title, publisher, year, doi_or_url, _terminator)| Reference {
+            |(authors, title, publisher, (date, date_suffix), doi_or_url, _terminator)| Reference {
                 work_type: Some(CreativeWorkType::Book),
+                id: Some(generate_id(&authors, &Some((date.clone(), date_suffix)))),
                 authors: Some(authors),
                 title: Some(title),
                 publisher: publisher.map(|publisher| {
@@ -148,7 +155,7 @@ pub fn book(input: &mut &str) -> Result<Reference> {
                         ..Default::default()
                     })
                 }),
-                date: Date::from_str(year.trim()).ok(),
+                date: Some(date),
                 doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                 url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
                 ..Default::default()
@@ -184,7 +191,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         // Publisher: Parse publisher ending with comma
         opt(preceded(separator, take_while(1.., |c: char| c != ','))),
         // Year: Publication year
-        opt(preceded(separator, take_while(1.., |c: char| c != '.'))),
+        preceded(separator, year_az),
         // DOI or URL
         opt(preceded(separator, doi_or_url)),
         // Optional terminator
@@ -199,12 +206,13 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
                 editors,
                 pages,
                 publisher,
-                year,
+                (date, date_suffix),
                 doi_or_url,
                 _terminator,
             )| {
                 Reference {
                     work_type: Some(CreativeWorkType::Chapter),
+                    id: Some(generate_id(&authors, &Some((date.clone(), date_suffix)))),
                     authors: Some(authors),
                     title: Some(chapter_title),
                     is_part_of: Some(Box::new(Reference {
@@ -218,7 +226,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
                         }),
                         ..Default::default()
                     })),
-                    date: year.and_then(|y| Date::from_str(y.trim()).ok()),
+                    date: Some(date),
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
                     ..pages.unwrap_or_default()
@@ -256,6 +264,7 @@ pub fn web(input: &mut &str) -> Result<Reference> {
         .map(
             |(authors, title, website, _access_date, url, _terminator)| Reference {
                 work_type: Some(CreativeWorkType::WebPage),
+                id: authors.as_ref().map(|authors| generate_id(authors, &None)),
                 authors,
                 title: Some(title),
                 is_part_of: Some(Box::new(Reference {

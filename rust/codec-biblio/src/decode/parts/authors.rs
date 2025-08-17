@@ -58,7 +58,7 @@ pub fn persons(input: &mut &str) -> Result<Vec<Person>> {
     separated(
         1..,
         person,
-        (multispace0, alt(("&", "and", ",", ", &")), multispace0),
+        (multispace0, alt((", &", ", and", "&", "and", ",", ";")), multispace0),
     )
     .parse_next(input)
 }

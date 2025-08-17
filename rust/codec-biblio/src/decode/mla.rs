@@ -236,6 +236,7 @@ pub fn web(input: &mut &str) -> Result<Reference> {
         .map(
             |(authors, title, website, date, url, _access_date)| Reference {
                 work_type: Some(CreativeWorkType::WebPage),
+                id: authors.as_ref().map(|authors| generate_id(authors, &None)),
                 authors,
                 date: Date::from_str(date).ok(),
                 title: Some(title),

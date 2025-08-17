@@ -17,17 +17,20 @@ use codec::schema::{
     shortcuts::t,
 };
 
-use crate::decode::parts::{
-    authors::{authors, organization, person_given_family},
-    date::year,
-    doi::doi_or_url,
-    pages::pages,
-    publisher::place_publisher,
-    separator::separator,
-    terminator::terminator,
-    title::title_quoted,
-    url::url,
-    volume::{no_prefixed_issue, vol_prefixed_volume},
+use crate::decode::{
+    parts::{
+        authors::{authors, organization, person_given_family},
+        date::{year, year_az},
+        doi::doi_or_url,
+        pages::pages,
+        publisher::place_publisher,
+        separator::separator,
+        terminator::terminator,
+        title::title_quoted,
+        url::url,
+        volume::{no_prefixed_issue, vol_prefixed_volume},
+    },
+    reference::generate_id,
 };
 
 /// Parse a Stencila [`Reference`] from an IEEE reference list item
@@ -79,9 +82,20 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         opt(terminator),
     )
         .map(
-            |(authors, title, journal, volume, issue, pages, date, doi_or_url, _terminator)| {
+            |(
+                authors,
+                title,
+                journal,
+                volume,
+                issue,
+                pages,
+                date_with_suffix,
+                doi_or_url,
+                _terminator,
+            )| {
                 Reference {
                     work_type: Some(CreativeWorkType::Article),
+                    id: Some(generate_id(&authors, &date_with_suffix)),
                     authors: Some(authors),
                     title: Some(title),
                     is_part_of: Some(Box::new(Reference {
@@ -90,7 +104,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
                         issue_number: issue,
                         ..Default::default()
                     })),
-                    date,
+                    date: date_with_suffix.map(|(date, ..)| date),
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
                     ..pages.unwrap_or_default()
@@ -127,7 +141,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         opt(preceded(separator, ieee_edition)),
         opt(preceded(separator, place_publisher)),
         // Year: Publication year
-        opt(preceded(separator, year)),
+        opt(preceded(separator, year_az)),
         // Pages
         opt(preceded(separator, pages)),
         // DOI or URL
@@ -144,13 +158,14 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
                 editors,
                 edition,
                 publisher,
-                date,
+                date_with_suffix,
                 pages,
                 doi_or_url,
                 _terminator,
             )| {
                 Reference {
                     work_type: Some(CreativeWorkType::Chapter),
+                    id: Some(generate_id(&authors, &date_with_suffix)),
                     authors: Some(authors),
                     title: Some(chapter_title),
                     is_part_of: Some(Box::new(Reference {
@@ -160,7 +175,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
                         publisher,
                         ..Default::default()
                     })),
-                    date,
+                    date: date_with_suffix.map(|(date, ..)| date),
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
                     ..pages.unwrap_or_default()
@@ -188,23 +203,26 @@ pub fn book(input: &mut &str) -> Result<Reference> {
         // Publisher: Parse place and publisher
         opt(preceded(separator, place_publisher)),
         // Year: Publication year
-        preceded(separator, year),
+        preceded(separator, year_az),
         // DOI or URL
         opt(preceded(separator, doi_or_url)),
         // Optional terminator
         opt(terminator),
     )
         .map(
-            |(authors, title, edition, publisher, date, doi_or_url, _terminator)| Reference {
-                work_type: Some(CreativeWorkType::Book),
-                authors: Some(authors),
-                title: Some(vec![t(title.trim())]),
-                version: edition,
-                publisher,
-                date: Some(date),
-                doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
-                url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
-                ..Default::default()
+            |(authors, title, edition, publisher, (date, date_suffix), doi_or_url, _terminator)| {
+                Reference {
+                    work_type: Some(CreativeWorkType::Book),
+                    id: Some(generate_id(&authors, &Some((date.clone(), date_suffix)))),
+                    authors: Some(authors),
+                    title: Some(vec![t(title.trim())]),
+                    version: edition,
+                    publisher,
+                    date: Some(date),
+                    doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
+                    url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
+                    ..Default::default()
+                }
             },
         )
         .parse_next(input)
@@ -262,6 +280,7 @@ pub fn web(input: &mut &str) -> Result<Reference> {
     )
         .map(|(author, title, _, url, _date, _terminator)| Reference {
             work_type: Some(CreativeWorkType::WebPage),
+            id: Some(generate_id(&vec![author.clone()], &None)),
             authors: Some(vec![author]),
             title: Some(title),
             url,
@@ -270,8 +289,8 @@ pub fn web(input: &mut &str) -> Result<Reference> {
         .parse_next(input)
 }
 
-/// Parse IEEE date format (e.g., "Mar. 2023" or "2023")
-fn ieee_date(input: &mut &str) -> Result<Date> {
+/// Parse IEEE date format (e.g., "Mar. 2023" or "2023") optionally with a suffix (e.g. "2003a").
+fn ieee_date(input: &mut &str) -> Result<(Date, Option<String>)> {
     alt((
         // Month and year format: "Mar. 2023"
         (
@@ -280,9 +299,9 @@ fn ieee_date(input: &mut &str) -> Result<Date> {
             multispace1,
             year,
         )
-            .map(|(_, _, _, year)| year),
+            .map(|(_, _, _, date)| (date, None)),
         // Just year format: "2023"
-        year,
+        year_az,
     ))
     .parse_next(input)
 }

@@ -226,6 +226,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
             )| {
                 Reference {
                     work_type: Some(CreativeWorkType::Chapter),
+                    id: Some(generate_id(&authors, &date_suffix)),
                     authors: Some(authors),
                     title: Some(chapter_title),
                     date: date_suffix.map(|(date, ..)| date),
@@ -295,13 +296,18 @@ pub fn web(input: &mut &str) -> Result<Reference> {
         // Optional terminator
         opt(terminator),
     )
-        .map(|(authors, title, _, url, _date, _terminator)| Reference {
-            work_type: Some(CreativeWorkType::WebPage),
-            authors,
-            title: Some(title),
-            url,
-            ..Default::default()
-        })
+        .map(
+            |(authors, title, _, url, _date, _terminator): (Option<Vec<Author>>, _, _, _, _, _)| {
+                Reference {
+                    work_type: Some(CreativeWorkType::WebPage),
+                    id: authors.as_ref().map(|authors| generate_id(authors, &None)),
+                    authors,
+                    title: Some(title),
+                    url,
+                    ..Default::default()
+                }
+            },
+        )
         .parse_next(input)
 }
 
