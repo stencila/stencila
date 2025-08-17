@@ -239,42 +239,48 @@ fn ensure_isolated_blocks(md: &str) -> String {
 /// OCR can produce references that are neither a numeric list (have a starting
 /// number and dot but no blank line between them, which is ok) or a separate
 /// paragraphs.
-///
-/// This function modifies Markdown reference lists where each line starts with
-/// a number, or a number surrounded by punctuation, by making them into a
-/// numbered list. e.g.
-///
-/// ```text
-/// 1 => 1.
-/// 1. => 1.
-/// 1) => 1.
-/// [1] => 1.
-/// (1) => 1.
-/// ```
 fn listify_references(md: &str) -> String {
-    static HEADING_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"^#{1,4}(.*)").expect("invalid regex"));
+    // Regex to detect a heading for the references section
+    static REFERENCES_REGEX: Lazy<Regex> = Lazy::new(|| {
+        Regex::new(r"(?i)^#{1,4}\s*(?:\d+\.?\s*|[a-z]\.?\s*|[ivx]+\.?\s*)?(references?|bibliography|works?\s+cited|literature\s+cited|citations?|sources?|reference\s+list|further\s+reading|additional\s+sources|for\s+further\s+information)\s*$").expect("invalid regex")
+    });
 
+    // Regex to detect a heading after the references section
+    static HEADING_REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"^#{1,4}").expect("invalid regex"));
+
+    // Regex to ensure numbered lines are numbered list items
+    // 1 => 1.
+    // 1. => 1.
+    // 1) => 1.
+    // [1] => 1.
+    // (1) => 1.
     static NUMBERED_REGEX: Lazy<Regex> = Lazy::new(|| {
         Regex::new(r"^\s*[\(\[]*\s*(\d+)\s*[\)\]\.]*\s*(.*)$").expect("invalid regex")
     });
+
+    /// Regex to detect whether a line appears to be the start of a reference
+    /// based on having a punctuated year e.g. "(1981)" "2021."
+    static YEAR_REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"(\((19|20)\d\d\))|((19|20)\d\d.)").expect("invalid regex"));
 
     let mut result = Vec::new();
     let mut in_references = false;
     let mut last_reference_number = 0u32;
     for line in md.lines() {
-        if let Some(text) = HEADING_REGEX
-            .captures(line)
-            .and_then(|captures| captures.get(1))
-        {
-            in_references = matches!(
-                text.as_str().to_lowercase().trim(),
-                "references" | "bibliography"
-            );
+        if !in_references && REFERENCES_REGEX.is_match(line) {
+            // Entering references section
+            in_references = true;
+            result.push(line.to_string());
+        } else if in_references && HEADING_REGEX.is_match(line) {
+            // Exiting references section
+            in_references = false;
             result.push(line.to_string());
         } else if !in_references {
+            // Not in references so keep line as is
             result.push(line.to_string());
         } else if let Some(captures) = NUMBERED_REGEX.captures(line) {
+            // In references section and line is numbered
             let reference_number: u32 = captures[1].parse().expect("is only digits");
             let rest = &captures[2];
 
@@ -292,8 +298,17 @@ fn listify_references(md: &str) -> String {
             };
 
             result.push(transformed);
+        } else if YEAR_REGEX.is_match(line) {
+            // In references section and line is not numbered but appears to be a reference
+            // so ensure a blank line before it
+            if let Some(last) = result.last() {
+                if !last.trim().is_empty() {
+                    result.push(String::new())
+                }
+            }
+            result.push(line.to_string());
         } else {
-            // In references section but not a numbered line, keep as is
+            // In references section but line is not numbered or has punctuated year in it
             result.push(line.to_string());
         }
     }
