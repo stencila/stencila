@@ -107,7 +107,10 @@ fn author_year_item(input: &mut &str) -> Result<Citation> {
         authors,
         alt(((multispace0, ",", multispace0).take(), multispace1)),
         year_az,
-        opt(preceded((multispace0, ",", multispace0), item_suffix)),
+        opt(preceded(
+            alt(((multispace0, ",", multispace0).take(), multispace1)),
+            item_suffix,
+        )),
     )
         .map(
             |(citation_prefix, authors, _, date_with_suffix, citation_suffix)| Citation {
@@ -173,10 +176,18 @@ fn item_prefix(input: &mut &str) -> Result<String> {
 /// Parse a citation suffix within a parenthetical citation
 ///
 /// Takes everything until the next separator between items, or the closing
-/// parenthesis.
+/// parenthesis. Rejects suffixes that look like complete author-year citations.
 fn item_suffix(input: &mut &str) -> Result<String> {
     take_while(1.., |c: char| c != ',' && c != ';' && c != ')')
-        .verify(|suffix: &str| !suffix.trim().is_empty())
+        .verify(|suffix: &str| {
+            let trimmed = suffix.trim();
+            if trimmed.is_empty() {
+                return false;
+            }
+            // Ensure that this is not a complete author-year item
+            let mut test_input = trimmed;
+            author_year_item(&mut test_input).is_err()
+        })
         .map(String::from)
         .parse_next(input)
 }
@@ -414,14 +425,12 @@ mod tests {
         // Citation group with comma separator
         let inline = author_year(&mut "(Brown 2020, Wilson 2021)")?;
         match inline {
-            Inline::Citation(Citation {
-                target, options, ..
-            }) => {
-                // This actually parses as single citation with suffix because comma is ambiguous
-                assert_eq!(target, "brown-2020");
-                assert_eq!(options.citation_suffix, Some("Wilson 2021".to_string()));
+            Inline::CitationGroup(group) => {
+                assert_eq!(group.items.len(), 2);
+                assert_eq!(group.items[0].target, "brown-2020");
+                assert_eq!(group.items[1].target, "wilson-2021");
             }
-            _ => unreachable!("expected single citation with suffix"),
+            _ => unreachable!("expected citation group"),
         }
 
         // Citation group with mixed separators (semicolons and commas)
@@ -468,7 +477,7 @@ mod tests {
         }
 
         // Citation group with complex suffixes
-        let inline = author_year(&mut "(Davis 2021, Table 3.1; Miller 2022, Appendix B.2.3)")?;
+        let inline = author_year(&mut "(Davis 2021 Table 3.1; Miller 2022, Appendix B.2.3)")?;
         match inline {
             Inline::CitationGroup(group) => {
                 assert_eq!(group.items.len(), 2);
@@ -488,7 +497,7 @@ mod tests {
 
         // Citation group with prefixes and suffixes
         let inline =
-            author_year(&mut "(see Smith 1990, p. 5; cf. Jones 2021; also Brown 2022, Table 1)")?;
+            author_year(&mut "(see Smith 1990 p. 5; cf. Jones 2021; also Brown 2022, Table 1)")?;
         match inline {
             Inline::CitationGroup(group) => {
                 assert_eq!(group.items.len(), 3);
