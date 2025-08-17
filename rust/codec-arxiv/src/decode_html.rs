@@ -1,5 +1,6 @@
 use std::str::FromStr;
 
+use codec_biblio::decode::text_to_reference;
 use tl::{HTMLTag, Parser, ParserOptions, parse};
 
 use codec::{
@@ -766,9 +767,8 @@ fn decode_bibliography(
                         if item_tag.name().as_utf8_str() == "li"
                             && item_class.contains("ltx_bibitem")
                         {
-                            if let Some(reference) = decode_reference(parser, item_tag) {
-                                references.push(reference);
-                            }
+                            let reference = decode_reference(parser, item_tag);
+                            references.push(reference);
                         }
                     }
                 }
@@ -780,7 +780,7 @@ fn decode_bibliography(
 }
 
 /// Decode a single bibliography item into a Reference
-fn decode_reference(parser: &Parser, tag: &HTMLTag) -> Option<Reference> {
+fn decode_reference(parser: &Parser, tag: &HTMLTag) -> Reference {
     // Extract id from the li element
     let id = tag
         .attributes()
@@ -813,8 +813,8 @@ fn decode_reference(parser: &Parser, tag: &HTMLTag) -> Option<Reference> {
     let reference = reference.replace("\u{a0}", " ").replace("\n", " ");
 
     // Parse reference and give it the id
-    codec_biblio::decode::text_to_references(&reference)
-        .into_iter()
-        .next()
-        .map(|reference| Reference { id, ..reference })
+    Reference {
+        id,
+        ..text_to_reference(&reference)
+    }
 }

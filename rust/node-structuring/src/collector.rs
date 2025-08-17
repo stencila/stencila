@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use codec_biblio::decode::text_to_references;
+use codec_biblio::decode::text_to_reference;
 use codec_text_trait::to_text;
 use common::{once_cell::sync::Lazy, regex::Regex};
 use schema::{
@@ -205,13 +205,11 @@ impl Collector {
     fn visit_paragraph(&mut self, paragraph: &Paragraph) -> WalkControl {
         if self.in_references {
             let text = to_text(paragraph);
-            let refs = text_to_references(&text);
-            if !refs.is_empty() {
-                if let Some(references) = self.references.as_mut() {
-                    references.extend(refs);
-                } else {
-                    self.references = Some(refs);
-                }
+            let reference = text_to_reference(&text);
+            if let Some(references) = self.references.as_mut() {
+                references.push(reference);
+            } else {
+                self.references = Some(vec![reference]);
             }
         }
 
@@ -229,13 +227,12 @@ impl Collector {
             let mut references = Vec::new();
             for (index, item) in list.items.iter().enumerate() {
                 let text = to_text(item);
-                if let Some(mut reference) = text_to_references(&text).pop() {
-                    // If the list is numeric then set the id to the reference
-                    if is_numeric {
-                        reference.id = Some(format!("ref-{}", index + 1));
-                    }
-                    references.push(reference);
-                };
+                let mut reference = text_to_reference(&text);
+                // If the list is numeric then set the id to the reference
+                if is_numeric {
+                    reference.id = Some(format!("ref-{}", index + 1));
+                }
+                references.push(reference);
             }
 
             if !references.is_empty() {

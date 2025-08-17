@@ -9,6 +9,7 @@ use codec::{
         SoftwareSourceCode, SoftwareSourceCodeOptions, StringOrNumber, Text,
     },
 };
+use codec_biblio::decode::text_to_reference;
 use codec_text::to_text;
 
 use crate::responses::Record;
@@ -90,7 +91,7 @@ fn bibliographic_references_to_references(record: &Record) -> Vec<Reference> {
         .metadata
         .references
         .iter()
-        .flat_map(|item| codec_biblio::decode::text_to_references(item).into_iter())
+        .map(|item| text_to_reference(&item))
         .collect()
 }
 

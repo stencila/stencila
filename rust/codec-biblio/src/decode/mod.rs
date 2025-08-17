@@ -56,10 +56,15 @@ pub fn bibtex(bibtex: &str) -> Result<Vec<Reference>> {
     Ok(references)
 }
 
-/// Decode plain text into a set of Stencila [`Reference`] nodes
+/// Decode plain text into a Stencila [`Reference`] node
+pub fn text_to_reference(text: &str) -> Reference {
+    reference(text)
+}
+
+/// Decode plain text into a vector of Stencila [`Reference`] nodes
 pub fn text_to_references(text: &str) -> Vec<Reference> {
     text.split("\n\n")
-        .filter_map(|mut text| reference(&mut text).ok())
+        .map(|text: &str| reference(text))
         .collect()
 }
 
