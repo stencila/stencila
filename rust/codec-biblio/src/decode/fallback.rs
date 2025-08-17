@@ -13,66 +13,101 @@
 
 use winnow::{
     Parser,
-    combinator::{alt, repeat, repeat_till},
+    ascii::alphanumeric1,
+    combinator::{alt, not, peek, repeat, terminated},
     token::any,
 };
 
-use codec::schema::{CreativeWorkType, Reference};
+use codec::schema::{Author, CreativeWorkType, Date, Reference};
 
-use crate::decode::parts::doi::{DoiOrUrl, doi_or_url};
+use crate::decode::{
+    parts::{authors::persons, date::year_az, doi::doi_or_url},
+    reference::generate_id,
+};
+
+enum Part {
+    Authors(Vec<Author>),
+    Date((Date, Option<String>)),
+    Doi(String),
+    Url(String),
+    None,
+}
 
 /// Main fallback parser for unstructured bibliographic text
 pub fn fallback(mut input: &str) -> Reference {
-    alt((
-        repeat_till(0.., any, doi_or_url).map(|(text, doi_or_url): (String, DoiOrUrl)| {
-            let text = clean_text(&text);
-            let text = (!text.is_empty()).then_some(text);
-
-            if doi_or_url.url.is_some() {
-                Reference {
-                    work_type: Some(CreativeWorkType::WebPage),
-                    text,
-                    url: doi_or_url.url,
-                    ..Default::default()
+    repeat(
+        0..,
+        alt((
+            // Use `persons`, rather than `authors`, here because the latter includes organizations
+            // which is very permissive and creates unwarranted matches.
+            terminated(persons, peek(not(alphanumeric1)))
+                .map(|authors| Part::Authors(authors.into_iter().map(Author::Person).collect())),
+            terminated(year_az, peek(not(alphanumeric1)))
+                .map(|date_with_suffix| Part::Date(date_with_suffix)),
+            doi_or_url.map(|doi_or_url| {
+                if let Some(doi) = doi_or_url.doi {
+                    Part::Doi(doi)
+                } else if let Some(url) = doi_or_url.url {
+                    Part::Url(url)
+                } else {
+                    Part::None
                 }
-            } else {
-                Reference {
-                    text,
-                    doi: doi_or_url.doi,
-                    ..Default::default()
-                }
-            }
-        }),
-        repeat(0.., any).map(|text: String| {
-            let text = clean_text(&text);
-            let text = (!text.is_empty()).then_some(text);
+            }),
+            any.map(|_| Part::None),
+        )),
+    )
+    .map(|parts: Vec<Part>| -> Reference {
+        let mut reference = Reference::new();
+        let mut reference_authors: Option<Vec<Author>> = None;
+        let mut reference_date_with_suffix = None;
 
-            Reference {
-                text,
-                ..Default::default()
+        for part in parts {
+            match part {
+                Part::Authors(authors) => {
+                    if reference.authors.is_none() {
+                        reference.authors = Some(authors.clone());
+                        reference_authors = Some(authors);
+                    }
+                }
+                Part::Date((date, date_suffix)) => {
+                    if reference.date.is_none() {
+                        reference.date = Some(date.clone());
+                        reference_date_with_suffix = Some((date, date_suffix));
+                    }
+                }
+                Part::Doi(doi) => {
+                    if reference.doi.is_none() {
+                        reference.doi = Some(doi);
+                    }
+                }
+                Part::Url(url) => {
+                    if reference.url.is_none() {
+                        reference.work_type = Some(CreativeWorkType::WebPage);
+                        reference.url = Some(url)
+                    }
+                }
+                Part::None => {}
             }
-        }),
-    ))
+        }
+
+        if let Some(authors) = reference_authors {
+            reference.id = Some(generate_id(&authors, &reference_date_with_suffix));
+        }
+
+        reference.text = some_if_not_blank(input);
+
+        reference
+    })
     .parse_next(&mut input)
     .unwrap_or_else(|_| Reference {
-        text: Some(input.to_string()),
+        text: some_if_not_blank(input),
         ..Default::default()
     })
 }
 
-/// Clean up text to make it suitable as a reference text
-///
-/// Removes common prefixes, suffixes, and cleans whitespace while
-/// preserving meaningful content and punctuation.
-fn clean_text(text: &str) -> String {
-    text.trim()
-        // Remove common separators at start/end
-        .trim_start_matches(['-', '–', '—', ':', ';', ',', '.'])
-        .trim_end_matches(['-', '–', '—', ':', ';', ',', '.', '('])
-        // Normalize multiple spaces to single spaces
-        .split_whitespace()
-        .collect::<Vec<_>>()
-        .join(" ")
+fn some_if_not_blank(text: &str) -> Option<String> {
+    let text = text.trim();
+    (!text.is_empty()).then_some(text.to_string())
 }
 
 #[cfg(test)]
@@ -82,53 +117,87 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_extract_authors_date() {
+        let r = fallback(&mut "Smith, J & Jones, P (1991) Some title. 10.1234/example");
+        assert_eq!(r.work_type, None);
+        assert_eq!(r.id, Some("smith-and-jones-1991".to_string()));
+        assert_eq!(r.authors.iter().flatten().count(), 2);
+        assert_eq!(r.date, Some(Date::new("1991".into())));
+        assert_eq!(r.doi, Some("10.1234/example".to_string()));
+        assert_eq!(r.url, None);
+    }
+
+    #[test]
     fn test_extract_doi() {
         let r = fallback(&mut "10.1234/example");
         assert_eq!(r.work_type, None);
+        assert_eq!(r.id, None);
+        assert_eq!(r.authors, None);
+        assert_eq!(r.date, None);
         assert_eq!(r.doi, Some("10.1234/example".to_string()));
-        assert!(r.text.is_none());
+        assert_eq!(r.url, None);
 
         let r = fallback(&mut "10.1234/example Research paper about climate change");
         assert_eq!(r.work_type, None);
+        assert_eq!(r.id, None);
+        assert_eq!(r.authors, None);
+        assert_eq!(r.date, None);
         assert_eq!(r.doi, Some("10.1234/example".to_string()));
+        assert_eq!(r.url, None);
 
         let r = fallback(&mut "Research paper about climate change doi:10.1234/example");
         assert_eq!(r.work_type, None);
+        assert_eq!(r.id, None);
+        assert_eq!(r.authors, None);
+        assert_eq!(r.date, None);
         assert_eq!(r.doi, Some("10.1234/example".to_string()));
-        assert_eq!(
-            r.text,
-            Some("Research paper about climate change".to_string())
-        );
+        assert_eq!(r.url, None);
 
         let r = fallback(&mut "Climate research (10.1234/example) shows warming trends");
         assert_eq!(r.work_type, None);
+        assert_eq!(r.id, None);
+        assert_eq!(r.authors, None);
+        assert_eq!(r.date, None);
         assert_eq!(r.doi, Some("10.1234/example".to_string()));
-        assert_eq!(r.text, Some("Climate research".to_string()));
+        assert_eq!(r.url, None);
 
         let r = fallback(&mut "Study on AI https://doi.org/10.1234/example from 2023");
         assert_eq!(r.work_type, None);
+        assert_eq!(r.id, None);
+        assert_eq!(r.authors, None);
+        assert_eq!(r.date, Some(Date::new("2023".into())));
         assert_eq!(r.doi, Some("10.1234/example".to_string()));
-        assert_eq!(r.text, Some("Study on AI".to_string()));
+        assert_eq!(r.url, None);
     }
 
     #[test]
     fn test_extract_url() {
         let r = fallback(&mut "Web resource about programming https://example.com/guide tutorial");
         assert_eq!(r.work_type, Some(CreativeWorkType::WebPage));
+        assert_eq!(r.id, None);
+        assert_eq!(r.authors, None);
+        assert_eq!(r.date, None);
+        assert_eq!(r.doi, None);
         assert_eq!(r.url, Some("https://example.com/guide".to_string()));
-        assert_eq!(r.text, Some("Web resource about programming".to_string()));
 
         let r = fallback(&mut "Plain text with a url https://example.org");
         assert_eq!(r.work_type, Some(CreativeWorkType::WebPage));
+        // assert_eq!(r.id, None);
+        assert_eq!(r.authors, None);
+        assert_eq!(r.date, None);
+        assert_eq!(r.doi, None);
         assert_eq!(r.url, Some("https://example.org".to_string()));
-        assert_eq!(r.text, Some("Plain text with a".to_string()));
     }
 
     #[test]
     fn test_plain_text() {
         let r = fallback(&mut "Some unstructured reference text about research");
-        assert!(r.doi.is_none());
-        assert!(r.url.is_none());
+        assert_eq!(r.work_type, None);
+        assert_eq!(r.id, None);
+        assert_eq!(r.authors, None);
+        assert_eq!(r.date, None);
+        assert_eq!(r.doi, None);
+        assert_eq!(r.url, None);
         assert_eq!(
             r.text,
             Some("Some unstructured reference text about research".to_string())
@@ -136,28 +205,23 @@ mod tests {
     }
 
     #[test]
-    fn test_clean_text() {
-        assert_eq!(clean_text("  Research paper  "), "Research paper");
-        assert_eq!(clean_text("- Research paper -"), "Research paper");
-        assert_eq!(clean_text(": Title text :"), "Title text");
-        assert_eq!(clean_text("Title, with, commas."), "Title, with, commas");
-        assert_eq!(
-            clean_text("  Multiple   spaces   normalized  "),
-            "Multiple spaces normalized"
-        );
-        assert_eq!(clean_text(""), "");
-    }
-
-    #[test]
     fn test_empty_input() {
         let r = fallback(&mut "");
-        assert!(r.doi.is_none());
-        assert!(r.url.is_none());
-        assert!(r.text.is_none());
+        assert_eq!(r.work_type, None);
+        assert_eq!(r.id, None);
+        assert_eq!(r.authors, None);
+        assert_eq!(r.date, None);
+        assert_eq!(r.doi, None);
+        assert_eq!(r.url, None);
+        assert_eq!(r.text, None);
 
         let r = fallback(&mut "   \t\n   ");
-        assert!(r.doi.is_none());
-        assert!(r.url.is_none());
-        assert!(r.text.is_none());
+        assert_eq!(r.work_type, None);
+        assert_eq!(r.id, None);
+        assert_eq!(r.authors, None);
+        assert_eq!(r.date, None);
+        assert_eq!(r.doi, None);
+        assert_eq!(r.url, None);
+        assert_eq!(r.text, None);
     }
 }
