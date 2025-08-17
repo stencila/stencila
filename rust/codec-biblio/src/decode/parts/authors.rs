@@ -14,18 +14,21 @@ use codec::{
 
 use crate::decode::parts::chars::{is_hyphen, one_apostrophe, one_hyphen};
 
+/// Match a separator between authors
+pub fn separator(input: &mut &str) -> Result<()> {
+    (
+        multispace0,
+        alt((", &", ", and", "&", "and", ",", ";")),
+        multispace0,
+    )
+        .map(|_| ())
+        .parse_next(input)
+}
+
 /// Parse multiple authors separated by various delimiters
 pub fn authors(input: &mut &str) -> Result<Vec<Author>> {
     terminated(
-        separated(
-            1..,
-            author,
-            (
-                multispace0,
-                alt((", &", ", and", "&", "and", ",", ";")),
-                multispace0,
-            ),
-        ),
+        separated(1.., author, separator),
         opt((multispace0, opt(","), multispace0, etal)),
     )
     .map(|authors: Vec<Author>| {
@@ -55,22 +58,22 @@ pub fn author(input: &mut &str) -> Result<Author> {
 
 /// Parse multiple persons separated by various delimiters
 pub fn persons(input: &mut &str) -> Result<Vec<Person>> {
-    separated(
-        1..,
-        person,
-        (multispace0, alt((", &", ", and", "&", "and", ",", ";")), multispace0),
-    )
-    .parse_next(input)
+    separated(1.., person, separator).parse_next(input)
 }
 
 /// Parse a single person in various formats
 pub fn person(input: &mut &str) -> Result<Person> {
-    alt((person_family_given, person_given_family))
-        .map(|author| match author {
-            Author::Person(person) => person,
-            _ => Person::default(),
-        })
-        .parse_next(input)
+    alt((
+        person_family_initial_periods,
+        person_family_initials,
+        person_family_given,
+        person_given_family,
+    ))
+    .map(|author| match author {
+        Author::Person(person) => person,
+        _ => Person::default(),
+    })
+    .parse_next(input)
 }
 
 /// Parse person in "Family FM" format

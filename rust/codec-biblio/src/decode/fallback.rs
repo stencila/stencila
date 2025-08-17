@@ -13,8 +13,8 @@
 
 use winnow::{
     Parser,
-    ascii::alphanumeric1,
-    combinator::{alt, not, peek, repeat, terminated},
+    ascii::{alphanumeric1, multispace0, multispace1},
+    combinator::{alt, not, opt, peek, repeat, terminated},
     token::any,
 };
 
@@ -26,7 +26,6 @@ use crate::decode::{
 };
 
 enum Part {
-    Authors(Vec<Author>),
     Date((Date, Option<String>)),
     Doi(String),
     Url(String),
@@ -35,74 +34,77 @@ enum Part {
 
 /// Main fallback parser for unstructured bibliographic text
 pub fn fallback(mut input: &str) -> Reference {
-    repeat(
-        0..,
-        alt((
-            // Use `persons`, rather than `authors`, here because the latter includes organizations
-            // which is very permissive and creates unwarranted matches.
-            terminated(persons, peek(not(alphanumeric1)))
-                .map(|authors| Part::Authors(authors.into_iter().map(Author::Person).collect())),
-            terminated(year_az, peek(not(alphanumeric1)))
-                .map(|date_with_suffix| Part::Date(date_with_suffix)),
-            doi_or_url.map(|doi_or_url| {
-                if let Some(doi) = doi_or_url.doi {
-                    Part::Doi(doi)
-                } else if let Some(url) = doi_or_url.url {
-                    Part::Url(url)
-                } else {
-                    Part::None
-                }
-            }),
-            any.map(|_| Part::None),
+    (
+        // Use `persons`, rather than `authors`, here because the latter includes organizations
+        // which is very permissive and creates unwarranted matches.
+        opt(terminated(
+            persons.map(|persons| persons.into_iter().map(Author::Person).collect()),
+            alt((
+                (multispace0, alt((",", ".", ";")), multispace0).take(),
+                multispace1,
+            )),
         )),
+        repeat(
+            0..,
+            alt((
+                terminated(year_az, peek(not(alphanumeric1)))
+                    .map(|date_with_suffix| Part::Date(date_with_suffix)),
+                doi_or_url.map(|doi_or_url| {
+                    if let Some(doi) = doi_or_url.doi {
+                        Part::Doi(doi)
+                    } else if let Some(url) = doi_or_url.url {
+                        Part::Url(url)
+                    } else {
+                        Part::None
+                    }
+                }),
+                any.map(|_| Part::None),
+            )),
+        ),
     )
-    .map(|parts: Vec<Part>| -> Reference {
-        let mut reference = Reference::new();
-        let mut reference_authors: Option<Vec<Author>> = None;
-        let mut reference_date_with_suffix = None;
+        .map(|(authors, parts): (_, Vec<_>)| -> Reference {
+            let mut reference = Reference {
+                authors,
+                ..Default::default()
+            };
+            let mut reference_date_with_suffix = None;
 
-        for part in parts {
-            match part {
-                Part::Authors(authors) => {
-                    if reference.authors.is_none() {
-                        reference.authors = Some(authors.clone());
-                        reference_authors = Some(authors);
+            for part in parts {
+                match part {
+                    Part::Date((date, date_suffix)) => {
+                        if reference.date.is_none() {
+                            reference.date = Some(date.clone());
+                            reference_date_with_suffix = Some((date, date_suffix));
+                        }
                     }
-                }
-                Part::Date((date, date_suffix)) => {
-                    if reference.date.is_none() {
-                        reference.date = Some(date.clone());
-                        reference_date_with_suffix = Some((date, date_suffix));
+                    Part::Doi(doi) => {
+                        if reference.doi.is_none() {
+                            reference.doi = Some(doi);
+                        }
                     }
-                }
-                Part::Doi(doi) => {
-                    if reference.doi.is_none() {
-                        reference.doi = Some(doi);
+                    Part::Url(url) => {
+                        if reference.url.is_none() {
+                            reference.work_type = Some(CreativeWorkType::WebPage);
+                            reference.url = Some(url)
+                        }
                     }
+                    Part::None => {}
                 }
-                Part::Url(url) => {
-                    if reference.url.is_none() {
-                        reference.work_type = Some(CreativeWorkType::WebPage);
-                        reference.url = Some(url)
-                    }
-                }
-                Part::None => {}
             }
-        }
 
-        if let Some(authors) = reference_authors {
-            reference.id = Some(generate_id(&authors, &reference_date_with_suffix));
-        }
+            if let Some(authors) = &reference.authors {
+                reference.id = Some(generate_id(&authors, &reference_date_with_suffix));
+            }
 
-        reference.text = some_if_not_blank(input);
+            reference.text = some_if_not_blank(input);
 
-        reference
-    })
-    .parse_next(&mut input)
-    .unwrap_or_else(|_| Reference {
-        text: some_if_not_blank(input),
-        ..Default::default()
-    })
+            reference
+        })
+        .parse_next(&mut input)
+        .unwrap_or_else(|_| Reference {
+            text: some_if_not_blank(input),
+            ..Default::default()
+        })
 }
 
 fn some_if_not_blank(text: &str) -> Option<String> {
@@ -182,7 +184,7 @@ mod tests {
 
         let r = fallback(&mut "Plain text with a url https://example.org");
         assert_eq!(r.work_type, Some(CreativeWorkType::WebPage));
-        // assert_eq!(r.id, None);
+        assert_eq!(r.id, None);
         assert_eq!(r.authors, None);
         assert_eq!(r.date, None);
         assert_eq!(r.doi, None);

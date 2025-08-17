@@ -141,7 +141,10 @@ mod tests {
 
         let r = reference(&mut "Plain text with a url https://example.org");
         assert_eq!(r.work_type, Some(CreativeWorkType::WebPage));
-        assert_eq!(r.text, Some("Plain text with a url https://example.org".into()));
+        assert_eq!(
+            r.text,
+            Some("Plain text with a url https://example.org".into())
+        );
         assert_eq!(r.doi, None);
         assert_eq!(r.url, Some("https://example.org".into()));
     }
