@@ -1,8 +1,8 @@
 use winnow::{
     Parser, Result,
-    ascii::{multispace0, multispace1},
+    ascii::{digit1, multispace0, multispace1},
     combinator::{alt, delimited, not, opt, preceded, repeat, separated, terminated},
-    token::{any, take_while},
+    token::{any, one_of, take_while},
 };
 
 use codec::{
@@ -21,8 +21,9 @@ use crate::decode::{
     reference::generate_id,
 };
 
-/// Parse author-year citations within text returning a vector of inlines that
-/// are either [Inline::Text], [Inline::Citation], or [Inline::CitationGroup]
+/// Parse author-year narrative and parenthetic citations (e.g. Smith (1990),
+/// (Smith & Jones, 1990)) within text returning a vector of inlines that are
+/// either [Inline::Text], [Inline::Citation], or [Inline::CitationGroup]
 pub(crate) fn author_year_and_text(input: &mut &str) -> Result<Vec<Inline>> {
     repeat(
         1..,
@@ -33,18 +34,72 @@ pub(crate) fn author_year_and_text(input: &mut &str) -> Result<Vec<Inline>> {
                 .map(|text: &str| t(text)),
         )),
     )
-    .map(|inlines: Vec<Inline>| {
-        let mut folded = Vec::new();
-        for inline in inlines {
-            if let (Some(Inline::Text(last)), Inline::Text(text)) = (folded.last_mut(), &inline) {
-                last.value.push_str(&text.value);
-            } else {
-                folded.push(inline);
-            }
-        }
-        folded
-    })
+    .map(fold_text_inlines)
     .parse_next(input)
+}
+
+/// Parse square bracket numeric citations (e.g. [1], [1-3], [1,2,3]) within
+/// text returning a vector of inlines that are either [Inline::Text],
+/// [Inline::Citation], or [Inline::CitationGroup].
+pub(crate) fn bracketed_numeric_and_text(input: &mut &str) -> Result<Vec<Inline>> {
+    repeat(
+        1..,
+        alt((
+            bracketed_square,
+            preceded(not(bracketed_square), any)
+                .take()
+                .map(|text: &str| t(text)),
+        )),
+    )
+    .map(fold_text_inlines)
+    .parse_next(input)
+}
+
+/// Parse parenthetic numeric citations (e.g. (1), (1-3), (1,2,3)) within text
+/// returning a vector of inlines that are either [Inline::Text],
+/// [Inline::Citation], or [Inline::CitationGroup]
+pub(crate) fn parenthetic_numeric_and_text(input: &mut &str) -> Result<Vec<Inline>> {
+    repeat(
+        1..,
+        alt((
+            bracketed_parentheses,
+            preceded(not(bracketed_parentheses), any)
+                .take()
+                .map(|text: &str| t(text)),
+        )),
+    )
+    .map(fold_text_inlines)
+    .parse_next(input)
+}
+
+/// Parse superscript numeric citations (e.g. {}^{1}, {}^{1-3}, {}^{1,2,3})
+/// within text returning a vector of inlines that are either [Inline::Text],
+/// [Inline::Citation], or [Inline::CitationGroup]
+pub(crate) fn superscripted_numeric_and_text(input: &mut &str) -> Result<Vec<Inline>> {
+    repeat(
+        1..,
+        alt((
+            bracketed_superscript,
+            preceded(not(bracketed_superscript), any)
+                .take()
+                .map(|text: &str| t(text)),
+        )),
+    )
+    .map(fold_text_inlines)
+    .parse_next(input)
+}
+
+/// Helper function to fold adjacent text inlines
+fn fold_text_inlines(inlines: Vec<Inline>) -> Vec<Inline> {
+    let mut folded = Vec::new();
+    for inline in inlines {
+        if let (Some(Inline::Text(last)), Inline::Text(text)) = (folded.last_mut(), &inline) {
+            last.value.push_str(&text.value);
+        } else {
+            folded.push(inline);
+        }
+    }
+    folded
 }
 
 /// Parse an author-year citation (either parenthetical or
@@ -103,13 +158,13 @@ fn author_year_narrative(input: &mut &str) -> Result<Citation> {
 /// Allows for optional prefix suffix.
 fn author_year_item(input: &mut &str) -> Result<Citation> {
     (
-        opt(terminated(item_prefix, multispace1)),
+        opt(terminated(author_year_item_prefix, multispace1)),
         authors,
         alt(((multispace0, ",", multispace0).take(), multispace1)),
         year_az,
         opt(preceded(
             alt(((multispace0, ",", multispace0).take(), multispace1)),
-            item_suffix,
+            author_year_item_suffix,
         )),
     )
         .map(
@@ -167,7 +222,7 @@ fn authors(input: &mut &str) -> Result<Vec<Author>> {
 /// Parse a citation prefix within a parenthetical citation
 ///
 /// Takes all characters until the next uppercase (to not consume author) or whitespace character
-fn item_prefix(input: &mut &str) -> Result<String> {
+fn author_year_item_prefix(input: &mut &str) -> Result<String> {
     take_while(1.., |c: char| !c.is_whitespace() && !c.is_uppercase())
         .map(String::from)
         .parse_next(input)
@@ -177,7 +232,7 @@ fn item_prefix(input: &mut &str) -> Result<String> {
 ///
 /// Takes everything until the next separator between items, or the closing
 /// parenthesis. Rejects suffixes that look like complete author-year citations.
-fn item_suffix(input: &mut &str) -> Result<String> {
+fn author_year_item_suffix(input: &mut &str) -> Result<String> {
     take_while(1.., |c: char| c != ',' && c != ';' && c != ')')
         .verify(|suffix: &str| {
             let trimmed = suffix.trim();
@@ -190,6 +245,98 @@ fn item_suffix(input: &mut &str) -> Result<String> {
         })
         .map(String::from)
         .parse_next(input)
+}
+
+/// Parse square bracket citation like [1,2,3-5]
+fn bracketed_square(input: &mut &str) -> Result<Inline> {
+    delimited("[", citation_sequence, "]").parse_next(input)
+}
+
+/// Parse parentheses citation like (1,2,3-5)
+fn bracketed_parentheses(input: &mut &str) -> Result<Inline> {
+    delimited("(", citation_sequence, ")").parse_next(input)
+}
+
+/// Parse superscript math citation like {}^{1,2,3-5}
+fn bracketed_superscript(input: &mut &str) -> Result<Inline> {
+    delimited(
+        (multispace0, "{", multispace0, "}", "^", "{"),
+        citation_sequence,
+        "}",
+    )
+    .parse_next(input)
+}
+
+/// Parse a sequence of citation numbers with commas and dashes
+fn citation_sequence(input: &mut &str) -> Result<Inline> {
+    separated(
+        1..,
+        alt((citation_range, citation_number)),
+        (multispace0, ",", multispace0),
+    )
+    .verify(|items: &Vec<CitationItem>| !items.is_empty())
+    .map(|items| {
+        let citations = expand_citation_items(items);
+        if citations.len() == 1 {
+            Inline::Citation(citations.into_iter().next().unwrap())
+        } else {
+            Inline::CitationGroup(CitationGroup::new(citations))
+        }
+    })
+    .parse_next(input)
+}
+
+#[derive(Debug, Clone)]
+enum CitationItem {
+    Single(u32),
+    Range(u32, u32),
+}
+
+/// Parse a citation range like "1-3" or "10-15"
+fn citation_range(input: &mut &str) -> Result<CitationItem> {
+    (
+        citation_number_value,
+        (multispace0, one_of(['-', '–', '—']), multispace0),
+        citation_number_value,
+    )
+        .verify(|(start, _, end)| {
+            *start > 0 && *start < 500 && *end > 0 && *end < 500 && start <= end
+        })
+        .map(|(start, _, end)| CitationItem::Range(start, end))
+        .parse_next(input)
+}
+
+/// Parse a single citation number
+fn citation_number(input: &mut &str) -> Result<CitationItem> {
+    citation_number_value
+        .verify(|num| *num > 0 && *num < 500)
+        .map(CitationItem::Single)
+        .parse_next(input)
+}
+
+/// Parse just the numeric value
+fn citation_number_value(input: &mut &str) -> Result<u32> {
+    (multispace0, digit1, multispace0)
+        .map(|(_, digits, _): (_, &str, _)| digits.parse().unwrap_or(0))
+        .parse_next(input)
+}
+
+/// Expand citation items into individual Citations
+fn expand_citation_items(items: Vec<CitationItem>) -> Vec<Citation> {
+    let mut citations = Vec::new();
+    for item in items {
+        match item {
+            CitationItem::Single(num) => {
+                citations.push(Citation::new(format!("ref-{num}")));
+            }
+            CitationItem::Range(start, end) => {
+                for num in start..=end {
+                    citations.push(Citation::new(format!("ref-{num}")));
+                }
+            }
+        }
+    }
+    citations
 }
 
 #[cfg(test)]
@@ -533,16 +680,16 @@ mod tests {
 
     #[test]
     fn test_item_prefix() -> Result<()> {
-        let prefix = item_prefix(&mut "see")?;
+        let prefix = author_year_item_prefix(&mut "see")?;
         assert_eq!(prefix, "see");
 
-        let prefix = item_prefix(&mut "cf.")?;
+        let prefix = author_year_item_prefix(&mut "cf.")?;
         assert_eq!(prefix, "cf.");
 
-        let prefix = item_prefix(&mut "e.g.")?;
+        let prefix = author_year_item_prefix(&mut "e.g.")?;
         assert_eq!(prefix, "e.g.");
 
-        let prefix = item_prefix(&mut "also")?;
+        let prefix = author_year_item_prefix(&mut "also")?;
         assert_eq!(prefix, "also");
 
         Ok(())
@@ -550,16 +697,16 @@ mod tests {
 
     #[test]
     fn test_item_suffix() -> Result<()> {
-        let suffix = item_suffix(&mut "p. 15")?;
+        let suffix = author_year_item_suffix(&mut "p. 15")?;
         assert_eq!(suffix, "p. 15");
 
-        let suffix = item_suffix(&mut "ch. 5")?;
+        let suffix = author_year_item_suffix(&mut "ch. 5")?;
         assert_eq!(suffix, "ch. 5");
 
-        let suffix = item_suffix(&mut "§ 42")?;
+        let suffix = author_year_item_suffix(&mut "§ 42")?;
         assert_eq!(suffix, "§ 42");
 
-        let suffix = item_suffix(&mut "Table 3.2 & Fig. 4")?;
+        let suffix = author_year_item_suffix(&mut "Table 3.2 & Fig. 4")?;
         assert_eq!(suffix, "Table 3.2 & Fig. 4");
 
         Ok(())
@@ -807,6 +954,88 @@ mod tests {
         assert!(author_year_narrative(&mut "Smith 1990").is_err());
         assert!(author_year_narrative(&mut "Smith (1990").is_err());
         assert!(author_year_narrative(&mut "Smith 1990)").is_err());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_bracketed_numeric_and_text() -> Result<()> {
+        // Square bracket citation
+        let inlines = bracketed_numeric_and_text(&mut "According to [1], the study found...")?;
+        assert_eq!(
+            inlines,
+            vec![t("According to "), ct("ref-1"), t(", the study found...")]
+        );
+
+        // Citation group with range
+        let inlines = bracketed_numeric_and_text(&mut "Studies [1-3] support this.")?;
+        assert_eq!(
+            inlines,
+            vec![
+                t("Studies "),
+                ctg(["ref-1", "ref-2", "ref-3"]),
+                t(" support this.")
+            ]
+        );
+
+        // Should not match parentheses
+        let inlines = bracketed_numeric_and_text(&mut "The equation (1) shows...")?;
+        assert_eq!(inlines, vec![t("The equation (1) shows...")]);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parenthetic_numeric_and_text() -> Result<()> {
+        // Parenthetic citation
+        let inlines = parenthetic_numeric_and_text(&mut "The theory holds (2).")?;
+        assert_eq!(inlines, vec![t("The theory holds "), ct("ref-2"), t(".")]);
+
+        // Citation group
+        let inlines = parenthetic_numeric_and_text(&mut "Studies (1,3-5) confirm this.")?;
+        assert_eq!(
+            inlines,
+            vec![
+                t("Studies "),
+                ctg(["ref-1", "ref-3", "ref-4", "ref-5"]),
+                t(" confirm this.")
+            ]
+        );
+
+        // Should not match square brackets
+        let inlines = parenthetic_numeric_and_text(&mut "The reference [1] shows...")?;
+        assert_eq!(inlines, vec![t("The reference [1] shows...")]);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_superscripted_numeric_and_text() -> Result<()> {
+        // Superscript citation
+        let inlines = superscripted_numeric_and_text(&mut "The study{}^{1} shows results.")?;
+        assert_eq!(
+            inlines,
+            vec![t("The study"), ct("ref-1"), t(" shows results.")]
+        );
+
+        // Citation group
+        let inlines = superscripted_numeric_and_text(&mut "Research{}^{1,3-5} confirms this.")?;
+        assert_eq!(
+            inlines,
+            vec![
+                t("Research"),
+                ctg(["ref-1", "ref-3", "ref-4", "ref-5"]),
+                t(" confirms this.")
+            ]
+        );
+
+        // Should not match square brackets or parentheses
+        let inlines =
+            superscripted_numeric_and_text(&mut "The reference [1] and equation (2) show...")?;
+        assert_eq!(
+            inlines,
+            vec![t("The reference [1] and equation (2) show...")]
+        );
 
         Ok(())
     }
