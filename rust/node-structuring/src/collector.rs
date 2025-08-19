@@ -122,14 +122,6 @@ impl VisitorMut for Collector {
     }
 }
 
-// Detect figure captions like "Figure 1.", "Fig 2:", "Figure 12 -", etc.
-static FIGURE_CAPTION_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(?i)^(?:Figure|Fig\.?)\s*(\d+)[.:\-\s]*").expect("invalid regex"));
-
-// Detect table captions like "Table 1.", "Table 2:", "Table 12 -", etc.
-static TABLE_CAPTION_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(?i)^(?:Table)\s*(\d+)[.:\-\s]*").expect("invalid regex"));
-
 impl Collector {
     /// Visit a vector of blocks such as Article or Section content
     ///
@@ -168,10 +160,10 @@ impl Collector {
 
             // Check for caption followed by ImageObject
             if let (Block::Paragraph(caption_para), Block::ImageObject(image)) = (current, next) {
-                if let Some((figure_number, cleaned_caption)) = maybe_figure_caption(caption_para) {
+                if let Some((label, caption)) = maybe_figure_caption(caption_para) {
                     let mut figure = Figure::new(vec![next.clone()]);
-                    figure.caption = Some(vec![Block::Paragraph(cleaned_caption)]);
-                    figure.label = Some(figure_number);
+                    figure.caption = Some(vec![Block::Paragraph(caption)]);
+                    figure.label = Some(label);
 
                     // Replace first block with figure, second with empty
                     self.block_replacements.insert(
@@ -193,10 +185,10 @@ impl Collector {
 
             // Check for caption followed by Table (only caption before table is considered)
             if let (Block::Paragraph(caption_para), Block::Table(table)) = (current, next) {
-                if let Some((table_number, cleaned_caption)) = maybe_table_caption(caption_para) {
+                if let Some((label, caption)) = maybe_table_caption(caption_para) {
                     let mut new_table = table.clone();
-                    new_table.caption = Some(vec![Block::Paragraph(cleaned_caption)]);
-                    new_table.label = Some(table_number);
+                    new_table.caption = Some(vec![Block::Paragraph(caption)]);
+                    new_table.label = Some(label);
 
                     // Replace caption with empty and table with updated table
                     self.block_replacements.insert(
@@ -390,17 +382,22 @@ impl Collector {
 /// starts with "Figure X" or "Fig X" where X is a number. The cleaned paragraph
 /// has the figure prefix removed from the text content, handling nested inline elements.
 fn maybe_figure_caption(paragraph: &Paragraph) -> Option<(String, Paragraph)> {
+    // Detect figure captions like "Figure 1.", "Fig 2:", "Figure 12 -", "Figure A2" etc.
+    static FIGURE_CAPTION_REGEX: Lazy<Regex> = Lazy::new(|| {
+        Regex::new(r"(?i)^(?:Figure|Fig\.?)\s*([A-Z]?\d+)[.:\-\s]*").expect("invalid regex")
+    });
+
     let text = to_text(paragraph);
 
     if let Some(captures) = FIGURE_CAPTION_REGEX.captures(&text) {
-        let figure_number = captures[1].to_string();
+        let figure_label = captures[1].to_string();
         let matched_text = captures.get(0)?.as_str();
 
         // Clone the paragraph and remove the matched prefix
         let mut cleaned_paragraph = paragraph.clone();
         remove_prefix_from_inlines(&mut cleaned_paragraph.content, matched_text);
 
-        Some((figure_number, cleaned_paragraph))
+        Some((figure_label, cleaned_paragraph))
     } else {
         None
     }
@@ -412,17 +409,21 @@ fn maybe_figure_caption(paragraph: &Paragraph) -> Option<(String, Paragraph)> {
 /// starts with "Table X" where X is a number. The cleaned paragraph
 /// has the table prefix removed from the text content, handling nested inline elements.
 fn maybe_table_caption(paragraph: &Paragraph) -> Option<(String, Paragraph)> {
+    // Detect table captions like "Table 1.", "Table 2:", "Table 12 -", , "Table B3" etc.
+    static TABLE_CAPTION_REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"(?i)^(?:Table)\s*([A-Z]?\d+)[.:\-\s]*").expect("invalid regex"));
+
     let text = to_text(paragraph);
 
     if let Some(captures) = TABLE_CAPTION_REGEX.captures(&text) {
-        let table_number = captures[1].to_string();
+        let table_label = captures[1].to_string();
         let matched_text = captures.get(0)?.as_str();
 
         // Clone the paragraph and remove the matched prefix
         let mut cleaned_paragraph = paragraph.clone();
         remove_prefix_from_inlines(&mut cleaned_paragraph.content, matched_text);
 
-        Some((table_number, cleaned_paragraph))
+        Some((table_label, cleaned_paragraph))
     } else {
         None
     }
