@@ -25,7 +25,7 @@ pub fn clean_md(md: &str) -> String {
     let md = remove_extra_blank_lines(&md);
     let md = remove_header_formatting(&md);
     let md = ensure_isolated_blocks(&md);
-    listify_references(&md)
+    ensure_isolated_references(&md)
 }
 
 /// Remove line numbers
@@ -239,7 +239,7 @@ fn ensure_isolated_blocks(md: &str) -> String {
 /// OCR can produce references that are neither a numeric list (have a starting
 /// number and dot but no blank line between them, which is ok) or a separate
 /// paragraphs.
-fn listify_references(md: &str) -> String {
+fn ensure_isolated_references(md: &str) -> String {
     // Regex to detect a heading for the references section
     static REFERENCES_REGEX: Lazy<Regex> = Lazy::new(|| {
         Regex::new(r"(?i)^#{1,4}\s*(?:\d+\.?\s*|[a-z]\.?\s*|[ivx]+\.?\s*)?(references?|bibliography|works?\s+cited|literature\s+cited|citations?|sources?|reference\s+list|further\s+reading|additional\s+sources|for\s+further\s+information)\s*$").expect("invalid regex")
@@ -298,8 +298,8 @@ fn listify_references(md: &str) -> String {
             };
 
             result.push(transformed);
-        } else if YEAR_REGEX.is_match(line) {
-            // In references section and line is not numbered but appears to be a reference
+        } else if YEAR_REGEX.is_match(line) && last_reference_number == 0 {
+            // In references section, not in a numbered reference list, but appears to be a reference
             // so ensure a blank line before it
             if let Some(last) = result.last() {
                 if !last.trim().is_empty() {
@@ -834,7 +834,7 @@ mod tests {
 1 First reference here
 2 Second reference
 3 Third reference";
-        assert_snapshot!(listify_references(input), @r"
+        assert_snapshot!(ensure_isolated_references(input), @r"
         # References
 
         1. First reference here
@@ -848,7 +848,7 @@ mod tests {
 1. First reference with colon
 2. Second reference with colon
 3. Third reference with colon";
-        assert_snapshot!(listify_references(input), @r"
+        assert_snapshot!(ensure_isolated_references(input), @r"
         ## References
 
         1. First reference with colon
@@ -862,7 +862,7 @@ mod tests {
 1) First reference with parenthesis
 2) Second reference with parenthesis
 3) Third reference with parenthesis";
-        assert_snapshot!(listify_references(input), @r"
+        assert_snapshot!(ensure_isolated_references(input), @r"
         ### Bibliography
 
         1. First reference with parenthesis
@@ -876,7 +876,7 @@ mod tests {
 [1] First reference in brackets
 [2] Second reference in brackets
 [3] Third reference in brackets";
-        assert_snapshot!(listify_references(input), @r"
+        assert_snapshot!(ensure_isolated_references(input), @r"
         # References
 
         1. First reference in brackets
@@ -890,7 +890,7 @@ mod tests {
 (1) First reference in parentheses
 (2) Second reference in parentheses
 (3) Third reference in parentheses";
-        assert_snapshot!(listify_references(input), @r"
+        assert_snapshot!(ensure_isolated_references(input), @r"
         # Bibliography
 
         1. First reference in parentheses
@@ -906,7 +906,7 @@ mod tests {
 [3] Third reference in brackets
 (4) Fourth reference in parentheses
 5) Fifth reference with closing paren";
-        assert_snapshot!(listify_references(input), @r"
+        assert_snapshot!(ensure_isolated_references(input), @r"
         # References
 
         1. First reference
@@ -926,7 +926,7 @@ Another line with [2] brackets
 
 1 First actual reference
 2 Second actual reference";
-        assert_snapshot!(listify_references(input), @r"
+        assert_snapshot!(ensure_isolated_references(input), @r"
         # Introduction
 
         Some text with 1 number that shouldn't change
@@ -944,7 +944,7 @@ Another line with [2] brackets
 Some text with 1 number
 Another line with [2] brackets
 Regular content";
-        assert_snapshot!(listify_references(input), @r"
+        assert_snapshot!(ensure_isolated_references(input), @r"
         # Introduction
         
         Some text with 1 number
@@ -966,7 +966,7 @@ Regular content";
 # Conclusion
 
 3 This should not change";
-        assert_snapshot!(listify_references(input), @r"
+        assert_snapshot!(ensure_isolated_references(input), @r"
         # Methods
 
         1 This should not change
@@ -985,7 +985,7 @@ Regular content";
         // Empty references section
         let input = r"# References
 ";
-        assert_snapshot!(listify_references(input), @r"
+        assert_snapshot!(ensure_isolated_references(input), @r"
         # References
         ");
 
@@ -995,7 +995,7 @@ Regular content";
   1   First reference with spaces
   [2]   Second reference with spaces  
    (3)    Third reference with spaces   ";
-        assert_snapshot!(listify_references(input), @r"
+        assert_snapshot!(ensure_isolated_references(input), @r"
         #   References
            
         1. First reference with spaces
@@ -1012,7 +1012,7 @@ Regular content";
 3 Third reference
 10 Large jump should be indented
 4 Fourth reference continues sequence";
-        assert_snapshot!(listify_references(input), @r"
+        assert_snapshot!(ensure_isolated_references(input), @r"
         # References
 
         1. First reference
