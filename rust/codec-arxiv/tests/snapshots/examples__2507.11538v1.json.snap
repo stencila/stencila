@@ -82,12 +82,27 @@ expression: article
       "type": "Reference",
       "id": "bib.bib1",
       "doi": "10.1145/3701716.3715490",
-      "text": "Brian J. Chan, Chao-Ting Chen, Jui-Hung Cheng, and Hen-Hsen Huang. Don’t do rag: When cache-augmented generation is all you need for knowledge tasks. In Companion Proceedings of the ACM on Web Conference 2025, WWW ’25, pp. 893–897. ACM, May 2025"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Brian"
+          ],
+          "givenNames": [
+            "J."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
+      "text": "Brian J. Chan, Chao-Ting Chen, Jui-Hung Cheng, and Hen-Hsen Huang. Don’t do rag: When cache-augmented generation is all you need for knowledge tasks. In Companion Proceedings of the ACM on Web Conference 2025, WWW ’25, pp.  893–897. ACM, May 2025. doi: 10.1145/3701716.3715490. URL http://dx.doi.org/10.1145/3701716.3715490."
     },
     {
       "type": "Reference",
       "id": "bib.bib2",
-      "workType": "Book",
+      "workType": "WebPage",
       "authors": [
         {
           "type": "Person",
@@ -100,32 +115,68 @@ expression: article
             "T.",
             "Kakkar"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yu",
+            "Gan"
+          ],
+          "givenNames": [
+            "Brenton",
+            "Milne"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ozcan"
+          ],
+          "givenNames": [
+            "Fatma"
+          ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Is long context all you need? leveraging llm’s extended context for nl2sql"
-      },
       "date": {
         "type": "Date",
         "value": "2025"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Yu Gan, Brenton Milne, and Fatma Ozcan"
-          }
-        }
-      ],
-      "url": "https://arxiv.org/abs/2501.12372"
+      "url": "https://arxiv.org/abs/2501.12372",
+      "text": "Yeounoh Chung, Gaurav T. Kakkar, Yu Gan, Brenton Milne, and Fatma Ozcan. Is long context all you need? leveraging llm’s extended context for nl2sql, 2025. URL https://arxiv.org/abs/2501.12372."
     },
     {
       "type": "Reference",
       "id": "bib.bib3",
       "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Karin",
+            "de",
+            "Langis"
+          ],
+          "givenNames": [
+            "Ryan",
+            "Koo"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kang"
+          ],
+          "givenNames": [
+            "Dongyeop"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
       "url": "https://arxiv.org/abs/2402.14146",
-      "text": "Karin de Langis, Ryan Koo, and Dongyeop Kang. Dynamic multi-reward weighting for multi-style controllable generation, 2024"
+      "text": "Karin de Langis, Ryan Koo, and Dongyeop Kang. Dynamic multi-reward weighting for multi-style controllable generation, 2024. URL https://arxiv.org/abs/2402.14146."
     },
     {
       "type": "Reference",
@@ -188,7 +239,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib6",
-      "workType": "Book",
+      "workType": "WebPage",
       "authors": [
         {
           "type": "Person",
@@ -200,25 +251,112 @@ expression: article
             "Di",
             "Jin"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chaoqi",
+            "Wang"
+          ],
+          "givenNames": [
+            "Chloe",
+            "Bi"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Karishma",
+            "Mandyam"
+          ],
+          "givenNames": [
+            "Hejia",
+            "Zhang"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chen",
+            "Zhu"
+          ],
+          "givenNames": [
+            "Ning",
+            "Li"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tengyu",
+            "Xu"
+          ],
+          "givenNames": [
+            "Hongjiang",
+            "Lv"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Shruti",
+            "Bhosale"
+          ],
+          "givenNames": [
+            "Chenguang",
+            "Zhu"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Karthik",
+            "Abinav",
+            "Sankararaman"
+          ],
+          "givenNames": [
+            "Eryk",
+            "Helenowski"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Melanie",
+            "Kambadur"
+          ],
+          "givenNames": [
+            "Aditya",
+            "Tayade"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hao",
+            "Ma"
+          ],
+          "givenNames": [
+            "Han",
+            "Fang"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wang"
+          ],
+          "givenNames": [
+            "Sinong"
+          ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Multi-if: Benchmarking llms on multi-turn and multilingual instructions following"
-      },
       "date": {
         "type": "Date",
         "value": "2024"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Chaoqi Wang, Chloe Bi, Karishma Mandyam, Hejia Zhang, Chen Zhu, Ning Li, Tengyu Xu, Hongjiang Lv, Shruti Bhosale, Chenguang Zhu, Karthik Abinav Sankararaman, Eryk Helenowski, Melanie Kambadur, Aditya Tayade, Hao Ma, Han Fang, and Sinong Wang"
-          }
-        }
-      ],
-      "url": "https://arxiv.org/abs/2410.15553"
+      "url": "https://arxiv.org/abs/2410.15553",
+      "text": "Yun He, Di Jin, Chaoqi Wang, Chloe Bi, Karishma Mandyam, Hejia Zhang, Chen Zhu, Ning Li, Tengyu Xu, Hongjiang Lv, Shruti Bhosale, Chenguang Zhu, Karthik Abinav Sankararaman, Eryk Helenowski, Melanie Kambadur, Aditya Tayade, Hao Ma, Han Fang, and Sinong Wang. Multi-if: Benchmarking llms on multi-turn and multilingual instructions following, 2024. URL https://arxiv.org/abs/2410.15553."
     },
     {
       "type": "Reference",
@@ -261,7 +399,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib8",
-      "workType": "Book",
+      "workType": "WebPage",
       "authors": [
         {
           "type": "Person",
@@ -273,30 +411,48 @@ expression: article
             "Yongil",
             "Kim"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jahyun",
+            "Koo"
+          ],
+          "givenNames": [
+            "Taegwan",
+            "Kang"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bae"
+          ],
+          "givenNames": [
+            "Hyunkyung"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jung"
+          ],
+          "givenNames": [
+            "Kyomin"
+          ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Llms can be easily confused by instructional distractions"
-      },
       "date": {
         "type": "Date",
         "value": "2025"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Jahyun Koo, Taegwan Kang, Hyunkyung Bae, and Kyomin Jung"
-          }
-        }
-      ],
-      "url": "https://arxiv.org/abs/2502.04362"
+      "url": "https://arxiv.org/abs/2502.04362",
+      "text": "Yerin Hwang, Yongil Kim, Jahyun Koo, Taegwan Kang, Hyunkyung Bae, and Kyomin Jung. Llms can be easily confused by instructional distractions, 2025. URL https://arxiv.org/abs/2502.04362."
     },
     {
       "type": "Reference",
       "id": "bib.bib9",
-      "workType": "Book",
+      "workType": "WebPage",
       "authors": [
         {
           "type": "Person",
@@ -308,30 +464,70 @@ expression: article
             "Yufei",
             "Wang"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Xingshan",
+            "Zeng"
+          ],
+          "givenNames": [
+            "Wanjun",
+            "Zhong"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liangyou",
+            "Li"
+          ],
+          "givenNames": [
+            "Fei",
+            "Mi"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lifeng",
+            "Shang"
+          ],
+          "givenNames": [
+            "Xin",
+            "Jiang"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liu"
+          ],
+          "givenNames": [
+            "Qun"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wang"
+          ],
+          "givenNames": [
+            "Wei"
+          ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Followbench: A multi-level fine-grained constraints following benchmark for large language models"
-      },
       "date": {
         "type": "Date",
         "value": "2024"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Xingshan Zeng, Wanjun Zhong, Liangyou Li, Fei Mi, Lifeng Shang, Xin Jiang, Qun Liu, and Wei Wang"
-          }
-        }
-      ],
-      "url": "https://arxiv.org/abs/2310.20410"
+      "url": "https://arxiv.org/abs/2310.20410",
+      "text": "Yuxin Jiang, Yufei Wang, Xingshan Zeng, Wanjun Zhong, Liangyou Li, Fei Mi, Lifeng Shang, Xin Jiang, Qun Liu, and Wei Wang. Followbench: A multi-level fine-grained constraints following benchmark for large language models, 2024. URL https://arxiv.org/abs/2310.20410."
     },
     {
       "type": "Reference",
       "id": "bib.bib10",
-      "workType": "Book",
+      "workType": "WebPage",
       "authors": [
         {
           "type": "Person",
@@ -343,25 +539,45 @@ expression: article
             "Renren",
             "Jin"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jiahao",
+            "Hu"
+          ],
+          "givenNames": [
+            "Huishi",
+            "Qiu"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Xiaohua",
+            "Wang"
+          ],
+          "givenNames": [
+            "Peng",
+            "Wang"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Xiong"
+          ],
+          "givenNames": [
+            "Deyi"
+          ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Followeval: A multi-dimensional benchmark for assessing the instruction-following capability of large language models"
-      },
       "date": {
         "type": "Date",
         "value": "2023"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Jiahao Hu, Huishi Qiu, Xiaohua Wang, Peng Wang, and Deyi Xiong"
-          }
-        }
-      ],
-      "url": "https://arxiv.org/abs/2311.09829"
+      "url": "https://arxiv.org/abs/2311.09829",
+      "text": "Yimin Jing, Renren Jin, Jiahao Hu, Huishi Qiu, Xiaohua Wang, Peng Wang, and Deyi Xiong. Followeval: A multi-dimensional benchmark for assessing the instruction-following capability of large language models, 2023. URL https://arxiv.org/abs/2311.09829."
     },
     {
       "type": "Reference",
@@ -392,20 +608,103 @@ expression: article
       "type": "Reference",
       "id": "bib.bib12",
       "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yixin",
+            "Liu"
+          ],
+          "givenNames": [
+            "Kejian",
+            "Shi"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Alexander",
+            "Fabbri"
+          ],
+          "givenNames": [
+            "Yilun",
+            "Zhao"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "PeiFeng",
+            "Wang"
+          ],
+          "givenNames": [
+            "Chien-Sheng",
+            "Wu"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Joty"
+          ],
+          "givenNames": [
+            "Shafiq"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Cohan"
+          ],
+          "givenNames": [
+            "Arman"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
       "url": "https://aclanthology.org/2025.naacl-long.610/",
-      "text": "Yixin Liu, Kejian Shi, Alexander Fabbri, Yilun Zhao, PeiFeng Wang, Chien-Sheng Wu, Shafiq Joty, and Arman Cohan. ReIFE: Re-evaluating instruction-following evaluation. In Luis Chiruzzo, Alan Ritter, and Lu Wang (eds.), Proceedings of the 2025 Conference of the Nations of the Americas Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pp. 12247–12287, Albuquerque, New Mexico, April 2025. Association for Computational Linguistics. ISBN 979-8-89176-189-6"
+      "text": "Yixin Liu, Kejian Shi, Alexander Fabbri, Yilun Zhao, PeiFeng Wang, Chien-Sheng Wu, Shafiq Joty, and Arman Cohan. ReIFE: Re-evaluating instruction-following evaluation. In Luis Chiruzzo, Alan Ritter, and Lu Wang (eds.), Proceedings of the 2025 Conference of the Nations of the Americas Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pp.  12247–12287, Albuquerque, New Mexico, April 2025. Association for Computational Linguistics. ISBN 979-8-89176-189-6. URL https://aclanthology.org/2025.naacl-long.610/."
     },
     {
       "type": "Reference",
       "id": "bib.bib13",
       "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Renze",
+            "Lou"
+          ],
+          "givenNames": [
+            "Kai",
+            "Zhang"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yin"
+          ],
+          "givenNames": [
+            "Wenpeng"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
       "url": "https://arxiv.org/abs/2303.10475",
-      "text": "Renze Lou, Kai Zhang, and Wenpeng Yin. Large language model instruction following: A survey of progresses and challenges, 2024"
+      "text": "Renze Lou, Kai Zhang, and Wenpeng Yin. Large language model instruction following: A survey of progresses and challenges, 2024. URL https://arxiv.org/abs/2303.10475."
     },
     {
       "type": "Reference",
       "id": "bib.bib14",
-      "workType": "Book",
+      "workType": "WebPage",
       "authors": [
         {
           "type": "Person",
@@ -417,30 +716,37 @@ expression: article
             "Fadhil",
             "Abubaker"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jaroslawicz"
+          ],
+          "givenNames": [
+            "Daniel"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mhedhbi"
+          ],
+          "givenNames": [
+            "Amine"
+          ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "The death of schema linking? text-to-sql in the age of well-reasoned language models"
-      },
       "date": {
         "type": "Date",
         "value": "2024"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Daniel Jaroslawicz, and Amine Mhedhbi"
-          }
-        }
-      ],
-      "url": "https://arxiv.org/abs/2408.07702"
+      "url": "https://arxiv.org/abs/2408.07702",
+      "text": "Karime Maamari, Fadhil Abubaker, Daniel Jaroslawicz, and Amine Mhedhbi. The death of schema linking? text-to-sql in the age of well-reasoned language models, 2024. URL https://arxiv.org/abs/2408.07702."
     },
     {
       "type": "Reference",
       "id": "bib.bib15",
-      "workType": "Book",
+      "workType": "WebPage",
       "authors": [
         {
           "type": "Person",
@@ -452,30 +758,104 @@ expression: article
             "Niket",
             "Tandon"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Prakhar",
+            "Gupta"
+          ],
+          "givenNames": [
+            "Skyler",
+            "Hallinan"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Luyu",
+            "Gao"
+          ],
+          "givenNames": [
+            "Sarah",
+            "Wiegreffe"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Uri",
+            "Alon"
+          ],
+          "givenNames": [
+            "Nouha",
+            "Dziri"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Shrimai",
+            "Prabhumoye"
+          ],
+          "givenNames": [
+            "Yiming",
+            "Yang"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Shashank",
+            "Gupta"
+          ],
+          "givenNames": [
+            "Bodhisattwa",
+            "Prasad",
+            "Majumder"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Katherine",
+            "Hermann"
+          ],
+          "givenNames": [
+            "Sean",
+            "Welleck"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yazdanbakhsh"
+          ],
+          "givenNames": [
+            "Amir"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Clark"
+          ],
+          "givenNames": [
+            "Peter"
+          ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Self-refine: Iterative refinement with self-feedback"
-      },
       "date": {
         "type": "Date",
         "value": "2023"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Prakhar Gupta, Skyler Hallinan, Luyu Gao, Sarah Wiegreffe, Uri Alon, Nouha Dziri, Shrimai Prabhumoye, Yiming Yang, Shashank Gupta, Bodhisattwa Prasad Majumder, Katherine Hermann, Sean Welleck, Amir Yazdanbakhsh, and Peter Clark"
-          }
-        }
-      ],
-      "url": "https://arxiv.org/abs/2303.17651"
+      "url": "https://arxiv.org/abs/2303.17651",
+      "text": "Aman Madaan, Niket Tandon, Prakhar Gupta, Skyler Hallinan, Luyu Gao, Sarah Wiegreffe, Uri Alon, Nouha Dziri, Shrimai Prabhumoye, Yiming Yang, Shashank Gupta, Bodhisattwa Prasad Majumder, Katherine Hermann, Sean Welleck, Amir Yazdanbakhsh, and Peter Clark. Self-refine: Iterative refinement with self-feedback, 2023. URL https://arxiv.org/abs/2303.17651."
     },
     {
       "type": "Reference",
       "id": "bib.bib16",
-      "workType": "Book",
+      "workType": "WebPage",
       "authors": [
         {
           "type": "Person",
@@ -487,25 +867,32 @@ expression: article
             "Daniel",
             "Khashabi"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Baral"
+          ],
+          "givenNames": [
+            "Chitta"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hajishirzi"
+          ],
+          "givenNames": [
+            "Hannaneh"
+          ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Cross-task generalization via natural language crowdsourcing instructions"
-      },
       "date": {
         "type": "Date",
         "value": "2022"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Chitta Baral, and Hannaneh Hajishirzi"
-          }
-        }
-      ],
-      "url": "https://arxiv.org/abs/2104.08773"
+      "url": "https://arxiv.org/abs/2104.08773",
+      "text": "Swaroop Mishra, Daniel Khashabi, Chitta Baral, and Hannaneh Hajishirzi. Cross-task generalization via natural language crowdsourcing instructions, 2022. URL https://arxiv.org/abs/2104.08773."
     },
     {
       "type": "Reference",
@@ -530,7 +917,7 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib18",
-      "workType": "Article",
+      "workType": "WebPage",
       "authors": [
         {
           "type": "Person",
@@ -568,38 +955,89 @@ expression: article
         "type": "Date",
         "value": "2022"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Wainwright, Pamela Mishkin, Chong Zhang, Sandhini Agarwal, Katarina Slama, Alex Ray, John Schulman, Jacob Hilton, Fraser Kelton, Luke Miller, Maddie Simens, Amanda Askell, Peter Welinder, Paul Christiano, Jan Leike, and Ryan Lowe"
-          }
-        }
-      ],
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Training language models to follow instructions with human feedback"
-            }
-          }
-        ],
-        "volumeNumber": "URL"
-      },
-      "pageStart": "https"
+      "url": "https://arxiv.org/abs/2203.02155",
+      "text": "Long Ouyang, Jeff Wu, Xu Jiang, Diogo Almeida, Carroll L. Wainwright, Pamela Mishkin, Chong Zhang, Sandhini Agarwal, Katarina Slama, Alex Ray, John Schulman, Jacob Hilton, Fraser Kelton, Luke Miller, Maddie Simens, Amanda Askell, Peter Welinder, Paul Christiano, Jan Leike, and Ryan Lowe. Training language models to follow instructions with human feedback, 2022. URL https://arxiv.org/abs/2203.02155."
     },
     {
       "type": "Reference",
       "id": "bib.bib19",
+      "workType": "WebPage",
       "doi": "10.18653/v1/2024.findings-acl.772",
-      "text": "Yiwei Qin, Kaiqiang Song, Yebowen Hu, Wenlin Yao, Sangwoo Cho, Xiaoyang Wang, Xuansheng Wu, Fei Liu, Pengfei Liu, and Dong Yu. InFoBench: Evaluating instruction following ability in large language models. In Lun-Wei Ku, Andre Martins, and Vivek Srikumar (eds.), Findings of the Association for Computational Linguistics: ACL 2024, pp. 13025–13048, Bangkok, Thailand, August 2024. Association for Computational Linguistics"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yiwei",
+            "Qin"
+          ],
+          "givenNames": [
+            "Kaiqiang",
+            "Song"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yebowen",
+            "Hu"
+          ],
+          "givenNames": [
+            "Wenlin",
+            "Yao"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sangwoo",
+            "Cho"
+          ],
+          "givenNames": [
+            "Xiaoyang",
+            "Wang"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Xuansheng",
+            "Wu"
+          ],
+          "givenNames": [
+            "Fei",
+            "Liu"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liu"
+          ],
+          "givenNames": [
+            "Pengfei"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yu"
+          ],
+          "givenNames": [
+            "Dong"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "url": "https://aclanthology.org/2024.findings-acl.772/",
+      "text": "Yiwei Qin, Kaiqiang Song, Yebowen Hu, Wenlin Yao, Sangwoo Cho, Xiaoyang Wang, Xuansheng Wu, Fei Liu, Pengfei Liu, and Dong Yu. InFoBench: Evaluating instruction following ability in large language models. In Lun-Wei Ku, Andre Martins, and Vivek Srikumar (eds.), Findings of the Association for Computational Linguistics: ACL 2024, pp.  13025–13048, Bangkok, Thailand, August 2024. Association for Computational Linguistics. doi: 10.18653/v1/2024.findings-acl.772. URL https://aclanthology.org/2024.findings-acl.772/."
     },
     {
       "type": "Reference",
       "id": "bib.bib20",
-      "workType": "Article",
+      "workType": "WebPage",
       "authors": [
         {
           "type": "Person",
@@ -842,32 +1280,13 @@ expression: article
         "type": "Date",
         "value": "2022"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Rush"
-          }
-        }
-      ],
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Multitask prompted training enables zero-shot task generalization"
-            }
-          }
-        ],
-        "volumeNumber": "URL"
-      },
-      "pageStart": "https"
+      "url": "https://arxiv.org/abs/2110.08207",
+      "text": "Victor Sanh, Albert Webson, Colin Raffel, Stephen H. Bach, Lintang Sutawika, Zaid Alyafeai, Antoine Chaffin, Arnaud Stiegler, Teven Le Scao, Arun Raja, Manan Dey, M Saiful Bari, Canwen Xu, Urmish Thakker, Shanya Sharma Sharma, Eliza Szczechla, Taewoon Kim, Gunjan Chhablani, Nihal Nayak, Debajyoti Datta, Jonathan Chang, Mike Tian-Jian Jiang, Han Wang, Matteo Manica, Sheng Shen, Zheng Xin Yong, Harshit Pandey, Rachel Bawden, Thomas Wang, Trishala Neeraj, Jos Rozen, Abheesht Sharma, Andrea Santilli, Thibault Fevry, Jason Alan Fries, Ryan Teehan, Tali Bers, Stella Biderman, Leo Gao, Thomas Wolf, and Alexander M. Rush. Multitask prompted training enables zero-shot task generalization, 2022. URL https://arxiv.org/abs/2110.08207."
     },
     {
       "type": "Reference",
       "id": "bib.bib21",
-      "workType": "Book",
+      "workType": "WebPage",
       "authors": [
         {
           "type": "Person",
@@ -879,25 +1298,43 @@ expression: article
             "Zhanchao",
             "Zhou"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jianhao",
+            "Yan"
+          ],
+          "givenNames": [
+            "Yuejiao",
+            "Fei"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lan"
+          ],
+          "givenNames": [
+            "Zhenzhong"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhang"
+          ],
+          "givenNames": [
+            "Yue"
+          ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Dynamics of instruction fine-tuning for chinese large language models"
-      },
       "date": {
         "type": "Date",
         "value": "2025"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Jianhao Yan, Yuejiao Fei, Zhenzhong Lan, and Yue Zhang"
-          }
-        }
-      ],
-      "url": "https://arxiv.org/abs/2310.19651"
+      "url": "https://arxiv.org/abs/2310.19651",
+      "text": "Chiyu Song, Zhanchao Zhou, Jianhao Yan, Yuejiao Fei, Zhenzhong Lan, and Yue Zhang. Dynamics of instruction fine-tuning for chinese large language models, 2025. URL https://arxiv.org/abs/2310.19651."
     },
     {
       "type": "Reference",
@@ -940,20 +1377,286 @@ expression: article
       "type": "Reference",
       "id": "bib.bib23",
       "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yizhong",
+            "Wang"
+          ],
+          "givenNames": [
+            "Swaroop",
+            "Mishra"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pegah",
+            "Alipoormolabashi"
+          ],
+          "givenNames": [
+            "Yeganeh",
+            "Kordi"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Amirreza",
+            "Mirzaei"
+          ],
+          "givenNames": [
+            "Anjana",
+            "Arunkumar"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Arjun",
+            "Ashok"
+          ],
+          "givenNames": [
+            "Arut",
+            "Selvan",
+            "Dhanasekaran"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Atharva",
+            "Naik"
+          ],
+          "givenNames": [
+            "David",
+            "Stap"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Eshaan",
+            "Pathak"
+          ],
+          "givenNames": [
+            "Giannis",
+            "Karamanolakis"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haizhi",
+            "Gary",
+            "Lai"
+          ],
+          "givenNames": [
+            "Ishan",
+            "Purohit"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ishani",
+            "Mondal"
+          ],
+          "givenNames": [
+            "Jacob",
+            "Anderson"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kirby",
+            "Kuznia"
+          ],
+          "givenNames": [
+            "Krima",
+            "Doshi"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Maitreya",
+            "Patel"
+          ],
+          "givenNames": [
+            "Kuntal",
+            "Kumar",
+            "Pal"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mehrad",
+            "Moradshahi"
+          ],
+          "givenNames": [
+            "Mihir",
+            "Parmar"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mirali",
+            "Purohit"
+          ],
+          "givenNames": [
+            "Neeraj",
+            "Varshney"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Phani",
+            "Rohitha",
+            "Kaza"
+          ],
+          "givenNames": [
+            "Pulkit",
+            "Verma"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ravsehaj",
+            "Singh",
+            "Puri"
+          ],
+          "givenNames": [
+            "Rushang",
+            "Karia"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Shailaja",
+            "Keyur",
+            "Sampat"
+          ],
+          "givenNames": [
+            "Savan",
+            "Doshi"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Siddhartha",
+            "Mishra"
+          ],
+          "givenNames": [
+            "Sujan",
+            "Reddy"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sumanta",
+            "Patro"
+          ],
+          "givenNames": [
+            "Tanay",
+            "Dixit"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Xudong",
+            "Shen"
+          ],
+          "givenNames": [
+            "Chitta",
+            "Baral"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yejin",
+            "Choi"
+          ],
+          "givenNames": [
+            "Noah",
+            "A.",
+            "Smith"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hajishirzi"
+          ],
+          "givenNames": [
+            "Hannaneh"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Khashabi"
+          ],
+          "givenNames": [
+            "Daniel"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1600"
+      },
       "url": "https://arxiv.org/abs/2204.07705",
-      "text": "Yizhong Wang, Swaroop Mishra, Pegah Alipoormolabashi, Yeganeh Kordi, Amirreza Mirzaei, Anjana Arunkumar, Arjun Ashok, Arut Selvan Dhanasekaran, Atharva Naik, David Stap, Eshaan Pathak, Giannis Karamanolakis, Haizhi Gary Lai, Ishan Purohit, Ishani Mondal, Jacob Anderson, Kirby Kuznia, Krima Doshi, Maitreya Patel, Kuntal Kumar Pal, Mehrad Moradshahi, Mihir Parmar, Mirali Purohit, Neeraj Varshney, Phani Rohitha Kaza, Pulkit Verma, Ravsehaj Singh Puri, Rushang Karia, Shailaja Keyur Sampat, Savan Doshi, Siddhartha Mishra, Sujan Reddy, Sumanta Patro, Tanay Dixit, Xudong Shen, Chitta Baral, Yejin Choi, Noah A. Smith, Hannaneh Hajishirzi, and Daniel Khashabi. Super-naturalinstructions: Generalization via declarative instructions on 1600+ nlp tasks, 2022"
+      "text": "Yizhong Wang, Swaroop Mishra, Pegah Alipoormolabashi, Yeganeh Kordi, Amirreza Mirzaei, Anjana Arunkumar, Arjun Ashok, Arut Selvan Dhanasekaran, Atharva Naik, David Stap, Eshaan Pathak, Giannis Karamanolakis, Haizhi Gary Lai, Ishan Purohit, Ishani Mondal, Jacob Anderson, Kirby Kuznia, Krima Doshi, Maitreya Patel, Kuntal Kumar Pal, Mehrad Moradshahi, Mihir Parmar, Mirali Purohit, Neeraj Varshney, Phani Rohitha Kaza, Pulkit Verma, Ravsehaj Singh Puri, Rushang Karia, Shailaja Keyur Sampat, Savan Doshi, Siddhartha Mishra, Sujan Reddy, Sumanta Patro, Tanay Dixit, Xudong Shen, Chitta Baral, Yejin Choi, Noah A. Smith, Hannaneh Hajishirzi, and Daniel Khashabi. Super-naturalinstructions: Generalization via declarative instructions on 1600+ nlp tasks, 2022. URL https://arxiv.org/abs/2204.07705."
     },
     {
       "type": "Reference",
       "id": "bib.bib24",
       "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jason",
+            "Wei"
+          ],
+          "givenNames": [
+            "Maarten",
+            "Bosma"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Vincent"
+          ],
+          "givenNames": [
+            "Y."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
       "url": "https://arxiv.org/abs/2109.01652",
-      "text": "Jason Wei, Maarten Bosma, Vincent Y. Zhao, Kelvin Guu, Adams Wei Yu, Brian Lester, Nan Du, Andrew M. Dai, and Quoc V. Le. Finetuned language models are zero-shot learners, 2022"
+      "text": "Jason Wei, Maarten Bosma, Vincent Y. Zhao, Kelvin Guu, Adams Wei Yu, Brian Lester, Nan Du, Andrew M. Dai, and Quoc V. Le. Finetuned language models are zero-shot learners, 2022. URL https://arxiv.org/abs/2109.01652."
     },
     {
       "type": "Reference",
       "id": "bib.bib25",
-      "workType": "Book",
+      "workType": "WebPage",
       "authors": [
         {
           "type": "Person",
@@ -965,37 +1668,134 @@ expression: article
             "Pei",
             "Ke"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Xiaotao",
+            "Gu"
+          ],
+          "givenNames": [
+            "Lindong",
+            "Wu"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hao",
+            "Huang"
+          ],
+          "givenNames": [
+            "Jinfeng",
+            "Zhou"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wenchuang",
+            "Li"
+          ],
+          "givenNames": [
+            "Binxin",
+            "Hu"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wendy",
+            "Gao"
+          ],
+          "givenNames": [
+            "Jiaxin",
+            "Xu"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yiming",
+            "Liu"
+          ],
+          "givenNames": [
+            "Jie",
+            "Tang"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wang"
+          ],
+          "givenNames": [
+            "Hongning"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Huang"
+          ],
+          "givenNames": [
+            "Minlie"
+          ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Benchmarking complex instruction-following with multiple constraints composition"
-      },
       "date": {
         "type": "Date",
         "value": "2024"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Xiaotao Gu, Lindong Wu, Hao Huang, Jinfeng Zhou, Wenchuang Li, Binxin Hu, Wendy Gao, Jiaxin Xu, Yiming Liu, Jie Tang, Hongning Wang, and Minlie Huang"
-          }
-        }
-      ],
-      "url": "https://arxiv.org/abs/2407.03978"
+      "url": "https://arxiv.org/abs/2407.03978",
+      "text": "Bosi Wen, Pei Ke, Xiaotao Gu, Lindong Wu, Hao Huang, Jinfeng Zhou, Wenchuang Li, Binxin Hu, Wendy Gao, Jiaxin Xu, Yiming Liu, Jie Tang, Hongning Wang, and Minlie Huang. Benchmarking complex instruction-following with multiple constraints composition, 2024. URL https://arxiv.org/abs/2407.03978."
     },
     {
       "type": "Reference",
       "id": "bib.bib26",
       "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bowen",
+            "Xing"
+          ],
+          "givenNames": [
+            "Lizi",
+            "Liao"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Huang"
+          ],
+          "givenNames": [
+            "Minlie"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ivor"
+          ],
+          "givenNames": [
+            "W."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
       "url": "https://api.semanticscholar.org/CorpusID:273820915",
-      "text": "Bowen Xing, Lizi Liao, Minlie Huang, and Ivor W. Tsang. Dc-instruct: An effective framework for generative multi-intent spoken language understanding. In Conference on Empirical Methods in Natural Language Processing, 2024"
+      "text": "Bowen Xing, Lizi Liao, Minlie Huang, and Ivor W. Tsang. Dc-instruct: An effective framework for generative multi-intent spoken language understanding. In Conference on Empirical Methods in Natural Language Processing, 2024. URL https://api.semanticscholar.org/CorpusID:273820915."
     },
     {
       "type": "Reference",
       "id": "bib.bib27",
-      "workType": "Book",
+      "workType": "WebPage",
       "authors": [
         {
           "type": "Person",
@@ -1007,30 +1807,48 @@ expression: article
             "Kai",
             "Mei"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hang",
+            "Gao"
+          ],
+          "givenNames": [
+            "Juntao",
+            "Tan"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liang"
+          ],
+          "givenNames": [
+            "Zujie"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhang"
+          ],
+          "givenNames": [
+            "Yongfeng"
+          ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "A-mem: Agentic memory for llm agents"
-      },
       "date": {
         "type": "Date",
         "value": "2025"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Hang Gao, Juntao Tan, Zujie Liang, and Yongfeng Zhang"
-          }
-        }
-      ],
-      "url": "https://arxiv.org/abs/2502.12110"
+      "url": "https://arxiv.org/abs/2502.12110",
+      "text": "Wujiang Xu, Kai Mei, Hang Gao, Juntao Tan, Zujie Liang, and Yongfeng Zhang. A-mem: Agentic memory for llm agents, 2025. URL https://arxiv.org/abs/2502.12110."
     },
     {
       "type": "Reference",
       "id": "bib.bib28",
-      "workType": "Book",
+      "workType": "WebPage",
       "authors": [
         {
           "type": "Person",
@@ -1042,30 +1860,59 @@ expression: article
             "Qianyu",
             "He"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Qingyu",
+            "Ren"
+          ],
+          "givenNames": [
+            "Jiaqing",
+            "Liang"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yanghua",
+            "Xiao"
+          ],
+          "givenNames": [
+            "Weikang",
+            "Zhou"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sun"
+          ],
+          "givenNames": [
+            "Zeye"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yu"
+          ],
+          "givenNames": [
+            "Fei"
+          ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Order matters: Investigate the position bias in multi-constraint instruction following"
-      },
       "date": {
         "type": "Date",
         "value": "2025"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Qingyu Ren, Jiaqing Liang, Yanghua Xiao, Weikang Zhou, Zeye Sun, and Fei Yu"
-          }
-        }
-      ],
-      "url": "https://arxiv.org/abs/2502.17204"
+      "url": "https://arxiv.org/abs/2502.17204",
+      "text": "Jie Zeng, Qianyu He, Qingyu Ren, Jiaqing Liang, Yanghua Xiao, Weikang Zhou, Zeye Sun, and Fei Yu. Order matters: Investigate the position bias in multi-constraint instruction following, 2025. URL https://arxiv.org/abs/2502.17204."
     },
     {
       "type": "Reference",
       "id": "bib.bib29",
-      "workType": "Book",
+      "workType": "WebPage",
       "authors": [
         {
           "type": "Person",
@@ -1077,30 +1924,48 @@ expression: article
             "Jiatong",
             "Yu"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tianyu",
+            "Gao"
+          ],
+          "givenNames": [
+            "Yu",
+            "Meng"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Goyal"
+          ],
+          "givenNames": [
+            "Tanya"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chen"
+          ],
+          "givenNames": [
+            "Danqi"
+          ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Evaluating large language models at evaluating instruction following"
-      },
       "date": {
         "type": "Date",
         "value": "2024"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Tianyu Gao, Yu Meng, Tanya Goyal, and Danqi Chen"
-          }
-        }
-      ],
-      "url": "https://arxiv.org/abs/2310.07641"
+      "url": "https://arxiv.org/abs/2310.07641",
+      "text": "Zhiyuan Zeng, Jiatong Yu, Tianyu Gao, Yu Meng, Tanya Goyal, and Danqi Chen. Evaluating large language models at evaluating instruction following, 2024. URL https://arxiv.org/abs/2310.07641."
     },
     {
       "type": "Reference",
       "id": "bib.bib30",
-      "workType": "Book",
+      "workType": "WebPage",
       "authors": [
         {
           "type": "Person",
@@ -1112,25 +1977,34 @@ expression: article
             "Zijian",
             "Feng"
           ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zixiao",
+            "Zhu"
+          ],
+          "givenNames": [
+            "Junlang",
+            "Qian"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mao"
+          ],
+          "givenNames": [
+            "Kezhi"
+          ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Unibias: Unveiling and mitigating llm bias through internal attention and ffn manipulation"
-      },
       "date": {
         "type": "Date",
         "value": "2024"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Zixiao Zhu, Junlang Qian, and Kezhi Mao"
-          }
-        }
-      ],
-      "url": "https://arxiv.org/abs/2405.20612"
+      "url": "https://arxiv.org/abs/2405.20612",
+      "text": "Hanzhang Zhou, Zijian Feng, Zixiao Zhu, Junlang Qian, and Kezhi Mao. Unibias: Unveiling and mitigating llm bias through internal attention and ffn manipulation, 2024. URL https://arxiv.org/abs/2405.20612."
     }
   ],
   "title": [

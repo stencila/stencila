@@ -273,11 +273,12 @@ expression: article
       ],
       "publisher": {
         "type": "Organization",
-        "name": "CoRR"
+        "name": "CoRR",
+        "address": "abs/cs/0511042"
       },
       "date": {
         "type": "Date",
-        "value": "abs/cs/0511042, 2005"
+        "value": "2005"
       },
       "title": [
         {
@@ -411,17 +412,69 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib7",
-      "text": "Tarek R. Besold, Artur S. d’Avila Garcez, Sebastian Bader, Howard Bowman, Pedro M. Domingos, Pascal Hitzler, Kai-Uwe Kühnberger, Luís C. Lamb, Daniel Lowd, Priscila Machado Vieira Lima, Leo de Penning, Gadi Pinkas, Hoifung Poon, and Gerson Zaverucha. Neural-symbolic learning and reasoning: A survey and interpretation. CoRR, abs/1711.03902, 2017"
+      "workType": "Book",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tarek"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        }
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "d’Avila Garcez",
+        "address": "Sebastian Bader, Howard Bowman, Pedro M. Domingos, Pascal Hitzler, Kai-Uwe Kühnberger, Luís C. Lamb, Daniel Lowd, Priscila Machado Vieira Lima, Leo de Penning, Gadi Pinkas, Hoifung Poon, and Gerson Zaverucha. Neural-symbolic learning and reasoning: A survey and interpretation. CoRR, abs/1711.03902"
+      },
+      "date": {
+        "type": "Date",
+        "value": "2017"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Besold, Artur S"
+          }
+        }
+      ]
     },
     {
       "type": "Reference",
       "id": "bib.bib8",
-      "text": "Mark Chavira and Adnan Darwiche. On probabilistic inference by weighted model counting. Artificial Intelligence, 172(6-7):772–799, 2008"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chavira"
+          ],
+          "givenNames": [
+            "Mark"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Darwiche"
+          ],
+          "givenNames": [
+            "Adnan"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2008"
+      },
+      "text": "Mark Chavira and Adnan Darwiche. On probabilistic inference by weighted model counting. Artificial Intelligence, 172(6-7):772–799, 2008."
     },
     {
       "type": "Reference",
       "id": "bib.bib9",
-      "workType": "Book",
+      "workType": "WebPage",
       "authors": [
         {
           "type": "Person",
@@ -453,27 +506,32 @@ expression: article
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "UCLA. URL: http://starai. cs. ucla. edu/papers/ProbCirc20. pdf"
-      },
       "date": {
         "type": "Date",
-        "value": "page 6, 2020"
+        "value": "2020"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Probabilistic circuits: A unifying framework for tractable probabilistic models"
-          }
-        }
-      ]
+      "url": "http://starai",
+      "text": "Y Choi, Antonio Vergari, and Guy Van den Broeck. Probabilistic circuits: A unifying framework for tractable probabilistic models. UCLA. URL: http://starai. cs. ucla. edu/papers/ProbCirc20. pdf, page 6, 2020."
     },
     {
       "type": "Reference",
       "id": "bib.bib10",
-      "text": "Gustave Choquet. Theory of capacities. In Annales de l’institut Fourier, volume 5, pages 131–295, 1954"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Choquet"
+          ],
+          "givenNames": [
+            "Gustave"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1954"
+      },
+      "text": "Gustave Choquet. Theory of capacities. In Annales de l’institut Fourier, volume 5, pages 131–295, 1954."
     },
     {
       "type": "Reference",
@@ -588,12 +646,26 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib13",
-      "text": "Artur S. d’Avila Garcez, Marco Gori, Luís C. Lamb, Luciano Serafini, Michael Spranger, and Son N. Tran. Neural-symbolic computing: An effective methodology for principled integration of machine learning and reasoning. FLAP, 6, 2019"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Artur"
+          ],
+          "givenNames": [
+            "S."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "text": "Artur S. d’Avila Garcez, Marco Gori, Luís C. Lamb, Luciano Serafini, Michael Spranger, and Son N. Tran. Neural-symbolic computing: An effective methodology for principled integration of machine learning and reasoning. FLAP, 6, 2019."
     },
     {
       "type": "Reference",
       "id": "bib.bib14",
-      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -615,46 +687,119 @@ expression: article
           ]
         }
       ],
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Compositional approach to translate ltlf/ldlf into deterministic finite automata"
-          }
-        }
-      ],
-      "isPartOf": {
-        "type": "Reference",
-        "publisher": {
-          "type": "Organization",
-          "name": "volume "
-        },
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Proceedings of the international conference on automated planning and scheduling"
-            }
-          }
-        ]
-      }
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "text": "Giuseppe De Giacomo and Marco Favorito. Compositional approach to translate ltlf/ldlf into deterministic finite automata. In Proceedings of the international conference on automated planning and scheduling, volume 31, pages 122–130, 2021."
     },
     {
       "type": "Reference",
       "id": "bib.bib15",
-      "text": "Giuseppe De Giacomo, Moshe Y Vardi, et al. Linear temporal logic and linear dynamic logic on finite traces. In Ijcai, volume 13, pages 854–860, 2013"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Giuseppe",
+            "De",
+            "Giacomo"
+          ],
+          "givenNames": [
+            "Moshe",
+            "Y.",
+            "Vardi"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2013"
+      },
+      "text": "Giuseppe De Giacomo, Moshe Y Vardi, et al. Linear temporal logic and linear dynamic logic on finite traces. In Ijcai, volume 13, pages 854–860, 2013."
     },
     {
       "type": "Reference",
       "id": "bib.bib16",
       "doi": "10.2200/S00692ED1V01Y201601AIM032",
-      "text": "Luc De Raedt, Kristian Kersting, Sriraam Natarajan, and David Poole. Statistical Relational Artificial Intelligence: Logic, Probability, and Computation. Morgan & Claypool Publishers, 2016"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Luc",
+            "De",
+            "Raedt"
+          ],
+          "givenNames": [
+            "Kristian",
+            "Kersting"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Natarajan"
+          ],
+          "givenNames": [
+            "Sriraam"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Poole"
+          ],
+          "givenNames": [
+            "David"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2016"
+      },
+      "text": "Luc De Raedt, Kristian Kersting, Sriraam Natarajan, and David Poole. Statistical Relational Artificial Intelligence: Logic, Probability, and Computation. Morgan & Claypool Publishers, 2016. doi: 10.2200/S00692ED1V01Y201601AIM032. URL https://doi.org/10.2200/S00692ED1V01Y201601AIM032."
     },
     {
       "type": "Reference",
       "id": "bib.bib17",
       "doi": "10.24963/ijcai.2020/688",
-      "text": "Luc De Raedt, Sebastijan Dumančić, Robin Manhaeve, and Giuseppe Marra. From statistical relational to neuro-symbolic artificial intelligence. In Christian Bessiere, editor, Proceedings of the Twenty-Ninth International Joint Conference on Artificial Intelligence, IJCAI-20, pages 4943–4950. International Joint Conferences on Artificial Intelligence Organization, 7 2020"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Luc",
+            "De",
+            "Raedt"
+          ],
+          "givenNames": [
+            "Sebastijan",
+            "Dumančić"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Manhaeve"
+          ],
+          "givenNames": [
+            "Robin"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Marra"
+          ],
+          "givenNames": [
+            "Giuseppe"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "text": "Luc De Raedt, Sebastijan Dumančić, Robin Manhaeve, and Giuseppe Marra. From statistical relational to neuro-symbolic artificial intelligence. In Christian Bessiere, editor, Proceedings of the Twenty-Ninth International Joint Conference on Artificial Intelligence, IJCAI-20, pages 4943–4950. International Joint Conferences on Artificial Intelligence Organization, 7 2020. doi: 10.24963/ijcai.2020/688. URL https://doi.org/10.24963/ijcai.2020/688. Survey track."
     },
     {
       "type": "Reference",
@@ -850,8 +995,54 @@ expression: article
       "type": "Reference",
       "id": "bib.bib21",
       "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Honghua",
+            "Dong"
+          ],
+          "givenNames": [
+            "Jiayuan",
+            "Mao"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tian",
+            "Lin"
+          ],
+          "givenNames": [
+            "Chong",
+            "Wang"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Li"
+          ],
+          "givenNames": [
+            "Lihong"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhou"
+          ],
+          "givenNames": [
+            "Denny"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
       "url": "https://openreview.net/forum?id=B1xY-hRctX",
-      "text": "Honghua Dong, Jiayuan Mao, Tian Lin, Chong Wang, Lihong Li, and Denny Zhou. Neural logic machines. In ICLR, 2019"
+      "text": "Honghua Dong, Jiayuan Mao, Tian Lin, Chong Wang, Lihong Li, and Denny Zhou. Neural logic machines. In ICLR, 2019. URL https://openreview.net/forum?id=B1xY-hRctX."
     },
     {
       "type": "Reference",
@@ -1044,7 +1235,32 @@ expression: article
       "type": "Reference",
       "id": "bib.bib25",
       "doi": "10.1007/s10462-023-10448-w",
-      "text": "Artur d’Avila Garcez and Luís C. Lamb. Neurosymbolic AI: The 3rd Wave. Artificial Intelligence Review, 2023"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "d’Avila",
+            "Garcez"
+          ],
+          "givenNames": [
+            "Artur"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Luís"
+          ],
+          "givenNames": [
+            "C."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "text": "Artur d’Avila Garcez and Luís C. Lamb. Neurosymbolic AI: The 3rd Wave. Artificial Intelligence Review, 2023. doi: 10.1007/s10462-023-10448-w. URL https://doi.org/10.1007/s10462-023-10448-w."
     },
     {
       "type": "Reference",
@@ -1130,7 +1346,31 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib27",
-      "text": "Michael Gelfond and Vladimir Lifschitz. The stable model semantics for logic programming. In ICLP/SLP, volume 88, pages 1070–1080. Cambridge, MA, 1988"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gelfond"
+          ],
+          "givenNames": [
+            "Michael"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lifschitz"
+          ],
+          "givenNames": [
+            "Vladimir"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1988"
+      },
+      "text": "Michael Gelfond and Vladimir Lifschitz. The stable model semantics for logic programming. In ICLP/SLP, volume 88, pages 1070–1080. Cambridge, MA, 1988."
     },
     {
       "type": "Reference",
@@ -1179,7 +1419,22 @@ expression: article
       "type": "Reference",
       "id": "bib.bib29",
       "doi": "10.3233/FAIA342",
-      "text": "Pascal Hitzler and Md. Kamruzzaman Sarker, editors. Neuro-Symbolic Artificial Intelligence: The State of the Art, volume 342 of Frontiers in Artificial Intelligence and Applications. IOS Press, 2021. ISBN 978-1-64368-244-0"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hitzler"
+          ],
+          "givenNames": [
+            "Pascal"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "text": "Pascal Hitzler and Md. Kamruzzaman Sarker, editors. Neuro-Symbolic Artificial Intelligence: The State of the Art, volume 342 of Frontiers in Artificial Intelligence and Applications. IOS Press, 2021. ISBN 978-1-64368-244-0. doi: 10.3233/FAIA342. URL https://doi.org/10.3233/FAIA342."
     },
     {
       "type": "Reference",
@@ -1285,30 +1540,152 @@ expression: article
       "type": "Reference",
       "id": "bib.bib32",
       "doi": "10.1609/aimag.v43i1.19122",
-      "text": "Henry A. Kautz. The third AI summer: AAAI Robert S. Engelmore memorial lecture. AI Mag., 43(1):93–104, 2022"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Henry"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "text": "Henry A. Kautz. The third AI summer: AAAI Robert S. Engelmore memorial lecture. AI Mag., 43(1):93–104, 2022. doi: 10.1609/aimag.v43i1.19122. URL https://doi.org/10.1609/aimag.v43i1.19122."
     },
     {
       "type": "Reference",
       "id": "bib.bib33",
+      "workType": "WebPage",
       "doi": "10.1016/j.jal.2016.11.031",
-      "text": "Angelika Kimmig, Guy Van den Broeck, and Luc De Raedt. Algebraic model counting. Journal of Applied Logic, 22:46–62, July 2017. ISSN 15708683"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Angelika",
+            "Kimmig"
+          ],
+          "givenNames": [
+            "Guy",
+            "Van",
+            "den",
+            "Broeck"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "De",
+            "Raedt"
+          ],
+          "givenNames": [
+            "Luc"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2017"
+      },
+      "url": "https://linkinghub.elsevier.com/retrieve/pii/S157086831630088X",
+      "text": "Angelika Kimmig, Guy Van den Broeck, and Luc De Raedt. Algebraic model counting. Journal of Applied Logic, 22:46–62, July 2017. ISSN 15708683. doi: 10.1016/j.jal.2016.11.031. URL https://linkinghub.elsevier.com/retrieve/pii/S157086831630088X."
     },
     {
       "type": "Reference",
       "id": "bib.bib34",
       "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mark",
+            "Law"
+          ],
+          "givenNames": [
+            "Alessandra",
+            "Russo"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Broda"
+          ],
+          "givenNames": [
+            "Krysia"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1808"
+      },
       "url": "http://arxiv.org/abs/1808.08441",
-      "text": "Mark Law, Alessandra Russo, and Krysia Broda. Inductive learning of answer set programs from noisy examples. CoRR, abs/1808.08441, 2018"
+      "text": "Mark Law, Alessandra Russo, and Krysia Broda. Inductive learning of answer set programs from noisy examples. CoRR, abs/1808.08441, 2018. URL http://arxiv.org/abs/1808.08441."
     },
     {
       "type": "Reference",
       "id": "bib.bib35",
-      "text": "Ziyang Li, Jiani Huang, and Mayur Naik. Scallop: A language for neurosymbolic programming. Proceedings of the ACM on Programming Languages, 7(PLDI):1463–1487, 2023"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ziyang",
+            "Li"
+          ],
+          "givenNames": [
+            "Jiani",
+            "Huang"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Naik"
+          ],
+          "givenNames": [
+            "Mayur"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1463"
+      },
+      "text": "Ziyang Li, Jiani Huang, and Mayur Naik. Scallop: A language for neurosymbolic programming. Proceedings of the ACM on Programming Languages, 7(PLDI):1463–1487, 2023."
     },
     {
       "type": "Reference",
       "id": "bib.bib36",
-      "text": "Jan Lukasiewicz and Alfred Tarski. Investigations into the sentential calculus. Logic, semantics, metamathematics, pages 38–59, 1956"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lukasiewicz"
+          ],
+          "givenNames": [
+            "Jan"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tarski"
+          ],
+          "givenNames": [
+            "Alfred"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1956"
+      },
+      "text": "Jan Lukasiewicz and Alfred Tarski. Investigations into the sentential calculus. Logic, semantics, metamathematics, pages 38–59, 1956."
     },
     {
       "type": "Reference",
@@ -1475,8 +1852,48 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib40",
+      "workType": "WebPage",
       "doi": "10.1016/j.artint.2021.103504",
-      "text": "Robin Manhaeve, Sebastijan Dumančić, Angelika Kimmig, Thomas Demeester, and Luc De Raedt. Neural probabilistic logic programming in DeepProbLog. Artificial Intelligence, 298:103504, September 2021. ISSN 00043702"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Robin",
+            "Manhaeve"
+          ],
+          "givenNames": [
+            "Sebastijan",
+            "Dumančić"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Angelika",
+            "Kimmig"
+          ],
+          "givenNames": [
+            "Thomas",
+            "Demeester"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "De",
+            "Raedt"
+          ],
+          "givenNames": [
+            "Luc"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "url": "https://linkinghub.elsevier.com/retrieve/pii/S0004370221000552",
+      "text": "Robin Manhaeve, Sebastijan Dumančić, Angelika Kimmig, Thomas Demeester, and Luc De Raedt. Neural probabilistic logic programming in DeepProbLog. Artificial Intelligence, 298:103504, September 2021. ISSN 00043702. doi: 10.1016/j.artint.2021.103504. URL https://linkinghub.elsevier.com/retrieve/pii/S0004370221000552."
     },
     {
       "type": "Reference",
@@ -1600,7 +2017,6 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib43",
-      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -1633,22 +2049,11 @@ expression: article
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Artificial Intelligence"
-      },
       "date": {
         "type": "Date",
-        "value": "page 104062, 2024"
+        "value": "2024"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "From statistical relational to neurosymbolic artificial intelligence: A survey"
-          }
-        }
-      ]
+      "text": "Giuseppe Marra, Sebastijan Dumančić, Robin Manhaeve, and Luc De Raedt. From statistical relational to neurosymbolic artificial intelligence: A survey. Artificial Intelligence, page 104062, 2024."
     },
     {
       "type": "Reference",
@@ -1864,8 +2269,33 @@ expression: article
       "type": "Reference",
       "id": "bib.bib48",
       "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Serafini"
+          ],
+          "givenNames": [
+            "Luciano"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "d’Avila",
+            "Garcez"
+          ],
+          "givenNames": [
+            "Artur"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1606"
+      },
       "url": "http://arxiv.org/abs/1606.04422",
-      "text": "Luciano Serafini and Artur d’Avila Garcez. Logic Tensor Networks: Deep Learning and Logical Reasoning from Data and Knowledge. arXiv:1606.04422 [cs], July 2016"
+      "text": "Luciano Serafini and Artur d’Avila Garcez. Logic Tensor Networks: Deep Learning and Logical Reasoning from Data and Knowledge. arXiv:1606.04422 [cs], July 2016. URL http://arxiv.org/abs/1606.04422. arXiv: 1606.04422."
     },
     {
       "type": "Reference",
@@ -2013,12 +2443,49 @@ expression: article
       "type": "Reference",
       "id": "bib.bib51",
       "doi": "10.24963/kr.2022/48",
-      "text": "Arseny Skryagin, Wolfgang Stammer, Daniel Ochs, Devendra Singh Dhami, and Kristian Kersting. Neural-Probabilistic Answer Set Programming. In Proceedings of the 19th International Conference on Principles of Knowledge Representation and Reasoning, pages 463–473, 8 2022"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Arseny",
+            "Skryagin"
+          ],
+          "givenNames": [
+            "Wolfgang",
+            "Stammer"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Daniel",
+            "Ochs"
+          ],
+          "givenNames": [
+            "Devendra",
+            "Singh",
+            "Dhami"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kersting"
+          ],
+          "givenNames": [
+            "Kristian"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "text": "Arseny Skryagin, Wolfgang Stammer, Daniel Ochs, Devendra Singh Dhami, and Kristian Kersting. Neural-Probabilistic Answer Set Programming. In Proceedings of the 19th International Conference on Principles of Knowledge Representation and Reasoning, pages 463–473, 8 2022. doi: 10.24963/kr.2022/48. URL https://doi.org/10.24963/kr.2022/48."
     },
     {
       "type": "Reference",
       "id": "bib.bib52",
-      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -2041,22 +2508,11 @@ expression: article
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Logic of differentiable logics: Towards a uniform semantics of dl. In Proceedings of 24th International Conference on Logic"
-      },
       "date": {
         "type": "Date",
-        "value": "volume 94, pages 473–493, 2023"
+        "value": "2023"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Daggitt, Robert Stewart, and Kathrin Stark"
-          }
-        }
-      ]
+      "text": "Natalia Slusarz, Ekaterina Komendantskaya, Matthew L Daggitt, Robert Stewart, and Kathrin Stark. Logic of differentiable logics: Towards a uniform semantics of dl. In Proceedings of 24th International Conference on Logic, volume 94, pages 473–493, 2023."
     },
     {
       "type": "Reference",
@@ -2255,20 +2711,54 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib57",
-      "text": "Efthymia Tsamoura, Timothy Hospedales, and Loizos Michael. Neural-symbolic integration: A compositional perspective. In Proceedings of the AAAI conference on artificial intelligence, volume 35, pages 5051–5060, 2021"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Efthymia",
+            "Tsamoura"
+          ],
+          "givenNames": [
+            "Timothy",
+            "Hospedales"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Michael"
+          ],
+          "givenNames": [
+            "Loizos"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2021"
+      },
+      "text": "Efthymia Tsamoura, Timothy Hospedales, and Loizos Michael. Neural-symbolic integration: A compositional perspective. In Proceedings of the AAAI conference on artificial intelligence, volume 35, pages 5051–5060, 2021."
     },
     {
       "type": "Reference",
       "id": "bib.bib58",
       "workType": "WebPage",
+      "date": {
+        "type": "Date",
+        "value": "1965"
+      },
       "url": "http://arxiv.org/abs/2102.11965",
-      "text": "Michael van Bekkum, Maaike de Boer, Frank van Harmelen, André Meyer-Vitali, and Annette ten Teije. Modular Design Patterns for Hybrid Learning and Reasoning Systems: a taxonomy, patterns and use cases. arXiv:2102.11965 [cs], March 2021"
+      "text": "Michael van Bekkum, Maaike de Boer, Frank van Harmelen, André Meyer-Vitali, and Annette ten Teije. Modular Design Patterns for Hybrid Learning and Reasoning Systems: a taxonomy, patterns and use cases. arXiv:2102.11965 [cs], March 2021. URL http://arxiv.org/abs/2102.11965. arXiv: 2102.11965."
     },
     {
       "type": "Reference",
       "id": "bib.bib59",
       "doi": "10.13052/jwe1540-9589.18133",
-      "text": "Frank van Harmelen and Annette ten Teije. A boxology of design patterns for hybrid learning and reasoning systems. J. Web Eng., 18(1-3):97–124, 2019"
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "text": "Frank van Harmelen and Annette ten Teije. A boxology of design patterns for hybrid learning and reasoning systems. J. Web Eng., 18(1-3):97–124, 2019. doi: 10.13052/jwe1540-9589.18133. URL https://doi.org/10.13052/jwe1540-9589.18133."
     },
     {
       "type": "Reference",
@@ -2339,7 +2829,6 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib61",
-      "workType": "Book",
       "authors": [
         {
           "type": "Person",
@@ -2351,43 +2840,165 @@ expression: article
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "An automata-theoretic approach to linear temporal logic. In Logics for concurrency: structure versus automata"
-      },
       "date": {
         "type": "Date",
-        "value": "pages 238–266"
+        "value": "2005"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Vardi"
-          }
-        }
-      ]
+      "text": "Moshe Y Vardi. An automata-theoretic approach to linear temporal logic. In Logics for concurrency: structure versus automata, pages 238–266. Springer, 2005."
     },
     {
       "type": "Reference",
       "id": "bib.bib62",
-      "text": "Zhenyuan Wang and George J Klir. Generalized measure theory, volume 25. Springer Science & Business Media, 2010"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wang"
+          ],
+          "givenNames": [
+            "Zhenyuan"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "George"
+          ],
+          "givenNames": [
+            "J."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2010"
+      },
+      "text": "Zhenyuan Wang and George J Klir. Generalized measure theory, volume 25. Springer Science & Business Media, 2010."
     },
     {
       "type": "Reference",
       "id": "bib.bib63",
       "doi": "10.18653/v1/p19-1618",
-      "text": "Leon Weber, Pasquale Minervini, Jannes Münchmeyer, Ulf Leser, and Tim Rocktäschel. Nlprolog: Reasoning with weak unification for question answering in natural language. In ACL, 2019"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Leon",
+            "Weber"
+          ],
+          "givenNames": [
+            "Pasquale",
+            "Minervini"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jannes",
+            "Münchmeyer"
+          ],
+          "givenNames": [
+            "Ulf",
+            "Leser"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rocktäschel"
+          ],
+          "givenNames": [
+            "Tim"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "text": "Leon Weber, Pasquale Minervini, Jannes Münchmeyer, Ulf Leser, and Tim Rocktäschel. Nlprolog: Reasoning with weak unification for question answering in natural language. In ACL, 2019. doi: 10.18653/v1/p19-1618. URL https://doi.org/10.18653/v1/p19-1618."
     },
     {
       "type": "Reference",
       "id": "bib.bib64",
-      "text": "Thomas Winters, Giuseppe Marra, Robin Manhaeve, and Luc De Raedt. DeepStochLog: neural stochastic logic programming. In Proceedings of the AAAI Conference on Artificial Intelligence, volume 36, pages 10090–10100, 2022a"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Thomas",
+            "Winters"
+          ],
+          "givenNames": [
+            "Giuseppe",
+            "Marra"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Manhaeve"
+          ],
+          "givenNames": [
+            "Robin"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "De",
+            "Raedt"
+          ],
+          "givenNames": [
+            "Luc"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "text": "Thomas Winters, Giuseppe Marra, Robin Manhaeve, and Luc De Raedt. DeepStochLog: neural stochastic logic programming. In Proceedings of the AAAI Conference on Artificial Intelligence, volume 36, pages 10090–10100, 2022a."
     },
     {
       "type": "Reference",
       "id": "bib.bib65",
-      "text": "Thomas Winters, Giuseppe Marra, Robin Manhaeve, and Luc De Raedt. Deepstochlog: Neural stochastic logic programming. In Proceedings of the AAAI Conference on Artificial Intelligence, volume 36, pages 10090–10100, 2022b"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Thomas",
+            "Winters"
+          ],
+          "givenNames": [
+            "Giuseppe",
+            "Marra"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Manhaeve"
+          ],
+          "givenNames": [
+            "Robin"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "De",
+            "Raedt"
+          ],
+          "givenNames": [
+            "Luc"
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "text": "Thomas Winters, Giuseppe Marra, Robin Manhaeve, and Luc De Raedt. Deepstochlog: Neural stochastic logic programming. In Proceedings of the AAAI Conference on Artificial Intelligence, volume 36, pages 10090–10100, 2022b."
     },
     {
       "type": "Reference",
@@ -2568,7 +3179,6 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib69",
-      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -2595,30 +3205,7 @@ expression: article
         "type": "Date",
         "value": "1755"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "NeurASP: embracing neural networks into answer set programming"
-          }
-        }
-      ],
-      "isPartOf": {
-        "type": "Reference",
-        "publisher": {
-          "type": "Organization",
-          "name": "IJCAI",
-          "address": "pages"
-        },
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Proceedings of the Twenty-Ninth International Joint Conference on Artificial Intelligence"
-            }
-          }
-        ]
-      }
+      "text": "Zhun Yang, Adam Ishay, and Joohyung Lee. NeurASP: embracing neural networks into answer set programming. In Proceedings of the Twenty-Ninth International Joint Conference on Artificial Intelligence, IJCAI, pages 1755–1762, 2020."
     },
     {
       "type": "Reference",

@@ -252,7 +252,6 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib4",
-      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -286,26 +285,7 @@ expression: article
         "type": "Date",
         "value": "2019"
       },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "Least squares estimation in the monotone single index model"
-          }
-        }
-      ],
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Bernoulli"
-            }
-          }
-        ],
-        "volumeNumber": 25
-      }
+      "text": "Balabdaoui, F., Durot, C., and Jankowski, H. (2019). Least squares estimation in the monotone single index model. Bernoulli, 25(4B):3276 – 3310."
     },
     {
       "type": "Reference",
@@ -472,7 +452,11 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib8",
-      "text": "CDC (1996). Plan and Operation of Third National Health and Nutrition Examination Survey, 1988-1994. Number 32 in Vital and Health Statistics. NCHS"
+      "date": {
+        "type": "Date",
+        "value": "1996"
+      },
+      "text": "CDC (1996). Plan and Operation of Third National Health and Nutrition Examination Survey, 1988-1994. Number 32 in Vital and Health Statistics. NCHS."
     },
     {
       "type": "Reference",
@@ -2071,7 +2055,24 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib36",
-      "text": "van den Hout, A. (2016). Multi-State Survival Models for Interval-Censored Data. Chapman and Hall/CRC, 1st edition"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "van",
+            "den",
+            "Hout"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2016"
+      },
+      "text": "van den Hout, A. (2016). Multi-State Survival Models for Interval-Censored Data. Chapman and Hall/CRC, 1st edition."
     },
     {
       "type": "Reference",

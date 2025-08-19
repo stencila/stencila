@@ -1433,11 +1433,86 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib24",
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
       "text": "DESI Collaboration et al., 2022, AJ, 164, 207"
     },
     {
       "type": "Reference",
       "id": "bib.bib25",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dalal"
+          ],
+          "givenNames": [
+            "N."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "To"
+          ],
+          "givenNames": [
+            "C.",
+            "-H."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hirata"
+          ],
+          "givenNames": [
+            "C."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hyeon-Shin"
+          ],
+          "givenNames": [
+            "T."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hilton"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pandey"
+          ],
+          "givenNames": [
+            "S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bond"
+          ],
+          "givenNames": [
+            "J.",
+            "R."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
       "text": "Dalal N., To C.-H., Hirata C., Hyeon-Shin T., Hilton M., Pandey S., Bond J. R., 2025, arXiv e-prints, p. arXiv:2507.04476"
     },
     {
@@ -1537,6 +1612,21 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib28",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dolag"
+          ],
+          "givenNames": [
+            "K."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
       "text": "Dolag K., et al., 2025, arXiv e-prints, p. arXiv:2504.01061"
     },
     {
@@ -1873,7 +1963,6 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib36",
-      "workType": "Article",
       "authors": [
         {
           "type": "Person",
@@ -1913,26 +2002,11 @@ expression: article
           ]
         }
       ],
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "2024, Phys"
-          }
-        }
-      ],
-      "isPartOf": {
-        "type": "Reference",
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Rev. Lett."
-            }
-          }
-        ],
-        "volumeNumber": 133
-      }
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "text": "Ferreira T., Alonso D., Garcia-Garcia C., Chisari N. E., 2024, Phys. Rev. Lett., 133, 051001"
     },
     {
       "type": "Reference",
@@ -2397,6 +2471,60 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib45",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hill"
+          ],
+          "givenNames": [
+            "J.",
+            "C."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Baxter"
+          ],
+          "givenNames": [
+            "E.",
+            "J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lidz"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Greco"
+          ],
+          "givenNames": [
+            "J.",
+            "P."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jain"
+          ],
+          "givenNames": [
+            "B."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
       "text": "Hill J. C., Baxter E. J., Lidz A., Greco J. P., Jain B., 2018, Phys. Rev. D, 97, 083501"
     },
     {
@@ -2574,11 +2702,125 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib49",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Khaire"
+          ],
+          "givenNames": [
+            "V."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hu"
+          ],
+          "givenNames": [
+            "T."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hennawi"
+          ],
+          "givenNames": [
+            "J.",
+            "F."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Walther"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Davies"
+          ],
+          "givenNames": [
+            "F."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
       "text": "Khaire V., Hu T., Hennawi J. F., Walther M., Davies F., 2024a, MNRAS, 527, 4545"
     },
     {
       "type": "Reference",
       "id": "bib.bib50",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Khaire"
+          ],
+          "givenNames": [
+            "V."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hu"
+          ],
+          "givenNames": [
+            "T."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hennawi"
+          ],
+          "givenNames": [
+            "J.",
+            "F."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Burchett"
+          ],
+          "givenNames": [
+            "J.",
+            "N."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Walther"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Davies"
+          ],
+          "givenNames": [
+            "F."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
       "text": "Khaire V., Hu T., Hennawi J. F., Burchett J. N., Walther M., Davies F., 2024b, MNRAS, 534, 465"
     },
     {
@@ -2659,6 +2901,21 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib53",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kovač"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
       "text": "Kovač M., et al., 2025, arXiv e-prints, p. arXiv:2507.07991"
     },
     {
@@ -2760,6 +3017,59 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib56",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "La",
+            "Posta"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Alonso"
+          ],
+          "givenNames": [
+            "D."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chisari"
+          ],
+          "givenNames": [
+            "N.",
+            "E."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ferreira"
+          ],
+          "givenNames": [
+            "T."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "García-García"
+          ],
+          "givenNames": [
+            "C."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
       "text": "La Posta A., Alonso D., Chisari N. E., Ferreira T., García-García C., 2024, arXiv e-prints, p. arXiv:2412.12081"
     },
     {
@@ -2799,11 +3109,50 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib58",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Laureijs"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2011"
+      },
       "text": "Laureijs R., et al., 2011, arXiv e-prints, p. arXiv:1110.3193"
     },
     {
       "type": "Reference",
       "id": "bib.bib59",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lewis"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Challinor"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2011"
+      },
       "text": "Lewis A., Challinor A., 2011, CAMB: Code for Anisotropies in the Microwave Background, Astrophysics Source Code Library, record ascl:1102.026"
     },
     {
@@ -3225,6 +3574,30 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib68",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Medlock"
+          ],
+          "givenNames": [
+            "I."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nagai"
+          ],
+          "givenNames": [
+            "D."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
       "text": "Medlock I., Nagai D., Angl\\’es Alc\\’azar D., Gebhardt M., 2025, arXiv e-prints, p. arXiv:2501.17922"
     },
     {
@@ -3471,6 +3844,36 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib74",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Observations",
+            "Time",
+            "Allocation",
+            "Committee"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Community",
+            "Survey",
+            "Definition",
+            "Committees"
+          ],
+          "givenNames": [
+            "C."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
       "text": "Observations Time Allocation Committee R., Community Survey Definition Committees C., 2025, arXiv e-prints, p. arXiv:2505.10574"
     },
     {
@@ -3593,16 +3996,139 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib78",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pandey"
+          ],
+          "givenNames": [
+            "S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Baxter"
+          ],
+          "givenNames": [
+            "E.",
+            "J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hill"
+          ],
+          "givenNames": [
+            "J.",
+            "C."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
       "text": "Pandey S., Baxter E. J., Hill J. C., 2020, Phys. Rev. D, 101, 043525"
     },
     {
       "type": "Reference",
       "id": "bib.bib79",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pandey"
+          ],
+          "givenNames": [
+            "S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Salcido"
+          ],
+          "givenNames": [
+            "J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "To"
+          ],
+          "givenNames": [
+            "C.",
+            "-H."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hill"
+          ],
+          "givenNames": [
+            "J.",
+            "C."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Anbajagane"
+          ],
+          "givenNames": [
+            "D."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Baxter"
+          ],
+          "givenNames": [
+            "E.",
+            "J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "McCarthy"
+          ],
+          "givenNames": [
+            "I.",
+            "G."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
       "text": "Pandey S., Salcido J., To C.-H., Hill J. C., Anbajagane D., Baxter E. J., McCarthy I. G., 2024, arXiv e-prints, p. arXiv:2401.18072"
     },
     {
       "type": "Reference",
       "id": "bib.bib80",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pandey"
+          ],
+          "givenNames": [
+            "S."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
       "text": "Pandey S., et al., 2025, arXiv e-prints, p. arXiv:2506.07432"
     },
     {
@@ -3674,16 +4200,87 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib83",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Popesso"
+          ],
+          "givenNames": [
+            "P."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
       "text": "Popesso P., et al., 2024, arXiv e-prints, p. arXiv:2411.16555"
     },
     {
       "type": "Reference",
       "id": "bib.bib84",
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
       "text": "R. S. P., Krause E., Dolag K., Benabed K., Eifler T., Ayçoberry E., Dubois Y., 2025, J. Cosmology Astropart. Phys, 2025, 041"
     },
     {
       "type": "Reference",
       "id": "bib.bib85",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Reischke"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Neumann"
+          ],
+          "givenNames": [
+            "D."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bertmann"
+          ],
+          "givenNames": [
+            "K.",
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hagstotz"
+          ],
+          "givenNames": [
+            "S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hildebrandt"
+          ],
+          "givenNames": [
+            "H."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
       "text": "Reischke R., Neumann D., Bertmann K. A., Hagstotz S., Hildebrandt H., 2023, arXiv e-prints, p. arXiv:2309.09766"
     },
     {
@@ -3775,6 +4372,21 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib88",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schmidt"
+          ],
+          "givenNames": [
+            "F."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2016"
+      },
       "text": "Schmidt F., 2016, Phys. Rev. D, 93, 063512"
     },
     {
@@ -4028,6 +4640,21 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib93",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schneider"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
       "text": "Schneider A., et al., 2025, arXiv e-prints, p. arXiv:2507.07892"
     },
     {
@@ -4105,6 +4732,67 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib95",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sharma"
+          ],
+          "givenNames": [
+            "K."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Krause"
+          ],
+          "givenNames": [
+            "E."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ravi"
+          ],
+          "givenNames": [
+            "V."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Reischke"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pranjal"
+          ],
+          "givenNames": [
+            "R.",
+            "S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Connor"
+          ],
+          "givenNames": [
+            "L."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2025"
+      },
       "text": "Sharma K., Krause E., Ravi V., Reischke R., Pranjal R. S., Connor L., 2025, arXiv e-prints, p. arXiv:2504.18745"
     },
     {
@@ -4327,6 +5015,40 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib100",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Springel"
+          ],
+          "givenNames": [
+            "V."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Di",
+            "Matteo"
+          ],
+          "givenNames": [
+            "T."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hernquist"
+          ],
+          "givenNames": [
+            "L."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2005"
+      },
       "text": "Springel V., Di Matteo T., Hernquist L., 2005a, MNRAS, 361, 776"
     },
     {
@@ -4535,11 +5257,63 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib105",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sunyaev"
+          ],
+          "givenNames": [
+            "R.",
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zeldovich"
+          ],
+          "givenNames": [
+            "I.",
+            "B."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1980"
+      },
       "text": "Sunyaev R. A., Zeldovich I. B., 1980a, ARA&A, 18, 537"
     },
     {
       "type": "Reference",
       "id": "bib.bib106",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sunyaev"
+          ],
+          "givenNames": [
+            "R.",
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zeldovich"
+          ],
+          "givenNames": [
+            "Y.",
+            "B."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1980"
+      },
       "text": "Sunyaev R. A., Zeldovich Y. B., 1980b, MNRAS, 190, 413"
     },
     {
@@ -4614,11 +5388,71 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib108",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "The"
+          ],
+          "givenNames": [
+            "L.",
+            "S.",
+            "S.",
+            "T."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
       "text": "The LSST Dark Energy Science Collaboration et al., 2018, arXiv e-prints, p. arXiv:1809.01669"
     },
     {
       "type": "Reference",
       "id": "bib.bib109",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Theis"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hagstotz"
+          ],
+          "givenNames": [
+            "S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Reischke"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Weller"
+          ],
+          "givenNames": [
+            "J."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
       "text": "Theis A., Hagstotz S., Reischke R., Weller J., 2024, arXiv e-prints, p. arXiv:2403.08611"
     },
     {
@@ -5122,6 +5956,21 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib117",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Villaescusa-Navarro"
+          ],
+          "givenNames": [
+            "F."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2018"
+      },
       "text": "Villaescusa-Navarro F., 2018, Pylians: Python libraries for the analysis of numerical simulations, Astrophysics Source Code Library, record ascl:1811.008 (ascl:1811.008)"
     },
     {
@@ -5353,6 +6202,41 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib123",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zentner"
+          ],
+          "givenNames": [
+            "A.",
+            "R."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rudd"
+          ],
+          "givenNames": [
+            "D.",
+            "H."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hu"
+          ],
+          "givenNames": [
+            "W."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2008"
+      },
       "text": "Zentner A. R., Rudd D. H., Hu W., 2008, Phys. Rev. D, 77, 043507"
     },
     {

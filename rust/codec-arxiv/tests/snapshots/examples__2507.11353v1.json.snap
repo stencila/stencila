@@ -360,8 +360,70 @@ expression: article
       "type": "Reference",
       "id": "bib.bib6",
       "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Adenot"
+          ],
+          "givenNames": [
+            "T."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Briere"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Counathe"
+          ],
+          "givenNames": [
+            "P."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jouanneau"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Le",
+            "Berthe"
+          ],
+          "givenNames": [
+            "T."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Le",
+            "Guenedal"
+          ],
+          "givenNames": [
+            "T."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
       "url": "https://ssrn.com/abstract=4043923",
-      "text": "Adenot, T., Briere, M., Counathe, P., Jouanneau, M., Le Berthe, T. and Le Guenedal, T. (2022), ‘Cascading effects of carbon price through the value chain: Impact on firm’s valuation’. Available at SSRN"
+      "text": "Adenot, T., Briere, M., Counathe, P., Jouanneau, M., Le Berthe, T. and Le Guenedal, T. (2022), ‘Cascading effects of carbon price through the value chain: Impact on firm’s valuation’. Available at SSRN: https://ssrn.com/abstract=4043923."
     },
     {
       "type": "Reference",
@@ -659,7 +721,40 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib13",
-      "text": "Bassiére, A., Dumitrescu, R. and Tankov, P. (2024), A mean-field game model of electricity market dynamics, in F. Benth and A. Veraart, eds, ‘Quantitative Energy Finance’, Springer, Cham"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bassiére"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dumitrescu"
+          ],
+          "givenNames": [
+            "R."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tankov"
+          ],
+          "givenNames": [
+            "P."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
+      "text": "Bassiére, A., Dumitrescu, R. and Tankov, P. (2024), A mean-field game model of electricity market dynamics, in F. Benth and A. Veraart, eds, ‘Quantitative Energy Finance’, Springer, Cham."
     },
     {
       "type": "Reference",
@@ -1004,15 +1099,92 @@ expression: article
       "type": "Reference",
       "id": "bib.bib21",
       "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bouchet"
+          ],
+          "givenNames": [
+            "V."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Le",
+            "Guenedal"
+          ],
+          "givenNames": [
+            "T."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
       "url": "https://ssrn.com/abstract=3574486",
-      "text": "Bouchet, V. and Le Guenedal, T. (2020), ‘Credit risk sensitivity to carbon price’. Available at SSRN"
+      "text": "Bouchet, V. and Le Guenedal, T. (2020), ‘Credit risk sensitivity to carbon price’. Available at SSRN: https://ssrn.com/abstract=3574486."
     },
     {
       "type": "Reference",
       "id": "bib.bib22",
       "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bouveret"
+          ],
+          "givenNames": [
+            "G."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chassagneux"
+          ],
+          "givenNames": [
+            "J.",
+            "-F."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ibbou"
+          ],
+          "givenNames": [
+            "S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jacquier"
+          ],
+          "givenNames": [
+            "A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sopgoui"
+          ],
+          "givenNames": [
+            "L."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
       "url": "https://ssrn.com/abstract=4518564",
-      "text": "Bouveret, G., Chassagneux, J.-F., Ibbou, S., Jacquier, A. and Sopgoui, L. (2023), ‘Propagation of a carbon price in credit portfolio through macroeconomic factors’. Available at SSRN"
+      "text": "Bouveret, G., Chassagneux, J.-F., Ibbou, S., Jacquier, A. and Sopgoui, L. (2023), ‘Propagation of a carbon price in credit portfolio through macroeconomic factors’. Available at SSRN: https://ssrn.com/abstract=4518564."
     },
     {
       "type": "Reference",
@@ -2231,8 +2403,50 @@ expression: article
       "type": "Reference",
       "id": "bib.bib46",
       "workType": "WebPage",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Löschenbrand"
+          ],
+          "givenNames": [
+            "S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Maier"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Millischer"
+          ],
+          "givenNames": [
+            "L."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Resch"
+          ],
+          "givenNames": [
+            "F."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2024"
+      },
       "url": "https://ssrn.com/abstract=4572907",
-      "text": "Löschenbrand, S., Maier, M., Millischer, L. and Resch, F. (2024), ‘Credit risk where it’s due: Carbon pricing and firm defaults’. Available at SSRN"
+      "text": "Löschenbrand, S., Maier, M., Millischer, L. and Resch, F. (2024), ‘Credit risk where it’s due: Carbon pricing and firm defaults’. Available at SSRN: https://ssrn.com/abstract=4572907."
     },
     {
       "type": "Reference",
@@ -2815,7 +3029,22 @@ expression: article
     {
       "type": "Reference",
       "id": "bib.bib59",
-      "text": "Varian, H. (1992), Microeconomic Analysis, W.W. Norton & Company"
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Varian"
+          ],
+          "givenNames": [
+            "H."
+          ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1992"
+      },
+      "text": "Varian, H. (1992), Microeconomic Analysis, W.W. Norton & Company."
     },
     {
       "type": "Reference",
