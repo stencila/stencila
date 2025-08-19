@@ -1,28 +1,68 @@
 use std::collections::HashMap;
 
-use codec_biblio::decode::text_to_reference;
+use codec_biblio::decode::{
+    bracketed_numeric_citation, parenthetic_numeric_citation, superscripted_numeric_citation,
+    text_to_reference, text_with_author_year_citations, text_with_bracketed_numeric_citations,
+    text_with_parenthetic_numeric_citations,
+};
 use codec_text_trait::to_text;
 use common::{once_cell::sync::Lazy, regex::Regex};
 use schema::{
-    Admonition, Article, Block, Citation, CitationGroup, Figure, ForBlock, Heading, IncludeBlock,
-    Inline, List, ListOrder, MathInline, Node, NodeId, Paragraph, Reference, Section, StyledBlock,
-    Text, VisitorMut, WalkControl, shortcuts::t,
+    Admonition, Article, Block, Figure, ForBlock, Heading, IncludeBlock, Inline, List, ListOrder,
+    MathInline, Node, NodeId, Paragraph, Reference, Section, StyledBlock, Text, VisitorMut,
+    WalkControl,
 };
+
+/// A type of potential block replacement
+#[derive(Debug)]
+pub(super) enum BlockReplacement {
+    /// Replace an image followed by a caption with a [`Figure`]
+    ImageThenCaption,
+
+    /// Replace a caption followed by an image with a [`Figure`]
+    CaptionThenImage,
+
+    /// Apply a caption followed by a [`Table`] to the table
+    CaptionThenTable,
+}
+
+/// A type of potential inline replacement
+#[allow(clippy::enum_variant_names)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub(super) enum InlineReplacement {
+    /// Replace text with a mix of text and author-year citations
+    AuthorYearCitations,
+
+    /// Replace text with a mix of text and bracketed numeric citations
+    BracketedNumericCitations,
+
+    /// Replace text with a mix of text and parenthetic numeric citations
+    ParentheticNumericCitations,
+
+    /// Replace text with a mix of text and superscripted numeric citations
+    SuperscriptedNumericCitations,
+}
 
 /// Walks over the node collecting replacements and references
 #[derive(Debug, Default)]
 pub(super) struct Collector {
     /// Replacements for block nodes
-    pub block_replacements: HashMap<NodeId, Vec<Block>>,
+    pub block_replacements: HashMap<NodeId, (BlockReplacement, Vec<Block>)>,
 
     /// Replacements for inline nodes
-    pub inline_replacements: HashMap<NodeId, Vec<Inline>>,
+    pub inline_replacements: HashMap<NodeId, (InlineReplacement, Vec<Inline>)>,
 
     /// Whether currently in the References (or Bibliography) section
     in_references: bool,
 
     /// References collected from walking node
     pub references: Option<Vec<Reference>>,
+
+    /// Whether references were found in an ordered (numbered) list
+    pub references_are_ordered: bool,
+
+    /// Determined citation style based on heuristics
+    pub citation_style: Option<InlineReplacement>,
 }
 
 impl VisitorMut for Collector {
@@ -82,25 +122,6 @@ impl VisitorMut for Collector {
     }
 }
 
-// These citation regexes all capture `[\d+\,\-–—\s]+` (digits, commas, hyphens, en/em dashes, spaces) but note that
-// `maybe_citation_sequence` also checks for correct arrangement of those
-
-// Detect square brackets containing only numbers, commas and dashes as
-// produced by some OCR for bracketed citations as used in Vancouver, IEEE citation styles
-static CITE_BRACKETS_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"\[([\d+\,\-–—\s]+)\]").expect("invalid regex"));
-
-// Detect parentheses containing only numbers, commas and dashes as
-// produced by some OCR of citations
-static CITE_PARENS_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"\(([\d+\,\-–—\s]+)\)").expect("invalid regex"));
-
-// Detect superscript with empty base as produced by some OCR for
-// superscript citations as used in ACS, AMA, Chicago citation
-// styles
-static CITE_MATH_SUP_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"\{\s*\}\^\{([\d+\,\-–—\s]+)\}").expect("invalid regex"));
-
 // Detect figure captions like "Figure 1.", "Fig 2:", "Figure 12 -", etc.
 static FIGURE_CAPTION_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"(?i)^(?:Figure|Fig\.?)\s*(\d+)[.:\-\s]*").expect("invalid regex"));
@@ -128,10 +149,17 @@ impl Collector {
                     figure.label = Some(figure_number);
 
                     // Replace first block with figure, second with empty
-                    self.block_replacements
-                        .insert(image.node_id(), vec![Block::Figure(figure)]);
-                    self.block_replacements
-                        .insert(caption_para.node_id(), vec![]);
+                    self.block_replacements.insert(
+                        image.node_id(),
+                        (
+                            BlockReplacement::ImageThenCaption,
+                            vec![Block::Figure(figure)],
+                        ),
+                    );
+                    self.block_replacements.insert(
+                        caption_para.node_id(),
+                        (BlockReplacement::ImageThenCaption, vec![]),
+                    );
 
                     index += 2; // Skip both blocks
                     continue;
@@ -146,9 +174,17 @@ impl Collector {
                     figure.label = Some(figure_number);
 
                     // Replace first block with figure, second with empty
-                    self.block_replacements
-                        .insert(caption_para.node_id(), vec![Block::Figure(figure)]);
-                    self.block_replacements.insert(image.node_id(), vec![]);
+                    self.block_replacements.insert(
+                        caption_para.node_id(),
+                        (
+                            BlockReplacement::CaptionThenImage,
+                            vec![Block::Figure(figure)],
+                        ),
+                    );
+                    self.block_replacements.insert(
+                        image.node_id(),
+                        (BlockReplacement::CaptionThenImage, vec![]),
+                    );
 
                     index += 2; // Skip both blocks
                     continue;
@@ -163,10 +199,17 @@ impl Collector {
                     new_table.label = Some(table_number);
 
                     // Replace caption with empty and table with updated table
-                    self.block_replacements
-                        .insert(caption_para.node_id(), vec![]);
-                    self.block_replacements
-                        .insert(table.node_id(), vec![Block::Table(new_table)]);
+                    self.block_replacements.insert(
+                        caption_para.node_id(),
+                        (BlockReplacement::CaptionThenTable, vec![]),
+                    );
+                    self.block_replacements.insert(
+                        table.node_id(),
+                        (
+                            BlockReplacement::CaptionThenTable,
+                            vec![Block::Table(new_table)],
+                        ),
+                    );
 
                     index += 2; // Skip both blocks
                     continue;
@@ -224,6 +267,9 @@ impl Collector {
         if self.in_references {
             let is_numeric = matches!(list.order, ListOrder::Ascending);
 
+            // Record whether this references list is ordered/numbered
+            self.references_are_ordered = is_numeric;
+
             let mut references = Vec::new();
             for (index, item) in list.items.iter().enumerate() {
                 let text = to_text(item);
@@ -247,164 +293,95 @@ impl Collector {
     }
 
     /// Visit a [`MathInline`] node
-    ///
-    /// Detects citation patterns in math expressions like superscript citations
-    /// and converts them to structured Citation/CitationGroup replacements.
     fn visit_math_inline(&mut self, math: &MathInline) {
-        if let Some(captures) = CITE_MATH_SUP_REGEX
-            .captures(&math.code)
-            .or(CITE_BRACKETS_REGEX.captures(&math.code))
-            .or(CITE_PARENS_REGEX.captures(&math.code))
-        {
-            if let Some(sequence) = maybe_citation_sequence(&captures[1]) {
-                self.inline_replacements
-                    .insert(math.node_id(), vec![citation_sequence_to_inline(sequence)]);
-            }
+        if let Some(inline) = bracketed_numeric_citation(&math.code) {
+            self.inline_replacements.insert(
+                math.node_id(),
+                (InlineReplacement::BracketedNumericCitations, vec![inline]),
+            );
+        }
+
+        if let Some(inline) = parenthetic_numeric_citation(&math.code) {
+            self.inline_replacements.insert(
+                math.node_id(),
+                (InlineReplacement::ParentheticNumericCitations, vec![inline]),
+            );
+        }
+
+        if let Some(inline) = superscripted_numeric_citation(&math.code) {
+            self.inline_replacements.insert(
+                math.node_id(),
+                (
+                    InlineReplacement::SuperscriptedNumericCitations,
+                    vec![inline],
+                ),
+            );
         }
     }
 
     /// Visit a [`Text`] node
-    ///
-    /// Scans plain text for bracketed and parenthetical citation patterns
-    /// and replaces them with structured Citation/CitationGroup nodes.
     fn visit_text(&mut self, text: &mut Text) {
-        let mut replacements: Vec<Inline> = Vec::new();
-        let mut last_end = 0;
-        let text_value = &text.value;
-
-        // Collect all valid citation matches with their positions
-        let mut matches: Vec<(usize, usize, Vec<String>)> = Vec::new();
-
-        // Find bracket citations [1,2,3]
-        for capture in CITE_BRACKETS_REGEX.captures_iter(text_value) {
-            if let Some(m) = capture.get(0) {
-                if let Some(sequence) = maybe_citation_sequence(&capture[1]) {
-                    matches.push((m.start(), m.end(), sequence));
-                }
-            }
+        if let Some(inlines) = has_citations(text_with_author_year_citations(&text.value)) {
+            self.inline_replacements.insert(
+                text.node_id(),
+                (InlineReplacement::AuthorYearCitations, inlines),
+            );
         }
 
-        // Find parentheses citations (1,2,3)
-        for capture in CITE_PARENS_REGEX.captures_iter(text_value) {
-            if let Some(m) = capture.get(0) {
-                if let Some(sequence) = maybe_citation_sequence(&capture[1]) {
-                    matches.push((m.start(), m.end(), sequence));
-                }
-            }
+        if let Some(inlines) = has_citations(text_with_bracketed_numeric_citations(&text.value)) {
+            self.inline_replacements.insert(
+                text.node_id(),
+                (InlineReplacement::BracketedNumericCitations, inlines),
+            );
         }
 
-        // Sort matches by position to process them in order
-        matches.sort_by_key(|&(start, _, _)| start);
-
-        // Process each valid match
-        for (start, end, sequence) in matches {
-            // Skip overlapping matches
-            if start < last_end {
-                continue;
-            }
-
-            // Add text before this match
-            if start > last_end {
-                let before_text = &text_value[last_end..start];
-                if !before_text.is_empty() {
-                    replacements.push(t(before_text));
-                }
-            }
-
-            // Add the citation
-            replacements.push(citation_sequence_to_inline(sequence));
-
-            last_end = end;
-        }
-
-        // Add any remaining text after the last match
-        if last_end < text_value.len() {
-            let remaining_text = &text_value[last_end..];
-            if !remaining_text.is_empty() {
-                replacements.push(t(remaining_text));
-            }
-        }
-
-        // If we found any citations, replace this text node with the replacement vector
-        if replacements.len() > 1 {
-            self.inline_replacements
-                .insert(text.node_id(), replacements);
-        }
-    }
-}
-
-/// Detect if a string matches a sequence of citation numbers separated by commas and dashes
-///
-/// Returns a vector of numbers, commas, and dashes if the string only contains those,
-/// commas and dashes are always between numbers, and all numbers are greater than 0 and less than 500.
-/// Supports hyphens (-), en dashes (–), and em dashes (—) as range separators.
-/// Return `None` otherwise.
-fn maybe_citation_sequence(string: &str) -> Option<Vec<String>> {
-    let mut sequence = Vec::new();
-    let mut current_number = String::new();
-    let mut last_was_separator = false;
-    let mut expecting_number = true;
-
-    for ch in string.chars() {
-        match ch {
-            ' ' | '\t' | '\n' | '\r' => {
-                // Ignore whitespace
-                continue;
-            }
-            '0'..='9' => {
-                current_number.push(ch);
-                last_was_separator = false;
-                expecting_number = false;
-            }
-            ',' | '-' | '–' | '—' => {
-                if current_number.is_empty() || last_was_separator || expecting_number {
-                    return None;
-                }
-
-                // Check if the current number is valid (> 0 and < 500)
-                if let Ok(num) = current_number.parse::<u32>() {
-                    if num == 0 || num >= 500 {
-                        return None;
-                    }
-                } else {
-                    return None;
-                }
-
-                sequence.push(current_number.clone());
-                // Normalize all dash types to hyphen for consistent processing
-                let separator = if matches!(ch, '–' | '—') {
-                    "-"
-                } else {
-                    &ch.to_string()
-                };
-                sequence.push(separator.to_string());
-                current_number.clear();
-                last_was_separator = true;
-                expecting_number = true;
-            }
-            _ => {
-                // Any other character makes this not a citation sequence
-                return None;
-            }
+        if let Some(inlines) = has_citations(text_with_parenthetic_numeric_citations(&text.value)) {
+            self.inline_replacements.insert(
+                text.node_id(),
+                (InlineReplacement::ParentheticNumericCitations, inlines),
+            );
         }
     }
 
-    // Handle the last number if there is one
-    if !current_number.is_empty() {
-        if let Ok(num) = current_number.parse::<u32>() {
-            if num == 0 || num >= 500 {
-                return None;
+    /// Determine the citation style of the document
+    ///
+    /// This method analyzes the collected references and citation replacements
+    /// to decide which citation style should be used for the document.
+    pub fn determine_citation_style(&mut self) {
+        // Count occurrences of each citation style
+        let mut style_counts = std::collections::HashMap::new();
+
+        for (replacement_type, _) in self.inline_replacements.values() {
+            style_counts
+                .entry(replacement_type)
+                .and_modify(|count| *count += 1)
+                .or_insert(1);
+        }
+
+        // Determine citation style based on heuristics
+        self.citation_style = if self.references_are_ordered {
+            // If references are numbered, prefer numeric citations
+            // Priority: bracketed > parenthetic > superscripted
+            if style_counts.contains_key(&InlineReplacement::BracketedNumericCitations) {
+                Some(InlineReplacement::BracketedNumericCitations)
+            } else if style_counts.contains_key(&InlineReplacement::ParentheticNumericCitations) {
+                Some(InlineReplacement::ParentheticNumericCitations)
+            } else if style_counts.contains_key(&InlineReplacement::SuperscriptedNumericCitations) {
+                Some(InlineReplacement::SuperscriptedNumericCitations)
+            } else {
+                // Fall back to author-year if no numeric citations found
+                style_counts
+                    .get(&InlineReplacement::AuthorYearCitations)
+                    .map(|_| InlineReplacement::AuthorYearCitations)
             }
-            sequence.push(current_number);
         } else {
-            return None;
-        }
-    } else if last_was_separator {
-        // String ends with a separator, which is invalid
-        return None;
+            // If references are not numbered, choose the most frequent style
+            style_counts
+                .iter()
+                .max_by_key(|&(_, &count)| count)
+                .map(|(&style, _)| style.clone())
+        };
     }
-
-    (!sequence.is_empty()).then_some(sequence)
 }
 
 /// Detect if a paragraph matches a figure caption pattern
@@ -464,28 +441,28 @@ fn remove_prefix_from_inlines(inlines: &mut Vec<Inline>, prefix: &str) {
     let first_inline = inlines[0].clone();
     match first_inline {
         Inline::Text(text_node) => {
-            handle_text_prefix_removal(&text_node, inlines, prefix);
+            remove_prefix_from_text(&text_node, inlines, prefix);
         }
         Inline::Emphasis(emphasis) => {
-            handle_nested_inline_prefix_removal(&emphasis.content, inlines, prefix);
+            remove_prefix_from_nested(&emphasis.content, inlines, prefix);
         }
         Inline::Strong(strong) => {
-            handle_nested_inline_prefix_removal(&strong.content, inlines, prefix);
+            remove_prefix_from_nested(&strong.content, inlines, prefix);
         }
         Inline::Underline(underline) => {
-            handle_nested_inline_prefix_removal(&underline.content, inlines, prefix);
+            remove_prefix_from_nested(&underline.content, inlines, prefix);
         }
         Inline::Strikeout(strikeout) => {
-            handle_nested_inline_prefix_removal(&strikeout.content, inlines, prefix);
+            remove_prefix_from_nested(&strikeout.content, inlines, prefix);
         }
         Inline::Subscript(subscript) => {
-            handle_nested_inline_prefix_removal(&subscript.content, inlines, prefix);
+            remove_prefix_from_nested(&subscript.content, inlines, prefix);
         }
         Inline::Superscript(superscript) => {
-            handle_nested_inline_prefix_removal(&superscript.content, inlines, prefix);
+            remove_prefix_from_nested(&superscript.content, inlines, prefix);
         }
         Inline::StyledInline(styled) => {
-            handle_nested_inline_prefix_removal(&styled.content, inlines, prefix);
+            remove_prefix_from_nested(&styled.content, inlines, prefix);
         }
         _ => {
             // For other inline types that don't contain nested content,
@@ -501,7 +478,7 @@ fn remove_prefix_from_inlines(inlines: &mut Vec<Inline>, prefix: &str) {
 }
 
 /// Handle prefix removal for text nodes
-fn handle_text_prefix_removal(text_node: &Text, inlines: &mut Vec<Inline>, prefix: &str) {
+fn remove_prefix_from_text(text_node: &Text, inlines: &mut Vec<Inline>, prefix: &str) {
     if let Some(stripped) = text_node.value.strip_prefix(prefix) {
         let remaining_text = stripped.trim_start();
         if remaining_text.is_empty() {
@@ -522,11 +499,7 @@ fn handle_text_prefix_removal(text_node: &Text, inlines: &mut Vec<Inline>, prefi
 }
 
 /// Handle prefix removal for inline elements with nested content
-fn handle_nested_inline_prefix_removal(
-    nested_content: &[Inline],
-    inlines: &mut Vec<Inline>,
-    prefix: &str,
-) {
+fn remove_prefix_from_nested(nested_content: &[Inline], inlines: &mut Vec<Inline>, prefix: &str) {
     let nested_text = to_text(&nested_content.to_vec());
     if prefix.starts_with(&nested_text) {
         // The prefix spans beyond this nested element
@@ -584,219 +557,20 @@ fn handle_nested_inline_prefix_removal(
     }
 }
 
-/// Transform a sequence of citation numbers, commas and dashes into a
-/// [`Citation`] or [`CitationGroup`]
-///
-/// Dashes, indicate a range to be expanded, e.g.
-///
-/// 1-3      => 1, 2, 3
-/// 1,3-5,7  => 1, 3, 4, 5, 7
-fn citation_sequence_to_inline(mut sequence: Vec<String>) -> Inline {
-    if sequence.len() == 1 {
-        let num = sequence.swap_remove(0);
-        Inline::Citation(Citation::new(format!("ref-{num}")))
-    } else {
-        let mut citations = Vec::new();
-        let mut index = 0;
-
-        while index < sequence.len() {
-            let current = &sequence[index];
-
-            // Check if this is a number followed by a dash
-            if index + 2 < sequence.len() && sequence[index + 1] == "-" {
-                let start_num = current.parse::<u32>().expect("should be valid number");
-                let end_num = sequence[index + 2]
-                    .parse::<u32>()
-                    .expect("should be valid number");
-
-                // Expand the range
-                for num in start_num..=end_num {
-                    citations.push(Citation::new(format!("ref-{num}")));
-                }
-
-                // Skip the dash and end number
-                index += 3;
-
-                // Skip comma if present
-                if index < sequence.len() && sequence[index] == "," {
-                    index += 1;
-                }
-            } else {
-                // Single number
-                citations.push(Citation::new(format!("ref-{current}")));
-                index += 1;
-
-                // Skip comma if present
-                if index < sequence.len() && sequence[index] == "," {
-                    index += 1;
-                }
-            }
-        }
-
-        Inline::CitationGroup(CitationGroup::new(citations))
-    }
+/// Determine if inlines contain at least one [`Citation`] or [`CitationGroup`]
+fn has_citations(inlines: Vec<Inline>) -> Option<Vec<Inline>> {
+    inlines
+        .iter()
+        .any(|inline| matches!(inline, Inline::Citation(..) | Inline::CitationGroup(..)))
+        .then_some(inlines)
 }
 
 #[cfg(test)]
 mod tests {
-    use common::eyre::{Result, bail};
     use common_dev::pretty_assertions::assert_eq;
+    use schema::shortcuts::t;
 
     use super::*;
-
-    #[test]
-    fn test_maybe_citation_sequence() {
-        // Valid cases
-        let valid_cases = [
-            // Single numbers
-            ("1", vec!["1"]),
-            ("42", vec!["42"]),
-            ("499", vec!["499"]),
-            // Comma separated
-            ("1,2,3", vec!["1", ",", "2", ",", "3"]),
-            ("5,10,15", vec!["5", ",", "10", ",", "15"]),
-            // Dash separated (hyphen, en dash, em dash)
-            ("1-3", vec!["1", "-", "3"]),
-            ("10-20", vec!["10", "-", "20"]),
-            ("1–3", vec!["1", "-", "3"]), // en dash normalized to hyphen
-            ("10—20", vec!["10", "-", "20"]), // em dash normalized to hyphen
-            // Mixed separators
-            ("1,3-5,7", vec!["1", ",", "3", "-", "5", ",", "7"]),
-            ("1,3–5,7", vec!["1", ",", "3", "-", "5", ",", "7"]), // en dash
-            ("1,3—5,7", vec!["1", ",", "3", "-", "5", ",", "7"]), // em dash
-            (
-                "2-4,8,10-12",
-                vec!["2", "-", "4", ",", "8", ",", "10", "-", "12"],
-            ),
-            (
-                "2–4,8,10—12", // mixed dash types
-                vec!["2", "-", "4", ",", "8", ",", "10", "-", "12"],
-            ),
-            // With whitespace
-            ("1, 2, 3", vec!["1", ",", "2", ",", "3"]),
-            (" 1 - 3 ", vec!["1", "-", "3"]),
-            ("\t1,\n3-5,\r7\t", vec!["1", ",", "3", "-", "5", ",", "7"]),
-        ];
-
-        for (input, expected) in valid_cases {
-            let expected_strings: Vec<String> = expected.iter().map(|s| s.to_string()).collect();
-            assert_eq!(
-                maybe_citation_sequence(input),
-                Some(expected_strings),
-                "Failed for input: {input}"
-            );
-        }
-
-        // Invalid cases
-        let invalid_cases = [
-            // Empty/whitespace only
-            "", "   ", // Non-numeric characters
-            "a", "1a", "1,a", "1.2", "1,2,abc", // Invalid separators
-            ",1", "1,", "-1", "1-", "1,,2", "1--2", "1,-2", "1-,2", // Numbers <= 0 or >= 500
-            "0", "500", "1000", "1,500", "499,500", "0,1", "0-2", // Other characters
-            "1;2", "1:2", "1&2", "1+2", "1/2", "1|2",
-        ];
-
-        for input in invalid_cases {
-            assert_eq!(
-                maybe_citation_sequence(input),
-                None,
-                "Should be None for input: {input}"
-            );
-        }
-    }
-
-    #[test]
-    fn test_citation_sequence_to_inline() -> Result<()> {
-        // Test single citation
-        let single_sequence = vec!["5".to_string()];
-        match citation_sequence_to_inline(single_sequence) {
-            Inline::Citation(citation) => {
-                assert_eq!(citation.target, "ref-5");
-            }
-            _ => bail!("Expected Citation for single element"),
-        }
-
-        // Test comma-separated citations
-        let comma_sequence = vec![
-            "1".to_string(),
-            ",".to_string(),
-            "3".to_string(),
-            ",".to_string(),
-            "7".to_string(),
-        ];
-        match citation_sequence_to_inline(comma_sequence) {
-            Inline::CitationGroup(group) => {
-                assert_eq!(group.items.len(), 3);
-                assert_eq!(group.items[0].target, "ref-1");
-                assert_eq!(group.items[1].target, "ref-3");
-                assert_eq!(group.items[2].target, "ref-7");
-            }
-            _ => bail!("Expected CitationGroup for comma-separated"),
-        }
-
-        // Test range expansion
-        let range_sequence = vec!["1".to_string(), "-".to_string(), "3".to_string()];
-        match citation_sequence_to_inline(range_sequence) {
-            Inline::CitationGroup(group) => {
-                assert_eq!(group.items.len(), 3);
-                assert_eq!(group.items[0].target, "ref-1");
-                assert_eq!(group.items[1].target, "ref-2");
-                assert_eq!(group.items[2].target, "ref-3");
-            }
-            _ => bail!("Expected CitationGroup for range"),
-        }
-
-        // Test mixed: 1,3-5,7 => 1, 3, 4, 5, 7
-        let mixed_sequence = vec![
-            "1".to_string(),
-            ",".to_string(),
-            "3".to_string(),
-            "-".to_string(),
-            "5".to_string(),
-            ",".to_string(),
-            "7".to_string(),
-        ];
-        match citation_sequence_to_inline(mixed_sequence) {
-            Inline::CitationGroup(group) => {
-                assert_eq!(group.items.len(), 5);
-                assert_eq!(group.items[0].target, "ref-1");
-                assert_eq!(group.items[1].target, "ref-3");
-                assert_eq!(group.items[2].target, "ref-4");
-                assert_eq!(group.items[3].target, "ref-5");
-                assert_eq!(group.items[4].target, "ref-7");
-            }
-            _ => bail!("Expected CitationGroup for mixed sequence"),
-        }
-
-        // Test multiple ranges: 2-4,8,10-12
-        let multi_range_sequence = vec![
-            "2".to_string(),
-            "-".to_string(),
-            "4".to_string(),
-            ",".to_string(),
-            "8".to_string(),
-            ",".to_string(),
-            "10".to_string(),
-            "-".to_string(),
-            "12".to_string(),
-        ];
-        match citation_sequence_to_inline(multi_range_sequence) {
-            Inline::CitationGroup(group) => {
-                assert_eq!(group.items.len(), 7); // 2,3,4,8,10,11,12
-                assert_eq!(group.items[0].target, "ref-2");
-                assert_eq!(group.items[1].target, "ref-3");
-                assert_eq!(group.items[2].target, "ref-4");
-                assert_eq!(group.items[3].target, "ref-8");
-                assert_eq!(group.items[4].target, "ref-10");
-                assert_eq!(group.items[5].target, "ref-11");
-                assert_eq!(group.items[6].target, "ref-12");
-            }
-            _ => bail!("Expected CitationGroup for multi-range sequence"),
-        }
-
-        Ok(())
-    }
 
     #[test]
     fn test_maybe_figure_caption() {

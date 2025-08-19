@@ -94,7 +94,8 @@ impl Replacer {
 
         for block in blocks.drain(..) {
             if let Some(node_id) = block.node_id() {
-                if let Some(replacements) = self.collector.block_replacements.remove(&node_id) {
+                if let Some((.., replacements)) = self.collector.block_replacements.remove(&node_id)
+                {
                     new_blocks.extend(replacements);
                     continue;
                 }
@@ -111,9 +112,21 @@ impl Replacer {
 
         for inline in inlines.drain(..) {
             if let Some(node_id) = inline.node_id() {
-                if let Some(replacements) = self.collector.inline_replacements.remove(&node_id) {
-                    new_inlines.extend(replacements);
-                    continue;
+                if let Some((replacement_type, replacements)) =
+                    self.collector.inline_replacements.remove(&node_id)
+                {
+                    // Only apply replacement if it matches the collector's
+                    // determined citation style
+                    if let Some(ref citation_style) = self.collector.citation_style {
+                        if &replacement_type == citation_style {
+                            new_inlines.extend(replacements);
+                            continue;
+                        }
+                    } else {
+                        // If no citation style determined, apply all replacements (fallback)
+                        new_inlines.extend(replacements);
+                        continue;
+                    }
                 }
             }
             new_inlines.push(inline);

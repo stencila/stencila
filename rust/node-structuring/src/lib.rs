@@ -12,6 +12,7 @@ mod tests;
 pub fn structuring<T: WalkNode>(node: &mut T) {
     let mut collector = Collector::default();
     node.walk_mut(&mut collector);
+    collector.determine_citation_style();
 
     let mut replacer = Replacer::new(collector);
     node.walk_mut(&mut replacer);
