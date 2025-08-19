@@ -45,8 +45,8 @@ pub(crate) fn bracketed_numeric_and_text(input: &mut &str) -> Result<Vec<Inline>
     repeat(
         1..,
         alt((
-            bracketed_square,
-            preceded(not(bracketed_square), any)
+            bracketed_numeric,
+            preceded(not(bracketed_numeric), any)
                 .take()
                 .map(|text: &str| t(text)),
         )),
@@ -62,8 +62,8 @@ pub(crate) fn parenthetic_numeric_and_text(input: &mut &str) -> Result<Vec<Inlin
     repeat(
         1..,
         alt((
-            bracketed_parentheses,
-            preceded(not(bracketed_parentheses), any)
+            parenthetic_numeric,
+            preceded(not(parenthetic_numeric), any)
                 .take()
                 .map(|text: &str| t(text)),
         )),
@@ -79,8 +79,8 @@ pub(crate) fn superscripted_numeric_and_text(input: &mut &str) -> Result<Vec<Inl
     repeat(
         1..,
         alt((
-            bracketed_superscript,
-            preceded(not(bracketed_superscript), any)
+            superscripted_numeric,
+            preceded(not(superscripted_numeric), any)
                 .take()
                 .map(|text: &str| t(text)),
         )),
@@ -104,7 +104,7 @@ fn fold_text_inlines(inlines: Vec<Inline>) -> Vec<Inline> {
 
 /// Parse an author-year citation (either parenthetical or
 /// narrative) or citation group.
-fn author_year(input: &mut &str) -> Result<Inline> {
+pub(crate) fn author_year(input: &mut &str) -> Result<Inline> {
     alt((
         author_year_narrative.map(Inline::Citation),
         author_year_parenthetical,
@@ -248,17 +248,17 @@ fn author_year_item_suffix(input: &mut &str) -> Result<String> {
 }
 
 /// Parse square bracket citation like [1,2,3-5]
-fn bracketed_square(input: &mut &str) -> Result<Inline> {
+pub(crate) fn bracketed_numeric(input: &mut &str) -> Result<Inline> {
     delimited("[", citation_sequence, "]").parse_next(input)
 }
 
 /// Parse parentheses citation like (1,2,3-5)
-fn bracketed_parentheses(input: &mut &str) -> Result<Inline> {
+pub(crate) fn parenthetic_numeric(input: &mut &str) -> Result<Inline> {
     delimited("(", citation_sequence, ")").parse_next(input)
 }
 
 /// Parse superscript math citation like {}^{1,2,3-5}
-fn bracketed_superscript(input: &mut &str) -> Result<Inline> {
+pub(crate) fn superscripted_numeric(input: &mut &str) -> Result<Inline> {
     delimited(
         (multispace0, "{", multispace0, "}", "^", "{"),
         citation_sequence,
@@ -277,8 +277,10 @@ fn citation_sequence(input: &mut &str) -> Result<Inline> {
     .verify(|items: &Vec<CitationItem>| !items.is_empty())
     .map(|items| {
         let citations = expand_citation_items(items);
-        if citations.len() == 1 {
-            Inline::Citation(citations.into_iter().next().unwrap())
+        if let Some(citation) = citations.first()
+            && citations.len() == 1
+        {
+            Inline::Citation(citation.clone())
         } else {
             Inline::CitationGroup(CitationGroup::new(citations))
         }

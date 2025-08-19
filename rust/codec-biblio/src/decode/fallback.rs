@@ -48,7 +48,7 @@ pub fn fallback(mut input: &str) -> Reference {
             0..,
             alt((
                 terminated(year_az, peek(not(alphanumeric1)))
-                    .map(|date_with_suffix| Part::Date(date_with_suffix)),
+                    .map(Part::Date),
                 doi_or_url.map(|doi_or_url| {
                     if let Some(doi) = doi_or_url.doi {
                         Part::Doi(doi)
@@ -93,7 +93,7 @@ pub fn fallback(mut input: &str) -> Reference {
             }
 
             if let Some(authors) = &reference.authors {
-                reference.id = Some(generate_id(&authors, &reference_date_with_suffix));
+                reference.id = Some(generate_id(authors, &reference_date_with_suffix));
             }
 
             reference.text = some_if_not_blank(input);
@@ -120,7 +120,7 @@ mod tests {
 
     #[test]
     fn test_extract_authors_date() {
-        let r = fallback(&mut "Smith, J & Jones, P (1991) Some title. 10.1234/example");
+        let r = fallback("Smith, J & Jones, P (1991) Some title. 10.1234/example");
         assert_eq!(r.work_type, None);
         assert_eq!(r.id, Some("smith-and-jones-1991".to_string()));
         assert_eq!(r.authors.iter().flatten().count(), 2);
@@ -131,7 +131,7 @@ mod tests {
 
     #[test]
     fn test_extract_doi() {
-        let r = fallback(&mut "10.1234/example");
+        let r = fallback("10.1234/example");
         assert_eq!(r.work_type, None);
         assert_eq!(r.id, None);
         assert_eq!(r.authors, None);
@@ -139,7 +139,7 @@ mod tests {
         assert_eq!(r.doi, Some("10.1234/example".to_string()));
         assert_eq!(r.url, None);
 
-        let r = fallback(&mut "10.1234/example Research paper about climate change");
+        let r = fallback("10.1234/example Research paper about climate change");
         assert_eq!(r.work_type, None);
         assert_eq!(r.id, None);
         assert_eq!(r.authors, None);
@@ -147,7 +147,7 @@ mod tests {
         assert_eq!(r.doi, Some("10.1234/example".to_string()));
         assert_eq!(r.url, None);
 
-        let r = fallback(&mut "Research paper about climate change doi:10.1234/example");
+        let r = fallback("Research paper about climate change doi:10.1234/example");
         assert_eq!(r.work_type, None);
         assert_eq!(r.id, None);
         assert_eq!(r.authors, None);
@@ -155,7 +155,7 @@ mod tests {
         assert_eq!(r.doi, Some("10.1234/example".to_string()));
         assert_eq!(r.url, None);
 
-        let r = fallback(&mut "Climate research (10.1234/example) shows warming trends");
+        let r = fallback("Climate research (10.1234/example) shows warming trends");
         assert_eq!(r.work_type, None);
         assert_eq!(r.id, None);
         assert_eq!(r.authors, None);
@@ -163,7 +163,7 @@ mod tests {
         assert_eq!(r.doi, Some("10.1234/example".to_string()));
         assert_eq!(r.url, None);
 
-        let r = fallback(&mut "Study on AI https://doi.org/10.1234/example from 2023");
+        let r = fallback("Study on AI https://doi.org/10.1234/example from 2023");
         assert_eq!(r.work_type, None);
         assert_eq!(r.id, None);
         assert_eq!(r.authors, None);
@@ -174,7 +174,7 @@ mod tests {
 
     #[test]
     fn test_extract_url() {
-        let r = fallback(&mut "Web resource about programming https://example.com/guide tutorial");
+        let r = fallback("Web resource about programming https://example.com/guide tutorial");
         assert_eq!(r.work_type, Some(CreativeWorkType::WebPage));
         assert_eq!(r.id, None);
         assert_eq!(r.authors, None);
@@ -182,7 +182,7 @@ mod tests {
         assert_eq!(r.doi, None);
         assert_eq!(r.url, Some("https://example.com/guide".to_string()));
 
-        let r = fallback(&mut "Plain text with a url https://example.org");
+        let r = fallback("Plain text with a url https://example.org");
         assert_eq!(r.work_type, Some(CreativeWorkType::WebPage));
         assert_eq!(r.id, None);
         assert_eq!(r.authors, None);
@@ -193,7 +193,7 @@ mod tests {
 
     #[test]
     fn test_plain_text() {
-        let r = fallback(&mut "Some unstructured reference text about research");
+        let r = fallback("Some unstructured reference text about research");
         assert_eq!(r.work_type, None);
         assert_eq!(r.id, None);
         assert_eq!(r.authors, None);
@@ -208,7 +208,7 @@ mod tests {
 
     #[test]
     fn test_empty_input() {
-        let r = fallback(&mut "");
+        let r = fallback("");
         assert_eq!(r.work_type, None);
         assert_eq!(r.id, None);
         assert_eq!(r.authors, None);
@@ -217,7 +217,7 @@ mod tests {
         assert_eq!(r.url, None);
         assert_eq!(r.text, None);
 
-        let r = fallback(&mut "   \t\n   ");
+        let r = fallback("   \t\n   ");
         assert_eq!(r.work_type, None);
         assert_eq!(r.id, None);
         assert_eq!(r.authors, None);

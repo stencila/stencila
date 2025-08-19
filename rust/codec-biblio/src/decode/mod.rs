@@ -27,7 +27,8 @@ use crate::{
     conversion::entry_to_reference,
     decode::{
         citations::{
-            author_year_and_text, bracketed_numeric_and_text, parenthetic_numeric_and_text,
+            author_year, author_year_and_text, bracketed_numeric, bracketed_numeric_and_text,
+            parenthetic_numeric, parenthetic_numeric_and_text, superscripted_numeric,
             superscripted_numeric_and_text,
         },
         references::reference,
@@ -82,7 +83,12 @@ pub fn text_with_author_year_citations(text: &str) -> Vec<Inline> {
     }
 }
 
-/// Parse square bracket citations like "[1]", "[1-3]", and "[1,2,3]" in text
+/// Parse an author-year citations like "Smith (2020)" or "(Smith & Jones, 2021)" from text
+pub fn author_year_citation(text: &str) -> Option<Inline> {
+    author_year.parse(text).ok()
+}
+
+/// Parse square bracket numeric citations like "[1]", "[1-3]", and "[1,2,3]" in text
 pub fn text_with_bracketed_numeric_citations(text: &str) -> Vec<Inline> {
     match bracketed_numeric_and_text.parse(text) {
         Ok(result) => result,
@@ -90,7 +96,12 @@ pub fn text_with_bracketed_numeric_citations(text: &str) -> Vec<Inline> {
     }
 }
 
-/// Parse parenthetic citations like "(1)", "(1-3)", and "(1,2,3)" in text
+/// Parse a square bracket numeric citation like "[1]", "[1-3]", or "[1,2,3]" from text
+pub fn bracketed_numeric_citation(text: &str) -> Option<Inline> {
+    bracketed_numeric.parse(text).ok()
+}
+
+/// Parse parenthetic numeric citations like "(1)", "(1-3)", and "(1,2,3)" in text
 pub fn text_with_parenthetic_numeric_citations(text: &str) -> Vec<Inline> {
     match parenthetic_numeric_and_text.parse(text) {
         Ok(result) => result,
@@ -98,10 +109,20 @@ pub fn text_with_parenthetic_numeric_citations(text: &str) -> Vec<Inline> {
     }
 }
 
-/// Parse superscript citations like "{}^{1}", "{}^{1-3}", and "{}^{1,2,3}" in text
+/// Parse a parenthetic numeric citation like "(1)", "(1-3)", or "(1,2,3)" from text
+pub fn parenthetic_numeric_citation(text: &str) -> Option<Inline> {
+    parenthetic_numeric.parse(text).ok()
+}
+
+/// Parse LaTeX superscript citations like "{}^{1}", "{}^{1-3}", and "{}^{1,2,3}" in math
 pub fn text_with_superscripted_numeric_citations(text: &str) -> Vec<Inline> {
     match superscripted_numeric_and_text.parse(text) {
         Ok(result) => result,
         Err(_) => vec![t(text)],
     }
+}
+
+/// Parse a superscripted numeric citation like "{}^{1}", "{}^{1-3}", and "{}^{1,2,3}" from math
+pub fn superscripted_numeric_citation(text: &str) -> Option<Inline> {
+    superscripted_numeric.parse(text).ok()
 }
