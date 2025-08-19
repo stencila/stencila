@@ -24,10 +24,21 @@ use crate::decode::{
 /// Parse author-year narrative and parenthetic citations (e.g. Smith (1990),
 /// (Smith & Jones, 1990)) within text returning a vector of inlines that are
 /// either [Inline::Text], [Inline::Citation], or [Inline::CitationGroup]
+///
+/// This intentionally consumes substrings such as ". From" and "? See" so that
+/// those capitalized words are not consumed as names in a narrative citation.
 pub(crate) fn author_year_and_text(input: &mut &str) -> Result<Vec<Inline>> {
     repeat(
         1..,
         alt((
+            (
+                alt((".", "?", "!")),
+                " ",
+                alt(("From", "See", "Cf", "In")),
+                " ",
+            )
+                .take()
+                .map(|text: &str| t(text)),
             author_year,
             preceded(not(author_year), any)
                 .take()
@@ -393,6 +404,20 @@ mod tests {
                 t(" argued that "),
                 ctn("jones-2000"),
                 t(" was correct.")
+            ]
+        );
+
+        // Narrative citations should not consume common capitalized letters at start of
+        // sentence
+        let inlines = author_year_and_text(&mut ". From Brown (1995)! See Smith (2010a).")?;
+        assert_eq!(
+            inlines,
+            vec![
+                t(". From "),
+                ctn("brown-1995"),
+                t("! See "),
+                ctn("smith-2010a"),
+                t(".")
             ]
         );
 
