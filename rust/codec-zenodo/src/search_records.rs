@@ -91,7 +91,7 @@ fn bibliographic_references_to_references(record: &Record) -> Vec<Reference> {
         .metadata
         .references
         .iter()
-        .map(|item| text_to_reference(&item))
+        .map(|item| text_to_reference(item))
         .collect()
 }
 

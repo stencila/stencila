@@ -47,8 +47,7 @@ pub fn fallback(mut input: &str) -> Reference {
         repeat(
             0..,
             alt((
-                terminated(year_az, peek(not(alphanumeric1)))
-                    .map(Part::Date),
+                terminated(year_az, peek(not(alphanumeric1))).map(Part::Date),
                 doi_or_url.map(|doi_or_url| {
                     if let Some(doi) = doi_or_url.doi {
                         Part::Doi(doi)
