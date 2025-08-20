@@ -5,14 +5,36 @@
 export type SectionType =
   'Abstract' |
   'Summary' |
+  'NonTechnicalSummary' |
+  'Highlights' |
   'Introduction' |
+  'Background' |
+  'RelatedWork' |
   'Materials' |
   'Methods' |
+  'ExperimentalDesign' |
+  'StatisticalAnalysis' |
   'Cases' |
   'Results' |
   'Discussion' |
+  'Limitations' |
   'Conclusions' |
+  'FutureWork' |
+  'References' |
+  'Acknowledgements' |
+  'Funding' |
+  'CompetingInterests' |
+  'Ethics' |
+  'ConsentStatements' |
+  'DataAvailability' |
+  'CodeAvailability' |
+  'Reproducibility' |
+  'AuthorContributions' |
+  'Abbreviations' |
+  'Nomenclature' |
+  'Preregistration' |
   'SupplementaryMaterials' |
+  'Appendix' |
   'Main' |
   'Header' |
   'Footer' |

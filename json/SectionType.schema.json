@@ -130,54 +130,177 @@
   "anyOf": [
     {
       "@id": "stencila:AbstractSection",
+      "description": "A concise summary of the article’s purpose, methods, key results, and conclusions.",
       "const": "Abstract"
     },
     {
       "@id": "stencila:SummarySection",
+      "description": "A short, often technical summary such as an author or executive summary.",
       "const": "Summary"
     },
     {
+      "@id": "stencila:NonTechnicalSummarySection",
+      "description": "Non-technical summary written for general audiences, explaining the research’s significance and real-world implications without specialized terminology.",
+      "const": "NonTechnicalSummary"
+    },
+    {
+      "@id": "stencila:HighlightsSection",
+      "description": "Bullet-point summary of key findings or contributions (also called Key Points in some journals).",
+      "const": "Highlights"
+    },
+    {
       "@id": "stencila:IntroductionSection",
+      "description": "Establishes context, prior work, and the research question or objectives.",
       "const": "Introduction"
     },
     {
+      "@id": "stencila:BackgroundSection",
+      "description": "Extended context and theoretical foundation, providing deeper background than typically found in the Introduction.",
+      "const": "Background"
+    },
+    {
+      "@id": "stencila:RelatedWorkSection",
+      "description": "Survey or comparison of closely related prior work (common in CS/ML).",
+      "const": "RelatedWork"
+    },
+    {
       "@id": "stencila:MaterialsSection",
+      "description": "Details on materials, datasets, organisms, hardware, or reagents used.",
       "const": "Materials"
     },
     {
       "@id": "stencila:MethodsSection",
+      "description": "Procedures, algorithms, and analysis methods sufficient for reproducibility.",
       "const": "Methods"
     },
     {
+      "@id": "stencila:ExperimentalDesignSection",
+      "description": "Detailed description of experimental design, including apparatus, parameters, conditions, and protocols.",
+      "const": "ExperimentalDesign"
+    },
+    {
+      "@id": "stencila:StatisticalAnalysisSection",
+      "description": "Detailed description of statistical methods, including model specifications, power/sample-size calculations, and analysis decisions.",
+      "const": "StatisticalAnalysis"
+    },
+    {
       "@id": "stencila:CasesSection",
+      "description": "Case reports or case-series descriptions, often in clinical research.",
       "const": "Cases"
     },
     {
       "@id": "stencila:ResultsSection",
+      "description": "Objective presentation of findings without extensive interpretation.",
       "const": "Results"
     },
     {
       "@id": "stencila:DiscussionSection",
+      "description": "Interpretation of results, implications, and relation to prior work.",
       "const": "Discussion"
     },
     {
+      "@id": "stencila:LimitationsSection",
+      "description": "Known constraints or threats to validity affecting interpretation or generalizability.",
+      "const": "Limitations"
+    },
+    {
       "@id": "stencila:ConclusionsSection",
+      "description": "Final takeaways, recommendations, and wrap-up of the study’s contribution.",
       "const": "Conclusions"
     },
     {
+      "@id": "stencila:FutureWorkSection",
+      "description": "Suggested directions, next steps, or open problems for subsequent research.",
+      "const": "FutureWork"
+    },
+    {
+      "@id": "stencila:ReferencesSection",
+      "description": "Bibliographic list of works cited in the document.",
+      "const": "References"
+    },
+    {
+      "@id": "stencila:AcknowledgementsSection",
+      "description": "Recognition of non-author contributions such as assistance, facilities, or feedback.",
+      "const": "Acknowledgements"
+    },
+    {
+      "@id": "stencila:FundingSection",
+      "description": "Sources of financial support, grant numbers, and funding acknowledgments.",
+      "const": "Funding"
+    },
+    {
+      "@id": "stencila:CompetingInterestsSection",
+      "description": "Declarations of conflicts or competing interests by the authors.",
+      "const": "CompetingInterests"
+    },
+    {
+      "@id": "stencila:EthicsSection",
+      "description": "Ethical approvals, IRB/IEC statements, animal welfare, or ethical compliance.",
+      "const": "Ethics"
+    },
+    {
+      "@id": "stencila:ConsentStatementsSection",
+      "description": "Statements confirming informed consent was obtained from participants, patients, or for publication of identifying information.",
+      "const": "ConsentStatements"
+    },
+    {
+      "@id": "stencila:DataAvailabilitySection",
+      "description": "Statement describing where and how the underlying data can be accessed.",
+      "const": "DataAvailability"
+    },
+    {
+      "@id": "stencila:CodeAvailabilitySection",
+      "description": "Statement describing where and how to access analysis code, software, or computational notebooks used in the research.",
+      "const": "CodeAvailability"
+    },
+    {
+      "@id": "stencila:ReproducibilitySection",
+      "description": "Comprehensive statement on reproducibility and openness, covering availability of data, code, materials, and protocols.",
+      "const": "Reproducibility"
+    },
+    {
+      "@id": "stencila:AuthorContributionsSection",
+      "description": "Specific roles and contributions of each author (e.g., CRediT taxonomy).",
+      "const": "AuthorContributions"
+    },
+    {
+      "@id": "stencila:AbbreviationsSection",
+      "description": "List of abbreviations used in the document and their definitions.",
+      "const": "Abbreviations"
+    },
+    {
+      "@id": "stencila:NomenclatureSection",
+      "description": "Glossary, symbols, or notation used throughout the document.",
+      "const": "Nomenclature"
+    },
+    {
+      "@id": "stencila:PreregistrationSection",
+      "description": "Statement or link to study preregistration, including hypotheses and analysis plans registered before data collection.",
+      "const": "Preregistration"
+    },
+    {
       "@id": "stencila:SupplementaryMaterialsSection",
+      "description": "Additional figures, tables, data, or methods that support the main text.",
       "const": "SupplementaryMaterials"
     },
     {
+      "@id": "stencila:AppendixSection",
+      "description": "Ancillary material such as derivations, proofs, or extended details.",
+      "const": "Appendix"
+    },
+    {
       "@id": "stencila:MainSection",
+      "description": "The main body of content when a document is not subdivided into standard sections.",
       "const": "Main"
     },
     {
       "@id": "stencila:HeaderSection",
+      "description": "Front matter at the top of a page or section (e.g., running titles).",
       "const": "Header"
     },
     {
       "@id": "stencila:FooterSection",
+      "description": "Foot matter at the bottom of a page or section (e.g., footers, disclaimers).",
       "const": "Footer"
     },
     {

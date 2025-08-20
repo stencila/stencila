@@ -1,3 +1,5 @@
+use kernel_quickjs::kernel::schema::SectionType;
+
 use crate::prelude::*;
 
 // Currently a section is just a string of the section type
@@ -58,20 +60,7 @@ impl Sections {
         }
 
         let content = to_markdown(&heading.content).to_lowercase();
-
-        use schema::SectionType::*;
-        Some(match content.trim() {
-            "abstract" => Abstract,
-            "summary" => Summary,
-            "introduction" => Introduction,
-            "methods" | "materials and methods" => Methods,
-            "materials" => Materials,
-            "cases" => Cases,
-            "results" => Results,
-            "discussion" => Discussion,
-            "supplementary materials" => SupplementaryMaterials,
-            _ => return None,
-        })
+        schema::SectionType::from_text(&content).ok()
     }
 }
 
