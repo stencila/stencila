@@ -1,5 +1,9 @@
-use std::path::{Path, PathBuf};
+use std::{
+    path::{Path, PathBuf},
+    str::FromStr,
+};
 
+use codecs::PageSelector;
 use common::clap::{self, Args};
 use format::Format;
 use node_strip::StripScope;
@@ -61,6 +65,23 @@ pub struct DecodeOptions {
     #[arg(long, help_heading = "Decoding Options")]
     cache: Option<PathBuf>,
 
+    /// Pages to include when decoding multi-page documents
+    ///
+    /// Supports 1-based page selectors: single pages (N), ranges (N-M), 
+    /// open ranges (N- or -M), and keywords (odd, even).
+    /// Multiple selectors can be combined with commas.
+    /// Examples: --pages 1,3,5-7 or --pages 2-10,15-
+    #[arg(long, value_delimiter = ',', value_parser = PageSelector::from_str, help_heading = "Decoding Options")]
+    pages: Option<Vec<PageSelector>>,
+
+    /// Pages to exclude when decoding multi-page documents
+    ///
+    /// Uses the same syntax as --pages but excludes the specified pages.
+    /// Applied after --pages selection, allowing fine-grained control.
+    /// Example: --pages 1-10 --exclude-pages 3,7 includes pages 1,2,4,5,6,8,9,10
+    #[arg(long, value_delimiter = ',', value_parser = PageSelector::from_str, help_heading = "Decoding Options")]
+    exclude_pages: Option<Vec<PageSelector>>,
+
     /// Action when there are losses decoding from input files
     ///
     /// Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or
@@ -90,6 +111,8 @@ impl DecodeOptions {
             format,
             coarse,
             cache: self.cache.clone(),
+            include_pages: self.pages.clone(),
+            exclude_pages: self.exclude_pages.clone(),
             strip_scopes: strip_options.strip_scopes,
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,

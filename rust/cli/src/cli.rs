@@ -9,9 +9,7 @@ use server::{self, ServeOptions};
 use version::STENCILA_VERSION;
 
 use crate::{
-    compile, convert, demo, execute, lint,
-    logging::{LoggingFormat, LoggingLevel},
-    merge, new, preview, render, sync, uninstall, upgrade,
+    add, compile, convert, demo, execute, lint, logging::{LoggingFormat, LoggingLevel}, merge, new, preview, remove, render, sync, uninstall, upgrade
 };
 
 /// CLI subcommands and global options
@@ -218,13 +216,13 @@ pub enum Command {
     Config(document::cli::Config),
 
     Status(document::cli::Status),
-    Add(document::cli::Add),
-    Remove(document::cli::Remove),
     Move(document::cli::Move),
     Track(document::cli::Track),
     Untrack(document::cli::Untrack),
     Clean(document::cli::Clean),
 
+    Add(add::Cli),
+    Remove(remove::Cli),
     Rebuild(document::cli::Rebuild),
     Query(document::cli::Query),
 

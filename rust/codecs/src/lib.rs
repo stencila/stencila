@@ -10,8 +10,8 @@ use ask::{Answer, AskLevel, AskOptions, ask_with};
 use cli_utils::{Code, ToStdout};
 pub use codec::{
     Codec, CodecDirection, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    Losses, LossesResponse, Mapping, MappingEntry, Message, MessageLevel, Messages, PoshMap,
-    Position8, Position16, Positions, Range8, Range16, format::Format,
+    Losses, LossesResponse, Mapping, MappingEntry, Message, MessageLevel, Messages, PageSelector,
+    PoshMap, Position8, Position16, Positions, Range8, Range16, format::Format,
 };
 use codec::{
     common::{

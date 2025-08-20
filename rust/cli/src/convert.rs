@@ -71,6 +71,15 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Convert with specific codec options</dim>
   <b>stencila convert</> <g>doc.md</> <g>doc.html</> <c>--standalone</>
 
+  <dim># Convert only specific pages from a PDF</dim>
+  <b>stencila convert</> <g>document.pdf</> <g>extract.md</> <c>--pages</> <g>1,3,5-10</>
+
+  <dim># Convert all pages except specific ones</dim>
+  <b>stencila convert</> <g>report.pdf</> <g>content.md</> <c>--exclude-pages</> <g>5,15</>
+
+  <dim># Convert only odd pages from a document</dim>
+  <b>stencila convert</> <g>book.pdf</> <g>odd-pages.md</> <c>--pages</> <g>odd</>
+
   <dim># Use an external tool like Pandoc</dim>
   <b>stencila convert</> <g>doc.md</> <g>doc.tex</> <c>--tool</> <g>pandoc</>
 

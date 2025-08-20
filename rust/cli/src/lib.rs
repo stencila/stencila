@@ -3,6 +3,7 @@
 mod cli;
 pub use crate::cli::{Cli, Command};
 
+mod add;
 mod cloud;
 mod compile;
 mod convert;
@@ -15,6 +16,7 @@ mod merge;
 mod new;
 mod options;
 mod preview;
+mod remove;
 mod render;
 mod sync;
 mod uninstall;
@@ -79,14 +81,14 @@ mod tests {
             ("render", crate::render::CLI_AFTER_LONG_HELP),
             ("preview", crate::preview::CLI_AFTER_LONG_HELP),
             ("demo", crate::demo::DEMO_AFTER_LONG_HELP),
+            ("add", crate::add::ADD_AFTER_LONG_HELP),
+            ("remove", crate::remove::REMOVE_AFTER_LONG_HELP),
             ("upgrade", crate::upgrade::CLI_AFTER_LONG_HELP),
             ("uninstall", crate::uninstall::CLI_AFTER_LONG_HELP),
             // Document module help strings
             ("document::init", document::cli::INIT_AFTER_LONG_HELP),
             ("document::config", document::cli::CONFIG_AFTER_LONG_HELP),
             ("document::status", document::cli::STATUS_AFTER_LONG_HELP),
-            ("document::add", document::cli::ADD_AFTER_LONG_HELP),
-            ("document::remove", document::cli::REMOVE_AFTER_LONG_HELP),
             ("document::move", document::cli::MOVE_AFTER_LONG_HELP),
             ("document::track", document::cli::TRACK_AFTER_LONG_HELP),
             ("document::untrack", document::cli::UNTRACK_AFTER_LONG_HELP),

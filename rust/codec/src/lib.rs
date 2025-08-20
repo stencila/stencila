@@ -1,12 +1,13 @@
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, BTreeSet},
     path::{Path, PathBuf},
+    str::FromStr,
 };
 
 use codec_utils::git_info;
 use common::{
     async_trait::async_trait,
-    eyre::{Result, bail},
+    eyre::{Report, Result, bail},
     serde::{Deserialize, Serialize},
     serde_with::skip_serializing_none,
     smart_default::SmartDefault,
@@ -429,6 +430,14 @@ pub struct DecodeOptions {
     /// IANA Media Type (MIME) will be known or need to be specified.
     pub media_type: Option<String>,
 
+    /// The pages to include
+    ///
+    /// Used by some codecs for page-based formats e.g. PDF
+    pub include_pages: Option<Vec<PageSelector>>,
+
+    /// The pages to exclude
+    pub exclude_pages: Option<Vec<PageSelector>>,
+
     /// Scopes defining which properties of nodes should be stripped before decoding
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub strip_scopes: Vec<StripScope>,
@@ -608,5 +617,145 @@ impl EncodeOptions {
             tool_args,
             ..self
         }
+    }
+}
+
+/// A selector for pages in a document
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
+pub enum PageSelector {
+    Single(usize),       // N
+    Range(usize, usize), // N-M
+    From(usize),         // N-
+    To(usize),           // -M
+    Odd,
+    Even,
+}
+
+impl FromStr for PageSelector {
+    type Err = Report;
+
+    fn from_str(raw: &str) -> Result<Self> {
+        let s = raw.trim();
+        if s.is_empty() {
+            bail!("Empty page selector");
+        }
+        match s.to_ascii_lowercase().as_str() {
+            "odd" => return Ok(PageSelector::Odd),
+            "even" => return Ok(PageSelector::Even),
+            _ => {}
+        }
+
+        fn check(n: usize, raw: &str) -> Result<()> {
+            if n == 0 {
+                bail!("page numbers are 1-based; got 0 in '{raw}'")
+            } else {
+                Ok(())
+            }
+        }
+
+        // -M
+        if let Some(rest) = s.strip_prefix('-') {
+            let end = rest.parse()?;
+            check(end, s)?;
+            return Ok(PageSelector::To(end));
+        }
+
+        // N-
+        if let Some(rest) = s.strip_suffix('-') {
+            let start = rest.parse()?;
+            check(start, s)?;
+            return Ok(PageSelector::From(start));
+        }
+
+        // N-M
+        if let Some((a, b)) = s.split_once('-') {
+            let start = a.parse()?;
+            let end = b.parse()?;
+            check(start, s)?;
+            check(end, s)?;
+            if start > end {
+                bail!("invalid range '{s}': start > end");
+            }
+            return Ok(PageSelector::Range(start, end));
+        }
+
+        // N
+        let n = s.parse()?;
+        check(n, s)?;
+        Ok(PageSelector::Single(n))
+    }
+}
+
+impl PageSelector {
+    /// Expand one selector to concrete page numbers (1-based, clamped to total_pages).
+    fn resolve(&self, total_pages: usize) -> BTreeSet<usize> {
+        let mut out = BTreeSet::new();
+        match *self {
+            PageSelector::Single(n) => {
+                if n <= total_pages {
+                    out.insert(n);
+                }
+            }
+            PageSelector::Range(a, b) => {
+                if a <= total_pages {
+                    for p in a..=b.min(total_pages) {
+                        out.insert(p);
+                    }
+                }
+            }
+            PageSelector::From(a) => {
+                if a <= total_pages {
+                    for p in a..=total_pages {
+                        out.insert(p);
+                    }
+                }
+            }
+            PageSelector::To(b) => {
+                for p in 1..=b.min(total_pages) {
+                    out.insert(p);
+                }
+            }
+            PageSelector::Odd => {
+                for p in (1..=total_pages).step_by(2) {
+                    out.insert(p);
+                }
+            }
+            PageSelector::Even => {
+                for p in (2..=total_pages).step_by(2) {
+                    out.insert(p);
+                }
+            }
+        }
+        out
+    }
+
+    /// Expand many selectors and union them.
+    fn resolve_all(specs: &[PageSelector], total_pages: usize) -> BTreeSet<usize> {
+        let mut acc = BTreeSet::new();
+        for sel in specs {
+            acc.extend(sel.resolve(total_pages));
+        }
+        acc
+    }
+
+    /// Compute a final page set taking into account inclusions and exclusions
+    pub fn resolve_include_exclude(
+        include: Option<&[PageSelector]>,
+        exclude: Option<&[PageSelector]>,
+        total_pages: usize,
+    ) -> BTreeSet<usize> {
+        let mut keep: BTreeSet<usize> = if let Some(specs) = include {
+            PageSelector::resolve_all(specs, total_pages)
+        } else {
+            (1..=total_pages).collect()
+        };
+
+        if let Some(ex) = exclude {
+            for p in PageSelector::resolve_all(ex, total_pages) {
+                keep.remove(&p);
+            }
+        }
+        keep
     }
 }

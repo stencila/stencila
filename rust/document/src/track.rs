@@ -13,7 +13,7 @@ use node_sentencize::sentencize;
 use schema::{Node, NodeId};
 use url::Url;
 
-use codecs::EncodeOptions;
+use codecs::{DecodeOptions, EncodeOptions};
 use common::{
     chrono::Utc,
     eyre::{OptionExt, Result, bail},
@@ -444,6 +444,7 @@ impl Document {
     pub async fn add_docs(
         stencila_dir: &Path,
         identifiers: &[String],
+        decode_options: Option<DecodeOptions>,
         should_canonicalize: bool,
         should_sentencize: bool,
     ) -> Result<()> {
@@ -456,13 +457,16 @@ impl Document {
             let (doc_id, store_path, mut root) = if path.exists() {
                 let (doc_id, _, store_path, _) =
                     Document::track_path(&path, Some(time_now()), Some(time_now())).await?;
-                let root = Document::open(&path, None).await?.root().await;
+                let root = Document::open(&path, decode_options.clone())
+                    .await?
+                    .root()
+                    .await;
                 (doc_id, store_path, root)
             } else {
                 let doc_id = new_id();
                 let store_dir = stencila_store_dir(stencila_dir, true).await?;
                 let store_path = store_dir.join(format!("{doc_id}.json"));
-                let root = codecs::from_identifier(identifier, None).await?;
+                let root = codecs::from_identifier(identifier, decode_options.clone()).await?;
                 (doc_id, store_path, root)
             };
 
@@ -796,7 +800,7 @@ impl Document {
             .into_keys()
             .map(|path| path.to_string_lossy().to_string())
             .collect_vec();
-        Self::add_docs(&stencila_dir, &identifiers, true, true).await?;
+        Self::add_docs(&stencila_dir, &identifiers, None, true, true).await?;
 
         Ok(())
     }

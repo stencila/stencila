@@ -22,10 +22,7 @@ use common::{
     tokio::fs::create_dir_all,
     tracing,
 };
-use dirs::{
-    CreateStencilaDirOptions, STENCILA_DIR, closest_stencila_dir, closest_workspace_dir,
-    stencila_dir_create,
-};
+use dirs::{CreateStencilaDirOptions, STENCILA_DIR, closest_workspace_dir, stencila_dir_create};
 use format::Format;
 use kernels::Kernels;
 use node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
@@ -492,118 +489,6 @@ impl Untrack {
         }
 
         Ok(())
-    }
-}
-
-/// Add documents to the workspace database
-#[derive(Debug, Parser)]
-#[command(after_long_help = ADD_AFTER_LONG_HELP)]
-pub struct Add {
-    /// The documents to add to the workspace database
-    #[arg(num_args = 1.., required = true)]
-    documents: Vec<String>,
-
-    /// Do not canonicalize the document
-    #[arg(long)]
-    no_canonicalize: bool,
-
-    /// Do not split document paragraphs into sentences
-    #[arg(long)]
-    no_sentencize: bool,
-}
-
-pub static ADD_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><b>Examples</b></bold>
-  <dim># Add a single document to workspace database</dim>
-  <b>stencila add</> <g>document.md</>
-
-  <dim># Add multiple local Markdown documents</dim>
-  <b>stencila add</> <g>*.md</> <g>docs/*.md</>
-
-  <dim># Add all local Markdown documents</dim>
-  <b>stencila add</> <g>**/*.md</>
-
-  <dim># Add a bioRxiv preprint using its DOI</dim>
-  <b>stencila add</> <g>https://doi.org/10.1101/2021.11.24.469827</>
-
-<bold><b>Note</b></bold>
-  This adds documents to the workspace database for
-  indexing and querying. Files must be within the
-  workspace directory to be added.
-"
-);
-
-impl Add {
-    #[tracing::instrument]
-    pub async fn run(self) -> Result<()> {
-        let Some(first_doc) = self.documents.first() else {
-            tracing::warn!("No documents provided");
-            return Ok(());
-        };
-
-        let first_path = PathBuf::from(first_doc);
-        let base_path = if first_path.exists() {
-            first_path
-        } else {
-            current_dir()?
-        };
-
-        let stencila_dir = closest_stencila_dir(&base_path, true).await?;
-        Document::add_docs(
-            &stencila_dir,
-            &self.documents,
-            !self.no_canonicalize,
-            !self.no_sentencize,
-        )
-        .await
-    }
-}
-
-/// Remove documents from the workspace database
-#[derive(Debug, Parser)]
-#[clap(alias = "rm")]
-#[command(after_long_help = REMOVE_AFTER_LONG_HELP)]
-pub struct Remove {
-    /// The document to remove from the workspace database
-    #[arg(num_args = 1.., required = true)]
-    documents: Vec<String>,
-}
-
-pub static REMOVE_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><b>Examples</b></bold>
-  <dim># Remove a document from workspace database</dim>
-  <b>stencila remove</> <g>document.md</>
-
-  <dim># Remove multiple documents</dim>
-  <b>stencila remove</> <g>*.md</> <g>docs/*.md</>
-
-  <dim># Use the rm alias</dim>
-  <b>stencila rm</> <g>old-document.md</>
-
-<bold><b>Note</b></bold>
-  This removes documents from the workspace database
-  but does not delete the actual files. The files
-  will no longer be indexed or queryable.
-"
-);
-
-impl Remove {
-    #[tracing::instrument]
-    pub async fn run(self) -> Result<()> {
-        let Some(first_doc) = self.documents.first() else {
-            tracing::warn!("No documents provided");
-            return Ok(());
-        };
-
-        let first_path = PathBuf::from(first_doc);
-        let base_path = if first_path.exists() {
-            first_path
-        } else {
-            current_dir()?
-        };
-
-        let stencila_dir = closest_stencila_dir(&base_path, false).await?;
-        Document::remove_docs(&stencila_dir, &self.documents).await
     }
 }
 
