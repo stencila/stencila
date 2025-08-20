@@ -1,5 +1,3 @@
-use kernel_quickjs::kernel::schema::SectionType;
-
 use crate::prelude::*;
 
 // Currently a section is just a string of the section type

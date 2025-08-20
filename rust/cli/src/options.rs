@@ -67,7 +67,7 @@ pub struct DecodeOptions {
 
     /// Pages to include when decoding multi-page documents
     ///
-    /// Supports 1-based page selectors: single pages (N), ranges (N-M), 
+    /// Supports 1-based page selectors: single pages (N), ranges (N-M),
     /// open ranges (N- or -M), and keywords (odd, even).
     /// Multiple selectors can be combined with commas.
     /// Examples: --pages 1,3,5-7 or --pages 2-10,15-
