@@ -1,0 +1,310 @@
+use codec_text_trait::to_text;
+use schema::{
+    Admonition, Article, Block, ForBlock, Heading, IncludeBlock, Node, Section, SectionType,
+    StyledBlock, VisitorMut, WalkControl,
+};
+
+/// Walks over document blocks and creates nested sections from headings
+#[derive(Debug, Default)]
+pub(super) struct Sectioner {}
+
+impl VisitorMut for Sectioner {
+    fn visit_node(&mut self, node: &mut Node) -> WalkControl {
+        if let Node::Article(Article { content, .. }) = node {
+            self.visit_blocks(content);
+        }
+
+        WalkControl::Continue
+    }
+
+    fn visit_block(&mut self, block: &mut Block) -> WalkControl {
+        match block {
+            // Process nested block content for section structuring
+            // Note: We skip Section blocks to avoid infinite recursion
+            Block::Admonition(Admonition { content, .. })
+            | Block::IncludeBlock(IncludeBlock {
+                content: Some(content),
+                ..
+            })
+            | Block::StyledBlock(StyledBlock { content, .. }) => self.visit_blocks(content),
+            Block::ForBlock(ForBlock {
+                content,
+                iterations,
+                ..
+            }) => {
+                self.visit_blocks(content);
+                if let Some(iterations) = iterations {
+                    self.visit_blocks(iterations);
+                }
+                WalkControl::Continue
+            }
+
+            // Skip Section blocks to avoid infinite recursion
+            Block::Section(_) => WalkControl::Continue,
+
+            _ => WalkControl::Continue,
+        }
+    }
+}
+
+impl Sectioner {
+    /// Visit a vector of blocks and restructure them into nested sections
+    ///
+    /// This method transforms a flat list of blocks containing headings into
+    /// a hierarchical structure of sections based on heading levels.
+    fn visit_blocks(&mut self, blocks: &mut Vec<Block>) -> WalkControl {
+        let mut new_blocks = Vec::new();
+        let mut index = 0;
+
+        while index < blocks.len() {
+            let block = &blocks[index];
+
+            if let Block::Heading(heading) = block {
+                // Found a heading - create a section
+                let (section, consumed) =
+                    self.create_section_from_heading(heading, &blocks[index..]);
+                new_blocks.push(Block::Section(section));
+                index += consumed;
+            } else {
+                // Not a heading - add as-is
+                new_blocks.push(block.clone());
+                index += 1;
+            }
+        }
+
+        // Replace the original blocks with the restructured ones
+        *blocks = new_blocks;
+
+        WalkControl::Continue
+    }
+
+    /// Create a section from a heading and collect its content
+    ///
+    /// Returns a tuple of (Section, number_of_blocks_consumed)
+    fn create_section_from_heading(
+        &mut self,
+        heading: &Heading,
+        remaining_blocks: &[Block],
+    ) -> (Section, usize) {
+        let heading_level = heading.level;
+        let heading_text = to_text(&heading.content);
+
+        // Determine section type from heading text
+        let section_type = SectionType::from_text(&heading_text).ok();
+
+        // Start with the heading as the first block
+        let mut section_content = vec![remaining_blocks[0].clone()];
+        let mut consumed = 1;
+
+        // Collect blocks until we find another heading of the same or higher level
+        let mut index = 1;
+        while index < remaining_blocks.len() {
+            let block = &remaining_blocks[index];
+
+            match block {
+                Block::Heading(other_heading) => {
+                    if other_heading.level <= heading_level {
+                        // Found a heading at same or higher level - stop collecting
+                        break;
+                    } else {
+                        // Found a lower-level heading - create a nested section
+                        let (nested_section, nested_consumed) =
+                            self.create_section_from_heading(other_heading, &remaining_blocks[index..]);
+                        section_content.push(Block::Section(nested_section));
+                        index += nested_consumed;
+                        consumed += nested_consumed;
+                        continue;
+                    }
+                }
+                _ => {
+                    // Regular block - add to section content
+                    section_content.push(block.clone());
+                    index += 1;
+                    consumed += 1;
+                }
+            }
+        }
+
+        let mut section = Section::new(section_content);
+        section.section_type = section_type;
+
+        (section, consumed)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use common_dev::pretty_assertions::assert_eq;
+    use schema::shortcuts::{h1, h2, h3, p, t};
+
+    use super::*;
+
+    #[test]
+    fn test_single_section_creation() {
+        let mut blocks = vec![
+            h1([t("Introduction")]),
+            p([t("This is the introduction content.")]),
+            p([t("More introduction content.")]),
+        ];
+
+        let mut sectioner = Sectioner::default();
+        sectioner.visit_blocks(&mut blocks);
+
+        assert_eq!(blocks.len(), 1);
+
+        let Block::Section(section) = &blocks[0] else {
+            panic!("Expected a Section block");
+        };
+
+        assert_eq!(section.section_type, Some(SectionType::Introduction));
+        assert_eq!(section.content.len(), 3); // heading + 2 paragraphs
+
+        // First block should be the heading
+        assert!(matches!(section.content[0], Block::Heading(_)));
+
+        // Rest should be paragraphs
+        assert!(matches!(section.content[1], Block::Paragraph(_)));
+        assert!(matches!(section.content[2], Block::Paragraph(_)));
+    }
+
+    #[test]
+    fn test_nested_sections() {
+        let mut blocks = vec![
+            h1([t("Methods")]),
+            p([t("Methods overview.")]),
+            h2([t("Data Collection")]),
+            p([t("Data collection details.")]),
+            h2([t("Data analysis")]),
+            p([t("Data analysis details.")]),
+            h1([t("Results")]),
+            p([t("Results content.")]),
+        ];
+
+        let mut sectioner = Sectioner::default();
+        sectioner.visit_blocks(&mut blocks);
+
+        assert_eq!(blocks.len(), 2); // Two top-level sections
+
+        // First section: Methods
+        let Block::Section(methods_section) = &blocks[0] else {
+            panic!("Expected a Section block");
+        };
+        assert_eq!(methods_section.section_type, Some(SectionType::Methods));
+        assert_eq!(methods_section.content.len(), 4); // heading + paragraph + 2 nested sections
+
+        // Check nested sections
+        let Block::Section(data_section) = &methods_section.content[2] else {
+            panic!("Expected nested Section block");
+        };
+        assert_eq!(data_section.content.len(), 2); // heading + paragraph
+
+        let Block::Section(analysis_section) = &methods_section.content[3] else {
+            panic!("Expected nested Section block");
+        };
+        assert_eq!(analysis_section.content.len(), 2); // heading + paragraph
+
+        // Second section: Results
+        let Block::Section(results_section) = &blocks[1] else {
+            panic!("Expected a Section block");
+        };
+        assert_eq!(results_section.section_type, Some(SectionType::Results));
+        assert_eq!(results_section.content.len(), 2); // heading + paragraph
+    }
+
+    #[test]
+    fn test_mixed_content() {
+        let mut blocks = vec![
+            p([t("Some content before headings.")]),
+            h1([t("Introduction")]),
+            p([t("Introduction content.")]),
+            p([t("Content between sections.")]),
+            h1([t("Methods")]),
+            p([t("Methods content.")]),
+        ];
+
+        let mut sectioner = Sectioner::default();
+        sectioner.visit_blocks(&mut blocks);
+
+        assert_eq!(blocks.len(), 3); // paragraph + section + section
+
+        // First block should be the standalone paragraph
+        assert!(matches!(blocks[0], Block::Paragraph(_)));
+
+        // Second block should be Introduction section
+        let Block::Section(intro_section) = &blocks[1] else {
+            panic!("Expected a Section block");
+        };
+        assert_eq!(intro_section.section_type, Some(SectionType::Introduction));
+        // Should contain heading + intro content + content between sections
+        assert_eq!(intro_section.content.len(), 3);
+
+        // Third block should be Methods section
+        let Block::Section(methods_section) = &blocks[2] else {
+            panic!("Expected a Section block");
+        };
+        assert_eq!(methods_section.section_type, Some(SectionType::Methods));
+        assert_eq!(methods_section.content.len(), 2); // heading + content
+    }
+
+    #[test]
+    fn test_unknown_section_type() {
+        let mut blocks = vec![
+            h1([t("Custom Section Name")]),
+            p([t("Custom section content.")]),
+        ];
+
+        let mut sectioner = Sectioner::default();
+        sectioner.visit_blocks(&mut blocks);
+
+        let Block::Section(section) = &blocks[0] else {
+            panic!("Expected a Section block");
+        };
+
+        // Unknown section type should be None
+        assert_eq!(section.section_type, None);
+    }
+
+    #[test]
+    fn test_deep_nesting() {
+        let mut blocks = vec![
+            h1([t("Methods")]),
+            p([t("Methods overview.")]),
+            h2([t("Data Collection")]),
+            p([t("Data collection overview.")]),
+            h3([t("Survey Design")]),
+            p([t("Survey design details.")]),
+            h3([t("Sampling Method")]),
+            p([t("Sampling method details.")]),
+            h2([t("Analysis")]),
+            p([t("Analysis details.")]),
+        ];
+
+        let mut sectioner = Sectioner::default();
+        sectioner.visit_blocks(&mut blocks);
+
+        assert_eq!(blocks.len(), 1); // One top-level section
+
+        let Block::Section(methods_section) = &blocks[0] else {
+            panic!("Expected a Section block");
+        };
+        assert_eq!(methods_section.section_type, Some(SectionType::Methods));
+        assert_eq!(methods_section.content.len(), 4); // heading + paragraph + 2 nested sections
+
+        // Check first nested section (Data Collection)
+        let Block::Section(data_section) = &methods_section.content[2] else {
+            panic!("Expected nested Section block");
+        };
+        assert_eq!(data_section.content.len(), 4); // heading + paragraph + 2 nested sections
+
+        // Check deeply nested sections
+        let Block::Section(survey_section) = &data_section.content[2] else {
+            panic!("Expected deeply nested Section block");
+        };
+        assert_eq!(survey_section.content.len(), 2); // heading + paragraph
+
+        let Block::Section(sampling_section) = &data_section.content[3] else {
+            panic!("Expected deeply nested Section block");
+        };
+        assert_eq!(sampling_section.content.len(), 2); // heading + paragraph
+    }
+}

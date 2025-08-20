@@ -2,17 +2,22 @@ use codec_text_trait::to_text;
 use common::eyre::{Result, bail};
 use common_dev::pretty_assertions::assert_eq;
 use schema::{
-    AdmonitionType, Article, Block, ImageObject, Inline, Node, Strikeout, Strong, Superscript,
-    Underline,
+    AdmonitionType, Article, Block, ImageObject, Inline, Node, SectionType, Strikeout, Strong,
+    Superscript, Underline,
     shortcuts::{ct, ctg, em, h1, h2, li, mi, ol, p, sec, stb, t, tbl},
 };
 
-use crate::structuring;
+use crate::{StructuringOptions, structuring, structuring_with_options};
 
 /// Shortcut for creating an [`Block::ImageObject`] since there is
 /// no shortcut for that
 fn imb(url: &str) -> Block {
     Block::ImageObject(ImageObject::new(url.into()))
+}
+
+/// Shortcut for running structuring with sectioning disabled
+fn structuring_without_sectioning<T: schema::WalkNode>(node: &mut T) {
+    structuring_with_options(node, StructuringOptions { sectioning: false })
 }
 
 #[test]
@@ -22,7 +27,7 @@ fn heading_level_and_text_updates() -> Result<()> {
         h1([t("1.2.3 Deep Nested Section")]),
         p([t("Content here.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
     };
@@ -44,7 +49,7 @@ fn heading_level_and_text_updates() -> Result<()> {
         h1([t("A. Bibliography")]),
         p([t("Reference entry here.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
     };
@@ -66,7 +71,7 @@ fn heading_level_and_text_updates() -> Result<()> {
         h1([t("IV.1.2 Complex Analysis")]),
         p([t("Analysis content.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
     };
@@ -88,7 +93,7 @@ fn heading_level_and_text_updates() -> Result<()> {
         h1([t("Chapter 2.1 Background Study")]),
         p([t("Background content.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
     };
@@ -107,7 +112,7 @@ fn heading_level_and_text_updates() -> Result<()> {
         h1([t("Introduction")]),
         p([t("Intro content.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
     };
@@ -129,7 +134,7 @@ fn heading_level_and_text_updates() -> Result<()> {
         schema::shortcuts::h2([t("1.2.3.4 Deep Section")]),
         p([t("Deep content.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
     };
@@ -151,7 +156,7 @@ fn heading_level_and_text_updates() -> Result<()> {
         h1([t("5 Results")]),
         p([t("Results content.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
     };
@@ -177,7 +182,7 @@ fn heading_level_fallback() -> Result<()> {
         h1([t("Some Random Subsection")]), // Not a known section type, should get level 4
         p([t("More content.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
     };
@@ -200,12 +205,12 @@ fn heading_level_fallback() -> Result<()> {
 
     // Test that known section types always get level 1, even with numbering
     let mut article = Node::Article(Article::new(vec![
-        h1([t("1.2 Custom Analysis Framework")]),  // Non-section with numbering
+        h1([t("1.2 Custom Analysis Framework")]), // Non-section with numbering
         p([t("Framework content.")]),
         h1([t("Results")]), // Known section type, should get level 1
         p([t("Results content.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
     };
@@ -233,7 +238,7 @@ fn heading_level_fallback() -> Result<()> {
         h1([t("Some Random Section")]), // Not known, but no numbered seen yet, keeps original
         p([t("Random content.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
     };
@@ -262,7 +267,7 @@ fn heading_level_fallback() -> Result<()> {
         h1([t("Another Random Section")]), // Should get level 5 (4 + 1)
         p([t("More content.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
     };
@@ -270,7 +275,10 @@ fn heading_level_fallback() -> Result<()> {
     let Block::Heading(heading1) = &content[0] else {
         bail!("First should be heading")
     };
-    assert_eq!(heading1.level, 1, "A. heading should be level 1 from numbering");
+    assert_eq!(
+        heading1.level, 1,
+        "A. heading should be level 1 from numbering"
+    );
 
     let Block::Heading(heading2) = &content[2] else {
         bail!("Third should be heading")
@@ -294,30 +302,30 @@ fn heading_level_fallback() -> Result<()> {
 fn known_section_types_always_level_one() -> Result<()> {
     // Test that known section types always get level 1, regardless of original heading level
     let mut article = Node::Article(Article::new(vec![
-        h2([t("Introduction")]),  // h2 but should become level 1
+        h2([t("Introduction")]), // h2 but should become level 1
         p([t("Intro content.")]),
-        schema::shortcuts::h3([t("Methods")]),     // h3 but should become level 1
+        schema::shortcuts::h3([t("Methods")]), // h3 but should become level 1
         p([t("Methods content.")]),
-        schema::shortcuts::h4([t("Results")]),     // h4 but should become level 1
+        schema::shortcuts::h4([t("Results")]), // h4 but should become level 1
         p([t("Results content.")]),
-        schema::shortcuts::h5([t("Discussion")]),  // h5 but should become level 1
+        schema::shortcuts::h5([t("Discussion")]), // h5 but should become level 1
         p([t("Discussion content.")]),
         schema::shortcuts::h6([t("Conclusions")]), // h6 but should become level 1
         p([t("Conclusions content.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
     };
-    
+
     let headings = [
         ("Introduction", 0),
-        ("Methods", 2), 
+        ("Methods", 2),
         ("Results", 4),
         ("Discussion", 6),
         ("Conclusions", 8),
     ];
-    
+
     for (expected_text, index) in headings {
         let Block::Heading(heading) = &content[index] else {
             bail!("Block at index {} should be heading", index)
@@ -329,32 +337,38 @@ fn known_section_types_always_level_one() -> Result<()> {
 
     // Test known section types even after numbered headings
     let mut article = Node::Article(Article::new(vec![
-        h1([t("1.2.3 Some Numbered Section")]),  // Level 3
+        h1([t("1.2.3 Some Numbered Section")]), // Level 3
         p([t("Content.")]),
-        h2([t("Results")]),  // Known section, should be level 1 (not level 4)
+        h2([t("Results")]), // Known section, should be level 1 (not level 4)
         p([t("Results content.")]),
-        h1([t("Random Heading")]),  // Unknown, should get level 4 (3 + 1)
+        h1([t("Random Heading")]), // Unknown, should get level 4 (3 + 1)
         p([t("Random content.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
     };
-    
+
     let Block::Heading(heading1) = &content[0] else {
         bail!("First should be heading")
     };
     assert_eq!(heading1.level, 3, "Numbered heading should be level 3");
-    
+
     let Block::Heading(heading2) = &content[2] else {
         bail!("Third should be heading")
     };
-    assert_eq!(heading2.level, 1, "Known section should be level 1, not fallback");
-    
+    assert_eq!(
+        heading2.level, 1,
+        "Known section should be level 1, not fallback"
+    );
+
     let Block::Heading(heading3) = &content[4] else {
         bail!("Fifth should be heading")
     };
-    assert_eq!(heading3.level, 4, "Unknown heading should get fallback level 4");
+    assert_eq!(
+        heading3.level, 4,
+        "Unknown heading should get fallback level 4"
+    );
 
     Ok(())
 }
@@ -367,7 +381,7 @@ fn references_detection() -> Result<()> {
         h1([t("References")]),
         p([t("Author, A. B. (2020). Reference.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article {
         references: Some(..),
         ..
@@ -381,7 +395,7 @@ fn references_detection() -> Result<()> {
         h1([t("Works Cited")]),
         p([t("Smith, John. \"Article Title.\" Journal Name, 2023.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article {
         references: Some(..),
         ..
@@ -395,7 +409,7 @@ fn references_detection() -> Result<()> {
         h1([t("Literature Cited")]),
         p([t("Author. Title. Publisher, 2023.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article {
         references: Some(..),
         ..
@@ -409,7 +423,7 @@ fn references_detection() -> Result<()> {
         h1([t("Citations")]),
         p([t("Reference entry here.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article {
         references: Some(..),
         ..
@@ -423,7 +437,7 @@ fn references_detection() -> Result<()> {
         h1([t("Sources")]),
         p([t("Source entry here.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article {
         references: Some(..),
         ..
@@ -437,7 +451,7 @@ fn references_detection() -> Result<()> {
         h1([t("Reference List")]),
         p([t("Reference entry here.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article {
         references: Some(..),
         ..
@@ -451,7 +465,7 @@ fn references_detection() -> Result<()> {
         h1([t("1. References")]),
         p([t("Reference entry here.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article {
         references: Some(..),
         ..
@@ -465,7 +479,7 @@ fn references_detection() -> Result<()> {
         h1([t("A. Bibliography")]),
         p([t("Reference entry here.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article {
         references: Some(..),
         ..
@@ -479,7 +493,7 @@ fn references_detection() -> Result<()> {
         h1([t("VI. References")]),
         p([t("Reference entry here.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article {
         references: Some(..),
         ..
@@ -493,7 +507,7 @@ fn references_detection() -> Result<()> {
         h1([t("Further Reading")]),
         p([t("Reading material here.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article {
         references: Some(..),
         ..
@@ -507,7 +521,7 @@ fn references_detection() -> Result<()> {
         h1([t("Additional Sources")]),
         p([t("Source entry here.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article {
         references: Some(..),
         ..
@@ -528,7 +542,7 @@ fn reference_list_to_references() -> Result<()> {
             "Author, A. B., & Author, C. D. (Year). Title of article. Journal Name, Volume(Issue), pages. 10.0000/xyz",
         )])]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article {
         references: Some(refs),
         ..
@@ -555,7 +569,7 @@ fn reference_list_to_references() -> Result<()> {
             )]),
         ]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article {
         references: Some(refs),
         ..
@@ -575,7 +589,7 @@ fn reference_list_to_references() -> Result<()> {
             "Author, A. (2023). Test paper. Test Journal, 1, 1-5.",
         )])]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article {
         references: Some(refs),
         ..
@@ -593,7 +607,7 @@ fn reference_list_to_references() -> Result<()> {
             "Author, A. (2023). Test paper. Test Journal, 1, 1-5.",
         )])]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article {
         references: Some(refs),
         ..
@@ -608,7 +622,7 @@ fn reference_list_to_references() -> Result<()> {
         h1([t("Introduction")]),
         p([t("This is just content.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { references, .. }) = article else {
         bail!("Should be an article")
     };
@@ -616,7 +630,7 @@ fn reference_list_to_references() -> Result<()> {
 
     // Empty reference list should result in no references
     let mut article = Node::Article(Article::new(vec![h1([t("References")]), ol([])]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { references, .. }) = article else {
         bail!("Should be an article")
     };
@@ -631,7 +645,7 @@ fn reference_list_to_references() -> Result<()> {
         h1([t("Conclusion")]),
         ol([li([t("This should not be treated as a reference")])]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article {
         references: Some(refs),
         ..
@@ -658,7 +672,7 @@ fn reference_list_to_references() -> Result<()> {
             )]),
         ]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article {
         references: Some(refs),
         ..
@@ -897,7 +911,7 @@ fn image_then_caption_to_figure() -> Result<()> {
         imb("test.jpg"),
         p([t("Figure 1. This is a test caption.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
     };
@@ -943,7 +957,7 @@ fn caption_then_image_to_figure() -> Result<()> {
         imb("test.jpg"),
     ]));
 
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
 
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
@@ -988,7 +1002,7 @@ fn image_and_caption_multiple_figures() -> Result<()> {
         p([t("Figure 2: Second caption.")]),
         imb("test2.jpg"),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
     };
@@ -1032,7 +1046,7 @@ fn images_and_not_captions() -> Result<()> {
         p([t("More text.")]),
         imb("test.jpg"),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
     };
@@ -1083,7 +1097,7 @@ fn image_and_caption_edge_cases() -> Result<()> {
             p([t(case)]),
         ]));
 
-        structuring(&mut article);
+        structuring_without_sectioning(&mut article);
 
         let Node::Article(Article { content, .. }) = article else {
             bail!("Should be an article")
@@ -1287,7 +1301,7 @@ fn mixed_nested_and_top_level_figures() -> Result<()> {
         ]),
     ]));
 
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
 
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
@@ -1323,7 +1337,7 @@ fn figure_caption_with_nested_inline_elements() -> Result<()> {
         imb("emphasis.jpg"),
         p([em([t("Figure 1.")]), t(" Caption with emphasis at start.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
     };
@@ -1629,7 +1643,7 @@ fn caption_then_table_to_table_with_caption() -> Result<()> {
         p([t("Table 1. This is a test table caption.")]),
         tbl([]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
     };
@@ -1673,7 +1687,7 @@ fn table_caption_with_different_formats() -> Result<()> {
     for (i, (caption_text, expected_number, expected_caption)) in test_cases.iter().enumerate() {
         let mut article = Node::Article(Article::new(vec![p([t(caption_text)]), tbl([])]));
 
-        structuring(&mut article);
+        structuring_without_sectioning(&mut article);
 
         let Node::Article(Article { content, .. }) = article else {
             bail!("Should be an article for case {i}")
@@ -1779,7 +1793,7 @@ fn table_without_caption_unchanged() -> Result<()> {
         p([t("Table 1. This caption has no table following.")]),
         p([t("More text.")]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
     };
@@ -1812,7 +1826,7 @@ fn table_caption_in_nested_sections() -> Result<()> {
         tbl([]),
     ])]));
 
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
 
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
@@ -1864,7 +1878,7 @@ fn multiple_table_captions() -> Result<()> {
         p([t("Table 2: Second table caption.")]),
         tbl([]),
     ]));
-    structuring(&mut article);
+    structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
         bail!("Should be an article")
     };
@@ -1895,6 +1909,68 @@ fn multiple_table_captions() -> Result<()> {
         Some("2".into()),
         "Second table should have label '2'"
     );
+
+    Ok(())
+}
+
+#[test]
+fn sectioning_enabled_by_default() -> Result<()> {
+    // Test that sectioning is enabled by default in the main structuring function
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("Introduction")]),
+        p([t("Introduction content.")]),
+        h1([t("Methods")]),
+        p([t("Methods content.")]),
+    ]));
+
+    // Use the default structuring function (should have sectioning enabled)
+    structuring(&mut article);
+
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+
+    // Should have 2 sections created from the headings
+    assert_eq!(content.len(), 2);
+
+    let Block::Section(intro_section) = &content[0] else {
+        bail!("First block should be a section")
+    };
+    assert_eq!(intro_section.section_type, Some(SectionType::Introduction));
+    assert_eq!(intro_section.content.len(), 2); // heading + paragraph
+
+    let Block::Section(methods_section) = &content[1] else {
+        bail!("Second block should be a section")
+    };
+    assert_eq!(methods_section.section_type, Some(SectionType::Methods));
+    assert_eq!(methods_section.content.len(), 2); // heading + paragraph
+
+    Ok(())
+}
+
+#[test]
+fn sectioning_can_be_disabled() -> Result<()> {
+    // Test that sectioning can be explicitly disabled
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("Introduction")]),
+        p([t("Introduction content.")]),
+        h1([t("Methods")]),
+        p([t("Methods content.")]),
+    ]));
+
+    // Explicitly disable sectioning
+    structuring_without_sectioning(&mut article);
+
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+
+    // Should have the original structure: heading, paragraph, heading, paragraph
+    assert_eq!(content.len(), 4);
+    assert!(matches!(content[0], Block::Heading(_)));
+    assert!(matches!(content[1], Block::Paragraph(_)));
+    assert!(matches!(content[2], Block::Heading(_)));
+    assert!(matches!(content[3], Block::Paragraph(_)));
 
     Ok(())
 }
