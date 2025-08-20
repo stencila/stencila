@@ -1,11 +1,11 @@
 use std::{
-    fs,
     path::{Path, PathBuf},
     str::FromStr,
 };
 
 use base64::{Engine as _, engine::general_purpose};
 
+use codec::PageSelector;
 use common::{
     eyre::{Context, OptionExt, Report, Result, bail},
     reqwest, seahash,
@@ -13,7 +13,7 @@ use common::{
     serde_json,
     strum::{Display, EnumIter, IntoEnumIterator},
     tempfile::tempdir,
-    tokio::fs::{read_to_string, write},
+    tokio::fs::{read, read_to_string, write},
     tracing,
 };
 use dirs::closest_artifacts_for;
@@ -42,20 +42,25 @@ const MISTRAL_ARTIFACT_PREFIX: &str = "cp2mmi";
 impl FromStr for Tool {
     type Err = Report;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(tool: &str) -> Result<Self, Self::Err> {
         use Tool::*;
-        Ok(match s.to_lowercase().as_str() {
+        Ok(match tool.to_lowercase().as_str() {
             "mineru" => Mineru,
             "marker" => Marker,
             "mistral" => Mistral,
-            _ => bail!("Unrecognized PDF to Markdown tool"),
+            _ => bail!("Unrecognized PDF to Markdown tool: {tool}"),
         })
     }
 }
 
 /// Convert a PDF file to a Markdown file
 #[tracing::instrument]
-pub async fn pdf_to_md(pdf: &Path, tool: Option<&str>) -> Result<PathBuf> {
+pub async fn pdf_to_md(
+    pdf: &Path,
+    tool: Option<&str>,
+    include_pages: Option<&Vec<PageSelector>>,
+    exclude_pages: Option<&Vec<PageSelector>>,
+) -> Result<PathBuf> {
     let tool = match tool {
         // Use the specified tool
         Some(tool) => Tool::from_str(tool)?,
@@ -78,15 +83,29 @@ pub async fn pdf_to_md(pdf: &Path, tool: Option<&str>) -> Result<PathBuf> {
     };
 
     match tool {
-        Tool::Mistral => pdf_to_md_mistral(pdf).await,
-        _ => pdf_to_md_local(pdf, tool).await,
+        Tool::Mistral => pdf_to_md_mistral(pdf, include_pages, exclude_pages).await,
+        _ => pdf_to_md_local(pdf, tool, include_pages, exclude_pages).await,
     }
 }
 
 /// Convert a PDF file to a Markdown file using a local tool
 #[tracing::instrument]
-pub async fn pdf_to_md_local(pdf: &Path, tool: Tool) -> Result<PathBuf> {
+pub async fn pdf_to_md_local(
+    pdf: &Path,
+    tool: Tool,
+    include_pages: Option<&Vec<PageSelector>>,
+    exclude_pages: Option<&Vec<PageSelector>>,
+) -> Result<PathBuf> {
     let out_dir = tempdir()?.keep();
+
+    // TODO: Implement page filtering for local tools
+    // For now, local tools process all pages - page filtering would require
+    // either tool-specific page range options or post-processing the Markdown
+    if include_pages.is_some() || exclude_pages.is_some() {
+        tracing::warn!(
+            "Page filtering is not yet supported for local PDF tools, processing all pages"
+        );
+    }
 
     let mut command = AsyncToolCommand::new(tool.to_string());
 
@@ -131,9 +150,13 @@ pub async fn pdf_to_md_local(pdf: &Path, tool: Tool) -> Result<PathBuf> {
 
 /// Convert a PDF file to a Markdown file using Mistral OCR API
 #[tracing::instrument]
-pub async fn pdf_to_md_mistral(pdf_path: &Path) -> Result<PathBuf> {
+pub async fn pdf_to_md_mistral(
+    pdf_path: &Path,
+    include_pages: Option<&Vec<PageSelector>>,
+    exclude_pages: Option<&Vec<PageSelector>>,
+) -> Result<PathBuf> {
     // Read PDF
-    let pdf_bytes = fs::read(pdf_path)?;
+    let pdf_bytes = read(pdf_path).await?;
 
     // Get / create a new artifacts directory
     let digest = seahash::hash(&pdf_bytes);
@@ -177,13 +200,30 @@ pub async fn pdf_to_md_mistral(pdf_path: &Path) -> Result<PathBuf> {
     // Parse response JSON
     let response: MistralOcrResponse = serde_json::from_str(&response_json)?;
 
-    // Accumulate Markdown and save images from all pages
+    // Resolve which pages to include based on total page count
+    let total_pages = response.pages.len();
+    let pages_to_include = PageSelector::resolve_include_exclude(
+        include_pages.map(|v| v.as_slice()),
+        exclude_pages.map(|v| v.as_slice()),
+        total_pages,
+    );
+
+    // Accumulate Markdown and save images from selected pages only
     let mut md = String::new();
+    let mut first_included_page = true;
     for (index, page) in response.pages.into_iter().enumerate() {
-        if index > 0 {
+        let page_number = index + 1; // Convert to 1-based page numbering
+
+        // Skip pages that are not in the resolved set
+        if !pages_to_include.contains(&page_number) {
+            continue;
+        }
+
+        if !first_included_page {
             // Note: only one newline here to avoid splitting paragraphs unnecessarily
             md.push('\n');
         }
+        first_included_page = false;
         let cleaned_page = clean_md_page(&page.markdown);
         md.push_str(&cleaned_page);
 
