@@ -466,34 +466,36 @@ impl Install {
             std::env::current_dir()?
         };
 
-        eprintln!(
-            "🔧 Installing dependencies from config files in {}",
-            strip_home_dir(&path)
-        );
+        let mut installed = 0;
 
         if !self.skip_env {
-            self.install_environment_managers(&path).await?;
+            installed += self.install_environment_managers(&path).await?;
         }
 
         if !self.skip_python {
-            self.install_python_dependencies(&path).await?;
+            installed += self.install_python_dependencies(&path).await?;
         }
 
         if !self.skip_r {
-            self.install_r_dependencies(&path).await?;
+            installed += self.install_r_dependencies(&path).await?;
         }
 
-        eprintln!("🎉 Installation complete!");
+        if installed > 0 {
+            eprintln!("🎉 Installation complete!");
+        } else {
+            eprintln!("⚠️  No tool configurations found");
+        }
+
         Ok(())
     }
 
     #[allow(clippy::print_stderr)]
     #[tracing::instrument(skip(self))]
-    async fn install_environment_managers(&self, path: &Path) -> Result<()> {
+    async fn install_environment_managers(&self, path: &Path) -> Result<u32> {
         let managers = detect_managers(path, &[ToolType::Environments]);
 
         if managers.is_empty() {
-            return Ok(());
+            return Ok(0);
         }
 
         for (manager, config_path) in managers {
@@ -534,19 +536,19 @@ impl Install {
             }
         }
 
-        Ok(())
+        Ok(1)
     }
 
     #[allow(clippy::print_stderr)]
     #[tracing::instrument(skip(self))]
-    async fn install_python_dependencies(&self, path: &Path) -> Result<()> {
+    async fn install_python_dependencies(&self, path: &Path) -> Result<u32> {
         let pyproject_path = path.join("pyproject.toml");
         let requirements_path = path.join("requirements.txt");
 
         if pyproject_path.exists() {
             if self.dry_run {
                 eprintln!("📋 Would install Python dependencies from pyproject.toml");
-                return Ok(());
+                return Ok(0);
             }
 
             eprintln!("🐍 Installing dependencies from pyproject.toml");
@@ -562,10 +564,12 @@ impl Install {
             if !status.success() {
                 bail!("Failed to install Python dependencies from pyproject.toml");
             }
+
+            Ok(1)
         } else if requirements_path.exists() {
             if self.dry_run {
                 eprintln!("📋 Would install Python dependencies from requirements.txt");
-                return Ok(());
+                return Ok(1);
             }
 
             eprintln!("🐍 Installing dependencies from requirements.txt");
@@ -593,21 +597,23 @@ impl Install {
             if !status.success() {
                 bail!("Failed to install Python dependencies from requirements.txt");
             }
-        }
 
-        Ok(())
+            Ok(1)
+        } else {
+            Ok(0)
+        }
     }
 
     #[allow(clippy::print_stderr)]
     #[tracing::instrument(skip(self))]
-    async fn install_r_dependencies(&self, path: &Path) -> Result<()> {
+    async fn install_r_dependencies(&self, path: &Path) -> Result<u32> {
         let renv_path = path.join("renv.lock");
         let description_path = path.join("DESCRIPTION");
 
         if renv_path.exists() {
             if self.dry_run {
                 eprintln!("📋 Would install R dependencies from renv.lock");
-                return Ok(());
+                return Ok(1);
             }
 
             eprintln!("📦 Installing dependencies from renv.lock");
@@ -625,10 +631,12 @@ impl Install {
             if !status.success() {
                 bail!("Failed to install R dependencies from renv.lock");
             }
+
+            Ok(1)
         } else if description_path.exists() {
             if self.dry_run {
                 eprintln!("📋 Would install R dependencies from DESCRIPTION");
-                return Ok(());
+                return Ok(1);
             }
 
             eprintln!("📦 Installing dependencies from DESCRIPTION file");
@@ -646,9 +654,11 @@ impl Install {
             if !status.success() {
                 bail!("Failed to install R dependencies from DESCRIPTION file");
             }
-        }
 
-        Ok(())
+            Ok(1)
+        } else {
+            Ok(0)
+        }
     }
 }
 
