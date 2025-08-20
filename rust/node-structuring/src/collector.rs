@@ -13,6 +13,8 @@ use schema::{
     VisitorMut, WalkControl, shortcuts::t,
 };
 
+use crate::CitationStyle;
+
 /// A type of potential block replacement
 #[derive(Debug)]
 pub(super) enum BlockReplacement {
@@ -364,7 +366,8 @@ impl Collector {
     ///
     /// This method analyzes the collected references and citation replacements
     /// to decide which citation style should be used for the document.
-    pub fn determine_citation_style(&mut self) {
+    /// If a citation style is specified, it will be used instead of automatic determination.
+    pub fn determine_citation_style(&mut self, specified_style: Option<CitationStyle>) {
         // Count occurrences of each citation style
         let mut style_counts = std::collections::HashMap::new();
 
@@ -375,28 +378,33 @@ impl Collector {
                 .or_insert(1);
         }
 
-        // Determine citation style based on heuristics
-        self.citation_style = if self.references_are_ordered {
-            // If references are numbered, prefer numeric citations
-            // Priority: bracketed > parenthetic > superscripted
-            if style_counts.contains_key(&InlineReplacement::BracketedNumericCitations) {
-                Some(InlineReplacement::BracketedNumericCitations)
-            } else if style_counts.contains_key(&InlineReplacement::ParentheticNumericCitations) {
-                Some(InlineReplacement::ParentheticNumericCitations)
-            } else if style_counts.contains_key(&InlineReplacement::SuperscriptedNumericCitations) {
-                Some(InlineReplacement::SuperscriptedNumericCitations)
-            } else {
-                // Fall back to author-year if no numeric citations found
+        use InlineReplacement::*;
+
+        // Determine citation style based on heuristics or use specified style
+        self.citation_style = if let Some(style) = specified_style {
+            // Use the explicitly specified citation style
+            Some(match style {
+                CitationStyle::AuthorYear => AuthorYearCitations,
+                CitationStyle::BracketedNumeric => BracketedNumericCitations,
+                CitationStyle::ParentheticNumeric => ParentheticNumericCitations,
+                CitationStyle::SuperscriptedNumeric => SuperscriptedNumericCitations,
+            })
+        } else if style_counts.is_empty() {
+            // No citations found, no style to determine
+            None
+        } else if self.references_are_ordered {
+            // If references are numbered, choose the style with the greatest count
+            Some(
                 style_counts
-                    .get(&InlineReplacement::AuthorYearCitations)
-                    .map(|_| InlineReplacement::AuthorYearCitations)
-            }
+                    .iter()
+                    .max_by_key(|(_, count)| *count)
+                    .map(|(style, _)| (*style).clone())
+                    .unwrap_or(AuthorYearCitations),
+            )
         } else {
-            // If references are not numbered, choose the most frequent style
-            style_counts
-                .iter()
-                .max_by_key(|&(_, &count)| count)
-                .map(|(&style, _)| style.clone())
+            // If references are not numbered then none of the numeric styles will be valid
+            // so assume author-year
+            Some(AuthorYearCitations)
         };
     }
 }

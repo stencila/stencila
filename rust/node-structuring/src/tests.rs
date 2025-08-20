@@ -7,7 +7,7 @@ use schema::{
     shortcuts::{ct, ctg, em, h1, h2, li, mi, ol, p, sec, stb, t, tbl},
 };
 
-use crate::{StructuringOptions, structuring, structuring_with_options};
+use crate::{CitationStyle, StructuringOptions, structuring, structuring_with_options};
 
 /// Shortcut for creating an [`Block::ImageObject`] since there is
 /// no shortcut for that
@@ -15,9 +15,48 @@ fn imb(url: &str) -> Block {
     Block::ImageObject(ImageObject::new(url.into()))
 }
 
-/// Shortcut for running structuring with sectioning disabled
+/// Shortcut for running structuring without sectioning
 fn structuring_without_sectioning<T: schema::WalkNode>(node: &mut T) {
-    structuring_with_options(node, StructuringOptions { sectioning: false })
+    structuring_with_options(
+        node,
+        StructuringOptions {
+            sectioning: false,
+            ..Default::default()
+        },
+    )
+}
+
+/// Shortcut for running structuring with bracketed numeric citations
+fn structuring_with_bracketed<T: schema::WalkNode>(node: &mut T) {
+    structuring_with_options(
+        node,
+        StructuringOptions {
+            citation_style: Some(CitationStyle::BracketedNumeric),
+            ..Default::default()
+        },
+    )
+}
+
+/// Shortcut for running structuring with parenthetic numeric citations
+fn structuring_with_parenthetic<T: schema::WalkNode>(node: &mut T) {
+    structuring_with_options(
+        node,
+        StructuringOptions {
+            citation_style: Some(CitationStyle::ParentheticNumeric),
+            ..Default::default()
+        },
+    )
+}
+
+/// Shortcut for running structuring with superscripted numeric citations
+fn structuring_with_superscripted<T: schema::WalkNode>(node: &mut T) {
+    structuring_with_options(
+        node,
+        StructuringOptions {
+            citation_style: Some(CitationStyle::SuperscriptedNumeric),
+            ..Default::default()
+        },
+    )
 }
 
 #[test]
@@ -691,42 +730,42 @@ fn reference_list_to_references() -> Result<()> {
 fn math_inline_to_citation() {
     // Simple superscript citation
     let mut node = p([mi("{ }^{1}", Some("tex"))]);
-    structuring(&mut node);
+    structuring_with_superscripted(&mut node);
     assert_eq!(node, p([ct("ref-1")]));
 
     // Range expansion in superscript
     let mut node = p([mi("{ }^{1-3}", Some("tex"))]);
-    structuring(&mut node);
+    structuring_with_superscripted(&mut node);
     assert_eq!(node, p([ctg(["ref-1", "ref-2", "ref-3"])]));
 
     // Bracketed citation
     let mut node = p([mi("[5]", Some("tex"))]);
-    structuring(&mut node);
+    structuring_with_bracketed(&mut node);
     assert_eq!(node, p([ct("ref-5")]));
 
     // Parentheses citation
     let mut node = p([mi("(7)", Some("tex"))]);
-    structuring(&mut node);
+    structuring_with_parenthetic(&mut node);
     assert_eq!(node, p([ct("ref-7")]));
 
     // Comma-separated citations in brackets
     let mut node = p([mi("[1,3,5]", Some("tex"))]);
-    structuring(&mut node);
+    structuring_with_bracketed(&mut node);
     assert_eq!(node, p([ctg(["ref-1", "ref-3", "ref-5"])]));
 
     // Mixed range and individual citations
     let mut node = p([mi("{ }^{2-4,8}", Some("tex"))]);
-    structuring(&mut node);
+    structuring_with_superscripted(&mut node);
     assert_eq!(node, p([ctg(["ref-2", "ref-3", "ref-4", "ref-8"])]));
 
     // Citations with whitespace in parentheses
     let mut node = p([mi("( 10 , 12 )", Some("tex"))]);
-    structuring(&mut node);
+    structuring_with_parenthetic(&mut node);
     assert_eq!(node, p([ctg(["ref-10", "ref-12"])]));
 
     // Complex range with multiple parts
     let mut node = p([mi("[15-17,20,25-27]", Some("tex"))]);
-    structuring(&mut node);
+    structuring_with_bracketed(&mut node);
     assert_eq!(
         node,
         p([ctg([
@@ -736,22 +775,22 @@ fn math_inline_to_citation() {
 
     // Invalid citation (contains zero) should not be converted
     let mut node = p([mi("{ }^{0,1}", Some("tex"))]);
-    structuring(&mut node);
+    structuring_with_superscripted(&mut node);
     assert_eq!(node, p([mi("{ }^{0,1}", Some("tex"))]));
 
     //  Invalid citation (contains letters) should not be converted
     let mut node = p([mi("[1a,2]", Some("tex"))]);
-    structuring(&mut node);
+    structuring_with_bracketed(&mut node);
     assert_eq!(node, p([mi("[1a,2]", Some("tex"))]));
 
     // Test en dash in math
     let mut node = p([mi("{ }^{2–4}", Some("tex"))]);
-    structuring(&mut node);
+    structuring_with_superscripted(&mut node);
     assert_eq!(node, p([ctg(["ref-2", "ref-3", "ref-4"])]));
 
     // Test em dash in math
     let mut node = p([mi("[15—17]", Some("tex"))]);
-    structuring(&mut node);
+    structuring_with_bracketed(&mut node);
     assert_eq!(node, p([ctg(["ref-15", "ref-16", "ref-17"])]));
 }
 
@@ -759,7 +798,7 @@ fn math_inline_to_citation() {
 fn text_to_citations() {
     // Simple bracketed citation
     let mut node = p([t("See reference [1] for details.")]);
-    structuring(&mut node);
+    structuring_with_bracketed(&mut node);
     assert_eq!(
         node,
         p([t("See reference "), ct("ref-1"), t(" for details.")])
@@ -767,7 +806,7 @@ fn text_to_citations() {
 
     // Simple parenthetical citation
     let mut node = p([t("This is documented (5) in the literature.")]);
-    structuring(&mut node);
+    structuring_with_parenthetic(&mut node);
     assert_eq!(
         node,
         p([
@@ -779,7 +818,7 @@ fn text_to_citations() {
 
     // Range expansion in brackets
     let mut node = p([t("Studies [1-3] show consistent results.")]);
-    structuring(&mut node);
+    structuring_with_bracketed(&mut node);
     assert_eq!(
         node,
         p([
@@ -791,7 +830,7 @@ fn text_to_citations() {
 
     // Comma-separated citations in brackets
     let mut node = p([t("Multiple sources [1,3,5] confirm this.")]);
-    structuring(&mut node);
+    structuring_with_bracketed(&mut node);
     assert_eq!(
         node,
         p([
@@ -803,7 +842,7 @@ fn text_to_citations() {
 
     // Mixed range and individual citations
     let mut node = p([t("References [2-4,8] are relevant.")]);
-    structuring(&mut node);
+    structuring_with_bracketed(&mut node);
     assert_eq!(
         node,
         p([
@@ -815,7 +854,7 @@ fn text_to_citations() {
 
     // Citations with whitespace in parentheses
     let mut node = p([t("See ( 10 , 12 ) for more information.")]);
-    structuring(&mut node);
+    structuring_with_parenthetic(&mut node);
     assert_eq!(
         node,
         p([
@@ -827,7 +866,7 @@ fn text_to_citations() {
 
     // Multiple citations in same text
     let mut node = p([t("First [1] and second [3] citations.")]);
-    structuring(&mut node);
+    structuring_with_bracketed(&mut node);
     assert_eq!(
         node,
         p([
@@ -841,7 +880,7 @@ fn text_to_citations() {
 
     // Complex range with multiple parts
     let mut node = p([t("Studies [15-17,20,25-27] are comprehensive.")]);
-    structuring(&mut node);
+    structuring_with_bracketed(&mut node);
     assert_eq!(
         node,
         p([
@@ -855,22 +894,22 @@ fn text_to_citations() {
 
     // Invalid citation (contains zero) should not be converted
     let mut node = p([t("Invalid [0,1] citation.")]);
-    structuring(&mut node);
+    structuring_with_bracketed(&mut node);
     assert_eq!(node, p([t("Invalid [0,1] citation.")]));
 
     // Invalid citation (contains letters) should not be converted
     let mut node = p([t("Invalid [1a,2] citation.")]);
-    structuring(&mut node);
+    structuring_with_bracketed(&mut node);
     assert_eq!(node, p([t("Invalid [1a,2] citation.")]));
 
     // Text without citations should remain unchanged
     let mut node = p([t("Just normal text without any citations.")]);
-    structuring(&mut node);
+    structuring_with_bracketed(&mut node);
     assert_eq!(node, p([t("Just normal text without any citations.")]));
 
     // Test en dash ranges
     let mut node = p([t("Studies [1–3] show consistent results.")]);
-    structuring(&mut node);
+    structuring_with_bracketed(&mut node);
     assert_eq!(
         node,
         p([
@@ -882,7 +921,7 @@ fn text_to_citations() {
 
     // Test em dash ranges
     let mut node = p([t("References [2—4,8] are relevant.")]);
-    structuring(&mut node);
+    structuring_with_bracketed(&mut node);
     assert_eq!(
         node,
         p([
@@ -894,7 +933,7 @@ fn text_to_citations() {
 
     // Test mixed dash types in parentheses
     let mut node = p([t("Multiple (1–3,5—7) citations.")]);
-    structuring(&mut node);
+    structuring_with_parenthetic(&mut node);
     assert_eq!(
         node,
         p([
