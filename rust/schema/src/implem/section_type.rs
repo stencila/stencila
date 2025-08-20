@@ -34,7 +34,7 @@ impl SectionType {
             "related work" | "prior work" | "literature review" | "state of the art" => RelatedWork,
 
             // --- Methods & setup ---
-            "materials" | "materials and methods" => Materials,
+            "materials" | "materials and methods" | "material and methods" => Materials,
 
             "methods" | "methodology" | "experimental methods" | "methods and materials" => Methods,
 
@@ -95,6 +95,8 @@ impl SectionType {
             | "competing interest"
             | "conflicts of interest"
             | "conflict of interest"
+            | "conflicts of interest statement"
+            | "conflict of interest statement"
             | "declaration of interest"
             | "declarations of interest"
             | "declaration of interests"
