@@ -2864,11 +2864,11 @@ class Section(Entity):
 
     type: Literal["Section"] = "Section"
 
-    content: list[Block]
-    """The content within the section."""
-
     section_type: SectionType | None = None
     """The type of section."""
+
+    content: list[Block]
+    """The content within the section."""
 
     authors: list[Author] | None = None
     """The authors of the section."""

@@ -18,6 +18,18 @@
       }
     },
     {
+      "@id": "stencila:sectionType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "sectionType",
+      "rdfs:comment": "The type of section.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Section"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:SectionType"
+      }
+    },
+    {
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",
@@ -134,18 +146,6 @@
       ],
       "schema:rangeIncludes": {
         "@id": "stencila:Block"
-      }
-    },
-    {
-      "@id": "stencila:sectionType",
-      "@type": "rdfs:Property",
-      "rdfs:label": "sectionType",
-      "rdfs:comment": "The type of section.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Section"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:SectionType"
       }
     },
     {

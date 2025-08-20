@@ -1,5 +1,5 @@
 title: Section
-'@id': stencila:Section
+"@id": stencila:Section
 extends: Entity
 category: prose
 description: A section of a document.
@@ -20,8 +20,23 @@ core:
   - authors
   - provenance
 properties:
+  sectionType:
+    "@id": stencila:sectionType
+    description: The type of section.
+    $ref: SectionType
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+    jats:
+      attr: sec-type
+    proptest:
+      min:
+        description: No type.
+        value: None
+      low:
+        description: Generate an arbitrary section type.
+        strategy: option::of(SectionType::arbitrary())
   content:
-    '@id': stencila:content
+    "@id": stencila:content
     description: The content within the section.
     type: array
     items:
@@ -41,23 +56,8 @@ properties:
       max:
         description: Generate up to eight arbitrary, non-recursive, block nodes.
         strategy: vec_blocks_non_recursive(8)
-  sectionType:
-    '@id': stencila:sectionType
-    description: The type of section.
-    $ref: SectionType
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
-    jats:
-      attr: sec-type
-    proptest:
-      min:
-        description: No type.
-        value: None
-      low:
-        description: Generate an arbitrary section type.
-        strategy: option::of(SectionType::arbitrary())
   authors:
-    '@id': schema:author
+    "@id": schema:author
     description: The authors of the section.
     type: array
     items:
@@ -68,7 +68,7 @@ properties:
     dom:
       elem: div
   provenance:
-    '@id': stencila:provenance
+    "@id": stencila:provenance
     description: A summary of the provenance of the content within the section.
     type: array
     items:

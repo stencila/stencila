@@ -30,6 +30,16 @@ pub struct Section {
     #[html(attr = "id")]
     pub id: Option<String>,
 
+    /// The type of section.
+    #[serde(alias = "section-type", alias = "section_type")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(SectionType::arbitrary())"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(SectionType::arbitrary())"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(SectionType::arbitrary())"#))]
+    #[jats(attr = "sec-type")]
+    pub section_type: Option<SectionType>,
+
     /// The content within the section.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
@@ -40,16 +50,6 @@ pub struct Section {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks_non_recursive(8)"#))]
     #[dom(elem = "section")]
     pub content: Vec<Block>,
-
-    /// The type of section.
-    #[serde(alias = "section-type", alias = "section_type")]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(SectionType::arbitrary())"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(SectionType::arbitrary())"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(SectionType::arbitrary())"#))]
-    #[jats(attr = "sec-type")]
-    pub section_type: Option<SectionType>,
 
     /// The authors of the section.
     #[serde(alias = "author")]

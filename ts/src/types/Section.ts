@@ -14,14 +14,14 @@ export class Section extends Entity {
   type: "Section";
 
   /**
-   * The content within the section.
-   */
-  content: Block[];
-
-  /**
    * The type of section.
    */
   sectionType?: SectionType;
+
+  /**
+   * The content within the section.
+   */
+  content: Block[];
 
   /**
    * The authors of the section.
