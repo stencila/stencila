@@ -15,6 +15,159 @@ fn imb(url: &str) -> Block {
     Block::ImageObject(ImageObject::new(url.into()))
 }
 
+#[test]
+fn heading_level_and_text_updates() -> Result<()> {
+    // Test numbered heading - should update both level and content
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("1.2.3 Deep Nested Section")]),
+        p([t("Content here.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+    let Block::Heading(heading) = &content[0] else {
+        bail!("Should be heading")
+    };
+    assert_eq!(
+        heading.level, 3,
+        "Heading level should be updated to depth 3"
+    );
+    let heading_text = to_text(&heading.content);
+    assert_eq!(
+        heading_text, "Deep Nested Section",
+        "Heading text should be cleaned"
+    );
+
+    // Test lettered heading - should update both level and content
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("A. Bibliography")]),
+        p([t("Reference entry here.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+    let Block::Heading(heading) = &content[0] else {
+        bail!("Should be heading")
+    };
+    assert_eq!(
+        heading.level, 1,
+        "Heading level should be updated to depth 1"
+    );
+    let heading_text = to_text(&heading.content);
+    assert_eq!(
+        heading_text, "Bibliography",
+        "Heading text should be cleaned"
+    );
+
+    // Test Roman numeral heading
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("IV.1.2 Complex Analysis")]),
+        p([t("Analysis content.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+    let Block::Heading(heading) = &content[0] else {
+        bail!("Should be heading")
+    };
+    assert_eq!(
+        heading.level, 3,
+        "Roman numeral heading should have depth 3"
+    );
+    let heading_text = to_text(&heading.content);
+    assert_eq!(
+        heading_text, "Complex Analysis",
+        "Roman numeral heading text should be cleaned"
+    );
+
+    // Test heading with prefix
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("Chapter 2.1 Methods")]),
+        p([t("Methods content.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+    let Block::Heading(heading) = &content[0] else {
+        bail!("Should be heading")
+    };
+    assert_eq!(heading.level, 2, "Chapter heading should have depth 2");
+    let heading_text = to_text(&heading.content);
+    assert_eq!(
+        heading_text, "Methods",
+        "Chapter heading text should be cleaned"
+    );
+
+    // Test non-numbered heading - should keep original level and text
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("Introduction")]),
+        p([t("Intro content.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+    let Block::Heading(heading) = &content[0] else {
+        bail!("Should be heading")
+    };
+    assert_eq!(
+        heading.level, 1,
+        "Non-numbered heading should keep original level"
+    );
+    let heading_text = to_text(&heading.content);
+    assert_eq!(
+        heading_text, "Introduction",
+        "Non-numbered heading text should be unchanged"
+    );
+
+    // Test that h2 with numbering overrides original level
+    let mut article = Node::Article(Article::new(vec![
+        schema::shortcuts::h2([t("1.2.3.4 Deep Section")]),
+        p([t("Deep content.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+    let Block::Heading(heading) = &content[0] else {
+        bail!("Should be heading")
+    };
+    assert_eq!(
+        heading.level, 4,
+        "Numbering should override original h2 level"
+    );
+    let heading_text = to_text(&heading.content);
+    assert_eq!(
+        heading_text, "Deep Section",
+        "Numbered h2 text should be cleaned"
+    );
+
+    // Test edge case: single number
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("5 Results")]),
+        p([t("Results content.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+    let Block::Heading(heading) = &content[0] else {
+        bail!("Should be heading")
+    };
+    assert_eq!(heading.level, 1, "Single number should have depth 1");
+    let heading_text = to_text(&heading.content);
+    assert_eq!(
+        heading_text, "Results",
+        "Single number heading text should be cleaned"
+    );
+
+    Ok(())
+}
+
 /// Test detection of headings matching references section
 #[test]
 fn references_detection() -> Result<()> {

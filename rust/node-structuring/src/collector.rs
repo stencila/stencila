@@ -9,8 +9,8 @@ use codec_text_trait::to_text;
 use common::{once_cell::sync::Lazy, regex::Regex};
 use schema::{
     Admonition, Article, Block, Figure, ForBlock, Heading, IncludeBlock, Inline, List, ListOrder,
-    MathInline, Node, NodeId, Paragraph, Reference, Section, StyledBlock, Text, VisitorMut,
-    WalkControl,
+    MathInline, Node, NodeId, Paragraph, Reference, Section, SectionType, StyledBlock, Text,
+    VisitorMut, WalkControl, shortcuts::t,
 };
 
 /// A type of potential block replacement
@@ -216,20 +216,32 @@ impl Collector {
 
     /// Visit a [`Heading`] node
     ///
-    /// Tracks when entering or leaving the References/Bibliography section
-    /// to determine if subsequent lists should be treated as reference citations.
-    fn visit_heading(&mut self, heading: &Heading) -> WalkControl {
-        static REFERENCES_REGEX: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"(?i)^\s*(?:\d+\.?\s*|[a-z]\.?\s*|[ivx]+\.?\s*)?(references?|bibliography|works?\s+cited|literature\s+cited|citations?|sources?|reference\s+list|further\s+reading|additional\s+sources|for\s+further\s+information)\s*$").expect("invalid regex")
-        });
+    /// Strips numbering from headings, overrides level based on numbering, and
+    /// detects when entering or leaving the References/Bibliography section.
+    fn visit_heading(&mut self, heading: &mut Heading) -> WalkControl {
+        let text = to_text(&heading.content);
 
-        // Detect if entering references section
-        let text = to_text(&heading.content).to_lowercase();
-        if REFERENCES_REGEX.is_match(&text) {
-            self.in_references = true;
-        } else if heading.level <= 3 {
-            self.in_references = false;
+        // Extract numbering and determine depth
+        let (_numbering, numbering_depth, cleaned_text) = extract_heading_numbering(&text);
+
+        // Determine effective level: numbering takes precedence over heading level
+        let level = if numbering_depth > 0 {
+            numbering_depth as i64
+        } else {
+            heading.level
+        };
+
+        // Update level and content, if necessary
+        heading.level = level;
+        if cleaned_text != text {
+            heading.content = vec![t(&cleaned_text)];
         }
+
+        // Detect section type from cleaned text
+        let section_type = SectionType::from_text(&cleaned_text).ok();
+
+        // Update whether or not in references
+        self.in_references = matches!(section_type, Some(SectionType::References));
 
         WalkControl::Continue
     }
@@ -566,12 +578,94 @@ fn has_citations(inlines: Vec<Inline>) -> Option<Vec<Inline>> {
         .then_some(inlines)
 }
 
+/// Extract numbering from heading text and calculate its depth
+///
+/// Detects hierarchical numbering patterns like:
+/// - "1.2.3" (depth 3)
+/// - "A.1" (depth 2)
+/// - "IV.2.1" (depth 3)
+/// - "1" (depth 1)
+///
+/// Returns (numbering_string, depth, cleaned_text) if numbering is found
+fn extract_heading_numbering(text: &str) -> (Option<String>, usize, String) {
+    static HEADING_NUMBER_REGEX: Lazy<Regex> = Lazy::new(|| {
+        Regex::new(r"^(?:(?:Chapter|Section|Part)\s+)?([A-Z]\.(?:[0-9]+(?:\.[A-Z]?[0-9]+)*)?|[A-Z][0-9]+(?:\.[A-Z]?[0-9]+)*|[0-9]+(?:\.[A-Z]?[0-9]+)*|[IVX]+\.(?:[0-9]+(?:\.[A-Z]?[0-9]+)*)?)[.\s]*(.*)$")
+            .expect("invalid regex")
+    });
+
+    if let Some(captures) = HEADING_NUMBER_REGEX.captures(text.trim()) {
+        let numbering = captures[1].to_string();
+        let cleaned_text = captures[2].trim().to_string();
+
+        // Calculate depth by counting non-empty parts when split by dot
+        let depth = numbering
+            .split('.')
+            .filter(|part| !part.trim().is_empty())
+            .count();
+
+        (Some(numbering), depth, cleaned_text)
+    } else {
+        (None, 0, text.to_string())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
     use schema::shortcuts::t;
 
     use super::*;
+
+    #[test]
+    fn test_extract_heading_numbering() {
+        // Test numbered headings
+        let (numbering, depth, cleaned) = extract_heading_numbering("1.2.3 Results and Discussion");
+        assert_eq!(numbering, Some("1.2.3".to_string()));
+        assert_eq!(depth, 3);
+        assert_eq!(cleaned, "Results and Discussion");
+
+        let (numbering, depth, cleaned) = extract_heading_numbering("1. Introduction");
+        assert_eq!(numbering, Some("1".to_string()));
+        assert_eq!(depth, 1);
+        assert_eq!(cleaned, "Introduction");
+
+        let (numbering, depth, cleaned) = extract_heading_numbering("A.2 Methodology");
+        assert_eq!(numbering, Some("A.2".to_string()));
+        assert_eq!(depth, 2);
+        assert_eq!(cleaned, "Methodology");
+
+        let (numbering, depth, cleaned) = extract_heading_numbering("A. Bibliography");
+        assert_eq!(numbering, Some("A.".to_string()));
+        assert_eq!(depth, 1);
+        assert_eq!(cleaned, "Bibliography");
+
+        let (numbering, depth, cleaned) = extract_heading_numbering("IV.1.2 Analysis");
+        assert_eq!(numbering, Some("IV.1.2".to_string()));
+        assert_eq!(depth, 3);
+        assert_eq!(cleaned, "Analysis");
+
+        // Test with prefixes
+        let (numbering, depth, cleaned) = extract_heading_numbering("Chapter 1 Introduction");
+        assert_eq!(numbering, Some("1".to_string()));
+        assert_eq!(depth, 1);
+        assert_eq!(cleaned, "Introduction");
+
+        let (numbering, depth, cleaned) = extract_heading_numbering("Section 2.1 Background");
+        assert_eq!(numbering, Some("2.1".to_string()));
+        assert_eq!(depth, 2);
+        assert_eq!(cleaned, "Background");
+
+        // Test non-numbered headings
+        let (numbering, depth, cleaned) = extract_heading_numbering("Introduction");
+        assert_eq!(numbering, None);
+        assert_eq!(depth, 0);
+        assert_eq!(cleaned, "Introduction");
+
+        let (numbering, depth, cleaned) = extract_heading_numbering("Results");
+        assert_eq!(numbering, None);
+        assert_eq!(depth, 0);
+        assert_eq!(cleaned, "Results");
+    }
 
     #[test]
     fn test_maybe_figure_caption() {
