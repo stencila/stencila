@@ -966,6 +966,11 @@ fn image_then_caption_to_figure() -> Result<()> {
         Some("1".into()),
         "Figure should have label '1'"
     );
+    assert_eq!(
+        figure.label_automatically,
+        Some(false),
+        "Figure should have label_automatically = Some(false)"
+    );
     assert_eq!(figure.content.len(), 1, "Figure should have 1 content item");
     assert!(
         matches!(figure.content[0], Block::ImageObject(_)),
@@ -1013,6 +1018,11 @@ fn caption_then_image_to_figure() -> Result<()> {
         Some("2".into()),
         "Figure should have label '2'"
     );
+    assert_eq!(
+        figure.label_automatically,
+        Some(false),
+        "Figure should have label_automatically = Some(false)"
+    );
     assert_eq!(figure.content.len(), 1, "Figure should have 1 content item");
     assert!(
         matches!(figure.content[0], Block::ImageObject(_)),
@@ -1057,6 +1067,11 @@ fn image_and_caption_multiple_figures() -> Result<()> {
         Some("1".into()),
         "First figure should have label '1'"
     );
+    assert_eq!(
+        figure1.label_automatically,
+        Some(false),
+        "First figure should have label_automatically = Some(false)"
+    );
 
     // Intervening text
     let Block::Paragraph(_) = &content[1] else {
@@ -1071,6 +1086,11 @@ fn image_and_caption_multiple_figures() -> Result<()> {
         figure2.label,
         Some("2".into()),
         "Second figure should have label '2'"
+    );
+    assert_eq!(
+        figure2.label_automatically,
+        Some(false),
+        "Second figure should have label_automatically = Some(false)"
     );
 
     Ok(())
@@ -1246,6 +1266,7 @@ fn nested_figures_in_various_blocks() -> Result<()> {
 
     if let Block::Figure(figure) = &admonition.content[1] {
         assert_eq!(figure.label, Some("1".into()));
+        assert_eq!(figure.label_automatically, Some(false));
     }
 
     // Test figure in styled block
@@ -1277,6 +1298,7 @@ fn nested_figures_in_various_blocks() -> Result<()> {
 
     if let Block::Figure(figure) = &styled.content[0] {
         assert_eq!(figure.label, Some("2".into()));
+        assert_eq!(figure.label_automatically, Some(false));
     }
 
     // Test nested sections
@@ -1694,6 +1716,11 @@ fn caption_then_table_to_table_with_caption() -> Result<()> {
     };
 
     assert_eq!(table.label, Some("1".into()), "Table should have label '1'");
+    assert_eq!(
+        table.label_automatically,
+        Some(false),
+        "Table should have label_automatically = Some(false)"
+    );
 
     let caption = table.caption.as_ref().expect("Table should have caption");
     assert_eq!(caption.len(), 1, "Caption should have 1 block");
@@ -1746,6 +1773,11 @@ fn table_caption_with_different_formats() -> Result<()> {
             table.label,
             Some(expected_number.to_string()),
             "Case {i} should have correct label"
+        );
+        assert_eq!(
+            table.label_automatically,
+            Some(false),
+            "Case {i} should have label_automatically = Some(false)"
         );
 
         let caption = table.caption.as_ref().expect("Table should have caption");
@@ -1894,6 +1926,11 @@ fn table_caption_in_nested_sections() -> Result<()> {
     // Verify the table was structured correctly
     if let Block::Table(table) = &section.content[1] {
         assert_eq!(table.label, Some("1".into()), "Table should have label '1'");
+        assert_eq!(
+            table.label_automatically,
+            Some(false),
+            "Table should have label_automatically = Some(false)"
+        );
         assert!(table.caption.is_some(), "Table should have caption");
 
         let caption = table.caption.as_ref().expect("Table should have caption");

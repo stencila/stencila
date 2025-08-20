@@ -144,6 +144,7 @@ impl Collector {
                     let mut figure = Figure::new(vec![current.clone()]);
                     figure.caption = Some(vec![Block::Paragraph(cleaned_caption)]);
                     figure.label = Some(figure_number);
+                    figure.label_automatically = Some(false);
 
                     // Replace first block with figure, second with empty
                     self.block_replacements.insert(
@@ -169,6 +170,7 @@ impl Collector {
                     let mut figure = Figure::new(vec![next.clone()]);
                     figure.caption = Some(vec![Block::Paragraph(caption)]);
                     figure.label = Some(label);
+                    figure.label_automatically = Some(false);
 
                     // Replace first block with figure, second with empty
                     self.block_replacements.insert(
@@ -194,6 +196,7 @@ impl Collector {
                     let mut new_table = table.clone();
                     new_table.caption = Some(vec![Block::Paragraph(caption)]);
                     new_table.label = Some(label);
+                    new_table.label_automatically = Some(false);
 
                     // Replace caption with empty and table with updated table
                     self.block_replacements.insert(
