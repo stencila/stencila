@@ -9,7 +9,9 @@ use server::{self, ServeOptions};
 use version::STENCILA_VERSION;
 
 use crate::{
-    add, compile, convert, demo, execute, lint, logging::{LoggingFormat, LoggingLevel}, merge, new, preview, remove, render, sync, uninstall, upgrade
+    add, compile, convert, demo, execute, lint,
+    logging::{LoggingFormat, LoggingLevel},
+    merge, new, preview, remove, render, sync, uninstall, upgrade,
 };
 
 /// CLI subcommands and global options
@@ -145,7 +147,8 @@ pub struct Cli {
         help_heading = "Global Options",
         display_order = 140,
         conflicts_with = "force_color",
-        env = "NO_COLOR"
+        env = "NO_COLOR",
+        value_parser = parse_env_bool
     )]
     pub no_color: bool,
 
@@ -155,9 +158,16 @@ pub struct Cli {
         global = true,
         hide = true,
         conflicts_with = "no_color",
-        env = "FORCE_COLOR"
+        env = "FORCE_COLOR",
+        value_parser = parse_env_bool
     )]
     pub force_color: bool,
+}
+
+/// Parse boolean environment variables following Unix convention
+/// Any non-empty value is treated as true, empty/unset is false
+fn parse_env_bool(s: &str) -> Result<bool, String> {
+    Ok(!s.is_empty())
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
