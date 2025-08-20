@@ -63,6 +63,9 @@ pub(super) struct Collector {
 
     /// Determined citation style based on heuristics
     pub citation_style: Option<InlineReplacement>,
+
+    /// Last numbered heading level seen, for fallback level assignment
+    last_numbered_level: Option<i64>,
 }
 
 impl VisitorMut for Collector {
@@ -224,9 +227,22 @@ impl Collector {
         // Extract numbering and determine depth
         let (_numbering, numbering_depth, cleaned_text) = extract_heading_numbering(&text);
 
-        // Determine effective level: numbering takes precedence over heading level
-        let level = if numbering_depth > 0 {
-            numbering_depth as i64
+        // Detect section type from cleaned text
+        let section_type = SectionType::from_text(&cleaned_text).ok();
+
+        // Determine effective level based on priority: known section types > numbering > fallback
+        let level = if section_type.is_some() {
+            // Known section types always get level 1
+            1
+        } else if numbering_depth > 0 {
+            let numbered_level = numbering_depth as i64;
+            // Track the last numbered heading level
+            self.last_numbered_level = Some(numbered_level);
+            numbered_level
+        } else if let Some(last_level) = self.last_numbered_level {
+            // If no numbering detected and no known section type, and we've seen numbered headings before,
+            // assign level as last numbered + 1 (for OCR inaccuracy in deep headings)
+            last_level + 1
         } else {
             heading.level
         };
@@ -236,9 +252,6 @@ impl Collector {
         if cleaned_text != text {
             heading.content = vec![t(&cleaned_text)];
         }
-
-        // Detect section type from cleaned text
-        let section_type = SectionType::from_text(&cleaned_text).ok();
 
         // Update whether or not in references
         self.in_references = matches!(section_type, Some(SectionType::References));

@@ -4,7 +4,7 @@ use common_dev::pretty_assertions::assert_eq;
 use schema::{
     AdmonitionType, Article, Block, ImageObject, Inline, Node, Strikeout, Strong, Superscript,
     Underline,
-    shortcuts::{ct, ctg, em, h1, li, mi, ol, p, sec, stb, t, tbl},
+    shortcuts::{ct, ctg, em, h1, h2, li, mi, ol, p, sec, stb, t, tbl},
 };
 
 use crate::structuring;
@@ -83,10 +83,10 @@ fn heading_level_and_text_updates() -> Result<()> {
         "Roman numeral heading text should be cleaned"
     );
 
-    // Test heading with prefix
+    // Test heading with prefix - using non-section heading
     let mut article = Node::Article(Article::new(vec![
-        h1([t("Chapter 2.1 Methods")]),
-        p([t("Methods content.")]),
+        h1([t("Chapter 2.1 Background Study")]),
+        p([t("Background content.")]),
     ]));
     structuring(&mut article);
     let Node::Article(Article { content, .. }) = article else {
@@ -98,7 +98,7 @@ fn heading_level_and_text_updates() -> Result<()> {
     assert_eq!(heading.level, 2, "Chapter heading should have depth 2");
     let heading_text = to_text(&heading.content);
     assert_eq!(
-        heading_text, "Methods",
+        heading_text, "Background Study",
         "Chapter heading text should be cleaned"
     );
 
@@ -164,6 +164,197 @@ fn heading_level_and_text_updates() -> Result<()> {
         heading_text, "Results",
         "Single number heading text should be cleaned"
     );
+
+    Ok(())
+}
+
+#[test]
+fn heading_level_fallback() -> Result<()> {
+    // Test fallback: after numbered heading, non-section non-numbered headings get level+1
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("1.2.3 Deep Nested Section")]),
+        p([t("Content here.")]),
+        h1([t("Some Random Subsection")]), // Not a known section type, should get level 4
+        p([t("More content.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+
+    let Block::Heading(heading1) = &content[0] else {
+        bail!("First should be heading")
+    };
+    assert_eq!(
+        heading1.level, 3,
+        "First heading should be level 3 from numbering"
+    );
+
+    let Block::Heading(heading2) = &content[2] else {
+        bail!("Third should be heading")
+    };
+    assert_eq!(
+        heading2.level, 4,
+        "Unnumbered heading should get last numbered + 1"
+    );
+
+    // Test that known section types always get level 1, even with numbering
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("1.2 Custom Analysis Framework")]),  // Non-section with numbering
+        p([t("Framework content.")]),
+        h1([t("Results")]), // Known section type, should get level 1
+        p([t("Results content.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+
+    let Block::Heading(heading1) = &content[0] else {
+        bail!("First should be heading")
+    };
+    assert_eq!(
+        heading1.level, 2,
+        "Numbered non-section should get level from numbering"
+    );
+
+    let Block::Heading(heading2) = &content[2] else {
+        bail!("Third should be heading")
+    };
+    assert_eq!(
+        heading2.level, 1,
+        "Known section type should always get level 1"
+    );
+
+    // Test no fallback when no numbered headings seen yet
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("Introduction")]), // Known section, keeps original
+        p([t("Intro content.")]),
+        h1([t("Some Random Section")]), // Not known, but no numbered seen yet, keeps original
+        p([t("Random content.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+
+    let Block::Heading(heading1) = &content[0] else {
+        bail!("First should be heading")
+    };
+    assert_eq!(heading1.level, 1, "Known section should keep level 1");
+
+    let Block::Heading(heading2) = &content[2] else {
+        bail!("Third should be heading")
+    };
+    assert_eq!(
+        heading2.level, 1,
+        "No fallback when no numbered headings seen yet"
+    );
+
+    // Test fallback works with different starting numbered levels
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("A. Custom Topic")]), // Level 1 from numbering, not a section type
+        p([t("Topic content.")]),
+        h1([t("Weird Subsection Name")]), // Should get level 2 (1 + 1)
+        p([t("Subsection content.")]),
+        h2([t("1.2.3.4 Deep Section")]), // Level 4 from numbering
+        p([t("Deep content.")]),
+        h1([t("Another Random Section")]), // Should get level 5 (4 + 1)
+        p([t("More content.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+
+    let Block::Heading(heading1) = &content[0] else {
+        bail!("First should be heading")
+    };
+    assert_eq!(heading1.level, 1, "A. heading should be level 1 from numbering");
+
+    let Block::Heading(heading2) = &content[2] else {
+        bail!("Third should be heading")
+    };
+    assert_eq!(heading2.level, 2, "Should get level 1 + 1 = 2");
+
+    let Block::Heading(heading3) = &content[4] else {
+        bail!("Fifth should be heading")
+    };
+    assert_eq!(heading3.level, 4, "Numbered heading should be level 4");
+
+    let Block::Heading(heading4) = &content[6] else {
+        bail!("Seventh should be heading")
+    };
+    assert_eq!(heading4.level, 5, "Should get level 4 + 1 = 5");
+
+    Ok(())
+}
+
+#[test]
+fn known_section_types_always_level_one() -> Result<()> {
+    // Test that known section types always get level 1, regardless of original heading level
+    let mut article = Node::Article(Article::new(vec![
+        h2([t("Introduction")]),  // h2 but should become level 1
+        p([t("Intro content.")]),
+        schema::shortcuts::h3([t("Methods")]),     // h3 but should become level 1
+        p([t("Methods content.")]),
+        schema::shortcuts::h4([t("Results")]),     // h4 but should become level 1
+        p([t("Results content.")]),
+        schema::shortcuts::h5([t("Discussion")]),  // h5 but should become level 1
+        p([t("Discussion content.")]),
+        schema::shortcuts::h6([t("Conclusions")]), // h6 but should become level 1
+        p([t("Conclusions content.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+    
+    let headings = [
+        ("Introduction", 0),
+        ("Methods", 2), 
+        ("Results", 4),
+        ("Discussion", 6),
+        ("Conclusions", 8),
+    ];
+    
+    for (expected_text, index) in headings {
+        let Block::Heading(heading) = &content[index] else {
+            bail!("Block at index {} should be heading", index)
+        };
+        assert_eq!(heading.level, 1, "{} should have level 1", expected_text);
+        let heading_text = to_text(&heading.content);
+        assert_eq!(heading_text, expected_text, "Heading text should match");
+    }
+
+    // Test known section types even after numbered headings
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("1.2.3 Some Numbered Section")]),  // Level 3
+        p([t("Content.")]),
+        h2([t("Results")]),  // Known section, should be level 1 (not level 4)
+        p([t("Results content.")]),
+        h1([t("Random Heading")]),  // Unknown, should get level 4 (3 + 1)
+        p([t("Random content.")]),
+    ]));
+    structuring(&mut article);
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+    
+    let Block::Heading(heading1) = &content[0] else {
+        bail!("First should be heading")
+    };
+    assert_eq!(heading1.level, 3, "Numbered heading should be level 3");
+    
+    let Block::Heading(heading2) = &content[2] else {
+        bail!("Third should be heading")
+    };
+    assert_eq!(heading2.level, 1, "Known section should be level 1, not fallback");
+    
+    let Block::Heading(heading3) = &content[4] else {
+        bail!("Fifth should be heading")
+    };
+    assert_eq!(heading3.level, 4, "Unknown heading should get fallback level 4");
 
     Ok(())
 }
