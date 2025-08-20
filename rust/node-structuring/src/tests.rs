@@ -2050,3 +2050,109 @@ fn sectioning_can_be_disabled() -> Result<()> {
 
     Ok(())
 }
+
+#[test]
+fn appendix_break_insertion() -> Result<()> {
+    // Test basic appendix break insertion before first appendix heading
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("Introduction")]),
+        p([t("Introduction content.")]),
+        h1([t("Methods")]),
+        p([t("Methods content.")]),
+        h1([t("Appendix")]),
+        p([t("First appendix content.")]),
+        h1([t("Appendix B")]),
+        p([t("Second appendix content.")]),
+    ]));
+
+    structuring(&mut article);
+
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+
+    // Should have: Section(Introduction), Section(Methods), AppendixBreak, Section(Appendix), Section(Appendix B)
+    assert_eq!(content.len(), 5, "Should have 5 blocks after structuring");
+
+    // First two blocks should be sections
+    let Block::Section(intro_section) = &content[0] else {
+        bail!("First block should be Section")
+    };
+    assert_eq!(intro_section.section_type, Some(SectionType::Introduction));
+
+    let Block::Section(methods_section) = &content[1] else {
+        bail!("Second block should be Section")
+    };
+    assert_eq!(methods_section.section_type, Some(SectionType::Methods));
+
+    // Third block should be AppendixBreak
+    let Block::AppendixBreak(_) = &content[2] else {
+        bail!("Third block should be AppendixBreak")
+    };
+
+    // Fourth block should be the first Appendix section
+    let Block::Section(appendix_section) = &content[3] else {
+        bail!("Fourth block should be Section")
+    };
+    assert_eq!(appendix_section.section_type, Some(SectionType::Appendix));
+
+    // Fifth block should be the second Appendix section (no AppendixBreak before it)
+    let Block::Section(appendix_b_section) = &content[4] else {
+        bail!("Fifth block should be Section")
+    };
+    assert_eq!(appendix_b_section.section_type, Some(SectionType::Appendix));
+
+    // Verify there's only one AppendixBreak
+    let appendix_break_count = content
+        .iter()
+        .filter(|block| matches!(block, Block::AppendixBreak(_)))
+        .count();
+    assert_eq!(
+        appendix_break_count, 1,
+        "Should have exactly one AppendixBreak"
+    );
+
+    Ok(())
+}
+
+#[test]
+fn no_appendix_break_without_appendix() -> Result<()> {
+    // Test that no AppendixBreak is inserted when there are no appendix sections
+    let mut article = Node::Article(Article::new(vec![
+        h1([t("Introduction")]),
+        p([t("Introduction content.")]),
+        h1([t("Methods")]),
+        p([t("Methods content.")]),
+        h1([t("Results")]),
+        p([t("Results content.")]),
+        h1([t("Conclusions")]),
+        p([t("Conclusions content.")]),
+    ]));
+
+    structuring(&mut article);
+
+    let Node::Article(Article { content, .. }) = article else {
+        bail!("Should be an article")
+    };
+
+    // Should have 4 sections (Introduction, Methods, Results, Conclusions), no AppendixBreak
+    assert_eq!(content.len(), 4, "Should have 4 sections after structuring");
+
+    // Verify all are sections and no AppendixBreak blocks exist
+    let section_count = content
+        .iter()
+        .filter(|block| matches!(block, Block::Section(_)))
+        .count();
+    assert_eq!(section_count, 4, "Should have 4 sections");
+
+    let appendix_break_count = content
+        .iter()
+        .filter(|block| matches!(block, Block::AppendixBreak(_)))
+        .count();
+    assert_eq!(
+        appendix_break_count, 0,
+        "Should have no AppendixBreak when no appendix sections"
+    );
+
+    Ok(())
+}

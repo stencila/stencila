@@ -1,12 +1,15 @@
 use codec_text_trait::to_text;
 use schema::{
-    Admonition, Article, Block, ForBlock, Heading, IncludeBlock, Node, Section, SectionType,
-    StyledBlock, VisitorMut, WalkControl,
+    Admonition, AppendixBreak, Article, Block, ForBlock, Heading, IncludeBlock, Node, Section,
+    SectionType, StyledBlock, VisitorMut, WalkControl,
 };
 
 /// Walks over document blocks and creates nested sections from headings
 #[derive(Debug, Default)]
-pub(super) struct Sectioner {}
+pub(super) struct Sectioner {
+    /// Whether the first appendix section has been encountered
+    first_appendix_seen: bool,
+}
 
 impl VisitorMut for Sectioner {
     fn visit_node(&mut self, node: &mut Node) -> WalkControl {
@@ -63,6 +66,15 @@ impl Sectioner {
                 // Found a heading - create a section
                 let (section, consumed) =
                     self.create_section_from_heading(heading, &blocks[index..]);
+
+                // Check if this is the first appendix section and insert AppendixBreak if so
+                if matches!(section.section_type, Some(SectionType::Appendix))
+                    && !self.first_appendix_seen
+                {
+                    self.first_appendix_seen = true;
+                    new_blocks.push(Block::AppendixBreak(AppendixBreak::new()));
+                }
+
                 new_blocks.push(Block::Section(section));
                 index += consumed;
             } else {
@@ -108,8 +120,8 @@ impl Sectioner {
                         break;
                     } else {
                         // Found a lower-level heading - create a nested section
-                        let (nested_section, nested_consumed) =
-                            self.create_section_from_heading(other_heading, &remaining_blocks[index..]);
+                        let (nested_section, nested_consumed) = self
+                            .create_section_from_heading(other_heading, &remaining_blocks[index..]);
                         section_content.push(Block::Section(nested_section));
                         index += nested_consumed;
                         consumed += nested_consumed;
