@@ -501,7 +501,7 @@ impl Install {
         for (manager, config_path) in managers {
             if self.dry_run {
                 eprintln!(
-                    "📋 Would install tools from {} using {}",
+                    "📋 Would install tools from `{}` using `{}`",
                     strip_home_dir(&config_path),
                     manager.name()
                 );
@@ -509,7 +509,7 @@ impl Install {
             }
 
             eprintln!(
-                "🔧 Installing tools from {} using {}",
+                "🔧 Installing tools from `{}` using `{}`",
                 strip_home_dir(&config_path),
                 manager.name()
             );
@@ -547,11 +547,11 @@ impl Install {
 
         if pyproject_path.exists() {
             if self.dry_run {
-                eprintln!("📋 Would install Python dependencies from pyproject.toml");
+                eprintln!("📋 Would install Python dependencies from `pyproject.toml`");
                 return Ok(0);
             }
 
-            eprintln!("🐍 Installing dependencies from pyproject.toml");
+            eprintln!("🐍 Installing dependencies from `pyproject.toml` using `uv`");
 
             // Install dependencies (creates venv automatically if needed)
             let status = AsyncToolCommand::new("uv")
@@ -562,17 +562,17 @@ impl Install {
                 .status()
                 .await?;
             if !status.success() {
-                bail!("Failed to install Python dependencies from pyproject.toml");
+                bail!("Failed to install Python dependencies from `pyproject.toml`");
             }
 
             Ok(1)
         } else if requirements_path.exists() {
             if self.dry_run {
-                eprintln!("📋 Would install Python dependencies from requirements.txt");
+                eprintln!("📋 Would install Python dependencies from `requirements.txt`");
                 return Ok(1);
             }
 
-            eprintln!("🐍 Installing dependencies from requirements.txt");
+            eprintln!("🐍 Installing dependencies from `requirements.txt` using `uv`");
 
             // Create virtual environment first (uv pip requires it)
             let status = AsyncToolCommand::new("uv")
@@ -595,7 +595,7 @@ impl Install {
                 .status()
                 .await?;
             if !status.success() {
-                bail!("Failed to install Python dependencies from requirements.txt");
+                bail!("Failed to install Python dependencies from `requirements.txt`");
             }
 
             Ok(1)
@@ -612,11 +612,11 @@ impl Install {
 
         if renv_path.exists() {
             if self.dry_run {
-                eprintln!("📋 Would install R dependencies from renv.lock");
+                eprintln!("📋 Would install R dependencies from `renv.lock`");
                 return Ok(1);
             }
 
-            eprintln!("📦 Installing dependencies from renv.lock");
+            eprintln!("📦 Installing dependencies from `renv.lock` file using `renv`");
 
             // Ensure renv is installed before using it
             install_tool(&Renv, false, true).await?;
@@ -629,17 +629,17 @@ impl Install {
                 .status()
                 .await?;
             if !status.success() {
-                bail!("Failed to install R dependencies from renv.lock");
+                bail!("Failed to install R dependencies from `renv.lock`");
             }
 
             Ok(1)
         } else if description_path.exists() {
             if self.dry_run {
-                eprintln!("📋 Would install R dependencies from DESCRIPTION");
+                eprintln!("📋 Would install R dependencies from `DESCRIPTION`");
                 return Ok(1);
             }
 
-            eprintln!("📦 Installing dependencies from DESCRIPTION file");
+            eprintln!("📦 Installing dependencies from `DESCRIPTION` file using `renv`");
 
             // Ensure renv is installed before using it
             install_tool(&Renv, false, true).await?;
@@ -652,7 +652,7 @@ impl Install {
                 .status()
                 .await?;
             if !status.success() {
-                bail!("Failed to install R dependencies from DESCRIPTION file");
+                bail!("Failed to install R dependencies from `DESCRIPTION` file");
             }
 
             Ok(1)
