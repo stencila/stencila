@@ -23,13 +23,14 @@ use common::{
 #[cfg(not(feature = "console-subscriber"))]
 pub fn setup(level: LoggingLevel, filter: &str, format: LoggingFormat) -> Result<()> {
     use common::eyre::{Context, bail};
+    use std::env::var_os;
     use tracing_error::ErrorLayer;
     use tracing_subscriber::{EnvFilter, fmt, registry};
 
     let is_term = std::io::stderr().is_terminal();
     let (format, ansi) = match format {
         LoggingFormat::Auto => {
-            if is_term {
+            if is_term || var_os("FORCE_COLOR").is_some() {
                 if cfg!(debug_assertions) {
                     (LoggingFormat::Pretty, true)
                 } else {
