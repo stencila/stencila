@@ -20,6 +20,7 @@ use common::{
     eyre::{Result, bail},
     serde_json,
     tokio::sync::Mutex,
+    tracing,
 };
 
 use crate::{ServerState, ServerStatus, commands};
@@ -40,7 +41,10 @@ pub(super) fn initialize_options(state: &mut ServerState, options: serde_json::V
 }
 
 /// Initialize the language server and respond with its capabilities
+#[tracing::instrument]
 pub(super) async fn initialize(client: ClientSocket) -> Result<InitializeResult, ResponseError> {
+    tracing::debug!("Initializing language server connection");
+
     ask::setup_lsp(AskClient::new(client))
         .await
         .map_err(|error| ResponseError::new(ErrorCode::INTERNAL_ERROR, error.to_string()))?;
@@ -88,17 +92,23 @@ pub(super) async fn initialize(client: ClientSocket) -> Result<InitializeResult,
 }
 
 /// Handle the notification from the client that the connection has been initialized
+#[tracing::instrument]
 pub(super) fn initialized(
-    _state: &mut ServerState,
-    _params: InitializedParams,
+    state: &mut ServerState,
+    params: InitializedParams,
 ) -> ControlFlow<Result<(), Error>> {
+    tracing::debug!("Language server connection initialized");
+
     ControlFlow::Continue(())
 }
 
 /// Shutdown the language server
 ///
 /// Currently does nothing except change the status of the server.
+#[tracing::instrument]
 pub(super) fn shutdown(state: &mut ServerState) -> Result<(), ResponseError> {
+    tracing::debug!("Shutting down language server");
+
     state.status = ServerStatus::Shutdown;
 
     Ok(())
@@ -107,7 +117,10 @@ pub(super) fn shutdown(state: &mut ServerState) -> Result<(), ResponseError> {
 /// Exit the language server
 ///
 /// This exits with a code 0 or 1 as per https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#exit
+#[tracing::instrument]
 pub(super) fn exit(state: &mut ServerState) -> ControlFlow<Result<(), Error>> {
+    tracing::debug!("Exiting language server");
+
     let code = match state.status {
         ServerStatus::Running => 1,
         ServerStatus::Shutdown => 0,

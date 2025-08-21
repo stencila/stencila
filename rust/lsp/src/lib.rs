@@ -1,6 +1,6 @@
 #![recursion_limit = "256"]
 
-use std::{collections::HashMap, env};
+use std::{collections::HashMap, env, fmt};
 
 use async_lsp::{ClientSocket, lsp_types::Url};
 
@@ -48,6 +48,13 @@ pub(crate) struct ServerState {
     status: ServerStatus,
 }
 
+impl fmt::Debug for ServerState {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "status: {:?}", self.status)
+    }
+}
+
+#[derive(Debug)]
 pub(crate) enum ServerStatus {
     Running,
     Shutdown,

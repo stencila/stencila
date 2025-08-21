@@ -14,7 +14,7 @@ use schema::NodeId;
 use tower::ServiceBuilder;
 use tracing_subscriber::filter::LevelFilter;
 
-use common::{eyre::Result, serde_json};
+use common::{eyre::Result, serde_json, tracing};
 
 use crate::{
     ServerState, ServerStatus, code_lens,
@@ -24,6 +24,7 @@ use crate::{
 };
 
 /// Run the language server
+#[tracing::instrument]
 pub async fn run(log_level: LevelFilter, log_filter: &str) -> Result<()> {
     let (server, _) = MainLoop::new_server(|client| {
         logging::setup(log_level, log_filter, client.clone());
