@@ -888,7 +888,7 @@ impl Document {
                 DiagnosticLevel::Advice => advice += 1,
             }
 
-            diagnostic.to_stderr_pretty(&path, &source, &poshmap)?;
+            diagnostic.to_stderr(&path, &source, &poshmap)?;
         }
 
         Ok((errors, warnings, advice))

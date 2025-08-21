@@ -1,8 +1,8 @@
-use std::ops::Range;
+use std::{env, ops::Range};
 
 use ariadne::{Config, Label, Report, ReportKind, Source};
 
-use codec_info::{PoshMap, Position8, Positions};
+use codec_info::{PoshMap, Position8, Positions, Range8};
 use common::{eyre::Result, serde::Serialize, serde_with::skip_serializing_none, strum::Display};
 use format::Format;
 use schema::{
@@ -108,6 +108,64 @@ impl Diagnostic {
         &self.message
     }
 
+    /// Generate a title for the diagnostic
+    fn title(&self) -> String {
+        let mut details = String::new();
+        if let Some(format) = &self.format {
+            details.push_str(format.name());
+            details.push(' ');
+        }
+        details.push_str(&self.node_type.to_string());
+        details.push(' ');
+        details.push_str(
+            &self
+                .error_type
+                .clone()
+                .unwrap_or_else(|| self.level.to_string().to_lowercase()),
+        );
+
+        details
+    }
+
+    /// Get the [`Range8`] for the node from a [`PoshMap`]
+    fn range8<'s>(&self, poshmap: &Option<PoshMap<'s, 's>>) -> Range8 {
+        // Guess the property of the node that the diagnostic is for
+        let property = match self.node_type {
+            NodeType::IncludeBlock => NodeProperty::Source,
+            _ => NodeProperty::Code,
+        };
+
+        // Get the range of the node (or it's code if any) within the code
+        // Note: this function is usually only passed a poshmap if using document source
+        let range8 = poshmap
+            .as_ref()
+            .and_then(|poshmap| {
+                poshmap
+                    .node_property_to_range8(&self.node_id, property)
+                    .or_else(|| poshmap.node_id_to_range8(&self.node_id))
+            })
+            .unwrap_or_default();
+
+        range8
+    }
+
+    /// Print the diagnostic to stderr
+    ///         
+    /// If on GitHub message prints both a CI message and the pretty display so
+    /// as to provide useful diagnostics output in various contexts.    
+    pub fn to_stderr<'s>(
+        self,
+        path: &'s str,
+        source: &'s str,
+        poshmap: &Option<PoshMap<'s, 's>>,
+    ) -> Result<()> {
+        if env::var_os("GITHUB_ACTIONS").is_some() {
+            self.to_stderr_github_message(path, poshmap);
+        }
+
+        self.to_stderr_pretty(path, source, poshmap)
+    }
+
     /// Pretty print the diagnostic to a string
     ///
     /// Similar `to_stderr_pretty` but returns a string without terminal color codes
@@ -129,7 +187,7 @@ impl Diagnostic {
     }
 
     /// Pretty print the diagnostic to stderr
-    pub fn to_stderr_pretty<'s>(
+    fn to_stderr_pretty<'s>(
         self,
         path: &'s str,
         source: &'s str,
@@ -141,6 +199,63 @@ impl Diagnostic {
         report.eprint(cache)?;
 
         Ok(())
+    }
+
+    /// Print the diagnostic to stderr as a GitHub Action message
+    ///         
+    /// This is beneficial because the diagnostic will be displayed more
+    /// prominently in the action summary and in-line in PR file diffs.
+    ///
+    /// https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#setting-a-notice-message
+    #[allow(clippy::print_stderr)]
+    fn to_stderr_github_message<'s>(&self, path: &str, poshmap: &Option<PoshMap<'s, 's>>) {
+        let type_ = match self.level {
+            DiagnosticLevel::Advice => "notice",
+            DiagnosticLevel::Warning => "warning",
+            DiagnosticLevel::Error => "error",
+        };
+
+        let mut message = ["::", type_, " file=", path].concat();
+
+        let Range8 {
+            start: Position8 { line, column },
+            ..
+        } = self.range8(poshmap);
+
+        if let Some(location) = &self.code_location {
+            if let Some(start_line) = location.start_line {
+                message.push_str(",line=");
+                message.push_str(&(1 + line + start_line as usize).to_string());
+            }
+            if let Some(end_line) = location.end_line {
+                message.push_str(",endLine=");
+                message.push_str(&(1 + line + end_line as usize).to_string());
+            }
+            if let Some(start_col) = location.start_column {
+                message.push_str(",col=");
+                message.push_str(&(1 + column + start_col as usize).to_string());
+            }
+            if let Some(end_col) = location.end_column {
+                message.push_str(",endColumn=");
+                message.push_str(&(1 + column + end_col as usize).to_string());
+            }
+        } else {
+            message.push_str(",line=");
+            message.push_str(&(1 + line).to_string());
+
+            message.push_str(",col=");
+            message.push_str(&(1 + column).to_string());
+        }
+
+        if let Some(error_type) = &self.error_type {
+            message.push_str(",title=");
+            message.push_str(&error_type);
+        }
+
+        message.push_str("::");
+        message.push_str(&self.message);
+
+        eprintln!("{message}");
     }
 
     #[allow(clippy::type_complexity)]
@@ -158,20 +273,8 @@ impl Diagnostic {
             DiagnosticLevel::Error => ReportKind::Error,
         };
 
-        // Generate details for at top of diagnostic
-        let mut details = String::new();
-        if let Some(format) = &self.format {
-            details.push_str(format.name());
-            details.push(' ');
-        }
-        details.push_str(&self.node_type.to_string());
-        details.push(' ');
-        details.push_str(
-            &self
-                .error_type
-                .unwrap_or_else(|| kind.to_string().to_lowercase()),
-        );
-        details.push(' ');
+        let title = self.title();
+        let range8 = self.range8(poshmap);
 
         // Decide if using the document's source or the message's source
         let source = if !source.is_empty() {
@@ -185,23 +288,6 @@ impl Diagnostic {
         // Create a mapping between source line/column position and character index
         let positions = Positions::new(&source);
 
-        // Guess the property of the node that the diagnostic is for
-        let property = match self.node_type {
-            NodeType::IncludeBlock => NodeProperty::Source,
-            _ => NodeProperty::Code,
-        };
-
-        // Get the range of the node (or it's code if any) within the code
-        // Note: this function is usually only passed a poshmap if using document source
-        let range = poshmap
-            .as_ref()
-            .and_then(|poshmap| {
-                poshmap
-                    .node_property_to_range8(&self.node_id, property)
-                    .or_else(|| poshmap.node_id_to_range8(&self.node_id))
-            })
-            .unwrap_or_default();
-
         // Convert line/column range to character range
         let range = if let Some(location) = self.code_location {
             // If there is a code location then shift the range
@@ -209,8 +295,8 @@ impl Diagnostic {
             let column = location.start_column.unwrap_or(0) as usize;
             let start = positions
                 .index_at_position8(Position8 {
-                    line: range.start.line + line,
-                    column: range.start.column + column,
+                    line: range8.start.line + line,
+                    column: range8.start.column + column,
                 })
                 .unwrap_or(0);
 
@@ -220,17 +306,17 @@ impl Diagnostic {
                 .map_or_else(|| column, |col| col as usize);
             let end = positions
                 .index_at_position8(Position8 {
-                    line: range.start.line + line,
-                    column: range.start.column + column,
+                    line: range8.start.line + line,
+                    column: range8.start.column + column,
                 })
                 .unwrap_or(start)
                 .max(start);
 
             start..end
         } else {
-            let start = positions.index_at_position8(range.start).unwrap_or(0);
+            let start = positions.index_at_position8(range8.start).unwrap_or(0);
             let end = positions
-                .index_at_position8(range.end)
+                .index_at_position8(range8.end)
                 .unwrap_or(start)
                 .max(start);
 
@@ -238,7 +324,7 @@ impl Diagnostic {
         };
 
         let report = Report::build(kind, (path, range.clone()))
-            .with_message(&details)
+            .with_message(&title)
             .with_label(Label::new((path, range)).with_message(self.message))
             .with_config(Config::new().with_color(color).with_compact(compact))
             .finish();

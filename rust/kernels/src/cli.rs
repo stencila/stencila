@@ -427,7 +427,7 @@ fn display(
             code: None,
             code_location: msg.code_location.clone(),
         }
-        .to_stderr_pretty("<code>", &source, &None)
+        .to_stderr("<code>", &source, &None)
         .ok();
     }
 

@@ -270,7 +270,7 @@ impl Query {
                 code: Some(query.to_string()),
                 code_location: msg.code_location.clone(),
             }
-            .to_stderr_pretty("<code>", &query, &None)
+            .to_stderr("<code>", &query, &None)
             .ok();
         }
 
