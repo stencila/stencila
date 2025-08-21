@@ -38,7 +38,7 @@ where
 
 #[skip_serializing_none]
 #[derive(Serialize)]
-#[serde(crate = "common::serde")]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Diagnostic {
     /// The type of node that the diagnostic is for
     pub node_type: NodeType,
