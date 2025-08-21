@@ -64,8 +64,7 @@ impl Sectioner {
 
             if let Block::Heading(heading) = block {
                 // Found a heading - create a section
-                let (section, consumed) =
-                    self.create_section_from_heading(heading, &blocks[index..]);
+                let (section, consumed) = create_section_from_heading(heading, &blocks[index..]);
 
                 // Check if this is the first appendix section and insert AppendixBreak if so
                 if matches!(section.section_type, Some(SectionType::Appendix))
@@ -89,59 +88,55 @@ impl Sectioner {
 
         WalkControl::Continue
     }
+}
 
-    /// Create a section from a heading and collect its content
-    ///
-    /// Returns a tuple of (Section, number_of_blocks_consumed)
-    fn create_section_from_heading(
-        &mut self,
-        heading: &Heading,
-        remaining_blocks: &[Block],
-    ) -> (Section, usize) {
-        let heading_level = heading.level;
-        let heading_text = to_text(&heading.content);
+/// Create a section from a heading and collect its content
+///
+/// Returns a tuple of (Section, number_of_blocks_consumed)
+fn create_section_from_heading(heading: &Heading, remaining_blocks: &[Block]) -> (Section, usize) {
+    let heading_level = heading.level;
+    let heading_text = to_text(&heading.content);
 
-        // Determine section type from heading text
-        let section_type = SectionType::from_text(&heading_text).ok();
+    // Determine section type from heading text
+    let section_type = SectionType::from_text(&heading_text).ok();
 
-        // Start with the heading as the first block
-        let mut section_content = vec![remaining_blocks[0].clone()];
-        let mut consumed = 1;
+    // Start with the heading as the first block
+    let mut section_content = vec![remaining_blocks[0].clone()];
+    let mut consumed = 1;
 
-        // Collect blocks until we find another heading of the same or higher level
-        let mut index = 1;
-        while index < remaining_blocks.len() {
-            let block = &remaining_blocks[index];
+    // Collect blocks until we find another heading of the same or higher level
+    let mut index = 1;
+    while index < remaining_blocks.len() {
+        let block = &remaining_blocks[index];
 
-            match block {
-                Block::Heading(other_heading) => {
-                    if other_heading.level <= heading_level {
-                        // Found a heading at same or higher level - stop collecting
-                        break;
-                    } else {
-                        // Found a lower-level heading - create a nested section
-                        let (nested_section, nested_consumed) = self
-                            .create_section_from_heading(other_heading, &remaining_blocks[index..]);
-                        section_content.push(Block::Section(nested_section));
-                        index += nested_consumed;
-                        consumed += nested_consumed;
-                        continue;
-                    }
-                }
-                _ => {
-                    // Regular block - add to section content
-                    section_content.push(block.clone());
-                    index += 1;
-                    consumed += 1;
+        match block {
+            Block::Heading(other_heading) => {
+                if other_heading.level <= heading_level {
+                    // Found a heading at same or higher level - stop collecting
+                    break;
+                } else {
+                    // Found a lower-level heading - create a nested section
+                    let (nested_section, nested_consumed) =
+                        create_section_from_heading(other_heading, &remaining_blocks[index..]);
+                    section_content.push(Block::Section(nested_section));
+                    index += nested_consumed;
+                    consumed += nested_consumed;
+                    continue;
                 }
             }
+            _ => {
+                // Regular block - add to section content
+                section_content.push(block.clone());
+                index += 1;
+                consumed += 1;
+            }
         }
-
-        let mut section = Section::new(section_content);
-        section.section_type = section_type;
-
-        (section, consumed)
     }
+
+    let mut section = Section::new(section_content);
+    section.section_type = section_type;
+
+    (section, consumed)
 }
 
 #[cfg(test)]

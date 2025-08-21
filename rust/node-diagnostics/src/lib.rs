@@ -137,16 +137,15 @@ impl Diagnostic {
 
         // Get the range of the node (or it's code if any) within the code
         // Note: this function is usually only passed a poshmap if using document source
-        let range8 = poshmap
+
+        poshmap
             .as_ref()
             .and_then(|poshmap| {
                 poshmap
                     .node_property_to_range8(&self.node_id, property)
                     .or_else(|| poshmap.node_id_to_range8(&self.node_id))
             })
-            .unwrap_or_default();
-
-        range8
+            .unwrap_or_default()
     }
 
     /// Print the diagnostic to stderr
@@ -187,6 +186,7 @@ impl Diagnostic {
     }
 
     /// Pretty print the diagnostic to stderr
+    #[allow(clippy::wrong_self_convention)]
     fn to_stderr_pretty<'s>(
         self,
         path: &'s str,
@@ -249,7 +249,7 @@ impl Diagnostic {
 
         if let Some(error_type) = &self.error_type {
             message.push_str(",title=");
-            message.push_str(&error_type);
+            message.push_str(error_type);
         }
 
         message.push_str("::");
