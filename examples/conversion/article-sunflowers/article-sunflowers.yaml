@@ -2613,6 +2613,7 @@ title:
     string: The circadian clock controls temporal and spatial patterns of floral development in sunflower
 content:
 - type: Section
+  sectionType: Introduction
   content:
   - type: Heading
     level: 1
@@ -3050,8 +3051,8 @@ content:
     - type: Text
       value:
         string: Here, we investigate the timing of floral organ development in various environmental conditions. We find that temperature-compensated daily rhythms in development of both male and female floral organs, and the formation of pseudowhorls, persist when flowers are maintained in constant environmental conditions in the absence of light. However, both daily rhythms in development and the formation of pseudowhorls are lost in constant light, with late-stage floret maturation occurring continuously along parastichies. Importantly, the effects of light on floret development are time-of-day-dependent. Together, these data indicate that late-stage floret development is regulated by the circadian clock. We propose that pseudowhorls are produced in response to an external coincidence mechanism, in which developmentally competent florets undergo reproductive transitions only when they receive environmental cues at the appropriate time of day. Our data thus suggest a role for the circadian clock in the spatial as well as temporal control of sunflower development.
-  sectionType: Introduction
 - type: Section
+  sectionType: Results
   content:
   - type: Heading
     level: 1
@@ -3951,8 +3952,8 @@ content:
       - type: Text
         value:
           string: ). Thus, temperature cycles restore some daily anthesis rhythms and thereby rescue pseudowhorl formation.
-  sectionType: Results
 - type: Section
+  sectionType: Discussion
   content:
   - type: Heading
     level: 1
@@ -4329,8 +4330,8 @@ content:
     - type: Text
       value:
         string: . We therefore speculate that the coordinated release of floral rewards by the hundreds of florets undergoing anthesis within a pseudowhorl each morning may be a mechanism to enhance attractiveness to pollinators and thus promote reproductive success.
-  sectionType: Discussion
 - type: Section
+  sectionType: Methods
   content:
   - type: Heading
     level: 1
@@ -4505,7 +4506,6 @@ content:
       - type: Text
         value:
           string: ; LD|25°C (19.5h:4.5h)) entire florets from a single pseudowhorl were dissected from the capitulum and photographed. Organs were then measured with Image J for each floret. For ovary growth measurements, at ZT 2 on after the second day in a given growth condition, entire florets, including ovaries, were dissected from the capitulum along 4-8 continuous parastichies and photographed. Ovary length was then measured with Image J for each floret, consecutively. Position 8 always designated the boundary between pseudowhorls.
-  sectionType: Methods
 about:
 - type: PropertyValue
   propertyId: author-type

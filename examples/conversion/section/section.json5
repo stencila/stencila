@@ -3,6 +3,7 @@
   content: [
     {
       type: "Section",
+      sectionType: "Introduction",
       content: [
         {
           type: "Heading",
@@ -23,8 +24,7 @@
             }
           ]
         }
-      ],
-      sectionType: "Introduction"
+      ]
     },
     {
       type: "Section",
@@ -106,6 +106,7 @@
     },
     {
       type: "Section",
+      sectionType: "Header",
       content: [
         {
           type: "Paragraph",
@@ -116,11 +117,11 @@
             }
           ]
         }
-      ],
-      sectionType: "Header"
+      ]
     },
     {
       type: "Section",
+      sectionType: "Introduction",
       content: [
         {
           type: "Paragraph",
@@ -131,11 +132,11 @@
             }
           ]
         }
-      ],
-      sectionType: "Introduction"
+      ]
     },
     {
       type: "Section",
+      sectionType: "Discussion",
       content: [
         {
           type: "Paragraph",
@@ -146,11 +147,11 @@
             }
           ]
         }
-      ],
-      sectionType: "Discussion"
+      ]
     },
     {
       type: "Section",
+      sectionType: "Footer",
       content: [
         {
           type: "Paragraph",
@@ -161,8 +162,7 @@
             }
           ]
         }
-      ],
-      sectionType: "Footer"
+      ]
     }
   ]
 }

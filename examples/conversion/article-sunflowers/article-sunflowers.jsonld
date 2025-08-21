@@ -4452,6 +4452,7 @@
   "stencila:content": [
     {
       "@type": "stencila:Section",
+      "stencila:sectionType": "Introduction",
       "stencila:content": [
         {
           "@type": "stencila:Heading",
@@ -5339,11 +5340,11 @@
             }
           ]
         }
-      ],
-      "stencila:sectionType": "Introduction"
+      ]
     },
     {
       "@type": "stencila:Section",
+      "stencila:sectionType": "Results",
       "stencila:content": [
         {
           "@type": "stencila:Heading",
@@ -7197,11 +7198,11 @@
             }
           ]
         }
-      ],
-      "stencila:sectionType": "Results"
+      ]
     },
     {
       "@type": "stencila:Section",
+      "stencila:sectionType": "Discussion",
       "stencila:content": [
         {
           "@type": "stencila:Heading",
@@ -7956,11 +7957,11 @@
             }
           ]
         }
-      ],
-      "stencila:sectionType": "Discussion"
+      ]
     },
     {
       "@type": "stencila:Section",
+      "stencila:sectionType": "Methods",
       "stencila:content": [
         {
           "@type": "stencila:Heading",
@@ -8321,8 +8322,7 @@
             }
           ]
         }
-      ],
-      "stencila:sectionType": "Methods"
+      ]
     }
   ],
   "about": [

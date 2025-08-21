@@ -4448,6 +4448,7 @@
   "content": [
     {
       "type": "Section",
+      "sectionType": "Introduction",
       "content": [
         {
           "type": "Heading",
@@ -5335,11 +5336,11 @@
             }
           ]
         }
-      ],
-      "sectionType": "Introduction"
+      ]
     },
     {
       "type": "Section",
+      "sectionType": "Results",
       "content": [
         {
           "type": "Heading",
@@ -7193,11 +7194,11 @@
             }
           ]
         }
-      ],
-      "sectionType": "Results"
+      ]
     },
     {
       "type": "Section",
+      "sectionType": "Discussion",
       "content": [
         {
           "type": "Heading",
@@ -7952,11 +7953,11 @@
             }
           ]
         }
-      ],
-      "sectionType": "Discussion"
+      ]
     },
     {
       "type": "Section",
+      "sectionType": "Methods",
       "content": [
         {
           "type": "Heading",
@@ -8317,8 +8318,7 @@
             }
           ]
         }
-      ],
-      "sectionType": "Methods"
+      ]
     }
   ],
   "about": [

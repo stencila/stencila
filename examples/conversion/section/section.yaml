@@ -1,6 +1,7 @@
 type: Article
 content:
 - type: Section
+  sectionType: Introduction
   content:
   - type: Heading
     level: 1
@@ -13,7 +14,6 @@ content:
     - type: Text
       value:
         string: Sections will usually start with a header.
-  sectionType: Introduction
 - type: Section
   content:
   - type: Heading
@@ -57,34 +57,34 @@ content:
           value:
             string: This is the second inner-inner section
 - type: Section
+  sectionType: Header
   content:
   - type: Paragraph
     content:
     - type: Text
       value:
         string: This is the header
-  sectionType: Header
 - type: Section
+  sectionType: Introduction
   content:
   - type: Paragraph
     content:
     - type: Text
       value:
         string: This is the introduction
-  sectionType: Introduction
 - type: Section
+  sectionType: Discussion
   content:
   - type: Paragraph
     content:
     - type: Text
       value:
         string: This is the discussion
-  sectionType: Discussion
 - type: Section
+  sectionType: Footer
   content:
   - type: Paragraph
     content:
     - type: Text
       value:
         string: This is the footer
-  sectionType: Footer
