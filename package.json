@@ -36,7 +36,7 @@
     "process": "0.11.10",
     "publint": "0.3.12",
     "svgo": "3.3.2",
-    "tmp": "0.2.3",
+    "tmp": "0.2.4",
     "tsup": "8.5.0",
     "typescript": "5.8.3",
     "typescript-eslint": "8.34.1",
