@@ -799,13 +799,13 @@ impl CypherQuery {
 
     /// Execute and return a [`NodeProxies`] for all nodes
     fn slice(&self, first: i32, last: Option<i32>) -> Result<Value, Error> {
-        if let Some(last) = last {
-            if last < first {
-                return Err(Error::new(
-                    ErrorKind::InvalidOperation,
-                    "Second argument should be greater than or equal to first",
-                ));
-            }
+        if let Some(last) = last
+            && last < first
+        {
+            return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                "Second argument should be greater than or equal to first",
+            ));
         }
 
         let nodes = if first >= 0 && (last.is_none() || last.unwrap_or_default() >= 0) {
@@ -1065,10 +1065,10 @@ pub(super) fn apply_filter(
     arg_value: Value,
     for_subquery: bool,
 ) -> Result<String, Error> {
-    if arg_name == "_" {
-        if let Some(subquery) = arg_value.downcast_object_ref::<Subquery>() {
-            return process_subquery_for_cypher(subquery, alias);
-        }
+    if arg_name == "_"
+        && let Some(subquery) = arg_value.downcast_object_ref::<Subquery>()
+    {
+        return process_subquery_for_cypher(subquery, alias);
     }
 
     let mut chars = arg_name.chars().collect_vec();
@@ -1464,11 +1464,11 @@ impl Object for CypherQueryVariables {
         let (args, mut kwargs): (&[Value], Kwargs) = from_args(args)?;
 
         let mut args = args.to_vec();
-        if let Some(first) = args.first().and_then(|first| first.as_str()) {
-            if !GLOBAL_CONSTS.contains(&first) {
-                let first = args.remove(0);
-                kwargs = kwargs_insert(kwargs, "name", first)
-            }
+        if let Some(first) = args.first().and_then(|first| first.as_str())
+            && !GLOBAL_CONSTS.contains(&first)
+        {
+            let first = args.remove(0);
+            kwargs = kwargs_insert(kwargs, "name", first)
         }
 
         let query = self.document.table("variables", &args, kwargs)?;

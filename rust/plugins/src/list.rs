@@ -39,12 +39,11 @@ pub async fn list(args: List) -> Result<Vec<Plugin>> {
     let cache = plugins_dir.join("manifests.json");
 
     let cache_has_expired = || {
-        if let Ok(metadata) = fs::metadata(&cache) {
-            if let Ok(modified) = metadata.modified() {
-                if let Ok(elapsed) = modified.elapsed() {
-                    return elapsed > Duration::from_secs(CACHE_EXPIRY_SECS);
-                }
-            }
+        if let Ok(metadata) = fs::metadata(&cache)
+            && let Ok(modified) = metadata.modified()
+            && let Ok(elapsed) = modified.elapsed()
+        {
+            return elapsed > Duration::from_secs(CACHE_EXPIRY_SECS);
         }
         false
     };

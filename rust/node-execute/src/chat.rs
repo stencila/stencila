@@ -227,14 +227,12 @@ impl Executable for Chat {
                     ..
                 },
             ) = msg
-            {
-                if let Err(error) = executor
+                && let Err(error) = executor
                     .fork_for_all()
                     .compile_prepare_execute(&mut msg.content)
                     .await
-                {
-                    tracing::error!("While executing user message: {error}");
-                }
+            {
+                tracing::error!("While executing user message: {error}");
             }
         }
 

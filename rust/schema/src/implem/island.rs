@@ -19,57 +19,57 @@ impl LatexCodec for Island {
             );
 
             // Set figure or table counter within the island's LaTeX
-            if let (Some(label_type), Some(label)) = (self.label_type, &self.label) {
-                if let Some(label_type) = match label_type {
+            if let (Some(label_type), Some(label)) = (self.label_type, &self.label)
+                && let Some(label_type) = match label_type {
                     LabelType::FigureLabel => Some("figure"),
                     LabelType::TableLabel => Some("table"),
                     // This should not usually happen
                     LabelType::AppendixLabel => None,
-                } {
-                    // For islands within appendices (label starts with uppercase number) we need
-                    // to derive a counter for the appendix as well as for the figure or table
-                    let (appendix_counter, label_type_counter): (Option<u32>, Option<u32>) = {
-                        // Split label into uppercase prefix and numeric suffix
-                        let prefix: String = label
-                            .chars()
-                            .take_while(|c| c.is_ascii_uppercase())
-                            .collect();
-                        let suffix: String = label
-                            .chars()
-                            .skip_while(|c| c.is_ascii_uppercase())
-                            .collect();
-
-                        // Parse appendix counter from first uppercase letter (A=1, B=2, etc.)
-                        let appendix = prefix.chars().next().map(|c| c as u32 - 'A' as u32 + 1);
-
-                        // Parse label counter and subtract 1 (because the figure itself will increment the counter)
-                        let label_counter = suffix
-                            .parse::<u32>()
-                            .ok()
-                            .and_then(|n| if n > 0 { Some(n - 1) } else { None });
-
-                        (appendix, label_counter)
-                    };
-
-                    let mut counters = String::new();
-
-                    if let Some(appendix_counter) = appendix_counter {
-                        counters.push_str("\\appendix\n");
-                        counters.push_str("\\setcounter{section}{");
-                        counters.push_str(&appendix_counter.to_string());
-                        counters.push_str("}\n");
-                    }
-
-                    if let Some(label_type_counter) = label_type_counter {
-                        counters.push_str("\\setcounter{");
-                        counters.push_str(label_type);
-                        counters.push_str("}{");
-                        counters.push_str(&label_type_counter.to_string());
-                        counters.push_str("}\n");
-                    }
-
-                    latex.insert_str(0, &counters);
                 }
+            {
+                // For islands within appendices (label starts with uppercase number) we need
+                // to derive a counter for the appendix as well as for the figure or table
+                let (appendix_counter, label_type_counter): (Option<u32>, Option<u32>) = {
+                    // Split label into uppercase prefix and numeric suffix
+                    let prefix: String = label
+                        .chars()
+                        .take_while(|c| c.is_ascii_uppercase())
+                        .collect();
+                    let suffix: String = label
+                        .chars()
+                        .skip_while(|c| c.is_ascii_uppercase())
+                        .collect();
+
+                    // Parse appendix counter from first uppercase letter (A=1, B=2, etc.)
+                    let appendix = prefix.chars().next().map(|c| c as u32 - 'A' as u32 + 1);
+
+                    // Parse label counter and subtract 1 (because the figure itself will increment the counter)
+                    let label_counter = suffix
+                        .parse::<u32>()
+                        .ok()
+                        .and_then(|n| if n > 0 { Some(n - 1) } else { None });
+
+                    (appendix, label_counter)
+                };
+
+                let mut counters = String::new();
+
+                if let Some(appendix_counter) = appendix_counter {
+                    counters.push_str("\\appendix\n");
+                    counters.push_str("\\setcounter{section}{");
+                    counters.push_str(&appendix_counter.to_string());
+                    counters.push_str("}\n");
+                }
+
+                if let Some(label_type_counter) = label_type_counter {
+                    counters.push_str("\\setcounter{");
+                    counters.push_str(label_type);
+                    counters.push_str("}{");
+                    counters.push_str(&label_type_counter.to_string());
+                    counters.push_str("}\n");
+                }
+
+                latex.insert_str(0, &counters);
             }
 
             let path = context.temp_dir.join(format!("{}.svg", self.node_id()));

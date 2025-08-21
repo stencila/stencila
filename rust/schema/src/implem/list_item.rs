@@ -38,10 +38,10 @@ impl MarkdownCodec for ListItem {
             .merge_losses(lost_options!(self, id, item, position));
 
         // Check box is only added if the first block is a paragraph
-        if let Some(is_checked) = self.is_checked {
-            if let Some(Block::Paragraph(..)) = self.content.first() {
-                context.push_str(if is_checked { "[x] " } else { "[ ] " });
-            }
+        if let Some(is_checked) = self.is_checked
+            && let Some(Block::Paragraph(..)) = self.content.first()
+        {
+            context.push_str(if is_checked { "[x] " } else { "[ ] " });
         }
 
         context

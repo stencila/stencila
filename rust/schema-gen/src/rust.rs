@@ -596,32 +596,31 @@ pub(crate) fn node_type_properties(node_type: &NodeType) -> Vec<NodeProperty> {{
         if derive_patch {
             let mut args = Vec::new();
 
-            if let Some(authors) = schema.properties.get("authors") {
-                if let Some(Items::Ref(ItemsRef { r#ref })) = &authors.items {
-                    if r#ref == "Author" {
-                        let authors_on = if authors.is_required || authors.is_core {
-                            r#"authors_on = "self""#
-                        } else {
-                            r#"authors_on = "options""#
-                        }
-                        .to_string();
-                        args.push(authors_on);
+            if let Some(authors) = schema.properties.get("authors")
+                && let Some(Items::Ref(ItemsRef { r#ref })) = &authors.items
+                && r#ref == "Author"
+            {
+                let authors_on = if authors.is_required || authors.is_core {
+                    r#"authors_on = "self""#
+                } else {
+                    r#"authors_on = "options""#
+                }
+                .to_string();
+                args.push(authors_on);
 
-                        if let Some(authors_take) = schema.patch.as_ref().and_then(|options| {
-                            options
-                                .take_authors
-                                .then(|| "authors_take = true".to_string())
-                        }) {
-                            args.push(authors_take)
-                        }
-                    }
+                if let Some(authors_take) = schema.patch.as_ref().and_then(|options| {
+                    options
+                        .take_authors
+                        .then(|| "authors_take = true".to_string())
+                }) {
+                    args.push(authors_take)
                 }
             }
 
-            if let Some(options) = &schema.patch {
-                if let Some(apply_with) = &options.apply_with {
-                    args.push(format!(r#"apply_with = "{apply_with}""#));
-                }
+            if let Some(options) = &schema.patch
+                && let Some(apply_with) = &options.apply_with
+            {
+                args.push(format!(r#"apply_with = "{apply_with}""#));
             }
 
             if !args.is_empty() {
@@ -630,12 +629,11 @@ pub(crate) fn node_type_properties(node_type: &NodeType) -> Vec<NodeProperty> {{
         }
 
         // Add #[dom] attribute for main struct if necessary
-        if let Some(spec) = &schema.dom {
-            if spec.derive {
-                if let Some(elem) = &spec.elem {
-                    attrs.push(format!(r#"#[dom(elem = "{elem}")]"#));
-                }
-            }
+        if let Some(spec) = &schema.dom
+            && spec.derive
+            && let Some(elem) = &spec.elem
+        {
+            attrs.push(format!(r#"#[dom(elem = "{elem}")]"#));
         }
 
         // Add #[html] attribute for main struct if necessary
@@ -691,35 +689,35 @@ pub(crate) fn node_type_properties(node_type: &NodeType) -> Vec<NodeProperty> {{
         }
 
         // Add #[latex] attribute for main struct if necessary
-        if let Some(latex) = &schema.latex {
-            if latex.derive {
-                let mut args = Vec::new();
+        if let Some(latex) = &schema.latex
+            && latex.derive
+        {
+            let mut args = Vec::new();
 
-                if let Some(command) = &latex.command {
-                    args.push(format!("command = \"{command}\""));
-                }
+            if let Some(command) = &latex.command {
+                args.push(format!("command = \"{command}\""));
+            }
 
-                if !args.is_empty() {
-                    attrs.push(format!("#[latex({})]", args.join(", ")))
-                }
+            if !args.is_empty() {
+                attrs.push(format!("#[latex({})]", args.join(", ")))
             }
         }
 
         // Add #[markdown] attribute for main struct if necessary
-        if let Some(markdown) = &schema.markdown {
-            if markdown.derive {
-                let mut args = Vec::new();
+        if let Some(markdown) = &schema.markdown
+            && markdown.derive
+        {
+            let mut args = Vec::new();
 
-                if let Some(template) = &markdown.template {
-                    args.push(format!("template = \"{template}\""));
-                }
-                if let Some(escape) = &markdown.escape {
-                    args.push(format!("escape = \"{escape}\""));
-                }
+            if let Some(template) = &markdown.template {
+                args.push(format!("template = \"{template}\""));
+            }
+            if let Some(escape) = &markdown.escape {
+                args.push(format!("escape = \"{escape}\""));
+            }
 
-                if !args.is_empty() {
-                    attrs.push(format!("#[markdown({})]", args.join(", ")))
-                }
+            if !args.is_empty() {
+                attrs.push(format!("#[markdown({})]", args.join(", ")))
             }
         }
 
@@ -1209,10 +1207,10 @@ impl {title} {{
                 let mut attrs = Vec::new();
 
                 // Add default attribute if the variant is the default
-                if let Some(default) = &default {
-                    if default == &variant {
-                        attrs.push(String::from("#[default]"))
-                    }
+                if let Some(default) = &default
+                    && default == &variant
+                {
+                    attrs.push(String::from("#[default]"))
                 }
 
                 // Add serde rename if the variant has any

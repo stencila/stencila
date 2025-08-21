@@ -200,10 +200,10 @@ impl GithubRelease {
                     if (*file.name()).ends_with('/') {
                         create_dir_all(&out_path)?;
                     } else {
-                        if let Some(parent) = out_path.parent() {
-                            if !parent.exists() {
-                                create_dir_all(parent)?;
-                            }
+                        if let Some(parent) = out_path.parent()
+                            && !parent.exists()
+                        {
+                            create_dir_all(parent)?;
                         }
                         let mut out_file = File::create(&out_path)?;
                         std::io::copy(&mut file, &mut out_file)?;

@@ -111,13 +111,9 @@ impl Document {
                                 EventKind::Create(..)
                                     | EventKind::Modify(..)
                                     | EventKind::Remove(..)
-                            ) {
-                                if let Err(error) = sender.send(()) {
-                                    tracing::error!(
-                                        "While forwarding file watching event: {}",
-                                        error
-                                    );
-                                }
+                            ) && let Err(error) = sender.send(())
+                            {
+                                tracing::error!("While forwarding file watching event: {}", error);
                             }
                         }
                         Ok(Err(error)) => {

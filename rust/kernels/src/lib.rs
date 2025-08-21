@@ -137,10 +137,10 @@ pub async fn lint(
 
         let name = kernel.name();
 
-        if let Some(support) = SUPPORT.read().await.get(&name) {
-            if matches!(support, KernelLinting::No) {
-                continue;
-            }
+        if let Some(support) = SUPPORT.read().await.get(&name)
+            && matches!(support, KernelLinting::No)
+        {
+            continue;
         }
 
         let support = kernel.supports_linting();

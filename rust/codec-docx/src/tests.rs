@@ -70,10 +70,10 @@ async fn roundtrip_basic() -> Result<()> {
     let (mut round_tripped, ..) = DocxCodec.from_path(&path, None).await?;
 
     // Strip the encoding options inserted into extra
-    if let Node::Article(Article { options, .. }) = &mut round_tripped {
-        if let Some(extra) = &mut options.extra {
-            extra.swap_remove("encoding");
-        }
+    if let Node::Article(Article { options, .. }) = &mut round_tripped
+        && let Some(extra) = &mut options.extra
+    {
+        extra.swap_remove("encoding");
     };
 
     assert_eq!(round_tripped, article);

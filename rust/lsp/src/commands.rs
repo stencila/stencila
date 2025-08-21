@@ -378,13 +378,12 @@ pub(super) async fn doc_command(
                 let mut node_type = NodeType::try_from(&node_id).map_err(internal_error)?;
 
                 // If the node type is an `IfBlockClause` then find the parent `IfBlock` to execute
-                if matches!(node_type, NodeType::IfBlockClause) {
-                    if let Some(if_block_node_id) =
+                if matches!(node_type, NodeType::IfBlockClause)
+                    && let Some(if_block_node_id) =
                         root.node_type_ancestor(NodeType::IfBlock, position)
-                    {
-                        node_type = NodeType::IfBlock;
-                        node_id = if_block_node_id;
-                    }
+                {
+                    node_type = NodeType::IfBlock;
+                    node_id = if_block_node_id;
                 }
 
                 // Only update if running an instruction or chat message (in a standalone chat) since

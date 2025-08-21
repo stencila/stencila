@@ -96,10 +96,10 @@ fn statuses(node: &TextNode) -> Vec<Status> {
         return items;
     }
 
-    if let Some(execution) = node.execution.as_ref() {
-        if let Some(status) = execution_status(node, execution) {
-            items.push(status)
-        }
+    if let Some(execution) = node.execution.as_ref()
+        && let Some(status) = execution_status(node, execution)
+    {
+        items.push(status)
     }
 
     if matches!(node.is_active, Some(true)) && !matches!(node.node_type, NodeType::WalkthroughStep)

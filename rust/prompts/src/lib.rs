@@ -546,10 +546,10 @@ async fn update_builtin() -> Result<()> {
     for entry in archive.entries()? {
         let mut entry = entry?;
         let path = entry.path()?;
-        if let Ok(relative_path) = path.strip_prefix("stencila-main") {
-            if let Ok(name) = relative_path.strip_prefix("prompts/") {
-                entry.unpack(dir.join(name))?;
-            }
+        if let Ok(relative_path) = path.strip_prefix("stencila-main")
+            && let Ok(name) = relative_path.strip_prefix("prompts/")
+        {
+            entry.unpack(dir.join(name))?;
         }
     }
 
@@ -631,8 +631,8 @@ pub async fn execute_instruction_block(
 
         (!messages.is_empty()).then_some(messages)
     }
-    if instruction.instruction_type == InstructionType::Fix {
-        if let Some(message) = instruction
+    if instruction.instruction_type == InstructionType::Fix
+        && let Some(message) = instruction
             .content
             .iter()
             .flatten()
@@ -643,9 +643,8 @@ pub async fn execute_instruction_block(
                 Block::MathBlock(node) => comp_msgs(&node.options.compilation_messages),
                 _ => None,
             })
-        {
-            messages.push(InstructionMessage::user(message, None))
-        }
+    {
+        messages.push(InstructionMessage::user(message, None))
     }
 
     // Add pairs of assistant/user messages for each suggestion

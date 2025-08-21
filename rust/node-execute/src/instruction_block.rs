@@ -92,24 +92,24 @@ impl Executable for InstructionBlock {
         if retain_suggestions {
             replicates = 1;
 
-            if let (Some(index), Some(suggestions)) = (self.active_suggestion, &self.suggestions) {
-                if let Some(suggestion) = suggestions.get(index as usize) {
-                    model_ids = suggestion.authors.iter().flatten().find_map(|author| {
-                        match author {
-                            // Gets the first generator author having an id
-                            Author::AuthorRole(AuthorRole {
-                                role_name: AuthorRoleName::Generator,
-                                author:
-                                    AuthorRoleAuthor::SoftwareApplication(SoftwareApplication {
-                                        id: Some(id),
-                                        ..
-                                    }),
-                                ..
-                            }) => Some(vec![id.clone()]),
-                            _ => None,
-                        }
-                    });
-                }
+            if let (Some(index), Some(suggestions)) = (self.active_suggestion, &self.suggestions)
+                && let Some(suggestion) = suggestions.get(index as usize)
+            {
+                model_ids = suggestion.authors.iter().flatten().find_map(|author| {
+                    match author {
+                        // Gets the first generator author having an id
+                        Author::AuthorRole(AuthorRole {
+                            role_name: AuthorRoleName::Generator,
+                            author:
+                                AuthorRoleAuthor::SoftwareApplication(SoftwareApplication {
+                                    id: Some(id),
+                                    ..
+                                }),
+                            ..
+                        }) => Some(vec![id.clone()]),
+                        _ => None,
+                    }
+                });
             }
         };
 

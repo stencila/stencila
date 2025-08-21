@@ -40,16 +40,15 @@ pub(super) async fn decode_arxiv_src(
             for entry in archive.entries().wrap_err("Failed to read tar entries")? {
                 let mut entry = entry.wrap_err("Failed to read tar entry")?;
 
-                if let Ok(path) = entry.path() {
-                    if let Some(extension) = path.extension() {
-                        if extension == "tex" {
-                            tracing::trace!("Found .tex file: {:?}", path);
-                            entry
-                                .read_to_string(&mut latex_content)
-                                .wrap_err("Failed to read .tex file")?;
-                            break;
-                        }
-                    }
+                if let Ok(path) = entry.path()
+                    && let Some(extension) = path.extension()
+                    && extension == "tex"
+                {
+                    tracing::trace!("Found .tex file: {:?}", path);
+                    entry
+                        .read_to_string(&mut latex_content)
+                        .wrap_err("Failed to read .tex file")?;
+                    break;
                 }
             }
 

@@ -101,13 +101,13 @@ fn article_to_pandoc(
         );
     }
 
-    if let Some(r#abstract) = &article.r#abstract {
-        if let Some(Block::Paragraph(paragraph)) = &r#abstract.first() {
-            meta.insert(
-                "abstract".into(),
-                inlines_to_meta_inlines(NodeProperty::Content, &paragraph.content, context),
-            );
-        }
+    if let Some(r#abstract) = &article.r#abstract
+        && let Some(Block::Paragraph(paragraph)) = &r#abstract.first()
+    {
+        meta.insert(
+            "abstract".into(),
+            inlines_to_meta_inlines(NodeProperty::Content, &paragraph.content, context),
+        );
     }
 
     let blocks = blocks_to_pandoc(NodeProperty::Content, &article.content, context);

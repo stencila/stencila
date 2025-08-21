@@ -637,12 +637,12 @@ impl KernelInstance for DocsDBKernelInstance {
         let (mut outputs, messages) = kuzu_kernel.execute(&lines.join("\n")).await?;
 
         // If the output is an array of excerpt doc ids and node paths then hydrate them into nodes
-        if let (1, Some(Node::Array(excerpts))) = (outputs.len(), outputs.first()) {
-            if let Some(Primitive::String(excerpt)) = excerpts.first() {
-                if excerpt.starts_with("doc_") && excerpt.contains(":") {
-                    outputs = self.excerpts_from_array(excerpts).await?;
-                }
-            }
+        if let (1, Some(Node::Array(excerpts))) = (outputs.len(), outputs.first())
+            && let Some(Primitive::String(excerpt)) = excerpts.first()
+            && excerpt.starts_with("doc_")
+            && excerpt.contains(":")
+        {
+            outputs = self.excerpts_from_array(excerpts).await?;
         }
 
         Ok((outputs, messages))

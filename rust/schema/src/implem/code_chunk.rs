@@ -233,10 +233,10 @@ impl LatexCodec for CodeChunk {
         }
 
         if matches!(context.format, Format::Rnw) {
-            if let Some(lang) = &self.programming_language {
-                if lang.to_lowercase() != "r" {
-                    context.merge_losses(lost_options!(self, programming_language));
-                }
+            if let Some(lang) = &self.programming_language
+                && lang.to_lowercase() != "r"
+            {
+                context.merge_losses(lost_options!(self, programming_language));
             }
 
             context.str("<<");
@@ -291,22 +291,22 @@ impl LatexCodec for CodeChunk {
                     context.property_str(NodeProperty::ProgrammingLanguage, lang);
                 }
 
-                if let Some(mode) = &self.execution_mode {
-                    if !matches!(mode, ExecutionMode::Need) {
-                        context.char(',').property_str(
-                            NodeProperty::ExecutionMode,
-                            &mode.to_string().to_lowercase(),
-                        );
-                    }
+                if let Some(mode) = &self.execution_mode
+                    && !matches!(mode, ExecutionMode::Need)
+                {
+                    context.char(',').property_str(
+                        NodeProperty::ExecutionMode,
+                        &mode.to_string().to_lowercase(),
+                    );
                 }
 
-                if let Some(bounds) = &self.execution_bounds {
-                    if !matches!(bounds, ExecutionBounds::Main) {
-                        context.char(',').property_str(
-                            NodeProperty::ExecutionBounds,
-                            &bounds.to_string().to_lowercase(),
-                        );
-                    }
+                if let Some(bounds) = &self.execution_bounds
+                    && !matches!(bounds, ExecutionBounds::Main)
+                {
+                    context.char(',').property_str(
+                        NodeProperty::ExecutionBounds,
+                        &bounds.to_string().to_lowercase(),
+                    );
                 }
 
                 if let Some(id) = &self.id {
@@ -375,24 +375,24 @@ impl MarkdownCodec for CodeChunk {
                         }
                     },
                     |context| {
-                        if let Some(mode) = &self.execution_mode {
-                            if !matches!(mode, ExecutionMode::Need) {
-                                context.myst_directive_option(
-                                    NodeProperty::ExecutionMode,
-                                    Some("mode"),
-                                    &mode.to_string().to_lowercase(),
-                                );
-                            }
+                        if let Some(mode) = &self.execution_mode
+                            && !matches!(mode, ExecutionMode::Need)
+                        {
+                            context.myst_directive_option(
+                                NodeProperty::ExecutionMode,
+                                Some("mode"),
+                                &mode.to_string().to_lowercase(),
+                            );
                         }
 
-                        if let Some(bounds) = &self.execution_bounds {
-                            if !matches!(bounds, ExecutionBounds::Main) {
-                                context.myst_directive_option(
-                                    NodeProperty::ExecutionBounds,
-                                    Some("bounds"),
-                                    &bounds.to_string().to_lowercase(),
-                                );
-                            }
+                        if let Some(bounds) = &self.execution_bounds
+                            && !matches!(bounds, ExecutionBounds::Main)
+                        {
+                            context.myst_directive_option(
+                                NodeProperty::ExecutionBounds,
+                                Some("bounds"),
+                                &bounds.to_string().to_lowercase(),
+                            );
                         }
 
                         if matches!(self.is_echoed, Some(true)) {
@@ -456,15 +456,15 @@ impl MarkdownCodec for CodeChunk {
             let comment = if lang.ends_with("js") { "//| " } else { "#| " };
             let mut has_comments = false;
 
-            if !self.label_automatically.unwrap_or(true) {
-                if let Some(label) = &self.label {
-                    context
-                        .push_str(comment)
-                        .push_str("label: ")
-                        .push_prop_str(NodeProperty::Label, label)
-                        .push_str("\n");
-                    has_comments = true;
-                }
+            if !self.label_automatically.unwrap_or(true)
+                && let Some(label) = &self.label
+            {
+                context
+                    .push_str(comment)
+                    .push_str("label: ")
+                    .push_prop_str(NodeProperty::Label, label)
+                    .push_str("\n");
+                has_comments = true;
             }
 
             if let Some(caption) = &self.caption {
@@ -513,11 +513,11 @@ impl MarkdownCodec for CodeChunk {
                         context.push_str(" chunk");
                     }
 
-                    if !self.label_automatically.unwrap_or(true) {
-                        if let Some(label) = &self.label {
-                            context.push_str(" ");
-                            context.push_prop_str(NodeProperty::Label, label);
-                        }
+                    if !self.label_automatically.unwrap_or(true)
+                        && let Some(label) = &self.label
+                    {
+                        context.push_str(" ");
+                        context.push_prop_str(NodeProperty::Label, label);
                     }
 
                     context.push_str("\n\n");
@@ -556,22 +556,22 @@ impl MarkdownCodec for CodeChunk {
 
                 context.push_str("exec");
 
-                if let Some(mode) = &self.execution_mode {
-                    if !matches!(mode, ExecutionMode::Need) {
-                        context.push_str(" ").push_prop_str(
-                            NodeProperty::ExecutionMode,
-                            &mode.to_string().to_lowercase(),
-                        );
-                    }
+                if let Some(mode) = &self.execution_mode
+                    && !matches!(mode, ExecutionMode::Need)
+                {
+                    context.push_str(" ").push_prop_str(
+                        NodeProperty::ExecutionMode,
+                        &mode.to_string().to_lowercase(),
+                    );
                 }
 
-                if let Some(bounds) = &self.execution_bounds {
-                    if !matches!(bounds, ExecutionBounds::Main) {
-                        context.push_str(" ").push_prop_str(
-                            NodeProperty::ExecutionBounds,
-                            &bounds.to_string().to_lowercase(),
-                        );
-                    }
+                if let Some(bounds) = &self.execution_bounds
+                    && !matches!(bounds, ExecutionBounds::Main)
+                {
+                    context.push_str(" ").push_prop_str(
+                        NodeProperty::ExecutionBounds,
+                        &bounds.to_string().to_lowercase(),
+                    );
                 }
 
                 if matches!(self.is_echoed, Some(true)) {

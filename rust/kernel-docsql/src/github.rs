@@ -104,10 +104,10 @@ impl GitHubQuery {
     /// Apply a filter to the query
     fn apply_filter(&mut self, arg_name: &str, arg_value: Value) -> Result<(), Error> {
         // Handle subquery filters (e.g., ...owned_by(.name ~= "Smith"))
-        if arg_name == "_" {
-            if let Some(subquery) = arg_value.downcast_object_ref::<Subquery>() {
-                return self.apply_subquery_filters(subquery);
-            }
+        if arg_name == "_"
+            && let Some(subquery) = arg_value.downcast_object_ref::<Subquery>()
+        {
+            return self.apply_subquery_filters(subquery);
         }
 
         // Handle search (for when called for subquery)
@@ -347,15 +347,15 @@ impl GitHubQuery {
             q.ids(5)
         };
 
-        if let Some(mut ids) = ids {
-            if !ids.is_empty() {
-                ids.truncate(5);
-                let filter = ids
-                    .into_iter()
-                    .map(|id| format!("{qualifier}:{id}"))
-                    .join(" OR ");
-                self.filters.push(filter);
-            }
+        if let Some(mut ids) = ids
+            && !ids.is_empty()
+        {
+            ids.truncate(5);
+            let filter = ids
+                .into_iter()
+                .map(|id| format!("{qualifier}:{id}"))
+                .join(" OR ");
+            self.filters.push(filter);
         }
         Ok(())
     }
@@ -644,10 +644,10 @@ impl Object for GitHubQuery {
         // Apply method arguments to the query
         let apply_method_args = |query: &mut GitHubQuery| -> Result<(), Error> {
             let (arg, kwargs): (Option<Value>, Kwargs) = from_args(args)?;
-            if let Some(value) = arg {
-                if let Some(value) = value.as_str() {
-                    query.search = Some(value.into());
-                }
+            if let Some(value) = arg
+                && let Some(value) = value.as_str()
+            {
+                query.search = Some(value.into());
             }
             for arg in kwargs.args() {
                 let value: Value = kwargs.get(arg)?;

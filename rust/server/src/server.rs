@@ -310,31 +310,31 @@ async fn auth_middleware(
     };
 
     // Check if the access token is provided as an Authorization header
-    if let Some(auth_header) = headers.get("Authorization") {
-        if auth_header.to_str().unwrap_or_default() == ["Token ", &server_token].concat() {
-            return Ok(next.run(request).await);
-        }
+    if let Some(auth_header) = headers.get("Authorization")
+        && auth_header.to_str().unwrap_or_default() == ["Token ", &server_token].concat()
+    {
+        return Ok(next.run(request).await);
     }
 
     // Check if the access token is provided as a cookie
-    if let Some(cookie) = cookies.get("sst") {
-        if cookie.value() == server_token {
-            return Ok(next.run(request).await);
-        }
+    if let Some(cookie) = cookies.get("sst")
+        && cookie.value() == server_token
+    {
+        return Ok(next.run(request).await);
     }
 
     // Check if the access token is provided as a query parameter
-    if let Some(token) = query.sst {
-        if token == *server_token {
-            // Set the access token as a cookie. Setting path is
-            // important so that the cookie is sent for all routes
-            // including document websocket connections
-            let mut cookie = Cookie::new("sst", token);
-            cookie.set_path("/");
-            cookies.add(cookie);
+    if let Some(token) = query.sst
+        && token == *server_token
+    {
+        // Set the access token as a cookie. Setting path is
+        // important so that the cookie is sent for all routes
+        // including document websocket connections
+        let mut cookie = Cookie::new("sst", token);
+        cookie.set_path("/");
+        cookies.add(cookie);
 
-            return Ok(next.run(request).await);
-        }
+        return Ok(next.run(request).await);
     }
 
     Err((StatusCode::UNAUTHORIZED, "Unauthorized").into_response())

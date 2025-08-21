@@ -462,14 +462,13 @@ impl Cli {
             tracing::debug!("article:{:?}",article);
             if let Some(config) = &article.config {
                 tracing::debug!("config:{:?}",config);
-                if let Some(publish) = &config.publish {
-                    if let Some(publisher) = &publish.zenodo{
+                if let Some(publish) = &config.publish
+                    && let Some(publisher) = &publish.zenodo{
                         embargoed = publisher.embargoed.clone();
                         access_right = publisher.access_right;
                         notes = publisher.notes.clone();
                         method = publisher.method.clone();
                     }
-                }
             }
 
             Some((title, description, creators, doi, embargoed, access_right, notes, method))
@@ -630,12 +629,11 @@ impl Cli {
         deposit["metadata"]["license"] = json!(self.license);
         //}
 
-        if cfg!(debug_assertions) {
-            if let Some(license) = self.license {
-                if license == "cc-by" || license == "cc0" {
-                    debug_assert_eq!(self.access_right, "open");
-                }
-            }
+        if cfg!(debug_assertions)
+            && let Some(license) = self.license
+            && (license == "cc-by" || license == "cc0")
+        {
+            debug_assert_eq!(self.access_right, "open");
         }
 
         if let Some(schema::Date {

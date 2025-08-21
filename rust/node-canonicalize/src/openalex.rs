@@ -105,15 +105,15 @@ pub(super) async fn reference(reference: &mut Reference) -> Result<()> {
 
                 for org in person.affiliations.iter_mut().flatten() {
                     let Some(name) = &org.name else { continue };
-                    if !is_ror(&org.ror) {
-                        if let Some(institutions) = &authorship.institutions {
-                            for inst in institutions {
-                                if let Some(inst_name) = &inst.display_name {
-                                    if name.contains(inst_name) {
-                                        org.ror = Some(inst.ror('A'));
-                                        break;
-                                    }
-                                }
+                    if !is_ror(&org.ror)
+                        && let Some(institutions) = &authorship.institutions
+                    {
+                        for inst in institutions {
+                            if let Some(inst_name) = &inst.display_name
+                                && name.contains(inst_name)
+                            {
+                                org.ror = Some(inst.ror('A'));
+                                break;
                             }
                         }
                     }

@@ -27,24 +27,22 @@ impl Executable for PromptBlock {
         tracing::trace!("Compiling PromptBlock {node_id}");
 
         // Infer prompt if appropriate
-        if self.target.is_none()
+        if (self.target.is_none()
             || self
                 .target
                 .as_ref()
                 .map(|target| target.ends_with("?"))
-                .unwrap_or_default()
-        {
-            if let Some(prompt) = prompts::infer(
+                .unwrap_or_default())
+            && let Some(prompt) = prompts::infer(
                 &self.instruction_type,
                 &self.node_types,
                 &self.query.as_deref(),
             )
             .await
-            {
-                let name = [&prompts::shorten(&prompt.name, &self.instruction_type), "?"].concat();
-                self.target = Some(name.clone());
-                executor.patch(&node_id, [set(NodeProperty::Target, name)]);
-            }
+        {
+            let name = [&prompts::shorten(&prompt.name, &self.instruction_type), "?"].concat();
+            self.target = Some(name.clone());
+            executor.patch(&node_id, [set(NodeProperty::Target, name)]);
         }
 
         // Populate prompt content so it is preview-able to the user

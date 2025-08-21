@@ -273,13 +273,11 @@ pub trait Codec: Sync + Send {
         let mut file = File::open(path).await?;
         let (mut node, info) = self.from_file(&mut file, options).await?;
 
-        if reproducible {
-            if let Node::Article(Article { options, .. }) = &mut node {
-                let git_info = git_info(path)?;
-                options.repository = git_info.origin;
-                options.path = git_info.path;
-                options.commit = git_info.commit;
-            }
+        if reproducible && let Node::Article(Article { options, .. }) = &mut node {
+            let git_info = git_info(path)?;
+            options.repository = git_info.origin;
+            options.path = git_info.path;
+            options.commit = git_info.commit;
         }
 
         Ok((node, None, info))

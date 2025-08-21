@@ -399,11 +399,11 @@ pub fn decode_figure_table(
         .iter()
         .flat_map(|handle| handle.get(parser))
     {
-        if let Some(child_tag) = child.as_tag() {
-            if child_tag.name().as_utf8_str() == "table" {
-                rows = extract_table_rows(parser, child_tag, context);
-                break;
-            }
+        if let Some(child_tag) = child.as_tag()
+            && child_tag.name().as_utf8_str() == "table"
+        {
+            rows = extract_table_rows(parser, child_tag, context);
+            break;
         }
     }
 
@@ -440,15 +440,15 @@ pub fn extract_table_rows(
                         .iter()
                         .flat_map(|h| h.get(parser))
                     {
-                        if let Some(row_tag) = row_handle.as_tag() {
-                            if row_tag.name().as_utf8_str() == "tr" {
-                                rows.push(decode_table_row(
-                                    parser,
-                                    row_tag,
-                                    context,
-                                    Some(TableRowType::HeaderRow),
-                                ));
-                            }
+                        if let Some(row_tag) = row_handle.as_tag()
+                            && row_tag.name().as_utf8_str() == "tr"
+                        {
+                            rows.push(decode_table_row(
+                                parser,
+                                row_tag,
+                                context,
+                                Some(TableRowType::HeaderRow),
+                            ));
                         }
                     }
                 }
@@ -460,15 +460,15 @@ pub fn extract_table_rows(
                         .iter()
                         .flat_map(|h| h.get(parser))
                     {
-                        if let Some(row_tag) = row_handle.as_tag() {
-                            if row_tag.name().as_utf8_str() == "tr" {
-                                rows.push(decode_table_row(
-                                    parser,
-                                    row_tag,
-                                    context,
-                                    Some(TableRowType::BodyRow),
-                                ));
-                            }
+                        if let Some(row_tag) = row_handle.as_tag()
+                            && row_tag.name().as_utf8_str() == "tr"
+                        {
+                            rows.push(decode_table_row(
+                                parser,
+                                row_tag,
+                                context,
+                                Some(TableRowType::BodyRow),
+                            ));
                         }
                     }
                 }
@@ -634,20 +634,20 @@ fn decode_list_item_blocks(
             blocks.remove(0);
         } else {
             // Try to strip list number from the beginning of the first paragraph
-            if let Block::Paragraph(paragraph) = &mut blocks[0] {
-                if let Some(Inline::Text(text_node)) = paragraph.content.first_mut() {
-                    let text = &text_node.value;
-                    if let Some(content_start) = find_content_after_list_number(text) {
-                        if content_start < text.len() {
-                            // Update the text content, removing the list number
-                            text_node.value = text[content_start..].to_string().into();
-                        } else {
-                            // The text was only a number, remove this text node entirely
-                            paragraph.content.remove(0);
-                            // If paragraph is now empty, remove it too
-                            if paragraph.content.is_empty() {
-                                blocks.remove(0);
-                            }
+            if let Block::Paragraph(paragraph) = &mut blocks[0]
+                && let Some(Inline::Text(text_node)) = paragraph.content.first_mut()
+            {
+                let text = &text_node.value;
+                if let Some(content_start) = find_content_after_list_number(text) {
+                    if content_start < text.len() {
+                        // Update the text content, removing the list number
+                        text_node.value = text[content_start..].to_string().into();
+                    } else {
+                        // The text was only a number, remove this text node entirely
+                        paragraph.content.remove(0);
+                        // If paragraph is now empty, remove it too
+                        if paragraph.content.is_empty() {
+                            blocks.remove(0);
                         }
                     }
                 }
@@ -741,14 +741,14 @@ pub fn decode_list(
         .iter()
         .flat_map(|handle| handle.get(parser))
     {
-        if let Some(child_tag) = child.as_tag() {
-            if child_tag.name().as_utf8_str() == "li" {
-                let item_content = decode_list_item_blocks(parser, child_tag, context, ordered);
-                items.push(ListItem {
-                    content: item_content,
-                    ..Default::default()
-                });
-            }
+        if let Some(child_tag) = child.as_tag()
+            && child_tag.name().as_utf8_str() == "li"
+        {
+            let item_content = decode_list_item_blocks(parser, child_tag, context, ordered);
+            items.push(ListItem {
+                content: item_content,
+                ..Default::default()
+            });
         }
     }
 

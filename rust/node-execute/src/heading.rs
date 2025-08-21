@@ -10,31 +10,31 @@ impl Executable for Heading {
 
         // If in the appendices, and the level is 1, then set the heading's label type
         // to AppendixLabel and reset table, figure, and equation counters
-        if let Some(appendix_count) = &mut executor.appendix_count {
-            if self.level == 1 {
-                *appendix_count += 1;
+        if let Some(appendix_count) = &mut executor.appendix_count
+            && self.level == 1
+        {
+            *appendix_count += 1;
 
-                executor.figure_count = 0;
-                executor.table_count = 0;
-                executor.equation_count = 0;
+            executor.figure_count = 0;
+            executor.table_count = 0;
+            executor.equation_count = 0;
 
-                let label = executor.appendix_label();
+            let label = executor.appendix_label();
 
-                if !matches!(self.label_type, Some(LabelType::AppendixLabel))
-                    || self.label.as_ref() != Some(&label)
-                {
-                    // Must be set locally for is and label registration (below)
-                    self.label_type = Some(LabelType::AppendixLabel);
-                    self.label = Some(label.clone());
+            if !matches!(self.label_type, Some(LabelType::AppendixLabel))
+                || self.label.as_ref() != Some(&label)
+            {
+                // Must be set locally for is and label registration (below)
+                self.label_type = Some(LabelType::AppendixLabel);
+                self.label = Some(label.clone());
 
-                    executor.patch(
-                        &self.node_id(),
-                        [
-                            set(NodeProperty::LabelType, LabelType::AppendixLabel),
-                            set(NodeProperty::Label, label),
-                        ],
-                    );
-                }
+                executor.patch(
+                    &self.node_id(),
+                    [
+                        set(NodeProperty::LabelType, LabelType::AppendixLabel),
+                        set(NodeProperty::Label, label),
+                    ],
+                );
             }
         }
 

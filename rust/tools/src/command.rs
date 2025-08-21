@@ -374,20 +374,21 @@ impl AsyncToolCommand {
             .to_string();
 
         // Auto-install tool if it's a known tool and not yet installed
-        if let Some(tool) = get(&program) {
-            if !is_installed(tool.as_ref()) {
-                // Skip auto-install in dry run mode
-                if is_dry_run() {
-                    bail!(
-                        "Tool `{}` would be installed but skipping in dry run mode",
-                        program
-                    );
-                }
+        if let Some(tool) = get(&program)
+            && !is_installed(tool.as_ref())
+        {
+            // Skip auto-install in dry run mode
+            if is_dry_run() {
+                bail!(
+                    "Tool `{}` would be installed but skipping in dry run mode",
+                    program
+                );
+            }
 
-                let name = tool.name();
-                let name_ver = tool.name_and_version_required();
+            let name = tool.name();
+            let name_ver = tool.name_and_version_required();
 
-                let answer = ask_with(
+            let answer = ask_with(
                     &format!("{name_ver} is required for this operation but is not yet installed. Would you like to install it now?"),
                     AskOptions {
                         level: AskLevel::Warning,
@@ -398,16 +399,15 @@ impl AsyncToolCommand {
                 .await
                 .unwrap_or(Answer::No);
 
-                if answer.is_yes() {
-                    tracing::info!("Installing `{name}`");
-                    if let Err(error) = install_tool(tool.as_ref(), false, false).await {
-                        tracing::warn!("Failed to install {name}: {error}");
-                    }
-                } else {
-                    bail!(format!(
-                        "Please install {name_ver} (e.g. using `stencila tools install {name}`) and try again"
-                    ));
+            if answer.is_yes() {
+                tracing::info!("Installing `{name}`");
+                if let Err(error) = install_tool(tool.as_ref(), false, false).await {
+                    tracing::warn!("Failed to install {name}: {error}");
                 }
+            } else {
+                bail!(format!(
+                    "Please install {name_ver} (e.g. using `stencila tools install {name}`) and try again"
+                ));
             }
         }
 

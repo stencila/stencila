@@ -34,15 +34,15 @@ impl Executable for Article {
         for reference in self.references.iter().flatten() {
             // Note that we allow for each reference to be targeted using either
             // custom id or DOI
-            if let Some(id) = &reference.id {
-                if !executor.bibliography.contains_key(id) {
-                    executor.bibliography.insert(id.into(), reference.clone());
-                }
+            if let Some(id) = &reference.id
+                && !executor.bibliography.contains_key(id)
+            {
+                executor.bibliography.insert(id.into(), reference.clone());
             }
-            if let Some(doi) = &reference.doi {
-                if !executor.bibliography.contains_key(doi) {
-                    executor.bibliography.insert(doi.into(), reference.clone());
-                }
+            if let Some(doi) = &reference.doi
+                && !executor.bibliography.contains_key(doi)
+            {
+                executor.bibliography.insert(doi.into(), reference.clone());
             }
         }
 

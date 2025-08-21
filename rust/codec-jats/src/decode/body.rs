@@ -105,15 +105,15 @@ fn decode_boxed_text(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
 
     let mut title = None;
     let mut children = node.children().peekable();
-    if let Some(first) = children.peek() {
-        if first.tag_name().name() == "caption" {
-            title = Some(decode_inlines(
-                &extend_path(path, "caption"),
-                first.children(),
-                losses,
-            ));
-            children.next();
-        }
+    if let Some(first) = children.peek()
+        && first.tag_name().name() == "caption"
+    {
+        title = Some(decode_inlines(
+            &extend_path(path, "caption"),
+            first.children(),
+            losses,
+        ));
+        children.next();
     }
 
     record_attrs_lost(path, node, ["content-type", "is-folded"], losses);
@@ -425,15 +425,14 @@ fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8)
 
     let mut math_language = node.attribute("language").map(|lang| lang.to_string());
 
-    if code.is_empty() {
-        if let Some(mathml) = node
+    if code.is_empty()
+        && let Some(mathml) = node
             .children()
             .find(|child| child.tag_name().name() == "math")
             .and_then(|node| serialize_node(node).ok())
-        {
-            code = mathml;
-            math_language = Some("mathml".into());
-        }
+    {
+        code = mathml;
+        math_language = Some("mathml".into());
     }
 
     let images = node
@@ -954,15 +953,14 @@ fn decode_inline_formula(path: &str, node: &Node, losses: &mut Losses) -> Inline
     let mut code = node.attribute("code").unwrap_or_default().to_string();
     let mut lang = node.attribute("language");
 
-    if code.is_empty() {
-        if let Some(mathml) = node
+    if code.is_empty()
+        && let Some(mathml) = node
             .children()
             .find(|child| child.tag_name().name() == "math")
             .and_then(|node| serialize_node(node).ok())
-        {
-            code = mathml;
-            lang = Some("mathml");
-        }
+    {
+        code = mathml;
+        lang = Some("mathml");
     }
 
     record_attrs_lost(path, node, ["code", "language"], losses);

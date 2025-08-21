@@ -111,12 +111,11 @@ pub(crate) struct ServerOptionsUser {
 impl ServerOptionsUser {
     fn initialize(&mut self) {
         // If no `object` was set, attempt to set one from any STENCILA_USER env var
-        if self.object.is_none() {
-            if let Ok(value) = env::var("STENCILA_USER") {
-                if let Ok(person) = serde_json::from_str(&value).or_else(|_| value.parse()) {
-                    self.object = Some(person);
-                }
-            }
+        if self.object.is_none()
+            && let Ok(value) = env::var("STENCILA_USER")
+            && let Ok(person) = serde_json::from_str(&value).or_else(|_| value.parse())
+        {
+            self.object = Some(person);
         }
 
         // Fill in properties that can be set individually

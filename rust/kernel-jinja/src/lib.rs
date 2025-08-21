@@ -158,10 +158,10 @@ impl KernelInstance for JinjaKernelInstance {
     }
 
     async fn get(&mut self, name: &str) -> Result<Option<Node>> {
-        if let Some(context) = &self.context {
-            if let Some(node) = context.get_variable(name)? {
-                return Ok(Some(node));
-            }
+        if let Some(context) = &self.context
+            && let Some(node) = context.get_variable(name)?
+        {
+            return Ok(Some(node));
         }
 
         Ok(None)

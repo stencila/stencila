@@ -11,15 +11,15 @@ impl Executable for Citation {
             // The citations reference may not be in the bibliography so add it there
             // Note that we allow for each reference to be targeted using either
             // custom id or DOI as in the Article::compile method
-            if let Some(id) = &reference.id {
-                if !executor.bibliography.contains_key(id) {
-                    executor.bibliography.insert(id.into(), reference.clone());
-                }
+            if let Some(id) = &reference.id
+                && !executor.bibliography.contains_key(id)
+            {
+                executor.bibliography.insert(id.into(), reference.clone());
             }
-            if let Some(doi) = &reference.doi {
-                if !executor.bibliography.contains_key(doi) {
-                    executor.bibliography.insert(doi.into(), reference.clone());
-                }
+            if let Some(doi) = &reference.doi
+                && !executor.bibliography.contains_key(doi)
+            {
+                executor.bibliography.insert(doi.into(), reference.clone());
             }
         }
 
@@ -33,11 +33,11 @@ impl Executable for Citation {
         if let Some(reference) = executor.bibliography.get(self.target.trim()) {
             // If the reference is matched in targets and current reference is none or not equal,
             // then replicate the reference (do NOT clone to avoid duplicated id).
-            if self.options.cites.is_none() || Some(reference) != self.options.cites.as_ref() {
-                if let Ok(reference) = replicate(reference) {
-                    self.options.cites = Some(reference.clone());
-                    executor.patch(&node_id, [set(NodeProperty::Cites, reference.clone())]);
-                }
+            if (self.options.cites.is_none() || Some(reference) != self.options.cites.as_ref())
+                && let Ok(reference) = replicate(reference)
+            {
+                self.options.cites = Some(reference.clone());
+                executor.patch(&node_id, [set(NodeProperty::Cites, reference.clone())]);
             }
 
             if self.options.compilation_messages.is_some() {
@@ -55,19 +55,19 @@ impl Executable for Citation {
             executor.patch(&node_id, [set(NodeProperty::CompilationMessages, messages)]);
         }
 
-        if let Some(reference) = &self.options.cites {
-            if let Some(id) = reference.doi.as_ref().or(reference.id.as_ref()) {
-                // Record the reference as cited if not already and if not in a chat
-                if !executor.references.contains(id)
-                    && !executor.walk_ancestors.iter().any(|node_type| {
-                        matches!(
-                            node_type,
-                            NodeType::Chat | NodeType::PromptBlock | NodeType::Excerpt
-                        )
-                    })
-                {
-                    executor.references.insert(id.clone());
-                }
+        if let Some(reference) = &self.options.cites
+            && let Some(id) = reference.doi.as_ref().or(reference.id.as_ref())
+        {
+            // Record the reference as cited if not already and if not in a chat
+            if !executor.references.contains(id)
+                && !executor.walk_ancestors.iter().any(|node_type| {
+                    matches!(
+                        node_type,
+                        NodeType::Chat | NodeType::PromptBlock | NodeType::Excerpt
+                    )
+                })
+            {
+                executor.references.insert(id.clone());
             }
         }
 

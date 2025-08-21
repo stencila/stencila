@@ -14,10 +14,10 @@ impl Person {
             .chain(self.family_names.iter().flatten())
             .join(" ");
 
-        if name.is_empty() {
-            if let Some(opt_name) = &self.options.name {
-                name = opt_name.clone();
-            }
+        if name.is_empty()
+            && let Some(opt_name) = &self.options.name
+        {
+            name = opt_name.clone();
         }
 
         if name.is_empty() {

@@ -524,10 +524,10 @@ fn inline_from_pandoc_raw_inline(
 ) -> Inline {
     // This is currently used as a fallback for inline nodes that are not natively supported in Pandoc,
     // and not (yet) represented some other way.
-    if format.0 == "json" {
-        if let Ok(inline) = serde_json::from_str(&content) {
-            return inline;
-        }
+    if format.0 == "json"
+        && let Ok(inline) = serde_json::from_str(&content)
+    {
+        return inline;
     }
 
     Inline::CodeInline(CodeInline {

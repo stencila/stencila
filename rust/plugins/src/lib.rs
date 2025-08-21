@@ -442,22 +442,19 @@ impl Plugin {
         // Check if already installed and if so if up-to-date
         if let Ok(dir) = Plugin::plugin_dir(&self.name, false) {
             // Do not use symlinked dirs for plugins that are not linked
-            if !dir.is_symlink() || self.linked {
-                if let Ok(installed) = Plugin::read_manifest(&self.name) {
-                    let enabled = Plugin::read_enabled(&self.name).unwrap_or_default();
-                    return if installed.version == self.version {
-                        (PluginStatus::InstalledLatest(self.version.clone()), enabled)
-                    } else {
-                        (
-                            PluginStatus::InstalledOutdated(
-                                installed.version,
-                                self.version.clone(),
-                            ),
-                            enabled,
-                        )
-                    };
+            if (!dir.is_symlink() || self.linked)
+                && let Ok(installed) = Plugin::read_manifest(&self.name)
+            {
+                let enabled = Plugin::read_enabled(&self.name).unwrap_or_default();
+                return if installed.version == self.version {
+                    (PluginStatus::InstalledLatest(self.version.clone()), enabled)
+                } else {
+                    (
+                        PluginStatus::InstalledOutdated(installed.version, self.version.clone()),
+                        enabled,
+                    )
                 };
-            }
+            };
         }
 
         // Check if available on the current platform

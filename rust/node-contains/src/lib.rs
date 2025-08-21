@@ -49,33 +49,33 @@ impl Visitor for Walker {
     }
 
     fn visit_node(&mut self, node: &Node) -> WalkControl {
-        if let Some(node_id) = node.node_id() {
-            if self.node_ids.contains(&node_id) {
-                self.node_id = Some(node_id);
-                return WalkControl::Break;
-            }
+        if let Some(node_id) = node.node_id()
+            && self.node_ids.contains(&node_id)
+        {
+            self.node_id = Some(node_id);
+            return WalkControl::Break;
         }
 
         WalkControl::Continue
     }
 
     fn visit_block(&mut self, block: &schema::Block) -> WalkControl {
-        if let Some(node_id) = block.node_id() {
-            if self.node_ids.contains(&node_id) {
-                self.node_id = Some(node_id);
-                return WalkControl::Break;
-            }
+        if let Some(node_id) = block.node_id()
+            && self.node_ids.contains(&node_id)
+        {
+            self.node_id = Some(node_id);
+            return WalkControl::Break;
         }
 
         WalkControl::Continue
     }
 
     fn visit_inline(&mut self, inline: &schema::Inline) -> WalkControl {
-        if let Some(node_id) = inline.node_id() {
-            if self.node_ids.contains(&node_id) {
-                self.node_id = Some(node_id);
-                return WalkControl::Break;
-            }
+        if let Some(node_id) = inline.node_id()
+            && self.node_ids.contains(&node_id)
+        {
+            self.node_id = Some(node_id);
+            return WalkControl::Break;
         }
 
         WalkControl::Continue

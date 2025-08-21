@@ -74,22 +74,21 @@ pub fn split(paragraph: &str, col_width: u32, split_sentences: bool) -> Vec<Stri
         let mut chars = paragraph.chars().peekable();
         while let Some(c) = chars.next() {
             buf.push(c);
-            if c == '.' || c == '!' || c == '?' {
-                if let Some(&next) = chars.peek() {
-                    if next.is_whitespace() {
-                        let trimmed = buf.trim().to_string();
-                        if !trimmed.is_empty() {
-                            sentences.push(trimmed);
-                        }
-                        buf.clear();
-                        // consume whitespace
-                        while let Some(&w) = chars.peek() {
-                            if w.is_whitespace() {
-                                chars.next();
-                            } else {
-                                break;
-                            }
-                        }
+            if (c == '.' || c == '!' || c == '?')
+                && let Some(&next) = chars.peek()
+                && next.is_whitespace()
+            {
+                let trimmed = buf.trim().to_string();
+                if !trimmed.is_empty() {
+                    sentences.push(trimmed);
+                }
+                buf.clear();
+                // consume whitespace
+                while let Some(&w) = chars.peek() {
+                    if w.is_whitespace() {
+                        chars.next();
+                    } else {
+                        break;
                     }
                 }
             }

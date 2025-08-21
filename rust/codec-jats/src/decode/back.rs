@@ -133,10 +133,10 @@ fn decode_person(path: &str, node: &Node, losses: &mut Losses) -> Author {
             if let Some(value) = node.text() {
                 family_names.push(value.to_string());
             }
-        } else if tag == "given-names" {
-            if let Some(value) = node.text() {
-                given_names.append(&mut split_given_names(value));
-            }
+        } else if tag == "given-names"
+            && let Some(value) = node.text()
+        {
+            given_names.append(&mut split_given_names(value));
         }
     }
 

@@ -9,11 +9,11 @@ pub fn clean_md_page(md: &str) -> String {
     let mut lines = md.lines();
 
     // Remove first line if it matches a recognized header
-    if let Some(first) = lines.next() {
-        if first.starts_with("bioRxiv preprint doi:") || first.starts_with("medRxiv preprint doi:")
-        {
-            return lines.join("\n");
-        }
+    if let Some(first) = lines.next()
+        && (first.starts_with("bioRxiv preprint doi:")
+            || first.starts_with("medRxiv preprint doi:"))
+    {
+        return lines.join("\n");
     }
 
     md.to_string()
@@ -301,10 +301,10 @@ fn ensure_isolated_references(md: &str) -> String {
         } else if YEAR_REGEX.is_match(line) && last_reference_number == 0 {
             // In references section, not in a numbered reference list, but appears to be a reference
             // so ensure a blank line before it
-            if let Some(last) = result.last() {
-                if !last.trim().is_empty() {
-                    result.push(String::new())
-                }
+            if let Some(last) = result.last()
+                && !last.trim().is_empty()
+            {
+                result.push(String::new())
             }
             result.push(line.to_string());
         } else {

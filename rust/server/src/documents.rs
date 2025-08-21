@@ -179,16 +179,16 @@ pub async fn serve_path(
     };
 
     // Return early if the path is an image
-    if let Some(ext) = path.extension().and_then(|ext| ext.to_str()) {
-        if matches!(ext, "png" | "jpg" | "jpeg" | "svg") {
-            let bytes = read(&path).await.map_err(InternalError::new)?;
-            let content_type = mime_guess::from_path(path).first_or_octet_stream();
+    if let Some(ext) = path.extension().and_then(|ext| ext.to_str())
+        && matches!(ext, "png" | "jpg" | "jpeg" | "svg")
+    {
+        let bytes = read(&path).await.map_err(InternalError::new)?;
+        let content_type = mime_guess::from_path(path).first_or_octet_stream();
 
-            return Response::builder()
-                .header(CONTENT_TYPE, content_type.essence_str())
-                .body(Body::from(bytes))
-                .map_err(InternalError::new);
-        }
+        return Response::builder()
+            .header(CONTENT_TYPE, content_type.essence_str())
+            .body(Body::from(bytes))
+            .map_err(InternalError::new);
     }
 
     // Get the document for the path
@@ -309,13 +309,11 @@ pub async fn serve_path(
         //.header(CONTENT_TYPE, format.media_type())
         ;
 
-        if source {
-            if let Ok(path) = path.strip_prefix(&dir) {
-                response = response.header(
-                    HeaderName::try_from("SourceMap")?,
-                    HeaderValue::from_str(&path.to_string_lossy())?,
-                );
-            }
+        if source && let Ok(path) = path.strip_prefix(&dir) {
+            response = response.header(
+                HeaderName::try_from("SourceMap")?,
+                HeaderValue::from_str(&path.to_string_lossy())?,
+            );
         }
 
         Ok(response.body(Body::from(html))?)

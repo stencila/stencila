@@ -53,27 +53,25 @@ impl PatchNode for InstructionBlock {
                 // The `other` instruction is from a Markdown-based format so compare its `content` to the active suggestion
                 // if there is any, or to the `content` if no suggestions
                 let mut compare_content = true;
-                if let Some(suggestions) = &self.suggestions {
-                    if !suggestions.is_empty() {
-                        compare_content = false;
+                if let Some(suggestions) = &self.suggestions
+                    && !suggestions.is_empty()
+                {
+                    compare_content = false;
 
-                        let last = suggestions.len().saturating_sub(1);
-                        let index = match self.active_suggestion {
-                            Some(active) => (active as usize).min(last),
-                            None => last,
-                        };
-                        let suggestion = &suggestions[index];
+                    let last = suggestions.len().saturating_sub(1);
+                    let index = match self.active_suggestion {
+                        Some(active) => (active as usize).min(last),
+                        None => last,
+                    };
+                    let suggestion = &suggestions[index];
 
-                        let similarity = suggestion.content.similarity(other_content, context)?;
-                        values.push(similarity);
-                    }
+                    let similarity = suggestion.content.similarity(other_content, context)?;
+                    values.push(similarity);
                 }
 
-                if compare_content {
-                    if let Some(self_content) = &self.content {
-                        let similarity = self_content.similarity(other_content, context)?;
-                        values.push(similarity);
-                    }
+                if compare_content && let Some(self_content) = &self.content {
+                    let similarity = self_content.similarity(other_content, context)?;
+                    values.push(similarity);
                 }
             }
         } else {
@@ -474,14 +472,14 @@ impl MarkdownCodec for InstructionBlock {
                             );
                         }
 
-                        if let Some(mode) = &self.execution_mode {
-                            if !matches!(mode, ExecutionMode::Need) {
-                                context.myst_directive_option(
-                                    NodeProperty::ExecutionMode,
-                                    Some("mode"),
-                                    &mode.to_string().to_lowercase(),
-                                );
-                            }
+                        if let Some(mode) = &self.execution_mode
+                            && !matches!(mode, ExecutionMode::Need)
+                        {
+                            context.myst_directive_option(
+                                NodeProperty::ExecutionMode,
+                                Some("mode"),
+                                &mode.to_string().to_lowercase(),
+                            );
                         }
 
                         context.push_prop_fn(NodeProperty::ModelParameters, |context| {
@@ -524,13 +522,13 @@ impl MarkdownCodec for InstructionBlock {
             .space()
             .push_prop_str(NodeProperty::InstructionType, &instruction_type);
 
-        if let Some(mode) = &self.execution_mode {
-            if !matches!(mode, ExecutionMode::Need) {
-                context.space().push_prop_str(
-                    NodeProperty::ExecutionMode,
-                    &mode.to_string().to_lowercase(),
-                );
-            }
+        if let Some(mode) = &self.execution_mode
+            && !matches!(mode, ExecutionMode::Need)
+        {
+            context.space().push_prop_str(
+                NodeProperty::ExecutionMode,
+                &mode.to_string().to_lowercase(),
+            );
         }
 
         if let Some(value) = &self.prompt.relative_position {
@@ -546,12 +544,12 @@ impl MarkdownCodec for InstructionBlock {
                 .push_prop_str(NodeProperty::NodeTypes, &value.clone());
         }
 
-        if let Some(prompt) = &self.prompt.target {
-            if !prompt.ends_with("?") {
-                context
-                    .push_str(" @")
-                    .push_prop_str(NodeProperty::Prompt, prompt);
-            }
+        if let Some(prompt) = &self.prompt.target
+            && !prompt.ends_with("?")
+        {
+            context
+                .push_str(" @")
+                .push_prop_str(NodeProperty::Prompt, prompt);
         }
 
         context.push_prop_fn(NodeProperty::ModelParameters, |context| {

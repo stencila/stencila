@@ -286,10 +286,10 @@ async fn examples() -> Result<()> {
         };
         let name = name.to_string_lossy().to_string();
 
-        if let Some(include) = include.as_ref() {
-            if !include.contains(&name) {
-                continue;
-            }
+        if let Some(include) = include.as_ref()
+            && !include.contains(&name)
+        {
+            continue;
         }
 
         eprintln!("{name}");

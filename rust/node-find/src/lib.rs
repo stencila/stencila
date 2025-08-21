@@ -44,33 +44,33 @@ impl Visitor for Finder {
     }
 
     fn visit_node(&mut self, node: &Node) -> WalkControl {
-        if let Some(node_id) = node.node_id() {
-            if node_id == self.node_id {
-                self.node = Some(node.clone());
-                return WalkControl::Break;
-            }
+        if let Some(node_id) = node.node_id()
+            && node_id == self.node_id
+        {
+            self.node = Some(node.clone());
+            return WalkControl::Break;
         }
 
         WalkControl::Continue
     }
 
     fn visit_block(&mut self, block: &schema::Block) -> WalkControl {
-        if let Some(node_id) = block.node_id() {
-            if node_id == self.node_id {
-                self.node = Some(block.clone().into());
-                return WalkControl::Break;
-            }
+        if let Some(node_id) = block.node_id()
+            && node_id == self.node_id
+        {
+            self.node = Some(block.clone().into());
+            return WalkControl::Break;
         }
 
         WalkControl::Continue
     }
 
     fn visit_inline(&mut self, inline: &schema::Inline) -> WalkControl {
-        if let Some(node_id) = inline.node_id() {
-            if node_id == self.node_id {
-                self.node = Some(inline.clone().into());
-                return WalkControl::Break;
-            }
+        if let Some(node_id) = inline.node_id()
+            && node_id == self.node_id
+        {
+            self.node = Some(inline.clone().into());
+            return WalkControl::Break;
         }
 
         WalkControl::Continue

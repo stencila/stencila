@@ -470,10 +470,11 @@ impl KernelInstance for MicrokernelInstance {
         // This is intended to fix this issue where, when using the R microkernel
         // via the VSCode extension, the correct environment does not reach R for some reason
         // https://github.com/stencila/stencila/issues/2348
-        if self.executable_name == "Rscript" && env::var("R_HOME").is_err() {
-            if let Some(rhome) = exec_path.ancestors().nth(2) {
-                command.env("R_HOME", rhome);
-            }
+        if self.executable_name == "Rscript"
+            && env::var("R_HOME").is_err()
+            && let Some(rhome) = exec_path.ancestors().nth(2)
+        {
+            command.env("R_HOME", rhome);
         }
 
         self.executable_path = Some(exec_path);

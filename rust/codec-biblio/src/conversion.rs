@@ -298,10 +298,10 @@ pub fn reference_to_entry(reference: &Reference) -> Result<Entry> {
     set_contributors(&mut entry, reference);
 
     // Set date
-    if let Some(date) = &reference.date {
-        if let Some(parsed_date) = parse_iso_date(&date.value) {
-            entry.set_date(parsed_date);
-        }
+    if let Some(date) = &reference.date
+        && let Some(parsed_date) = parse_iso_date(&date.value)
+    {
+        entry.set_date(parsed_date);
     }
 
     // Set DOI
@@ -423,10 +423,10 @@ pub fn reference_to_entry(reference: &Reference) -> Result<Entry> {
         for identifier in identifiers {
             match identifier {
                 PropertyValueOrString::PropertyValue(prop_val) => {
-                    if let Some(property_id) = &prop_val.property_id {
-                        if let Primitive::String(value) = &prop_val.value {
-                            serial_map.insert(property_id.clone(), value.clone());
-                        }
+                    if let Some(property_id) = &prop_val.property_id
+                        && let Primitive::String(value) = &prop_val.value
+                    {
+                        serial_map.insert(property_id.clone(), value.clone());
                     }
                 }
                 PropertyValueOrString::String(s) => {
@@ -752,15 +752,15 @@ fn parse_iso_date(date_str: &str) -> Option<HDate> {
         2 | 3 => {
             if let Ok(year) = parts[0].parse::<i32>() {
                 let mut date = HDate::from_year(year);
-                if parts.len() >= 2 {
-                    if let Ok(month) = parts[1].parse::<u8>() {
-                        date.month = Some(month);
-                    }
+                if parts.len() >= 2
+                    && let Ok(month) = parts[1].parse::<u8>()
+                {
+                    date.month = Some(month);
                 }
-                if parts.len() >= 3 {
-                    if let Ok(day) = parts[2].parse::<u8>() {
-                        date.day = Some(day);
-                    }
+                if parts.len() >= 3
+                    && let Ok(day) = parts[2].parse::<u8>()
+                {
+                    date.day = Some(day);
                 }
                 Some(date)
             } else {
@@ -794,10 +794,10 @@ fn handle_reference_container(entry: &mut Entry, container: &Reference) {
         set_contributors(&mut parent, container);
 
         // Set date
-        if let Some(date) = &container.date {
-            if let Some(parsed_date) = parse_iso_date(&date.value) {
-                parent.set_date(parsed_date);
-            }
+        if let Some(date) = &container.date
+            && let Some(parsed_date) = parse_iso_date(&date.value)
+        {
+            parent.set_date(parsed_date);
         }
 
         // Set publisher
@@ -874,12 +874,12 @@ fn handle_reference_container(entry: &mut Entry, container: &Reference) {
         }
 
         // Set page-total if pagination is available
-        if let Some(pagination) = &container.pagination {
-            if pagination.ends_with(PAGES_SUFFIX) {
-                let page_count = pagination.trim_end_matches(PAGES_SUFFIX);
-                if let Ok(count) = page_count.parse::<i32>() {
-                    parent.set_page_total(Numeric::new(count));
-                }
+        if let Some(pagination) = &container.pagination
+            && pagination.ends_with(PAGES_SUFFIX)
+        {
+            let page_count = pagination.trim_end_matches(PAGES_SUFFIX);
+            if let Ok(count) = page_count.parse::<i32>() {
+                parent.set_page_total(Numeric::new(count));
             }
         }
 
@@ -887,15 +887,14 @@ fn handle_reference_container(entry: &mut Entry, container: &Reference) {
         if let Some(identifiers) = &container.identifiers {
             let mut serial_numbers = std::collections::BTreeMap::new();
             for identifier in identifiers {
-                if let PropertyValueOrString::PropertyValue(prop_val) = identifier {
-                    if let Some(prop_id) = &prop_val.property_id {
-                        if let Primitive::String(value) = &prop_val.value {
-                            if prop_id.to_lowercase() == "isbn" {
-                                serial_numbers.insert(ISBN_KEY.to_string(), value.clone());
-                            } else {
-                                serial_numbers.insert(prop_id.clone(), value.clone());
-                            }
-                        }
+                if let PropertyValueOrString::PropertyValue(prop_val) = identifier
+                    && let Some(prop_id) = &prop_val.property_id
+                    && let Primitive::String(value) = &prop_val.value
+                {
+                    if prop_id.to_lowercase() == "isbn" {
+                        serial_numbers.insert(ISBN_KEY.to_string(), value.clone());
+                    } else {
+                        serial_numbers.insert(prop_id.clone(), value.clone());
                     }
                 }
             }
@@ -906,10 +905,10 @@ fn handle_reference_container(entry: &mut Entry, container: &Reference) {
         }
 
         // Set URL if available
-        if let Some(url_str) = &container.url {
-            if let Ok(url) = Url::parse(url_str) {
-                parent.set_url(QualifiedUrl::new(url, None));
-            }
+        if let Some(url_str) = &container.url
+            && let Ok(url) = Url::parse(url_str)
+        {
+            parent.set_url(QualifiedUrl::new(url, None));
         }
 
         entry.set_parents(vec![parent]);

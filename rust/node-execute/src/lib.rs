@@ -305,27 +305,27 @@ pub struct HeadingInfo {
 impl HeadingInfo {
     /// Collapse headings deeper that the current level into their parents
     fn collapse(level: i64, headings: &mut Vec<HeadingInfo>) {
-        if let Some(previous) = headings.last() {
-            if level < previous.level {
-                let mut children: Vec<HeadingInfo> = Vec::new();
-                while let Some(mut previous) = headings.pop() {
-                    if let Some(child) = children.last() {
-                        if previous.level < child.level {
-                            previous.children.append(&mut children);
-                        }
-                    }
-                    children.insert(0, previous);
-
-                    if let Some(last) = headings.last() {
-                        if level >= last.level {
-                            break;
-                        }
-                    }
+        if let Some(previous) = headings.last()
+            && level < previous.level
+        {
+            let mut children: Vec<HeadingInfo> = Vec::new();
+            while let Some(mut previous) = headings.pop() {
+                if let Some(child) = children.last()
+                    && previous.level < child.level
+                {
+                    previous.children.append(&mut children);
                 }
+                children.insert(0, previous);
 
-                if let Some(previous) = headings.last_mut() {
-                    previous.children = children;
+                if let Some(last) = headings.last()
+                    && level >= last.level
+                {
+                    break;
                 }
+            }
+
+            if let Some(previous) = headings.last_mut() {
+                previous.children = children;
             }
         }
     }
@@ -834,10 +834,11 @@ impl Executor {
                         // If we find an END line already then abort the search
                         // (this can happen if the message is related to "anonymous"
                         // code injected for variable declarations etc)
-                        if let Some((first, second, ..)) = parts {
-                            if first == comment_prefix && second == END {
-                                break;
-                            }
+                        if let Some((first, second, ..)) = parts
+                            && first == comment_prefix
+                            && second == END
+                        {
+                            break;
                         };
 
                         // If not a BEGIN line, continue
@@ -1118,12 +1119,12 @@ impl Executor {
 
     /// Get the [`AuthorRole`] for a kernel instance with the current timestamp as `last_modified`
     pub async fn node_execution_author_role(&self, instance: &str) -> Option<AuthorRole> {
-        if let Some(instance) = self.kernels().await.get_instance(instance).await {
-            if let Ok(app) = instance.lock().await.info().await {
-                let mut role = AuthorRole::software(app, AuthorRoleName::Executor);
-                role.last_modified = Some(Timestamp::now());
-                return Some(role);
-            }
+        if let Some(instance) = self.kernels().await.get_instance(instance).await
+            && let Ok(app) = instance.lock().await.info().await
+        {
+            let mut role = AuthorRole::software(app, AuthorRoleName::Executor);
+            role.last_modified = Some(Timestamp::now());
+            return Some(role);
         }
 
         None

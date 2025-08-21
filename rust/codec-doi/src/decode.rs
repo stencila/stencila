@@ -30,14 +30,13 @@ pub(super) fn extract_doi(identifier: &str) -> Option<String> {
         Lazy::new(|| Regex::new(r"(?i)^10\.\d{4,9}/[-._;()/:A-Z0-9]+$").expect("invalid regex"));
 
     // Handle DOI URLs
-    if let Ok(url) = input.parse::<Url>() {
-        if let Some(host) = url.host_str() {
-            if host == "doi.org" || host == "dx.doi.org" || host == "www.doi.org" {
-                let path = url.path().trim_start_matches('/');
-                if DOI_REGEX.is_match(path) {
-                    return Some(path.to_string());
-                }
-            }
+    if let Ok(url) = input.parse::<Url>()
+        && let Some(host) = url.host_str()
+        && (host == "doi.org" || host == "dx.doi.org" || host == "www.doi.org")
+    {
+        let path = url.path().trim_start_matches('/');
+        if DOI_REGEX.is_match(path) {
+            return Some(path.to_string());
         }
     }
 

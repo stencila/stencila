@@ -411,19 +411,17 @@ impl KernelInstance for QuickJsKernelInstance {
 /// Checks if the value is an object with a "type" property and if so attempts to
 /// use JSON and serde to do the conversion. Otherwise, converts as a primitive.
 fn value_to_node<'js>(ctx: Ctx<'js>, value: Value<'js>) -> Result<Node, Error> {
-    if let Some(object) = value.as_object() {
-        if object.get::<_, String>("type").is_ok() {
-            if let Some(node) = ctx
-                .json_stringify(value.clone())
-                .ok()
-                .flatten()
-                .and_then(|json| json.to_string().ok())
-                .and_then(|json| serde_json::from_str(&json).ok())
-            {
-                return Ok(node);
-            };
-        }
-    }
+    if let Some(object) = value.as_object()
+        && object.get::<_, String>("type").is_ok()
+        && let Some(node) = ctx
+            .json_stringify(value.clone())
+            .ok()
+            .flatten()
+            .and_then(|json| json.to_string().ok())
+            .and_then(|json| serde_json::from_str(&json).ok())
+    {
+        return Ok(node);
+    };
 
     Ok(value_to_primitive(value, &ctx)?.into())
 }

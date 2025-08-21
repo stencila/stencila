@@ -107,10 +107,10 @@ impl OpenAlexQuery {
     /// Apply a filter to the query
     fn apply_filter(&mut self, arg_name: &str, arg_value: Value) -> Result<(), Error> {
         // Handle subquery filters (e.g., ...authors(.name ^= "Smith"))
-        if arg_name == "_" {
-            if let Some(subquery) = arg_value.downcast_object_ref::<Subquery>() {
-                return self.apply_subquery_filters(subquery);
-            }
+        if arg_name == "_"
+            && let Some(subquery) = arg_value.downcast_object_ref::<Subquery>()
+        {
+            return self.apply_subquery_filters(subquery);
         }
 
         // Handle search (for when called for subquery)
@@ -930,10 +930,10 @@ impl OpenAlexQuery {
         match result {
             Ok((meta, nodes)) => {
                 if self.limit == Some(0) {
-                    if let Some(meta) = meta {
-                        if let Some(count) = meta.count {
-                            return vec![Node::Integer(count)];
-                        }
+                    if let Some(meta) = meta
+                        && let Some(count) = meta.count
+                    {
+                        return vec![Node::Integer(count)];
                     }
                     return Vec::new();
                 }
@@ -1093,10 +1093,10 @@ impl Object for OpenAlexQuery {
         // Apply method arguments to the query
         let apply_method_args = |query: &mut OpenAlexQuery| -> Result<(), Error> {
             let (arg, kwargs): (Option<Value>, Kwargs) = from_args(args)?;
-            if let Some(value) = arg {
-                if let Some(value) = value.as_str() {
-                    query.search = Some(value.into());
-                }
+            if let Some(value) = arg
+                && let Some(value) = value.as_str()
+            {
+                query.search = Some(value.into());
             }
             for arg in kwargs.args() {
                 let value: Value = kwargs.get(arg)?;

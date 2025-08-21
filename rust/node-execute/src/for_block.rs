@@ -117,10 +117,11 @@ impl Executable for ForBlock {
 
             // If the programming language is none, and the code matches a variable name,
             // then try to get that variable to use as the value
-            if self.programming_language.is_none() && is_valid_variable_name(trimmed) {
-                if let Ok(Some(node)) = executor.kernels.read().await.get(trimmed).await {
-                    value = Some(node);
-                }
+            if self.programming_language.is_none()
+                && is_valid_variable_name(trimmed)
+                && let Ok(Some(node)) = executor.kernels.read().await.get(trimmed).await
+            {
+                value = Some(node);
             }
 
             // Get the programming language, falling back to using the executor's current language
@@ -261,13 +262,13 @@ impl Executable for ForBlock {
             }
 
             // Remove the loop's variable (if it was set)
-            if has_iterations {
-                if let Err(error) = executor.kernels.write().await.remove(&self.variable).await {
-                    messages.push(error_to_execution_message(
-                        "While removing iteration variable",
-                        error,
-                    ));
-                }
+            if has_iterations
+                && let Err(error) = executor.kernels.write().await.remove(&self.variable).await
+            {
+                messages.push(error_to_execution_message(
+                    "While removing iteration variable",
+                    error,
+                ));
             };
         }
 

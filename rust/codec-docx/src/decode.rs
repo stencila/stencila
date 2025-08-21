@@ -80,12 +80,11 @@ pub(super) fn data_and_properties(
         // From here on we know it's a customXml data part.
         if let Ok(doc) = Document::parse(&xml) {
             let root = doc.root_element();
-            if root.tag_name().name() == "data" {
-                if let Some(name) = root.attribute("name") {
-                    if let Some(payload) = root.text() {
-                        data.insert(name.into(), payload.into());
-                    }
-                }
+            if root.tag_name().name() == "data"
+                && let Some(name) = root.attribute("name")
+                && let Some(payload) = root.text()
+            {
+                data.insert(name.into(), payload.into());
             }
         }
     }

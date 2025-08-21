@@ -374,22 +374,22 @@ impl KernelInstance for DocsQLKernelInstance {
     }
 
     async fn get(&mut self, name: &str) -> Result<Option<Node>> {
-        if let Some(document) = &self.document {
-            if let Some(node) = document.lock().await.get(name).await? {
-                return Ok(Some(node));
-            }
+        if let Some(document) = &self.document
+            && let Some(node) = document.lock().await.get(name).await?
+        {
+            return Ok(Some(node));
         }
 
-        if let Some(workspace) = &self.workspace {
-            if let Some(node) = workspace.lock().await.get(name).await? {
-                return Ok(Some(node));
-            }
+        if let Some(workspace) = &self.workspace
+            && let Some(node) = workspace.lock().await.get(name).await?
+        {
+            return Ok(Some(node));
         }
 
-        if let Some(context) = &self.context {
-            if let Some(node) = context.get_variable(name)? {
-                return Ok(Some(node));
-            }
+        if let Some(context) = &self.context
+            && let Some(node) = context.get_variable(name)?
+        {
+            return Ok(Some(node));
         };
 
         Ok(None)

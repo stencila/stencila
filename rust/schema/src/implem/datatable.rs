@@ -155,10 +155,10 @@ impl MarkdownCodec for Datatable {
                 let (cell, width) = escape_cell(cell_context.content);
                 cells[row_index + 1][col_index] = cell;
 
-                if let Some(column_width) = column_widths.get_mut(col_index) {
-                    if width > *column_width {
-                        *column_width = width
-                    }
+                if let Some(column_width) = column_widths.get_mut(col_index)
+                    && width > *column_width
+                {
+                    *column_width = width
                 }
 
                 context.merge_losses(cell_context.losses);

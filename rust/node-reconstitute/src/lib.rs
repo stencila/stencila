@@ -46,14 +46,13 @@ impl Reconstituter {
         let slots: Vec<_> = path.iter().collect();
 
         // Check if path ends with: iterations/index
-        if slots.len() >= 2 {
-            if let [
+        if slots.len() >= 2
+            && let [
                 NodeSlot::Property(NodeProperty::Iterations),
                 NodeSlot::Index(_),
             ] = &slots[slots.len() - 2..]
-            {
-                return true;
-            }
+        {
+            return true;
         }
 
         false

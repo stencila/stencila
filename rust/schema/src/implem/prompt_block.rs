@@ -96,12 +96,12 @@ impl MarkdownCodec for PromptBlock {
                     .push_prop_str(NodeProperty::NodeTypes, &value.to_string().to_lowercase());
             }
 
-            if let Some(target) = &self.target {
-                if !target.ends_with("?") {
-                    context
-                        .push_str(" @")
-                        .push_prop_str(NodeProperty::Target, target);
-                }
+            if let Some(target) = &self.target
+                && !target.ends_with("?")
+            {
+                context
+                    .push_str(" @")
+                    .push_prop_str(NodeProperty::Target, target);
             }
 
             if let Some(query) = &self.query {

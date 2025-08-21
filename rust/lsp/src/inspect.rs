@@ -103,12 +103,12 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
     }
 
     fn exit_node(&mut self) {
-        if self.stack.len() > 1 {
-            if let Some(node) = self.stack.pop() {
-                // If has parent, add to its children
-                if let Some(parent) = self.stack.last_mut() {
-                    parent.children.push(node)
-                }
+        if self.stack.len() > 1
+            && let Some(node) = self.stack.pop()
+        {
+            // If has parent, add to its children
+            if let Some(parent) = self.stack.last_mut() {
+                parent.children.push(node)
             }
         }
     }
@@ -494,10 +494,10 @@ impl Inspect for CodeChunk {
             }
             detail.push_str(caption);
         }
-        if detail.is_empty() {
-            if let Some(lang) = &self.programming_language {
-                detail.push_str(lang);
-            }
+        if detail.is_empty()
+            && let Some(lang) = &self.programming_language
+        {
+            detail.push_str(lang);
         }
         let detail = (!detail.is_empty()).then_some(detail);
 
@@ -594,36 +594,33 @@ impl Inspect for InstructionBlock {
         });
         let mut index_of = None;
 
-        if let Some(suggestions) = &self.suggestions {
-            if !suggestions.is_empty() {
-                // If there is an active suggestion and the instruction is not running, then
-                // show the suggestion's duration, authors etc as the status
-                if !matches!(
-                    self.options.execution_status,
-                    Some(ExecutionStatus::Running)
-                ) {
-                    if let Some(index) = self.active_suggestion {
-                        if let Some(suggestion) = suggestions.get(index as usize) {
-                            if suggestion.execution_duration.is_some() {
-                                execution = Some(TextNodeExecution {
-                                    // Although suggestions do not have a status we need to add
-                                    // on here so that a status notification is generated
-                                    status: Some(ExecutionStatus::Succeeded),
-                                    duration: suggestion.execution_duration.clone(),
-                                    ended: suggestion.execution_ended.clone(),
-                                    authors: suggestion.authors.clone(),
-                                    ..Default::default()
-                                });
-                            }
-                        }
-                    }
-                }
-
-                // Note that 0 = the original, 1 = the first suggestion, and so on...
-                let index = self.active_suggestion.map(|index| index + 1).unwrap_or(0) as usize;
-                let of = suggestions.len();
-                index_of = Some((index, of));
+        if let Some(suggestions) = &self.suggestions
+            && !suggestions.is_empty()
+        {
+            // If there is an active suggestion and the instruction is not running, then
+            // show the suggestion's duration, authors etc as the status
+            if !matches!(
+                self.options.execution_status,
+                Some(ExecutionStatus::Running)
+            ) && let Some(index) = self.active_suggestion
+                && let Some(suggestion) = suggestions.get(index as usize)
+                && suggestion.execution_duration.is_some()
+            {
+                execution = Some(TextNodeExecution {
+                    // Although suggestions do not have a status we need to add
+                    // on here so that a status notification is generated
+                    status: Some(ExecutionStatus::Succeeded),
+                    duration: suggestion.execution_duration.clone(),
+                    ended: suggestion.execution_ended.clone(),
+                    authors: suggestion.authors.clone(),
+                    ..Default::default()
+                });
             }
+
+            // Note that 0 = the original, 1 = the first suggestion, and so on...
+            let index = self.active_suggestion.map(|index| index + 1).unwrap_or(0) as usize;
+            let of = suggestions.len();
+            index_of = Some((index, of));
         }
 
         let node = inspector.enter_node(

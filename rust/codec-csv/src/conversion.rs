@@ -156,59 +156,59 @@ pub fn primitives_to_series(
     validator: &Option<ArrayValidator>,
 ) -> Result<Series> {
     // Try to infer the type from the validator if present
-    if let Some(array_validator) = validator {
-        if let Some(items_validator) = &array_validator.items_validator {
-            return match &**items_validator {
-                Validator::BooleanValidator(_) => {
-                    let vec: Vec<Option<bool>> = values
-                        .iter()
-                        .map(|p| match p {
-                            Primitive::Boolean(b) => Some(*b),
-                            Primitive::Null(_) => None,
-                            _ => None,
-                        })
-                        .collect();
-                    Ok(Series::new(name.into(), vec))
-                }
-                Validator::IntegerValidator(_) => {
-                    let vec: Vec<Option<i64>> = values
-                        .iter()
-                        .map(|p| match p {
-                            Primitive::Integer(i) => Some(*i),
-                            Primitive::UnsignedInteger(u) => Some(*u as i64),
-                            Primitive::Null(_) => None,
-                            _ => None,
-                        })
-                        .collect();
-                    Ok(Series::new(name.into(), vec))
-                }
-                Validator::NumberValidator(_) => {
-                    let vec: Vec<Option<f64>> = values
-                        .iter()
-                        .map(|p| match p {
-                            Primitive::Number(n) => Some(*n),
-                            Primitive::Integer(i) => Some(*i as f64),
-                            Primitive::UnsignedInteger(u) => Some(*u as f64),
-                            Primitive::Null(_) => None,
-                            _ => None,
-                        })
-                        .collect();
-                    Ok(Series::new(name.into(), vec))
-                }
-                _ => {
-                    // Fall back to string for other types
-                    let vec: Vec<Option<String>> = values
-                        .iter()
-                        .map(|p| match p {
-                            Primitive::String(s) => Some(s.clone()),
-                            Primitive::Null(_) => None,
-                            _ => Some(format!("{p:?}")),
-                        })
-                        .collect();
-                    Ok(Series::new(name.into(), vec))
-                }
-            };
-        }
+    if let Some(array_validator) = validator
+        && let Some(items_validator) = &array_validator.items_validator
+    {
+        return match &**items_validator {
+            Validator::BooleanValidator(_) => {
+                let vec: Vec<Option<bool>> = values
+                    .iter()
+                    .map(|p| match p {
+                        Primitive::Boolean(b) => Some(*b),
+                        Primitive::Null(_) => None,
+                        _ => None,
+                    })
+                    .collect();
+                Ok(Series::new(name.into(), vec))
+            }
+            Validator::IntegerValidator(_) => {
+                let vec: Vec<Option<i64>> = values
+                    .iter()
+                    .map(|p| match p {
+                        Primitive::Integer(i) => Some(*i),
+                        Primitive::UnsignedInteger(u) => Some(*u as i64),
+                        Primitive::Null(_) => None,
+                        _ => None,
+                    })
+                    .collect();
+                Ok(Series::new(name.into(), vec))
+            }
+            Validator::NumberValidator(_) => {
+                let vec: Vec<Option<f64>> = values
+                    .iter()
+                    .map(|p| match p {
+                        Primitive::Number(n) => Some(*n),
+                        Primitive::Integer(i) => Some(*i as f64),
+                        Primitive::UnsignedInteger(u) => Some(*u as f64),
+                        Primitive::Null(_) => None,
+                        _ => None,
+                    })
+                    .collect();
+                Ok(Series::new(name.into(), vec))
+            }
+            _ => {
+                // Fall back to string for other types
+                let vec: Vec<Option<String>> = values
+                    .iter()
+                    .map(|p| match p {
+                        Primitive::String(s) => Some(s.clone()),
+                        Primitive::Null(_) => None,
+                        _ => Some(format!("{p:?}")),
+                    })
+                    .collect();
+                Ok(Series::new(name.into(), vec))
+            }
+        };
     }
 
     // If no validator, try to infer from the data

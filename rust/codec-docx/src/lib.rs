@@ -169,31 +169,27 @@ impl Codec for DocxCodec {
             options: article_options,
             ..
         }) = node
-        {
-            if let Some(Primitive::Object(previous_options)) = article_options
+            && let Some(Primitive::Object(previous_options)) = article_options
                 .extra
                 .as_ref()
                 .and_then(|extra| extra.get("encoding"))
-            {
-                re_encoding = true;
+        {
+            re_encoding = true;
 
-                if options.render.is_none() {
-                    if let Some(Primitive::Boolean(render)) = previous_options.get("render") {
-                        options.render = Some(*render);
-                    }
-                }
-                if options.reproducible.is_none() {
-                    if let Some(Primitive::Boolean(reproducible)) =
-                        previous_options.get("reproducible")
-                    {
-                        options.reproducible = Some(*reproducible);
-                    }
-                }
-                if options.highlight.is_none() {
-                    if let Some(Primitive::Boolean(highlight)) = previous_options.get("highlight") {
-                        options.highlight = Some(*highlight);
-                    }
-                }
+            if options.render.is_none()
+                && let Some(Primitive::Boolean(render)) = previous_options.get("render")
+            {
+                options.render = Some(*render);
+            }
+            if options.reproducible.is_none()
+                && let Some(Primitive::Boolean(reproducible)) = previous_options.get("reproducible")
+            {
+                options.reproducible = Some(*reproducible);
+            }
+            if options.highlight.is_none()
+                && let Some(Primitive::Boolean(highlight)) = previous_options.get("highlight")
+            {
+                options.highlight = Some(*highlight);
             }
         }
 
@@ -239,17 +235,11 @@ impl Codec for DocxCodec {
             let options = Some(options.clone());
 
             // If a "coarse" article then encode directly from that format
-            if let Node::Article(article) = node {
-                if article.is_coarse(&Format::Latex) {
-                    break 'to_path coarse_to_path(
-                        node,
-                        Format::Latex,
-                        Format::Docx,
-                        path,
-                        options,
-                    )
+            if let Node::Article(article) = node
+                && article.is_coarse(&Format::Latex)
+            {
+                break 'to_path coarse_to_path(node, Format::Latex, Format::Docx, path, options)
                     .await;
-                }
             }
 
             // Delegate to Pandoc

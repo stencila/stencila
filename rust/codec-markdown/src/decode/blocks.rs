@@ -67,10 +67,10 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
 
         // Get children, position and starting text of the paragraph (if the block is one) for checks below
         let mut para = None;
-        if let mdast::Node::Paragraph(mdast::Paragraph { children, position }) = &md {
-            if let Some(mdast::Node::Text(mdast::Text { value, .. })) = children.first() {
-                para = Some((children, position, value));
-            }
+        if let mdast::Node::Paragraph(mdast::Paragraph { children, position }) = &md
+            && let Some(mdast::Node::Text(mdast::Text { value, .. })) = children.first()
+        {
+            para = Some((children, position, value));
         }
 
         // Handle colon fences (paragraphs starting with `:::`)
@@ -146,10 +146,10 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                             finalize(last_block, children, context);
 
                             // If the last block is a `IfBlock` then also need end the mapping for that
-                            if matches!(last_block, Block::IfBlock(..)) {
-                                if let Some(position) = position {
-                                    context.map_end(position.end.offset);
-                                }
+                            if matches!(last_block, Block::IfBlock(..))
+                                && let Some(position) = position
+                            {
+                                context.map_end(position.end.offset);
                             }
                         }
                     }
@@ -326,33 +326,31 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                 ),
                 Some(next),
             ) = (blocks.get(index), blocks.get(index + 1))
+                && !matches!(next, Block::SuggestionBlock(..))
+                && content.capacity() == 1
+                && content.is_empty()
             {
-                if !matches!(next, Block::SuggestionBlock(..))
-                    && content.capacity() == 1
-                    && content.is_empty()
-                {
-                    let next = blocks.remove(index + 1);
+                let next = blocks.remove(index + 1);
 
-                    if let (Some(current_id), Some(next_id)) = (
-                        blocks.get(index).and_then(|block| block.node_id()),
-                        next.node_id(),
-                    ) {
-                        context.map_extend(current_id, next_id);
-                    }
-
-                    if let Some(
-                        Block::InstructionBlock(InstructionBlock {
-                            content: Some(content),
-                            ..
-                        })
-                        | Block::SuggestionBlock(SuggestionBlock { content, .. }),
-                    ) = blocks.get_mut(index)
-                    {
-                        content.push(next);
-                    }
-
-                    step = false;
+                if let (Some(current_id), Some(next_id)) = (
+                    blocks.get(index).and_then(|block| block.node_id()),
+                    next.node_id(),
+                ) {
+                    context.map_extend(current_id, next_id);
                 }
+
+                if let Some(
+                    Block::InstructionBlock(InstructionBlock {
+                        content: Some(content),
+                        ..
+                    })
+                    | Block::SuggestionBlock(SuggestionBlock { content, .. }),
+                ) = blocks.get_mut(index)
+                {
+                    content.push(next);
+                }
+
+                step = false;
             }
 
             // If the current block is an instruction and the next is a suggestion, fold
@@ -394,39 +392,33 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                 })),
                 Some(next),
             ) = (blocks.get(index), blocks.get(index + 1))
+                && !matches!(next, Block::SuggestionBlock(..))
+                && let Some(SuggestionBlock { content, .. }) = suggestions.last()
+                && content.capacity() == 1
+                && content.is_empty()
             {
-                if !matches!(next, Block::SuggestionBlock(..)) {
-                    if let Some(SuggestionBlock { content, .. }) = suggestions.last() {
-                        if content.capacity() == 1 && content.is_empty() {
-                            if let (Some(current_id), Some(next_id)) = (
-                                blocks.get(index).and_then(|block| block.node_id()),
-                                blocks.get(index + 1).and_then(|block| block.node_id()),
-                            ) {
-                                if let Some(suggestion) = suggestions.last() {
-                                    let suggestion_id = suggestion.node_id();
-                                    context.map_extend(suggestion_id.clone(), next_id.clone());
-                                    context.map_extend(current_id, suggestion_id);
-                                }
-                            }
-
-                            let next = blocks.remove(index + 1);
-
-                            if let Some(Block::InstructionBlock(InstructionBlock {
-                                suggestions: Some(suggestions),
-                                ..
-                            })) = blocks.get_mut(index)
-                            {
-                                if let Some(SuggestionBlock { content, .. }) =
-                                    suggestions.last_mut()
-                                {
-                                    content.push(next);
-                                }
-                            }
-
-                            step = false;
-                        }
-                    }
+                if let (Some(current_id), Some(next_id)) = (
+                    blocks.get(index).and_then(|block| block.node_id()),
+                    blocks.get(index + 1).and_then(|block| block.node_id()),
+                ) && let Some(suggestion) = suggestions.last()
+                {
+                    let suggestion_id = suggestion.node_id();
+                    context.map_extend(suggestion_id.clone(), next_id.clone());
+                    context.map_extend(current_id, suggestion_id);
                 }
+
+                let next = blocks.remove(index + 1);
+
+                if let Some(Block::InstructionBlock(InstructionBlock {
+                    suggestions: Some(suggestions),
+                    ..
+                })) = blocks.get_mut(index)
+                    && let Some(SuggestionBlock { content, .. }) = suggestions.last_mut()
+                {
+                    content.push(next);
+                }
+
+                step = false;
             }
 
             // Recurse into blocks the have block content so any instructions
@@ -1407,10 +1399,10 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<
             if !context.preserve_newlines {
                 // Replace newlines in paragraphs with a space
                 for inline in inlines.iter_mut() {
-                    if let Inline::Text(Text { value, .. }) = inline {
-                        if value.contains('\n') {
-                            value.string = value.replace('\n', " ");
-                        }
+                    if let Inline::Text(Text { value, .. }) = inline
+                        && value.contains('\n')
+                    {
+                        value.string = value.replace('\n', " ");
                     }
                 }
             }
@@ -1857,42 +1849,42 @@ fn mds_to_quote_block_or_admonition(mut mds: Vec<mdast::Node>, context: &mut Con
     )
         .parse_peek(first_string.as_str());
 
-    if let Ok((rest, (admonition_type, fold, title, ..))) = parsed {
-        if let Ok(admonition_type) = admonition_type.parse::<AdmonitionType>() {
-            let is_folded = fold.and_then(|symbol| match symbol {
-                "-" => Some(false),
-                "+" => Some(true),
-                _ => None,
-            });
+    if let Ok((rest, (admonition_type, fold, title, ..))) = parsed
+        && let Ok(admonition_type) = admonition_type.parse::<AdmonitionType>()
+    {
+        let is_folded = fold.and_then(|symbol| match symbol {
+            "-" => Some(false),
+            "+" => Some(true),
+            _ => None,
+        });
 
-            let title = title.and_then(|title| {
-                if title.is_empty() {
-                    None
-                } else {
-                    Some(vec![Inline::Text(Text::from(title))])
-                }
-            });
-
-            if rest.is_empty() {
-                if let Some(first_para) = first_para {
-                    if first_para.content.len() > 1 {
-                        first_para.content.remove(0);
-                    } else {
-                        content.remove(0);
-                    }
-                }
-            } else if let Some(first_text) = first_text {
-                first_text.value = rest.into();
+        let title = title.and_then(|title| {
+            if title.is_empty() {
+                None
+            } else {
+                Some(vec![Inline::Text(Text::from(title))])
             }
+        });
 
-            return Block::Admonition(Admonition {
-                admonition_type,
-                is_folded,
-                title,
-                content,
-                ..Default::default()
-            });
+        if rest.is_empty() {
+            if let Some(first_para) = first_para {
+                if first_para.content.len() > 1 {
+                    first_para.content.remove(0);
+                } else {
+                    content.remove(0);
+                }
+            }
+        } else if let Some(first_text) = first_text {
+            first_text.value = rest.into();
         }
+
+        return Block::Admonition(Admonition {
+            admonition_type,
+            is_folded,
+            title,
+            content,
+            ..Default::default()
+        });
     }
 
     Block::QuoteBlock(QuoteBlock::new(content))

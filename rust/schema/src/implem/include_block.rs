@@ -140,12 +140,12 @@ impl MarkdownCodec for IncludeBlock {
             context.newline().exit_node().newline();
         } else {
             // For Markdown, QMD etc, which do not support include blocks, only encode content (if any)
-            if let Some(content) = &self.content {
-                if !content.is_empty() {
-                    context.push_prop_fn(NodeProperty::Content, |context| {
-                        content.to_markdown(context)
-                    });
-                }
+            if let Some(content) = &self.content
+                && !content.is_empty()
+            {
+                context.push_prop_fn(NodeProperty::Content, |context| {
+                    content.to_markdown(context)
+                });
             }
             context.exit_node();
         }

@@ -84,10 +84,10 @@ impl Ask for CliProvider {
         // Blank line to separate from logs or other questions
         eprintln!();
 
-        if answer.is_empty() {
-            if let Some(default) = options.default {
-                return Ok(default);
-            }
+        if answer.is_empty()
+            && let Some(default) = options.default
+        {
+            return Ok(default);
         }
 
         Ok(match answer.as_str() {

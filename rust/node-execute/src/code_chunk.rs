@@ -38,10 +38,9 @@ impl Executable for CodeChunk {
         if let (None | Some(ExecutionBounds::Main), Some(id)) = (
             &self.options.execution_bounded,
             &self.options.execution_instance,
-        ) {
-            if !executor.kernels().await.has_instance(id).await {
-                execution_required = ExecutionRequired::KernelRestarted;
-            }
+        ) && !executor.kernels().await.has_instance(id).await
+        {
+            execution_required = ExecutionRequired::KernelRestarted;
         }
 
         let execution_required_changed =
@@ -71,18 +70,17 @@ impl Executable for CodeChunk {
         // TODO: consider having a way to specify which code chunks and/or
         // which kernels should execute at compile time (e.g. could have
         // a compile method on kernels)
-        if let Some(lang) = lang {
-            if !matches!(execution_required, ExecutionRequired::No)
-                && matches!(
-                    lang.trim().to_lowercase().as_str(),
-                    "dot" | "graphviz" | "mermaid"
-                )
-            {
-                // Need to set execution status to pending so avoid early return from
-                // the execute methods
-                self.options.execution_status = Some(ExecutionStatus::Pending);
-                self.execute(executor).await;
-            }
+        if let Some(lang) = lang
+            && !matches!(execution_required, ExecutionRequired::No)
+            && matches!(
+                lang.trim().to_lowercase().as_str(),
+                "dot" | "graphviz" | "mermaid"
+            )
+        {
+            // Need to set execution status to pending so avoid early return from
+            // the execute methods
+            self.options.execution_status = Some(ExecutionStatus::Pending);
+            self.execute(executor).await;
         }
 
         // Continue walk to compile any outputs
@@ -177,18 +175,17 @@ impl Executable for CodeChunk {
                 let kernels = &mut *kernels.write().await;
 
                 // If appropriate set the `currentPosition` variable
-                if matches!(lang.as_deref(), Some("docsql" | "docsdb")) {
-                    if let Err(error) = kernels
+                if matches!(lang.as_deref(), Some("docsql" | "docsdb"))
+                    && let Err(error) = kernels
                         .set(
                             "currentPosition",
                             &Node::UnsignedInteger(executor.walk_position),
                             lang.as_deref(),
                         )
                         .await
-                    {
-                        tracing::error!("Unable to set `currentPosition`: {error}")
-                    };
-                }
+                {
+                    tracing::error!("Unable to set `currentPosition`: {error}")
+                };
 
                 kernels
                     .execute(&self.code, lang.as_deref())

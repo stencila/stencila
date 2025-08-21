@@ -139,10 +139,10 @@ async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, R
                 ..
             } = prompt.deref();
 
-            if let Some(instruction_type) = &instruction_type {
-                if !instruction_types.contains(instruction_type) {
-                    return None;
-                }
+            if let Some(instruction_type) = &instruction_type
+                && !instruction_types.contains(instruction_type)
+            {
+                return None;
             }
 
             // This attempts to maintain consistency with the symbols used for

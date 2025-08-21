@@ -95,13 +95,11 @@ impl Codec for OdtCodec {
             options.render = Some(true);
         }
 
-        if options.render.unwrap_or_default() {
-            if let Node::Article(article) = node {
-                if article.is_coarse(&Format::Latex) {
-                    return coarse_to_path(node, Format::Latex, Format::Odt, path, Some(options))
-                        .await;
-                }
-            }
+        if options.render.unwrap_or_default()
+            && let Node::Article(article) = node
+            && article.is_coarse(&Format::Latex)
+        {
+            return coarse_to_path(node, Format::Latex, Format::Odt, path, Some(options)).await;
         }
 
         let options = Some(options);

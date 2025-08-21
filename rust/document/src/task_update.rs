@@ -99,10 +99,10 @@ impl Document {
             };
 
             // If acknowledgement requested, acknowledge that the update was applied
-            if let Some(ack) = ack {
-                if ack.send(()).is_err() {
-                    tracing::error!("Error sending update acknowledgement");
-                }
+            if let Some(ack) = ack
+                && ack.send(()).is_err()
+            {
+                tracing::error!("Error sending update acknowledgement");
             }
 
             // Send the node to watchers

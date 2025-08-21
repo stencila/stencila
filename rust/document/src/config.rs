@@ -82,10 +82,10 @@ impl Document {
         };
 
         // Check for a workspace config file
-        if let Some(path) = path {
-            if let Some((config, path)) = closest_config(path).await? {
-                return Ok((config, vec![path]));
-            }
+        if let Some(path) = path
+            && let Some((config, path)) = closest_config(path).await?
+        {
+            return Ok((config, vec![path]));
         }
 
         // Check for a user config file

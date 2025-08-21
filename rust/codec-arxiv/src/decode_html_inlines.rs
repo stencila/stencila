@@ -156,27 +156,27 @@ pub fn decode_citation(
         .iter()
         .flat_map(|handle| handle.get(parser))
     {
-        if let Some(child_tag) = child.as_tag() {
-            if child_tag.name().as_utf8_str() == "a" {
-                let child_class = child_tag
-                    .attributes()
-                    .class()
-                    .map(|cls| cls.as_utf8_str())
-                    .unwrap_or_default();
-                if child_class.contains("ltx_ref") {
-                    // Extract href as target
-                    if let Some(href) = child_tag.attributes().get("href").flatten() {
-                        let full_url = href.as_utf8_str();
-                        let target = if let Some(hash_pos) = full_url.find('#') {
-                            full_url[hash_pos + 1..].to_string()
-                        } else if let Some(rest) = full_url.strip_prefix('#') {
-                            rest.to_string()
-                        } else {
-                            // External link, keep full URL
-                            full_url.to_string()
-                        };
-                        ref_links.push((target, child_tag));
-                    }
+        if let Some(child_tag) = child.as_tag()
+            && child_tag.name().as_utf8_str() == "a"
+        {
+            let child_class = child_tag
+                .attributes()
+                .class()
+                .map(|cls| cls.as_utf8_str())
+                .unwrap_or_default();
+            if child_class.contains("ltx_ref") {
+                // Extract href as target
+                if let Some(href) = child_tag.attributes().get("href").flatten() {
+                    let full_url = href.as_utf8_str();
+                    let target = if let Some(hash_pos) = full_url.find('#') {
+                        full_url[hash_pos + 1..].to_string()
+                    } else if let Some(rest) = full_url.strip_prefix('#') {
+                        rest.to_string()
+                    } else {
+                        // External link, keep full URL
+                        full_url.to_string()
+                    };
+                    ref_links.push((target, child_tag));
                 }
             }
         }
@@ -317,11 +317,11 @@ fn extract_citation_text_for_link(
     // Find the target link in the nodes
     let mut target_index = None;
     for (i, node) in nodes.iter().enumerate() {
-        if let CitationNode::Link(link_tag, _) = node {
-            if std::ptr::eq(*link_tag as *const _, target_link as *const _) {
-                target_index = Some(i);
-                break;
-            }
+        if let CitationNode::Link(link_tag, _) = node
+            && std::ptr::eq(*link_tag as *const _, target_link as *const _)
+        {
+            target_index = Some(i);
+            break;
         }
     }
 

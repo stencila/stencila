@@ -123,12 +123,12 @@ impl MarkdownCodec for CodeExpression {
                 .push_prop_str(NodeProperty::Code, &self.code)
                 .push_str("`{");
 
-            if let Some(lang) = &self.programming_language {
-                if !lang.is_empty() {
-                    context
-                        .push_prop_str(NodeProperty::ProgrammingLanguage, lang)
-                        .push_str(" ");
-                }
+            if let Some(lang) = &self.programming_language
+                && !lang.is_empty()
+            {
+                context
+                    .push_prop_str(NodeProperty::ProgrammingLanguage, lang)
+                    .push_str(" ");
             }
 
             context.push_str("exec");

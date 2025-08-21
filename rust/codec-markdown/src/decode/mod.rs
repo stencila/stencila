@@ -422,12 +422,11 @@ impl Context {
 impl VisitorMut for Context {
     /// Apply footnote content to inline notes
     fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
-        if let Inline::Note(note) = inline {
-            if let Some(id) = note.id.take() {
-                if let Some(content) = self.footnotes.remove(&id) {
-                    note.content = content;
-                }
-            }
+        if let Inline::Note(note) = inline
+            && let Some(id) = note.id.take()
+            && let Some(content) = self.footnotes.remove(&id)
+        {
+            note.content = content;
         }
 
         WalkControl::Continue

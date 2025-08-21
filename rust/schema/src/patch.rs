@@ -453,25 +453,23 @@ impl PatchContext {
 
                 for (existing_index, mut existing_author) in existing_authors.iter_mut().enumerate()
                 {
-                    if let Author::AuthorRole(existing_author_role) = &mut existing_author {
-                        if existing_author_role.author == new_author_role.author
-                            && existing_author_role.role_name == new_author_role.role_name
-                            && existing_author_role.format == new_author_role.format
-                        {
-                            existing_author_role.last_modified =
-                                new_author_role.last_modified.clone();
+                    if let Author::AuthorRole(existing_author_role) = &mut existing_author
+                        && existing_author_role.author == new_author_role.author
+                        && existing_author_role.role_name == new_author_role.role_name
+                        && existing_author_role.format == new_author_role.format
+                    {
+                        existing_author_role.last_modified = new_author_role.last_modified.clone();
 
-                            present = true;
+                        present = true;
 
-                            if author_index.is_none() {
-                                author_index = Some(existing_index);
-                            };
-                            if author_type.is_none() {
-                                author_type = Some(AuthorType::from(&*existing_author));
-                            };
+                        if author_index.is_none() {
+                            author_index = Some(existing_index);
+                        };
+                        if author_type.is_none() {
+                            author_type = Some(AuthorType::from(&*existing_author));
+                        };
 
-                            break;
-                        }
+                        break;
                     }
                 }
 

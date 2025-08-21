@@ -91,15 +91,14 @@ impl MarkdownCodec for Link {
         // (it is better to encode the content and get a mapping entry for that than the target property)
         if let (1, Some(Inline::Text(content)), None) =
             (self.content.len(), self.content.first(), &self.title)
+            && content.value.string == self.target
         {
-            if content.value.string == self.target {
-                context
-                    .push_prop_fn(NodeProperty::Content, |context| {
-                        self.content.to_markdown(context)
-                    })
-                    .exit_node();
-                return;
-            }
+            context
+                .push_prop_fn(NodeProperty::Content, |context| {
+                    self.content.to_markdown(context)
+                })
+                .exit_node();
+            return;
         }
 
         context

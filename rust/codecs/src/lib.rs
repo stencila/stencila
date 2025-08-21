@@ -99,17 +99,16 @@ pub fn get(
     format: Option<&Format>,
     direction: Option<CodecDirection>,
 ) -> Result<Box<dyn Codec>> {
-    if let Some(name) = name {
-        if let Some(codec) = list()
+    if let Some(name) = name
+        && let Some(codec) = list()
             .into_iter()
             .find_map(|codec| (codec.name() == name).then_some(codec))
-        {
-            return Ok(codec);
-        }
+    {
+        return Ok(codec);
     }
 
-    if let Some(format) = format {
-        if let Some(codec) = list().into_iter().find_map(|codec| {
+    if let Some(format) = format
+        && let Some(codec) = list().into_iter().find_map(|codec| {
             match direction {
                 Some(CodecDirection::Decode) => codec.supports_from_format(format).is_supported(),
                 Some(CodecDirection::Encode) => codec.supports_to_format(format).is_supported(),
@@ -119,9 +118,9 @@ pub fn get(
                 }
             }
             .then_some(codec)
-        }) {
-            return Ok(codec);
-        }
+        })
+    {
+        return Ok(codec);
     }
 
     let dir = match direction {
@@ -443,12 +442,11 @@ pub async fn to_string_with_info(
         strip_props,
         ..
     }) = options.clone()
+        && !(strip_scopes.is_empty() && strip_types.is_empty() && strip_props.is_empty())
     {
-        if !(strip_scopes.is_empty() && strip_types.is_empty() && strip_props.is_empty()) {
-            let mut node = node.clone();
-            node.strip(&StripTargets::new(strip_scopes, strip_types, strip_props));
-            return codec.to_string(&node, options).await;
-        }
+        let mut node = node.clone();
+        node.strip(&StripTargets::new(strip_scopes, strip_types, strip_props));
+        return codec.to_string(&node, options).await;
     }
 
     codec.to_string(node, options).await
@@ -464,12 +462,10 @@ pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -
         .as_ref()
         .and_then(|opts| opts.reproducible)
         .unwrap_or_default()
+        && let Node::Article(Article { options, .. }) = &node
+        && !check_git_for_to_path(&options.path, &options.commit).await?
     {
-        if let Node::Article(Article { options, .. }) = &node {
-            if !check_git_for_to_path(&options.path, &options.commit).await? {
-                return Ok(false);
-            }
-        }
+        return Ok(false);
     }
 
     let EncodeInfo { losses, .. } = to_path_with_info(node, path, options.clone()).await?;
@@ -523,12 +519,11 @@ pub async fn to_path_with_info(
         strip_props,
         ..
     }) = options.clone()
+        && !(strip_scopes.is_empty() && strip_types.is_empty() && strip_props.is_empty())
     {
-        if !(strip_scopes.is_empty() && strip_types.is_empty() && strip_props.is_empty()) {
-            let mut node = node.clone();
-            node.strip(&StripTargets::new(strip_scopes, strip_types, strip_props));
-            return codec.to_path(&node, path, options).await;
-        }
+        let mut node = node.clone();
+        node.strip(&StripTargets::new(strip_scopes, strip_types, strip_props));
+        return codec.to_path(&node, path, options).await;
     }
 
     codec.to_path(node, path, options).await
@@ -601,12 +596,11 @@ pub async fn merge(
         from_path_with_info(edited, Some(decode_options.clone())).await?;
 
     let mut original = original.map(|path| path.to_path_buf());
-    if original.is_none() {
-        if let Node::Article(Article { options, .. }) = &edited_node {
-            if let Some(source) = &options.path {
-                original = Some(PathBuf::from(source));
-            }
-        }
+    if original.is_none()
+        && let Node::Article(Article { options, .. }) = &edited_node
+        && let Some(source) = &options.path
+    {
+        original = Some(PathBuf::from(source));
     }
     let Some(original) = original else {
         bail!(
@@ -615,22 +609,22 @@ pub async fn merge(
     };
 
     let mut commit = commit.map(String::from);
-    if commit.is_none() {
-        if let Node::Article(Article { options, .. }) = &edited_node {
-            if let Some(value) = &options.commit {
-                commit = Some(value.to_string());
-            }
-        }
+    if commit.is_none()
+        && let Node::Article(Article { options, .. }) = &edited_node
+        && let Some(value) = &options.commit
+    {
+        commit = Some(value.to_string());
     }
 
     // If a commit is available then check the status of the file relative to the path
-    if let Some(commit) = commit {
-        if commit != "untracked" && commit != "dirty" {
-            let should_continue = check_git_for_merge(&original, &commit, edited, false).await?;
-            if !should_continue {
-                tracing::debug!("Merge cancelled");
-                return Ok(None);
-            }
+    if let Some(commit) = commit
+        && commit != "untracked"
+        && commit != "dirty"
+    {
+        let should_continue = check_git_for_merge(&original, &commit, edited, false).await?;
+        if !should_continue {
+            tracing::debug!("Merge cancelled");
+            return Ok(None);
         }
     }
 

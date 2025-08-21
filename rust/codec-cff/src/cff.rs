@@ -263,13 +263,14 @@ pub struct CffReference {
 impl From<CffAuthor> for Author {
     fn from(author: CffAuthor) -> Self {
         // Check if this is an organization (has name but no family/given names)
-        if let Some(ref name) = author.name {
-            if author.family_names.is_none() && author.given_names.is_none() {
-                return Author::Organization(Organization {
-                    name: Some(name.clone()),
-                    ..Default::default()
-                });
-            }
+        if let Some(ref name) = author.name
+            && author.family_names.is_none()
+            && author.given_names.is_none()
+        {
+            return Author::Organization(Organization {
+                name: Some(name.clone()),
+                ..Default::default()
+            });
         }
 
         // Create a person

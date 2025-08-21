@@ -505,10 +505,10 @@ impl Object for ZenodoQuery {
         // Apply method arguments to the query
         let apply_method_args = |query: &mut ZenodoQuery| -> Result<(), Error> {
             let (arg, kwargs): (Option<Value>, Kwargs) = from_args(args)?;
-            if let Some(value) = arg {
-                if let Some(value) = value.as_str() {
-                    query.search = Some(value.into());
-                }
+            if let Some(value) = arg
+                && let Some(value) = value.as_str()
+            {
+                query.search = Some(value.into());
             }
             for arg in kwargs.args() {
                 let value: Value = kwargs.get(arg)?;

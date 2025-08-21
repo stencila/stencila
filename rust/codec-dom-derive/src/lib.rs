@@ -110,7 +110,6 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 self.#field_name.to_dom(context);
             });
         } else if field_attr.skip {
-            return;
         } else if let Some(with) = field_attr.with.as_deref() {
             let Type::Path(type_path) = field_attr.ty else {
                 return

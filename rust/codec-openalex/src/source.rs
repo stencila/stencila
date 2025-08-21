@@ -97,10 +97,10 @@ impl From<Source> for Periodical {
     fn from(source: Source) -> Self {
         // Map alternative titles and abbreviated titles
         let mut alternate_names = source.alternate_titles.unwrap_or_default();
-        if let Some(abbreviated) = source.abbreviated_title {
-            if !alternate_names.contains(&abbreviated) {
-                alternate_names.push(abbreviated);
-            }
+        if let Some(abbreviated) = source.abbreviated_title
+            && !alternate_names.contains(&abbreviated)
+        {
+            alternate_names.push(abbreviated);
         }
         let alternate_names = (!alternate_names.is_empty()).then_some(alternate_names);
 

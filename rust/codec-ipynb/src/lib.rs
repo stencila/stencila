@@ -336,12 +336,11 @@ fn code_chunk_from_code_cell(
             .get("label")
             .and_then(|value| value.as_str())
             .map(String::from);
-        if let Some(md) = meta.get("caption").and_then(|value| value.as_str()) {
-            if let Ok((Node::Article(Article { content, .. }), ..)) =
+        if let Some(md) = meta.get("caption").and_then(|value| value.as_str())
+            && let Ok((Node::Article(Article { content, .. }), ..)) =
                 codec_markdown::decode(md, None)
-            {
-                caption = Some(content);
-            }
+        {
+            caption = Some(content);
         }
     }
 

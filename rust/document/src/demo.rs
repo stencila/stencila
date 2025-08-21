@@ -563,28 +563,27 @@ impl Walker {
                 .wrap_err("Failed to flush asciicast file")?;
 
             // Handle conversion to GIF
-            if matches!(self.output_format, OutputFormat::Gif) {
-                if let (Some(asciicast_path), Some(final_output_path)) =
+            if matches!(self.output_format, OutputFormat::Gif)
+                && let (Some(asciicast_path), Some(final_output_path)) =
                     (&self.asciicast_path, &self.output_path)
-                {
-                    let status = AsyncToolCommand::new("agg")
-                        .arg(asciicast_path)
-                        .arg(final_output_path)
-                        .stdout(ToolStdio::Inherit)
-                        .stderr(ToolStdio::Inherit)
-                        .status()
-                        .await
-                        .wrap_err("Failed to run agg tool")?;
+            {
+                let status = AsyncToolCommand::new("agg")
+                    .arg(asciicast_path)
+                    .arg(final_output_path)
+                    .stdout(ToolStdio::Inherit)
+                    .stderr(ToolStdio::Inherit)
+                    .status()
+                    .await
+                    .wrap_err("Failed to run agg tool")?;
 
-                    if !status.success() {
-                        bail!("agg conversion failed with exit code: {:?}", status.code());
-                    }
+                if !status.success() {
+                    bail!("agg conversion failed with exit code: {:?}", status.code());
+                }
 
-                    // Clean up temporary asciicast file
-                    if asciicast_path != final_output_path {
-                        std::fs::remove_file(asciicast_path)
-                            .wrap_err("Failed to remove temporary asciicast file")?;
-                    }
+                // Clean up temporary asciicast file
+                if asciicast_path != final_output_path {
+                    std::fs::remove_file(asciicast_path)
+                        .wrap_err("Failed to remove temporary asciicast file")?;
                 }
             }
         }

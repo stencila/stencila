@@ -432,8 +432,8 @@ export const provenanceCategories: {{ [Property in ProvenanceCategory]: string }
                     )
                 });
 
-                if let Some(base) = &base {
-                    if self
+                if let Some(base) = &base
+                    && self
                         .schemas
                         .get(base)
                         .expect("should have key")
@@ -441,9 +441,8 @@ export const provenanceCategories: {{ [Property in ProvenanceCategory]: string }
                         .get(&name)
                         .map(|prop| prop.is_required)
                         .unwrap_or(false)
-                    {
-                        super_args.push(name.clone())
-                    }
+                {
+                    super_args.push(name.clone())
                 }
             }
 

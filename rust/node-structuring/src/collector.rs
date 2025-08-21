@@ -181,24 +181,23 @@ impl Collector {
             // Check for caption followed by Table (only caption before table is considered, not the reverse)
             else if let (Some(Block::Paragraph(paragraph)), Some(Block::Table(..))) =
                 (blocks.get(index), blocks.get(index + 1))
+                && let Some((label, prefix)) = detect_table_caption(paragraph)
             {
-                if let Some((label, prefix)) = detect_table_caption(paragraph) {
-                    // Remove the paragraph it can be placed in the table
-                    let Block::Paragraph(mut caption) = blocks.remove(index) else {
-                        unreachable!("asserted above")
-                    };
+                // Remove the paragraph it can be placed in the table
+                let Block::Paragraph(mut caption) = blocks.remove(index) else {
+                    unreachable!("asserted above")
+                };
 
-                    // Remove the prefix from the caption
-                    remove_caption_prefix(&mut caption, &prefix);
+                // Remove the prefix from the caption
+                remove_caption_prefix(&mut caption, &prefix);
 
-                    // Update the table (note using index, not index + 1, here because paragraph removed)
-                    let Block::Table(table) = &mut blocks[index] else {
-                        unreachable!("asserted above")
-                    };
-                    table.label = Some(label);
-                    table.label_automatically = Some(false);
-                    table.caption = Some(vec![Block::Paragraph(caption)]);
-                }
+                // Update the table (note using index, not index + 1, here because paragraph removed)
+                let Block::Table(table) = &mut blocks[index] else {
+                    unreachable!("asserted above")
+                };
+                table.label = Some(label);
+                table.label_automatically = Some(false);
+                table.caption = Some(vec![Block::Paragraph(caption)]);
             }
 
             index += 1;

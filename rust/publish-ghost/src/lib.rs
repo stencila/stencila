@@ -240,19 +240,16 @@ impl Cli {
         } else {
             // get resource type from YAML header if none provided in cli
             doc.inspect(|root: &Node| {
-                if let Node::Article(article) = root {
-                    if let Some(config) = &article.config {
-                        if let Some(publish) = &config.publish {
-                            if let Some(publisher) = &publish.ghost {
-                                if let Some(r#type) = &publisher.r#type {
-                                    return match r#type {
-                                        ConfigPublishGhostType::Page => ResourceType::Page,
-                                        ConfigPublishGhostType::Post => ResourceType::Post,
-                                    };
-                                }
-                            }
-                        }
-                    }
+                if let Node::Article(article) = root
+                    && let Some(config) = &article.config
+                    && let Some(publish) = &config.publish
+                    && let Some(publisher) = &publish.ghost
+                    && let Some(r#type) = &publisher.r#type
+                {
+                    return match r#type {
+                        ConfigPublishGhostType::Page => ResourceType::Page,
+                        ConfigPublishGhostType::Post => ResourceType::Post,
+                    };
                 }
                 //Default to post
                 ResourceType::Post
@@ -530,9 +527,9 @@ impl Cli {
                     }
 
                     //Get config meta data
-                    if let Some(config) = &article.config {
-                        if let Some(publish) = &config.publish {
-                            if let Some(publisher) = &publish.ghost {
+                    if let Some(config) = &article.config
+                        && let Some(publish) = &config.publish
+                            && let Some(publisher) = &publish.ghost {
                                 if self.slug.is_some() {
                                     slug = self.slug.clone();
                                 } else {
@@ -590,8 +587,6 @@ impl Cli {
                                     tags = publisher.tags.clone();
                                 }
                             }
-                        }
-                    }
                 }
                 Ok((title, slug, featured, excerpt, status, schedule, tags))
             })

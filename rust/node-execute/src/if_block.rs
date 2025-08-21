@@ -115,10 +115,10 @@ impl Executable for IfBlock {
 
                 execute_if_block_clause(clause, executor).await;
 
-                if let Some(clause_status) = &clause.options.execution_status {
-                    if clause_status > &status {
-                        status = *clause_status;
-                    }
+                if let Some(clause_status) = &clause.options.execution_status
+                    && clause_status > &status
+                {
+                    status = *clause_status;
                 }
 
                 if clause.is_active.unwrap_or_default() {
@@ -220,10 +220,10 @@ impl Executable for IfBlockClause {
 
         // If the executor has node ids and this clause contains
         // any of those node ids, then continue the walk to set those as pending
-        if let Some(node_ids) = &executor.node_ids {
-            if contains(&self.content, node_ids.clone()).is_some() {
-                return WalkControl::Continue;
-            }
+        if let Some(node_ids) = &executor.node_ids
+            && contains(&self.content, node_ids.clone()).is_some()
+        {
+            return WalkControl::Continue;
         }
 
         // Break walk to be consistent with behavior of `execute` method (see note there),
@@ -235,10 +235,10 @@ impl Executable for IfBlockClause {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         // If the executor has node ids and this clause contains
         // any of those node ids, then continue the walk to execute those
-        if let Some(node_ids) = &executor.node_ids {
-            if contains(&self.content, node_ids.clone()).is_some() {
-                return WalkControl::Continue;
-            }
+        if let Some(node_ids) = &executor.node_ids
+            && contains(&self.content, node_ids.clone()).is_some()
+        {
+            return WalkControl::Continue;
         }
 
         // Break walk because do not want to execute `content`, even if active because that should be
@@ -282,10 +282,11 @@ async fn execute_if_block_clause(clause: &mut IfBlockClause, executor: &mut Exec
 
         // If the programming language is none, and the code matches a variable name,
         // then try to get that variable to use as the value
-        if clause.programming_language.is_none() && is_valid_variable_name(trimmed) {
-            if let Ok(Some(node)) = executor.kernels.read().await.get(trimmed).await {
-                value = Some(node);
-            }
+        if clause.programming_language.is_none()
+            && is_valid_variable_name(trimmed)
+            && let Ok(Some(node)) = executor.kernels.read().await.get(trimmed).await
+        {
+            value = Some(node);
         }
 
         let value = if let Some(value) = value {

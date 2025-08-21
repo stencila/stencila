@@ -35,23 +35,23 @@ pub(super) fn extract_pmcid(identifier: &str) -> Option<String> {
     }
 
     // Match PMC URLs like "https://pmc.ncbi.nlm.nih.gov/articles/PMC1234567/"
-    if let Ok(url) = Url::parse(identifier) {
-        if url.host_str() == Some("pmc.ncbi.nlm.nih.gov") && url.path().starts_with("/articles/PMC")
-        {
-            // Extract PMC ID from the URL path
-            let path = url.path();
-            if let Some(pmc_start) = path.find("PMC") {
-                let pmc_part = &path[pmc_start..];
-                // Find the end of the PMC ID (either end of string or next slash)
-                let pmc_end = pmc_part.find('/').unwrap_or(pmc_part.len());
-                let pmcid = &pmc_part[..pmc_end];
+    if let Ok(url) = Url::parse(identifier)
+        && url.host_str() == Some("pmc.ncbi.nlm.nih.gov")
+        && url.path().starts_with("/articles/PMC")
+    {
+        // Extract PMC ID from the URL path
+        let path = url.path();
+        if let Some(pmc_start) = path.find("PMC") {
+            let pmc_part = &path[pmc_start..];
+            // Find the end of the PMC ID (either end of string or next slash)
+            let pmc_end = pmc_part.find('/').unwrap_or(pmc_part.len());
+            let pmcid = &pmc_part[..pmc_end];
 
-                // Validate it's a proper PMC ID (PMC + at least 4 digits)
-                if pmcid.len() >= 7 && pmcid.starts_with("PMC") {
-                    let number_part = &pmcid[3..];
-                    if number_part.len() >= 4 && number_part.chars().all(|c| c.is_ascii_digit()) {
-                        return Some(pmcid.to_string());
-                    }
+            // Validate it's a proper PMC ID (PMC + at least 4 digits)
+            if pmcid.len() >= 7 && pmcid.starts_with("PMC") {
+                let number_part = &pmcid[3..];
+                if number_part.len() >= 4 && number_part.chars().all(|c| c.is_ascii_digit()) {
+                    return Some(pmcid.to_string());
                 }
             }
         }

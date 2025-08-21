@@ -15,13 +15,12 @@ impl ChatMessageGroup {
             Some(NodeSlot::Property(NodeProperty::IsSelected)),
             PatchOp::Set(value),
         ) = (path.front(), path.get(1), path.get(2), op)
+            && let Ok(true) = bool::from_value(value.clone())
         {
-            if let Ok(true) = bool::from_value(value.clone()) {
-                for (index, message) in self.messages.iter_mut().enumerate() {
-                    message.options.is_selected = (index == *which).then_some(true);
-                }
-                return Ok(true);
+            for (index, message) in self.messages.iter_mut().enumerate() {
+                message.options.is_selected = (index == *which).then_some(true);
             }
+            return Ok(true);
         }
 
         Ok(false)

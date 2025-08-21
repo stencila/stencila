@@ -106,10 +106,11 @@ pub async fn stencila_artifacts_dir(stencila_dir: &Path, ensure: bool) -> Result
 pub async fn stencila_db_file(stencila_dir: &Path, ensure: bool) -> Result<PathBuf> {
     let db_file = stencila_dir.join(DB_FILE);
 
-    if let Some(parent) = db_file.parent() {
-        if ensure && !parent.exists() {
-            create_dir_all(&parent).await?;
-        }
+    if let Some(parent) = db_file.parent()
+        && ensure
+        && !parent.exists()
+    {
+        create_dir_all(&parent).await?;
     }
 
     Ok(db_file)

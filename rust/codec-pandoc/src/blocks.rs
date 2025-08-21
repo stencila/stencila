@@ -171,10 +171,10 @@ fn heading_from_pandoc(
                 if matches!(inlines.first(), Some(pandoc::Inline::Space)) {
                     inlines.remove(0);
                 }
-                if let Some(pandoc::Inline::Str(next)) = inlines.first() {
-                    if next.len() == 1 {
-                        inlines.remove(0);
-                    }
+                if let Some(pandoc::Inline::Str(next)) = inlines.first()
+                    && next.len() == 1
+                {
+                    inlines.remove(0);
                 }
                 if matches!(inlines.first(), Some(pandoc::Inline::Space)) {
                     inlines.remove(0);
@@ -186,20 +186,20 @@ fn heading_from_pandoc(
             | pandoc::Inline::Underline(inners),
         ) = inlines.first_mut()
         {
-            if let Some(pandoc::Inline::Str(first)) = inners.first() {
-                if first == "Appendix" {
+            if let Some(pandoc::Inline::Str(first)) = inners.first()
+                && first == "Appendix"
+            {
+                inners.remove(0);
+                if matches!(inners.first(), Some(pandoc::Inline::Space)) {
                     inners.remove(0);
-                    if matches!(inners.first(), Some(pandoc::Inline::Space)) {
-                        inners.remove(0);
-                    }
-                    if let Some(pandoc::Inline::Str(next)) = inners.first() {
-                        if next.len() == 1 {
-                            inners.remove(0);
-                        }
-                    }
-                    if matches!(inners.first(), Some(pandoc::Inline::Space)) {
-                        inners.remove(0);
-                    }
+                }
+                if let Some(pandoc::Inline::Str(next)) = inners.first()
+                    && next.len() == 1
+                {
+                    inners.remove(0);
+                }
+                if matches!(inners.first(), Some(pandoc::Inline::Space)) {
+                    inners.remove(0);
                 }
             }
             if inners.is_empty() {
@@ -223,17 +223,16 @@ fn paragraph_to_pandoc(para: &Paragraph, context: &mut PandocEncodeContext) -> p
     // Do the equivalent of Pandoc's `implicit_figures` default extension https://pandoc.org/MANUAL.html#extension-implicit_figures
     if let (true, Some(pandoc::Inline::Image(_, caption, _))) =
         (inlines.len() == 1, inlines.first())
+        && !caption.is_empty()
     {
-        if !caption.is_empty() {
-            return pandoc::Block::Figure(
-                attrs_empty(),
-                pandoc::Caption {
-                    short: None,
-                    long: vec![pandoc::Block::Plain(caption.clone())],
-                },
-                vec![pandoc::Block::Plain(inlines)],
-            );
-        }
+        return pandoc::Block::Figure(
+            attrs_empty(),
+            pandoc::Caption {
+                short: None,
+                long: vec![pandoc::Block::Plain(caption.clone())],
+            },
+            vec![pandoc::Block::Plain(inlines)],
+        );
     }
 
     if context.paragraph_to_plain {
@@ -449,15 +448,16 @@ fn table_from_pandoc(table: pandoc::Table, context: &mut PandocDecodeContext) ->
     // Stencila treats "Table X" as being separate to the caption itself.
     let mut caption = table.caption.long;
     if let Some(pandoc::Block::Para(para)) = caption.first_mut() {
-        if let Some(pandoc::Inline::Str(str)) = para.first() {
-            if str.starts_with("Table") && str.ends_with(":") {
-                para.remove(0);
-            }
+        if let Some(pandoc::Inline::Str(str)) = para.first()
+            && str.starts_with("Table")
+            && str.ends_with(":")
+        {
+            para.remove(0);
         }
-        if let Some(pandoc::Inline::Str(str)) = para.first() {
-            if str == ":" {
-                para.remove(0);
-            }
+        if let Some(pandoc::Inline::Str(str)) = para.first()
+            && str == ":"
+        {
+            para.remove(0);
         }
         if matches!(para.first(), Some(pandoc::Inline::Space)) {
             para.remove(0);
@@ -837,10 +837,10 @@ fn math_block_to_pandoc(
     math_block: &MathBlock,
     context: &mut PandocEncodeContext,
 ) -> pandoc::Block {
-    if let Some(lang) = &math_block.math_language {
-        if lang != "tex" {
-            context.losses.add("MathBlock.mathLanguage");
-        }
+    if let Some(lang) = &math_block.math_language
+        && lang != "tex"
+    {
+        context.losses.add("MathBlock.mathLanguage");
     }
 
     pandoc::Block::Para(vec![pandoc::Inline::Math(
@@ -853,16 +853,15 @@ fn math_block_from_pandoc(
     block: &pandoc::Block,
     _context: &mut PandocDecodeContext,
 ) -> Option<Block> {
-    if let pandoc::Block::Para(inlines) = block {
-        if let (1, Some(pandoc::Inline::Math(pandoc::MathType::DisplayMath, code))) =
+    if let pandoc::Block::Para(inlines) = block
+        && let (1, Some(pandoc::Inline::Math(pandoc::MathType::DisplayMath, code))) =
             (inlines.len(), inlines.first())
-        {
-            return Some(Block::MathBlock(MathBlock {
-                code: code.into(),
-                math_language: Some("tex".to_string()),
-                ..Default::default()
-            }));
-        }
+    {
+        return Some(Block::MathBlock(MathBlock {
+            code: code.into(),
+            math_language: Some("tex".to_string()),
+            ..Default::default()
+        }));
     }
 
     None
@@ -932,16 +931,18 @@ fn call_block_from_pandoc(
         .attributes
         .iter()
         .find_map(|(name, value)| (name == "source").then_some(value.clone()));
-    if source.is_none() && context.format == Format::Latex && !blocks.is_empty() {
-        if let Some(pandoc::Block::Para(inlines)) = blocks.get_mut(0) {
-            if let Some(pandoc::Inline::Span(..)) = inlines.first() {
-                if let pandoc::Inline::Span(.., inlines) = inlines.remove(0) {
-                    source = Some(string_from_pandoc_inlines(inlines))
-                }
-            }
-            if let Some(pandoc::Inline::SoftBreak) = inlines.first() {
-                inlines.remove(0);
-            }
+    if source.is_none()
+        && context.format == Format::Latex
+        && !blocks.is_empty()
+        && let Some(pandoc::Block::Para(inlines)) = blocks.get_mut(0)
+    {
+        if let Some(pandoc::Inline::Span(..)) = inlines.first()
+            && let pandoc::Inline::Span(.., inlines) = inlines.remove(0)
+        {
+            source = Some(string_from_pandoc_inlines(inlines))
+        }
+        if let Some(pandoc::Inline::SoftBreak) = inlines.first() {
+            inlines.remove(0);
         }
     }
     let source = source.unwrap_or_default();
@@ -1131,13 +1132,13 @@ fn if_block_from_pandoc(
     // Iterate over children and determine if each is an `IfBlockClause`
     let mut clauses = Vec::new();
     for block in blocks.iter() {
-        if let pandoc::Block::Div(attrs, blocks) = block {
-            if attrs.classes.iter().any(|class| {
+        if let pandoc::Block::Div(attrs, blocks) = block
+            && attrs.classes.iter().any(|class| {
                 class == "if-clause" || class == "if" || class == "elif" || class == "else"
-            }) {
-                let clause = if_block_clause_from_pandoc(attrs.clone(), blocks.clone(), context);
-                clauses.push(clause);
-            }
+            })
+        {
+            let clause = if_block_clause_from_pandoc(attrs.clone(), blocks.clone(), context);
+            clauses.push(clause);
         }
     }
 
@@ -1171,16 +1172,18 @@ fn if_block_clause_from_pandoc(
         }
     }
 
-    if code.is_none() && context.format == Format::Latex && !blocks.is_empty() {
-        if let Some(pandoc::Block::Para(inlines)) = blocks.get_mut(0) {
-            if let Some(pandoc::Inline::Span(..)) = inlines.first() {
-                if let pandoc::Inline::Span(.., inlines) = inlines.remove(0) {
-                    code = Some(string_from_pandoc_inlines(inlines))
-                }
-            }
-            if let Some(pandoc::Inline::SoftBreak) = inlines.first() {
-                inlines.remove(0);
-            }
+    if code.is_none()
+        && context.format == Format::Latex
+        && !blocks.is_empty()
+        && let Some(pandoc::Block::Para(inlines)) = blocks.get_mut(0)
+    {
+        if let Some(pandoc::Inline::Span(..)) = inlines.first()
+            && let pandoc::Inline::Span(.., inlines) = inlines.remove(0)
+        {
+            code = Some(string_from_pandoc_inlines(inlines))
+        }
+        if let Some(pandoc::Inline::SoftBreak) = inlines.first() {
+            inlines.remove(0);
         }
     }
     let code = code.unwrap_or_default().into();
@@ -1283,16 +1286,18 @@ fn include_block_from_pandoc(
         .attributes
         .iter()
         .find_map(|(name, value)| (name == "source").then_some(value.clone()));
-    if source.is_none() && context.format == Format::Latex && !blocks.is_empty() {
-        if let Some(pandoc::Block::Para(inlines)) = blocks.get_mut(0) {
-            if let Some(pandoc::Inline::Span(..)) = inlines.first() {
-                if let pandoc::Inline::Span(.., inlines) = inlines.remove(0) {
-                    source = Some(string_from_pandoc_inlines(inlines))
-                }
-            }
-            if let Some(pandoc::Inline::SoftBreak) = inlines.first() {
-                inlines.remove(0);
-            }
+    if source.is_none()
+        && context.format == Format::Latex
+        && !blocks.is_empty()
+        && let Some(pandoc::Block::Para(inlines)) = blocks.get_mut(0)
+    {
+        if let Some(pandoc::Inline::Span(..)) = inlines.first()
+            && let pandoc::Inline::Span(.., inlines) = inlines.remove(0)
+        {
+            source = Some(string_from_pandoc_inlines(inlines))
+        }
+        if let Some(pandoc::Inline::SoftBreak) = inlines.first() {
+            inlines.remove(0);
         }
     }
     let mut source = source.unwrap_or_default();
@@ -1469,21 +1474,23 @@ fn for_block_from_pandoc(
     // If variable and code are none, then likely this is from LaTeX and so try getting them
     // from the first two spans of the first paragraph (the LaTex environment args that Pandoc
     // does not handle)
-    if variable.is_none() && code.is_none() && context.format == Format::Latex {
-        if let Some(pandoc::Block::Para(inlines)) = blocks.get_mut(0) {
-            if let Some(pandoc::Inline::Span(..)) = inlines.first() {
-                if let pandoc::Inline::Span(.., inlines) = inlines.remove(0) {
-                    variable = Some(string_from_pandoc_inlines(inlines));
-                }
-            }
-            if let Some(pandoc::Inline::Span(..)) = inlines.first() {
-                if let pandoc::Inline::Span(.., inlines) = inlines.remove(0) {
-                    code = Some(string_from_pandoc_inlines(inlines));
-                }
-            }
-            if let Some(pandoc::Inline::SoftBreak) = inlines.first() {
-                inlines.remove(0);
-            }
+    if variable.is_none()
+        && code.is_none()
+        && context.format == Format::Latex
+        && let Some(pandoc::Block::Para(inlines)) = blocks.get_mut(0)
+    {
+        if let Some(pandoc::Inline::Span(..)) = inlines.first()
+            && let pandoc::Inline::Span(.., inlines) = inlines.remove(0)
+        {
+            variable = Some(string_from_pandoc_inlines(inlines));
+        }
+        if let Some(pandoc::Inline::Span(..)) = inlines.first()
+            && let pandoc::Inline::Span(.., inlines) = inlines.remove(0)
+        {
+            code = Some(string_from_pandoc_inlines(inlines));
+        }
+        if let Some(pandoc::Inline::SoftBreak) = inlines.first() {
+            inlines.remove(0);
         }
     }
 
@@ -1590,52 +1597,50 @@ fn div_from_pandoc(
         .classes
         .iter()
         .find_map(|class| class.strip_prefix("callout-"))
+        && let Ok(admonition_type) = AdmonitionType::from_str(admon_type)
     {
-        if let Ok(admonition_type) = AdmonitionType::from_str(admon_type) {
-            let title = attrs
-                .attributes
-                .iter()
-                .find_map(|(name, value)| (name == "title").then_some(value))
-                .map(|title| vec![Inline::Text(Text::from(title))]);
+        let title = attrs
+            .attributes
+            .iter()
+            .find_map(|(name, value)| (name == "title").then_some(value))
+            .map(|title| vec![Inline::Text(Text::from(title))]);
 
-            let is_folded = attrs
-                .attributes
-                .iter()
-                .find_map(|(name, value)| (name == "collapse").then_some(value))
-                .and_then(|is_folded| match is_folded.to_lowercase().as_str() {
-                    "true" | "yes" => Some(true),
-                    "false" | "no" => Some(false),
-                    _ => None,
-                });
-
-            return Block::Admonition(Admonition {
-                admonition_type,
-                title,
-                is_folded,
-                content,
-                ..Default::default()
+        let is_folded = attrs
+            .attributes
+            .iter()
+            .find_map(|(name, value)| (name == "collapse").then_some(value))
+            .and_then(|is_folded| match is_folded.to_lowercase().as_str() {
+                "true" | "yes" => Some(true),
+                "false" | "no" => Some(false),
+                _ => None,
             });
-        }
+
+        return Block::Admonition(Admonition {
+            admonition_type,
+            title,
+            is_folded,
+            content,
+            ..Default::default()
+        });
     };
 
     if let Some(claim_type) = attrs
         .classes
         .iter()
         .find_map(|class| class.strip_prefix("claim-"))
+        && let Ok(claim_type) = ClaimType::from_str(claim_type)
     {
-        if let Ok(claim_type) = ClaimType::from_str(claim_type) {
-            let label = attrs
-                .attributes
-                .into_iter()
-                .find_map(|(name, value)| (name == "label").then_some(value));
+        let label = attrs
+            .attributes
+            .into_iter()
+            .find_map(|(name, value)| (name == "label").then_some(value));
 
-            return Block::Claim(Claim {
-                claim_type,
-                label,
-                content,
-                ..Default::default()
-            });
-        }
+        return Block::Claim(Claim {
+            claim_type,
+            label,
+            content,
+            ..Default::default()
+        });
     };
 
     if attrs.classes.iter().any(|class| class == "chat-message") {

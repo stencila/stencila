@@ -98,14 +98,12 @@ pub trait Tool: Sync + Send {
             // because we'll try the command anyway
             if let Some(mut command) =
                 manager.execute_command("which", &[self.executable_name().to_string()])
+                && let Ok(output) = command.output()
+                && output.status.success()
             {
-                if let Ok(output) = command.output() {
-                    if output.status.success() {
-                        let path_str = String::from_utf8_lossy(&output.stdout).trim().to_string();
-                        if !path_str.is_empty() {
-                            return Some(PathBuf::from(path_str));
-                        }
-                    }
+                let path_str = String::from_utf8_lossy(&output.stdout).trim().to_string();
+                if !path_str.is_empty() {
+                    return Some(PathBuf::from(path_str));
                 }
             }
         }
@@ -178,14 +176,12 @@ pub trait Tool: Sync + Send {
                     .collect();
                 if let Some(mut command) =
                     manager.execute_command(self.executable_name(), &version_args)
+                    && let Ok(output) = command.output()
+                    && output.status.success()
                 {
-                    if let Ok(output) = command.output() {
-                        if output.status.success() {
-                            let output_str = String::from_utf8_lossy(&output.stdout);
-                            if let Some(version) = self.parse_version(&output_str) {
-                                return Some(version);
-                            }
-                        }
+                    let output_str = String::from_utf8_lossy(&output.stdout);
+                    if let Some(version) = self.parse_version(&output_str) {
+                        return Some(version);
                     }
                 }
             }
@@ -377,10 +373,10 @@ pub(crate) fn is_installed(tool: &dyn Tool) -> bool {
     let cache_key = tool_cache_key(tool);
 
     // Check the cache first to avoid repeated lookups for recently installed tools
-    if let Ok(cache) = INSTALLED_TOOLS_CACHE.lock() {
-        if cache.contains(&cache_key) {
-            return true;
-        }
+    if let Ok(cache) = INSTALLED_TOOLS_CACHE.lock()
+        && cache.contains(&cache_key)
+    {
+        return true;
     }
 
     if tool.executable_name() == PACKAGE {
@@ -389,15 +385,14 @@ pub(crate) fn is_installed(tool: &dyn Tool) -> bool {
         let mut is_installed = false;
 
         for installer in tool.installation_tools() {
-            if let Some(mut cmd) = installer.is_package_installed(tool) {
-                if cmd
+            if let Some(mut cmd) = installer.is_package_installed(tool)
+                && cmd
                     .status()
                     .map(|status| status.success())
                     .unwrap_or_default()
-                {
-                    is_installed = true;
-                    break;
-                }
+            {
+                is_installed = true;
+                break;
             }
         }
 

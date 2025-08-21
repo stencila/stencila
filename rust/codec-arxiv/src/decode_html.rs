@@ -268,10 +268,10 @@ pub fn get_text(parser: &Parser, tag: &HTMLTag) -> String {
     {
         if let Some(child_tag) = child.as_tag() {
             text_parts.push(get_text(parser, child_tag));
-        } else if let Some(text) = child.as_raw() {
-            if let Some(text_str) = text.try_as_utf8_str() {
-                text_parts.push(decode_html_entities(text_str));
-            }
+        } else if let Some(text) = child.as_raw()
+            && let Some(text_str) = text.try_as_utf8_str()
+        {
+            text_parts.push(decode_html_entities(text_str));
         }
     }
 
@@ -301,10 +301,10 @@ pub fn get_text_excluding_superscripts(parser: &Parser, tag: &HTMLTag) -> String
             }
 
             text_parts.push(get_text_excluding_superscripts(parser, child_tag));
-        } else if let Some(text) = child.as_raw() {
-            if let Some(text_str) = text.try_as_utf8_str() {
-                text_parts.push(decode_html_entities(text_str));
-            }
+        } else if let Some(text) = child.as_raw()
+            && let Some(text_str) = text.try_as_utf8_str()
+        {
+            text_parts.push(decode_html_entities(text_str));
         }
     }
 
@@ -349,15 +349,14 @@ fn decode_article(parser: &Parser, article: &HTMLTag, context: &mut ArxivDecodeC
         }
     }
 
-    if references.is_empty() {
-        if let Some(tag) = article
+    if references.is_empty()
+        && let Some(tag) = article
             .query_selector(parser, ".ltx_bibliography")
             .and_then(|mut query| query.next())
             .and_then(|node_handle| node_handle.get(parser))
             .and_then(|node| node.as_tag())
-        {
-            references = decode_bibliography(parser, tag, context);
-        }
+    {
+        references = decode_bibliography(parser, tag, context);
     }
 
     Article {
@@ -450,12 +449,12 @@ fn decode_personname_element(parser: &Parser, tag: &HTMLTag) -> Vec<Author> {
                     current_author_parts.push(element_text);
                 }
             }
-        } else if let Some(text) = child.as_raw() {
-            if let Some(text_str) = text.try_as_utf8_str() {
-                let decoded_text = decode_html_entities(text_str).trim().to_string();
-                if !decoded_text.is_empty() && decoded_text != "&" {
-                    current_author_parts.push(decoded_text);
-                }
+        } else if let Some(text) = child.as_raw()
+            && let Some(text_str) = text.try_as_utf8_str()
+        {
+            let decoded_text = decode_html_entities(text_str).trim().to_string();
+            if !decoded_text.is_empty() && decoded_text != "&" {
+                current_author_parts.push(decoded_text);
             }
         }
     }
@@ -532,18 +531,20 @@ pub fn decode_authors_from_text(text: &str) -> Vec<Author> {
 
     // If no standard separators, try to detect superscript-separated names
     // Pattern: "FirstName LastName 1  NextFirst NextLast 1  ..."
-    if let Some(sup_authors) = parse_superscript_separated_authors(text) {
-        if sup_authors.len() > 1 {
-            return sup_authors;
-        }
+    if let Some(sup_authors) = parse_superscript_separated_authors(text)
+        && sup_authors.len() > 1
+    {
+        return sup_authors;
     }
 
     // Fallback: treat as single author
     let trimmed = text.trim();
-    if !trimmed.is_empty() && !is_email_address(trimmed) && !is_organization_name(trimmed) {
-        if let Ok(person) = Person::from_str(trimmed) {
-            return vec![Author::Person(person)];
-        }
+    if !trimmed.is_empty()
+        && !is_email_address(trimmed)
+        && !is_organization_name(trimmed)
+        && let Ok(person) = Person::from_str(trimmed)
+    {
+        return vec![Author::Person(person)];
     }
 
     vec![]
@@ -572,10 +573,12 @@ fn parse_superscript_separated_authors(text: &str) -> Option<Vec<Author>> {
             .trim_end_matches(char::is_numeric) // Remove trailing numbers
             .trim();
 
-        if !cleaned.is_empty() && !is_email_address(cleaned) && !is_organization_name(cleaned) {
-            if let Ok(person) = Person::from_str(cleaned) {
-                authors.push(Author::Person(person));
-            }
+        if !cleaned.is_empty()
+            && !is_email_address(cleaned)
+            && !is_organization_name(cleaned)
+            && let Ok(person) = Person::from_str(cleaned)
+        {
+            authors.push(Author::Person(person));
         }
     }
 
@@ -708,12 +711,11 @@ fn extract_latex_from_annotations(parser: &Parser, tag: &HTMLTag) -> String {
     {
         if let Some(child_tag) = child.as_tag() {
             // Look for annotation elements with LaTeX
-            if child_tag.name().as_utf8_str() == "annotation" {
-                if let Some(encoding) = child_tag.attributes().get("encoding").flatten() {
-                    if encoding.as_utf8_str().contains("tex") {
-                        return get_text(parser, child_tag);
-                    }
-                }
+            if child_tag.name().as_utf8_str() == "annotation"
+                && let Some(encoding) = child_tag.attributes().get("encoding").flatten()
+                && encoding.as_utf8_str().contains("tex")
+            {
+                return get_text(parser, child_tag);
             }
 
             // Recursively search in child elements
@@ -796,16 +798,16 @@ fn decode_reference(parser: &Parser, tag: &HTMLTag) -> Reference {
         .iter()
         .flat_map(|handle| handle.get(parser))
     {
-        if let Some(child_tag) = child.as_tag() {
-            if child_tag.name().as_utf8_str() == "span" {
-                let class = get_class(child_tag);
-                if class.contains("ltx_bibblock") {
-                    let text = decode_html_entities(&child_tag.inner_text(parser));
-                    let text = text.trim();
-                    if !text.is_empty() {
-                        reference.push_str(text);
-                        reference.push(' ');
-                    }
+        if let Some(child_tag) = child.as_tag()
+            && child_tag.name().as_utf8_str() == "span"
+        {
+            let class = get_class(child_tag);
+            if class.contains("ltx_bibblock") {
+                let text = decode_html_entities(&child_tag.inner_text(parser));
+                let text = text.trim();
+                if !text.is_empty() {
+                    reference.push_str(text);
+                    reference.push(' ');
                 }
             }
         }

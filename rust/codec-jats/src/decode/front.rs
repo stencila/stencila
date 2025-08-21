@@ -248,15 +248,15 @@ fn date_element_to_date(node: &Node) -> Option<Date> {
 fn decode_volume(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     record_attrs_lost(path, node, [], losses);
 
-    if let Ok(volume_number) = node.text().unwrap_or_default().parse() {
-        if article.options.parts.is_none() {
-            article.options.parts = Some(vec![CreativeWorkVariant::PublicationVolume(
-                PublicationVolume {
-                    volume_number: Some(IntegerOrString::Integer(volume_number)),
-                    ..Default::default()
-                },
-            )]);
-        }
+    if let Ok(volume_number) = node.text().unwrap_or_default().parse()
+        && article.options.parts.is_none()
+    {
+        article.options.parts = Some(vec![CreativeWorkVariant::PublicationVolume(
+            PublicationVolume {
+                volume_number: Some(IntegerOrString::Integer(volume_number)),
+                ..Default::default()
+            },
+        )]);
     }
 }
 
@@ -344,10 +344,10 @@ fn decode_contrib(path: &str, node: &Node, parent: &Node, losses: &mut Losses) -
                     if let Some(value) = grandchild.text() {
                         family_names.push(value.to_string());
                     }
-                } else if grandchild_tag == "given-names" {
-                    if let Some(value) = grandchild.text() {
-                        given_names.append(&mut split_given_names(value));
-                    }
+                } else if grandchild_tag == "given-names"
+                    && let Some(value) = grandchild.text()
+                {
+                    given_names.append(&mut split_given_names(value));
                 }
             }
         } else if tag == "contrib-id"
@@ -361,26 +361,24 @@ fn decode_contrib(path: &str, node: &Node, parent: &Node, losses: &mut Losses) -
                     .to_string()
             });
         } else if tag == "object-id" && orcid.is_none() {
-            if let Some(url) = child.attribute("xlink:href") {
-                if let Some(id) = url
+            if let Some(url) = child.attribute("xlink:href")
+                && let Some(id) = url
                     .strip_prefix("https://orcid.org/")
                     .or_else(|| url.strip_prefix("http://orcid.org/"))
-                {
-                    orcid = Some(id.into())
-                }
+            {
+                orcid = Some(id.into())
             };
         } else if tag == "email" {
             if let Some(value) = child.text() {
                 emails.push(value.into());
             }
         } else if tag == "xref" && matches!(child.attribute("ref-type"), Some("aff")) {
-            if let Some(id) = child.attribute("rid") {
-                if let Some(aff) = parent
+            if let Some(id) = child.attribute("rid")
+                && let Some(aff) = parent
                     .descendants()
                     .find(|n| n.has_tag_name("aff") && n.attribute("id").unwrap_or_default() == id)
-                {
-                    affiliations.push(decode_aff(&aff));
-                }
+            {
+                affiliations.push(decode_aff(&aff));
             }
         } else {
             record_node_lost(path, &child, losses);
@@ -482,10 +480,10 @@ fn decode_kwd(path: &str, node: &Node, losses: &mut Losses) -> String {
     for child in node.children() {
         if node.text().is_none() {
             keyword.push_str(&decode_kwd(path, &child, losses))
-        } else if let Some(text) = child.text() {
-            if !text.trim().is_empty() {
-                keyword.push_str(text)
-            }
+        } else if let Some(text) = child.text()
+            && !text.trim().is_empty()
+        {
+            keyword.push_str(text)
         }
     }
 

@@ -27,14 +27,14 @@ impl MarkdownCodec for Prompt {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context.enter_node(self.node_type(), self.node_id());
 
-        if let Some(yaml) = &self.frontmatter {
-            if !yaml.is_empty() {
-                context.push_prop_fn(NodeProperty::Frontmatter, |context| {
-                    context.push_str("---\n");
-                    context.push_str(yaml);
-                    context.push_str("\n---\n\n");
-                });
-            }
+        if let Some(yaml) = &self.frontmatter
+            && !yaml.is_empty()
+        {
+            context.push_prop_fn(NodeProperty::Frontmatter, |context| {
+                context.push_str("---\n");
+                context.push_str(yaml);
+                context.push_str("\n---\n\n");
+            });
         }
 
         context.push_prop_fn(NodeProperty::Content, |context| {

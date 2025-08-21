@@ -175,15 +175,13 @@ fn normalize_git_url(url: &str) -> Option<String> {
         && !url.starts_with("http")
         && !url.starts_with("ssh://")
         && !url.starts_with("file://")
+        && let Some(at_pos) = url.find('@')
+        && let Some(colon_pos) = url[at_pos..].find(':')
     {
-        if let Some(at_pos) = url.find('@') {
-            if let Some(colon_pos) = url[at_pos..].find(':') {
-                let host = &url[at_pos + 1..at_pos + colon_pos];
-                let path = &url[at_pos + colon_pos + 1..];
-                let path = path.strip_suffix(".git").unwrap_or(path);
-                return Some(format!("https://{host}/{path}"));
-            }
-        }
+        let host = &url[at_pos + 1..at_pos + colon_pos];
+        let path = &url[at_pos + colon_pos + 1..];
+        let path = path.strip_suffix(".git").unwrap_or(path);
+        return Some(format!("https://{host}/{path}"));
     }
 
     // Try to parse as a proper URL

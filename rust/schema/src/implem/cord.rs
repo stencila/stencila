@@ -114,11 +114,11 @@ impl Cord {
         if self.authorship.len() > 1 {
             let mut coalesced: Vec<CordAuthorship> = Vec::with_capacity(1);
             for run in self.authorship.iter() {
-                if let Some(last) = coalesced.last_mut() {
-                    if (run.count, run.authors) == (last.count, last.authors) {
-                        last.length += run.length;
-                        continue;
-                    }
+                if let Some(last) = coalesced.last_mut()
+                    && (run.count, run.authors) == (last.count, last.authors)
+                {
+                    last.length += run.length;
+                    continue;
                 }
                 coalesced.push(run.clone())
             }

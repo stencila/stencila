@@ -35,10 +35,10 @@ impl Document {
 
         // Local function to send back command status and log any error when doing so
         async fn send_status(sender: &Option<DocumentCommandStatusSender>, status: CommandStatus) {
-            if let Some(sender) = sender {
-                if let Err(error) = sender.send(status).await {
-                    tracing::error!("While sending command status: {error}");
-                }
+            if let Some(sender) = sender
+                && let Err(error) = sender.send(status).await
+            {
+                tracing::error!("While sending command status: {error}");
             }
         }
 
@@ -58,75 +58,70 @@ impl Document {
             // interrupt execution, or wait for the current command to finish.
             if let Some((current_command, current_status_sender, current_task)) =
                 &current_command_details
+                && !current_task.is_finished()
             {
-                if !current_task.is_finished() {
-                    match (&command, current_command) {
-                        (CompileDocument { .. } | ExecuteDocument(..), ExecuteDocument(..)) => {
-                            tracing::debug!("Ignoring document command: already executing");
-                            send_status(&status_sender, CommandStatus::Ignored).await;
+                match (&command, current_command) {
+                    (CompileDocument { .. } | ExecuteDocument(..), ExecuteDocument(..)) => {
+                        tracing::debug!("Ignoring document command: already executing");
+                        send_status(&status_sender, CommandStatus::Ignored).await;
 
-                            continue;
-                        }
-                        (InterruptDocument, ExecuteDocument(..) | ExecuteNodes(..)) => {
-                            tracing::debug!("Interrupting document execution");
-                            send_status(&status_sender, CommandStatus::Running).await;
-
-                            current_task.abort();
-
-                            let status = if let Err(error) = interrupt(
-                                home.clone(),
-                                root.clone(),
-                                kernels.clone(),
-                                Some(patch_sender.clone()),
-                                None,
-                            )
-                            .await
-                            {
-                                CommandStatus::Failed(format!(
-                                    "While interrupting document: {error}"
-                                ))
-                            } else {
-                                send_status(current_status_sender, CommandStatus::Interrupted)
-                                    .await;
-                                CommandStatus::Succeeded
-                            };
-
-                            send_status(&status_sender, status).await;
-                            continue;
-                        }
-                        (
-                            InterruptNodes(CommandNodes { node_ids, .. }),
-                            ExecuteDocument(..) | ExecuteNodes(..),
-                        ) => {
-                            tracing::debug!("Interrupting node execution");
-                            send_status(&status_sender, CommandStatus::Running).await;
-
-                            // Abort the current task if it has the same node_ids and scope
-                            if &command == current_command {
-                                current_task.abort();
-                            }
-
-                            let status = if let Err(error) = interrupt(
-                                home.clone(),
-                                root.clone(),
-                                kernels.clone(),
-                                Some(patch_sender.clone()),
-                                Some(node_ids.clone()),
-                            )
-                            .await
-                            {
-                                CommandStatus::Failed(format!("While interrupting nodes: {error}"))
-                            } else {
-                                send_status(current_status_sender, CommandStatus::Interrupted)
-                                    .await;
-                                CommandStatus::Succeeded
-                            };
-
-                            send_status(&status_sender, status).await;
-                            continue;
-                        }
-                        _ => {}
+                        continue;
                     }
+                    (InterruptDocument, ExecuteDocument(..) | ExecuteNodes(..)) => {
+                        tracing::debug!("Interrupting document execution");
+                        send_status(&status_sender, CommandStatus::Running).await;
+
+                        current_task.abort();
+
+                        let status = if let Err(error) = interrupt(
+                            home.clone(),
+                            root.clone(),
+                            kernels.clone(),
+                            Some(patch_sender.clone()),
+                            None,
+                        )
+                        .await
+                        {
+                            CommandStatus::Failed(format!("While interrupting document: {error}"))
+                        } else {
+                            send_status(current_status_sender, CommandStatus::Interrupted).await;
+                            CommandStatus::Succeeded
+                        };
+
+                        send_status(&status_sender, status).await;
+                        continue;
+                    }
+                    (
+                        InterruptNodes(CommandNodes { node_ids, .. }),
+                        ExecuteDocument(..) | ExecuteNodes(..),
+                    ) => {
+                        tracing::debug!("Interrupting node execution");
+                        send_status(&status_sender, CommandStatus::Running).await;
+
+                        // Abort the current task if it has the same node_ids and scope
+                        if &command == current_command {
+                            current_task.abort();
+                        }
+
+                        let status = if let Err(error) = interrupt(
+                            home.clone(),
+                            root.clone(),
+                            kernels.clone(),
+                            Some(patch_sender.clone()),
+                            Some(node_ids.clone()),
+                        )
+                        .await
+                        {
+                            CommandStatus::Failed(format!("While interrupting nodes: {error}"))
+                        } else {
+                            send_status(current_status_sender, CommandStatus::Interrupted).await;
+                            CommandStatus::Succeeded
+                        };
+
+                        send_status(&status_sender, status).await;
+                        continue;
+                    }
+                    _ => {}
                 }
             }
 
