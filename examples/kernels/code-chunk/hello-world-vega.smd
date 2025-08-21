@@ -1,0 +1,7 @@
+```python exec
+import altair as alt
+import pandas as pd
+
+data = pd.DataFrame({'x': ['Hello', 'World'], 'y': [3, 5]})
+alt.Chart(data).mark_bar().encode(x='x', y='y')
+```

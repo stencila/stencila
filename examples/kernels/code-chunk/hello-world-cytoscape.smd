@@ -1,0 +1,19 @@
+```js exec
+var graph = {
+  elements: [
+    { data: { id: 'hello', label: 'Hello' } },
+    { data: { id: 'world', label: 'World!' } },
+    { data: { id: 'edge', source: 'hello', target: 'world' } }
+  ],
+  style: [
+    { selector: 'node', style: { 'background-color': '#666', 'label': 'data(label)' } },
+    { selector: 'edge', style: { 'width': 3, 'line-color': '#ccc' } }
+  ]
+}
+
+console.log({
+  type: "ImageObject",
+  mediaType: "application/vnd.cytoscape.v3+json",
+  contentUrl: JSON.stringify(graph)
+})
+```

@@ -1,0 +1,6 @@
+```python exec
+import plotly.graph_objects as go
+
+fig = go.Figure(data=go.Bar(x=['Hello', 'World'], y=[3, 5]))
+fig.show()
+```

@@ -1,0 +1,7 @@
+```python exec
+import folium
+
+m = folium.Map(location=[-42.42, 173.7], zoom_start=7)
+folium.Marker([-42.42, 173.7], popup='Hello World!').add_to(m)
+m
+```
