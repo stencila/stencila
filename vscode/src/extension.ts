@@ -30,6 +30,7 @@ import {
 import { workspaceSetup } from './workspace'
 
 let client: LanguageClient | undefined
+let isInitialActivation = true
 
 const outputChannel = vscode.window.createOutputChannel(
   'Stencila Language Server'
@@ -53,6 +54,7 @@ export async function activate(context: vscode.ExtensionContext) {
   // Register event handlers, commands etc
   // Some of these (e.g. auth provider) are used when collecting secrets in `startServer`
   // so this needs to be done first
+  outputChannel.append('Registering commands and handlers: ')
   registerEventing(context)
   registerAuthenticationProvider(context)
   registerSecretsCommands(context)
@@ -62,14 +64,21 @@ export async function activate(context: vscode.ExtensionContext) {
   registerStencilaShell(context)
   registerPythonExtensionListener(context)
   registerOtherCommands(context)
+  outputChannel.appendLine('done')
 
   // Check status of extension
+  outputChannel.append('Checking extension status: ')
   checkExtensionStatus(context)
+  outputChannel.appendLine('done')
 
   // Run any workspace setup
+  outputChannel.append('Running workspace setup: ')
   workspaceSetup(context)
+  outputChannel.appendLine('done')
 
-  // Start the LSP server
+  // Start the LSP server (no further output to channel so as to
+  // not conflict with server's output)
+  outputChannel.appendLine('Starting server')
   await startServer(context)
 
   // Initialize lists to avoid waiting on first render of sidebars and webviews
@@ -124,7 +133,7 @@ async function startServer(context: vscode.ExtensionContext) {
       break
     }
   }
-
+  
   // Collect secrets to pass as env vars to LSP server
   const secrets = await collectSecrets(context)
 
@@ -158,6 +167,9 @@ async function startServer(context: vscode.ExtensionContext) {
     clientOptions
   )
   await client.start()
+
+  // Mark initial activation as complete after LSP starts successfully
+  isInitialActivation = false
 
   // Register handlers for notifications from the client
   registerStatusNotifications(context, client)
@@ -195,6 +207,12 @@ function registerOtherCommands(context: vscode.ExtensionContext) {
   // Command to restart the server (e.g. after setting or removing secrets)
   context.subscriptions.push(
     vscode.commands.registerCommand('stencila.lsp-server.restart', async () => {
+      // Prevent restarts during initial activation to avoid restart loops
+      if (isInitialActivation) {
+        outputChannel.appendLine('Skipping LSP restart during initial activation')
+        return
+      }
+
       event('lsp_restart')
 
       if (client) {

@@ -48,8 +48,11 @@ export function registerAuthenticationProvider(
           }
         )
         vscode.window.showInformationMessage(
-          `Signed in to Stencila Cloud as ${session.account.label}`
+          `Signed in to Stencila Cloud as ${session.account.label}. Restarting Stencila Language Server for change to take effect.`
         )
+
+        // Restart the LSP since this is a user-initiated action
+        vscode.commands.executeCommand('stencila.lsp-server.restart')
 
         event('cloud_signin_success')
       } catch (error) {
@@ -110,8 +113,11 @@ export function registerAuthenticationProvider(
           const provider = new StencilaCloudProvider(context)
           await provider.removeSession(session.id)
           vscode.window.showInformationMessage(
-            'Successfully signed out from Stencila Cloud'
+            'Successfully signed out from Stencila Cloud. Restarting Stencila Language Server for change to take effect.'
           )
+
+          // Restart the LSP since this is a user-initiated action
+          vscode.commands.executeCommand('stencila.lsp-server.restart')
 
           event('cloud_signout_success')
         } else {
@@ -267,9 +273,9 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
       changed: [],
     })
 
-    // Restart the language server so that the STENCILA_API_TOKEN env var is set
-    vscode.commands.executeCommand('stencila.lsp-server.restart')
-
+    // Note: LSP will pick up the new token on next restart or when collectSecrets is called
+    // We don't automatically restart here to avoid restart loops during activation
+    
     return session
   }
 
@@ -324,7 +330,7 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
       changed: [],
     })
 
-    // Restart the language server so that the STENCILA_API_TOKEN env var is no longer present
-    vscode.commands.executeCommand('stencila.lsp-server.restart')
+    // Note: LSP will pick up the token removal on next restart or when collectSecrets is called
+    // We don't automatically restart here to avoid restart loops during activation
   }
 }
