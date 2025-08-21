@@ -3088,6 +3088,7 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "Methods",
       "content": [
         {
           "type": "Heading",
@@ -3537,8 +3538,7 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Methods"
+      ]
     },
     {
       "type": "Section",

@@ -8919,6 +8919,7 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -15737,11 +15738,11 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -16008,11 +16009,11 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -16230,8 +16231,7 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Heading",
@@ -16259,6 +16259,7 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -16928,11 +16929,11 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -17323,8 +17324,7 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Heading",
@@ -18290,6 +18290,7 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -18693,11 +18694,11 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -19305,11 +19306,11 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -21547,8 +21548,7 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Heading",
@@ -21779,6 +21779,7 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -21795,6 +21796,7 @@ expression: article
         },
         {
           "type": "Section",
+          "sectionType": "Main",
           "content": [
             {
               "type": "Heading",
@@ -22961,11 +22963,11 @@ expression: article
                 }
               ]
             }
-          ],
-          "sectionType": "Main"
+          ]
         },
         {
           "type": "Section",
+          "sectionType": "Main",
           "content": [
             {
               "type": "Heading",
@@ -23366,14 +23368,13 @@ expression: article
                 }
               ]
             }
-          ],
-          "sectionType": "Main"
+          ]
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -24047,11 +24048,11 @@ expression: article
           ],
           "order": "Unordered"
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -24618,8 +24619,7 @@ expression: article
           ],
           "order": "Unordered"
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Heading",
@@ -24636,6 +24636,7 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -24976,11 +24977,11 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -25238,11 +25239,11 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -25381,11 +25382,11 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -25595,8 +25596,7 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Heading",
@@ -25947,6 +25947,7 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -27273,11 +27274,11 @@ expression: article
           "mathLanguage": "latex",
           "mathml": "redacted"
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -28660,11 +28661,11 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -30329,8 +30330,7 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Heading",
@@ -30347,6 +30347,7 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -30534,11 +30535,11 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -30714,8 +30715,7 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Heading",

@@ -1,5 +1,5 @@
 ---
-source: rust/codec-pmcoap/tests/examples.rs
+source: rust/codec-pmcoa/tests/examples.rs
 expression: article
 ---
 {
@@ -8,6 +8,7 @@ expression: article
   "abstract": [
     {
       "type": "Section",
+      "sectionType": "Background",
       "content": [
         {
           "type": "Heading",
@@ -36,6 +37,7 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "Methods",
       "content": [
         {
           "type": "Heading",
@@ -60,11 +62,11 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Methods"
+      ]
     },
     {
       "type": "Section",
+      "sectionType": "Results",
       "content": [
         {
           "type": "Heading",
@@ -89,11 +91,11 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Results"
+      ]
     },
     {
       "type": "Section",
+      "sectionType": "Conclusions",
       "content": [
         {
           "type": "Heading",
@@ -118,8 +120,7 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Conclusions"
+      ]
     }
   ],
   "authors": [

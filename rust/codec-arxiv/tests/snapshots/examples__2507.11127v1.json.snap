@@ -7017,6 +7017,7 @@ expression: article
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -8148,11 +8149,11 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -9030,11 +9031,11 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Section",
+      "sectionType": "Main",
       "content": [
         {
           "type": "Heading",
@@ -9355,8 +9356,7 @@ expression: article
             }
           ]
         }
-      ],
-      "sectionType": "Main"
+      ]
     },
     {
       "type": "Heading",

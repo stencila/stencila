@@ -18,6 +18,7 @@ old:
       characterPercent: 100
   content:
     - type: Section
+      sectionType: Methods
       content:
         - type: Paragraph
           content:
@@ -41,7 +42,6 @@ old:
               provenanceCategory: Hw
               characterCount: 5
               characterPercent: 100
-      sectionType: Methods
       authors:
         - type: AuthorRole
           author:
@@ -58,6 +58,7 @@ new:
   type: Article
   content:
     - type: Section
+      sectionType: Methods
       content:
         - type: Paragraph
           content:
@@ -69,7 +70,6 @@ new:
             - type: Text
               value:
                 string: para2
-      sectionType: Methods
 merged:
   type: Article
   authors:
@@ -92,6 +92,7 @@ merged:
       characterPercent: 100
   content:
     - type: Section
+      sectionType: Methods
       content:
         - type: Paragraph
           content:
@@ -137,7 +138,6 @@ merged:
               provenanceCategory: Hw
               characterCount: 5
               characterPercent: 100
-      sectionType: Methods
       authors:
         - type: AuthorRole
           author:
