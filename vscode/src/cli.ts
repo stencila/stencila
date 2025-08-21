@@ -13,8 +13,16 @@ import * as vscode from 'vscode'
 export function cliPath(context: vscode.ExtensionContext): string {
   switch (context.extensionMode) {
     case vscode.ExtensionMode.Development:
-    case vscode.ExtensionMode.Test:
-      return path.join(__dirname, '..', '..', 'target', 'debug', 'stencila')
+    case vscode.ExtensionMode.Test: {
+      // In development, look for the debug binary
+      const debugPath = path.join(__dirname, '..', '..', 'target', 'debug', 'stencila')
+      if (fs.existsSync(debugPath)) {
+        return debugPath
+      } else {
+        console.warn(`Debug binary not found at ${debugPath}, falling back to system path`)
+        return 'stencila'
+      }
+    }
     case vscode.ExtensionMode.Production: {
       // Attempt to obtain from the `cli` sub-dir of the extension, falling back to
       // searching for `stencila` on the path
