@@ -224,6 +224,7 @@ impl Tool for Nix {
 /// between modern flakes (`nix develop`) and legacy shell files (`nix-shell`).
 /// This tool is not exposed in the public tools list but is used internally
 /// for environment detection and command wrapping.
+#[allow(dead_code)]
 pub struct NixShell;
 
 impl Tool for NixShell {
