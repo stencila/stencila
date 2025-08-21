@@ -309,6 +309,23 @@ export async function initializeWebViewPanel(
   // Convert workspace folder filesystem path to a URI
   const workspaceUri = panel.webview.asWebviewUri(workspaceFolder)
 
+  // Create a nonce for inline scripts
+  const nonce = generateNonce()
+
+  // Generate Content Security Policy. This CSP is designed to allow dynamic
+  // scripts such as Mermaid and Plotly to be loaded while maintaining security.
+  // Changes should be tested to ensure they don't break those, and other
+  // libraries.
+  const cspSource = panel.webview.cspSource
+  const csp = [
+    `default-src 'none'`,
+    `style-src ${cspSource} 'unsafe-inline' https://fonts.googleapis.com`,
+    `font-src ${cspSource} https://fonts.gstatic.com`,
+    `img-src ${cspSource} https: data:`,
+    `script-src 'nonce-${nonce}' ${cspSource}`,
+    `connect-src ${cspSource} https: data:`,
+  ].join('; ')
+
   // The order of the <script>s is important:
   //
   // 1. Load the Stencila Web bundle first because it starts listeners
@@ -323,13 +340,14 @@ export async function initializeWebViewPanel(
         <title>Stencila: Document Preview</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Content-Security-Policy" content="${csp}">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
         <link title="theme:${themeName}" rel="stylesheet" type="text/css" href="${themeCss}">
         <link rel="stylesheet" type="text/css" href="${viewCss}">
-        <script async type="text/javascript" src="${viewJs}"></script>
-        <script>
+        <script nonce="${nonce}" async type="text/javascript" src="${viewJs}"></script>
+        <script nonce="${nonce}">
           const vscode = acquireVsCodeApi()
         </script>
         <style>
@@ -369,7 +387,7 @@ export async function initializeWebViewPanel(
           </div>
         </div>
 
-        <script>
+        <script nonce="${nonce}">
           setTimeout(() => {
             // Only show loader if taken some time already to load
             // Avoids flashing a spinner unnecessarily when local, or when caching
@@ -511,4 +529,17 @@ export function closeDocumentViewPanels() {
   }
 
   documentViewPanels.clear()
+}
+
+
+/**
+ * Generate a nonce to use for Content Security Policy
+ */
+function generateNonce(): string {
+  let text = ''
+  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  for (let i = 0; i < 32; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length))
+  }
+  return text
 }
