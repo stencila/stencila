@@ -213,6 +213,8 @@ function registerOtherCommands(context: vscode.ExtensionContext) {
         return
       }
 
+      outputChannel.appendLine(`LSP restart triggered`)
+
       event('lsp_restart')
 
       if (client) {
