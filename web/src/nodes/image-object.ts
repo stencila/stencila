@@ -1,10 +1,7 @@
 import { apply, css } from '@twind/core'
-import { type Core as CytoscapeCore } from 'cytoscape'
 import { html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { unsafeSVG } from 'lit/directives/unsafe-svg'
-
-import 'plotly.js-dist-min/'
 
 import { withTwind } from '../twind'
 
@@ -69,8 +66,11 @@ export class ImageObject extends Entity {
 
   /**
    * The Cytoscape.js instance (if relevant)
+   *
+   * Rather than import cytoscape.Core just stub out what we need. This avoids
+   * accidental bloat of the bundle if cytoscape is statically imported.
    */
-  private cytoscape?: CytoscapeCore
+  private cytoscape?: { resize: () => void } 
 
   /**
    * Any error message generated while attempting to render the content
