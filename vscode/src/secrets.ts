@@ -21,7 +21,7 @@
 
 import * as vscode from 'vscode'
 
-import { PROVIDER_ID, stencilaApiTokenEnvVar } from './authentication'
+import { stencilaApiTokenEnvVar } from './authentication'
 import { event } from './events'
 
 const SECRET_NAMES = [
@@ -42,9 +42,19 @@ export async function collectSecrets(
   if (stencilaApiTokenEnvVar) {
     secrets['STENCILA_API_TOKEN'] = stencilaApiTokenEnvVar
   } else {
-    const session = await vscode.authentication.getSession(PROVIDER_ID, [])
-    if (session) {
-      secrets['STENCILA_API_TOKEN'] = session.accessToken
+    // Try to get stored sessions directly without triggering authentication
+    // This avoids recursion during extension activation
+    try {
+      const storedSessions = await context.secrets.get('sessions')
+      if (storedSessions) {
+        const sessions = JSON.parse(storedSessions) as Array<{accessToken: string}>
+        if (sessions.length > 0 && sessions[0].accessToken) {
+          secrets['STENCILA_API_TOKEN'] = sessions[0].accessToken
+        }
+      }
+    } catch (_error) {
+      // Silently ignore errors when reading stored sessions
+      // The token will be missing but extension can still activate
     }
   }
 
