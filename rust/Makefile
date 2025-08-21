@@ -17,7 +17,7 @@ endif
 
 # Setup local development environment
 setup: setup-linker
-	cargo install --locked cargo-binstall
+	cargo install cargo-binstall
 	cargo binstall --no-confirm cargo-audit cargo-insta cargo-llvm-cov cargo-machete cargo-outdated cargo-watch
 	cargo --list
 

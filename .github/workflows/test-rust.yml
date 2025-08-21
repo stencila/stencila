@@ -17,7 +17,7 @@ on:
         default: "ubuntu,macos,windows"
 
 env:
-  RUST_VERSION: "1.88.0"
+  RUST_VERSION: "1.89.0"
   ORT_VERSION: "1.22.0"
 
 jobs:
