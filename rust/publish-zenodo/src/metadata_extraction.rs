@@ -2,7 +2,7 @@ use codec::schema::{Person, Primitive, PropertyValue, PropertyValueOrString};
 use common::{eyre::OptionExt, regex, tracing};
 use std::{borrow::Cow, sync::OnceLock};
 
-pub(crate) fn extract_affiliations(author: &Person) -> Option<impl Iterator<Item = Cow<str>>> {
+pub(crate) fn extract_affiliations(author: &Person) -> Option<impl Iterator<Item = Cow<'_, str>>> {
     let Person {
         affiliations: Some(aff),
         ..
@@ -41,7 +41,7 @@ pub(crate) fn extract_affiliations(author: &Person) -> Option<impl Iterator<Item
 ///
 /// Lastly, we might have parts that are missing. To address the, we return
 /// `<family-name>` or `<given-name>`, if that's all that's available.
-pub(crate) fn extract_name(person: &Person) -> Option<Cow<str>> {
+pub(crate) fn extract_name(person: &Person) -> Option<Cow<'_, str>> {
     // join multiple family names with a hyphen
     let family_names = person.family_names.as_ref().and_then(|names| {
         names.iter().map(Cow::from).reduce(|mut parts, s| {
@@ -75,7 +75,7 @@ pub(crate) fn extract_name(person: &Person) -> Option<Cow<str>> {
     }
 }
 
-pub(crate) fn extract_doi(id: &PropertyValueOrString) -> Option<Cow<str>> {
+pub(crate) fn extract_doi(id: &PropertyValueOrString) -> Option<Cow<'_, str>> {
     match id {
         PropertyValueOrString::PropertyValue(property) => {
             let PropertyValue {
@@ -105,7 +105,7 @@ pub fn parse_doi(arg: &str) -> common::eyre::Result<String> {
 }
 
 /// Returns the first DOI pattern, e.g. "10.1126/science.1115581", within input text.
-fn find_doi(text: &str) -> Option<Cow<str>> {
+fn find_doi(text: &str) -> Option<Cow<'_, str>> {
     // Matches only ASCII values for performance
     static DOI_ASCII_REGEX: OnceLock<regex::Regex> = OnceLock::new();
     static DOI_UNICODE_REGEX: OnceLock<regex::Regex> = OnceLock::new();
@@ -231,7 +231,7 @@ fn find_doi(text: &str) -> Option<Cow<str>> {
 }
 
 #[common::tracing::instrument]
-pub(crate) fn extract_orcid(id: &PropertyValueOrString) -> Option<Cow<str>> {
+pub(crate) fn extract_orcid(id: &PropertyValueOrString) -> Option<Cow<'_, str>> {
     match id {
         PropertyValueOrString::PropertyValue(property) => {
             let PropertyValue {
@@ -254,7 +254,7 @@ pub(crate) fn extract_orcid(id: &PropertyValueOrString) -> Option<Cow<str>> {
 }
 
 #[common::tracing::instrument]
-pub(crate) fn find_orcid(text: &str) -> Option<Cow<str>> {
+pub(crate) fn find_orcid(text: &str) -> Option<Cow<'_, str>> {
     // this function is uglier than it should be because we permit people to specify ORCID
     // in a variety of ways, including with or without the orcid.org domain, with or without
     // dashes, and with or without the final checksum digit.

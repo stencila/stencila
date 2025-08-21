@@ -433,7 +433,7 @@ impl TextNode {
     }
 
     /// Get the node and it descendants as a list
-    pub fn flatten(&self) -> TextNodeIterator {
+    pub fn flatten(&self) -> TextNodeIterator<'_> {
         TextNodeIterator::new(self)
     }
 }

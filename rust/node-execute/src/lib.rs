@@ -989,7 +989,7 @@ impl Executor {
     /// Obtain a write lock to the kernels
     ///
     /// Used by [`Executable`] nodes to execute and evaluate code and manage variables.
-    pub async fn kernels(&self) -> RwLockWriteGuard<Kernels> {
+    pub async fn kernels(&self) -> RwLockWriteGuard<'_, Kernels> {
         self.kernels.write().await
     }
 
