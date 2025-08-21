@@ -19,7 +19,7 @@ node-find = { path = "../node-find" }
 percent-encoding = "2.3.1"
 prompts = { path = "../prompts" }
 schema = { path = "../schema" }
-tokio-util = { version = "0.7.15", features = ["compat"] }
+tokio-util = { version = "0.7.16", features = ["compat"] }
 tower = "0.5.2"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter", "json"] }
 

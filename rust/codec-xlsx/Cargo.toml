@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 codec = { path = "../codec" }
-calamine = "0.27"
+calamine = "0.30"
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
