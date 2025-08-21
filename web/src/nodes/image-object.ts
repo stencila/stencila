@@ -194,7 +194,8 @@ export class ImageObject extends Entity {
   private async compileMermaid() {
     // Import Mermaid dynamically, when it is required, rather than have
     // it bundled into the main JS file for the view
-    const { default: mermaid } = await import('mermaid')
+    // @ts-expect-error - Using ESM min build to avoid parser dependency issues
+    const { default: mermaid } = await import('mermaid/dist/mermaid.esm.min.mjs')
 
     const container = document.createElement('div')
     document.body.appendChild(container)
