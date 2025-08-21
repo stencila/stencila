@@ -32,9 +32,9 @@ pub struct StructuringOptions {
     /// Whether to create nested sections from headings
     #[default = true]
     pub sectioning: bool,
-    
+
     /// Citation style to use for in-text citations.
-    /// 
+    ///
     /// If None, will be determined automatically based on whether references
     /// are numbered and the relative frequency of detected styles within text.
     pub citation_style: Option<CitationStyle>,
