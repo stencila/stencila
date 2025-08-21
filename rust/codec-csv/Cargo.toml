@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 codec = { path = "../codec" }
-polars = { version = "0.43", features = ["csv", "json", "parquet", "ipc", "lazy", "dtype-date", "dtype-datetime"] }
+polars = { version = "0.50", features = ["csv", "json", "parquet", "ipc", "lazy", "dtype-date", "dtype-datetime"] }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }

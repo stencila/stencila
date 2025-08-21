@@ -10,6 +10,7 @@ use codec::common::eyre::Result;
 /// Arrow IPC preserves exact data types and schema information, making it ideal
 /// for high-fidelity data exchange between different systems.
 pub fn read_arrow(path: &Path) -> Result<DataFrame> {
+    let path = PlPath::new(&path.to_string_lossy());
     Ok(LazyFrame::scan_ipc(path, Default::default())?.collect()?)
 }
 

@@ -10,6 +10,7 @@ use codec::common::eyre::Result;
 /// Parquet's columnar format allows for optimal memory usage and fast
 /// queries, especially when only specific columns are needed.
 pub fn read_parquet(path: &Path) -> Result<DataFrame> {
+    let path = PlPath::new(&path.to_string_lossy());
     Ok(LazyFrame::scan_parquet(path, Default::default())?.collect()?)
 }
 

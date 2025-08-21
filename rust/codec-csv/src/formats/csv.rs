@@ -10,6 +10,7 @@ use codec::common::eyre::Result;
 /// The lazy evaluation allows for optimization of subsequent operations before
 /// materializing the data into memory.
 pub fn read_csv(path: &Path) -> Result<DataFrame> {
+    let path = PlPath::new(&path.to_string_lossy());
     Ok(LazyCsvReader::new(path)
         .with_has_header(true)
         .finish()?

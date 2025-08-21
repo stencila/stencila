@@ -39,7 +39,7 @@ pub fn datatable_to_dataframe(datatable: &Datatable) -> Result<DataFrame> {
 
     for column in &datatable.columns {
         let series = primitives_to_series(&column.name, &column.values, &column.validator)?;
-        series_vec.push(series);
+        series_vec.push(series.into());
     }
 
     Ok(DataFrame::new(series_vec)?)

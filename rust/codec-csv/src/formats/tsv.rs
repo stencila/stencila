@@ -10,6 +10,7 @@ use codec::common::eyre::Result;
 /// Like CSV reading, this uses lazy evaluation to optimize subsequent operations
 /// before materializing the data.
 pub fn read_tsv(path: &Path) -> Result<DataFrame> {
+    let path = PlPath::new(&path.to_string_lossy());
     Ok(LazyCsvReader::new(path)
         .with_has_header(true)
         .with_separator(b'\t')
