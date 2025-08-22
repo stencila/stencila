@@ -1,6 +1,7 @@
 use std::{
     collections::HashMap,
-    env, fmt,
+    env::{self, current_dir},
+    fmt,
     path::{Path, PathBuf},
     sync::Arc,
 };
@@ -120,6 +121,7 @@ async fn get_for(name_or_lang: &str) -> Result<Box<dyn Kernel>> {
 /// - `dir`: the directory of the document the code is in
 /// - `language`: the language of the code
 /// - `options`: linting options
+#[tracing::instrument(skip(code))]
 pub async fn lint(
     code: &str,
     dir: &Path,
@@ -129,6 +131,15 @@ pub async fn lint(
     // Cache linting support for each kernel to avoid relatively expensive
     // calls to `supports_linting` on each call of this function.
     static SUPPORT: Lazy<Arc<RwLock<HashMap<String, KernelLinting>>>> = Lazy::new(Arc::default);
+
+    // For proper detection of the directory's environment this directory should
+    // not be empty. Canonicalization also helps for paths that are providing to
+    // some linting tools
+    let dir = if dir == PathBuf::new() {
+        current_dir()?
+    } else {
+        dir.to_path_buf().canonicalize()?
+    };
 
     for kernel in list().await {
         if !kernel.supports_language(format) {
@@ -151,9 +162,9 @@ pub async fn lint(
         }
 
         match name.as_str() {
-            "nodejs" => return NodeJsKernel.lint(code, dir, options).await,
-            "python" => return PythonKernel.lint(code, dir, options).await,
-            "r" => return RKernel.lint(code, dir, options).await,
+            "nodejs" => return NodeJsKernel.lint(code, &dir, options).await,
+            "python" => return PythonKernel.lint(code, &dir, options).await,
+            "r" => return RKernel.lint(code, &dir, options).await,
             _ => {}
         }
     }

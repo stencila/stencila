@@ -113,7 +113,10 @@ impl KernelLint for PythonKernel {
 
         // Run Ruff with JSON output for parsing of diagnostic to messages
         let mut cmd = Ruff.command();
-        cmd.args(["check", "--output-format=json"]).arg(temp_path);
+        // Set dir for detection of the document's environment
+        cmd.current_dir(dir)
+            .args(["check", "--output-format=json"])
+            .arg(temp_path);
         if options.fix {
             cmd.arg("--fix");
         }
@@ -194,7 +197,8 @@ impl KernelLint for PythonKernel {
         // Run Pyright with JSON output to parse into messages
         // See https://github.com/Microsoft/pyright/blob/main/docs/command-line.md
         let mut pyright = Pyright.command();
-        pyright.arg("--outputjson");
+        // Set dir for detection of the document's environment
+        pyright.current_dir(dir).arg("--outputjson");
 
         // Search up the tree from the document for Python virtual environment
         // so that correct dependencies are available and spurious
