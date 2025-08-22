@@ -4,7 +4,6 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-ask = { path = "../ask" }
 common = { path = "../common" }
 which = { workspace = true }
 

@@ -6,7 +6,6 @@ edition = "2024"
 [dependencies]
 cli-utils = { path = "../cli-utils" }
 codec = { path = "../codec" }
-codec-swb = { path = "../codec-swb" }
 codec-text = { path = "../codec-text" }
 common = { "path" = "../common" }
 document = { path = "../document" }

@@ -15,7 +15,6 @@ pub use bs58;
 pub use chrono;
 pub use chrono_humanize;
 pub use clap;
-pub use derivative;
 pub use eyre;
 pub use futures;
 pub use glob;
