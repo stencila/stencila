@@ -382,15 +382,15 @@ impl KernelInstance for MicrokernelInstance {
         let mut using_uv = false;
 
         if exec_name.starts_with("python") {
-            if let Ok(python_path) = env::var("PYTHON_PATH") {
-                // The PYTHON_PATH env var exists (usually set by LSP client) so use it
-                exec_path = Some(PathBuf::from(python_path));
-            } else if let Ok(uv_path) = which("uv") {
-                // UV is installed so use it so tht it can resolve the pyproject.toml
+            if let Ok(uv_path) = which("uv") {
+                // UV is installed so use it so that it can resolve the nearest pyproject.toml
                 // for us (and install dependencies if necessary)
                 using_uv = true;
                 exec_path = Some(uv_path);
                 exec_args.insert(0, "run".into());
+            } else if let Ok(python_path) = env::var("PYTHON_PATH") {
+                // The PYTHON_PATH env var exists (usually set by LSP client) so use it
+                exec_path = Some(PathBuf::from(python_path));
             }
         }
 

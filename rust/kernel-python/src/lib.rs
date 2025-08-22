@@ -198,23 +198,30 @@ impl KernelLint for PythonKernel {
         // See https://github.com/Microsoft/pyright/blob/main/docs/command-line.md
         let mut pyright = ToolCommand::new("pyright");
         pyright.arg("--outputjson");
-        if let Ok(python_path) = env::var("PYTHON_PATH") {
-            // Use the PYTHON_PATH provided
-            pyright.arg(format!("--pythonpath={python_path}"));
-        } else {
-            // Search up the tree from the document for a virtual env
-            let mut dir = dir.to_path_buf();
-            loop {
-                let python_path = dir.join(".venv").join("bin").join("python");
-                if python_path.exists() {
-                    pyright.arg(format!("--pythonpath={}", python_path.display()));
-                    break;
-                }
-                if !dir.pop() {
-                    break;
-                }
+
+        // Search up the tree from the document for Python virtual environment
+        // so that correct dependencies are available and spurious
+        // MissingImports errors are avoided.
+        let mut dir = dir.to_path_buf();
+        let mut found_venv = false;
+        loop {
+            let python_path = dir.join(".venv").join("bin").join("python");
+            if python_path.exists() {
+                pyright.arg(format!("--pythonpath={}", python_path.display()));
+                found_venv = true;
+                break;
+            }
+
+            if !dir.pop() {
+                break;
             }
         }
+
+        // Fallback: use PYTHON_PATH environment variable if no venv found
+        if !found_venv && let Ok(python_path) = env::var("PYTHON_PATH") {
+            pyright.arg(format!("--pythonpath={python_path}"));
+        }
+
         if let Ok(output) = pyright.arg(temp_path).output() {
             let stdout = String::from_utf8_lossy(&output.stdout).to_string();
 
