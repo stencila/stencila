@@ -247,10 +247,8 @@ impl Diagnostic {
             message.push_str(&(1 + column).to_string());
         }
 
-        if let Some(error_type) = &self.error_type {
-            message.push_str(",title=");
-            message.push_str(error_type);
-        }
+        message.push_str(",title=");
+        message.push_str(&self.title());
 
         message.push_str("::");
         message.push_str(&self.message);
