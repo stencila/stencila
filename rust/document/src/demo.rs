@@ -567,7 +567,8 @@ impl Walker {
                 && let (Some(asciicast_path), Some(final_output_path)) =
                     (&self.asciicast_path, &self.output_path)
             {
-                let status = Agg.async_command()
+                let status = Agg
+                    .async_command()
                     .arg(asciicast_path)
                     .arg(final_output_path)
                     .stdout(ToolStdio::Inherit)
