@@ -103,6 +103,8 @@ pub enum SectionType {
     SupplementaryMaterials,
 
     /// Ancillary material such as derivations, proofs, or extended details.
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
     Appendix,
 
     /// The main body of content when a document is not subdivided into standard sections.

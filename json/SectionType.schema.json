@@ -286,6 +286,15 @@
     {
       "@id": "stencila:AppendixSection",
       "description": "Ancillary material such as derivations, proofs, or extended details.",
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Appendix` sections to avoid clash with `AppendixBreak` in Stencila Markdown.",
+          "skip": true
+        },
+        "high": {
+          "description": "Generate `Appendix` sections"
+        }
+      },
       "const": "Appendix"
     },
     {
