@@ -3,6 +3,8 @@
 //! This module provides parsers for extracting bibliographic information from LNCS
 //! (Lecture Notes in Computer Science) style reference citations.
 
+use std::slice;
+
 use winnow::{
     Parser, Result,
     ascii::{Caseless, digit1, multispace0, multispace1},
@@ -301,7 +303,7 @@ pub fn web(input: &mut &str) -> Result<Reference> {
     )
         .map(|(author, title, url, _date, _terminator)| Reference {
             work_type: Some(CreativeWorkType::WebPage),
-            id: Some(generate_id(&[author.clone()], &None)),
+            id: Some(generate_id(slice::from_ref(&author), &None)),
             authors: Some(vec![author]),
             title: Some(title),
             url: Some(url),

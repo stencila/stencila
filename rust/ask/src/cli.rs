@@ -14,6 +14,7 @@ use crate::{Answer, Ask, AskLevel, AskOptions};
 /// CLI provider
 pub struct CliProvider;
 
+#[allow(clippy::print_stderr)]
 #[async_trait]
 impl Ask for CliProvider {
     async fn ask(&self, question: &str, options: AskOptions) -> Result<Answer> {
