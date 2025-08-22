@@ -1,0 +1,262 @@
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Text",
+        "value": {
+          "string": "Allen Institute"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". (, "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "). "
+        }
+      },
+      {
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Allen Brain Atlas - Interactive Brain Explorer"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Link",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "https://portal.brain-map.org/"
+            }
+          }
+        ],
+        "target": "https://portal.brain-map.org/"
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Text",
+        "value": {
+          "string": "British Ecological Society"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". (, "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "). "
+        }
+      },
+      {
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Methods in Ecology and Evolution Blog"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Link",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "https://methodsblog.com/"
+            }
+          }
+        ],
+        "target": "https://methodsblog.com/"
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Jupyter Notebook Documentation"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". (, "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "). "
+        }
+      },
+      {
+        "type": "Link",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "https://jupyter-notebook.readthedocs.io/"
+            }
+          }
+        ],
+        "target": "https://jupyter-notebook.readthedocs.io/"
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Text",
+        "value": {
+          "string": "Martinez, Carlos"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ", & "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Team Members"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". (, "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "). "
+        }
+      },
+      {
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Computational Biology Lab"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "Stanford School of Medicine"
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". "
+        }
+      },
+      {
+        "type": "Link",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "https://compbio.stanford.edu/"
+            }
+          }
+        ],
+        "target": "https://compbio.stanford.edu/"
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      {
+        "type": "Emphasis",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "NASA Climate Change and Global Warming"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": ". (, "
+        }
+      },
+      {
+        "type": "Text",
+        "value": {
+          "string": "). "
+        }
+      },
+      {
+        "type": "Link",
+        "content": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "https://climate.nasa.gov/"
+            }
+          }
+        ],
+        "target": "https://climate.nasa.gov/"
+      }
+    ]
+  }
+]

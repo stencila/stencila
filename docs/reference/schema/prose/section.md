@@ -20,8 +20,8 @@ The `Section` type has these properties:
 | Name          | Description                                                    | Type                                                                                   | Inherited from                                                     | `JSON-LD @id`                                | Aliases                        |
 | ------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------- | ------------------------------ |
 | `id`          | The identifier for this item.                                  | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                     | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id)         | -                              |
-| `content`     | The content within the section.                                | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*                      | -                                                                  | `stencila:content`                           | -                              |
 | `sectionType` | The type of section.                                           | [`SectionType`](https://stencila.ghost.io/docs/reference/schema/section-type)          | -                                                                  | `stencila:sectionType`                       | `section-type`, `section_type` |
+| `content`     | The content within the section.                                | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*                      | -                                                                  | `stencila:content`                           | -                              |
 | `authors`     | The authors of the section.                                    | [`Author`](https://stencila.ghost.io/docs/reference/schema/author)*                    | -                                                                  | [`schema:author`](https://schema.org/author) | `author`                       |
 | `provenance`  | A summary of the provenance of the content within the section. | [`ProvenanceCount`](https://stencila.ghost.io/docs/reference/schema/provenance-count)* | -                                                                  | `stencila:provenance`                        | -                              |
 
@@ -97,12 +97,12 @@ During property-based (a.k.a generative) testing, the properties of the `Section
 
 | Property      | Complexity | Description                                                 | Strategy                               |
 | ------------- | ---------- | ----------------------------------------------------------- | -------------------------------------- |
+| `sectionType` | Min+       | No type.                                                    | `None`                                 |
+|               | Low+       | Generate an arbitrary section type.                         | `option::of(SectionType::arbitrary())` |
 | `content`     | Min+       | An empty vector                                             | `Vec::new()`                           |
 |               | Low+       | Generate an arbitrary heading and an arbitrary paragraph.   | `vec_heading_paragraph()`              |
 |               | High+      | Generate up to four arbitrary, non-recursive, block nodes.  | `vec_blocks_non_recursive(4)`          |
 |               | Max        | Generate up to eight arbitrary, non-recursive, block nodes. | `vec_blocks_non_recursive(8)`          |
-| `sectionType` | Min+       | No type.                                                    | `None`                                 |
-|               | Low+       | Generate an arbitrary section type.                         | `option::of(SectionType::arbitrary())` |
 
 # Source
 

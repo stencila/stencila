@@ -9,12 +9,12 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila init`↴](#stencila-init)
 * [`stencila config`↴](#stencila-config)
 * [`stencila status`↴](#stencila-status)
-* [`stencila add`↴](#stencila-add)
-* [`stencila remove`↴](#stencila-remove)
 * [`stencila move`↴](#stencila-move)
 * [`stencila track`↴](#stencila-track)
 * [`stencila untrack`↴](#stencila-untrack)
 * [`stencila clean`↴](#stencila-clean)
+* [`stencila add`↴](#stencila-add)
+* [`stencila remove`↴](#stencila-remove)
 * [`stencila rebuild`↴](#stencila-rebuild)
 * [`stencila query`↴](#stencila-query)
 * [`stencila convert`↴](#stencila-convert)
@@ -110,12 +110,12 @@ Examples
 * `init` — Initialize a workspace
 * `config` — Display the configuration for a document
 * `status` — Get the tracking status of documents
-* `add` — Add documents to the workspace database
-* `remove` — Remove documents from the workspace database
 * `move` — Move a tracked document
 * `track` — Start tracking a document
 * `untrack` — Stop tracking a document
 * `clean` — Clean the current workspace
+* `add` — Add documents to the workspace database
+* `remove` — Remove documents from the workspace database
 * `rebuild` — Rebuild a workspace database
 * `query` — Query a workspace database
 * `convert` — Convert a document to another format
@@ -290,65 +290,6 @@ Status Information
 
 
 
-## `stencila add`
-
-Add documents to the workspace database
-
-**Usage:** `stencila add <DOCUMENTS>...`
-
-Examples
-  # Add a single document to workspace database
-  stencila add document.md
-
-  # Add multiple local Markdown documents
-  stencila add *.md docs/*.md
-
-  # Add all local Markdown documents
-  stencila add **/*.md
-
-  # Add a bioRxiv preprint using its DOI
-  stencila add https://doi.org/10.1101/2021.11.24.469827
-
-Note
-  This adds documents to the workspace database for
-  indexing and querying. Files must be within the
-  workspace directory to be added.
-
-
-###### **Arguments:**
-
-* `<DOCUMENTS>` — The documents to add to the workspace database
-
-
-
-## `stencila remove`
-
-Remove documents from the workspace database
-
-**Usage:** `stencila remove <DOCUMENTS>...`
-
-Examples
-  # Remove a document from workspace database
-  stencila remove document.md
-
-  # Remove multiple documents
-  stencila remove *.md docs/*.md
-
-  # Use the rm alias
-  stencila rm old-document.md
-
-Note
-  This removes documents from the workspace database
-  but does not delete the actual files. The files
-  will no longer be indexed or queryable.
-
-
-###### **Arguments:**
-
-* `<DOCUMENTS>` — The document to remove from the workspace database
-
-
-
 ## `stencila move`
 
 Move a tracked document
@@ -450,7 +391,7 @@ Note
 
 Clean the current workspace
 
-Untracks any deleted files and removes any unnecessary files from the .stencila folder in the current workspace.
+Un-tracks any deleted files and removes any unnecessary cache files, and all artifact directories, from the .stencila folder in the current workspace.
 
 **Usage:** `stencila clean`
 
@@ -458,6 +399,111 @@ Examples
   # Clean the .stencila folder for the current workspace
   stencila clean
 
+
+
+
+## `stencila add`
+
+Add documents to the workspace database
+
+**Usage:** `stencila add [OPTIONS] <DOCUMENTS>... [-- <TOOL_ARGS>...]`
+
+Examples
+  # Add a single document to workspace database
+  stencila add document.md
+
+  # Add multiple local Markdown documents
+  stencila add *.md docs/*.md
+
+  # Add all local Markdown documents
+  stencila add **/*.md
+
+  # Add a bioRxiv preprint using its DOI
+  stencila add https://doi.org/10.1101/2021.11.24.469827
+
+  # Add specific pages from a PDF document
+  stencila add report.pdf --pages 1,3,5-10
+
+  # Add PDF excluding cover and appendix pages
+  stencila add book.pdf --pages 2- --exclude-pages 50-
+
+  # Add only even pages from a document
+  stencila add manuscript.pdf --pages even
+
+Note
+  This adds documents to the workspace database for
+  indexing and querying. Files must be within the
+  workspace directory to be added. Page selection
+  options are available for multi-page formats like PDF.
+
+
+###### **Arguments:**
+
+* `<DOCUMENTS>` — The documents to add to the workspace database
+* `<TOOL_ARGS>` — Arguments to pass through to the tool using for decoding
+
+   Only supported for formats that use external tools for decoding and ignored otherwise.
+
+###### **Options:**
+
+* `-f`, `--from <FROM>` — The format of the input/s
+
+   If not supplied, and inputting from a file, is inferred from the extension. See `stencila formats list` for available formats.
+* `--fine` — Use fine decoding if available for input format
+
+   Use this flag to decode content to the finest level of granularity supported by the format. This is the default for most formats.
+* `--coarse` — Use coarse decoding if available for input format
+
+   Use this flag to decode content to the coarsest level of granularity supported by the format. Useful for decoding formats that are not fully supported to avoid loss of structure.
+* `--cache <CACHE>` — Reconstitute nodes from a cache
+
+   Only useful when reconstituting a document from a file previously encoded with the `--reproducible` option and where a JSON cache of the document was encoded at the same times.
+
+   Only supported for some formats (.e.g DOCX, ODT). At present, the cache must be the path to a JSON file.
+* `--pages <PAGES>` — Pages to include when decoding multi-page documents
+
+   Supports 1-based page selectors: single pages (N), ranges (N-M), open ranges (N- or -M), and keywords (odd, even). Multiple selectors can be combined with commas. Examples: --pages 1,3,5-7 or --pages 2-10,15-
+* `--exclude-pages <EXCLUDE_PAGES>` — Pages to exclude when decoding multi-page documents
+
+   Uses the same syntax as --pages but excludes the specified pages. Applied after --pages selection, allowing fine-grained control. Example: --pages 1-10 --exclude-pages 3,7 includes pages 1,2,4,5,6,8,9,10
+* `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
+
+   Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
+
+  Default value: `debug`
+* `--tool <TOOL>` — The tool to use for decoding inputs
+
+   Only supported for formats that use alternative external tools for decoding and ignored otherwise.
+* `--no-canonicalize` — Do not canonicalize the document
+* `--no-sentencize` — Do not split document paragraphs into sentences
+
+
+
+## `stencila remove`
+
+Remove documents from the workspace database
+
+**Usage:** `stencila remove <DOCUMENTS>...`
+
+Examples
+  # Remove a document from workspace database
+  stencila remove document.md
+
+  # Remove multiple documents
+  stencila remove *.md docs/*.md
+
+  # Use the rm alias
+  stencila rm old-document.md
+
+Note
+  This removes documents from the workspace database
+  but does not delete the actual files. The files
+  will no longer be indexed or queryable.
+
+
+###### **Arguments:**
+
+* `<DOCUMENTS>` — The document to remove from the workspace database
 
 
 
@@ -564,6 +610,15 @@ Examples
   # Convert with specific codec options
   stencila convert doc.md doc.html --standalone
 
+  # Convert only specific pages from a PDF
+  stencila convert document.pdf extract.md --pages 1,3,5-10
+
+  # Convert all pages except specific ones
+  stencila convert report.pdf content.md --exclude-pages 5,15
+
+  # Convert only odd pages from a document
+  stencila convert book.pdf odd-pages.md --pages odd
+
   # Use an external tool like Pandoc
   stencila convert doc.md doc.tex --tool pandoc
 
@@ -602,6 +657,12 @@ Examples
    Only useful when reconstituting a document from a file previously encoded with the `--reproducible` option and where a JSON cache of the document was encoded at the same times.
 
    Only supported for some formats (.e.g DOCX, ODT). At present, the cache must be the path to a JSON file.
+* `--pages <PAGES>` — Pages to include when decoding multi-page documents
+
+   Supports 1-based page selectors: single pages (N), ranges (N-M), open ranges (N- or -M), and keywords (odd, even). Multiple selectors can be combined with commas. Examples: --pages 1,3,5-7 or --pages 2-10,15-
+* `--exclude-pages <EXCLUDE_PAGES>` — Pages to exclude when decoding multi-page documents
+
+   Uses the same syntax as --pages but excludes the specified pages. Applied after --pages selection, allowing fine-grained control. Example: --pages 1-10 --exclude-pages 3,7 includes pages 1,2,4,5,6,8,9,10
 * `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
@@ -666,9 +727,12 @@ Examples
 
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
+* `--from-tool <FROM_TOOL>` — The tool to use for decoding inputs
+
+   Only supported for formats that use alternative external tools for decoding inputs and ignored otherwise. Use `--tool` for specifying the tool to use for encoding outputs.
 * `--tool <TOOL>` — The tool to use for encoding outputs (e.g. pandoc)
 
-   Only supported for formats that use alternative external tools for encoding and ignored otherwise. Note: this tool is not used for decoding from the input, only for encoding to the output.
+   Only supported for formats that use alternative external tools for encoding and ignored otherwise. Use `--from-tool` for specifying the tool to use for decoding inputs.
 
 
 
@@ -720,6 +784,12 @@ Examples
    Only useful when reconstituting a document from a file previously encoded with the `--reproducible` option and where a JSON cache of the document was encoded at the same times.
 
    Only supported for some formats (.e.g DOCX, ODT). At present, the cache must be the path to a JSON file.
+* `--pages <PAGES>` — Pages to include when decoding multi-page documents
+
+   Supports 1-based page selectors: single pages (N), ranges (N-M), open ranges (N- or -M), and keywords (odd, even). Multiple selectors can be combined with commas. Examples: --pages 1,3,5-7 or --pages 2-10,15-
+* `--exclude-pages <EXCLUDE_PAGES>` — Pages to exclude when decoding multi-page documents
+
+   Uses the same syntax as --pages but excludes the specified pages. Applied after --pages selection, allowing fine-grained control. Example: --pages 1-10 --exclude-pages 3,7 includes pages 1,2,4,5,6,8,9,10
 * `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
@@ -819,6 +889,12 @@ Note
    Only useful when reconstituting a document from a file previously encoded with the `--reproducible` option and where a JSON cache of the document was encoded at the same times.
 
    Only supported for some formats (.e.g DOCX, ODT). At present, the cache must be the path to a JSON file.
+* `--pages <PAGES>` — Pages to include when decoding multi-page documents
+
+   Supports 1-based page selectors: single pages (N), ranges (N-M), open ranges (N- or -M), and keywords (odd, even). Multiple selectors can be combined with commas. Examples: --pages 1,3,5-7 or --pages 2-10,15-
+* `--exclude-pages <EXCLUDE_PAGES>` — Pages to exclude when decoding multi-page documents
+
+   Uses the same syntax as --pages but excludes the specified pages. Applied after --pages selection, allowing fine-grained control. Example: --pages 1-10 --exclude-pages 3,7 includes pages 1,2,4,5,6,8,9,10
 * `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
@@ -927,6 +1003,12 @@ Note
    Only useful when reconstituting a document from a file previously encoded with the `--reproducible` option and where a JSON cache of the document was encoded at the same times.
 
    Only supported for some formats (.e.g DOCX, ODT). At present, the cache must be the path to a JSON file.
+* `--pages <PAGES>` — Pages to include when decoding multi-page documents
+
+   Supports 1-based page selectors: single pages (N), ranges (N-M), open ranges (N- or -M), and keywords (odd, even). Multiple selectors can be combined with commas. Examples: --pages 1,3,5-7 or --pages 2-10,15-
+* `--exclude-pages <EXCLUDE_PAGES>` — Pages to exclude when decoding multi-page documents
+
+   Uses the same syntax as --pages but excludes the specified pages. Applied after --pages selection, allowing fine-grained control. Example: --pages 1-10 --exclude-pages 3,7 includes pages 1,2,4,5,6,8,9,10
 * `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
@@ -1018,6 +1100,12 @@ Examples
    Only useful when reconstituting a document from a file previously encoded with the `--reproducible` option and where a JSON cache of the document was encoded at the same times.
 
    Only supported for some formats (.e.g DOCX, ODT). At present, the cache must be the path to a JSON file.
+* `--pages <PAGES>` — Pages to include when decoding multi-page documents
+
+   Supports 1-based page selectors: single pages (N), ranges (N-M), open ranges (N- or -M), and keywords (odd, even). Multiple selectors can be combined with commas. Examples: --pages 1,3,5-7 or --pages 2-10,15-
+* `--exclude-pages <EXCLUDE_PAGES>` — Pages to exclude when decoding multi-page documents
+
+   Uses the same syntax as --pages but excludes the specified pages. Applied after --pages selection, allowing fine-grained control. Example: --pages 1-10 --exclude-pages 3,7 includes pages 1,2,4,5,6,8,9,10
 * `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
@@ -1129,6 +1217,12 @@ Examples
    Only useful when reconstituting a document from a file previously encoded with the `--reproducible` option and where a JSON cache of the document was encoded at the same times.
 
    Only supported for some formats (.e.g DOCX, ODT). At present, the cache must be the path to a JSON file.
+* `--pages <PAGES>` — Pages to include when decoding multi-page documents
+
+   Supports 1-based page selectors: single pages (N), ranges (N-M), open ranges (N- or -M), and keywords (odd, even). Multiple selectors can be combined with commas. Examples: --pages 1,3,5-7 or --pages 2-10,15-
+* `--exclude-pages <EXCLUDE_PAGES>` — Pages to exclude when decoding multi-page documents
+
+   Uses the same syntax as --pages but excludes the specified pages. Applied after --pages selection, allowing fine-grained control. Example: --pages 1-10 --exclude-pages 3,7 includes pages 1,2,4,5,6,8,9,10
 * `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
 
    Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
