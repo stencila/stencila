@@ -9,6 +9,7 @@ codec-jats = { path = "../codec-jats" }
 flate2 = { workspace = true }
 media-embed = { path = "../media-embed" }
 url = { workspace = true }
+version = { path = "../version" }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }

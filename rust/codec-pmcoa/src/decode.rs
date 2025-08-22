@@ -10,7 +10,7 @@ use codec::{
         futures::StreamExt,
         glob::glob,
         regex::Regex,
-        reqwest::Client,
+        reqwest::{Client, header::USER_AGENT},
         tar::Archive,
         tempfile,
         tokio::{
@@ -23,6 +23,7 @@ use codec::{
 };
 use codec_jats::JatsCodec;
 use media_embed::embed_media;
+use version::STENCILA_USER_AGENT;
 
 /// Extract and PMCID from an identifier
 pub(super) fn extract_pmcid(identifier: &str) -> Option<String> {
@@ -132,6 +133,7 @@ pub(super) async fn download_package(pmcid: &str) -> Result<PathBuf> {
     let url = format!("https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id={pmcid}");
     let xml = Client::new()
         .get(&url)
+        .header(USER_AGENT, STENCILA_USER_AGENT)
         .send()
         .await?
         .error_for_status()?

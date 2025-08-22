@@ -1665,6 +1665,7 @@ dependencies = [
  "flate2",
  "media-embed",
  "url",
+ "version",
 ]
 
 [[package]]
