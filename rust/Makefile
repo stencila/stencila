@@ -50,7 +50,7 @@ setup-mold:
 
 # Setup lld linker on macOS
 setup-lld:
-	@if ! command -v lld >/dev/null 2>&1; then \
+	@if ! command -v ld64.lld >/dev/null 2>&1 && ! command -v lld >/dev/null 2>&1; then \
 		echo "Installing LLVM (for lld linker)..."; \
 		if command -v brew >/dev/null 2>&1; then \
 			brew install llvm; \

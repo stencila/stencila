@@ -103,13 +103,16 @@ jobs:
           toolchain: ${{ env.RUST_VERSION }}
           targets: ${{ matrix.target }}
 
-      - name: Setup linker
-        if: ${{ contains(inputs.platforms, matrix.platform) }}
+      - name: Setup linker (macOS)
+        if: ${{ contains(inputs.platforms, matrix.platform) && (matrix.platform == 'macos-intel' || matrix.platform == 'macos-arm') }}
         run: |
+          export PATH="$(brew --prefix)/opt/llvm/bin:$PATH"
+          echo "$(brew --prefix)/opt/llvm/bin" >> $GITHUB_PATH
           make -C rust setup-linker
-          if [[ "${{ matrix.platform }}" == "macos-intel" || "${{ matrix.platform }}" == "macos-arm" ]]; then
-            echo "$(brew --prefix)/opt/llvm/bin" >> $GITHUB_PATH
-          fi
+
+      - name: Setup linker (non-macOS)
+        if: ${{ contains(inputs.platforms, matrix.platform) && matrix.platform != 'macos-intel' && matrix.platform != 'macos-arm' }}
+        run: make -C rust setup-linker
 
       - name: Setup Rust cache
         if: ${{ contains(inputs.platforms, matrix.platform) }}
