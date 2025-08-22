@@ -192,6 +192,11 @@ impl ToolCommand {
             .or_else(|| std::env::current_dir().ok());
 
         if let Some(cwd) = cwd {
+            tracing::trace!(
+                "Checking if `{program}` should be wrapped in directory `{}`",
+                cwd.display()
+            );
+
             // Get the args from the original command
             let args: Vec<String> = self
                 .inner
@@ -203,7 +208,7 @@ impl ToolCommand {
             if let Some(mut wrapped_cmd) = build_nested_command(&program, &args, &cwd) {
                 // Log the wrapped command
                 tracing::debug!(
-                    "ToolCommand wrapped: {} {} -> {} {}",
+                    "ToolCommand wrapped:\n    {} {}\n    {} {}",
                     program,
                     args.join(" "),
                     wrapped_cmd.get_program().to_string_lossy(),
