@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-# We are using `ruff` and `pyright` for linting and  type checking.
+# We are using `ruff` and `pyright` for linting and type checking.
 # We disable these checks as the imports are not necessarily there.
 # The unbound variables occur because of the optional imports.
 #
-# ruff: noqa: PLC0415
+# ruff: noqa: PLC0415 SIM105
 # pyright: reportMissingImports=false
 # pyright: reportPossiblyUnboundVariable = false
 
@@ -112,7 +112,7 @@ class Variable(TypedDict):
     name: str
     programming_language: Literal["Python"]
     native_type: str
-    node_type: str
+    node_type: Optional[str]
     hint: Any
     native_hint: Optional[str]
 
@@ -294,14 +294,18 @@ try:
 
         length = np.size(array)
 
+        null_count = None
+        if length > 0 and convert_type:
+            try:
+                null_count = np.count_nonzero(np.isnan(array))
+            except Exception:
+                pass
+
         return {
             "type": "ArrayHint",
             "length": length,
             "itemTypes": [items_type],
-            "nulls": (
-                np.count_nonzero(np.isnan(array)).max()
-                if length and convert_type else None
-            ),
+            "nulls": null_count,
             "minimum": (
                 convert_type(np.nanmin(array)) if length and convert_type else None
             ),
@@ -762,12 +766,17 @@ def list_variables() -> None:
         if name in ("__builtins__", "print") or isinstance(value, types.ModuleType):
             continue
 
+        native_type = type(value).__name__
+
         try:
-            native_type = type(value).__name__
             node_type, hint = determine_type_and_hint(value)
+        except Exception:
+            node_type, hint = (None, None)
+
+        try:
             native_hint = determine_native_hint(value)
         except Exception:
-            continue
+            native_hint = None
 
         variable: Variable = {
             "type": "Variable",

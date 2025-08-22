@@ -1002,6 +1002,7 @@ a4 = np.array([1.23, 4.56], dtype=np.float64)
         assert_eq!(messages, []);
 
         let list = instance.list().await?;
+        assert_eq!(list.len(), 5);
 
         macro_rules! var {
             ($name:expr) => {{
