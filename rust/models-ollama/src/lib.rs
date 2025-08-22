@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
 use cached::proc_macro::cached;
 use ollama_rs::{

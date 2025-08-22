@@ -1,4 +1,4 @@
-use std::{env, sync::OnceLock};
+use std::{env, sync::OnceLock, time::Duration};
 
 use cached::proc_macro::cached;
 
