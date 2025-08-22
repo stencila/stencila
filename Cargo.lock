@@ -1336,7 +1336,7 @@ dependencies = [
  "codec-dom-trait",
  "codec-text-trait",
  "lightningcss",
- "quick-xml 0.38.2",
+ "quick-xml 0.37.5",
  "version",
 ]
 
@@ -1393,7 +1393,7 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-html-trait",
- "quick-xml 0.38.2",
+ "quick-xml 0.37.5",
  "tl",
 ]
 
@@ -1444,7 +1444,7 @@ dependencies = [
  "codec-jats-trait",
  "codec-text-trait",
  "common-dev",
- "quick-xml 0.38.2",
+ "quick-xml 0.37.5",
  "roxmltree",
 ]
 
