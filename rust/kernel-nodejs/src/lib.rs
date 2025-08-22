@@ -3,7 +3,7 @@ use std::{
     path::Path,
 };
 
-use tools::ToolCommand;
+use tools::{Npx, Tool};
 
 use kernel_micro::{
     Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelLint,
@@ -46,19 +46,17 @@ impl Kernel for NodeJsKernel {
         // currently disabled
         return KernelLinting::No;
 
-        let format = ToolCommand::new("npx")
-            .arg("--no") // Do not install prettier if not already
-            .arg("--")
-            .arg("prettier")
-            .arg("--version") // Smaller output than without
+        let format = Npx
+            .command()
+            // --no: Do not install prettier if not already
+            .args(["--no", "--", "prettier", "--version"])
             .status()
             .is_ok_and(|status| status.success());
 
-        let fix = ToolCommand::new("npx")
-            .arg("--no") // Do not install eslint if not already
-            .arg("--")
-            .arg("eslint")
-            .arg("--version") // To prevent eslint waiting for input
+        let fix = Npx
+            .command()
+            // --no: Do not install eslint if not already
+            .args(["--no", "--", "eslint", "--version"])
             .status()
             .is_ok_and(|status| status.success());
 
@@ -119,7 +117,8 @@ impl KernelLint for NodeJsKernel {
         // Format code if specified
         // Does this optimistically with no error if it fails
         if options.format {
-            let result = ToolCommand::new("npx")
+            let result = Npx
+                .command()
                 .arg("--no") // Do not install prettier if not already
                 .arg("--")
                 .arg("prettier")
@@ -157,7 +156,7 @@ export default [
         let config_path_str = config_path.to_string_lossy();
 
         // Run eslint to get diagnostics and output as JSON
-        let mut cmd = ToolCommand::new("npx");
+        let mut cmd = Npx.command();
         cmd.arg("eslint")
             .arg("--format=json")
             .arg("--config")

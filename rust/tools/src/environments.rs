@@ -112,7 +112,7 @@ impl Tool for Devbox {
             command.args(["-c", &format!("devbox init && devbox add {pkg}")]);
             Some(command)
         } else {
-            let mut command = AsyncToolCommand::new(self.executable_name());
+            let mut command = self.async_command();
             command.args(["add", pkg]);
             Some(command)
         }
@@ -162,7 +162,7 @@ impl Tool for Mise {
     fn install_tool(&self, tool: &dyn Tool, _force: bool) -> Option<AsyncToolCommand> {
         self.path()?;
 
-        let mut command = AsyncToolCommand::new(self.executable_name());
+        let mut command = self.async_command();
         match tool.name() {
             "agg" => {
                 command.args(["use", "ubi:asciinema/agg"]);

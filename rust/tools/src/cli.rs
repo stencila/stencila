@@ -23,9 +23,10 @@ use pathdiff::diff_paths;
 
 use crate::{
     command::{AsyncToolCommand, ToolStdio},
+    execution::R,
     get, list,
-    packages::Renv,
-    tool::{ToolType, detect_managers, install_tool, is_installed, set_dry_run},
+    packages::{Renv, Uv},
+    tool::{Tool, ToolType, detect_managers, install_tool, is_installed, set_dry_run},
 };
 
 /// Manage tools and environments used by Stencila
@@ -521,7 +522,8 @@ impl Install {
             }
 
             // Install tools from the environment manager config
-            let status = AsyncToolCommand::new(manager.executable_name())
+            let status = manager
+                .async_command()
                 .arg("install")
                 .current_dir(path)
                 .stdout(ToolStdio::Inherit)
@@ -554,7 +556,8 @@ impl Install {
             eprintln!("🐍 Installing dependencies from `pyproject.toml` using `uv`");
 
             // Install dependencies (creates venv automatically if needed)
-            let status = AsyncToolCommand::new("uv")
+            let status = Uv
+                .async_command()
                 .arg("sync")
                 .current_dir(path)
                 .stdout(ToolStdio::Inherit)
@@ -575,7 +578,8 @@ impl Install {
             eprintln!("🐍 Installing dependencies from `requirements.txt` using `uv`");
 
             // Create virtual environment first (uv pip requires it)
-            let status = AsyncToolCommand::new("uv")
+            let status = Uv
+                .async_command()
                 .arg("venv")
                 .current_dir(path)
                 .stdout(ToolStdio::Inherit)
@@ -587,7 +591,8 @@ impl Install {
             }
 
             // Install dependencies
-            let status = AsyncToolCommand::new("uv")
+            let status = Uv
+                .async_command()
                 .args(["pip", "install", "-r", "requirements.txt"])
                 .current_dir(path)
                 .stdout(ToolStdio::Inherit)
@@ -621,7 +626,8 @@ impl Install {
             // Ensure renv is installed before using it
             install_tool(&Renv, false, true).await?;
 
-            let status = AsyncToolCommand::new("Rscript")
+            let status = R
+                .async_command()
                 .args(["-e", "invisible(renv::restore())"])
                 .current_dir(path)
                 .stdout(ToolStdio::Inherit)
@@ -644,7 +650,8 @@ impl Install {
             // Ensure renv is installed before using it
             install_tool(&Renv, false, true).await?;
 
-            let status = AsyncToolCommand::new("Rscript")
+            let status = R
+                .async_command()
                 .args(["-e", "invisible(renv::install())"])
                 .current_dir(path)
                 .stdout(ToolStdio::Inherit)

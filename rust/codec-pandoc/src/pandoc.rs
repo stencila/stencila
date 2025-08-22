@@ -28,7 +28,7 @@ use codec::{
     },
     format::Format,
 };
-use tools::{AsyncToolCommand, ToolStdio};
+use tools::{Pandoc as PandocTool, Tool, ToolStdio};
 
 /// Call Pandoc binary to convert some input content to Pandoc JSON.
 #[tracing::instrument(skip(input))]
@@ -52,7 +52,7 @@ pub async fn pandoc_from_format(
         // instead of the default decoding so remove that.
         args.retain(|arg| arg != "--pandoc");
 
-        let mut command = AsyncToolCommand::new("pandoc");
+        let mut command = PandocTool.async_command();
         command
             .args(["--from", format, "--to", "json"])
             .args(args)
@@ -113,7 +113,7 @@ pub async fn pandoc_to_format(
     if let Some(template) = options.template {
         args.push(format!("--reference-doc={}", template.to_string_lossy()));
     }
-    let mut command = AsyncToolCommand::new("pandoc");
+    let mut command = PandocTool.async_command();
     command.args(args);
     command.args(["--from", "json", "--to", format]);
     if let Some(path) = &path {
@@ -164,7 +164,7 @@ pub(crate) async fn format_to_path(
         args.push(format!("--reference-doc={}", template.to_string_lossy()));
     }
 
-    let mut command = AsyncToolCommand::new("pandoc");
+    let mut command = PandocTool.async_command();
     command.args(args);
     command.args([
         "--from",

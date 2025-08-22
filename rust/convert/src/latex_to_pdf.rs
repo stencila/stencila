@@ -9,7 +9,7 @@ use common::{
     tokio::fs::{create_dir_all, read_to_string, remove_file, write},
     tracing,
 };
-use tools::AsyncToolCommand;
+use tools::{Tool, Xelatex};
 
 /// Convert a LaTeX string to a PDF file
 #[tracing::instrument(skip(latex))]
@@ -31,7 +31,8 @@ pub async fn latex_to_pdf(latex: &str, path: &Path) -> Result<()> {
     let input_file = format!("{job}.tex");
     write(&input_file, latex).await?;
 
-    let status = AsyncToolCommand::new("xelatex")
+    let status = Xelatex
+        .async_command()
         .args([
             "-interaction=batchmode",
             "-halt-on-error",

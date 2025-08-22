@@ -21,15 +21,15 @@ mod tool;
 /// Re-exports for consuming crates
 pub use command::{AsyncToolCommand, ToolCommand, ToolStdio};
 pub use semver::{Version, VersionReq};
-pub use tool::{ToolType, detect_managers};
 
-use crate::collaboration::*;
-use crate::conversion::*;
-use crate::environments::*;
-use crate::execution::*;
-use crate::linting::*;
-use crate::packages::*;
-use crate::tool::Tool;
+// Export all tools for direct use
+pub use collaboration::*;
+pub use conversion::*;
+pub use environments::*;
+pub use execution::*;
+pub use linting::*;
+pub use packages::*;
+pub use tool::{Tool, ToolType, detect_managers};
 
 /// Get a list of tools used by Stencila
 pub fn list() -> Vec<Box<dyn Tool>> {
@@ -42,6 +42,7 @@ pub fn list() -> Vec<Box<dyn Tool>> {
         Box::new(Apt),
         // Packages
         Box::new(Npm),
+        Box::new(Npx),
         Box::new(Uv),
         Box::new(Rig),
         Box::new(Renv),
@@ -52,6 +53,7 @@ pub fn list() -> Vec<Box<dyn Tool>> {
         Box::new(R),
         // Linting
         Box::new(Ruff),
+        Box::new(Pyright),
         // Conversion
         Box::new(Agg),
         Box::new(MarkerPdf),

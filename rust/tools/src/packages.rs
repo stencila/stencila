@@ -37,6 +37,31 @@ impl Tool for Npm {
     }
 }
 
+pub struct Npx;
+
+impl Tool for Npx {
+    fn name(&self) -> &'static str {
+        "npx"
+    }
+
+    fn url(&self) -> &'static str {
+        "https://www.npmjs.com/package/npx"
+    }
+
+    fn description(&self) -> &'static str {
+        "Node.js package executor"
+    }
+
+    fn r#type(&self) -> ToolType {
+        ToolType::Packages
+    }
+
+    fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
+        // Intentionally empty because npx is usually installed alongside npm/nodejs
+        vec![]
+    }
+}
+
 pub struct Renv;
 
 impl Tool for Renv {
@@ -119,7 +144,7 @@ impl Tool for Rig {
             return None;
         }
 
-        let mut command = AsyncToolCommand::new(self.executable_name());
+        let mut command = self.async_command();
         // Add the latest release
         command.args(["add", "release"]);
         Some(command)
@@ -159,7 +184,7 @@ impl Tool for Uv {
 
     fn execute_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
         // Only wrap python/python3 commands
-        if cmd != "python" && cmd != "python3" {
+        if !matches!(cmd, "python" | "python3" | "ruff" | "pyright") {
             return None;
         }
 
@@ -177,7 +202,7 @@ impl Tool for Uv {
 
         // Install Python
         if name == Python.name() {
-            let mut command = AsyncToolCommand::new(self.executable_name());
+            let mut command = self.async_command();
             command.args(["python", "install"]);
             return Some(command);
         }
@@ -188,7 +213,7 @@ impl Tool for Uv {
             "mineru" => Some(("mineru[core]", vec![])),
             _ => None,
         } {
-            let mut command = AsyncToolCommand::new(self.executable_name());
+            let mut command = self.async_command();
             command.args(["tool", "install", tool]);
             command.args(options);
             if force {
@@ -202,7 +227,7 @@ impl Tool for Uv {
         let current_dir = std::env::current_dir().ok()?;
         let pyproject_path = current_dir.join("pyproject.toml");
 
-        let mut command = AsyncToolCommand::new(self.executable_name());
+        let mut command = self.async_command();
 
         if !pyproject_path.exists() {
             // Use shell to run both uv init and uv add in sequence

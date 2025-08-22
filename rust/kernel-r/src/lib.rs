@@ -1,6 +1,6 @@
 use std::{fs::read_to_string, io::Write, path::Path};
 
-use tools::ToolCommand;
+use tools::{R, Tool};
 
 use kernel_micro::{
     Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelLint,
@@ -39,7 +39,7 @@ impl Kernel for RKernel {
 
     fn supports_linting(&self) -> KernelLinting {
         let have = |what| {
-            ToolCommand::new("Rscript")
+            R.command()
                 .arg("-e")
                 .arg(what)
                 .status()
@@ -117,7 +117,7 @@ impl KernelLint for RKernel {
         ));
 
         // Run command with JSON output to parse into messages
-        let messages = if let Ok(output) = ToolCommand::new("Rscript").arg("-e").arg(r).output() {
+        let messages = if let Ok(output) = R.command().arg("-e").arg(r).output() {
             let stdout = String::from_utf8_lossy(&output.stdout).to_string();
 
             // Successfully ran ESLint so add as an author (regardless of whether it made any fixes)

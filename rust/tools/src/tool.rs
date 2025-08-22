@@ -316,6 +316,20 @@ pub trait Tool: Sync + Send {
     fn is_package_installed(&self, _tool: &dyn Tool) -> Option<ToolCommand> {
         None
     }
+
+    /// Create a ToolCommand for this tool
+    ///
+    /// Convenience method that creates a ToolCommand using this tool's executable name.
+    fn command(&self) -> ToolCommand {
+        ToolCommand::new(self.executable_name())
+    }
+
+    /// Create an AsyncToolCommand for this tool
+    ///
+    /// Convenience method that creates an AsyncToolCommand using this tool's executable name.
+    fn async_command(&self) -> AsyncToolCommand {
+        AsyncToolCommand::new(self.executable_name())
+    }
 }
 
 impl Debug for dyn Tool {

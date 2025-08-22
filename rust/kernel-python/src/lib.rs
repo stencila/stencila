@@ -2,7 +2,7 @@ use std::{cmp::Ordering, env, fs::read_to_string, io::Write, path::Path};
 
 use which::which;
 
-use tools::ToolCommand;
+use tools::{Pyright, Ruff, Tool};
 
 use kernel_micro::{
     Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelLint,
@@ -94,10 +94,7 @@ impl KernelLint for PythonKernel {
 
         // Format code if specified
         if options.format {
-            let result = ToolCommand::new("ruff")
-                .arg("format")
-                .arg(temp_path)
-                .output();
+            let result = Ruff.command().arg("format").arg(temp_path).output();
 
             if let Ok(output) = result {
                 let stdout = String::from_utf8_lossy(&output.stdout).to_string();
@@ -115,8 +112,8 @@ impl KernelLint for PythonKernel {
         }
 
         // Run Ruff with JSON output for parsing of diagnostic to messages
-        let mut cmd = ToolCommand::new("ruff");
-        cmd.arg("check").arg("--output-format=json").arg(temp_path);
+        let mut cmd = Ruff.command();
+        cmd.args(["check", "--output-format=json"]).arg(temp_path);
         if options.fix {
             cmd.arg("--fix");
         }
@@ -196,7 +193,7 @@ impl KernelLint for PythonKernel {
 
         // Run Pyright with JSON output to parse into messages
         // See https://github.com/Microsoft/pyright/blob/main/docs/command-line.md
-        let mut pyright = ToolCommand::new("pyright");
+        let mut pyright = Pyright.command();
         pyright.arg("--outputjson");
 
         // Search up the tree from the document for Python virtual environment

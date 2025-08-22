@@ -122,7 +122,7 @@ impl Tool for R {
 
     fn install_tool(&self, tool: &dyn Tool, _force: bool) -> Option<AsyncToolCommand> {
         let package = tool.name();
-        let mut command = AsyncToolCommand::new(self.executable_name());
+        let mut command = self.async_command();
         command.args([
             "-e",
             &format!("install.packages('{package}', repos='https://cloud.r-project.org')"),
@@ -132,7 +132,7 @@ impl Tool for R {
 
     fn is_package_installed(&self, tool: &dyn Tool) -> Option<ToolCommand> {
         let package = tool.name();
-        let mut command = ToolCommand::new(self.executable_name());
+        let mut command = self.command();
         command.args(["-e", &format!("library({package})")]);
         Some(command)
     }

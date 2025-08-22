@@ -25,7 +25,7 @@ use common::{
     tracing,
 };
 use schema::{Block, Inline, ListItem, MessageLevel, Node, Visitor, WalkControl, WalkthroughStep};
-use tools::{AsyncToolCommand, ToolStdio};
+use tools::{Agg, Tool, ToolStdio};
 
 use crate::Document;
 
@@ -567,7 +567,7 @@ impl Walker {
                 && let (Some(asciicast_path), Some(final_output_path)) =
                     (&self.asciicast_path, &self.output_path)
             {
-                let status = AsyncToolCommand::new("agg")
+                let status = Agg.async_command()
                     .arg(asciicast_path)
                     .arg(final_output_path)
                     .stdout(ToolStdio::Inherit)
