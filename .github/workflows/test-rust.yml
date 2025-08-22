@@ -48,14 +48,6 @@ jobs:
           components: clippy
 
       - name: Setup linker (macOS)
-        if: ${{ contains(inputs.platforms, matrix.platform) && matrix.platform == 'macos' }}
-        run: |
-          export PATH="$(brew --prefix)/opt/llvm/bin:$PATH"
-          echo "$(brew --prefix)/opt/llvm/bin" >> $GITHUB_PATH
-          make -C rust setup-linker
-
-      - name: Setup linker (non-macOS)
-        if: ${{ contains(inputs.platforms, matrix.platform) && matrix.platform != 'macos' }}
         run: make -C rust setup-linker
 
       - name: Setup Rust cache

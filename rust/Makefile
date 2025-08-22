@@ -26,9 +26,6 @@ setup-linker:
 ifeq ($(UNAME_S),Linux)
 	@$(MAKE) setup-mold
 endif
-ifeq ($(UNAME_S),Darwin)
-	@$(MAKE) setup-lld
-endif
 
 # Setup mold linker on Linux
 setup-mold:
@@ -48,21 +45,6 @@ setup-mold:
 		echo "mold linker already installed"; \
 	fi
 
-# Setup lld linker on macOS
-setup-lld:
-	@if ! command -v ld64.lld >/dev/null 2>&1 && ! command -v lld >/dev/null 2>&1; then \
-		echo "Installing LLVM (for lld linker)..."; \
-		if command -v brew >/dev/null 2>&1; then \
-			brew install llvm; \
-			echo "LLVM installed. You may need to add it to your PATH:"; \
-			echo "export PATH=\"$$(brew --prefix)/opt/llvm/bin:\$$PATH\""; \
-		else \
-			echo "Homebrew not found. Please install LLVM manually."; \
-			echo "See: https://llvm.org/docs/GettingStarted.html#getting-the-source-code-and-building-llvm"; \
-		fi \
-	else \
-		echo "lld linker already available"; \
-	fi
 
 # Make formatting and linting fixes
 fix:

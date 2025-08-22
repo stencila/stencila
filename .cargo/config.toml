@@ -7,10 +7,3 @@ rustflags = ["-C", "link-arg=-fuse-ld=mold"]
 
 [target.aarch64-unknown-linux-gnu]
 rustflags = ["-C", "link-arg=-fuse-ld=mold"]
-
-# Use ld64.lld linker on macOS for faster linking
-[target.x86_64-apple-darwin]
-linker = "ld64.lld"
-
-[target.aarch64-apple-darwin]
-linker = "ld64.lld"
