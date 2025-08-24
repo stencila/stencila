@@ -22,6 +22,7 @@ use common::{
 };
 use kernels::Kernels;
 use node_diagnostics::{Diagnostic, DiagnosticLevel, diagnostics};
+use node_execute::CompileOptions;
 use node_find::find;
 use node_first::first;
 use schema::{
@@ -84,13 +85,9 @@ pub struct LogEntry {
 #[serde(tag = "command", rename_all = "kebab-case", crate = "common::serde")]
 pub enum Command {
     /// Compile the document
-    CompileDocument { config: Config },
-
-    /// Lint the document
-    LintDocument {
-        format: bool,
-        fix: bool,
+    CompileDocument {
         config: Config,
+        compile_options: CompileOptions,
     },
 
     /// Execute the entire document
@@ -751,19 +748,26 @@ impl Document {
         tracing::trace!("Compiling document");
 
         let config = self.config().await?;
-        self.command_wait(Command::CompileDocument { config }).await
+        self.command_wait(Command::CompileDocument {
+            config,
+            compile_options: CompileOptions::default(),
+        })
+        .await
     }
 
     /// Lint the document
     #[tracing::instrument(skip(self))]
-    pub async fn lint(&self, format: bool, fix: bool) -> Result<()> {
+    pub async fn lint(&self, should_format: bool, should_fix: bool) -> Result<()> {
         tracing::trace!("Linting document");
 
         let config = self.config().await?;
-        self.command_wait(Command::LintDocument {
-            format,
-            fix,
+        self.command_wait(Command::CompileDocument {
             config,
+            compile_options: CompileOptions {
+                should_lint: true,
+                should_format,
+                should_fix,
+            },
         })
         .await
     }
