@@ -2,7 +2,7 @@ use std::path::Path;
 
 use harper_core::{
     Dialect, Document,
-    linting::{Lint, LintGroup, LintKind, Linter as _},
+    linting::{Lint, LintGroup, LintKind, Linter as _, Suggestion},
     spell::FstDictionary,
 };
 use stencila_linter::{
@@ -112,6 +112,31 @@ fn lint_to_compilation_message(lint: Lint) -> CompilationMessage {
         Style | Usage | WordChoice | _ => MessageLevel::Info,
     };
 
+    let lint_kind = lint.lint_kind.to_string();
+
+    let mut message = lint.message;
+    if !lint.suggestions.is_empty() {
+        message.push_str(" Suggestion");
+        if lint.suggestions.len() > 1 {
+            message.push('s');
+        }
+        message.push_str(": ");
+
+        for (index, suggestion) in lint.suggestions.iter().enumerate() {
+            if index > 0 {
+                message.push_str(", ");
+            }
+            message.push_str(&match suggestion {
+                Suggestion::ReplaceWith(chars) => ["`", &String::from_iter(chars), "`"].concat(),
+                Suggestion::InsertAfter(chars) => {
+                    ["add `", &String::from_iter(chars), "`"].concat()
+                }
+                Suggestion::Remove => "remove".to_string(),
+            });
+        }
+        message.push('.');
+    }
+
     let location = CodeLocation {
         start_line: Some(0),
         start_column: Some(lint.span.start as u64),
@@ -121,8 +146,8 @@ fn lint_to_compilation_message(lint: Lint) -> CompilationMessage {
 
     CompilationMessage {
         level,
-        error_type: Some(lint.lint_kind.to_string()),
-        message: lint.message,
+        error_type: Some(lint_kind),
+        message,
         code_location: Some(location),
         ..Default::default()
     }
