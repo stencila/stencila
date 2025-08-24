@@ -56,14 +56,16 @@ impl Linter for HarperLinter {
         let document = Document::new_plain_english_curated(text);
         let lints = LINTER.lock().await.lint(&document);
 
-        let (new_text, messages) = if options.should_fix {
+        let (new_text, messages) = if options.should_format || options.should_fix {
             // Apply Harper's suggested fixes for each lint.
             // Harper offers multiple suggestions for each lint, here we just take the first.
             // If there are no suggestions, then apply just collect the message.
             let mut new_text = text.chars().collect_vec();
             let mut messages = Vec::new();
             for lint in lints {
-                if let Some(first) = lint.suggestions.first() {
+                if (matches!(lint.lint_kind, LintKind::Formatting) || options.should_fix)
+                    && let Some(first) = lint.suggestions.first()
+                {
                     first.apply(lint.span, &mut new_text);
                 } else {
                     messages.push(lint_to_compilation_message(lint));
@@ -84,7 +86,7 @@ impl Linter for HarperLinter {
         let authors = Some(vec![
             SoftwareApplication::new("Harper".to_string()).into_author_role(
                 AuthorRoleName::Linter,
-                Some(Format::Python),
+                Some(Format::Text),
                 Some(Timestamp::now()),
             ),
         ]);
