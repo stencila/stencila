@@ -31,7 +31,8 @@
     "value"
   ],
   "core": [
-    "id"
+    "id",
+    "compilationMessages"
   ],
   "properties": {
     "type": {
@@ -85,6 +86,24 @@
         }
       },
       "$ref": "Cord.schema.json"
+    },
+    "compilationMessages": {
+      "@id": "stencila:compilationMessages",
+      "description": "Messages generated while compiling the text.",
+      "aliases": [
+        "compilation-messages",
+        "compilation_messages",
+        "compilationMessage",
+        "compilation-message",
+        "compilation_message"
+      ],
+      "strip": [
+        "compilation"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "CompilationMessage.schema.json"
+      }
     }
   }
 }

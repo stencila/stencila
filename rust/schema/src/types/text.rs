@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::compilation_message::CompilationMessage;
 use super::cord::Cord;
 use super::string::String;
 
@@ -34,6 +35,13 @@ pub struct Text {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary().prop_map(Cord::from)"#))]
     #[html(content)]
     pub value: Cord,
+
+    /// Messages generated while compiling the text.
+    #[serde(alias = "compilation-messages", alias = "compilation_messages", alias = "compilationMessage", alias = "compilation-message", alias = "compilation_message")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(compilation)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub compilation_messages: Option<Vec<CompilationMessage>>,
 
     /// A unique identifier for a node within a document
     #[serde(skip)]

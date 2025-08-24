@@ -3128,6 +3128,9 @@ class Text(Entity):
     value: Cord
     """The value of the text content"""
 
+    compilation_messages: list[CompilationMessage] | None = None
+    """Messages generated while compiling the text."""
+
 
 @dataclass(kw_only=True, repr=False)
 class ThematicBreak(Entity):

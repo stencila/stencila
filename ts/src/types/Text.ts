@@ -1,5 +1,6 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
+import { CompilationMessage } from "./CompilationMessage.js";
 import { Cord } from "./Cord.js";
 import { Entity } from "./Entity.js";
 
@@ -14,6 +15,11 @@ export class Text extends Entity {
    * The value of the text content
    */
   value: Cord;
+
+  /**
+   * Messages generated while compiling the text.
+   */
+  compilationMessages?: CompilationMessage[];
 
   constructor(value: Cord, options?: Partial<Text>) {
     super();

@@ -25,6 +25,8 @@ markdown:
 proptest: {}
 required:
   - value
+core:
+  - compilationMessages
 properties:
   value:
     "@id": "schema:value"
@@ -49,3 +51,10 @@ properties:
       max:
         description: Generate an arbitrary string.
         strategy: String::arbitrary().prop_map(Cord::from)
+  compilationMessages:
+    "@id": stencila:compilationMessages
+    description: Messages generated while compiling the text.
+    strip: [compilation]
+    type: array
+    items:
+      $ref: CompilationMessage

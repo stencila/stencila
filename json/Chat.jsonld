@@ -722,6 +722,9 @@
       "rdfs:comment": "Messages generated while compiling the code.",
       "schema:domainIncludes": [
         {
+          "@id": "schema:Text"
+        },
+        {
           "@id": "stencila:AppendixBreak"
         },
         {

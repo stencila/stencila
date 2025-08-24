@@ -63,6 +63,38 @@
       "schema:rangeIncludes": {
         "@id": "stencila:Cord"
       }
+    },
+    {
+      "@id": "stencila:compilationMessages",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compilationMessages",
+      "rdfs:comment": "Messages generated while compiling the text.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Text"
+        },
+        {
+          "@id": "stencila:AppendixBreak"
+        },
+        {
+          "@id": "stencila:Citation"
+        },
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationMessage"
+      }
     }
   ]
 }

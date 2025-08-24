@@ -194,6 +194,9 @@
       "rdfs:comment": "Messages generated while parsing and transpiling the style.",
       "schema:domainIncludes": [
         {
+          "@id": "schema:Text"
+        },
+        {
           "@id": "stencila:AppendixBreak"
         },
         {
