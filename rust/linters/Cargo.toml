@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 cli-utils = { path = "../cli-utils" }
 stencila-linter = { path = "../linter" }
+stencila-linter-harper = { path = "../linter-harper" }
 stencila-linter-lintr = { path = "../linter-lintr" }
 stencila-linter-pyright = { path = "../linter-pyright" }
 stencila-linter-ruff = { path = "../linter-ruff" }

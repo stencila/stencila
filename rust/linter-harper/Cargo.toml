@@ -1,0 +1,11 @@
+[package]
+name = "stencila-linter-harper"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+harper-core = { version = "0.59.0", features = ["concurrent"] }
+stencila-linter = { path = "../linter" }
+
+[lints]
+workspace = true
