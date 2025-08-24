@@ -4,7 +4,7 @@ use common::{
     tokio::{self},
     tracing,
 };
-use node_execute::ExecuteOptions;
+use node_execute::{CompileOptions, ExecuteOptions};
 use schema::{Config, Node, PatchNode, PatchOp, authorship};
 
 use crate::{
@@ -118,16 +118,13 @@ impl Document {
             if lint || compile {
                 let config = Document::config_merge_root(config.clone(), &root).await;
 
-                let command = if lint {
-                    Command::LintDocument {
-                        format: false,
-                        fix: false,
-                        config,
-                    }
-                } else {
-                    Command::CompileDocument { config }
+                let command = Command::CompileDocument {
+                    config,
+                    compile_options: CompileOptions {
+                        should_lint: lint,
+                        ..Default::default()
+                    },
                 };
-
                 if let Err(error) = command_sender.send((command, None)).await {
                     tracing::error!("While sending command to document: {error}");
                     continue;

@@ -8,7 +8,7 @@ use common::{
     tracing,
 };
 use format::Format;
-use node_execute::{ExecuteOptions, compile, execute, interrupt, lint};
+use node_execute::{ExecuteOptions, compile, execute, interrupt};
 use schema::{
     Article, Block, ChatMessage, ChatMessageOptions, CodeChunk, CodeExpression, File, Inline, Node,
     NodeId, NodePath, NodeProperty, Paragraph, Patch, PatchNode, PatchOp,
@@ -194,7 +194,10 @@ impl Document {
                     send_status(&status_sender, status).await;
                 }
 
-                CompileDocument { config } => {
+                CompileDocument {
+                    config,
+                    compile_options,
+                } => {
                     let status_sender_clone = status_sender.clone();
                     let decode_options = decode_options.clone();
                     let task = tokio::spawn(async move {
@@ -202,32 +205,14 @@ impl Document {
                             home,
                             root,
                             kernels,
-                            Some(patch_sender),
                             config,
+                            Some(patch_sender),
                             decode_options,
+                            Some(compile_options),
                         )
                         .await
                         {
                             CommandStatus::Failed(format!("While compiling document: {error}"))
-                        } else {
-                            CommandStatus::Succeeded
-                        };
-                        send_status(&status_sender_clone, status).await;
-                    });
-                    current_command_details = Some((command, status_sender, task));
-                }
-
-                LintDocument {
-                    format,
-                    fix,
-                    config,
-                } => {
-                    let status_sender_clone = status_sender.clone();
-                    let task = tokio::spawn(async move {
-                        let status = if let Err(error) =
-                            lint(home, root, kernels, Some(patch_sender), format, fix, config).await
-                        {
-                            CommandStatus::Failed(format!("While linting document: {error}"))
                         } else {
                             CommandStatus::Succeeded
                         };

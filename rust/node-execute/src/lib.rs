@@ -58,6 +58,7 @@ mod styled_block;
 mod styled_inline;
 mod suggestion_block;
 mod table;
+mod text;
 
 type PatchSender = mpsc::UnboundedSender<(Patch, Option<oneshot::Sender<()>>)>;
 
@@ -66,35 +67,18 @@ pub async fn compile(
     home: PathBuf,
     root: Arc<RwLock<Node>>,
     kernels: Arc<RwLock<Kernels>>,
-    patch_sender: Option<PatchSender>,
     config: Config,
+    patch_sender: Option<PatchSender>,
     decode_options: Option<DecodeOptions>,
+    compile_options: Option<CompileOptions>,
 ) -> Result<()> {
     let mut root = root.read().await.clone();
     let mut executor = Executor::new(home, kernels, patch_sender);
     executor.config = Some(config);
     executor.decode_options = decode_options;
+    executor.compile_options = compile_options;
     executor.compile(&mut root).await?;
     executor.link(&mut root).await?;
-    executor.finalize().await
-}
-
-/// Walk over a root node and lint it and child nodes
-pub async fn lint(
-    home: PathBuf,
-    root: Arc<RwLock<Node>>,
-    kernels: Arc<RwLock<Kernels>>,
-    patch_sender: Option<PatchSender>,
-    format: bool,
-    fix: bool,
-    config: Config,
-) -> Result<()> {
-    let mut root = root.read().await.clone();
-    let mut executor = Executor::new(home, kernels, patch_sender);
-    executor.config = Some(config);
-    executor.compile(&mut root).await?;
-    executor.link(&mut root).await?;
-    executor.lint(&mut root, format, fix).await?;
     executor.finalize().await
 }
 
@@ -181,6 +165,9 @@ pub struct Executor {
 
     /// The decoding options used when compiling `IncludeBlock`s
     decode_options: Option<DecodeOptions>,
+
+    /// The options used when compiling nodes
+    compile_options: Option<CompileOptions>,
 
     /// The kernels that will be used for execution
     kernels: Arc<RwLock<Kernels>>,
@@ -358,9 +345,15 @@ impl HeadingInfo {
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq, Args)]
 #[serde(default, crate = "common::serde")]
-pub struct LintOptions {
-    format: bool,
-    fix: bool,
+pub struct CompileOptions {
+    /// Should lint the document
+    pub should_lint: bool,
+
+    /// If should lint, should also apply formatting corrections
+    pub should_format: bool,
+
+    /// If should lint, should also fix warnings and errors where possible
+    pub should_fix: bool,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq, Args)]
@@ -445,6 +438,7 @@ impl Executor {
         Self {
             directory_stack: vec![home],
             decode_options: None,
+            compile_options: None,
             kernels,
             patch_sender,
             node_ids: None,
@@ -549,6 +543,15 @@ impl Executor {
         self.walk_ancestors.clear();
         root.walk_async(self).await?;
 
+        if self
+            .compile_options
+            .as_ref()
+            .map(|opts| opts.should_lint)
+            .unwrap_or_default()
+        {
+            self.lint(root).await?;
+        }
+
         Ok(())
     }
 
@@ -563,16 +566,10 @@ impl Executor {
         Ok(())
     }
 
-    /// Run [`Phase::Compile`] and [`Phase::Link`] on a node and lint any code within it
-    async fn compile_link_lint<N: WalkNode + PatchNode + Debug>(
-        &mut self,
-        node: &mut N,
-        format: bool,
-        fix: bool,
-    ) -> Result<()> {
+    /// Run [`Phase::Compile`] and [`Phase::Link`] on a node
+    async fn compile_link<N: WalkNode + PatchNode + Debug>(&mut self, node: &mut N) -> Result<()> {
         self.compile(node).await?;
         self.link(node).await?;
-        self.lint(node, format, fix).await?;
 
         Ok(())
     }
@@ -622,12 +619,13 @@ impl Executor {
     }
 
     /// Lint code that was collected while compiling
-    async fn lint<P: PatchNode + Debug>(
-        &mut self,
-        node: &mut P,
-        should_format: bool,
-        should_fix: bool,
-    ) -> Result<()> {
+    async fn lint<P: PatchNode + Debug>(&mut self, node: &mut P) -> Result<()> {
+        let CompileOptions {
+            should_format,
+            should_fix,
+            ..
+        } = self.compile_options.clone().unwrap_or_default();
+
         // Skip linting if formatting or fixing is not required and
         // none of the codes have changed
         if !should_format
@@ -1302,6 +1300,7 @@ impl VisitorAsync for Executor {
             Link(node) => self.visit_executable(node).await,
             Parameter(node) => self.visit_executable(node).await,
             StyledInline(node) => self.visit_executable(node).await,
+            Text(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
         })
     }

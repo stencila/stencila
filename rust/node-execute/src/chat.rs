@@ -16,7 +16,7 @@ use schema::{
 };
 
 use crate::{
-    ExecuteOptions,
+    CompileOptions, ExecuteOptions,
     code_utils::apply_execution_bounds,
     interrupt_impl,
     model_utils::{
@@ -387,15 +387,19 @@ impl Executable for Chat {
                         apply_execution_bounds(&mut content, execution_bounds);
 
                         let mut fork = executor.fork_for_all();
+                        fork.compile_options = Some(CompileOptions {
+                            should_lint: true,
+                            should_format: true,
+                            should_fix: true,
+                        });
+
                         let mut content = content.clone();
                         let message_id = message_id.clone();
                         tokio::spawn(async move {
                             let mut retries = 0;
                             loop {
-                                // Format, fix & lint the content before executing
-                                if let Err(error) =
-                                    fork.compile_link_lint(&mut content, true, true).await
-                                {
+                                // Format, fix & link the content before executing
+                                if let Err(error) = fork.compile_link(&mut content).await {
                                     tracing::error!("While linting content: {error}");
                                 };
 
