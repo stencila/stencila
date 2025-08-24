@@ -48,6 +48,7 @@ impl Executable for Citation {
             // Only create a compilation message if has no reference
             let messages = vec![CompilationMessage {
                 level: MessageLevel::Error,
+                error_type: Some("Target Unresolved".into()),
                 message: format!("Unable to resolve citation target `{}`", self.target),
                 ..Default::default()
             }];
