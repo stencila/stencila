@@ -13,7 +13,7 @@ use common::{
     tokio::sync::{RwLock, RwLockWriteGuard, mpsc, oneshot},
     tracing,
 };
-use kernels::{KernelLintingOptions, Kernels};
+use kernels::Kernels;
 use prompts::prompt::{DocumentContext, InstructionContext};
 use schema::{
     AuthorRole, AuthorRoleName, Block, Citation, CompilationMessage, Config, ExecutionBounds,
@@ -21,6 +21,7 @@ use schema::{
     ListOrder, Node, NodeId, NodePath, NodeProperty, NodeType, Paragraph, Patch, PatchNode,
     PatchOp, PatchValue, Reference, Timestamp, VisitorAsync, WalkControl, WalkNode,
 };
+use stencila_linters::LintingOptions;
 
 type NodeIds = Vec<NodeId>;
 
@@ -693,13 +694,14 @@ impl Executor {
             .map(|(format, code)| async move {
                 let format = format?;
 
-                match kernels::lint(
+                match stencila_linters::lint(
                     &code,
-                    dir,
-                    &format,
-                    KernelLintingOptions {
-                        format: should_format,
-                        fix: should_fix,
+                    Some(dir),
+                    LintingOptions {
+                        format: Some(format.clone()),
+                        should_format,
+                        should_fix,
+                        ..Default::default()
                     },
                 )
                 .await
@@ -721,161 +723,164 @@ impl Executor {
             let Some(format) = format else {
                 continue;
             };
-            let Some(output) = outputs.remove(&format) else {
+            let Some(outputs) = outputs.remove(&format) else {
                 continue;
             };
 
             let format = Some(format);
             let this_format_nodes = format_nodes.remove(&format).unwrap_or_default();
 
-            if let Some(authors) = output.authors {
-                // Get the formatter and linter authors
-                // This could be refined to only add formatter role to nodes
-                // that changed
-                for node_id in &this_format_nodes {
-                    node_authors.insert(node_id.clone(), authors.clone());
-                }
-            }
-
-            // Get the line comment prefix for the format
-            let comment_prefix = format_comment(&format);
-
-            // If there is output code then it needs to be used to patch nodes
-            // and also message line numbers need to be calculated based on it
-            let (code, code_changed) = match output.code {
-                Some(code) => (code, true),
-                None => (code, false),
-            };
-
-            // If there is a code change then extract the new code for each node
-            // and compare to see if it has changed
-            if code_changed {
-                let lines = code.lines().collect_vec();
-                let mut line_index = 0;
-                for (node_id, old_code, ..) in &self.linting_context {
-                    // Continue if code is not part of the node
-                    let Some(node_id) = node_id else {
-                        continue;
-                    };
-
-                    // Continue if node does not have code for this language
-                    if !this_format_nodes.contains(node_id) {
-                        continue;
-                    }
-
-                    // Move over lines looking for code beginning and ending
-                    let begin = format!("{comment_prefix} {BEGIN} {node_id}");
-                    let end = format!("{comment_prefix} {END} {node_id}");
-                    let mut new_code = String::new();
-                    let mut begun = false;
-                    while line_index < lines.len() {
-                        let Some(line) = lines.get(line_index) else {
-                            break;
-                        };
-
-                        if *line == begin {
-                            begun = true;
-                        } else if *line == end {
-                            break;
-                        } else if begun {
-                            new_code.push_str(line);
-                            new_code.push('\n');
-                        }
-
-                        line_index += 1;
-                    }
-
-                    // This should not happen because we only look for the nodes using this
-                    // language. But if it does, then generate a debug message.
-                    if !begun {
-                        tracing::debug!(
-                            "Could not find formatted and/or fixed code for node `{node_id}`"
-                        );
-                        continue;
-                    }
-
-                    // Ignore ending whitespace space
-                    new_code.truncate(new_code.trim_end().len());
-                    let old_code = old_code.trim_end();
-
-                    if new_code != old_code {
-                        node_codes.insert(node_id.clone(), new_code);
+            for output in outputs {
+                if let Some(authors) = output.authors {
+                    // Get the formatter and linter authors
+                    // This could be refined to only add formatter role to nodes
+                    // that changed
+                    for node_id in &this_format_nodes {
+                        node_authors.insert(node_id.clone(), authors.clone());
                     }
                 }
-            }
 
-            // If there are any messages then map them back to the nodes by finding the
-            // BEGIN line immediately before the location of the message
-            if let Some(messages) = output.messages {
-                let lines = code.lines().collect_vec();
-                for mut message in messages {
-                    // Get the line of the message as the starting line
-                    let Some(start_line) = message
-                        .code_location
-                        .as_ref()
-                        .and_then(|loc| loc.start_line)
-                    else {
-                        tracing::trace!("Message has no start line");
-                        continue;
-                    };
+                // Get the line comment prefix for the format
+                let comment_prefix = format_comment(&format);
 
-                    // Find the BEGIN line for the message
-                    let mut node_begin_line = None;
-                    let start_line = (start_line as usize).min(lines.len().saturating_sub(1));
-                    for line_index in (0..start_line).rev() {
-                        let Some(line) = lines.get(line_index) else {
+                // If there is output code then it needs to be used to patch nodes
+                // and also message line numbers need to be calculated based on it
+                let (code, code_changed) = match output.code {
+                    Some(code) => (code, true),
+                    None => (code.clone(), false),
+                };
+
+                // If there is a code change then extract the new code for each node
+                // and compare to see if it has changed
+                if code_changed {
+                    let lines = code.lines().collect_vec();
+                    let mut line_index = 0;
+                    for (node_id, old_code, ..) in &self.linting_context {
+                        // Continue if code is not part of the node
+                        let Some(node_id) = node_id else {
                             continue;
                         };
 
-                        // Split line into 3 parts
-                        let parts: Option<(&str, &str, &str)> =
-                            line.split_whitespace().next_tuple();
-
-                        // If we find an END line already then abort the search
-                        // (this can happen if the message is related to "anonymous"
-                        // code injected for variable declarations etc)
-                        if let Some((first, second, ..)) = parts
-                            && first == comment_prefix
-                            && second == END
-                        {
-                            break;
-                        };
-
-                        // If not a BEGIN line, continue
-                        let Some((_, BEGIN, node_id)) = parts else {
+                        // Continue if node does not have code for this language
+                        if !this_format_nodes.contains(node_id) {
                             continue;
-                        };
-
-                        // If not able to parse a node id form last part, continue
-                        let Ok(node_id) = NodeId::from_str(node_id) else {
-                            tracing::debug!("Invalid node id: {node_id}");
-                            continue;
-                        };
-
-                        // Previous BEGIN line found and node id parsed
-                        node_begin_line = Some((node_id, line_index));
-                        break;
-                    }
-
-                    // Adjust line numbers so that they are relative to BEGIN line
-                    // Note that if no BEGIN line was found then the message will
-                    // NOT be included since we can not associate it with a node.
-                    if let Some((node_id, line_index)) = node_begin_line {
-                        if let Some(loc) = message.code_location.as_mut() {
-                            if let Some(start_line) = loc.start_line.as_mut() {
-                                *start_line = start_line
-                                    .saturating_sub(line_index as u64)
-                                    .saturating_sub(1);
-                            }
-                            if let Some(end_line) = loc.end_line.as_mut() {
-                                *end_line =
-                                    end_line.saturating_sub(line_index as u64).saturating_sub(1);
-                            }
                         }
 
-                        node_messages.entry(node_id).or_default().push(message);
-                    } else {
-                        tracing::debug!("No {BEGIN} line for message");
+                        // Move over lines looking for code beginning and ending
+                        let begin = format!("{comment_prefix} {BEGIN} {node_id}");
+                        let end = format!("{comment_prefix} {END} {node_id}");
+                        let mut new_code = String::new();
+                        let mut begun = false;
+                        while line_index < lines.len() {
+                            let Some(line) = lines.get(line_index) else {
+                                break;
+                            };
+
+                            if *line == begin {
+                                begun = true;
+                            } else if *line == end {
+                                break;
+                            } else if begun {
+                                new_code.push_str(line);
+                                new_code.push('\n');
+                            }
+
+                            line_index += 1;
+                        }
+
+                        // This should not happen because we only look for the nodes using this
+                        // language. But if it does, then generate a debug message.
+                        if !begun {
+                            tracing::debug!(
+                                "Could not find formatted and/or fixed code for node `{node_id}`"
+                            );
+                            continue;
+                        }
+
+                        // Ignore ending whitespace space
+                        new_code.truncate(new_code.trim_end().len());
+                        let old_code = old_code.trim_end();
+
+                        if new_code != old_code {
+                            node_codes.insert(node_id.clone(), new_code);
+                        }
+                    }
+                }
+
+                // If there are any messages then map them back to the nodes by finding the
+                // BEGIN line immediately before the location of the message
+                if let Some(messages) = output.messages {
+                    let lines = code.lines().collect_vec();
+                    for mut message in messages {
+                        // Get the line of the message as the starting line
+                        let Some(start_line) = message
+                            .code_location
+                            .as_ref()
+                            .and_then(|loc| loc.start_line)
+                        else {
+                            tracing::trace!("Message has no start line");
+                            continue;
+                        };
+
+                        // Find the BEGIN line for the message
+                        let mut node_begin_line = None;
+                        let start_line = (start_line as usize).min(lines.len().saturating_sub(1));
+                        for line_index in (0..start_line).rev() {
+                            let Some(line) = lines.get(line_index) else {
+                                continue;
+                            };
+
+                            // Split line into 3 parts
+                            let parts: Option<(&str, &str, &str)> =
+                                line.split_whitespace().next_tuple();
+
+                            // If we find an END line already then abort the search
+                            // (this can happen if the message is related to "anonymous"
+                            // code injected for variable declarations etc)
+                            if let Some((first, second, ..)) = parts
+                                && first == comment_prefix
+                                && second == END
+                            {
+                                break;
+                            };
+
+                            // If not a BEGIN line, continue
+                            let Some((_, BEGIN, node_id)) = parts else {
+                                continue;
+                            };
+
+                            // If not able to parse a node id form last part, continue
+                            let Ok(node_id) = NodeId::from_str(node_id) else {
+                                tracing::debug!("Invalid node id: {node_id}");
+                                continue;
+                            };
+
+                            // Previous BEGIN line found and node id parsed
+                            node_begin_line = Some((node_id, line_index));
+                            break;
+                        }
+
+                        // Adjust line numbers so that they are relative to BEGIN line
+                        // Note that if no BEGIN line was found then the message will
+                        // NOT be included since we can not associate it with a node.
+                        if let Some((node_id, line_index)) = node_begin_line {
+                            if let Some(loc) = message.code_location.as_mut() {
+                                if let Some(start_line) = loc.start_line.as_mut() {
+                                    *start_line = start_line
+                                        .saturating_sub(line_index as u64)
+                                        .saturating_sub(1);
+                                }
+                                if let Some(end_line) = loc.end_line.as_mut() {
+                                    *end_line = end_line
+                                        .saturating_sub(line_index as u64)
+                                        .saturating_sub(1);
+                                }
+                            }
+
+                            node_messages.entry(node_id).or_default().push(message);
+                        } else {
+                            tracing::debug!("No {BEGIN} line for message");
+                        }
                     }
                 }
             }

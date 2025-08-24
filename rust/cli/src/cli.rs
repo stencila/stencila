@@ -148,7 +148,7 @@ pub struct Cli {
         display_order = 140,
         conflicts_with = "force_color",
         env = "NO_COLOR",
-        value_parser = parse_env_bool
+        value_parser = parse_env_var_bool
     )]
     pub no_color: bool,
 
@@ -159,15 +159,24 @@ pub struct Cli {
         hide = true,
         conflicts_with = "no_color",
         env = "FORCE_COLOR",
-        value_parser = parse_env_bool
+        value_parser = parse_env_var_bool
     )]
     pub force_color: bool,
 }
 
-/// Parse boolean environment variables following Unix convention
-/// Any non-empty value is treated as true, empty/unset is false
-fn parse_env_bool(s: &str) -> Result<bool, String> {
-    Ok(!s.is_empty())
+/// Parse boolean environment variables
+///
+/// This needs to explicitly handle "false" because that is the default value
+/// passed here by clap. Note however, that NO_COLOR and FORCE_COLOR are
+/// observed by presence/absence by most libraries so setting NO_COLOR=false
+/// should be avoided because most tools will treat that as "no color present".
+fn parse_env_var_bool(value: &str) -> Result<bool> {
+    match value.to_lowercase().as_str() {
+        "true" | "yes" | "1" => Ok(true),
+        "false" | "no" | "0" => Ok(false),
+        // Any other non-empty value is treated as true
+        _ => Ok(!value.is_empty()),
+    }
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
@@ -256,6 +265,7 @@ pub enum Command {
     Prompts(prompts::cli::Cli),
     Models(models::cli::Cli),
     Kernels(kernels::cli::Cli),
+    Linters(stencila_linters::cli::Cli),
     Formats(codecs::cli::Cli),
     Plugins(plugins::cli::Cli),
     Secrets(secrets::cli::Cli),
@@ -314,6 +324,7 @@ impl Cli {
             Command::Prompts(prompts) => prompts.run().await?,
             Command::Models(models) => models.run().await?,
             Command::Kernels(kernels) => kernels.run().await?,
+            Command::Linters(linters) => linters.run().await?,
             Command::Formats(codecs) => codecs.run().await?,
             Command::Plugins(plugins) => plugins.run().await?,
             Command::Secrets(secrets) => secrets.run().await?,

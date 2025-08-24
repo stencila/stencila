@@ -1,0 +1,111 @@
+use std::path::Path;
+
+use schema::{AuthorRole, CompilationMessage};
+use serde::Serialize;
+
+use common::{async_trait::async_trait, eyre::Result, strum::Display};
+
+// Re-exports for use by linter implementations
+pub use common;
+pub use format::Format;
+pub use node_type::NodeType;
+pub use schema;
+
+#[async_trait]
+pub trait Linter: Send + Sync {
+    /// The name of the linter
+    fn name(&self) -> &str;
+
+    /// The node types supported by the linter
+    fn node_types(&self) -> Vec<NodeType>;
+
+    /// The formats supported by the linter
+    fn formats(&self) -> Vec<Format>;
+
+    /// The availability of the linter on the current machine
+    fn availability(&self) -> LinterAvailability;
+
+    /// Lint some content at a path
+    async fn lint(
+        &self,
+        content: &str,
+        path: &Path,
+        options: &LintingOptions,
+    ) -> Result<LintingOutput>;
+}
+
+/// The availability of a linter on the current machine
+#[derive(Debug, Display, Clone, Copy, Serialize)]
+#[strum(serialize_all = "lowercase")]
+pub enum LinterAvailability {
+    /// Available on this machine
+    Available,
+    /// Available on this machine but requires installation
+    Installable,
+    /// Not available on this machine
+    Unavailable,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LinterSpecification {
+    node_types: Vec<NodeType>,
+    formats: Vec<Format>,
+    availability: LinterAvailability,
+}
+
+impl From<&dyn Linter> for LinterSpecification {
+    fn from(linter: &dyn Linter) -> Self {
+        Self {
+            node_types: linter.node_types(),
+            formats: linter.formats(),
+            availability: linter.availability(),
+        }
+    }
+}
+
+/// Options for linting
+#[derive(Debug, Default)]
+pub struct LintingOptions {
+    /// The name of the linter to use
+    ///
+    /// If not specified then all linters that support the node type and format
+    /// will the applied.
+    pub linter: Option<String>,
+
+    /// The node type being linted
+    pub node_type: Option<NodeType>,
+
+    /// The format of the content being linted
+    pub format: Option<Format>,
+
+    /// Whether to format the code
+    pub should_format: bool,
+
+    /// Whether to fix the code
+    pub should_fix: bool,
+}
+
+/// Output from linting
+#[derive(Default)]
+pub struct LintingOutput {
+    /// Any diagnostic messages
+    ///
+    /// The output from linting tool/s parsed to compilation messages.
+    /// The can be used for displaying diagnostic messages at the correct line/column.
+    ///
+    /// Will usually, but not necessarily, be `None` if `output` is `Some`.
+    /// Implementations should return `None` rather than an empty vector.
+    pub messages: Option<Vec<CompilationMessage>>,
+
+    /// Any software authors that contributed to the linting
+    ///
+    /// The `role_name` of these authors should be `Linter`.
+    pub authors: Option<Vec<AuthorRole>>,
+
+    /// The formatted and/or fixed code
+    ///
+    /// If both `format` and `fix` are false, or if there is no change in the code,
+    /// this is expected to be `None`
+    pub code: Option<String>,
+}

@@ -1156,6 +1156,7 @@ dependencies = [
  "self-replace",
  "semver",
  "server",
+ "stencila-linters",
  "tools",
  "tracing-error",
  "tracing-subscriber",
@@ -4222,7 +4223,6 @@ dependencies = [
  "kernel-micro",
  "test-log",
  "tools",
- "which 8.0.0",
 ]
 
 [[package]]
@@ -5187,6 +5187,7 @@ dependencies = [
  "parsers",
  "prompts",
  "schema",
+ "stencila-linters",
 ]
 
 [[package]]
@@ -8700,6 +8701,65 @@ dependencies = [
  "common",
  "pyo3",
  "pyo3-async-runtimes",
+]
+
+[[package]]
+name = "stencila-linter"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "format",
+ "node-type",
+ "schema",
+ "serde",
+]
+
+[[package]]
+name = "stencila-linter-lintr"
+version = "0.0.0"
+dependencies = [
+ "serde",
+ "stencila-linter",
+ "tools",
+]
+
+[[package]]
+name = "stencila-linter-pyright"
+version = "0.0.0"
+dependencies = [
+ "serde",
+ "stencila-linter",
+ "tools",
+]
+
+[[package]]
+name = "stencila-linter-ruff"
+version = "0.0.0"
+dependencies = [
+ "serde",
+ "stencila-linter",
+ "tools",
+]
+
+[[package]]
+name = "stencila-linter-styler"
+version = "0.0.0"
+dependencies = [
+ "serde",
+ "stencila-linter",
+ "tools",
+]
+
+[[package]]
+name = "stencila-linters"
+version = "0.0.0"
+dependencies = [
+ "cli-utils",
+ "stencila-linter",
+ "stencila-linter-lintr",
+ "stencila-linter-pyright",
+ "stencila-linter-ruff",
+ "stencila-linter-styler",
 ]
 
 [[package]]

@@ -9,6 +9,7 @@ codec-markdown = { path = "../codec-markdown" }
 codecs = { path = "../codecs" }
 common = { path = "../common" }
 kernels = { path = "../kernels" }
+stencila-linters = { path = "../linters" }
 models = { path = "../models" }
 node-contains = { path = "../node-contains" }
 node-diagnostics = { path = "../node-diagnostics" }

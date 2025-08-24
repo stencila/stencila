@@ -6,7 +6,6 @@ edition = "2024"
 [dependencies]
 kernel-micro = { path = "../kernel-micro" }
 tools = { path = "../tools" }
-which = { workspace = true }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }

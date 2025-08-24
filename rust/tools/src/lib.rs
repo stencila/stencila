@@ -54,6 +54,8 @@ pub fn list() -> Vec<Box<dyn Tool>> {
         // Linting
         Box::new(Ruff),
         Box::new(Pyright),
+        Box::new(StyleR),
+        Box::new(LintR),
         // Conversion
         Box::new(Agg),
         Box::new(MarkerPdf),

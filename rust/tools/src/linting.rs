@@ -1,7 +1,8 @@
 use crate::{
+    R,
     environments::{Apt, Devbox, Mise},
     packages::Uv,
-    tool::{Tool, ToolType},
+    tool::{PACKAGE, Tool, ToolType},
 };
 
 pub struct Ruff;
@@ -63,5 +64,61 @@ impl Tool for Pyright {
             Box::new(Devbox),
             Box::new(Apt),
         ]
+    }
+}
+
+pub struct LintR;
+
+impl Tool for LintR {
+    fn name(&self) -> &'static str {
+        "lintr"
+    }
+
+    fn url(&self) -> &'static str {
+        "https://lintr.r-lib.org/"
+    }
+
+    fn description(&self) -> &'static str {
+        "Static code analysis for R"
+    }
+
+    fn r#type(&self) -> ToolType {
+        ToolType::Linting
+    }
+
+    fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
+        vec![Box::new(R)]
+    }
+
+    fn executable_name(&self) -> &'static str {
+        PACKAGE
+    }
+}
+
+pub struct StyleR;
+
+impl Tool for StyleR {
+    fn name(&self) -> &'static str {
+        "styler"
+    }
+
+    fn url(&self) -> &'static str {
+        "https://styler.r-lib.org/"
+    }
+
+    fn description(&self) -> &'static str {
+        "Formats R code according to the tidyverse style guide"
+    }
+
+    fn r#type(&self) -> ToolType {
+        ToolType::Linting
+    }
+
+    fn installation_tools(&self) -> Vec<Box<dyn Tool>> {
+        vec![Box::new(R)]
+    }
+
+    fn executable_name(&self) -> &'static str {
+        PACKAGE
     }
 }

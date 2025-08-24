@@ -11,9 +11,8 @@ use which::which;
 // Re-exports for the convenience of internal crates implementing
 // the `Microkernel` trait
 pub use kernel::{
-    Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelLint,
-    KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider, KernelSignal,
-    KernelStatus, KernelTerminate, common, format, schema, tests,
+    Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelProvider,
+    KernelSignal, KernelStatus, KernelTerminate, common, format, schema, tests,
 };
 
 use kernel::{

@@ -282,6 +282,14 @@ pub trait Tool: Sync + Send {
         None
     }
 
+    /// Check if the tool is installed
+    fn is_installed(&self) -> bool
+    where
+        Self: Sized,
+    {
+        is_installed(self)
+    }
+
     /// Check if the tool can be installed automatically
     fn is_installable(&self) -> bool {
         !self.installation_tools().is_empty() || self.installation_script().is_some()

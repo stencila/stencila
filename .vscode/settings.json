@@ -130,6 +130,7 @@
         "Pydantic",
         "pyfunction",
         "pyproject",
+        "pyright",
         "quickjs",
         "rdfs",
         "regexes",

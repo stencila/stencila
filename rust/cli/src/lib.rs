@@ -113,7 +113,9 @@ mod tests {
             ("kernels::packages", kernels::cli::PACKAGES_AFTER_LONG_HELP),
             ("kernels::execute", kernels::cli::EXECUTE_AFTER_LONG_HELP),
             ("kernels::evaluate", kernels::cli::EVALUATE_AFTER_LONG_HELP),
-            ("kernels::lint", kernels::cli::LINT_AFTER_LONG_HELP),
+            // Linters module help strings
+            ("linters::list", stencila_linters::cli::LIST_AFTER_LONG_HELP),
+            ("linters::lint", stencila_linters::cli::LINT_AFTER_LONG_HELP),
             // Codecs module help strings
             ("formats::cli", codecs::cli::CLI_AFTER_LONG_HELP),
             ("formats::list", codecs::cli::LIST_AFTER_LONG_HELP),

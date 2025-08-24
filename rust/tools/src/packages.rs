@@ -183,7 +183,7 @@ impl Tool for Uv {
     }
 
     fn execute_command(&self, cmd: &str, args: &[String]) -> Option<Command> {
-        // Only wrap python/python3 commands
+        // Only wrap Python and Python tools
         if !matches!(cmd, "python" | "python3" | "ruff" | "pyright") {
             return None;
         }

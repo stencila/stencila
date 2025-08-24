@@ -1,0 +1,15 @@
+[package]
+name = "stencila-linters"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+cli-utils = { path = "../cli-utils" }
+stencila-linter = { path = "../linter" }
+stencila-linter-lintr = { path = "../linter-lintr" }
+stencila-linter-pyright = { path = "../linter-pyright" }
+stencila-linter-ruff = { path = "../linter-ruff" }
+stencila-linter-styler = { path = "../linter-styler" }
+
+[lints]
+workspace = true

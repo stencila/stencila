@@ -1,0 +1,12 @@
+[package]
+name = "stencila-linter-ruff"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+serde = { workspace = true }
+stencila-linter = { path = "../linter" }
+tools = { path = "../tools" }
+
+[lints]
+workspace = true

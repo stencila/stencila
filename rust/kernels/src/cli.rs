@@ -1,19 +1,14 @@
-use std::path::PathBuf;
-
 use cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
 };
 use kernel::{
-    KernelAvailability, KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider,
-    KernelSpecification, KernelType,
+    KernelAvailability, KernelProvider, KernelSpecification, KernelType,
     common::{
         clap::{self, Args, Parser, Subcommand},
-        eyre::{OptionExt, Result},
+        eyre::Result,
         itertools::Itertools,
-        serde_yaml,
-        tokio::fs::read_to_string,
         tracing,
     },
     format::Format,
@@ -57,7 +52,6 @@ enum Command {
     Packages(Packages),
     Execute(Execute),
     Evaluate(Evaluate),
-    Lint(Lint),
 }
 
 impl Cli {
@@ -72,7 +66,6 @@ impl Cli {
             Command::Packages(pkgs) => pkgs.run().await,
             Command::Execute(exec) => exec.run().await,
             Command::Evaluate(eval) => eval.run().await,
-            Command::Lint(lint) => lint.run().await,
         }
     }
 }
@@ -120,7 +113,6 @@ impl List {
             "Provider",
             "Availability",
             "Languages",
-            "Linting",
             "Bounds",
         ]);
 
@@ -133,7 +125,6 @@ impl List {
                 .iter()
                 .map(|format| format.name())
                 .join(", ");
-            let lint = kernel.supports_linting();
             let bounds = kernel.supported_bounds();
             let max_bounds = bounds.iter().max().unwrap_or(&ExecutionBounds::Main);
 
@@ -161,14 +152,6 @@ impl List {
                     KernelAvailability::Unavailable => Color::Grey,
                 }),
                 Cell::new(langs),
-                Cell::new(lint).fg(match lint {
-                    KernelLinting::No => Color::DarkGrey,
-                    KernelLinting::Format => Color::Yellow,
-                    KernelLinting::Check => Color::Magenta,
-                    KernelLinting::Fix => Color::Blue,
-                    KernelLinting::FormatCheck => Color::Cyan,
-                    KernelLinting::FormatFix => Color::Green,
-                }),
                 Cell::new(max_bounds.to_string().to_lowercase()).fg(match max_bounds {
                     ExecutionBounds::Main => Color::Yellow,
                     ExecutionBounds::Fork => Color::Cyan,
@@ -440,88 +423,3 @@ fn display(
 
     Ok(())
 }
-
-/// Lint code using the linting tool/s associated with a kernel
-///
-/// Note that this does not affect the file. It only prints how it
-/// would be formatted/fixed and any diagnostics.
-///
-/// Mainly intended for testing of linting by kernels during
-/// development of Stencila.
-#[derive(Debug, Args)]
-#[command(after_long_help = LINT_AFTER_LONG_HELP)]
-struct Lint {
-    /// The file to lint
-    file: PathBuf,
-
-    /// Format the code
-    #[arg(long)]
-    format: bool,
-
-    /// Fix warnings and errors where possible
-    #[arg(long)]
-    fix: bool,
-}
-
-impl Lint {
-    #[allow(clippy::print_stderr)]
-    async fn run(self) -> Result<()> {
-        let format = Format::from_path(&self.file);
-        let code = read_to_string(&self.file).await?;
-        let dir = self.file.parent().ok_or_eyre("file is not in a dir")?;
-
-        let KernelLintingOutput {
-            code,
-            output,
-            messages,
-            authors,
-        } = crate::lint(
-            &code,
-            dir,
-            &format,
-            KernelLintingOptions {
-                fix: self.fix,
-                format: self.format,
-            },
-        )
-        .await?;
-
-        if let Some(code) = code {
-            eprintln!("Formatted and/or fixed code:\n");
-            Code::new(format.clone(), &code).to_stdout();
-        }
-
-        if let Some(output) = output {
-            eprintln!("Diagnostic output:\n");
-            Code::new(format, &output).to_stdout();
-        }
-
-        if let Some(messages) = messages {
-            eprintln!("Diagnostic messages:\n");
-            Code::new(Format::Yaml, &serde_yaml::to_string(&messages)?).to_stdout();
-        }
-
-        if let Some(authors) = authors {
-            eprintln!("Contributors:\n");
-            Code::new(Format::Yaml, &serde_yaml::to_string(&authors)?).to_stdout();
-        }
-
-        Ok(())
-    }
-}
-
-pub static LINT_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><b>Examples</b></bold>
-  <dim># Lint a Python file</dim>
-  <b>stencila kernels lint</b> <g>script.py</g>
-
-  <dim># Lint and format a JavaScript file</dim>
-  <b>stencila kernels lint</b> <g>app.js</g> <c>--format</c>
-
-  <dim># Lint and fix issues where possible</dim>
-  <b>stencila kernels lint</b> <g>code.r</g> <c>--fix</c>
-
-  <dim># Lint with both formatting and fixing</dim>
-  <b>stencila kernels lint</b> <g>style.css</g> <c>--format</c> <c>--fix</c>
-"
-);
