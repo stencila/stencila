@@ -522,6 +522,13 @@ impl Visitor for Collector {
             Inline::InstructionInline(inline) => cms_ems!(self, inline, None, None),
             Inline::MathInline(inline) => cms!(self, inline, inline.math_language.as_deref(), Some(&inline.code)),
             Inline::StyledInline(inline) => cms!(self, inline, inline.style_language.as_deref(), Some(&inline.code)),
+            Inline::Text(inline) => self.compilation_messages(
+                inline.node_type(),
+                inline.node_id(),
+                &inline.compilation_messages,
+                None,
+                Some(&inline.value),
+            ),
             _ => {}
         }
 
