@@ -37,22 +37,23 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
         if: ${{ contains(inputs.platforms, matrix.platform) }}
+        uses: actions/checkout@v4
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@master
         if: ${{ contains(inputs.platforms, matrix.platform) }}
+        uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ env.RUST_VERSION }}
           components: clippy
 
-      - name: Setup linker (macOS)
+      - name: Setup linker
+        if: ${{ contains(inputs.platforms, matrix.platform) }}
         run: make -C rust setup-linker
 
       - name: Setup Rust cache
-        uses: Swatinem/rust-cache@v2
         if: ${{ contains(inputs.platforms, matrix.platform) }}
+        uses: Swatinem/rust-cache@v2
 
       - name: Install uv
         if: ${{ contains(inputs.platforms, matrix.platform) }}

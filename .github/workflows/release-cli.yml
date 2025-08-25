@@ -91,27 +91,20 @@ jobs:
       contents: write
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
         if: ${{ contains(inputs.platforms, matrix.platform) }}
+        uses: actions/checkout@v4
         with:
           ref: ${{ inputs.tag }}
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@master
         if: ${{ contains(inputs.platforms, matrix.platform) }}
+        uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ env.RUST_VERSION }}
           targets: ${{ matrix.target }}
 
-      - name: Setup linker (macOS)
-        if: ${{ contains(inputs.platforms, matrix.platform) && (matrix.platform == 'macos-intel' || matrix.platform == 'macos-arm') }}
-        run: |
-          export PATH="$(brew --prefix)/opt/llvm/bin:$PATH"
-          echo "$(brew --prefix)/opt/llvm/bin" >> $GITHUB_PATH
-          make -C rust setup-linker
-
-      - name: Setup linker (non-macOS)
-        if: ${{ contains(inputs.platforms, matrix.platform) && matrix.platform != 'macos-intel' && matrix.platform != 'macos-arm' }}
+      - name: Setup linker
+        if: ${{ contains(inputs.platforms, matrix.platform) }}
         run: make -C rust setup-linker
 
       - name: Setup Rust cache
