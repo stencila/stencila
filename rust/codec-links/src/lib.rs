@@ -7,7 +7,7 @@ use winnow::{
 
 use codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, NodeType,
-    common::{async_trait::async_trait, eyre::Result},
+    common::{async_trait::async_trait, eyre::Result, inflector::Inflector},
     format::Format,
     schema::{Inline, Link, Node, Paragraph, shortcuts::t},
     status::Status,
@@ -95,17 +95,19 @@ fn internal_link(input: &mut &str) -> ParserResult<Link> {
             (Caseless("eqn."), multispace0),
         ))
         .take(),
-        take_while(1.., |c: char| c.is_alphanumeric()),
+        take_while(1.., |c: char| c.is_alphanumeric() || c == '-' || c == '_'),
     )
         .map(|(label_type, label): (&str, &str)| {
+            let id = label.to_kebab_case();
+
             let target = if label_type.to_lowercase().starts_with("fig") {
-                ["#fig-", label].concat()
+                ["#fig-", &id].concat()
             } else if label_type.to_lowercase().starts_with("tab") {
-                ["#tab-", label].concat()
+                ["#tab-", &id].concat()
             } else if label_type.to_lowercase().starts_with("app") {
-                ["#app-", label].concat()
+                ["#app-", &id].concat()
             } else if label_type.to_lowercase().starts_with("eq") {
-                ["#eqn-", label].concat()
+                ["#eqn-", &id].concat()
             } else {
                 String::new()
             };
@@ -129,18 +131,19 @@ fn url_link(input: &mut &str) -> ParserResult<Link> {
         take_while(1.., |c: char| {
             !c.is_whitespace() && c != ')' && c != ']' && c != '}'
         }),
-    ).parse_next(input)?;
+    )
+        .parse_next(input)?;
 
     // Remove trailing punctuation that's likely sentence punctuation
     let trimmed_rest = rest.trim_end_matches(['.', ',', ';', ':', '!', '?']);
     let trimmed_len = protocol.len() + trimmed_rest.len();
-    
+
     // Adjust input position to not consume the trailing punctuation
     let consumed = start_pos.len() - input.len();
     if consumed > trimmed_len {
         *input = &start_pos[trimmed_len..];
     }
-    
+
     let target = [protocol, trimmed_rest].concat();
     let content = vec![t(&target)];
 
@@ -192,17 +195,27 @@ mod tests {
 
         // Test alphanumeric label
         let result = internal_link(&mut "Figure A1")?;
-        assert_eq!(result.target, "#fig-A1");
+        assert_eq!(result.target, "#fig-a1");
         assert_eq!(result.content, vec![t("Figure A1")]);
+
+        // Test kebab case conversion for complex labels
+        let result = internal_link(&mut "Figure S1A")?;
+        assert_eq!(result.target, "#fig-s1a");
+        assert_eq!(result.content, vec![t("Figure S1A")]);
+
+        // Test kebab case conversion with spaces/hyphens
+        let result = internal_link(&mut "Table Two-A")?;
+        assert_eq!(result.target, "#tab-two-a");
+        assert_eq!(result.content, vec![t("Table Two-A")]);
 
         // Test Appendix
         let result = internal_link(&mut "Appendix A")?;
-        assert_eq!(result.target, "#app-A");
+        assert_eq!(result.target, "#app-a");
         assert_eq!(result.content, vec![t("Appendix A")]);
 
         // Test App. abbreviation
         let result = internal_link(&mut "App. B")?;
-        assert_eq!(result.target, "#app-B");
+        assert_eq!(result.target, "#app-b");
         assert_eq!(result.content, vec![t("App. B")]);
 
         // Test Equation
@@ -271,7 +284,10 @@ mod tests {
         // Test URL with internal dots (should preserve them)
         let result = url_link(&mut "https://api.example.com/v1/data.json")?;
         assert_eq!(result.target, "https://api.example.com/v1/data.json");
-        assert_eq!(result.content, vec![t("https://api.example.com/v1/data.json")]);
+        assert_eq!(
+            result.content,
+            vec![t("https://api.example.com/v1/data.json")]
+        );
 
         Ok(())
     }
@@ -328,7 +344,7 @@ mod tests {
         assert_eq!(result.len(), 3);
         assert_eq!(result[0], t("See "));
         if let Inline::Link(link) = &result[1] {
-            assert_eq!(link.target, "#app-A");
+            assert_eq!(link.target, "#app-a");
             assert_eq!(link.content, vec![t("Appendix A")]);
         } else {
             panic!("Expected Link");
@@ -364,7 +380,7 @@ mod tests {
         }
         assert_eq!(result[4], t(", "));
         if let Inline::Link(link) = &result[5] {
-            assert_eq!(link.target, "#app-A");
+            assert_eq!(link.target, "#app-a");
         } else {
             panic!("Expected Link");
         }
@@ -450,7 +466,8 @@ mod tests {
         assert_eq!(result[2], t(". It has great docs!"));
 
         // Test URL in comma-separated list
-        let result = text_with_links(&mut "Check https://github.com, https://gitlab.com, and others")?;
+        let result =
+            text_with_links(&mut "Check https://github.com, https://gitlab.com, and others")?;
         assert_eq!(result.len(), 5);
         assert_eq!(result[0], t("Check "));
         if let Inline::Link(link) = &result[1] {
@@ -467,6 +484,25 @@ mod tests {
             panic!("Expected Link");
         }
         assert_eq!(result[4], t(", and others"));
+
+        // Test kebab case conversion in context
+        let result = text_with_links(&mut "Refer to Figure S1A and Table Two-B for analysis")?;
+        assert_eq!(result.len(), 5);
+        assert_eq!(result[0], t("Refer to "));
+        if let Inline::Link(link) = &result[1] {
+            assert_eq!(link.target, "#fig-s1a");
+            assert_eq!(link.content, vec![t("Figure S1A")]);
+        } else {
+            panic!("Expected Link");
+        }
+        assert_eq!(result[2], t(" and "));
+        if let Inline::Link(link) = &result[3] {
+            assert_eq!(link.target, "#tab-two-b");
+            assert_eq!(link.content, vec![t("Table Two-B")]);
+        } else {
+            panic!("Expected Link");
+        }
+        assert_eq!(result[4], t(" for analysis"));
 
         Ok(())
     }
