@@ -17,7 +17,10 @@ use crate::CitationStyle;
 
 /// A type of potential block replacement
 #[derive(Debug)]
-pub(super) enum BlockReplacement {}
+pub(super) enum BlockReplacement {
+    /// Remove references (including header) because parsed into references
+    RemoveReferences,
+}
 
 /// A type of potential inline replacement
 #[allow(clippy::enum_variant_names)]
@@ -243,7 +246,14 @@ impl Collector {
         }
 
         // Update whether or not in references
-        self.in_references = matches!(section_type, Some(SectionType::References));
+        if matches!(section_type, Some(SectionType::References)) {
+            self.in_references = true;
+
+            self.block_replacements.insert(
+                heading.node_id(),
+                (BlockReplacement::RemoveReferences, Vec::new()),
+            );
+        }
 
         WalkControl::Continue
     }
@@ -260,6 +270,11 @@ impl Collector {
             } else {
                 self.references = Some(vec![reference]);
             }
+
+            self.block_replacements.insert(
+                paragraph.node_id(),
+                (BlockReplacement::RemoveReferences, Vec::new()),
+            );
         }
 
         WalkControl::Continue
@@ -290,6 +305,11 @@ impl Collector {
             if !references.is_empty() {
                 self.references = Some(references);
             }
+
+            self.block_replacements.insert(
+                list.node_id(),
+                (BlockReplacement::RemoveReferences, Vec::new()),
+            );
 
             // Break walk because content in each item already processed
             WalkControl::Break
