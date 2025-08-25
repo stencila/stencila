@@ -9,6 +9,10 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
+// Required for cached::proc_macro::cached below in production
+#[allow(unused_imports)]
+use std::time::Duration;
+
 use derive_more::{Deref, DerefMut};
 
 use codec_markdown::to_markdown;
