@@ -93,13 +93,13 @@ fn link(input: &mut &str) -> ParserResult<Link> {
     )
         .map(|(label_type, label): (&str, &str)| {
             let target = if label_type.to_lowercase().starts_with("fig") {
-                ["fig-", label].concat()
+                ["#fig-", label].concat()
             } else if label_type.to_lowercase().starts_with("tab") {
-                ["tab-", label].concat()
+                ["#tab-", label].concat()
             } else if label_type.to_lowercase().starts_with("app") {
-                ["app-", label].concat()
+                ["#app-", label].concat()
             } else if label_type.to_lowercase().starts_with("eq") {
-                ["eqn-", label].concat()
+                ["#eqn-", label].concat()
             } else {
                 String::new()
             };
@@ -136,52 +136,52 @@ mod tests {
     fn test_link() -> ParserResult<()> {
         // Test Figure with number
         let result = link(&mut "Figure 1")?;
-        assert_eq!(result.target, "fig-1");
+        assert_eq!(result.target, "#fig-1");
         assert_eq!(result.content, vec![t("Figure 1")]);
 
         // Test Fig. abbreviation
         let result = link(&mut "Fig. 2")?;
-        assert_eq!(result.target, "fig-2");
+        assert_eq!(result.target, "#fig-2");
         assert_eq!(result.content, vec![t("Fig. 2")]);
 
         // Test Table
         let result = link(&mut "Table 5")?;
-        assert_eq!(result.target, "tab-5");
+        assert_eq!(result.target, "#tab-5");
         assert_eq!(result.content, vec![t("Table 5")]);
 
         // Test case insensitive
         let result = link(&mut "figure 10")?;
-        assert_eq!(result.target, "fig-10");
+        assert_eq!(result.target, "#fig-10");
         assert_eq!(result.content, vec![t("figure 10")]);
 
         // Test alphanumeric label
         let result = link(&mut "Figure A1")?;
-        assert_eq!(result.target, "fig-A1");
+        assert_eq!(result.target, "#fig-A1");
         assert_eq!(result.content, vec![t("Figure A1")]);
 
         // Test Appendix
         let result = link(&mut "Appendix A")?;
-        assert_eq!(result.target, "app-A");
+        assert_eq!(result.target, "#app-A");
         assert_eq!(result.content, vec![t("Appendix A")]);
 
         // Test App. abbreviation
         let result = link(&mut "App. B")?;
-        assert_eq!(result.target, "app-B");
+        assert_eq!(result.target, "#app-B");
         assert_eq!(result.content, vec![t("App. B")]);
 
         // Test Equation
         let result = link(&mut "Equation 1")?;
-        assert_eq!(result.target, "eqn-1");
+        assert_eq!(result.target, "#eqn-1");
         assert_eq!(result.content, vec![t("Equation 1")]);
 
         // Test Eqn abbreviation
         let result = link(&mut "Eqn 5")?;
-        assert_eq!(result.target, "eqn-5");
+        assert_eq!(result.target, "#eqn-5");
         assert_eq!(result.content, vec![t("Eqn 5")]);
 
         // Test Eqn. abbreviation
         let result = link(&mut "Eqn. 3")?;
-        assert_eq!(result.target, "eqn-3");
+        assert_eq!(result.target, "#eqn-3");
         assert_eq!(result.content, vec![t("Eqn. 3")]);
 
         Ok(())
@@ -194,7 +194,7 @@ mod tests {
         assert_eq!(result.len(), 3);
         assert_eq!(result[0], t("See "));
         if let Inline::Link(link) = &result[1] {
-            assert_eq!(link.target, "fig-1");
+            assert_eq!(link.target, "#fig-1");
             assert_eq!(link.content, vec![t("Figure 1")]);
         } else {
             panic!("Expected Link");
@@ -205,13 +205,13 @@ mod tests {
         let result = text_with_links(&mut "Figure 1 and Table 2 show the results")?;
         assert_eq!(result.len(), 4);
         if let Inline::Link(link) = &result[0] {
-            assert_eq!(link.target, "fig-1");
+            assert_eq!(link.target, "#fig-1");
         } else {
             panic!("Expected Link");
         }
         assert_eq!(result[1], t(" and "));
         if let Inline::Link(link) = &result[2] {
-            assert_eq!(link.target, "tab-2");
+            assert_eq!(link.target, "#tab-2");
         } else {
             panic!("Expected Link");
         }
@@ -227,7 +227,7 @@ mod tests {
         assert_eq!(result.len(), 3);
         assert_eq!(result[0], t("Reference "));
         if let Inline::Link(link) = &result[1] {
-            assert_eq!(link.target, "fig-3");
+            assert_eq!(link.target, "#fig-3");
             assert_eq!(link.content, vec![t("Fig. 3")]);
         } else {
             panic!("Expected Link");
@@ -239,7 +239,7 @@ mod tests {
         assert_eq!(result.len(), 3);
         assert_eq!(result[0], t("See "));
         if let Inline::Link(link) = &result[1] {
-            assert_eq!(link.target, "app-A");
+            assert_eq!(link.target, "#app-A");
             assert_eq!(link.content, vec![t("Appendix A")]);
         } else {
             panic!("Expected Link");
@@ -251,7 +251,7 @@ mod tests {
         assert_eq!(result.len(), 3);
         assert_eq!(result[0], t("As shown in "));
         if let Inline::Link(link) = &result[1] {
-            assert_eq!(link.target, "eqn-2");
+            assert_eq!(link.target, "#eqn-2");
             assert_eq!(link.content, vec![t("Equation 2")]);
         } else {
             panic!("Expected Link");
@@ -263,25 +263,25 @@ mod tests {
         assert_eq!(result.len(), 8);
         assert_eq!(result[0], t("See "));
         if let Inline::Link(link) = &result[1] {
-            assert_eq!(link.target, "fig-1");
+            assert_eq!(link.target, "#fig-1");
         } else {
             panic!("Expected Link");
         }
         assert_eq!(result[2], t(", "));
         if let Inline::Link(link) = &result[3] {
-            assert_eq!(link.target, "tab-2");
+            assert_eq!(link.target, "#tab-2");
         } else {
             panic!("Expected Link");
         }
         assert_eq!(result[4], t(", "));
         if let Inline::Link(link) = &result[5] {
-            assert_eq!(link.target, "app-A");
+            assert_eq!(link.target, "#app-A");
         } else {
             panic!("Expected Link");
         }
         assert_eq!(result[6], t(" and "));
         if let Inline::Link(link) = &result[7] {
-            assert_eq!(link.target, "eqn-5");
+            assert_eq!(link.target, "#eqn-5");
         } else {
             panic!("Expected Link");
         }
@@ -291,14 +291,14 @@ mod tests {
         assert_eq!(result.len(), 5);
         assert_eq!(result[0], t("The results show clear trends ("));
         if let Inline::Link(link) = &result[1] {
-            assert_eq!(link.target, "fig-1");
+            assert_eq!(link.target, "#fig-1");
             assert_eq!(link.content, vec![t("Figure 1")]);
         } else {
             panic!("Expected Link");
         }
         assert_eq!(result[2], t(", "));
         if let Inline::Link(link) = &result[3] {
-            assert_eq!(link.target, "tab-2");
+            assert_eq!(link.target, "#tab-2");
             assert_eq!(link.content, vec![t("Table 2")]);
         } else {
             panic!("Expected Link");
