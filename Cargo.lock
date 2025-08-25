@@ -1881,6 +1881,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-links"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "common-dev",
+ "winnow",
+]
+
+[[package]]
 name = "codec-markdown"
 version = "0.0.0"
 dependencies = [
