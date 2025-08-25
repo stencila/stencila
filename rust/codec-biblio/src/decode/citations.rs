@@ -153,10 +153,33 @@ fn author_year_narrative(input: &mut &str) -> Result<Citation> {
         multispace1,
         delimited(("(", multispace0), year_az, (multispace0, ")")),
     )
-        .map(|(authors, _, date_suffix)| Citation {
-            target: generate_id(&authors, &Some(date_suffix)),
-            citation_mode: Some(CitationMode::Narrative),
-            ..Default::default()
+        .map(|(authors, _, date_suffix)| {
+            let authors_string = if authors.len() > 2
+                && let Some(first) = authors.first()
+            {
+                [&first.name(), " et al."].concat()
+            } else {
+                authors.iter().map(|author| author.name()).join(" and ")
+            };
+
+            let content = [
+                &authors_string,
+                " (",
+                date_suffix.0.value.as_str(),
+                date_suffix.1.as_deref().unwrap_or_default(),
+                ")",
+            ]
+            .concat();
+
+            Citation {
+                target: generate_id(&authors, &Some(date_suffix)),
+                citation_mode: Some(CitationMode::Narrative),
+                options: Box::new(CitationOptions {
+                    content: Some(vec![t(content)]),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }
         })
         .parse_next(input)
 }
@@ -179,14 +202,41 @@ fn author_year_item(input: &mut &str) -> Result<Citation> {
         )),
     )
         .map(
-            |(citation_prefix, authors, _, date_with_suffix, citation_suffix)| Citation {
-                target: generate_id(&authors, &Some(date_with_suffix)),
-                options: Box::new(CitationOptions {
-                    citation_prefix,
-                    citation_suffix,
+            |(citation_prefix, authors, _, date_with_suffix, citation_suffix)| {
+                let authors_string = if authors.len() > 2
+                    && let Some(first) = authors.first()
+                {
+                    [&first.name(), " et al."].concat()
+                } else {
+                    authors.iter().map(|author| author.name()).join(" and ")
+                };
+
+                let content = [
+                    &citation_prefix
+                        .as_deref()
+                        .map(|prefix| [prefix, " "].concat())
+                        .unwrap_or_default(),
+                    &authors_string,
+                    ", ",
+                    date_with_suffix.0.value.as_str(),
+                    date_with_suffix.1.as_deref().unwrap_or_default(),
+                    &citation_suffix
+                        .as_deref()
+                        .map(|suffix| [" ", suffix].concat())
+                        .unwrap_or_default(),
+                ]
+                .concat();
+
+                Citation {
+                    target: generate_id(&authors, &Some(date_with_suffix)),
+                    options: Box::new(CitationOptions {
+                        citation_prefix,
+                        citation_suffix,
+                        content: Some(vec![t(content)]),
+                        ..Default::default()
+                    }),
                     ..Default::default()
-                }),
-                ..Default::default()
+                }
             },
         )
         .parse_next(input)
@@ -340,16 +390,26 @@ fn expand_citation_items(items: Vec<CitationItem>) -> Vec<Citation> {
     for item in items {
         match item {
             CitationItem::Single(num) => {
-                citations.push(Citation::new(format!("ref-{num}")));
+                citations.push(numeric_citation(num));
             }
             CitationItem::Range(start, end) => {
-                for num in start..=end {
-                    citations.push(Citation::new(format!("ref-{num}")));
-                }
+                citations.extend((start..=end).map(numeric_citation));
             }
         }
     }
     citations
+}
+
+/// Create a numeric citation
+fn numeric_citation(num: u32) -> Citation {
+    Citation {
+        target: format!("ref-{num}"),
+        options: Box::new(CitationOptions {
+            content: Some(vec![t(num.to_string())]),
+            ..Default::default()
+        }),
+        ..Default::default()
+    }
 }
 
 #[cfg(test)]

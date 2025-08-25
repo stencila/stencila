@@ -1,6 +1,6 @@
 import { CitationMode, CompilationMessage } from '@stencila/types'
 import { html } from 'lit'
-import { customElement, property, state } from 'lit/decorators'
+import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
@@ -23,45 +23,28 @@ export class Citation extends Entity {
   @property({ attribute: 'compilation-messages', type: Array })
   compilationMessages?: CompilationMessage[]
 
-  /**
-   * Whether the citation has a resolved `Reference` in the `cites` slot
-   *
-   * `Citation` nodes that originate from sources such as JATS can has both a resolved `cites` property
-   * (based on `target`) and `content`. The `content` is treated as a fallback and will not be shown
-   * if the cite has a resolved `reference`.
-   */
-  @state()
-  hasCites: boolean = false
-
-  onCitesSlotChange({ target: slot }: Event) {
-    const citesElem = (slot as HTMLSlotElement).assignedElements({
-      flatten: true,
-    })[0]
-    this.hasCites = !!citesElem
-  }
-
   override render() {
     const inner = this.compilationMessages ? 
-      html`<sl-tooltip placement="top" content="${this.compilationMessages.map(msg => msg.message).join('; ')}"><span class="text-gray-500">${this.target}</span></sl-tooltip>`: 
-      html`<slot
-        name="cites"
-        @slotchange=${this.onCitesSlotChange}
-      ></slot
-      ><span class=${this.hasCites ? 'hidden' : ''}
-        ><slot name="content"></slot
-      ></span>`
+      html`<sl-tooltip placement="top" content="${this.compilationMessages.map(msg => msg.message).join('; ')}"><span class="text-gray-700"><slot name="content"></slot></span></sl-tooltip>`: 
+      html`<slot name="cites"></slot>`
 
-    if (this.citationMode == 'Parenthetical') {
-      return html`(${inner})`
-    }
 
     const items = this.closestGlobally('stencila-citation-group [slot=items]')
     if (items) {
+      // Citation item within a citation group
       if (this != items.lastElementChild) {
+        // Not last item in citation group, so add separator
         return html`${inner}; `
+      } else {
+        // Last item in citation group
+        return html`${inner}`
       }
+    } else if (this.citationMode == undefined || this.citationMode == 'Parenthetical') {
+      // Parenthetical citation
+      return html`(${inner})`
+    } else {
+      // Narrative citation (do not distinguish between Narrative and NarrativeAuthor but rather in Reference)
+      return inner
     }
-
-    return html`${inner}`
   }
 }
