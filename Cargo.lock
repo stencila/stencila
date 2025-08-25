@@ -5546,7 +5546,6 @@ dependencies = [
  "common-dev",
  "kernel-micro",
  "test-log",
- "tools",
 ]
 
 [[package]]
@@ -5556,7 +5555,6 @@ dependencies = [
  "common-dev",
  "kernel-micro",
  "test-log",
- "tools",
 ]
 
 [[package]]
@@ -5576,7 +5574,6 @@ dependencies = [
  "common-dev",
  "kernel-micro",
  "test-log",
- "tools",
 ]
 
 [[package]]
@@ -10502,7 +10499,6 @@ dependencies = [
 name = "stencila-linter-styler"
 version = "0.0.0"
 dependencies = [
- "serde",
  "stencila-linter",
  "tools",
 ]
