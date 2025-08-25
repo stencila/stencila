@@ -717,6 +717,27 @@ impl Inspect for Paragraph {
     }
 }
 
+impl Inspect for Link {
+    fn inspect(&self, inspector: &mut Inspector) {
+        let node_id = self.node_id();
+
+        let code_range = inspector
+            .poshmap
+            .node_property_to_range16(&node_id, NodeProperty::Target)
+            .map(range16_to_range);
+
+        let execution = Some(TextNodeExecution {
+            compilation_messages: self.compilation_messages.clone(),
+            code_range,
+            ..Default::default()
+        });
+
+        inspector.enter_node(self.node_type(), node_id, None, None, execution, None);
+        inspector.walk(self);
+        inspector.exit_node();
+    }
+}
+
 impl Inspect for Text {
     fn inspect(&self, inspector: &mut Inspector) {
         let node_id = self.node_id();
@@ -844,7 +865,6 @@ default!(
     Duration,
     Emphasis,
     ImageObject,
-    Link,
     MathInline,
     MediaObject,
     Note,
