@@ -21,6 +21,9 @@ pub(super) enum BlockReplacement {
     /// Remove the title from the content
     RemoveTitle,
 
+    /// Remove the abstract from the content
+    RemoveAbstract,
+
     /// Remove keywords from the content
     RemoveKeywords,
 
@@ -62,6 +65,16 @@ pub(super) struct Collector {
 
     /// The extracted title of the work
     pub title: Option<Vec<Inline>>,
+
+    /// Whether in an abstract section
+    ///
+    /// Whether a "keywords" heading has been encountered, in which case keywords will
+    /// be extracted until the next heading is encountered. Note that keywords are
+    /// also extracted from paragraphs starting with "Keywords" and punctuation.
+    in_abstract: bool,
+
+    /// The extracted keywords
+    pub abstract_: Option<Vec<Block>>,
 
     /// Whether in a keyword section
     ///
@@ -264,6 +277,17 @@ impl Collector {
             return WalkControl::Break;
         }
 
+        // Determine if in abstract section
+        if cleaned_text.to_lowercase() == "abstract" {
+            self.in_abstract = true;
+            self.block_replacements.insert(
+                heading.node_id(),
+                (BlockReplacement::RemoveAbstract, Vec::new()),
+            );
+        } else {
+            self.in_abstract = false;
+        }
+
         // Determine if in keywords section
         if cleaned_text.to_lowercase() == "keywords" {
             self.in_keywords = true;
@@ -321,6 +345,16 @@ impl Collector {
     /// If in the references section, parses the paragraph as a [`Reference`].
     fn visit_paragraph(&mut self, paragraph: &Paragraph) -> WalkControl {
         let mut remove = None;
+
+        if self.in_abstract {
+            let block = Block::Paragraph(paragraph.clone());
+            if let Some(abstract_) = self.abstract_.as_mut() {
+                abstract_.push(block);
+            } else {
+                self.abstract_ = Some(vec![block]);
+            }
+            remove = Some(BlockReplacement::RemoveAbstract);
+        }
 
         if self.keywords.is_none() {
             let text = to_text(paragraph);

@@ -21,6 +21,13 @@ impl VisitorMut for Replacer {
                 article.title = Some(title);
             }
 
+            //  Apply collected abstract_
+            if article.r#abstract.is_none()
+                && let Some(abstract_) = self.collector.abstract_.take()
+            {
+                article.r#abstract = Some(abstract_);
+            }
+
             //  Apply collected keywords
             if article.keywords.is_none()
                 && let Some(keywords) = self.collector.keywords.take()
