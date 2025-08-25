@@ -14,6 +14,13 @@ pub(super) struct Replacer {
 impl VisitorMut for Replacer {
     fn visit_node(&mut self, node: &mut Node) -> WalkControl {
         if let Node::Article(article) = node {
+            //  Apply collected title etc
+            if article.title.is_none()
+                && let Some(title) = self.collector.title.take()
+            {
+                article.title = Some(title);
+            }
+
             // Replace blocks in the content of the article
             self.replace_blocks(&mut article.content);
 

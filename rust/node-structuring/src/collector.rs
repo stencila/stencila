@@ -18,7 +18,10 @@ use crate::CitationStyle;
 /// A type of potential block replacement
 #[derive(Debug)]
 pub(super) enum BlockReplacement {
-    /// Remove references (including header) because parsed into references
+    /// Remove the title from the content
+    RemoveTitle,
+
+    /// Remove references (including header) from the content
     RemoveReferences,
 }
 
@@ -42,6 +45,12 @@ pub(super) enum InlineReplacement {
 /// Walks over the node collecting replacements and references
 #[derive(Debug, Default)]
 pub(super) struct Collector {
+    /// Whether a title should be collected
+    should_collect_title: bool,
+
+    /// The collected title of the work
+    pub title: Option<Vec<Inline>>,
+
     /// Replacements for block nodes
     pub block_replacements: HashMap<NodeId, (BlockReplacement, Vec<Block>)>,
 
@@ -66,7 +75,11 @@ pub(super) struct Collector {
 
 impl VisitorMut for Collector {
     fn visit_node(&mut self, node: &mut Node) -> WalkControl {
-        if let Node::Article(Article { content, .. }) = node {
+        if let Node::Article(Article { title, content, .. }) = node {
+            if title.is_none() {
+                self.should_collect_title = true;
+            }
+
             self.visit_blocks(content);
         }
 
@@ -217,7 +230,21 @@ impl Collector {
         let text = to_text(&heading.content);
 
         // Extract numbering and determine depth
-        let (_numbering, numbering_depth, cleaned_text) = extract_heading_numbering(&text);
+        let (numbering, numbering_depth, cleaned_text) = extract_heading_numbering(&text);
+
+        // Extract title
+        if self.should_collect_title
+            && self.title.is_none()
+            && numbering.is_none()
+            && heading.level == 1
+        {
+            self.title = Some(heading.content.drain(..).collect());
+
+            self.block_replacements.insert(
+                heading.node_id(),
+                (BlockReplacement::RemoveTitle, Vec::new()),
+            );
+        }
 
         // Detect section type from cleaned text
         let section_type = SectionType::from_text(&cleaned_text).ok();
