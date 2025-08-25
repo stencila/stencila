@@ -115,7 +115,8 @@ fn lint_to_compilation_message(lint: Lint) -> CompilationMessage {
     let lint_kind = lint.lint_kind.to_string();
 
     let mut message = lint.message;
-    if !lint.suggestions.is_empty() {
+    // Extend message for certain kinds of lints (for many lint kinds, the message already contains the suggestion)
+    if !lint.suggestions.is_empty() && matches!(lint.lint_kind, LintKind::Spelling) {
         message.push_str(" Suggestion");
         if lint.suggestions.len() > 1 {
             message.push('s');
