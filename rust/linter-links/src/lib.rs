@@ -13,7 +13,7 @@ use version::STENCILA_USER_AGENT;
 /// HTTP client for making link check requests
 static HTTP_CLIENT: Lazy<Client> = Lazy::new(|| {
     Client::builder()
-        .timeout(Duration::from_secs(15))
+        .timeout(Duration::from_secs(10))
         .user_agent(STENCILA_USER_AGENT)
         .build()
         .expect("Failed to create HTTP client")
@@ -75,7 +75,7 @@ impl Linter for LinksLinter {
                         messages = Some(vec![CompilationMessage {
                             level: MessageLevel::Info,
                             error_type: Some("Insecure".to_string()),
-                            message: "Link uses HTTP; it is probably better to use HTTPS"
+                            message: "Use HTTPS instead of HTTP if possible"
                                 .to_string(),
                             ..Default::default()
                         }]);
@@ -195,6 +195,8 @@ async fn is_url_accessible(url: &str) -> Option<bool> {
 
 #[cfg(test)]
 mod tests {
+    use stencila_linter::common::tokio;
+
     use super::*;
 
     #[tokio::test]

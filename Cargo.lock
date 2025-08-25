@@ -10464,7 +10464,6 @@ name = "stencila-linter-links"
 version = "0.0.0"
 dependencies = [
  "stencila-linter",
- "tokio",
  "version",
 ]
 
