@@ -47,7 +47,9 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila kernels packages`↴](#stencila-kernels-packages)
 * [`stencila kernels execute`↴](#stencila-kernels-execute)
 * [`stencila kernels evaluate`↴](#stencila-kernels-evaluate)
-* [`stencila kernels lint`↴](#stencila-kernels-lint)
+* [`stencila linters`↴](#stencila-linters)
+* [`stencila linters list`↴](#stencila-linters-list)
+* [`stencila linters lint`↴](#stencila-linters-lint)
 * [`stencila formats`↴](#stencila-formats)
 * [`stencila formats list`↴](#stencila-formats-list)
 * [`stencila plugins`↴](#stencila-plugins)
@@ -133,6 +135,7 @@ Examples
 * `prompts` — Manage prompts
 * `models` — Manage generative models
 * `kernels` — Manage execution kernels
+* `linters` — Manage linters
 * `formats` — List the support for formats
 * `plugins` — Manage plugins
 * `secrets` — Manage secrets
@@ -2034,9 +2037,6 @@ Examples
   # Execute code in a kernel
   stencila kernels execute python "print('Hello')"
 
-  # Lint code using a kernel's linting tool integrations
-  stencila kernels lint script.py
-
 
 ###### **Subcommands:**
 
@@ -2045,7 +2045,6 @@ Examples
 * `packages` — List packages available to a kernel
 * `execute` — Execute code in a kernel
 * `evaluate` — Evaluate a code expression in a kernel
-* `lint` — Lint code using the linting tool/s associated with a kernel
 
 
 
@@ -2200,28 +2199,78 @@ Examples
 
 
 
-## `stencila kernels lint`
+## `stencila linters`
 
-Lint code using the linting tool/s associated with a kernel
+Manage linters
 
-Note that this does not affect the file. It only prints how it would be formatted/fixed and any diagnostics.
+**Usage:** `stencila linters [COMMAND]`
 
-Mainly intended for testing of linting by kernels during development of Stencila.
+Examples
+  # List all available linters
+  stencila linters
 
-**Usage:** `stencila kernels lint [OPTIONS] <FILE>`
+  # Lint a file using a linter
+  stencila linters lint script.py
+
+
+###### **Subcommands:**
+
+* `list` — List the linters available
+* `lint` — Lint a file
+
+
+
+## `stencila linters list`
+
+List the linters available
+
+**Usage:** `stencila linters list [OPTIONS]`
+
+Examples
+  # List all available linters
+  stencila linters list
+
+  # List only Python linters
+  stencila linters list --lang py
+
+  # List only citation linters
+  stencila linters list --node-type Citation
+
+  # Output linter list as YAML
+  stencila linters list --as yaml
+
+
+###### **Options:**
+
+* `-l`, `--language <LANGUAGE>` — Only list linter that support a specific language/format
+* `-n`, `--node-type <NODE_TYPE>` — Only list linter that support a specific node type
+* `-a`, `--as <AS>` — Output the list as JSON or YAML
+
+  Possible values: `json`, `yaml`
+
+
+
+
+## `stencila linters lint`
+
+Lint a file
+
+Mainly intended for testing linters during development of Stencila. To lint a document use `stencila lint`.
+
+**Usage:** `stencila linters lint [OPTIONS] <FILE>`
 
 Examples
   # Lint a Python file
-  stencila kernels lint script.py
+  stencila linters lint script.py
 
   # Lint and format a JavaScript file
-  stencila kernels lint app.js --format
+  stencila linters lint app.js --format
 
   # Lint and fix issues where possible
-  stencila kernels lint code.r --fix
+  stencila linters lint code.r --fix
 
   # Lint with both formatting and fixing
-  stencila kernels lint style.css --format --fix
+  stencila linters lint code.py --format --fix
 
 
 ###### **Arguments:**
@@ -2230,8 +2279,9 @@ Examples
 
 ###### **Options:**
 
-* `--format` — Format the code
-* `--fix` — Fix warnings and errors where possible
+* `-l`, `--linter <LINTER>` — The name of the linter to use
+* `--format` — Format the content of the file
+* `--fix` — Fix warnings and errors in the file where possible
 
 
 

@@ -26,10 +26,11 @@ Also, in Rust, the `value` property is implemented as a CRDT.
 
 The `Text` type has these properties:
 
-| Name    | Description                   | Type                                                               | Inherited from                                                     | `JSON-LD @id`                              | Aliases |
-| ------- | ----------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------------ | ------- |
-| `id`    | The identifier for this item. | [`String`](https://stencila.ghost.io/docs/reference/schema/string) | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id)       | -       |
-| `value` | The value of the text content | [`Cord`](https://stencila.ghost.io/docs/reference/schema/cord)     | -                                                                  | [`schema:value`](https://schema.org/value) | -       |
+| Name                  | Description                                  | Type                                                                                         | Inherited from                                                     | `JSON-LD @id`                              | Aliases                                                                                                            |
+| --------------------- | -------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `id`                  | The identifier for this item.                | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                           | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id)       | -                                                                                                                  |
+| `value`               | The value of the text content                | [`Cord`](https://stencila.ghost.io/docs/reference/schema/cord)                               | -                                                                  | [`schema:value`](https://schema.org/value) | -                                                                                                                  |
+| `compilationMessages` | Messages generated while compiling the text. | [`CompilationMessage`](https://stencila.ghost.io/docs/reference/schema/compilation-message)* | -                                                                  | `stencila:compilationMessages`             | `compilation-messages`, `compilation_messages`, `compilationMessage`, `compilation-message`, `compilation_message` |
 
 # Related
 
