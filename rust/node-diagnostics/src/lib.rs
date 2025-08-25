@@ -46,6 +46,11 @@ pub struct Diagnostic {
     /// The id of the node that the diagnostic is for
     pub node_id: NodeId,
 
+    /// The property associated with the diagnostic
+    ///
+    /// Used for more accurate position of the diagnostic is code
+    pub node_property: Option<NodeProperty>,
+
     /// The severity level of the diagnostic
     pub level: DiagnosticLevel,
 
@@ -129,21 +134,21 @@ impl Diagnostic {
 
     /// Get the [`Range8`] for the node from a [`PoshMap`]
     fn range8<'s>(&self, poshmap: &Option<PoshMap<'s, 's>>) -> Range8 {
-        // Guess the property of the node that the diagnostic is for
-        let property = match self.node_type {
-            NodeType::IncludeBlock => NodeProperty::Source,
-            _ => NodeProperty::Code,
-        };
-
         // Get the range of the node (or it's code if any) within the code
         // Note: this function is usually only passed a poshmap if using document source
 
         poshmap
             .as_ref()
             .and_then(|poshmap| {
-                poshmap
-                    .node_property_to_range8(&self.node_id, property)
-                    .or_else(|| poshmap.node_id_to_range8(&self.node_id))
+                if let Some(node_property) = self.node_property {
+                    poshmap
+                        .node_property_to_range8(&self.node_id, node_property)
+                        .or_else(|| poshmap.node_id_to_range8(&self.node_id))
+                } else {
+                    poshmap
+                        .node_id_to_range8(&self.node_id)
+                        .or_else(|| poshmap.node_id_to_range8(&self.node_id))
+                }
             })
             .unwrap_or_default()
     }
@@ -351,6 +356,7 @@ impl Collector {
         &mut self,
         node_type: NodeType,
         node_id: NodeId,
+        node_property: &Option<NodeProperty>,
         messages: &Option<Vec<CompilationMessage>>,
         lang: Option<&str>,
         code: Option<&Cord>,
@@ -374,6 +380,7 @@ impl Collector {
                 Diagnostic {
                     node_type,
                     node_id: node_id.clone(),
+                    node_property: node_property.clone(),
                     level: DiagnosticLevel::from(&msg.level),
                     kind,
                     error_type: msg.error_type.clone(),
@@ -392,6 +399,7 @@ impl Collector {
         &mut self,
         node_type: NodeType,
         node_id: NodeId,
+        node_property: &Option<NodeProperty>,
         messages: &Option<Vec<ExecutionMessage>>,
         lang: Option<&str>,
         code: Option<&Cord>,
@@ -408,6 +416,7 @@ impl Collector {
             .map(|msg| Diagnostic {
                 node_type,
                 node_id: node_id.clone(),
+                node_property: node_property.clone(),
                 level: DiagnosticLevel::from(&msg.level),
                 kind: DiagnosticKind::Execution,
                 error_type: msg.error_type.clone(),
@@ -425,21 +434,37 @@ impl Collector {
         &mut self,
         node_type: NodeType,
         node_id: NodeId,
+        node_property: &Option<NodeProperty>,
         compilation_messages: &Option<Vec<CompilationMessage>>,
         execution_messages: &Option<Vec<ExecutionMessage>>,
         lang: Option<&str>,
         code: Option<&Cord>,
     ) {
-        self.compilation_messages(node_type, node_id.clone(), compilation_messages, lang, code);
-        self.execution_messages(node_type, node_id, execution_messages, lang, code);
+        self.compilation_messages(
+            node_type,
+            node_id.clone(),
+            node_property,
+            compilation_messages,
+            lang,
+            code,
+        );
+        self.execution_messages(
+            node_type,
+            node_id,
+            node_property,
+            execution_messages,
+            lang,
+            code,
+        );
     }
 }
 
 macro_rules! cms {
-    ($self:expr, $node:expr, $lang:expr, $code:expr) => {{
+    ($self:expr, $node:expr, $prop:expr, $lang:expr, $code:expr) => {{
         $self.compilation_messages(
             $node.node_type(),
             $node.node_id(),
+            &$prop,
             &$node.options.compilation_messages,
             $lang,
             $code,
@@ -447,11 +472,25 @@ macro_rules! cms {
     }};
 }
 
+macro_rules! cms_core {
+    ($self:expr, $node:expr, $prop:expr, $lang:expr, $code:expr) => {{
+        $self.compilation_messages(
+            $node.node_type(),
+            $node.node_id(),
+            &$prop,
+            &$node.compilation_messages,
+            $lang,
+            $code,
+        );
+    }};
+}
+
 macro_rules! cms_ems {
-    ($self:expr, $node:expr, $lang:expr, $code:expr) => {{
+    ($self:expr, $node:expr, $prop:expr, $lang:expr, $code:expr) => {{
         $self.compilation_and_execution_messages(
             $node.node_type(),
             $node.node_id(),
+            &$prop,
             &$node.options.compilation_messages,
             &$node.options.execution_messages,
             $lang,
@@ -464,20 +503,20 @@ impl Visitor for Collector {
     #[rustfmt::skip]
     fn visit_node(&mut self, node: &Node) -> WalkControl {
         match node {
-            Node::AppendixBreak(node) => cms!(self, node, None, None),
-            Node::Article(node) => cms_ems!(self, node, None, None),
-            Node::CallBlock(node) => cms_ems!(self, node, None, None),
-            Node::Chat(node) => cms_ems!(self, node, None, None),
-            Node::ChatMessage(node) => cms_ems!(self, node, None, None),
-            Node::CodeChunk(node) => cms_ems!(self, node, node.programming_language.as_deref(), Some(&node.code)),
-            Node::ForBlock(node) => cms_ems!(self, node, node.programming_language.as_deref(), Some(&node.code)),
-            Node::IfBlock(node) => cms_ems!(self, node, None, None),
-            Node::IncludeBlock(node) => cms_ems!(self, node, None, None),
-            Node::InstructionBlock(node) => cms_ems!(self, node, None, None),
-            Node::MathBlock(node) => cms!(self, node, node.math_language.as_deref(), Some(&node.code)),
-            Node::Prompt(node) => cms_ems!(self, node, None, None),
-            Node::PromptBlock(node) => cms_ems!(self, node, None, None),
-            Node::StyledBlock(node) => cms!(self, node, node.style_language.as_deref(), Some(&node.code)),
+            Node::AppendixBreak(node) => cms!(self, node, None, None, None),
+            Node::Article(node) => cms_ems!(self, node, None, None, None),
+            Node::CallBlock(node) => cms_ems!(self, node, None, None, None),
+            Node::Chat(node) => cms_ems!(self, node, None, None, None),
+            Node::ChatMessage(node) => cms_ems!(self, node, None, None, None),
+            Node::CodeChunk(node) => cms_ems!(self, node, Some(NodeProperty::Code), node.programming_language.as_deref(), Some(&node.code)),
+            Node::ForBlock(node) => cms_ems!(self, node, Some(NodeProperty::Code), node.programming_language.as_deref(), Some(&node.code)),
+            Node::IfBlock(node) => cms_ems!(self, node, None, None, None),
+            Node::IncludeBlock(node) => cms_ems!(self, node, Some(NodeProperty::Source), None, None),
+            Node::InstructionBlock(node) => cms_ems!(self, node, None, None, None),
+            Node::MathBlock(node) => cms!(self, node, Some(NodeProperty::Code), node.math_language.as_deref(), Some(&node.code)),
+            Node::Prompt(node) => cms_ems!(self, node, None, None, None),
+            Node::PromptBlock(node) => cms_ems!(self, node, None, None, None),
+            Node::StyledBlock(node) => cms!(self, node, Some(NodeProperty::Code), node.style_language.as_deref(), Some(&node.code)),
             _ => {}
         }
 
@@ -487,15 +526,15 @@ impl Visitor for Collector {
     #[rustfmt::skip]
     fn visit_block(&mut self, block: &schema::Block) -> WalkControl {
         match block {
-            Block::AppendixBreak(block) => cms!(self, block, None, None),
-            Block::CallBlock(block) => cms_ems!(self, block, None, None),
-            Block::ChatMessage(block) => cms_ems!(self, block, None, None),
-            Block::CodeChunk(block) => cms_ems!(self, block, block.programming_language.as_deref(), Some(&block.code)),
-            Block::ForBlock(block) => cms_ems!(self, block, block.programming_language.as_deref(), Some(&block.code)),
-            Block::IfBlock(block) => cms_ems!(self, block, None, None),
+            Block::AppendixBreak(block) => cms!(self, block, None, None, None),
+            Block::CallBlock(block) => cms_ems!(self, block, None, None, None),
+            Block::ChatMessage(block) => cms_ems!(self, block, None, None, None),
+            Block::CodeChunk(block) => cms_ems!(self, block, Some(NodeProperty::Code), block.programming_language.as_deref(), Some(&block.code)),
+            Block::ForBlock(block) => cms_ems!(self, block, Some(NodeProperty::Code), block.programming_language.as_deref(), Some(&block.code)),
+            Block::IfBlock(block) => cms_ems!(self, block, None, None, None),
             Block::IncludeBlock(block) => {
                 // Collect diagnostics on the include block itself..
-                cms_ems!(self, block, None, None);
+                cms_ems!(self, block, None, None, None);
 
                 // Continue walk but with `within` set
                 self.within = Some((block.node_id(), block.source.clone()));
@@ -505,10 +544,10 @@ impl Visitor for Collector {
                 // Break walk because content already walked over
                 return WalkControl::Break
             },
-            Block::InstructionBlock(block) => cms_ems!(self, block, None, None),
-            Block::MathBlock(block) => cms!(self, block, block.math_language.as_deref(), Some(&block.code)),
-            Block::PromptBlock(block) => cms_ems!(self, block, None, None),
-            Block::StyledBlock(block) => cms!(self, block, block.style_language.as_deref(), Some(&block.code)),
+            Block::InstructionBlock(block) => cms_ems!(self, block, None, None, None),
+            Block::MathBlock(block) => cms!(self, block, Some(NodeProperty::Code), block.math_language.as_deref(), Some(&block.code)),
+            Block::PromptBlock(block) => cms_ems!(self, block, None, None, None),
+            Block::StyledBlock(block) => cms!(self, block, Some(NodeProperty::Code), block.style_language.as_deref(), Some(&block.code)),
             _ => {}
         }
 
@@ -518,17 +557,12 @@ impl Visitor for Collector {
     #[rustfmt::skip]
     fn visit_inline(&mut self, inline: &schema::Inline) -> WalkControl {
         match inline {
-            Inline::CodeExpression(inline) => cms_ems!(self, inline, inline.programming_language.as_deref(), Some(&inline.code)),
-            Inline::InstructionInline(inline) => cms_ems!(self, inline, None, None),
-            Inline::MathInline(inline) => cms!(self, inline, inline.math_language.as_deref(), Some(&inline.code)),
-            Inline::StyledInline(inline) => cms!(self, inline, inline.style_language.as_deref(), Some(&inline.code)),
-            Inline::Text(inline) => self.compilation_messages(
-                inline.node_type(),
-                inline.node_id(),
-                &inline.compilation_messages,
-                None,
-                Some(&inline.value),
-            ),
+            Inline::CodeExpression(inline) => cms_ems!(self, inline, Some(NodeProperty::Code), inline.programming_language.as_deref(), Some(&inline.code)),
+            Inline::InstructionInline(inline) => cms_ems!(self, inline, None, None, None),
+            Inline::MathInline(inline) => cms!(self, inline, Some(NodeProperty::Code), inline.math_language.as_deref(), Some(&inline.code)),
+            Inline::StyledInline(inline) => cms!(self, inline, Some(NodeProperty::Code), inline.style_language.as_deref(), Some(&inline.code)),
+            Inline::Link(inline) => cms_core!(self, inline, Some(NodeProperty::Target), None, None),
+            Inline::Text(inline) => cms_core!(self, inline, None, None, Some(&inline.value)),
             _ => {}
         }
 
@@ -536,13 +570,19 @@ impl Visitor for Collector {
     }
 
     fn visit_citation(&mut self, citation: &schema::Citation) -> WalkControl {
-        cms!(self, citation, None, None);
+        cms!(self, citation, Some(NodeProperty::Target), None, None);
 
         WalkControl::Continue
     }
 
     fn visit_if_block_clause(&mut self, clause: &schema::IfBlockClause) -> WalkControl {
-        cms_ems!(self, clause, clause.programming_language.as_deref(), None);
+        cms_ems!(
+            self,
+            clause,
+            Some(NodeProperty::Code),
+            clause.programming_language.as_deref(),
+            Some(&clause.code)
+        );
 
         WalkControl::Continue
     }

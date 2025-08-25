@@ -262,6 +262,7 @@ impl Query {
             Diagnostic {
                 node_type: NodeType::CodeChunk,
                 node_id: NodeId::null(),
+                node_property: None,
                 level: DiagnosticLevel::from(&msg.level),
                 kind: DiagnosticKind::Execution,
                 error_type: msg.error_type.clone(),

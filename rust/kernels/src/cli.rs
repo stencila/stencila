@@ -402,6 +402,7 @@ fn display(
         Diagnostic {
             node_type,
             node_id: NodeId::null(),
+            node_property: None,
             level: DiagnosticLevel::from(&msg.level),
             kind: DiagnosticKind::Execution,
             error_type: msg.error_type.clone(),
