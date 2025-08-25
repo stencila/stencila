@@ -39,9 +39,6 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Execute code in a kernel</dim>
   <b>stencila kernels execute</b> <g>python</g> <y>\"print('Hello')\"</y>
-
-  <dim># Lint code using a kernel's linting tool integrations</dim>
-  <b>stencila kernels lint</b> <g>script.py</g>
 "
 );
 
