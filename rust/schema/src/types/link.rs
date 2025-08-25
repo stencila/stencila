@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::boolean::Boolean;
+use super::compilation_message::CompilationMessage;
 use super::inline::Inline;
 use super::string::String;
 
@@ -62,6 +63,13 @@ pub struct Link {
     #[patch(format = "latex")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub label_only: Option<Boolean>,
+
+    /// Messages generated while compiling the link (e.g. missing internal link or invalid external link).
+    #[serde(alias = "compilation-messages", alias = "compilation_messages", alias = "compilationMessage", alias = "compilation-message", alias = "compilation_message")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(compilation)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub compilation_messages: Option<Vec<CompilationMessage>>,
 
     /// A unique identifier for a node within a document
     #[serde(skip)]

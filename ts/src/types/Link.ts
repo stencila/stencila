@@ -1,5 +1,6 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
+import { CompilationMessage } from "./CompilationMessage.js";
 import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
 
@@ -34,6 +35,11 @@ export class Link extends Entity {
    * Only show the label of the internal target (e.g. "2"), rather than both the label type and label (e.g. "Figure 2").
    */
   labelOnly?: boolean;
+
+  /**
+   * Messages generated while compiling the link (e.g. missing internal link or invalid external link).
+   */
+  compilationMessages?: CompilationMessage[];
 
   constructor(content: Inline[], target: string, options?: Partial<Link>) {
     super();

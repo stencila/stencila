@@ -206,6 +206,9 @@
           "@id": "stencila:Executable"
         },
         {
+          "@id": "stencila:Link"
+        },
+        {
           "@id": "stencila:Math"
         },
         {

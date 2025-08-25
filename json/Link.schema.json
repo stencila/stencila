@@ -33,7 +33,8 @@
     "id",
     "title",
     "rel",
-    "labelOnly"
+    "labelOnly",
+    "compilationMessages"
   ],
   "properties": {
     "type": {
@@ -174,6 +175,24 @@
         ]
       },
       "type": "boolean"
+    },
+    "compilationMessages": {
+      "@id": "stencila:compilationMessages",
+      "description": "Messages generated while compiling the link (e.g. missing internal link or invalid external link).",
+      "aliases": [
+        "compilation-messages",
+        "compilation_messages",
+        "compilationMessage",
+        "compilation-message",
+        "compilation_message"
+      ],
+      "strip": [
+        "compilation"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "CompilationMessage.schema.json"
+      }
     }
   }
 }

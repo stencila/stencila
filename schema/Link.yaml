@@ -21,6 +21,7 @@ core:
   - title
   - rel
   - labelOnly
+  - compilationMessages
 properties:
   content:
     '@id': stencila:content
@@ -95,3 +96,10 @@ properties:
     type: boolean
     patch:
       formats: [latex]
+  compilationMessages:
+    "@id": stencila:compilationMessages
+    description: Messages generated while compiling the link (e.g. missing internal link or invalid external link).
+    strip: [compilation]
+    type: array
+    items:
+      $ref: CompilationMessage
