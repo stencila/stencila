@@ -17,6 +17,9 @@ use codec::{
 ///
 /// Parses both internal links like "Figure 1", "Table 2", "Appendix A", "Equation 3"
 /// and external HTTP/HTTPS URLs from text.
+///
+/// For figure and table links, letter suffixes are stripped from targets to point to
+/// the main element (e.g., "Figure 1B" links to "#fig-1", not "#fig-1b").
 pub struct LinksCodec;
 
 #[async_trait]
@@ -57,7 +60,8 @@ impl Codec for LinksCodec {
 
 /// Decode [`Inline::Link`] and [`Inline::Text`] from plain text
 ///
-/// Identifies both internal links (Figure 1, Table 2, etc.) and external HTTP/HTTPS URLs
+/// Identifies both internal links (Figure 1, Table 2, etc.) and external HTTP/HTTPS URLs.
+/// Figure and table links strip letter suffixes from targets (e.g., "1B" → "#fig-1").
 pub fn decode_inlines(text: &str) -> Vec<Inline> {
     match text_with_links.parse(text) {
         Ok(result) => result,
@@ -98,7 +102,16 @@ fn internal_link(input: &mut &str) -> ParserResult<Link> {
         take_while(1.., |c: char| c.is_alphanumeric() || c == '-' || c == '_'),
     )
         .map(|(label_type, label): (&str, &str)| {
-            let id = label.to_kebab_case();
+            // For figures and tables, strip letter suffixes from the target
+            // but preserve the original label in the content
+            let target_label = if label_type.to_lowercase().starts_with("fig") || label_type.to_lowercase().starts_with("tab") {
+                // Remove letter suffixes after numbers (e.g., "1B" -> "1", "2A" -> "2")
+                strip_letter_suffix(label)
+            } else {
+                label.to_string()
+            };
+            
+            let id = target_label.to_kebab_case();
 
             let target = if label_type.to_lowercase().starts_with("fig") {
                 ["#fig-", &id].concat()
@@ -121,6 +134,32 @@ fn internal_link(input: &mut &str) -> ParserResult<Link> {
             }
         })
         .parse_next(input)
+}
+
+/// Strip letter suffixes from figure/table labels to get the base number
+/// 
+/// Examples: "1B" -> "1", "2A" -> "2", "10C" -> "10", "Two-A" -> "Two", "S1" -> "S1" (no change)
+fn strip_letter_suffix(label: &str) -> String {
+    // Look for patterns like "number+letters" or "word-letter" at the end
+    
+    // First try: digit followed by letters at the end
+    if let Some(last_digit_pos) = label.char_indices().rev().find(|(_, c)| c.is_ascii_digit()).map(|(i, _)| i) {
+        let after_digit = &label[last_digit_pos + 1..];
+        if after_digit.chars().all(|c| c.is_ascii_alphabetic()) && !after_digit.is_empty() {
+            return label[..last_digit_pos + 1].to_string();
+        }
+    }
+    
+    // Second try: hyphen followed by single letters at the end (e.g., "Two-A")
+    if let Some(hyphen_pos) = label.rfind('-') {
+        let after_hyphen = &label[hyphen_pos + 1..];
+        if after_hyphen.len() <= 2 && after_hyphen.chars().all(|c| c.is_ascii_alphabetic()) {
+            return label[..hyphen_pos].to_string();
+        }
+    }
+    
+    // No pattern found, return as-is
+    label.to_string()
 }
 
 /// Parse a URL link (HTTP/HTTPS)
@@ -198,14 +237,14 @@ mod tests {
         assert_eq!(result.target, "#fig-a1");
         assert_eq!(result.content, vec![t("Figure A1")]);
 
-        // Test kebab case conversion for complex labels
+        // Test suffix stripping for figure labels
         let result = internal_link(&mut "Figure S1A")?;
-        assert_eq!(result.target, "#fig-s1a");
+        assert_eq!(result.target, "#fig-s1");
         assert_eq!(result.content, vec![t("Figure S1A")]);
 
-        // Test kebab case conversion with spaces/hyphens
+        // Test suffix stripping for table labels with complex structure
         let result = internal_link(&mut "Table Two-A")?;
-        assert_eq!(result.target, "#tab-two-a");
+        assert_eq!(result.target, "#tab-two");
         assert_eq!(result.content, vec![t("Table Two-A")]);
 
         // Test Appendix
@@ -232,6 +271,31 @@ mod tests {
         let result = internal_link(&mut "Eqn. 3")?;
         assert_eq!(result.target, "#eqn-3");
         assert_eq!(result.content, vec![t("Eqn. 3")]);
+
+        // Test figure with letter suffix - should strip suffix from target
+        let result = internal_link(&mut "Figure 1B")?;
+        assert_eq!(result.target, "#fig-1");
+        assert_eq!(result.content, vec![t("Figure 1B")]);
+
+        // Test table with letter suffix - should strip suffix from target  
+        let result = internal_link(&mut "Table 5A")?;
+        assert_eq!(result.target, "#tab-5");
+        assert_eq!(result.content, vec![t("Table 5A")]);
+
+        // Test figure with multiple letter suffix
+        let result = internal_link(&mut "Figure 10AB")?;
+        assert_eq!(result.target, "#fig-10");
+        assert_eq!(result.content, vec![t("Figure 10AB")]);
+
+        // Test appendix should NOT strip suffix (only figs/tables)
+        let result = internal_link(&mut "Appendix 1B")?;
+        assert_eq!(result.target, "#app-1b");
+        assert_eq!(result.content, vec![t("Appendix 1B")]);
+
+        // Test equation should NOT strip suffix (only figs/tables)
+        let result = internal_link(&mut "Equation 2A")?;
+        assert_eq!(result.target, "#eqn-2a");
+        assert_eq!(result.content, vec![t("Equation 2A")]);
 
         Ok(())
     }
@@ -485,24 +549,49 @@ mod tests {
         }
         assert_eq!(result[4], t(", and others"));
 
-        // Test kebab case conversion in context
+        // Test suffix stripping in context
         let result = text_with_links(&mut "Refer to Figure S1A and Table Two-B for analysis")?;
         assert_eq!(result.len(), 5);
         assert_eq!(result[0], t("Refer to "));
         if let Inline::Link(link) = &result[1] {
-            assert_eq!(link.target, "#fig-s1a");
+            assert_eq!(link.target, "#fig-s1");
             assert_eq!(link.content, vec![t("Figure S1A")]);
         } else {
             panic!("Expected Link");
         }
         assert_eq!(result[2], t(" and "));
         if let Inline::Link(link) = &result[3] {
-            assert_eq!(link.target, "#tab-two-b");
+            assert_eq!(link.target, "#tab-two");
             assert_eq!(link.content, vec![t("Table Two-B")]);
         } else {
             panic!("Expected Link");
         }
         assert_eq!(result[4], t(" for analysis"));
+
+        // Test more suffix stripping examples in text
+        let result = text_with_links(&mut "See Figure 1B, Figure 10AB, and Table 3C")?;
+        assert_eq!(result.len(), 6);
+        // Figure 1B -> #fig-1
+        if let Inline::Link(link) = &result[1] {
+            assert_eq!(link.target, "#fig-1");
+            assert_eq!(link.content, vec![t("Figure 1B")]);
+        } else {
+            panic!("Expected Link");
+        }
+        // Figure 10AB -> #fig-10
+        if let Inline::Link(link) = &result[3] {
+            assert_eq!(link.target, "#fig-10");
+            assert_eq!(link.content, vec![t("Figure 10AB")]);
+        } else {
+            panic!("Expected Link");
+        }
+        // Table 3C -> #tab-3
+        if let Inline::Link(link) = &result[5] {
+            assert_eq!(link.target, "#tab-3");
+            assert_eq!(link.content, vec![t("Table 3C")]);
+        } else {
+            panic!("Expected Link");
+        }
 
         Ok(())
     }
