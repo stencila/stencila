@@ -21,6 +21,9 @@ pub(super) enum BlockReplacement {
     /// Remove the title from the content
     RemoveTitle,
 
+    /// Remove keywords from the content
+    RemoveKeywords,
+
     /// Remove references (including header) from the content
     RemoveReferences,
 }
@@ -42,25 +45,38 @@ pub(super) enum InlineReplacement {
     SuperscriptedNumericCitations,
 }
 
-/// Walks over the node collecting replacements and references
+/// Walks over the node collecting replacements, citations and references
 #[derive(Debug, Default)]
 pub(super) struct Collector {
-    /// Whether a title should be collected
-    should_collect_title: bool,
-
-    /// The collected title of the work
-    pub title: Option<Vec<Inline>>,
-
     /// Replacements for block nodes
     pub block_replacements: HashMap<NodeId, (BlockReplacement, Vec<Block>)>,
 
     /// Replacements for inline nodes
     pub inline_replacements: HashMap<NodeId, (InlineReplacement, Vec<Inline>)>,
 
+    /// Whether a title should be extracted
+    ///
+    /// The first heading is only extracted as a title if the article does not yet have one.
+    /// Otherwise, it is left in place.
+    should_extract_title: bool,
+
+    /// The extracted title of the work
+    pub title: Option<Vec<Inline>>,
+
+    /// Whether in a keyword section
+    ///
+    /// Whether a "keywords" heading has been encountered, in which case keywords will
+    /// be extracted until the next heading is encountered. Note that keywords are
+    /// also extracted from paragraphs starting with "Keywords" and punctuation.
+    in_keywords: bool,
+
+    /// The extracted keywords
+    pub keywords: Option<Vec<String>>,
+
     /// Whether currently in the References (or Bibliography) section
     in_references: bool,
 
-    /// References collected from walking node
+    /// References extracted from walking node
     pub references: Option<Vec<Reference>>,
 
     /// Whether references were found in an ordered (numbered) list
@@ -77,7 +93,7 @@ impl VisitorMut for Collector {
     fn visit_node(&mut self, node: &mut Node) -> WalkControl {
         if let Node::Article(Article { title, content, .. }) = node {
             if title.is_none() {
-                self.should_collect_title = true;
+                self.should_extract_title = true;
             }
 
             self.visit_blocks(content);
@@ -233,7 +249,7 @@ impl Collector {
         let (numbering, numbering_depth, cleaned_text) = extract_heading_numbering(&text);
 
         // Extract title
-        if self.should_collect_title
+        if self.should_extract_title
             && self.title.is_none()
             && numbering.is_none()
             && heading.level == 1
@@ -244,6 +260,19 @@ impl Collector {
                 heading.node_id(),
                 (BlockReplacement::RemoveTitle, Vec::new()),
             );
+
+            return WalkControl::Break;
+        }
+
+        // Determine if in keywords section
+        if cleaned_text.to_lowercase() == "keywords" {
+            self.in_keywords = true;
+            self.block_replacements.insert(
+                heading.node_id(),
+                (BlockReplacement::RemoveKeywords, Vec::new()),
+            );
+        } else {
+            self.in_keywords = false;
         }
 
         // Detect section type from cleaned text
@@ -280,6 +309,8 @@ impl Collector {
                 heading.node_id(),
                 (BlockReplacement::RemoveReferences, Vec::new()),
             );
+        } else {
+            self.in_references = false;
         }
 
         WalkControl::Continue
@@ -289,6 +320,34 @@ impl Collector {
     ///
     /// If in the references section, parses the paragraph as a [`Reference`].
     fn visit_paragraph(&mut self, paragraph: &Paragraph) -> WalkControl {
+        let mut remove = None;
+
+        if self.keywords.is_none() {
+            let text = to_text(paragraph);
+            if self.in_keywords {
+                let words = text
+                    .trim_end_matches(['.'])
+                    .split(",")
+                    .map(|word| word.trim().to_string())
+                    .collect_vec();
+                if let Some(keywords) = self.keywords.as_mut() {
+                    keywords.extend(words);
+                } else {
+                    self.keywords = Some(words);
+                }
+                remove = Some(BlockReplacement::RemoveKeywords);
+            } else if let Some(text) = text.strip_prefix("Keywords") {
+                let words = text
+                    .trim_start_matches([':', '-', ' '])
+                    .trim_end_matches(['.'])
+                    .split(",")
+                    .map(|word| word.trim().to_string())
+                    .collect_vec();
+                self.keywords = Some(words);
+                remove = Some(BlockReplacement::RemoveKeywords);
+            }
+        }
+
         if self.in_references {
             let text = to_text(paragraph);
             let reference = text_to_reference(&text);
@@ -297,11 +356,12 @@ impl Collector {
             } else {
                 self.references = Some(vec![reference]);
             }
+            remove = Some(BlockReplacement::RemoveReferences);
+        }
 
-            self.block_replacements.insert(
-                paragraph.node_id(),
-                (BlockReplacement::RemoveReferences, Vec::new()),
-            );
+        if let Some(replacement) = remove {
+            self.block_replacements
+                .insert(paragraph.node_id(), (replacement, Vec::new()));
         }
 
         WalkControl::Continue
