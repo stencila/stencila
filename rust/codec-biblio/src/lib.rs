@@ -19,7 +19,7 @@ pub struct BiblioCodec;
 #[async_trait]
 impl Codec for BiblioCodec {
     fn name(&self) -> &str {
-        "reference"
+        "biblio"
     }
 
     fn status(&self) -> Status {
