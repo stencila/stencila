@@ -22,7 +22,7 @@ impl Executable for Text {
         let node_id = self.node_id();
 
         // Lint the text
-        let outputs = match stencila_linters::lint(
+        let output = match stencila_linters::lint(
             &self.value,
             None,
             LintingOptions {
@@ -35,24 +35,16 @@ impl Executable for Text {
         )
         .await
         {
-            Ok(outputs) => outputs,
+            Ok(output) => output,
             Err(error) => {
                 tracing::error!("Error linting text: {error}");
                 return WalkControl::Break;
             }
         };
 
-        // Collect any messages and linted text from messages
-        let mut new_messages = Vec::new();
-        let mut new_text = None;
-        for output in outputs {
-            if let Some(messages) = output.messages {
-                new_messages.extend(messages);
-            }
-            if new_text.is_none() && output.content.is_some() {
-                new_text = output.content;
-            }
-        }
+        // Collect any messages and linted text from output
+        let new_messages = output.messages.unwrap_or_default();
+        let new_text = output.content;
 
         // Only create a patch isf necessary
         let mut ops = Vec::new();

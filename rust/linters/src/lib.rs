@@ -1,6 +1,8 @@
 use std::{
+    collections::HashMap,
     env::current_dir,
     path::{Path, PathBuf},
+    sync::{Arc, Mutex},
 };
 
 pub use stencila_linter::LintingOptions;
@@ -9,6 +11,7 @@ use stencila_linter::{
     common::{
         eyre::{Result, bail},
         itertools::Itertools,
+        once_cell::sync::Lazy,
         tracing,
     },
 };
@@ -23,15 +26,16 @@ pub mod cli;
 /// Get a list of available linters
 pub async fn list() -> Vec<Box<dyn Linter>> {
     vec![
-        // The order here is important it is used in places like
-        // `stencila linters list` and other user interfaces
+        // The order here is important it is used in places like `stencila
+        // linters list` and other user interfaces. Generally place linters that
+        // make formatting changes to the code before those that are only
+        // checkers.
 
         // Programming languages
         Box::<RuffLinter>::default() as Box<dyn Linter>,
         Box::<PyrightLinter>::default() as Box<dyn Linter>,
-        Box::<LintRLinter>::default() as Box<dyn Linter>,
         Box::<StyleRLinter>::default() as Box<dyn Linter>,
-
+        Box::<LintRLinter>::default() as Box<dyn Linter>,
         // Grammar and spelling
         Box::<HarperLinter>::default() as Box<dyn Linter>,
     ]
@@ -43,7 +47,7 @@ pub async fn lint(
     content: &str,
     path: Option<&Path>,
     options: LintingOptions,
-) -> Result<Vec<LintingOutput>> {
+) -> Result<LintingOutput> {
     tracing::trace!("Linting");
 
     // For proper detection of the environment the path should not be empty.
@@ -59,6 +63,10 @@ pub async fn lint(
         }
         None => current_dir()?,
     };
+
+    // Cache linter availability to avoid relatively expensive
+    // calls to `linter.availability()` on each call of this function.
+    static LINTER_AVAILABLE: Lazy<Arc<Mutex<HashMap<String, bool>>>> = Lazy::new(Arc::default);
 
     // Filter the list of linters for those that are available and will handle the content
     let linters = list()
@@ -83,7 +91,18 @@ pub async fn lint(
                 return false;
             }
 
-            matches!(linter.availability(), LinterAvailability::Available)
+            // Check availability using cache with fallback (in case of unlikely mutex poisoning)
+            match LINTER_AVAILABLE.lock() {
+                Ok(mut guard) => {
+                    *(guard.entry(linter.name().to_string()).or_insert_with(|| {
+                        matches!(linter.availability(), LinterAvailability::Available)
+                    }))
+                }
+                Err(error) => {
+                    tracing::warn!("Unable to lock linter availability cache: {error}");
+                    matches!(linter.availability(), LinterAvailability::Available)
+                }
+            }
         })
         .collect_vec();
 
@@ -110,18 +129,52 @@ pub async fn lint(
         bail!(message)
     }
 
-    // Perform linting with each matching linter
-    let mut outputs = Vec::new();
+    // Perform linting with each matching linter. If there is any output from linting
+    // (due to formatting or fixing) then pass on to the next linter
+    let mut current_content = content.to_string();
+    let mut accumulated_output = LintingOutput::default();
+
     for linter in linters {
-        let output = match linter.lint(content, &path, &options).await {
+        let output = match linter.lint(&current_content, &path, &options).await {
             Ok(output) => output,
             Err(error) => {
                 tracing::warn!("Linter `{}` failed: {error}", linter.name());
                 continue;
             }
         };
-        outputs.push(output);
+
+        // Accumulate messages
+        if let Some(messages) = output.messages {
+            accumulated_output.messages = match accumulated_output.messages {
+                Some(mut existing) => {
+                    existing.extend(messages);
+                    Some(existing)
+                }
+                None => Some(messages),
+            };
+        }
+
+        // Accumulate authors
+        if let Some(authors) = output.authors {
+            accumulated_output.authors = match accumulated_output.authors {
+                Some(mut existing) => {
+                    existing.extend(authors);
+                    Some(existing)
+                }
+                None => Some(authors),
+            };
+        }
+
+        // Update current content for next linter if this linter changed it
+        if let Some(new_content) = output.content {
+            current_content = new_content;
+        }
     }
 
-    Ok(outputs)
+    // Set the final content if it changed from the original
+    if current_content != content {
+        accumulated_output.content = Some(current_content);
+    }
+
+    Ok(accumulated_output)
 }

@@ -217,21 +217,19 @@ impl Lint {
         )
         .await?;
 
-        for output in outputs {
-            if let Some(authors) = output.authors {
-                eprintln!("Linter:\n");
-                Code::new(Format::Yaml, &serde_yaml::to_string(&authors)?).to_stdout();
-            }
+        if let Some(authors) = outputs.authors {
+            eprintln!("Linters:\n");
+            Code::new(Format::Yaml, &serde_yaml::to_string(&authors)?).to_stdout();
+        }
 
-            if let Some(content) = output.content {
-                eprintln!("Formatted and/or fixed content:\n");
-                Code::new(format.clone(), &content).to_stdout();
-            }
+        if let Some(content) = outputs.content {
+            eprintln!("Formatted and/or fixed content:\n");
+            Code::new(format.clone(), &content).to_stdout();
+        }
 
-            if let Some(messages) = output.messages {
-                eprintln!("Diagnostic messages:\n");
-                Code::new(Format::Yaml, &serde_yaml::to_string(&messages)?).to_stdout();
-            }
+        if let Some(messages) = outputs.messages {
+            eprintln!("Diagnostic messages:\n");
+            Code::new(Format::Yaml, &serde_yaml::to_string(&messages)?).to_stdout();
         }
 
         Ok(())
