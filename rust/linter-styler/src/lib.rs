@@ -36,6 +36,14 @@ impl Linter for StyleRLinter {
         vec![Format::R]
     }
 
+    fn supports_formatting(&self) -> bool {
+        true
+    }
+
+    fn supports_fixing(&self) -> bool {
+        false
+    }
+
     fn availability(&self) -> LinterAvailability {
         if StyleR.is_installed() {
             LinterAvailability::Available
@@ -90,7 +98,7 @@ impl Linter for StyleRLinter {
         }
 
         Ok(LintingOutput {
-            code: Some(new_code),
+            content: Some(new_code),
             authors: Some(vec![
                 SoftwareApplication::new("Styler".to_string()).into_author_role(
                     AuthorRoleName::Formatter,

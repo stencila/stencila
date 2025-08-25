@@ -42,6 +42,14 @@ impl Linter for RuffLinter {
         vec![Format::Python]
     }
 
+    fn supports_formatting(&self) -> bool {
+        true
+    }
+
+    fn supports_fixing(&self) -> bool {
+        true
+    }
+
     fn availability(&self) -> LinterAvailability {
         if Ruff.is_installed() {
             LinterAvailability::Available
@@ -145,7 +153,7 @@ impl Linter for RuffLinter {
         Ok(LintingOutput {
             authors: (!authors.is_empty()).then_some(authors),
             messages: (!messages.is_empty()).then_some(messages),
-            code,
+            content: code,
         })
     }
 }

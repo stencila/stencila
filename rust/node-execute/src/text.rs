@@ -49,8 +49,8 @@ impl Executable for Text {
             if let Some(messages) = output.messages {
                 new_messages.extend(messages);
             }
-            if new_text.is_none() && output.code.is_some() {
-                new_text = output.code;
+            if new_text.is_none() && output.content.is_some() {
+                new_text = output.content;
             }
         }
 

@@ -38,6 +38,14 @@ impl Linter for PyrightLinter {
         vec![Format::Python]
     }
 
+    fn supports_formatting(&self) -> bool {
+        false
+    }
+
+    fn supports_fixing(&self) -> bool {
+        false
+    }
+
     fn availability(&self) -> LinterAvailability {
         if Pyright.is_installed() {
             LinterAvailability::Available
@@ -136,7 +144,7 @@ impl Linter for PyrightLinter {
         Ok(LintingOutput {
             authors: (!authors.is_empty()).then_some(authors),
             messages: (!messages.is_empty()).then_some(messages),
-            code,
+            content: code,
         })
     }
 }

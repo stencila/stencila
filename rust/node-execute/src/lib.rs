@@ -743,7 +743,7 @@ impl Executor {
 
                 // If there is output code then it needs to be used to patch nodes
                 // and also message line numbers need to be calculated based on it
-                let (code, code_changed) = match output.code {
+                let (code, code_changed) = match output.content {
                     Some(code) => (code, true),
                     None => (code.clone(), false),
                 };

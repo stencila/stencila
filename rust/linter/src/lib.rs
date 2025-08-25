@@ -25,6 +25,12 @@ pub trait Linter: Send + Sync {
     /// The availability of the linter on the current machine
     fn availability(&self) -> LinterAvailability;
 
+    /// Whether the linter support formatting content
+    fn supports_formatting(&self) -> bool;
+
+    /// Whether the linter support fixing warning and errors
+    fn supports_fixing(&self) -> bool;
+
     /// Lint some content at a path
     async fn lint(
         &self,
@@ -46,12 +52,17 @@ pub enum LinterAvailability {
     Unavailable,
 }
 
+/// A linter specification
+///
+/// Used to serialize the list of available linters
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LinterSpecification {
     node_types: Vec<NodeType>,
     formats: Vec<Format>,
     availability: LinterAvailability,
+    supports_formatting: bool,
+    supports_fixing: bool,
 }
 
 impl From<&dyn Linter> for LinterSpecification {
@@ -60,6 +71,8 @@ impl From<&dyn Linter> for LinterSpecification {
             node_types: linter.node_types(),
             formats: linter.formats(),
             availability: linter.availability(),
+            supports_formatting: linter.supports_formatting(),
+            supports_fixing: linter.supports_fixing(),
         }
     }
 }
@@ -100,12 +113,12 @@ pub struct LintingOutput {
 
     /// Any software authors that contributed to the linting
     ///
-    /// The `role_name` of these authors should be `Linter`.
+    /// The `role_name` of these authors should be `Formatter` or `Linter`.
     pub authors: Option<Vec<AuthorRole>>,
 
-    /// The formatted and/or fixed code
+    /// The formatted and/or fixed content
     ///
-    /// If both `format` and `fix` are false, or if there is no change in the code,
+    /// If both `format` and `fix` are false, or if there is no change in the content,
     /// this is expected to be `None`
-    pub code: Option<String>,
+    pub content: Option<String>,
 }

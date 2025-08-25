@@ -101,7 +101,14 @@ impl List {
         }
 
         let mut table = Tabulated::new();
-        table.set_header(["Name", "Languages/formats", "Node types", "Availability"]);
+        table.set_header([
+            "Name",
+            "Formats/languages",
+            "Node types",
+            "Formatting",
+            "Fixing",
+            "Availability",
+        ]);
 
         for linter in list {
             let name = linter.name();
@@ -115,12 +122,24 @@ impl List {
                 .iter()
                 .map(|node_type| node_type.to_string())
                 .join(", ");
+            let formatting = if linter.supports_formatting() {
+                Cell::new("yes").fg(Color::Green)
+            } else {
+                Cell::new("no").add_attribute(Attribute::Dim)
+            };
+            let fixing = if linter.supports_fixing() {
+                Cell::new("yes").fg(Color::Green)
+            } else {
+                Cell::new("no").add_attribute(Attribute::Dim)
+            };
             let availability = linter.availability();
 
             table.add_row([
                 Cell::new(name).add_attribute(Attribute::Bold),
                 Cell::new(formats),
                 Cell::new(node_types),
+                formatting,
+                fixing,
                 Cell::new(availability).fg(match availability {
                     LinterAvailability::Available => Color::Green,
                     LinterAvailability::Installable => Color::Cyan,
@@ -204,9 +223,9 @@ impl Lint {
                 Code::new(Format::Yaml, &serde_yaml::to_string(&authors)?).to_stdout();
             }
 
-            if let Some(code) = output.code {
-                eprintln!("Formatted and/or fixed code:\n");
-                Code::new(format.clone(), &code).to_stdout();
+            if let Some(content) = output.content {
+                eprintln!("Formatted and/or fixed content:\n");
+                Code::new(format.clone(), &content).to_stdout();
             }
 
             if let Some(messages) = output.messages {

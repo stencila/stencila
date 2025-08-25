@@ -33,6 +33,14 @@ impl Linter for HarperLinter {
         vec![Format::Text]
     }
 
+    fn supports_formatting(&self) -> bool {
+        true
+    }
+
+    fn supports_fixing(&self) -> bool {
+        true
+    }
+
     fn availability(&self) -> LinterAvailability {
         LinterAvailability::Available
     }
@@ -94,7 +102,7 @@ impl Linter for HarperLinter {
         Ok(LintingOutput {
             messages,
             authors,
-            code: new_text,
+            content: new_text,
             ..Default::default()
         })
     }

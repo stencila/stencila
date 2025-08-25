@@ -39,6 +39,14 @@ impl Linter for LintRLinter {
         vec![Format::R]
     }
 
+    fn supports_formatting(&self) -> bool {
+        false
+    }
+
+    fn supports_fixing(&self) -> bool {
+        false
+    }
+
     fn availability(&self) -> LinterAvailability {
         if LintR.is_installed() {
             LinterAvailability::Available
