@@ -1493,7 +1493,7 @@ dependencies = [
  "url",
  "version",
  "webbrowser",
- "zip 2.5.0",
+ "zip 2.6.1",
 ]
 
 [[package]]
@@ -1646,7 +1646,7 @@ dependencies = [
  "roxmltree",
  "rust-embed",
  "version",
- "zip 2.5.0",
+ "zip 2.6.1",
 ]
 
 [[package]]
@@ -1804,7 +1804,7 @@ dependencies = [
  "codec",
  "common-dev",
  "version",
- "zip 2.5.0",
+ "zip 2.6.1",
 ]
 
 [[package]]
@@ -1921,7 +1921,7 @@ dependencies = [
  "codec-jats",
  "common-dev",
  "media-embed",
- "zip 2.5.0",
+ "zip 2.6.1",
 ]
 
 [[package]]
@@ -4616,7 +4616,7 @@ dependencies = [
  "walkdir",
  "which 7.0.3",
  "winreg",
- "zip 2.5.0",
+ "zip 2.6.1",
 ]
 
 [[package]]
@@ -5770,7 +5770,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc2f4eb4bc735547cfed7c0a4922cbd04a4655978c09b54f1f7b228750664c34"
 dependencies = [
  "cfg-if",
- "windows-targets 0.52.6",
+ "windows-targets 0.48.5",
 ]
 
 [[package]]
@@ -12927,9 +12927,9 @@ dependencies = [
 
 [[package]]
 name = "zip"
-version = "2.5.0"
+version = "2.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "27c03817464f64e23f6f37574b4fdc8cf65925b5bfd2b0f2aedf959791941f88"
+checksum = "1dcb24d0152526ae49b9b96c1dcf71850ca1e0b882e4e28ed898a93c41334744"
 dependencies = [
  "aes",
  "arbitrary",
