@@ -13,9 +13,10 @@ use codec::{
     status::Status,
 };
 
-/// A codec for internal links within a document
+/// A codec for links within a document
 ///
-/// Parses links like "Figure 1" and "(see Table 9)" from text.
+/// Parses both internal links like "Figure 1", "Table 2", "Appendix A", "Equation 3"
+/// and external HTTP/HTTPS URLs from text.
 pub struct LinksCodec;
 
 #[async_trait]
@@ -55,6 +56,8 @@ impl Codec for LinksCodec {
 }
 
 /// Decode [`Inline::Link`] and [`Inline::Text`] from plain text
+///
+/// Identifies both internal links (Figure 1, Table 2, etc.) and external HTTP/HTTPS URLs
 pub fn decode_inlines(text: &str) -> Vec<Inline> {
     match text_with_links.parse(text) {
         Ok(result) => result,
@@ -67,16 +70,19 @@ fn text_with_links(input: &mut &str) -> ParserResult<Vec<Inline>> {
     repeat(
         1..,
         alt((
-            link.map(Inline::Link),
-            preceded(not(link), any).take().map(|text: &str| t(text)),
+            internal_link.map(Inline::Link),
+            url_link.map(Inline::Link),
+            preceded(not(alt((internal_link, url_link))), any)
+                .take()
+                .map(|text: &str| t(text)),
         )),
     )
     .map(fold_text_inlines)
     .parse_next(input)
 }
 
-/// Parse a link
-fn link(input: &mut &str) -> ParserResult<Link> {
+/// Parse an internal link (Figure, Table, Appendix, Equation)
+fn internal_link(input: &mut &str) -> ParserResult<Link> {
     (
         alt((
             (Caseless("figure"), multispace1),
@@ -115,6 +121,36 @@ fn link(input: &mut &str) -> ParserResult<Link> {
         .parse_next(input)
 }
 
+/// Parse a URL link (HTTP/HTTPS)
+fn url_link(input: &mut &str) -> ParserResult<Link> {
+    let start_pos = *input;
+    let (protocol, rest): (&str, &str) = (
+        alt((Caseless("https://"), Caseless("http://"))),
+        take_while(1.., |c: char| {
+            !c.is_whitespace() && c != ')' && c != ']' && c != '}'
+        }),
+    ).parse_next(input)?;
+
+    // Remove trailing punctuation that's likely sentence punctuation
+    let trimmed_rest = rest.trim_end_matches(['.', ',', ';', ':', '!', '?']);
+    let trimmed_len = protocol.len() + trimmed_rest.len();
+    
+    // Adjust input position to not consume the trailing punctuation
+    let consumed = start_pos.len() - input.len();
+    if consumed > trimmed_len {
+        *input = &start_pos[trimmed_len..];
+    }
+    
+    let target = [protocol, trimmed_rest].concat();
+    let content = vec![t(&target)];
+
+    Ok(Link {
+        target,
+        content,
+        ..Default::default()
+    })
+}
+
 /// Helper function to fold adjacent text inlines
 fn fold_text_inlines(inlines: Vec<Inline>) -> Vec<Inline> {
     let mut folded = Vec::new();
@@ -133,56 +169,109 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_link() -> ParserResult<()> {
+    fn test_internal_link() -> ParserResult<()> {
         // Test Figure with number
-        let result = link(&mut "Figure 1")?;
+        let result = internal_link(&mut "Figure 1")?;
         assert_eq!(result.target, "#fig-1");
         assert_eq!(result.content, vec![t("Figure 1")]);
 
         // Test Fig. abbreviation
-        let result = link(&mut "Fig. 2")?;
+        let result = internal_link(&mut "Fig. 2")?;
         assert_eq!(result.target, "#fig-2");
         assert_eq!(result.content, vec![t("Fig. 2")]);
 
         // Test Table
-        let result = link(&mut "Table 5")?;
+        let result = internal_link(&mut "Table 5")?;
         assert_eq!(result.target, "#tab-5");
         assert_eq!(result.content, vec![t("Table 5")]);
 
         // Test case insensitive
-        let result = link(&mut "figure 10")?;
+        let result = internal_link(&mut "figure 10")?;
         assert_eq!(result.target, "#fig-10");
         assert_eq!(result.content, vec![t("figure 10")]);
 
         // Test alphanumeric label
-        let result = link(&mut "Figure A1")?;
+        let result = internal_link(&mut "Figure A1")?;
         assert_eq!(result.target, "#fig-A1");
         assert_eq!(result.content, vec![t("Figure A1")]);
 
         // Test Appendix
-        let result = link(&mut "Appendix A")?;
+        let result = internal_link(&mut "Appendix A")?;
         assert_eq!(result.target, "#app-A");
         assert_eq!(result.content, vec![t("Appendix A")]);
 
         // Test App. abbreviation
-        let result = link(&mut "App. B")?;
+        let result = internal_link(&mut "App. B")?;
         assert_eq!(result.target, "#app-B");
         assert_eq!(result.content, vec![t("App. B")]);
 
         // Test Equation
-        let result = link(&mut "Equation 1")?;
+        let result = internal_link(&mut "Equation 1")?;
         assert_eq!(result.target, "#eqn-1");
         assert_eq!(result.content, vec![t("Equation 1")]);
 
         // Test Eqn abbreviation
-        let result = link(&mut "Eqn 5")?;
+        let result = internal_link(&mut "Eqn 5")?;
         assert_eq!(result.target, "#eqn-5");
         assert_eq!(result.content, vec![t("Eqn 5")]);
 
         // Test Eqn. abbreviation
-        let result = link(&mut "Eqn. 3")?;
+        let result = internal_link(&mut "Eqn. 3")?;
         assert_eq!(result.target, "#eqn-3");
         assert_eq!(result.content, vec![t("Eqn. 3")]);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_url_link() -> ParserResult<()> {
+        // Test HTTPS URL
+        let result = url_link(&mut "https://example.com")?;
+        assert_eq!(result.target, "https://example.com");
+        assert_eq!(result.content, vec![t("https://example.com")]);
+
+        // Test HTTP URL
+        let result = url_link(&mut "http://example.org")?;
+        assert_eq!(result.target, "http://example.org");
+        assert_eq!(result.content, vec![t("http://example.org")]);
+
+        // Test HTTPS URL with path
+        let result = url_link(&mut "https://github.com/owner/repo")?;
+        assert_eq!(result.target, "https://github.com/owner/repo");
+        assert_eq!(result.content, vec![t("https://github.com/owner/repo")]);
+
+        // Test HTTP URL with query parameters
+        let result = url_link(&mut "http://example.com/search?q=test&page=1")?;
+        assert_eq!(result.target, "http://example.com/search?q=test&page=1");
+        assert_eq!(
+            result.content,
+            vec![t("http://example.com/search?q=test&page=1")]
+        );
+
+        // Test case insensitive protocol
+        let result = url_link(&mut "HTTPS://EXAMPLE.COM")?;
+        assert_eq!(result.target, "HTTPS://EXAMPLE.COM");
+        assert_eq!(result.content, vec![t("HTTPS://EXAMPLE.COM")]);
+
+        // Test URL with trailing period (sentence punctuation)
+        let result = url_link(&mut "https://example.com.")?;
+        assert_eq!(result.target, "https://example.com");
+        assert_eq!(result.content, vec![t("https://example.com")]);
+
+        // Test URL with trailing comma
+        let result = url_link(&mut "https://github.com/owner/repo,")?;
+        assert_eq!(result.target, "https://github.com/owner/repo");
+        assert_eq!(result.content, vec![t("https://github.com/owner/repo")]);
+
+        // Test URL with multiple trailing punctuation
+        let result = url_link(&mut "http://example.org/path?query=1!?.")?;
+        assert_eq!(result.target, "http://example.org/path?query=1");
+        assert_eq!(result.content, vec![t("http://example.org/path?query=1")]);
+
+        // Test URL with internal dots (should preserve them)
+        let result = url_link(&mut "https://api.example.com/v1/data.json")?;
+        assert_eq!(result.target, "https://api.example.com/v1/data.json");
+        assert_eq!(result.content, vec![t("https://api.example.com/v1/data.json")]);
 
         Ok(())
     }
@@ -304,6 +393,80 @@ mod tests {
             panic!("Expected Link");
         }
         assert_eq!(result[4], t(")"));
+
+        // Test text with HTTP URL
+        let result = text_with_links(&mut "Visit https://example.com for more info")?;
+        assert_eq!(result.len(), 3);
+        assert_eq!(result[0], t("Visit "));
+        if let Inline::Link(link) = &result[1] {
+            assert_eq!(link.target, "https://example.com");
+            assert_eq!(link.content, vec![t("https://example.com")]);
+        } else {
+            panic!("Expected Link");
+        }
+        assert_eq!(result[2], t(" for more info"));
+
+        // Test mixed internal and external links
+        let result = text_with_links(&mut "See Figure 1 and https://github.com/example for code")?;
+        assert_eq!(result.len(), 5);
+        assert_eq!(result[0], t("See "));
+        if let Inline::Link(link) = &result[1] {
+            assert_eq!(link.target, "#fig-1");
+            assert_eq!(link.content, vec![t("Figure 1")]);
+        } else {
+            panic!("Expected Link");
+        }
+        assert_eq!(result[2], t(" and "));
+        if let Inline::Link(link) = &result[3] {
+            assert_eq!(link.target, "https://github.com/example");
+            assert_eq!(link.content, vec![t("https://github.com/example")]);
+        } else {
+            panic!("Expected Link");
+        }
+        assert_eq!(result[4], t(" for code"));
+
+        // Test URL in parentheses
+        let result = text_with_links(&mut "Check the docs (https://docs.example.com) first")?;
+        assert_eq!(result.len(), 3);
+        assert_eq!(result[0], t("Check the docs ("));
+        if let Inline::Link(link) = &result[1] {
+            assert_eq!(link.target, "https://docs.example.com");
+            assert_eq!(link.content, vec![t("https://docs.example.com")]);
+        } else {
+            panic!("Expected Link");
+        }
+        assert_eq!(result[2], t(") first"));
+
+        // Test URL with trailing punctuation in sentence
+        let result = text_with_links(&mut "Visit https://example.com. It has great docs!")?;
+        assert_eq!(result.len(), 3);
+        assert_eq!(result[0], t("Visit "));
+        if let Inline::Link(link) = &result[1] {
+            assert_eq!(link.target, "https://example.com");
+            assert_eq!(link.content, vec![t("https://example.com")]);
+        } else {
+            panic!("Expected Link");
+        }
+        assert_eq!(result[2], t(". It has great docs!"));
+
+        // Test URL in comma-separated list
+        let result = text_with_links(&mut "Check https://github.com, https://gitlab.com, and others")?;
+        assert_eq!(result.len(), 5);
+        assert_eq!(result[0], t("Check "));
+        if let Inline::Link(link) = &result[1] {
+            assert_eq!(link.target, "https://github.com");
+            assert_eq!(link.content, vec![t("https://github.com")]);
+        } else {
+            panic!("Expected Link");
+        }
+        assert_eq!(result[2], t(", "));
+        if let Inline::Link(link) = &result[3] {
+            assert_eq!(link.target, "https://gitlab.com");
+            assert_eq!(link.content, vec![t("https://gitlab.com")]);
+        } else {
+            panic!("Expected Link");
+        }
+        assert_eq!(result[4], t(", and others"));
 
         Ok(())
     }
