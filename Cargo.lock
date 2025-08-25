@@ -10463,6 +10463,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "stencila-linter-links"
+version = "0.0.0"
+dependencies = [
+ "stencila-linter",
+ "tokio",
+ "version",
+]
+
+[[package]]
 name = "stencila-linter-lintr"
 version = "0.0.0"
 dependencies = [
@@ -10505,6 +10514,7 @@ dependencies = [
  "cli-utils",
  "stencila-linter",
  "stencila-linter-harper",
+ "stencila-linter-links",
  "stencila-linter-lintr",
  "stencila-linter-pyright",
  "stencila-linter-ruff",

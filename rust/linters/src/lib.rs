@@ -16,6 +16,7 @@ use stencila_linter::{
     },
 };
 use stencila_linter_harper::HarperLinter;
+use stencila_linter_links::LinksLinter;
 use stencila_linter_lintr::LintRLinter;
 use stencila_linter_pyright::PyrightLinter;
 use stencila_linter_ruff::RuffLinter;
@@ -38,6 +39,8 @@ pub async fn list() -> Vec<Box<dyn Linter>> {
         Box::<LintRLinter>::default() as Box<dyn Linter>,
         // Grammar and spelling
         Box::<HarperLinter>::default() as Box<dyn Linter>,
+        // Content validation
+        Box::<LinksLinter>::default() as Box<dyn Linter>,
     ]
 }
 
