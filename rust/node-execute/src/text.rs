@@ -16,7 +16,7 @@ impl Executable for Text {
         if !should_lint {
             // Early return if not linting
             // Break walk because no other properties need to be visited
-            return WalkControl::Break
+            return WalkControl::Break;
         }
 
         let node_id = self.node_id();

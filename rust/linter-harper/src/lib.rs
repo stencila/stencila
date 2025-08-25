@@ -103,7 +103,6 @@ impl Linter for HarperLinter {
             messages,
             authors,
             content: new_text,
-            ..Default::default()
         })
     }
 }
@@ -115,9 +114,9 @@ fn lint_to_compilation_message(lint: Lint) -> CompilationMessage {
         BoundaryError | Capitalization | Eggcorn | Malapropism | Spelling | Typo => {
             MessageLevel::Error
         }
-        Formatting | Grammar | Punctuation | Readability | Redundancy | Regionalism
-        | Repetition => MessageLevel::Warning,
-        Style | Usage | WordChoice | _ => MessageLevel::Info,
+        Formatting | Grammar | Nonstandard | Punctuation | Readability | Redundancy
+        | Regionalism | Repetition => MessageLevel::Warning,
+        Agreement | Enhancement | Style | Usage | WordChoice | Miscellaneous => MessageLevel::Info,
     };
 
     let lint_kind = lint.lint_kind.to_string();

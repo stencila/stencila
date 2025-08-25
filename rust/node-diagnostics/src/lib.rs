@@ -380,7 +380,7 @@ impl Collector {
                 Diagnostic {
                     node_type,
                     node_id: node_id.clone(),
-                    node_property: node_property.clone(),
+                    node_property: *node_property,
                     level: DiagnosticLevel::from(&msg.level),
                     kind,
                     error_type: msg.error_type.clone(),
@@ -416,7 +416,7 @@ impl Collector {
             .map(|msg| Diagnostic {
                 node_type,
                 node_id: node_id.clone(),
-                node_property: node_property.clone(),
+                node_property: *node_property,
                 level: DiagnosticLevel::from(&msg.level),
                 kind: DiagnosticKind::Execution,
                 error_type: msg.error_type.clone(),
@@ -430,6 +430,7 @@ impl Collector {
     }
 
     /// Collect the [`CompilationMessage`]s and [`ExecutionMessage`]s from a node
+    #[allow(clippy::too_many_arguments)]
     fn compilation_and_execution_messages(
         &mut self,
         node_type: NodeType,

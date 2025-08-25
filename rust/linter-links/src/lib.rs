@@ -75,7 +75,8 @@ impl Linter for LinksLinter {
                         messages = Some(vec![CompilationMessage {
                             level: MessageLevel::Info,
                             error_type: Some("Insecure".to_string()),
-                            message: format!("Link uses HTTP; it is probably better to use HTTPS"),
+                            message: "Link uses HTTP; it is probably better to use HTTPS"
+                                .to_string(),
                             ..Default::default()
                         }]);
                     }
@@ -115,11 +116,11 @@ async fn has_internet_connectivity() -> bool {
 
     {
         let cache = CONNECTIVITY_CACHE.lock().await;
-        if let Some((result, timestamp)) = *cache {
-            if timestamp.elapsed().as_secs() < CACHE_DURATION_SECS {
-                tracing::debug!("Connectivity cache hit: {}", result);
-                return result;
-            }
+        if let Some((result, timestamp)) = *cache
+            && timestamp.elapsed().as_secs() < CACHE_DURATION_SECS
+        {
+            tracing::debug!("Connectivity cache hit: {}", result);
+            return result;
         }
     }
 
@@ -197,10 +198,10 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_url_accessibility_return_types() {
+    async fn test_url_accessibility_return_types() -> Result<()> {
         // Test that the function returns the correct types
         // We can't test actual network calls reliably in CI, but we can test the interface
-        let linter = LinksLinter::default();
+        let linter = LinksLinter;
 
         // Test with HTTP URL (should generate insecure warning if network is available)
         let result = linter
@@ -223,16 +224,16 @@ mod tests {
         assert!(result.is_ok());
 
         // Test with non-HTTP URL (should not check)
-        let result = linter
+        let output = linter
             .lint(
                 "mailto:test@example.com",
                 Path::new("test.md"),
                 &LintingOptions::default(),
             )
-            .await;
-        assert!(result.is_ok());
-        let output = result.unwrap();
+            .await?;
         assert!(output.messages.is_none()); // No messages for non-HTTP links
+
+        Ok(())
     }
 
     #[tokio::test]
@@ -240,7 +241,6 @@ mod tests {
         // Test the connectivity check function
         // This will either return true or false depending on network availability
         let has_connectivity = has_internet_connectivity().await;
-        println!("Internet connectivity: {}", has_connectivity);
 
         // Test caching by calling again immediately
         let has_connectivity_cached = has_internet_connectivity().await;
