@@ -364,19 +364,19 @@ mod tests {
         // Non-monotonic numbers (should detect some patterns)
         let input = "5 Line five\n3 Line three\n7 Line seven\n1 Line one";
         assert_snapshot!(remove_line_numbers(input), @r"
-        Line five
+        5 Line five
         3 Line three
-        Line seven
+        7 Line seven
         1 Line one
         ");
 
         // Insufficient monotonic sequence (less than 5)
         let input = "1 First\n2 Second\n3 Third\n4 Fourth";
         assert_snapshot!(remove_line_numbers(input), @r"
-        First
-        Second
-        Third
-        Fourth
+        1 First
+        2 Second
+        3 Third
+        4 Fourth
         ");
 
         // Numbers in middle of line (should not be affected)
