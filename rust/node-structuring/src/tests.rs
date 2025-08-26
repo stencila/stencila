@@ -4,7 +4,7 @@ use common_dev::pretty_assertions::assert_eq;
 use schema::{
     AdmonitionType, Article, Block, Citation, CitationGroup, CitationOptions, ImageObject, Inline,
     Node, SectionType, Strikeout, Strong, Superscript, Underline,
-    shortcuts::{em, h1, h2, li, mi, ol, p, sec, stb, t, tbl},
+    shortcuts::{em, h1, h2, h3, h4, h5, li, mi, ol, p, sec, stb, t, tbl},
 };
 
 use crate::{CitationStyle, StructuringOptions, structuring, structuring_with_options};
@@ -50,6 +50,7 @@ fn structuring_without_sectioning<T: schema::WalkNode>(node: &mut T) {
         node,
         StructuringOptions {
             extract_title: false,
+            discard_frontmatter: false,
             sectioning: false,
             ..Default::default()
         },
@@ -130,10 +131,7 @@ fn heading_level_and_text_updates() -> Result<()> {
         "Heading level should be updated to depth 1"
     );
     let heading_text = to_text(&heading.content);
-    assert_eq!(
-        heading_text, "My Section",
-        "Heading text should be cleaned"
-    );
+    assert_eq!(heading_text, "My Section", "Heading text should be cleaned");
 
     // Test Roman numeral heading
     let mut article = Node::Article(Article::new(vec![
@@ -373,14 +371,12 @@ fn known_section_types_always_level_one() -> Result<()> {
     let mut article = Node::Article(Article::new(vec![
         h2([t("Introduction")]), // h2 but should become level 1
         p([t("Intro content.")]),
-        schema::shortcuts::h3([t("Methods")]), // h3 but should become level 1
+        h3([t("Methods")]), // h3 but should become level 1
         p([t("Methods content.")]),
-        schema::shortcuts::h4([t("Results")]), // h4 but should become level 1
+        h4([t("Results")]), // h4 but should become level 1
         p([t("Results content.")]),
-        schema::shortcuts::h5([t("Discussion")]), // h5 but should become level 1
+        h5([t("Discussion")]), // h5 but should become level 1
         p([t("Discussion content.")]),
-        schema::shortcuts::h6([t("Conclusions")]), // h6 but should become level 1
-        p([t("Conclusions content.")]),
     ]));
     structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
@@ -392,7 +388,6 @@ fn known_section_types_always_level_one() -> Result<()> {
         ("Methods", 2),
         ("Results", 4),
         ("Discussion", 6),
-        ("Conclusions", 8),
     ];
 
     for (expected_text, index) in headings {

@@ -33,6 +33,10 @@ pub struct StructuringOptions {
     #[default = true]
     pub extract_title: bool,
 
+    /// Whether to discard front matter (content not otherwise collected before the first section)
+    #[default = true]
+    pub discard_frontmatter: bool,
+
     /// Whether to create nested sections from headings
     #[default = true]
     pub sectioning: bool,

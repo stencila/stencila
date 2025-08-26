@@ -19,6 +19,9 @@ use crate::{CitationStyle, StructuringOptions};
 /// A type of potential block replacement
 #[derive(Debug)]
 pub(super) enum BlockReplacement {
+    /// Remove empty blocks
+    Empty,
+
     /// Remove the title from the content
     Title,
 
@@ -27,6 +30,9 @@ pub(super) enum BlockReplacement {
 
     /// Remove keywords from the content
     Keywords,
+
+    /// Remove other frontmatter
+    Frontmatter,
 
     /// Remove references (including header) from the content
     References,
@@ -66,6 +72,9 @@ pub(super) struct Collector {
 
     /// The extracted title of the work
     pub title: Option<Vec<Inline>>,
+
+    /// Whether in frontmatter (after title and before first section)
+    in_frontmatter: bool,
 
     /// Whether in an abstract section
     ///
@@ -107,6 +116,7 @@ impl Collector {
     pub fn new(options: StructuringOptions) -> Self {
         Self {
             options,
+            in_frontmatter: true,
             ..Default::default()
         }
     }
@@ -270,6 +280,14 @@ impl Collector {
         // Extract numbering and determine depth
         let (numbering, numbering_depth, cleaned_text) = extract_heading_numbering(&text);
 
+        // Remove empty heading
+        if cleaned_text.is_empty() {
+            self.block_replacements
+                .insert(heading.node_id(), (BlockReplacement::Empty, Vec::new()));
+
+            return WalkControl::Break;
+        }
+
         // Detect section type from cleaned text
         let section_type = SectionType::from_text(&cleaned_text).ok();
 
@@ -278,8 +296,8 @@ impl Collector {
             && self.title.is_none()
             && numbering.is_none()
             && heading.level <= 2 // Heading level 1 or 2
-            && section_type.is_none() // Not a recognized section heading
-            && !cleaned_text.is_empty()
+            && section_type.is_none()
+        // Not a recognized section heading
         {
             self.title = Some(heading.content.drain(..).collect());
 
@@ -288,6 +306,9 @@ impl Collector {
 
             return WalkControl::Break;
         }
+
+        // If not title and hit a heading, then no longer in frontmatter
+        self.in_frontmatter = false;
 
         let cleaned_text_lowercase = cleaned_text.to_lowercase();
 
@@ -397,6 +418,12 @@ impl Collector {
                 self.keywords = Some(words);
                 remove = Some(BlockReplacement::Keywords);
             }
+        }
+
+        // Remove paragrapgraphs in frontmatter (usually authors and
+        // their affiliations)
+        if self.options.discard_frontmatter && self.in_frontmatter {
+            remove = Some(BlockReplacement::Frontmatter);
         }
 
         if self.in_references {
