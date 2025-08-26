@@ -114,11 +114,6 @@ stencila-paragraph {
 
 /* tables, datatable and figures */
 
-stencila-figure {
-  figure {
-    @apply my-4 mx-0;
-  }
-}
 
 stencila-table,
 stencila-datatable {
@@ -170,6 +165,9 @@ stencila-datatable {
 stencila-table,
 stencila-figure,
 stencila-code-chunk {
+  display: block;
+  @apply my-12;
+
   caption {
     @apply text-left;
   }

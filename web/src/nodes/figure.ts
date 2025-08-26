@@ -29,14 +29,6 @@ export class Figure extends Entity {
     return this.renderCard()
   }
 
-  private renderContent() {
-    return html`
-      <figure class="m-0">
-        <slot name="content"></slot>
-      </figure>
-    `
-  }
-
   override renderCard() {
     return html`
       <stencila-ui-block-on-demand
@@ -55,6 +47,14 @@ export class Figure extends Entity {
         </div>
         <div slot="content">${this.renderContent()}</div>
       </stencila-ui-block-on-demand>
+    `
+  }
+
+  private renderContent() {
+    return html`
+      <slot name="id"></slot>
+      <slot name="content"></slot>
+      <slot name="caption"></slot>
     `
   }
 }

@@ -141,6 +141,7 @@ export class CodeChunk extends CodeExecutable {
         </div>
 
         <div slot="content">
+          <slot name="id"></slot>
           ${this.isEchoed && !this.context.cardOpen ? this.renderCode() : ''}
           ${this.isHidden ? '' : this.renderOutputs()}
         </div>

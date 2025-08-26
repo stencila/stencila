@@ -116,6 +116,13 @@ impl DomCodec for CodeChunk {
             context.push_slot_fn("div", "provenance", |context| provenance.to_dom(context));
         }
 
+        if let Some(id) = &self.id {
+            context
+                .enter_slot("div", "id")
+                .push_attr("id", id)
+                .exit_slot();
+        }
+
         if let Some(LabelType::TableLabel) = &self.label_type {
             context.push_slot_fn("div", "caption", |context| {
                 caption_to_dom(context, "table-label", "Table", &self.label, &self.caption)

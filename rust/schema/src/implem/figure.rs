@@ -24,11 +24,17 @@ impl DomCodec for Figure {
             context.push_slot_fn("div", "provenance", |context| provenance.to_dom(context));
         }
 
-        context.enter_elem_attrs("figure", [("slot", "content")]);
+        if let Some(id) = &self.id {
+            context
+                .enter_slot("div", "id")
+                .push_attr("id", id)
+                .exit_slot();
+        }
 
-        self.content.to_dom(context);
+        context.push_slot_fn("figure", "content", |context| self.content.to_dom(context));
 
-        if self.caption.is_some() {
+        // Strictly, <figcaption> should be within <figure> but slots need to be direct children of web components.
+        if self.label.is_some() || self.caption.is_some() {
             context.push_slot_fn("figcaption", "caption", |context| {
                 caption_to_dom(
                     context,
@@ -40,7 +46,7 @@ impl DomCodec for Figure {
             });
         }
 
-        context.exit_elem().exit_node();
+        context.exit_node();
     }
 }
 
