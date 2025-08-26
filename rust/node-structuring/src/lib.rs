@@ -29,6 +29,10 @@ pub enum CitationStyle {
 /// Options for document structuring
 #[derive(Debug, Clone, SmartDefault)]
 pub struct StructuringOptions {
+    /// Whether to extract title from content
+    #[default = true]
+    pub extract_title: bool,
+
     /// Whether to create nested sections from headings
     #[default = true]
     pub sectioning: bool,
@@ -47,7 +51,7 @@ pub fn structuring<T: WalkNode>(node: &mut T) {
 
 /// Add structure to a document with custom options
 pub fn structuring_with_options<T: WalkNode>(node: &mut T, options: StructuringOptions) {
-    let mut collector = Collector::default();
+    let mut collector = Collector::new(options.clone());
     node.walk_mut(&mut collector);
     collector.determine_citation_style(options.citation_style);
 

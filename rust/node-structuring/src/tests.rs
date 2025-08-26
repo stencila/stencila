@@ -49,6 +49,7 @@ fn structuring_without_sectioning<T: schema::WalkNode>(node: &mut T) {
     structuring_with_options(
         node,
         StructuringOptions {
+            extract_title: false,
             sectioning: false,
             ..Default::default()
         },
@@ -114,8 +115,8 @@ fn heading_level_and_text_updates() -> Result<()> {
 
     // Test lettered heading - should update both level and content
     let mut article = Node::Article(Article::new(vec![
-        h1([t("A. Bibliography")]),
-        p([t("Reference entry here.")]),
+        h2([t("A. My Section")]),
+        p([t("Section content.")]),
     ]));
     structuring_without_sectioning(&mut article);
     let Node::Article(Article { content, .. }) = article else {
@@ -130,7 +131,7 @@ fn heading_level_and_text_updates() -> Result<()> {
     );
     let heading_text = to_text(&heading.content);
     assert_eq!(
-        heading_text, "Bibliography",
+        heading_text, "My Section",
         "Heading text should be cleaned"
     );
 
@@ -1208,7 +1209,7 @@ fn image_and_caption_edge_cases() -> Result<()> {
         p([t("FIGURE 1. Uppercase caption.")]),
     ]));
 
-    structuring(&mut article1);
+    structuring_without_sectioning(&mut article1);
 
     let Node::Article(Article { content, .. }) = article1 else {
         bail!("Should be an article")
@@ -1263,7 +1264,7 @@ fn image_and_caption_edge_cases() -> Result<()> {
         )]),
     ])]));
 
-    structuring(&mut article_nested);
+    structuring_without_sectioning(&mut article_nested);
 
     let Node::Article(Article { content, .. }) = article_nested else {
         bail!("Should be an article")
@@ -1317,7 +1318,7 @@ fn nested_figures_in_various_blocks() -> Result<()> {
         ],
     )]));
 
-    structuring(&mut article1);
+    structuring_without_sectioning(&mut article1);
 
     let Node::Article(Article { content, .. }) = article1 else {
         bail!("Should be an article")
@@ -1353,7 +1354,7 @@ fn nested_figures_in_various_blocks() -> Result<()> {
         [imb("styled.jpg"), p([t("Fig 2: Caption in styled block.")])],
     )]));
 
-    structuring(&mut article2);
+    structuring_without_sectioning(&mut article2);
 
     let Node::Article(Article { content, .. }) = article2 else {
         bail!("Should be an article")
@@ -1389,7 +1390,7 @@ fn nested_figures_in_various_blocks() -> Result<()> {
         ]),
     ])]));
 
-    structuring(&mut article3);
+    structuring_without_sectioning(&mut article3);
 
     let Node::Article(Article { content, .. }) = article3 else {
         bail!("Should be an article")

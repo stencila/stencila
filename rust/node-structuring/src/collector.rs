@@ -14,7 +14,7 @@ use schema::{
     VisitorMut, WalkControl, shortcuts::t,
 };
 
-use crate::CitationStyle;
+use crate::{CitationStyle, StructuringOptions};
 
 /// A type of potential block replacement
 #[derive(Debug)]
@@ -55,17 +55,14 @@ pub(super) enum InlineReplacement {
 /// Walks over the node collecting replacements, citations and references
 #[derive(Debug, Default)]
 pub(super) struct Collector {
+    /// The structuring options
+    options: StructuringOptions,
+
     /// Replacements for block nodes
     pub block_replacements: HashMap<NodeId, (BlockReplacement, Vec<Block>)>,
 
     /// Replacements for inline nodes
     pub inline_replacements: HashMap<NodeId, (InlineReplacement, Vec<Inline>)>,
-
-    /// Whether a title should be extracted
-    ///
-    /// The first heading is only extracted as a title if the article does not yet have one.
-    /// Otherwise, it is left in place.
-    should_extract_title: bool,
 
     /// The extracted title of the work
     pub title: Option<Vec<Inline>>,
@@ -106,13 +103,18 @@ pub(super) struct Collector {
     last_numbered_level: Option<i64>,
 }
 
+impl Collector {
+    pub fn new(options: StructuringOptions) -> Self {
+        Self {
+            options,
+            ..Default::default()
+        }
+    }
+}
+
 impl VisitorMut for Collector {
     fn visit_node(&mut self, node: &mut Node) -> WalkControl {
-        if let Node::Article(Article { title, content, .. }) = node {
-            if title.is_none() {
-                self.should_extract_title = true;
-            }
-
+        if let Node::Article(Article { content, .. }) = node {
             self.visit_blocks(content);
         }
 
@@ -272,12 +274,12 @@ impl Collector {
         let section_type = SectionType::from_text(&cleaned_text).ok();
 
         // Extract title
-        if self.should_extract_title
+        if self.options.extract_title
             && self.title.is_none()
             && numbering.is_none()
             && heading.level <= 2 // Heading level 1 or 2
             && section_type.is_none() // Not a recognized section heading
-            && !cleaned_text.is_empty() // Is not empty
+            && !cleaned_text.is_empty()
         {
             self.title = Some(heading.content.drain(..).collect());
 
