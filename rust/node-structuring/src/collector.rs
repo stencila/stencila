@@ -609,6 +609,7 @@ fn is_top_level_section_type(section_type: &SectionType) -> bool {
             | SectionType::Methods
             | SectionType::Results
             | SectionType::Discussion
+            | SectionType::Conclusions
             | SectionType::References
             | SectionType::Acknowledgements
             | SectionType::Funding
