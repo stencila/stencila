@@ -101,16 +101,19 @@ fn internal_link(input: &mut &str) -> ParserResult<Link> {
         .take(),
         take_while(1.., |c: char| c.is_alphanumeric() || c == '-' || c == '_'),
     )
+        .verify(|(_, label): &(&str, &str)| is_valid_reference_label(label))
         .map(|(label_type, label): (&str, &str)| {
             // For figures and tables, strip letter suffixes from the target
             // but preserve the original label in the content
-            let target_label = if label_type.to_lowercase().starts_with("fig") || label_type.to_lowercase().starts_with("tab") {
+            let target_label = if label_type.to_lowercase().starts_with("fig")
+                || label_type.to_lowercase().starts_with("tab")
+            {
                 // Remove letter suffixes after numbers (e.g., "1B" -> "1", "2A" -> "2")
                 strip_letter_suffix(label)
             } else {
                 label.to_string()
             };
-            
+
             let id = target_label.to_kebab_case();
 
             let target = if label_type.to_lowercase().starts_with("fig") {
@@ -136,20 +139,101 @@ fn internal_link(input: &mut &str) -> ParserResult<Link> {
         .parse_next(input)
 }
 
+/// Validate that a reference label contains at least one digit and no more than 3 trailing letters
+/// This helps avoid false positives like "This table describes" or "See figure below"
+/// Special exception: single letters (A, B, C, etc.) are valid for appendices
+fn is_valid_reference_label(label: &str) -> bool {
+    // Single letters are valid (for appendices like "Appendix A")
+    if label.len() == 1
+        && let Some(ch) = label.chars().next()
+        && ch.is_alphabetic()
+    {
+        return true;
+    }
+
+    // Word numbers followed by hyphen and letter are valid (e.g., "Two-A")
+    let word_numbers = [
+        "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+    ];
+    let lower_label = label.to_lowercase();
+    for word_num in word_numbers {
+        if lower_label.starts_with(word_num)
+            && lower_label.len() > word_num.len() + 1
+            && lower_label.chars().nth(word_num.len()) == Some('-')
+        {
+            let suffix = &lower_label[word_num.len() + 1..];
+            // Allow up to 3 letters after hyphen
+            if suffix.len() <= 3 && suffix.chars().all(|c| c.is_alphabetic()) {
+                return true;
+            }
+        }
+    }
+
+    // Must contain at least one digit otherwise
+    let has_digit = label.chars().any(|c| c.is_ascii_digit());
+    if !has_digit {
+        return false;
+    }
+
+    // Count trailing characters after the last digit
+    if let Some(last_digit_pos) = label
+        .char_indices()
+        .rev()
+        .find(|(_, c)| c.is_ascii_digit())
+        .map(|(i, _)| i)
+    {
+        let after_digit = &label[last_digit_pos + 1..];
+
+        if !after_digit.is_empty() {
+            // Check for patterns like "1-A", "1_B" (hyphen/underscore + letters)
+            if after_digit.starts_with('-') || after_digit.starts_with('_') {
+                let suffix = &after_digit[1..];
+                // Allow up to 3 letters after hyphen/underscore
+                if suffix.len() > 3 || !suffix.chars().all(|c| c.is_alphabetic()) {
+                    return false;
+                }
+            } else {
+                // Direct letter suffixes like "1A", "1AB", "1ABC"
+                if after_digit.len() > 3 || !after_digit.chars().all(|c| c.is_alphabetic()) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    // Reject patterns where letters are followed by more digits (e.g., "1ABCD2")
+    let chars: Vec<char> = label.chars().collect();
+    for i in 0..chars.len() - 1 {
+        if chars[i].is_ascii_alphabetic() && chars[i + 1].is_ascii_digit() {
+            // Check if there was a digit before this letter sequence
+            if (0..i).any(|j| chars[j].is_ascii_digit()) {
+                return false;
+            }
+        }
+    }
+
+    true
+}
+
 /// Strip letter suffixes from figure/table labels to get the base number
-/// 
+///
 /// Examples: "1B" -> "1", "2A" -> "2", "10C" -> "10", "Two-A" -> "Two", "S1" -> "S1" (no change)
 fn strip_letter_suffix(label: &str) -> String {
     // Look for patterns like "number+letters" or "word-letter" at the end
-    
+
     // First try: digit followed by letters at the end
-    if let Some(last_digit_pos) = label.char_indices().rev().find(|(_, c)| c.is_ascii_digit()).map(|(i, _)| i) {
+    if let Some(last_digit_pos) = label
+        .char_indices()
+        .rev()
+        .find(|(_, c)| c.is_ascii_digit())
+        .map(|(i, _)| i)
+    {
         let after_digit = &label[last_digit_pos + 1..];
         if after_digit.chars().all(|c| c.is_ascii_alphabetic()) && !after_digit.is_empty() {
             return label[..last_digit_pos + 1].to_string();
         }
     }
-    
+
     // Second try: hyphen followed by single letters at the end (e.g., "Two-A")
     if let Some(hyphen_pos) = label.rfind('-') {
         let after_hyphen = &label[hyphen_pos + 1..];
@@ -157,7 +241,7 @@ fn strip_letter_suffix(label: &str) -> String {
             return label[..hyphen_pos].to_string();
         }
     }
-    
+
     // No pattern found, return as-is
     label.to_string()
 }
@@ -277,7 +361,7 @@ mod tests {
         assert_eq!(result.target, "#fig-1");
         assert_eq!(result.content, vec![t("Figure 1B")]);
 
-        // Test table with letter suffix - should strip suffix from target  
+        // Test table with letter suffix - should strip suffix from target
         let result = internal_link(&mut "Table 5A")?;
         assert_eq!(result.target, "#tab-5");
         assert_eq!(result.content, vec![t("Table 5A")]);
@@ -592,6 +676,102 @@ mod tests {
         } else {
             panic!("Expected Link");
         }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_is_valid_reference_label() {
+        // Valid labels with digits
+        assert!(is_valid_reference_label("1"));
+        assert!(is_valid_reference_label("10"));
+        assert!(is_valid_reference_label("1A"));
+        assert!(is_valid_reference_label("1B"));
+        assert!(is_valid_reference_label("10AB"));
+        assert!(is_valid_reference_label("S1"));
+        assert!(is_valid_reference_label("S1A"));
+        assert!(is_valid_reference_label("Two-1"));
+        assert!(is_valid_reference_label("A1"));
+        assert!(is_valid_reference_label("123ABC")); // 3 letters max
+        assert!(is_valid_reference_label("Two-A")); // Word number with suffix
+        assert!(is_valid_reference_label("three-BC")); // Word number with suffix
+
+        // Invalid labels without digits (except single letters and word numbers)
+        assert!(!is_valid_reference_label("below"));
+        assert!(!is_valid_reference_label("above"));
+        assert!(is_valid_reference_label("A")); // Single letters are valid now
+        assert!(!is_valid_reference_label("ABC")); // Multiple letters without digits are not
+        assert!(!is_valid_reference_label("text"));
+
+        // Invalid labels with false positive patterns
+        assert!(!is_valid_reference_label("below"));
+        assert!(!is_valid_reference_label("above"));
+        assert!(!is_valid_reference_label("describes"));
+        assert!(!is_valid_reference_label("shows"));
+        assert!(!is_valid_reference_label("illustrates"));
+
+        // Invalid labels with too many trailing letters
+        assert!(!is_valid_reference_label("1ABCD")); // More than 3 letters
+        assert!(!is_valid_reference_label("10ABCDE")); // More than 3 letters
+
+        // Edge cases
+        assert!(is_valid_reference_label("1-A"));
+        assert!(is_valid_reference_label("1_B"));
+        assert!(!is_valid_reference_label("1ABCD2")); // Letters followed by another digit
+    }
+
+    #[test]
+    fn test_false_positive_rejection() -> ParserResult<()> {
+        // These should NOT parse as links (false positives)
+        assert!(internal_link(&mut "Figure below").is_err());
+        assert!(internal_link(&mut "Table above").is_err());
+        assert!(internal_link(&mut "Figure describes").is_err());
+        assert!(internal_link(&mut "Table shows").is_err());
+        assert!(internal_link(&mut "Figure illustrates").is_err());
+        assert!(internal_link(&mut "Appendix below").is_err());
+        assert!(internal_link(&mut "Equation above").is_err());
+
+        // Labels without digits should be rejected (except single letters)
+        assert!(internal_link(&mut "Figure A").is_ok()); // Single letters are now valid
+        assert!(internal_link(&mut "Table ABC").is_err()); // Multiple letters still rejected
+        assert!(internal_link(&mut "Appendix XYZ").is_err());
+
+        // Labels with too many trailing letters should be rejected
+        assert!(internal_link(&mut "Figure 1ABCD").is_err());
+        assert!(internal_link(&mut "Table 10ABCDE").is_err());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_text_with_false_positives() -> ParserResult<()> {
+        // Text that should NOT have links parsed out
+        let result = text_with_links(&mut "This table describes the methodology")?;
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0], t("This table describes the methodology"));
+
+        let result = text_with_links(&mut "See figure below for details")?;
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0], t("See figure below for details"));
+
+        let result = text_with_links(&mut "The appendix above contains more info")?;
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0], t("The appendix above contains more info"));
+
+        // Mixed case - use a multi-letter example that should still be rejected
+        let result = text_with_links(&mut "Figure ABC shows the results")?;
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0], t("Figure ABC shows the results"));
+
+        // But valid references should still work
+        let result = text_with_links(&mut "Figure 1 shows the results")?;
+        assert_eq!(result.len(), 2); // Should be 2: [Link, Text] since it starts with the link
+        if let Inline::Link(link) = &result[0] {
+            assert_eq!(link.target, "#fig-1");
+        } else {
+            panic!("Expected Link");
+        }
+        assert_eq!(result[1], t(" shows the results"));
 
         Ok(())
     }
