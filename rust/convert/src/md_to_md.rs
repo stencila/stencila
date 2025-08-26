@@ -25,8 +25,8 @@ pub fn clean_md(md: &str) -> String {
     let md = remove_extra_blank_lines(&md);
     let md = remove_heading_formatting(&md);
     let md = ensure_isolated_blocks(&md);
-    let md = ensure_isolated_references(&md);
-    md
+
+    ensure_isolated_references(&md)
 }
 
 /// Remove line numbers

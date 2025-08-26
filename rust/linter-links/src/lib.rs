@@ -75,8 +75,7 @@ impl Linter for LinksLinter {
                         messages = Some(vec![CompilationMessage {
                             level: MessageLevel::Info,
                             error_type: Some("Insecure".to_string()),
-                            message: "Use HTTPS instead of HTTP if possible"
-                                .to_string(),
+                            message: "Use HTTPS instead of HTTP if possible".to_string(),
                             ..Default::default()
                         }]);
                     }
