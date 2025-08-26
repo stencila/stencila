@@ -268,11 +268,16 @@ impl Collector {
         // Extract numbering and determine depth
         let (numbering, numbering_depth, cleaned_text) = extract_heading_numbering(&text);
 
+        // Detect section type from cleaned text
+        let section_type = SectionType::from_text(&cleaned_text).ok();
+
         // Extract title
         if self.should_extract_title
             && self.title.is_none()
             && numbering.is_none()
-            && heading.level == 1
+            && heading.level <= 2 // Heading level 1 or 2
+            && section_type.is_none() // Not a recognized section heading
+            && !cleaned_text.is_empty() // Is not empty
         {
             self.title = Some(heading.content.drain(..).collect());
 
@@ -282,8 +287,10 @@ impl Collector {
             return WalkControl::Break;
         }
 
+        let cleaned_text_lowercase = cleaned_text.to_lowercase();
+
         // Determine if in abstract section
-        if cleaned_text.to_lowercase() == "abstract" {
+        if cleaned_text_lowercase == "abstract" {
             self.in_abstract = true;
             self.block_replacements
                 .insert(heading.node_id(), (BlockReplacement::Abstract, Vec::new()));
@@ -292,16 +299,13 @@ impl Collector {
         }
 
         // Determine if in keywords section
-        if cleaned_text.to_lowercase() == "keywords" {
+        if cleaned_text_lowercase == "keywords" || cleaned_text_lowercase == "key words" {
             self.in_keywords = true;
             self.block_replacements
                 .insert(heading.node_id(), (BlockReplacement::Keywords, Vec::new()));
         } else {
             self.in_keywords = false;
         }
-
-        // Detect section type from cleaned text
-        let section_type = SectionType::from_text(&cleaned_text).ok();
 
         // Determine effective level based on priority: known section types > numbering > fallback
         let level = if section_type.is_some() {
