@@ -310,8 +310,12 @@ impl Collector {
         }
 
         // Determine effective level based on priority: known section types > numbering > fallback
-        let level = if section_type.is_some() {
-            // Known section types always get level 1
+        let level = if section_type
+            .as_ref()
+            .map(is_top_level_section_type)
+            .unwrap_or_default()
+        {
+            // Known top-level section types always get level 1
             1
         } else if numbering_depth > 0 {
             let numbered_level = numbering_depth as i64;
@@ -546,6 +550,32 @@ impl Collector {
             Some(AuthorYearCitations)
         };
     }
+}
+
+/// Check if a section type should always be forced to level 1 (top-level sections)
+fn is_top_level_section_type(section_type: &SectionType) -> bool {
+    matches!(
+        section_type,
+        SectionType::Abstract
+            | SectionType::Introduction
+            | SectionType::Materials
+            | SectionType::Methods
+            | SectionType::Results
+            | SectionType::Discussion
+            | SectionType::References
+            | SectionType::Acknowledgements
+            | SectionType::Funding
+            | SectionType::CompetingInterests
+            | SectionType::AuthorContributions
+            | SectionType::DataAvailability
+            | SectionType::CodeAvailability
+            | SectionType::Ethics
+            | SectionType::ConsentStatements
+            | SectionType::Reproducibility
+            | SectionType::Preregistration
+            | SectionType::SupplementaryMaterials
+            | SectionType::Appendix
+    )
 }
 
 /// Detect if a paragraph matches a figure caption pattern
