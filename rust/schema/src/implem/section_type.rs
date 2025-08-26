@@ -11,6 +11,20 @@ impl SectionType {
             return Ok(Appendix);
         }
 
+        if trimmed == "discussion" || trimmed.starts_with("discussion and") {
+            return Ok(Discussion);
+        }
+
+        if (trimmed.starts_with("supplementary ") || trimmed.starts_with("supporting "))
+            && (trimmed.ends_with(" materials")
+                || trimmed.ends_with(" material")
+                || trimmed.ends_with(" information")
+                || trimmed.ends_with(" data")
+                || trimmed.ends_with(" files"))
+        {
+            return Ok(SupplementaryMaterials);
+        }
+
         Ok(match trimmed {
             // --- Front matter ---
             "abstract" => Abstract,
@@ -24,6 +38,8 @@ impl SectionType {
             | "significance statement"
             | "public summary" => NonTechnicalSummary,
 
+            "highlights" | "key points" | "key findings" | "key messages" => Highlights,
+
             "introduction" | "intro" => Introduction,
 
             "background"
@@ -33,10 +49,10 @@ impl SectionType {
 
             "related work" | "prior work" | "literature review" | "state of the art" => RelatedWork,
 
-            // --- Methods & setup ---
-            "materials" | "materials and methods" | "material and methods" => Materials,
-
+            // --- Methods & materials ---
             "methods" | "methodology" | "experimental methods" | "methods and materials" => Methods,
+
+            "materials" | "materials and methods" | "material and methods" => Materials,
 
             "experimental design"
             | "experimental setup"
@@ -60,8 +76,6 @@ impl SectionType {
 
             // --- Results & interpretation ---
             "results" | "findings" => Results,
-
-            "discussion" | "analysis" => Discussion,
 
             "limitations" | "study limitations" | "threats to validity" => Limitations,
 
@@ -141,7 +155,6 @@ impl SectionType {
             | "open science statement"
             | "availability and reproducibility" => Reproducibility,
 
-            // --- Additional scholarly sections ---
             "author contributions"
             | "contributions"
             | "contributors"
@@ -155,16 +168,7 @@ impl SectionType {
             "preregistration" | "pre-registration" | "registered report" | "study registration"
             | "trial registration" | "registration" => Preregistration,
 
-            "highlights" | "key points" | "key findings" | "key messages" => Highlights,
-
-            // --- Back matter / structural ---
-            "supplementary materials"
-            | "supplementary material"
-            | "supporting information"
-            | "supporting material"
-            | "supplementary data"
-            | "supplementary files" => SupplementaryMaterials,
-
+            // Structural
             "main" | "main text" => Main,
             "header" => Header,
             "footer" => Footer,
