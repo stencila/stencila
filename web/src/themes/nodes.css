@@ -169,9 +169,9 @@ stencila-code-chunk:not([root]) {
   @apply my-12;
 }
 
-stencila-table[root],
-stencila-figure[root],
-stencila-code-chunk[root] {
+stencila-table,
+stencila-figure,
+stencila-code-chunk {
   caption {
     @apply text-left;
   }
