@@ -2,9 +2,9 @@ use codec_text_trait::to_text;
 use common::eyre::{Result, bail};
 use common_dev::pretty_assertions::assert_eq;
 use schema::{
-    AdmonitionType, Article, Block, ImageObject, Inline, Node, SectionType, Strikeout, Strong,
-    Superscript, Underline,
-    shortcuts::{ct, ctg, em, h1, h2, li, mi, ol, p, sec, stb, t, tbl},
+    AdmonitionType, Article, Block, Citation, CitationGroup, CitationOptions, ImageObject, Inline,
+    Node, SectionType, Strikeout, Strong, Superscript, Underline,
+    shortcuts::{em, h1, h2, li, mi, ol, p, sec, stb, t, tbl},
 };
 
 use crate::{CitationStyle, StructuringOptions, structuring, structuring_with_options};
@@ -13,6 +13,35 @@ use crate::{CitationStyle, StructuringOptions, structuring, structuring_with_opt
 /// no shortcut for that
 fn imb(url: &str) -> Block {
     Block::ImageObject(ImageObject::new(url.into()))
+}
+
+/// Shortcut for create a [`Citation`] with content
+fn ct(target: &str, content: &str) -> Inline {
+    Inline::Citation(Citation {
+        target: target.to_string(),
+        options: Box::new(CitationOptions {
+            content: Some(vec![t(content)]),
+            ..Default::default()
+        }),
+        ..Default::default()
+    })
+}
+
+/// Shortcut for create a [`Citation`] with content
+fn ctg<const N: usize>(citations: [(&str, &str); N]) -> Inline {
+    Inline::CitationGroup(CitationGroup::new(
+        citations
+            .into_iter()
+            .map(|(target, content)| Citation {
+                target: target.to_string(),
+                options: Box::new(CitationOptions {
+                    content: Some(vec![t(content)]),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            })
+            .collect(),
+    ))
 }
 
 /// Shortcut for running structuring without sectioning
@@ -731,37 +760,51 @@ fn math_inline_to_citation() {
     // Simple superscript citation
     let mut node = p([mi("{ }^{1}", Some("tex"))]);
     structuring_with_superscripted(&mut node);
-    assert_eq!(node, p([ct("ref-1")]));
+    assert_eq!(node, p([ct("ref-1", "1")]));
 
     // Range expansion in superscript
     let mut node = p([mi("{ }^{1-3}", Some("tex"))]);
     structuring_with_superscripted(&mut node);
-    assert_eq!(node, p([ctg(["ref-1", "ref-2", "ref-3"])]));
+    assert_eq!(
+        node,
+        p([ctg([("ref-1", "1"), ("ref-2", "2"), ("ref-3", "3")])])
+    );
 
     // Bracketed citation
     let mut node = p([mi("[5]", Some("tex"))]);
     structuring_with_bracketed(&mut node);
-    assert_eq!(node, p([ct("ref-5")]));
+    assert_eq!(node, p([ct("ref-5", "5")]));
 
     // Parentheses citation
     let mut node = p([mi("(7)", Some("tex"))]);
     structuring_with_parenthetic(&mut node);
-    assert_eq!(node, p([ct("ref-7")]));
+    assert_eq!(node, p([ct("ref-7", "7")]));
 
     // Comma-separated citations in brackets
     let mut node = p([mi("[1,3,5]", Some("tex"))]);
     structuring_with_bracketed(&mut node);
-    assert_eq!(node, p([ctg(["ref-1", "ref-3", "ref-5"])]));
+    assert_eq!(
+        node,
+        p([ctg([("ref-1", "1"), ("ref-3", "3"), ("ref-5", "5")])])
+    );
 
     // Mixed range and individual citations
     let mut node = p([mi("{ }^{2-4,8}", Some("tex"))]);
     structuring_with_superscripted(&mut node);
-    assert_eq!(node, p([ctg(["ref-2", "ref-3", "ref-4", "ref-8"])]));
+    assert_eq!(
+        node,
+        p([ctg([
+            ("ref-2", "2"),
+            ("ref-3", "3"),
+            ("ref-4", "4"),
+            ("ref-8", "8")
+        ])])
+    );
 
     // Citations with whitespace in parentheses
     let mut node = p([mi("( 10 , 12 )", Some("tex"))]);
     structuring_with_parenthetic(&mut node);
-    assert_eq!(node, p([ctg(["ref-10", "ref-12"])]));
+    assert_eq!(node, p([ctg([("ref-10", "10"), ("ref-12", "12")])]));
 
     // Complex range with multiple parts
     let mut node = p([mi("[15-17,20,25-27]", Some("tex"))]);
@@ -769,7 +812,13 @@ fn math_inline_to_citation() {
     assert_eq!(
         node,
         p([ctg([
-            "ref-15", "ref-16", "ref-17", "ref-20", "ref-25", "ref-26", "ref-27"
+            ("ref-15", "15"),
+            ("ref-16", "16"),
+            ("ref-17", "17"),
+            ("ref-20", "20"),
+            ("ref-25", "25"),
+            ("ref-26", "26"),
+            ("ref-27", "27")
         ])])
     );
 
@@ -786,12 +835,18 @@ fn math_inline_to_citation() {
     // Test en dash in math
     let mut node = p([mi("{ }^{2–4}", Some("tex"))]);
     structuring_with_superscripted(&mut node);
-    assert_eq!(node, p([ctg(["ref-2", "ref-3", "ref-4"])]));
+    assert_eq!(
+        node,
+        p([ctg([("ref-2", "2"), ("ref-3", "3"), ("ref-4", "4")])])
+    );
 
     // Test em dash in math
     let mut node = p([mi("[15—17]", Some("tex"))]);
     structuring_with_bracketed(&mut node);
-    assert_eq!(node, p([ctg(["ref-15", "ref-16", "ref-17"])]));
+    assert_eq!(
+        node,
+        p([ctg([("ref-15", "15"), ("ref-16", "16"), ("ref-17", "17")])])
+    );
 }
 
 #[test]
@@ -801,7 +856,7 @@ fn text_to_citations() {
     structuring_with_bracketed(&mut node);
     assert_eq!(
         node,
-        p([t("See reference "), ct("ref-1"), t(" for details.")])
+        p([t("See reference "), ct("ref-1", "1"), t(" for details.")])
     );
 
     // Simple parenthetical citation
@@ -811,7 +866,7 @@ fn text_to_citations() {
         node,
         p([
             t("This is documented "),
-            ct("ref-5"),
+            ct("ref-5", "5"),
             t(" in the literature.")
         ])
     );
@@ -823,7 +878,7 @@ fn text_to_citations() {
         node,
         p([
             t("Studies "),
-            ctg(["ref-1", "ref-2", "ref-3"]),
+            ctg([("ref-1", "1"), ("ref-2", "2"), ("ref-3", "3")]),
             t(" show consistent results.")
         ])
     );
@@ -835,7 +890,7 @@ fn text_to_citations() {
         node,
         p([
             t("Multiple sources "),
-            ctg(["ref-1", "ref-3", "ref-5"]),
+            ctg([("ref-1", "1"), ("ref-3", "3"), ("ref-5", "5")]),
             t(" confirm this.")
         ])
     );
@@ -847,7 +902,12 @@ fn text_to_citations() {
         node,
         p([
             t("References "),
-            ctg(["ref-2", "ref-3", "ref-4", "ref-8"]),
+            ctg([
+                ("ref-2", "2"),
+                ("ref-3", "3"),
+                ("ref-4", "4"),
+                ("ref-8", "8")
+            ]),
             t(" are relevant.")
         ])
     );
@@ -859,7 +919,7 @@ fn text_to_citations() {
         node,
         p([
             t("See "),
-            ctg(["ref-10", "ref-12"]),
+            ctg([("ref-10", "10"), ("ref-12", "12")]),
             t(" for more information.")
         ])
     );
@@ -871,9 +931,9 @@ fn text_to_citations() {
         node,
         p([
             t("First "),
-            ct("ref-1"),
+            ct("ref-1", "1"),
             t(" and second "),
-            ct("ref-3"),
+            ct("ref-3", "3"),
             t(" citations.")
         ])
     );
@@ -886,7 +946,13 @@ fn text_to_citations() {
         p([
             t("Studies "),
             ctg([
-                "ref-15", "ref-16", "ref-17", "ref-20", "ref-25", "ref-26", "ref-27"
+                ("ref-15", "15"),
+                ("ref-16", "16"),
+                ("ref-17", "17"),
+                ("ref-20", "20"),
+                ("ref-25", "25"),
+                ("ref-26", "26"),
+                ("ref-27", "27")
             ]),
             t(" are comprehensive.")
         ])
@@ -914,7 +980,7 @@ fn text_to_citations() {
         node,
         p([
             t("Studies "),
-            ctg(["ref-1", "ref-2", "ref-3"]),
+            ctg([("ref-1", "1"), ("ref-2", "2"), ("ref-3", "3")]),
             t(" show consistent results.")
         ])
     );
@@ -926,7 +992,12 @@ fn text_to_citations() {
         node,
         p([
             t("References "),
-            ctg(["ref-2", "ref-3", "ref-4", "ref-8"]),
+            ctg([
+                ("ref-2", "2"),
+                ("ref-3", "3"),
+                ("ref-4", "4"),
+                ("ref-8", "8")
+            ]),
             t(" are relevant.")
         ])
     );
@@ -938,7 +1009,14 @@ fn text_to_citations() {
         node,
         p([
             t("Multiple "),
-            ctg(["ref-1", "ref-2", "ref-3", "ref-5", "ref-6", "ref-7"]),
+            ctg([
+                ("ref-1", "1"),
+                ("ref-2", "2"),
+                ("ref-3", "3"),
+                ("ref-5", "5"),
+                ("ref-6", "6"),
+                ("ref-7", "7")
+            ]),
             t(" citations.")
         ])
     );
