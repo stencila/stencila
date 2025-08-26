@@ -415,16 +415,48 @@ fn numeric_citation(num: u32) -> Citation {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use codec::schema::shortcuts::{ct, ctg};
     use common_dev::pretty_assertions::assert_eq;
 
-    // Shortcut for a narrative citation
-    fn ctn(target: &str) -> Inline {
+    // Shortcut for a narrative citation with content
+    fn ctn(target: &str, content: &str) -> Inline {
         Inline::Citation(Citation {
             target: target.into(),
             citation_mode: Some(CitationMode::Narrative),
+            options: Box::new(CitationOptions {
+                content: Some(vec![t(content)]),
+                ..Default::default()
+            }),
             ..Default::default()
         })
+    }
+
+    // Shortcut for a parenthetical citation with content
+    fn ctp(target: &str, content: &str) -> Inline {
+        Inline::Citation(Citation {
+            target: target.into(),
+            options: Box::new(CitationOptions {
+                content: Some(vec![t(content)]),
+                ..Default::default()
+            }),
+            ..Default::default()
+        })
+    }
+
+    /// Shortcut for a [`Citation`] with content
+    fn ctg<const N: usize>(citations: [(&str, &str); N]) -> Inline {
+        Inline::CitationGroup(CitationGroup::new(
+            citations
+                .into_iter()
+                .map(|(target, content)| Citation {
+                    target: target.to_string(),
+                    options: Box::new(CitationOptions {
+                        content: Some(vec![t(content)]),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                })
+                .collect(),
+        ))
     }
 
     #[test]
@@ -433,14 +465,22 @@ mod tests {
         let inlines = author_year_and_text(&mut "According to Smith (1990),..")?;
         assert_eq!(
             inlines,
-            vec![t("According to "), ctn("smith-1990"), t(",..")]
+            vec![
+                t("According to "),
+                ctn("smith-1990", "Smith (1990)"),
+                t(",..")
+            ]
         );
 
         // Simple text with parenthetical citation
         let inlines = author_year_and_text(&mut "The theory holds (Smith 1990).")?;
         assert_eq!(
             inlines,
-            vec![t("The theory holds "), ct("smith-1990"), t(".")]
+            vec![
+                t("The theory holds "),
+                ctp("smith-1990", "Smith, 1990"),
+                t(".")
+            ]
         );
 
         // Simple text with citation group using semicolon separator
@@ -449,7 +489,7 @@ mod tests {
             inlines,
             vec![
                 t("The theory holds "),
-                ctg(["smith-1990", "jones-1991"]),
+                ctg([("smith-1990", "Smith, 1990"), ("jones-1991", "Jones, 1991")]),
                 t(".")
             ]
         );
@@ -460,9 +500,9 @@ mod tests {
         assert_eq!(
             inlines,
             vec![
-                ctn("smith-1990"),
+                ctn("smith-1990", "Smith (1990)"),
                 t(" argued that "),
-                ctn("jones-2000"),
+                ctn("jones-2000", "Jones (2000)"),
                 t(" was correct.")
             ]
         );
@@ -474,9 +514,9 @@ mod tests {
             inlines,
             vec![
                 t(". From "),
-                ctn("brown-1995"),
+                ctn("brown-1995", "Brown (1995)"),
                 t("! See "),
-                ctn("smith-2010a"),
+                ctn("smith-2010a", "Smith (2010a)"),
                 t(".")
             ]
         );
@@ -488,9 +528,9 @@ mod tests {
             inlines,
             vec![
                 t("Studies show "),
-                ct("brown-1995"),
+                ctp("brown-1995", "Brown, 1995"),
                 t(" and "),
-                ct("wilson-2001"),
+                ctp("wilson-2001", "Wilson, 2001"),
                 t(" findings.")
             ]
         );
@@ -503,9 +543,12 @@ mod tests {
             inlines,
             vec![
                 t("According to "),
-                ctn("davis-2010"),
+                ctn("davis-2010", "Davis (2010)"),
                 t(", multiple studies "),
-                ctg(["taylor-2015", "miller-2020"]),
+                ctg([
+                    ("taylor-2015", "Taylor, 2015"),
+                    ("miller-2020", "Miller, 2020")
+                ]),
                 t(" confirm this.")
             ]
         );
@@ -524,7 +567,7 @@ mod tests {
         assert_eq!(
             inlines,
             vec![
-                ctn("smith-1990"),
+                ctn("smith-1990", "Smith (1990)"),
                 t(" was the first to discover this phenomenon.")
             ]
         );
@@ -533,7 +576,10 @@ mod tests {
         let inlines = author_year_and_text(&mut "This discovery was made by Smith (1990)")?;
         assert_eq!(
             inlines,
-            vec![t("This discovery was made by "), ctn("smith-1990")]
+            vec![
+                t("This discovery was made by "),
+                ctn("smith-1990", "Smith (1990)")
+            ]
         );
 
         // Text with citation containing prefixes and suffixes
@@ -562,7 +608,7 @@ mod tests {
             inlines,
             vec![
                 t("The study "),
-                ct("smith-1990"),
+                ctp("smith-1990", "Smith, 1990"),
                 t(" shows: important findings!")
             ]
         );
@@ -586,7 +632,7 @@ mod tests {
             inlines,
             vec![
                 t("Studies by "),
-                ctn("johnson-et-al-2019"),
+                ctn("johnson-et-al-2019", "Johnson et al. (2019)"),
                 t(" show interesting results.")
             ]
         );
@@ -598,7 +644,7 @@ mod tests {
             inlines,
             vec![
                 t("The work of "),
-                ctn("smith-and-jones-1995"),
+                ctn("smith-and-jones-1995", "Smith and Jones (1995)"),
                 t(" was groundbreaking.")
             ]
         );
@@ -611,7 +657,11 @@ mod tests {
             inlines,
             vec![
                 t("Multiple studies "),
-                ctg(["brown-2010", "davis-2015", "wilson-2020"]),
+                ctg([
+                    ("brown-2010", "Brown, 2010"),
+                    ("davis-2015", "Davis, 2015"),
+                    ("wilson-2020", "Wilson, 2020")
+                ]),
                 t(" support this.")
             ]
         );
@@ -1051,7 +1101,11 @@ mod tests {
         let inlines = bracketed_numeric_and_text(&mut "According to [1], the study found...")?;
         assert_eq!(
             inlines,
-            vec![t("According to "), ct("ref-1"), t(", the study found...")]
+            vec![
+                t("According to "),
+                ctp("ref-1", "1"),
+                t(", the study found...")
+            ]
         );
 
         // Citation group with range
@@ -1060,7 +1114,7 @@ mod tests {
             inlines,
             vec![
                 t("Studies "),
-                ctg(["ref-1", "ref-2", "ref-3"]),
+                ctg([("ref-1", "1"), ("ref-2", "2"), ("ref-3", "3")]),
                 t(" support this.")
             ]
         );
@@ -1076,7 +1130,10 @@ mod tests {
     fn test_parenthetic_numeric_and_text() -> Result<()> {
         // Parenthetic citation
         let inlines = parenthetic_numeric_and_text(&mut "The theory holds (2).")?;
-        assert_eq!(inlines, vec![t("The theory holds "), ct("ref-2"), t(".")]);
+        assert_eq!(
+            inlines,
+            vec![t("The theory holds "), ctp("ref-2", "2"), t(".")]
+        );
 
         // Citation group
         let inlines = parenthetic_numeric_and_text(&mut "Studies (1,3-5) confirm this.")?;
@@ -1084,7 +1141,12 @@ mod tests {
             inlines,
             vec![
                 t("Studies "),
-                ctg(["ref-1", "ref-3", "ref-4", "ref-5"]),
+                ctg([
+                    ("ref-1", "1"),
+                    ("ref-3", "3"),
+                    ("ref-4", "4"),
+                    ("ref-5", "5")
+                ]),
                 t(" confirm this.")
             ]
         );
@@ -1102,7 +1164,7 @@ mod tests {
         let inlines = superscripted_numeric_and_text(&mut "The study{}^{1} shows results.")?;
         assert_eq!(
             inlines,
-            vec![t("The study"), ct("ref-1"), t(" shows results.")]
+            vec![t("The study"), ctp("ref-1", "1"), t(" shows results.")]
         );
 
         // Citation group
@@ -1111,7 +1173,12 @@ mod tests {
             inlines,
             vec![
                 t("Research"),
-                ctg(["ref-1", "ref-3", "ref-4", "ref-5"]),
+                ctg([
+                    ("ref-1", "1"),
+                    ("ref-3", "3"),
+                    ("ref-4", "4"),
+                    ("ref-5", "5")
+                ]),
                 t(" confirms this.")
             ]
         );
