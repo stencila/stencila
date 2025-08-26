@@ -4,7 +4,7 @@ use schema::{
     Underline, VisitorMut, WalkControl,
 };
 
-use crate::Collector;
+use crate::{Collector, collector::InlineReplacement};
 
 /// Replaces nodes and node properties with nodes collected by a [`Collector`]
 pub(super) struct Replacer {
@@ -128,37 +128,50 @@ impl Replacer {
 
     /// Replace inlines within a vector of inlines
     fn replace_inlines(&mut self, inlines: &mut Vec<Inline>) {
-        let mut new_inlines = Vec::with_capacity(inlines.len());
-
+        // First pass to apply any citation replacements
+        let mut inlines_1 = Vec::with_capacity(inlines.len());
         for inline in inlines.drain(..) {
             if let Some(node_id) = inline.node_id()
                 && let Some((replacement_type, replacements)) =
                     self.collector.inline_replacements.remove(&node_id)
             {
-                use crate::collector::InlineReplacement;
-
-                // Always apply link replacements
-                if replacement_type == InlineReplacement::Links {
-                    new_inlines.extend(replacements);
-                    continue;
-                }
-
                 // Only apply citation replacement if it matches the collector's
                 // determined citation style
                 if let Some(ref citation_style) = self.collector.citation_style {
                     if &replacement_type == citation_style {
-                        new_inlines.extend(replacements);
+                        inlines_1.extend(replacements);
                         continue;
                     }
                 } else {
                     // If no citation style determined, apply all replacements (fallback)
-                    new_inlines.extend(replacements);
+                    inlines_1.extend(replacements);
                     continue;
                 }
             }
-            new_inlines.push(inline);
+            inlines_1.push(inline);
         }
 
-        *inlines = new_inlines;
+        // Second pass to apply any link replacements, including within replacements
+        // from the first pass
+        let mut inlines_2 = Vec::with_capacity(inlines_1.len());
+        for inline in inlines_1.drain(..) {
+            if let Some(node_id) = inline.node_id()
+                && matches!(
+                    self.collector.inline_replacements.get(&node_id),
+                    Some((InlineReplacement::Links, ..))
+                )
+            {
+                let (.., replacements) = self
+                    .collector
+                    .inline_replacements
+                    .remove(&node_id)
+                    .expect("checked above");
+                inlines_2.extend(replacements);
+            } else {
+                inlines_2.push(inline);
+            }
+        }
+
+        *inlines = inlines_2;
     }
 }

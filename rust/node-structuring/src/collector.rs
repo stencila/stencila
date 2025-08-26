@@ -510,7 +510,25 @@ impl Collector {
 
     /// Visit a [`Text`] node
     fn visit_text(&mut self, text: &mut Text) {
+        // Extract any links from newly generated text in a citation replacement
+        // We process citations, and then links (instead of the other way
+        // around), so that parts of citations that may look like links are not
+        // matched (e.g. "(Smith 1990, table 3)")
+        macro_rules! extract_links {
+            ($inlines: expr) => {
+                for inline in &$inlines {
+                    if let Inline::Text(text) = inline {
+                        if let Some(inlines) = has_links(text_with_links(&text.value)) {
+                            self.inline_replacements
+                                .insert(text.node_id(), (InlineReplacement::Links, inlines));
+                        }
+                    }
+                }
+            };
+        }
+
         if let Some(inlines) = has_citations(text_with_author_year_citations(&text.value)) {
+            extract_links!(inlines);
             self.inline_replacements.insert(
                 text.node_id(),
                 (InlineReplacement::AuthorYearCitations, inlines),
@@ -518,6 +536,7 @@ impl Collector {
         }
 
         if let Some(inlines) = has_citations(text_with_bracketed_numeric_citations(&text.value)) {
+            extract_links!(inlines);
             self.inline_replacements.insert(
                 text.node_id(),
                 (InlineReplacement::BracketedNumericCitations, inlines),
@@ -525,16 +544,11 @@ impl Collector {
         }
 
         if let Some(inlines) = has_citations(text_with_parenthetic_numeric_citations(&text.value)) {
+            extract_links!(inlines);
             self.inline_replacements.insert(
                 text.node_id(),
                 (InlineReplacement::ParentheticNumericCitations, inlines),
             );
-        }
-
-        // Check for links (e.g. figures, tables, appendices, URLs)
-        if let Some(inlines) = has_links(text_with_links(&text.value)) {
-            self.inline_replacements
-                .insert(text.node_id(), (InlineReplacement::Links, inlines));
         }
     }
 

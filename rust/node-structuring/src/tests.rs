@@ -4,7 +4,7 @@ use common_dev::pretty_assertions::assert_eq;
 use schema::{
     AdmonitionType, Article, Block, Citation, CitationGroup, CitationOptions, ImageObject, Inline,
     Node, SectionType, Strikeout, Strong, Superscript, Underline,
-    shortcuts::{em, h1, h2, h3, h4, h5, li, mi, ol, p, sec, stb, t, tbl},
+    shortcuts::{em, h1, h2, h3, h4, h5, li, lnk, mi, ol, p, sec, stb, t, tbl},
 };
 
 use crate::{CitationStyle, StructuringOptions, structuring, structuring_with_options};
@@ -85,6 +85,17 @@ fn structuring_with_superscripted<T: schema::WalkNode>(node: &mut T) {
         node,
         StructuringOptions {
             citation_style: Some(CitationStyle::SuperscriptedNumeric),
+            ..Default::default()
+        },
+    )
+}
+
+/// Shortcut for running structuring with author-year citations
+fn structuring_with_author_year<T: schema::WalkNode>(node: &mut T) {
+    structuring_with_options(
+        node,
+        StructuringOptions {
+            citation_style: Some(CitationStyle::AuthorYear),
             ..Default::default()
         },
     )
@@ -366,7 +377,7 @@ fn heading_level_fallback() -> Result<()> {
 }
 
 #[test]
-fn known_section_types_always_level_one() -> Result<()> {
+fn heading_level_top() -> Result<()> {
     // Test that known section types always get level 1, regardless of original heading level
     let mut article = Node::Article(Article::new(vec![
         h2([t("Introduction")]), // h2 but should become level 1
@@ -1014,6 +1025,40 @@ fn text_to_citations() {
                 ("ref-7", "7")
             ]),
             t(" citations.")
+        ])
+    );
+}
+
+/// Test that both citations and links can be extracted from the same text
+#[test]
+fn citations_and_links() {
+    let mut node = p([t("A citation (Smith 1990) and Table 1.")]);
+    structuring_with_author_year(&mut node);
+    assert_eq!(
+        node,
+        p([
+            t("A citation "),
+            ct("smith-1990", "Smith, 1990"),
+            t(" and "),
+            lnk(vec![t("Table 1")], "#tab-1"),
+            t(".")
+        ])
+    );
+
+    let mut node = p([t(
+        "A citation with a reference to a table (Smith 1990, Table 1).",
+    )]);
+    structuring_with_author_year(&mut node);
+    let mut citation_with_suffix = ct("smith-1990", "Smith, 1990 Table 1");
+    if let Inline::Citation(citation) = &mut citation_with_suffix {
+        citation.options.citation_suffix = Some("Table 1".into());
+    }
+    assert_eq!(
+        node,
+        p([
+            t("A citation with a reference to a table "),
+            citation_with_suffix,
+            t(".")
         ])
     );
 }
@@ -2020,7 +2065,7 @@ fn table_caption_in_nested_sections() -> Result<()> {
 }
 
 #[test]
-fn multiple_table_captions() -> Result<()> {
+fn table_captions_multiple() -> Result<()> {
     let mut article = Node::Article(Article::new(vec![
         p([t("Table 1. First table caption.")]),
         tbl([]),
