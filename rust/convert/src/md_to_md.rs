@@ -23,9 +23,10 @@ pub fn clean_md_page(md: &str) -> String {
 pub fn clean_md(md: &str) -> String {
     let md = remove_line_numbers(md);
     let md = remove_extra_blank_lines(&md);
-    let md = remove_header_formatting(&md);
+    let md = remove_heading_formatting(&md);
     let md = ensure_isolated_blocks(&md);
-    ensure_isolated_references(&md)
+    let md = ensure_isolated_references(&md);
+    md
 }
 
 /// Remove line numbers
@@ -33,12 +34,12 @@ pub fn clean_md(md: &str) -> String {
 /// PDFs often have line numbering and whilst some OCR will remove those, this
 /// is not always successful and some remain.
 ///
-/// This function detects lines with numbers at the start and then assess
+/// This function detects lines with numbers at the start and then assesses
 /// whether it is likely that these are left over page numbers. If so, it then
 /// removes the numbers (is the number is greater than the previous number
 /// removed).
 fn remove_line_numbers(md: &str) -> String {
-    // First, find all lines containing potential line numbers Must be a number
+    // First, find all lines containing potential line numbers. Must be a number
     // followed by whitespace (not a list numbering). Can be after heading
     // hashes.
     static ONLY_NUMBER_REGEX: Lazy<Regex> =
@@ -66,14 +67,17 @@ fn remove_line_numbers(md: &str) -> String {
         })
         .collect_vec();
 
-    // Assess whether these are likely to be residual lines numbers: at least
-    // five of them are monotonic
+    // Assess whether these are likely to be residual lines numbers: there must be
+    // at least one run of at least a minimum length
+    const MIN_RUN_LENGTH: u32 = 5;
+    let mut are_line_numbers = false;
     let mut run_length = 0;
     let mut last_number = 0;
     for (number, ..) in lines.iter().flatten() {
         if *number > last_number {
             run_length += 1;
-            if run_length >= 5 {
+            if run_length >= MIN_RUN_LENGTH {
+                are_line_numbers = true;
                 break;
             }
         } else {
@@ -83,19 +87,26 @@ fn remove_line_numbers(md: &str) -> String {
         last_number = *number;
     }
 
+    // Return early with the original content if not deemed to be line numbers
+    if !are_line_numbers {
+        return md.to_string();
+    }
+
     // Remove those that are greater that the previously removed line number
     let mut cleaned_lines = Vec::new();
     let mut last_number = 0;
+    let mut last_number_removed = 0;
     for (line, numbered) in md.lines().zip(lines) {
         if let Some((number, rest)) = numbered {
-            if number > last_number {
-                // Likely a number so only add `rest` and update `last_number`
+            if number > last_number_removed && number < (last_number + 1000) {
+                // Likely a line number so only add `rest` and update `last_number`
                 cleaned_lines.push(rest);
-                last_number = number;
+                last_number_removed = number;
             } else {
                 // Otherwise, just add original line
                 cleaned_lines.push(line.to_string());
             }
+            last_number = number;
         } else {
             cleaned_lines.push(line.to_string());
         }
@@ -135,17 +146,17 @@ fn remove_extra_blank_lines(md: &str) -> String {
 /// (i.e. `_heading_`). This function removes formatting of the entire heading
 /// (encompassing all header content) but leaves partial formatting (within
 /// heading content).
-fn remove_header_formatting(md: &str) -> String {
+fn remove_heading_formatting(md: &str) -> String {
     // Use separate regexes for each formatting type to ensure balanced markers
     // (e.g., ** must be paired with **, not with __ or *). The regex crate doesn't
     // support backreferences, so we need explicit patterns for each marker type.
-    static HEADER_BOLD_DOUBLE_REGEX: Lazy<Regex> =
+    static BOLD_DOUBLE_REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new(r"^(#{1,6})\s*\*\*(.*?)\*\*\s*$").expect("invalid regex"));
-    static HEADER_BOLD_UNDERSCORE_REGEX: Lazy<Regex> =
+    static BOLD_UNDERSCORE_REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new(r"^(#{1,6})\s*__(.*?)__\s*$").expect("invalid regex"));
-    static HEADER_EMPHASIS_STAR_REGEX: Lazy<Regex> =
+    static EMPHASIS_STAR_REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new(r"^(#{1,6})\s*\*(.*?)\*\s*$").expect("invalid regex"));
-    static HEADER_EMPHASIS_UNDERSCORE_REGEX: Lazy<Regex> =
+    static EMPHASIS_UNDERSCORE_REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new(r"^(#{1,6})\s*_(.*?)_\s*$").expect("invalid regex"));
 
     let lines: Vec<&str> = md.lines().collect();
@@ -153,25 +164,25 @@ fn remove_header_formatting(md: &str) -> String {
 
     for line in lines {
         // Check for headers with bold formatting using **
-        if let Some(captures) = HEADER_BOLD_DOUBLE_REGEX.captures(line) {
+        if let Some(captures) = BOLD_DOUBLE_REGEX.captures(line) {
             let header_level = captures.get(1).expect("header level match").as_str();
             let content = captures.get(2).expect("content match").as_str();
             result.push(format!("{header_level} {content}"));
         }
         // Check for headers with bold formatting using __
-        else if let Some(captures) = HEADER_BOLD_UNDERSCORE_REGEX.captures(line) {
+        else if let Some(captures) = BOLD_UNDERSCORE_REGEX.captures(line) {
             let header_level = captures.get(1).expect("header level match").as_str();
             let content = captures.get(2).expect("content match").as_str();
             result.push(format!("{header_level} {content}"));
         }
         // Check for headers with emphasis formatting using *
-        else if let Some(captures) = HEADER_EMPHASIS_STAR_REGEX.captures(line) {
+        else if let Some(captures) = EMPHASIS_STAR_REGEX.captures(line) {
             let header_level = captures.get(1).expect("header level match").as_str();
             let content = captures.get(2).expect("content match").as_str();
             result.push(format!("{header_level} {content}"));
         }
         // Check for headers with emphasis formatting using _
-        else if let Some(captures) = HEADER_EMPHASIS_UNDERSCORE_REGEX.captures(line) {
+        else if let Some(captures) = EMPHASIS_UNDERSCORE_REGEX.captures(line) {
             let header_level = captures.get(1).expect("header level match").as_str();
             let content = captures.get(2).expect("content match").as_str();
             result.push(format!("{header_level} {content}"));
@@ -735,31 +746,31 @@ mod tests {
     fn test_remove_header_formatting() {
         // Header with bold formatting using **
         let input = "# **Bold Header**";
-        assert_snapshot!(remove_header_formatting(input), @r"
+        assert_snapshot!(remove_heading_formatting(input), @r"
         # Bold Header
         ");
 
         // Header with bold formatting using __
         let input = "## __Bold Header Two__";
-        assert_snapshot!(remove_header_formatting(input), @r"
+        assert_snapshot!(remove_heading_formatting(input), @r"
         ## Bold Header Two
         ");
 
         // Header with emphasis formatting using *
         let input = "### *Italic Header*";
-        assert_snapshot!(remove_header_formatting(input), @r"
+        assert_snapshot!(remove_heading_formatting(input), @r"
         ### Italic Header
         ");
 
         // Header with emphasis formatting using _
         let input = "#### _Italic Header Four_";
-        assert_snapshot!(remove_header_formatting(input), @r"
+        assert_snapshot!(remove_heading_formatting(input), @r"
         #### Italic Header Four
         ");
 
         // Multiple levels of headers with formatting
         let input = "# **Main Title**\n## __Subtitle__\n### *Section*\n#### _Subsection_";
-        assert_snapshot!(remove_header_formatting(input), @r"
+        assert_snapshot!(remove_heading_formatting(input), @r"
         # Main Title
         ## Subtitle
         ### Section
@@ -768,38 +779,38 @@ mod tests {
 
         // Header with partial formatting (should remain unchanged)
         let input = "# This has **partial** formatting";
-        assert_snapshot!(remove_header_formatting(input), @r"
+        assert_snapshot!(remove_heading_formatting(input), @r"
         # This has **partial** formatting
         ");
 
         // Header with mixed formatting (should remain unchanged)
         let input = "## **Bold** and *italic* text";
-        assert_snapshot!(remove_header_formatting(input), @r"
+        assert_snapshot!(remove_heading_formatting(input), @r"
         ## **Bold** and *italic* text
         ");
 
         // Non-header text with formatting (should remain unchanged)
         let input = "This is **bold** text\nAnd this is *italic*";
-        assert_snapshot!(remove_header_formatting(input), @r"
+        assert_snapshot!(remove_heading_formatting(input), @r"
         This is **bold** text
         And this is *italic*
         ");
 
         // Header with no formatting (should remain unchanged)
         let input = "# Plain Header";
-        assert_snapshot!(remove_header_formatting(input), @r"
+        assert_snapshot!(remove_heading_formatting(input), @r"
         # Plain Header
         ");
 
         // Headers with extra whitespace
         let input = "#  **Header with spaces**  ";
-        assert_snapshot!(remove_header_formatting(input), @r"
+        assert_snapshot!(remove_heading_formatting(input), @r"
         # Header with spaces
         ");
 
         // All header levels with bold formatting
         let input = "# **H1**\n## **H2**\n### **H3**\n#### **H4**\n##### **H5**\n###### **H6**";
-        assert_snapshot!(remove_header_formatting(input), @r"
+        assert_snapshot!(remove_heading_formatting(input), @r"
         # H1
         ## H2
         ### H3
@@ -810,14 +821,14 @@ mod tests {
 
         // Empty header with formatting
         let input = "# **  **";
-        assert_snapshot!(remove_header_formatting(input), @r"
+        assert_snapshot!(remove_heading_formatting(input), @r"
         #   
         ");
 
         // Mixed content with headers and regular text
         let input =
             "Some text\n# **Formatted Header**\nMore text\n## __Another Header__\nFinal text";
-        assert_snapshot!(remove_header_formatting(input), @r"
+        assert_snapshot!(remove_heading_formatting(input), @r"
         Some text
         # Formatted Header
         More text
