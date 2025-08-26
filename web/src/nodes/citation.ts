@@ -20,14 +20,19 @@ export class Citation extends Entity {
   @property({ attribute: 'citation-mode' })
   citationMode?: CitationMode
 
+  @property({ attribute: 'citation-prefix' })
+  citationPrefix?: string
+
+  @property({ attribute: 'citation-suffix' })
+  citationSuffix?: string
+
   @property({ attribute: 'compilation-messages', type: Array })
   compilationMessages?: CompilationMessage[]
 
   override render() {
     const inner = this.compilationMessages ? 
       html`<sl-tooltip placement="top" content="${this.compilationMessages.map(msg => msg.message).join('; ')}"><span class="text-gray-700"><slot name="content"></slot></span></sl-tooltip>`: 
-      html`<slot name="cites"></slot>`
-
+      html`${this.citationPrefix ? `${this.citationPrefix} ` : ''}<slot name="cites"></slot>${this.citationSuffix ? ` ${this.citationSuffix}` : ''}`
 
     const items = this.closestGlobally('stencila-citation-group [slot=items]')
     if (items) {
