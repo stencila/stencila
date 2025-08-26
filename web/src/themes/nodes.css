@@ -162,12 +162,16 @@ stencila-datatable {
   }
 }
 
-stencila-table,
-stencila-figure,
-stencila-code-chunk {
+stencila-table:not([root]),
+stencila-figure:not([root]),
+stencila-code-chunk:not([root]) {
   display: block;
   @apply my-12;
+}
 
+stencila-table[root],
+stencila-figure[root],
+stencila-code-chunk[root] {
   caption {
     @apply text-left;
   }
