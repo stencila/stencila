@@ -2,7 +2,7 @@ use winnow::{
     Parser, Result,
     ascii::{digit1, multispace0, multispace1},
     combinator::{alt, delimited, not, opt, preceded, repeat, separated, terminated},
-    token::{any, one_of, take_while},
+    token::{any, take_while},
 };
 
 use codec::{
@@ -16,6 +16,7 @@ use codec::{
 use crate::decode::{
     parts::{
         authors::{etal, names},
+        chars::is_hyphen,
         date::year_az,
     },
     reference::generate_id,
@@ -33,9 +34,9 @@ pub(crate) fn author_year_and_text(input: &mut &str) -> Result<Vec<Inline>> {
         alt((
             (
                 alt((".", "?", "!")),
-                " ",
+                multispace1,
                 alt(("From", "See", "Cf", "In")),
-                " ",
+                multispace1,
             )
                 .take()
                 .map(|text: &str| t(text)),
@@ -359,7 +360,7 @@ enum CitationItem {
 fn citation_range(input: &mut &str) -> Result<CitationItem> {
     (
         citation_number_value,
-        (multispace0, one_of(['-', '–', '—']), multispace0),
+        (multispace0, take_while(1..3, is_hyphen), multispace0),
         citation_number_value,
     )
         .verify(|(start, _, end)| {
@@ -1116,6 +1117,17 @@ mod tests {
                 t("Studies "),
                 ctg([("ref-1", "1"), ("ref-2", "2"), ("ref-3", "3")]),
                 t(" support this.")
+            ]
+        );
+
+        // Citation group with range using two hyphens
+        let inlines = bracketed_numeric_and_text(&mut "As shown by [1--2,5].")?;
+        assert_eq!(
+            inlines,
+            vec![
+                t("As shown by "),
+                ctg([("ref-1", "1"), ("ref-2", "2"), ("ref-5", "5")]),
+                t(".")
             ]
         );
 
