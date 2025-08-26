@@ -6843,6 +6843,7 @@ name = "node-structuring"
 version = "0.0.0"
 dependencies = [
  "codec-biblio",
+ "codec-links",
  "codec-text-trait",
  "common",
  "common-dev",

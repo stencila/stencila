@@ -135,7 +135,15 @@ impl Replacer {
                 && let Some((replacement_type, replacements)) =
                     self.collector.inline_replacements.remove(&node_id)
             {
-                // Only apply replacement if it matches the collector's
+                use crate::collector::InlineReplacement;
+
+                // Always apply link replacements
+                if replacement_type == InlineReplacement::Links {
+                    new_inlines.extend(replacements);
+                    continue;
+                }
+
+                // Only apply citation replacement if it matches the collector's
                 // determined citation style
                 if let Some(ref citation_style) = self.collector.citation_style {
                     if &replacement_type == citation_style {

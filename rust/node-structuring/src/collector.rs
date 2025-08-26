@@ -5,8 +5,9 @@ use codec_biblio::decode::{
     text_to_reference, text_with_author_year_citations, text_with_bracketed_numeric_citations,
     text_with_parenthetic_numeric_citations,
 };
+use codec_links::decode_inlines as text_with_links;
 use codec_text_trait::to_text;
-use common::{itertools::Itertools, once_cell::sync::Lazy, regex::Regex};
+use common::{inflector::Inflector, itertools::Itertools, once_cell::sync::Lazy, regex::Regex};
 use schema::{
     Admonition, Article, Block, Figure, ForBlock, Heading, IncludeBlock, Inline, List, ListOrder,
     MathInline, Node, NodeId, Paragraph, Reference, Section, SectionType, StyledBlock, Text,
@@ -19,16 +20,16 @@ use crate::CitationStyle;
 #[derive(Debug)]
 pub(super) enum BlockReplacement {
     /// Remove the title from the content
-    RemoveTitle,
+    Title,
 
     /// Remove the abstract from the content
-    RemoveAbstract,
+    Abstract,
 
     /// Remove keywords from the content
-    RemoveKeywords,
+    Keywords,
 
     /// Remove references (including header) from the content
-    RemoveReferences,
+    References,
 }
 
 /// A type of potential inline replacement
@@ -46,6 +47,9 @@ pub(super) enum InlineReplacement {
 
     /// Replace text with a mix of text and superscripted numeric citations
     SuperscriptedNumericCitations,
+
+    /// Replace text with a mix of text and links (e.g. to figures, tables, appendices, URLs)
+    Links,
 }
 
 /// Walks over the node collecting replacements, citations and references
@@ -194,6 +198,7 @@ impl Collector {
 
                     // Create and insert the figure
                     let mut figure = Figure::new(vec![image]);
+                    figure.id = Some(["fig-", &label.to_kebab_case()].concat());
                     figure.label = Some(label);
                     figure.label_automatically = Some(false);
                     figure.caption = Some(vec![Block::Paragraph(caption)]);
@@ -217,6 +222,7 @@ impl Collector {
 
                     // Create and insert the figure
                     let mut figure = Figure::new(vec![image]);
+                    figure.id = Some(["fig-", &label.to_kebab_case()].concat());
                     figure.label = Some(label);
                     figure.label_automatically = Some(false);
                     figure.caption = Some(vec![Block::Paragraph(caption)]);
@@ -240,6 +246,7 @@ impl Collector {
                 let Block::Table(table) = &mut blocks[index] else {
                     unreachable!("asserted above")
                 };
+                table.id = Some(["tab-", &label.to_kebab_case()].concat());
                 table.label = Some(label);
                 table.label_automatically = Some(false);
                 table.caption = Some(vec![Block::Paragraph(caption)]);
@@ -269,10 +276,8 @@ impl Collector {
         {
             self.title = Some(heading.content.drain(..).collect());
 
-            self.block_replacements.insert(
-                heading.node_id(),
-                (BlockReplacement::RemoveTitle, Vec::new()),
-            );
+            self.block_replacements
+                .insert(heading.node_id(), (BlockReplacement::Title, Vec::new()));
 
             return WalkControl::Break;
         }
@@ -280,10 +285,8 @@ impl Collector {
         // Determine if in abstract section
         if cleaned_text.to_lowercase() == "abstract" {
             self.in_abstract = true;
-            self.block_replacements.insert(
-                heading.node_id(),
-                (BlockReplacement::RemoveAbstract, Vec::new()),
-            );
+            self.block_replacements
+                .insert(heading.node_id(), (BlockReplacement::Abstract, Vec::new()));
         } else {
             self.in_abstract = false;
         }
@@ -291,10 +294,8 @@ impl Collector {
         // Determine if in keywords section
         if cleaned_text.to_lowercase() == "keywords" {
             self.in_keywords = true;
-            self.block_replacements.insert(
-                heading.node_id(),
-                (BlockReplacement::RemoveKeywords, Vec::new()),
-            );
+            self.block_replacements
+                .insert(heading.node_id(), (BlockReplacement::Keywords, Vec::new()));
         } else {
             self.in_keywords = false;
         }
@@ -331,7 +332,7 @@ impl Collector {
 
             self.block_replacements.insert(
                 heading.node_id(),
-                (BlockReplacement::RemoveReferences, Vec::new()),
+                (BlockReplacement::References, Vec::new()),
             );
         } else {
             self.in_references = false;
@@ -353,7 +354,7 @@ impl Collector {
             } else {
                 self.abstract_ = Some(vec![block]);
             }
-            remove = Some(BlockReplacement::RemoveAbstract);
+            remove = Some(BlockReplacement::Abstract);
         }
 
         if self.keywords.is_none() {
@@ -369,7 +370,7 @@ impl Collector {
                 } else {
                     self.keywords = Some(words);
                 }
-                remove = Some(BlockReplacement::RemoveKeywords);
+                remove = Some(BlockReplacement::Keywords);
             } else if let Some(text) = text.strip_prefix("Keywords") {
                 let words = text
                     .trim_start_matches([':', '-', ' '])
@@ -378,7 +379,7 @@ impl Collector {
                     .map(|word| word.trim().to_string())
                     .collect_vec();
                 self.keywords = Some(words);
-                remove = Some(BlockReplacement::RemoveKeywords);
+                remove = Some(BlockReplacement::Keywords);
             }
         }
 
@@ -390,7 +391,7 @@ impl Collector {
             } else {
                 self.references = Some(vec![reference]);
             }
-            remove = Some(BlockReplacement::RemoveReferences);
+            remove = Some(BlockReplacement::References);
         }
 
         if let Some(replacement) = remove {
@@ -427,10 +428,8 @@ impl Collector {
                 self.references = Some(references);
             }
 
-            self.block_replacements.insert(
-                list.node_id(),
-                (BlockReplacement::RemoveReferences, Vec::new()),
-            );
+            self.block_replacements
+                .insert(list.node_id(), (BlockReplacement::References, Vec::new()));
 
             // Break walk because content in each item already processed
             WalkControl::Break
@@ -487,6 +486,12 @@ impl Collector {
                 text.node_id(),
                 (InlineReplacement::ParentheticNumericCitations, inlines),
             );
+        }
+
+        // Check for links (e.g. figures, tables, appendices, URLs)
+        if let Some(inlines) = has_links(text_with_links(&text.value)) {
+            self.inline_replacements
+                .insert(text.node_id(), (InlineReplacement::Links, inlines));
         }
     }
 
@@ -720,6 +725,14 @@ fn has_citations(inlines: Vec<Inline>) -> Option<Vec<Inline>> {
     inlines
         .iter()
         .any(|inline| matches!(inline, Inline::Citation(..) | Inline::CitationGroup(..)))
+        .then_some(inlines)
+}
+
+/// Determine if inlines contain at least one [`Link`]
+fn has_links(inlines: Vec<Inline>) -> Option<Vec<Inline>> {
+    inlines
+        .iter()
+        .any(|inline| matches!(inline, Inline::Link(..)))
         .then_some(inlines)
 }
 
