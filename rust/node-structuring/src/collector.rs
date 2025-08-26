@@ -369,6 +369,7 @@ impl Collector {
 
         if self.keywords.is_none() {
             let text = to_text(paragraph);
+
             if self.in_keywords {
                 let words = text
                     .trim_end_matches(['.'])
@@ -381,7 +382,12 @@ impl Collector {
                     self.keywords = Some(words);
                 }
                 remove = Some(BlockReplacement::Keywords);
-            } else if let Some(text) = text.strip_prefix("Keywords") {
+            } else if let Some(text) = text
+                .strip_prefix("Keywords")
+                .or_else(|| text.strip_prefix("KEYWORDS"))
+                .or_else(|| text.strip_prefix("Key words"))
+                .or_else(|| text.strip_prefix("KEY WORDS"))
+            {
                 let words = text
                     .trim_start_matches([':', '-', ' '])
                     .trim_end_matches(['.'])
