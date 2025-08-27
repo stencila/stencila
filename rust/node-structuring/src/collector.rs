@@ -420,7 +420,7 @@ impl Collector {
             }
         }
 
-        // Remove paragrapgraphs in frontmatter (usually authors and
+        // Remove paragraphs in frontmatter (usually authors and
         // their affiliations)
         if self.options.discard_frontmatter && self.in_frontmatter {
             remove = Some(BlockReplacement::Frontmatter);
@@ -527,7 +527,10 @@ impl Collector {
             };
         }
 
+        let mut citations_detected = false;
+
         if let Some(inlines) = has_citations(text_with_author_year_citations(&text.value)) {
+            citations_detected = true;
             extract_links!(inlines);
             self.inline_replacements.insert(
                 text.node_id(),
@@ -536,6 +539,7 @@ impl Collector {
         }
 
         if let Some(inlines) = has_citations(text_with_bracketed_numeric_citations(&text.value)) {
+            citations_detected = true;
             extract_links!(inlines);
             self.inline_replacements.insert(
                 text.node_id(),
@@ -544,11 +548,20 @@ impl Collector {
         }
 
         if let Some(inlines) = has_citations(text_with_parenthetic_numeric_citations(&text.value)) {
+            citations_detected = true;
             extract_links!(inlines);
             self.inline_replacements.insert(
                 text.node_id(),
                 (InlineReplacement::ParentheticNumericCitations, inlines),
             );
+        }
+
+        // Extract any links in this text. Note that, if this text is replaced because it has
+        // citations then this replacement will not apply 9because this text's node id will not
+        // be in the first pass.
+        if !citations_detected && let Some(inlines) = has_links(text_with_links(&text.value)) {
+            self.inline_replacements
+                .insert(text.node_id(), (InlineReplacement::Links, inlines));
         }
     }
 

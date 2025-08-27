@@ -128,27 +128,41 @@ impl Replacer {
 
     /// Replace inlines within a vector of inlines
     fn replace_inlines(&mut self, inlines: &mut Vec<Inline>) {
+        use InlineReplacement::*;
+
         // First pass to apply any citation replacements
         let mut inlines_1 = Vec::with_capacity(inlines.len());
         for inline in inlines.drain(..) {
             if let Some(node_id) = inline.node_id()
-                && let Some((replacement_type, replacements)) =
-                    self.collector.inline_replacements.remove(&node_id)
+                && matches!(
+                    self.collector.inline_replacements.get(&node_id),
+                    Some((
+                        AuthorYearCitations
+                            | BracketedNumericCitations
+                            | ParentheticNumericCitations
+                            | SuperscriptedNumericCitations,
+                        ..,
+                    ))
+                )
             {
+                let (replacement_type, replacements) = self
+                    .collector
+                    .inline_replacements
+                    .remove(&node_id)
+                    .expect("checked above");
                 // Only apply citation replacement if it matches the collector's
                 // determined citation style
                 if let Some(ref citation_style) = self.collector.citation_style {
                     if &replacement_type == citation_style {
                         inlines_1.extend(replacements);
-                        continue;
                     }
                 } else {
                     // If no citation style determined, apply all replacements (fallback)
                     inlines_1.extend(replacements);
-                    continue;
                 }
+            } else {
+                inlines_1.push(inline);
             }
-            inlines_1.push(inline);
         }
 
         // Second pass to apply any link replacements, including within replacements
@@ -158,7 +172,7 @@ impl Replacer {
             if let Some(node_id) = inline.node_id()
                 && matches!(
                     self.collector.inline_replacements.get(&node_id),
-                    Some((InlineReplacement::Links, ..))
+                    Some((Links, ..))
                 )
             {
                 let (.., replacements) = self

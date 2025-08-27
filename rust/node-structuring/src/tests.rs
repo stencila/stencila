@@ -1029,9 +1029,28 @@ fn text_to_citations() {
     );
 }
 
+/// Test that links a extracted from text
+#[test]
+fn text_to_links() {
+    let mut node = p([t("See Table 1 and Figure 3A and https://example.com.")]);
+    structuring(&mut node);
+    assert_eq!(
+        node,
+        p([
+            t("See "),
+            lnk(vec![t("Table 1")], "#tab-1"),
+            t(" and "),
+            lnk(vec![t("Figure 3A")], "#fig-3"),
+            t(" and "),
+            lnk(vec![t("https://example.com")], "https://example.com"),
+            t(".")
+        ])
+    );
+}
+
 /// Test that both citations and links can be extracted from the same text
 #[test]
-fn citations_and_links() {
+fn text_to_citations_and_links() {
     let mut node = p([t("A citation (Smith 1990) and Table 1.")]);
     structuring_with_author_year(&mut node);
     assert_eq!(
