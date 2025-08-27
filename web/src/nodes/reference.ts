@@ -125,7 +125,7 @@ export class Reference extends Entity {
 
     const isPartOf = this.isPartOf ? html`<em> ${partOf(this.isPartOf)}</em>` : ''
 
-    const pagination = pagesEndashed(this.pageStart, this.pageStart, this.pagination)
+    const pagination = pagesEndashed(this.pageStart, this.pageEnd, this.pagination)
     const pages = pagination
         ? html` ${pagination}`
         : ''
