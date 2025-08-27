@@ -18,10 +18,22 @@
       }
     },
     {
+      "@id": "stencila:appearanceIndex",
+      "@type": "rdfs:Property",
+      "rdfs:label": "appearanceIndex",
+      "rdfs:comment": "The index (1-based) of appearance order of the reference in the work.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Reference"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:UnsignedInteger"
+      }
+    },
+    {
       "@id": "stencila:workType",
       "@type": "rdfs:Property",
       "rdfs:label": "workType",
-      "rdfs:comment": "The type of `CreativeWork` being referenced(e.g. Article, Book, Dataset).",
+      "rdfs:comment": "The type of `CreativeWork` being referenced (e.g. Article, Book, Dataset).",
       "schema:domainIncludes": [
         {
           "@id": "schema:CreativeWork"

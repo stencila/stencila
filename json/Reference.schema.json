@@ -16,6 +16,7 @@
   ],
   "core": [
     "id",
+    "appearanceIndex",
     "workType",
     "doi",
     "authors",
@@ -53,9 +54,18 @@
       },
       "type": "string"
     },
+    "appearanceIndex": {
+      "@id": "stencila:appearanceIndex",
+      "description": "The index (1-based) of appearance order of the reference in the work.",
+      "aliases": [
+        "appearance-index",
+        "appearance_index"
+      ],
+      "$ref": "UnsignedInteger.schema.json"
+    },
     "workType": {
       "@id": "stencila:workType",
-      "description": "The type of `CreativeWork` being referenced(e.g. Article, Book, Dataset).",
+      "description": "The type of `CreativeWork` being referenced (e.g. Article, Book, Dataset).",
       "aliases": [
         "work-type",
         "work_type"

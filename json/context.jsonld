@@ -207,6 +207,7 @@
     "alternateNames": "schema:alternateName",
     "amounts": "schema:amount",
     "annotation": "stencila:annotation",
+    "appearanceIndex": "stencila:appearanceIndex",
     "archive": "stencila:archive",
     "arguments": "stencila:arguments",
     "author": "schema:author",

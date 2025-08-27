@@ -1337,6 +1337,7 @@ impl DatabaseNode for Reference {
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
+            (NodeProperty::AppearanceIndex, self.appearance_index.to_kuzu_type(), self.appearance_index.to_kuzu_value()),
             (NodeProperty::WorkType, self.work_type.to_kuzu_type(), self.work_type.to_kuzu_value()),
             (NodeProperty::Doi, self.doi.to_kuzu_type(), self.doi.to_kuzu_value()),
             (NodeProperty::Date, self.date.to_kuzu_type(), self.date.to_kuzu_value()),

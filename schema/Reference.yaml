@@ -6,6 +6,7 @@ description: A reference to a creative work, including books, movies, photograph
 markdown:
   derive: false
 core:
+  - appearanceIndex
   - workType
   - doi
   - authors
@@ -24,9 +25,13 @@ core:
   - url
   - text
 properties:
+  appearanceIndex:
+    "@id": stencila:appearanceIndex
+    description: The index (1-based) of appearance order of the reference in the work.
+    $ref: UnsignedInteger
   workType:
     "@id": stencila:workType
-    description: The type of `CreativeWork` being referenced(e.g. Article, Book, Dataset).
+    description: The type of `CreativeWork` being referenced (e.g. Article, Book, Dataset).
     $ref: CreativeWorkType
   doi:
     "@id": stencila:doi

@@ -2793,8 +2793,11 @@ class Reference(Entity):
 
     type: Literal["Reference"] = "Reference"
 
+    appearance_index: UnsignedInteger | None = None
+    """The index (1-based) of appearance order of the reference in the work."""
+
     work_type: CreativeWorkType | None = None
-    """The type of `CreativeWork` being referenced(e.g. Article, Book, Dataset)."""
+    """The type of `CreativeWork` being referenced (e.g. Article, Book, Dataset)."""
 
     doi: str | None = None
     """The Digital Object Identifier (https://doi.org/) of the work being referenced."""

@@ -10,6 +10,7 @@ import { Person } from "./Person.js";
 import { PersonOrOrganization } from "./PersonOrOrganization.js";
 import { PropertyValueOrString } from "./PropertyValueOrString.js";
 import { StringOrNumber } from "./StringOrNumber.js";
+import { UnsignedInteger } from "./UnsignedInteger.js";
 
 /**
  * A reference to a creative work, including books, movies, photographs, software programs, etc.
@@ -19,7 +20,12 @@ export class Reference extends Entity {
   type: "Reference";
 
   /**
-   * The type of `CreativeWork` being referenced(e.g. Article, Book, Dataset).
+   * The index (1-based) of appearance order of the reference in the work.
+   */
+  appearanceIndex?: UnsignedInteger;
+
+  /**
+   * The type of `CreativeWork` being referenced (e.g. Article, Book, Dataset).
    */
   workType?: CreativeWorkType;
 

@@ -12,6 +12,7 @@ use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 use super::string_or_number::StringOrNumber;
+use super::unsigned_integer::UnsignedInteger;
 
 /// A reference to a creative work, including books, movies, photographs, software programs, etc.
 #[skip_serializing_none]
@@ -30,7 +31,11 @@ pub struct Reference {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// The type of `CreativeWork` being referenced(e.g. Article, Book, Dataset).
+    /// The index (1-based) of appearance order of the reference in the work.
+    #[serde(alias = "appearance-index", alias = "appearance_index")]
+    pub appearance_index: Option<UnsignedInteger>,
+
+    /// The type of `CreativeWork` being referenced (e.g. Article, Book, Dataset).
     #[serde(alias = "work-type", alias = "work_type")]
     pub work_type: Option<CreativeWorkType>,
 
