@@ -31,13 +31,24 @@ impl Executable for Citation {
         tracing::trace!("Linking Citation {node_id}");
 
         if let Some(reference) = executor.bibliography.get(self.target.trim()) {
-            // If the reference is matched in targets and current reference is none or not equal,
-            // then replicate the reference (do NOT clone to avoid duplicated id).
+            // If the reference is matched in targets and current reference is
+            // none or not equal, then replicate the reference (do NOT clone to
+            // avoid duplicated id) and set its appearance index
             if (self.options.cites.is_none() || Some(reference) != self.options.cites.as_ref())
-                && let Ok(reference) = replicate(reference)
+                && let Ok(mut reference) = replicate(reference)
             {
+                if let Some(id) = reference.doi.as_ref().or(reference.id.as_ref()) {
+                    reference.appearance_index = Some(
+                        executor
+                            .references
+                            .get_index_of(id)
+                            .unwrap_or_else(|| executor.references.len())
+                            .saturating_add(1) as u64,
+                    );
+                }
+
                 self.options.cites = Some(reference.clone());
-                executor.patch(&node_id, [set(NodeProperty::Cites, reference.clone())]);
+                executor.patch(&node_id, [set(NodeProperty::Cites, reference)]);
             }
 
             if self.options.compilation_messages.is_some() {

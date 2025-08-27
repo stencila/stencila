@@ -105,7 +105,13 @@ impl Executable for Article {
         let references: Vec<Reference> = executor
             .references
             .iter()
-            .filter_map(|id| executor.bibliography.get(id).cloned())
+            .enumerate()
+            .filter_map(|(index, id)| {
+                executor.bibliography.get(id).cloned().map(|mut reference| {
+                    reference.appearance_index = Some(index.saturating_add(1) as u64);
+                    reference
+                })
+            })
             .collect();
         if references.is_empty() {
             executor.patch(&node_id, [none(NodeProperty::References)]);
