@@ -660,8 +660,11 @@ const MANUAL_ENCODERS: Partial<
       )
     }
 
-    context.html +=
-      '<figure slot="content">' + encodeBlocks(node.content, ancestors)
+    context.pushSlot(
+      'figure',
+      'content',
+      encodeNodes(node.content, ancestors)
+    )
 
     if (node.caption) {
       context.pushSlot(
@@ -670,8 +673,6 @@ const MANUAL_ENCODERS: Partial<
         encodeCaption(node.caption, 'Figure', node.label, ancestors)
       )
     }
-
-    context.html += '</figure>'
 
     context.exitNode()
   },
