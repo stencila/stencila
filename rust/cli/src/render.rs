@@ -224,10 +224,10 @@ impl Cli {
             .await?
             .is_yes()
             {
-                eprintln!("▶️  You can use `--ignore-errors` to continue without being asked")
+                eprintln!("▶️  Tip: use `--ignore-errors` to continue without being asked")
             } else {
                 eprintln!(
-                    "🛑 Stopping due to execution errors (you can use `--ignore-errors` to continue without being asked)"
+                    "🛑 Stopping due to execution errors (Tip: use `--ignore-errors` to continue without being asked)"
                 );
                 exit(1)
             }
