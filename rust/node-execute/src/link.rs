@@ -72,8 +72,8 @@ impl Executable for Link {
         tracing::trace!("Linking Link {node_id}");
 
         // Update the content of the link if it has an internal target
-        if !(self.target.starts_with("https://") || self.target.starts_with("http://")) {
-            if let Some((label_type, label)) = executor.labels.get(&self.target) {
+        if let Some(target) = self.target.strip_prefix("#") {
+            if let Some((label_type, label)) = executor.labels.get(target) {
                 let label_type = match label_type {
                     LabelType::TableLabel => "Table",
                     LabelType::FigureLabel => "Figure",

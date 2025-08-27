@@ -8,8 +8,10 @@ impl Executable for CodeChunk {
         let node_id = self.node_id();
         tracing::trace!("Compiling CodeChunk {node_id}");
 
-        // Update label if necessary
-        if let Some(label_type) = &self.label_type {
+        // Update automatic label if necessary
+        if self.label_automatically.unwrap_or(true)
+            && let Some(label_type) = &self.label_type
+        {
             let label = match label_type {
                 LabelType::FigureLabel => executor.figure_label(),
                 LabelType::TableLabel => executor.table_label(),
@@ -17,9 +19,18 @@ impl Executable for CodeChunk {
                 LabelType::AppendixLabel => executor.appendix_label(),
             };
 
-            if self.label_automatically.unwrap_or(true) && Some(&label) != self.label.as_ref() {
+            if Some(&label) != self.label.as_ref() {
+                self.label = Some(label.clone());
                 executor.patch(&node_id, [set(NodeProperty::Label, label)]);
             }
+        }
+
+        // If have id, label type and label then register as a link target
+        if let (Some(id), Some(label_type), Some(label)) = (&self.id, &self.label_type, &self.label)
+        {
+            executor
+                .labels
+                .insert(id.clone(), (*label_type, label.clone()));
         }
 
         // Get the programming language, falling back to using the executor's current language
