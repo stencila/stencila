@@ -84,7 +84,7 @@ pub(crate) fn parenthetic_numeric_and_text(input: &mut &str) -> Result<Vec<Inlin
     .parse_next(input)
 }
 
-/// Parse superscript numeric citations (e.g. {}^{1}, {}^{1-3}, {}^{1,2,3})
+/// Parse superscript numeric citations (e.g. {}^{1}, {}^{1-3}, {}^{[1-3]})
 /// within text returning a vector of inlines that are either [Inline::Text],
 /// [Inline::Citation], or [Inline::CitationGroup]
 pub(crate) fn superscripted_numeric_and_text(input: &mut &str) -> Result<Vec<Inline>> {
@@ -319,12 +319,15 @@ pub(crate) fn parenthetic_numeric(input: &mut &str) -> Result<Inline> {
     delimited("(", citation_sequence, ")").parse_next(input)
 }
 
-/// Parse superscript math citation like {}^{1,2,3-5}
+/// Parse superscript math citation like {}^{1,2,3-5} and {}^{[1,2,3-5]}
 pub(crate) fn superscripted_numeric(input: &mut &str) -> Result<Inline> {
     delimited(
-        (multispace0, "{", multispace0, "}", "^", "{"),
-        citation_sequence,
-        "}",
+        ("{", multispace0, "}", "^", "{", multispace0),
+        alt((
+            citation_sequence,
+            delimited(("[", multispace0), citation_sequence, (multispace0, "]")),
+        )),
+        (multispace0, "}"),
     )
     .parse_next(input)
 }
@@ -1192,6 +1195,22 @@ mod tests {
                     ("ref-5", "5")
                 ]),
                 t(" confirms this.")
+            ]
+        );
+
+        // With inner brackets and double hyphen
+        let inlines = superscripted_numeric_and_text(&mut "as shown {}^{[1,3--5]}.")?;
+        assert_eq!(
+            inlines,
+            vec![
+                t("as shown "),
+                ctg([
+                    ("ref-1", "1"),
+                    ("ref-3", "3"),
+                    ("ref-4", "4"),
+                    ("ref-5", "5")
+                ]),
+                t("."),
             ]
         );
 
