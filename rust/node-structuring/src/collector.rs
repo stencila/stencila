@@ -194,19 +194,42 @@ impl Collector {
         let mut index = 0;
         while index < blocks.len().saturating_sub(1) {
             // Check for ImageObject followed by caption
-            if let (Some(Block::ImageObject(..)), Some(Block::Paragraph(paragraph))) =
-                (blocks.get(index), blocks.get(index + 1))
+            if let (
+                Some(Block::ImageObject(..)),
+                Some(
+                    Block::Paragraph(Paragraph { content, .. })
+                    | Block::Heading(Heading { content, .. }),
+                ),
+            ) = (blocks.get(index), blocks.get(index + 1))
             {
-                if let Some((label, prefix)) = detect_figure_caption(paragraph) {
+                if let Some((label, prefix, ..)) = detect_figure_caption(content) {
                     // Remove the image and paragraph so that they can be placed in figure
-                    let Some((image, Block::Paragraph(mut caption))) =
-                        blocks.drain(index..=index + 1).collect_tuple()
+                    let Some((
+                        image,
+                        Block::Paragraph(Paragraph { content, .. })
+                        | Block::Heading(Heading { content, .. }),
+                    )) = blocks.drain(index..=index + 1).collect_tuple()
                     else {
                         unreachable!("asserted above")
                     };
 
+                    let mut caption = Paragraph::new(content);
+
                     // Remove the prefix from the caption
                     remove_caption_prefix(&mut caption, &prefix);
+
+                    // If the cleaned caption is empty (if just "Figure X" and
+                    // the next block is a paragraph that is NOT a caption, then
+                    // use it as the caption.
+                    if to_text(&caption).trim().is_empty()
+                        && let Some(Block::Paragraph(next)) = blocks.get(index)
+                    {
+                        if detect_figure_caption(&next.content).is_none() {
+                            if let Block::Paragraph(next) = blocks.remove(index) {
+                                caption = next;
+                            };
+                        }
+                    }
 
                     // Create and insert the figure
                     let mut figure = Figure::new(vec![image]);
@@ -218,16 +241,26 @@ impl Collector {
                 }
             }
             // Check for caption followed by ImageObject
-            else if let (Some(Block::Paragraph(paragraph)), Some(Block::ImageObject(..))) =
-                (blocks.get(index), blocks.get(index + 1))
+            else if let (
+                Some(
+                    Block::Paragraph(Paragraph { content, .. })
+                    | Block::Heading(Heading { content, .. }),
+                ),
+                Some(Block::ImageObject(..)),
+            ) = (blocks.get(index), blocks.get(index + 1))
             {
-                if let Some((label, prefix)) = detect_figure_caption(paragraph) {
+                if let Some((label, prefix, ..)) = detect_figure_caption(&content) {
                     // Remove the image and paragraph so that they can be placed in figure
-                    let Some((Block::Paragraph(mut caption), image)) =
-                        blocks.drain(index..=index + 1).collect_tuple()
+                    let Some((
+                        Block::Paragraph(Paragraph { content, .. })
+                        | Block::Heading(Heading { content, .. }),
+                        image,
+                    )) = blocks.drain(index..=index + 1).collect_tuple()
                     else {
                         unreachable!("asserted above")
                     };
+
+                    let mut caption = Paragraph::new(content);
 
                     // Remove the prefix from the caption
                     remove_caption_prefix(&mut caption, &prefix);
@@ -241,27 +274,67 @@ impl Collector {
                     blocks.insert(index, Block::Figure(figure));
                 }
             }
-            // Check for caption followed by Table (only caption before table is considered, not the reverse)
-            else if let (Some(Block::Paragraph(paragraph)), Some(Block::Table(..))) =
-                (blocks.get(index), blocks.get(index + 1))
-                && let Some((label, prefix)) = detect_table_caption(paragraph)
+            // Check for caption followed by Table (only caption before table is
+            // considered, not the reverse)
+            else if let (
+                Some(
+                    Block::Paragraph(Paragraph { content, .. })
+                    | Block::Heading(Heading { content, .. }),
+                ),
+                Some(Block::Table(..)),
+            ) = (blocks.get(index), blocks.get(index + 1))
             {
-                // Remove the paragraph it can be placed in the table
-                let Block::Paragraph(mut caption) = blocks.remove(index) else {
-                    unreachable!("asserted above")
-                };
+                if let Some((label, prefix, ..)) = detect_table_caption(&content) {
+                    // Remove the paragraph it can be placed in the table
+                    let Block::Paragraph(mut caption) = blocks.remove(index) else {
+                        unreachable!("asserted above")
+                    };
 
-                // Remove the prefix from the caption
-                remove_caption_prefix(&mut caption, &prefix);
+                    // Remove the prefix from the caption
+                    remove_caption_prefix(&mut caption, &prefix);
 
-                // Update the table (note using index, not index + 1, here because paragraph removed)
-                let Block::Table(table) = &mut blocks[index] else {
-                    unreachable!("asserted above")
-                };
-                table.id = Some(["tab-", &label.to_kebab_case()].concat());
-                table.label = Some(label);
-                table.label_automatically = Some(false);
-                table.caption = Some(vec![Block::Paragraph(caption)]);
+                    // Update the table (note using index, not index + 1, here because paragraph removed)
+                    let Block::Table(table) = &mut blocks[index] else {
+                        unreachable!("asserted above")
+                    };
+                    table.id = Some(["tab-", &label.to_kebab_case()].concat());
+                    table.label = Some(label);
+                    table.label_automatically = Some(false);
+                    table.caption = Some(vec![Block::Paragraph(caption)]);
+                }
+            }
+            // Check for table label (no caption), followed paragraph, followed
+            // by Table
+            else if let (
+                Some(
+                    Block::Paragraph(Paragraph { content: label, .. })
+                    | Block::Heading(Heading { content: label, .. }),
+                ),
+                Some(Block::Paragraph(Paragraph { content, .. })),
+                Some(Block::Table(..)),
+            ) = (
+                blocks.get(index),
+                blocks.get(index + 1),
+                blocks.get(index + 2),
+            ) {
+                if let Some((label, .., false)) = detect_table_caption(&label)
+                    && detect_table_caption(&content).is_none()
+                {
+                    // Remove the label and caption blocks so the latter can be placed in the table
+                    let Some((_label, caption)) = blocks.drain(index..=index + 1).collect_tuple()
+                    else {
+                        unreachable!("asserted above")
+                    };
+
+                    // Update the table (note using index, not index + 1, here because paragraph removed)
+                    let Block::Table(table) = &mut blocks[index] else {
+                        unreachable!("asserted above")
+                    };
+                    table.id = Some(["tab-", &label.to_kebab_case()].concat());
+                    table.label = Some(label);
+                    table.label_automatically = Some(false);
+                    table.caption = Some(vec![caption]);
+                }
             }
 
             index += 1;
@@ -625,6 +698,7 @@ fn is_top_level_section_type(section_type: &SectionType) -> bool {
             | SectionType::Conclusions
             | SectionType::References
             | SectionType::Acknowledgements
+            | SectionType::Declarations
             | SectionType::Funding
             | SectionType::CompetingInterests
             | SectionType::AuthorContributions
@@ -639,44 +713,48 @@ fn is_top_level_section_type(section_type: &SectionType) -> bool {
     )
 }
 
-/// Detect if a paragraph matches a figure caption pattern
+/// Detect if inlines match a figure caption pattern
 ///
-/// Returns a tuple of (figure_label, prefix_to_remove) if the paragraph
+/// Returns a tuple of (figure_label, prefix_to_remove) if the text
 /// starts with "Figure X" or "Fig X" where X is a number.
-fn detect_figure_caption(paragraph: &Paragraph) -> Option<(String, String)> {
+fn detect_figure_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)> {
     // Detect figure captions like "Figure 1.", "Fig 2:", "Figure 12 -", "Figure A2" etc.
     static FIGURE_CAPTION_REGEX: Lazy<Regex> = Lazy::new(|| {
         Regex::new(r"(?i)^(?:Figure|Fig\.?)\s*([A-Z]?\d+)[.:\-\s]*").expect("invalid regex")
     });
 
-    let text = to_text(paragraph);
+    let text = to_text(inlines);
 
     if let Some(captures) = FIGURE_CAPTION_REGEX.captures(&text) {
         let figure_label = captures[1].to_string();
         let matched_text = captures.get(0)?.as_str();
 
-        Some((figure_label, matched_text.to_string()))
+        let has_caption = !text.replace(matched_text, "").trim().is_empty();
+
+        Some((figure_label, matched_text.to_string(), has_caption))
     } else {
         None
     }
 }
 
-/// Detect if a paragraph matches a table caption pattern
+/// Detect if inlines match a table caption pattern
 ///
-/// Returns a tuple of (table_label, prefix_to_remove) if the paragraph
+/// Returns a tuple of (table_label, prefix_to_remove) if the text
 /// starts with "Table X" where X is a number.
-fn detect_table_caption(paragraph: &Paragraph) -> Option<(String, String)> {
+fn detect_table_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)> {
     // Detect table captions like "Table 1.", "Table 2:", "Table 12 -", , "Table B3" etc.
     static TABLE_CAPTION_REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new(r"(?i)^(?:Table)\s*([A-Z]?\d+)[.:\-\s]*").expect("invalid regex"));
 
-    let text = to_text(paragraph);
+    let text = to_text(inlines);
 
     if let Some(captures) = TABLE_CAPTION_REGEX.captures(&text) {
         let table_label = captures[1].to_string();
         let matched_text = captures.get(0)?.as_str();
 
-        Some((table_label, matched_text.to_string()))
+        let has_caption = !text.replace(matched_text, "").trim().is_empty();
+
+        Some((table_label, matched_text.to_string(), has_caption))
     } else {
         None
     }
@@ -924,8 +1002,6 @@ mod tests {
 
     #[test]
     fn test_detect_figure_caption() {
-        use schema::shortcuts::p;
-
         // Valid figure captions
         let test_cases = [
             ("Figure 1. This is a caption", "1"),
@@ -938,11 +1014,7 @@ mod tests {
         ];
 
         for (input, expected_label, ..) in test_cases {
-            let block = p([t(input)]);
-            let Block::Paragraph(paragraph) = block else {
-                panic!("Expected paragraph block");
-            };
-            let result = detect_figure_caption(&paragraph);
+            let result = detect_figure_caption(&vec![t(input)]);
 
             assert!(result.is_some(), "Should detect figure caption: {input}");
             let (figure_number, ..) = result.expect("Should detect figure caption");
@@ -963,11 +1035,7 @@ mod tests {
         ];
 
         for input in invalid_cases {
-            let block = p([t(input)]);
-            let Block::Paragraph(paragraph) = block else {
-                panic!("Expected paragraph block");
-            };
-            let result = detect_figure_caption(&paragraph);
+            let result = detect_figure_caption(&vec![t(input)]);
             assert!(
                 result.is_none(),
                 "Should not detect figure caption: {input}"
@@ -975,15 +1043,11 @@ mod tests {
         }
 
         // Test with complex paragraph structure
-        let complex_block = p([
+        let result = detect_figure_caption(&vec![
             t("Figure 5. This caption has "),
             schema::shortcuts::em([t("emphasis")]),
             t(" and more text."),
         ]);
-        let Block::Paragraph(complex_paragraph) = complex_block else {
-            panic!("Expected paragraph block");
-        };
-        let result = detect_figure_caption(&complex_paragraph);
         assert!(
             result.is_some(),
             "Should handle complex paragraph structure"
@@ -992,11 +1056,9 @@ mod tests {
         assert_eq!(figure_number, "5");
 
         // Test edge case: figure prefix is the entire first text node
-        let edge_block = p([t("Figure 1. "), t("Second text node with caption.")]);
-        let Block::Paragraph(edge_paragraph) = edge_block else {
-            panic!("Expected paragraph block");
-        };
-        let result = detect_figure_caption(&edge_paragraph);
+
+        let result =
+            detect_figure_caption(&vec![t("Figure 1. "), t("Second text node with caption.")]);
         assert!(
             result.is_some(),
             "Should handle prefix as entire first text node"
