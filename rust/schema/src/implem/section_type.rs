@@ -99,6 +99,8 @@ impl SectionType {
 
             "acknowledgements" | "acknowledgments" => Acknowledgements,
 
+            "declarations" => Declarations,
+
             "funding"
             | "funding statement"
             | "financial support"

@@ -66,6 +66,9 @@ pub enum SectionType {
     /// Recognition of non-author contributions such as assistance, facilities, or feedback.
     Acknowledgements,
 
+    /// General declarations section that may contain or encompass various types of formal statements required by journals, including funding, competing interests, ethics, consent, and other compliance declarations.
+    Declarations,
+
     /// Sources of financial support, grant numbers, and funding acknowledgments.
     Funding,
 
@@ -78,6 +81,9 @@ pub enum SectionType {
     /// Statements confirming informed consent was obtained from participants, patients, or for publication of identifying information.
     ConsentStatements,
 
+    /// Specific roles and contributions of each author (e.g., CRediT taxonomy).
+    AuthorContributions,
+
     /// Statement describing where and how the underlying data can be accessed.
     DataAvailability,
 
@@ -86,9 +92,6 @@ pub enum SectionType {
 
     /// Comprehensive statement on reproducibility and openness, covering availability of data, code, materials, and protocols.
     Reproducibility,
-
-    /// Specific roles and contributions of each author (e.g., CRediT taxonomy).
-    AuthorContributions,
 
     /// List of abbreviations used in the document and their definitions.
     Abbreviations,

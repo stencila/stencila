@@ -67,9 +67,14 @@ anyOf:
   - const: References
     '@id': stencila:ReferencesSection
     description: Bibliographic list of works cited in the document.
+
   - const: Acknowledgements
     '@id': stencila:AcknowledgementsSection
     description: Recognition of non-author contributions such as assistance, facilities, or feedback.
+
+  - const: Declarations
+    '@id': stencila:DeclarationsSection
+    description: General declarations section that may contain or encompass various types of formal statements required by journals, including funding, competing interests, ethics, consent, and other compliance declarations.
   - const: Funding
     '@id': stencila:FundingSection
     description: Sources of financial support, grant numbers, and funding acknowledgments.
@@ -82,6 +87,10 @@ anyOf:
   - const: ConsentStatements
     '@id': stencila:ConsentStatementsSection
     description: Statements confirming informed consent was obtained from participants, patients, or for publication of identifying information.
+  - const: AuthorContributions
+    '@id': stencila:AuthorContributionsSection
+    description: Specific roles and contributions of each author (e.g., CRediT taxonomy).
+
   - const: DataAvailability
     '@id': stencila:DataAvailabilitySection
     description: Statement describing where and how the underlying data can be accessed.
@@ -92,9 +101,6 @@ anyOf:
     '@id': stencila:ReproducibilitySection
     description: Comprehensive statement on reproducibility and openness, covering availability of data, code, materials, and protocols.
 
-  - const: AuthorContributions
-    '@id': stencila:AuthorContributionsSection
-    description: Specific roles and contributions of each author (e.g., CRediT taxonomy).
   - const: Abbreviations
     '@id': stencila:AbbreviationsSection
     description: List of abbreviations used in the document and their definitions.

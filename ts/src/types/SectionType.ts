@@ -22,14 +22,15 @@ export type SectionType =
   'FutureWork' |
   'References' |
   'Acknowledgements' |
+  'Declarations' |
   'Funding' |
   'CompetingInterests' |
   'Ethics' |
   'ConsentStatements' |
+  'AuthorContributions' |
   'DataAvailability' |
   'CodeAvailability' |
   'Reproducibility' |
-  'AuthorContributions' |
   'Abbreviations' |
   'Nomenclature' |
   'Preregistration' |
