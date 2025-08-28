@@ -133,24 +133,16 @@ impl Diagnostic {
     }
 
     /// Get the [`Range8`] for the node from a [`PoshMap`]
-    fn range8<'s>(&self, poshmap: &Option<PoshMap<'s, 's>>) -> Range8 {
-        // Get the range of the node (or it's code if any) within the code
-        // Note: this function is usually only passed a poshmap if using document source
-
-        poshmap
-            .as_ref()
-            .and_then(|poshmap| {
-                if let Some(node_property) = self.node_property {
-                    poshmap
-                        .node_property_to_range8(&self.node_id, node_property)
-                        .or_else(|| poshmap.node_id_to_range8(&self.node_id))
-                } else {
-                    poshmap
-                        .node_id_to_range8(&self.node_id)
-                        .or_else(|| poshmap.node_id_to_range8(&self.node_id))
-                }
-            })
-            .unwrap_or_default()
+    fn range8<'s>(&self, poshmap: &PoshMap<'s, 's>) -> Option<Range8> {
+        if let Some(node_property) = self.node_property {
+            poshmap
+                .node_property_to_range8(&self.node_id, node_property)
+                .or_else(|| poshmap.node_id_to_range8(&self.node_id))
+        } else {
+            poshmap
+                .node_id_to_range8(&self.node_id)
+                .or_else(|| poshmap.node_id_to_range8(&self.node_id))
+        }
     }
 
     /// Print the diagnostic to stderr
@@ -222,34 +214,35 @@ impl Diagnostic {
 
         let mut message = ["::", type_, " file=", path].concat();
 
-        let Range8 {
+        if let Some(Range8 {
             start: Position8 { line, column },
             ..
-        } = self.range8(poshmap);
-
-        if let Some(location) = &self.code_location {
-            if let Some(start_line) = location.start_line {
+        }) = poshmap.as_ref().and_then(|poshmap| self.range8(poshmap))
+        {
+            if let Some(location) = &self.code_location {
+                if let Some(start_line) = location.start_line {
+                    message.push_str(",line=");
+                    message.push_str(&(1 + line + start_line as usize).to_string());
+                }
+                if let Some(end_line) = location.end_line {
+                    message.push_str(",endLine=");
+                    message.push_str(&(1 + line + end_line as usize).to_string());
+                }
+                if let Some(start_col) = location.start_column {
+                    message.push_str(",col=");
+                    message.push_str(&(1 + column + start_col as usize).to_string());
+                }
+                if let Some(end_col) = location.end_column {
+                    message.push_str(",endColumn=");
+                    message.push_str(&(1 + column + end_col as usize).to_string());
+                }
+            } else {
                 message.push_str(",line=");
-                message.push_str(&(1 + line + start_line as usize).to_string());
-            }
-            if let Some(end_line) = location.end_line {
-                message.push_str(",endLine=");
-                message.push_str(&(1 + line + end_line as usize).to_string());
-            }
-            if let Some(start_col) = location.start_column {
-                message.push_str(",col=");
-                message.push_str(&(1 + column + start_col as usize).to_string());
-            }
-            if let Some(end_col) = location.end_column {
-                message.push_str(",endColumn=");
-                message.push_str(&(1 + column + end_col as usize).to_string());
-            }
-        } else {
-            message.push_str(",line=");
-            message.push_str(&(1 + line).to_string());
+                message.push_str(&(1 + line).to_string());
 
-            message.push_str(",col=");
-            message.push_str(&(1 + column).to_string());
+                message.push_str(",col=");
+                message.push_str(&(1 + column).to_string());
+            }
         }
 
         message.push_str(",title=");
@@ -277,7 +270,6 @@ impl Diagnostic {
         };
 
         let title = self.title();
-        let range8 = self.range8(poshmap);
 
         // Decide if using the document's source or the message's source
         let source = if !source.is_empty() {
@@ -292,38 +284,43 @@ impl Diagnostic {
         let positions = Positions::new(&source);
 
         // Convert line/column range to character range
-        let range = if let Some(location) = self.code_location {
-            // If there is a code location then shift the range
-            let line = location.start_line.unwrap_or(0) as usize;
-            let column = location.start_column.unwrap_or(0) as usize;
-            let start = positions
-                .index_at_position8(Position8 {
-                    line: range8.start.line + line,
-                    column: range8.start.column + column,
-                })
-                .unwrap_or(0);
+        let range = if let Some(range8) = poshmap.as_ref().and_then(|poshmap| self.range8(poshmap))
+        {
+            if let Some(location) = self.code_location {
+                // If there is a code location then shift the range
+                let line = location.start_line.unwrap_or(0) as usize;
+                let column = location.start_column.unwrap_or(0) as usize;
+                let start = positions
+                    .index_at_position8(Position8 {
+                        line: range8.start.line + line,
+                        column: range8.start.column + column,
+                    })
+                    .unwrap_or(0);
 
-            let line = location.end_line.map_or_else(|| line, |line| line as usize);
-            let column = location
-                .end_column
-                .map_or_else(|| column, |col| col as usize);
-            let end = positions
-                .index_at_position8(Position8 {
-                    line: range8.start.line + line,
-                    column: range8.start.column + column,
-                })
-                .unwrap_or(start)
-                .max(start);
+                let line = location.end_line.map_or_else(|| line, |line| line as usize);
+                let column = location
+                    .end_column
+                    .map_or_else(|| column, |col| col as usize);
+                let end = positions
+                    .index_at_position8(Position8 {
+                        line: range8.start.line + line,
+                        column: range8.start.column + column,
+                    })
+                    .unwrap_or(start)
+                    .max(start);
 
-            start..end
+                start..end
+            } else {
+                let start = positions.index_at_position8(range8.start).unwrap_or(0);
+                let end = positions
+                    .index_at_position8(range8.end)
+                    .unwrap_or(start)
+                    .max(start);
+
+                start..end
+            }
         } else {
-            let start = positions.index_at_position8(range8.start).unwrap_or(0);
-            let end = positions
-                .index_at_position8(range8.end)
-                .unwrap_or(start)
-                .max(start);
-
-            start..end
+            0..0
         };
 
         let report = Report::build(kind, (path, range.clone()))

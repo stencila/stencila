@@ -856,27 +856,43 @@ impl Document {
 
         // If the document has a path read it so that diagnostics can be printed
         // with the original document source as context.
-        let mut source = String::new();
+        //
+        // Both of these need to live longer that the PoshMap created below
+        //  - source: the source code (for binary files, e.g. docx or pdf)
+        //  - generated: generated version of the source, needed to generate PoshMap
+        //
+        // If no PoshMap is generated then the diagnostic will be shown as "<unknown location>"
+        let mut source = "<unknown location>".to_string();
         let generated;
         let (path, poshmap) = if let Some(path) = self.path.as_ref() {
-            source = read_to_string(path).await?;
-
             let format = Format::from_path(path);
 
-            let result = codecs::to_string_with_info(
-                &*self.root.read().await,
-                Some(EncodeOptions {
-                    format: Some(format),
-                    ..Default::default()
-                }),
-            )
-            .await?;
-            generated = result.0;
-            let mapping = result.1.mapping;
+            // Do not create PoshMap for binary formats (can't read as string) or lossless formats
+            // (do no create mappings)
+            let poshmap = if !(format.is_binary() || format.is_lossless()) {
+                source = read_to_string(path).await?;
 
-            let poshmap = PoshMap::new(&source, &generated, mapping);
+                let (content, info) = codecs::to_string_with_info(
+                    &*self.root.read().await,
+                    Some(EncodeOptions {
+                        format: Some(format),
+                        ..Default::default()
+                    }),
+                )
+                .await?;
 
-            (path.to_string_lossy().to_string(), Some(poshmap))
+                // Do not create a PoshMap if there are no mapping
+                if !info.mapping.entries().is_empty() {
+                    generated = content;
+                    Some(PoshMap::new(&source, &generated, info.mapping))
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
+
+            (path.to_string_lossy().to_string(), poshmap)
         } else {
             (String::from("<file>"), None)
         };
