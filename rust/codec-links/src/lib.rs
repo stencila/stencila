@@ -91,6 +91,7 @@ fn internal_link(input: &mut &str) -> ParserResult<Link> {
         alt((
             (Caseless("figure"), multispace1),
             (Caseless("fig."), multispace0),
+            ("Fig", multispace0),
             (Caseless("table"), multispace1),
             (Caseless("appendix"), multispace1),
             (Caseless("app."), multispace0),
@@ -320,6 +321,11 @@ mod tests {
         let result = internal_link(&mut "Figure A1")?;
         assert_eq!(result.target, "#fig-a1");
         assert_eq!(result.content, vec![t("Figure A1")]);
+
+        // Test Fig with alphanumeric label
+        let result = internal_link(&mut "Fig D3")?;
+        assert_eq!(result.target, "#fig-d3");
+        assert_eq!(result.content, vec![t("Fig D3")]);
 
         // Test suffix stripping for figure labels
         let result = internal_link(&mut "Figure S1A")?;
