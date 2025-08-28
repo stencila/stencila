@@ -123,6 +123,27 @@ pub fn html_to_png_file_with_padding(html: &str, path: &Path, padding: u32) -> R
     Ok(())
 }
 
+/// Converts HTML to PDF and saves to file
+///
+/// This function uses a persistent browser instance for optimal performance.
+/// Optionally, call `warmup()` during application startup for optimal first-call performance.
+///
+/// # Arguments
+/// * `html`: HTML content to render
+/// * `path`: File path where the PDF will be saved
+///
+/// # Returns
+/// * `Result<()>`: Success or error
+pub fn html_to_pdf(html: &str, path: &Path) -> Result<()> {
+    let pdf_bytes = capture_pdf(html)?;
+
+    // Write to file
+    std::fs::write(path, &pdf_bytes)
+        .map_err(|error| eyre!("Failed to write PDF file to {}: {error}", path.display()))?;
+
+    Ok(())
+}
+
 /// Warm up the browser by creating initial instance
 ///
 /// Call this during application startup to avoid cold start delays
@@ -1084,6 +1105,69 @@ fn try_screenshot_with_padding(html: &str, padding: u32) -> Result<String> {
     Ok(result.data)
 }
 
+/// Converts HTML to PDF using the current browser instance
+fn capture_pdf(html: &str) -> Result<Vec<u8>> {
+    // Ensure we have a working browser, recreating if necessary
+    ensure_browser_available()?;
+
+    let result = try_capture_pdf(html);
+    if result.is_err() {
+        // Force recreation by clearing both browser and tab
+        if let Ok(mut manager) = BROWSER_MANAGER.lock() {
+            manager.clear_browser_and_tab();
+        }
+
+        // Ensure browser and tab are available again
+        ensure_browser_available()?;
+
+        // Retry the PDF capture
+        try_capture_pdf(html)
+    } else {
+        result
+    }
+}
+
+/// Attempts to generate a PDF with the current tab instance
+fn try_capture_pdf(html: &str) -> Result<Vec<u8>> {
+    let manager = BROWSER_MANAGER
+        .lock()
+        .map_err(|error| eyre!("Failed to acquire browser manager lock: {error}"))?;
+
+    let tab = manager
+        .tab()
+        .ok_or_else(|| eyre!("No tab instance available"))?;
+
+    // Use Page.setDocumentContent for fastest content injection
+    let frame_tree = tab
+        .call_method(Page::GetFrameTree(None))
+        .map_err(|error| eyre!("Failed to get frame tree: {error}"))?;
+
+    tab.call_method(Page::SetDocumentContent {
+        frame_id: frame_tree.frame_tree.frame.id,
+        html: html.to_string(),
+    })
+    .map_err(|error| eyre!("Failed to set document content: {error}"))?;
+
+    // Set global variable to enable static mode for interactive visualizations
+    tab.evaluate("window.STENCILA_STATIC_MODE = true;", false)
+        .map_err(|error| eyre!("Failed to set static mode: {error}"))?;
+
+    // Wait for interactive visualizations to complete rendering
+    // This detects media types and waits only when necessary
+    if let Err(error) = detect_rendering_completion(tab, html) {
+        tracing::warn!("Rendering completion detection failed: {error}. Generating PDF anyway.",);
+    }
+
+    // Generate PDF with default options
+    let pdf_bytes = tab
+        .print_to_pdf(None)
+        .map_err(|error| eyre!("Failed to generate PDF: {error}"))?;
+
+    tracing::debug!("PDF generated successfully");
+
+    Ok(pdf_bytes)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1129,6 +1213,33 @@ mod tests {
         // HTML with Vega-Lite should need scripts
         let vega_html = r#"<stencila-image-object media-type="application/vnd.vegalite.v5+json">test</stencila-image-object>"#;
         assert!(needs_dynamic_scripts(vega_html));
+    }
+
+    #[test]
+    fn test_html_to_pdf() -> Result<()> {
+        use std::path::PathBuf;
+
+        let simple_html =
+            "<html><body><h1>Test PDF</h1><p>This is a simple test document.</p></body></html>";
+        let test_path = PathBuf::from("test_output.pdf");
+
+        // Remove existing file if it exists
+        if test_path.exists() {
+            std::fs::remove_file(&test_path).ok();
+        }
+
+        // Generate PDF
+        html_to_pdf(simple_html, &test_path)?;
+
+        // Verify file was created and has content
+        assert!(test_path.exists(), "PDF file should be created");
+        let file_size = std::fs::metadata(&test_path)?.len();
+        assert!(file_size > 0, "PDF file should have content");
+
+        // Clean up
+        std::fs::remove_file(&test_path).ok();
+
+        Ok(())
     }
 
     #[ignore = "primarily for development"]

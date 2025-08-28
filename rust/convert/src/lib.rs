@@ -8,7 +8,7 @@
 mod md_to_md;
 
 pub mod html_to_png;
-pub use html_to_png::{html_to_png_data_uri, html_to_png_file};
+pub use html_to_png::{html_to_pdf, html_to_png_data_uri, html_to_png_file};
 
 mod latex_to_pdf;
 pub use latex_to_pdf::*;

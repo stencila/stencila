@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{env::current_dir, path::Path};
 
 use codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, NodeType,
@@ -7,10 +7,11 @@ use codec::{
     schema::{Article, Node},
     status::Status,
 };
+use codec_dom::DomCodec;
 use codec_latex::LatexCodec;
 use codec_markdown::MarkdownCodec;
 use codec_utils::git_info;
-use convert::{latex_to_pdf, pdf_to_md};
+use convert::{html_to_pdf, latex_to_pdf, pdf_to_md};
 use media_embed::embed_media;
 use node_structuring::structuring;
 
@@ -100,22 +101,51 @@ impl Codec for PdfCodec {
     ) -> Result<EncodeInfo> {
         let options = options.unwrap_or_default();
 
-        let (latex, info) = LatexCodec
-            .to_string(
-                node,
-                Some(EncodeOptions {
-                    standalone: Some(true),
-                    render: Some(true),
-                    // Indicate that the LaTeX should be generated for PDF as final
-                    // destination format
-                    format: Some(Format::Pdf),
-                    ..options
-                }),
-            )
-            .await?;
+        let tool = options.tool.as_deref().unwrap_or("browser");
+        if matches!(tool, "xelatex" | "latex") {
+            // Encode to PDF via LaTeX
+            let (latex, info) = LatexCodec
+                .to_string(
+                    node,
+                    Some(EncodeOptions {
+                        standalone: Some(true),
+                        render: Some(true),
+                        // Indicate that the LaTeX should be generated for PDF as final
+                        // destination format
+                        format: Some(Format::Pdf),
+                        ..options
+                    }),
+                )
+                .await?;
 
-        latex_to_pdf(&latex, path).await?;
+            latex_to_pdf(&latex, path).await?;
 
-        Ok(info)
+            Ok(info)
+        } else {
+            // Embed any media files. This is necessary because the
+            // browser will not fetch local resources when generating
+            // the PDF
+            let mut node = node.clone();
+            let from_path = match &options.from_path {
+                Some(path) => path.clone(),
+                None => current_dir()?,
+            };
+            embed_media(&mut node, &from_path)?;
+
+            // Encode to PDF via HTML
+            let (html, info) = DomCodec
+                .to_string(
+                    &node,
+                    Some(EncodeOptions {
+                        standalone: Some(true),
+                        ..options
+                    }),
+                )
+                .await?;
+
+            html_to_pdf(&html, path)?;
+
+            Ok(info)
+        }
     }
 }
