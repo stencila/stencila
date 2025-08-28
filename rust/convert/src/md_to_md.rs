@@ -24,8 +24,8 @@ pub fn clean_md(md: &str) -> String {
     let md = remove_line_numbers(md);
     let md = remove_extra_blank_lines(&md);
     let md = remove_heading_formatting(&md);
+    let md = remove_unnecessary_inline_math(&md);
     let md = ensure_isolated_blocks(&md);
-
     ensure_isolated_references(&md)
 }
 
@@ -194,6 +194,205 @@ fn remove_heading_formatting(md: &str) -> String {
     }
 
     result.join("\n")
+}
+
+/// Remove unnecessary inline math (delimited by single dollars)
+///
+/// Some OCR (e.g. Mistral) can be over enthusiastic with creating inline TeX
+/// math. Often TeX is used when ASCII or Unicode would suffice e.g.
+///
+/// $\$ 40$                         =>      $ 40
+/// $(\sim 100 \mathrm{nL})$        =>      (~ 100nL)
+/// $0.022 \pm 0.0005 \mathrm{g}$   =>      0.022 ± 0.0005 g
+///
+/// The first example is problematic because our Markdown parse does not escape
+/// dollars inside math and so we end up with unbalanced dollars which breaks
+/// parsing. The other examples above do not cause such issues but are
+/// unnecessary.
+fn remove_unnecessary_inline_math(md: &str) -> String {
+    static INLINE_MATH_REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"\$([^$]*?(?:\\.[^$]*?)*)\$").expect("invalid regex"));
+
+    INLINE_MATH_REGEX
+        .replace_all(md, |caps: &common::regex::Captures| {
+            let math_content = &caps[1];
+            let simplified = simplify_tex(math_content);
+
+            // If the math content is empty or the simplified version contains no TeX commands,
+            // and the simplified version is not empty, remove the dollar delimiters
+            if !simplified.trim().is_empty() && !contains_tex_commands(&simplified) {
+                simplified
+            } else {
+                // Keep the original math expression
+                format!("${}$", math_content)
+            }
+        })
+        .to_string()
+}
+
+/// Simplify common TeX commands to Unicode/ASCII equivalents
+fn simplify_tex(tex: &str) -> String {
+    use std::collections::HashMap;
+
+    static REPLACEMENTS: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
+        HashMap::from([
+            // Common symbol replacements
+            ("\\$", "$"),      // Escaped dollar
+            (r"\sim", "~"),    // Tilde
+            (r"\pm", "±"),     // Plus-minus
+            (r"\times", "×"),  // Multiplication
+            (r"\approx", "≈"), // Approximately
+            (r"\leq", "≤"),    // Less than or equal
+            (r"\geq", "≥"),    // Greater than or equal
+            (r"\neq", "≠"),    // Not equal
+            (r"\infty", "∞"),  // Infinity
+            ("~", " "),        // Non-breaking space to regular space
+            // Greek letters (common ones)
+            (r"\alpha", "α"),
+            (r"\beta", "β"),
+            (r"\gamma", "γ"),
+            (r"\delta", "δ"),
+            (r"\epsilon", "ε"),
+            (r"\mu", "μ"),
+            (r"\pi", "π"),
+            (r"\sigma", "σ"),
+            (r"\theta", "θ"),
+            (r"\lambda", "λ"),
+            (r"\omega", "ω"),
+        ])
+    });
+
+    let mut result = String::with_capacity(tex.len()); // Pre-allocate reasonable size
+    let mut chars = tex.chars().peekable();
+
+    while let Some(ch) = chars.next() {
+        // Check for simple single-character replacements first
+        if let Some(&replacement) = REPLACEMENTS.get(&ch.to_string().as_str()) {
+            result.push_str(replacement);
+        } else if ch == '\\' {
+            // Found a backslash, try to parse TeX command
+            let mut command = String::from("\\");
+
+            // Special case: handle \$ (escaped dollar)
+            if let Some(&next_ch) = chars.peek() {
+                if next_ch == '$' {
+                    command.push(chars.next().unwrap());
+                } else {
+                    // Collect the command name (letters after backslash)
+                    while let Some(&next_ch) = chars.peek() {
+                        if next_ch.is_ascii_alphabetic() {
+                            command.push(chars.next().unwrap());
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Check if this is a brace-based command (\mathrm{...}, \mathit{...}, \mathbf{...})
+            if matches!(command.as_str(), r"\mathrm" | r"\mathit" | r"\mathbf") {
+                // Check if followed by {
+                if let Some(&'{') = chars.peek() {
+                    chars.next(); // consume the {
+                    let mut brace_content = String::new();
+                    let mut brace_count = 1;
+
+                    // Parse until matching }
+                    while let Some(ch) = chars.next() {
+                        if ch == '{' {
+                            brace_count += 1;
+                            brace_content.push(ch);
+                        } else if ch == '}' {
+                            brace_count -= 1;
+                            if brace_count == 0 {
+                                break; // Found matching closing brace
+                            }
+                            brace_content.push(ch);
+                        } else {
+                            brace_content.push(ch);
+                        }
+                    }
+
+                    // For \mathrm{...}, \mathit{...}, \mathbf{...}, apply simple character replacements to the content
+                    for ch in brace_content.chars() {
+                        if let Some(&replacement) = REPLACEMENTS.get(&ch.to_string().as_str()) {
+                            // If replacement is whitespace, apply space normalization
+                            if replacement.trim().is_empty() {
+                                if !result.chars().last().map_or(false, |c| c.is_whitespace()) {
+                                    result.push(' ');
+                                }
+                            } else {
+                                result.push_str(replacement);
+                            }
+                        } else if ch.is_whitespace() {
+                            // Handle space normalization for brace content too
+                            if !result.chars().last().map_or(false, |c| c.is_whitespace()) {
+                                result.push(' ');
+                            }
+                        } else {
+                            result.push(ch);
+                        }
+                    }
+                } else {
+                    // No brace found, keep the original command
+                    result.push_str(&command);
+                }
+            }
+            // Check if we have a simple replacement for this command
+            else if let Some(&replacement) = REPLACEMENTS.get(command.as_str()) {
+                result.push_str(replacement);
+            } else {
+                // No replacement found, keep the original command
+                result.push_str(&command);
+            }
+        } else {
+            // Handle space normalization during parsing
+            if ch.is_whitespace() {
+                // Add a single space if the last character wasn't whitespace
+                if !result.chars().last().map_or(false, |c| c.is_whitespace()) {
+                    result.push(' ');
+                }
+            } else {
+                result.push(ch);
+            }
+        }
+    }
+
+    // Final trim to remove leading/trailing whitespace
+    result.trim().to_string()
+}
+
+/// Check if a string contains TeX commands or mathematical constructs that
+/// should remain in math mode
+fn contains_tex_commands(s: &str) -> bool {
+    let mut chars = s.chars();
+
+    while let Some(ch) = chars.next() {
+        match ch {
+            // TeX-specific characters
+            '{' | '}' | '^' | '_' => return true,
+
+            // Mathematical operators - if present, keep as math to be safe
+            '=' | '+' | '-' | '*' | '/' => return true,
+
+            // TeX commands (\command)
+            '\\' => {
+                // Check if followed by an alphabetic character
+                if chars
+                    .as_str()
+                    .chars()
+                    .next()
+                    .map_or(false, |c| c.is_ascii_alphabetic())
+                {
+                    return true;
+                }
+            }
+
+            _ => {} // Continue for other characters
+        }
+    }
+
+    false
 }
 
 /// Ensure blank lines around headings, block level images, and table/figure captions
@@ -835,6 +1034,95 @@ mod tests {
         ## Another Header
         Final text
         ");
+    }
+
+    #[test]
+    fn test_remove_unnecessary_inline_math() {
+        // Test the examples from the documentation comments
+
+        // Debug: test basic replacement first
+        let input = r"Simple: $\alpha$";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Simple: α");
+
+        // Escaped dollar sign - problematic case that should be simplified
+        let input = r"The cost is $\$ 40$ for this item";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"The cost is $ 40 for this item");
+
+        // Tilde with mathrm unit
+        let input = r"The volume is $(\sim 100 \mathrm{nL})$ approximately";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"The volume is (~ 100 nL) approximately");
+
+        // Plus-minus with mathrm unit
+        let input = r"Mass: $0.022 \pm 0.0005 \mathrm{g}$";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Mass: 0.022 ± 0.0005 g");
+
+        // Test common symbols that can be simplified
+        let input = r"Temperature $\approx 25°C$ and pressure $\leq 1 \mathrm{atm}$";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Temperature ≈ 25°C and pressure ≤ 1 atm");
+
+        // Test Greek letters
+        let input = r"The angle $\theta$ and constant $\pi$ are important";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"The angle θ and constant π are important");
+
+        // Test multiplication and other symbols
+        let input = r"Result: $5 \times 10$ and $x \neq 0$";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Result: 5 × 10 and x ≠ 0");
+
+        // Test complex TeX that should NOT be simplified (contains complex commands)
+        let input = r"Complex formula: $\frac{1}{2}\sqrt{x^2 + y^2}$";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Complex formula: $\frac{1}{2}\sqrt{x^2 + y^2}$");
+
+        // Test mixed content - some can be simplified, some cannot
+        let input = r"Simple: $\alpha$ but complex: $\int_0^\infty x dx$";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Simple: α but complex: $\int_0^\infty x dx$");
+
+        // Test multiple mathrm expressions
+        let input = r"Units: $\mathrm{kg}$, $\mathrm{m}$, $\mathrm{s}$";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Units: kg, m, s");
+
+        // Test mathit and mathbf
+        let input = r"Variables: $\mathit{velocity}$ and $\mathbf{force}$";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Variables: velocity and force");
+
+        // Test expressions with superscripts/subscripts should not be simplified
+        let input = r"Formula: $E = mc^2$ and $H_2O$";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Formula: $E = mc^2$ and $H_2O$");
+
+        // Test expressions with braces that aren't math commands should not be simplified
+        let input = r"Set notation: $\{1, 2, 3\}$";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Set notation: $\{1, 2, 3\}$");
+
+        // Test empty math expression
+        let input = r"Empty math: $$";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Empty math: $$");
+
+        // Test no math expressions
+        let input = r"Regular text with no math expressions";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Regular text with no math expressions");
+
+        // Test multiple math expressions in one line
+        let input = r"Multiple: $\alpha$ and $\beta$ and $\gamma$";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Multiple: α and β and γ");
+
+        // Test edge case with dollar signs in regular text (should not be affected)
+        let input = r"The price is 5 dollars, not $x + y = z$.";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"The price is 5 dollars, not $x + y = z$.");
+
+        // Test math with spaces
+        let input = r"Spaced math: $\alpha   \beta$";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Spaced math: α β");
+
+        // Test infinity symbol
+        let input = r"Limit: $x \to \infty$";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Limit: $x \to \infty$"); // Should not simplify due to \to
+
+        // Test just infinity
+        let input = r"Infinity: $\infty$";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Infinity: ∞");
+
+        // Test tilde (non-breaking space) replacement
+        let input = r"Units: $8.31 \pm 0.039 \mathrm{~mm}$";
+        assert_snapshot!(remove_unnecessary_inline_math(input), @r"Units: 8.31 ± 0.039 mm");
     }
 
     #[test]
