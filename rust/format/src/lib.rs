@@ -244,6 +244,29 @@ impl Format {
         !self.is_lossless()
     }
 
+    /// Is this a binary format?
+    pub fn is_binary(&self) -> bool {
+        use Format::*;
+        matches!(
+            self,
+            Arrow
+                | Cbor
+                | CborZstd
+                | Docx
+                | JsonZip
+                | Meca
+                | Ods
+                | Odt
+                | Parquet
+                | Pdf
+                | PmcOa
+                | Xls
+                | Xlsx
+        ) || self.is_image()
+            || self.is_audio()
+            || self.is_video()
+    }
+
     /// Is this an image format?
     pub fn is_image(&self) -> bool {
         use Format::*;
