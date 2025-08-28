@@ -150,17 +150,20 @@ impl Replacer {
                     .inline_replacements
                     .remove(&node_id)
                     .expect("checked above");
-                // Only apply citation replacement if it matches the collector's
-                // determined citation style
                 if let Some(ref citation_style) = self.collector.citation_style {
                     if &replacement_type == citation_style {
+                        // Matches determined citation style so replace
                         inlines_1.extend(replacements);
+                    } else {
+                        // Does not match determined citation style so keep original
+                        inlines_1.push(inline);
                     }
                 } else {
                     // If no citation style determined, apply all replacements (fallback)
                     inlines_1.extend(replacements);
                 }
             } else {
+                // No possible citation replacement so keep original
                 inlines_1.push(inline);
             }
         }

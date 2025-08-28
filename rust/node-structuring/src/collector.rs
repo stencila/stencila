@@ -7,7 +7,10 @@ use codec_biblio::decode::{
 };
 use codec_links::decode_inlines as text_with_links;
 use codec_text_trait::to_text;
-use common::{inflector::Inflector, itertools::Itertools, once_cell::sync::Lazy, regex::Regex};
+use common::{
+    inflector::Inflector, itertools::Itertools, once_cell::sync::Lazy, regex::Regex,
+    strum::Display, tracing,
+};
 use schema::{
     Admonition, Article, Block, Figure, ForBlock, Heading, IncludeBlock, Inline, List, ListOrder,
     MathInline, Node, NodeId, Paragraph, Reference, Section, SectionType, StyledBlock, Text,
@@ -40,7 +43,7 @@ pub(super) enum BlockReplacement {
 
 /// A type of potential inline replacement
 #[allow(clippy::enum_variant_names)]
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Display, Clone, PartialEq, Eq, Hash)]
 pub(super) enum InlineReplacement {
     /// Replace text with a mix of text and author-year citations
     AuthorYearCitations,
@@ -658,6 +661,7 @@ impl Collector {
     /// This method analyzes the collected references and citation replacements
     /// to decide which citation style should be used for the document.
     /// If a citation style is specified, it will be used instead of automatic determination.
+    #[tracing::instrument(skip(self))]
     pub fn determine_citation_style(&mut self, specified_style: Option<CitationStyle>) {
         // Count occurrences of each citation style
         let mut style_counts = std::collections::HashMap::new();
@@ -673,7 +677,7 @@ impl Collector {
 
         // Determine citation style based on heuristics or use specified style
         self.citation_style = if let Some(style) = specified_style {
-            // Use the explicitly specified citation style
+            tracing::debug!("Using specified citation style");
             Some(match style {
                 CitationStyle::AuthorYear => AuthorYearCitations,
                 CitationStyle::BracketedNumeric => BracketedNumericCitations,
@@ -681,20 +685,29 @@ impl Collector {
                 CitationStyle::SuperscriptedNumeric => SuperscriptedNumericCitations,
             })
         } else if style_counts.is_empty() {
-            // No citations found, no style to determine
+            tracing::debug!("No citations found, no style to determine");
             None
         } else if self.references_are_ordered {
             // If references are numbered, choose the style with the greatest count
-            Some(
-                style_counts
-                    .iter()
-                    .max_by_key(|(_, count)| *count)
-                    .map(|(style, _)| (*style).clone())
-                    .unwrap_or(AuthorYearCitations),
-            )
+            let style = style_counts
+                .iter()
+                .filter(|(key, _)| {
+                    matches!(
+                        key,
+                        BracketedNumericCitations
+                            | ParentheticNumericCitations
+                            | SuperscriptedNumericCitations
+                    )
+                })
+                .max_by_key(|(_, count)| *count)
+                .map(|(style, _)| (*style).clone())
+                .unwrap_or(AuthorYearCitations);
+            tracing::debug!("Using numeric citation style with highest count: {style}");
+            Some(style)
         } else {
             // If references are not numbered then none of the numeric styles will be valid
             // so assume author-year
+            tracing::debug!("References are not ordered, so assuming author-year citations");
             Some(AuthorYearCitations)
         };
     }
