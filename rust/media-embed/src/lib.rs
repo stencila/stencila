@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use common::{
-    eyre::{Result, bail},
+    eyre::{Context, Result, bail, eyre},
     tracing,
 };
 use format::Format;
@@ -11,16 +11,20 @@ use schema::{Block, ImageObject, Inline, VisitorMut, WalkControl, WalkNode};
 ///
 /// Currently only handles images but in the future may also support
 /// audio and (small) video.
-pub fn embed_media<T>(node: &mut T, dir: &Path) -> Result<()>
+pub fn embed_media<T>(node: &mut T, path: &Path) -> Result<()>
 where
     T: WalkNode,
 {
-    let dir = if dir.is_file()
-        && let Some(parent) = dir.parent()
+    let path = path
+        .canonicalize()
+        .wrap_err_with(|| eyre!("Path does not exist `{}`", path.display()))?;
+
+    let dir = if path.is_file()
+        && let Some(parent) = path.parent()
     {
         parent
     } else {
-        dir
+        &path
     };
 
     if !dir.exists() {
