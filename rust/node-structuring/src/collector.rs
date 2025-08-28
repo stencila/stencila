@@ -76,6 +76,9 @@ pub(super) struct Collector {
     /// Whether in frontmatter (after title and before first section)
     in_frontmatter: bool,
 
+    /// Whether a primary section has been hit
+    hit_primary_section: bool,
+
     /// Whether in an abstract section
     ///
     /// Whether a "keywords" heading has been encountered, in which case keywords will
@@ -116,7 +119,6 @@ impl Collector {
     pub fn new(options: StructuringOptions) -> Self {
         Self {
             options,
-            in_frontmatter: true,
             ..Default::default()
         }
     }
@@ -125,6 +127,7 @@ impl Collector {
 impl VisitorMut for Collector {
     fn visit_node(&mut self, node: &mut Node) -> WalkControl {
         if let Node::Article(Article { content, .. }) = node {
+            self.in_frontmatter = true;
             self.visit_blocks(content);
         }
 
@@ -364,13 +367,13 @@ impl Collector {
         // Detect section type from cleaned text
         let section_type = SectionType::from_text(&cleaned_text).ok();
 
-        // Extract title
-        if self.options.extract_title
-            && self.title.is_none()
+        // Extract title and turn on frontmatter handling
+        if self.options.extract_title && self.title.is_none() && !self.hit_primary_section
             && numbering.is_none()
-            && heading.level <= 2 // Heading level 1 or 2
+            // Heading level 1 or 2
+            && heading.level <= 2
+            // Not a recognized section heading
             && section_type.is_none()
-        // Not a recognized section heading
         {
             self.title = Some(heading.content.drain(..).collect());
 
@@ -380,13 +383,10 @@ impl Collector {
             return WalkControl::Break;
         }
 
-        // If not title and hit a heading, then no longer in frontmatter
-        self.in_frontmatter = false;
-
         let cleaned_text_lowercase = cleaned_text.to_lowercase();
 
         // Determine if in abstract section
-        if cleaned_text_lowercase == "abstract" {
+        if matches!(section_type, Some(SectionType::Abstract)) {
             self.in_abstract = true;
             self.block_replacements
                 .insert(heading.node_id(), (BlockReplacement::Abstract, Vec::new()));
@@ -403,13 +403,14 @@ impl Collector {
             self.in_keywords = false;
         }
 
-        // Determine effective level based on priority: known section types > numbering > fallback
-        let level = if section_type
+        let is_primary_section = section_type
             .as_ref()
-            .map(is_top_level_section_type)
-            .unwrap_or_default()
-        {
-            // Known top-level section types always get level 1
+            .map(is_primary_section_type)
+            .unwrap_or_default();
+
+        // Determine effective level based on priority: known section types > numbering > fallback
+        let level = if is_primary_section {
+            // Known primary section types always get level 1
             1
         } else if numbering_depth > 0 {
             let numbered_level = numbering_depth as i64;
@@ -424,10 +425,24 @@ impl Collector {
             heading.level
         };
 
-        // Update level and content, if necessary
+        // Update heading level and content, if necessary
         heading.level = level;
         if cleaned_text != text {
             heading.content = vec![t(&cleaned_text)];
+        }
+
+        // Update flags based on heading level determined above
+        if is_primary_section {
+            self.hit_primary_section = true;
+            self.in_frontmatter = false;
+        }
+
+        // If still in frontmatter remove this heading
+        if self.options.discard_frontmatter && self.in_frontmatter {
+            self.block_replacements.insert(
+                heading.node_id(),
+                (BlockReplacement::Frontmatter, Vec::new()),
+            );
         }
 
         // Update whether or not in references
@@ -686,10 +701,12 @@ impl Collector {
 }
 
 /// Check if a section type should always be forced to level 1 (top-level sections)
-fn is_top_level_section_type(section_type: &SectionType) -> bool {
+fn is_primary_section_type(section_type: &SectionType) -> bool {
     matches!(
         section_type,
         SectionType::Abstract
+            | SectionType::Summary
+            | SectionType::NonTechnicalSummary
             | SectionType::Introduction
             | SectionType::Materials
             | SectionType::Methods
