@@ -291,19 +291,21 @@ fn preprocess_myst(myst: &str) -> String {
 
 /// Markdown parsing options
 fn parse_options() -> ParseOptions {
+    // Use GitHub Flavoured Markdown with the following differences
     let mut options = ParseOptions::gfm();
+
+    // Enable frontmatter
     options.constructs.frontmatter = true;
 
-    // Enable block math
+    // Enable inline and block math
+    options.constructs.math_text = true;
     options.constructs.math_flow = true;
 
-    // Do not parse inline code since we have a custom parser for that
+    // TODO: do not disable this code in text
+    // Current turned off for custom parsing of Stencila, MyST and QMD
+    // code expressions but, because math is now turned on, this
+    // will not work for code with more than one $ symbol in it.
     options.constructs.code_text = false;
-
-    // Do not parse inline math since we have a custom parser for that
-    // to avoid clashes with dollars inside code
-    options.math_text_single_dollar = false;
-    options.constructs.math_text = false;
 
     // Do not parse GFM single strikethrough since we use that for subscripts
     options.constructs.gfm_strikethrough = false;

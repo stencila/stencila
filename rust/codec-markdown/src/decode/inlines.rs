@@ -205,7 +205,6 @@ pub(super) fn inlines(input: &str) -> Vec<(Inline, Range<usize>)> {
             qmd_inline_code,
             code_attrs,
             double_braces,
-            math,
             citation_group,
             citation_parenthetical,
             citation_narrative,
@@ -373,22 +372,6 @@ fn double_braces(input: &mut Located<&str>) -> ModalResult<Inline> {
             })
         })
         .parse_next(input)
-}
-
-/// Parse math surrounded by one or two dollars into a `MathInline`.
-fn math(input: &mut Located<&str>) -> ModalResult<Inline> {
-    (alt((
-        delimited("$$", take_until(0.., "$$"), "$$"),
-        delimited("$", take_until(0.., "$"), "$"),
-    )))
-    .map(|code: &str| {
-        Inline::MathInline(MathInline {
-            code: code.into(),
-            math_language: Some("tex".into()),
-            ..Default::default()
-        })
-    })
-    .parse_next(input)
 }
 
 fn citation_target(input: &mut Located<&str>) -> ModalResult<String> {
@@ -727,9 +710,9 @@ fn strikeout(input: &mut Located<&str>) -> ModalResult<Inline> {
 fn subscript(input: &mut Located<&str>) -> ModalResult<Inline> {
     alt((
         delimited(
-            // Only match single tilde, because doubles are for `Strikeout`
+            // Only match single tilde, because doubles are for `Strikeout`, Do not allow whitespace.
             ('~', peek(not('~'))),
-            take_until(1.., '~'),
+            take_while(1.., |c: char| c != '~' && !c.is_whitespace()),
             '~',
         ),
         delimited("<sub>", take_until(0.., "</sub>"), "</sub>"),
@@ -741,7 +724,12 @@ fn subscript(input: &mut Located<&str>) -> ModalResult<Inline> {
 /// Parse a string into a `Superscript` node
 fn superscript(input: &mut Located<&str>) -> ModalResult<Inline> {
     alt((
-        delimited('^', take_until(0.., '^'), '^'),
+        // Do not allow whitespace in superscript
+        delimited(
+            '^',
+            take_while(1.., |c: char| c != '^' && !c.is_whitespace()),
+            '^',
+        ),
         delimited("<sup>", take_until(0.., "</sup>"), "</sup>"),
     ))
     .map(|content: &str| Inline::Superscript(Superscript::new(inlines_only(content))))
@@ -1003,24 +991,33 @@ mod tests {
     }
 
     #[test]
-    fn test_math() {
-        assert_eq!(
-            math(&mut Located::new("$\\pi r^2$")).unwrap(),
-            Inline::MathInline(MathInline {
-                code: "\\pi r^2".into(),
-                math_language: Some("tex".into()),
-                ..Default::default()
-            })
-        );
+    fn test_subscript() {
+        let res = inlines("before H~2~0 after");
+        assert_eq!(res.len(), 3);
+        assert_eq!(to_text(&res[0].0), "before H");
+        assert!(matches!(res[1].0, Inline::Subscript(..)));
+        assert_eq!(to_text(&res[1].0), "2");
+        assert_eq!(to_text(&res[2].0), "0 after");
 
-        assert_eq!(
-            math(&mut Located::new("$$\\pi r^2$$")).unwrap(),
-            Inline::MathInline(MathInline {
-                code: "\\pi r^2".into(),
-                math_language: Some("tex".into()),
-                ..Default::default()
-            })
-        );
+        let res = inlines("before <sub>subscripted</sub> after");
+        assert_eq!(res.len(), 3);
+        assert!(matches!(res[1].0, Inline::Subscript(..)));
+        assert_eq!(to_text(&res[1].0), "subscripted");
+    }
+
+    #[test]
+    fn test_superscript() {
+        let res = inlines("before CO^2^ after");
+        assert_eq!(res.len(), 3);
+        assert_eq!(to_text(&res[0].0), "before CO");
+        assert!(matches!(res[1].0, Inline::Superscript(..)));
+        assert_eq!(to_text(&res[1].0), "2");
+        assert_eq!(to_text(&res[2].0), " after");
+
+        let res = inlines("before <sup>superscripted</sup> after");
+        assert_eq!(res.len(), 3);
+        assert!(matches!(res[1].0, Inline::Superscript(..)));
+        assert_eq!(to_text(&res[1].0), "superscripted");
     }
 
     #[test]
