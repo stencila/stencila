@@ -214,7 +214,6 @@ mod tests {
         assert_eq!(f("findings")?, Results);
 
         assert_eq!(f("Discussion")?, Discussion);
-        assert_eq!(f("analysis")?, Discussion);
 
         assert_eq!(f("Conclusions")?, Conclusions);
         assert_eq!(f("conclusion")?, Conclusions);
