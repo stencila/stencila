@@ -1953,8 +1953,6 @@ dependencies = [
  "codec",
  "common-dev",
  "governor",
- "reqwest-middleware",
- "reqwest-ratelimit",
  "serde",
  "version",
 ]
@@ -9202,33 +9200,6 @@ dependencies = [
  "pin-project-lite",
  "reqwest",
  "thiserror 1.0.69",
-]
-
-[[package]]
-name = "reqwest-middleware"
-version = "0.4.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57f17d28a6e6acfe1733fe24bcd30774d13bffa4b8a22535b4c8c98423088d4e"
-dependencies = [
- "anyhow",
- "async-trait",
- "http",
- "reqwest",
- "serde",
- "thiserror 1.0.69",
- "tower-service",
-]
-
-[[package]]
-name = "reqwest-ratelimit"
-version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2b8fff0d8036f23dcad6c27605ca3baa8ae3867438d0a8b34072f40f6c8bf628"
-dependencies = [
- "async-trait",
- "http",
- "reqwest",
- "reqwest-middleware",
 ]
 
 [[package]]

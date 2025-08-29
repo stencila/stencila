@@ -5,8 +5,6 @@ use governor::{
     clock::DefaultClock,
     state::{InMemoryState, NotKeyed},
 };
-use reqwest_middleware::{ClientBuilder, ClientWithMiddleware, reqwest::header::USER_AGENT};
-use reqwest_ratelimit::{RateLimiter as ReqwestRateLimiter, all};
 
 use codec::common::{
     eyre::{Result, bail},
@@ -28,35 +26,42 @@ use crate::{
 
 const API_BASE_URL: &str = "https://api.openalex.org";
 
-// Keep below the default rate limit. Although that is documented to be 10 req/s
-// for some reason using values >=4 causes hitting of the limit.
-// See https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication
-const MAX_REQUESTS_PER_SECOND: u32 = 3;
+// OpenAlex rate limits for unauthenticated users
+// https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication
+// 10 requests/second, 100,000 requests/day
 
-static GOVERNOR: Lazy<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
+// Per-second rate limiter (9 req/s for safety)
+static SECOND_GOVERNOR: Lazy<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
     Lazy::new(|| {
-        GovernorRateLimiter::direct(Quota::per_second(
-            NonZeroU32::new(MAX_REQUESTS_PER_SECOND).expect("not non-zero"),
-        ))
+        GovernorRateLimiter::direct(Quota::per_second(NonZeroU32::new(9).expect("invalid")))
     });
 
-struct RateLimiter;
+// Daily rate limiter approximation (95,000 req/day ≈ 3958 req/hour)
+static DAILY_GOVERNOR: Lazy<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
+    Lazy::new(|| {
+        GovernorRateLimiter::direct(Quota::per_hour(NonZeroU32::new(3958).expect("invalid")))
+    });
 
-impl ReqwestRateLimiter for RateLimiter {
-    async fn acquire_permit(&self) {
-        let start = Instant::now();
-        GOVERNOR.until_ready().await;
-        tracing::trace!(
-            "Rate limited for {}ms",
-            (Instant::now() - start).as_millis()
-        )
+/// Apply rate limiting for OpenAlex API
+async fn apply_rate_limiting() -> Result<()> {
+    let start = Instant::now();
+
+    SECOND_GOVERNOR.until_ready().await;
+    DAILY_GOVERNOR.until_ready().await;
+
+    let duration = (Instant::now() - start).as_millis();
+    if duration > 0 {
+        tracing::trace!("Rate limited for {duration}ms");
     }
+
+    Ok(())
 }
 
-static CLIENT: Lazy<ClientWithMiddleware> = Lazy::new(|| {
-    ClientBuilder::new(Client::new())
-        .with(all(RateLimiter))
+static CLIENT: Lazy<Client> = Lazy::new(|| {
+    Client::builder()
+        .user_agent(STENCILA_USER_AGENT)
         .build()
+        .expect("invalid")
 });
 
 /// Generate a URL to query a list of an entity type
@@ -102,6 +107,8 @@ where
 {
     tracing::debug!("Making OpenAlex API request");
 
+    apply_rate_limiting().await?;
+
     let url = if !url.contains("&per-page=") {
         // If no per-page specified use the maximum, In the future, more sophisticated
         // page or cursor handling may be implemented
@@ -111,11 +118,7 @@ where
         url.to_string()
     };
 
-    let response = CLIENT
-        .get(url)
-        .header(USER_AGENT, STENCILA_USER_AGENT)
-        .send()
-        .await?;
+    let response = CLIENT.get(url).send().await?;
 
     if let Err(error) = response.error_for_status_ref() {
         bail!("{error}: {}", response.text().await.unwrap_or_default());
@@ -147,6 +150,8 @@ pub async fn request_ids(url: &str) -> Result<Vec<String>> {
 pub async fn work_by_doi(doi: &str) -> Result<Work> {
     tracing::trace!("Fetching work by DOI: {}", doi);
 
+    apply_rate_limiting().await?;
+
     let response = CLIENT
         .get(format!("{API_BASE_URL}/works/https://doi.org/{doi}"))
         .send()
@@ -174,6 +179,8 @@ pub async fn search_works(title: &str, year: Option<i32>) -> Result<Vec<Work>> {
 
     tracing::trace!("Searching for work with title: {}", title);
 
+    apply_rate_limiting().await?;
+
     let response = CLIENT
         .get(format!("{API_BASE_URL}/works"))
         .query(&filters)
@@ -192,6 +199,8 @@ pub async fn search_works(title: &str, year: Option<i32>) -> Result<Vec<Work>> {
 pub async fn search_authors(name: &str) -> Result<Vec<Author>> {
     tracing::trace!("Searching for author: {}", name);
 
+    apply_rate_limiting().await?;
+
     let response = CLIENT
         .get(format!("{API_BASE_URL}/authors"))
         .query(&[("search", name)])
@@ -209,6 +218,8 @@ pub async fn search_authors(name: &str) -> Result<Vec<Author>> {
 /// Search for institutions by name
 pub async fn search_institutions(name: &str) -> Result<Vec<Institution>> {
     tracing::trace!("Searching for institution: {}", name);
+
+    apply_rate_limiting().await?;
 
     let response = CLIENT
         .get(format!("{API_BASE_URL}/institutions"))
