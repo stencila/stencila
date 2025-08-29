@@ -1,3 +1,5 @@
+use std::{env::current_dir, path::Path};
+
 use lightningcss::stylesheet::{ParserOptions, PrinterOptions, StyleSheet};
 
 use codec::{
@@ -6,6 +8,7 @@ use codec::{
         async_trait::async_trait,
         eyre::{Result, bail},
         itertools::Itertools,
+        tokio::fs::{create_dir_all, write},
     },
     format::Format,
     schema::{Node, NodeType},
@@ -16,6 +19,8 @@ use codec_dom_trait::{
     html_escape::{encode_double_quoted_attribute, encode_safe},
 };
 use codec_text_trait::to_text;
+use media_embed::embed_media;
+use media_extract::extract_media;
 use version::STENCILA_VERSION;
 
 /// A codec for DOM HTML
@@ -47,112 +52,159 @@ impl Codec for DomCodec {
         node: &Node,
         options: Option<EncodeOptions>,
     ) -> Result<(String, EncodeInfo)> {
-        let standalone = options
+        if let Some(media) = options
             .as_ref()
-            .and_then(|options| options.standalone)
-            .unwrap_or(false);
+            .and_then(|opts| opts.extract_media.as_ref())
+        {
+            let mut copy = node.clone();
+            extract_media(&mut copy, media)?;
+            encode(&copy, options)
+        } else if options
+            .as_ref()
+            .and_then(|opts| opts.embed_media)
+            .unwrap_or_default()
+        {
+            let mut copy = node.clone();
+            let from_path = match options.as_ref().and_then(|opts| opts.from_path.as_ref()) {
+                Some(path) => path,
+                None => &current_dir()?,
+            };
+            embed_media(&mut copy, from_path)?;
+            encode(&copy, options)
+        } else {
+            encode(node, options)
+        }
+    }
+
+    async fn to_path(
+        &self,
+        node: &Node,
+        path: &Path,
+        options: Option<EncodeOptions>,
+    ) -> Result<EncodeInfo> {
+        let mut options = options.unwrap_or_default();
+        if options.standalone.is_none() {
+            options.standalone = Some(true);
+        }
+        if !options.embed_media.unwrap_or_default() && options.extract_media.is_none() {
+            options.extract_media = Some(path.with_extension("media"));
+        }
+        options.to_path = Some(path.to_path_buf());
+
+        let (html, info) = self.to_string(node, Some(options)).await?;
+
+        if let Some(parent) = path.parent() {
+            create_dir_all(parent).await?;
+        }
+        write(&path, html).await?;
+
+        Ok(info)
+    }
+}
+
+/// Encode a node to DOM HTML with options
+fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {
+    // Encode to DOM HTML
+    let mut context = DomEncodeContext::new();
+    node.to_dom(&mut context);
+
+    // Add the root attribute to the root node (the first opening tag)
+    let mut dom = context.content();
+    if let Some(pos) = dom.find('>') {
+        dom.insert_str(pos, " root");
+    }
+
+    // Get any CSS defined in the content (e.g. Tailwind usage, or raw CSS blocks)
+    // This needs to be inserted at the top of the root node
+    // (for diffing and Morphdom to work it can not go before)
+    let css = context.css();
+    if !css.is_empty() {
+        let css = normalize_css(&css);
+        if let Some(pos) = dom.find('>') {
+            dom.insert_str(pos + 1, &["<style>", &css, "</style>"].concat());
+        }
+    }
+
+    let standalone = options
+        .as_ref()
+        .and_then(|options| options.standalone)
+        .unwrap_or(false);
+    let html = if standalone {
+        let og_type = format!(
+            r#"<meta property="og:type" content="{}" />"#,
+            node.node_type()
+        );
+
+        let title = match node {
+            Node::Article(article) => article.title.as_ref().map(to_text),
+            Node::Prompt(prompt) => Some(to_text(&prompt.title)),
+            _ => None,
+        };
+        let og_title = title
+            .as_ref()
+            .map(|title| {
+                format!(
+                    r#"<meta property="og:title" content="{}" />"#,
+                    encode_double_quoted_attribute(title)
+                )
+            })
+            .unwrap_or_default();
+        let html_title = title.map_or_else(
+            || "Untitled".to_string(),
+            |title| encode_safe(&title).to_string(),
+        );
+
+        let desc = match node {
+            Node::Article(article) => article.description.as_ref().map(|cord| cord.to_string()),
+            Node::Prompt(prompt) => Some(prompt.description.to_string()),
+            _ => None,
+        }
+        .map(|desc| encode_double_quoted_attribute(&desc).to_string());
+        let og_desc = desc
+            .as_ref()
+            .map(|desc| format!(r#"<meta property="og:description" content="{desc}" />"#,))
+            .unwrap_or_default();
+        let html_desc = desc
+            .map(|desc| format!(r#"<meta property="description" content="{desc}" />"#,))
+            .unwrap_or_default();
+
+        let base_url = options
+            .as_ref()
+            .and_then(|options| options.base_url.as_deref())
+            .unwrap_or_default();
+        let og_image = context
+            .image()
+            .as_ref()
+            .map(|image| {
+                format!(
+                    r#"<meta property="og:image" content="{}" />"#,
+                    encode_double_quoted_attribute(&format!("{base_url}/{image}"))
+                )
+            })
+            .unwrap_or_default();
+
+        let alternates = options
+            .as_ref()
+            .and_then(|options| options.alternates.clone())
+            .iter()
+            .flatten()
+            .map(|(typ, path)| format!(r#"<link rel="alternate" type="{typ}" href="{path}" />"#))
+            .join("\n    ");
+
+        let static_prefix = format!("https://stencila.io/web/v{STENCILA_VERSION}");
+
+        // During development (e.g. when generating PDFs via HTML) it can be useful to
+        // use a local development version of the web assets. To do so, uncomment the
+        // next line and run `cargo run -p cli serve --cors permissive`
+        //#[cfg(debug_assertions)]
+        //let static_prefix = format!("http://localhost:9000/~static/dev");
+
         let theme = options
             .as_ref()
             .and_then(|options| options.theme.as_deref())
             .unwrap_or("default");
-        let compact = options
-            .as_ref()
-            .and_then(|options| options.compact)
-            .unwrap_or(true);
-        let source_path = options
-            .as_ref()
-            .and_then(|options| options.from_path.clone());
-        let dest_path = options.as_ref().and_then(|options| options.to_path.clone());
-
-        // Encode to DOM HTML
-        let mut context = DomEncodeContext::new(standalone, source_path, dest_path);
-        node.to_dom(&mut context);
-
-        // Add the root attribute to the root node (the first opening tag)
-        let mut dom = context.content();
-        if let Some(pos) = dom.find('>') {
-            dom.insert_str(pos, " root");
-        }
-
-        // Get any CSS defined in the content (e.g. Tailwind usage, or raw CSS blocks)
-        // This needs to be inserted at the top of the root node
-        // (for diffing and Morphdom to work it can not go before)
-        let css = context.css();
-        if !css.is_empty() {
-            let css = normalize_css(&css);
-            if let Some(pos) = dom.find('>') {
-                dom.insert_str(pos + 1, &["<style>", &css, "</style>"].concat());
-            }
-        }
-
-        let html = if standalone {
-            let og_type = format!(
-                r#"<meta property="og:type" content="{}" />"#,
-                node.node_type()
-            );
-
-            let title = match node {
-                Node::Article(article) => article.title.as_ref().map(to_text),
-                Node::Prompt(prompt) => Some(to_text(&prompt.title)),
-                _ => None,
-            };
-            let og_title = title
-                .as_ref()
-                .map(|title| {
-                    format!(
-                        r#"<meta property="og:title" content="{}" />"#,
-                        encode_double_quoted_attribute(title)
-                    )
-                })
-                .unwrap_or_default();
-            let html_title = title.map_or_else(
-                || "Untitled".to_string(),
-                |title| encode_safe(&title).to_string(),
-            );
-
-            let desc = match node {
-                Node::Article(article) => article.description.as_ref().map(|cord| cord.to_string()),
-                Node::Prompt(prompt) => Some(prompt.description.to_string()),
-                _ => None,
-            }
-            .map(|desc| encode_double_quoted_attribute(&desc).to_string());
-            let og_desc = desc
-                .as_ref()
-                .map(|desc| format!(r#"<meta property="og:description" content="{desc}" />"#,))
-                .unwrap_or_default();
-            let html_desc = desc
-                .map(|desc| format!(r#"<meta property="description" content="{desc}" />"#,))
-                .unwrap_or_default();
-
-            let base_url = options
-                .as_ref()
-                .and_then(|options| options.base_url.as_deref())
-                .unwrap_or_default();
-            let og_image = context
-                .image()
-                .as_ref()
-                .map(|image| {
-                    format!(
-                        r#"<meta property="og:image" content="{}" />"#,
-                        encode_double_quoted_attribute(&format!("{base_url}/{image}"))
-                    )
-                })
-                .unwrap_or_default();
-
-            let alternates = options
-                .as_ref()
-                .and_then(|options| options.alternates.clone())
-                .iter()
-                .flatten()
-                .map(|(typ, path)| {
-                    format!(r#"<link rel="alternate" type="{typ}" href="{path}" />"#)
-                })
-                .join("\n    ");
-
-            let static_prefix = format!("https://stencila.io/web/v{STENCILA_VERSION}");
-
-            format!(
-                r#"<!DOCTYPE html>
+        format!(
+            r#"<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
@@ -177,25 +229,21 @@ impl Codec for DomCodec {
     </stencila-dynamic-view>
   </body>
 </html>"#
-            )
-        } else {
-            dom
-        };
+        )
+    } else {
+        dom
+    };
 
-        let html = match compact {
-            true => html,
-            false => indent_html(&html)?,
-        };
+    let compact = options
+        .as_ref()
+        .and_then(|options| options.compact)
+        .unwrap_or(true);
+    let html = match compact {
+        true => html,
+        false => indent_html(&html)?,
+    };
 
-        Ok((html, EncodeInfo::none()))
-    }
-}
-
-// Encode a single node to DOM HTML
-pub fn encode<T: DomCodecTrait>(node: &T) -> String {
-    let mut context = DomEncodeContext::new(false, None, None);
-    node.to_dom(&mut context);
-    context.content()
+    Ok((html, EncodeInfo::none()))
 }
 
 /// Indent HTML

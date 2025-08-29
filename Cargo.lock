@@ -1667,6 +1667,8 @@ dependencies = [
  "codec-dom-trait",
  "codec-text-trait",
  "lightningcss",
+ "media-embed",
+ "media-extract",
  "quick-xml 0.37.5",
  "version",
 ]
@@ -1871,7 +1873,7 @@ version = "0.0.0"
 dependencies = [
  "bitflags 2.9.2",
  "codec",
- "codec-dom",
+ "codec-dom-trait",
  "codec-markdown",
  "codec-text",
  "common-dev",

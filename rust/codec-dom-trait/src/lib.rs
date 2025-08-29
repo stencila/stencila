@@ -1,8 +1,6 @@
 //! Provides the `DomCodec` trait for generating HTML for the
 //! browser DOM for Stencila Schema nodes
 
-use std::path::PathBuf;
-
 use html_escape::{encode_safe, encode_single_quoted_attribute};
 
 use common::{
@@ -20,7 +18,7 @@ pub fn to_dom<T>(node: &T) -> String
 where
     T: DomCodec,
 {
-    let mut context = DomEncodeContext::new(false, None, None);
+    let mut context = DomEncodeContext::new();
     node.to_dom(&mut context);
     context.content
 }
@@ -140,28 +138,14 @@ pub struct DomEncodeContext {
     /// image to be selected
     image: Option<String>,
 
-    /// Whether encoding to a standalone document
-    pub standalone: bool,
-
-    /// The path of the source document
-    pub from_path: Option<PathBuf>,
-
-    /// The path of the destination file
-    pub to_path: Option<PathBuf>,
-
     /// The maximum number of rows of a datatable to encode
     #[default = 1000]
     pub max_datatable_rows: usize,
 }
 
 impl DomEncodeContext {
-    pub fn new(standalone: bool, source_path: Option<PathBuf>, dest_path: Option<PathBuf>) -> Self {
-        Self {
-            standalone,
-            from_path: source_path,
-            to_path: dest_path,
-            ..Default::default()
-        }
+    pub fn new() -> Self {
+        Self::default()
     }
 
     /// Enter an element
@@ -401,15 +385,5 @@ impl DomEncodeContext {
     /// Get the URL of the image to use in `<meta property="og:image" ...>` tag for the document
     pub fn image(&self) -> &Option<String> {
         &self.image
-    }
-
-    /// Get the path of the images directory for the context
-    pub fn images_dir(&self) -> PathBuf {
-        match self.to_path.as_deref() {
-            // images directory will be a sibling to the encoded file
-            Some(to_path) => PathBuf::from(to_path.to_string_lossy().to_string() + ".images"),
-            // images directory will be in the current directory
-            None => PathBuf::from("images"),
-        }
     }
 }

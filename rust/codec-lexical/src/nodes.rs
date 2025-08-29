@@ -4,6 +4,7 @@ use codec::{
     format::Format,
     schema::{Article, Node},
 };
+use codec_dom_trait::to_dom;
 
 use crate::{
     blocks::{blocks_from_lexical, blocks_to_lexical},
@@ -79,7 +80,7 @@ fn article_from_lexical(lexical: LexicalDoc, context: &mut LexicalDecodeContext)
 fn article_to_lexical(article: &Article, context: &mut LexicalEncodeContext) -> LexicalDoc {
     let children = match context.standalone {
         true => vec![lexical::BlockNode::Html(HtmlNode {
-            html: codec_dom::encode(&article.content),
+            html: to_dom(&article.content),
             ..Default::default()
         })],
         false => blocks_to_lexical(&article.content, context),

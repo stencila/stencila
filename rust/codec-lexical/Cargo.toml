@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 bitflags = "2.9.2"
 codec = { path = "../codec" }
-codec-dom = { path = "../codec-dom" }
+codec-dom-trait = { path = "../codec-dom-trait" }
 codec-markdown = { path = "../codec-markdown" }
 codec-text = { path = "../codec-text" }
 monostate = { workspace = true }

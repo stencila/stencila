@@ -118,7 +118,28 @@ impl Codec for MarkdownCodec {
         node: &Node,
         options: Option<EncodeOptions>,
     ) -> Result<(String, EncodeInfo)> {
-        encode(node, options)
+        if let Some(media) = options
+            .as_ref()
+            .and_then(|opts| opts.extract_media.as_ref())
+        {
+            let mut copy = node.clone();
+            extract_media(&mut copy, media)?;
+            encode(&copy, options)
+        } else if options
+            .as_ref()
+            .and_then(|opts| opts.embed_media)
+            .unwrap_or_default()
+        {
+            let mut copy = node.clone();
+            let from_path = match options.as_ref().and_then(|opts| opts.from_path.as_ref()) {
+                Some(path) => path,
+                None => &current_dir()?,
+            };
+            embed_media(&mut copy, from_path)?;
+            encode(&copy, options)
+        } else {
+            encode(node, options)
+        }
     }
 
     async fn to_path(
@@ -136,21 +157,7 @@ impl Codec for MarkdownCodec {
         }
         options.to_path = Some(path.to_path_buf());
 
-        let (md, info) = if let Some(media) = &options.extract_media {
-            let mut copy = node.clone();
-            extract_media(&mut copy, media)?;
-            encode(&copy, Some(options))?
-        } else if options.embed_media.unwrap_or_default() {
-            let mut copy = node.clone();
-            let from_path = match &options.from_path {
-                Some(path) => path.clone(),
-                None => current_dir()?,
-            };
-            embed_media(&mut copy, &from_path)?;
-            encode(&copy, Some(options))?
-        } else {
-            encode(node, Some(options))?
-        };
+        let (md, info) = self.to_string(node, Some(options)).await?;
 
         if let Some(parent) = path.parent() {
             create_dir_all(parent).await?;

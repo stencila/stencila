@@ -1,4 +1,4 @@
-use std::{env::current_dir, path::Path};
+use std::path::Path;
 
 use codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, NodeType,
@@ -122,22 +122,17 @@ impl Codec for PdfCodec {
 
             Ok(info)
         } else {
-            // Embed any media files. This is necessary because the
-            // browser will not fetch local resources when generating
-            // the PDF
-            let mut node = node.clone();
-            let from_path = match &options.from_path {
-                Some(path) => path.clone(),
-                None => current_dir()?,
-            };
-            embed_media(&mut node, &from_path)?;
-
             // Encode to PDF via HTML
             let (html, info) = DomCodec
                 .to_string(
                     &node,
                     Some(EncodeOptions {
+                        // Standalone so that necessary JS and CSS is loaded
                         standalone: Some(true),
+                        // Embed any media files. This is necessary because the
+                        // browser will not fetch local resources when generating
+                        // the PDF
+                        embed_media: Some(true),
                         ..options
                     }),
                 )

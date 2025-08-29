@@ -175,7 +175,6 @@ impl DomCodec for ImageObject {
         context.enter_node(self.node_type(), self.node_id());
 
         let mut img = true;
-
         if let Some(media_type) = &self.media_type {
             context.push_attr("media-type", media_type);
 
@@ -195,60 +194,16 @@ impl DomCodec for ImageObject {
         }
 
         if img {
-            // If the document is being encoded standalone, and the image URL is a data URI
-            // or file system path (possibly with a relative URL) the ensure that we have
-            // created an on disk copy
-            if context.standalone
-                && !(self.content_url.starts_with("http://")
-                    || self.content_url.starts_with("https://"))
-            {
-                let images_dir = context.images_dir();
-
-                let image_name = if self.content_url.starts_with("data:") {
-                    // Encode the data URI to a file
-                    match images::data_uri_to_file(&self.content_url, &images_dir) {
-                        Ok(path) => Some(path),
-                        Err(error) => {
-                            tracing::warn!("While encoding image data URI to file: {error}");
-                            None
-                        }
-                    }
-                } else {
-                    match images::file_uri_to_file(
-                        &self.content_url,
-                        context.from_path.as_deref(),
-                        &images_dir,
-                    ) {
-                        Ok(path) => Some(path),
-                        Err(error) => {
-                            tracing::warn!("While encoding image to file: {error}");
-                            None
-                        }
-                    }
-                };
-
-                // Fallback to encoding the original URL
-                let src = match image_name {
-                    Some(image_name) => images_dir.join(image_name).to_string_lossy().to_string(),
-                    None => self.content_url.to_string(),
-                };
-
-                context
-                    .enter_elem("img")
-                    .push_attr("src", &src)
-                    .exit_elem_void();
-
-                // If the document image is not set yet, then set it
-                if context.image().is_none() {
-                    context.set_image(&src);
-                }
-            } else {
-                // Not standalone, so just encode content URL as image (optimize for speed)
-                context
-                    .enter_elem("img")
-                    .push_attr("src", &self.content_url)
-                    .exit_elem_void();
+            // If the document image is not set yet, then set it
+            if context.image().is_none() {
+                context.set_image(&self.content_url);
             }
+
+            // Not standalone, so just encode content URL as image (optimize for speed)
+            context
+                .enter_elem("img")
+                .push_attr("src", &self.content_url)
+                .exit_elem_void();
         }
 
         if let Some(title) = &self.title {

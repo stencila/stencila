@@ -9,7 +9,7 @@ use schema::{Block, ImageObject, Inline, VisitorMut, WalkControl, WalkNode};
 /// Currently only handles images with dataURIs but in the future may also
 /// support audio and video and collection of files from the file system into
 /// the directory.
-/// 
+///
 /// See the `media-embed` crate for doing the opposite: embedding
 /// files as dataURIs.
 pub fn extract_media<T>(node: &mut T, dir: &Path) -> Result<()>

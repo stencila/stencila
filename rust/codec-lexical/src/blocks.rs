@@ -9,6 +9,7 @@ use codec::{
         transforms::blocks_to_inlines,
     },
 };
+use codec_dom_trait::to_dom;
 use codec_text::to_text;
 
 use crate::{
@@ -449,7 +450,7 @@ fn math_block_to_lexical(math: &MathBlock) -> lexical::BlockNode {
                 // by encoding using DOM HTML we get that plus the original
                 // language and source code which allows us to convert back
                 // in the future.
-                let html = codec_dom::encode(math);
+                let html = to_dom(math);
                 return lexical::BlockNode::Html(lexical::HtmlNode {
                     html,
                     ..Default::default()
@@ -552,7 +553,7 @@ fn block_to_lexical_default(block: &Block) -> lexical::BlockNode {
     // Default for Stencila block is to encode to DOM HTML and wrap
     // in a Koenig HTML card
 
-    let html = codec_dom::encode(block);
+    let html = to_dom(block);
 
     lexical::BlockNode::Html(lexical::HtmlNode {
         html,

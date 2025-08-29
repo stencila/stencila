@@ -181,7 +181,8 @@ pub struct EncodeOptions {
     /// When enabled, external media files (images, audio, video) referenced in
     /// the document will be converted to data URIs and embedded directly in the
     /// output. This creates a self-contained document but may increase file
-    /// size significantly. Should not be used together with `--extract-media`.
+    /// size significantly. Currently respected for Markdown-flavors and HTML.
+    /// Should not be used with `--extract-media`.
     #[arg(
         long,
         conflicts_with = "extract_media",
@@ -191,11 +192,12 @@ pub struct EncodeOptions {
 
     /// Extract embedded media to a folder
     ///
-    /// Depending on the format, this is often the default when encoding to files.
-    /// When provided, any data URIs in the document will be extracted to files
-    /// in the specified directory, and the references will be updated to point
-    /// to these external files. This reduces document size but creates external
-    /// dependencies. Should not be used together with `--embed-media`.
+    /// Depending on the format, this is often the default when encoding to
+    /// files. When provided, any data URIs in the document will be extracted to
+    /// files in the specified directory, and the references will be updated to
+    /// point to these external files. This reduces document size but creates
+    /// external dependencies. Currently respected for Markdown-flavors and
+    /// HTML. Should not be used with `--embed-media`.
     #[arg(
         long,
         conflicts_with = "embed_media",
