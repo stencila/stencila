@@ -1985,6 +1985,7 @@ name = "codec-pdf"
 version = "0.0.0"
 dependencies = [
  "codec",
+ "codec-dom",
  "codec-latex",
  "codec-markdown",
  "codec-utils",
