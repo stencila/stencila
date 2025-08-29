@@ -26,14 +26,14 @@ const API_BASE_URL: &str = "https://zenodo.org/api";
 // https://developers.zenodo.org/#rate-limiting
 
 // Guest API rate limiter
-static GUEST_GOVERNOR: Lazy<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
+static GUEST_MINUTE_GOVERNOR: Lazy<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
     Lazy::new(|| {
         // 60 requests/minute => 58 requests/minute for safety
         GovernorRateLimiter::direct(Quota::per_minute(NonZeroU32::new(58).expect("invalid")))
     });
 
 // Authenticated API rate limiter
-static AUTH_GOVERNOR: Lazy<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
+static AUTH_MINUTE_GOVERNOR: Lazy<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
     Lazy::new(|| {
         // 100 requests/minute => 95 requests/minute for safety
         GovernorRateLimiter::direct(Quota::per_minute(NonZeroU32::new(95).expect("invalid")))
@@ -58,10 +58,10 @@ async fn apply_rate_limiting(authenticated: bool) -> Result<()> {
     let start = Instant::now();
 
     if authenticated {
-        AUTH_GOVERNOR.until_ready().await;
+        AUTH_MINUTE_GOVERNOR.until_ready().await;
         AUTH_HOURLY_GOVERNOR.until_ready().await;
     } else {
-        GUEST_GOVERNOR.until_ready().await;
+        GUEST_MINUTE_GOVERNOR.until_ready().await;
         GUEST_HOURLY_GOVERNOR.until_ready().await;
     }
 
@@ -84,7 +84,7 @@ static CLIENT: Lazy<Client> = Lazy::new(|| {
         .expect("invalid")
 });
 
-/// Make a request to Zenodo's API with smart rate limiting
+/// Make a request to Zenodo's API with rate limiting
 #[tracing::instrument]
 pub async fn request<T>(url: &str) -> Result<T>
 where
