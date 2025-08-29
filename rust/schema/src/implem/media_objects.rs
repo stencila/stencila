@@ -63,6 +63,11 @@ macro_rules! to_markdown {
             .merge_losses($losses)
             .push_str("![");
 
+        // Determine whether this is block object or not BEFORE
+        // encoding any inline properties (e.g. caption) otherwise
+        // the context.content_type is overwritten
+        let is_block = matches!($context.content_type, Some(ContentType::Block));
+
         if let Some(caption) = &$object.caption {
             $context.push_prop_fn(NodeProperty::Caption, |context| {
                 caption.to_markdown(context)
@@ -82,7 +87,7 @@ macro_rules! to_markdown {
 
         $context.push_str(")");
 
-        if matches!($context.content_type, Some(ContentType::Block)) {
+        if is_block {
             // If a block media object, then ensure newlines after it
             $context.newline().exit_node().newline();
         } else {
