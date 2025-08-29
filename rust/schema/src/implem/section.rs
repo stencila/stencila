@@ -1,4 +1,5 @@
 use codec_info::lost_options;
+use common::inflector::Inflector;
 
 use crate::{Section, SectionType, prelude::*};
 
@@ -51,7 +52,7 @@ impl MarkdownCodec for Section {
         if let Some(section) = &self.section_type {
             context.push_colons().push_str(" ").push_prop_str(
                 NodeProperty::SectionType,
-                &section.to_string().to_lowercase(),
+                &section.to_string().to_kebab_case(),
             );
         } else {
             context.push_colons().push_str(" section");
