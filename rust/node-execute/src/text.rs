@@ -37,7 +37,9 @@ impl Executable for Text {
         {
             Ok(output) => output,
             Err(error) => {
-                tracing::error!("Error linting text: {error}");
+                if !error.to_string().starts_with("No linters") {
+                    tracing::error!("Error linting text: {error}");
+                }
                 return WalkControl::Break;
             }
         };

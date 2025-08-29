@@ -15,7 +15,6 @@ use stencila_linter::{
         tracing,
     },
 };
-use stencila_linter_harper::HarperLinter;
 use stencila_linter_links::LinksLinter;
 use stencila_linter_lintr::LintRLinter;
 use stencila_linter_pyright::PyrightLinter;
@@ -37,10 +36,14 @@ pub async fn list() -> Vec<Box<dyn Linter>> {
         Box::<PyrightLinter>::default() as Box<dyn Linter>,
         Box::<StyleRLinter>::default() as Box<dyn Linter>,
         Box::<LintRLinter>::default() as Box<dyn Linter>,
-        // Grammar and spelling
-        Box::<HarperLinter>::default() as Box<dyn Linter>,
+        
         // Content validation
         Box::<LinksLinter>::default() as Box<dyn Linter>,
+
+        // Grammar and spelling
+        // Disabled until linter configuration and custom dictionaries
+        // are introduced because can be very noisy for large documents
+        // Box::<HarperLinter>::default() as Box<dyn Linter>,
     ]
 }
 
