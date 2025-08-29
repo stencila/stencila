@@ -10,9 +10,9 @@ use codec::common::{
     eyre::{Result, bail},
     itertools::Itertools,
     once_cell::sync::Lazy,
-    reqwest::Client,
+    reqwest::{Client, Response, StatusCode},
     serde::de::DeserializeOwned,
-    tokio::time::Instant,
+    tokio::time::{Duration, Instant, sleep},
     tracing,
 };
 use version::STENCILA_USER_AGENT;
@@ -64,20 +64,25 @@ static CLIENT: Lazy<Client> = Lazy::new(|| {
         .expect("invalid")
 });
 
-/// Generate a URL to query a list of an entity type
+/// Generate an OpenAlex API URL
+///
+/// This function, via `request` function below`, may receive URLs with or
+/// without the API_BASE_URL. This can not be made consistent (ie. one or other)
+/// because the public function `request_list` intentionally uses a full URL
+/// (because we want to be able to show that to the user).
 ///
 /// Minimal necessary encoding of values to produce URLs that are readable and
-/// similar to those in the OpenAlex docs (e.g. : is not encoded)              
-pub fn list_url(entity_type: &str, mut query_params: Vec<(&str, String)>) -> String {
-    let mut url = [API_BASE_URL, "/", entity_type].concat();
-
-    if let Ok(email) = std::env::var("OPENALEX_EMAIL") {
-        query_params.push(("mailto", email));
-    }
+/// similar to those in the OpenAlex docs (e.g. : is not encoded)    
+pub fn build_url(path: &str, query_params: &[(&str, String)]) -> String {
+    let mut url = if !path.starts_with(API_BASE_URL) {
+        [API_BASE_URL, "/", path].concat()
+    } else {
+        path.to_string()
+    };
 
     if !query_params.is_empty() {
         let query_string = query_params
-            .into_iter()
+            .iter()
             .map(|(name, value)| {
                 let encoded = value
                     .replace(" ", "+")
@@ -90,24 +95,60 @@ pub fn list_url(entity_type: &str, mut query_params: Vec<(&str, String)>) -> Str
             })
             .join("&");
 
-        url.push('?');
+        url.push(if path.contains('?') { '&' } else { '?' });
         url.push_str(&query_string);
     }
 
     url
 }
 
+/// Make a a request with retry logic for 429 errors
+///
+/// This is necessary because 429 (too many requests) can still occur despite
+/// governors adhering to documented rate limits.
+async fn request(path: &str, query_params: &[(&str, String)]) -> Result<Response> {
+    let url = build_url(path, query_params);
+
+    const MAX_RETRIES: u32 = 5;
+    for attempt in 0..=MAX_RETRIES {
+        apply_rate_limiting().await?;
+
+        let response = CLIENT.get(&url).send().await?;
+
+        if response.status() == StatusCode::TOO_MANY_REQUESTS && attempt < MAX_RETRIES {
+            let delay_ms = 500 * (1 << attempt); // 500ms, 1000ms, 2000ms etc
+            tracing::trace!(
+                "Got 429, retrying after {delay_ms}ms (attempt {}/{MAX_RETRIES})",
+                attempt + 1
+            );
+            sleep(Duration::from_millis(delay_ms)).await;
+            continue;
+        }
+
+        if let Err(error) = response.error_for_status_ref() {
+            bail!("{error}: {}", response.text().await.unwrap_or_default());
+        }
+
+        return Ok(response);
+    }
+
+    unreachable!()
+}
+
+/// Generate an OpenAlex API URL to query a list of an entity type             
+pub fn list_url(entity_type: &str, query_params: &[(&str, String)]) -> String {
+    build_url(entity_type, query_params)
+}
+
 /// Make a generic request to the OpenAlex API
 ///
 /// Returns the response as a List<T> where T is the expected entity type
 #[tracing::instrument]
-pub async fn request<T>(url: &str) -> Result<T>
+pub async fn request_list<T>(url: &str) -> Result<T>
 where
     T: DeserializeOwned,
 {
-    tracing::debug!("Making OpenAlex API request");
-
-    apply_rate_limiting().await?;
+    tracing::trace!("Requesting list of entities");
 
     let url = if !url.contains("&per-page=") {
         // If no per-page specified use the maximum, In the future, more sophisticated
@@ -118,19 +159,16 @@ where
         url.to_string()
     };
 
-    let response = CLIENT.get(url).send().await?;
-
-    if let Err(error) = response.error_for_status_ref() {
-        bail!("{error}: {}", response.text().await.unwrap_or_default());
-    }
-
+    let response = request(&url, &[]).await?;
     Ok(response.json().await?)
 }
 
 /// Make a request for the ids of entities of a type matching filters
 #[tracing::instrument(skip(url))]
 pub async fn request_ids(url: &str) -> Result<Vec<String>> {
-    let response = request::<IdResponse>(url).await?;
+    tracing::trace!("Requesting list of ids");
+
+    let response = request_list::<IdResponse>(url).await?;
 
     let ids = response
         .results
@@ -146,26 +184,19 @@ pub async fn request_ids(url: &str) -> Result<Vec<String>> {
 }
 
 /// Fetch a work from OpenAlex by DOI
-#[tracing::instrument()]
+#[tracing::instrument]
 pub async fn work_by_doi(doi: &str) -> Result<Work> {
-    tracing::trace!("Fetching work by DOI: {}", doi);
+    tracing::trace!("Fetching work by DOI: {doi}");
 
-    apply_rate_limiting().await?;
-
-    let response = CLIENT
-        .get(format!("{API_BASE_URL}/works/https://doi.org/{doi}"))
-        .send()
-        .await?;
-
-    if let Err(error) = response.error_for_status_ref() {
-        bail!("{error}: {}", response.text().await.unwrap_or_default());
-    }
-
+    let response = request(&format!("works/https://doi.org/{doi}"), &[]).await?;
     Ok(response.json().await?)
 }
 
 /// Search for works by title and optional year
+#[tracing::instrument]
 pub async fn search_works(title: &str, year: Option<i32>) -> Result<Vec<Work>> {
+    tracing::trace!("Searching for work with title: {title}");
+
     let title = title.replace(",", " ");
 
     let mut filters = vec![format!("title.search:{title}")];
@@ -177,60 +208,27 @@ pub async fn search_works(title: &str, year: Option<i32>) -> Result<Vec<Work>> {
         .map(|filter| ("filter", filter))
         .collect_vec();
 
-    tracing::trace!("Searching for work with title: {}", title);
-
-    apply_rate_limiting().await?;
-
-    let response = CLIENT
-        .get(format!("{API_BASE_URL}/works"))
-        .query(&filters)
-        .send()
-        .await?;
-
-    if let Err(error) = response.error_for_status_ref() {
-        bail!("{error}: {}", response.text().await.unwrap_or_default());
-    }
-
+    let response = request("works", &filters).await?;
     let response: WorksResponse = response.json().await?;
     Ok(response.results)
 }
 
 /// Search for authors by name
+#[tracing::instrument]
 pub async fn search_authors(name: &str) -> Result<Vec<Author>> {
-    tracing::trace!("Searching for author: {}", name);
+    tracing::trace!("Searching for author: {name}");
 
-    apply_rate_limiting().await?;
-
-    let response = CLIENT
-        .get(format!("{API_BASE_URL}/authors"))
-        .query(&[("search", name)])
-        .send()
-        .await?;
-
-    if let Err(error) = response.error_for_status_ref() {
-        bail!("{error}: {}", response.text().await.unwrap_or_default());
-    }
-
+    let response = request("authors", &[("search", name.into())]).await?;
     let response: AuthorsResponse = response.json().await?;
     Ok(response.results)
 }
 
 /// Search for institutions by name
+#[tracing::instrument]
 pub async fn search_institutions(name: &str) -> Result<Vec<Institution>> {
-    tracing::trace!("Searching for institution: {}", name);
+    tracing::trace!("Searching for institution: {name}");
 
-    apply_rate_limiting().await?;
-
-    let response = CLIENT
-        .get(format!("{API_BASE_URL}/institutions"))
-        .query(&[("search", name)])
-        .send()
-        .await?;
-
-    if let Err(error) = response.error_for_status_ref() {
-        bail!("{error}: {}", response.text().await.unwrap_or_default());
-    }
-
+    let response = request("institutions", &[("search", name.into())]).await?;
     let response: InstitutionsResponse = response.json().await?;
     Ok(response.results)
 }

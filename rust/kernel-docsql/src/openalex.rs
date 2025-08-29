@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex as SyncMutex};
 
 use codec_openalex::{
     AuthorsResponse, FundersResponse, InstitutionsResponse, PublishersResponse, SelectResponse,
-    SourcesResponse, WorksResponse, list_url, request, request_ids,
+    SourcesResponse, WorksResponse, list_url, request_ids, request_list,
 };
 use kernel_jinja::{
     kernel::{
@@ -858,7 +858,7 @@ impl OpenAlexQuery {
             params.push(("select", select_string));
         }
 
-        list_url(&self.entity_type, params)
+        list_url(&self.entity_type, &params)
     }
 
     /// Return the generated URL as an executable explanation
@@ -884,39 +884,39 @@ impl OpenAlexQuery {
         let result: Result<_> = task::block_in_place(|| {
             runtime::Handle::current().block_on(async {
                 if !self.select.is_empty() {
-                    let response = request::<SelectResponse>(&url).await?;
+                    let response = request_list::<SelectResponse>(&url).await?;
                     let datatable = Datatable::from(response.results);
                     return Ok((response.meta, vec![Node::Datatable(datatable)]));
                 }
 
                 Ok(match entity_type {
                     "works" => {
-                        let response = request::<WorksResponse>(&url).await?;
+                        let response = request_list::<WorksResponse>(&url).await?;
                         let nodes = response.results.into_iter().map(Node::from).collect();
                         (response.meta, nodes)
                     }
                     "authors" => {
-                        let response = request::<AuthorsResponse>(&url).await?;
+                        let response = request_list::<AuthorsResponse>(&url).await?;
                         let nodes = response.results.into_iter().map(Node::from).collect();
                         (response.meta, nodes)
                     }
                     "institutions" => {
-                        let response = request::<InstitutionsResponse>(&url).await?;
+                        let response = request_list::<InstitutionsResponse>(&url).await?;
                         let nodes = response.results.into_iter().map(Node::from).collect();
                         (response.meta, nodes)
                     }
                     "sources" => {
-                        let response = request::<SourcesResponse>(&url).await?;
+                        let response = request_list::<SourcesResponse>(&url).await?;
                         let nodes = response.results.into_iter().map(Node::from).collect();
                         (response.meta, nodes)
                     }
                     "publishers" => {
-                        let response = request::<PublishersResponse>(&url).await?;
+                        let response = request_list::<PublishersResponse>(&url).await?;
                         let nodes = response.results.into_iter().map(Node::from).collect();
                         (response.meta, nodes)
                     }
                     "funders" => {
-                        let response = request::<FundersResponse>(&url).await?;
+                        let response = request_list::<FundersResponse>(&url).await?;
                         let nodes = response.results.into_iter().map(Node::from).collect();
                         (response.meta, nodes)
                     }
