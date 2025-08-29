@@ -469,10 +469,18 @@ fn ensure_isolated_references(md: &str) -> String {
         Regex::new(r"^\s*[\(\[]*\s*(\d+)\s*[\)\]\.]*\s*(.*)$").expect("invalid regex")
     });
 
-    /// Regex to detect whether a line appears to be the start of a reference
-    /// based on having a punctuated year e.g. "(1981)" "2021."
+    // Regex to detect whether a line appears to be the start of a reference
+    // based on having a punctuated year e.g. "(1981)" "2021."
     static YEAR_REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new(r"(\((19|20)\d\d\))|((19|20)\d\d.)").expect("invalid regex"));
+
+    fn replace_chars(line: &str) -> String {
+        // Replace ■ with endash
+        // Sometimes PDF will contain "unknown
+        // character" symbols (question mark in a box). In references section, often
+        // these appear to be in the place where a page range endash was intended
+        line.replace('■', "–")
+    }
 
     let mut result = Vec::new();
     let mut in_references = false;
@@ -507,7 +515,7 @@ fn ensure_isolated_references(md: &str) -> String {
                 format!("    {line}")
             };
 
-            result.push(transformed);
+            result.push(replace_chars(&transformed));
         } else if YEAR_REGEX.is_match(line) && last_reference_number == 0 {
             // In references section, not in a numbered reference list, but appears to be a reference
             // so ensure a blank line before it
@@ -516,10 +524,10 @@ fn ensure_isolated_references(md: &str) -> String {
             {
                 result.push(String::new())
             }
-            result.push(line.to_string());
+            result.push(replace_chars(line));
         } else {
             // In references section but line is not numbered or has punctuated year in it
-            result.push(line.to_string());
+            result.push(replace_chars(line));
         }
     }
 
