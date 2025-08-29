@@ -8,7 +8,22 @@ use winnow::{
 /// Parse a URL
 pub fn url(input: &mut &str) -> Result<String> {
     preceded(
-        opt((Caseless("URL"), multispace0, opt(":"), multispace0)),
+        opt((
+            alt((
+                (
+                    Caseless("Available"),
+                    multispace0,
+                    opt(Caseless("online")),
+                    multispace0,
+                    alt((Caseless("at"), Caseless("from"))),
+                )
+                    .take(),
+                Caseless("URL"),
+            )),
+            multispace0,
+            opt(":"),
+            multispace0,
+        )),
         (
             alt(("https://", "http://")),
             preceded(

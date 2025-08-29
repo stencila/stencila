@@ -99,7 +99,7 @@ pub fn reference(input: &str) -> Reference {
                     .count();
                 let total = input.chars().filter(|c| c.is_alphanumeric()).count();
 
-                tracing::debug!("Unmatched content: {}", &input[span.start..]);
+                tracing::debug!("Unmatched reference end content: {}", &input[span.start..]);
 
                 remaining < 3 || (total > 0 && (remaining * 100 / total) < 10)
             };
