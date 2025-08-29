@@ -541,6 +541,22 @@ pub struct EncodeOptions {
     /// (as opposed to a string).
     pub standalone: Option<bool>,
 
+    /// Whether to embed media files as data URIs
+    ///
+    /// When enabled, external media files (images, audio, video) referenced in the document
+    /// will be converted to data URIs and embedded directly in the output. This creates
+    /// a self-contained document but may increase file size significantly.
+    /// Should not be used together with `extract_media`.
+    pub embed_media: Option<bool>,
+
+    /// Path to extract embedded media to
+    ///
+    /// When provided, any data URIs in the document will be extracted to files
+    /// in the specified directory, and the references will be updated to point
+    /// to these external files. This reduces document size but creates external dependencies.
+    /// Should not be used together with `embed_media`.
+    pub extract_media: Option<PathBuf>,
+
     /// The type and name of alternate files
     ///
     /// A codec may encode a document in several formats by delegating to other codecs.

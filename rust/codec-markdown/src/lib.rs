@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{env::current_dir, path::Path};
 
 use codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
@@ -21,7 +21,8 @@ pub use decode::preprocess;
 
 mod encode;
 pub use encode::encode;
-use media_write::write_media;
+use media_embed::embed_media;
+use media_extract::extract_media;
 
 /// A codec for Markdown
 pub struct MarkdownCodec;
@@ -130,18 +131,22 @@ impl Codec for MarkdownCodec {
         if options.standalone.is_none() {
             options.standalone = Some(true);
         }
+        if !options.embed_media.unwrap_or_default() && options.extract_media.is_none() {
+            options.extract_media = Some(path.with_extension("media"));
+        }
         options.to_path = Some(path.to_path_buf());
 
-        let (md, info) = if !options.compact.unwrap_or_default() {
-            // Need to create a mutable copy so that any dataURIs can be altered
-            // to point to files in the media directory
+        let (md, info) = if let Some(media) = &options.extract_media {
             let mut copy = node.clone();
-
-            if let (Some(parent), Some(file_name)) = (path.parent(), path.file_name()) {
-                let media = parent.join([&file_name.to_string_lossy(), ".media"].concat());
-                write_media(&mut copy, &media)?;
-            }
-
+            extract_media(&mut copy, media)?;
+            encode(&copy, Some(options))?
+        } else if options.embed_media.unwrap_or_default() {
+            let mut copy = node.clone();
+            let from_path = match &options.from_path {
+                Some(path) => path.clone(),
+                None => current_dir()?,
+            };
+            embed_media(&mut copy, &from_path)?;
             encode(&copy, Some(options))?
         } else {
             encode(node, Some(options))?

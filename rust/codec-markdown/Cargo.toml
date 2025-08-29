@@ -9,7 +9,8 @@ codec-json5-trait = { path = "../codec-json5-trait" }
 codec-markdown-trait = { path = "../codec-markdown-trait" }
 codec-text-trait = { path = "../codec-text-trait" }
 markdown = "1.0.0"
-media-write = { path = "../media-write" }
+media-embed = { path = "../media-embed" }
+media-extract = { path = "../media-extract" }
 winnow = "0.7.12"
 
 [dev-dependencies]

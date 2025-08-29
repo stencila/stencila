@@ -7,10 +7,13 @@ use common::{
 use format::Format;
 use schema::{Block, ImageObject, Inline, VisitorMut, WalkControl, WalkNode};
 
-/// Embed any linked media in a directory within [`ImageObject`] nodes
+/// Embed any media files within [`ImageObject`] and other media objects as dataURIs
 ///
 /// Currently only handles images but in the future may also support
 /// audio and (small) video.
+/// 
+/// See the `media-extract` crate for doing the opposite: extracting
+/// dataURIs to files.
 pub fn embed_media<T>(node: &mut T, path: &Path) -> Result<()>
 where
     T: WalkNode,
@@ -49,7 +52,7 @@ struct Walker {
 }
 
 impl Walker {
-    fn inline_image(&self, image: &mut ImageObject) {
+    fn embed_image(&self, image: &mut ImageObject) {
         for ext in ["", ".png", ".jpg", ".jpeg", ".gif", ".tif", ".tiff"] {
             let mut path = self.dir.join([&image.content_url, ext].concat());
 
@@ -88,7 +91,7 @@ impl Walker {
 impl VisitorMut for Walker {
     fn visit_block(&mut self, block: &mut Block) -> WalkControl {
         if let Block::ImageObject(image) = block {
-            self.inline_image(image)
+            self.embed_image(image)
         }
 
         WalkControl::Continue
@@ -96,7 +99,7 @@ impl VisitorMut for Walker {
 
     fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
         if let Inline::ImageObject(image) = inline {
-            self.inline_image(image)
+            self.embed_image(image)
         }
 
         WalkControl::Continue

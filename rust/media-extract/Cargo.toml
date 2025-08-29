@@ -1,5 +1,5 @@
 [package]
-name = "media-write"
+name = "media-extract"
 version = "0.0.0"
 edition = "2024"
 

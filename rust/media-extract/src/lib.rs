@@ -3,11 +3,16 @@ use std::path::{Path, PathBuf};
 use common::{eyre::Result, tracing};
 use schema::{Block, ImageObject, Inline, VisitorMut, WalkControl, WalkNode};
 
-/// Write any [`ImageObject`] nodes with a dataURI to a file and change target accordingly
+/// Write any [`ImageObject`] and other media objects with a dataURI to a file
+/// and change target accordingly
 ///
-/// Currently only handles images with dataURIs but in the future may also support
-/// audio and video and collection of files from the file system into the directory.
-pub fn write_media<T>(node: &mut T, dir: &Path) -> Result<()>
+/// Currently only handles images with dataURIs but in the future may also
+/// support audio and video and collection of files from the file system into
+/// the directory.
+/// 
+/// See the `media-embed` crate for doing the opposite: embedding
+/// files as dataURIs.
+pub fn extract_media<T>(node: &mut T, dir: &Path) -> Result<()>
 where
     T: WalkNode,
 {
@@ -23,7 +28,7 @@ struct Walker {
 }
 
 impl Walker {
-    fn write_image(&self, image: &mut ImageObject) {
+    fn extract_image(&self, image: &mut ImageObject) {
         if image.content_url.starts_with("data:image/") {
             match images::data_uri_to_file(&image.content_url, &self.dir) {
                 Ok(file_name) => {
@@ -38,7 +43,7 @@ impl Walker {
 impl VisitorMut for Walker {
     fn visit_block(&mut self, block: &mut Block) -> WalkControl {
         if let Block::ImageObject(image) = block {
-            self.write_image(image)
+            self.extract_image(image)
         }
 
         WalkControl::Continue
@@ -46,7 +51,7 @@ impl VisitorMut for Walker {
 
     fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
         if let Inline::ImageObject(image) = inline {
-            self.write_image(image)
+            self.extract_image(image)
         }
 
         WalkControl::Continue

@@ -176,6 +176,36 @@ pub struct EncodeOptions {
     #[arg(long, conflicts_with = "standalone", help_heading = "Encoding Options")]
     not_standalone: bool,
 
+    /// Embed media files as data URIs
+    ///
+    /// When enabled, external media files (images, audio, video) referenced in
+    /// the document will be converted to data URIs and embedded directly in the
+    /// output. This creates a self-contained document but may increase file
+    /// size significantly. Should not be used together with `--extract-media`.
+    #[arg(
+        long,
+        conflicts_with = "extract_media",
+        help_heading = "Encoding Options"
+    )]
+    embed_media: bool,
+
+    /// Extract embedded media to a folder
+    ///
+    /// Depending on the format, this is often the default when encoding to files.
+    /// When provided, any data URIs in the document will be extracted to files
+    /// in the specified directory, and the references will be updated to point
+    /// to these external files. This reduces document size but creates external
+    /// dependencies. Should not be used together with `--embed-media`.
+    #[arg(
+        long,
+        conflicts_with = "embed_media",
+        num_args = 0..=1,
+        default_missing_value = "<OUTPUT>.media",
+        value_name = "FOLDER",
+        help_heading = "Encoding Options"
+    )]
+    extract_media: Option<String>,
+
     /// Recursively encode the content of `IncludeBlock`s to their source file
     ///
     /// Only supported when encoding to a path.
@@ -249,6 +279,19 @@ impl EncodeOptions {
 
         let from_path = input.map(PathBuf::from);
 
+        let embed_media = self.embed_media.then_some(true);
+
+        let extract_media = self.extract_media.as_ref().map(|path| {
+            if path == "<OUTPUT>.media" {
+                // Construct default path based on output
+                output
+                    .map(|p| p.with_extension("media"))
+                    .unwrap_or_else(|| PathBuf::from("output.media"))
+            } else {
+                PathBuf::from(path)
+            }
+        });
+
         codecs::EncodeOptions {
             codec,
             format,
@@ -257,6 +300,8 @@ impl EncodeOptions {
             reproducible,
             template,
             standalone,
+            embed_media,
+            extract_media,
             recurse,
             from_path,
             strip_scopes: strip_options.strip_scopes,

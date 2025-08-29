@@ -1899,7 +1899,8 @@ dependencies = [
  "codec-text-trait",
  "common-dev",
  "markdown",
- "media-write",
+ "media-embed",
+ "media-extract",
  "winnow",
 ]
 
@@ -6230,7 +6231,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "media-write"
+name = "media-extract"
 version = "0.0.0"
 dependencies = [
  "common",
