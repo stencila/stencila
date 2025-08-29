@@ -125,7 +125,7 @@ impl Codec for PdfCodec {
             // Encode to PDF via HTML
             let (html, info) = DomCodec
                 .to_string(
-                    &node,
+                    node,
                     Some(EncodeOptions {
                         // Standalone so that necessary JS and CSS is loaded
                         standalone: Some(true),

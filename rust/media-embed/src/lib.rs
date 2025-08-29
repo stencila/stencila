@@ -11,7 +11,7 @@ use schema::{Block, ImageObject, Inline, VisitorMut, WalkControl, WalkNode};
 ///
 /// Currently only handles images but in the future may also support
 /// audio and (small) video.
-/// 
+///
 /// See the `media-extract` crate for doing the opposite: extracting
 /// dataURIs to files.
 pub fn embed_media<T>(node: &mut T, path: &Path) -> Result<()>

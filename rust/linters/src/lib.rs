@@ -36,10 +36,8 @@ pub async fn list() -> Vec<Box<dyn Linter>> {
         Box::<PyrightLinter>::default() as Box<dyn Linter>,
         Box::<StyleRLinter>::default() as Box<dyn Linter>,
         Box::<LintRLinter>::default() as Box<dyn Linter>,
-        
         // Content validation
         Box::<LinksLinter>::default() as Box<dyn Linter>,
-
         // Grammar and spelling
         // Disabled until linter configuration and custom dictionaries
         // are introduced because can be very noisy for large documents

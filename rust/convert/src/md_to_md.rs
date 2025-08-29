@@ -276,12 +276,12 @@ fn simplify_tex(tex: &str) -> String {
             // Special case: handle \$ (escaped dollar)
             if let Some(&next_ch) = chars.peek() {
                 if next_ch == '$' {
-                    command.push(chars.next().unwrap());
+                    command.push(chars.next().expect("peeked above"));
                 } else {
                     // Collect the command name (letters after backslash)
                     while let Some(&next_ch) = chars.peek() {
                         if next_ch.is_ascii_alphabetic() {
-                            command.push(chars.next().unwrap());
+                            command.push(chars.next().expect("peeked above"));
                         } else {
                             break;
                         }
@@ -298,7 +298,7 @@ fn simplify_tex(tex: &str) -> String {
                     let mut brace_count = 1;
 
                     // Parse until matching }
-                    while let Some(ch) = chars.next() {
+                    for ch in chars.by_ref() {
                         if ch == '{' {
                             brace_count += 1;
                             brace_content.push(ch);
@@ -318,7 +318,7 @@ fn simplify_tex(tex: &str) -> String {
                         if let Some(&replacement) = REPLACEMENTS.get(&ch.to_string().as_str()) {
                             // If replacement is whitespace, apply space normalization
                             if replacement.trim().is_empty() {
-                                if !result.chars().last().map_or(false, |c| c.is_whitespace()) {
+                                if !result.chars().last().is_some_and(|c| c.is_whitespace()) {
                                     result.push(' ');
                                 }
                             } else {
@@ -326,7 +326,7 @@ fn simplify_tex(tex: &str) -> String {
                             }
                         } else if ch.is_whitespace() {
                             // Handle space normalization for brace content too
-                            if !result.chars().last().map_or(false, |c| c.is_whitespace()) {
+                            if !result.chars().last().is_some_and(|c| c.is_whitespace()) {
                                 result.push(' ');
                             }
                         } else {
@@ -349,7 +349,7 @@ fn simplify_tex(tex: &str) -> String {
             // Handle space normalization during parsing
             if ch.is_whitespace() {
                 // Add a single space if the last character wasn't whitespace
-                if !result.chars().last().map_or(false, |c| c.is_whitespace()) {
+                if !result.chars().last().is_some_and(|c| c.is_whitespace()) {
                     result.push(' ');
                 }
             } else {
@@ -382,7 +382,7 @@ fn contains_tex_commands(s: &str) -> bool {
                     .as_str()
                     .chars()
                     .next()
-                    .map_or(false, |c| c.is_ascii_alphabetic())
+                    .is_some_and(|c| c.is_ascii_alphabetic())
                 {
                     return true;
                 }

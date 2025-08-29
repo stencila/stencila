@@ -229,13 +229,11 @@ impl Collector {
                     // use it as the caption.
                     if to_text(&caption).trim().is_empty()
                         && let Some(Block::Paragraph(next)) = blocks.get(index)
+                        && detect_figure_caption(&next.content).is_none()
+                        && let Block::Paragraph(next) = blocks.remove(index)
                     {
-                        if detect_figure_caption(&next.content).is_none() {
-                            if let Block::Paragraph(next) = blocks.remove(index) {
-                                caption = next;
-                            };
-                        }
-                    }
+                        caption = next;
+                    };
 
                     // Create and insert the figure
                     let mut figure = Figure::new(vec![image]);
@@ -255,7 +253,7 @@ impl Collector {
                 Some(Block::ImageObject(..)),
             ) = (blocks.get(index), blocks.get(index + 1))
             {
-                if let Some((label, prefix, ..)) = detect_figure_caption(&content) {
+                if let Some((label, prefix, ..)) = detect_figure_caption(content) {
                     // Remove the image and paragraph so that they can be placed in figure
                     let Some((
                         Block::Paragraph(Paragraph { content, .. })
@@ -290,7 +288,7 @@ impl Collector {
                 Some(Block::Table(..)),
             ) = (blocks.get(index), blocks.get(index + 1))
             {
-                if let Some((label, prefix, ..)) = detect_table_caption(&content) {
+                if let Some((label, prefix, ..)) = detect_table_caption(content) {
                     // Remove the paragraph it can be placed in the table
                     let Block::Paragraph(mut caption) = blocks.remove(index) else {
                         unreachable!("asserted above")
@@ -322,25 +320,23 @@ impl Collector {
                 blocks.get(index),
                 blocks.get(index + 1),
                 blocks.get(index + 2),
-            ) {
-                if let Some((label, .., false)) = detect_table_caption(&label)
-                    && detect_table_caption(&content).is_none()
-                {
-                    // Remove the label and caption blocks so the latter can be placed in the table
-                    let Some((_label, caption)) = blocks.drain(index..=index + 1).collect_tuple()
-                    else {
-                        unreachable!("asserted above")
-                    };
+            ) && let Some((label, .., false)) = detect_table_caption(label)
+                && detect_table_caption(content).is_none()
+            {
+                // Remove the label and caption blocks so the latter can be placed in the table
+                let Some((_label, caption)) = blocks.drain(index..=index + 1).collect_tuple()
+                else {
+                    unreachable!("asserted above")
+                };
 
-                    // Update the table (note using index, not index + 1, here because paragraph removed)
-                    let Block::Table(table) = &mut blocks[index] else {
-                        unreachable!("asserted above")
-                    };
-                    table.id = Some(["tab-", &label.to_kebab_case()].concat());
-                    table.label = Some(label);
-                    table.label_automatically = Some(false);
-                    table.caption = Some(vec![caption]);
-                }
+                // Update the table (note using index, not index + 1, here because paragraph removed)
+                let Block::Table(table) = &mut blocks[index] else {
+                    unreachable!("asserted above")
+                };
+                table.id = Some(["tab-", &label.to_kebab_case()].concat());
+                table.label = Some(label);
+                table.label_automatically = Some(false);
+                table.caption = Some(vec![caption]);
             }
 
             index += 1;
