@@ -293,9 +293,7 @@ fn generate_migration_operations(
     // Find removed node tables
     for name in old_tables.keys() {
         if !new_tables.contains_key(name) {
-            operations.push(MigrationOperation::DropTable {
-                name: name.clone(),
-            });
+            operations.push(MigrationOperation::DropTable { name: name.clone() });
         }
     }
 
@@ -318,9 +316,7 @@ fn generate_migration_operations(
     // Find removed relationship tables
     for name in old_rel_tables.keys() {
         if !new_rel_tables.contains_key(name) {
-            operations.push(MigrationOperation::DropTable {
-                name: name.clone(),
-            });
+            operations.push(MigrationOperation::DropTable { name: name.clone() });
         }
     }
 
@@ -473,11 +469,7 @@ fn generate_migration_cypher(operations: &[MigrationOperation]) -> String {
                 cypher_statements.push(format!("DROP TABLE `{}`;", name));
             }
             MigrationOperation::AddColumn { table, column } => {
-                let default_value = if column.nullable {
-                    "DEFAULT NULL"
-                } else {
-                    ""
-                };
+                let default_value = if column.nullable { "DEFAULT NULL" } else { "" };
                 cypher_statements.push(format!(
                     "ALTER TABLE `{}` ADD COLUMN `{}` {} {};",
                     table,
@@ -547,71 +539,13 @@ fn generate_migration_cypher(operations: &[MigrationOperation]) -> String {
                 ));
             }
             MigrationOperation::RemoveEmbeddings { table } => {
-                cypher_statements.push(format!(
-                    "ALTER TABLE `{}` DROP COLUMN `embeddings`;",
-                    table
-                ));
+                cypher_statements
+                    .push(format!("ALTER TABLE `{}` DROP COLUMN `embeddings`;", table));
             }
         }
     }
 
     cypher_statements.join("\n\n")
-}
-
-/// Generate a description for the migration based on operations
-fn generate_migration_description(operations: &[MigrationOperation]) -> String {
-    if operations.is_empty() {
-        return "no-changes".to_string();
-    }
-
-    let mut descriptions = Vec::new();
-    let mut has_new_tables = false;
-    let mut has_dropped_tables = false;
-    let mut has_column_changes = false;
-    let mut has_index_changes = false;
-
-    for operation in operations {
-        match operation {
-            MigrationOperation::CreateNodeTable(_)
-            | MigrationOperation::CreateRelationshipTable(_) => {
-                has_new_tables = true;
-            }
-            MigrationOperation::DropTable { .. } => {
-                has_dropped_tables = true;
-            }
-            MigrationOperation::AddColumn { .. }
-            | MigrationOperation::DropColumn { .. }
-            | MigrationOperation::ChangeColumnType { .. }
-            | MigrationOperation::AddDerivedProperty { .. }
-            | MigrationOperation::RemoveDerivedProperty { .. }
-            | MigrationOperation::AddEmbeddings { .. }
-            | MigrationOperation::RemoveEmbeddings { .. } => {
-                has_column_changes = true;
-            }
-            MigrationOperation::CreateIndex(_) | MigrationOperation::DropIndex { .. } => {
-                has_index_changes = true;
-            }
-        }
-    }
-
-    if has_new_tables {
-        descriptions.push("add-tables");
-    }
-    if has_dropped_tables {
-        descriptions.push("remove-tables");
-    }
-    if has_column_changes {
-        descriptions.push("update-columns");
-    }
-    if has_index_changes {
-        descriptions.push("update-indices");
-    }
-
-    if descriptions.is_empty() {
-        "schema-updates".to_string()
-    } else {
-        descriptions.join("-")
-    }
 }
 
 /// Load the previous schema from a JSON file
@@ -625,19 +559,16 @@ pub async fn load_previous_schema(file_path: &str) -> Result<Option<DatabaseSche
     }
 }
 
-/// Generate migration if schemas differ, returning filename and cypher content
+/// Generate migration if schemas differ
 pub fn generate_migration(
     old_schema: &DatabaseSchema,
     new_schema: &DatabaseSchema,
-    version: &str,
-) -> Option<(String, String)> {
+) -> Option<String> {
     if old_schema != new_schema {
         let operations = generate_migration_operations(old_schema, new_schema);
         if !operations.is_empty() {
             let migration_cypher = generate_migration_cypher(&operations);
-            let description = generate_migration_description(&operations);
-            let migration_filename = format!("v{}-{}.cypher", version, description);
-            return Some((migration_filename, migration_cypher));
+            return Some(migration_cypher);
         }
     }
     None

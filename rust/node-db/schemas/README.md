@@ -1,41 +1,27 @@
-# Schema Snapshots
+# Database Schema Snapshots
 
-This directory contains schema snapshots for different Stencila versions. These snapshots are used to generate database migrations when the schema changes between versions.
+This directory contains the current database schema (`current.cypher`) and schema snapshots for different Stencila versions.
+
+The `current.cypher` file is used when creating a new database.
+
+The snapshots are used to generate database migrations in `../migrations/`.
+
+## File Naming
+
+The current database schema is represented as Cypher as `current.cypher`.
+
+Schema snapshots are stored as JSON files with the naming convention `v{VERSION}.json` (e.g. `v2.6.0.json`).
+
+Between releases (which is when new version numbers are minted) a schema snapshot named `v99.99.99.json` is generated if there are changes in the schema. When a new release is made this file is renamed using the freshly minted version number.
 
 ## File Format
 
-Schema snapshots are stored as JSON files with the naming convention `v{VERSION}.json` e.g.
+See `../../schema-gen/src/kuzu_types.rs` for the schema representation that is serialized to snapshot files.
 
-- `v2.1.0.json`
-- `v2.2.0.json`
-- `v3.0.0.json`
+## Generation
 
-## Contents
+The current schema (`current.cypher`) and current snapshot (`v99.99.99.json`) are automatically created during the schema generation:
 
-Each schema snapshot file contains:
-
-- `version`: The Stencila version this schema corresponds to
-- `node_tables`: Definition of all node tables (name, columns, primary key)
-- `relationship_tables`: Definition of all relationship tables (name, from/to tables, cardinality)
-- `indices`: Definition of all indices (FTS and vector indices)
-- `timestamp`: When the snapshot was created
-
-## Usage
-
-Schema snapshots are automatically created during the schema generation process and are used by the migration system to:
-
-1. Compare schemas between versions
-2. Generate migration files automatically
-3. Track schema evolution over time
-4. Validate that migrations are complete and correct
-
-## Migration Generation Process
-
-When a new schema is generated:
-
-1. A new snapshot is created for the current version
-2. The system compares it with the previous version's snapshot
-3. If differences are found, a migration file is generated
-4. The migration is stored in the `../migrations/` directory
-
-This ensures that database schema changes are tracked and can be applied automatically when upgrading Stencila versions.
+```sh
+cargo run -p schema-gen
+```

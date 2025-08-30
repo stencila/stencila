@@ -9671,7 +9671,6 @@ dependencies = [
  "semver",
  "status",
  "topological-sort",
- "version",
 ]
 
 [[package]]

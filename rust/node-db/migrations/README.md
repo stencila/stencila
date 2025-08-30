@@ -1,25 +1,14 @@
 # Database Migrations
 
-This directory contains Kuzu database migration files that track schema changes across Stencila versions. These are usually generated from the schema snapshots in the `../snapshots/` directory (see the `README.md` there).
+This directory contains Kuzu database migration files that track schema changes across Stencila versions. These are usually generated from differences between the versioned schema snapshots in `../snapshots/`.
 
-## Migration File Format
+## File Naming
 
-Migration files must follow the naming convention:
+Migration files must follow the naming convention `v{VERSION}.cypher` where `{VERSION}` is the version of the schema that the migration will take the database to. For example, `v2.9.0.cypher` is the migration from the previous version (whatever that may be) to version `2.9.0`.
 
-```
-v{VERSION}-{DESCRIPTION}.cypher
-```
+Between releases (which is when new version numbers are minted) a migration file named `v99.99.99.cypher` is generated if there are changes in the schema. When a new release is made this file is renamed using the freshly minted version number.
 
-Where:
-
-- `{VERSION}` is a semantic version (e.g., `2.1.0`, `2.1.1`)
-- `{DESCRIPTION}` is a kebab-case description of the migration (e.g., `add-reference-appearance-index`)
-
-For example,
-
-- `v2.1.0-add-reference-appearance-index.cypher`
-- `v2.2.0-remove-deprecated-columns.cypher`
-- `v2.19.3-restructure-relationship-tables.cypher`
+## File Format
 
 Each migration file should contain valid Kuzu Cypher DDL statements such as:
 
@@ -36,8 +25,6 @@ CREATE NODE TABLE IF NOT EXISTS `NewTable` (
 -- Add FTS index
 CALL CREATE_FTS_INDEX('NewTable', 'fts', ['name']);
 ```
-
-## Supported Operations
 
 The migration system supports all Kuzu DDL operations:
 
@@ -74,6 +61,14 @@ For complex changes like column type modifications, migrations use a multi-step 
 - Create new relationship tables with specified FROM/TO constraints
 - Modify relationship cardinality (ONE_ONE, ONE_MANY, MANY_MANY)
 - Remove relationship tables
+
+## Generation
+
+Migrations are automatically created during schema generation:
+
+```sh
+cargo run -p schema-gen
+```
 
 ## Execution
 

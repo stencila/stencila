@@ -5,7 +5,6 @@ use common::{
     serde_json,
     tokio::fs::{self, write},
 };
-use version::STENCILA_VERSION;
 
 use crate::{kuzu_builder::KuzuSchemaBuilder, kuzu_cypher, kuzu_rust, schemas::Schemas};
 
@@ -17,21 +16,9 @@ impl Schemas {
     /// The generation process uses an abstraction layer to separate schema
     /// analysis from code generation, making the system more maintainable and
     /// extensible.
-    ///
-    /// ## What is generated:
-    ///
-    /// **Database Schema (`current.cypher`):**
-    /// - Node tables for each Stencila type (Article, Paragraph, etc.)
-    /// - Relationship tables connecting related entities
-    /// - Full-text search and vector indices for semantic operations
-    ///
-    /// **Rust ORM (`node_types.rs`):**
-    /// - `DatabaseNode` trait implementations for all types
-    /// - Methods to extract table data and relationships from Rust structs
-    /// - Union type support for polymorphic node handling
     #[allow(clippy::print_stderr)]
     pub async fn kuzu(&self) -> Result<()> {
-        eprintln!("Generating Kuzu Schema");
+        eprintln!("Generating Kuzu Schema and Migrations");
 
         let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../node-db");
 
@@ -45,24 +32,20 @@ impl Schemas {
 
         // Generate migration if we have a previous schema and it's different
         if let Some(old_schema) = previous_schema {
-            if let Some((migration_filename, migration_cypher)) =
-                kuzu_cypher::generate_migration(&old_schema, &schema, STENCILA_VERSION)
-            {
-                eprintln!("Generating migration: {migration_filename}");
+            if let Some(migration_cypher) = kuzu_cypher::generate_migration(&old_schema, &schema) {
                 write(
-                    dir.join("migrations").join(migration_filename),
+                    dir.join("migrations").join("v99.99.99.cypher"),
                     migration_cypher,
                 )
                 .await?;
             }
         }
 
-        // Write schema as JSON
-        let schema_json = serde_json::to_string_pretty(&schema)?;
-        let schema_filename = format!("v{STENCILA_VERSION}.json");
-        write(schemas_dir.join(schema_filename), schema_json).await?;
+        // Write current schema as JSON
+        let json = serde_json::to_string_pretty(&schema)?;
+        write(schemas_dir.join("v99.99.99.json"), json).await?;
 
-        // Generate Cypher DDL
+        // Write current schema as Cypher DDL
         let cypher = kuzu_cypher::generate_schema(&schema);
         write(schemas_dir.join("current.cypher"), cypher).await?;
 
