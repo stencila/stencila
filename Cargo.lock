@@ -9668,8 +9668,6 @@ dependencies = [
  "common",
  "schema",
  "schemars 1.0.4",
- "semver",
- "serde",
  "status",
  "topological-sort",
 ]
