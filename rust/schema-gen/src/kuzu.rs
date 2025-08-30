@@ -1,6 +1,10 @@
 use std::path::PathBuf;
 
-use common::{eyre::Result, serde_json, tokio::fs::write};
+use common::{
+    eyre::Result,
+    serde_json,
+    tokio::fs::{self, write},
+};
 use version::STENCILA_VERSION;
 
 use crate::{kuzu_builder::KuzuSchemaBuilder, kuzu_cypher, kuzu_rust, schemas::Schemas};
@@ -35,14 +39,32 @@ impl Schemas {
         let mut builder = KuzuSchemaBuilder::new(self);
         let schema = builder.build()?;
 
+        // Find the latest existing schema for migration generation
+        let schemas_dir = dir.join("schemas");
+        let previous_schema = find_latest_schema(&schemas_dir).await?;
+
+        // Generate migration if we have a previous schema and it's different
+        if let Some(old_schema) = previous_schema {
+            if let Some((migration_filename, migration_cypher)) =
+                kuzu_cypher::generate_migration(&old_schema, &schema, STENCILA_VERSION)
+            {
+                eprintln!("Generating migration: {migration_filename}");
+                write(
+                    dir.join("migrations").join(migration_filename),
+                    migration_cypher,
+                )
+                .await?;
+            }
+        }
+
         // Write schema as JSON
         let schema_json = serde_json::to_string_pretty(&schema)?;
         let schema_filename = format!("v{STENCILA_VERSION}.json");
-        write(dir.join("schemas").join(schema_filename), schema_json).await?;
+        write(schemas_dir.join(schema_filename), schema_json).await?;
 
         // Generate Cypher DDL
         let cypher = kuzu_cypher::generate_schema(&schema);
-        write(dir.join("schemas").join("current.cypher"), cypher).await?;
+        write(schemas_dir.join("current.cypher"), cypher).await?;
 
         // Generate Rust code
         let primary_keys = builder.get_primary_keys();
@@ -60,5 +82,42 @@ impl Schemas {
         write(dir.join("src").join("node_types.rs"), rust).await?;
 
         Ok(())
+    }
+}
+
+/// Find the latest schema file in the schemas directory
+async fn find_latest_schema(
+    schemas_dir: &PathBuf,
+) -> Result<Option<crate::kuzu_types::DatabaseSchema>> {
+    use semver::Version;
+
+    let mut entries = fs::read_dir(schemas_dir).await?;
+    let mut latest_version: Option<Version> = None;
+    let mut latest_file: Option<String> = None;
+
+    while let Some(entry) = entries.next_entry().await? {
+        let path = entry.path();
+        if let Some(filename) = path.file_name().and_then(|n| n.to_str()) {
+            if filename.starts_with("v") && filename.ends_with(".json") {
+                // Extract version from filename like "v2.6.0.json"
+                if let Some(version_str) = filename
+                    .strip_prefix("v")
+                    .and_then(|s| s.strip_suffix(".json"))
+                {
+                    if let Ok(version) = Version::parse(version_str) {
+                        if latest_version.as_ref().map_or(true, |v| version > *v) {
+                            latest_version = Some(version);
+                            latest_file = Some(path.to_string_lossy().to_string());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if let Some(file_path) = latest_file {
+        kuzu_cypher::load_previous_schema(&file_path).await
+    } else {
+        Ok(None)
     }
 }

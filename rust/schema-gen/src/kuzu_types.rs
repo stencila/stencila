@@ -1,7 +1,7 @@
 use common::serde::{Deserialize, Serialize};
 
 /// Represents a complete Kuzu database schema
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DatabaseSchema {
     pub node_tables: Vec<NodeTable>,
@@ -10,7 +10,7 @@ pub struct DatabaseSchema {
 }
 
 /// Represents a Kuzu node table
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct NodeTable {
     pub name: String,
@@ -22,7 +22,7 @@ pub struct NodeTable {
 }
 
 /// Represents a Kuzu relationship table  
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct RelationshipTable {
     pub name: String,
@@ -31,7 +31,7 @@ pub struct RelationshipTable {
 }
 
 /// Represents a relationship FROM/TO pair
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub struct FromToPair {
     pub from: String,
@@ -39,7 +39,7 @@ pub struct FromToPair {
 }
 
 /// Relationship cardinality
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub enum Cardinality {
     OneToOne,
@@ -48,7 +48,7 @@ pub enum Cardinality {
 }
 
 /// Represents a table column
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Column {
     pub name: String,
@@ -58,7 +58,7 @@ pub struct Column {
 }
 
 /// Represents a derived property (computed fields)
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DerivedProperty {
     pub name: String,
@@ -66,7 +66,7 @@ pub struct DerivedProperty {
 }
 
 /// Kuzu data types
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub enum DataType {
     Null,
@@ -86,7 +86,7 @@ pub enum DataType {
 }
 
 /// Database indices
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub enum Index {
     FullTextSearch {
@@ -102,7 +102,7 @@ pub enum Index {
 }
 
 /// Information about a relation field for Rust code generation
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct RelationInfo {
     pub name: String,
