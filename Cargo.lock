@@ -6683,6 +6683,9 @@ dependencies = [
  "embed",
  "kernel-kuzu",
  "schema",
+ "semver",
+ "serde",
+ "sha2",
  "time",
 ]
 
@@ -9665,6 +9668,8 @@ dependencies = [
  "common",
  "schema",
  "schemars 1.0.4",
+ "semver",
+ "serde",
  "status",
  "topological-sort",
 ]

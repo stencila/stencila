@@ -10,6 +10,9 @@ derive_more = { workspace = true }
 embed = { path = "../embed" }
 kernel-kuzu = { path = "../kernel-kuzu" }
 schema = { path = "../schema" }
+semver = { workspace = true }
+serde = { workspace = true }
+sha2 = { workspace = true }
 time = { workspace = true }
 
 [lints]

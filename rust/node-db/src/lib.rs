@@ -33,8 +33,10 @@ mod node_types;
 #[rustfmt::skip]
 mod vector_indices;
 
+pub mod migrations;
 mod walker;
 
+use migrations::MigrationRunner;
 use vector_indices::VECTOR_EMBEDDINGS;
 use walker::DatabaseWalker;
 
@@ -607,6 +609,15 @@ impl NodeDatabase {
         }
 
         Ok(())
+    }
+
+    /// Get a migration runner for this database
+    pub fn migration_runner(&self) -> MigrationRunner {
+        // TODO: replace this with `rust-embed` embedded migrations
+        use std::path::PathBuf;
+        let migrations_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("migrations");
+
+        MigrationRunner::new(migrations_dir, self.database.clone())
     }
 }
 
