@@ -203,7 +203,7 @@ impl NodeDatabase {
             return Ok(());
         }
 
-        let schema = include_str!("schema.cypher");
+        let schema = include_str!("../schemas/current.cypher");
         for statement in schema.split(";") {
             let statement = statement.trim();
             if statement.starts_with("//") || statement.is_empty() {

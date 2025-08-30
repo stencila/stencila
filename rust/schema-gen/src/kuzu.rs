@@ -35,7 +35,7 @@ impl Schemas {
     pub async fn kuzu(&self) -> Result<()> {
         eprintln!("Generating Kuzu Schema");
 
-        let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../node-db/src");
+        let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../node-db");
 
         // Skip properties that users are never likely to want to use in query filters
         let skip_props = [
@@ -713,7 +713,7 @@ impl Schemas {
             .join("\n");
 
         write(
-            dir.join("schema.cypher"),
+            dir.join("schemas").join("current.cypher"),
             format!(
                 "// Generated file, do not edit. See the Rust `schema-gen` crate;
 
@@ -831,7 +831,7 @@ impl DatabaseNode for {title} {{
         let implems = implems.join("\n");
 
         write(
-            dir.join("node_types.rs"),
+            dir.join("src").join("node_types.rs"),
             format!(
                 "// Generated file, do not edit. See the Rust `schema-gen` crate.
 
