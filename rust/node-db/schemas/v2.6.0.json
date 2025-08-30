@@ -1,0 +1,4787 @@
+{
+  "nodeTables": [
+    {
+      "name": "Admonition",
+      "columns": [
+        {
+          "name": "admonitionType",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "isFolded",
+          "dataType": "Boolean",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "Annotation",
+      "columns": [],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "Article",
+      "columns": [
+        {
+          "name": "description",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "name",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "url",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "doi",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "dateCreated",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "dateReceived",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "dateAccepted",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "dateModified",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "datePublished",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "genre",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "keywords",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "repository",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "path",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "commit",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [
+        {
+          "name": "title",
+          "derivation": "to_text(&self.title)"
+        },
+        {
+          "name": "abstract",
+          "derivation": "to_text(&self.r#abstract)"
+        }
+      ],
+      "hasEmbeddings": true,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "AudioObject",
+      "columns": [
+        {
+          "name": "description",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "name",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "url",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "doi",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "dateCreated",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateReceived",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateAccepted",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateModified",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "datePublished",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "genre",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "keywords",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "repository",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "path",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "commit",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "contentSize",
+          "dataType": "Double",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "contentUrl",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "mediaType",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "AuthorRole",
+      "columns": [
+        {
+          "name": "roleName",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "format",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "lastModified",
+          "dataType": "Timestamp",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "Citation",
+      "columns": [
+        {
+          "name": "target",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "citationMode",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "citationIntent",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [
+        {
+          "name": "text",
+          "derivation": "to_text(&self.options.content)"
+        }
+      ],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "CitationGroup",
+      "columns": [],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "Claim",
+      "columns": [
+        {
+          "name": "description",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "name",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "url",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "doi",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "dateCreated",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateReceived",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateAccepted",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateModified",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "datePublished",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "genre",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "keywords",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "repository",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "path",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "commit",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "claimType",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "label",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "CodeBlock",
+      "columns": [
+        {
+          "name": "code",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "programmingLanguage",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "CodeChunk",
+      "columns": [
+        {
+          "name": "executionMode",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "executionCount",
+          "dataType": "Int64",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionRequired",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionStatus",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionEnded",
+          "dataType": "Timestamp",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionDuration",
+          "dataType": "Interval",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "code",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "programmingLanguage",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "executionBounds",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "executionBounded",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "labelType",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "label",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "labelAutomatically",
+          "dataType": "Boolean",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "isEchoed",
+          "dataType": "Boolean",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "isHidden",
+          "dataType": "Boolean",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "executionPure",
+          "dataType": "Boolean",
+          "nullable": true,
+          "onOptions": true
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [
+        {
+          "name": "caption",
+          "derivation": "to_text(&self.caption)"
+        }
+      ],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "CodeExpression",
+      "columns": [
+        {
+          "name": "executionMode",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "executionCount",
+          "dataType": "Int64",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionRequired",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionStatus",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionEnded",
+          "dataType": "Timestamp",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionDuration",
+          "dataType": "Interval",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "code",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "programmingLanguage",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "executionBounds",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "executionBounded",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "Datatable",
+      "columns": [
+        {
+          "name": "description",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "name",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "url",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "doi",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "dateCreated",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateReceived",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateAccepted",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateModified",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "datePublished",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "genre",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "keywords",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "repository",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "path",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "commit",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "DatatableColumn",
+      "columns": [
+        {
+          "name": "name",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "Directory",
+      "columns": [
+        {
+          "name": "name",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "path",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "Figure",
+      "columns": [
+        {
+          "name": "description",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "name",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "url",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "doi",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "dateCreated",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateReceived",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateAccepted",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateModified",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "datePublished",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "genre",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "keywords",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "repository",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "path",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "commit",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "label",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "labelAutomatically",
+          "dataType": "Boolean",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [
+        {
+          "name": "caption",
+          "derivation": "to_text(&self.caption)"
+        }
+      ],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "File",
+      "columns": [
+        {
+          "name": "name",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "path",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "mediaType",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "size",
+          "dataType": "UInt64",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "content",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "ForBlock",
+      "columns": [
+        {
+          "name": "executionMode",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "executionCount",
+          "dataType": "Int64",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionRequired",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionStatus",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionEnded",
+          "dataType": "Timestamp",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionDuration",
+          "dataType": "Interval",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "code",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "programmingLanguage",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "executionBounds",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "executionBounded",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "variable",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "Function",
+      "columns": [
+        {
+          "name": "name",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "Heading",
+      "columns": [
+        {
+          "name": "labelType",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "label",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "level",
+          "dataType": "Int64",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "IfBlock",
+      "columns": [
+        {
+          "name": "executionMode",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "executionCount",
+          "dataType": "Int64",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionRequired",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionStatus",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionEnded",
+          "dataType": "Timestamp",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionDuration",
+          "dataType": "Interval",
+          "nullable": true,
+          "onOptions": true
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "IfBlockClause",
+      "columns": [
+        {
+          "name": "executionMode",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "executionCount",
+          "dataType": "Int64",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionRequired",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionStatus",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionEnded",
+          "dataType": "Timestamp",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionDuration",
+          "dataType": "Interval",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "code",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "programmingLanguage",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "executionBounds",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "executionBounded",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "isActive",
+          "dataType": "Boolean",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "ImageObject",
+      "columns": [
+        {
+          "name": "description",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "name",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "url",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "doi",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "dateCreated",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateReceived",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateAccepted",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateModified",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "datePublished",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "genre",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "keywords",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "repository",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "path",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "commit",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "contentSize",
+          "dataType": "Double",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "contentUrl",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "mediaType",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "IncludeBlock",
+      "columns": [
+        {
+          "name": "executionMode",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "executionCount",
+          "dataType": "Int64",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionRequired",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionStatus",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionEnded",
+          "dataType": "Timestamp",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionDuration",
+          "dataType": "Interval",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "source",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "mediaType",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "select",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "Link",
+      "columns": [
+        {
+          "name": "target",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "rel",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "List",
+      "columns": [
+        {
+          "name": "order",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "ListItem",
+      "columns": [
+        {
+          "name": "description",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "name",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "url",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "isChecked",
+          "dataType": "Boolean",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "MathBlock",
+      "columns": [
+        {
+          "name": "code",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "mathLanguage",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "label",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "labelAutomatically",
+          "dataType": "Boolean",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "MathInline",
+      "columns": [
+        {
+          "name": "code",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "mathLanguage",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "MediaObject",
+      "columns": [
+        {
+          "name": "description",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "name",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "url",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "doi",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "dateCreated",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateReceived",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateAccepted",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateModified",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "datePublished",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "genre",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "keywords",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "repository",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "path",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "commit",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "contentSize",
+          "dataType": "Double",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "contentUrl",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "mediaType",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "Note",
+      "columns": [
+        {
+          "name": "noteType",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "Organization",
+      "columns": [
+        {
+          "name": "description",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "name",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "url",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "ror",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "legalName",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        }
+      ],
+      "primaryKey": "ror",
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": false
+    },
+    {
+      "name": "Paragraph",
+      "columns": [],
+      "primaryKey": null,
+      "derivedProperties": [
+        {
+          "name": "text",
+          "derivation": "to_text(self)"
+        }
+      ],
+      "hasEmbeddings": true,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "Parameter",
+      "columns": [
+        {
+          "name": "executionMode",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "executionCount",
+          "dataType": "Int64",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionRequired",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionStatus",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionEnded",
+          "dataType": "Timestamp",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "executionDuration",
+          "dataType": "Interval",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "name",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "label",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "derivedFrom",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "Periodical",
+      "columns": [
+        {
+          "name": "description",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "name",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "url",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "genre",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "keywords",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "repository",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "path",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "commit",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateStart",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateEnd",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "issns",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "Person",
+      "columns": [
+        {
+          "name": "url",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "orcid",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "familyNames",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "givenNames",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "honorificPrefix",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "honorificSuffix",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        }
+      ],
+      "primaryKey": "orcid",
+      "derivedProperties": [
+        {
+          "name": "name",
+          "derivation": "self.name()"
+        }
+      ],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": false
+    },
+    {
+      "name": "PublicationIssue",
+      "columns": [
+        {
+          "name": "repository",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "path",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "commit",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [
+        {
+          "name": "issueNumber",
+          "derivation": "to_text(&self.issue_number)"
+        }
+      ],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "PublicationVolume",
+      "columns": [
+        {
+          "name": "repository",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "path",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "commit",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [
+        {
+          "name": "volumeNumber",
+          "derivation": "to_text(&self.volume_number)"
+        }
+      ],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "QuoteBlock",
+      "columns": [],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "QuoteInline",
+      "columns": [],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "RawBlock",
+      "columns": [
+        {
+          "name": "format",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "content",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "css",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "Reference",
+      "columns": [
+        {
+          "name": "appearanceIndex",
+          "dataType": "UInt64",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "workType",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "doi",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "date",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "url",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": "doi",
+      "derivedProperties": [
+        {
+          "name": "title",
+          "derivation": "to_text(&self.title)"
+        }
+      ],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": false
+    },
+    {
+      "name": "Section",
+      "columns": [
+        {
+          "name": "sectionType",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "Sentence",
+      "columns": [],
+      "primaryKey": null,
+      "derivedProperties": [
+        {
+          "name": "text",
+          "derivation": "to_text(self)"
+        }
+      ],
+      "hasEmbeddings": true,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "SoftwareSourceCode",
+      "columns": [
+        {
+          "name": "description",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "name",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "url",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "doi",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "dateCreated",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateReceived",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateAccepted",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateModified",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "datePublished",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "genre",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "keywords",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "repository",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "path",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "commit",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "programmingLanguage",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "codeSampleType",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "runtimePlatform",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "StyledBlock",
+      "columns": [
+        {
+          "name": "code",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "styleLanguage",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "css",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "classList",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "StyledInline",
+      "columns": [
+        {
+          "name": "code",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "styleLanguage",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "css",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "classList",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "Table",
+      "columns": [
+        {
+          "name": "description",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "name",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "url",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "doi",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "dateCreated",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateReceived",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateAccepted",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateModified",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "datePublished",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "genre",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "keywords",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "repository",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "path",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "commit",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "label",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "labelAutomatically",
+          "dataType": "Boolean",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [
+        {
+          "name": "caption",
+          "derivation": "to_text(&self.caption)"
+        },
+        {
+          "name": "notes",
+          "derivation": "to_text(&self.notes)"
+        }
+      ],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "TableCell",
+      "columns": [
+        {
+          "name": "cellType",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [
+        {
+          "name": "text",
+          "derivation": "to_text(self)"
+        }
+      ],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "TableRow",
+      "columns": [
+        {
+          "name": "rowType",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "ThematicBreak",
+      "columns": [],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "Variable",
+      "columns": [
+        {
+          "name": "name",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "programmingLanguage",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "nativeType",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "nodeType",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "nativeHint",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
+      "name": "VideoObject",
+      "columns": [
+        {
+          "name": "description",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "name",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "url",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "doi",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "dateCreated",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateReceived",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateAccepted",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateModified",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "datePublished",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "genre",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "keywords",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "repository",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "path",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "commit",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "contentSize",
+          "dataType": "Double",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "contentUrl",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "mediaType",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    }
+  ],
+  "relationshipTables": [
+    {
+      "name": "author",
+      "pairs": [
+        {
+          "from": "AuthorRole",
+          "to": "Person"
+        },
+        {
+          "from": "AuthorRole",
+          "to": "Organization"
+        }
+      ],
+      "cardinality": "OneToOne"
+    },
+    {
+      "name": "annotation",
+      "pairs": [
+        {
+          "from": "Annotation",
+          "to": "Admonition"
+        },
+        {
+          "from": "Annotation",
+          "to": "AudioObject"
+        },
+        {
+          "from": "Annotation",
+          "to": "Claim"
+        },
+        {
+          "from": "Annotation",
+          "to": "CodeBlock"
+        },
+        {
+          "from": "Annotation",
+          "to": "CodeChunk"
+        },
+        {
+          "from": "Annotation",
+          "to": "Figure"
+        },
+        {
+          "from": "Annotation",
+          "to": "File"
+        },
+        {
+          "from": "Annotation",
+          "to": "ForBlock"
+        },
+        {
+          "from": "Annotation",
+          "to": "Heading"
+        },
+        {
+          "from": "Annotation",
+          "to": "IfBlock"
+        },
+        {
+          "from": "Annotation",
+          "to": "ImageObject"
+        },
+        {
+          "from": "Annotation",
+          "to": "IncludeBlock"
+        },
+        {
+          "from": "Annotation",
+          "to": "List"
+        },
+        {
+          "from": "Annotation",
+          "to": "MathBlock"
+        },
+        {
+          "from": "Annotation",
+          "to": "Paragraph"
+        },
+        {
+          "from": "Annotation",
+          "to": "QuoteBlock"
+        },
+        {
+          "from": "Annotation",
+          "to": "RawBlock"
+        },
+        {
+          "from": "Annotation",
+          "to": "Section"
+        },
+        {
+          "from": "Annotation",
+          "to": "StyledBlock"
+        },
+        {
+          "from": "Annotation",
+          "to": "Table"
+        },
+        {
+          "from": "Annotation",
+          "to": "ThematicBreak"
+        },
+        {
+          "from": "Annotation",
+          "to": "VideoObject"
+        }
+      ],
+      "cardinality": "OneToMany"
+    },
+    {
+      "name": "cells",
+      "pairs": [
+        {
+          "from": "TableRow",
+          "to": "TableCell"
+        }
+      ],
+      "cardinality": "OneToMany"
+    },
+    {
+      "name": "clauses",
+      "pairs": [
+        {
+          "from": "IfBlock",
+          "to": "IfBlockClause"
+        }
+      ],
+      "cardinality": "OneToMany"
+    },
+    {
+      "name": "columns",
+      "pairs": [
+        {
+          "from": "Datatable",
+          "to": "DatatableColumn"
+        }
+      ],
+      "cardinality": "OneToMany"
+    },
+    {
+      "name": "content",
+      "pairs": [
+        {
+          "from": "Admonition",
+          "to": "Admonition"
+        },
+        {
+          "from": "Admonition",
+          "to": "AudioObject"
+        },
+        {
+          "from": "Admonition",
+          "to": "Claim"
+        },
+        {
+          "from": "Admonition",
+          "to": "CodeBlock"
+        },
+        {
+          "from": "Admonition",
+          "to": "CodeChunk"
+        },
+        {
+          "from": "Admonition",
+          "to": "Figure"
+        },
+        {
+          "from": "Admonition",
+          "to": "File"
+        },
+        {
+          "from": "Admonition",
+          "to": "ForBlock"
+        },
+        {
+          "from": "Admonition",
+          "to": "Heading"
+        },
+        {
+          "from": "Admonition",
+          "to": "IfBlock"
+        },
+        {
+          "from": "Admonition",
+          "to": "ImageObject"
+        },
+        {
+          "from": "Admonition",
+          "to": "IncludeBlock"
+        },
+        {
+          "from": "Admonition",
+          "to": "List"
+        },
+        {
+          "from": "Admonition",
+          "to": "MathBlock"
+        },
+        {
+          "from": "Admonition",
+          "to": "Paragraph"
+        },
+        {
+          "from": "Admonition",
+          "to": "QuoteBlock"
+        },
+        {
+          "from": "Admonition",
+          "to": "RawBlock"
+        },
+        {
+          "from": "Admonition",
+          "to": "Section"
+        },
+        {
+          "from": "Admonition",
+          "to": "StyledBlock"
+        },
+        {
+          "from": "Admonition",
+          "to": "Table"
+        },
+        {
+          "from": "Admonition",
+          "to": "ThematicBreak"
+        },
+        {
+          "from": "Admonition",
+          "to": "VideoObject"
+        },
+        {
+          "from": "Annotation",
+          "to": "Annotation"
+        },
+        {
+          "from": "Annotation",
+          "to": "AudioObject"
+        },
+        {
+          "from": "Annotation",
+          "to": "Citation"
+        },
+        {
+          "from": "Annotation",
+          "to": "CitationGroup"
+        },
+        {
+          "from": "Annotation",
+          "to": "CodeExpression"
+        },
+        {
+          "from": "Annotation",
+          "to": "ImageObject"
+        },
+        {
+          "from": "Annotation",
+          "to": "Link"
+        },
+        {
+          "from": "Annotation",
+          "to": "MathInline"
+        },
+        {
+          "from": "Annotation",
+          "to": "MediaObject"
+        },
+        {
+          "from": "Annotation",
+          "to": "Note"
+        },
+        {
+          "from": "Annotation",
+          "to": "Parameter"
+        },
+        {
+          "from": "Annotation",
+          "to": "QuoteInline"
+        },
+        {
+          "from": "Annotation",
+          "to": "Sentence"
+        },
+        {
+          "from": "Annotation",
+          "to": "StyledInline"
+        },
+        {
+          "from": "Annotation",
+          "to": "VideoObject"
+        },
+        {
+          "from": "Article",
+          "to": "Admonition"
+        },
+        {
+          "from": "Article",
+          "to": "AudioObject"
+        },
+        {
+          "from": "Article",
+          "to": "Claim"
+        },
+        {
+          "from": "Article",
+          "to": "CodeBlock"
+        },
+        {
+          "from": "Article",
+          "to": "CodeChunk"
+        },
+        {
+          "from": "Article",
+          "to": "Figure"
+        },
+        {
+          "from": "Article",
+          "to": "File"
+        },
+        {
+          "from": "Article",
+          "to": "ForBlock"
+        },
+        {
+          "from": "Article",
+          "to": "Heading"
+        },
+        {
+          "from": "Article",
+          "to": "IfBlock"
+        },
+        {
+          "from": "Article",
+          "to": "ImageObject"
+        },
+        {
+          "from": "Article",
+          "to": "IncludeBlock"
+        },
+        {
+          "from": "Article",
+          "to": "List"
+        },
+        {
+          "from": "Article",
+          "to": "MathBlock"
+        },
+        {
+          "from": "Article",
+          "to": "Paragraph"
+        },
+        {
+          "from": "Article",
+          "to": "QuoteBlock"
+        },
+        {
+          "from": "Article",
+          "to": "RawBlock"
+        },
+        {
+          "from": "Article",
+          "to": "Section"
+        },
+        {
+          "from": "Article",
+          "to": "StyledBlock"
+        },
+        {
+          "from": "Article",
+          "to": "Table"
+        },
+        {
+          "from": "Article",
+          "to": "ThematicBreak"
+        },
+        {
+          "from": "Article",
+          "to": "VideoObject"
+        },
+        {
+          "from": "Claim",
+          "to": "Admonition"
+        },
+        {
+          "from": "Claim",
+          "to": "AudioObject"
+        },
+        {
+          "from": "Claim",
+          "to": "Claim"
+        },
+        {
+          "from": "Claim",
+          "to": "CodeBlock"
+        },
+        {
+          "from": "Claim",
+          "to": "CodeChunk"
+        },
+        {
+          "from": "Claim",
+          "to": "Figure"
+        },
+        {
+          "from": "Claim",
+          "to": "File"
+        },
+        {
+          "from": "Claim",
+          "to": "ForBlock"
+        },
+        {
+          "from": "Claim",
+          "to": "Heading"
+        },
+        {
+          "from": "Claim",
+          "to": "IfBlock"
+        },
+        {
+          "from": "Claim",
+          "to": "ImageObject"
+        },
+        {
+          "from": "Claim",
+          "to": "IncludeBlock"
+        },
+        {
+          "from": "Claim",
+          "to": "List"
+        },
+        {
+          "from": "Claim",
+          "to": "MathBlock"
+        },
+        {
+          "from": "Claim",
+          "to": "Paragraph"
+        },
+        {
+          "from": "Claim",
+          "to": "QuoteBlock"
+        },
+        {
+          "from": "Claim",
+          "to": "RawBlock"
+        },
+        {
+          "from": "Claim",
+          "to": "Section"
+        },
+        {
+          "from": "Claim",
+          "to": "StyledBlock"
+        },
+        {
+          "from": "Claim",
+          "to": "Table"
+        },
+        {
+          "from": "Claim",
+          "to": "ThematicBreak"
+        },
+        {
+          "from": "Claim",
+          "to": "VideoObject"
+        },
+        {
+          "from": "Figure",
+          "to": "Admonition"
+        },
+        {
+          "from": "Figure",
+          "to": "AudioObject"
+        },
+        {
+          "from": "Figure",
+          "to": "Claim"
+        },
+        {
+          "from": "Figure",
+          "to": "CodeBlock"
+        },
+        {
+          "from": "Figure",
+          "to": "CodeChunk"
+        },
+        {
+          "from": "Figure",
+          "to": "Figure"
+        },
+        {
+          "from": "Figure",
+          "to": "File"
+        },
+        {
+          "from": "Figure",
+          "to": "ForBlock"
+        },
+        {
+          "from": "Figure",
+          "to": "Heading"
+        },
+        {
+          "from": "Figure",
+          "to": "IfBlock"
+        },
+        {
+          "from": "Figure",
+          "to": "ImageObject"
+        },
+        {
+          "from": "Figure",
+          "to": "IncludeBlock"
+        },
+        {
+          "from": "Figure",
+          "to": "List"
+        },
+        {
+          "from": "Figure",
+          "to": "MathBlock"
+        },
+        {
+          "from": "Figure",
+          "to": "Paragraph"
+        },
+        {
+          "from": "Figure",
+          "to": "QuoteBlock"
+        },
+        {
+          "from": "Figure",
+          "to": "RawBlock"
+        },
+        {
+          "from": "Figure",
+          "to": "Section"
+        },
+        {
+          "from": "Figure",
+          "to": "StyledBlock"
+        },
+        {
+          "from": "Figure",
+          "to": "Table"
+        },
+        {
+          "from": "Figure",
+          "to": "ThematicBreak"
+        },
+        {
+          "from": "Figure",
+          "to": "VideoObject"
+        },
+        {
+          "from": "ForBlock",
+          "to": "Admonition"
+        },
+        {
+          "from": "ForBlock",
+          "to": "AudioObject"
+        },
+        {
+          "from": "ForBlock",
+          "to": "Claim"
+        },
+        {
+          "from": "ForBlock",
+          "to": "CodeBlock"
+        },
+        {
+          "from": "ForBlock",
+          "to": "CodeChunk"
+        },
+        {
+          "from": "ForBlock",
+          "to": "Figure"
+        },
+        {
+          "from": "ForBlock",
+          "to": "File"
+        },
+        {
+          "from": "ForBlock",
+          "to": "ForBlock"
+        },
+        {
+          "from": "ForBlock",
+          "to": "Heading"
+        },
+        {
+          "from": "ForBlock",
+          "to": "IfBlock"
+        },
+        {
+          "from": "ForBlock",
+          "to": "ImageObject"
+        },
+        {
+          "from": "ForBlock",
+          "to": "IncludeBlock"
+        },
+        {
+          "from": "ForBlock",
+          "to": "List"
+        },
+        {
+          "from": "ForBlock",
+          "to": "MathBlock"
+        },
+        {
+          "from": "ForBlock",
+          "to": "Paragraph"
+        },
+        {
+          "from": "ForBlock",
+          "to": "QuoteBlock"
+        },
+        {
+          "from": "ForBlock",
+          "to": "RawBlock"
+        },
+        {
+          "from": "ForBlock",
+          "to": "Section"
+        },
+        {
+          "from": "ForBlock",
+          "to": "StyledBlock"
+        },
+        {
+          "from": "ForBlock",
+          "to": "Table"
+        },
+        {
+          "from": "ForBlock",
+          "to": "ThematicBreak"
+        },
+        {
+          "from": "ForBlock",
+          "to": "VideoObject"
+        },
+        {
+          "from": "Heading",
+          "to": "Annotation"
+        },
+        {
+          "from": "Heading",
+          "to": "AudioObject"
+        },
+        {
+          "from": "Heading",
+          "to": "Citation"
+        },
+        {
+          "from": "Heading",
+          "to": "CitationGroup"
+        },
+        {
+          "from": "Heading",
+          "to": "CodeExpression"
+        },
+        {
+          "from": "Heading",
+          "to": "ImageObject"
+        },
+        {
+          "from": "Heading",
+          "to": "Link"
+        },
+        {
+          "from": "Heading",
+          "to": "MathInline"
+        },
+        {
+          "from": "Heading",
+          "to": "MediaObject"
+        },
+        {
+          "from": "Heading",
+          "to": "Note"
+        },
+        {
+          "from": "Heading",
+          "to": "Parameter"
+        },
+        {
+          "from": "Heading",
+          "to": "QuoteInline"
+        },
+        {
+          "from": "Heading",
+          "to": "Sentence"
+        },
+        {
+          "from": "Heading",
+          "to": "StyledInline"
+        },
+        {
+          "from": "Heading",
+          "to": "VideoObject"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "Admonition"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "AudioObject"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "Claim"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "CodeBlock"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "CodeChunk"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "Figure"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "File"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "ForBlock"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "Heading"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "IfBlock"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "ImageObject"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "IncludeBlock"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "List"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "MathBlock"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "Paragraph"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "QuoteBlock"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "RawBlock"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "Section"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "StyledBlock"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "Table"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "ThematicBreak"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "VideoObject"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "Admonition"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "AudioObject"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "Claim"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "CodeBlock"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "CodeChunk"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "Figure"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "File"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "ForBlock"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "Heading"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "IfBlock"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "ImageObject"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "IncludeBlock"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "List"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "MathBlock"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "Paragraph"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "QuoteBlock"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "RawBlock"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "Section"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "StyledBlock"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "Table"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "ThematicBreak"
+        },
+        {
+          "from": "IncludeBlock",
+          "to": "VideoObject"
+        },
+        {
+          "from": "Link",
+          "to": "Annotation"
+        },
+        {
+          "from": "Link",
+          "to": "AudioObject"
+        },
+        {
+          "from": "Link",
+          "to": "Citation"
+        },
+        {
+          "from": "Link",
+          "to": "CitationGroup"
+        },
+        {
+          "from": "Link",
+          "to": "CodeExpression"
+        },
+        {
+          "from": "Link",
+          "to": "ImageObject"
+        },
+        {
+          "from": "Link",
+          "to": "Link"
+        },
+        {
+          "from": "Link",
+          "to": "MathInline"
+        },
+        {
+          "from": "Link",
+          "to": "MediaObject"
+        },
+        {
+          "from": "Link",
+          "to": "Note"
+        },
+        {
+          "from": "Link",
+          "to": "Parameter"
+        },
+        {
+          "from": "Link",
+          "to": "QuoteInline"
+        },
+        {
+          "from": "Link",
+          "to": "Sentence"
+        },
+        {
+          "from": "Link",
+          "to": "StyledInline"
+        },
+        {
+          "from": "Link",
+          "to": "VideoObject"
+        },
+        {
+          "from": "ListItem",
+          "to": "Admonition"
+        },
+        {
+          "from": "ListItem",
+          "to": "AudioObject"
+        },
+        {
+          "from": "ListItem",
+          "to": "Claim"
+        },
+        {
+          "from": "ListItem",
+          "to": "CodeBlock"
+        },
+        {
+          "from": "ListItem",
+          "to": "CodeChunk"
+        },
+        {
+          "from": "ListItem",
+          "to": "Figure"
+        },
+        {
+          "from": "ListItem",
+          "to": "File"
+        },
+        {
+          "from": "ListItem",
+          "to": "ForBlock"
+        },
+        {
+          "from": "ListItem",
+          "to": "Heading"
+        },
+        {
+          "from": "ListItem",
+          "to": "IfBlock"
+        },
+        {
+          "from": "ListItem",
+          "to": "ImageObject"
+        },
+        {
+          "from": "ListItem",
+          "to": "IncludeBlock"
+        },
+        {
+          "from": "ListItem",
+          "to": "List"
+        },
+        {
+          "from": "ListItem",
+          "to": "MathBlock"
+        },
+        {
+          "from": "ListItem",
+          "to": "Paragraph"
+        },
+        {
+          "from": "ListItem",
+          "to": "QuoteBlock"
+        },
+        {
+          "from": "ListItem",
+          "to": "RawBlock"
+        },
+        {
+          "from": "ListItem",
+          "to": "Section"
+        },
+        {
+          "from": "ListItem",
+          "to": "StyledBlock"
+        },
+        {
+          "from": "ListItem",
+          "to": "Table"
+        },
+        {
+          "from": "ListItem",
+          "to": "ThematicBreak"
+        },
+        {
+          "from": "ListItem",
+          "to": "VideoObject"
+        },
+        {
+          "from": "Note",
+          "to": "Admonition"
+        },
+        {
+          "from": "Note",
+          "to": "AudioObject"
+        },
+        {
+          "from": "Note",
+          "to": "Claim"
+        },
+        {
+          "from": "Note",
+          "to": "CodeBlock"
+        },
+        {
+          "from": "Note",
+          "to": "CodeChunk"
+        },
+        {
+          "from": "Note",
+          "to": "Figure"
+        },
+        {
+          "from": "Note",
+          "to": "File"
+        },
+        {
+          "from": "Note",
+          "to": "ForBlock"
+        },
+        {
+          "from": "Note",
+          "to": "Heading"
+        },
+        {
+          "from": "Note",
+          "to": "IfBlock"
+        },
+        {
+          "from": "Note",
+          "to": "ImageObject"
+        },
+        {
+          "from": "Note",
+          "to": "IncludeBlock"
+        },
+        {
+          "from": "Note",
+          "to": "List"
+        },
+        {
+          "from": "Note",
+          "to": "MathBlock"
+        },
+        {
+          "from": "Note",
+          "to": "Paragraph"
+        },
+        {
+          "from": "Note",
+          "to": "QuoteBlock"
+        },
+        {
+          "from": "Note",
+          "to": "RawBlock"
+        },
+        {
+          "from": "Note",
+          "to": "Section"
+        },
+        {
+          "from": "Note",
+          "to": "StyledBlock"
+        },
+        {
+          "from": "Note",
+          "to": "Table"
+        },
+        {
+          "from": "Note",
+          "to": "ThematicBreak"
+        },
+        {
+          "from": "Note",
+          "to": "VideoObject"
+        },
+        {
+          "from": "Paragraph",
+          "to": "Annotation"
+        },
+        {
+          "from": "Paragraph",
+          "to": "AudioObject"
+        },
+        {
+          "from": "Paragraph",
+          "to": "Citation"
+        },
+        {
+          "from": "Paragraph",
+          "to": "CitationGroup"
+        },
+        {
+          "from": "Paragraph",
+          "to": "CodeExpression"
+        },
+        {
+          "from": "Paragraph",
+          "to": "ImageObject"
+        },
+        {
+          "from": "Paragraph",
+          "to": "Link"
+        },
+        {
+          "from": "Paragraph",
+          "to": "MathInline"
+        },
+        {
+          "from": "Paragraph",
+          "to": "MediaObject"
+        },
+        {
+          "from": "Paragraph",
+          "to": "Note"
+        },
+        {
+          "from": "Paragraph",
+          "to": "Parameter"
+        },
+        {
+          "from": "Paragraph",
+          "to": "QuoteInline"
+        },
+        {
+          "from": "Paragraph",
+          "to": "Sentence"
+        },
+        {
+          "from": "Paragraph",
+          "to": "StyledInline"
+        },
+        {
+          "from": "Paragraph",
+          "to": "VideoObject"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "Admonition"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "AudioObject"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "Claim"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "CodeBlock"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "CodeChunk"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "Figure"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "File"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "ForBlock"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "Heading"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "IfBlock"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "ImageObject"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "IncludeBlock"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "List"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "MathBlock"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "Paragraph"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "QuoteBlock"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "RawBlock"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "Section"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "StyledBlock"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "Table"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "ThematicBreak"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "VideoObject"
+        },
+        {
+          "from": "QuoteInline",
+          "to": "Annotation"
+        },
+        {
+          "from": "QuoteInline",
+          "to": "AudioObject"
+        },
+        {
+          "from": "QuoteInline",
+          "to": "Citation"
+        },
+        {
+          "from": "QuoteInline",
+          "to": "CitationGroup"
+        },
+        {
+          "from": "QuoteInline",
+          "to": "CodeExpression"
+        },
+        {
+          "from": "QuoteInline",
+          "to": "ImageObject"
+        },
+        {
+          "from": "QuoteInline",
+          "to": "Link"
+        },
+        {
+          "from": "QuoteInline",
+          "to": "MathInline"
+        },
+        {
+          "from": "QuoteInline",
+          "to": "MediaObject"
+        },
+        {
+          "from": "QuoteInline",
+          "to": "Note"
+        },
+        {
+          "from": "QuoteInline",
+          "to": "Parameter"
+        },
+        {
+          "from": "QuoteInline",
+          "to": "QuoteInline"
+        },
+        {
+          "from": "QuoteInline",
+          "to": "Sentence"
+        },
+        {
+          "from": "QuoteInline",
+          "to": "StyledInline"
+        },
+        {
+          "from": "QuoteInline",
+          "to": "VideoObject"
+        },
+        {
+          "from": "Section",
+          "to": "Admonition"
+        },
+        {
+          "from": "Section",
+          "to": "AudioObject"
+        },
+        {
+          "from": "Section",
+          "to": "Claim"
+        },
+        {
+          "from": "Section",
+          "to": "CodeBlock"
+        },
+        {
+          "from": "Section",
+          "to": "CodeChunk"
+        },
+        {
+          "from": "Section",
+          "to": "Figure"
+        },
+        {
+          "from": "Section",
+          "to": "File"
+        },
+        {
+          "from": "Section",
+          "to": "ForBlock"
+        },
+        {
+          "from": "Section",
+          "to": "Heading"
+        },
+        {
+          "from": "Section",
+          "to": "IfBlock"
+        },
+        {
+          "from": "Section",
+          "to": "ImageObject"
+        },
+        {
+          "from": "Section",
+          "to": "IncludeBlock"
+        },
+        {
+          "from": "Section",
+          "to": "List"
+        },
+        {
+          "from": "Section",
+          "to": "MathBlock"
+        },
+        {
+          "from": "Section",
+          "to": "Paragraph"
+        },
+        {
+          "from": "Section",
+          "to": "QuoteBlock"
+        },
+        {
+          "from": "Section",
+          "to": "RawBlock"
+        },
+        {
+          "from": "Section",
+          "to": "Section"
+        },
+        {
+          "from": "Section",
+          "to": "StyledBlock"
+        },
+        {
+          "from": "Section",
+          "to": "Table"
+        },
+        {
+          "from": "Section",
+          "to": "ThematicBreak"
+        },
+        {
+          "from": "Section",
+          "to": "VideoObject"
+        },
+        {
+          "from": "Sentence",
+          "to": "Annotation"
+        },
+        {
+          "from": "Sentence",
+          "to": "AudioObject"
+        },
+        {
+          "from": "Sentence",
+          "to": "Citation"
+        },
+        {
+          "from": "Sentence",
+          "to": "CitationGroup"
+        },
+        {
+          "from": "Sentence",
+          "to": "CodeExpression"
+        },
+        {
+          "from": "Sentence",
+          "to": "ImageObject"
+        },
+        {
+          "from": "Sentence",
+          "to": "Link"
+        },
+        {
+          "from": "Sentence",
+          "to": "MathInline"
+        },
+        {
+          "from": "Sentence",
+          "to": "MediaObject"
+        },
+        {
+          "from": "Sentence",
+          "to": "Note"
+        },
+        {
+          "from": "Sentence",
+          "to": "Parameter"
+        },
+        {
+          "from": "Sentence",
+          "to": "QuoteInline"
+        },
+        {
+          "from": "Sentence",
+          "to": "Sentence"
+        },
+        {
+          "from": "Sentence",
+          "to": "StyledInline"
+        },
+        {
+          "from": "Sentence",
+          "to": "VideoObject"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "Admonition"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "AudioObject"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "Claim"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "CodeBlock"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "CodeChunk"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "Figure"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "File"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "ForBlock"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "Heading"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "IfBlock"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "ImageObject"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "IncludeBlock"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "List"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "MathBlock"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "Paragraph"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "QuoteBlock"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "RawBlock"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "Section"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "StyledBlock"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "Table"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "ThematicBreak"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "VideoObject"
+        },
+        {
+          "from": "StyledInline",
+          "to": "Annotation"
+        },
+        {
+          "from": "StyledInline",
+          "to": "AudioObject"
+        },
+        {
+          "from": "StyledInline",
+          "to": "Citation"
+        },
+        {
+          "from": "StyledInline",
+          "to": "CitationGroup"
+        },
+        {
+          "from": "StyledInline",
+          "to": "CodeExpression"
+        },
+        {
+          "from": "StyledInline",
+          "to": "ImageObject"
+        },
+        {
+          "from": "StyledInline",
+          "to": "Link"
+        },
+        {
+          "from": "StyledInline",
+          "to": "MathInline"
+        },
+        {
+          "from": "StyledInline",
+          "to": "MediaObject"
+        },
+        {
+          "from": "StyledInline",
+          "to": "Note"
+        },
+        {
+          "from": "StyledInline",
+          "to": "Parameter"
+        },
+        {
+          "from": "StyledInline",
+          "to": "QuoteInline"
+        },
+        {
+          "from": "StyledInline",
+          "to": "Sentence"
+        },
+        {
+          "from": "StyledInline",
+          "to": "StyledInline"
+        },
+        {
+          "from": "StyledInline",
+          "to": "VideoObject"
+        }
+      ],
+      "cardinality": "OneToMany"
+    },
+    {
+      "name": "items",
+      "pairs": [
+        {
+          "from": "CitationGroup",
+          "to": "Citation"
+        },
+        {
+          "from": "List",
+          "to": "ListItem"
+        }
+      ],
+      "cardinality": "OneToMany"
+    },
+    {
+      "name": "parameters",
+      "pairs": [
+        {
+          "from": "Function",
+          "to": "Parameter"
+        }
+      ],
+      "cardinality": "OneToMany"
+    },
+    {
+      "name": "rows",
+      "pairs": [
+        {
+          "from": "Table",
+          "to": "TableRow"
+        }
+      ],
+      "cardinality": "OneToMany"
+    },
+    {
+      "name": "affiliations",
+      "pairs": [
+        {
+          "from": "Person",
+          "to": "Organization"
+        }
+      ],
+      "cardinality": "ManyToMany"
+    },
+    {
+      "name": "authors",
+      "pairs": [
+        {
+          "from": "Admonition",
+          "to": "Person"
+        },
+        {
+          "from": "Admonition",
+          "to": "Organization"
+        },
+        {
+          "from": "Admonition",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "Article",
+          "to": "Person"
+        },
+        {
+          "from": "Article",
+          "to": "Organization"
+        },
+        {
+          "from": "Article",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "AudioObject",
+          "to": "Person"
+        },
+        {
+          "from": "AudioObject",
+          "to": "Organization"
+        },
+        {
+          "from": "AudioObject",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "Claim",
+          "to": "Person"
+        },
+        {
+          "from": "Claim",
+          "to": "Organization"
+        },
+        {
+          "from": "Claim",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "CodeBlock",
+          "to": "Person"
+        },
+        {
+          "from": "CodeBlock",
+          "to": "Organization"
+        },
+        {
+          "from": "CodeBlock",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "CodeChunk",
+          "to": "Person"
+        },
+        {
+          "from": "CodeChunk",
+          "to": "Organization"
+        },
+        {
+          "from": "CodeChunk",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "CodeExpression",
+          "to": "Person"
+        },
+        {
+          "from": "CodeExpression",
+          "to": "Organization"
+        },
+        {
+          "from": "CodeExpression",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "Datatable",
+          "to": "Person"
+        },
+        {
+          "from": "Datatable",
+          "to": "Organization"
+        },
+        {
+          "from": "Datatable",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "Figure",
+          "to": "Person"
+        },
+        {
+          "from": "Figure",
+          "to": "Organization"
+        },
+        {
+          "from": "Figure",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "ForBlock",
+          "to": "Person"
+        },
+        {
+          "from": "ForBlock",
+          "to": "Organization"
+        },
+        {
+          "from": "ForBlock",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "Heading",
+          "to": "Person"
+        },
+        {
+          "from": "Heading",
+          "to": "Organization"
+        },
+        {
+          "from": "Heading",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "Person"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "Organization"
+        },
+        {
+          "from": "IfBlockClause",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "ImageObject",
+          "to": "Person"
+        },
+        {
+          "from": "ImageObject",
+          "to": "Organization"
+        },
+        {
+          "from": "ImageObject",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "List",
+          "to": "Person"
+        },
+        {
+          "from": "List",
+          "to": "Organization"
+        },
+        {
+          "from": "List",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "MathBlock",
+          "to": "Person"
+        },
+        {
+          "from": "MathBlock",
+          "to": "Organization"
+        },
+        {
+          "from": "MathBlock",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "MathInline",
+          "to": "Person"
+        },
+        {
+          "from": "MathInline",
+          "to": "Organization"
+        },
+        {
+          "from": "MathInline",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "MediaObject",
+          "to": "Person"
+        },
+        {
+          "from": "MediaObject",
+          "to": "Organization"
+        },
+        {
+          "from": "MediaObject",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "Paragraph",
+          "to": "Person"
+        },
+        {
+          "from": "Paragraph",
+          "to": "Organization"
+        },
+        {
+          "from": "Paragraph",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "Person"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "Organization"
+        },
+        {
+          "from": "QuoteBlock",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "RawBlock",
+          "to": "Person"
+        },
+        {
+          "from": "RawBlock",
+          "to": "Organization"
+        },
+        {
+          "from": "RawBlock",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "Reference",
+          "to": "Person"
+        },
+        {
+          "from": "Reference",
+          "to": "Organization"
+        },
+        {
+          "from": "Reference",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "Section",
+          "to": "Person"
+        },
+        {
+          "from": "Section",
+          "to": "Organization"
+        },
+        {
+          "from": "Section",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "SoftwareSourceCode",
+          "to": "Person"
+        },
+        {
+          "from": "SoftwareSourceCode",
+          "to": "Organization"
+        },
+        {
+          "from": "SoftwareSourceCode",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "Person"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "Organization"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "StyledInline",
+          "to": "Person"
+        },
+        {
+          "from": "StyledInline",
+          "to": "Organization"
+        },
+        {
+          "from": "StyledInline",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "Table",
+          "to": "Person"
+        },
+        {
+          "from": "Table",
+          "to": "Organization"
+        },
+        {
+          "from": "Table",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "VideoObject",
+          "to": "Person"
+        },
+        {
+          "from": "VideoObject",
+          "to": "Organization"
+        },
+        {
+          "from": "VideoObject",
+          "to": "AuthorRole"
+        }
+      ],
+      "cardinality": "ManyToMany"
+    },
+    {
+      "name": "cites",
+      "pairs": [
+        {
+          "from": "Citation",
+          "to": "Reference"
+        }
+      ],
+      "cardinality": "ManyToMany"
+    },
+    {
+      "name": "contributors",
+      "pairs": [
+        {
+          "from": "Article",
+          "to": "Person"
+        },
+        {
+          "from": "Article",
+          "to": "Organization"
+        },
+        {
+          "from": "Article",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "AudioObject",
+          "to": "Person"
+        },
+        {
+          "from": "AudioObject",
+          "to": "Organization"
+        },
+        {
+          "from": "AudioObject",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "Claim",
+          "to": "Person"
+        },
+        {
+          "from": "Claim",
+          "to": "Organization"
+        },
+        {
+          "from": "Claim",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "Datatable",
+          "to": "Person"
+        },
+        {
+          "from": "Datatable",
+          "to": "Organization"
+        },
+        {
+          "from": "Datatable",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "Figure",
+          "to": "Person"
+        },
+        {
+          "from": "Figure",
+          "to": "Organization"
+        },
+        {
+          "from": "Figure",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "ImageObject",
+          "to": "Person"
+        },
+        {
+          "from": "ImageObject",
+          "to": "Organization"
+        },
+        {
+          "from": "ImageObject",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "MediaObject",
+          "to": "Person"
+        },
+        {
+          "from": "MediaObject",
+          "to": "Organization"
+        },
+        {
+          "from": "MediaObject",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "SoftwareSourceCode",
+          "to": "Person"
+        },
+        {
+          "from": "SoftwareSourceCode",
+          "to": "Organization"
+        },
+        {
+          "from": "SoftwareSourceCode",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "Table",
+          "to": "Person"
+        },
+        {
+          "from": "Table",
+          "to": "Organization"
+        },
+        {
+          "from": "Table",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "VideoObject",
+          "to": "Person"
+        },
+        {
+          "from": "VideoObject",
+          "to": "Organization"
+        },
+        {
+          "from": "VideoObject",
+          "to": "AuthorRole"
+        }
+      ],
+      "cardinality": "ManyToMany"
+    },
+    {
+      "name": "editors",
+      "pairs": [
+        {
+          "from": "Article",
+          "to": "Person"
+        },
+        {
+          "from": "AudioObject",
+          "to": "Person"
+        },
+        {
+          "from": "Claim",
+          "to": "Person"
+        },
+        {
+          "from": "Datatable",
+          "to": "Person"
+        },
+        {
+          "from": "Figure",
+          "to": "Person"
+        },
+        {
+          "from": "ImageObject",
+          "to": "Person"
+        },
+        {
+          "from": "MediaObject",
+          "to": "Person"
+        },
+        {
+          "from": "Reference",
+          "to": "Person"
+        },
+        {
+          "from": "SoftwareSourceCode",
+          "to": "Person"
+        },
+        {
+          "from": "Table",
+          "to": "Person"
+        },
+        {
+          "from": "VideoObject",
+          "to": "Person"
+        }
+      ],
+      "cardinality": "ManyToMany"
+    },
+    {
+      "name": "isPartOf",
+      "pairs": [
+        {
+          "from": "Reference",
+          "to": "Reference"
+        }
+      ],
+      "cardinality": "ManyToMany"
+    },
+    {
+      "name": "parentOrganization",
+      "pairs": [
+        {
+          "from": "Organization",
+          "to": "Organization"
+        }
+      ],
+      "cardinality": "ManyToMany"
+    },
+    {
+      "name": "references",
+      "pairs": [
+        {
+          "from": "Article",
+          "to": "Reference"
+        },
+        {
+          "from": "AudioObject",
+          "to": "Reference"
+        },
+        {
+          "from": "Claim",
+          "to": "Reference"
+        },
+        {
+          "from": "Datatable",
+          "to": "Reference"
+        },
+        {
+          "from": "Figure",
+          "to": "Reference"
+        },
+        {
+          "from": "ImageObject",
+          "to": "Reference"
+        },
+        {
+          "from": "MediaObject",
+          "to": "Reference"
+        },
+        {
+          "from": "SoftwareSourceCode",
+          "to": "Reference"
+        },
+        {
+          "from": "Table",
+          "to": "Reference"
+        },
+        {
+          "from": "VideoObject",
+          "to": "Reference"
+        }
+      ],
+      "cardinality": "ManyToMany"
+    }
+  ],
+  "indices": [
+    {
+      "FullTextSearch": {
+        "table": "Article",
+        "name": "fts",
+        "properties": [
+          "title",
+          "abstract",
+          "description"
+        ]
+      }
+    },
+    {
+      "FullTextSearch": {
+        "table": "CodeChunk",
+        "name": "fts",
+        "properties": [
+          "caption",
+          "code"
+        ]
+      }
+    },
+    {
+      "FullTextSearch": {
+        "table": "Figure",
+        "name": "fts",
+        "properties": [
+          "caption"
+        ]
+      }
+    },
+    {
+      "FullTextSearch": {
+        "table": "Paragraph",
+        "name": "fts",
+        "properties": [
+          "text"
+        ]
+      }
+    },
+    {
+      "FullTextSearch": {
+        "table": "Sentence",
+        "name": "fts",
+        "properties": [
+          "text"
+        ]
+      }
+    },
+    {
+      "FullTextSearch": {
+        "table": "Table",
+        "name": "fts",
+        "properties": [
+          "caption"
+        ]
+      }
+    },
+    {
+      "Vector": {
+        "table": "Article",
+        "name": "vector",
+        "property": "embeddings"
+      }
+    },
+    {
+      "Vector": {
+        "table": "Paragraph",
+        "name": "vector",
+        "property": "embeddings"
+      }
+    },
+    {
+      "Vector": {
+        "table": "Sentence",
+        "name": "vector",
+        "property": "embeddings"
+      }
+    }
+  ]
+}

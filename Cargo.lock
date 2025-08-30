@@ -9670,6 +9670,7 @@ dependencies = [
  "schemars 1.0.4",
  "status",
  "topological-sort",
+ "version",
 ]
 
 [[package]]

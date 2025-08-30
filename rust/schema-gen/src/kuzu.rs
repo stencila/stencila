@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
-use common::{eyre::Result, tokio::fs::write};
+use common::{eyre::Result, serde_json, tokio::fs::write};
+use version::STENCILA_VERSION;
 
 use crate::{kuzu_builder::KuzuSchemaBuilder, kuzu_cypher, kuzu_rust, schemas::Schemas};
 
@@ -33,6 +34,11 @@ impl Schemas {
         // Build the database schema
         let mut builder = KuzuSchemaBuilder::new(self);
         let schema = builder.build()?;
+
+        // Write schema as JSON
+        let schema_json = serde_json::to_string_pretty(&schema)?;
+        let schema_filename = format!("v{STENCILA_VERSION}.json");
+        write(dir.join("schemas").join(schema_filename), schema_json).await?;
 
         // Generate Cypher DDL
         let cypher = kuzu_cypher::generate_schema(&schema);

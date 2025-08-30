@@ -4,16 +4,11 @@ This directory contains schema snapshots for different Stencila versions. These 
 
 ## File Format
 
-Schema snapshots are stored as JSON files with the naming convention:
+Schema snapshots are stored as JSON files with the naming convention `v{VERSION}.json` e.g.
 
-```
-schema-v{VERSION}.json
-```
-
-For example:
-- `schema-v2.1.0.json`
-- `schema-v2.2.0.json`
-- `schema-v3.0.0.json`
+- `v2.1.0.json`
+- `v2.2.0.json`
+- `v3.0.0.json`
 
 ## Contents
 
