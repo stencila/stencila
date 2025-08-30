@@ -1,5 +1,11 @@
 // Generated file, do not edit. See the Rust `schema-gen` crate;
 
+CREATE NODE TABLE IF NOT EXISTS `_migrations` (
+  `version` STRING PRIMARY KEY,
+  `appliedAt` TIMESTAMP,
+  `checksum` STRING
+);
+
 CREATE NODE TABLE IF NOT EXISTS `Admonition` (
   `admonitionType` STRING,
   `isFolded` BOOLEAN,

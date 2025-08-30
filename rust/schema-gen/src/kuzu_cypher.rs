@@ -9,11 +9,17 @@ use crate::kuzu_types::{
 
 /// Generates Cypher DDL from a DatabaseSchema
 pub fn generate_schema(schema: &DatabaseSchema) -> String {
-    let mut parts = Vec::new();
+    let mut parts = vec![
+        r#"// Generated file, do not edit. See the Rust `schema-gen` crate;
 
-    // Header comment
-    parts.push("// Generated file, do not edit. See the Rust `schema-gen` crate;".to_string());
-    parts.push("".to_string());
+CREATE NODE TABLE IF NOT EXISTS `_migrations` (
+  `version` STRING PRIMARY KEY,
+  `appliedAt` TIMESTAMP,
+  `checksum` STRING
+);
+"#
+        .to_string(),
+    ];
 
     // Node tables
     if !schema.node_tables.is_empty() {
@@ -173,11 +179,7 @@ fn generate_node_table(table: &NodeTable) -> String {
 fn generate_relationship_table(table: &RelationshipTable) -> String {
     let mut result = format!("CREATE REL TABLE IF NOT EXISTS `{}` (\n  ", table.name);
 
-    let pairs = table
-        .pairs
-        .iter()
-        .map(generate_from_to_pair)
-        .join(",\n  ");
+    let pairs = table.pairs.iter().map(generate_from_to_pair).join(",\n  ");
     result.push_str(&pairs);
 
     result.push_str(&format!(
@@ -366,14 +368,15 @@ fn compare_node_tables(old_table: &NodeTable, new_table: &NodeTable) -> Vec<Migr
     // Find changed column types
     for (name, new_column) in &new_columns {
         if let Some(old_column) = old_columns.get(name)
-            && old_column.data_type != new_column.data_type {
-                operations.push(MigrationOperation::ChangeColumnType {
-                    table: table_name.clone(),
-                    column_name: name.clone(),
-                    old_type: old_column.data_type.clone(),
-                    new_type: new_column.data_type.clone(),
-                });
-            }
+            && old_column.data_type != new_column.data_type
+        {
+            operations.push(MigrationOperation::ChangeColumnType {
+                table: table_name.clone(),
+                column_name: name.clone(),
+                old_type: old_column.data_type.clone(),
+                new_type: new_column.data_type.clone(),
+            });
+        }
     }
 
     // Compare derived properties
