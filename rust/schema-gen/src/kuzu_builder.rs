@@ -7,7 +7,7 @@ use common::{
 
 use crate::{
     kuzu_types::{
-        Cardinality, Column, DataType, DerivedProperty, Index, DatabaseSchema, NodeTable,
+        Cardinality, Column, DataType, DatabaseSchema, DerivedProperty, Index, NodeTable,
         RelationInfo, RelationshipTable,
     },
     schema::{Items, ItemsRef, ItemsType, Type},
@@ -328,8 +328,12 @@ impl<'a> KuzuSchemaBuilder<'a> {
             let mut relations = Vec::new();
             for (name, property) in &stencila_schema.properties {
                 if (self.skip_props.contains(&name.as_str())
-                    || self.skip_props.contains(&format!("{}.{}", title, name).as_str()))
-                    && !self.no_skip_props.contains(&format!("{}.{}", title, name).as_str())
+                    || self
+                        .skip_props
+                        .contains(&format!("{}.{}", title, name).as_str()))
+                    && !self
+                        .no_skip_props
+                        .contains(&format!("{}.{}", title, name).as_str())
                 {
                     continue;
                 }
@@ -341,16 +345,35 @@ impl<'a> KuzuSchemaBuilder<'a> {
 
                 if let Some(property_type) = &property.r#type {
                     match self.process_type_property(
-                        property_type, &property, title, name, on_options, is_option, is_box, is_array,
-                        &mut one_to_many, &mut one_to_one, &mut many_to_many, &mut relations
+                        property_type,
+                        &property,
+                        title,
+                        name,
+                        on_options,
+                        is_option,
+                        is_box,
+                        is_array,
+                        &mut one_to_many,
+                        &mut one_to_one,
+                        &mut many_to_many,
+                        &mut relations,
                     )? {
                         Some(column) => node_table.add_column(column),
                         None => {} // Property was a relation, not a column
                     }
                 } else if let Some(ref_type) = &property.r#ref {
                     match self.process_ref_property(
-                        ref_type, name, on_options, is_option, is_box, is_array, title,
-                        &mut one_to_many, &mut one_to_one, &mut many_to_many, &mut relations
+                        ref_type,
+                        name,
+                        on_options,
+                        is_option,
+                        is_box,
+                        is_array,
+                        title,
+                        &mut one_to_many,
+                        &mut one_to_one,
+                        &mut many_to_many,
+                        &mut relations,
                     )? {
                         Some(column) => node_table.add_column(column),
                         None => {} // Property was a relation, not a column
@@ -361,7 +384,10 @@ impl<'a> KuzuSchemaBuilder<'a> {
             // Add derived properties
             if let Some(props) = self.derived_properties.get(title.as_str()) {
                 for &(name, derivation) in props {
-                    node_table.add_derived_property(DerivedProperty::new(name.to_string(), derivation.to_string()));
+                    node_table.add_derived_property(DerivedProperty::new(
+                        name.to_string(),
+                        derivation.to_string(),
+                    ));
                 }
             }
 
@@ -413,9 +439,11 @@ impl<'a> KuzuSchemaBuilder<'a> {
             Type::Number => DataType::Double,
             Type::String => DataType::String,
             Type::Array => {
-                let items = property.items.as_ref()
+                let items = property
+                    .items
+                    .as_ref()
                     .ok_or_eyre("type `array` should always have `items` specified")?;
-                
+
                 match items {
                     Items::Type(items_type) => {
                         let ItemsType { r#type } = items_type;
@@ -433,17 +461,32 @@ impl<'a> KuzuSchemaBuilder<'a> {
                             return Ok(None);
                         }
 
-                        let schema = self.schemas.schemas.get(ref_type.as_str())
+                        let schema = self
+                            .schemas
+                            .schemas
+                            .get(ref_type.as_str())
                             .ok_or_eyre("schema should exist")?;
 
                         if schema.is_enumeration() {
-                            return Ok(Some(Column::new(name.to_string(), DataType::StringArray)
-                                .on_options()));
+                            return Ok(Some(
+                                Column::new(name.to_string(), DataType::StringArray).on_options(),
+                            ));
                         }
 
                         // This is a relationship, not a column
-                        self.add_relationship_pairs(title, &ref_type, name, on_options, is_option, is_box, is_array, 
-                            one_to_many, one_to_one, many_to_many, relations)?;
+                        self.add_relationship_pairs(
+                            title,
+                            &ref_type,
+                            name,
+                            on_options,
+                            is_option,
+                            is_box,
+                            is_array,
+                            one_to_many,
+                            one_to_one,
+                            many_to_many,
+                            relations,
+                        )?;
                         return Ok(None);
                     }
                     _ => return Ok(None),
@@ -484,7 +527,10 @@ impl<'a> KuzuSchemaBuilder<'a> {
                     return Ok(None);
                 }
 
-                let schema = self.schemas.schemas.get(ref_type)
+                let schema = self
+                    .schemas
+                    .schemas
+                    .get(ref_type)
                     .ok_or_eyre("schema should exist")?;
 
                 if schema.is_enumeration() {
@@ -496,8 +542,19 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 }
 
                 // This is a relationship, not a column
-                self.add_relationship_pairs(title, ref_type, name, on_options, is_option, is_box, is_array,
-                    one_to_many, one_to_one, many_to_many, relations)?;
+                self.add_relationship_pairs(
+                    title,
+                    ref_type,
+                    name,
+                    on_options,
+                    is_option,
+                    is_box,
+                    is_array,
+                    one_to_many,
+                    one_to_one,
+                    many_to_many,
+                    relations,
+                )?;
                 return Ok(None);
             }
         };
@@ -524,12 +581,17 @@ impl<'a> KuzuSchemaBuilder<'a> {
         relations: &mut Vec<RelationInfo>,
     ) -> Result<()> {
         let mut pairs = if self.expand_types.contains(&ref_type) {
-            let variants = self.schemas.schemas.get(ref_type)
+            let variants = self
+                .schemas
+                .schemas
+                .get(ref_type)
                 .ok_or_eyre("schema should exist")?
-                .any_of.as_ref()
+                .any_of
+                .as_ref()
                 .ok_or_eyre("any_of should be some")?;
-            
-            variants.iter()
+
+            variants
+                .iter()
                 .filter_map(|schema| {
                     let variant = schema.r#ref.as_deref().expect("should exist");
                     (!self.skip_types.contains(&variant))
@@ -560,7 +622,8 @@ impl<'a> KuzuSchemaBuilder<'a> {
             one_to_one
         };
 
-        target_map.entry(name.to_string())
+        target_map
+            .entry(name.to_string())
             .and_modify(|existing: &mut Vec<String>| existing.append(&mut pairs))
             .or_insert(pairs);
 
@@ -590,13 +653,13 @@ impl<'a> KuzuSchemaBuilder<'a> {
         if parts.len() != 2 {
             return None;
         }
-        
+
         let rest = parts[1];
         let parts: Vec<&str> = rest.split("` TO `").collect();
         if parts.len() != 2 {
             return None;
         }
-        
+
         let from = parts[0].to_string();
         let to = parts[1].trim_end_matches('`').to_string();
         Some((from, to))
@@ -623,7 +686,8 @@ impl<'a> KuzuSchemaBuilder<'a> {
     }
 
     pub fn get_primary_keys(&self) -> BTreeMap<String, String> {
-        self.primary_keys.iter()
+        self.primary_keys
+            .iter()
             .map(|(k, v)| (k.to_string(), v.to_string()))
             .collect()
     }
