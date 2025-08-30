@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use common::{
     eyre::Result,
     serde_json,
-    tokio::fs::{self, write},
+    tokio::fs::{self, remove_file, write},
 };
 
 use crate::{kuzu_builder::KuzuSchemaBuilder, kuzu_cypher, kuzu_rust, schemas::Schemas};
@@ -21,24 +21,27 @@ impl Schemas {
         eprintln!("Generating Kuzu Schema and Migrations");
 
         let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../node-db");
+        let schemas_dir = dir.join("schemas");
 
         // Build the database schema
         let mut builder = KuzuSchemaBuilder::new(self);
         let schema = builder.build()?;
 
-        // Find the latest existing schema for migration generation
-        let schemas_dir = dir.join("schemas");
-        let previous_schema = find_latest_schema(&schemas_dir).await?;
-
         // Generate migration if we have a previous schema and it's different
-        if let Some(old_schema) = previous_schema {
-            if let Some(migration_cypher) = kuzu_cypher::generate_migration(&old_schema, &schema) {
-                write(
-                    dir.join("migrations").join("v99.99.99.cypher"),
-                    migration_cypher,
-                )
-                .await?;
+        let mut migrations_needed = false;
+        let migrations_file = dir.join("migrations").join("v99.99.99.cypher");
+        if let Some(previous_schema) = find_latest_schema(&schemas_dir).await? {
+            if let Some(migration_cypher) =
+                kuzu_cypher::generate_migration(&previous_schema, &schema)
+            {
+                migrations_needed = true;
+                write(&migrations_file, migration_cypher).await?;
             }
+        }
+
+        // Ensure there is not an unneeded migrations file
+        if !migrations_needed && migrations_file.exists() {
+            remove_file(migrations_file).await?
         }
 
         // Write current schema as JSON
@@ -87,6 +90,11 @@ async fn find_latest_schema(
                     .strip_prefix("v")
                     .and_then(|s| s.strip_suffix(".json"))
                 {
+                    // Skip the temporary development version
+                    if version_str == "99.99.99" {
+                        continue;
+                    }
+
                     if let Ok(version) = Version::parse(version_str) {
                         if latest_version.as_ref().map_or(true, |v| version > *v) {
                             latest_version = Some(version);
