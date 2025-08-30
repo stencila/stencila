@@ -20,7 +20,7 @@ pub fn generate_schema(schema: &DatabaseSchema) -> String {
         let node_tables = schema
             .node_tables
             .iter()
-            .map(|table| generate_node_table(table))
+            .map(generate_node_table)
             .join("\n\n");
         parts.push(node_tables);
     }
@@ -176,7 +176,7 @@ fn generate_relationship_table(table: &RelationshipTable) -> String {
     let pairs = table
         .pairs
         .iter()
-        .map(|pair| generate_from_to_pair(pair))
+        .map(generate_from_to_pair)
         .join(",\n  ");
     result.push_str(&pairs);
 
@@ -365,8 +365,8 @@ fn compare_node_tables(old_table: &NodeTable, new_table: &NodeTable) -> Vec<Migr
 
     // Find changed column types
     for (name, new_column) in &new_columns {
-        if let Some(old_column) = old_columns.get(name) {
-            if old_column.data_type != new_column.data_type {
+        if let Some(old_column) = old_columns.get(name)
+            && old_column.data_type != new_column.data_type {
                 operations.push(MigrationOperation::ChangeColumnType {
                     table: table_name.clone(),
                     column_name: name.clone(),
@@ -374,7 +374,6 @@ fn compare_node_tables(old_table: &NodeTable, new_table: &NodeTable) -> Vec<Migr
                     new_type: new_column.data_type.clone(),
                 });
             }
-        }
     }
 
     // Compare derived properties

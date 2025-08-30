@@ -8,7 +8,7 @@ use common::{
 use crate::{
     kuzu_types::{
         Cardinality, Column, DataType, DatabaseSchema, DerivedProperty, Index, NodeTable,
-        RelationInfo, RelationshipTable,
+        RelationshipInfo, RelationshipTable,
     },
     schema::{Items, ItemsRef, ItemsType, Type},
     schemas::Schemas,
@@ -25,8 +25,7 @@ pub struct KuzuSchemaBuilder<'a> {
     primary_keys: BTreeMap<&'static str, &'static str>,
     fts_properties: BTreeMap<&'static str, Vec<&'static str>>,
     embeddings_properties: BTreeMap<&'static str, Vec<&'static str>>,
-    // For storing relationship info for Rust generation
-    node_relations: BTreeMap<String, Vec<RelationInfo>>,
+    node_relationships: BTreeMap<String, Vec<RelationshipInfo>>,
 }
 
 impl<'a> KuzuSchemaBuilder<'a> {
@@ -301,7 +300,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 ("Paragraph", vec!["text"]),
                 ("Sentence", vec!["text"]),
             ]),
-            node_relations: BTreeMap::new(),
+            node_relationships: BTreeMap::new(),
         }
     }
 
@@ -330,10 +329,10 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 if (self.skip_props.contains(&name.as_str())
                     || self
                         .skip_props
-                        .contains(&format!("{}.{}", title, name).as_str()))
+                        .contains(&format!("{title}.{name}").as_str()))
                     && !self
                         .no_skip_props
-                        .contains(&format!("{}.{}", title, name).as_str())
+                        .contains(&format!("{title}.{name}").as_str())
                 {
                     continue;
                 }
@@ -344,9 +343,9 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 let is_array = property.is_array();
 
                 if let Some(property_type) = &property.r#type {
-                    match self.process_type_property(
+                    if let Some(column) = self.process_type_property(
                         property_type,
-                        &property,
+                        property,
                         title,
                         name,
                         on_options,
@@ -358,11 +357,10 @@ impl<'a> KuzuSchemaBuilder<'a> {
                         &mut many_to_many,
                         &mut relations,
                     )? {
-                        Some(column) => node_table.add_column(column),
-                        None => {} // Property was a relation, not a column
+                        node_table.add_column(column)
                     }
-                } else if let Some(ref_type) = &property.r#ref {
-                    match self.process_ref_property(
+                } else if let Some(ref_type) = &property.r#ref
+                    && let Some(column) = self.process_ref_property(
                         ref_type,
                         name,
                         on_options,
@@ -375,10 +373,8 @@ impl<'a> KuzuSchemaBuilder<'a> {
                         &mut many_to_many,
                         &mut relations,
                     )? {
-                        Some(column) => node_table.add_column(column),
-                        None => {} // Property was a relation, not a column
+                        node_table.add_column(column)
                     }
-                }
             }
 
             // Add derived properties
@@ -402,7 +398,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 node_table = node_table.without_standard_fields();
             }
 
-            self.node_relations.insert(title.clone(), relations);
+            self.node_relationships.insert(title.clone(), relations);
             schema.add_node_table(node_table);
         }
 
@@ -417,6 +413,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
         Ok(schema)
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn process_type_property(
         &self,
         property_type: &Type,
@@ -430,7 +427,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
         one_to_many: &mut BTreeMap<String, Vec<String>>,
         one_to_one: &mut BTreeMap<String, Vec<String>>,
         many_to_many: &mut BTreeMap<String, Vec<String>>,
-        relations: &mut Vec<RelationInfo>,
+        relationships: &mut Vec<RelationshipInfo>,
     ) -> Result<Option<Column>> {
         let data_type = match property_type {
             Type::Null => DataType::Null,
@@ -453,7 +450,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
                             Type::Integer => DataType::Int64Array,
                             Type::Number => DataType::DoubleArray,
                             Type::String => DataType::StringArray,
-                            _ => bail!("Unhandled items type: {}", r#type),
+                            _ => bail!("Unhandled items type: {type}"),
                         }
                     }
                     Items::Ref(ItemsRef { r#ref: ref_type }) => {
@@ -476,7 +473,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
                         // This is a relationship, not a column
                         self.add_relationship_pairs(
                             title,
-                            &ref_type,
+                            ref_type,
                             name,
                             on_options,
                             is_option,
@@ -485,7 +482,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
                             one_to_many,
                             one_to_one,
                             many_to_many,
-                            relations,
+                            relationships,
                         )?;
                         return Ok(None);
                     }
@@ -502,6 +499,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
         Ok(Some(column))
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn process_ref_property(
         &self,
         ref_type: &str,
@@ -514,7 +512,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
         one_to_many: &mut BTreeMap<String, Vec<String>>,
         one_to_one: &mut BTreeMap<String, Vec<String>>,
         many_to_many: &mut BTreeMap<String, Vec<String>>,
-        relations: &mut Vec<RelationInfo>,
+        relationships: &mut Vec<RelationshipInfo>,
     ) -> Result<Option<Column>> {
         let data_type = match ref_type {
             "UnsignedInteger" => DataType::UInt64,
@@ -553,7 +551,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
                     one_to_many,
                     one_to_one,
                     many_to_many,
-                    relations,
+                    relationships,
                 )?;
                 return Ok(None);
             }
@@ -566,6 +564,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
         Ok(Some(column))
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn add_relationship_pairs(
         &self,
         title: &str,
@@ -578,7 +577,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
         one_to_many: &mut BTreeMap<String, Vec<String>>,
         one_to_one: &mut BTreeMap<String, Vec<String>>,
         many_to_many: &mut BTreeMap<String, Vec<String>>,
-        relations: &mut Vec<RelationInfo>,
+        relationships: &mut Vec<RelationshipInfo>,
     ) -> Result<()> {
         let mut pairs = if self.expand_types.contains(&ref_type) {
             let variants = self
@@ -595,14 +594,14 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 .filter_map(|schema| {
                     let variant = schema.r#ref.as_deref().expect("should exist");
                     (!self.skip_types.contains(&variant))
-                        .then_some(format!("FROM `{}` TO `{}`", title, variant))
+                        .then_some(format!("FROM `{title}` TO `{variant}`"))
                 })
                 .collect_vec()
         } else {
-            vec![format!("FROM `{}` TO `{}`", title, ref_type)]
+            vec![format!("FROM `{title}` TO `{ref_type}`")]
         };
 
-        relations.push(RelationInfo {
+        relationships.push(RelationshipInfo {
             name: name.to_string(),
             on_options,
             is_option,
@@ -676,7 +675,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
         }
 
         // Add vector indices
-        for (table, _) in &self.embeddings_properties {
+        for table in self.embeddings_properties.keys() {
             schema.add_index(Index::Vector {
                 table: table.to_string(),
                 name: "vector".to_string(),
@@ -692,8 +691,8 @@ impl<'a> KuzuSchemaBuilder<'a> {
             .collect()
     }
 
-    pub fn get_node_relations(&self) -> &BTreeMap<String, Vec<RelationInfo>> {
-        &self.node_relations
+    pub fn get_node_relationships(&self) -> &BTreeMap<String, Vec<RelationshipInfo>> {
+        &self.node_relationships
     }
 
     pub fn get_skip_types(&self) -> &[&'static str] {

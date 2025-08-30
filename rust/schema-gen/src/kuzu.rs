@@ -30,14 +30,13 @@ impl Schemas {
         // Generate migration if we have a previous schema and it's different
         let mut migrations_needed = false;
         let migrations_file = dir.join("migrations").join("v99.99.99.cypher");
-        if let Some(previous_schema) = find_latest_schema(&schemas_dir).await? {
-            if let Some(migration_cypher) =
+        if let Some(previous_schema) = find_latest_schema(&schemas_dir).await?
+            && let Some(migration_cypher) =
                 kuzu_cypher::generate_migration(&previous_schema, &schema)
             {
                 migrations_needed = true;
                 write(&migrations_file, migration_cypher).await?;
             }
-        }
 
         // Ensure there is not an unneeded migrations file
         if !migrations_needed && migrations_file.exists() {
@@ -54,7 +53,7 @@ impl Schemas {
 
         // Generate Rust code
         let primary_keys = builder.get_primary_keys();
-        let node_relations = builder.get_node_relations();
+        let node_relations = builder.get_node_relationships();
         let union_types = ["Node", "Block", "Inline", "Author", "AuthorRoleAuthor"];
         let skip_types = builder.get_skip_types();
         let rust = kuzu_rust::generate_node_types(
@@ -63,7 +62,7 @@ impl Schemas {
             node_relations,
             &union_types,
             self,
-            &skip_types,
+            skip_types,
         );
         write(dir.join("src").join("node_types.rs"), rust).await?;
 
@@ -83,8 +82,8 @@ async fn find_latest_schema(
 
     while let Some(entry) = entries.next_entry().await? {
         let path = entry.path();
-        if let Some(filename) = path.file_name().and_then(|n| n.to_str()) {
-            if filename.starts_with("v") && filename.ends_with(".json") {
+        if let Some(filename) = path.file_name().and_then(|n| n.to_str())
+            && filename.starts_with("v") && filename.ends_with(".json") {
                 // Extract version from filename like "v2.6.0.json"
                 if let Some(version_str) = filename
                     .strip_prefix("v")
@@ -95,15 +94,13 @@ async fn find_latest_schema(
                         continue;
                     }
 
-                    if let Ok(version) = Version::parse(version_str) {
-                        if latest_version.as_ref().map_or(true, |v| version > *v) {
+                    if let Ok(version) = Version::parse(version_str)
+                        && latest_version.as_ref().is_none_or(|v| version > *v) {
                             latest_version = Some(version);
                             latest_file = Some(path.to_string_lossy().to_string());
                         }
-                    }
                 }
             }
-        }
     }
 
     if let Some(file_path) = latest_file {
