@@ -1,9 +1,13 @@
 use std::fmt::Display;
 
-use common::itertools::Itertools;
+use common::{
+    itertools::Itertools,
+    serde::{Deserialize, Serialize},
+};
 
 /// Represents a complete Kuzu database schema
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DatabaseSchema {
     pub node_tables: Vec<NodeTable>,
     pub relationship_tables: Vec<RelationshipTable>,
@@ -11,7 +15,8 @@ pub struct DatabaseSchema {
 }
 
 /// Represents a Kuzu node table
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct NodeTable {
     pub name: String,
     pub columns: Vec<Column>,
@@ -22,7 +27,8 @@ pub struct NodeTable {
 }
 
 /// Represents a Kuzu relationship table  
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct RelationshipTable {
     pub name: String,
     pub pairs: Vec<FromToPair>,
@@ -30,14 +36,16 @@ pub struct RelationshipTable {
 }
 
 /// Represents a relationship FROM/TO pair
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
 pub struct FromToPair {
     pub from: String,
     pub to: String,
 }
 
 /// Relationship cardinality
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
 pub enum Cardinality {
     OneToOne,
     OneToMany,
@@ -45,7 +53,8 @@ pub enum Cardinality {
 }
 
 /// Represents a table column
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Column {
     pub name: String,
     pub data_type: DataType,
@@ -54,14 +63,16 @@ pub struct Column {
 }
 
 /// Represents a derived property (computed fields)
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DerivedProperty {
     pub name: String,
     pub derivation: String,
 }
 
 /// Kuzu data types
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
 pub enum DataType {
     Null,
     Boolean,
@@ -80,7 +91,8 @@ pub enum DataType {
 }
 
 /// Database indices
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
 pub enum Index {
     FullTextSearch {
         table: String,
@@ -95,7 +107,8 @@ pub enum Index {
 }
 
 /// Information about a relation field for Rust code generation
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct RelationInfo {
     pub name: String,
     pub on_options: bool,
@@ -285,12 +298,28 @@ impl Display for RelationshipTable {
 impl Display for Index {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Index::FullTextSearch { table, name, properties } => {
+            Index::FullTextSearch {
+                table,
+                name,
+                properties,
+            } => {
                 let props = properties.iter().map(|p| format!("'{}'", p)).join(",");
-                write!(f, "CALL CREATE_FTS_INDEX('{}', '{}', [{}]);", table, name, props)
+                write!(
+                    f,
+                    "CALL CREATE_FTS_INDEX('{}', '{}', [{}]);",
+                    table, name, props
+                )
             }
-            Index::Vector { table, name, property } => {
-                write!(f, "CALL CREATE_VECTOR_INDEX('{}', '{}', '{}');", table, name, property)
+            Index::Vector {
+                table,
+                name,
+                property,
+            } => {
+                write!(
+                    f,
+                    "CALL CREATE_VECTOR_INDEX('{}', '{}', '{}');",
+                    table, name, property
+                )
             }
         }
     }
