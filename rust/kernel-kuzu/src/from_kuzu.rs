@@ -1,15 +1,14 @@
 use std::{collections::BTreeSet, error::Error, str::FromStr};
 
 use kuzu::{LogicalType, NodeVal, QueryResult, RelVal, Value};
+use serde::Serialize;
 
 use kernel::{
     common::{
-        self,
         eyre::{Report, Result, bail},
         indexmap::IndexMap,
         once_cell::sync::Lazy,
         regex::Regex,
-        serde::Serialize,
         serde_json::{self, json},
         strum::Display,
     },
@@ -211,13 +210,12 @@ fn excerpts_from_query_result(result: QueryResult) -> Result<Array> {
 /// Create a Stencila [`ImageObject`] containing a Cytoscape.js graph from a Kuzu [`QueryResult`]
 fn cytoscape_from_query_result(result: QueryResult) -> Result<ImageObject> {
     #[derive(Serialize)]
-    #[serde(crate = "common::serde")]
     struct Element {
         data: Data,
     }
 
     #[derive(Serialize)]
-    #[serde(untagged, crate = "common::serde")]
+    #[serde(untagged)]
     enum Data {
         Node {
             id: String,

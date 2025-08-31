@@ -1,11 +1,12 @@
 use std::path::Path;
 
+use serde::{Deserialize, Serialize};
+
 use common::{
     async_trait::async_trait,
     bs58,
     clap::{self, ValueEnum},
     eyre::{Result, bail},
-    serde::{Deserialize, Serialize},
     strum::Display,
     tokio::sync::{broadcast, mpsc, watch},
     uuid::Uuid,
@@ -101,7 +102,6 @@ pub trait Kernel: Sync + Send {
 
 /// The type of a kernel
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 pub enum KernelType {
     // Note that the order here influences how kernels are displayed
     // in the `stencila kernels list` command. So change with intent.
@@ -115,7 +115,6 @@ pub enum KernelType {
 
 /// The provider of a kernel
 #[derive(PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 pub enum KernelProvider {
     Builtin,
     Environment,
@@ -125,7 +124,6 @@ pub enum KernelProvider {
 /// The availability of a kernel on the current machine
 #[derive(Debug, Display, Clone, Copy, Serialize, Deserialize)]
 #[strum(serialize_all = "lowercase")]
-#[serde(crate = "common::serde")]
 pub enum KernelAvailability {
     /// Available on this machine
     Available,
@@ -143,7 +141,6 @@ pub enum KernelAvailability {
 /// kernel instance is current performing.
 #[derive(Debug, Display, Default, Clone, Copy, Serialize, Deserialize)]
 #[strum(serialize_all = "lowercase")]
-#[serde(crate = "common::serde")]
 pub enum KernelInterrupt {
     /// Kernel supports interrupt signal on this machine
     Yes,
@@ -158,7 +155,6 @@ pub enum KernelInterrupt {
 /// (e.g. completing any current execution tasks)
 #[derive(Debug, Display, Default, Clone, Copy, Serialize, Deserialize)]
 #[strum(serialize_all = "lowercase")]
-#[serde(crate = "common::serde")]
 pub enum KernelTerminate {
     /// Kernel supports terminate signal on this machine
     Yes,
@@ -173,7 +169,6 @@ pub enum KernelTerminate {
 /// (i.e. to exit immediately, aborting any current execution tasks)
 #[derive(Debug, Display, Default, Clone, Copy, Serialize, Deserialize)]
 #[strum(serialize_all = "lowercase")]
-#[serde(crate = "common::serde")]
 pub enum KernelKill {
     /// Kernel supports kill signal on this machine
     Yes,
@@ -186,7 +181,7 @@ pub enum KernelKill {
 ///
 /// Currently used only for outputs and display.
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "common::serde", rename_all = "camelCase")]
+#[serde(rename_all = "camelCase")]
 pub struct KernelSpecification {
     name: String,
     r#type: KernelType,

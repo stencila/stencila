@@ -7,6 +7,7 @@ edition = "2024"
 kernel = { path = "../kernel" }
 kernel-jinja = { path = "../kernel-jinja" }
 kuzu = "0.11.2"
+serde = { workspace = true }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
