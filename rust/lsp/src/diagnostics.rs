@@ -10,11 +10,9 @@ use async_lsp::{
     },
 };
 
-use common::{
-    itertools::Itertools,
-    serde::{Deserialize, Serialize},
-    tracing,
-};
+use serde::{Deserialize, Serialize};
+
+use common::{itertools::Itertools, tracing};
 use schema::{
     Author, AuthorRoleName, CodeLocation, ExecutionBounds, ExecutionMode, ExecutionRequired,
     ExecutionStatus, MessageLevel, NodeType, StringOrNumber,
@@ -31,7 +29,6 @@ use crate::{
 /// Similar to an LSP Diagnostic but intended to be displayed
 /// separately to those (because diagnostics imply "problems")
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 struct Status {
     range: Range,
     status: String,
@@ -41,7 +38,6 @@ struct Status {
 struct PublishStatus;
 
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 struct PublishStatusParams {
     uri: Url,
     statuses: Vec<Status>,

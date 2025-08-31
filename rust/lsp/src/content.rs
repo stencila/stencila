@@ -7,15 +7,10 @@ use async_lsp::{
     ClientSocket, ErrorCode, ResponseError,
     lsp_types::{notification::Notification, request::Request},
 };
+use serde::{Deserialize, Serialize};
 
 use codecs::{EncodeOptions, Format};
-use common::{
-    reqwest::Url,
-    serde::{Deserialize, Serialize},
-    tokio,
-    tokio::sync::RwLock,
-    tracing,
-};
+use common::{reqwest::Url, tokio, tokio::sync::RwLock, tracing};
 use document::Document;
 
 pub struct SubscribeContent;
@@ -27,7 +22,6 @@ impl Request for SubscribeContent {
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 pub struct SubscribeContentParams {
     // The URI of the document for which the content is desired
     pub uri: Url,
@@ -39,7 +33,6 @@ pub struct SubscribeContentParams {
 struct PublishContent;
 
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 pub struct PublishContentParams {
     // The URI of the document for which the content is for
     pub uri: Url,

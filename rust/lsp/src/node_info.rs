@@ -6,18 +6,16 @@ use async_lsp::{
     ClientSocket,
     lsp_types::{Range, Url, notification::Notification},
 };
+use serde::{Deserialize, Serialize};
 
-use common::{
-    serde::{Deserialize, Serialize},
-    tracing,
-};
+use common::tracing;
 use schema::{ExecutionStatus, NodeType};
 
 use crate::text_document::TextNode;
 
 /// Information about a node for generating gutter decorations
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 struct NodeInfo {
     /// The range of the node
     range: Range,
@@ -32,7 +30,6 @@ struct NodeInfo {
 struct PublishNodeInfo;
 
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 struct PublishNodeInfoParams {
     uri: Url,
     nodes: Vec<NodeInfo>,

@@ -7,13 +7,9 @@ use async_lsp::{
     ResponseError,
     lsp_types::{Position, request::Request},
 };
+use serde::{Deserialize, Serialize};
 
-use common::{
-    itertools::Itertools,
-    reqwest::Url,
-    serde::{Deserialize, Serialize},
-    tokio::sync::RwLock,
-};
+use common::{itertools::Itertools, reqwest::Url, tokio::sync::RwLock};
 use schema::NodeId;
 
 use crate::text_document::TextNode;
@@ -27,7 +23,6 @@ impl Request for NodeIdsForLines {
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 pub struct NodeIdsForLinesParams {
     /// The URI of the document for which the node ids are desired
     pub uri: Url,
@@ -63,7 +58,6 @@ impl Request for LinesForNodeIds {
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 pub struct LinesForNodeIdsParams {
     /// The URI of the document for which the line numbers are desired
     pub uri: Url,

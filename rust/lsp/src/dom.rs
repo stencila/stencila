@@ -7,11 +7,11 @@ use async_lsp::{
     ClientSocket, ErrorCode, ResponseError,
     lsp_types::{notification::Notification, request::Request},
 };
+use serde::{Deserialize, Serialize};
 
 use common::{
     once_cell::sync::Lazy,
     reqwest::Url,
-    serde::{Deserialize, Serialize},
     tokio::{
         self,
         sync::{
@@ -35,7 +35,6 @@ impl Request for SubscribeDom {
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 pub struct SubscribeDomParams {
     // The URI of the document for which the DOM is desired
     pub uri: Url,
@@ -50,7 +49,7 @@ impl Request for ResetDom {
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 pub struct ResetDomParams {
     // The id of the subscription
     pub subscription_id: String,
@@ -65,7 +64,7 @@ impl Request for UnsubscribeDom {
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 pub struct UnsubscribeDomParams {
     // The id of the subscription
     pub subscription_id: String,
@@ -74,7 +73,7 @@ pub struct UnsubscribeDomParams {
 struct PublishDom;
 
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 pub struct PublishDomParams {
     // The id of the subscription
     subscription_id: String,

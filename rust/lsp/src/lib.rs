@@ -3,8 +3,9 @@
 use std::{collections::HashMap, env, fmt};
 
 use async_lsp::{ClientSocket, lsp_types::Url};
+use serde::Deserialize;
 
-use common::{eyre::Result, serde::Deserialize, serde_json, smart_default::SmartDefault, tracing};
+use common::{eyre::Result, serde_json, smart_default::SmartDefault, tracing};
 
 mod code_lens;
 mod commands;
@@ -61,7 +62,7 @@ pub(crate) enum ServerStatus {
 }
 
 #[derive(Debug, Default, Clone, Deserialize)]
-#[serde(default, crate = "common::serde")]
+#[serde(default)]
 pub(crate) struct ServerOptions {
     /// The current user
     ///
@@ -99,7 +100,6 @@ impl ServerOptions {
 }
 
 #[derive(Debug, Default, Clone, Deserialize)]
-#[serde(crate = "common::serde")]
 pub(crate) struct ServerOptionsUser {
     /// The current user as a [`Person`] object
     object: Option<Person>,
@@ -152,7 +152,7 @@ impl ServerOptionsUser {
 }
 
 #[derive(Debug, SmartDefault, Clone, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct ServerOptionsDocuments {
     /// The action to take when the document is saved in the editor
     #[default(DocumentsOnSave::Store)]
@@ -160,7 +160,6 @@ pub(crate) struct ServerOptionsDocuments {
 }
 
 #[derive(Debug, SmartDefault, Clone, Copy, Deserialize)]
-#[serde(crate = "common::serde")]
 enum DocumentsOnSave {
     Track,
     #[default]
@@ -169,7 +168,7 @@ enum DocumentsOnSave {
 }
 
 #[derive(Debug, SmartDefault, Clone, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct ServerOptionsDiagnostics {
     /// The minimum message level for compilation related diagnostics
     #[default(MessageLevel::Error)]
