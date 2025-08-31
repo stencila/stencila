@@ -1,6 +1,7 @@
 use std::{sync::Arc, time::Duration};
 
 use cached::proc_macro::cached;
+use serde::{Deserialize, Serialize};
 
 use model::{
     Model, ModelAvailability, ModelIO, ModelOutput, ModelTask, ModelType,
@@ -10,13 +11,12 @@ use model::{
         inflector::Inflector,
         itertools::Itertools,
         reqwest::Client,
-        serde::{Deserialize, Serialize},
     },
 };
 
 /// A model available via Stencila Cloud
 #[derive(Default, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "model::common::serde")]
+#[serde(rename_all = "camelCase")]
 pub struct StencilaModel {
     /// The name of the provider e.g. openai
     provider: String,
@@ -131,7 +131,6 @@ impl Model for StencilaModel {
 }
 
 #[derive(Serialize)]
-#[serde(crate = "model::common::serde")]
 struct PerformTaskRequest {
     provider: String,
     identifier: String,

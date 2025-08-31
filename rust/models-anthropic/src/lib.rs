@@ -1,6 +1,7 @@
 use std::{sync::Arc, time::Duration};
 
 use cached::proc_macro::cached;
+use serde::{Deserialize, Serialize};
 
 use model::{
     Model, ModelIO, ModelOutput, ModelTask, ModelType,
@@ -9,7 +10,6 @@ use model::{
         eyre::{Result, bail},
         itertools::Itertools,
         reqwest::Client,
-        serde::{Deserialize, Serialize},
         serde_with::skip_serializing_none,
         tracing,
     },
@@ -242,7 +242,6 @@ async fn list_anthropic_models() -> Result<ModelsResponse> {
 ///
 /// Based on https://docs.anthropic.com/en/api/models-list
 #[derive(Clone, Serialize, Deserialize)]
-#[serde(crate = "model::common::serde")]
 struct ModelsResponse {
     data: Vec<ModelSpec>,
 }
@@ -251,14 +250,13 @@ struct ModelsResponse {
 ///
 /// Note: at present several other fields are ignored.
 #[derive(Clone, Serialize, Deserialize)]
-#[serde(crate = "model::common::serde")]
 struct ModelSpec {
     id: String,
 }
 
 /// A part within the content of a message in the Messages API
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "lowercase", crate = "model::common::serde")]
+#[serde(tag = "type", rename_all = "lowercase")]
 enum ContentPart {
     Text { text: String },
     Image { source: ImageSource },
@@ -266,7 +264,6 @@ enum ContentPart {
 
 /// An images source
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(crate = "model::common::serde")]
 struct ImageSource {
     r#type: String,
     media_type: String,
@@ -277,7 +274,6 @@ struct ImageSource {
 ///
 /// Note: at present only text content is handled
 #[derive(Debug, Serialize)]
-#[serde(crate = "model::common::serde")]
 struct Message {
     role: String,
     content: Vec<ContentPart>,
@@ -289,7 +285,6 @@ struct Message {
 /// Note: at present several fields are ignored.
 #[skip_serializing_none]
 #[derive(Serialize)]
-#[serde(crate = "model::common::serde")]
 struct MessagesRequest {
     model: String,
     messages: Vec<Message>,
@@ -306,7 +301,6 @@ struct MessagesRequest {
 /// Note: at present several fields are ignored.
 #[skip_serializing_none]
 #[derive(Deserialize)]
-#[serde(crate = "model::common::serde")]
 struct MessagesResponse {
     content: Vec<ContentPart>,
 }

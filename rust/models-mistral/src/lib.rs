@@ -1,6 +1,7 @@
 use std::{sync::Arc, time::Duration};
 
 use cached::proc_macro::cached;
+use serde::{Deserialize, Serialize};
 
 use model::{
     Model, ModelIO, ModelOutput, ModelTask, ModelType,
@@ -10,7 +11,6 @@ use model::{
         inflector::Inflector,
         itertools::Itertools,
         reqwest::Client,
-        serde::{Deserialize, Serialize},
         serde_with::skip_serializing_none,
         tracing,
     },
@@ -159,7 +159,6 @@ impl Model for MistralModel {
 ///
 /// Based on https://docs.mistral.ai/api#operation/listModels
 #[derive(Clone, Serialize, Deserialize)]
-#[serde(crate = "model::common::serde")]
 struct ModelsResponse {
     data: Vec<ModelSpec>,
 }
@@ -168,7 +167,6 @@ struct ModelsResponse {
 ///
 /// Note: at present several other fields are ignored.
 #[derive(Clone, Serialize, Deserialize)]
-#[serde(crate = "model::common::serde")]
 struct ModelSpec {
     id: String,
 }
@@ -178,7 +176,6 @@ struct ModelSpec {
 /// Based on https://docs.mistral.ai/api#operation/createChatCompletion
 #[skip_serializing_none]
 #[derive(Serialize)]
-#[serde(crate = "model::common::serde")]
 struct ChatCompletionRequest {
     model: String,
     messages: Vec<ChatMessage>,
@@ -193,7 +190,6 @@ struct ChatCompletionRequest {
 /// Note: at present several other fields are ignored.
 #[skip_serializing_none]
 #[derive(Deserialize)]
-#[serde(crate = "model::common::serde")]
 struct ChatCompletionResponse {
     choices: Vec<ChatCompletionChoice>,
 }
@@ -203,7 +199,6 @@ struct ChatCompletionResponse {
 /// Note: at present several other fields are ignored.
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "model::common::serde")]
 struct ChatCompletionChoice {
     message: ChatMessage,
 }
@@ -211,7 +206,6 @@ struct ChatCompletionChoice {
 /// A chat message within a `ChatCompletionRequest` or a `ChatCompletionResponse`
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "model::common::serde")]
 struct ChatMessage {
     role: ChatRole,
     content: String,
@@ -219,7 +213,7 @@ struct ChatMessage {
 
 /// A role in a `ChatMessage`
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "lowercase", crate = "model::common::serde")]
+#[serde(rename_all = "lowercase")]
 enum ChatRole {
     System,
     User,

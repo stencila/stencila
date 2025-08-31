@@ -1,6 +1,7 @@
 use std::{sync::Arc, time::Duration};
 
 use cached::proc_macro::cached;
+use serde::{Deserialize, Serialize};
 
 use model::{
     Model, ModelIO, ModelOutput, ModelTask, ModelType,
@@ -9,7 +10,6 @@ use model::{
         eyre::{Result, bail},
         itertools::Itertools,
         reqwest::Client,
-        serde::{Deserialize, Serialize},
         serde_with::skip_serializing_none,
         tracing,
     },
@@ -195,7 +195,6 @@ impl Model for GoogleModel {
 ///
 /// Based on https://ai.google.dev/api/rest/v1/models/list.
 #[derive(Clone, Serialize, Deserialize)]
-#[serde(crate = "model::common::serde")]
 struct ModelsResponse {
     models: Vec<ModelSpec>,
 }
@@ -205,7 +204,7 @@ struct ModelsResponse {
 /// Based on https://ai.google.dev/api/rest/v1/models#Model.
 /// Note: at present several fields are ignored.
 #[derive(Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "model::common::serde")]
+#[serde(rename_all = "camelCase")]
 struct ModelSpec {
     name: String,
     input_token_limit: Option<usize>,
@@ -217,7 +216,7 @@ struct ModelSpec {
 /// Note: at present several fields are ignored.
 #[skip_serializing_none]
 #[derive(Serialize)]
-#[serde(rename_all = "camelCase", crate = "model::common::serde")]
+#[serde(rename_all = "camelCase")]
 struct GenerateContentRequest {
     contents: Vec<Content>,
     system_instruction: Option<Content>,
@@ -229,7 +228,6 @@ struct GenerateContentRequest {
 /// Based on https://ai.google.dev/api/rest/v1beta/GenerateContentResponse.
 /// Note: at present the `promptFeedback` field ignored.
 #[derive(Deserialize)]
-#[serde(crate = "model::common::serde")]
 struct GenerateContentResponse {
     candidates: Vec<Candidate>,
 }
@@ -240,7 +238,6 @@ struct GenerateContentResponse {
 /// Note: at present several fields are ignored.
 #[skip_serializing_none]
 #[derive(Deserialize)]
-#[serde(crate = "model::common::serde")]
 struct Candidate {
     content: Content,
 }
@@ -250,7 +247,6 @@ struct Candidate {
 /// Based on https://ai.google.dev/api/rest/v1beta/Content.
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "model::common::serde")]
 struct Content {
     role: Option<Role>,
     parts: Vec<Part>,
@@ -262,7 +258,7 @@ struct Content {
 /// Note: at present does not include all variants
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "model::common::serde")]
+#[serde(rename_all = "camelCase")]
 struct Part {
     text: Option<String>,
     inline_data: Option<Blob>,
@@ -295,7 +291,7 @@ impl Part {
 /// Based on https://ai.google.dev/api/rest/v1beta/Content#Blob.
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "model::common::serde")]
+#[serde(rename_all = "camelCase")]
 struct Blob {
     mime_type: String,
     data: String,
@@ -303,7 +299,7 @@ struct Blob {
 
 /// A role in a `Content` object
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "lowercase", crate = "model::common::serde")]
+#[serde(rename_all = "lowercase")]
 enum Role {
     User,
     Model,
@@ -314,7 +310,7 @@ enum Role {
 /// Based on https://ai.google.dev/api/rest/v1beta/GenerationConfig.
 #[skip_serializing_none]
 #[derive(Default, Serialize)]
-#[serde(rename_all = "camelCase", crate = "model::common::serde")]
+#[serde(rename_all = "camelCase")]
 struct GenerationConfig {
     stop_sequences: Option<Vec<String>>,
     candidate_count: Option<u8>,

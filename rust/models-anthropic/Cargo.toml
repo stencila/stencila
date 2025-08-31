@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 model = { path = "../model" }
 cached = { workspace = true }
+serde = { workspace = true }
 
 [lints]
 workspace = true

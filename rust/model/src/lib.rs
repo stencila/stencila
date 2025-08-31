@@ -1,9 +1,10 @@
+use serde::{Deserialize, Serialize};
+
 use common::{
     async_trait::async_trait,
     clap::{self, ValueEnum},
     eyre::Result,
     inflector::Inflector,
-    serde::{Deserialize, Serialize},
     strum::Display,
 };
 
@@ -29,7 +30,6 @@ pub use task::{ModelTask, ModelTaskKind};
 /// This ordering here is important as it is used when
 /// selecting a model to execute a task.
 #[derive(Display, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 pub enum ModelType {
     Builtin,
     Local,
@@ -41,7 +41,6 @@ pub enum ModelType {
 
 /// The availability of a model on the current machine
 #[derive(Display, Clone, Copy, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 #[strum(serialize_all = "lowercase")]
 pub enum ModelAvailability {
     /// Available on this machine
@@ -62,7 +61,7 @@ pub enum ModelAvailability {
     Debug, Default, Clone, Copy, PartialEq, Eq, ValueEnum, Display, Deserialize, Serialize,
 )]
 #[strum(serialize_all = "lowercase")]
-#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[serde(rename_all = "lowercase")]
 pub enum ModelIO {
     #[default]
     Text,
@@ -75,7 +74,7 @@ pub enum ModelIO {
 ///
 /// Currently used only for outputs and display.
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "common::serde", rename_all = "camelCase")]
+#[serde(rename_all = "camelCase")]
 pub struct ModelSpecification {
     id: String,
     provider: String,

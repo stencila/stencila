@@ -8,6 +8,7 @@ common = { path = "../common" }
 format = { path = "../format" }
 schema = { path = "../schema" }
 secrets = { path = "../secrets" }
+serde = { workspace = true }
 
 [lints]
 workspace = true
