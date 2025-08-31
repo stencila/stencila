@@ -1487,6 +1487,7 @@ dependencies = [
  "secrets",
  "self-replace",
  "semver",
+ "serde",
  "server",
  "stencila-linters",
  "tools",
@@ -1516,6 +1517,7 @@ dependencies = [
  "derive_more 2.0.1",
  "format",
  "schema",
+ "serde",
  "syntect",
  "terminal_size",
  "textwrap",
@@ -1529,6 +1531,7 @@ dependencies = [
  "cached",
  "common",
  "secrets",
+ "serde",
  "version",
 ]
 
@@ -1551,6 +1554,7 @@ dependencies = [
  "format",
  "node-strip",
  "schema",
+ "serde",
  "status",
 ]
 
@@ -1587,6 +1591,7 @@ version = "0.0.0"
 dependencies = [
  "ciborium",
  "codec",
+ "serde",
  "zstd",
 ]
 
@@ -1693,6 +1698,7 @@ dependencies = [
  "html-escape",
  "node-id",
  "node-type",
+ "serde",
 ]
 
 [[package]]
@@ -1759,6 +1765,7 @@ dependencies = [
  "format",
  "node-id",
  "node-type",
+ "serde",
 ]
 
 [[package]]
@@ -1807,6 +1814,7 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "common-dev",
+ "serde",
  "version",
  "zip 2.5.0",
 ]
@@ -1826,6 +1834,7 @@ dependencies = [
  "common",
  "json5",
  "json5format",
+ "serde",
 ]
 
 [[package]]
@@ -1980,6 +1989,7 @@ dependencies = [
  "codec-png",
  "codec-text-trait",
  "pandoc_types",
+ "serde",
  "tools",
 ]
 
@@ -2086,6 +2096,7 @@ name = "codec-yaml"
 version = "0.0.0"
 dependencies = [
  "codec",
+ "serde",
  "version",
 ]
 
@@ -2154,6 +2165,7 @@ dependencies = [
  "common-dev",
  "json_value_merge",
  "node-strip",
+ "serde",
  "url",
  "walkdir",
 ]
@@ -2301,7 +2313,6 @@ dependencies = [
  "regex",
  "reqwest",
  "seahash",
- "serde",
  "serde_json",
  "serde_with",
  "serde_yaml",
@@ -2476,6 +2487,7 @@ dependencies = [
  "headless_chrome",
  "rand 0.9.2",
  "secrets",
+ "serde",
  "test-log",
  "tools",
  "version",
@@ -3464,6 +3476,7 @@ dependencies = [
  "notify",
  "rand 0.9.2",
  "schema",
+ "serde",
  "tools",
  "url",
 ]
@@ -5453,6 +5466,7 @@ dependencies = [
  "common-dev",
  "format",
  "schema",
+ "serde",
 ]
 
 [[package]]
@@ -5530,6 +5544,7 @@ dependencies = [
  "kernel",
  "kernel-jinja",
  "kuzu",
+ "serde",
 ]
 
 [[package]]
@@ -5989,6 +6004,7 @@ dependencies = [
  "percent-encoding",
  "prompts",
  "schema",
+ "serde",
  "tokio-util",
  "tower 0.5.2",
  "tracing-subscriber",
@@ -6366,6 +6382,7 @@ dependencies = [
  "format",
  "schema",
  "secrets",
+ "serde",
 ]
 
 [[package]]
@@ -6389,6 +6406,7 @@ version = "0.0.0"
 dependencies = [
  "cached",
  "model",
+ "serde",
 ]
 
 [[package]]
@@ -6397,6 +6415,7 @@ version = "0.0.0"
 dependencies = [
  "cached",
  "model",
+ "serde",
 ]
 
 [[package]]
@@ -6405,6 +6424,7 @@ version = "0.0.0"
 dependencies = [
  "cached",
  "model",
+ "serde",
 ]
 
 [[package]]
@@ -6432,6 +6452,7 @@ dependencies = [
  "cached",
  "cloud",
  "model",
+ "serde",
 ]
 
 [[package]]
@@ -6704,6 +6725,7 @@ dependencies = [
  "common",
  "format",
  "schema",
+ "serde",
 ]
 
 [[package]]
@@ -6722,6 +6744,7 @@ dependencies = [
  "parsers",
  "prompts",
  "schema",
+ "serde",
  "stencila-linters",
 ]
 
@@ -6782,6 +6805,7 @@ dependencies = [
  "common",
  "derive_more 2.0.1",
  "node-type",
+ "serde",
 ]
 
 [[package]]
@@ -6838,6 +6862,7 @@ version = "0.0.0"
 dependencies = [
  "common",
  "node-strip-derive",
+ "serde",
 ]
 
 [[package]]
@@ -6867,6 +6892,7 @@ version = "0.0.0"
 dependencies = [
  "common",
  "node-id",
+ "serde",
 ]
 
 [[package]]
@@ -6879,6 +6905,7 @@ dependencies = [
  "node-id",
  "node-path",
  "node-type",
+ "serde",
  "url",
 ]
 
@@ -7686,6 +7713,7 @@ dependencies = [
  "model",
  "rand 0.9.2",
  "semver",
+ "serde",
  "which 8.0.0",
 ]
 
@@ -8374,6 +8402,7 @@ dependencies = [
  "prompt",
  "rust-embed",
  "semver",
+ "serde",
  "version",
 ]
 
@@ -8490,6 +8519,7 @@ dependencies = [
  "jsonwebtoken",
  "node-media",
  "secrets",
+ "serde",
  "url",
 ]
 
@@ -8503,6 +8533,7 @@ dependencies = [
  "common",
  "document",
  "schema",
+ "serde",
 ]
 
 [[package]]
@@ -8515,6 +8546,7 @@ dependencies = [
  "common",
  "common-dev",
  "document",
+ "serde",
  "url",
 ]
 
@@ -9662,6 +9694,7 @@ dependencies = [
  "node-walk-derive",
  "proptest",
  "proptest-derive",
+ "serde",
  "serde_with",
  "time",
 ]
@@ -9675,6 +9708,7 @@ dependencies = [
  "schema",
  "schemars 1.0.4",
  "semver",
+ "serde",
  "status",
  "topological-sort",
 ]
@@ -9777,6 +9811,7 @@ dependencies = [
  "cli-utils",
  "common",
  "keyring",
+ "serde",
 ]
 
 [[package]]
@@ -10062,6 +10097,7 @@ dependencies = [
  "format",
  "mime_guess",
  "rand 0.9.2",
+ "serde",
  "tower-cookies",
  "tower-http",
  "version",
@@ -10423,6 +10459,7 @@ version = "0.0.0"
 dependencies = [
  "common",
  "schemars 1.0.4",
+ "serde",
 ]
 
 [[package]]
@@ -11227,6 +11264,7 @@ dependencies = [
  "mcp-types",
  "pathdiff",
  "semver",
+ "serde",
  "test-log",
  "version",
  "which 8.0.0",

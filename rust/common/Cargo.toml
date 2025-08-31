@@ -22,7 +22,6 @@ quote = "1.0.40"
 regex = "1.11.1"
 reqwest = { version = "0.12.23", default-features = false, features = ["json", "rustls-tls", "stream"] }
 seahash = "4.1.0"
-serde = { workspace = true }
 serde_json = { version = "1.0.143", features = ["preserve_order"] }
 serde_with = "3.14.0"
 serde_yaml = "0.9.34"
