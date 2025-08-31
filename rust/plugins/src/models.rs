@@ -1,10 +1,11 @@
 use std::sync::Arc;
 
+use serde::{Deserialize, Serialize};
+
 use common::{
     async_trait::async_trait,
     eyre::{Result, bail},
     inflector::Inflector,
-    serde::{Deserialize, Serialize},
     tokio::sync::Mutex,
 };
 use model::{Model, ModelAvailability, ModelIO, ModelOutput, ModelTask, ModelType};
@@ -13,7 +14,6 @@ use crate::{Plugin, PluginEnabled, PluginInstance, PluginStatus, plugins};
 
 /// A model provided by a plugin
 #[derive(Debug, Clone, Deserialize, Serialize)]
-#[serde(crate = "common::serde")]
 pub struct PluginModel {
     /// The id of the model
     id: String,
@@ -150,7 +150,6 @@ impl Model for PluginModel {
 
         // Call the plugin's `model_perform_task`` method
         #[derive(Serialize)]
-        #[serde(crate = "common::serde")]
         struct Params<'node> {
             model: String,
             task: &'node ModelTask,

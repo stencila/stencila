@@ -13,6 +13,7 @@ kernel = { path = "../kernel" }
 model = { path = "../model" }
 rand = { workspace = true }
 semver = { workspace = true }
+serde = { workspace = true }
 which = { workspace = true }
 
 [lints]

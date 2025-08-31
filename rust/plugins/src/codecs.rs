@@ -1,10 +1,11 @@
 use std::sync::Arc;
 
+use serde::{Deserialize, Serialize};
+
 use codec::{Codec, EncodeInfo, EncodeOptions, schema::Node, status::Status};
 use common::{
     async_trait::async_trait,
     eyre::{Result, bail},
-    serde::{Deserialize, Serialize},
     tokio::sync::Mutex,
 };
 
@@ -12,7 +13,6 @@ use crate::{Plugin, PluginInstance, plugins};
 
 /// A codec provided by a plugin
 #[derive(Debug, Clone, Deserialize, Serialize)]
-#[serde(crate = "common::serde")]
 pub struct PluginCodec {
     /// The name of the codec
     name: String,
@@ -73,7 +73,6 @@ impl Codec for PluginCodec {
 
         // Call the plugin's to_string method
         #[derive(Serialize)]
-        #[serde(crate = "common::serde")]
         struct Params<'node> {
             codec: String,
             node: &'node Node,

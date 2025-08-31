@@ -1,10 +1,11 @@
 use std::path::Path;
 
+use serde::{Deserialize, Serialize};
+
 use codec::schema::ExecutionBounds;
 use common::{
     async_trait::async_trait,
     eyre::{Result, bail},
-    serde::{Deserialize, Serialize},
 };
 use kernel::{
     Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelProvider,
@@ -17,7 +18,6 @@ use crate::{Plugin, PluginEnabled, PluginInstance, PluginStatus, plugins};
 
 /// A kernel provided by a plugin
 #[derive(Debug, Clone, Deserialize, Serialize)]
-#[serde(crate = "common::serde")]
 pub struct PluginKernel {
     /// The name of the kernel
     name: String,
@@ -177,13 +177,11 @@ impl KernelInstance for PluginKernelInstance {
 
     async fn start(&mut self, _directory: &Path) -> Result<()> {
         #[derive(Serialize)]
-        #[serde(crate = "common::serde")]
         struct Params {
             kernel: String,
         }
 
         #[derive(Deserialize)]
-        #[serde(crate = "common::serde")]
         struct Result {
             instance: String,
         }
@@ -211,7 +209,6 @@ impl KernelInstance for PluginKernelInstance {
     #[allow(dependency_on_unit_never_type_fallback)]
     async fn stop(&mut self) -> Result<()> {
         #[derive(Serialize)]
-        #[serde(crate = "common::serde")]
         struct Params {
             instance: String,
         }
@@ -237,14 +234,12 @@ impl KernelInstance for PluginKernelInstance {
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
         #[derive(Serialize)]
-        #[serde(crate = "common::serde")]
         struct Params {
             code: String,
             instance: String,
         }
 
         #[derive(Deserialize)]
-        #[serde(crate = "common::serde")]
         struct Result {
             outputs: Vec<Node>,
             messages: Vec<ExecutionMessage>,
@@ -266,14 +261,12 @@ impl KernelInstance for PluginKernelInstance {
 
     async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionMessage>)> {
         #[derive(Serialize)]
-        #[serde(crate = "common::serde")]
         struct Params {
             code: String,
             instance: String,
         }
 
         #[derive(Deserialize)]
-        #[serde(crate = "common::serde")]
         struct Result {
             output: Node,
             messages: Vec<ExecutionMessage>,
@@ -295,7 +288,6 @@ impl KernelInstance for PluginKernelInstance {
 
     async fn info(&mut self) -> Result<SoftwareApplication> {
         #[derive(Serialize)]
-        #[serde(crate = "common::serde")]
         struct Params {
             instance: String,
         }
@@ -306,7 +298,6 @@ impl KernelInstance for PluginKernelInstance {
 
     async fn packages(&mut self) -> Result<Vec<SoftwareSourceCode>> {
         #[derive(Serialize)]
-        #[serde(crate = "common::serde")]
         struct Params {
             instance: String,
         }
@@ -317,7 +308,6 @@ impl KernelInstance for PluginKernelInstance {
 
     async fn list(&mut self) -> Result<Vec<Variable>> {
         #[derive(Serialize)]
-        #[serde(crate = "common::serde")]
         struct Params {
             instance: String,
         }
@@ -328,7 +318,6 @@ impl KernelInstance for PluginKernelInstance {
 
     async fn get(&mut self, name: &str) -> Result<Option<Node>> {
         #[derive(Serialize)]
-        #[serde(crate = "common::serde")]
         struct Params {
             name: String,
             instance: String,
@@ -348,7 +337,6 @@ impl KernelInstance for PluginKernelInstance {
 
     async fn set(&mut self, name: &str, value: &Node) -> Result<()> {
         #[derive(Serialize)]
-        #[serde(crate = "common::serde")]
         struct Params {
             name: String,
             value: Node,
@@ -370,7 +358,6 @@ impl KernelInstance for PluginKernelInstance {
 
     async fn remove(&mut self, name: &str) -> Result<()> {
         #[derive(Serialize)]
-        #[serde(crate = "common::serde")]
         struct Params {
             name: String,
             instance: String,

@@ -15,6 +15,7 @@ use std::{
 
 use rand::{Rng, distr::Alphanumeric, rng};
 use semver::{Version, VersionReq};
+use serde::{self, Deserialize, Deserializer, Serialize, Serializer, de::DeserializeOwned};
 use which::which;
 
 use cli_utils::Code;
@@ -22,7 +23,6 @@ use common::{
     eyre::{OptionExt, Report, Result, bail, eyre},
     itertools::Itertools,
     reqwest::{self, Client, Url, header},
-    serde::{self, Deserialize, Deserializer, Serialize, Serializer, de::DeserializeOwned},
     serde_json::{self, Value},
     serde_with::{DeserializeFromStr, SerializeDisplay},
     strum::{Display, EnumString},
@@ -73,7 +73,6 @@ const DISABLED_FILENAME: &str = "disabled";
 /// its requirements, how to install it, how to run it, and the
 /// services it provides.
 #[derive(Debug, Clone, Deserialize, Serialize)]
-#[serde(crate = "common::serde")]
 pub struct Plugin {
     /// The name of the plugin, should be unique across all plugins
     name: String,
@@ -218,7 +217,7 @@ impl Plugin {
         use serde::de::Error;
 
         #[derive(Deserialize)]
-        #[serde(untagged, crate = "common::serde")]
+        #[serde(untagged)]
         enum OneOrMany {
             One(String),
             Many(Vec<String>),
@@ -275,7 +274,7 @@ impl Plugin {
         D: Deserializer<'de>,
     {
         #[derive(Deserialize)]
-        #[serde(untagged, crate = "common::serde")]
+        #[serde(untagged)]
         enum OneOrMany {
             One(PluginPlatform),
             Many(Vec<PluginPlatform>),
@@ -294,7 +293,7 @@ impl Plugin {
         D: Deserializer<'de>,
     {
         #[derive(Deserialize)]
-        #[serde(untagged, crate = "common::serde")]
+        #[serde(untagged)]
         enum OneOrMany {
             One(PluginTransport),
             Many(Vec<PluginTransport>),
@@ -1027,7 +1026,6 @@ impl PluginInstance {
 static REQUEST_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 #[derive(Serialize)]
-#[serde(crate = "common::serde")]
 pub struct JsonRpcRequest {
     jsonrpc: String,
     id: u64,
@@ -1051,7 +1049,6 @@ impl JsonRpcRequest {
 
 #[allow(unused)]
 #[derive(Deserialize)]
-#[serde(crate = "common::serde")]
 struct JsonRpcResponse {
     jsonrpc: Option<String>,
     id: u64,
@@ -1060,7 +1057,6 @@ struct JsonRpcResponse {
 }
 
 #[derive(Deserialize)]
-#[serde(crate = "common::serde")]
 #[serde(untagged)]
 enum JsonRpcResult {
     Success { result: Value },
@@ -1069,7 +1065,6 @@ enum JsonRpcResult {
 
 #[allow(unused)]
 #[derive(Deserialize)]
-#[serde(crate = "common::serde")]
 struct JsonRpcError {
     code: i32,
     message: String,
