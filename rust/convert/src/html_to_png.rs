@@ -1178,8 +1178,13 @@ fn try_capture_pdf(html: &str) -> Result<Vec<u8>> {
 
 #[cfg(test)]
 mod tests {
+    use std::{
+        fs::{metadata, remove_file},
+        path::PathBuf,
+        time::{Duration, Instant},
+    };
+
     use super::*;
-    use std::time::{Duration, Instant};
 
     #[test]
     fn test_browser_manager_drop() {
@@ -1221,33 +1226,6 @@ mod tests {
         // HTML with Vega-Lite should need scripts
         let vega_html = r#"<stencila-image-object media-type="application/vnd.vegalite.v5+json">test</stencila-image-object>"#;
         assert!(needs_dynamic_scripts(vega_html));
-    }
-
-    #[test]
-    fn test_html_to_pdf() -> Result<()> {
-        use std::path::PathBuf;
-
-        let simple_html =
-            "<html><body><h1>Test PDF</h1><p>This is a simple test document.</p></body></html>";
-        let test_path = PathBuf::from("test_output.pdf");
-
-        // Remove existing file if it exists
-        if test_path.exists() {
-            std::fs::remove_file(&test_path).ok();
-        }
-
-        // Generate PDF
-        html_to_pdf(simple_html, &test_path)?;
-
-        // Verify file was created and has content
-        assert!(test_path.exists(), "PDF file should be created");
-        let file_size = std::fs::metadata(&test_path)?.len();
-        assert!(file_size > 0, "PDF file should have content");
-
-        // Clean up
-        std::fs::remove_file(&test_path).ok();
-
-        Ok(())
     }
 
     #[ignore = "primarily for development"]
@@ -1383,18 +1361,44 @@ mod tests {
             let output_path = Path::new(filename);
 
             if output_path.exists() {
-                std::fs::remove_file(output_path)?;
+                remove_file(output_path)?;
             }
 
             let wrapped_html = wrap_html(html);
             html_to_png_file(&wrapped_html, output_path)?;
 
-            let file_size = std::fs::metadata(output_path)?.len();
+            let file_size = metadata(output_path)?.len();
             assert!(
                 file_size > 1000,
                 "PNG file should have substantial content (got {file_size} bytes)"
             );
         }
+
+        Ok(())
+    }
+
+    #[ignore = "primarily for development"]
+    #[test]
+    fn test_html_to_pdf() -> Result<()> {
+        let simple_html =
+            "<html><body><h1>Test PDF</h1><p>This is a simple test document.</p></body></html>";
+        let test_path = PathBuf::from("test_output.pdf");
+
+        // Remove existing file if it exists
+        if test_path.exists() {
+            remove_file(&test_path).ok();
+        }
+
+        // Generate PDF
+        html_to_pdf(simple_html, &test_path)?;
+
+        // Verify file was created and has content
+        assert!(test_path.exists(), "PDF file should be created");
+        let file_size = metadata(&test_path)?.len();
+        assert!(file_size > 0, "PDF file should have content");
+
+        // Clean up
+        remove_file(&test_path).ok();
 
         Ok(())
     }
