@@ -9,6 +9,7 @@ codec-info = { path = "../codec-info" }
 common = { path = "../common" }
 format = { path = "../format" }
 schema = { path = "../schema" }
+serde = { workspace = true }
 
 [lints]
 workspace = true

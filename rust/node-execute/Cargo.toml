@@ -15,6 +15,7 @@ node-contains = { path = "../node-contains" }
 node-diagnostics = { path = "../node-diagnostics" }
 parsers = { path = "../parsers" }
 prompts = { path = "../prompts" }
+serde = { workspace = true }
 schema = { path = "../schema" }
 
 [dev-dependencies]

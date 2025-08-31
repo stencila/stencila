@@ -2,6 +2,8 @@
 
 use std::{collections::HashMap, fmt::Debug, path::PathBuf, str::FromStr, sync::Arc};
 
+use serde::{Deserialize, Serialize};
+
 use codecs::{DecodeOptions, Format};
 use common::{
     clap::{self, Args},
@@ -9,7 +11,6 @@ use common::{
     futures::future::join_all,
     indexmap::IndexSet,
     itertools::Itertools,
-    serde::{Deserialize, Serialize},
     tokio::sync::{RwLock, RwLockWriteGuard, mpsc, oneshot},
     tracing,
 };
@@ -344,7 +345,7 @@ impl HeadingInfo {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq, Args)]
-#[serde(default, crate = "common::serde")]
+#[serde(default)]
 pub struct CompileOptions {
     /// Should lint the document
     pub should_lint: bool,
@@ -357,7 +358,7 @@ pub struct CompileOptions {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq, Args)]
-#[serde(default, crate = "common::serde")]
+#[serde(default)]
 pub struct ExecuteOptions {
     /// Re-execute all node types regardless of current state
     #[arg(long, help_heading = "Execution Options")]

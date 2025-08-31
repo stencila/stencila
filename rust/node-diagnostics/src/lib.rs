@@ -1,9 +1,10 @@
 use std::{env, ops::Range};
 
 use ariadne::{Config, Label, Report, ReportKind, Source};
+use serde::Serialize;
 
 use codec_info::{PoshMap, Position8, Positions, Range8};
-use common::{eyre::Result, serde::Serialize, serde_with::skip_serializing_none, strum::Display};
+use common::{eyre::Result, serde_with::skip_serializing_none, strum::Display};
 use format::Format;
 use schema::{
     Block, CodeLocation, CompilationMessage, Cord, ExecutionMessage, Inline, MessageLevel, Node,
@@ -38,7 +39,7 @@ where
 
 #[skip_serializing_none]
 #[derive(Serialize)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 pub struct Diagnostic {
     /// The type of node that the diagnostic is for
     pub node_type: NodeType,
@@ -74,7 +75,6 @@ pub struct Diagnostic {
 }
 
 #[derive(Clone, Copy, Display, PartialEq, Eq, PartialOrd, Ord, Serialize)]
-#[serde(crate = "common::serde")]
 pub enum DiagnosticLevel {
     /// An advisory diagnostic
     Advice,
@@ -85,7 +85,6 @@ pub enum DiagnosticLevel {
 }
 
 #[derive(Clone, Display, PartialEq, Eq, PartialOrd, Ord, Serialize)]
-#[serde(crate = "common::serde")]
 pub enum DiagnosticKind {
     Linting,
     Compilation,
