@@ -26,6 +26,7 @@ async fn golden() -> Result<()> {
     let (.., receiver) = watch::channel(Node::Null(Null));
     let (sender, ..) = mpsc::channel(1);
     let mut kernel = DocsQLKernelInstance::new(None, Some((receiver, sender)))?;
+    kernel.start_here().await?;
 
     let pattern = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests")

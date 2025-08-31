@@ -108,6 +108,15 @@ pub struct DocsQLKernelInstance {
     /// This is lazily instantiated because it can take a non-trivial
     /// amount of time.
     workspace: Option<Arc<Mutex<DocsDBKernelInstance>>>,
+
+    /// The Jinja [Environment] in which code is executed
+    environment: Environment<'static>,
+
+    /// Execution messages collected while executing code
+    /// 
+    /// This is necessary because some of the Jinja trait messages that we call
+    /// are infallible, so if queries error we need to add them to this.
+    messages: Arc<SyncMutex<Vec<ExecutionMessage>>>,
 }
 
 impl DocsQLKernelInstance {
@@ -123,26 +132,47 @@ impl DocsQLKernelInstance {
             None => None,
         };
 
+        let mut environment = Environment::empty();
+        environment.set_undefined_behavior(UndefinedBehavior::Strict);
+
+        let messages = Arc::new(SyncMutex::new(Vec::new()));
+
         Ok(Self {
             id,
             context: None,
             directory,
             document,
             workspace: None,
+            environment,
+            messages,
         })
     }
 
-    /// Get the workspace kernel, instantiating it if necessary
-    async fn workspace(&mut self) -> Result<Arc<Mutex<DocsDBKernelInstance>>> {
-        if let Some(workspace) = &self.workspace {
-            Ok(workspace.clone())
+    /// Add a `workspace` global object representing the workspace database
+    /// 
+    /// Initializing a workspace database can take up to a second so this is
+    /// done lazily, just-in-time, if the query needs it.
+    async fn add_workspace(&mut self) -> Result<()> {
+        let workspace = if let Some(workspace) = &self.workspace {
+            workspace.clone()
         } else {
             let workspace = Arc::new(Mutex::new(
                 DocsDBKernelInstance::new_workspace(&self.id, &self.directory).await?,
             ));
             self.workspace = Some(workspace.clone());
-            Ok(workspace)
-        }
+            workspace
+        };
+
+        self.environment.add_global(
+            "workspace",
+            Value::from_object(CypherQuery::new(
+                "workspace".into(),
+                workspace,
+                self.messages.clone(),
+            )),
+        );
+
+        Ok(())
     }
 }
 
@@ -157,18 +187,15 @@ impl KernelInstance for DocsQLKernelInstance {
 
         self.directory = directory.to_path_buf();
 
-        Ok(())
-    }
+        let env = &mut self.environment;
+        let messages = &self.messages;
 
-    async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
-        tracing::trace!("Executing code in DocsQL kernel");
-
-        let mut env = Environment::empty();
-        env.set_undefined_behavior(UndefinedBehavior::Strict);
-        add_constants(&mut env);
-        add_functions(&mut env);
-
-        let messages = Arc::new(SyncMutex::new(Vec::new()));
+        add_constants(env);
+        add_functions(env);
+        add_subquery_functions(env);
+        add_openalex_functions(env, messages);
+        add_github_functions(env, messages);
+        add_zenodo_functions(env, messages);
 
         if let Some(document) = &self.document {
             let document = Arc::new(CypherQuery::new(
@@ -177,29 +204,12 @@ impl KernelInstance for DocsQLKernelInstance {
                 messages.clone(),
             ));
 
-            add_document_functions(&mut env, document.clone());
-
+            add_document_functions(env, document.clone());
             env.add_global("document", Value::from_dyn_object(document));
         }
 
-        if code.contains("workspace") {
-            env.add_global(
-                "workspace",
-                Value::from_object(CypherQuery::new(
-                    "workspace".into(),
-                    self.workspace().await?,
-                    messages.clone(),
-                )),
-            );
-        }
-
-        add_subquery_functions(&mut env);
-        add_openalex_functions(&mut env, &messages);
-        add_github_functions(&mut env, &messages);
-        add_zenodo_functions(&mut env, &messages);
-
         #[cfg(debug_assertions)]
-        if code.contains("test") {
+        {
             env.add_global(
                 "test",
                 Value::from_object(CypherQuery::new(
@@ -210,10 +220,27 @@ impl KernelInstance for DocsQLKernelInstance {
             );
         }
 
+        Ok(())
+    }
+
+    async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
+        tracing::trace!("Executing code in DocsQL kernel");
+
         let code = strip_comments(code);
         if code.trim().is_empty() {
             return Ok(Default::default());
         }
+
+        // Add workspace lazily if the query looks like it needs it
+        if code.contains("workspace") && self.workspace.is_none() {
+            self.add_workspace().await?;
+        }
+
+        // Clear messages before executing the code
+        self.messages
+            .lock()
+            .map_err(|error| eyre!(error.to_string()))?
+            .clear();
 
         let should_use_db_method = |db: &str| {
             Ok((
@@ -227,6 +254,7 @@ impl KernelInstance for DocsQLKernelInstance {
             ))
         };
 
+        // Execute each statement in the query
         let mut outputs = Vec::new();
         let mut line_offset = 0;
         for statement in code.split(";") {
@@ -254,7 +282,7 @@ impl KernelInstance for DocsQLKernelInstance {
             };
 
             let expr = docsql::encode_filters(&expr);
-            let expr = match env.compile_expression(&expr) {
+            let expr = match self.environment.compile_expression(&expr) {
                 Ok(expr) => expr,
                 Err(error) => {
                     return Ok((
@@ -293,10 +321,11 @@ impl KernelInstance for DocsQLKernelInstance {
             } else if let Some(string) = value.as_str() {
                 vec![Node::String(string.into())]
             } else if value.is_undefined() {
-                let messages = messages
+                let messages = self
+                    .messages
                     .lock()
                     .map_err(|error| eyre!(error.to_string()))?
-                    .to_owned();
+                    .clone();
                 let messages = if messages.is_empty() {
                     vec![ExecutionMessage::new(
                         MessageLevel::Error,
@@ -365,10 +394,11 @@ impl KernelInstance for DocsQLKernelInstance {
 
         // Resist the temptation to collect these messages before `query.nodes()` is called
         // above because that may add messages
-        let messages = messages
+        let messages = self
+            .messages
             .lock()
             .map_err(|error| eyre!(error.to_string()))?
-            .to_owned();
+            .clone();
 
         Ok((outputs, messages))
     }
