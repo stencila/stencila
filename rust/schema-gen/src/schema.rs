@@ -3,13 +3,13 @@
 use std::{collections::BTreeMap, fmt::Display, path::PathBuf};
 
 use schemars::JsonSchema;
+use serde::{Deserialize, Serialize, Serializer};
 
 use common::{
     eyre::{Context, Report, Result, bail, eyre},
     indexmap::IndexMap,
     inflector::Inflector,
     itertools::Itertools,
-    serde::{self, Deserialize, Serialize, Serializer},
     serde_json::{self, json},
     serde_with::skip_serializing_none,
     serde_yaml,
@@ -42,12 +42,7 @@ use status::Status;
 /// in several commonly used code editors.
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, Deserialize, Serialize, JsonSchema)]
-#[serde(
-    default,
-    rename_all = "camelCase",
-    deny_unknown_fields,
-    crate = "common::serde"
-)]
+#[serde(default, rename_all = "camelCase", deny_unknown_fields)]
 pub struct Schema {
     /// The meta-schema of the schema
     ///
@@ -343,7 +338,7 @@ pub struct Schema {
 #[derive(
     Debug, Default, Clone, PartialEq, Deserialize, Serialize, Display, JsonSchema, EnumIter,
 )]
-#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase", crate = "common::strum")]
 pub enum Category {
     /// Node types that are creative works or related to them
@@ -376,7 +371,7 @@ impl Category {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, Display, JsonSchema)]
-#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[serde(rename_all = "lowercase")]
 pub enum Type {
     String,
     Number,
@@ -388,7 +383,7 @@ pub enum Type {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
-#[serde(untagged, crate = "common::serde")]
+#[serde(untagged)]
 pub enum Value {
     String(String),
     Number(f64),
@@ -424,7 +419,7 @@ impl Display for Value {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
-#[serde(untagged, crate = "common::serde")]
+#[serde(untagged)]
 pub enum Items {
     // This should be `Option<Box<Schema>>` but serde have difficulty resolving
     // the non-list variants given that the properties are optional
@@ -435,20 +430,17 @@ pub enum Items {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
-#[serde(crate = "common::serde")]
 pub struct ItemsRef {
     #[serde(rename = "$ref", serialize_with = "serialize_ref")]
     pub r#ref: String,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
-#[serde(crate = "common::serde")]
 pub struct ItemsType {
     pub r#type: Type,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
-#[serde(crate = "common::serde")]
 pub struct ItemsAnyOf {
     #[serde(rename = "anyOf", skip_serializing_if = "Vec::is_empty")]
     pub r#any_of: Vec<Schema>,
@@ -456,7 +448,7 @@ pub struct ItemsAnyOf {
 
 /// Targets for stripping properties
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, Display)]
-#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
 pub enum StripScopes {
     Authors,
@@ -475,12 +467,7 @@ pub enum StripScopes {
 /// Options for property testing
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Deserialize, Serialize, JsonSchema)]
-#[serde(
-    default,
-    rename_all = "camelCase",
-    deny_unknown_fields,
-    crate = "common::serde"
-)]
+#[serde(default, rename_all = "camelCase", deny_unknown_fields)]
 pub struct ProptestOptions {
     /// A description of the options
     pub description: Option<String>,
@@ -537,7 +524,7 @@ pub struct ProptestOptions {
     Ord,
     EnumIter,
 )]
-#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase", crate = "common::strum")]
 pub enum ProptestLevel {
     Min,
@@ -549,7 +536,7 @@ pub enum ProptestLevel {
 /// Options used when merging nodes
 #[skip_serializing_none]
 #[derive(Debug, Clone, SmartDefault, Deserialize, Serialize, JsonSchema)]
-#[serde(default, deny_unknown_fields, crate = "common::serde")]
+#[serde(default, deny_unknown_fields)]
 pub struct PatchOptions {
     /// Whether the `PatchNode` trait should be derived for the type
     #[serde(skip_serializing_if = "is_true")]
@@ -582,12 +569,7 @@ pub struct PatchOptions {
 /// Options for `serde` serialization/deserialization
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Deserialize, Serialize, JsonSchema)]
-#[serde(
-    default,
-    rename_all = "camelCase",
-    deny_unknown_fields,
-    crate = "common::serde"
-)]
+#[serde(default, rename_all = "camelCase", deny_unknown_fields)]
 pub struct SerdeOptions {
     /// Set the `default` attribute of a field
     ///
@@ -620,12 +602,7 @@ pub struct SerdeOptions {
 /// Options for deriving the `DomCodec` trait
 #[skip_serializing_none]
 #[derive(Debug, Clone, SmartDefault, Deserialize, Serialize, JsonSchema)]
-#[serde(
-    default,
-    rename_all = "camelCase",
-    deny_unknown_fields,
-    crate = "common::serde"
-)]
+#[serde(default, rename_all = "camelCase", deny_unknown_fields)]
 pub struct DomOptions {
     /// Whether the `DomCodec` trait should be derived for the type
     #[serde(skip_serializing_if = "is_true")]
@@ -661,12 +638,7 @@ pub struct DomOptions {
 /// Options for conversion to/from HTML
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Deserialize, Serialize, JsonSchema)]
-#[serde(
-    default,
-    rename_all = "camelCase",
-    deny_unknown_fields,
-    crate = "common::serde"
-)]
+#[serde(default, rename_all = "camelCase", deny_unknown_fields)]
 pub struct HtmlOptions {
     /// The name of the HTML element to use for a type or property
     pub elem: Option<String>,
@@ -697,12 +669,7 @@ pub struct HtmlOptions {
 /// Options for conversion to/from JATS XML
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Deserialize, Serialize, JsonSchema)]
-#[serde(
-    default,
-    rename_all = "camelCase",
-    deny_unknown_fields,
-    crate = "common::serde"
-)]
+#[serde(default, rename_all = "camelCase", deny_unknown_fields)]
 pub struct JatsOptions {
     /// The name of the JATS element to use for a type or property
     pub elem: Option<String>,
@@ -729,12 +696,7 @@ pub struct JatsOptions {
 /// Options for deriving the `LatexCodec` trait
 #[skip_serializing_none]
 #[derive(Debug, Clone, SmartDefault, Deserialize, Serialize, JsonSchema)]
-#[serde(
-    default,
-    rename_all = "camelCase",
-    deny_unknown_fields,
-    crate = "common::serde"
-)]
+#[serde(default, rename_all = "camelCase", deny_unknown_fields)]
 pub struct LatexOptions {
     /// Whether the `LatexCodec` trait should be derived for the type
     #[serde(skip_serializing_if = "is_true")]
@@ -748,12 +710,7 @@ pub struct LatexOptions {
 /// Options for deriving the `MarkdownCodec` trait
 #[skip_serializing_none]
 #[derive(Debug, Clone, SmartDefault, Deserialize, Serialize, JsonSchema)]
-#[serde(
-    default,
-    rename_all = "camelCase",
-    deny_unknown_fields,
-    crate = "common::serde"
-)]
+#[serde(default, rename_all = "camelCase", deny_unknown_fields)]
 pub struct MarkdownOptions {
     /// Whether the `MarkdownCodec` trait should be derived for the type
     #[serde(skip_serializing_if = "is_true")]
@@ -932,10 +889,10 @@ impl Schema {
 /// Deserialize an optional string or array of strings field into an `Vec<String>`
 fn deserialize_string_or_array<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
 where
-    D: common::serde::Deserializer<'de>,
+    D: serde::Deserializer<'de>,
 {
     #[derive(Debug, Deserialize)]
-    #[serde(untagged, crate = "common::serde")]
+    #[serde(untagged)]
     enum StringOrArray {
         String(String),
         Array(Vec<String>),

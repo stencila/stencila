@@ -1,8 +1,8 @@
-use common::serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 /// Represents a complete Kuzu database schema
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 pub struct DatabaseSchema {
     /// Node tables in the database
     ///
@@ -25,7 +25,7 @@ pub struct DatabaseSchema {
 
 /// Represents a Kuzu node table
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 pub struct NodeTable {
     /// Table name used in CREATE NODE TABLE statement
     ///
@@ -60,7 +60,7 @@ pub struct NodeTable {
 
 /// Represents a table column
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 pub struct Column {
     /// Column name used in CREATE TABLE statements
     ///
@@ -85,7 +85,7 @@ pub struct Column {
 
 /// Represents a derived property (computed fields)
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 pub struct DerivedProperty {
     /// Property name used as column name in database
     ///
@@ -100,7 +100,6 @@ pub struct DerivedProperty {
 
 /// Kuzu data types mapped to Cypher types and Rust ToKuzu implementations
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 pub enum DataType {
     Null,
     Boolean,
@@ -122,7 +121,7 @@ pub enum DataType {
 
 /// Represents a Kuzu relationship table  
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 pub struct RelationshipTable {
     /// Relationship table name used in CREATE REL TABLE statement
     ///
@@ -142,7 +141,6 @@ pub struct RelationshipTable {
 
 /// Represents a relationship FROM/TO pair
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 pub struct FromToPair {
     /// Source node table name for the relationship
     ///
@@ -157,7 +155,6 @@ pub struct FromToPair {
 
 /// Relationship cardinality constraints
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 pub enum Cardinality {
     /// One-to-one relationship constraint
     ///
@@ -180,7 +177,7 @@ pub enum Cardinality {
 /// This struct is used solely for generating Rust `DatabaseNode`
 /// implementations and is not used in Cypher generation
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 pub struct RelationshipInfo {
     /// Field name in the Rust struct
     ///
@@ -215,7 +212,6 @@ pub struct RelationshipInfo {
 
 /// Database indices for performance optimization
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 pub enum Index {
     /// Full-text search index for text search capabilities
     ///

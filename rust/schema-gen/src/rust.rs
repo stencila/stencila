@@ -251,16 +251,16 @@ impl Schemas {
             format!(
                 r#"{GENERATED_COMMENT}
 
+use serde::Serialize;
+
 use common::{{
     eyre::{{bail, Report}},
-    serde::Serialize,
     strum::{{Display, EnumIter, EnumString}},
 }};
 
 use node_id::NodeId;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Display, EnumString, EnumIter)]
-#[serde(crate = "common::serde")]
 #[strum(crate = "common::strum")]
 pub enum NodeType {{
 {node_types}
@@ -336,10 +336,12 @@ impl TryFrom<&NodeId> for NodeType {{
             format!(
                 r#"{GENERATED_COMMENT}
 
-use common::{{serde::{{Serialize, Deserialize}}, strum::{{EnumString, Display}}}};
+use serde::{{Serialize, Deserialize}};
+
+use common::{{strum::{{EnumString, Display}}}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Display, EnumString, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 #[strum(serialize_all = "camelCase", crate = "common::strum")]
 pub enum NodeProperty {{
 {node_properties},
@@ -553,7 +555,7 @@ pub(crate) fn node_type_properties(node_type: &NodeType) -> Vec<NodeProperty> {{
         attrs.push(format!("#[derive({})]", derives.join(", ")));
 
         // Add serde related attributes
-        attrs.push("#[serde(rename_all = \"camelCase\", crate = \"common::serde\")]".to_string());
+        attrs.push("#[serde(rename_all = \"camelCase\")]".to_string());
 
         // Add proptest related attributes
         if let Some(proptest) = &schema.proptest {
@@ -776,14 +778,12 @@ pub(crate) fn node_type_properties(node_type: &NodeType) -> Vec<NodeProperty> {{
 
             // Add #[serde] aliases for field
             if !property.aliases.is_empty() {
-                attrs.push(format!(
-                    "#[serde({})]",
-                    property
-                        .aliases
-                        .iter()
-                        .map(|alias| format!("alias = \"{alias}\""))
-                        .join(", ")
-                ));
+                let aliases = property
+                    .aliases
+                    .iter()
+                    .map(|alias| format!("alias = \"{alias}\""))
+                    .join(", ");
+                attrs.push(format!("#[serde({aliases})]",));
             }
 
             // Add #[serde] attribute for field if necessary
@@ -814,7 +814,10 @@ pub(crate) fn node_type_properties(node_type: &NodeType) -> Vec<NodeProperty> {{
                     }
                 }
 
-                attrs.push(format!("#[serde({})]", args.join(", ")))
+                if !args.is_empty() {
+                    let args = args.join(", ");
+                    attrs.push(format!("#[serde({args})]"))
+                }
             } else if property.is_array() {
                 if property.is_required {
                     attrs.push("#[serde(deserialize_with = \"one_or_many\")]".to_string())
@@ -826,7 +829,8 @@ pub(crate) fn node_type_properties(node_type: &NodeType) -> Vec<NodeProperty> {{
             }
 
             if !property.strip.is_empty() {
-                attrs.push(format!("#[strip({})]", property.strip.iter().join(", ")));
+                let strip = property.strip.iter().join(", ");
+                attrs.push(format!("#[strip({strip})]"));
             }
 
             // If walk is not specified, defaults to true for `content` property
@@ -1224,14 +1228,12 @@ impl {title} {{
 
                 // Add serde aliases if the variant has any
                 if !variant_schema.aliases.is_empty() {
-                    attrs.push(format!(
-                        "#[serde({})]",
-                        variant_schema
-                            .aliases
-                            .iter()
-                            .map(|alias| format!(r#"alias = "{alias}""#))
-                            .join(", ")
-                    ));
+                    let aliases = variant_schema
+                        .aliases
+                        .iter()
+                        .map(|alias| format!(r#"alias = "{alias}""#))
+                        .join(", ");
+                    attrs.push(format!("#[serde({aliases})]",));
                 }
 
                 // Add proptest related attributes
@@ -1372,13 +1374,9 @@ impl {title} {{
 
         attrs.push(format!("#[derive({})]", derives.join(", ")));
 
-        attrs.push(format!(
-            "#[serde({}crate = \"common::serde\")]",
-            match unit_variants {
-                false => "untagged, ",
-                true => "",
-            }
-        ));
+        if !unit_variants {
+            attrs.push("#[serde(untagged)]".into());
+        }
 
         if unit_variants {
             attrs.push(String::from(
