@@ -4,13 +4,12 @@ use std::{
 };
 
 use base64::{Engine as _, engine::general_purpose};
+use serde::{Deserialize, Serialize};
 
 use codec::PageSelector;
 use common::{
     eyre::{Context, OptionExt, Report, Result, bail},
-    reqwest, seahash,
-    serde::{Deserialize, Serialize},
-    serde_json,
+    reqwest, seahash, serde_json,
     strum::{Display, EnumIter, IntoEnumIterator},
     tempfile::tempdir,
     tokio::fs::{read, read_to_string, write},
@@ -260,7 +259,6 @@ pub async fn pdf_to_md_mistral(
 }
 
 #[derive(Serialize)]
-#[serde(crate = "common::serde")]
 struct MistralOcrRequest {
     model: String,
 
@@ -284,7 +282,6 @@ impl MistralOcrRequest {
 }
 
 #[derive(Serialize)]
-#[serde(crate = "common::serde")]
 struct MistralOcrDocument {
     #[serde(rename = "type")]
     doc_type: String,
@@ -293,14 +290,12 @@ struct MistralOcrDocument {
 }
 
 #[derive(Deserialize)]
-#[serde(crate = "common::serde")]
 struct MistralOcrResponse {
     pages: Vec<MistralOcrPage>,
 }
 
 #[allow(dead_code)]
 #[derive(Deserialize)]
-#[serde(crate = "common::serde")]
 struct MistralOcrPage {
     index: usize,
 
@@ -314,7 +309,6 @@ struct MistralOcrPage {
 
 #[allow(dead_code)]
 #[derive(Deserialize)]
-#[serde(crate = "common::serde")]
 struct MistralOcrImage {
     id: String,
 
@@ -329,7 +323,6 @@ struct MistralOcrImage {
 
 #[allow(dead_code)]
 #[derive(Deserialize)]
-#[serde(crate = "common::serde")]
 struct MistralOcrDimensions {
     dpi: f64,
     height: f64,

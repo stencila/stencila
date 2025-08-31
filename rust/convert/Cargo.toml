@@ -12,6 +12,7 @@ dirs = { path = "../dirs" }
 headless_chrome = { version = "1.0.13", features = ["fetch", "rustls"] }
 rand = { workspace = true }
 secrets = { path = "../secrets" }
+serde = { workspace = true }
 tools = { path = "../tools" }
 version = { path = "../version" }
 web-dist = { path = "../web-dist" }
