@@ -9,6 +9,7 @@ codec = { path = "../codec" }
 codec-text = { path = "../codec-text" }
 common = { "path" = "../common" }
 document = { path = "../document" }
+serde = { workspace = true }
 url = { workspace = true }
 
 [dev-dependencies]

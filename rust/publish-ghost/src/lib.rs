@@ -5,6 +5,7 @@ use std::{
 };
 
 use jsonwebtoken as jwt;
+use serde::{Deserialize, Serialize};
 use url::Host;
 
 use cli_utils::parse_host;
@@ -13,7 +14,6 @@ use common::{
     clap::{self, Parser},
     eyre::{Context, OptionExt, Result, bail, eyre},
     reqwest::{Client, Response, StatusCode, multipart::Form},
-    serde::{Deserialize, Serialize},
     serde_json,
     serde_with::skip_serializing_none,
     strum::Display,
@@ -726,7 +726,6 @@ fn validate_key(key: &str) -> Result<String> {
 
 /// JWT claims
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 struct Claims {
     // "Audience", e.g. a URL in the Ghost instance
     aud: String,
@@ -809,7 +808,6 @@ async fn error_for_response<T>(response: Response) -> Result<T> {
 /// cases but some specialization may be required in the future.
 #[skip_serializing_none]
 #[derive(Debug, Default, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 struct Resource {
     title: Option<String>, // Required for creating
     lexical: Option<String>,
@@ -839,14 +837,13 @@ struct Resource {
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 struct Tag {
     // TODO: can add description and so on from https://ghost.org/docs/admin-api/
     name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[serde(rename_all = "lowercase")]
 enum Status {
     Draft,
     Published,
@@ -864,7 +861,7 @@ enum ResourceType {
 
 /// A payload from the Ghost Admin API
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[serde(rename_all = "lowercase")]
 enum Payload {
     Posts(Vec<Resource>),
     Pages(Vec<Resource>),

@@ -2,8 +2,9 @@
 
 use std::{path::PathBuf, str::FromStr};
 
-use cli_utils::{color_print::cstr, parse_host};
+use serde::{Deserialize, Serialize};
 
+use cli_utils::{color_print::cstr, parse_host};
 use codec::schema::ConfigPublishZenodoAccessRight;
 use common::{
     clap::{
@@ -12,7 +13,6 @@ use common::{
     },
     eyre::{OptionExt, Result, bail},
     reqwest::Client,
-    serde,
     serde_json::{Value, json},
     tokio, tracing,
 };
@@ -80,8 +80,8 @@ fn parse_date(input: &str) -> Result<schema::Date> {
 }
 
 /// Items within Zenodo's controlled vocabulary of accepted types of publication
-#[derive(Debug, Clone, Copy, Default, serde::Deserialize, serde::Serialize, clap::ValueEnum)]
-#[serde(crate = "common::serde", rename_all = "lowercase")]
+#[derive(Debug, Clone, Copy, Default, Deserialize, Serialize, clap::ValueEnum)]
+#[serde(rename_all = "lowercase")]
 enum PublicationType {
     AnnotationCollection,
     Book,

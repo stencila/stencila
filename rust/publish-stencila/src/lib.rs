@@ -1,5 +1,7 @@
 use std::path::{Path, PathBuf};
 
+use serde::Serialize;
+
 use cloud::ErrorResponse;
 use codec::{Codec, EncodeOptions};
 use codec_swb::SwbCodec;
@@ -10,7 +12,6 @@ use common::{
         Client,
         multipart::{Form, Part},
     },
-    serde::Serialize,
     serde_json,
     tempfile::TempDir,
     tokio, tracing,
@@ -74,7 +75,6 @@ async fn publish_path(
 }
 
 #[derive(Serialize)]
-#[serde(crate = "common::serde")]
 struct Manifest {}
 
 /// Publish a single node to Stencila Cloud

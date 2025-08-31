@@ -11,6 +11,7 @@ document = { path = "../document" }
 jsonwebtoken = { version = "9.3.1", default-features = false }
 node-media = { "path" = "../node-media" }
 secrets = { "path" = "../secrets" }
+serde = { workspace = true }
 url = { workspace = true }
 
 [lints]
