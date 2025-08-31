@@ -1,11 +1,12 @@
 use std::{fs::write, path::Path};
 
+use serde::Deserialize;
+
 use stencila_linter::{
     Format, Linter, LinterAvailability, LintingOptions, LintingOutput, NodeType,
     common::{
         async_trait::async_trait,
         eyre::{OptionExt, Result},
-        serde::Deserialize,
         serde_json,
         tempfile::NamedTempFile,
         tracing,
