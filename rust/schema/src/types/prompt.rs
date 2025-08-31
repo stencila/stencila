@@ -40,7 +40,7 @@ use super::unsigned_integer_or_string::UnsignedIntegerOrString;
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 #[derive(derive_more::Display)]
 #[display("Prompt")]
 #[patch(authors_on = "options")]
@@ -133,7 +133,7 @@ pub struct Prompt {
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 pub struct PromptOptions {
     /// Alternate names (aliases) for the item.
     #[serde(alias = "alternate-names", alias = "alternate_names", alias = "alternateName", alias = "alternate-name", alias = "alternate_name")]

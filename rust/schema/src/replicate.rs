@@ -1,8 +1,6 @@
-use common::{
-    eyre::Result,
-    serde::{Serialize, de::DeserializeOwned},
-    serde_json,
-};
+use serde::{Serialize, de::DeserializeOwned};
+
+use common::{eyre::Result, serde_json};
 
 /// Replicate a node to produce clone having different `node_id`
 ///

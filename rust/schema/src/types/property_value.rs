@@ -11,7 +11,7 @@ use super::string::String;
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 #[derive(derive_more::Display)]
 #[display("PropertyValue")]
 pub struct PropertyValue {
@@ -44,7 +44,7 @@ pub struct PropertyValue {
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 pub struct PropertyValueOptions {
     /// Alternate names (aliases) for the item.
     #[serde(alias = "alternate-names", alias = "alternate_names", alias = "alternateName", alias = "alternate-name", alias = "alternate_name")]

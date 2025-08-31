@@ -5,18 +5,18 @@ use std::{
 };
 
 use derive_more::{Deref, DerefMut, IntoIterator};
+use serde::{Deserialize, Serialize};
 
 use common::{
     eyre::{Context, OptionExt, Report, Result, bail},
     itertools::Itertools,
-    serde::{Deserialize, Serialize},
-    serde_json::{self},
+    serde_json,
 };
 use node_type::NodeProperty;
 
 /// A slot in a node path: either a property identifier or the index of a vector.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-#[serde(untagged, crate = "common::serde")]
+#[serde(untagged)]
 pub enum NodeSlot {
     Property(NodeProperty),
     Index(usize),
@@ -64,6 +64,8 @@ impl TryFrom<serde_json::Value> for NodeSlot {
 /// A [`VecDeque`], rather than a [`Vec`] so that when applying operations in
 /// a call to `patch` the front of the path can be popped off.
 #[derive(
+    Debug,
+    Default,
     Clone,
     PartialEq,
     Eq,
@@ -76,8 +78,6 @@ impl TryFrom<serde_json::Value> for NodeSlot {
     Serialize,
     Deserialize,
 )]
-#[serde(crate = "common::serde")]
-#[derive(Debug, Default)]
 pub struct NodePath(VecDeque<NodeSlot>);
 
 impl NodePath {

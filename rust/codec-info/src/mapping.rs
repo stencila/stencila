@@ -1,12 +1,14 @@
 use std::{fmt::Display, ops::Range};
 
-use common::{itertools::Itertools, serde::Serialize, serde_with::skip_serializing_none};
+use serde::Serialize;
+
+use common::{itertools::Itertools, serde_with::skip_serializing_none};
 pub use node_id::NodeId;
 pub use node_type::{NodeProperty, NodeType};
 
 /// A mapping between UTF-8 character indices and nodes and their properties
 #[derive(Debug, Default, Clone, PartialEq, Serialize)]
-#[serde(transparent, crate = "common::serde")]
+#[serde(transparent)]
 pub struct Mapping {
     entries: Vec<MappingEntry>,
 }
@@ -14,7 +16,7 @@ pub struct Mapping {
 /// An entry in a [`Mapping`]
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Serialize)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 pub struct MappingEntry {
     /// The range of UTF-8 character indices for the entry
     #[serde(skip)]

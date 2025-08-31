@@ -40,7 +40,7 @@ use super::walkthrough::Walkthrough;
 
 /// Union type in block content node types.
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
-#[serde(untagged, crate = "common::serde")]
+#[serde(untagged)]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub enum Block {
     #[cfg_attr(feature = "proptest-min", proptest(skip))]

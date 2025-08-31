@@ -25,7 +25,6 @@ use schema::{
 
 /// An individual fixture
 #[derive(Debug, Serialize)]
-#[serde(crate = "common::serde")]
 struct Fixture {
     /// The old node read from the fixture file
     old: Node,
@@ -43,7 +42,6 @@ struct Fixture {
 /// A summary of all the fixtures in this test
 /// This is snap shotted so we can catch changes in key metrics
 #[derive(Debug, Serialize)]
-#[serde(crate = "common::serde")]
 struct Summary {
     /// The number of operations for each fixture to go from old to new
     ops_count: BTreeMap<String, usize>,

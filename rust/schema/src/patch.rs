@@ -1,9 +1,10 @@
 use std::{any::type_name, collections::HashMap, fmt::Debug, ops::Range};
 
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
+
 use common::{
     eyre::{Report, Result, bail},
     itertools::Itertools,
-    serde::{Deserialize, Serialize, de::DeserializeOwned},
     serde_json::{self, Value as JsonValue},
 };
 use format::Format;
@@ -544,7 +545,6 @@ impl PatchContext {
 
 /// A patch for a node
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 pub struct Patch {
     /// The id of the node to which the `ops` should be applied
     pub node_id: Option<NodeId>,
@@ -604,7 +604,6 @@ impl Patch {
 /// These are generated during a call to `diff` and applied in a
 /// call to `patch`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 pub enum PatchOp {
     /// Set the value of a leaf node (e.g. a `String`) or `Option`
     Set(PatchValue),
@@ -684,7 +683,7 @@ pub enum PatchOp {
 /// undesirable because the execution patches do not get applied (because no node in the doc with
 /// the correct id).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged, crate = "common::serde")]
+#[serde(untagged)]
 pub enum PatchValue {
     Inline(Inline),
     Block(Block),

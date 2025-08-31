@@ -1,11 +1,11 @@
 use std::ops::Range;
 
-use common::serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::prelude::*;
 
 #[derive(Debug, Default, Clone, Deref, DerefMut, Serialize)]
-#[serde(crate = "common::serde")]
+
 pub struct Cord {
     /// The string value of the cord
     #[deref]
@@ -83,7 +83,7 @@ impl From<Cord> for String {
 impl<'de> Deserialize<'de> for Cord {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         #[derive(Deserialize)]
-        #[serde(deny_unknown_fields, crate = "common::serde")]
+        #[serde(deny_unknown_fields)]
         struct Map {
             string: String,
             #[serde(default)]
@@ -91,7 +91,7 @@ impl<'de> Deserialize<'de> for Cord {
         }
 
         #[derive(Deserialize)]
-        #[serde(untagged, crate = "common::serde")]
+        #[serde(untagged)]
         enum StringOrMap {
             String(String),
             Map(Map),
@@ -131,7 +131,7 @@ impl<'de> Deserialize<'de> for CordAuthorship {
 
 // An operation on a `Cord`
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
+
 pub enum CordOp {
     Insert(usize, String),
     Delete(Range<usize>),

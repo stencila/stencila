@@ -6,11 +6,11 @@ use std::{
 
 use base64::{Engine as _, prelude::BASE64_URL_SAFE_NO_PAD};
 use flate2::{Compression, read::ZlibDecoder, write::ZlibEncoder};
+use serde::{Serialize, de::DeserializeOwned};
 use url::Url;
 
 use common::{
     eyre::{Report, Result},
-    serde::{Serialize, de::DeserializeOwned},
     serde_json,
     strum::{Display, EnumString},
 };

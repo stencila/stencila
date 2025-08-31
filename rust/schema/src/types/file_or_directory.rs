@@ -7,7 +7,7 @@ use super::file::File;
 
 /// [`File`] or [`Directory`]
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
-#[serde(untagged, crate = "common::serde")]
+#[serde(untagged)]
 pub enum FileOrDirectory {
     #[default]
     File(File),

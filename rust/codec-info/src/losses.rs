@@ -1,10 +1,11 @@
 use std::{collections::BTreeMap, fmt::Display, fs, ops::AddAssign, path::PathBuf};
 
+use serde::{Deserialize, Serialize};
+
 use common::{
     eyre::{Result, bail, eyre},
     inflector::Inflector,
     itertools::Itertools,
-    serde::{Deserialize, Serialize},
     serde_json, serde_yaml,
     strum::Display,
     tracing,
@@ -14,7 +15,7 @@ use format::Format;
 /// The response to take when there are losses in decoding or encoding
 #[derive(Debug, Clone, Display, PartialEq, Eq, Serialize, Deserialize)]
 #[strum(ascii_case_insensitive, serialize_all = "lowercase")]
-#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[serde(rename_all = "lowercase")]
 pub enum LossesResponse {
     /// Ignore the losses; do nothing
     Ignore,
@@ -52,7 +53,6 @@ impl From<String> for LossesResponse {
 
 /// Decoding and encoding losses
 #[derive(Default, Serialize)]
-#[serde(crate = "common::serde")]
 pub struct Losses {
     #[serde(flatten)]
     inner: BTreeMap<String, usize>,

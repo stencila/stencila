@@ -2,7 +2,7 @@
 
 use std::str::FromStr;
 
-use common::serde::{
+use serde::{
     Deserialize, Deserializer,
     de::{DeserializeOwned, Error},
 };
@@ -10,21 +10,21 @@ use common::serde::{
 use crate::Object;
 
 #[derive(Debug, Deserialize)]
-#[serde(untagged, crate = "common::serde")]
+#[serde(untagged)]
 enum StringOrArray<T> {
     String(String),
     Array(Vec<T>),
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(untagged, crate = "common::serde")]
+#[serde(untagged)]
 enum StringOrObject<T> {
     String(String),
     Object(T),
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(untagged, crate = "common::serde")]
+#[serde(untagged)]
 enum OneOrMany<T> {
     One(T),
     Many(Vec<T>),
@@ -178,9 +178,9 @@ where
 /// Deserialize an optional [`Object`] into an object or `None` if it is empty
 pub fn empty_object_is_none<'de, D>(deserializer: D) -> Result<Option<Object>, D::Error>
 where
-    D: common::serde::Deserializer<'de>,
+    D: serde::Deserializer<'de>,
 {
-    let obj: Object = common::serde::Deserialize::deserialize(deserializer)?;
+    let obj: Object = serde::Deserialize::deserialize(deserializer)?;
     if obj.is_empty() {
         Ok(None)
     } else {

@@ -9,7 +9,7 @@ use super::software_application::SoftwareApplication;
 
 /// Union type for things that can be an author of a `CreativeWork` or other type.
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
-#[serde(untagged, crate = "common::serde")]
+#[serde(untagged)]
 pub enum Author {
     #[default]
     Person(Person),

@@ -9,6 +9,7 @@ derive_more = { workspace = true }
 format = { path = "../format" }
 node-id = { path = "../node-id" }
 node-type = { path = "../node-type" }
+serde = { workspace = true }
 
 [lints]
 workspace = true

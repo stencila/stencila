@@ -7,7 +7,7 @@ use super::string::String;
 
 /// [`PropertyValue`] or [`String`]
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
-#[serde(untagged, crate = "common::serde")]
+#[serde(untagged)]
 pub enum PropertyValueOrString {
     #[default]
     PropertyValue(PropertyValue),

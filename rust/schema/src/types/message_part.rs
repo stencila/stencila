@@ -9,7 +9,7 @@ use super::video_object::VideoObject;
 
 /// A union type for a part of a message.
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
-#[serde(untagged, crate = "common::serde")]
+#[serde(untagged)]
 pub enum MessagePart {
     #[default]
     Text(Text),

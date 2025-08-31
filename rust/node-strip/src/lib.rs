@@ -2,10 +2,11 @@
 
 use std::{collections::HashMap, fmt::Display};
 
+use serde::{Deserialize, Serialize};
+
 use common::{
     clap::{self, ValueEnum},
     indexmap::IndexMap,
-    serde::{Deserialize, Serialize},
 };
 
 pub use node_strip_derive::StripNode;
@@ -42,7 +43,7 @@ where
 
 /// Predefined scopes for properties to be stripped across node types
 #[derive(Debug, Clone, Copy, ValueEnum, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[serde(rename_all = "lowercase")]
 pub enum StripScope {
     /// Strip authorship properties of nodes
     Authors,

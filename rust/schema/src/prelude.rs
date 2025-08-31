@@ -1,12 +1,12 @@
 pub use derive_more::{self, Deref, DerefMut};
 pub use monostate::MustBe;
+pub use serde::{self, Deserialize, Serialize};
 pub use serde_with::{self, serde_as, skip_serializing_none};
 
 pub use common::{
     async_recursion::async_recursion,
     eyre::{ErrReport, Result, bail},
     itertools::Itertools,
-    serde::{self, Deserialize, Serialize},
     serde_json,
     smart_default::SmartDefault,
     smol_str::{self, SmolStr},
