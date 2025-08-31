@@ -1040,7 +1040,7 @@ fn capture_screenshot_with_padding(html: &str, padding: u32) -> Result<String> {
 
 /// Attempts to take a screenshot with the current tab instance, cropped to content
 fn try_screenshot_with_padding(html: &str, padding: u32) -> Result<String> {
-    let manager = BROWSER_MANAGER
+    let mut manager = BROWSER_MANAGER
         .lock()
         .map_err(|error| eyre!("Failed to acquire browser manager lock: {error}"))?;
 
@@ -1102,6 +1102,10 @@ fn try_screenshot_with_padding(html: &str, padding: u32) -> Result<String> {
         tracing::debug!("Screenshot captured without cropping (fallback to full page)");
     }
 
+    // Dropping of the browser does not work reliably, causing zombie chrome processes
+    // so shutdown explicitly.
+    manager.cleanup();
+
     Ok(result.data)
 }
 
@@ -1129,7 +1133,7 @@ fn capture_pdf(html: &str) -> Result<Vec<u8>> {
 
 /// Attempts to generate a PDF with the current tab instance
 fn try_capture_pdf(html: &str) -> Result<Vec<u8>> {
-    let manager = BROWSER_MANAGER
+    let mut manager = BROWSER_MANAGER
         .lock()
         .map_err(|error| eyre!("Failed to acquire browser manager lock: {error}"))?;
 
@@ -1164,6 +1168,10 @@ fn try_capture_pdf(html: &str) -> Result<Vec<u8>> {
         .map_err(|error| eyre!("Failed to generate PDF: {error}"))?;
 
     tracing::debug!("PDF generated successfully");
+
+    // Dropping of the browser does not work reliably, causing zombie chrome processes
+    // so shutdown explicitly.
+    manager.cleanup();
 
     Ok(pdf_bytes)
 }
@@ -1243,7 +1251,7 @@ mod tests {
     }
 
     #[ignore = "primarily for development"]
-    #[test]
+    #[test_log::test]
     fn test_perf() -> Result<()> {
         // Ensure clean state
         shutdown()?;
