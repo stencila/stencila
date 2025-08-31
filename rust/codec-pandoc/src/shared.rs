@@ -1,6 +1,8 @@
+use serde::Serialize;
+
 use codec::{
     Losses, NodeProperty, NodeType,
-    common::{inflector::Inflector, serde::Serialize, tracing},
+    common::{inflector::Inflector, tracing},
     format::Format,
     schema::{NodePath, NodePosition, NodeSlot, StripNode, node_url_jzb64, node_url_path},
 };

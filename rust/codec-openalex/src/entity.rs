@@ -1,4 +1,6 @@
-use codec::{common::serde::Deserialize, schema::Node};
+use serde::Deserialize;
+
+use codec::schema::Node;
 
 use crate::{
     author::Author, funder::Funder, institution::Institution, publisher::Publisher, work::Work,
@@ -11,7 +13,6 @@ use crate::{
 /// Note: This enum is kept for potential future use but is no longer used
 /// in the main codec logic, which now uses ID-based type detection.
 #[derive(Deserialize)]
-#[serde(crate = "codec::common::serde")]
 pub enum Entity {
     Author(Author),
     Funder(Funder),

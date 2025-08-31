@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 codec = { path = "../codec" }
 version = { path = "../version" }
+serde = { workspace = true }
 zip = { workspace = true }
 
 [dev-dependencies]

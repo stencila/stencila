@@ -1,6 +1,7 @@
 use std::{env, sync::OnceLock, time::Duration};
 
 use cached::proc_macro::cached;
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
 use common::{
     eyre::{Result, bail, eyre},
@@ -8,7 +9,6 @@ use common::{
         self, Client,
         header::{AUTHORIZATION, HeaderMap, HeaderValue},
     },
-    serde::{Deserialize, Serialize, de::DeserializeOwned},
     strum::Display,
     tracing,
 };
@@ -114,14 +114,12 @@ pub enum TokenSource {
 
 /// A request to swap a one-time code for an API token
 #[derive(Serialize)]
-#[serde(crate = "common::serde")]
 pub struct OtcRequest {
     pub otc: String,
 }
 
 /// A response to an [`OtcRequest`]
 #[derive(Deserialize)]
-#[serde(crate = "common::serde")]
 pub struct OtcResponse {
     pub token: String,
 
@@ -131,7 +129,7 @@ pub struct OtcResponse {
 
 /// An error response from Stencila Cloud
 #[derive(Default, Deserialize)]
-#[serde(default, crate = "common::serde")]
+#[serde(default)]
 pub struct ErrorResponse {
     pub status: u16,
     pub error: String,

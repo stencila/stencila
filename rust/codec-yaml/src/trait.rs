@@ -1,8 +1,6 @@
-use codec::common::{
-    eyre::Result,
-    serde::{Serialize, de::DeserializeOwned},
-    serde_yaml,
-};
+use serde::{Serialize, de::DeserializeOwned};
+
+use codec::common::{eyre::Result, serde_yaml};
 
 impl<T> YamlCodec for T where T: DeserializeOwned + Serialize {}
 

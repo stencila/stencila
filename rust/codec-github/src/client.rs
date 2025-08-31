@@ -5,6 +5,7 @@ use governor::{
     clock::DefaultClock,
     state::{InMemoryState, NotKeyed},
 };
+use serde::de::DeserializeOwned;
 
 use codec::common::{
     eyre::{Result, bail},
@@ -14,7 +15,6 @@ use codec::common::{
         Client,
         header::{ACCEPT, HeaderMap, HeaderName, HeaderValue},
     },
-    serde::de::DeserializeOwned,
     tokio::time::Instant,
     tracing,
 };

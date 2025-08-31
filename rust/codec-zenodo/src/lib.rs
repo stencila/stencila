@@ -1,11 +1,12 @@
 use std::path::PathBuf;
 
+use serde::de::DeserializeOwned;
+
 use codec::{
     Codec, DecodeInfo, DecodeOptions,
     common::{
         async_trait::async_trait,
         eyre::{Result, bail},
-        serde::de::DeserializeOwned,
         serde_json, tempfile,
         tokio::fs::write,
     },

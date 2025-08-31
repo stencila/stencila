@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 codec = { path = "../codec" }
+serde = { workspace = true }
 version = { path = "../version" }
 
 [lints]

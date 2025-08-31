@@ -7,6 +7,7 @@ edition = "2024"
 common = { path = "../common" }
 json5 = "0.4.1"
 json5format = "0.2.6"
+serde = { workspace = true }
 
 [lints]
 workspace = true

@@ -62,7 +62,6 @@ pub type SelectResponse = ListResponse<serde_json::Map<String, serde_json::Value
 
 /// Response for a call with select=id
 #[derive(Deserialize)]
-#[serde(crate = "codec::common::serde")]
 pub struct Id {
     pub id: String,
 }

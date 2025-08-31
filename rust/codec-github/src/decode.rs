@@ -1,11 +1,10 @@
 use base64::{Engine, engine::general_purpose::STANDARD};
+use serde::Deserialize;
 use url::Url;
 
 use codec::common::{
     eyre::{Result, bail},
-    reqwest,
-    serde::Deserialize,
-    tracing,
+    reqwest, tracing,
 };
 
 use crate::client::{api_url, request};

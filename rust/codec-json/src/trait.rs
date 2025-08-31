@@ -1,8 +1,6 @@
-use codec::common::{
-    eyre::Result,
-    serde::{Serialize, de::DeserializeOwned},
-    serde_json,
-};
+use serde::{Serialize, de::DeserializeOwned};
+
+use codec::common::{eyre::Result, serde_json};
 
 impl<T> JsonCodec for T where T: DeserializeOwned + Serialize {}
 

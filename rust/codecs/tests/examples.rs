@@ -2,6 +2,8 @@
 
 use std::{collections::BTreeMap, env, fs::File, path::PathBuf};
 
+use serde::{Deserialize, Serialize};
+
 use codec::{
     DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     common::{
@@ -10,7 +12,6 @@ use codec::{
         itertools::Itertools,
         once_cell::sync::Lazy,
         regex::Regex,
-        serde::{Deserialize, Serialize},
         serde_json, serde_yaml,
         smart_default::SmartDefault,
         tokio::{
@@ -29,7 +30,7 @@ type Config = BTreeMap<String, FormatConfig>;
 
 /// Config for a format which can be read from file
 #[derive(Debug, SmartDefault, Clone, Serialize, Deserialize)]
-#[serde(deny_unknown_fields, crate = "codec::common::serde")]
+#[serde(deny_unknown_fields)]
 struct FormatConfig {
     #[default(Format::Json)]
     format: Format,
@@ -40,7 +41,6 @@ struct FormatConfig {
 
 /// Config for testing the encoding of a format
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-#[serde(crate = "codec::common::serde")]
 struct EncodeConfig {
     skip: bool,
     #[serde(flatten)]
@@ -49,7 +49,6 @@ struct EncodeConfig {
 
 /// Config for testing the decoding of a format
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-#[serde(crate = "codec::common::serde")]
 struct DecodeConfig {
     skip: bool,
     #[serde(flatten)]

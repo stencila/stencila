@@ -1,7 +1,6 @@
-use codec::common::{
-    eyre::Result,
-    serde::{Serialize, de::DeserializeOwned},
-};
+use serde::{Serialize, de::DeserializeOwned};
+
+use codec::common::eyre::Result;
 
 impl<T> CborCodec for T where T: DeserializeOwned + Serialize {}
 
@@ -26,10 +25,9 @@ mod tests {
     // A test that the CBOR crate we are using behaves as expected
     #[test]
     fn roundtrip() -> Result<()> {
-        use codec::common::serde::Deserialize;
+        use serde::Deserialize;
 
         #[derive(Debug, Serialize, Deserialize, PartialEq)]
-        #[serde(crate = "codec::common::serde")]
         struct Struct1 {
             a: bool,
             b: u8,
@@ -37,7 +35,6 @@ mod tests {
         }
 
         #[derive(Debug, Serialize, Deserialize, PartialEq)]
-        #[serde(crate = "codec::common::serde")]
         struct Struct2 {
             a: String,
             b: Vec<usize>,
@@ -45,7 +42,7 @@ mod tests {
         }
 
         #[derive(Debug, Serialize, Deserialize, PartialEq)]
-        #[serde(tag = "type", crate = "codec::common::serde")]
+        #[serde(tag = "type")]
         enum Enum {
             Struct1(Struct1),
             Struct2(Struct2),

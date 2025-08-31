@@ -1,9 +1,7 @@
 use json5format::{FormatOptions, Json5Format, ParsedDocument};
+use serde::{Serialize, de::DeserializeOwned};
 
-use common::{
-    eyre::Result,
-    serde::{Serialize, de::DeserializeOwned},
-};
+use common::eyre::Result;
 
 impl<T> Json5Codec for T where T: DeserializeOwned + Serialize {}
 

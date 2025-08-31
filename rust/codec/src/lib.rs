@@ -4,11 +4,12 @@ use std::{
     str::FromStr,
 };
 
+use serde::{Deserialize, Serialize};
+
 use codec_utils::git_info;
 use common::{
     async_trait::async_trait,
     eyre::{Report, Result, bail},
-    serde::{Deserialize, Serialize},
     serde_with::skip_serializing_none,
     smart_default::SmartDefault,
     strum::{Display, IntoEnumIterator},
@@ -39,7 +40,6 @@ pub enum CodecDirection {
 /// The availability of a codec on the current machine
 #[derive(Debug, Display, Clone, Serialize, Deserialize)]
 #[strum(serialize_all = "lowercase")]
-#[serde(crate = "common::serde")]
 pub enum CodecAvailability {
     /// Available on this machine
     Available,
@@ -356,7 +356,6 @@ pub trait Codec: Sync + Send {
 
 /// The level of support that a codec provides for a format or node type
 #[derive(Debug, Default, Display, Serialize)]
-#[serde(crate = "common::serde")]
 pub enum CodecSupport {
     #[default]
     None,
@@ -381,7 +380,7 @@ impl CodecSupport {
 ///
 /// Currently used only for outputs and display.
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "common::serde", rename_all = "camelCase")]
+#[serde(rename_all = "camelCase")]
 pub struct CodecSpecification {
     name: String,
     from: Vec<String>,
@@ -409,7 +408,7 @@ impl From<&dyn Codec> for CodecSpecification {
 /// Decoding options
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, Serialize, Deserialize)]
-#[serde(default, rename_all = "kebab-case", crate = "common::serde")]
+#[serde(default, rename_all = "kebab-case")]
 pub struct DecodeOptions {
     /// The name of the codec to use for decoding
     ///
@@ -508,7 +507,7 @@ impl DecodeOptions {
 /// Encoding options
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(default, rename_all = "kebab-case", crate = "common::serde")]
+#[serde(default, rename_all = "kebab-case")]
 pub struct EncodeOptions {
     /// The name of the codec to use for encoding
     ///
@@ -636,7 +635,6 @@ impl EncodeOptions {
 
 /// A selector for pages in a document
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 pub enum PageSelector {
     Single(usize),       // N
     Range(usize, usize), // N-M

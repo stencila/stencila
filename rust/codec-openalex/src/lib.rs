@@ -1,9 +1,10 @@
+use serde::de::DeserializeOwned;
+
 use codec::{
     Codec, DecodeInfo, DecodeOptions,
     common::{
         async_trait::async_trait,
         eyre::{Result, bail, eyre},
-        serde::de::DeserializeOwned,
         serde_json,
     },
     schema::Node,

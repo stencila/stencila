@@ -1,3 +1,5 @@
+use serde::Serialize;
+
 use cli_utils::{
     AsFormat, Code, Tabulated, ToStdout,
     color_print::cstr,
@@ -8,7 +10,6 @@ use codec::{
     common::{
         clap::{self, Args, Parser, Subcommand},
         eyre::Result,
-        serde::Serialize,
         strum::IntoEnumIterator,
     },
     format::Format,
@@ -85,7 +86,7 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
 
 /// Specifications for a format
 #[derive(Serialize)]
-#[serde(crate = "codec::common::serde", rename_all = "camelCase")]
+#[serde(rename_all = "camelCase")]
 pub struct FormatSpecification {
     name: String,
     extension: String,

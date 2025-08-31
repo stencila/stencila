@@ -48,7 +48,8 @@ codec-utils = { path = "../codec-utils" }
 codec-xlsx = { path = "../codec-xlsx" }
 codec-yaml = { path = "../codec-yaml" }
 node-strip = { path = "../node-strip" }
-url = { workspace = true}
+serde = { workspace = true }
+url = { workspace = true }
 walkdir = "2.5.0"
 
 [dev-dependencies]

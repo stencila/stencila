@@ -5,13 +5,13 @@ use governor::{
     clock::DefaultClock,
     state::{InMemoryState, NotKeyed},
 };
+use serde::de::DeserializeOwned;
 
 use codec::common::{
     eyre::{Result, bail},
     itertools::Itertools,
     once_cell::sync::Lazy,
     reqwest::{Client, Response, StatusCode},
-    serde::de::DeserializeOwned,
     tokio::time::{Duration, Instant, sleep},
     tracing,
 };
