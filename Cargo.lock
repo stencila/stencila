@@ -1476,6 +1476,8 @@ dependencies = [
  "kernels",
  "lsp",
  "models",
+ "node-db",
+ "node-diagnostics",
  "node-execute",
  "node-strip",
  "plugins",
@@ -6677,12 +6679,19 @@ dependencies = [
 name = "node-db"
 version = "0.0.0"
 dependencies = [
+ "ask",
+ "cli-utils",
  "codec-text-trait",
  "common",
  "derive_more 2.0.1",
+ "dirs 0.0.0",
  "embed",
  "kernel-kuzu",
+ "rust-embed",
  "schema",
+ "semver",
+ "serde",
+ "sha2",
  "time",
 ]
 
@@ -9665,6 +9674,7 @@ dependencies = [
  "common",
  "schema",
  "schemars 1.0.4",
+ "semver",
  "status",
  "topological-sort",
 ]

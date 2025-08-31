@@ -3,10 +3,10 @@
 mod cli;
 pub use crate::cli::{Cli, Command};
 
-mod add;
 mod cloud;
 mod compile;
 mod convert;
+mod db;
 mod demo;
 pub mod errors;
 mod execute;
@@ -16,7 +16,6 @@ mod merge;
 mod new;
 mod options;
 mod preview;
-mod remove;
 mod render;
 mod sync;
 mod uninstall;
@@ -58,7 +57,7 @@ mod tests {
                         successful_commands += 1;
                     }
                     Err(e) => {
-                        panic!("Command '{example}' from {command_name} failed to parse: {e}");
+                        panic!("Command `{command_name}` example `{example}` failed: {e}");
                     }
                 }
             }
@@ -81,8 +80,6 @@ mod tests {
             ("render", crate::render::CLI_AFTER_LONG_HELP),
             ("preview", crate::preview::CLI_AFTER_LONG_HELP),
             ("demo", crate::demo::DEMO_AFTER_LONG_HELP),
-            ("add", crate::add::ADD_AFTER_LONG_HELP),
-            ("remove", crate::remove::REMOVE_AFTER_LONG_HELP),
             ("upgrade", crate::upgrade::CLI_AFTER_LONG_HELP),
             ("uninstall", crate::uninstall::CLI_AFTER_LONG_HELP),
             // Document module help strings
@@ -93,8 +90,14 @@ mod tests {
             ("document::track", document::cli::TRACK_AFTER_LONG_HELP),
             ("document::untrack", document::cli::UNTRACK_AFTER_LONG_HELP),
             ("document::clean", document::cli::CLEAN_AFTER_LONG_HELP),
-            ("document::rebuild", document::cli::REBUILD_AFTER_LONG_HELP),
             ("document::query", document::cli::QUERY_AFTER_LONG_HELP),
+            // DB module help strings
+            ("db::new", node_db::cli::NEW_AFTER_LONG_HELP),
+            ("db::add", crate::db::ADD_AFTER_LONG_HELP),
+            ("db::remove", crate::db::REMOVE_AFTER_LONG_HELP),
+            ("db::query", crate::db::QUERY_AFTER_LONG_HELP),
+            ("db::migrate", node_db::cli::MIGRATE_AFTER_LONG_HELP),
+            ("db::migrations", node_db::cli::MIGRATIONS_AFTER_LONG_HELP),
             // Prompts module help strings
             ("prompts::cli", prompts::cli::CLI_AFTER_LONG_HELP),
             ("prompts::list", prompts::cli::LIST_AFTER_LONG_HELP),
