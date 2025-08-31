@@ -10,6 +10,7 @@ use std::{
 };
 
 use mcp_types::{Tool as McpTool, ToolInputSchema as McpToolInputSchema};
+use serde::Serialize;
 pub use semver::{Version, VersionReq};
 use which::which;
 
@@ -20,7 +21,6 @@ use common::{
     once_cell::sync::Lazy,
     regex::Regex,
     reqwest,
-    serde::Serialize,
     strum::Display,
     tempfile::env::temp_dir,
     tokio::fs::write,
@@ -32,7 +32,6 @@ use crate::{ToolCommand, ToolStdio, command::AsyncToolCommand, json_map};
 
 /// The type of a kernel
 #[derive(Debug, Clone, PartialEq, Eq, Display, Serialize, ValueEnum)]
-#[serde(crate = "common::serde")]
 #[strum(serialize_all = "lowercase")]
 pub enum ToolType {
     Collaboration,

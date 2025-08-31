@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+use serde::Serialize;
 use syntect::{
     easy::HighlightLines, highlighting::ThemeSet, parsing::SyntaxSet,
     util::as_24_bit_terminal_escaped,
@@ -9,7 +10,6 @@ use common::{
     clap::{self, ValueEnum},
     eyre::{Result, bail},
     once_cell::sync::Lazy,
-    serde::Serialize,
     serde_json, serde_yaml,
 };
 use format::Format;

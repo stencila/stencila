@@ -1,15 +1,15 @@
 use common::{
     clap::{self, ValueEnum},
-    serde::{Deserialize, Serialize},
     strum::{Display, EnumString},
 };
 use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 #[derive(
     Debug, Display, Default, Clone, Copy, ValueEnum, EnumString, Deserialize, Serialize, JsonSchema,
 )]
 #[strum(serialize_all = "kebab-case", crate = "common::strum")]
-#[serde(rename_all = "kebab-case", crate = "common::serde")]
+#[serde(rename_all = "kebab-case")]
 pub enum Status {
     Planned,
     Experimental,

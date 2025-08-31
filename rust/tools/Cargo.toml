@@ -11,6 +11,7 @@ directories = { workspace = true }
 derive_more = { workspace = true }
 mcp-types = "0.1.1"
 pathdiff = "0.2.3"
+serde = { workspace = true }
 semver = { workspace = true }
 which = { workspace = true }
 version = { path = "../version" }

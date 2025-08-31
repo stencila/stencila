@@ -8,6 +8,7 @@ use std::{
 };
 
 use flate2::read::GzDecoder;
+use serde::{Deserialize, Serialize};
 use zip::ZipArchive;
 
 use cli_utils::color_print::cstr;
@@ -16,7 +17,6 @@ use common::{
     eyre::{Report, Result, bail},
     once_cell::sync::Lazy,
     reqwest::{Client, header::USER_AGENT},
-    serde::{Deserialize, Serialize},
     serde_json,
     tar::Archive,
     tempfile,
@@ -114,7 +114,6 @@ pub fn notify() {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 struct GithubRelease {
     tag_name: String,
 }

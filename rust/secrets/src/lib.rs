@@ -1,10 +1,11 @@
 use std::env;
 
+use serde::Serialize;
+
 use common::{
     eyre::{Context, Result, bail},
     itertools::Itertools,
     once_cell::sync::Lazy,
-    serde::Serialize,
     serde_with::skip_serializing_none,
     tracing,
 };
@@ -14,7 +15,6 @@ pub mod cli;
 /// A category of secret
 #[allow(clippy::enum_variant_names)]
 #[derive(Clone, Serialize)]
-#[serde(crate = "common::serde")]
 enum SecretCategory {
     /// Used to access external services for creating content, esp. LLMs.
     AiApiKey,
@@ -29,7 +29,6 @@ enum SecretCategory {
 
 #[skip_serializing_none]
 #[derive(Clone, Serialize)]
-#[serde(crate = "common::serde")]
 pub struct Secret {
     /// The category of the secret
     category: SecretCategory,
