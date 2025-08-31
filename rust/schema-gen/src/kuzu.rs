@@ -32,11 +32,11 @@ impl Schemas {
         let migrations_file = dir.join("migrations").join("v99.99.99.cypher");
         if let Some(previous_schema) = find_latest_schema(&schemas_dir).await?
             && let Some(migration_cypher) =
-                kuzu_cypher::generate_migration(&previous_schema, &schema)
-            {
-                migrations_needed = true;
-                write(&migrations_file, migration_cypher).await?;
-            }
+                kuzu_cypher::generate_migration(&previous_schema, &schema)?
+        {
+            migrations_needed = true;
+            write(&migrations_file, migration_cypher).await?;
+        }
 
         // Ensure there is not an unneeded migrations file
         if !migrations_needed && migrations_file.exists() {
@@ -83,24 +83,27 @@ async fn find_latest_schema(
     while let Some(entry) = entries.next_entry().await? {
         let path = entry.path();
         if let Some(filename) = path.file_name().and_then(|n| n.to_str())
-            && filename.starts_with("v") && filename.ends_with(".json") {
-                // Extract version from filename like "v2.6.0.json"
-                if let Some(version_str) = filename
-                    .strip_prefix("v")
-                    .and_then(|s| s.strip_suffix(".json"))
-                {
-                    // Skip the temporary development version
-                    if version_str == "99.99.99" {
-                        continue;
-                    }
+            && filename.starts_with("v")
+            && filename.ends_with(".json")
+        {
+            // Extract version from filename like "v2.6.0.json"
+            if let Some(version_str) = filename
+                .strip_prefix("v")
+                .and_then(|s| s.strip_suffix(".json"))
+            {
+                // Skip the temporary development version
+                if version_str == "99.99.99" {
+                    continue;
+                }
 
-                    if let Ok(version) = Version::parse(version_str)
-                        && latest_version.as_ref().is_none_or(|v| version > *v) {
-                            latest_version = Some(version);
-                            latest_file = Some(path.to_string_lossy().to_string());
-                        }
+                if let Ok(version) = Version::parse(version_str)
+                    && latest_version.as_ref().is_none_or(|v| version > *v)
+                {
+                    latest_version = Some(version);
+                    latest_file = Some(path.to_string_lossy().to_string());
                 }
             }
+        }
     }
 
     if let Some(file_path) = latest_file {

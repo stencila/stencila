@@ -1,6 +1,11 @@
 use std::collections::{HashMap, HashSet};
 
-use common::{eyre::Result, itertools::Itertools, serde_json, tokio::fs::read_to_string};
+use common::{
+    eyre::{Result, bail},
+    itertools::Itertools,
+    serde_json,
+    tokio::fs::read_to_string,
+};
 
 use crate::kuzu_types::{
     Cardinality, Column, DataType, DatabaseSchema, DerivedProperty, FromToPair, Index, NodeTable,
@@ -248,7 +253,11 @@ enum MigrationOperation {
     /// Create a new index
     CreateIndex(Index),
     /// Drop an existing index
-    DropIndex { table: String, name: String },
+    DropIndex {
+        func: String,
+        table: String,
+        name: String,
+    },
     /// Add embeddings to a table
     AddEmbeddings { table: String },
     /// Remove embeddings from a table
@@ -442,21 +451,26 @@ fn compare_indices(old_indices: &[Index], new_indices: &[Index]) -> Vec<Migratio
 
     // Find removed indices
     for index in old_set.difference(&new_set) {
-        let (table, name) = match index {
-            Index::FullTextSearch { table, name, .. } => (table, name),
-            Index::Vector { table, name, .. } => (table, name),
+        let op = match index {
+            Index::FullTextSearch { table, name, .. } => MigrationOperation::DropIndex {
+                func: "DROP_FTS_INDEX".to_string(),
+                table: table.clone(),
+                name: name.clone(),
+            },
+            Index::Vector { table, name, .. } => MigrationOperation::DropIndex {
+                func: "DROP_VECTOR_INDEX".to_string(),
+                table: table.clone(),
+                name: name.clone(),
+            },
         };
-        operations.push(MigrationOperation::DropIndex {
-            table: table.clone(),
-            name: name.clone(),
-        });
+        operations.push(op);
     }
 
     operations
 }
 
 /// Generate Cypher DDL from migration operations
-fn generate_migration_cypher(operations: &[MigrationOperation]) -> String {
+fn generate_migration_cypher(operations: &[MigrationOperation]) -> Result<String> {
     let mut cypher_statements = Vec::new();
 
     for operation in operations {
@@ -468,12 +482,12 @@ fn generate_migration_cypher(operations: &[MigrationOperation]) -> String {
                 cypher_statements.push(generate_relationship_table(table));
             }
             MigrationOperation::DropTable { name } => {
-                cypher_statements.push(format!("DROP TABLE `{}`;", name));
+                cypher_statements.push(format!("DROP TABLE `{name}`;"));
             }
             MigrationOperation::AddColumn { table, column } => {
                 let default_value = if column.nullable { "DEFAULT NULL" } else { "" };
                 cypher_statements.push(format!(
-                    "ALTER TABLE `{}` ADD COLUMN `{}` {} {};",
+                    "ALTER TABLE `{}` ADD `{}` {} {};",
                     table,
                     column.name,
                     generate_data_type(&column.data_type),
@@ -481,73 +495,47 @@ fn generate_migration_cypher(operations: &[MigrationOperation]) -> String {
                 ));
             }
             MigrationOperation::DropColumn { table, column_name } => {
-                cypher_statements.push(format!(
-                    "ALTER TABLE `{}` DROP COLUMN `{}`;",
-                    table, column_name
-                ));
+                cypher_statements.push(format!("ALTER TABLE `{table}` DROP `{column_name}`;"));
             }
             MigrationOperation::ChangeColumnType {
-                table,
-                column_name,
-                new_type,
-                ..
+                table, column_name, ..
             } => {
-                // Multi-step column type change
-                let temp_name = format!("{}_new", column_name);
-                cypher_statements.push(format!(
-                    "ALTER TABLE `{}` ADD COLUMN `{}` {};",
-                    table,
-                    temp_name,
-                    generate_data_type(new_type)
-                ));
-                cypher_statements.push(format!(
-                    "-- TODO: Copy and transform data from `{}` to `{}`",
-                    column_name, temp_name
-                ));
-                cypher_statements.push(format!(
-                    "ALTER TABLE `{}` DROP COLUMN `{}`;",
-                    table, column_name
-                ));
-                cypher_statements.push(format!(
-                    "ALTER TABLE `{}` RENAME COLUMN `{}` TO `{}`;",
-                    table, temp_name, column_name
-                ));
+                bail!(
+                    "Unable to generate migration for change in column type `{table}.{column_name}`"
+                )
             }
-            MigrationOperation::AddDerivedProperty { table, property } => {
+            MigrationOperation::AddDerivedProperty {
+                table,
+                property: DerivedProperty { name, .. },
+            } => {
                 cypher_statements.push(format!(
-                    "ALTER TABLE `{}` ADD COLUMN `{}` STRING DEFAULT NULL;",
-                    table, property.name
+                    "ALTER TABLE `{table}` ADD `{name}` STRING DEFAULT NULL;",
                 ));
             }
             MigrationOperation::RemoveDerivedProperty {
                 table,
                 property_name,
             } => {
-                cypher_statements.push(format!(
-                    "ALTER TABLE `{}` DROP COLUMN `{}`;",
-                    table, property_name
-                ));
+                cypher_statements.push(format!("ALTER TABLE `{table}` DROP `{property_name}`;"));
             }
             MigrationOperation::CreateIndex(index) => {
                 cypher_statements.push(generate_index(index));
             }
-            MigrationOperation::DropIndex { table: _, name } => {
-                cypher_statements.push(format!("-- TODO: Drop index '{}'", name));
+            MigrationOperation::DropIndex { func, table, name } => {
+                cypher_statements.push(format!("CALL {func}('{table}', '{name}');"));
             }
             MigrationOperation::AddEmbeddings { table } => {
                 cypher_statements.push(format!(
-                    "ALTER TABLE `{}` ADD COLUMN `embeddings` FLOAT[384] DEFAULT NULL;",
-                    table
+                    "ALTER TABLE `{table}` ADD `embeddings` FLOAT[384] DEFAULT NULL;",
                 ));
             }
             MigrationOperation::RemoveEmbeddings { table } => {
-                cypher_statements
-                    .push(format!("ALTER TABLE `{}` DROP COLUMN `embeddings`;", table));
+                cypher_statements.push(format!("ALTER TABLE `{table}` DROP `embeddings`;"));
             }
         }
     }
 
-    cypher_statements.join("\n\n")
+    Ok(cypher_statements.join("\n\n"))
 }
 
 /// Load the previous schema from a JSON file
@@ -565,13 +553,14 @@ pub async fn load_previous_schema(file_path: &str) -> Result<Option<DatabaseSche
 pub fn generate_migration(
     old_schema: &DatabaseSchema,
     new_schema: &DatabaseSchema,
-) -> Option<String> {
+) -> Result<Option<String>> {
     if old_schema != new_schema {
         let operations = generate_migration_operations(old_schema, new_schema);
         if !operations.is_empty() {
-            let migration_cypher = generate_migration_cypher(&operations);
-            return Some(migration_cypher);
+            let migration_cypher = generate_migration_cypher(&operations)?;
+            return Ok(Some(migration_cypher));
         }
     }
-    None
+
+    Ok(None)
 }
