@@ -8,11 +8,11 @@ use std::{
 };
 
 use json_patch::{PatchOperation as MappingOperation, ReplaceOperation};
+use serde::{Deserialize, Serialize};
 
 use codecs::{DecodeOptions, EncodeInfo, EncodeOptions, Mapping};
 use common::{
     eyre::Result,
-    serde::{Deserialize, Serialize},
     serde_json,
     serde_with::skip_serializing_none,
     similar::{Algorithm, DiffTag, TextDiffConfig},
@@ -41,7 +41,7 @@ use crate::{Document, Update};
 /// modifications to a string but which lacks the `version` property and
 /// used different, longer, names for properties.
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
-#[serde(default, crate = "common::serde")]
+#[serde(default)]
 pub struct FormatPatch {
     /// The version of the patch
     version: u32,
@@ -52,7 +52,7 @@ pub struct FormatPatch {
 
 /// An operation on either the content or mapping
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-#[serde(untagged, crate = "common::serde")]
+#[serde(untagged)]
 pub enum FormatOperation {
     Content(ContentOperation),
     Mapping(MappingOperation),
@@ -146,7 +146,6 @@ impl FormatOperation {
 /// to the nodes that are currently selected.
 #[skip_serializing_none]
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(crate = "common::serde")]
 pub struct ContentOperation {
     /// The type of operation
     r#type: ContentOperationType,
@@ -167,7 +166,7 @@ pub struct ContentOperation {
 
 /// The type of an operation
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[serde(rename_all = "lowercase")]
 enum ContentOperationType {
     /// Reset content
     #[default]

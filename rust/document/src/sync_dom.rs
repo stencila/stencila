@@ -7,11 +7,12 @@ use std::{
     time::{Duration, Instant},
 };
 
+use serde::{Deserialize, Serialize};
+
 use codecs::EncodeOptions;
 use common::{
     eyre::{Result, bail},
     itertools::Itertools,
-    serde::{Deserialize, Serialize},
     serde_with::skip_serializing_none,
     similar::{Algorithm, DiffTag, capture_diff_slices_deadline},
     tokio::{
@@ -31,7 +32,7 @@ use crate::Document;
 
 /// A patch to apply to the DOM HTML representation of a document
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
-#[serde(default, crate = "common::serde")]
+#[serde(default)]
 pub struct DomPatch {
     /// The version of the patch
     version: u32,
@@ -63,7 +64,6 @@ impl DomPatch {
 /// An operation on the DOM HTML representation of a document
 #[skip_serializing_none]
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(crate = "common::serde")]
 pub struct DomOperation {
     /// The type of operation
     r#type: DomOperationType,
@@ -134,7 +134,7 @@ impl DomOperation {
 
 /// The type of an operation
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[serde(rename_all = "lowercase")]
 enum DomOperationType {
     /// Reset content
     #[default]

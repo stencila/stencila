@@ -7,10 +7,7 @@ use std::{
     time::UNIX_EPOCH,
 };
 
-use node_canonicalize::canonicalize;
-use node_db::NodeDatabase;
-use node_sentencize::sentencize;
-use schema::{Node, NodeId};
+use serde::{Deserialize, Serialize};
 use url::Url;
 
 use codecs::{DecodeOptions, EncodeOptions};
@@ -18,7 +15,6 @@ use common::{
     chrono::Utc,
     eyre::{OptionExt, Result, bail},
     itertools::Itertools,
-    serde::{Deserialize, Serialize},
     serde_json,
     serde_with::skip_serializing_none,
     strum::Display,
@@ -32,6 +28,10 @@ use dirs::{
     DB_FILE, DOCS_FILE, STORE_DIR, closest_stencila_dir, stencila_artifacts_dir, stencila_db_file,
     stencila_docs_file, stencila_store_dir, workspace_dir, workspace_relative_path,
 };
+use node_canonicalize::canonicalize;
+use node_db::NodeDatabase;
+use node_sentencize::sentencize;
+use schema::{Node, NodeId};
 
 use crate::Document;
 
@@ -105,7 +105,7 @@ pub type DocumentRemoteEntries = BTreeMap<Url, DocumentRemote>;
 /// Tracking information for a tracked location
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 pub struct DocumentTracking {
     /// The tracking id for the document
     pub id: NodeId,
@@ -168,7 +168,7 @@ impl DocumentTracking {
 
 #[skip_serializing_none]
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[serde(rename_all = "camelCase")]
 pub struct DocumentRemote {
     /// The last time the document was pulled from the remote
     pub pulled_at: Option<u64>,
@@ -178,7 +178,6 @@ pub struct DocumentRemote {
 }
 
 #[derive(Default, Display, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 pub enum DocumentTrackingStatus {
     /// The workspace file is of a format that does not support tracking
     #[default]

@@ -4,11 +4,11 @@ use std::sync::{
 };
 
 use json_patch::{PatchOperation, ReplaceOperation};
+use serde::{Deserialize, Serialize};
 
 use common::{
     eyre::Result,
     indexmap::IndexMap,
-    serde::{Deserialize, Serialize},
     serde_json,
     tokio::{
         self,
@@ -28,7 +28,6 @@ use crate::Document;
 /// This struct simply exists to provide a single serializable entity that
 /// can be diffed to create patches for both the node and its map.
 #[derive(Serialize)]
-#[serde(crate = "common::serde")]
 struct ObjectState {
     /// The root node which the object represents
     node: Node,
@@ -45,7 +44,7 @@ struct ObjectState {
 /// An incoming patch with version `0` is a request for a "reset" patch and is
 /// normally only received after a client has missed a patch (i.e. when versions are not sequential).
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(default, crate = "common::serde")]
+#[serde(default)]
 pub struct ObjectPatch {
     /// The version of the patch
     version: u32,

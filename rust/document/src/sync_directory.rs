@@ -1,8 +1,9 @@
 use std::path::{Component, Path, PathBuf};
 
+use serde::{Deserialize, Serialize};
+
 use common::{
     eyre::{Result, bail},
-    serde::{Deserialize, Serialize},
     tokio::{
         self,
         fs::{File, create_dir_all, remove_dir_all, remove_file, rename},
@@ -15,7 +16,6 @@ use crate::Document;
 
 /// An action to apply to a path within a directory
 #[derive(Debug, Deserialize, Serialize)]
-#[serde(crate = "common::serde")]
 pub struct DirectoryAction {
     /// The type of action
     r#type: DirectoryActionType,
@@ -29,7 +29,7 @@ pub struct DirectoryAction {
 
 /// The type of a `DirectoryAction`
 #[derive(Debug, Deserialize, Serialize)]
-#[serde(rename_all = "kebab-case", crate = "common::serde")]
+#[serde(rename_all = "kebab-case")]
 enum DirectoryActionType {
     CreateFile,
     CreateDirectory,
@@ -39,7 +39,6 @@ enum DirectoryActionType {
 
 /// A serializable error that can be sent to the client when an action fails
 #[derive(Debug, Serialize)]
-#[serde(crate = "common::serde")]
 pub struct DirectoryActionError {
     /// The action that caused the error
     action: DirectoryAction,

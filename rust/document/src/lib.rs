@@ -5,11 +5,12 @@ use std::{
     sync::Arc,
 };
 
+use serde::{Deserialize, Serialize};
+
 use codecs::PoshMap;
 use common::{
     clap::{self, ValueEnum},
     eyre::{OptionExt, Result, bail, eyre},
-    serde::{Deserialize, Serialize},
     serde_json,
     smart_default::SmartDefault,
     strum::{Display, EnumString},
@@ -70,7 +71,6 @@ pub enum SyncDirection {
 /// Made `Serialize` so that, if desired, the log can be obtained
 /// as JSON from the CLI.
 #[derive(Serialize)]
-#[serde(crate = "common::serde")]
 pub struct LogEntry {
     pub hash: String,
     pub parents: Vec<String>,
@@ -82,7 +82,7 @@ pub struct LogEntry {
 /// A command on a document, or nodes within it
 #[derive(Debug, Display, Clone, Serialize, Deserialize, PartialEq)]
 #[strum(serialize_all = "kebab-case")]
-#[serde(tag = "command", rename_all = "kebab-case", crate = "common::serde")]
+#[serde(tag = "command", rename_all = "kebab-case")]
 pub enum Command {
     /// Compile the document
     CompileDocument {
@@ -134,7 +134,6 @@ pub enum Command {
 
 /// The node ids for commands that require them
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(crate = "common::serde")]
 pub struct CommandNodes {
     /// The list of nodes involved in a command
     #[serde(alias = "nodeIds")]
@@ -151,7 +150,7 @@ impl CommandNodes {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "kebab-case", crate = "common::serde")]
+#[serde(rename_all = "kebab-case")]
 pub enum CommandScope {
     /// Only listed nodes
     #[default]
