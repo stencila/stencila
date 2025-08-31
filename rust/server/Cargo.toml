@@ -13,6 +13,7 @@ document = { path = "../document" }
 format = { path = "../format" }
 mime_guess = { workspace = true }
 rand = { workspace = true }
+serde = { workspace = true }
 tower-cookies = "0.11.0"
 tower-http = { version = "0.6.6", features = ["trace", "cors"] }
 version = { path = "../version" }

@@ -5,8 +5,9 @@ use axum::{
     response::{Html, IntoResponse, Response},
     routing::get,
 };
+use serde::Deserialize;
 
-use common::{reqwest::Client, serde::Deserialize, tracing};
+use common::{reqwest::Client, tracing};
 use version::STENCILA_VERSION;
 
 use crate::server::ServerState;
@@ -17,7 +18,6 @@ pub fn router() -> Router<ServerState> {
 }
 
 #[derive(Deserialize)]
-#[serde(crate = "common::serde")]
 pub struct AuthQuery {
     sst: Option<String>,
     otc: Option<String>,

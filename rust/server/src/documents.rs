@@ -15,6 +15,7 @@ use axum::{
     response::{IntoResponse, Response},
     routing::get,
 };
+use serde::{Serialize, de::DeserializeOwned};
 
 use codecs::{DecodeOptions, EncodeOptions};
 use common::{
@@ -24,7 +25,6 @@ use common::{
         stream::{SplitSink, SplitStream},
     },
     itertools::Itertools,
-    serde::{Serialize, de::DeserializeOwned},
     serde_json,
     tokio::{
         self,
@@ -363,7 +363,6 @@ async fn open_document(
         .map_err(InternalError::new)?;
 
     #[derive(Serialize)]
-    #[serde(crate = "common::serde")]
     struct OpenResponse {
         id: String,
     }

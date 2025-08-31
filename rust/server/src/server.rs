@@ -14,8 +14,8 @@ use axum::{
     response::{IntoResponse, Response},
     routing::get,
 };
-
 use rand::{Rng, rng};
+use serde::Deserialize;
 use tower_cookies::{Cookie, CookieManagerLayer, Cookies};
 use tower_http::{
     cors::{Any, CorsLayer},
@@ -25,7 +25,6 @@ use tower_http::{
 use common::{
     clap::{self, Args},
     eyre::{self},
-    serde::Deserialize,
     smart_default::SmartDefault,
     tokio::{net::TcpListener, sync::mpsc},
     tracing,
@@ -288,7 +287,6 @@ pub fn get_server_token() -> String {
 }
 
 #[derive(Deserialize)]
-#[serde(crate = "common::serde")]
 struct AuthQuery {
     sst: Option<String>,
 }

@@ -3,14 +3,14 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Redirect, Response},
 };
+use serde::Deserialize;
 use tower_cookies::{Cookie, Cookies};
 
-use common::{serde::Deserialize, tracing};
+use common::tracing;
 
 use crate::server::ServerState;
 
 #[derive(Deserialize)]
-#[serde(crate = "common::serde")]
 pub struct LoginQuery {
     sst: Option<String>,
     next: Option<String>,
