@@ -27,7 +27,6 @@ use kernel_kuzu::{
 };
 use schema::{Node, NodeId, NodePath, NodeProperty, NodeType, Visitor, WalkNode};
 
-
 pub mod cli;
 mod migrations;
 #[rustfmt::skip]
@@ -151,7 +150,7 @@ impl NodeDatabase {
 
         let database = Arc::new(database);
 
-        if let Err(error) = Self::init(&database) {
+        if let Err(error) = Self::init(&database, true) {
             // If there is any error in creating the database then remove it so that
             // it is not in a corrupted/partial state
             drop(database);
@@ -172,7 +171,7 @@ impl NodeDatabase {
     pub fn in_memory() -> Result<Self> {
         let database = Arc::new(Database::new(":memory:", SystemConfig::default())?);
 
-        Self::init(&database)?;
+        Self::init(&database, true)?;
 
         Ok(Self {
             database,
@@ -184,7 +183,7 @@ impl NodeDatabase {
 
     /// Create a new node database on an existing Kuzu database
     pub fn attached(database: Arc<Database>) -> Result<Self> {
-        Self::init(&database)?;
+        Self::init(&database, true)?;
 
         Ok(Self {
             database,
@@ -195,23 +194,76 @@ impl NodeDatabase {
     }
 
     /// Initialized a database
-    fn init(database: &Database) -> Result<()> {
-        let connection = Connection::new(database)?;
+    fn init(database: &Database, auto_migrate: bool) -> Result<()> {
+        let connection = Connection::new(&database)?;
 
         let tables = connection.query("CALL show_tables() RETURN name")?;
-        if tables.get_num_tuples() > 0 {
-            return Ok(());
-        }
+        let is_new_database = tables.get_num_tuples() == 0;
 
-        let schema = include_str!("../schemas/current.cypher");
-        for statement in schema.split(";") {
-            let statement = statement.trim();
-            if statement.starts_with("//") || statement.is_empty() {
-                continue;
+        if is_new_database {
+            // Initialize new database with current schema
+            tracing::debug!("Initializing new database with current schema");
+
+            let schema = include_str!("../schemas/current.cypher");
+            for statement in schema.split(";") {
+                let statement = statement.trim();
+                if statement.starts_with("//") || statement.is_empty() {
+                    continue;
+                }
+                connection
+                    .query(statement)
+                    .wrap_err_with(|| eyre!("Failed to execute: {statement}"))?;
             }
-            connection
-                .query(statement)
-                .wrap_err_with(|| eyre!("Failed to execute: {statement}"))?;
+        } else {
+            // Existing database - check and apply migrations if needed
+            tracing::debug!("Checking for pending migrations in existing database");
+
+            let runner = MigrationRunner::new(database);
+
+            match runner.find_pending_migrations() {
+                Ok(pending_migrations) => {
+                    if !pending_migrations.is_empty() {
+                        if auto_migrate {
+                            tracing::info!(
+                                "Found {} pending migration(s), applying automatically",
+                                pending_migrations.len()
+                            );
+
+                            // Auto-apply migrations
+                            match runner.execute_pending_migrations(false) {
+                                Ok(applied) => {
+                                    tracing::info!(
+                                        "Successfully applied {} migration(s)",
+                                        applied.len()
+                                    );
+                                    for migration in applied {
+                                        tracing::debug!("Applied migration {}", migration.version);
+                                    }
+                                }
+                                Err(error) => {
+                                    tracing::warn!(
+                                        "Failed to apply migrations automatically: {}",
+                                        error
+                                    );
+                                    // Don't fail initialization, just log the warning
+                                    // Users can run migrations manually via CLI
+                                }
+                            }
+                        } else {
+                            tracing::info!(
+                                "Found {} pending migration(s), but auto-migration is disabled. Run `stencila db migrate` to apply pending migrations",
+                                pending_migrations.len()
+                            );
+                        }
+                    } else {
+                        tracing::debug!("Database is up to date, no migrations needed");
+                    }
+                }
+                Err(error) => {
+                    tracing::warn!("Failed to check for pending migrations: {error}");
+                    // Continue with initialization even if migration check fails
+                }
+            }
         }
 
         Ok(())
@@ -609,15 +661,6 @@ impl NodeDatabase {
         }
 
         Ok(())
-    }
-
-    /// Get a migration runner for this database
-    pub fn migration_runner(&self) -> MigrationRunner {
-        // TODO: replace this with `rust-embed` embedded migrations
-        use std::path::PathBuf;
-        let migrations_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("migrations");
-
-        MigrationRunner::new(migrations_dir, self.database.clone())
     }
 }
 

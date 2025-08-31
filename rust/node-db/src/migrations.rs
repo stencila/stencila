@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
 
 use rust_embed::Embed;
 use semver::Version;
@@ -141,14 +141,14 @@ pub struct MigrationStatus {
 }
 
 /// Manages migration discovery, validation, and execution
-pub struct MigrationRunner {
+pub struct MigrationRunner<'d> {
     /// Database connection for executing migrations
-    database: Arc<Database>,
+    database: &'d Database,
 }
 
-impl MigrationRunner {
+impl<'d> MigrationRunner<'d> {
     /// Create a new MigrationRunner
-    pub fn new(database: Arc<Database>) -> Self {
+    pub fn new(database: &'d Database) -> Self {
         Self { database }
     }
 
@@ -536,12 +536,10 @@ mod tests {
 
     #[test]
     fn test_migrations_table_exists() -> Result<()> {
-        let database = Arc::new(
-            Database::new(":memory:", SystemConfig::default())
-                .map_err(|e| eyre!("Failed to create test database: {}", e))?,
-        );
+        let database = Database::new(":memory:", SystemConfig::default())
+            .map_err(|e| eyre!("Failed to create test database: {}", e))?;
 
-        let runner = MigrationRunner::new(database);
+        let runner = MigrationRunner::new(&database);
 
         // For an empty database, migrations table should not exist
         assert!(!runner.migrations_table_exists()?);
@@ -553,12 +551,10 @@ mod tests {
 
     #[test]
     fn test_execute_migration_success() -> Result<()> {
-        let database = Arc::new(
-            Database::new(":memory:", SystemConfig::default())
-                .map_err(|e| eyre!("Failed to create test database: {}", e))?,
-        );
+        let database = Database::new(":memory:", SystemConfig::default())
+            .map_err(|e| eyre!("Failed to create test database: {}", e))?;
 
-        let runner = MigrationRunner::new(database);
+        let runner = MigrationRunner::new(&database);
 
         // Initialize the database with the migrations table
         let connection = Connection::new(&runner.database)?;
@@ -587,12 +583,10 @@ mod tests {
 
     #[test]
     fn test_execute_migration_rollback() -> Result<()> {
-        let database = Arc::new(
-            Database::new(":memory:", SystemConfig::default())
-                .map_err(|e| eyre!("Failed to create test database: {}", e))?,
-        );
+        let database = Database::new(":memory:", SystemConfig::default())
+            .map_err(|e| eyre!("Failed to create test database: {}", e))?;
 
-        let runner = MigrationRunner::new(database);
+        let runner = MigrationRunner::new(&database);
 
         // Initialize the database with the migrations table
         let connection = Connection::new(&runner.database)?;
@@ -618,12 +612,10 @@ mod tests {
 
     #[test]
     fn test_execute_migration_dry_run() -> Result<()> {
-        let database = Arc::new(
-            Database::new(":memory:", SystemConfig::default())
-                .map_err(|e| eyre!("Failed to create test database: {}", e))?,
-        );
+        let database = Database::new(":memory:", SystemConfig::default())
+            .map_err(|e| eyre!("Failed to create test database: {}", e))?;
 
-        let runner = MigrationRunner::new(database);
+        let runner = MigrationRunner::new(&database);
 
         // Create a test migration directly
         let migration = Migration::new(
@@ -643,12 +635,10 @@ mod tests {
 
     #[test]
     fn test_execute_migration_checksum_validation() -> Result<()> {
-        let database = Arc::new(
-            Database::new(":memory:", SystemConfig::default())
-                .map_err(|e| eyre!("Failed to create test database: {}", e))?,
-        );
+        let database = Database::new(":memory:", SystemConfig::default())
+            .map_err(|e| eyre!("Failed to create test database: {}", e))?;
 
-        let runner = MigrationRunner::new(database);
+        let runner = MigrationRunner::new(&database);
 
         // Initialize the database with the migrations table
         let connection = Connection::new(&runner.database)?;
@@ -676,12 +666,10 @@ mod tests {
 
     #[test]
     fn test_execute_migration_multi_statement() -> Result<()> {
-        let database = Arc::new(
-            Database::new(":memory:", SystemConfig::default())
-                .map_err(|e| eyre!("Failed to create test database: {}", e))?,
-        );
+        let database = Database::new(":memory:", SystemConfig::default())
+            .map_err(|e| eyre!("Failed to create test database: {}", e))?;
 
-        let runner = MigrationRunner::new(database);
+        let runner = MigrationRunner::new(&database);
 
         // Initialize the database with the migrations table
         let connection = Connection::new(&runner.database)?;
