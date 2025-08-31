@@ -9,7 +9,10 @@ use std::{
 
 use derive_more::{Deref, DerefMut};
 use node_types::primary_key;
-use time::format_description::{self, BorrowedFormatItem};
+use time::{
+    Duration, OffsetDateTime,
+    format_description::{self, BorrowedFormatItem},
+};
 
 use common::{
     eyre::{Context, Result, bail, eyre},
@@ -433,14 +436,6 @@ impl NodeDatabase {
             ]);
         }
 
-        // It is necessary to specify the format for timestamps in CSV files because `to_string`
-        // adds offset seconds which the Kuzu CSV parser does not like
-        static TIMESTAMP_FORMAT: Lazy<Vec<BorrowedFormatItem>> = Lazy::new(|| {
-            format_description::parse(
-                "[year]-[month]-[day] [hour]:[minute]:[second].[subsecond digits:6][offset_hour sign:mandatory]:[offset_minute]",
-            ).expect("invalid format")
-        });
-
         if entries.len() < USE_CSV_COUNT {
             // Get, or prepare, `CREATE` statement
             let statement = match self.create_node_statements.get_mut(&node_type) {
@@ -509,7 +504,8 @@ impl NodeDatabase {
                                 escape_csv_field(string)
                             }
                         }
-                        Value::Timestamp(value) => value.format(&TIMESTAMP_FORMAT)?,
+                        Value::Timestamp(value) => format_timestamp(value)?,
+                        Value::Interval(value) => format_interval(value)?,
                         value => escape_csv_field(value.to_string()),
                     };
 
@@ -677,4 +673,59 @@ fn escape_csv_field(field: String) -> String {
     } else {
         field
     }
+}
+
+fn format_timestamp(value: OffsetDateTime) -> Result<String> {
+    // It is necessary to specify the format for timestamps in CSV files because `to_string`
+    // adds offset seconds which the Kuzu CSV parser does not like
+    static TIMESTAMP_FORMAT: Lazy<Vec<BorrowedFormatItem>> = Lazy::new(|| {
+        format_description::parse(
+                "[year]-[month]-[day] [hour]:[minute]:[second].[subsecond digits:6][offset_hour sign:mandatory]:[offset_minute]",
+            ).expect("invalid format")
+    });
+
+    Ok(value.format(&TIMESTAMP_FORMAT)?)
+}
+
+fn format_interval(value: Duration) -> Result<String> {
+    // Kuzu expects intervals in DuckDb format with parts:
+    //  "year", "month", "day", "hour", "minute", "microsecond"
+    // https://duckdb.org/docs/stable/sql/data_types/interval.html
+    let mut parts = Vec::new();
+
+    let total_micros = value.whole_microseconds() as u64;
+    let mut remaining_micros = total_micros;
+
+    // Convert to days, hours, minutes, and microseconds
+    let days = remaining_micros / (24 * 60 * 60 * 1_000_000);
+    remaining_micros %= 24 * 60 * 60 * 1_000_000;
+
+    let hours = remaining_micros / (60 * 60 * 1_000_000);
+    remaining_micros %= 60 * 60 * 1_000_000;
+
+    let minutes = remaining_micros / (60 * 1_000_000);
+    remaining_micros %= 60 * 1_000_000;
+
+    let microseconds = remaining_micros;
+
+    // Add non-zero parts to the result
+    if days > 0 {
+        parts.push(format!("{days} days"));
+    }
+    if hours > 0 {
+        parts.push(format!("{hours} hours"));
+    }
+    if minutes > 0 {
+        parts.push(format!("{minutes} minutes"));
+    }
+    if microseconds > 0 {
+        parts.push(format!("{microseconds} microseconds"));
+    }
+
+    // If no parts, return "0 microseconds"
+    if parts.is_empty() {
+        parts.push("0 microseconds".to_string());
+    }
+
+    Ok(parts.join(" "))
 }
