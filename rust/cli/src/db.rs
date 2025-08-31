@@ -1,6 +1,6 @@
 use std::{env::current_dir, path::PathBuf};
 
-use cli_utils::{Code, ToStdout, color_print::cstr};
+use cli_utils::{Code, ToStdout, color_print::cstr, message};
 use codecs::{EncodeOptions, LossesResponse};
 use common::{
     clap::{self, Parser, Subcommand},
@@ -12,7 +12,7 @@ use dirs::closest_stencila_dir;
 use document::Document;
 use format::Format;
 use kernels::Kernels;
-use node_db::cli::{Migrate, Migrations};
+use node_db::cli::{Migrate, Migrations, New};
 use node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
 use schema::{
     Article, Block, Collection, CreativeWorkVariant, ExecutionBounds, Node, NodeId, NodeType,
@@ -20,7 +20,7 @@ use schema::{
 
 use crate::options::{DecodeOptions, StripOptions};
 
-/// Manage the workspace and other databases
+/// Manage the workspace and other document databases
 #[derive(Debug, Parser)]
 #[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
@@ -46,6 +46,7 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
 #[derive(Debug, Subcommand)]
 enum Command {
+    New(New),
     Add(Add),
     Remove(Remove),
     Query(Query),
@@ -56,6 +57,7 @@ enum Command {
 impl Cli {
     pub async fn run(self) -> Result<()> {
         match self.command {
+            Command::New(new) => new.run().await,
             Command::Add(add) => add.run().await,
             Command::Remove(remove) => remove.run().await,
             Command::Query(query) => query.run().await,
@@ -296,7 +298,7 @@ impl Query {
         }
 
         if nodes.is_empty() {
-            eprintln!("🔍 No nodes matching query");
+            message("No nodes matching query", Some("🔍"));
             return Ok(());
         }
 

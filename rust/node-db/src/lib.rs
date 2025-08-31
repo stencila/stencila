@@ -195,7 +195,7 @@ impl NodeDatabase {
 
     /// Initialized a database
     fn init(database: &Database, auto_migrate: bool) -> Result<()> {
-        let connection = Connection::new(&database)?;
+        let connection = Connection::new(database)?;
 
         let tables = connection.query("CALL show_tables() RETURN name")?;
         let is_new_database = tables.get_num_tuples() == 0;

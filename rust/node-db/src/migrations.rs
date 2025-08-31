@@ -29,6 +29,8 @@ pub struct Migration {
 impl Migration {
     /// Create a new [Migration]
     pub fn new(name: &str, cypher: String) -> Result<Self> {
+        let name = name.trim_end_matches(".cypher");
+
         let Some(version) = name.strip_prefix("v") else {
             bail!("Migration filename must follow pattern 'v{{VERSION}}', got: {name}");
         };
@@ -154,7 +156,7 @@ impl<'d> MigrationRunner<'d> {
 
     /// Check if the migrations table exists
     pub fn migrations_table_exists(&self) -> Result<bool> {
-        let connection = Connection::new(&self.database)?;
+        let connection = Connection::new(self.database)?;
 
         let mut result = connection.query("CALL show_tables() RETURN name")?;
 
@@ -178,7 +180,7 @@ impl<'d> MigrationRunner<'d> {
             return Ok(HashMap::new());
         }
 
-        let connection = Connection::new(&self.database)?;
+        let connection = Connection::new(self.database)?;
 
         let mut result =
             connection.query("MATCH (m:_migrations) RETURN m.version, m.appliedAt, m.checksum")?;
@@ -272,7 +274,7 @@ impl<'d> MigrationRunner<'d> {
             return Ok(());
         }
 
-        let connection = Connection::new(&self.database)?;
+        let connection = Connection::new(self.database)?;
 
         // Check if migration is already applied
         let applied_migrations = self.get_applied_migrations()?;
@@ -303,13 +305,7 @@ impl<'d> MigrationRunner<'d> {
         match migration_result {
             Ok(()) => {
                 // Record successful migration in history
-                self.record_migration(&connection, migration)
-                    .wrap_err_with(|| {
-                        format!(
-                            "Failed to record migration {} in history",
-                            migration.version
-                        )
-                    })?;
+                self.record_migration(&connection, migration)?;
 
                 // Commit transaction
                 connection.query("COMMIT").wrap_err_with(|| {

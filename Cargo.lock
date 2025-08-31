@@ -6679,6 +6679,7 @@ dependencies = [
 name = "node-db"
 version = "0.0.0"
 dependencies = [
+ "ask",
  "cli-utils",
  "codec-text-trait",
  "common",

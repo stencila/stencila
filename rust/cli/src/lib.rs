@@ -92,6 +92,7 @@ mod tests {
             ("document::clean", document::cli::CLEAN_AFTER_LONG_HELP),
             ("document::query", document::cli::QUERY_AFTER_LONG_HELP),
             // DB module help strings
+            ("db::new", node_db::cli::NEW_AFTER_LONG_HELP),
             ("db::add", crate::db::ADD_AFTER_LONG_HELP),
             ("db::remove", crate::db::REMOVE_AFTER_LONG_HELP),
             ("db::query", crate::db::QUERY_AFTER_LONG_HELP),

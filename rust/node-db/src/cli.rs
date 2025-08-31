@@ -2,6 +2,7 @@
 
 use std::{env::current_dir, path::PathBuf};
 
+use ask::ask;
 use cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
@@ -15,7 +16,68 @@ use common::{
 use dirs::{closest_stencila_dir, stencila_db_file};
 use kernel_kuzu::kuzu::{Database, SystemConfig};
 
-use crate::migrations::MigrationRunner;
+use crate::{NodeDatabase, migrations::MigrationRunner};
+
+/// Create a new document database
+#[derive(Debug, Default, Args)]
+#[command(after_long_help = NEW_AFTER_LONG_HELP)]
+pub struct New {
+    /// Path to the database file
+    ///
+    /// If not specified, creates a new workspace database.
+    path: Option<PathBuf>,
+
+    /// Overwrite the database if it already exists
+    #[arg(long, short)]
+    force: bool,
+}
+
+impl New {
+    pub async fn run(self) -> Result<()> {
+        let path = match self.path {
+            Some(path) => path,
+            None => {
+                // Create a .stencila directory if one does not yet exists and return the path to the
+                // database inside it
+                let stencila_dir = closest_stencila_dir(&current_dir()?, true).await?;
+                stencila_db_file(&stencila_dir, false).await?
+            }
+        };
+
+        if path.exists() && !self.force
+            && ask(&format!(
+                "Database already exists at `{}`. Do you really want to overwrite it?",
+                path.display()
+            ))
+            .await?
+            .is_no()
+            {
+                return Ok(());
+            }
+
+        NodeDatabase::new(&path)?;
+
+        message(
+            &format!("Created a new document database at `{}`", path.display()),
+            Some("🎂"),
+        );
+
+        Ok(())
+    }
+}
+
+pub static NEW_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+  <dim># Create a document database in the current workspace</dim>
+  <b>stencila db new</b>
+
+  <dim># Create a document database at a specific path</dim>
+  <b>stencila db new path/to/my-database.kuzu</b>
+
+  <dim># Overwrite the database if it already exists</dim>
+  <b>stencila db new temp.kuzu --force</b>
+"
+);
 
 /// Run pending database migrations
 #[derive(Debug, Default, Args)]
