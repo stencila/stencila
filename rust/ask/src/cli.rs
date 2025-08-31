@@ -1,4 +1,4 @@
-use std::io::{IsTerminal, Write, stderr, stdin};
+use std::{env::var_os, io::{stderr, stdin, IsTerminal, Write}};
 
 use owo_colors::OwoColorize;
 use rpassword::read_password;
@@ -18,6 +18,42 @@ pub struct CliProvider;
 #[async_trait]
 impl Ask for CliProvider {
     async fn ask(&self, question: &str, options: AskOptions) -> Result<Answer> {
+        let question = if var_os("NO_COLOR").is_none() {
+            // Color content between backticks cyan when NO_COLOR is not set
+            let mut result = String::new();
+            let mut chars = question.chars().peekable();
+
+            while let Some(ch) = chars.next() {
+                if ch == '`' {
+                    // Found opening backtick, look for closing backtick
+                    let mut code_content = String::new();
+                    let mut found_closing = false;
+
+                    for inner_ch in chars.by_ref() {
+                        if inner_ch == '`' {
+                            found_closing = true;
+                            break;
+                        }
+                        code_content.push(inner_ch);
+                    }
+
+                    if found_closing && !code_content.is_empty() {
+                        // Add orange coloring around the content
+                        result.push_str(&format!("\x1b[38;5;208m{}\x1b[0m", code_content));
+                    } else {
+                        // No closing backtick found or empty content, keep original
+                        result.push('`');
+                        result.push_str(&code_content);
+                    }
+                } else {
+                    result.push(ch);
+                }
+            }
+            result
+        } else {
+            question.to_string()
+        };
+
         let yes = match options.default {
             Some(Answer::Yes) => format!(
                 "{}{}",
