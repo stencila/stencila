@@ -14,6 +14,7 @@ use std::{
 use std::time::Duration;
 
 use derive_more::{Deref, DerefMut};
+use serde::{Deserialize, Serialize, Serializer, ser::SerializeStruct};
 
 use codec_markdown::to_markdown;
 use codecs::{DecodeOptions, Format};
@@ -25,7 +26,6 @@ use common::{
     itertools::Itertools,
     regex::Regex,
     reqwest::Client,
-    serde::{Deserialize, Serialize, Serializer, ser::SerializeStruct},
     serde_json,
     tar::Archive,
     tokio::fs::{create_dir_all, read_to_string, remove_dir_all, write},
@@ -61,7 +61,7 @@ use version::stencila_version;
 /// Note: Deserialization is at required for the `stencila/listPrompts` command
 /// of the LSP but is not actually used there (?) or anywhere else.
 #[derive(Default, Clone, Deref, DerefMut, Deserialize)]
-#[serde(default, crate = "common::serde")]
+#[serde(default)]
 pub struct PromptInstance {
     #[deref]
     #[deref_mut]
@@ -444,7 +444,6 @@ async fn list_dir(dir: &Path) -> Result<Vec<PromptInstance>> {
 
 /// Details recorded about the current builtin prompt library
 #[derive(Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
 struct BuiltinDetails {
     version: Version,
     timestamp: u64,
