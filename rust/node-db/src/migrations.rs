@@ -1,11 +1,6 @@
-use std::{
-    collections::HashMap,
-    ffi::OsStr,
-    fs::{read_dir, read_to_string},
-    path::{Path, PathBuf},
-    sync::Arc,
-};
+use std::{collections::HashMap, sync::Arc};
 
+use rust_embed::Embed;
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -32,26 +27,14 @@ pub struct Migration {
 }
 
 impl Migration {
-    /// Create a new [Migration] from a file path
-    pub fn from_file(path: &Path) -> Result<Self> {
-        let name = path
-            .file_stem()
-            .and_then(|name| name.to_str())
-            .ok_or_else(|| eyre!("Invalid migration filename: {}", path.display()))?
-            .to_string();
-
+    /// Create a new [Migration]
+    pub fn new(name: &str, cypher: String) -> Result<Self> {
         let Some(version) = name.strip_prefix("v") else {
-            bail!(
-                "Migration filename must follow pattern 'v{{VERSION}}.cypher', got: {}",
-                path.display()
-            );
+            bail!("Migration filename must follow pattern 'v{{VERSION}}', got: {name}");
         };
 
         let version = Version::parse(version)
             .wrap_err_with(|| format!("Invalid version in filename: {version}"))?;
-
-        let cypher = read_to_string(path)
-            .wrap_err_with(|| format!("Failed to read migration file: {}", path.display()))?;
 
         let mut hasher = Sha256::new();
         hasher.update(cypher.as_bytes());
@@ -66,7 +49,7 @@ impl Migration {
 
     /// Validate that the migration Cypher is not empty or contain potentially
     /// dangerous operations
-    pub fn validate_migration(&self) -> Result<()> {
+    pub fn validate(&self) -> Result<()> {
         let cypher = self.cypher.trim().to_lowercase();
 
         if cypher.is_empty() {
@@ -82,6 +65,37 @@ impl Migration {
         }
 
         Ok(())
+    }
+}
+
+/// Migrations embedded into binary
+///
+/// During development these are loaded directly from the migrations directory
+/// but are embedded into the binary on release builds.
+#[derive(Embed)]
+#[folder = "$CARGO_MANIFEST_DIR/migrations"]
+#[exclude = "README.md"]
+pub struct Migrations;
+
+impl Migrations {
+    pub fn list() -> Result<Vec<Migration>> {
+        let mut migrations = Vec::new();
+
+        for name in Self::iter() {
+            let Some(file) = Self::get(&name) else {
+                continue;
+            };
+
+            let migration = Migration::new(&name, String::from_utf8(file.data.to_vec())?)?;
+            migration.validate()?;
+
+            migrations.push(migration);
+        }
+
+        // Sort migrations by version
+        migrations.sort_by(|a, b| a.version.cmp(&b.version));
+
+        Ok(migrations)
     }
 }
 
@@ -128,51 +142,14 @@ pub struct MigrationStatus {
 
 /// Manages migration discovery, validation, and execution
 pub struct MigrationRunner {
-    /// Path to the migrations directory
-    migrations_dir: PathBuf,
-
     /// Database connection for executing migrations
     database: Arc<Database>,
 }
 
 impl MigrationRunner {
     /// Create a new MigrationRunner
-    pub fn new(migrations_dir: PathBuf, database: Arc<Database>) -> Self {
-        Self {
-            migrations_dir,
-            database,
-        }
-    }
-
-    /// Discover all migration files in the migrations directory
-    pub fn discover_migrations(&self) -> Result<Vec<Migration>> {
-        if !self.migrations_dir.exists() {
-            return Ok(Vec::new());
-        }
-
-        let mut migrations = Vec::new();
-
-        for entry in read_dir(&self.migrations_dir)? {
-            let entry = entry?;
-            let path = entry.path();
-
-            if path.is_file() && path.extension() == Some(OsStr::new("cypher")) {
-                let migration = Migration::from_file(&path).wrap_err_with(|| {
-                    format!("Failed to parse migration file: {}", path.display())
-                })?;
-
-                migration
-                    .validate_migration()
-                    .wrap_err_with(|| format!("Invalid SQL in migration: {}", migration.version))?;
-
-                migrations.push(migration);
-            }
-        }
-
-        // Sort migrations by version
-        migrations.sort_by(|a, b| a.version.cmp(&b.version));
-
-        Ok(migrations)
+    pub fn new(database: Arc<Database>) -> Self {
+        Self { database }
     }
 
     /// Check if the migrations table exists
@@ -245,7 +222,7 @@ impl MigrationRunner {
 
     /// Find migrations that haven't been applied yet
     pub fn find_pending_migrations(&self) -> Result<Vec<Migration>> {
-        let all_migrations = self.discover_migrations()?;
+        let all_migrations = Migrations::list()?;
         let applied = self.get_applied_migrations()?;
 
         let mut pending = Vec::new();
@@ -291,7 +268,7 @@ impl MigrationRunner {
     pub fn execute_migration(&self, migration: &Migration, dry_run: bool) -> Result<()> {
         if dry_run {
             // For dry-run, just validate the migration without executing
-            migration.validate_migration()?;
+            migration.validate()?;
             return Ok(());
         }
 
@@ -443,28 +420,17 @@ impl MigrationRunner {
 
 #[cfg(test)]
 mod tests {
-    use std::fs::{create_dir, write};
-
-    use common::{chrono, tempfile::TempDir};
+    use common::chrono;
     use kernel_kuzu::kuzu::SystemConfig;
 
     use super::*;
 
-    fn create_test_migration_file(dir: &Path, filename: &str, content: &str) -> Result<PathBuf> {
-        let path = dir.join(filename);
-        write(&path, content)?;
-        Ok(path)
-    }
-
     #[test]
-    fn test_migration_from_file() -> Result<()> {
-        let temp_dir = TempDir::new()?;
-
+    fn test_migration_new() -> Result<()> {
         let migration_content =
             "ALTER TABLE `Reference` ADD COLUMN `test_column` STRING DEFAULT NULL;";
-        let path = create_test_migration_file(temp_dir.path(), "v2.1.0.cypher", migration_content)?;
 
-        let migration = Migration::from_file(&path)?;
+        let migration = Migration::new("v2.1.0", migration_content.to_string())?;
 
         assert_eq!(migration.version.to_string(), "2.1.0");
         assert_eq!(migration.cypher, migration_content);
@@ -473,30 +439,16 @@ mod tests {
     }
 
     #[test]
-    fn test_migration_from_file_invalid_name() -> Result<()> {
-        let temp_dir = TempDir::new()?;
-
+    fn test_migration_new_invalid_name() -> Result<()> {
         // Missing version prefix
-        let path = create_test_migration_file(
-            temp_dir.path(),
-            "1.0.0.cypher",
-            "CREATE NODE TABLE test ();",
-        )?;
-
-        let result = Migration::from_file(&path);
+        let result = Migration::new("1.0.0", "CREATE NODE TABLE test ();".to_string());
         assert!(result.is_err());
         if let Err(error) = result {
             assert!(error.to_string().contains("must follow pattern"));
         }
 
         // Invalid version
-        let path = create_test_migration_file(
-            temp_dir.path(),
-            "v1.0.cypher",
-            "CREATE NODE TABLE test ();",
-        )?;
-
-        let result = Migration::from_file(&path);
+        let result = Migration::new("v1.0", "CREATE NODE TABLE test ();".to_string());
         assert!(result.is_err());
         if let Err(error) = result {
             assert!(error.to_string().contains("Invalid version"));
@@ -507,25 +459,16 @@ mod tests {
 
     #[test]
     fn test_migration_checksum_consistency() -> Result<()> {
-        let temp_dir = TempDir::new()?;
-
         let content = "CREATE NODE TABLE checksum_test ();";
-        let path = create_test_migration_file(temp_dir.path(), "v1.0.0.cypher", content)?;
 
-        let migration1 = Migration::from_file(&path)?;
-        let migration2 = Migration::from_file(&path)?;
+        let migration1 = Migration::new("v1.0.0", content.to_string())?;
+        let migration2 = Migration::new("v1.0.0", content.to_string())?;
 
         // Same content should produce same checksum
         assert_eq!(migration1.checksum, migration2.checksum);
 
         // Different content should produce different checksum
-        let path2 = create_test_migration_file(
-            temp_dir.path(),
-            "v1.1.0.cypher",
-            "CREATE NODE TABLE different ();",
-        )?;
-
-        let migration3 = Migration::from_file(&path2)?;
+        let migration3 = Migration::new("v1.1.0", "CREATE NODE TABLE different ();".to_string())?;
         assert_ne!(migration1.checksum, migration3.checksum);
 
         Ok(())
@@ -533,37 +476,21 @@ mod tests {
 
     #[test]
     fn test_migration_cypher_validation() -> Result<()> {
-        let temp_dir = TempDir::new()?;
-
         // Valid Cypher should pass
-        let path = create_test_migration_file(
-            temp_dir.path(),
-            "v1.0.0.cypher",
-            "CREATE NODE TABLE valid ();",
-        )?;
-
-        let migration = Migration::from_file(&path)?;
-        assert!(migration.validate_migration().is_ok());
+        let migration = Migration::new("v1.0.0", "CREATE NODE TABLE valid ();".to_string())?;
+        assert!(migration.validate().is_ok());
 
         // Empty Cypher should fail
-        let path = create_test_migration_file(temp_dir.path(), "v1.1.0.cypher", "   \n  \t  ")?;
-
-        let migration = Migration::from_file(&path)?;
-        let result = migration.validate_migration();
+        let migration = Migration::new("v1.1.0", "   \n  \t  ".to_string())?;
+        let result = migration.validate();
         assert!(result.is_err());
         if let Err(error) = result {
             assert!(error.to_string().contains("cannot be empty"));
         }
 
         // Dangerous operations should fail
-        let path = create_test_migration_file(
-            temp_dir.path(),
-            "v1.2.0.cypher",
-            "DROP DATABASE production;",
-        )?;
-
-        let migration = Migration::from_file(&path)?;
-        let result = migration.validate_migration();
+        let migration = Migration::new("v1.2.0", "DROP DATABASE production;".to_string())?;
+        let result = migration.validate();
         assert!(result.is_err());
         if let Err(error) = result {
             assert!(
@@ -573,11 +500,8 @@ mod tests {
             );
         }
 
-        let path =
-            create_test_migration_file(temp_dir.path(), "v1.3.0.cypher", "DELETE FROM users;")?;
-
-        let migration = Migration::from_file(&path)?;
-        let result = migration.validate_migration();
+        let migration = Migration::new("v1.3.0", "DELETE FROM users;".to_string())?;
+        let result = migration.validate();
         assert!(result.is_err());
         if let Err(error) = result {
             assert!(
@@ -612,13 +536,12 @@ mod tests {
 
     #[test]
     fn test_migrations_table_exists() -> Result<()> {
-        let temp_dir = TempDir::new()?;
         let database = Arc::new(
             Database::new(":memory:", SystemConfig::default())
                 .map_err(|e| eyre!("Failed to create test database: {}", e))?,
         );
 
-        let runner = MigrationRunner::new(temp_dir.path().to_path_buf(), database);
+        let runner = MigrationRunner::new(database);
 
         // For an empty database, migrations table should not exist
         assert!(!runner.migrations_table_exists()?);
@@ -629,205 +552,27 @@ mod tests {
     }
 
     #[test]
-    fn test_migration_runner_discovery() -> Result<()> {
-        let temp_dir = TempDir::new()?;
-
-        // Create test migration files
-        create_test_migration_file(
-            temp_dir.path(),
-            "v1.0.0.cypher",
-            "CREATE NODE TABLE test ();",
-        )?;
-
-        create_test_migration_file(
-            temp_dir.path(),
-            "v2.0.0.cypher",
-            "ALTER TABLE test ADD COLUMN name STRING;",
-        )?;
-
-        let database = Arc::new(
-            Database::new(":memory:", SystemConfig::default())
-                .map_err(|e| eyre!("Failed to create test database: {}", e))?,
-        );
-
-        let runner = MigrationRunner::new(temp_dir.path().to_path_buf(), database);
-        let migrations = runner.discover_migrations()?;
-
-        assert_eq!(migrations.len(), 2);
-        assert_eq!(migrations[0].version.to_string(), "1.0.0");
-        assert_eq!(migrations[1].version.to_string(), "2.0.0");
-        Ok(())
-    }
-
-    #[test]
-    fn test_migration_runner_validate_sequence() -> Result<()> {
-        let temp_dir = TempDir::new()?;
-        let database = Arc::new(
-            Database::new(":memory:", SystemConfig::default())
-                .map_err(|e| eyre!("Failed to create test database: {}", e))?,
-        );
-
-        let runner = MigrationRunner::new(temp_dir.path().to_path_buf(), database);
-
-        let migration1 = Migration {
-            version: Version::new(1, 0, 0),
-            checksum: "checksum1".to_string(),
-            cypher: "Cypher 1".to_string(),
-        };
-
-        let migration2 = Migration {
-            version: Version::new(2, 0, 0),
-            checksum: "checksum2".to_string(),
-            cypher: "Cypher 2".to_string(),
-        };
-
-        // Valid sequence should pass
-        let result = runner.validate_migration_sequence(&[migration1.clone(), migration2]);
-        assert!(result.is_ok());
-
-        // Duplicate version should fail
-        let result = runner.validate_migration_sequence(&[migration1.clone(), migration1]);
-        assert!(result.is_err());
-        Ok(())
-    }
-
-    #[test]
-    fn test_migration_runner_sorting() -> Result<()> {
-        let temp_dir = TempDir::new()?;
-
-        // Create migrations in non-sorted order
-        create_test_migration_file(
-            temp_dir.path(),
-            "v2.1.0.cypher",
-            "CREATE NODE TABLE second ();",
-        )?;
-
-        create_test_migration_file(
-            temp_dir.path(),
-            "v1.0.0.cypher",
-            "CREATE NODE TABLE first ();",
-        )?;
-
-        create_test_migration_file(
-            temp_dir.path(),
-            "v2.0.0.cypher",
-            "CREATE NODE TABLE middle ();",
-        )?;
-
-        let database = Arc::new(
-            Database::new(":memory:", SystemConfig::default())
-                .map_err(|e| eyre!("Failed to create test database: {}", e))?,
-        );
-
-        let runner = MigrationRunner::new(temp_dir.path().to_path_buf(), database);
-        let migrations = runner.discover_migrations()?;
-
-        assert_eq!(migrations.len(), 3);
-        assert_eq!(migrations[0].version.to_string(), "1.0.0");
-        assert_eq!(migrations[1].version.to_string(), "2.0.0");
-        assert_eq!(migrations[2].version.to_string(), "2.1.0");
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_migration_runner_ignores_non_migration_files() -> Result<()> {
-        let temp_dir = TempDir::new()?;
-
-        // Create migration files
-        create_test_migration_file(
-            temp_dir.path(),
-            "v1.0.0.cypher",
-            "CREATE NODE TABLE valid ();",
-        )?;
-
-        // Create non-migration files that should be ignored
-        write(temp_dir.path().join("README.md"), "This is a readme")?;
-        write(temp_dir.path().join("invalid.txt"), "Not a migration")?;
-
-        // Create subdirectory with files (should be ignored)
-        let subdir = temp_dir.path().join("subdir");
-        create_dir(&subdir)?;
-        write(subdir.join("v2.0.0.cypher"), "Should be ignored")?;
-
-        let database = Arc::new(
-            Database::new(":memory:", SystemConfig::default())
-                .map_err(|e| eyre!("Failed to create test database: {}", e))?,
-        );
-
-        let runner = MigrationRunner::new(temp_dir.path().to_path_buf(), database);
-        let migrations = runner.discover_migrations()?;
-
-        // Should only find the one valid migration
-        assert_eq!(migrations.len(), 1);
-        assert_eq!(migrations[0].version.to_string(), "1.0.0");
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_migration_runner_empty_directory() -> Result<()> {
-        let temp_dir = TempDir::new()?;
-
-        let database = Arc::new(
-            Database::new(":memory:", SystemConfig::default())
-                .map_err(|e| eyre!("Failed to create test database: {}", e))?,
-        );
-
-        let runner = MigrationRunner::new(temp_dir.path().to_path_buf(), database);
-        let migrations = runner.discover_migrations()?;
-
-        assert_eq!(migrations.len(), 0);
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_migration_runner_nonexistent_directory() -> Result<()> {
-        let nonexistent_dir = PathBuf::from("/nonexistent/migrations");
-
-        let database = Arc::new(
-            Database::new(":memory:", SystemConfig::default())
-                .map_err(|e| eyre!("Failed to create test database: {}", e))?,
-        );
-
-        let runner = MigrationRunner::new(nonexistent_dir, database);
-        let migrations = runner.discover_migrations()?;
-
-        // Should return empty vector for non-existent directory
-        assert_eq!(migrations.len(), 0);
-
-        Ok(())
-    }
-
-    #[test]
     fn test_execute_migration_success() -> Result<()> {
-        let temp_dir = TempDir::new()?;
-
-        // Create a simple migration
-        let migration_content =
-            "CREATE NODE TABLE test_table (id STRING PRIMARY KEY, name STRING);";
-        create_test_migration_file(temp_dir.path(), "v1.0.0.cypher", migration_content)?;
-
         let database = Arc::new(
             Database::new(":memory:", SystemConfig::default())
                 .map_err(|e| eyre!("Failed to create test database: {}", e))?,
         );
 
-        let runner = MigrationRunner::new(temp_dir.path().to_path_buf(), database);
+        let runner = MigrationRunner::new(database);
 
         // Initialize the database with the migrations table
         let connection = Connection::new(&runner.database)?;
         connection.query("CREATE NODE TABLE IF NOT EXISTS _migrations (version STRING PRIMARY KEY, appliedAt TIMESTAMP, checksum STRING)")?;
         drop(connection);
 
-        let migrations = runner.discover_migrations()?;
-
-        assert_eq!(migrations.len(), 1);
-        let migration = &migrations[0];
+        // Create a test migration directly
+        let migration = Migration::new(
+            "v1.0.0",
+            "CREATE NODE TABLE test_table (id STRING PRIMARY KEY, name STRING);".to_string(),
+        )?;
 
         // Execute the migration
-        runner.execute_migration(migration, false)?;
+        runner.execute_migration(&migration, false)?;
 
         // Verify migration was recorded in history
         let applied_migrations = runner.get_applied_migrations()?;
@@ -842,31 +587,26 @@ mod tests {
 
     #[test]
     fn test_execute_migration_rollback() -> Result<()> {
-        let temp_dir = TempDir::new()?;
-
-        // Create a migration with invalid Cypher
-        let migration_content = "CREATE NODE TABLE invalid_syntax (id INVALID_TYPE);";
-        create_test_migration_file(temp_dir.path(), "v1.0.0.cypher", migration_content)?;
-
         let database = Arc::new(
             Database::new(":memory:", SystemConfig::default())
                 .map_err(|e| eyre!("Failed to create test database: {}", e))?,
         );
 
-        let runner = MigrationRunner::new(temp_dir.path().to_path_buf(), database);
+        let runner = MigrationRunner::new(database);
 
         // Initialize the database with the migrations table
         let connection = Connection::new(&runner.database)?;
         connection.query("CREATE NODE TABLE IF NOT EXISTS _migrations (version STRING PRIMARY KEY, appliedAt TIMESTAMP, checksum STRING)")?;
         drop(connection);
 
-        let migrations = runner.discover_migrations()?;
-
-        assert_eq!(migrations.len(), 1);
-        let migration = &migrations[0];
+        // Create a migration with invalid Cypher
+        let migration = Migration::new(
+            "v1.0.0",
+            "CREATE NODE TABLE invalid_syntax (id INVALID_TYPE);".to_string(),
+        )?;
 
         // Execute the migration - should fail
-        let result = runner.execute_migration(migration, false);
+        let result = runner.execute_migration(&migration, false);
         assert!(result.is_err());
 
         // Verify no migration was recorded in history
@@ -877,71 +617,24 @@ mod tests {
     }
 
     #[test]
-    fn test_execute_pending_migrations() -> Result<()> {
-        let temp_dir = TempDir::new()?;
-
-        // Create multiple migrations
-        create_test_migration_file(
-            temp_dir.path(),
-            "v1.0.0.cypher",
-            "CREATE NODE TABLE first_table (id STRING PRIMARY KEY);",
-        )?;
-
-        create_test_migration_file(
-            temp_dir.path(),
-            "v1.1.0.cypher",
-            "CREATE NODE TABLE second_table (id STRING PRIMARY KEY);",
-        )?;
-
-        let database = Arc::new(
-            Database::new(":memory:", SystemConfig::default())
-                .map_err(|e| eyre!("Failed to create test database: {}", e))?,
-        );
-
-        let runner = MigrationRunner::new(temp_dir.path().to_path_buf(), database);
-
-        // Initialize the database with the migrations table
-        let connection = Connection::new(&runner.database)?;
-        connection.query("CREATE NODE TABLE IF NOT EXISTS _migrations (version STRING PRIMARY KEY, appliedAt TIMESTAMP, checksum STRING)")?;
-        drop(connection);
-
-        // Execute all pending migrations
-        let executed_migrations = runner.execute_pending_migrations(false)?;
-
-        assert_eq!(executed_migrations.len(), 2);
-        assert_eq!(executed_migrations[0].version.to_string(), "1.0.0");
-        assert_eq!(executed_migrations[1].version.to_string(), "1.1.0");
-
-        // Verify both migrations were recorded
-        let applied_migrations = runner.get_applied_migrations()?;
-        assert_eq!(applied_migrations.len(), 2);
-
-        Ok(())
-    }
-
-    #[test]
     fn test_execute_migration_dry_run() -> Result<()> {
-        let temp_dir = TempDir::new()?;
-
-        // Create a migration
-        let migration_content = "CREATE NODE TABLE test_table (id STRING PRIMARY KEY);";
-        create_test_migration_file(temp_dir.path(), "v1.0.0.cypher", migration_content)?;
-
         let database = Arc::new(
             Database::new(":memory:", SystemConfig::default())
                 .map_err(|e| eyre!("Failed to create test database: {}", e))?,
         );
 
-        let runner = MigrationRunner::new(temp_dir.path().to_path_buf(), database);
-        let migrations = runner.discover_migrations()?;
+        let runner = MigrationRunner::new(database);
 
-        assert_eq!(migrations.len(), 1);
-        let migration = &migrations[0];
+        // Create a test migration directly
+        let migration = Migration::new(
+            "v1.0.0",
+            "CREATE NODE TABLE test_table (id STRING PRIMARY KEY);".to_string(),
+        )?;
 
         // Execute in dry-run mode
-        runner.execute_migration(migration, true)?;
+        runner.execute_migration(&migration, true)?;
 
-        // Verify no migration was actually applied
+        // Verify no migration was actually applied (dry run doesn't create tables)
         let applied_migrations = runner.get_applied_migrations()?;
         assert!(!applied_migrations.contains_key(&migration.version));
 
@@ -949,80 +642,30 @@ mod tests {
     }
 
     #[test]
-    fn test_get_migration_status() -> Result<()> {
-        let temp_dir = TempDir::new()?;
-
-        // Create migrations
-        create_test_migration_file(
-            temp_dir.path(),
-            "v1.0.0.cypher",
-            "CREATE NODE TABLE applied_table (id STRING PRIMARY KEY);",
-        )?;
-
-        create_test_migration_file(
-            temp_dir.path(),
-            "v1.1.0.cypher",
-            "CREATE NODE TABLE pending_table (id STRING PRIMARY KEY);",
-        )?;
-
-        let database = Arc::new(
-            Database::new(":memory:", SystemConfig::default())
-                .map_err(|e| eyre!("Failed to create test database: {}", e))?,
-        );
-
-        let runner = MigrationRunner::new(temp_dir.path().to_path_buf(), database);
-
-        // Initialize the database with the migrations table
-        let connection = Connection::new(&runner.database)?;
-        connection.query("CREATE NODE TABLE IF NOT EXISTS _migrations (version STRING PRIMARY KEY, appliedAt TIMESTAMP, checksum STRING)")?;
-        drop(connection);
-
-        let migrations = runner.discover_migrations()?;
-
-        // Apply only the first migration
-        runner.execute_migration(&migrations[0], false)?;
-
-        // Get migration status
-        let status = runner.get_migration_status()?;
-
-        assert_eq!(status.applied_count, 1);
-        assert_eq!(status.pending_count, 1);
-        assert_eq!(status.applied_versions.len(), 1);
-        assert_eq!(status.pending_versions.len(), 1);
-        assert_eq!(status.applied_versions[0].to_string(), "1.0.0");
-        assert_eq!(status.pending_versions[0].to_string(), "1.1.0");
-
-        Ok(())
-    }
-
-    #[test]
     fn test_execute_migration_checksum_validation() -> Result<()> {
-        let temp_dir = TempDir::new()?;
-
-        // Create a migration
-        let migration_content = "CREATE NODE TABLE test_table (id STRING PRIMARY KEY);";
-        create_test_migration_file(temp_dir.path(), "v1.0.0.cypher", migration_content)?;
-
         let database = Arc::new(
             Database::new(":memory:", SystemConfig::default())
                 .map_err(|e| eyre!("Failed to create test database: {}", e))?,
         );
 
-        let runner = MigrationRunner::new(temp_dir.path().to_path_buf(), database);
+        let runner = MigrationRunner::new(database);
 
         // Initialize the database with the migrations table
         let connection = Connection::new(&runner.database)?;
         connection.query("CREATE NODE TABLE IF NOT EXISTS _migrations (version STRING PRIMARY KEY, appliedAt TIMESTAMP, checksum STRING)")?;
         drop(connection);
 
-        let migrations = runner.discover_migrations()?;
-        let migration = &migrations[0];
+        // Create a test migration directly
+        let migration = Migration::new(
+            "v1.0.0",
+            "CREATE NODE TABLE test_table (id STRING PRIMARY KEY);".to_string(),
+        )?;
 
         // Apply the migration
-        runner.execute_migration(migration, false)?;
+        runner.execute_migration(&migration, false)?;
 
         // Try to apply again - should succeed (idempotent)
-        runner.execute_migration(migration, false)?;
+        runner.execute_migration(&migration, false)?;
 
         // Verify still only one migration record
         let applied_migrations = runner.get_applied_migrations()?;
@@ -1033,7 +676,17 @@ mod tests {
 
     #[test]
     fn test_execute_migration_multi_statement() -> Result<()> {
-        let temp_dir = TempDir::new()?;
+        let database = Arc::new(
+            Database::new(":memory:", SystemConfig::default())
+                .map_err(|e| eyre!("Failed to create test database: {}", e))?,
+        );
+
+        let runner = MigrationRunner::new(database);
+
+        // Initialize the database with the migrations table
+        let connection = Connection::new(&runner.database)?;
+        connection.query("CREATE NODE TABLE IF NOT EXISTS _migrations (version STRING PRIMARY KEY, appliedAt TIMESTAMP, checksum STRING)")?;
+        drop(connection);
 
         // Create a migration with multiple statements
         let migration_content = r#"
@@ -1042,27 +695,11 @@ mod tests {
             // This is a comment
             CREATE NODE TABLE third_table (id STRING PRIMARY KEY);
         "#;
-        create_test_migration_file(temp_dir.path(), "v1.0.0.cypher", migration_content)?;
 
-        let database = Arc::new(
-            Database::new(":memory:", SystemConfig::default())
-                .map_err(|e| eyre!("Failed to create test database: {}", e))?,
-        );
-
-        let runner = MigrationRunner::new(temp_dir.path().to_path_buf(), database);
-
-        // Initialize the database with the migrations table
-        let connection = Connection::new(&runner.database)?;
-        connection.query("CREATE NODE TABLE IF NOT EXISTS _migrations (version STRING PRIMARY KEY, appliedAt TIMESTAMP, checksum STRING)")?;
-        drop(connection);
-
-        let migrations = runner.discover_migrations()?;
-
-        assert_eq!(migrations.len(), 1);
-        let migration = &migrations[0];
+        let migration = Migration::new("v1.0.0", migration_content.to_string())?;
 
         // Execute the migration
-        runner.execute_migration(migration, false)?;
+        runner.execute_migration(&migration, false)?;
 
         // Verify migration was recorded
         let applied_migrations = runner.get_applied_migrations()?;

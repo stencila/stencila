@@ -11,6 +11,7 @@ dirs = { path = "../dirs" }
 derive_more = { workspace = true }
 embed = { path = "../embed" }
 kernel-kuzu = { path = "../kernel-kuzu" }
+rust-embed = { version = "8.7.2", features = ["interpolate-folder-path", "include-exclude"] }
 schema = { path = "../schema" }
 semver = { workspace = true }
 serde = { workspace = true }

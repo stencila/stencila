@@ -36,7 +36,7 @@ impl Migrate {
         let db_path = resolve_database(self.db).await?;
 
         let database = Arc::new(Database::new(&db_path, SystemConfig::default())?);
-        let runner = MigrationRunner::new(get_migrations_dir()?, database);
+        let runner = MigrationRunner::new(database);
 
         let executed_migrations = runner.execute_pending_migrations(self.dry_run)?;
 
@@ -96,7 +96,7 @@ impl Migrations {
     pub async fn run(self) -> Result<()> {
         let db_path = resolve_database(self.db).await?;
         let database = Arc::new(Database::new(&db_path, SystemConfig::default())?);
-        let runner = MigrationRunner::new(get_migrations_dir()?, database);
+        let runner = MigrationRunner::new(database);
 
         let status = runner.get_migration_status()?;
 
@@ -177,9 +177,3 @@ async fn resolve_database(path: Option<PathBuf>) -> Result<PathBuf> {
     Ok(path)
 }
 
-/// Get the migrations directory path
-fn get_migrations_dir() -> Result<PathBuf> {
-    // TODO: In Phase 4, make this configurable/discoverable
-    // For now, assume migrations are in the same directory as the database
-    Ok(PathBuf::from("migrations"))
-}
