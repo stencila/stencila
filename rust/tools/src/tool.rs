@@ -10,8 +10,8 @@ use std::{
 };
 
 use mcp_types::{Tool as McpTool, ToolInputSchema as McpToolInputSchema};
-use serde::Serialize;
 pub use semver::{Version, VersionReq};
+use serde::Serialize;
 use which::which;
 
 use common::{

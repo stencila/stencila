@@ -113,7 +113,7 @@ pub struct DocsQLKernelInstance {
     environment: Environment<'static>,
 
     /// Execution messages collected while executing code
-    /// 
+    ///
     /// This is necessary because some of the Jinja trait messages that we call
     /// are infallible, so if queries error we need to add them to this.
     messages: Arc<SyncMutex<Vec<ExecutionMessage>>>,
@@ -149,7 +149,7 @@ impl DocsQLKernelInstance {
     }
 
     /// Add a `workspace` global object representing the workspace database
-    /// 
+    ///
     /// Initializing a workspace database can take up to a second so this is
     /// done lazily, just-in-time, if the query needs it.
     async fn add_workspace(&mut self) -> Result<()> {

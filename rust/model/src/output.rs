@@ -1,9 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use common::{
-    eyre::Result,
-    serde_with::skip_serializing_none,
-};
+use common::{eyre::Result, serde_with::skip_serializing_none};
 use format::Format;
 use schema::{AuthorRole, AuthorRoleName};
 
