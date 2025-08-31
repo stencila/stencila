@@ -3,13 +3,14 @@ use std::{
     fs::read_to_string,
 };
 
+use serde::Serialize;
+
 use codec::{Codec, DecodeOptions, format::Format};
 use codec_markdown::MarkdownCodec;
 use common::{
     eyre::{Ok, Result, bail},
     glob::glob,
     itertools::Itertools,
-    serde::Serialize,
     tokio,
 };
 use common_dev::{insta::assert_yaml_snapshot, pretty_assertions::assert_eq};
