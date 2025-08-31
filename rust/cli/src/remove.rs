@@ -13,7 +13,7 @@ use document::Document;
 #[derive(Debug, Parser)]
 #[clap(alias = "rm")]
 #[command(after_long_help = REMOVE_AFTER_LONG_HELP)]
-pub struct Cli {
+pub struct Remove {
     /// The document to remove from the workspace database
     #[arg(num_args = 1.., required = true)]
     documents: Vec<String>,
@@ -37,7 +37,7 @@ pub static REMOVE_AFTER_LONG_HELP: &str = cstr!(
 "
 );
 
-impl Cli {
+impl Remove {
     #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
         let Some(first_doc) = self.documents.first() else {

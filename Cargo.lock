@@ -1476,6 +1476,8 @@ dependencies = [
  "kernels",
  "lsp",
  "models",
+ "node-db",
+ "node-diagnostics",
  "node-execute",
  "node-strip",
  "plugins",
@@ -6677,9 +6679,11 @@ dependencies = [
 name = "node-db"
 version = "0.0.0"
 dependencies = [
+ "cli-utils",
  "codec-text-trait",
  "common",
  "derive_more 2.0.1",
+ "dirs 0.0.0",
  "embed",
  "kernel-kuzu",
  "schema",

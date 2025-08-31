@@ -9,9 +9,9 @@ use server::{self, ServeOptions};
 use version::STENCILA_VERSION;
 
 use crate::{
-    add, compile, convert, demo, execute, lint,
+    compile, convert, db, demo, execute, lint,
     logging::{LoggingFormat, LoggingLevel},
-    merge, new, preview, remove, render, sync, uninstall, upgrade,
+    merge, new, preview, render, sync, uninstall, upgrade,
 };
 
 /// CLI subcommands and global options
@@ -239,12 +239,6 @@ pub enum Command {
     Track(document::cli::Track),
     Untrack(document::cli::Untrack),
     Clean(document::cli::Clean),
-
-    Add(add::Cli),
-    Remove(remove::Cli),
-    Rebuild(document::cli::Rebuild),
-    Query(document::cli::Query),
-
     Convert(convert::Cli),
     Merge(merge::Cli),
     Sync(sync::Cli),
@@ -253,14 +247,13 @@ pub enum Command {
     Lint(lint::Cli),
     Execute(execute::Cli),
     Render(render::Cli),
+    Query(document::cli::Query),
 
     Preview(preview::Cli),
     Publish(publish::Cli),
     Demo(demo::Demo),
 
-    Serve(ServeOptions),
-    /// Run the Language Server Protocol server
-    Lsp,
+    Db(db::Cli),
 
     Prompts(prompts::cli::Cli),
     Models(models::cli::Cli),
@@ -270,6 +263,10 @@ pub enum Command {
     Plugins(plugins::cli::Cli),
     Secrets(secrets::cli::Cli),
     Tools(tools::cli::Cli),
+
+    Serve(ServeOptions),
+    /// Run the Language Server Protocol server
+    Lsp,
 
     Cloud(crate::cloud::Cli),
     Signin(crate::cloud::Signin),
@@ -290,57 +287,53 @@ impl Cli {
         tracing::trace!("Running CLI command");
 
         match self.command {
-            Command::New(new) => new.run().await?,
+            Command::New(new) => new.run().await,
 
-            Command::Init(init) => init.run().await?,
-            Command::Config(config) => config.run().await?,
+            Command::Init(init) => init.run().await,
+            Command::Config(config) => config.run().await,
 
-            Command::Status(status) => status.run().await?,
-            Command::Add(add) => add.run().await?,
-            Command::Remove(remove) => remove.run().await?,
-            Command::Move(mov) => mov.run().await?,
-            Command::Track(track) => track.run().await?,
-            Command::Untrack(untrack) => untrack.run().await?,
-            Command::Clean(clean) => clean.run().await?,
+            Command::Status(status) => status.run().await,
+            Command::Move(mov) => mov.run().await,
+            Command::Track(track) => track.run().await,
+            Command::Untrack(untrack) => untrack.run().await,
+            Command::Clean(clean) => clean.run().await,
 
-            Command::Rebuild(rebuild) => rebuild.run().await?,
-            Command::Query(query) => query.run().await?,
+            Command::Convert(convert) => convert.run().await,
+            Command::Merge(merge) => merge.run().await,
+            Command::Sync(sync) => sync.run().await,
 
-            Command::Convert(convert) => convert.run().await?,
-            Command::Merge(merge) => merge.run().await?,
-            Command::Sync(sync) => sync.run().await?,
+            Command::Compile(compile) => compile.run().await,
+            Command::Lint(lint) => lint.run().await,
+            Command::Execute(execute) => execute.run().await,
+            Command::Render(render) => render.run().await,
+            Command::Query(query) => query.run().await,
 
-            Command::Compile(compile) => compile.run().await?,
-            Command::Lint(lint) => lint.run().await?,
-            Command::Execute(execute) => execute.run().await?,
-            Command::Render(render) => render.run().await?,
+            Command::Preview(preview) => preview.run().await,
+            Command::Publish(publish) => publish.run().await,
+            Command::Demo(demo) => demo.run().await,
 
-            Command::Preview(preview) => preview.run().await?,
-            Command::Publish(publish) => publish.run().await?,
-            Command::Demo(demo) => demo.run().await?,
+            Command::Db(db) => db.run().await,
 
-            Command::Serve(options) => server::serve(options).await?,
+            Command::Prompts(prompts) => prompts.run().await,
+            Command::Models(models) => models.run().await,
+            Command::Kernels(kernels) => kernels.run().await,
+            Command::Linters(linters) => linters.run().await,
+            Command::Formats(codecs) => codecs.run().await,
+            Command::Plugins(plugins) => plugins.run().await,
+            Command::Secrets(secrets) => secrets.run().await,
+            Command::Tools(tools) => tools.run().await,
 
-            Command::Prompts(prompts) => prompts.run().await?,
-            Command::Models(models) => models.run().await?,
-            Command::Kernels(kernels) => kernels.run().await?,
-            Command::Linters(linters) => linters.run().await?,
-            Command::Formats(codecs) => codecs.run().await?,
-            Command::Plugins(plugins) => plugins.run().await?,
-            Command::Secrets(secrets) => secrets.run().await?,
-            Command::Tools(tools) => tools.run().await?,
+            Command::Serve(options) => server::serve(options).await,
 
-            Command::Cloud(cloud) => cloud.run().await?,
-            Command::Signin(signin) => signin.run().await?,
-            Command::Signout(signout) => signout.run().await?,
+            Command::Cloud(cloud) => cloud.run().await,
+            Command::Signin(signin) => signin.run().await,
+            Command::Signout(signout) => signout.run().await,
 
-            Command::Upgrade(upgrade) => upgrade.run().await?,
-            Command::Uninstall(uninstall) => uninstall.run().await?,
+            Command::Upgrade(upgrade) => upgrade.run().await,
+            Command::Uninstall(uninstall) => uninstall.run().await,
 
             // Handled before this function
             Command::Lsp => bail!("The LSP command should already been run"),
         }
-
-        Ok(())
     }
 }

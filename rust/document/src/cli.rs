@@ -24,11 +24,8 @@ use common::{
 };
 use dirs::{CreateStencilaDirOptions, STENCILA_DIR, closest_workspace_dir, stencila_dir_create};
 use format::Format;
-use kernels::Kernels;
 use node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
-use schema::{
-    Article, Block, Collection, CreativeWorkVariant, ExecutionBounds, Node, NodeId, NodeType,
-};
+use schema::{Article, Block, Collection, CreativeWorkVariant, Node, NodeId, NodeType};
 
 use crate::track::DocumentRemote;
 
@@ -92,68 +89,26 @@ impl Init {
     }
 }
 
-/// Rebuild a workspace database
-#[derive(Debug, Parser)]
-#[command(after_long_help = REBUILD_AFTER_LONG_HELP)]
-pub struct Rebuild {
-    /// The workspace directory to rebuild the database for
-    ///
-    /// Defaults to the current directory.
-    #[arg(default_value = ".")]
-    dir: PathBuf,
-}
-
-pub static REBUILD_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><b>Examples</b></bold>
-  <dim># Rebuild database for current workspace</dim>
-  <b>stencila rebuild</>
-
-  <dim># Rebuild database for specific workspace</dim>
-  <b>stencila rebuild</> <g>./my-project</>
-
-<bold><b>Note</b></bold>
-  This recreates the workspace database from scratch,
-  re-scanning all tracked documents and their metadata.
-  Use this if the database becomes corrupted or outdated.
-"
-);
-
-impl Rebuild {
-    #[tracing::instrument]
-    pub async fn run(self) -> Result<()> {
-        Document::tracking_rebuild(&self.dir).await
-    }
-}
-
 /// Query a workspace database
 #[derive(Debug, Parser)]
 #[command(after_long_help = QUERY_AFTER_LONG_HELP)]
 pub struct Query {
-    /// The document, or document database, to query
+    /// The document to query
     ///
     /// Use the path to a file to create a temporary database for that
     /// file to query.
-    input: String,
+    file: PathBuf,
 
     /// The DocsQL or Cypher query to run
     ///
     /// If the query begins with the word `MATCH` it will be assumed to be cypher.
     /// Use the `--cypher` flag to force this.
-    query: Option<String>,
+    query: String,
 
     /// The path of the file to output the result to
     ///
     /// If not supplied the output content is written to `stdout`.
     output: Option<String>,
-
-    /// The directory from which the closest workspace should be found
-    ///
-    /// Only applies when `input` is `.` or `workspace`
-    /// Defaults to the current directory. Use this option if wanting
-    /// to query a database outside of the current workspace, or if
-    /// not in a workspace.
-    #[arg(long, default_value = ".")]
-    dir: PathBuf,
 
     /// Use Cypher as the query language (instead of DocsQL the default)
     #[arg(long, short)]
@@ -193,9 +148,6 @@ pub struct Query {
 
 pub static QUERY_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
-  <dim># Query the workspace database</dim>
-  <b>stencila query</> <y>\"workspace.paragraphs()\"</>
-
   <dim># Query a specific document</dim>
   <b>stencila query</> <g>article.qmd </><y>\"paragraphs().sample(3)\"</>
 
@@ -210,52 +162,25 @@ pub static QUERY_AFTER_LONG_HELP: &str = cstr!(
 impl Query {
     #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
-        if !self.dir.exists() {
-            bail!("Directory `{}` does not exist", self.dir.display())
+        if !self.file.exists() {
+            bail!("File `{}` does not exist", self.file.display())
         }
 
-        // Shift positional arguments to handle case when two or less provided
-        let (document, query, output) = match (self.query, self.output) {
-            // Three args
-            (Some(query), Some(output)) => (Some(self.input), query, Some(output)),
-            // Two args
-            (Some(query), None) => {
-                if PathBuf::from(&self.input).exists() {
-                    // Input exists of the filesystem so use args as provided
-                    (Some(self.input), query, None)
-                } else {
-                    // "Shift" args to right so that second one is the output
-                    (None, self.input, Some(query))
-                }
-            }
-            // One arg
-            (None, ..) => (None, self.input, None),
-        };
+        // Open the document
+        let document = Document::open(&self.file, None).await?;
+        if !self.no_compile {
+            document.compile().await?;
+        }
 
-        let db = match document {
-            Some(..) => "document",
-            None => "workspace", // TODO: add --db option for specifying db when using cypher
-        };
-
-        let (language, code) = if self.cypher || query.to_lowercase().starts_with("match ") {
-            ("docsdb", format!("// @{db}\n{query}"))
+        let (language, code) = if self.cypher || self.query.to_lowercase().starts_with("match ") {
+            ("docsdb", ["// @document\n", &self.query].concat())
         } else {
-            ("docsql", query.to_string())
+            ("docsql", self.query.clone())
         };
 
-        let (nodes, messages, ..) = if let Some(path) = document.map(PathBuf::from) {
-            // Open the document and execute within its kernels
-            let document = Document::open(&path, None).await?;
-            if !self.no_compile {
-                document.compile().await?;
-            }
-            let mut kernels = document.kernels.write().await;
-            kernels.execute(&code, Some(language)).await?
-        } else {
-            // Create an "orphan" set of kernels (not bound to a document)
-            let mut kernels = Kernels::new(ExecutionBounds::Main, &self.dir, None);
-            kernels.execute(&code, Some(language)).await?
-        };
+        // Execute within the document's kernels
+        let mut kernels = document.kernels.write().await;
+        let (nodes, messages, ..) = kernels.execute(&code, Some(language)).await?;
 
         // Display any messages as a diagnostic
         for msg in messages {
@@ -268,10 +193,10 @@ impl Query {
                 error_type: msg.error_type.clone(),
                 message: msg.message.clone(),
                 format: None,
-                code: Some(query.to_string()),
+                code: Some(self.query.to_string()),
                 code_location: msg.code_location.clone(),
             }
-            .to_stderr("<code>", &query, &None)
+            .to_stderr("<code>", &self.query, &None)
             .ok();
         }
 
@@ -308,7 +233,7 @@ impl Query {
             .then_some(true)
             .or(self.pretty.then_some(false));
 
-        if let Some(output) = output.map(PathBuf::from) {
+        if let Some(output) = self.output.map(PathBuf::from) {
             // If output is defined then encode to file
             codecs::to_path(
                 &node,

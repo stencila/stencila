@@ -28,12 +28,12 @@ use kernel_kuzu::{
 use schema::{Node, NodeId, NodePath, NodeProperty, NodeType, Visitor, WalkNode};
 
 
+pub mod cli;
+mod migrations;
 #[rustfmt::skip]
 mod node_types;
 #[rustfmt::skip]
 mod vector_indices;
-
-pub mod migrations;
 mod walker;
 
 use migrations::MigrationRunner;
