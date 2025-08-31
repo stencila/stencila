@@ -1,4 +1,7 @@
-use std::{env::var_os, io::{stderr, stdin, IsTerminal, Write}};
+use std::{
+    env::var_os,
+    io::{IsTerminal, Write, stderr, stdin},
+};
 
 use owo_colors::OwoColorize;
 use rpassword::read_password;

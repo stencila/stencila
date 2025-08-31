@@ -372,9 +372,10 @@ impl<'a> KuzuSchemaBuilder<'a> {
                         &mut one_to_one,
                         &mut many_to_many,
                         &mut relations,
-                    )? {
-                        node_table.add_column(column)
-                    }
+                    )?
+                {
+                    node_table.add_column(column)
+                }
             }
 
             // Add derived properties

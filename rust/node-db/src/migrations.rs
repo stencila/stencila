@@ -553,7 +553,7 @@ mod tests {
         let runner = MigrationRunner::new(&database);
 
         // Initialize the database with the migrations table
-        let connection = Connection::new(&runner.database)?;
+        let connection = Connection::new(runner.database)?;
         connection.query("CREATE NODE TABLE IF NOT EXISTS _migrations (version STRING PRIMARY KEY, appliedAt TIMESTAMP, checksum STRING)")?;
         drop(connection);
 
@@ -585,7 +585,7 @@ mod tests {
         let runner = MigrationRunner::new(&database);
 
         // Initialize the database with the migrations table
-        let connection = Connection::new(&runner.database)?;
+        let connection = Connection::new(runner.database)?;
         connection.query("CREATE NODE TABLE IF NOT EXISTS _migrations (version STRING PRIMARY KEY, appliedAt TIMESTAMP, checksum STRING)")?;
         drop(connection);
 
@@ -637,7 +637,7 @@ mod tests {
         let runner = MigrationRunner::new(&database);
 
         // Initialize the database with the migrations table
-        let connection = Connection::new(&runner.database)?;
+        let connection = Connection::new(runner.database)?;
         connection.query("CREATE NODE TABLE IF NOT EXISTS _migrations (version STRING PRIMARY KEY, appliedAt TIMESTAMP, checksum STRING)")?;
         drop(connection);
 
@@ -668,7 +668,7 @@ mod tests {
         let runner = MigrationRunner::new(&database);
 
         // Initialize the database with the migrations table
-        let connection = Connection::new(&runner.database)?;
+        let connection = Connection::new(runner.database)?;
         connection.query("CREATE NODE TABLE IF NOT EXISTS _migrations (version STRING PRIMARY KEY, appliedAt TIMESTAMP, checksum STRING)")?;
         drop(connection);
 
