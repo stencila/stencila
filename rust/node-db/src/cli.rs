@@ -12,6 +12,8 @@ use cli_utils::{
 use common::{
     clap::{self, Args},
     eyre::{Result, bail},
+    itertools::Itertools,
+    tokio::fs::remove_file,
 };
 use dirs::{closest_stencila_dir, stencila_db_file};
 use kernel_kuzu::kuzu::{Database, SystemConfig};
@@ -44,16 +46,20 @@ impl New {
             }
         };
 
-        if path.exists() && !self.force
-            && ask(&format!(
-                "Database already exists at `{}`. Do you really want to overwrite it?",
-                path.display()
-            ))
-            .await?
-            .is_no()
+        if path.exists() {
+            if !self.force
+                && ask(&format!(
+                    "Database already exists at `{}`. Do you really want to overwrite it?",
+                    path.display()
+                ))
+                .await?
+                .is_no()
             {
                 return Ok(());
             }
+
+            remove_file(&path).await?;
+        }
 
         NodeDatabase::new(&path)?;
 
@@ -107,22 +113,27 @@ impl Migrate {
             return Ok(());
         }
 
+        let versions = executed_migrations
+            .iter()
+            .map(|migration| migration.version.to_string())
+            .join(" → ");
+
         if self.dry_run {
             message(
-                &format!("Would apply {} migration(s):", executed_migrations.len()),
+                &format!(
+                    "Would apply {} migration(s): {versions}",
+                    executed_migrations.len()
+                ),
                 Some("📋"),
             );
-            for migration in executed_migrations {
-                println!("  • {}", migration.version);
-            }
         } else {
             message(
-                &format!("Applied {} migration(s):", executed_migrations.len()),
+                &format!(
+                    "Applied {} migration(s): {versions}",
+                    executed_migrations.len()
+                ),
                 Some("⏩"),
             );
-            for migration in executed_migrations {
-                println!("  ✓ {}", migration.version);
-            }
         }
 
         Ok(())
