@@ -3,9 +3,11 @@
 use std::collections::HashMap;
 
 use darling::{self, FromDeriveInput, FromField};
+use inflector::Inflector;
+use itertools::Itertools;
+use proc_macro2::TokenStream;
+use quote::quote;
 use syn::{self, Data, DataEnum, DeriveInput, Fields, Ident, parse_macro_input};
-
-use common::{inflector::Inflector, itertools::Itertools, proc_macro2::TokenStream, quote::quote};
 
 #[derive(FromDeriveInput)]
 #[darling(attributes(html))]

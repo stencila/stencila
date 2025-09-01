@@ -1,9 +1,9 @@
 //! Provides a `StripNode` derive macro for structs and enums in Stencila Schema
 
 use darling::{self, FromDeriveInput, FromField};
+use proc_macro2::TokenStream;
+use quote::quote;
 use syn::{self, Data, DataEnum, DeriveInput, Fields, Ident, PathSegment, Type, parse_macro_input};
-
-use common::{proc_macro2::TokenStream, quote::quote};
 
 #[derive(FromDeriveInput)]
 #[darling(attributes(strip))]

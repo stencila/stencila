@@ -7,8 +7,10 @@ edition = "2024"
 proc-macro = true
 
 [dependencies]
-common = { path = "../common" }
+Inflector = { workspace = true }
 darling = { workspace = true }
+proc-macro2 = { workspace = true }
+quote = { workspace = true }
 format = { path = "../format" }
 syn = { workspace = true }
 
