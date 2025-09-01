@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
+use eyre::{Context, Result, bail, eyre};
 use rust_embed::Embed;
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use time::{OffsetDateTime, format_description::well_known::Rfc3339};
 
-use common::eyre::{Context, Result, bail, eyre};
 use kernel_kuzu::kuzu::{Connection, Database, Value};
 
 /// Represents a single migration with metadata
@@ -416,7 +416,7 @@ impl<'d> MigrationRunner<'d> {
 
 #[cfg(test)]
 mod tests {
-    use common::chrono;
+    use chrono;
     use kernel_kuzu::kuzu::SystemConfig;
 
     use super::*;

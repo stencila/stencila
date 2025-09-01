@@ -8,19 +8,15 @@ use std::{
 };
 
 use derive_more::{Deref, DerefMut};
-use node_types::primary_key;
+use eyre::{Context, Result, bail, eyre};
+use itertools::Itertools;
+use once_cell::sync::Lazy;
+use tempfile::NamedTempFile;
 use time::{
     Duration, OffsetDateTime,
     format_description::{self, BorrowedFormatItem},
 };
 
-use common::{
-    eyre::{Context, Result, bail, eyre},
-    itertools::Itertools,
-    once_cell::sync::Lazy,
-    tempfile::NamedTempFile,
-    tracing,
-};
 use kernel_kuzu::{
     KuzuKernel, ToKuzu,
     kuzu::{
@@ -39,6 +35,7 @@ mod vector_indices;
 mod walker;
 
 use migrations::MigrationRunner;
+use node_types::primary_key;
 use vector_indices::VECTOR_EMBEDDINGS;
 use walker::DatabaseWalker;
 
