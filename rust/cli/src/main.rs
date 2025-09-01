@@ -2,14 +2,15 @@
 
 use std::{env::set_var, process::exit};
 
-use cli_utils::message;
-use common::{clap::Parser, eyre::Result, tokio};
+use clap::Parser;
+use eyre::Result;
 
 use cli::{
     Cli, Command, errors,
     logging::{self, LoggingFormat, LoggingLevel},
     upgrade,
 };
+use cli_utils::message;
 
 /// Main entry function
 #[tokio::main]

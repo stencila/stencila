@@ -1,12 +1,9 @@
 use ask::ask_for_password;
-use cli_utils::{color_print::cstr, message};
-use common::{
-    clap::{self, Args, Parser, Subcommand},
-    eyre::{Result, bail},
-    tokio,
-};
+use clap::{self, Args, Parser, Subcommand};
+use eyre::{Result, bail};
 use url::Url;
 
+use cli_utils::{color_print::cstr, message};
 use cloud::TokenSource;
 use server::{ServeOptions, get_server_token};
 

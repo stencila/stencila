@@ -7,26 +7,24 @@ use std::{
     time::{Duration, SystemTime},
 };
 
+use clap::{self, Parser};
+use eyre::{Report, Result, bail};
 use flate2::read::GzDecoder;
+use once_cell::sync::Lazy;
+use reqwest::{Client, header::USER_AGENT};
 use serde::{Deserialize, Serialize};
+use serde_json;
+use tar::Archive;
+use tempfile;
+use tokio::{
+    self,
+    fs::{self, read_to_string, write},
+    task::JoinHandle,
+};
+use tracing;
 use zip::ZipArchive;
 
 use cli_utils::color_print::cstr;
-use common::{
-    clap::{self, Parser},
-    eyre::{Report, Result, bail},
-    once_cell::sync::Lazy,
-    reqwest::{Client, header::USER_AGENT},
-    serde_json,
-    tar::Archive,
-    tempfile,
-    tokio::{
-        self,
-        fs::{self, read_to_string, write},
-        task::JoinHandle,
-    },
-    tracing,
-};
 use dirs::{DirType, get_app_dir};
 use version::{STENCILA_USER_AGENT, STENCILA_VERSION};
 

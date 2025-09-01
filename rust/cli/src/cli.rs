@@ -1,10 +1,8 @@
 use ask::Answer;
+use clap::{self, Parser, Subcommand};
+use eyre::{Result, bail};
+
 use cli_utils::color_print::cstr;
-use common::{
-    clap::{self, Parser, Subcommand},
-    eyre::{Result, bail},
-    tracing,
-};
 use server::{self, ServeOptions};
 use version::STENCILA_VERSION;
 

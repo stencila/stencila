@@ -25,8 +25,9 @@ pub mod upgrade;
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    use clap::Parser;
     use cli_utils::strip_ansi_escapes;
-    use common::clap::Parser;
 
     /// Test that all CLI example commands in AFTER_LONG_HELP strings parse correctly
     ///

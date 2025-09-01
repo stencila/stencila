@@ -1,11 +1,9 @@
 use std::{env::current_dir, path::PathBuf};
 
+use clap::{self, Parser};
+use eyre::Result;
+
 use cli_utils::color_print::cstr;
-use common::{
-    clap::{self, Parser},
-    eyre::Result,
-    tracing,
-};
 use dirs::closest_stencila_dir;
 use document::Document;
 

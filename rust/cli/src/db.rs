@@ -1,13 +1,11 @@
 use std::{env::current_dir, path::PathBuf};
 
+use clap::{self, Parser, Subcommand};
+use eyre::Result;
+use itertools::Itertools;
+
 use cli_utils::{Code, ToStdout, color_print::cstr, message};
 use codecs::{EncodeOptions, LossesResponse};
-use common::{
-    clap::{self, Parser, Subcommand},
-    eyre::Result,
-    itertools::Itertools,
-    tracing,
-};
 use dirs::closest_stencila_dir;
 use document::Document;
 use format::Format;

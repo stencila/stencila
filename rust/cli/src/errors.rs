@@ -1,4 +1,5 @@
-use common::{eyre::Result, itertools::Itertools};
+use eyre::Result;
+use itertools::Itertools;
 
 /// Setup error reporting
 ///

@@ -1,11 +1,9 @@
 use std::path::PathBuf;
 
+use clap::{self, Parser};
+use eyre::{OptionExt, Result, bail};
+
 use cli_utils::color_print::cstr;
-use common::{
-    clap::{self, Parser},
-    eyre::{OptionExt, Result, bail},
-    tokio,
-};
 use document::{Document, SyncDirection};
 use server::{ServeOptions, get_server_token};
 

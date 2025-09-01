@@ -1,10 +1,9 @@
 use std::path::PathBuf;
 
+use clap::{self, Parser};
+use eyre::Result;
+
 use cli_utils::color_print::cstr;
-use common::{
-    clap::{self, Parser},
-    eyre::Result,
-};
 use format::Format;
 
 use crate::options::{DecodeOptions, EncodeOptions, StripOptions};

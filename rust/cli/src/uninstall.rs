@@ -1,9 +1,8 @@
+use clap::{self, Parser};
+use eyre::Result;
+
 use ask::{Answer, ask_with_default};
 use cli_utils::color_print::cstr;
-use common::{
-    clap::{self, Parser},
-    eyre::Result,
-};
 
 /// Uninstall the Stencila CLI
 pub fn uninstall() -> Result<()> {

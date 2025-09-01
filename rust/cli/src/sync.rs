@@ -1,11 +1,9 @@
 use std::path::{Path, PathBuf};
 
+use clap::{self, Parser};
+use eyre::Result;
+
 use cli_utils::color_print::cstr;
-use common::{
-    clap::{self, Parser},
-    eyre::Result,
-    tokio,
-};
 use document::{Document, SyncDirection};
 use format::Format;
 

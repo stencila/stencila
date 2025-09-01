@@ -1,10 +1,9 @@
 use std::path::PathBuf;
 
+use clap::{self, Parser, ValueEnum};
+use eyre::Result;
+
 use cli_utils::color_print::cstr;
-use common::{
-    clap::{self, Parser, ValueEnum},
-    eyre::Result,
-};
 use document::Document;
 use schema::NodeType;
 

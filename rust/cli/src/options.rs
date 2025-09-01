@@ -3,8 +3,9 @@ use std::{
     str::FromStr,
 };
 
+use clap::{self, Args};
+
 use codecs::PageSelector;
-use common::clap::{self, Args};
 use format::Format;
 use node_strip::StripScope;
 

@@ -7,11 +7,9 @@ use tracing_subscriber::{
     registry::LookupSpan,
 };
 
-use common::{
-    clap::{self, ValueEnum},
-    eyre::Result,
-    tracing::{Event, Level, Subscriber, metadata::LevelFilter},
-};
+use clap::{self, ValueEnum};
+use eyre::Result;
+use tracing::{Event, Level, Subscriber, metadata::LevelFilter};
 
 /// Setup logging
 ///
@@ -22,7 +20,7 @@ use common::{
 /// - `format`: The format to output log entries
 #[cfg(not(feature = "console-subscriber"))]
 pub fn setup(level: LoggingLevel, filter: &str, format: LoggingFormat) -> Result<()> {
-    use common::eyre::{Context, bail};
+    use eyre::{Context, bail};
     use std::env::var_os;
     use tracing_error::ErrorLayer;
     use tracing_subscriber::{EnvFilter, fmt, registry};
@@ -69,7 +67,7 @@ pub fn setup(level: LoggingLevel, filter: &str, format: LoggingFormat) -> Result
         _ => bail!("Unhandled log format `{}`", format.as_ref()),
     };
 
-    common::tracing::trace!("Logging set up finished");
+    tracing::trace!("Logging set up finished");
 
     Ok(())
 }
