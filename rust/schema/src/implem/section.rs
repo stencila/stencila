@@ -1,5 +1,6 @@
+use inflector::Inflector;
+
 use codec_info::lost_options;
-use common::inflector::Inflector;
 
 use crate::{Section, SectionType, prelude::*};
 

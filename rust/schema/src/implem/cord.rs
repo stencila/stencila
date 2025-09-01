@@ -1,7 +1,8 @@
 use std::{ops::Range, time::Duration};
 
+use similar::{Algorithm, DiffTag, TextDiff, TextDiffConfig};
+
 use codec_html_trait::encode::text;
-use common::similar::{Algorithm, DiffTag, TextDiff, TextDiffConfig};
 use node_store::{
     ReadNode, ReadStore, WriteNode, WriteStore,
     automerge::{ObjId, ObjType, Prop, Value, transaction::Transactable},

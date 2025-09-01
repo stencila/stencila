@@ -1,6 +1,6 @@
 use serde::Serialize;
+use eyre::{Result, bail};
 
-use common::eyre::{Result, bail};
 use node_path::NodePath;
 use node_strip::{StripNode, StripScope, StripTargets};
 use node_type::NodeType;

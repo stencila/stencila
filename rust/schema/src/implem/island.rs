@@ -1,5 +1,4 @@
 use codec_latex_trait::{latex_to_image, to_latex};
-use common::tracing;
 
 use crate::{Island, LabelType, prelude::*};
 

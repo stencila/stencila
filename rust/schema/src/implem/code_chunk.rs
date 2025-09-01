@@ -1,7 +1,6 @@
 use codec_info::{lost_exec_options, lost_options, lost_props};
 use codec_latex_trait::{latex_to_image, to_latex};
 use codec_markdown_trait::to_markdown;
-use common::tracing;
 
 use crate::{
     CodeChunk, Duration, ExecutionBounds, ExecutionMode, LabelType, MessageLevel, Timestamp,

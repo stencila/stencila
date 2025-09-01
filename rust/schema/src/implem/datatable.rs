@@ -1,5 +1,5 @@
 use codec_info::lost_options;
-use common::indexmap::IndexMap;
+use indexmap::IndexMap;
 
 use crate::{ArrayValidator, Datatable, DatatableColumn, Object, Primitive, prelude::*};
 

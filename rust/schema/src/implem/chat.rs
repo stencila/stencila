@@ -1,5 +1,4 @@
 use codec_dom_trait::DomCodec;
-use common::serde_yaml;
 
 use crate::{Chat, SuggestionBlock, prelude::*};
 

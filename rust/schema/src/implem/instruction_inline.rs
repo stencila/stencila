@@ -1,5 +1,3 @@
-use common::tracing;
-
 use crate::{InstructionInline, SuggestionStatus, patch, prelude::*};
 
 impl InstructionInline {

@@ -10,6 +10,9 @@ proptest-high = ["proptest", "proptest-derive"]
 proptest-max = ["proptest", "proptest-derive"]
 
 [dependencies]
+async-recursion = { workspace = true }
+chrono = { workspace = true }
+chrono-humanize = { workspace = true }
 codec-dom-trait = { path = "../codec-dom-trait" }
 codec-html-trait = { path = "../codec-html-trait" }
 codec-info = { path = "../codec-info" }
@@ -20,10 +23,14 @@ codec-markdown-trait = { path = "../codec-markdown-trait" }
 codec-text-trait = { path = "../codec-text-trait" }
 common = { path = "../common" }
 derive_more = { workspace = true }
+eyre = { workspace = true }
 format = { path = "../format" }
 human_name = "2.0.3"
 images = { path = "../images" }
+indexmap = { workspace = true }
+Inflector = { workspace = true }
 interim = { version = "0.2.1", features = ["chrono_0_4"] }
+itertools = { workspace = true }
 monostate = { workspace = true }
 node-id = { path = "../node-id" }
 node-patch-derive = { path = "../node-patch-derive" }
@@ -34,12 +41,20 @@ node-strip = { path = "../node-strip" }
 node-type = { path = "../node-type" }
 node-url = { path = "../node-url" }
 node-walk-derive = { path = "../node-walk-derive" }
+once_cell = { workspace = true }
 proptest = { version = "1.7.0", optional = true }
 proptest-derive = { version = "0.6.0", optional = true }
+regex = { workspace = true }
 serde = { workspace = true }
+serde_json = { workspace = true }
 serde_with = "3.14.0"
+serde_yaml = { workspace = true }
+similar = { workspace = true }
+smart-default = { workspace = true }
+smol_str = { workspace = true }
 strum = { workspace = true }
 time = { workspace = true }
+tracing = { workspace = true }
 
 [dev-dependencies]
 codec = { path = "../codec" }

@@ -1,5 +1,4 @@
 use codec_info::lost_options;
-use common::tracing;
 use images::highlight_image;
 
 use crate::{AudioObject, ImageObject, MediaObject, VideoObject, prelude::*};

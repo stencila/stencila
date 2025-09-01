@@ -1,5 +1,5 @@
 ///! Functions used in type definitions for specifying property-based generation strategies for node types
-use common::itertools::interleave;
+use itertools::interleave;
 pub use proptest_derive::Arbitrary;
 
 pub use proptest::{

@@ -1,5 +1,6 @@
+use inflector::Inflector;
+
 use codec_dom_trait::DomEncodeContext;
-use common::inflector::Inflector;
 
 use crate::CodeLocation;
 

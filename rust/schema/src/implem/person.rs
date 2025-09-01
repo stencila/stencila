@@ -1,6 +1,7 @@
 use std::str::FromStr;
 
-use common::{once_cell::sync::Lazy, regex::Regex};
+use once_cell::sync::Lazy;
+use regex::Regex;
 
 use crate::{Person, PersonOptions, prelude::*};
 

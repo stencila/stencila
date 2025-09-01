@@ -1,5 +1,4 @@
 use codec_markdown_trait::to_markdown;
-use common::serde_yaml;
 
 use crate::{
     Article, Block, CreativeWorkType, Inline, RawBlock, Reference, prelude::*, replicate,

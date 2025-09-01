@@ -31,6 +31,10 @@ pub use node_path::{NodePath, NodeSlot};
 pub use node_strip::{StripNode, StripScope, StripTargets, strip, strip_non_content};
 pub use node_type::{ContentType, NodeProperty, NodeType};
 
+// Re-exports for the convenience of internal crates implementing
+// node types and schema-related functionality
+pub use common;
+
 pub mod cord_provenance;
 
 pub use implem::AuthorType;
