@@ -14,14 +14,9 @@ use async_lsp::{
         WorkDoneProgressOptions,
     },
 };
-
-use common::{
-    async_trait::async_trait,
-    eyre::{Result, bail},
-    serde_json,
-    tokio::sync::Mutex,
-    tracing,
-};
+use async_trait::async_trait;
+use eyre::{Result, bail};
+use tokio::sync::Mutex;
 
 use crate::{ServerState, ServerStatus, commands};
 

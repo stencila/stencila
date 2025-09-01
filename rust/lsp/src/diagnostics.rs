@@ -9,10 +9,9 @@ use async_lsp::{
         notification::Notification,
     },
 };
-
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
-use common::{itertools::Itertools, tracing};
 use schema::{
     Author, AuthorRoleName, CodeLocation, ExecutionBounds, ExecutionMode, ExecutionRequired,
     ExecutionStatus, MessageLevel, NodeType, StringOrNumber,

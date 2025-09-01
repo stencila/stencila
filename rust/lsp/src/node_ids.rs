@@ -7,9 +7,11 @@ use async_lsp::{
     ResponseError,
     lsp_types::{Position, request::Request},
 };
+use itertools::Itertools;
+use reqwest::Url;
 use serde::{Deserialize, Serialize};
+use tokio::sync::RwLock;
 
-use common::{itertools::Itertools, reqwest::Url, tokio::sync::RwLock};
 use schema::NodeId;
 
 use crate::text_document::TextNode;

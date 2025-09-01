@@ -3,9 +3,9 @@
 use std::{collections::HashMap, env, fmt};
 
 use async_lsp::{ClientSocket, lsp_types::Url};
+use eyre::Result;
 use serde::Deserialize;
-
-use common::{eyre::Result, serde_json, smart_default::SmartDefault, tracing};
+use smart_default::SmartDefault;
 
 mod code_lens;
 mod commands;

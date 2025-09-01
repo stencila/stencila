@@ -20,20 +20,16 @@ use async_lsp::{
         WorkDoneProgressEnd, WorkDoneProgressReport, WorkspaceEdit,
     },
 };
+use eyre::{OptionExt, Result};
+use itertools::Itertools;
+use once_cell::sync::Lazy;
+use serde_json::{self, Value, json};
+use tokio::{
+    sync::{RwLock, mpsc, watch::Receiver},
+    time::timeout,
+};
 
 use codecs::{DecodeOptions, EncodeOptions, Format};
-use common::{
-    eyre::{OptionExt, Result},
-    itertools::Itertools,
-    once_cell::sync::Lazy,
-    serde_json::{self, Value, json},
-    tokio::{
-        self,
-        sync::{RwLock, mpsc, watch::Receiver},
-        time::timeout,
-    },
-    tracing,
-};
 use document::{Command, CommandNodes, CommandScope, CommandStatus, Document};
 use node_execute::ExecuteOptions;
 use node_find::find;

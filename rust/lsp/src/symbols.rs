@@ -8,7 +8,8 @@ use async_lsp::{
     ErrorCode, ResponseError,
     lsp_types::{DocumentSymbol, DocumentSymbolResponse, SymbolKind},
 };
-use common::tokio::sync::{RwLock, watch::Receiver};
+use tokio::sync::{RwLock, watch::Receiver};
+
 use schema::NodeType;
 
 use crate::text_document::{SyncState, TextNode};

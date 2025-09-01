@@ -6,23 +6,34 @@ edition = "2024"
 [dependencies]
 ask = { path = "../ask" }
 async-lsp = { version = "0.2.2", features = ["tokio"] }
+async-trait = { workspace = true }
 codec-markdown-trait = { path = "../codec-markdown-trait" }
 codec-text-trait = { path = "../codec-text-trait" }
 codec-utils = { path = "../codec-utils" }
 codecs = { path = "../codecs" }
-common = { path = "../common" }
 document = { path = "../document" }
+eyre = { workspace = true }
+Inflector = { workspace = true }
+itertools = { workspace = true }
 kernels = { path = "../kernels" }
 models = { path = "../models" }
 node-execute = { path = "../node-execute" }
 node-find = { path = "../node-find" }
+once_cell = { workspace = true }
 percent-encoding = "2.3.1"
 prompts = { path = "../prompts" }
+reqwest = { workspace = true }
 schema = { path = "../schema" }
 serde = { workspace = true }
+serde_json = { workspace = true }
+similar = { workspace = true }
+smart-default = { workspace = true }
+tokio = { workspace = true }
 tokio-util = { version = "0.7.16", features = ["compat"] }
 tower = "0.5.2"
+tracing = { workspace = true }
 tracing-subscriber = { version = "0.3.19", features = ["env-filter", "json"] }
+uuid = { workspace = true }
 
 [lints]
 workspace = true

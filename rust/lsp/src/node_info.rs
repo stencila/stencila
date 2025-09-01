@@ -8,7 +8,6 @@ use async_lsp::{
 };
 use serde::{Deserialize, Serialize};
 
-use common::tracing;
 use schema::{ExecutionStatus, NodeType};
 
 use crate::text_document::TextNode;

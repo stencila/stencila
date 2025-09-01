@@ -13,19 +13,16 @@ use async_lsp::{
         MessageType, Position, PublishDiagnosticsParams, Range, ShowMessageParams, Url,
     },
 };
+use eyre::{Report, bail};
+use tokio::{
+    self,
+    sync::{RwLock, mpsc, watch},
+};
 
 use codec_utils::git_info;
 use codecs::{
     DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Format, LossesResponse, MessageLevel,
     Messages,
-};
-use common::{
-    eyre::{Report, bail},
-    tokio::{
-        self,
-        sync::{RwLock, mpsc, watch},
-    },
-    tracing,
 };
 use document::{Document, Update};
 use schema::{

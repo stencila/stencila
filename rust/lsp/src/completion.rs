@@ -12,9 +12,9 @@ use async_lsp::{
         MarkupKind, Position, Range, TextEdit,
     },
 };
+use tokio::{fs::read_dir, sync::RwLock};
 
 use codecs::{Format, Positions};
-use common::tokio::{fs::read_dir, sync::RwLock};
 use kernels::KernelType;
 use schema::{InstructionType, Prompt, StringOrNumber};
 

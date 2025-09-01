@@ -10,11 +10,10 @@ use async_lsp::{
     server::LifecycleLayer,
     tracing::TracingLayer,
 };
+use eyre::Result;
 use schema::NodeId;
 use tower::ServiceBuilder;
 use tracing_subscriber::filter::LevelFilter;
-
-use common::{eyre::Result, serde_json, tracing};
 
 use crate::{
     ServerState, ServerStatus, code_lens,
@@ -313,7 +312,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) -> Result<()> {
     // Fallback to spawn blocking read/write otherwise.
     #[cfg(not(unix))]
     let (stdin, stdout) = {
-        use common::tokio::io;
+        use tokio::io;
         (
             tokio_util::compat::TokioAsyncReadCompatExt::compat(io::stdin()),
             tokio_util::compat::TokioAsyncWriteCompatExt::compat_write(io::stdout()),

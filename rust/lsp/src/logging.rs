@@ -4,12 +4,11 @@ use async_lsp::{
     ClientSocket, LanguageClient,
     lsp_types::{MessageType, ShowMessageParams},
 };
+use tracing::{Event, Level, Subscriber, field::Field};
 use tracing_subscriber::{
     EnvFilter, Layer, field::Visit, filter::LevelFilter, fmt, layer::SubscriberExt, registry,
     util::SubscriberInitExt,
 };
-
-use common::tracing::{Event, Level, Subscriber, field::Field};
 
 /// Setup logging
 ///

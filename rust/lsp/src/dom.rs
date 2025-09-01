@@ -7,22 +7,19 @@ use async_lsp::{
     ClientSocket, ErrorCode, ResponseError,
     lsp_types::{notification::Notification, request::Request},
 };
+use once_cell::sync::Lazy;
+use reqwest::Url;
 use serde::{Deserialize, Serialize};
-
-use common::{
-    once_cell::sync::Lazy,
-    reqwest::Url,
-    tokio::{
-        self,
-        sync::{
-            Mutex, RwLock,
-            mpsc::{self, Sender},
-        },
-        task::JoinHandle,
+use tokio::{
+    self,
+    sync::{
+        Mutex, RwLock,
+        mpsc::{self, Sender},
     },
-    tracing,
-    uuid::Uuid,
+    task::JoinHandle,
 };
+use uuid::Uuid;
+
 use document::{Document, DomPatch};
 use schema::NodeId;
 

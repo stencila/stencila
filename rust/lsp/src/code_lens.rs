@@ -8,8 +8,12 @@ use async_lsp::{
     ErrorCode, ResponseError,
     lsp_types::{CodeLens, Command, Range, Url},
 };
+use inflector::Inflector;
+use itertools::Itertools;
+use serde_json::json;
+use tokio::sync::RwLock;
+
 use codecs::Format;
-use common::{inflector::Inflector, itertools::Itertools, serde_json::json, tokio::sync::RwLock};
 use schema::NodeType;
 
 use crate::{

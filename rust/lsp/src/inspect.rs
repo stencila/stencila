@@ -2,7 +2,6 @@ use async_lsp::lsp_types::Range;
 
 use codec_text_trait::TextCodec;
 use codecs::{Mapping, PoshMap};
-use common::tracing;
 use schema::*;
 
 use crate::{

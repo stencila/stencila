@@ -7,10 +7,11 @@ use async_lsp::{
     ClientSocket, ErrorCode, ResponseError,
     lsp_types::{notification::Notification, request::Request},
 };
+use reqwest::Url;
 use serde::{Deserialize, Serialize};
+use tokio::sync::RwLock;
 
 use codecs::{EncodeOptions, Format};
-use common::{reqwest::Url, tokio, tokio::sync::RwLock, tracing};
 use document::Document;
 
 pub struct SubscribeContent;

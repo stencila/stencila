@@ -8,9 +8,9 @@ use async_lsp::{
     ResponseError,
     lsp_types::{Hover, HoverContents, HoverParams, MarkupContent, MarkupKind, Url},
 };
+use tokio::sync::RwLock;
 
 use codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext, to_markdown};
-use common::tokio::sync::RwLock;
 use document::Document;
 use schema::{Citation, CodeChunk, CodeExpression, Node, NodeId, NodeType, Reference};
 

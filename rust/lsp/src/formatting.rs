@@ -8,14 +8,11 @@ use async_lsp::{
     ErrorCode, ResponseError,
     lsp_types::{Position, Range, TextEdit},
 };
+use itertools::Itertools;
+use similar::{self, Algorithm, capture_diff_slices};
+use tokio::sync::RwLock;
 
 use codecs::{EncodeOptions, Format, LossesResponse};
-use common::{
-    itertools::Itertools,
-    similar::{self, Algorithm, capture_diff_slices},
-    tokio::sync::RwLock,
-    tracing,
-};
 use document::Document;
 
 /// Handle to format a document
