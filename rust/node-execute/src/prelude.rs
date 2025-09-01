@@ -1,7 +1,10 @@
 use std::hash::{Hash, Hasher};
 
-pub use common::{eyre::Report, tracing};
-use common::{once_cell::sync::Lazy, regex::Regex, seahash::SeaHasher};
+use eyre::Report;
+use once_cell::sync::Lazy;
+use regex::Regex;
+use seahash::SeaHasher;
+
 pub use schema::{
     Array, Duration, ExecutionMessage, ExecutionRequired, ExecutionStatus, MessageLevel, Node,
     NodeProperty, Null, PatchNode, PatchOp, PatchValue, Primitive, Timestamp, WalkControl,
@@ -32,7 +35,7 @@ macro_rules! state_digest {
     ($($x:expr),*) => {
         {
             use std::hash::{Hash, Hasher};
-            let mut hasher = common::seahash::SeaHasher::new();
+            let mut hasher = seahash::SeaHasher::new();
             $(
                 $x.hash(&mut hasher);
             )*

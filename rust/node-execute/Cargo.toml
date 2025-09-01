@@ -4,22 +4,32 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+clap = { workspace = true }
 codec-cbor = { path = "../codec-cbor" }
 codec-markdown = { path = "../codec-markdown" }
 codecs = { path = "../codecs" }
-common = { path = "../common" }
+eyre = { workspace = true }
+futures = { workspace = true }
+indexmap = { workspace = true }
+itertools = { workspace = true }
 kernels = { path = "../kernels" }
 stencila-linters = { path = "../linters" }
 models = { path = "../models" }
 node-contains = { path = "../node-contains" }
 node-diagnostics = { path = "../node-diagnostics" }
+once_cell = { workspace = true }
 parsers = { path = "../parsers" }
 prompts = { path = "../prompts" }
+regex = { workspace = true }
+seahash = { workspace = true }
 serde = { workspace = true }
+serde_json = { workspace = true }
 schema = { path = "../schema" }
+tokio = { workspace = true }
+tracing = { workspace = true }
 
 [dev-dependencies]
-common-dev = { path = "../common-dev" }
+insta = { workspace = true }
 
 [lints]
 workspace = true

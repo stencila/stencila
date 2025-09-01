@@ -1,9 +1,7 @@
+use eyre::{Result, bail};
+
 use codec_markdown::to_markdown_flavor;
 use codecs::{DecodeOptions, Format};
-use common::{
-    eyre::{Result, bail},
-    tracing,
-};
 use models::{ModelOutput, ModelOutputKind, ModelTask};
 use schema::{
     Article, AudioObject, AuthorRole, Block, File, ImageObject, Inline, InstructionMessage, Link,
@@ -200,7 +198,7 @@ fn thinking_admonition(content: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use common_dev::insta::assert_snapshot;
+    use insta::assert_snapshot;
 
     use super::*;
 
