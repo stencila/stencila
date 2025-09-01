@@ -8,6 +8,7 @@ common = { path = "../common" }
 lsp-types = { version = "0.95.1" }
 owo-colors = "4.2.2"
 rpassword = "7.4.0"
+strum = { workspace = true }
 textwrap = { version = "0.16.2", features = ["terminal_size"] }
 
 [lints]

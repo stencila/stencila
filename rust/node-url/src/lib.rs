@@ -7,12 +7,12 @@ use std::{
 use base64::{Engine as _, prelude::BASE64_URL_SAFE_NO_PAD};
 use flate2::{Compression, read::ZlibDecoder, write::ZlibEncoder};
 use serde::{Serialize, de::DeserializeOwned};
+use strum::{Display, EnumString};
 use url::Url;
 
 use common::{
     eyre::{Report, Result},
     serde_json,
-    strum::{Display, EnumString},
 };
 use node_id::NodeId;
 use node_path::NodePath;
@@ -46,11 +46,7 @@ pub struct NodeUrl {
 
 /// The position in the node that the URL relates to
 #[derive(Debug, Clone, Copy, EnumString, Display, PartialEq, Eq)]
-#[strum(
-    ascii_case_insensitive,
-    serialize_all = "lowercase",
-    crate = "common::strum"
-)]
+#[strum(ascii_case_insensitive, serialize_all = "lowercase")]
 pub enum NodePosition {
     Begin,
     End,

@@ -11,6 +11,7 @@ node-id = { path = "../node-id" }
 node-path = { path = "../node-path" }
 node-type = { path = "../node-type" }
 serde = { workspace = true }
+strum = { workspace = true }
 url = { workspace = true }
 
 [lints]

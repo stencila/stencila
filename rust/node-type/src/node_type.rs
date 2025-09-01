@@ -1,17 +1,13 @@
 // Generated file; do not edit. See `schema-gen` crate.
 
 use serde::Serialize;
+use strum::{Display, EnumIter, EnumString};
 
-use common::{
-    eyre::{bail, Report},
-    strum::{Display, EnumIter, EnumString},
-};
+use common::{eyre::{bail, Report}};
 
 use node_id::NodeId;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Display, EnumString, EnumIter)]
-
-#[strum(crate = "common::strum")]
 pub enum NodeType {
     Null,
     Boolean,

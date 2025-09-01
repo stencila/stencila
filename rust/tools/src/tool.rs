@@ -12,6 +12,7 @@ use std::{
 use mcp_types::{Tool as McpTool, ToolInputSchema as McpToolInputSchema};
 pub use semver::{Version, VersionReq};
 use serde::Serialize;
+use strum::Display;
 use which::which;
 
 use common::{
@@ -21,7 +22,6 @@ use common::{
     once_cell::sync::Lazy,
     regex::Regex,
     reqwest,
-    strum::Display,
     tempfile::env::temp_dir,
     tokio::fs::write,
     tracing,

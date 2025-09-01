@@ -6,12 +6,13 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use strum::IntoEnumIterator;
+
 use common::{
     eyre::{Context, Report, Result, bail},
     futures::future::try_join_all,
     inflector::Inflector,
     itertools::Itertools,
-    strum::IntoEnumIterator,
     tokio::fs::{create_dir_all, remove_file, write},
 };
 
@@ -252,16 +253,13 @@ impl Schemas {
                 r#"{GENERATED_COMMENT}
 
 use serde::Serialize;
+use strum::{{Display, EnumIter, EnumString}};
 
-use common::{{
-    eyre::{{bail, Report}},
-    strum::{{Display, EnumIter, EnumString}},
-}};
+use common::{{eyre::{{bail, Report}}}};
 
 use node_id::NodeId;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Display, EnumString, EnumIter)]
-#[strum(crate = "common::strum")]
 pub enum NodeType {{
 {node_types}
 
@@ -337,12 +335,11 @@ impl TryFrom<&NodeId> for NodeType {{
                 r#"{GENERATED_COMMENT}
 
 use serde::{{Serialize, Deserialize}};
-
-use common::{{strum::{{EnumString, Display}}}};
+use strum::{{EnumString, Display}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Display, EnumString, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-#[strum(serialize_all = "camelCase", crate = "common::strum")]
+#[strum(serialize_all = "camelCase")]
 pub enum NodeProperty {{
 {node_properties},
 }}
@@ -1317,7 +1314,7 @@ impl {title} {{
 
         if unit_variants {
             derives.push("Copy");
-            derives.push("strum::EnumString");
+            derives.push("EnumString");
         };
 
         let title = name.as_str();
@@ -1379,9 +1376,7 @@ impl {title} {{
         }
 
         if unit_variants {
-            attrs.push(String::from(
-                "#[strum(ascii_case_insensitive, crate = \"common::strum\")]",
-            ));
+            attrs.push(String::from("#[strum(ascii_case_insensitive)]"));
         };
 
         // Add proptest related attributes

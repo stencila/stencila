@@ -27,6 +27,7 @@ notify = { version = "8.2.0", default-features = false, features = ["macos_kqueu
 rand = { workspace = true }
 schema = { path = "../schema" }
 serde = { workspace = true }
+strum = { workspace = true }
 tools = { path = "../tools" }
 url = { workspace = true }
 

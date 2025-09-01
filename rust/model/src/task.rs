@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
+use strum::Display;
 
-use common::{serde_with::skip_serializing_none, smart_default::SmartDefault, strum::Display};
+use common::{serde_with::skip_serializing_none, smart_default::SmartDefault};
 use format::Format;
 use schema::{InstructionMessage, InstructionType, ModelParameters};
 

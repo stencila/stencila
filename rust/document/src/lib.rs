@@ -6,6 +6,7 @@ use std::{
 };
 
 use serde::{Deserialize, Serialize};
+use strum::{Display, EnumString};
 
 use codecs::PoshMap;
 use common::{
@@ -13,7 +14,6 @@ use common::{
     eyre::{OptionExt, Result, bail, eyre},
     serde_json,
     smart_default::SmartDefault,
-    strum::{Display, EnumString},
     tokio::{
         self,
         fs::read_to_string,
@@ -58,7 +58,7 @@ pub use sync_dom::DomPatch;
 /// a file on the local file system or an editor in a web browser. This enum determines
 /// whether changes in the document should be reflected in the resource and vice versa.
 #[derive(Debug, Display, Default, Clone, Copy, ValueEnum, EnumString)]
-#[strum(serialize_all = "lowercase", crate = "common::strum")]
+#[strum(serialize_all = "lowercase")]
 pub enum SyncDirection {
     In,
     Out,

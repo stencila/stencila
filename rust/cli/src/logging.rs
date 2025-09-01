@@ -1,5 +1,6 @@
 use std::io::IsTerminal;
 
+use strum::AsRefStr;
 use tracing_subscriber::{
     fmt::{FmtContext, FormatEvent, FormatFields, format::Writer},
     prelude::*,
@@ -9,7 +10,6 @@ use tracing_subscriber::{
 use common::{
     clap::{self, ValueEnum},
     eyre::Result,
-    strum::AsRefStr,
     tracing::{Event, Level, Subscriber, metadata::LevelFilter},
 };
 

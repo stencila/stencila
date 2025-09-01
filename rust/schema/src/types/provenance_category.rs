@@ -3,8 +3,8 @@
 use crate::prelude::*;
 
 /// A description of the provenance of content in terms of human/machine involvement.
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, Copy, strum::EnumString, Eq, PartialOrd, Ord, Hash, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
-#[strum(ascii_case_insensitive, crate = "common::strum")]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, Copy, EnumString, Eq, PartialOrd, Ord, Hash, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
+#[strum(ascii_case_insensitive)]
 pub enum ProvenanceCategory {
     /// Human written, edited and verified.
     HwHeHv,

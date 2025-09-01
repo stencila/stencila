@@ -3,8 +3,8 @@
 use crate::prelude::*;
 
 /// The type or nature of a citation, both factually and rhetorically.
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, Copy, strum::EnumString, Eq, PartialOrd, Ord, Hash, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
-#[strum(ascii_case_insensitive, crate = "common::strum")]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, Copy, EnumString, Eq, PartialOrd, Ord, Hash, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
+#[strum(ascii_case_insensitive)]
 pub enum CitationIntent {
     /// The citing entity agrees with statements, ideas or conclusions presented in the cited entity
     #[default]

@@ -3,15 +3,15 @@
 use std::{env, fs::create_dir_all, path::PathBuf};
 
 use directories::ProjectDirs;
+use strum::{Display, EnumString};
 
 use common::{
     clap::{self, ValueEnum},
     eyre::{OptionExt, Result},
-    strum::{Display, EnumString},
 };
 
 #[derive(Debug, Display, Default, Clone, Copy, ValueEnum, EnumString)]
-#[strum(serialize_all = "lowercase", crate = "common::strum")]
+#[strum(serialize_all = "lowercase")]
 pub enum DirType {
     #[default]
     Config,

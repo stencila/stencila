@@ -1,13 +1,13 @@
 use std::path::Path;
 
 use serde::{Deserialize, Serialize};
+use strum::Display;
 
 use common::{
     async_trait::async_trait,
     bs58,
     clap::{self, ValueEnum},
     eyre::{Result, bail},
-    strum::Display,
     tokio::sync::{broadcast, mpsc, watch},
     uuid::Uuid,
 };

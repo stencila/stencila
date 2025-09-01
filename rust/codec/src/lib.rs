@@ -5,6 +5,7 @@ use std::{
 };
 
 use serde::{Deserialize, Serialize};
+use strum::{Display, IntoEnumIterator};
 
 use codec_utils::git_info;
 use common::{
@@ -12,7 +13,6 @@ use common::{
     eyre::{Report, Result, bail},
     serde_with::skip_serializing_none,
     smart_default::SmartDefault,
-    strum::{Display, IntoEnumIterator},
     tokio::{
         fs::{File, create_dir_all},
         io::{AsyncReadExt, AsyncWriteExt},

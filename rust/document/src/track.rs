@@ -8,6 +8,7 @@ use std::{
 };
 
 use serde::{Deserialize, Serialize};
+use strum::Display;
 use url::Url;
 
 use codecs::{DecodeOptions, EncodeOptions};
@@ -17,7 +18,6 @@ use common::{
     itertools::Itertools,
     serde_json,
     serde_with::skip_serializing_none,
-    strum::Display,
     tokio::{
         self,
         fs::{read_to_string, remove_dir_all, remove_file, rename, write},

@@ -1,4 +1,5 @@
 use serde::Serialize;
+use strum::IntoEnumIterator;
 
 use cli_utils::{
     AsFormat, Code, Tabulated, ToStdout,
@@ -10,7 +11,6 @@ use codec::{
     common::{
         clap::{self, Args, Parser, Subcommand},
         eyre::Result,
-        strum::IntoEnumIterator,
     },
     format::Format,
 };

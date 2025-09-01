@@ -4,6 +4,7 @@ use std::{collections::BTreeMap, fmt::Display, path::PathBuf};
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize, Serializer};
+use strum::{Display, EnumIter};
 
 use common::{
     eyre::{Context, Report, Result, bail, eyre},
@@ -14,7 +15,6 @@ use common::{
     serde_with::skip_serializing_none,
     serde_yaml,
     smart_default::SmartDefault,
-    strum::{Display, EnumIter},
     tokio::fs::read_to_string,
 };
 use status::Status;
@@ -339,7 +339,7 @@ pub struct Schema {
     Debug, Default, Clone, PartialEq, Deserialize, Serialize, Display, JsonSchema, EnumIter,
 )]
 #[serde(rename_all = "lowercase")]
-#[strum(serialize_all = "lowercase", crate = "common::strum")]
+#[strum(serialize_all = "lowercase")]
 pub enum Category {
     /// Node types that are creative works or related to them
     Works,
@@ -525,7 +525,7 @@ pub struct ProptestOptions {
     EnumIter,
 )]
 #[serde(rename_all = "lowercase")]
-#[strum(serialize_all = "lowercase", crate = "common::strum")]
+#[strum(serialize_all = "lowercase")]
 pub enum ProptestLevel {
     Min,
     Low,

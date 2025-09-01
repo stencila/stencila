@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 common = { path = "../common" }
 directories = { workspace = true }
+strum = { workspace = true }
 
 [lints]
 workspace = true

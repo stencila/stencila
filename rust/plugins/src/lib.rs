@@ -16,6 +16,7 @@ use std::{
 use rand::{Rng, distr::Alphanumeric, rng};
 use semver::{Version, VersionReq};
 use serde::{self, Deserialize, Deserializer, Serialize, Serializer, de::DeserializeOwned};
+use strum::{Display, EnumString};
 use which::which;
 
 use cli_utils::Code;
@@ -25,7 +26,6 @@ use common::{
     reqwest::{self, Client, Url, header},
     serde_json::{self, Value},
     serde_with::{DeserializeFromStr, SerializeDisplay},
-    strum::{Display, EnumString},
     tokio::{
         self,
         io::{AsyncBufReadExt, AsyncWriteExt, BufReader, BufWriter},
@@ -544,11 +544,7 @@ impl Plugin {
 
 /// A runtime that a plugin supports
 #[derive(Debug, Display, Clone, EnumString, PartialEq, Eq)]
-#[strum(
-    ascii_case_insensitive,
-    serialize_all = "lowercase",
-    crate = "common::strum"
-)]
+#[strum(ascii_case_insensitive, serialize_all = "lowercase")]
 pub enum PluginRuntime {
     Python,
     Node,
@@ -710,11 +706,7 @@ impl PluginRuntime {
 #[derive(
     Debug, Display, Clone, EnumString, DeserializeFromStr, SerializeDisplay, PartialEq, Eq,
 )]
-#[strum(
-    ascii_case_insensitive,
-    serialize_all = "lowercase",
-    crate = "common::strum"
-)]
+#[strum(ascii_case_insensitive, serialize_all = "lowercase")]
 #[serde_with(crate = "common::serde_with")]
 pub enum PluginPlatform {
     Linux,
@@ -738,11 +730,7 @@ impl PluginPlatform {
 #[derive(
     Debug, Display, Clone, EnumString, DeserializeFromStr, SerializeDisplay, PartialEq, Eq,
 )]
-#[strum(
-    ascii_case_insensitive,
-    serialize_all = "lowercase",
-    crate = "common::strum"
-)]
+#[strum(ascii_case_insensitive, serialize_all = "lowercase")]
 #[serde_with(crate = "common::serde_with")]
 pub enum PluginTransport {
     Stdio,

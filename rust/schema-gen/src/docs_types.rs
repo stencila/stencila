@@ -6,6 +6,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use strum::IntoEnumIterator;
+
 use codecs::{CodecSupport, Format};
 use common::{
     eyre::{Context as _, Result, bail},
@@ -13,7 +15,6 @@ use common::{
     inflector::Inflector,
     itertools::Itertools,
     serde_json, serde_yaml,
-    strum::IntoEnumIterator,
     tokio::fs::{create_dir_all, remove_dir_all, remove_file},
 };
 use schema::{

@@ -6,10 +6,10 @@ use std::{
     str::FromStr,
 };
 
+use strum::IntoEnumIterator;
+
 use codecs::{CodecSupport, EncodeOptions, Format};
-use common::{
-    eyre::Result, glob::glob, inflector::Inflector, itertools::Itertools, strum::IntoEnumIterator,
-};
+use common::{eyre::Result, glob::glob, inflector::Inflector, itertools::Itertools};
 use schema::{Article, Inline, Node, NodeType, TableCell, shortcuts::*};
 
 use crate::{

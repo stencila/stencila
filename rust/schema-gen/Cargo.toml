@@ -15,6 +15,7 @@ schemars = { version = "1.0.4", features = ["indexmap2"] }
 serde = { workspace = true }
 semver = { workspace = true }
 status = { path = "../status" }
+strum = { workspace = true }
 topological-sort = "0.2.2"
 
 [lints]

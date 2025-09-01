@@ -2,6 +2,7 @@ pub use derive_more::{self, Deref, DerefMut};
 pub use monostate::MustBe;
 pub use serde::{self, Deserialize, Serialize};
 pub use serde_with::{self, serde_as, skip_serializing_none};
+pub use strum::{self, EnumString};
 
 pub use common::{
     async_recursion::async_recursion,
@@ -10,7 +11,6 @@ pub use common::{
     serde_json,
     smart_default::SmartDefault,
     smol_str::{self, SmolStr},
-    strum,
 };
 
 pub use codec_dom_trait::{DomCodec, DomEncodeContext};

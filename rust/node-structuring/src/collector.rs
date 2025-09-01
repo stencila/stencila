@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use strum::Display;
+
 use codec_biblio::decode::{
     bracketed_numeric_citation, parenthetic_numeric_citation, superscripted_numeric_citation,
     text_to_reference, text_with_author_year_citations, text_with_bracketed_numeric_citations,
@@ -8,8 +10,7 @@ use codec_biblio::decode::{
 use codec_links::decode_inlines as text_with_links;
 use codec_text_trait::to_text;
 use common::{
-    inflector::Inflector, itertools::Itertools, once_cell::sync::Lazy, regex::Regex,
-    strum::Display, tracing,
+    inflector::Inflector, itertools::Itertools, once_cell::sync::Lazy, regex::Regex, tracing,
 };
 use schema::{
     Admonition, Article, Block, Figure, ForBlock, Heading, IncludeBlock, Inline, List, ListOrder,

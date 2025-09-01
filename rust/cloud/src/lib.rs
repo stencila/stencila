@@ -2,6 +2,7 @@ use std::{env, sync::OnceLock, time::Duration};
 
 use cached::proc_macro::cached;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
+use strum::Display;
 
 use common::{
     eyre::{Result, bail, eyre},
@@ -9,7 +10,6 @@ use common::{
         self, Client,
         header::{AUTHORIZATION, HeaderMap, HeaderValue},
     },
-    strum::Display,
     tracing,
 };
 use version::STENCILA_USER_AGENT;

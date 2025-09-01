@@ -4,10 +4,11 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec-markdown-trait = {path = "../codec-markdown-trait" }
+codec-markdown-trait = { path = "../codec-markdown-trait" }
 kernel-quickjs = { path = "../kernel-quickjs" }
 kernels = { path = "../kernels" }
 rquickjs = { version = "0.9.0", features = ["futures", "macro", "parallel"] }
+strum = { workspace = true }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }

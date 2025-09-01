@@ -1,11 +1,11 @@
 use serde::{Deserialize, Serialize};
+use strum::Display;
 
 use common::{
     async_trait::async_trait,
     clap::{self, ValueEnum},
     eyre::Result,
     inflector::Inflector,
-    strum::Display,
 };
 
 use schema::{

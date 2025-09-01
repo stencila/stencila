@@ -2,6 +2,7 @@ use std::{collections::BTreeSet, error::Error, str::FromStr};
 
 use kuzu::{LogicalType, NodeVal, QueryResult, RelVal, Value};
 use serde::Serialize;
+use strum::Display;
 
 use kernel::{
     common::{
@@ -10,7 +11,6 @@ use kernel::{
         once_cell::sync::Lazy,
         regex::Regex,
         serde_json::{self, json},
-        strum::Display,
     },
     schema::*,
 };

@@ -13,6 +13,7 @@ mcp-types = "0.1.1"
 pathdiff = "0.2.3"
 serde = { workspace = true }
 semver = { workspace = true }
+strum = { workspace = true }
 which = { workspace = true }
 version = { path = "../version" }
 

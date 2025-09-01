@@ -270,6 +270,7 @@ dependencies = [
  "lsp-types",
  "owo-colors",
  "rpassword",
+ "strum 0.27.2",
  "textwrap",
 ]
 
@@ -1490,6 +1491,7 @@ dependencies = [
  "serde",
  "server",
  "stencila-linters",
+ "strum 0.27.2",
  "tools",
  "tracing-error",
  "tracing-subscriber",
@@ -1532,6 +1534,7 @@ dependencies = [
  "common",
  "secrets",
  "serde",
+ "strum 0.27.2",
  "version",
 ]
 
@@ -1556,6 +1559,7 @@ dependencies = [
  "schema",
  "serde",
  "status",
+ "strum 0.27.2",
 ]
 
 [[package]]
@@ -1766,6 +1770,7 @@ dependencies = [
  "node-id",
  "node-type",
  "serde",
+ "strum 0.27.2",
 ]
 
 [[package]]
@@ -1914,6 +1919,7 @@ dependencies = [
  "markdown",
  "media-embed",
  "media-extract",
+ "strum 0.27.2",
  "winnow",
 ]
 
@@ -2166,6 +2172,7 @@ dependencies = [
  "json_value_merge",
  "node-strip",
  "serde",
+ "strum 0.27.2",
  "url",
  "walkdir",
 ]
@@ -2319,7 +2326,6 @@ dependencies = [
  "similar",
  "smart-default",
  "smol_str",
- "strum 0.27.2",
  "tar",
  "tempfile",
  "tokio",
@@ -2488,6 +2494,7 @@ dependencies = [
  "rand 0.9.2",
  "secrets",
  "serde",
+ "strum 0.27.2",
  "test-log",
  "tools",
  "version",
@@ -3394,6 +3401,7 @@ version = "0.0.0"
 dependencies = [
  "common",
  "directories",
+ "strum 0.27.2",
 ]
 
 [[package]]
@@ -3477,6 +3485,7 @@ dependencies = [
  "rand 0.9.2",
  "schema",
  "serde",
+ "strum 0.27.2",
  "tools",
  "url",
 ]
@@ -3867,6 +3876,7 @@ name = "format"
 version = "0.0.0"
 dependencies = [
  "common",
+ "strum 0.27.2",
 ]
 
 [[package]]
@@ -5467,6 +5477,7 @@ dependencies = [
  "format",
  "schema",
  "serde",
+ "strum 0.27.2",
 ]
 
 [[package]]
@@ -5545,6 +5556,7 @@ dependencies = [
  "kernel-jinja",
  "kuzu",
  "serde",
+ "strum 0.27.2",
 ]
 
 [[package]]
@@ -5564,6 +5576,7 @@ dependencies = [
  "dirs 0.0.0",
  "kernel",
  "nix",
+ "strum 0.27.2",
  "which 8.0.0",
 ]
 
@@ -6383,6 +6396,7 @@ dependencies = [
  "schema",
  "secrets",
  "serde",
+ "strum 0.27.2",
 ]
 
 [[package]]
@@ -6726,6 +6740,7 @@ dependencies = [
  "format",
  "schema",
  "serde",
+ "strum 0.27.2",
 ]
 
 [[package]]
@@ -6884,6 +6899,7 @@ dependencies = [
  "common",
  "common-dev",
  "schema",
+ "strum 0.27.2",
 ]
 
 [[package]]
@@ -6893,6 +6909,7 @@ dependencies = [
  "common",
  "node-id",
  "serde",
+ "strum 0.27.2",
 ]
 
 [[package]]
@@ -6906,6 +6923,7 @@ dependencies = [
  "node-path",
  "node-type",
  "serde",
+ "strum 0.27.2",
  "url",
 ]
 
@@ -7714,6 +7732,7 @@ dependencies = [
  "rand 0.9.2",
  "semver",
  "serde",
+ "strum 0.27.2",
  "which 8.0.0",
 ]
 
@@ -8382,6 +8401,7 @@ dependencies = [
  "kernel-quickjs",
  "kernels",
  "rquickjs",
+ "strum 0.27.2",
 ]
 
 [[package]]
@@ -8520,6 +8540,7 @@ dependencies = [
  "node-media",
  "secrets",
  "serde",
+ "strum 0.27.2",
  "url",
 ]
 
@@ -9696,6 +9717,7 @@ dependencies = [
  "proptest-derive",
  "serde",
  "serde_with",
+ "strum 0.27.2",
  "time",
 ]
 
@@ -9710,6 +9732,7 @@ dependencies = [
  "semver",
  "serde",
  "status",
+ "strum 0.27.2",
  "topological-sort",
 ]
 
@@ -10460,6 +10483,7 @@ dependencies = [
  "common",
  "schemars 1.0.4",
  "serde",
+ "strum 0.27.2",
 ]
 
 [[package]]
@@ -10481,6 +10505,7 @@ dependencies = [
  "node-type",
  "schema",
  "serde",
+ "strum 0.27.2",
 ]
 
 [[package]]
@@ -11265,6 +11290,7 @@ dependencies = [
  "pathdiff",
  "semver",
  "serde",
+ "strum 0.27.2",
  "test-log",
  "version",
  "which 8.0.0",

@@ -6,6 +6,7 @@ use std::{
 };
 
 use directories::UserDirs;
+use strum::Display;
 use which::which;
 
 // Re-exports for the convenience of internal crates implementing
@@ -21,7 +22,6 @@ use kernel::{
         eyre::{Context, OptionExt, Result, bail, eyre},
         itertools::Itertools,
         serde_json,
-        strum::Display,
         tempfile::TempDir,
         tokio::{
             self,

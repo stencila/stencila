@@ -1,8 +1,9 @@
+use strum::{EnumIter, IntoEnumIterator};
+
 use common::{
     clap::{self, Parser, ValueEnum},
     eyre::Result,
     itertools::Itertools,
-    strum::{EnumIter, IntoEnumIterator},
     tokio,
 };
 
@@ -20,7 +21,6 @@ struct Args {
 
 // The possible things to generate
 #[derive(Clone, Copy, ValueEnum, EnumIter)]
-#[strum(crate = "common::strum")]
 enum What {
     Docs,
     JsonLd,

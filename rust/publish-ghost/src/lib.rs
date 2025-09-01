@@ -6,6 +6,7 @@ use std::{
 
 use jsonwebtoken as jwt;
 use serde::{Deserialize, Serialize};
+use strum::Display;
 use url::Host;
 
 use cli_utils::parse_host;
@@ -16,7 +17,6 @@ use common::{
     reqwest::{Client, Response, StatusCode, multipart::Form},
     serde_json,
     serde_with::skip_serializing_none,
-    strum::Display,
     tempfile, tokio, tracing,
 };
 use document::{

@@ -1,14 +1,13 @@
 use std::{collections::BTreeMap, fmt::Display, fs, ops::AddAssign, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
+use strum::Display;
 
 use common::{
     eyre::{Result, bail, eyre},
     inflector::Inflector,
     itertools::Itertools,
-    serde_json, serde_yaml,
-    strum::Display,
-    tracing,
+    serde_json, serde_yaml, tracing,
 };
 use format::Format;
 

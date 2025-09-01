@@ -40,6 +40,7 @@ semver = { workspace = true }
 serde = { workspace = true }
 server = { path = "../server" }
 stencila-linters = { path = "../linters" }
+strum = { workspace = true }
 tools = { path = "../tools" }
 tracing-error = "0.2.1"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter", "json"] }

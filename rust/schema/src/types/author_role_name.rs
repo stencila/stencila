@@ -3,8 +3,8 @@
 use crate::prelude::*;
 
 /// A `roleName` for an `AuthorRole`.
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, Copy, strum::EnumString, Eq, PartialOrd, Ord, Hash, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
-#[strum(ascii_case_insensitive, crate = "common::strum")]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, Copy, EnumString, Eq, PartialOrd, Ord, Hash, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
+#[strum(ascii_case_insensitive)]
 pub enum AuthorRoleName {
     /// The author, usually a `Person`, imported content from an external format into a new document.
     Importer,

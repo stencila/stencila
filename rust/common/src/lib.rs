@@ -33,7 +33,6 @@ pub use serde_yaml;
 pub use similar;
 pub use smart_default;
 pub use smol_str;
-pub use strum;
 pub use tar;
 pub use tempfile;
 pub use tokio;

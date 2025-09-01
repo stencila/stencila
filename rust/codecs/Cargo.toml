@@ -49,6 +49,7 @@ codec-xlsx = { path = "../codec-xlsx" }
 codec-yaml = { path = "../codec-yaml" }
 node-strip = { path = "../node-strip" }
 serde = { workspace = true }
+strum = { workspace = true }
 url = { workspace = true }
 walkdir = "2.5.0"
 

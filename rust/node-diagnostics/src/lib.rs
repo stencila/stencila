@@ -2,9 +2,10 @@ use std::{env, ops::Range};
 
 use ariadne::{Config, Label, Report, ReportKind, Source};
 use serde::Serialize;
+use strum::Display;
 
 use codec_info::{PoshMap, Position8, Positions, Range8};
-use common::{eyre::Result, serde_with::skip_serializing_none, strum::Display};
+use common::{eyre::Result, serde_with::skip_serializing_none};
 use format::Format;
 use schema::{
     Block, CodeLocation, CompilationMessage, Cord, ExecutionMessage, Inline, MessageLevel, Node,

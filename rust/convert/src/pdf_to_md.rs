@@ -5,12 +5,12 @@ use std::{
 
 use base64::{Engine as _, engine::general_purpose};
 use serde::{Deserialize, Serialize};
+use strum::{Display, EnumIter, IntoEnumIterator};
 
 use codec::PageSelector;
 use common::{
     eyre::{Context, OptionExt, Report, Result, bail},
     reqwest, seahash, serde_json,
-    strum::{Display, EnumIter, IntoEnumIterator},
     tempfile::tempdir,
     tokio::fs::{read, read_to_string, write},
     tracing,
@@ -22,7 +22,6 @@ use tools::{AsyncToolCommand, is_installed};
 use crate::md_to_md::{clean_md, clean_md_page};
 
 #[derive(Debug, Display, EnumIter)]
-#[strum(crate = "common::strum")]
 enum Tool {
     #[strum(serialize = "mineru")]
     Mineru,
