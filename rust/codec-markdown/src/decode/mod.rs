@@ -6,14 +6,12 @@ use markdown::{
     to_mdast,
     unist::Position,
 };
+use once_cell::sync::Lazy;
+use regex::Regex;
 
 use codec::{
     DecodeInfo, DecodeOptions, Losses, Mapping,
-    common::{
-        eyre::{Result, eyre},
-        once_cell::sync::Lazy,
-        regex::Regex,
-    },
+    eyre::{Result, eyre},
     format::Format,
     schema::{
         Article, Block, Chat, Inline, Node, NodeId, NodeType, Null, Prompt, VisitorMut, WalkControl,

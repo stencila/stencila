@@ -1,8 +1,8 @@
+use itertools::Itertools;
 use roxmltree::Node;
 
 use codec::{
     Losses,
-    common::itertools::Itertools,
     schema::{Article, Author, Date, Person, Reference, shortcuts::t},
 };
 

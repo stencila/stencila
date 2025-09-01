@@ -1,6 +1,5 @@
 use serde::Deserialize;
 
-use codec::common::serde_json;
 
 /// The response from Zenodo search API endpoints
 #[derive(Debug, Deserialize)]

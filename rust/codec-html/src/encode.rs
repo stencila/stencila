@@ -1,4 +1,4 @@
-use codec::{EncodeInfo, EncodeOptions, common::eyre::Result, schema::Node};
+use codec::{EncodeInfo, EncodeOptions, eyre::Result, schema::Node};
 
 use codec_html_trait::{HtmlCodec as _, HtmlEncodeContext};
 

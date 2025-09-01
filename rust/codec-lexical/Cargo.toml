@@ -11,6 +11,8 @@ codec-markdown = { path = "../codec-markdown" }
 codec-text = { path = "../codec-text" }
 monostate = { workspace = true }
 serde = { workspace = true }
+serde_json = { workspace = true }
+serde_with = { workspace = true }
 smart-default = { workspace = true }
 
 [dev-dependencies]

@@ -1,9 +1,8 @@
 use std::{fs::read_to_string, path::PathBuf};
 
-use codec::{
-    EncodeOptions,
-    common::{eyre::Result, glob::glob},
-};
+use glob::glob;
+
+use codec::{EncodeOptions, eyre::Result};
 
 use codec_jats::{decode, encode};
 use common_dev::insta::{assert_json_snapshot, assert_snapshot, assert_yaml_snapshot};

@@ -12,8 +12,13 @@ codec-latex = { path = "../codec-latex" }
 codec-markdown = { path = "../codec-markdown" }
 codec-xlsx = { path = "../codec-xlsx" }
 governor = {workspace = true}
+itertools = { workspace = true }
+once_cell = { workspace = true }
+reqwest = { workspace = true }
 secrets = { path = "../secrets" }
 serde = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
 url = { workspace = true }
 version = { path = "../version" }
 

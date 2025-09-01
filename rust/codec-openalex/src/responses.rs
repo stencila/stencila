@@ -1,7 +1,5 @@
 use serde::Deserialize;
 
-use codec::common::serde_json;
-
 use crate::{
     author::Author, funder::Funder, institution::Institution, publisher::Publisher, source::Source,
     work::Work,

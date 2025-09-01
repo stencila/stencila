@@ -1,11 +1,9 @@
 use std::str::FromStr;
 
+use serde_json::json;
+
 use codec::{
     NodeType,
-    common::{
-        serde_json::{self, json},
-        serde_yaml,
-    },
     format::Format,
     schema::{
         Article, Chat, CodeLocation, CompilationMessage, MessageLevel, Node, Prompt, shortcuts::t,

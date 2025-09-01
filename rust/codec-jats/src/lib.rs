@@ -1,6 +1,6 @@
 use codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    common::{async_trait::async_trait, eyre::Result},
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
+    eyre::Result,
     format::Format,
     schema::{Node, NodeType},
     status::Status,

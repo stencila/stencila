@@ -1,12 +1,11 @@
 use std::{fs::read_to_string, path::PathBuf};
 
+use glob::glob;
+use tokio;
+
 use codec::{
     Codec, DecodeOptions, EncodeOptions,
-    common::{
-        eyre::{OptionExt, Result},
-        glob::glob,
-        tokio,
-    },
+    eyre::{OptionExt, Result},
     format::Format,
 };
 use codec_biblio::BiblioCodec;

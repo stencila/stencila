@@ -1,12 +1,10 @@
 use std::{env::current_dir, path::Path};
 
+use tokio::fs::{create_dir_all, write};
+
 use codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    common::{
-        async_trait::async_trait,
-        eyre::Result,
-        tokio::fs::{create_dir_all, write},
-    },
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
+    eyre::Result,
     format::Format,
     schema::{Node, NodeType},
     status::Status,

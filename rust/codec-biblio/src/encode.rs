@@ -1,9 +1,8 @@
+use itertools::Itertools;
+use serde_json;
+
 use codec::{
-    common::{
-        eyre::{OptionExt, Result, bail},
-        itertools::Itertools,
-        serde_json,
-    },
+    eyre::{OptionExt, Result, bail},
     schema::{
         Block, Inline, Reference,
         shortcuts::{em, lnk, p, stg, sub, sup, t, u},

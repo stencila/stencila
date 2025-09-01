@@ -1,5 +1,6 @@
 //! Parsers that parse a Stencila [`Author`] from a string
 
+use inflector::Inflector;
 use winnow::{
     Parser, Result,
     ascii::{multispace0, multispace1},
@@ -7,10 +8,7 @@ use winnow::{
     token::{take, take_while},
 };
 
-use codec::{
-    common::inflector::Inflector,
-    schema::{Author, Organization, Person},
-};
+use codec::schema::{Author, Organization, Person};
 
 use crate::decode::parts::chars::{is_hyphen, one_apostrophe, one_hyphen};
 

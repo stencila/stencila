@@ -2,7 +2,7 @@ use roxmltree::{Document, ParsingOptions};
 
 use codec::{
     DecodeInfo, DecodeOptions, Losses,
-    common::eyre::{Result, bail},
+    eyre::{Result, bail},
     schema::{Article, Node},
 };
 

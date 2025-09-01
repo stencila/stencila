@@ -1,10 +1,10 @@
-use roxmltree::Node;
-
 use std::str::FromStr;
+
+use itertools::Itertools;
+use roxmltree::Node;
 
 use codec::{
     Losses,
-    common::itertools::Itertools,
     schema::{
         Admonition, Article, AudioObject, AudioObjectOptions, Block, Citation, CitationMode,
         CitationOptions, Claim, ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord,

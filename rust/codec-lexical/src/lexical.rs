@@ -13,9 +13,8 @@
 use bitflags::bitflags;
 use monostate::MustBe;
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 use smart_default::SmartDefault;
-
-use codec::common::{serde_json, serde_with::skip_serializing_none};
 
 /// Block node types
 ///

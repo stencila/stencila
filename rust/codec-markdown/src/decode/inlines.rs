@@ -1,6 +1,7 @@
 use std::{collections::HashMap, ops::Range};
 
-use codec_text_trait::to_text;
+use indexmap::IndexMap;
+use itertools::Itertools;
 use markdown::{mdast, unist::Position};
 use winnow::{
     ModalResult, Parser,
@@ -11,7 +12,6 @@ use winnow::{
 };
 
 use codec::{
-    common::{indexmap::IndexMap, itertools::Itertools, tracing},
     format::Format,
     schema::{
         AudioObject, BooleanValidator, Button, Citation, CitationGroup, CitationMode,
@@ -22,6 +22,7 @@ use codec::{
         TimeValidator, TimestampValidator, Underline, Validator, VideoObject,
     },
 };
+use codec_text_trait::to_text;
 
 use super::{
     Context,

@@ -1,6 +1,6 @@
 use codec::{
     Codec, EncodeInfo,
-    common::{eyre::Result, tokio},
+    eyre::Result,
     format::Format,
     schema::{
         AuthorRole, AuthorRoleName, Person, authorship, merge,

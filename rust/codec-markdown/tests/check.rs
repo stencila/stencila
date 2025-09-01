@@ -1,10 +1,4 @@
-use codec::{
-    Codec, DecodeInfo, Messages,
-    common::{
-        eyre::{Ok, Result},
-        tokio,
-    },
-};
+use codec::{Codec, DecodeInfo, Messages, eyre::Result};
 use codec_markdown::MarkdownCodec;
 use common_dev::insta::assert_snapshot;
 

@@ -1,11 +1,9 @@
 use hayagriva::io::{from_biblatex_str, from_yaml_str};
+use itertools::Itertools;
 use winnow::Parser;
 
 use codec::{
-    common::{
-        eyre::{Result, bail},
-        itertools::Itertools,
-    },
+    eyre::{Result, bail},
     schema::{Inline, Reference, shortcuts::t},
 };
 

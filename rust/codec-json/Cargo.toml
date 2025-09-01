@@ -7,6 +7,7 @@ edition = "2024"
 codec = { path = "../codec" }
 version = { path = "../version" }
 serde = { workspace = true }
+serde_json = { workspace = true }
 zip = { workspace = true }
 
 [dev-dependencies]

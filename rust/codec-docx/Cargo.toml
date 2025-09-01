@@ -11,8 +11,11 @@ codec-utils = { path = "../codec-utils" }
 dirs = { path = "../dirs" }
 media-embed = { path = "../media-embed" }
 node-reconstitute = { path = "../node-reconstitute" }
+regex = { workspace = true }
 roxmltree = "0.20.0"
 rust-embed = { version = "8.7.2", features = ["interpolate-folder-path", "include-exclude"] }
+tempfile = { workspace = true }
+uuid = { workspace = true }
 version = { path = "../version" }
 zip = { workspace = true }
 

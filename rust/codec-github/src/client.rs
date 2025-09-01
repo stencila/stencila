@@ -5,19 +5,16 @@ use governor::{
     clock::DefaultClock,
     state::{InMemoryState, NotKeyed},
 };
-use serde::de::DeserializeOwned;
-
-use codec::common::{
-    eyre::{Result, bail},
-    itertools::Itertools,
-    once_cell::sync::Lazy,
-    reqwest::{
-        Client,
-        header::{ACCEPT, HeaderMap, HeaderName, HeaderValue},
-    },
-    tokio::time::Instant,
-    tracing,
+use itertools::Itertools;
+use once_cell::sync::Lazy;
+use reqwest::{
+    Client,
+    header::{ACCEPT, HeaderMap, HeaderName, HeaderValue},
 };
+use serde::de::DeserializeOwned;
+use tokio::time::Instant;
+
+use codec::eyre::{Result, bail};
 use version::STENCILA_USER_AGENT;
 
 const API_BASE_URL: &str = "https://api.github.com";

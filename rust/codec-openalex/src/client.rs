@@ -5,16 +5,13 @@ use governor::{
     clock::DefaultClock,
     state::{InMemoryState, NotKeyed},
 };
+use itertools::Itertools;
+use once_cell::sync::Lazy;
+use reqwest::{Client, Response, StatusCode};
 use serde::de::DeserializeOwned;
+use tokio::time::{Duration, Instant, sleep};
 
-use codec::common::{
-    eyre::{Result, bail},
-    itertools::Itertools,
-    once_cell::sync::Lazy,
-    reqwest::{Client, Response, StatusCode},
-    tokio::time::{Duration, Instant, sleep},
-    tracing,
-};
+use codec::eyre::{Result, bail};
 use version::STENCILA_USER_AGENT;
 
 use crate::{

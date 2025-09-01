@@ -1,7 +1,4 @@
-use codec::{
-    Codec,
-    common::{eyre::Result, tokio},
-};
+use codec::{Codec, eyre::Result};
 use codec_markdown::MarkdownCodec;
 use common_dev::insta::assert_yaml_snapshot;
 

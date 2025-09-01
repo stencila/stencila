@@ -1,6 +1,6 @@
 use codec::{
     Codec,
-    common::{eyre::Result, tokio},
+    eyre::Result,
     schema::{CodeChunk, Node},
 };
 use codec_markdown::MarkdownCodec;

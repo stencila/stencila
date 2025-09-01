@@ -4,7 +4,6 @@ use std::{
     str::FromStr,
 };
 
-use async_trait::async_trait;
 use codec_utils::git_info;
 use eyre::{Report, Result, bail};
 use format::Format;
@@ -21,8 +20,9 @@ use tokio::{
 };
 
 // Re-exports for the convenience of internal crates implementing `Codec`
+pub use async_trait::async_trait;
 pub use codec_info::*;
-pub use common;
+pub use eyre;
 pub use format;
 pub use schema;
 pub use status;

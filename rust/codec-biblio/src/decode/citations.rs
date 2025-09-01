@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use winnow::{
     Parser, Result,
     ascii::{digit1, multispace0, multispace1},
@@ -5,12 +6,8 @@ use winnow::{
     token::{any, take_while},
 };
 
-use codec::{
-    common::itertools::Itertools,
-    schema::{
-        Author, Citation, CitationGroup, CitationMode, CitationOptions, Inline, Person,
-        shortcuts::t,
-    },
+use codec::schema::{
+    Author, Citation, CitationGroup, CitationMode, CitationOptions, Inline, Person, shortcuts::t,
 };
 
 use crate::decode::{

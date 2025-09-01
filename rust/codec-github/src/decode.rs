@@ -2,10 +2,7 @@ use base64::{Engine, engine::general_purpose::STANDARD};
 use serde::Deserialize;
 use url::Url;
 
-use codec::common::{
-    eyre::{Result, bail},
-    reqwest, tracing,
-};
+use codec::eyre::{Result, bail};
 
 use crate::client::{api_url, request};
 
@@ -171,7 +168,7 @@ pub(super) async fn fetch_github_file(file_info: &GithubFileInfo) -> Result<Vec<
 
 #[cfg(test)]
 mod tests {
-    use codec::common::eyre::OptionExt;
+    use codec::eyre::OptionExt;
 
     use super::*;
 

@@ -1,9 +1,11 @@
 use std::{collections::HashMap, str::FromStr};
 
+use indexmap::IndexMap;
 use markdown::{
     mdast::{self, AlignKind},
     unist::Position,
 };
+use serde_json::json;
 use winnow::{
     LocatingSlice as Located, ModalResult, Parser,
     ascii::{Caseless, alphanumeric1, multispace0, multispace1, space0},
@@ -13,11 +15,6 @@ use winnow::{
 };
 
 use codec::{
-    common::{
-        indexmap::IndexMap,
-        serde_json::{self, json},
-        tracing,
-    },
     format::Format,
     schema::{
         Admonition, AdmonitionType, AppendixBreak, Author, Block, CallArgument, CallBlock, Chat,

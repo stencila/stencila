@@ -1,9 +1,6 @@
 use url::Url;
 
-use codec::common::{
-    eyre::{Result, bail},
-    reqwest, tracing,
-};
+use codec::eyre::{Result, bail};
 
 use crate::{
     client::{api_url, request},

@@ -1,12 +1,13 @@
+use tl::{HTMLTag, Parser, ParserOptions, RawChildren, parse};
+
 use codec::{
     DecodeInfo, DecodeOptions,
-    common::eyre::{Result, bail},
+    eyre::{Result, bail},
     schema::{
         Article, Block, ImageObject, Inline, Link, Node, StyledBlock, StyledInline,
         shortcuts::{em, h1, h2, h3, h4, h5, h6, p, sec, stg, stk, sub, sup, t, u},
     },
 };
-use tl::{HTMLTag, Parser, ParserOptions, RawChildren, parse};
 
 /// Decode a HTML string to a Stencila Schema [`Node`]
 ///

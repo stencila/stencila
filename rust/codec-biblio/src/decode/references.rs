@@ -6,7 +6,7 @@ use winnow::{
     combinator::{alt, opt, preceded},
 };
 
-use codec::{common::tracing, schema::Reference};
+use codec::schema::Reference;
 
 use crate::decode::{acs, apa, apj, chicago, fallback::fallback, ieee, lncs, mla, vancouver};
 

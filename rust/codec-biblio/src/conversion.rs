@@ -1,5 +1,7 @@
+use reqwest::Url;
+
 use codec::{
-    common::{eyre::Result, reqwest::Url},
+    eyre::Result,
     schema::{
         Author, Cord, CreativeWorkType, Date, Inline, IntegerOrString, Organization, Person,
         PersonOrOrganization, PostalAddressOrString, Primitive, PropertyValue,

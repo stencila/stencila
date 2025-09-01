@@ -1,4 +1,4 @@
-use codec::{EncodeInfo, EncodeOptions, common::eyre::Result, schema::Node};
+use codec::{EncodeInfo, EncodeOptions, eyre::Result, schema::Node};
 use codec_markdown_trait::{MarkdownCodec as _, MarkdownEncodeContext};
 
 /// Encode a Stencila Schema [`Node`] to a Markdown string
