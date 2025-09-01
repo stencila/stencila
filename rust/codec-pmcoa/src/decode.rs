@@ -1,13 +1,6 @@
 use std::path::{Path, PathBuf};
 
 use flate2::read::GzDecoder;
-use url::Url;
-
-use codec::{
-    Codec, DecodeInfo, DecodeOptions,
-    eyre::{ContextCompat, OptionExt, Result, bail},
-    schema::Node,
-};
 use futures::StreamExt;
 use glob::glob;
 use regex::Regex;
@@ -16,6 +9,13 @@ use tar::Archive;
 use tokio::{
     fs::{File, remove_file},
     io::AsyncWriteExt,
+};
+use url::Url;
+
+use codec::{
+    Codec, DecodeInfo, DecodeOptions,
+    eyre::{ContextCompat, OptionExt, Result, bail},
+    schema::Node,
 };
 use codec_jats::JatsCodec;
 use media_embed::embed_media;

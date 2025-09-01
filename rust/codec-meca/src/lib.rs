@@ -1,16 +1,13 @@
 use std::path::Path;
 
 use codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, NodeType,
-    async_trait,
-    eyre::Result,
-    format::Format,
-    schema::Node,
-    status::Status,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, NodeType, async_trait, eyre::Result,
+    format::Format, schema::Node, status::Status,
 };
-use decode::decode_path;
 
 mod decode;
+use decode::decode_path;
+
 
 /// A codec for decoding MECA
 ///

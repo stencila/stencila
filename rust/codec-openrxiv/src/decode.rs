@@ -8,11 +8,7 @@ use reqwest::{Client, Response};
 use tempfile::tempdir;
 use tokio::{fs::File, io::AsyncWriteExt};
 
-use codec::{
-    Codec, DecodeInfo, DecodeOptions,
-    format::Format,
-    schema::Node,
-};
+use codec::{Codec, DecodeInfo, DecodeOptions, format::Format, schema::Node};
 use codec_meca::MecaCodec;
 use codec_pdf::PdfCodec;
 use version::STENCILA_USER_AGENT;

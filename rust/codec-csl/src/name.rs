@@ -2,9 +2,7 @@ use std::str::FromStr;
 
 use serde::Deserialize;
 
-use codec::{
-    schema::{Author, Organization, Person, PersonOptions},
-};
+use codec::schema::{Author, Organization, Person, PersonOptions};
 
 use indexmap::IndexMap;
 use itertools::Itertools;

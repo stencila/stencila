@@ -1,17 +1,14 @@
 use std::{sync::Arc, time::Duration};
 
 use cached::proc_macro::cached;
+use inflector::Inflector;
+use itertools::Itertools;
+use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
 use model::{
-    Model, ModelAvailability, ModelIO, ModelOutput, ModelTask, ModelType,
-    common::{
-        async_trait::async_trait,
-        eyre::{Result, bail, eyre},
-        inflector::Inflector,
-        itertools::Itertools,
-        reqwest::Client,
-    },
+    Model, ModelAvailability, ModelIO, ModelOutput, ModelTask, ModelType, async_trait,
+    eyre::{Result, bail, eyre},
 };
 
 /// A model available via Stencila Cloud
@@ -172,7 +169,7 @@ async fn list_stencila_models(_unused: u8) -> Result<Vec<StencilaModel>> {
 #[allow(clippy::print_stderr)]
 mod tests {
     use super::*;
-    use model::{common::tokio, test_task_repeat_word};
+    use model::test_task_repeat_word;
 
     #[tokio::test]
     async fn list_models() -> Result<()> {

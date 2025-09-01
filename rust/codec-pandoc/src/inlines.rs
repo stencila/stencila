@@ -1,10 +1,7 @@
+use itertools::Itertools;
 use pandoc_types::definition::{self as pandoc, Attr, Target};
 
-use codec::{
-    format::Format,
-    schema::*,
-};
-use itertools::Itertools;
+use codec::{format::Format, schema::*};
 use codec_text_trait::to_text;
 
 use crate::{

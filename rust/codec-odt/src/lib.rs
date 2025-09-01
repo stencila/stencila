@@ -2,12 +2,7 @@ use std::path::Path;
 
 use codec::{
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    NodeType,
-    async_trait,
-    eyre::Result,
-    format::Format,
-    schema::Node,
-    status::Status,
+    NodeType, async_trait, eyre::Result, format::Format, schema::Node, status::Status,
 };
 use codec_json::JsonCodec;
 use codec_pandoc::{

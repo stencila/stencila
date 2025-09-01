@@ -1,16 +1,15 @@
 use std::path::PathBuf;
 
 use serde::de::DeserializeOwned;
+use tokio::fs::write;
 
 use codec::{
-    Codec, DecodeInfo, DecodeOptions,
-    async_trait,
+    Codec, DecodeInfo, DecodeOptions, async_trait,
     eyre::{Result, bail},
     format::Format,
     schema::{Article, Datatable, Node, SoftwareSourceCode, SoftwareSourceCodeOptions, Text},
     status::Status,
 };
-use tokio::fs::write;
 use codec_csv::CsvCodec;
 use codec_ipynb::IpynbCodec;
 use codec_latex::LatexCodec;

@@ -4,17 +4,16 @@ use std::{
     path::Path,
 };
 
+use serde_json::{Map, Value};
 use zip::{self, ZipArchive, write::FileOptions};
 
 use codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    async_trait,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
     eyre::{Result, bail},
     format::Format,
     schema::{Article, Node, NodeType},
     status::Status,
 };
-use serde_json::{Map, Value};
 use version::STENCILA_VERSION;
 
 pub mod r#trait;

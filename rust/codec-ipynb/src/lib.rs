@@ -8,11 +8,11 @@ use nbformat::{
         MultilineString, Notebook as NotebookV4, Output,
     },
 };
+use serde_json::{self, Map, Value, json};
 
 use codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Losses, NodeId,
-    NodeType,
-    async_trait,
+    NodeType, async_trait,
     eyre::{Result, bail, eyre},
     format::Format,
     schema::{
@@ -21,7 +21,6 @@ use codec::{
     },
     status::Status,
 };
-use serde_json::{self, Map, Value, json};
 
 /// A codec for Jupyter Notebooks
 pub struct IpynbCodec;

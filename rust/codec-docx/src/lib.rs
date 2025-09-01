@@ -1,25 +1,24 @@
 use std::{io::Write, path::Path};
 
-use codec_json::JsonCodec;
-use media_embed::embed_media;
-use node_reconstitute::reconstitute;
 use rust_embed::RustEmbed;
+use tempfile::{NamedTempFile, tempdir};
+use tokio::fs::{create_dir_all, write};
 
 use codec::{
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    NodeType,
-    async_trait,
+    NodeType, async_trait,
     eyre::{OptionExt, Result},
     format::Format,
     schema::{Article, Node, Object, Primitive, strip_non_content},
     status::Status,
 };
-use tempfile::{NamedTempFile, tempdir};
-use tokio::fs::{create_dir_all, write};
+use codec_json::JsonCodec;
 use codec_pandoc::{
     coarse_to_path, pandoc_availability, pandoc_from_format, pandoc_to_format, root_from_pandoc,
     root_to_pandoc,
 };
+use media_embed::embed_media;
+use node_reconstitute::reconstitute;
 use version::STENCILA_VERSION;
 
 mod decode;

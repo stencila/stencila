@@ -1,3 +1,7 @@
+use indexmap::IndexMap;
+use serde_json::{self, json};
+use tempfile::tempdir;
+
 use codec::{
     Codec, EncodeOptions,
     eyre::Result,
@@ -6,9 +10,6 @@ use codec::{
         shortcuts::{cc, ce, p, t},
     },
 };
-use indexmap::IndexMap;
-use serde_json::{self, json};
-use tempfile::tempdir;
 use common_dev::pretty_assertions::assert_eq;
 use version::STENCILA_VERSION;
 

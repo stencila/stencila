@@ -1,6 +1,5 @@
 use codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions,
-    async_trait,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, async_trait,
     eyre::{Result, bail},
     format::Format,
     schema::Node,

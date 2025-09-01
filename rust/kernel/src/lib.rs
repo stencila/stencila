@@ -399,10 +399,11 @@ pub enum KernelSignal {
 pub mod tests {
     use std::{env, time::Duration};
 
-    use pretty_assertions::assert_eq;
     use eyre::{OptionExt, Report};
     use indexmap::IndexMap;
     use itertools::Itertools;
+    use pretty_assertions::assert_eq;
+
     use schema::{Array, Null, Object, Paragraph, Primitive, SoftwareApplication};
 
     use super::*;

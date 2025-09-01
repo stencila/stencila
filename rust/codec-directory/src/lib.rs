@@ -6,8 +6,7 @@ use std::{
 use ignore::Walk;
 
 use codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions,
-    async_trait,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, async_trait,
     eyre::{Result, bail},
     format::Format,
     schema::{Directory, File, FileOrDirectory, Node, NodeType},

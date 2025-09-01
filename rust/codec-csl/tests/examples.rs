@@ -1,6 +1,5 @@
 use std::{fs::read_to_string, path::PathBuf};
 
-
 use codec::{
     Codec,
     eyre::{OptionExt, Result},

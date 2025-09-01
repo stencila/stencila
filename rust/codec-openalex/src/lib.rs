@@ -1,8 +1,7 @@
 use serde::de::DeserializeOwned;
 
 use codec::{
-    Codec, DecodeInfo, DecodeOptions,
-    async_trait,
+    Codec, DecodeInfo, DecodeOptions, async_trait,
     eyre::{Result, bail, eyre},
     schema::Node,
     status::Status,

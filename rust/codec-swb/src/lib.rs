@@ -1,19 +1,18 @@
 use std::{fs::File, path::Path};
 
+use clap::{self, Parser};
 use flate2::{Compression, write::GzEncoder};
+use tar::Builder;
+use tempfile::TempDir;
+use tokio::fs::write;
 
 use codec::{
-    Codec, CodecSupport, EncodeInfo, EncodeOptions,
-    async_trait,
+    Codec, CodecSupport, EncodeInfo, EncodeOptions, async_trait,
     eyre::{Ok, Result},
     format::Format,
     schema::Node,
     status::Status,
 };
-use clap::{self, Parser};
-use tar::Builder;
-use tempfile::TempDir;
-use tokio::fs::write;
 use codec_dom::DomCodec;
 use codec_jsonld::JsonLdCodec;
 use codec_markdown::MarkdownCodec;

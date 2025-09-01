@@ -1,6 +1,5 @@
 use serde::Deserialize;
 
-
 /// The response from Zenodo search API endpoints
 #[derive(Debug, Deserialize)]
 pub struct SearchResponse<T> {

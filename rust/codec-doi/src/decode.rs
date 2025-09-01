@@ -1,13 +1,9 @@
-use url::Url;
-
-use codec::{
-    Codec, DecodeInfo, DecodeOptions,
-    eyre::Result,
-    schema::Node,
-};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use reqwest::{Client, header};
+use url::Url;
+
+use codec::{Codec, DecodeInfo, DecodeOptions, eyre::Result, schema::Node};
 use codec_csl::CslCodec;
 use version::STENCILA_USER_AGENT;
 

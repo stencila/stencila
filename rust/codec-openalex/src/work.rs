@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use serde::Deserialize;
 use indexmap::IndexMap;
+use serde::Deserialize;
 
 use codec::{
     eyre::{Result, bail},

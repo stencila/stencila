@@ -1,3 +1,5 @@
+use serde_json::{self, json};
+
 use codec::{
     Codec, EncodeOptions,
     eyre::{Result, bail},
@@ -6,7 +8,6 @@ use codec::{
         shortcuts::{art, p, t},
     },
 };
-use serde_json::{self, json};
 use common_dev::pretty_assertions::assert_eq;
 use version::STENCILA_VERSION;
 

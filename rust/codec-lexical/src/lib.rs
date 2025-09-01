@@ -1,11 +1,8 @@
 use codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, NodeType,
-    async_trait,
-    eyre::Result,
-    format::Format,
-    schema::Node,
-    status::Status,
+    async_trait, eyre::Result, format::Format, schema::Node, status::Status,
 };
+
 use lexical::LexicalDoc;
 use nodes::{root_from_lexical, root_to_lexical};
 

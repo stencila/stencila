@@ -1,8 +1,7 @@
 use std::path::Path;
 
 use codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, NodeType,
-    async_trait,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, NodeType, async_trait,
     eyre::{Result, bail},
     format::Format,
     schema::Node,

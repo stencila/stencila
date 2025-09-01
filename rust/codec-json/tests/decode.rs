@@ -6,6 +6,8 @@
 //! Other `serde`-based codecs (e.g. `yaml`) do not have as comprehensive unit tests
 //! (although they do have round-trip prop tests) because they should work if these tests pass).
 
+use serde_json::json;
+
 use codec::{
     eyre::Result,
     schema::{
@@ -15,7 +17,6 @@ use codec::{
         shortcuts::{p, t},
     },
 };
-use serde_json::json;
 use common_dev::pretty_assertions::assert_eq;
 
 use codec_json::r#trait::JsonCodec;

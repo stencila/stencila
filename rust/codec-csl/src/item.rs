@@ -1,12 +1,10 @@
 use serde::Deserialize;
 
-use codec::{
-    schema::{
-        Article, ArticleOptions, Author, Block, CreativeWorkVariant, Date, IntegerOrString,
-        Organization, Paragraph, Periodical, PeriodicalOptions, PersonOrOrganization, Primitive,
-        PropertyValue, PropertyValueOrString, PublicationIssue, PublicationVolume, Reference,
-        shortcuts::{p, t},
-    },
+use codec::schema::{
+    Article, ArticleOptions, Author, Block, CreativeWorkVariant, Date, IntegerOrString,
+    Organization, Paragraph, Periodical, PeriodicalOptions, PersonOrOrganization, Primitive,
+    PropertyValue, PropertyValueOrString, PublicationIssue, PublicationVolume, Reference,
+    shortcuts::{p, t},
 };
 
 use indexmap::IndexMap;

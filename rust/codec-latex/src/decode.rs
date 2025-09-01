@@ -1,3 +1,7 @@
+use itertools::Itertools;
+use once_cell::sync::Lazy;
+use regex::{Captures, Regex};
+
 use codec::{
     DecodeInfo, DecodeOptions,
     eyre::Result,
@@ -8,9 +12,6 @@ use codec::{
         Text,
     },
 };
-use itertools::Itertools;
-use once_cell::sync::Lazy;
-use regex::{Captures, Regex};
 use codec_pandoc::{pandoc_from_format, root_from_pandoc};
 
 use crate::PANDOC_FORMAT;

@@ -2,11 +2,7 @@ use std::path::Path;
 
 use codec::{
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    async_trait,
-    eyre::Result,
-    format::Format,
-    schema::Node,
-    status::Status,
+    async_trait, eyre::Result, format::Format, schema::Node, status::Status,
 };
 use codec_docx::DocxCodec;
 
