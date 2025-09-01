@@ -1,4 +1,4 @@
-use common_dev::insta::assert_snapshot;
+use insta::assert_snapshot;
 
 use codec_markdown::preprocess;
 

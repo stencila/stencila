@@ -20,7 +20,7 @@ url = { workspace = true }
 version = { path = "../version" }
 
 [dev-dependencies]
-common-dev = { path = "../common-dev" }
+insta = { workspace = true }
 
 [lints]
 workspace = true

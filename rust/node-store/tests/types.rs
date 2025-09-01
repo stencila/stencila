@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use eyre::Result;
 use serde_json::json;
 
-use common_dev::pretty_assertions::assert_eq;
+use pretty_assertions::assert_eq;
 
 use schema::{Array, Article, Block, Cord, Inline, Node, Null, Object, Paragraph, Primitive, Text};
 

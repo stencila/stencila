@@ -13,7 +13,7 @@ tracing = { workspace = true }
 zip = { workspace = true }
 
 [dev-dependencies]
-common-dev = { path = "../common-dev" }
+insta = { workspace = true }
 tokio = { workspace = true }
 
 [lints]

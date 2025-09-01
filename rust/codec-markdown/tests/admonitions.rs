@@ -1,6 +1,6 @@
 use codec::{Codec, eyre::Result};
 use codec_markdown::MarkdownCodec;
-use common_dev::insta::assert_yaml_snapshot;
+use insta::assert_yaml_snapshot;
 
 /// Regression test for cases where the first inline of the first paragraph
 /// is not a `Text` node.

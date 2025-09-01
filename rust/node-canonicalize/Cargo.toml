@@ -18,7 +18,8 @@ seahash = { workspace = true }
 tracing = { workspace = true }
 
 [dev-dependencies]
-common-dev = { path = "../common-dev" }
+insta = { workspace = true }
+pretty_assertions = { workspace = true }
 eyre = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true }

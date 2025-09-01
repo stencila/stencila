@@ -468,7 +468,7 @@ pub fn string_to_instruction_message(md: &str) -> InstructionMessage {
 #[allow(clippy::unwrap_used)]
 mod tests {
     use codec::eyre::Result;
-    use common_dev::pretty_assertions::assert_eq;
+    use pretty_assertions::assert_eq;
 
     use super::*;
 

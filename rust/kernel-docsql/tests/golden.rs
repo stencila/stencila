@@ -4,7 +4,6 @@ use std::{
     path::PathBuf,
 };
 
-use common_dev::pretty_assertions::assert_eq;
 use eyre::{Result, bail};
 use glob::glob;
 use itertools::Itertools;
@@ -13,6 +12,7 @@ use kernel_jinja::kernel::{
     KernelInstance,
     schema::{CodeChunk, Node, Null},
 };
+use pretty_assertions::assert_eq;
 use tokio::{
     self,
     sync::{mpsc, watch},

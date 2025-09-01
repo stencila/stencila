@@ -93,12 +93,6 @@ The current crates include (but are not limited to):
 
 - [`codec-yaml`](codec-yaml): A codec for [YAML](https://yaml.org/).
 
-#### Utilities
-
-- [`common`](common): Common dependencies used across crates.
-
-- [`common-dev`](common-dev): Common development dependencies used across crates.
-
 ### Using Tokio console
 
 Turn on the `console-subscriber` feature to use [`tokio-console`](https://github.com/tokio-rs/console) for debugging async tasks and locks e.g.

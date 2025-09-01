@@ -117,7 +117,7 @@ fn is_valid_doi_char(c: char) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use common_dev::pretty_assertions::assert_eq;
+    use pretty_assertions::assert_eq;
 
     use super::*;
 

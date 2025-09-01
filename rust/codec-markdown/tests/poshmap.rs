@@ -2,7 +2,7 @@ use codec::{
     Codec, EncodeInfo, NodeType, PoshMap, Position8, Position16, Range8, Range16, eyre::Result,
 };
 use codec_markdown::MarkdownCodec;
-use common_dev::insta::assert_snapshot;
+use insta::assert_snapshot;
 
 #[tokio::test]
 #[allow(clippy::unwrap_used)]

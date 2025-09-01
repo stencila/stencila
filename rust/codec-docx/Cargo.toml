@@ -23,7 +23,7 @@ version = { path = "../version" }
 zip = { workspace = true }
 
 [dev-dependencies]
-common-dev = { path = "../common-dev" }
+pretty_assertions = { workspace = true }
 
 [lints]
 workspace = true

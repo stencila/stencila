@@ -62,7 +62,9 @@ url = { workspace = true }
 walkdir = "2.5.0"
 
 [dev-dependencies]
-common-dev = { path = "../common-dev" }
+insta = { workspace = true }
+pretty_assertions = { workspace = true }
+proptest = { workspace = true }
 glob = { workspace = true }
 itertools = { workspace = true }
 json_value_merge = "2.0.1"

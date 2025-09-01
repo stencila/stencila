@@ -11,7 +11,7 @@ once_cell = { workspace = true }
 regex = { workspace = true }
 
 [dev-dependencies]
-common-dev = { path = "../common-dev" }
+insta = { workspace = true }
 glob = { workspace = true }
 tokio = { workspace = true }
 

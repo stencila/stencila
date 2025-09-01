@@ -23,7 +23,8 @@ tracing = { workspace = true }
 winnow = "0.7.12"
 
 [dev-dependencies]
-common-dev = { path = "../common-dev" }
+insta = { workspace = true }
+pretty_assertions = { workspace = true }
 
 [lints]
 workspace = true

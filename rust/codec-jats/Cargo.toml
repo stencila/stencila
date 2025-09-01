@@ -12,8 +12,9 @@ quick-xml = { workspace = true }
 roxmltree = "0.20.0"
 
 [dev-dependencies]
-common-dev = { path = "../common-dev" }
+insta = { workspace = true }
 glob = { workspace = true }
+pretty_assertions = { workspace = true }
 tokio = { workspace = true }
 
 [lints]

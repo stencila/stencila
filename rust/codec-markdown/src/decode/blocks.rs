@@ -1992,7 +1992,7 @@ fn mds_to_table_cells(
 #[allow(clippy::unwrap_used)]
 mod tests {
     use codec::schema::{ClaimType, ExecutionMode, Node};
-    use common_dev::pretty_assertions::assert_eq;
+    use pretty_assertions::assert_eq;
 
     use super::*;
 

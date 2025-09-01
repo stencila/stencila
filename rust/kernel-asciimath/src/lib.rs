@@ -210,8 +210,8 @@ impl KernelInstance for AsciiMathKernelInstance {
 
 #[cfg(test)]
 mod tests {
-    use common_dev::pretty_assertions::assert_eq;
     use kernel::schema::Node;
+    use pretty_assertions::assert_eq;
 
     use super::*;
 

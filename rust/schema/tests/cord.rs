@@ -1,4 +1,5 @@
-use common_dev::{pretty_assertions::assert_eq, proptest::prelude::*};
+use pretty_assertions::assert_eq;
+use proptest::prelude::*;
 
 use schema::{
     AuthorType, Block, Cord, CordAuthorship,

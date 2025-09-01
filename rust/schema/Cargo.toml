@@ -58,7 +58,9 @@ tracing = { workspace = true }
 [dev-dependencies]
 codec = { path = "../codec" }
 codec-markdown = { path = "../codec-markdown" }
-common-dev = { path = "../common-dev" }
+insta = { workspace = true }
+pretty_assertions = { workspace = true }
+proptest = { workspace = true }
 glob = { workspace = true }
 tokio = { workspace = true }
 

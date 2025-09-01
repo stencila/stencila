@@ -8,7 +8,8 @@ use codec::{
     format::Format,
 };
 use codec_biblio::BiblioCodec;
-use common_dev::{insta::assert_json_snapshot, pretty_assertions::assert_eq};
+use insta::assert_json_snapshot;
+use pretty_assertions::assert_eq;
 
 /// Decode bibliographic files and test round-trip conversions
 #[tokio::test]

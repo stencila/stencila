@@ -7,7 +7,7 @@ use codec::{
     eyre::{OptionExt, Result},
 };
 use codec_github::GithubCodec;
-use common_dev::insta::assert_json_snapshot;
+use insta::assert_json_snapshot;
 
 /// Decode GitHub API responses into Stencila schema nodes
 #[tokio::test]

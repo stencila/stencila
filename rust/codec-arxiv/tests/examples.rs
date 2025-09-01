@@ -1,13 +1,12 @@
 use std::path::PathBuf;
 
 use glob::glob;
+use insta::{assert_json_snapshot, assert_yaml_snapshot};
 
 use codec::{
     Codec,
     eyre::{OptionExt, Result},
 };
-use common_dev::insta::{assert_json_snapshot, assert_yaml_snapshot};
-
 use codec_arxiv::ArxivCodec;
 
 /// Decode each example of an arXiv HTML page and create JSON snapshots (including for losses)

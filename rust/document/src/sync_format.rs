@@ -478,10 +478,11 @@ fn extract_chars(content: &str, range: Range<usize>) -> &str {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use common_dev::{ntest::timeout, pretty_assertions::assert_eq};
     use eyre::Report;
     use format::Format;
     use node_strip::StripScope;
+    use ntest::timeout;
+    use pretty_assertions::assert_eq;
     use schema::{
         NodeType,
         shortcuts::{art, p, t},

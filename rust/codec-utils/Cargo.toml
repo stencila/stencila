@@ -11,7 +11,7 @@ similar = { workspace = true }
 which = { workspace = true }
 
 [dev-dependencies]
-common-dev = { path = "../common-dev" }
+proptest = { workspace = true }
 
 [lints]
 workspace = true

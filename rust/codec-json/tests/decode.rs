@@ -17,7 +17,7 @@ use codec::{
         shortcuts::{p, t},
     },
 };
-use common_dev::pretty_assertions::assert_eq;
+use pretty_assertions::assert_eq;
 
 use codec_json::r#trait::JsonCodec;
 

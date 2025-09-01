@@ -601,11 +601,11 @@ fn execution_message_for_copy(query: &str, line_offset: usize) -> ExecutionMessa
 
 #[cfg(test)]
 mod tests {
-    use common_dev::pretty_assertions::assert_eq;
     use kernel::{
         eyre::bail,
         schema::{Array, CodeLocation, MessageLevel, Primitive},
     };
+    use pretty_assertions::assert_eq;
     use tempfile::TempDir;
 
     use super::*;

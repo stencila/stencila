@@ -48,7 +48,7 @@ fn transform(inlines: &mut Vec<Inline>) {
 
 #[cfg(test)]
 mod tests {
-    use common_dev::pretty_assertions::assert_eq;
+    use pretty_assertions::assert_eq;
     use schema::shortcuts::{ci, ct, p, sen, t};
 
     use super::*;

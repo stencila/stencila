@@ -117,7 +117,7 @@ pub fn reference(input: &str) -> Reference {
 mod tests {
     use codec::schema::{CreativeWorkType, IntegerOrString, Organization, PersonOrOrganization};
     use codec_text_trait::to_text;
-    use common_dev::pretty_assertions::assert_eq;
+    use pretty_assertions::assert_eq;
 
     use super::*;
 

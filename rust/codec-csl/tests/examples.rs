@@ -5,7 +5,7 @@ use codec::{
     eyre::{OptionExt, Result},
 };
 use codec_csl::CslCodec;
-use common_dev::insta::assert_json_snapshot;
+use insta::assert_json_snapshot;
 
 /// Decode CSL-JSON into articles
 #[tokio::test]

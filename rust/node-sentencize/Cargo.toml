@@ -7,7 +7,7 @@ edition = "2024"
 schema = { path = "../schema" }
 
 [dev-dependencies]
-common-dev = { path = "../common-dev" }
+pretty_assertions = { workspace = true }
 
 [lints]
 workspace = true

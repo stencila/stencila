@@ -10,7 +10,7 @@ use codec::{
         shortcuts::{cc, ce, p, t},
     },
 };
-use common_dev::pretty_assertions::assert_eq;
+use pretty_assertions::assert_eq;
 use version::STENCILA_VERSION;
 
 use crate::DocxCodec;

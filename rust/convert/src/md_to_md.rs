@@ -538,7 +538,7 @@ fn ensure_isolated_references(md: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use common_dev::insta::assert_snapshot;
+    use insta::assert_snapshot;
 
     use super::*;
 

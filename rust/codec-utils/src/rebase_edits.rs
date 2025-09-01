@@ -266,7 +266,7 @@ fn push_deletions(
 mod tests {
     use super::*;
 
-    pub use common_dev::proptest::prelude::*;
+    pub use proptest::prelude::*;
 
     /// Nothing changes anywhere.
     #[test]

@@ -416,7 +416,7 @@ fn numeric_citation(num: u32) -> Citation {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use common_dev::pretty_assertions::assert_eq;
+    use pretty_assertions::assert_eq;
 
     // Shortcut for a narrative citation with content
     fn ctn(target: &str, content: &str) -> Inline {

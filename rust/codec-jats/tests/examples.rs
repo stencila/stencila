@@ -5,7 +5,7 @@ use glob::glob;
 use codec::{EncodeOptions, eyre::Result};
 
 use codec_jats::{decode, encode};
-use common_dev::insta::{assert_json_snapshot, assert_snapshot, assert_yaml_snapshot};
+use insta::{assert_json_snapshot, assert_snapshot, assert_yaml_snapshot};
 
 /// Decode each example of a JATS article and create JSON and JATS snapshots
 /// including for losses

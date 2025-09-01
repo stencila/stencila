@@ -13,7 +13,7 @@ serde_with = { workspace = true }
 serde_yaml = { workspace = true }
 
 [dev-dependencies]
-common-dev = { path = "../common-dev" }
+insta = { workspace = true }
 glob = { workspace = true }
 tokio = { workspace = true }
 

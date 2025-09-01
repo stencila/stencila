@@ -20,8 +20,8 @@ use codec::{
     format::Format,
     schema::NodeType,
 };
-use common_dev::pretty_assertions::assert_eq;
 use node_strip::{StripNode, StripTargets};
+use pretty_assertions::assert_eq;
 
 type Config = BTreeMap<String, FormatConfig>;
 

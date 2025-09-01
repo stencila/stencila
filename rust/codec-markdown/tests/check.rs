@@ -1,6 +1,6 @@
 use codec::{Codec, DecodeInfo, Messages, eyre::Result};
 use codec_markdown::MarkdownCodec;
-use common_dev::insta::assert_snapshot;
+use insta::assert_snapshot;
 
 async fn messages(md: &str) -> Result<Messages> {
     let (.., DecodeInfo { messages, .. }) = MarkdownCodec {}.from_str(md, None).await?;

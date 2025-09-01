@@ -135,8 +135,8 @@ impl KernelInstance for MermaidKernelInstance {
 
 #[cfg(test)]
 mod tests {
-    use common_dev::pretty_assertions::assert_eq;
     use kernel::{eyre::bail, schema::Node};
+    use pretty_assertions::assert_eq;
 
     use super::*;
 

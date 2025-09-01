@@ -20,11 +20,9 @@ use codec::{
     format::Format,
     schema::{Article, AudioObject, Node},
 };
-use common_dev::{
-    pretty_assertions::assert_eq,
-    proptest::prelude::{ProptestConfig, proptest},
-};
 use node_strip::{StripNode, StripTargets};
+use pretty_assertions::assert_eq;
+use proptest::prelude::{ProptestConfig, proptest};
 
 /// Do a roundtrip conversion to/from a format
 #[allow(unused)]

@@ -1,6 +1,6 @@
 use crate::{PromptContext, prelude::*};
 
-use common_dev::pretty_assertions::assert_eq;
+use pretty_assertions::assert_eq;
 use schema::Node;
 
 use super::Instruction;

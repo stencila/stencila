@@ -363,7 +363,7 @@ mod dois {
 mod doi_proptests {
     use super::*;
 
-    use common_dev::proptest::prelude::*;
+    use proptest::prelude::*;
 
     // Strategy to generate valid DOI prefixes
     fn doi_prefix() -> impl Strategy<Value = String> {

@@ -5,7 +5,7 @@ use codec::{
     eyre::{OptionExt, Result},
 };
 use codec_zenodo::ZenodoCodec;
-use common_dev::insta::assert_json_snapshot;
+use insta::assert_json_snapshot;
 
 /// Decode Zenodo API responses into Stencila schema nodes
 #[tokio::test]

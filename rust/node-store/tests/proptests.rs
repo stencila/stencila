@@ -4,11 +4,9 @@
 
 use eyre::Result;
 
-use common_dev::{
-    pretty_assertions::assert_eq,
-    proptest::prelude::{ProptestConfig, proptest},
-};
 use node_store::{ReadNode, WriteNode, WriteStore};
+use pretty_assertions::assert_eq;
+use proptest::prelude::{ProptestConfig, proptest};
 use schema::Article;
 
 #[cfg(any(

@@ -6,7 +6,7 @@ use regex::Regex;
 
 use codec::{EncodeOptions, eyre::Result, format::Format};
 use codec_lexical::{decode, encode};
-use common_dev::insta::{assert_json_snapshot, assert_snapshot, assert_yaml_snapshot};
+use insta::{assert_json_snapshot, assert_snapshot, assert_yaml_snapshot};
 
 /// Decode each example of a Lexical document and create JSON and Lexical snapshots
 /// including snapshots for losses

@@ -904,7 +904,7 @@ pub(super) fn mds_to_string(mds: &[mdast::Node]) -> String {
 #[allow(clippy::unwrap_used)]
 mod tests {
     use codec::schema::ExecutionMode;
-    use common_dev::pretty_assertions::assert_eq;
+    use pretty_assertions::assert_eq;
 
     use super::*;
 

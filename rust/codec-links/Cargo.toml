@@ -9,7 +9,6 @@ Inflector = { workspace = true }
 winnow = "0.7.12"
 
 [dev-dependencies]
-common-dev = { path = "../common-dev" }
 
 [lints]
 workspace = true

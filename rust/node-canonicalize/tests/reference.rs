@@ -1,8 +1,8 @@
 use eyre::{Result, bail};
 use serde_json::json;
 
-use common_dev::pretty_assertions::assert_eq;
 use node_canonicalize::canonicalize;
+use pretty_assertions::assert_eq;
 use schema::{Author, Date, Node, Person, Reference, shortcuts::t};
 
 /// Reference with a DOI on OpenAlex should get that DOI

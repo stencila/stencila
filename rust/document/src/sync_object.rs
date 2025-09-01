@@ -174,8 +174,8 @@ impl Document {
 mod tests {
     use json_patch::{AddOperation, RemoveOperation};
 
-    use common_dev::pretty_assertions::assert_eq;
     use eyre::bail;
+    use pretty_assertions::assert_eq;
     use schema::{
         NodeType,
         shortcuts::{art, p, t},

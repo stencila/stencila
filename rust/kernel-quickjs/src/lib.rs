@@ -848,12 +848,12 @@ impl<'js> Console<'js> {
 
 #[cfg(test)]
 mod tests {
-    use common_dev::pretty_assertions::assert_eq;
     use indexmap::IndexMap;
     use kernel::{
         schema::{Array, ArrayHint, Hint, Node, Object, ObjectHint, Primitive, StringHint},
         tests::{create_instance, start_instance},
     };
+    use pretty_assertions::assert_eq;
 
     use super::*;
 

@@ -4,7 +4,7 @@ use codec::{
     schema::{CodeChunk, Node},
 };
 use codec_markdown::MarkdownCodec;
-use common_dev::insta::assert_snapshot;
+use insta::assert_snapshot;
 
 /// Test that a sufficient number of enclosing backticks are encoded to escape
 /// backticks in the code

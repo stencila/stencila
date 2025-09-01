@@ -473,12 +473,12 @@ fn node_to_dynamic(node: &Node) -> Result<Dynamic> {
 
 #[cfg(test)]
 mod tests {
-    use common_dev::pretty_assertions::assert_eq;
     use indexmap::IndexMap;
     use kernel::{
         schema::{Array, Node, Object, Primitive},
         tests::{create_instance, start_instance},
     };
+    use pretty_assertions::assert_eq;
 
     use super::*;
 

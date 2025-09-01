@@ -8,7 +8,6 @@ codec = { path = "../codec" }
 polars = { version = "0.50", features = ["csv", "json", "parquet", "ipc", "lazy", "dtype-date", "dtype-datetime"] }
 
 [dev-dependencies]
-common-dev = { path = "../common-dev" }
 serde_json = { workspace = true }
 tempfile = { workspace = true }
 

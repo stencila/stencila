@@ -22,7 +22,8 @@ tokio = { workspace = true }
 
 [dev-dependencies]
 codecs = { path = "../codecs" }
-common-dev = { path = "../common-dev" }
+pretty_assertions = { workspace = true }
+proptest = { workspace = true }
 eyre = { workspace = true }
 glob = { workspace = true }
 itertools = { workspace = true }

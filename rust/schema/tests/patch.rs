@@ -10,8 +10,9 @@ use serde::Serialize;
 
 use codec::{Codec, DecodeOptions, format::Format};
 use codec_markdown::MarkdownCodec;
-use common_dev::{insta::assert_yaml_snapshot, pretty_assertions::assert_eq};
+use insta::assert_yaml_snapshot;
 use node_strip::{StripScope, StripTargets, strip};
+use pretty_assertions::assert_eq;
 use schema::{
     Article, Author, AuthorRole, AuthorRoleName, Block, CodeChunk, Cord, CordAuthorship, CordOp,
     Figure, Inline, InstructionBlock, InstructionType, Node, NodePath, NodeProperty, NodeSlot,

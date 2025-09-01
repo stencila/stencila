@@ -4,7 +4,7 @@ use codec::{
     Codec,
     eyre::{OptionExt, Result},
 };
-use common_dev::insta::{assert_json_snapshot, assert_yaml_snapshot};
+use insta::{assert_json_snapshot, assert_yaml_snapshot};
 
 use codec_meca::MecaCodec;
 

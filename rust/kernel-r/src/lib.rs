@@ -73,7 +73,6 @@ impl Microkernel for RKernel {
 
 #[cfg(test)]
 mod tests {
-    use common_dev::pretty_assertions::assert_eq;
     use indexmap::IndexMap;
     use kernel_micro::{
         eyre::{Ok, bail},
@@ -85,6 +84,7 @@ mod tests {
         },
         tests::{create_instance, start_instance, start_instance_with},
     };
+    use pretty_assertions::assert_eq;
 
     use super::*;
 

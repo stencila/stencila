@@ -363,7 +363,7 @@ pub(super) fn decode_filter(arg_name: &str) -> (&str, Operator) {
 
 #[cfg(test)]
 mod tests {
-    use common_dev::pretty_assertions::assert_eq;
+    use pretty_assertions::assert_eq;
 
     #[test]
     fn operator_conversions() {

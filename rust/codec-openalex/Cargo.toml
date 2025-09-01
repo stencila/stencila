@@ -17,7 +17,7 @@ tracing = { workspace = true }
 version = { path = "../version" }
 
 [dev-dependencies]
-common-dev = { path = "../common-dev" }
+insta = { workspace = true }
 glob = { workspace = true }
 
 [lints]

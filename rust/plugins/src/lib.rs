@@ -1060,7 +1060,7 @@ struct JsonRpcError {
 mod tests {
     use super::*;
 
-    use common_dev::pretty_assertions::assert_eq;
+    use pretty_assertions::assert_eq;
 
     #[test]
     fn deserialization() -> Result<()> {

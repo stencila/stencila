@@ -2,7 +2,7 @@ use codec::{
     eyre::{Result, bail},
     schema::{Article, Block, Inline, Node, Paragraph},
 };
-use common_dev::insta::assert_yaml_snapshot;
+use insta::assert_yaml_snapshot;
 
 /// Inline HTML is transformed to Stencila nodes
 #[test]

@@ -8,7 +8,7 @@ use codec::{
     },
 };
 use codec_markdown::MarkdownCodec;
-use common_dev::insta::{assert_snapshot, assert_yaml_snapshot};
+use insta::{assert_snapshot, assert_yaml_snapshot};
 
 /// Test that mapping of Unicode characters is correct: ie uses character indices, not bytes indices
 #[tokio::test]

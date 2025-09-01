@@ -7,7 +7,7 @@ edition = "2024"
 kernel-micro = { path = "../kernel-micro" }
 
 [dev-dependencies]
-common-dev = { path = "../common-dev" }
+pretty_assertions = { workspace = true }
 indexmap = { workspace = true }
 test-log = { workspace = true }
 tokio = { workspace = true }

@@ -1596,10 +1596,10 @@ dependencies = [
  "codec-biblio",
  "codec-latex",
  "codec-pdf",
- "common-dev",
  "flate2",
  "futures",
  "glob",
+ "insta",
  "once_cell",
  "regex",
  "reqwest",
@@ -1619,10 +1619,11 @@ dependencies = [
  "codec",
  "codec-markdown-trait",
  "codec-text-trait",
- "common-dev",
  "glob",
  "hayagriva",
+ "insta",
  "itertools 0.14.0",
+ "pretty_assertions",
  "reqwest",
  "serde_json",
  "tokio",
@@ -1645,9 +1646,9 @@ name = "codec-cff"
 version = "0.0.0"
 dependencies = [
  "codec",
- "common-dev",
  "glob",
  "indexmap 2.10.0",
+ "insta",
  "itertools 0.14.0",
  "serde",
  "serde_json",
@@ -1661,9 +1662,9 @@ name = "codec-csl"
 version = "0.0.0"
 dependencies = [
  "codec",
- "common-dev",
  "glob",
  "indexmap 2.10.0",
+ "insta",
  "itertools 0.14.0",
  "serde",
  "serde_json",
@@ -1676,7 +1677,6 @@ name = "codec-csv"
 version = "0.0.0"
 dependencies = [
  "codec",
- "common-dev",
  "polars",
  "serde_json",
  "tempfile",
@@ -1706,11 +1706,11 @@ dependencies = [
  "codec-json",
  "codec-pandoc",
  "codec-utils",
- "common-dev",
  "dirs 0.0.0",
  "indexmap 2.10.0",
  "media-embed",
  "node-reconstitute",
+ "pretty_assertions",
  "regex",
  "roxmltree",
  "rust-embed",
@@ -1797,9 +1797,9 @@ dependencies = [
  "codec-latex",
  "codec-markdown",
  "codec-xlsx",
- "common-dev",
  "glob",
  "governor",
+ "insta",
  "itertools 0.14.0",
  "once_cell",
  "reqwest",
@@ -1884,9 +1884,10 @@ dependencies = [
  "codec",
  "codec-jats-trait",
  "codec-text-trait",
- "common-dev",
  "glob",
+ "insta",
  "itertools 0.14.0",
+ "pretty_assertions",
  "quick-xml 0.37.5",
  "roxmltree",
  "tokio",
@@ -1917,7 +1918,7 @@ name = "codec-json"
 version = "0.0.0"
 dependencies = [
  "codec",
- "common-dev",
+ "pretty_assertions",
  "serde",
  "serde_json",
  "tokio",
@@ -1960,8 +1961,8 @@ dependencies = [
  "codec",
  "codec-latex-trait",
  "codec-pandoc",
- "common-dev",
  "glob",
+ "insta",
  "itertools 0.14.0",
  "once_cell",
  "regex",
@@ -2006,8 +2007,8 @@ dependencies = [
  "codec-dom-trait",
  "codec-markdown",
  "codec-text",
- "common-dev",
  "glob",
+ "insta",
  "monostate",
  "once_cell",
  "regex",
@@ -2024,7 +2025,6 @@ version = "0.0.0"
 dependencies = [
  "Inflector",
  "codec",
- "common-dev",
  "winnow",
 ]
 
@@ -2036,13 +2036,14 @@ dependencies = [
  "codec-json5-trait",
  "codec-markdown-trait",
  "codec-text-trait",
- "common-dev",
  "indexmap 2.10.0",
+ "insta",
  "itertools 0.14.0",
  "markdown",
  "media-embed",
  "media-extract",
  "once_cell",
+ "pretty_assertions",
  "regex",
  "serde_json",
  "serde_yaml",
@@ -2080,8 +2081,8 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-jats",
- "common-dev",
  "glob",
+ "insta",
  "media-embed",
  "tempfile",
  "tokio",
@@ -2104,10 +2105,10 @@ name = "codec-openalex"
 version = "0.0.0"
 dependencies = [
  "codec",
- "common-dev",
  "glob",
  "governor",
  "indexmap 2.10.0",
+ "insta",
  "itertools 0.14.0",
  "once_cell",
  "reqwest",
@@ -2176,10 +2177,10 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-jats",
- "common-dev",
  "flate2",
  "futures",
  "glob",
+ "insta",
  "media-embed",
  "regex",
  "reqwest",
@@ -2207,8 +2208,8 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-latex",
- "common-dev",
  "glob",
+ "insta",
  "itertools 0.14.0",
  "once_cell",
  "regex",
@@ -2258,9 +2259,9 @@ dependencies = [
 name = "codec-utils"
 version = "0.0.0"
 dependencies = [
- "common-dev",
  "eyre",
  "itertools 0.14.0",
+ "proptest",
  "reqwest",
  "similar",
  "which 8.0.0",
@@ -2272,7 +2273,6 @@ version = "0.0.0"
 dependencies = [
  "calamine",
  "codec",
- "common-dev",
 ]
 
 [[package]]
@@ -2299,9 +2299,9 @@ dependencies = [
  "codec-markdown",
  "codec-text",
  "codec-xlsx",
- "common-dev",
  "glob",
  "governor",
+ "insta",
  "itertools 0.14.0",
  "once_cell",
  "reqwest",
@@ -2358,13 +2358,15 @@ dependencies = [
  "codec-utils",
  "codec-xlsx",
  "codec-yaml",
- "common-dev",
  "futures",
  "glob",
+ "insta",
  "itertools 0.14.0",
  "json_value_merge",
  "node-strip",
  "once_cell",
+ "pretty_assertions",
+ "proptest",
  "regex",
  "reqwest",
  "serde",
@@ -2498,16 +2500,6 @@ dependencies = [
  "crossterm",
  "unicode-segmentation",
  "unicode-width 0.2.1",
-]
-
-[[package]]
-name = "common-dev"
-version = "0.0.0"
-dependencies = [
- "insta",
- "ntest",
- "pretty_assertions",
- "proptest",
 ]
 
 [[package]]
@@ -2653,11 +2645,11 @@ dependencies = [
  "base64 0.22.1",
  "codec",
  "codec-utils",
- "common-dev",
  "dirs 0.0.0",
  "eyre",
  "glob",
  "headless_chrome",
+ "insta",
  "itertools 0.14.0",
  "once_cell",
  "rand 0.9.2",
@@ -3648,7 +3640,6 @@ dependencies = [
  "codec-json",
  "codec-text",
  "codecs",
- "common-dev",
  "dirs 0.0.0",
  "eyre",
  "format",
@@ -3668,6 +3659,8 @@ dependencies = [
  "node-sentencize",
  "node-strip",
  "notify",
+ "ntest",
+ "pretty_assertions",
  "rand 0.9.2",
  "reqwest",
  "schema",
@@ -5691,10 +5684,10 @@ dependencies = [
 name = "kernel-asciimath"
 version = "0.0.0"
 dependencies = [
- "common-dev",
  "itertools 0.14.0",
  "kernel",
  "mathemascii",
+ "pretty_assertions",
  "tokio",
  "tracing",
 ]
@@ -5703,8 +5696,9 @@ dependencies = [
 name = "kernel-bash"
 version = "0.0.0"
 dependencies = [
- "common-dev",
  "kernel-micro",
+ "ntest",
+ "pretty_assertions",
  "test-log",
  "tokio",
 ]
@@ -5742,7 +5736,6 @@ dependencies = [
  "codec-text-trait",
  "codec-zenodo",
  "codecs",
- "common-dev",
  "embed",
  "eyre",
  "glob",
@@ -5750,6 +5743,7 @@ dependencies = [
  "kernel-docsdb",
  "kernel-jinja",
  "once_cell",
+ "pretty_assertions",
  "regex",
  "secrets",
  "serde_json",
@@ -5761,10 +5755,10 @@ dependencies = [
 name = "kernel-graphviz"
 version = "0.0.0"
 dependencies = [
- "common-dev",
  "kernel",
  "layout-rs",
  "once_cell",
+ "pretty_assertions",
  "regex",
  "tokio",
  "tracing",
@@ -5774,7 +5768,6 @@ dependencies = [
 name = "kernel-jinja"
 version = "0.0.0"
 dependencies = [
- "common-dev",
  "kernel",
  "minijinja",
  "serde_json",
@@ -5786,13 +5779,13 @@ dependencies = [
 name = "kernel-kuzu"
 version = "0.0.0"
 dependencies = [
- "common-dev",
  "indexmap 2.10.0",
  "itertools 0.14.0",
  "kernel",
  "kernel-jinja",
  "kuzu",
  "once_cell",
+ "pretty_assertions",
  "regex",
  "serde",
  "serde_json",
@@ -5806,9 +5799,9 @@ dependencies = [
 name = "kernel-mermaid"
 version = "0.0.0"
 dependencies = [
- "common-dev",
  "kernel",
  "kernel-jinja",
+ "pretty_assertions",
  "tokio",
  "tracing",
 ]
@@ -5834,9 +5827,9 @@ dependencies = [
 name = "kernel-nodejs"
 version = "0.0.0"
 dependencies = [
- "common-dev",
  "indexmap 2.10.0",
  "kernel-micro",
+ "pretty_assertions",
  "test-log",
  "tokio",
 ]
@@ -5845,9 +5838,9 @@ dependencies = [
 name = "kernel-python"
 version = "0.0.0"
 dependencies = [
- "common-dev",
  "indexmap 2.10.0",
  "kernel-micro",
+ "pretty_assertions",
  "test-log",
  "tokio",
 ]
@@ -5856,10 +5849,10 @@ dependencies = [
 name = "kernel-quickjs"
 version = "0.0.0"
 dependencies = [
- "common-dev",
  "indexmap 2.10.0",
  "kernel",
  "once_cell",
+ "pretty_assertions",
  "regex",
  "rquickjs",
  "serde_json",
@@ -5872,9 +5865,9 @@ dependencies = [
 name = "kernel-r"
 version = "0.0.0"
 dependencies = [
- "common-dev",
  "indexmap 2.10.0",
  "kernel-micro",
+ "pretty_assertions",
  "test-log",
  "tokio",
 ]
@@ -5883,10 +5876,10 @@ dependencies = [
 name = "kernel-rhai"
 version = "0.0.0"
 dependencies = [
- "common-dev",
  "indexmap 2.10.0",
  "itertools 0.14.0",
  "kernel",
+ "pretty_assertions",
  "rhai",
  "serde_json",
  "test-log",
@@ -5899,10 +5892,10 @@ name = "kernel-style"
 version = "0.0.0"
 dependencies = [
  "bs58",
- "common-dev",
  "kernel",
  "kernel-jinja",
  "once_cell",
+ "pretty_assertions",
  "railwind",
  "regex",
  "seahash",
@@ -5914,10 +5907,10 @@ dependencies = [
 name = "kernel-tex"
 version = "0.0.0"
 dependencies = [
- "common-dev",
  "kernel",
  "latex2mathml",
  "once_cell",
+ "pretty_assertions",
  "regex",
  "tokio",
  "tracing",
@@ -5929,7 +5922,6 @@ version = "0.0.0"
 dependencies = [
  "clap",
  "cli-utils",
- "common-dev",
  "itertools 0.14.0",
  "kernel",
  "kernel-asciimath",
@@ -5949,6 +5941,7 @@ dependencies = [
  "kernel-tex",
  "node-diagnostics",
  "plugins",
+ "pretty_assertions",
  "test-log",
  "tokio",
  "tracing",
@@ -7029,11 +7022,12 @@ dependencies = [
  "codec-cbor",
  "codec-openalex",
  "codec-text",
- "common-dev",
  "eyre",
  "futures",
  "human_name",
+ "insta",
  "once_cell",
+ "pretty_assertions",
  "regex",
  "schema",
  "seahash",
@@ -7210,7 +7204,7 @@ dependencies = [
 name = "node-sentencize"
 version = "0.0.0"
 dependencies = [
- "common-dev",
+ "pretty_assertions",
  "schema",
 ]
 
@@ -7221,13 +7215,14 @@ dependencies = [
  "async-trait",
  "automerge",
  "codecs",
- "common-dev",
  "eyre",
  "glob",
  "itertools 0.14.0",
  "node-store-derive",
  "node-strip",
  "node-type",
+ "pretty_assertions",
+ "proptest",
  "schema",
  "serde_json",
  "smol_str",
@@ -7272,10 +7267,10 @@ dependencies = [
  "codec-biblio",
  "codec-links",
  "codec-text-trait",
- "common-dev",
  "eyre",
  "itertools 0.14.0",
  "once_cell",
+ "pretty_assertions",
  "regex",
  "schema",
  "smart-default",
@@ -8115,13 +8110,13 @@ dependencies = [
  "clap",
  "cli-utils",
  "codec",
- "common-dev",
  "dirs 0.0.0",
  "eyre",
  "futures",
  "itertools 0.14.0",
  "kernel",
  "model",
+ "pretty_assertions",
  "rand 0.9.2",
  "reqwest",
  "semver",
@@ -8796,11 +8791,11 @@ name = "prompt"
 version = "0.0.0"
 dependencies = [
  "codec-markdown-trait",
- "common-dev",
  "itertools 0.14.0",
  "kernel-quickjs",
  "kernels",
  "once_cell",
+ "pretty_assertions",
  "regex",
  "rquickjs",
  "serde_json",
@@ -8995,9 +8990,9 @@ dependencies = [
  "cli-utils",
  "codec",
  "codec-text",
- "common-dev",
  "document",
  "eyre",
+ "proptest",
  "regex",
  "reqwest",
  "serde",
@@ -10137,7 +10132,6 @@ dependencies = [
  "codec-markdown",
  "codec-markdown-trait",
  "codec-text-trait",
- "common-dev",
  "derive_more 2.0.1",
  "eyre",
  "format",
@@ -10145,6 +10139,7 @@ dependencies = [
  "human_name",
  "images",
  "indexmap 2.10.0",
+ "insta",
  "interim",
  "itertools 0.14.0",
  "monostate",
@@ -10158,6 +10153,7 @@ dependencies = [
  "node-url",
  "node-walk-derive",
  "once_cell",
+ "pretty_assertions",
  "proptest",
  "proptest-derive",
  "regex",
@@ -10585,7 +10581,6 @@ dependencies = [
  "clap",
  "cloud",
  "codecs",
- "common-dev",
  "document",
  "eyre",
  "format",

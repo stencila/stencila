@@ -372,7 +372,7 @@ mod tests {
         IntegerOrString, OrganizationOptions, PersonOrOrganization, PostalAddressOrString,
     };
     use codec_text_trait::to_text;
-    use common_dev::pretty_assertions::assert_eq;
+    use pretty_assertions::assert_eq;
 
     use super::*;
 

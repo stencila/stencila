@@ -14,7 +14,7 @@ tokio = { workspace = true }
 tracing = { workspace = true }
 
 [dev-dependencies]
-common-dev = { path = "../common-dev" }
+pretty_assertions = { workspace = true }
 test-log = { workspace = true }
 
 [lints]

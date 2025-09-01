@@ -6,7 +6,7 @@ use codec::{
 };
 
 use codec_cff::CffCodec;
-use common_dev::insta::assert_json_snapshot;
+use insta::assert_json_snapshot;
 
 /// Decode CFF files into Stencila nodes
 #[tokio::test]

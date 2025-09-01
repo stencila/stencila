@@ -9,7 +9,7 @@ kernel-jinja = { path = "../kernel-jinja" }
 tracing = { workspace = true }
 
 [dev-dependencies]
-common-dev = { path = "../common-dev" }
+pretty_assertions = { workspace = true }
 tokio = { workspace = true }
 
 [lints]

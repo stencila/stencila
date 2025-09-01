@@ -22,7 +22,7 @@ tracing = { workspace = true }
 url = { workspace = true }
 
 [dev-dependencies]
-common-dev = { path = "../common-dev" }
+insta = { workspace = true }
 glob = { workspace = true }
 
 [lints]

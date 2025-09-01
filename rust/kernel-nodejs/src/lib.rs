@@ -65,8 +65,8 @@ impl Microkernel for NodeJsKernel {
 
 #[cfg(test)]
 mod tests {
-    use common_dev::pretty_assertions::assert_eq;
     use indexmap::IndexMap;
+    use pretty_assertions::assert_eq;
 
     use kernel_micro::{
         schema::{

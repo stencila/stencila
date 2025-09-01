@@ -345,7 +345,7 @@ fn apa_title(input: &mut &str) -> Result<Vec<Inline>> {
 #[cfg(test)]
 mod tests {
     use codec_text_trait::to_text;
-    use common_dev::pretty_assertions::assert_eq;
+    use pretty_assertions::assert_eq;
 
     use super::*;
 

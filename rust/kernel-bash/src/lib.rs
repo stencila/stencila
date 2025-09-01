@@ -60,12 +60,13 @@ impl Microkernel for BashKernel {
 #[cfg(test)]
 #[allow(clippy::print_stderr)]
 mod tests {
-    use common_dev::{ntest::timeout, pretty_assertions::assert_eq};
     use kernel_micro::{
         eyre::bail,
         schema::{MessageLevel, Node, Null, Variable},
         tests::{create_instance, start_instance},
     };
+    use ntest::timeout;
+    use pretty_assertions::assert_eq;
 
     use super::*;
 

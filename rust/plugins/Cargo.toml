@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 cli-utils = { path = "../cli-utils" }
 codec = { path = "../codec" }
-common-dev = { path = "../common-dev" }
+pretty_assertions = { workspace = true }
 dirs = { path = "../dirs" }
 kernel = { path = "../kernel" }
 model = { path = "../model" }

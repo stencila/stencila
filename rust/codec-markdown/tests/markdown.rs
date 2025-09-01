@@ -1,9 +1,9 @@
-use common_dev::pretty_assertions::assert_eq;
 use markdown::{
     ParseOptions,
     mdast::{Code, Node},
     to_mdast,
 };
+use pretty_assertions::assert_eq;
 
 /// Test that the `markdown` crate handles nested
 /// backtick fenced code blocks.

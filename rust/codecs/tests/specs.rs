@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use serde_json::json;
 
-use common_dev::insta::assert_json_snapshot;
+use insta::assert_json_snapshot;
 
 /// Snapshot test of codec specs to test for regressions
 #[test]

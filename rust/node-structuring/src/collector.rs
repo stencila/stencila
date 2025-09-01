@@ -972,7 +972,7 @@ fn extract_heading_numbering(text: &str) -> (Option<String>, usize, String) {
 
 #[cfg(test)]
 mod tests {
-    use common_dev::pretty_assertions::assert_eq;
+    use pretty_assertions::assert_eq;
     use schema::shortcuts::t;
 
     use super::*;

@@ -113,7 +113,7 @@ fn some_if_not_blank(text: &str) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
-    use common_dev::pretty_assertions::assert_eq;
+    use pretty_assertions::assert_eq;
 
     use super::*;
 
