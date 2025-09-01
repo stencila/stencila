@@ -2,21 +2,19 @@
 
 use std::{collections::BTreeMap, fmt::Display, path::PathBuf};
 
+use eyre::{Context, Report, Result, bail, eyre};
+use indexmap::IndexMap;
+use inflector::Inflector;
+use itertools::Itertools;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize, Serializer};
+use serde_json::{self, json};
+use serde_with::skip_serializing_none;
+use serde_yaml;
+use smart_default::SmartDefault;
 use strum::{Display, EnumIter};
+use tokio::fs::read_to_string;
 
-use common::{
-    eyre::{Context, Report, Result, bail, eyre},
-    indexmap::IndexMap,
-    inflector::Inflector,
-    itertools::Itertools,
-    serde_json::{self, json},
-    serde_with::skip_serializing_none,
-    serde_yaml,
-    smart_default::SmartDefault,
-    tokio::fs::read_to_string,
-};
 use status::Status;
 
 /// A schema in the Stencila Schema

@@ -1,11 +1,8 @@
 use strum::{EnumIter, IntoEnumIterator};
 
-use common::{
-    clap::{self, Parser, ValueEnum},
-    eyre::Result,
-    itertools::Itertools,
-    tokio,
-};
+use clap::{self, Parser, ValueEnum};
+use eyre::Result;
+use itertools::Itertools;
 
 use schema_gen::schemas::Schemas;
 

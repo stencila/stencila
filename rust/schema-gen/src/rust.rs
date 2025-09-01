@@ -6,15 +6,12 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use eyre::{Context, Report, Result, bail};
+use futures::future::try_join_all;
+use inflector::Inflector;
+use itertools::Itertools;
 use strum::IntoEnumIterator;
-
-use common::{
-    eyre::{Context, Report, Result, bail},
-    futures::future::try_join_all,
-    inflector::Inflector,
-    itertools::Itertools,
-    tokio::fs::{create_dir_all, remove_file, write},
-};
+use tokio::fs::{create_dir_all, remove_file, write};
 
 use crate::{
     schema::{Items, ItemsRef, ProptestLevel, Schema, Type, Value},

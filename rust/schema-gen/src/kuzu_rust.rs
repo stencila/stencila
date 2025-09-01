@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 
-use common::{inflector::Inflector, itertools::Itertools};
+use inflector::Inflector;
+use itertools::Itertools;
 
 use crate::kuzu_types::{Column, DatabaseSchema, DerivedProperty, NodeTable, RelationshipInfo};
 

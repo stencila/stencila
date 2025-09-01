@@ -1,11 +1,8 @@
 use std::collections::{HashMap, HashSet};
 
-use common::{
-    eyre::{Result, bail},
-    itertools::Itertools,
-    serde_json,
-    tokio::fs::read_to_string,
-};
+use eyre::{Result, bail};
+use itertools::Itertools;
+use tokio::fs::read_to_string;
 
 use crate::kuzu_types::{
     Cardinality, Column, DataType, DatabaseSchema, DerivedProperty, FromToPair, Index, NodeTable,

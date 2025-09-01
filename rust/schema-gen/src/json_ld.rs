@@ -5,14 +5,12 @@ use std::{
     path::PathBuf,
 };
 
-use common::{
-    eyre::Result,
-    futures::future::try_join_all,
-    glob::glob,
-    itertools::Itertools,
-    serde_json::{self, json},
-    tokio::fs::{remove_file, write},
-};
+use eyre::Result;
+use futures::future::try_join_all;
+use glob::glob;
+use itertools::Itertools;
+use serde_json::{self, json};
+use tokio::fs::{remove_file, write};
 
 use crate::{
     schema::{Items, Schema, Type},

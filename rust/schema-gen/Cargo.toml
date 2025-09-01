@@ -8,14 +8,26 @@ default = ["docs"]
 docs = ["codecs", "schema"]
 
 [dependencies]
+async-recursion = { workspace = true }
+clap = { workspace = true }
 codecs = { path = "../codecs", optional = true }
-common = { path = "../common" }
+eyre = { workspace = true }
+futures = { workspace = true }
+glob = { workspace = true }
+indexmap = { workspace = true }
+Inflector = { workspace = true }
+itertools = { workspace = true }
 schema = { path = "../schema", optional = true }
 schemars = { version = "1.0.4", features = ["indexmap2"] }
 serde = { workspace = true }
+serde_json = { workspace = true }
+serde_with = { workspace = true }
+serde_yaml = { workspace = true }
 semver = { workspace = true }
+smart-default = { workspace = true }
 status = { path = "../status" }
 strum = { workspace = true }
+tokio = { workspace = true }
 topological-sort = "0.2.2"
 
 [lints]

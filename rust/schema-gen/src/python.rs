@@ -1,18 +1,14 @@
 //! Generation of Python types from Stencila Schema
 
-use core::str;
 use std::{collections::HashSet, path::PathBuf};
 
+use async_recursion::async_recursion;
+use eyre::{Context, Report, Result, bail};
+use futures::future::try_join_all;
+use inflector::Inflector;
+use itertools::Itertools;
+use tokio::fs::write;
 use topological_sort::TopologicalSort;
-
-use common::{
-    async_recursion::async_recursion,
-    eyre::{Context, Report, Result, bail},
-    futures::future::try_join_all,
-    inflector::Inflector,
-    itertools::Itertools,
-    tokio::fs::write,
-};
 
 use crate::{
     schema::{Items, Schema, Type, Value},

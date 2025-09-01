@@ -6,14 +6,12 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use common::{
-    async_recursion::async_recursion,
-    eyre::{Context, Report, Result, bail},
-    futures::future::try_join_all,
-    inflector::Inflector,
-    itertools::Itertools,
-    tokio::fs::{self, create_dir_all, remove_file, write},
-};
+use async_recursion::async_recursion;
+use eyre::{Context, Report, Result, bail};
+use futures::future::try_join_all;
+use inflector::Inflector;
+use itertools::Itertools;
+use tokio::fs::{self, create_dir_all, remove_file, write};
 
 use crate::{
     schema::{Items, Schema, Type, Value},

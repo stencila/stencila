@@ -2,11 +2,9 @@
 
 use std::{collections::BTreeMap, fs::read_dir, path::PathBuf};
 
-use common::{
-    eyre::{Context, Result},
-    futures::future::try_join_all,
-    itertools::Itertools,
-};
+use eyre::{Context, Result};
+use futures::future::try_join_all;
+use itertools::Itertools;
 
 use crate::schema::{Category, Schema, Value};
 

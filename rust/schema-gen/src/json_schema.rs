@@ -2,17 +2,14 @@
 
 use std::path::PathBuf;
 
-use common::{
-    eyre::{ErrReport, Result},
-    futures::future::try_join_all,
-    glob::glob,
-    serde_json,
-    tokio::{
-        fs::{File, remove_file},
-        io::AsyncWriteExt,
-    },
-};
+use eyre::{ErrReport, Result};
+use futures::future::try_join_all;
+use glob::glob;
 use schemars::generate::SchemaSettings;
+use tokio::{
+    fs::{File, remove_file},
+    io::AsyncWriteExt,
+};
 
 use crate::{schema::Schema, schemas::Schemas};
 

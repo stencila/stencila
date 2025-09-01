@@ -1,9 +1,7 @@
 use std::collections::{BTreeMap, HashMap};
 
-use common::{
-    eyre::{OptionExt, Result, bail},
-    itertools::Itertools,
-};
+use eyre::{OptionExt, Result, bail};
+use itertools::Itertools;
 
 use crate::{
     kuzu_types::{
