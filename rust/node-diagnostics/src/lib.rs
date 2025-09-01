@@ -1,11 +1,12 @@
 use std::{env, ops::Range};
 
 use ariadne::{Config, Label, Report, ReportKind, Source};
+use eyre::Result;
 use serde::Serialize;
+use serde_with::skip_serializing_none;
 use strum::Display;
 
 use codec_info::{PoshMap, Position8, Positions, Range8};
-use common::{eyre::Result, serde_with::skip_serializing_none};
 use format::Format;
 use schema::{
     Block, CodeLocation, CompilationMessage, Cord, ExecutionMessage, Inline, MessageLevel, Node,

@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use common::tracing;
+
 use schema::{Block, ImageObject, Inline, VisitorMut, WalkControl, WalkNode};
 
 /// Walk over a node and extract/copy all media files into a folder and re-write URLs

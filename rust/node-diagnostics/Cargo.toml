@@ -6,10 +6,11 @@ edition = "2024"
 [dependencies]
 ariadne = "0.5.1"
 codec-info = { path = "../codec-info" }
-common = { path = "../common" }
+eyre = { workspace = true }
 format = { path = "../format" }
 schema = { path = "../schema" }
 serde = { workspace = true }
+serde_with = { workspace = true }
 strum = { workspace = true }
 
 [lints]
