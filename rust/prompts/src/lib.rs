@@ -14,27 +14,23 @@ use std::{
 use std::time::Duration;
 
 use derive_more::{Deref, DerefMut};
+use eyre::{OptionExt, Result, bail, eyre};
+use flate2::read::GzDecoder;
+use futures::future::{join_all, try_join_all};
+use glob::glob;
+use inflector::Inflector;
+use itertools::Itertools;
+use regex::Regex;
+use reqwest::Client;
+use rust_embed::RustEmbed;
 use serde::{Deserialize, Serialize, Serializer, ser::SerializeStruct};
+use tar::Archive;
+use tokio::fs::{create_dir_all, read_to_string, remove_dir_all, write};
 
 use codec_markdown::to_markdown;
 use codecs::{DecodeOptions, Format};
-use common::{
-    eyre::{OptionExt, Result, bail, eyre},
-    futures::future::{join_all, try_join_all},
-    glob::glob,
-    inflector::Inflector,
-    itertools::Itertools,
-    regex::Regex,
-    reqwest::Client,
-    serde_json,
-    tar::Archive,
-    tokio::fs::{create_dir_all, read_to_string, remove_dir_all, write},
-    tracing,
-};
 use dirs::{DirType, get_app_dir};
-use flate2::read::GzDecoder;
 use images::ensure_http_or_data_uri;
-use rust_embed::RustEmbed;
 
 use model::{
     ModelOutput, ModelOutputKind, ModelTask,

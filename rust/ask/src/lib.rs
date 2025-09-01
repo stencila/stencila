@@ -8,11 +8,12 @@
 //! before destructive operations without needing to know whether it's being
 //! used in a CLI tool or within a code editor via LSP.
 
+use async_trait::async_trait;
+use eyre::Result;
+use once_cell::sync::Lazy;
 use strum::Display;
-
-use common::{
-    async_trait::async_trait, eyre::Result, once_cell::sync::Lazy, tokio::sync::Mutex, tracing,
-};
+use tokio::sync::Mutex;
+use tracing;
 
 pub use crate::lsp::LspClient;
 use crate::{cli::CliProvider, default::DefaultProvider, lsp::LspProvider};

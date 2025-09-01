@@ -3,14 +3,11 @@ use std::{
     io::{IsTerminal, Write, stderr, stdin},
 };
 
+use async_trait::async_trait;
+use eyre::{Result, bail};
 use owo_colors::OwoColorize;
 use rpassword::read_password;
 use textwrap::{termwidth, wrap};
-
-use common::{
-    async_trait::async_trait,
-    eyre::{Result, bail},
-};
 
 use crate::{Answer, Ask, AskLevel, AskOptions};
 

@@ -1,8 +1,5 @@
-use common::{
-    async_trait::async_trait,
-    eyre::{Result, bail},
-    tracing,
-};
+use async_trait::async_trait;
+use eyre::{Result, bail};
 
 use crate::{Answer, Ask, AskLevel, AskOptions};
 

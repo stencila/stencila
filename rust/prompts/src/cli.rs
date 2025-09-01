@@ -1,17 +1,14 @@
+use clap::{self, Args, Parser, Subcommand};
+use eyre::Result;
+use itertools::Itertools;
+
 use cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
     tabulated::{Attribute, Cell, Color, Tabulated},
 };
 use codecs::{EncodeOptions, Format};
-use common::itertools::Itertools;
-use model::{
-    common::{
-        clap::{self, Args, Parser, Subcommand},
-        eyre::Result,
-    },
-    schema::{InstructionType, Node, Prompt, StringOrNumber},
-};
+use model::schema::{InstructionType, Node, Prompt, StringOrNumber};
 
 /// Manage prompts
 #[derive(Debug, Parser)]

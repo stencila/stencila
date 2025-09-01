@@ -1,14 +1,13 @@
 use std::io::{IsTerminal, Read, stdin};
 
 use ask::ask_for_password;
+use clap::{self, Args, Parser, Subcommand};
+use eyre::Result;
+
 use cli_utils::{
     ToStdout,
     color_print::cstr,
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
-};
-use common::{
-    clap::{self, Args, Parser, Subcommand},
-    eyre::Result,
 };
 
 use crate::{delete, list, name_validator, set};

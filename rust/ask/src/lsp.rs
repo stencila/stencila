@@ -1,11 +1,8 @@
 use std::collections::HashMap;
 
+use async_trait::async_trait;
+use eyre::{Result, bail};
 use lsp_types::{MessageActionItem, MessageType, ShowMessageRequestParams};
-
-use common::{
-    async_trait::async_trait,
-    eyre::{Result, bail},
-};
 
 use crate::{Answer, Ask, AskLevel, AskOptions};
 

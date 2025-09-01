@@ -4,12 +4,16 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-common = { path = "../common" }
+async-trait = { workspace = true }
+eyre = { workspace = true }
 lsp-types = { version = "0.95.1" }
+once_cell = { workspace = true }
 owo-colors = "4.2.2"
 rpassword = "7.4.0"
 strum = { workspace = true }
 textwrap = { version = "0.16.2", features = ["terminal_size"] }
+tokio = { workspace = true }
+tracing = { workspace = true }
 
 [lints]
 workspace = true

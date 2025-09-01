@@ -1,14 +1,10 @@
 use std::env;
 
+use eyre::{Context, Result, bail};
+use itertools::Itertools;
+use once_cell::sync::Lazy;
 use serde::Serialize;
-
-use common::{
-    eyre::{Context, Result, bail},
-    itertools::Itertools,
-    once_cell::sync::Lazy,
-    serde_with::skip_serializing_none,
-    tracing,
-};
+use serde_with::skip_serializing_none;
 
 pub mod cli;
 
