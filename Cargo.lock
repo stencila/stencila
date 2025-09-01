@@ -266,12 +266,16 @@ dependencies = [
 name = "ask"
 version = "0.0.0"
 dependencies = [
- "common",
+ "async-trait",
+ "eyre",
  "lsp-types",
+ "once_cell",
  "owo-colors",
  "rpassword",
  "strum 0.27.2",
  "textwrap",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -1464,16 +1468,18 @@ name = "cli"
 version = "0.0.0"
 dependencies = [
  "ask",
+ "clap",
  "cli-utils",
  "cloud",
  "codecs",
  "color-eyre",
- "common",
  "console-subscriber",
  "dirs 0.0.0",
  "document",
+ "eyre",
  "flate2",
  "format",
+ "itertools 0.14.0",
  "kernels",
  "lsp",
  "models",
@@ -1481,18 +1487,25 @@ dependencies = [
  "node-diagnostics",
  "node-execute",
  "node-strip",
+ "once_cell",
  "plugins",
  "prompts",
  "publish",
+ "reqwest",
  "schema",
  "secrets",
  "self-replace",
  "semver",
  "serde",
+ "serde_json",
  "server",
  "stencila-linters",
  "strum 0.27.2",
+ "tar",
+ "tempfile",
+ "tokio",
  "tools",
+ "tracing",
  "tracing-error",
  "tracing-subscriber",
  "url",
@@ -1513,13 +1526,18 @@ dependencies = [
 name = "cli-utils"
 version = "0.0.0"
 dependencies = [
+ "clap",
  "color-print",
  "comfy-table",
- "common",
  "derive_more 2.0.1",
+ "eyre",
  "format",
+ "itertools 0.14.0",
+ "once_cell",
  "schema",
  "serde",
+ "serde_json",
+ "serde_yaml",
  "syntect",
  "terminal_size",
  "textwrap",
@@ -1531,10 +1549,12 @@ name = "cloud"
 version = "0.0.0"
 dependencies = [
  "cached",
- "common",
+ "eyre",
+ "reqwest",
  "secrets",
  "serde",
  "strum 0.27.2",
+ "tracing",
  "version",
 ]
 
@@ -1551,15 +1571,20 @@ dependencies = [
 name = "codec"
 version = "0.0.0"
 dependencies = [
+ "async-trait",
  "codec-info",
  "codec-utils",
- "common",
+ "eyre",
  "format",
  "node-strip",
  "schema",
  "serde",
+ "serde_with",
+ "smart-default",
  "status",
  "strum 0.27.2",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -1573,7 +1598,16 @@ dependencies = [
  "codec-pdf",
  "common-dev",
  "flate2",
+ "futures",
+ "glob",
+ "once_cell",
+ "regex",
+ "reqwest",
+ "tar",
+ "tempfile",
  "tl",
+ "tokio",
+ "tracing",
  "url",
 ]
 
@@ -1581,11 +1615,18 @@ dependencies = [
 name = "codec-biblio"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
  "codec",
  "codec-markdown-trait",
  "codec-text-trait",
  "common-dev",
+ "glob",
  "hayagriva",
+ "itertools 0.14.0",
+ "reqwest",
+ "serde_json",
+ "tokio",
+ "tracing",
  "winnow",
 ]
 
@@ -1605,7 +1646,14 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "common-dev",
+ "glob",
+ "indexmap 2.10.0",
+ "itertools 0.14.0",
  "serde",
+ "serde_json",
+ "serde_with",
+ "serde_yaml",
+ "tokio",
 ]
 
 [[package]]
@@ -1614,7 +1662,13 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "common-dev",
+ "glob",
+ "indexmap 2.10.0",
+ "itertools 0.14.0",
  "serde",
+ "serde_json",
+ "serde_with",
+ "tokio",
 ]
 
 [[package]]
@@ -1624,6 +1678,8 @@ dependencies = [
  "codec",
  "common-dev",
  "polars",
+ "serde_json",
+ "tempfile",
 ]
 
 [[package]]
@@ -1652,10 +1708,16 @@ dependencies = [
  "codec-utils",
  "common-dev",
  "dirs 0.0.0",
+ "indexmap 2.10.0",
  "media-embed",
  "node-reconstitute",
+ "regex",
  "roxmltree",
  "rust-embed",
+ "serde_json",
+ "tempfile",
+ "tokio",
+ "uuid",
  "version",
  "zip 2.5.0",
 ]
@@ -1666,6 +1728,10 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-csl",
+ "once_cell",
+ "regex",
+ "reqwest",
+ "tracing",
  "url",
  "version",
 ]
@@ -1677,10 +1743,12 @@ dependencies = [
  "codec",
  "codec-dom-trait",
  "codec-text-trait",
+ "itertools 0.14.0",
  "lightningcss",
  "media-embed",
  "media-extract",
  "quick-xml 0.37.5",
+ "tokio",
  "version",
 ]
 
@@ -1688,8 +1756,10 @@ dependencies = [
 name = "codec-dom-derive"
 version = "0.0.0"
 dependencies = [
- "common",
+ "Inflector",
  "darling 0.21.2",
+ "proc-macro2",
+ "quote",
  "syn 2.0.106",
 ]
 
@@ -1697,12 +1767,15 @@ dependencies = [
 name = "codec-dom-trait"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
  "codec-dom-derive",
- "common",
  "html-escape",
+ "itertools 0.14.0",
  "node-id",
  "node-type",
  "serde",
+ "serde_json",
+ "smart-default",
 ]
 
 [[package]]
@@ -1725,9 +1798,17 @@ dependencies = [
  "codec-markdown",
  "codec-xlsx",
  "common-dev",
+ "glob",
  "governor",
+ "itertools 0.14.0",
+ "once_cell",
+ "reqwest",
  "secrets",
  "serde",
+ "serde_json",
+ "tempfile",
+ "tokio",
+ "tracing",
  "url",
  "version",
 ]
@@ -1746,8 +1827,11 @@ dependencies = [
 name = "codec-html-derive"
 version = "0.0.0"
 dependencies = [
- "common",
+ "Inflector",
  "darling 0.21.2",
+ "itertools 0.14.0",
+ "proc-macro2",
+ "quote",
  "syn 2.0.106",
 ]
 
@@ -1755,22 +1839,31 @@ dependencies = [
 name = "codec-html-trait"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
  "codec-html-derive",
- "common",
  "html-escape",
+ "itertools 0.14.0",
+ "serde_json",
 ]
 
 [[package]]
 name = "codec-info"
 version = "0.0.0"
 dependencies = [
- "common",
+ "Inflector",
  "derive_more 2.0.1",
+ "eyre",
  "format",
+ "itertools 0.14.0",
  "node-id",
  "node-type",
  "serde",
+ "serde_json",
+ "serde_with",
+ "serde_yaml",
+ "similar",
  "strum 0.27.2",
+ "tracing",
 ]
 
 [[package]]
@@ -1781,6 +1874,7 @@ dependencies = [
  "codec-markdown",
  "jupyter-protocol",
  "nbformat",
+ "serde_json",
 ]
 
 [[package]]
@@ -1791,16 +1885,21 @@ dependencies = [
  "codec-jats-trait",
  "codec-text-trait",
  "common-dev",
+ "glob",
+ "itertools 0.14.0",
  "quick-xml 0.37.5",
  "roxmltree",
+ "tokio",
 ]
 
 [[package]]
 name = "codec-jats-derive"
 version = "0.0.0"
 dependencies = [
- "common",
  "darling 0.21.2",
+ "itertools 0.14.0",
+ "proc-macro2",
+ "quote",
  "syn 2.0.106",
 ]
 
@@ -1810,7 +1909,7 @@ version = "0.0.0"
 dependencies = [
  "codec-info",
  "codec-jats-derive",
- "common",
+ "itertools 0.14.0",
 ]
 
 [[package]]
@@ -1820,6 +1919,8 @@ dependencies = [
  "codec",
  "common-dev",
  "serde",
+ "serde_json",
+ "tokio",
  "version",
  "zip 2.5.0",
 ]
@@ -1830,13 +1931,14 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-json5-trait",
+ "tokio",
 ]
 
 [[package]]
 name = "codec-json5-trait"
 version = "0.0.0"
 dependencies = [
- "common",
+ "eyre",
  "json5",
  "json5format",
  "serde",
@@ -1847,6 +1949,8 @@ name = "codec-jsonld"
 version = "0.0.0"
 dependencies = [
  "codec",
+ "once_cell",
+ "serde_json",
 ]
 
 [[package]]
@@ -1857,6 +1961,11 @@ dependencies = [
  "codec-latex-trait",
  "codec-pandoc",
  "common-dev",
+ "glob",
+ "itertools 0.14.0",
+ "once_cell",
+ "regex",
+ "tokio",
  "which 8.0.0",
 ]
 
@@ -1864,8 +1973,10 @@ dependencies = [
 name = "codec-latex-derive"
 version = "0.0.0"
 dependencies = [
- "common",
+ "Inflector",
  "darling 0.21.2",
+ "proc-macro2",
+ "quote",
  "syn 2.0.106",
 ]
 
@@ -1876,11 +1987,14 @@ dependencies = [
  "codec-info",
  "codec-latex-derive",
  "codec-utils",
- "common",
+ "eyre",
  "format",
+ "glob",
+ "itertools 0.14.0",
  "node-path",
  "node-url",
  "rand 0.9.2",
+ "tracing",
 ]
 
 [[package]]
@@ -1893,15 +2007,22 @@ dependencies = [
  "codec-markdown",
  "codec-text",
  "common-dev",
+ "glob",
  "monostate",
+ "once_cell",
+ "regex",
  "serde",
+ "serde_json",
+ "serde_with",
  "smart-default",
+ "tracing",
 ]
 
 [[package]]
 name = "codec-links"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
  "codec",
  "common-dev",
  "winnow",
@@ -1916,10 +2037,18 @@ dependencies = [
  "codec-markdown-trait",
  "codec-text-trait",
  "common-dev",
+ "indexmap 2.10.0",
+ "itertools 0.14.0",
  "markdown",
  "media-embed",
  "media-extract",
+ "once_cell",
+ "regex",
+ "serde_json",
+ "serde_yaml",
  "strum 0.27.2",
+ "tokio",
+ "tracing",
  "winnow",
 ]
 
@@ -1927,8 +2056,10 @@ dependencies = [
 name = "codec-markdown-derive"
 version = "0.0.0"
 dependencies = [
- "common",
+ "Inflector",
  "darling 0.21.2",
+ "proc-macro2",
+ "quote",
  "syn 2.0.106",
 ]
 
@@ -1936,10 +2067,11 @@ dependencies = [
 name = "codec-markdown-trait"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
  "codec-info",
  "codec-markdown-derive",
- "common",
  "format",
+ "tracing",
 ]
 
 [[package]]
@@ -1949,7 +2081,11 @@ dependencies = [
  "codec",
  "codec-jats",
  "common-dev",
+ "glob",
  "media-embed",
+ "tempfile",
+ "tokio",
+ "tracing",
  "zip 2.5.0",
 ]
 
@@ -1969,8 +2105,16 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "common-dev",
+ "glob",
  "governor",
+ "indexmap 2.10.0",
+ "itertools 0.14.0",
+ "once_cell",
+ "reqwest",
  "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
  "version",
 ]
 
@@ -1982,6 +2126,14 @@ dependencies = [
  "codec",
  "codec-meca",
  "codec-pdf",
+ "eyre",
+ "futures",
+ "once_cell",
+ "regex",
+ "reqwest",
+ "tempfile",
+ "tokio",
+ "tracing",
  "url",
  "version",
 ]
@@ -1990,13 +2142,18 @@ dependencies = [
 name = "codec-pandoc"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
  "codec",
  "codec-latex-trait",
  "codec-png",
  "codec-text-trait",
+ "itertools 0.14.0",
  "pandoc_types",
  "serde",
+ "serde_json",
+ "tokio",
  "tools",
+ "tracing",
 ]
 
 [[package]]
@@ -2021,7 +2178,15 @@ dependencies = [
  "codec-jats",
  "common-dev",
  "flate2",
+ "futures",
+ "glob",
  "media-embed",
+ "regex",
+ "reqwest",
+ "tar",
+ "tempfile",
+ "tokio",
+ "tracing",
  "url",
  "version",
 ]
@@ -2043,17 +2208,26 @@ dependencies = [
  "codec",
  "codec-latex",
  "common-dev",
+ "glob",
+ "itertools 0.14.0",
+ "once_cell",
+ "regex",
+ "tokio",
 ]
 
 [[package]]
 name = "codec-swb"
 version = "0.0.0"
 dependencies = [
+ "clap",
  "codec",
  "codec-dom",
  "codec-jsonld",
  "codec-markdown",
  "flate2",
+ "tar",
+ "tempfile",
+ "tokio",
 ]
 
 [[package]]
@@ -2068,7 +2242,8 @@ dependencies = [
 name = "codec-text-derive"
 version = "0.0.0"
 dependencies = [
- "common",
+ "proc-macro2",
+ "quote",
  "syn 2.0.106",
 ]
 
@@ -2083,8 +2258,11 @@ dependencies = [
 name = "codec-utils"
 version = "0.0.0"
 dependencies = [
- "common",
  "common-dev",
+ "eyre",
+ "itertools 0.14.0",
+ "reqwest",
+ "similar",
  "which 8.0.0",
 ]
 
@@ -2103,6 +2281,8 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "serde",
+ "serde_yaml",
+ "tokio",
  "version",
 ]
 
@@ -2120,9 +2300,17 @@ dependencies = [
  "codec-text",
  "codec-xlsx",
  "common-dev",
+ "glob",
  "governor",
+ "itertools 0.14.0",
+ "once_cell",
+ "reqwest",
  "secrets",
  "serde",
+ "serde_json",
+ "tempfile",
+ "tokio",
+ "tracing",
  "url",
  "version",
 ]
@@ -2132,6 +2320,8 @@ name = "codecs"
 version = "0.0.0"
 dependencies = [
  "ask",
+ "chrono",
+ "clap",
  "cli-utils",
  "codec",
  "codec-arxiv",
@@ -2169,10 +2359,22 @@ dependencies = [
  "codec-xlsx",
  "codec-yaml",
  "common-dev",
+ "futures",
+ "glob",
+ "itertools 0.14.0",
  "json_value_merge",
  "node-strip",
+ "once_cell",
+ "regex",
+ "reqwest",
  "serde",
+ "serde_json",
+ "serde_yaml",
+ "smart-default",
  "strum 0.27.2",
+ "tempfile",
+ "tokio",
+ "tracing",
  "url",
  "walkdir",
 ]
@@ -2296,42 +2498,6 @@ dependencies = [
  "crossterm",
  "unicode-segmentation",
  "unicode-width 0.2.1",
-]
-
-[[package]]
-name = "common"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "async-recursion",
- "async-trait",
- "bs58",
- "chrono",
- "chrono-humanize",
- "clap",
- "eyre",
- "futures",
- "glob",
- "indexmap 2.10.0",
- "itertools 0.14.0",
- "once_cell",
- "proc-macro2",
- "quote",
- "regex",
- "reqwest",
- "seahash",
- "serde_json",
- "serde_with",
- "serde_yaml",
- "similar",
- "smart-default",
- "smol_str",
- "tar",
- "tempfile",
- "tokio",
- "toml 0.9.5",
- "tracing",
- "uuid",
 ]
 
 [[package]]
@@ -2487,16 +2653,26 @@ dependencies = [
  "base64 0.22.1",
  "codec",
  "codec-utils",
- "common",
  "common-dev",
  "dirs 0.0.0",
+ "eyre",
+ "glob",
  "headless_chrome",
+ "itertools 0.14.0",
+ "once_cell",
  "rand 0.9.2",
+ "regex",
+ "reqwest",
+ "seahash",
  "secrets",
  "serde",
+ "serde_json",
  "strum 0.27.2",
+ "tempfile",
  "test-log",
+ "tokio",
  "tools",
+ "tracing",
  "version",
  "web-dist",
 ]
@@ -3399,9 +3575,12 @@ dependencies = [
 name = "dirs"
 version = "0.0.0"
 dependencies = [
- "common",
+ "clap",
  "directories",
+ "eyre",
+ "smart-default",
  "strum 0.27.2",
+ "tokio",
 ]
 
 [[package]]
@@ -3462,14 +3641,21 @@ name = "document"
 version = "0.0.0"
 dependencies = [
  "ask",
+ "chrono",
+ "chrono-humanize",
+ "clap",
  "cli-utils",
  "codec-json",
  "codec-text",
  "codecs",
- "common",
  "common-dev",
  "dirs 0.0.0",
+ "eyre",
  "format",
+ "futures",
+ "glob",
+ "indexmap 2.10.0",
+ "itertools 0.14.0",
  "json-patch",
  "kernels",
  "node-canonicalize",
@@ -3483,10 +3669,18 @@ dependencies = [
  "node-strip",
  "notify",
  "rand 0.9.2",
+ "reqwest",
  "schema",
  "serde",
+ "serde_json",
+ "serde_with",
+ "serde_yaml",
+ "similar",
+ "smart-default",
  "strum 0.27.2",
+ "tokio",
  "tools",
+ "tracing",
  "url",
 ]
 
@@ -3580,8 +3774,8 @@ dependencies = [
 name = "embed"
 version = "0.1.0"
 dependencies = [
- "common",
  "dirs 0.0.0",
+ "eyre",
  "fastembed",
 ]
 
@@ -3875,7 +4069,8 @@ dependencies = [
 name = "format"
 version = "0.0.0"
 dependencies = [
- "common",
+ "eyre",
+ "serde_with",
  "strum 0.27.2",
 ]
 
@@ -5121,10 +5316,14 @@ name = "images"
 version = "0.0.0"
 dependencies = [
  "base64 0.22.1",
- "common",
+ "eyre",
  "image",
+ "itertools 0.14.0",
  "mime",
  "mime_guess",
+ "once_cell",
+ "regex",
+ "seahash",
 ]
 
 [[package]]
@@ -5472,12 +5671,20 @@ dependencies = [
 name = "kernel"
 version = "0.0.0"
 dependencies = [
- "common",
- "common-dev",
+ "async-trait",
+ "bs58",
+ "clap",
+ "eyre",
  "format",
+ "indexmap 2.10.0",
+ "itertools 0.14.0",
+ "pretty_assertions",
  "schema",
  "serde",
  "strum 0.27.2",
+ "tokio",
+ "tracing",
+ "uuid",
 ]
 
 [[package]]
@@ -5485,8 +5692,11 @@ name = "kernel-asciimath"
 version = "0.0.0"
 dependencies = [
  "common-dev",
+ "itertools 0.14.0",
  "kernel",
  "mathemascii",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -5496,6 +5706,7 @@ dependencies = [
  "common-dev",
  "kernel-micro",
  "test-log",
+ "tokio",
 ]
 
 [[package]]
@@ -5506,17 +5717,26 @@ dependencies = [
  "codec-markdown",
  "codecs",
  "dirs 0.0.0",
+ "futures",
+ "itertools 0.14.0",
  "kernel-kuzu",
  "lru",
  "node-canonicalize",
  "node-db",
  "node-sentencize",
+ "once_cell",
+ "regex",
+ "serde_json",
+ "serde_yaml",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
 name = "kernel-docsql"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
  "codec-github",
  "codec-openalex",
  "codec-text-trait",
@@ -5524,9 +5744,17 @@ dependencies = [
  "codecs",
  "common-dev",
  "embed",
+ "eyre",
+ "glob",
+ "itertools 0.14.0",
  "kernel-docsdb",
  "kernel-jinja",
+ "once_cell",
+ "regex",
  "secrets",
+ "serde_json",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -5536,6 +5764,10 @@ dependencies = [
  "common-dev",
  "kernel",
  "layout-rs",
+ "once_cell",
+ "regex",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -5545,6 +5777,9 @@ dependencies = [
  "common-dev",
  "kernel",
  "minijinja",
+ "serde_json",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -5552,11 +5787,19 @@ name = "kernel-kuzu"
 version = "0.0.0"
 dependencies = [
  "common-dev",
+ "indexmap 2.10.0",
+ "itertools 0.14.0",
  "kernel",
  "kernel-jinja",
  "kuzu",
+ "once_cell",
+ "regex",
  "serde",
+ "serde_json",
  "strum 0.27.2",
+ "tempfile",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -5566,6 +5809,8 @@ dependencies = [
  "common-dev",
  "kernel",
  "kernel-jinja",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -5574,9 +5819,14 @@ version = "0.0.0"
 dependencies = [
  "directories",
  "dirs 0.0.0",
+ "itertools 0.14.0",
  "kernel",
  "nix",
+ "serde_json",
  "strum 0.27.2",
+ "tempfile",
+ "tokio",
+ "tracing",
  "which 8.0.0",
 ]
 
@@ -5585,8 +5835,10 @@ name = "kernel-nodejs"
 version = "0.0.0"
 dependencies = [
  "common-dev",
+ "indexmap 2.10.0",
  "kernel-micro",
  "test-log",
+ "tokio",
 ]
 
 [[package]]
@@ -5594,8 +5846,10 @@ name = "kernel-python"
 version = "0.0.0"
 dependencies = [
  "common-dev",
+ "indexmap 2.10.0",
  "kernel-micro",
  "test-log",
+ "tokio",
 ]
 
 [[package]]
@@ -5603,9 +5857,15 @@ name = "kernel-quickjs"
 version = "0.0.0"
 dependencies = [
  "common-dev",
+ "indexmap 2.10.0",
  "kernel",
+ "once_cell",
+ "regex",
  "rquickjs",
+ "serde_json",
  "test-log",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -5613,8 +5873,10 @@ name = "kernel-r"
 version = "0.0.0"
 dependencies = [
  "common-dev",
+ "indexmap 2.10.0",
  "kernel-micro",
  "test-log",
+ "tokio",
 ]
 
 [[package]]
@@ -5622,19 +5884,30 @@ name = "kernel-rhai"
 version = "0.0.0"
 dependencies = [
  "common-dev",
+ "indexmap 2.10.0",
+ "itertools 0.14.0",
  "kernel",
  "rhai",
+ "serde_json",
  "test-log",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
 name = "kernel-style"
 version = "0.0.0"
 dependencies = [
+ "bs58",
  "common-dev",
  "kernel",
  "kernel-jinja",
+ "once_cell",
  "railwind",
+ "regex",
+ "seahash",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -5644,14 +5917,20 @@ dependencies = [
  "common-dev",
  "kernel",
  "latex2mathml",
+ "once_cell",
+ "regex",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
 name = "kernels"
 version = "0.0.0"
 dependencies = [
+ "clap",
  "cli-utils",
  "common-dev",
+ "itertools 0.14.0",
  "kernel",
  "kernel-asciimath",
  "kernel-bash",
@@ -5671,6 +5950,8 @@ dependencies = [
  "node-diagnostics",
  "plugins",
  "test-log",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -6002,25 +6283,36 @@ dependencies = [
 name = "lsp"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
  "ask",
  "async-lsp",
+ "async-trait",
  "codec-markdown-trait",
  "codec-text-trait",
  "codec-utils",
  "codecs",
- "common",
  "document",
+ "eyre",
+ "itertools 0.14.0",
  "kernels",
  "models",
  "node-execute",
  "node-find",
+ "once_cell",
  "percent-encoding",
  "prompts",
+ "reqwest",
  "schema",
  "serde",
+ "serde_json",
+ "similar",
+ "smart-default",
+ "tokio",
  "tokio-util",
  "tower 0.5.2",
+ "tracing",
  "tracing-subscriber",
+ "uuid",
 ]
 
 [[package]]
@@ -6255,19 +6547,21 @@ checksum = "ae960838283323069879657ca3de837e9f7bbb4c7bf6ea7f1b290d5e9476d2e0"
 name = "media-embed"
 version = "0.0.0"
 dependencies = [
- "common",
+ "eyre",
  "format",
  "images",
  "schema",
+ "tracing",
 ]
 
 [[package]]
 name = "media-extract"
 version = "0.0.0"
 dependencies = [
- "common",
+ "eyre",
  "images",
  "schema",
+ "tracing",
 ]
 
 [[package]]
@@ -6391,11 +6685,16 @@ checksum = "4a0b3262dc837d2513fe2ef31ff8461352ef932dcca31ba0c0abe33547cf6b9b"
 name = "model"
 version = "0.0.0"
 dependencies = [
- "common",
+ "Inflector",
+ "async-trait",
+ "clap",
+ "eyre",
  "format",
  "schema",
  "secrets",
  "serde",
+ "serde_with",
+ "smart-default",
  "strum 0.27.2",
 ]
 
@@ -6403,7 +6702,10 @@ dependencies = [
 name = "models"
 version = "0.0.0"
 dependencies = [
+ "clap",
  "cli-utils",
+ "futures",
+ "itertools 0.14.0",
  "model",
  "models-anthropic",
  "models-google",
@@ -6412,6 +6714,8 @@ dependencies = [
  "models-openai",
  "models-stencila",
  "plugins",
+ "serde_yaml",
+ "tracing",
 ]
 
 [[package]]
@@ -6419,8 +6723,13 @@ name = "models-anthropic"
 version = "0.0.0"
 dependencies = [
  "cached",
+ "itertools 0.14.0",
  "model",
+ "reqwest",
  "serde",
+ "serde_with",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -6428,45 +6737,67 @@ name = "models-google"
 version = "0.0.0"
 dependencies = [
  "cached",
+ "itertools 0.14.0",
  "model",
+ "reqwest",
  "serde",
+ "serde_with",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
 name = "models-mistral"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
  "cached",
+ "itertools 0.14.0",
  "model",
+ "reqwest",
  "serde",
+ "serde_with",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
 name = "models-ollama"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
  "cached",
  "model",
  "ollama-rs",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
 name = "models-openai"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
  "async-openai",
  "cached",
+ "itertools 0.14.0",
  "model",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
 name = "models-stencila"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
  "cached",
  "cloud",
+ "itertools 0.14.0",
  "model",
+ "reqwest",
  "serde",
+ "tokio",
 ]
 
 [[package]]
@@ -6683,10 +7014,11 @@ name = "node"
 version = "2.0.0-alpha.25"
 dependencies = [
  "codecs",
- "common",
+ "eyre",
  "napi",
  "napi-build",
  "napi-derive",
+ "serde_json",
 ]
 
 [[package]]
@@ -6697,10 +7029,17 @@ dependencies = [
  "codec-cbor",
  "codec-openalex",
  "codec-text",
- "common",
  "common-dev",
+ "eyre",
+ "futures",
  "human_name",
+ "once_cell",
+ "regex",
  "schema",
+ "seahash",
+ "serde_json",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -6715,19 +7054,26 @@ name = "node-db"
 version = "0.0.0"
 dependencies = [
  "ask",
+ "chrono",
+ "clap",
  "cli-utils",
  "codec-text-trait",
- "common",
  "derive_more 2.0.1",
  "dirs 0.0.0",
  "embed",
+ "eyre",
+ "itertools 0.14.0",
  "kernel-kuzu",
+ "once_cell",
  "rust-embed",
  "schema",
  "semver",
  "serde",
  "sha2",
+ "tempfile",
  "time",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -6736,10 +7082,11 @@ version = "0.0.0"
 dependencies = [
  "ariadne",
  "codec-info",
- "common",
+ "eyre",
  "format",
  "schema",
  "serde",
+ "serde_with",
  "strum 0.27.2",
 ]
 
@@ -6747,20 +7094,30 @@ dependencies = [
 name = "node-execute"
 version = "0.0.0"
 dependencies = [
+ "clap",
  "codec-cbor",
  "codec-markdown",
  "codecs",
- "common",
- "common-dev",
+ "eyre",
+ "futures",
+ "indexmap 2.10.0",
+ "insta",
+ "itertools 0.14.0",
  "kernels",
  "models",
  "node-contains",
  "node-diagnostics",
+ "once_cell",
  "parsers",
  "prompts",
+ "regex",
  "schema",
+ "seahash",
  "serde",
+ "serde_json",
  "stencila-linters",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -6781,16 +7138,17 @@ dependencies = [
 name = "node-id"
 version = "0.0.0"
 dependencies = [
- "common",
  "derive_more 2.0.1",
+ "eyre",
  "rand 0.9.2",
+ "serde_with",
 ]
 
 [[package]]
 name = "node-map"
 version = "0.0.0"
 dependencies = [
- "common",
+ "indexmap 2.10.0",
  "schema",
 ]
 
@@ -6798,18 +7156,20 @@ dependencies = [
 name = "node-media"
 version = "0.0.0"
 dependencies = [
- "common",
  "images",
  "schema",
+ "tracing",
 ]
 
 [[package]]
 name = "node-patch-derive"
 version = "0.0.0"
 dependencies = [
- "common",
+ "Inflector",
  "darling 0.21.2",
  "format",
+ "proc-macro2",
+ "quote",
  "syn 2.0.106",
 ]
 
@@ -6817,18 +7177,22 @@ dependencies = [
 name = "node-path"
 version = "0.0.0"
 dependencies = [
- "common",
  "derive_more 2.0.1",
+ "eyre",
+ "itertools 0.14.0",
  "node-type",
  "serde",
+ "serde_json",
 ]
 
 [[package]]
 name = "node-probe-derive"
 version = "0.0.0"
 dependencies = [
- "common",
+ "Inflector",
  "darling 0.21.2",
+ "proc-macro2",
+ "quote",
  "syn 2.0.106",
 ]
 
@@ -6836,9 +7200,10 @@ dependencies = [
 name = "node-reconstitute"
 version = "0.0.0"
 dependencies = [
- "common",
+ "eyre",
  "node-url",
  "schema",
+ "tracing",
 ]
 
 [[package]]
@@ -6853,21 +7218,29 @@ dependencies = [
 name = "node-store"
 version = "0.0.0"
 dependencies = [
+ "async-trait",
  "automerge",
  "codecs",
- "common",
  "common-dev",
+ "eyre",
+ "glob",
+ "itertools 0.14.0",
  "node-store-derive",
  "node-strip",
  "node-type",
  "schema",
+ "serde_json",
+ "smol_str",
+ "tokio",
 ]
 
 [[package]]
 name = "node-store-derive"
 version = "0.0.0"
 dependencies = [
- "common",
+ "eyre",
+ "proc-macro2",
+ "quote",
  "syn 2.0.106",
 ]
 
@@ -6875,7 +7248,8 @@ dependencies = [
 name = "node-strip"
 version = "0.0.0"
 dependencies = [
- "common",
+ "clap",
+ "indexmap 2.10.0",
  "node-strip-derive",
  "serde",
 ]
@@ -6884,8 +7258,9 @@ dependencies = [
 name = "node-strip-derive"
 version = "0.0.0"
 dependencies = [
- "common",
  "darling 0.21.2",
+ "proc-macro2",
+ "quote",
  "syn 2.0.106",
 ]
 
@@ -6893,20 +7268,27 @@ dependencies = [
 name = "node-structuring"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
  "codec-biblio",
  "codec-links",
  "codec-text-trait",
- "common",
  "common-dev",
+ "eyre",
+ "itertools 0.14.0",
+ "once_cell",
+ "regex",
  "schema",
+ "smart-default",
  "strum 0.27.2",
+ "tracing",
 ]
 
 [[package]]
 name = "node-type"
 version = "0.0.0"
 dependencies = [
- "common",
+ "Inflector",
+ "eyre",
  "node-id",
  "serde",
  "strum 0.27.2",
@@ -6917,12 +7299,13 @@ name = "node-url"
 version = "0.0.0"
 dependencies = [
  "base64 0.22.1",
- "common",
+ "eyre",
  "flate2",
  "node-id",
  "node-path",
  "node-type",
  "serde",
+ "serde_json",
  "strum 0.27.2",
  "url",
 ]
@@ -6931,8 +7314,10 @@ dependencies = [
 name = "node-walk-derive"
 version = "0.0.0"
 dependencies = [
- "common",
+ "Inflector",
  "darling 0.21.2",
+ "proc-macro2",
+ "quote",
  "syn 2.0.106",
 ]
 
@@ -7493,15 +7878,18 @@ dependencies = [
 name = "parser"
 version = "0.0.0"
 dependencies = [
- "common",
  "format",
+ "once_cell",
+ "regex",
  "schema",
+ "seahash",
 ]
 
 [[package]]
 name = "parsers"
 version = "0.1.0"
 dependencies = [
+ "once_cell",
  "parser",
 ]
 
@@ -7722,17 +8110,28 @@ dependencies = [
 name = "plugins"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
+ "async-trait",
+ "clap",
  "cli-utils",
  "codec",
- "common",
  "common-dev",
  "dirs 0.0.0",
+ "eyre",
+ "futures",
+ "itertools 0.14.0",
  "kernel",
  "model",
  "rand 0.9.2",
+ "reqwest",
  "semver",
  "serde",
+ "serde_json",
+ "serde_with",
  "strum 0.27.2",
+ "tokio",
+ "toml 0.9.5",
+ "tracing",
  "which 8.0.0",
 ]
 
@@ -8398,31 +8797,47 @@ version = "0.0.0"
 dependencies = [
  "codec-markdown-trait",
  "common-dev",
+ "itertools 0.14.0",
  "kernel-quickjs",
  "kernels",
+ "once_cell",
+ "regex",
  "rquickjs",
+ "serde_json",
  "strum 0.27.2",
+ "tokio",
 ]
 
 [[package]]
 name = "prompts"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
  "cached",
+ "clap",
  "cli-utils",
  "codec-markdown",
  "codecs",
- "common",
  "derive_more 2.0.1",
  "dirs 0.0.0",
+ "eyre",
  "flate2",
+ "futures",
+ "glob",
  "images",
+ "itertools 0.14.0",
  "model",
  "models",
  "prompt",
+ "regex",
+ "reqwest",
  "rust-embed",
  "semver",
  "serde",
+ "serde_json",
+ "tar",
+ "tokio",
+ "tracing",
  "version",
 ]
 
@@ -8522,7 +8937,8 @@ dependencies = [
 name = "publish"
 version = "0.0.0"
 dependencies = [
- "common",
+ "clap",
+ "eyre",
  "publish-ghost",
  "publish-stencila",
  "publish-zenodo",
@@ -8532,15 +8948,23 @@ dependencies = [
 name = "publish-ghost"
 version = "0.0.0"
 dependencies = [
+ "chrono",
+ "clap",
  "cli-utils",
  "codec-text",
- "common",
  "document",
+ "eyre",
  "jsonwebtoken",
  "node-media",
+ "reqwest",
  "secrets",
  "serde",
+ "serde_json",
+ "serde_with",
  "strum 0.27.2",
+ "tempfile",
+ "tokio",
+ "tracing",
  "url",
 ]
 
@@ -8548,26 +8972,39 @@ dependencies = [
 name = "publish-stencila"
 version = "0.0.0"
 dependencies = [
+ "clap",
  "cloud",
  "codec",
  "codec-swb",
- "common",
  "document",
+ "eyre",
+ "reqwest",
  "schema",
  "serde",
+ "serde_json",
+ "tempfile",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
 name = "publish-zenodo"
 version = "0.0.0"
 dependencies = [
+ "clap",
  "cli-utils",
  "codec",
  "codec-text",
- "common",
  "common-dev",
  "document",
+ "eyre",
+ "regex",
+ "reqwest",
  "serde",
+ "serde_json",
+ "tempfile",
+ "tokio",
+ "tracing",
  "url",
 ]
 
@@ -9686,6 +10123,10 @@ dependencies = [
 name = "schema"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
+ "async-recursion",
+ "chrono",
+ "chrono-humanize",
  "codec",
  "codec-dom-trait",
  "codec-html-trait",
@@ -9696,13 +10137,16 @@ dependencies = [
  "codec-markdown",
  "codec-markdown-trait",
  "codec-text-trait",
- "common",
  "common-dev",
  "derive_more 2.0.1",
+ "eyre",
  "format",
+ "glob",
  "human_name",
  "images",
+ "indexmap 2.10.0",
  "interim",
+ "itertools 0.14.0",
  "monostate",
  "node-id",
  "node-patch-derive",
@@ -9713,26 +10157,47 @@ dependencies = [
  "node-type",
  "node-url",
  "node-walk-derive",
+ "once_cell",
  "proptest",
  "proptest-derive",
+ "regex",
  "serde",
+ "serde_json",
  "serde_with",
+ "serde_yaml",
+ "similar",
+ "smart-default",
+ "smol_str",
  "strum 0.27.2",
  "time",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
 name = "schema-gen"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
+ "async-recursion",
+ "clap",
  "codecs",
- "common",
+ "eyre",
+ "futures",
+ "glob",
+ "indexmap 2.10.0",
+ "itertools 0.14.0",
  "schema",
  "schemars 1.0.4",
  "semver",
  "serde",
+ "serde_json",
+ "serde_with",
+ "serde_yaml",
+ "smart-default",
  "status",
  "strum 0.27.2",
+ "tokio",
  "topological-sort",
 ]
 
@@ -9831,10 +10296,15 @@ name = "secrets"
 version = "0.0.0"
 dependencies = [
  "ask",
+ "clap",
  "cli-utils",
- "common",
+ "eyre",
+ "itertools 0.14.0",
  "keyring",
+ "once_cell",
  "serde",
+ "serde_with",
+ "tracing",
 ]
 
 [[package]]
@@ -10112,17 +10582,26 @@ name = "server"
 version = "0.0.0"
 dependencies = [
  "axum 0.8.4",
+ "clap",
  "cloud",
  "codecs",
- "common",
  "common-dev",
  "document",
+ "eyre",
  "format",
+ "futures",
+ "itertools 0.14.0",
  "mime_guess",
  "rand 0.9.2",
+ "reqwest",
  "serde",
+ "serde_json",
+ "smart-default",
+ "tokio",
  "tower-cookies",
  "tower-http",
+ "tracing",
+ "uuid",
  "version",
  "web-dist",
 ]
@@ -10480,7 +10959,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 name = "status"
 version = "0.0.0"
 dependencies = [
- "common",
+ "clap",
  "schemars 1.0.4",
  "serde",
  "strum 0.27.2",
@@ -10491,16 +10970,18 @@ name = "stencila"
 version = "2.0.0-beta.2"
 dependencies = [
  "codecs",
- "common",
+ "eyre",
  "pyo3",
  "pyo3-async-runtimes",
+ "serde_json",
 ]
 
 [[package]]
 name = "stencila-linter"
 version = "0.0.0"
 dependencies = [
- "common",
+ "async-trait",
+ "eyre",
  "format",
  "node-type",
  "schema",
@@ -10513,14 +10994,22 @@ name = "stencila-linter-harper"
 version = "0.0.0"
 dependencies = [
  "harper-core",
+ "itertools 0.14.0",
+ "once_cell",
  "stencila-linter",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
 name = "stencila-linter-links"
 version = "0.0.0"
 dependencies = [
+ "once_cell",
+ "reqwest",
  "stencila-linter",
+ "tokio",
+ "tracing",
  "version",
 ]
 
@@ -10529,8 +11018,11 @@ name = "stencila-linter-lintr"
 version = "0.0.0"
 dependencies = [
  "serde",
+ "serde_json",
  "stencila-linter",
+ "tempfile",
  "tools",
+ "tracing",
 ]
 
 [[package]]
@@ -10538,8 +11030,11 @@ name = "stencila-linter-pyright"
 version = "0.0.0"
 dependencies = [
  "serde",
+ "serde_json",
  "stencila-linter",
+ "tempfile",
  "tools",
+ "tracing",
 ]
 
 [[package]]
@@ -10547,8 +11042,11 @@ name = "stencila-linter-ruff"
 version = "0.0.0"
 dependencies = [
  "serde",
+ "serde_json",
  "stencila-linter",
+ "tempfile",
  "tools",
+ "tracing",
 ]
 
 [[package]]
@@ -10556,14 +11054,20 @@ name = "stencila-linter-styler"
 version = "0.0.0"
 dependencies = [
  "stencila-linter",
+ "tempfile",
  "tools",
+ "tracing",
 ]
 
 [[package]]
 name = "stencila-linters"
 version = "0.0.0"
 dependencies = [
+ "clap",
  "cli-utils",
+ "itertools 0.14.0",
+ "once_cell",
+ "serde_yaml",
  "stencila-linter",
  "stencila-linter-harper",
  "stencila-linter-links",
@@ -10571,6 +11075,8 @@ dependencies = [
  "stencila-linter-pyright",
  "stencila-linter-ruff",
  "stencila-linter-styler",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -11282,16 +11788,26 @@ name = "tools"
 version = "0.0.0"
 dependencies = [
  "ask",
+ "async-recursion",
+ "clap",
  "cli-utils",
- "common",
  "derive_more 2.0.1",
  "directories",
+ "eyre",
+ "itertools 0.14.0",
  "mcp-types",
+ "once_cell",
  "pathdiff",
+ "regex",
+ "reqwest",
  "semver",
  "serde",
+ "serde_json",
  "strum 0.27.2",
+ "tempfile",
  "test-log",
+ "tokio",
+ "tracing",
  "version",
  "which 8.0.0",
 ]
