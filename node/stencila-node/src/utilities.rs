@@ -2,8 +2,6 @@
 
 use napi::{Error, Status};
 
-use common::eyre;
-
 pub(crate) fn generic_failure(report: eyre::Report) -> Error {
     Error::new(Status::GenericFailure, report.to_string())
 }

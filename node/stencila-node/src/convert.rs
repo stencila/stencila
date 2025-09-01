@@ -6,7 +6,6 @@ use napi::Result;
 use napi_derive::napi;
 
 use codecs::{Format, LossesResponse};
-use common::{eyre, serde_json};
 
 use crate::utilities::generic_failure;
 

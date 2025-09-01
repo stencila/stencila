@@ -5,7 +5,6 @@ use std::path::PathBuf;
 use pyo3::prelude::*;
 
 use codecs::Format;
-use common::{eyre, serde_json};
 
 use crate::utilities::{runtime_error, value_error};
 

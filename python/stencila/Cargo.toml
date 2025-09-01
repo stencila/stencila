@@ -19,9 +19,10 @@ crate-type = ["cdylib"]
 
 [dependencies]
 codecs = { path = "../../rust/codecs" }
-common = { path = "../../rust/common" }
+eyre = { workspace = true }
 pyo3 = { version = "0.25.1", features = ["extension-module"] }
 pyo3-async-runtimes = { version = "0.25.0", features = [
     "attributes",
     "tokio-runtime",
 ] }
+serde_json = { workspace = true }
