@@ -4,25 +4,21 @@ use std::{
     str::FromStr,
 };
 
-use serde::{Deserialize, Serialize};
-use strum::{Display, IntoEnumIterator};
-
+use async_trait::async_trait;
 use codec_utils::git_info;
-use common::{
-    async_trait::async_trait,
-    eyre::{Report, Result, bail},
-    serde_with::skip_serializing_none,
-    smart_default::SmartDefault,
-    tokio::{
-        fs::{File, create_dir_all},
-        io::{AsyncReadExt, AsyncWriteExt},
-    },
-    tracing,
-};
+use eyre::{Report, Result, bail};
 use format::Format;
 use node_strip::StripScope;
 use schema::{Article, Node};
+use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
+use smart_default::SmartDefault;
 use status::Status;
+use strum::{Display, IntoEnumIterator};
+use tokio::{
+    fs::{File, create_dir_all},
+    io::{AsyncReadExt, AsyncWriteExt},
+};
 
 // Re-exports for the convenience of internal crates implementing `Codec`
 pub use codec_info::*;

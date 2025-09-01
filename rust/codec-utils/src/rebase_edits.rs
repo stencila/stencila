@@ -1,7 +1,5 @@
-use common::{
-    itertools::Itertools,
-    similar::{Algorithm, DiffOp, capture_diff_slices},
-};
+use itertools::Itertools;
+use similar::{Algorithm, DiffOp, capture_diff_slices};
 
 /// Rebases edits from one document version to another, preserving user intent.
 ///

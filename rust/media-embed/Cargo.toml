@@ -4,10 +4,11 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-common = { path = "../common" }
+eyre = { workspace = true }
 format = { path = "../format" }
 images = { path = "../images" }
 schema = { path = "../schema" }
+tracing = { workspace = true }
 
 [lints]
 workspace = true

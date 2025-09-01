@@ -6,11 +6,8 @@ use std::{
 use derive_more::Deref;
 use rand::{Rng, distr::Alphanumeric, rng};
 
-use common::{
-    eyre::{Report, bail},
-    serde_with::DeserializeFromStr,
-    serde_with::SerializeDisplay,
-};
+use eyre::{Report, bail};
+use serde_with::{DeserializeFromStr, SerializeDisplay};
 
 /// A unique id for a node
 ///
@@ -60,7 +57,7 @@ impl PartialEq for NodeUid {
 
 /// A unique id for a node including a short nickname for the type of node
 #[derive(Clone, PartialEq, Eq, Hash, SerializeDisplay, DeserializeFromStr)]
-#[serde_with(crate = "common::serde_with")]
+#[serde_with(crate = "serde_with")]
 pub struct NodeId {
     nick: [u8; 3],
     uid: Vec<u8>,

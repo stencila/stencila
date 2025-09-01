@@ -1,4 +1,4 @@
-use common::eyre::{Result, eyre};
+use eyre::{Result, eyre};
 
 /// Parses a string into column width and a sentence-splitting flag.
 ///

@@ -1,6 +1,6 @@
 use std::{fs, io::ErrorKind, path::Path};
 
-use common::eyre::{Context, Result};
+use eyre::{Context, Result};
 
 /// Cross-device safe file move operation.
 ///

@@ -1,9 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use common::{
-    eyre::{Context, Result, bail, eyre},
-    tracing,
-};
+use eyre::{Context, Result, bail, eyre};
 use format::Format;
 use schema::{Block, ImageObject, Inline, VisitorMut, WalkControl, WalkNode};
 

@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-common = { path = "../common" }
+clap = { workspace = true }
 schemars = { version = "1.0.4", features = ["indexmap2"] }
 serde = { workspace = true }
 strum = { workspace = true }

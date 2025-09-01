@@ -2,13 +2,10 @@
 
 use std::{env, fs::create_dir_all, path::PathBuf};
 
+use clap::{self, ValueEnum};
 use directories::ProjectDirs;
+use eyre::{OptionExt, Result};
 use strum::{Display, EnumString};
-
-use common::{
-    clap::{self, ValueEnum},
-    eyre::{OptionExt, Result},
-};
 
 #[derive(Debug, Display, Default, Clone, Copy, ValueEnum, EnumString)]
 #[strum(serialize_all = "lowercase")]

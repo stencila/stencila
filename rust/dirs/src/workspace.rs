@@ -3,11 +3,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use common::{
-    eyre::{OptionExt, Result, bail},
-    smart_default::SmartDefault,
-    tokio::fs::{create_dir_all, write},
-};
+use eyre::{OptionExt, Result, bail};
+use smart_default::SmartDefault;
+use tokio::fs::{create_dir_all, write};
 
 pub const STENCILA_DIR: &str = ".stencila";
 pub const CONFIG_FILE: &str = "config.yaml";

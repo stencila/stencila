@@ -6,12 +6,9 @@ use std::{
     str::FromStr,
 };
 
+use eyre::{Report, Result};
+use serde_with::{DeserializeFromStr, SerializeDisplay};
 use strum::EnumIter;
-
-use common::{
-    eyre::{Report, Result},
-    serde_with::{DeserializeFromStr, SerializeDisplay},
-};
 
 #[derive(
     Debug,
@@ -26,7 +23,7 @@ use common::{
     SerializeDisplay,
     DeserializeFromStr,
 )]
-#[serde_with(crate = "common::serde_with")]
+#[serde_with(crate = "serde_with")]
 pub enum Format {
     // Grouped and ordered as most appropriate for documentation
     // Markup formats

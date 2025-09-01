@@ -10,15 +10,21 @@ proptest-high = ["schema/proptest-high"]
 proptest-max = ["schema/proptest-max"]
 
 [dependencies]
+async-trait = { workspace = true }
 codec-info = { path = "../codec-info" }
 codec-utils = { path = "../codec-utils" }
-node-strip = { path = "../node-strip" }
 common = { path = "../common" }
+eyre = { workspace = true }
 format = { path = "../format" }
+node-strip = { path = "../node-strip" }
 schema = { path = "../schema" }
 serde = { workspace = true }
+serde_with = { workspace = true }
+smart-default = { workspace = true }
 status = { path = "../status" }
 strum = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
 
 [lints]
 workspace = true

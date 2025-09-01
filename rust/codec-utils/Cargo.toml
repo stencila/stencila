@@ -4,7 +4,10 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-common = { path = "../common" }
+eyre = { workspace = true }
+itertools = { workspace = true }
+reqwest = { workspace = true }
+similar = { workspace = true }
 which = { workspace = true }
 
 [dev-dependencies]

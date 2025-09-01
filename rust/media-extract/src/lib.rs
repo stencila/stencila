@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use common::{eyre::Result, tracing};
+use eyre::Result;
 use schema::{Block, ImageObject, Inline, VisitorMut, WalkControl, WalkNode};
 
 /// Write any [`ImageObject`] and other media objects with a dataURI to a file

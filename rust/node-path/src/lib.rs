@@ -7,11 +7,8 @@ use std::{
 use derive_more::{Deref, DerefMut, IntoIterator};
 use serde::{Deserialize, Serialize};
 
-use common::{
-    eyre::{Context, OptionExt, Report, Result, bail},
-    itertools::Itertools,
-    serde_json,
-};
+use eyre::{Context, OptionExt, Report, Result, bail};
+use itertools::Itertools;
 use node_type::NodeProperty;
 
 /// A slot in a node path: either a property identifier or the index of a vector.

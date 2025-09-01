@@ -3,10 +3,8 @@ use std::{
     process::{Command, Stdio},
 };
 
-use common::{
-    eyre::{OptionExt, Result, bail},
-    reqwest::Url,
-};
+use eyre::{OptionExt, Result, bail};
+use reqwest::Url;
 
 /// Information about a file within a Git repository
 #[derive(Debug, Clone)]

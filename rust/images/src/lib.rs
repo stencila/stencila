@@ -6,15 +6,13 @@ use std::{
 };
 
 use base64::{Engine as _, engine::general_purpose::STANDARD};
-use common::{
-    eyre::{OptionExt, Result, bail},
-    itertools::Itertools,
-    once_cell::sync::Lazy,
-    regex::{Captures, Regex},
-    seahash::SeaHasher,
-};
+use eyre::{OptionExt, Result, bail};
 use image::{GenericImage, GenericImageView, ImageBuffer, ImageFormat, ImageReader, Rgba, open};
+use itertools::Itertools;
 use mime_guess::from_path;
+use once_cell::sync::Lazy;
+use regex::{Captures, Regex};
+use seahash::SeaHasher;
 
 /// Covert an image URL to a HTTP or data URI
 ///
