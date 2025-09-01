@@ -12,10 +12,12 @@ use schema::{
 };
 
 // Export crates for the convenience of dependant crates
-pub use common;
 pub use format;
 pub use schema;
 pub use secrets;
+
+// Temporary re-export of common for downstream model crates until they are refactored
+pub use common;
 
 mod output;
 mod task;

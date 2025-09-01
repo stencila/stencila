@@ -1,7 +1,8 @@
 use codec::{
-    common::{eyre::Result, indexmap::IndexMap},
+    eyre::Result,
     schema::{Primitive, PropertyValue, PropertyValueOrString},
 };
+use indexmap::IndexMap;
 
 /// Generate a pseudo-ORCID from an OpenAlex ID
 pub fn generate_pseudo_orcid(openalex_id: &str, prefix: char) -> Result<String> {

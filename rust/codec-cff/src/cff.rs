@@ -1,10 +1,6 @@
 use serde::Deserialize;
 
 use codec::{
-    common::{
-        indexmap::IndexMap, itertools::Itertools, serde_json::Value,
-        serde_with::skip_serializing_none,
-    },
     schema::{
         Article, ArticleOptions, Author, CreativeWorkVariant, CreativeWorkVariantOrString, Date,
         IntegerOrString, Organization, Periodical, PeriodicalOptions, Person, PersonOptions,
@@ -14,6 +10,11 @@ use codec::{
         shortcuts::{p, t},
     },
 };
+
+use indexmap::IndexMap;
+use itertools::Itertools;
+use serde_json::Value;
+use serde_with::skip_serializing_none;
 
 /// A Citation File Format (CFF) citation file
 ///

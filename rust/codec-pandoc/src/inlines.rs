@@ -1,10 +1,10 @@
 use pandoc_types::definition::{self as pandoc, Attr, Target};
 
 use codec::{
-    common::{itertools::Itertools, serde_json},
     format::Format,
     schema::*,
 };
+use itertools::Itertools;
 use codec_text_trait::to_text;
 
 use crate::{

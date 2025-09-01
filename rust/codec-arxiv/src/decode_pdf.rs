@@ -1,15 +1,9 @@
-use codec::{
-    Codec, DecodeInfo, DecodeOptions,
-    common::{
-        eyre::Result,
-        futures::StreamExt,
-        reqwest::Response,
-        tempfile::tempdir,
-        tokio::{fs::File, io::AsyncWriteExt},
-        tracing,
-    },
-    schema::Node,
-};
+use futures::StreamExt;
+use reqwest::Response;
+use tempfile::tempdir;
+use tokio::{fs::File, io::AsyncWriteExt};
+
+use codec::{Codec, DecodeInfo, DecodeOptions, eyre::Result, schema::Node};
 use codec_pdf::PdfCodec;
 
 use super::decode::arxiv_id_to_doi;

@@ -1,13 +1,11 @@
 use flate2::read::GzDecoder;
 use std::io::Read;
 
+use reqwest::Response;
+
 use codec::{
     Codec, DecodeInfo, DecodeOptions,
-    common::{
-        eyre::{Context, Result, bail},
-        reqwest::Response,
-        tar, tracing,
-    },
+    eyre::{Context, Result, bail},
     schema::Node,
 };
 use codec_latex::LatexCodec;

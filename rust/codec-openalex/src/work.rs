@@ -1,12 +1,10 @@
 use std::collections::HashMap;
 
 use serde::Deserialize;
+use indexmap::IndexMap;
 
 use codec::{
-    common::{
-        eyre::{Result, bail},
-        indexmap::IndexMap,
-    },
+    eyre::{Result, bail},
     schema::{
         self, Article, ArticleOptions, Block, CreativeWork, CreativeWorkOptions,
         CreativeWorkVariant, CreativeWorkVariantOrString, Date, Inline, IntegerOrString, Node,

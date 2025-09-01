@@ -1,5 +1,4 @@
 use codec::{
-    common::tracing,
     format::Format,
     schema::{
         Annotation, CodeExpression, CodeInline, Emphasis, Inline, Link, MathInline, QuoteInline,

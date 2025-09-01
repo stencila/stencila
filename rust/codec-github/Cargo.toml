@@ -11,12 +11,15 @@ codec-ipynb = { path = "../codec-ipynb" }
 codec-latex = { path = "../codec-latex" }
 codec-markdown = { path = "../codec-markdown" }
 codec-xlsx = { path = "../codec-xlsx" }
+glob = {workspace = true}
 governor = {workspace = true}
 itertools = { workspace = true }
 once_cell = { workspace = true }
 reqwest = { workspace = true }
 secrets = { path = "../secrets" }
 serde = { workspace = true }
+serde_json = { workspace = true }
+tempfile = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
 url = { workspace = true }

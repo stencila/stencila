@@ -2,11 +2,7 @@ use std::path::PathBuf;
 
 use codec::{
     Codec,
-    common::{
-        eyre::{OptionExt, Result},
-        glob::glob,
-        tokio,
-    },
+    eyre::{OptionExt, Result},
 };
 use common_dev::insta::{assert_json_snapshot, assert_yaml_snapshot};
 
@@ -22,7 +18,7 @@ async fn examples() -> Result<()> {
         .to_string()
         + "/**/*.meca";
 
-    for path in glob(&pattern)?.flatten() {
+    for path in glob::glob(&pattern)?.flatten() {
         let (article, .., info) = MecaCodec.from_path(&path, None).await?;
 
         let id = path

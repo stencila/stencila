@@ -1,9 +1,8 @@
 use std::path::PathBuf;
 
-use codec::{
-    Codec, DecodeOptions, EncodeOptions,
-    common::{eyre::Result, glob::glob, tokio},
-};
+use glob::glob;
+
+use codec::{Codec, DecodeOptions, EncodeOptions, eyre::Result};
 
 use codec_latex::LatexCodec;
 use common_dev::insta::{assert_json_snapshot, assert_snapshot};

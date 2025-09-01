@@ -1,3 +1,4 @@
+use inflector::Inflector;
 use winnow::{
     Parser, Result as ParserResult,
     ascii::{Caseless, multispace0, multispace1},
@@ -6,8 +7,8 @@ use winnow::{
 };
 
 use codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, NodeType,
-    common::{async_trait::async_trait, eyre::Result, inflector::Inflector},
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, NodeType, async_trait,
+    eyre::Result,
     format::Format,
     schema::{Inline, Link, Node, Paragraph, shortcuts::t},
     status::Status,

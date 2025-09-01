@@ -1,6 +1,6 @@
 use codec::{
     DecodeInfo, EncodeInfo, EncodeOptions,
-    common::eyre::{Result, bail},
+    eyre::{Result, bail},
     format::Format,
     schema::{Article, Node},
 };

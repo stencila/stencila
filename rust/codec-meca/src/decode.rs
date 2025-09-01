@@ -2,13 +2,10 @@ use std::path::Path;
 
 use codec::{
     Codec, DecodeInfo, DecodeOptions,
-    common::{
-        eyre::{OptionExt, Result},
-        glob::glob,
-        tempfile, tracing,
-    },
+    eyre::{OptionExt, Result},
     schema::Node,
 };
+use glob::glob;
 use codec_jats::JatsCodec;
 use media_embed::embed_media;
 use zip::ZipArchive;

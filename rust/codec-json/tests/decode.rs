@@ -7,7 +7,7 @@
 //! (although they do have round-trip prop tests) because they should work if these tests pass).
 
 use codec::{
-    common::{eyre::Result, serde_json::json},
+    eyre::Result,
     schema::{
         Array, Article, ArticleOptions, Block, Boolean, Date, Emphasis, Inline, Integer,
         IntegerOrString, Node, Null, Number, Object, Paragraph, Person, Primitive, ThematicBreak,
@@ -15,6 +15,7 @@ use codec::{
         shortcuts::{p, t},
     },
 };
+use serde_json::json;
 use common_dev::pretty_assertions::assert_eq;
 
 use codec_json::r#trait::JsonCodec;

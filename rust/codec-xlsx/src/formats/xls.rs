@@ -3,7 +3,7 @@ use std::path::Path;
 use calamine::{Reader, Xls, open_workbook};
 
 use codec::{
-    common::eyre::{Context, Result, bail, eyre},
+    eyre::{Context, Result, bail, eyre},
     schema::Datatable,
 };
 

@@ -9,6 +9,8 @@ polars = { version = "0.50", features = ["csv", "json", "parquet", "ipc", "lazy"
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
+serde_json = { workspace = true }
+tempfile = { workspace = true }
 
 [lints]
 workspace = true

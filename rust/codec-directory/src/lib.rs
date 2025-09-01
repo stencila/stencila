@@ -7,10 +7,8 @@ use ignore::Walk;
 
 use codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions,
-    common::{
-        async_trait::async_trait,
-        eyre::{Result, bail},
-    },
+    async_trait,
+    eyre::{Result, bail},
     format::Format,
     schema::{Directory, File, FileOrDirectory, Node, NodeType},
     status::Status,

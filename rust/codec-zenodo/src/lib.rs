@@ -4,18 +4,15 @@ use serde::de::DeserializeOwned;
 
 use codec::{
     Codec, DecodeInfo, DecodeOptions,
-    common::{
-        async_trait::async_trait,
-        eyre::{Result, bail},
-        serde_json, tempfile,
-        tokio::fs::write,
-    },
+    async_trait,
+    eyre::{Result, bail},
     format::Format,
     schema::{
         Article, Datatable, Node, SoftwareSourceCode, SoftwareSourceCodeOptions, StringOrNumber,
     },
     status::Status,
 };
+use tokio::fs::write;
 use codec_csv::CsvCodec;
 use codec_ipynb::IpynbCodec;
 use codec_latex::LatexCodec;
@@ -241,7 +238,7 @@ fn select_primary_file(record: &Record) -> Result<&responses::FileInfo> {
     record
         .files
         .first()
-        .ok_or_else(|| codec::common::eyre::eyre!("No files available in Zenodo record"))
+        .ok_or_else(|| codec::eyre::eyre!("No files available in Zenodo record"))
 }
 
 /// Decode a Stencila [`Node`] from a Zenodo response JSON of known type

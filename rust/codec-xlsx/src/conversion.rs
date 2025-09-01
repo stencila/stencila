@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use calamine::{Data, Range};
 
 use codec::{
-    common::eyre::Result,
+    eyre::Result,
     schema::{
         ArrayValidator, BooleanValidator, Datatable, DatatableColumn, IntegerValidator, Null,
         NumberValidator, Primitive, StringValidator, Validator,

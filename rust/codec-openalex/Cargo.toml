@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 codec = { path = "../codec" }
 governor = { workspace = true }
+indexmap = { workspace = true }
 itertools = { workspace = true }
 once_cell = { workspace = true }
 reqwest = { workspace = true }
@@ -17,6 +18,7 @@ version = { path = "../version" }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
+glob = { workspace = true }
 
 [lints]
 workspace = true

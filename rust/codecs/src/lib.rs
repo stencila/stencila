@@ -3,30 +3,26 @@ use std::{
     process::{Command, Stdio},
 };
 
+use chrono::Local;
+use futures::StreamExt;
+use reqwest::Client;
+use tempfile::tempdir;
+use tokio::{
+    fs::{File, read_to_string, write},
+    io::AsyncWriteExt,
+};
 use url::Url;
 use walkdir::WalkDir;
 
 use ask::{Answer, AskLevel, AskOptions, ask_with};
 use cli_utils::{Code, ToStdout};
+use codec::schema::{Article, Block, IncludeBlock, Node, VisitorAsync, WalkControl, WalkNode};
 pub use codec::{
     Codec, CodecDirection, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     Losses, LossesResponse, Mapping, MappingEntry, Message, MessageLevel, Messages, PageSelector,
-    PoshMap, Position8, Position16, Positions, Range8, Range16, format::Format,
-};
-use codec::{
-    common::{
-        chrono::Local,
-        eyre::{Context, OptionExt, Result, bail, eyre},
-        futures::StreamExt,
-        reqwest::Client,
-        tempfile::tempdir,
-        tokio::{
-            fs::{File, read_to_string, write},
-            io::AsyncWriteExt,
-        },
-        tracing,
-    },
-    schema::{Article, Block, IncludeBlock, Node, VisitorAsync, WalkControl, WalkNode},
+    PoshMap, Position8, Position16, Positions, Range8, Range16,
+    eyre::{Context, OptionExt, Result, bail, eyre},
+    format::Format,
 };
 use codec_arxiv::ArxivCodec;
 use codec_doi::DoiCodec;

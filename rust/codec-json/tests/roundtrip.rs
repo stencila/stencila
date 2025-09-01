@@ -1,15 +1,12 @@
 use codec::{
     Codec, EncodeOptions,
-    common::{
-        eyre::{Result, bail},
-        serde_json::{self, json},
-        tokio,
-    },
+    eyre::{Result, bail},
     schema::{
         Article, Block, Inline,
         shortcuts::{art, p, t},
     },
 };
+use serde_json::{self, json};
 use common_dev::pretty_assertions::assert_eq;
 use version::STENCILA_VERSION;
 

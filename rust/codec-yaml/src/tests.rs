@@ -1,7 +1,4 @@
-use codec::{
-    common::tokio,
-    schema::shortcuts::{art, p, t},
-};
+use codec::schema::shortcuts::{art, p, t};
 
 use super::*;
 

@@ -8,10 +8,12 @@ use strum::Display;
 use schema::{AuthorRole, CompilationMessage};
 
 // Re-exports for use by linter implementations
-pub use common;
 pub use format::Format;
 pub use node_type::NodeType;
 pub use schema;
+
+// Temporary re-export of common for downstream linter crates until they are refactored
+pub use common;
 
 #[async_trait]
 pub trait Linter: Send + Sync {

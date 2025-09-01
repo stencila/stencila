@@ -12,11 +12,8 @@ use nbformat::{
 use codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Losses, NodeId,
     NodeType,
-    common::{
-        async_trait::async_trait,
-        eyre::{Result, bail, eyre},
-        serde_json::{self, Map, Value, json},
-    },
+    async_trait,
+    eyre::{Result, bail, eyre},
     format::Format,
     schema::{
         Article, Author, Block, CodeChunk, CodeChunkOptions, ExecutionMessage, ImageObject,
@@ -24,6 +21,7 @@ use codec::{
     },
     status::Status,
 };
+use serde_json::{self, Map, Value, json};
 
 /// A codec for Jupyter Notebooks
 pub struct IpynbCodec;

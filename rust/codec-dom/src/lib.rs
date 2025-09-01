@@ -1,15 +1,12 @@
 use std::{env::current_dir, path::Path};
 
+use itertools::Itertools;
 use lightningcss::stylesheet::{ParserOptions, PrinterOptions, StyleSheet};
+use tokio::fs::{create_dir_all, write};
 
 use codec::{
-    Codec, CodecSupport, EncodeInfo, EncodeOptions,
-    common::{
-        async_trait::async_trait,
-        eyre::{Result, bail},
-        itertools::Itertools,
-        tokio::fs::{create_dir_all, write},
-    },
+    Codec, CodecSupport, EncodeInfo, EncodeOptions, async_trait,
+    eyre::{Result, bail},
     format::Format,
     schema::{Node, NodeType},
     status::Status,

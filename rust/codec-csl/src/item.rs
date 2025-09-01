@@ -1,10 +1,6 @@
 use serde::Deserialize;
 
 use codec::{
-    common::{
-        indexmap::IndexMap, itertools::Itertools, serde_json::Value,
-        serde_with::skip_serializing_none,
-    },
     schema::{
         Article, ArticleOptions, Author, Block, CreativeWorkVariant, Date, IntegerOrString,
         Organization, Paragraph, Periodical, PeriodicalOptions, PersonOrOrganization, Primitive,
@@ -12,6 +8,11 @@ use codec::{
         shortcuts::{p, t},
     },
 };
+
+use indexmap::IndexMap;
+use itertools::Itertools;
+use serde_json::Value;
+use serde_with::skip_serializing_none;
 
 use crate::{date::DateField, name::NameField, ordinary::OrdinaryField};
 

@@ -1,18 +1,15 @@
 use std::str::FromStr;
 
-use codec_biblio::decode::text_to_reference;
+use once_cell::sync::Lazy;
+use regex::Regex;
 use tl::{HTMLTag, Parser, ParserOptions, parse};
 
 use codec::{
     DecodeInfo, DecodeOptions, Losses,
-    common::{
-        eyre::{Result, bail},
-        once_cell::sync::Lazy,
-        regex::Regex,
-        tracing,
-    },
+    eyre::{Result, bail},
     schema::{Article, Author, Block, Inline, Node, Person, Reference, shortcuts::t},
 };
+use codec_biblio::decode::text_to_reference;
 
 use super::decode::arxiv_id_to_doi;
 use super::decode_html_blocks::*;

@@ -1,17 +1,15 @@
 use codec::{
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     NodeType,
-    common::{
-        async_trait::async_trait,
-        eyre::Result,
-        itertools::Itertools,
-        once_cell::sync::Lazy,
-        regex::{Captures, Regex},
-    },
+    async_trait,
+    eyre::Result,
     format::Format,
     schema::Node,
     status::Status,
 };
+use itertools::Itertools;
+use once_cell::sync::Lazy;
+use regex::{Captures, Regex};
 use codec_latex::LatexCodec;
 
 /// A codec for Rnw

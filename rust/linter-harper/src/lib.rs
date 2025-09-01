@@ -10,7 +10,6 @@ use harper_core::{
 use itertools::Itertools;
 use once_cell::sync::Lazy;
 use tokio::sync::Mutex;
-use tracing;
 
 use stencila_linter::{
     Format, Linter, LinterAvailability, LintingOptions, LintingOutput, NodeType,

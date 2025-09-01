@@ -20,14 +20,10 @@ use pandoc_types::definition::Pandoc;
 
 use codec::{
     DecodeOptions, EncodeOptions,
-    common::{
-        eyre::{Result, bail},
-        serde_json,
-        tokio::io::AsyncWriteExt,
-        tracing,
-    },
+    eyre::{Result, bail},
     format::Format,
 };
+use tokio::io::AsyncWriteExt;
 use tools::{Pandoc as PandocTool, Tool, ToolStdio};
 
 /// Call Pandoc binary to convert some input content to Pandoc JSON.

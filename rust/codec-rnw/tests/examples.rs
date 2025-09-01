@@ -1,9 +1,6 @@
 use std::path::PathBuf;
 
-use codec::{
-    Codec, EncodeOptions,
-    common::{eyre::Result, glob::glob, tokio},
-};
+use codec::{Codec, EncodeOptions, eyre::Result};
 
 use codec_rnw::RnwCodec;
 use common_dev::insta::{assert_json_snapshot, assert_snapshot, assert_yaml_snapshot};
@@ -19,7 +16,7 @@ async fn examples() -> Result<()> {
         .to_string()
         + "/*.rnw";
 
-    for path in glob(&pattern)?.flatten() {
+    for path in glob::glob(&pattern)?.flatten() {
         let name = path
             .file_stem()
             .expect("should have file stem")

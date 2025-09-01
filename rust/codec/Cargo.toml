@@ -13,7 +13,6 @@ proptest-max = ["schema/proptest-max"]
 async-trait = { workspace = true }
 codec-info = { path = "../codec-info" }
 codec-utils = { path = "../codec-utils" }
-common = { path = "../common" }
 eyre = { workspace = true }
 format = { path = "../format" }
 node-strip = { path = "../node-strip" }

@@ -2,12 +2,9 @@ use std::{fs::read_to_string, path::PathBuf};
 
 use codec::{
     Codec,
-    common::{
-        eyre::{OptionExt, Result},
-        glob::glob,
-        tokio,
-    },
+    eyre::{OptionExt, Result},
 };
+
 use codec_cff::CffCodec;
 use common_dev::insta::assert_json_snapshot;
 
@@ -21,7 +18,7 @@ async fn examples() -> Result<()> {
         .to_string()
         + "/**/*.cff";
 
-    for path in glob(&pattern)?.flatten() {
+    for path in glob::glob(&pattern)?.flatten() {
         let id = path
             .file_name()
             .map(|name| name.to_string_lossy())

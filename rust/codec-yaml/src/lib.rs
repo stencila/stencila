@@ -1,14 +1,12 @@
 use codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    common::{
-        async_trait::async_trait,
-        eyre::Result,
-        serde_yaml::{self, Value},
-    },
+    async_trait,
+    eyre::Result,
     format::Format,
     schema::{Article, Node, NodeType},
     status::Status,
 };
+use serde_yaml::{self, Value};
 use version::STENCILA_VERSION;
 
 pub mod r#trait;

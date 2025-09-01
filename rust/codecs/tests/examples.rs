@@ -2,28 +2,25 @@
 
 use std::{collections::BTreeMap, env, fs::File, path::PathBuf};
 
+use glob::glob;
+use itertools::Itertools;
+use json_value_merge::Merge;
+use once_cell::sync::Lazy;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
+use smart_default::SmartDefault;
+use tokio::{
+    self,
+    fs::{read_to_string, remove_file, write},
+};
 
 use codec::{
     DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    common::{
-        eyre::{Context, Result},
-        glob::glob,
-        itertools::Itertools,
-        once_cell::sync::Lazy,
-        regex::Regex,
-        serde_json, serde_yaml,
-        smart_default::SmartDefault,
-        tokio::{
-            self,
-            fs::{read_to_string, remove_file, write},
-        },
-    },
+    eyre::{Context, Result},
     format::Format,
     schema::NodeType,
 };
 use common_dev::pretty_assertions::assert_eq;
-use json_value_merge::Merge;
 use node_strip::{StripNode, StripTargets};
 
 type Config = BTreeMap<String, FormatConfig>;

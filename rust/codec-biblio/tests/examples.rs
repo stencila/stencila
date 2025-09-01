@@ -1,7 +1,6 @@
 use std::{fs::read_to_string, path::PathBuf};
 
 use glob::glob;
-use tokio;
 
 use codec::{
     Codec, DecodeOptions, EncodeOptions,

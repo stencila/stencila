@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 codec = { path = "../codec" }
+Inflector = { workspace = true }
 winnow = "0.7.12"
 
 [dev-dependencies]

@@ -10,9 +10,13 @@
 
 #![allow(unused_imports)]
 
+use futures::executor::block_on;
+use once_cell::sync::Lazy;
+use tokio::runtime;
+
 use codec::{
     DecodeOptions, EncodeOptions,
-    common::{eyre::Result, futures::executor::block_on, once_cell::sync::Lazy, tokio::runtime},
+    eyre::Result,
     format::Format,
     schema::{Article, AudioObject, Node},
 };

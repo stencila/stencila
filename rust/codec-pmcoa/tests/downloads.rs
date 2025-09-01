@@ -1,7 +1,4 @@
-use codec::{
-    Codec,
-    common::{eyre::Result, tokio},
-};
+use codec::{Codec, eyre::Result};
 use common_dev::insta::{assert_json_snapshot, assert_yaml_snapshot};
 
 use codec_pmcoa::PmcOaCodec;

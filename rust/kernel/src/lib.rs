@@ -11,9 +11,11 @@ use uuid::Uuid;
 
 // Re-exports for the convenience of internal crates implementing
 // the `Kernel` trait
-pub use common;
 pub use format;
 pub use schema;
+
+// Temporary re-export of common for downstream kernel crates until they are refactored
+pub use common;
 use schema::{
     ExecutionBounds, ExecutionMessage, Node, Null, SoftwareApplication, SoftwareSourceCode,
     Variable,
@@ -397,7 +399,7 @@ pub enum KernelSignal {
 pub mod tests {
     use std::{env, time::Duration};
 
-    use common_dev::pretty_assertions::assert_eq;
+    use pretty_assertions::assert_eq;
     use eyre::{OptionExt, Report};
     use indexmap::IndexMap;
     use itertools::Itertools;

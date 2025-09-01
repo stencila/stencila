@@ -5,21 +5,17 @@ use url::Url;
 
 use codec::{
     Codec, DecodeInfo, DecodeOptions,
-    common::{
-        eyre::{ContextCompat, OptionExt, Result, bail},
-        futures::StreamExt,
-        glob::glob,
-        regex::Regex,
-        reqwest::{Client, header::USER_AGENT},
-        tar::Archive,
-        tempfile,
-        tokio::{
-            fs::{File, remove_file},
-            io::AsyncWriteExt,
-        },
-        tracing,
-    },
+    eyre::{ContextCompat, OptionExt, Result, bail},
     schema::Node,
+};
+use futures::StreamExt;
+use glob::glob;
+use regex::Regex;
+use reqwest::{Client, header::USER_AGENT};
+use tar::Archive;
+use tokio::{
+    fs::{File, remove_file},
+    io::AsyncWriteExt,
 };
 use codec_jats::JatsCodec;
 use media_embed::embed_media;

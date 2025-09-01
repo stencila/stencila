@@ -3,7 +3,6 @@ use std::ops::Deref;
 use futures::{StreamExt, stream::FuturesUnordered};
 use itertools::Itertools;
 use serde_json::json;
-use tokio;
 
 use models::ModelTask;
 use node_diagnostics::{DiagnosticLevel, diagnostics_gte};

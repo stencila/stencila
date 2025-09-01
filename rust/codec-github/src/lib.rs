@@ -4,16 +4,13 @@ use serde::de::DeserializeOwned;
 
 use codec::{
     Codec, DecodeInfo, DecodeOptions,
-    common::{
-        async_trait::async_trait,
-        eyre::{Result, bail},
-        serde_json, tempfile,
-        tokio::fs::write,
-    },
+    async_trait,
+    eyre::{Result, bail},
     format::Format,
     schema::{Article, Datatable, Node, SoftwareSourceCode, SoftwareSourceCodeOptions, Text},
     status::Status,
 };
+use tokio::fs::write;
 use codec_csv::CsvCodec;
 use codec_ipynb::IpynbCodec;
 use codec_latex::LatexCodec;

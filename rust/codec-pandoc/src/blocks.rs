@@ -2,7 +2,7 @@ use std::{any::type_name_of_val, str::FromStr};
 
 use pandoc_types::definition::{self as pandoc};
 
-use codec::{common::tracing, format::Format, schema::*};
+use codec::{format::Format, schema::*};
 use codec_png::to_png_data_uri;
 use codec_text_trait::to_text;
 

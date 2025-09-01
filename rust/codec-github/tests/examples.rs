@@ -1,12 +1,10 @@
 use std::{fs::read_to_string, path::PathBuf};
 
+use glob::glob;
+
 use codec::{
     Codec,
-    common::{
-        eyre::{OptionExt, Result},
-        glob::glob,
-        tokio,
-    },
+    eyre::{OptionExt, Result},
 };
 use codec_github::GithubCodec;
 use common_dev::insta::assert_json_snapshot;

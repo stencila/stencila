@@ -9,12 +9,15 @@ codec-json = { path = "../codec-json" }
 codec-pandoc = { path = "../codec-pandoc" }
 codec-utils = { path = "../codec-utils" }
 dirs = { path = "../dirs" }
+indexmap = { workspace = true }
 media-embed = { path = "../media-embed" }
 node-reconstitute = { path = "../node-reconstitute" }
 regex = { workspace = true }
 roxmltree = "0.20.0"
 rust-embed = { version = "8.7.2", features = ["interpolate-folder-path", "include-exclude"] }
+serde_json = { workspace = true }
 tempfile = { workspace = true }
+tokio = { workspace = true }
 uuid = { workspace = true }
 version = { path = "../version" }
 zip = { workspace = true }

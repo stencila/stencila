@@ -1,5 +1,5 @@
 use codec::{
-    common::eyre::Result,
+    eyre::Result,
     schema::{
         ArrayValidator, BooleanValidator, Datatable, DatatableColumn, DateTimeValidator,
         DateValidator, IntegerValidator, Null, NumberValidator, Primitive, StringValidator,

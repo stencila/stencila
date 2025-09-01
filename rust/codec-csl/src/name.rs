@@ -3,12 +3,13 @@ use std::str::FromStr;
 use serde::Deserialize;
 
 use codec::{
-    common::{
-        indexmap::IndexMap, itertools::Itertools, serde_json::Value,
-        serde_with::skip_serializing_none,
-    },
     schema::{Author, Organization, Person, PersonOptions},
 };
+
+use indexmap::IndexMap;
+use itertools::Itertools;
+use serde_json::Value;
+use serde_with::skip_serializing_none;
 
 /// A CSL name field
 ///

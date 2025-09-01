@@ -9,5 +9,8 @@ serde = { workspace = true }
 serde_yaml = { workspace = true }
 version = { path = "../version" }
 
+[dev-dependencies]
+tokio = { workspace = true }
+
 [lints]
 workspace = true

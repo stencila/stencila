@@ -1,11 +1,6 @@
 use codec::{
     DecodeInfo, DecodeOptions,
-    common::{
-        eyre::Result,
-        itertools::Itertools,
-        once_cell::sync::Lazy,
-        regex::{Captures, Regex},
-    },
+    eyre::Result,
     format::Format,
     schema::{
         AppendixBreak, Article, Block, CodeChunk, CodeExpression, ForBlock, Heading, IfBlock,
@@ -13,6 +8,9 @@ use codec::{
         Text,
     },
 };
+use itertools::Itertools;
+use once_cell::sync::Lazy;
+use regex::{Captures, Regex};
 use codec_pandoc::{pandoc_from_format, root_from_pandoc};
 
 use crate::PANDOC_FORMAT;

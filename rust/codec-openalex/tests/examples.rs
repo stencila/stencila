@@ -2,12 +2,9 @@ use std::{fs::read_to_string, path::PathBuf};
 
 use codec::{
     Codec,
-    common::{
-        eyre::{OptionExt, Result},
-        glob::glob,
-        tokio,
-    },
+    eyre::{OptionExt, Result},
 };
+use glob::glob;
 use codec_openalex::OpenAlexCodec;
 use common_dev::insta::assert_json_snapshot;
 

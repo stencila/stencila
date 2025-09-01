@@ -3,14 +3,13 @@ use std::str::FromStr;
 use serde::Deserialize;
 
 use codec::{
-    common::{
-        eyre::{Report, bail},
-        indexmap::IndexMap,
-        serde_json::Value,
-        serde_with::skip_serializing_none,
-    },
+    eyre::{Report, bail},
     schema::Date,
 };
+
+use indexmap::IndexMap;
+use serde_json::Value;
+use serde_with::skip_serializing_none;
 
 /// A CSL date field
 ///

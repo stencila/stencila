@@ -1,6 +1,7 @@
 use codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, NodeType,
-    common::{async_trait::async_trait, eyre::Result, serde_json},
+    async_trait,
+    eyre::Result,
     format::Format,
     schema::Node,
     status::Status,

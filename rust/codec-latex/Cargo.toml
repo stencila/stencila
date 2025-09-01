@@ -7,9 +7,14 @@ edition = "2024"
 codec = { path = "../codec" }
 codec-latex-trait = { path = "../codec-latex-trait" }
 codec-pandoc = { path = "../codec-pandoc" }
+itertools = { workspace = true }
+once_cell = { workspace = true }
+regex = { workspace = true }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
+glob = { workspace = true }
+tokio = { workspace = true }
 which = { workspace = true }
 
 [lints]

@@ -1,11 +1,10 @@
 use std::{fs::read_to_string, path::PathBuf};
 
-use codec::{
-    EncodeOptions,
-    common::{eyre::Result, glob::glob, once_cell::sync::Lazy, regex::Regex},
-    format::Format,
-};
+use glob::glob;
+use once_cell::sync::Lazy;
+use regex::Regex;
 
+use codec::{EncodeOptions, eyre::Result, format::Format};
 use codec_lexical::{decode, encode};
 use common_dev::insta::{assert_json_snapshot, assert_snapshot, assert_yaml_snapshot};
 

@@ -12,6 +12,7 @@ zip = { workspace = true }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
+tokio = { workspace = true }
 
 [lints]
 workspace = true

@@ -3,7 +3,7 @@ use std::str::FromStr;
 use serde::Deserialize;
 
 use codec::{
-    common::eyre::Result,
+    eyre::Result,
     schema::{Node, Organization, OrganizationOptions, Person, PersonOptions},
 };
 

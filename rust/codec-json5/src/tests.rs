@@ -1,5 +1,4 @@
 use codec::{
-    common::tokio,
     schema::shortcuts::{art, p, t},
 };
 

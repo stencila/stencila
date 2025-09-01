@@ -1,3 +1,4 @@
+use clap::{self, Args, Parser, Subcommand};
 use serde::Serialize;
 use strum::IntoEnumIterator;
 
@@ -6,14 +7,7 @@ use cli_utils::{
     color_print::cstr,
     tabulated::{Attribute, Cell, Color},
 };
-use codec::{
-    CodecAvailability, CodecDirection,
-    common::{
-        clap::{self, Args, Parser, Subcommand},
-        eyre::Result,
-    },
-    format::Format,
-};
+use codec::{CodecAvailability, CodecDirection, eyre::Result, format::Format};
 
 /// List the support for formats
 #[derive(Debug, Parser)]

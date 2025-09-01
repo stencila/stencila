@@ -6,9 +6,14 @@ edition = "2024"
 [dependencies]
 codec = { path = "../codec" }
 codec-latex = { path = "../codec-latex" }
+itertools = { workspace = true }
+once_cell = { workspace = true }
+regex = { workspace = true }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
+glob = { workspace = true }
+tokio = { workspace = true }
 
 [lints]
 workspace = true

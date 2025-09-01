@@ -1,17 +1,14 @@
 use codec::{
     Codec, EncodeOptions,
-    common::{
-        eyre::Result,
-        indexmap::IndexMap,
-        serde_json::{self, json},
-        tempfile::tempdir,
-        tokio,
-    },
+    eyre::Result,
     schema::{
         Article, ArticleOptions, Node, Object, Primitive,
         shortcuts::{cc, ce, p, t},
     },
 };
+use indexmap::IndexMap;
+use serde_json::{self, json};
+use tempfile::tempdir;
 use common_dev::pretty_assertions::assert_eq;
 use version::STENCILA_VERSION;
 

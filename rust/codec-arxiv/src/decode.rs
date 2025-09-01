@@ -1,13 +1,10 @@
+use once_cell::sync::Lazy;
+use regex::Regex;
 use url::Url;
 
 use codec::{
     DecodeInfo, DecodeOptions,
-    common::{
-        eyre::{Result, bail},
-        once_cell::sync::Lazy,
-        regex::Regex,
-        reqwest, tracing,
-    },
+    eyre::{Result, bail},
     schema::Node,
 };
 

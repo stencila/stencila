@@ -4,18 +4,16 @@ use flate2::{Compression, write::GzEncoder};
 
 use codec::{
     Codec, CodecSupport, EncodeInfo, EncodeOptions,
-    common::{
-        async_trait::async_trait,
-        clap::{self, Parser},
-        eyre::{Ok, Result},
-        tar::Builder,
-        tempfile::TempDir,
-        tokio::fs::write,
-    },
+    async_trait,
+    eyre::{Ok, Result},
     format::Format,
     schema::Node,
     status::Status,
 };
+use clap::{self, Parser};
+use tar::Builder;
+use tempfile::TempDir;
+use tokio::fs::write;
 use codec_dom::DomCodec;
 use codec_jsonld::JsonLdCodec;
 use codec_markdown::MarkdownCodec;

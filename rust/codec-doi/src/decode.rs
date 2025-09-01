@@ -2,15 +2,12 @@ use url::Url;
 
 use codec::{
     Codec, DecodeInfo, DecodeOptions,
-    common::{
-        eyre::Result,
-        once_cell::sync::Lazy,
-        regex::Regex,
-        reqwest::{Client, header},
-        tracing,
-    },
+    eyre::Result,
     schema::Node,
 };
+use once_cell::sync::Lazy;
+use regex::Regex;
+use reqwest::{Client, header};
 use codec_csl::CslCodec;
 use version::STENCILA_USER_AGENT;
 

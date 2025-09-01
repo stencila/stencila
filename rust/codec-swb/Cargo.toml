@@ -8,7 +8,11 @@ codec = { path = "../codec" }
 codec-jsonld = { path = "../codec-jsonld" }
 codec-dom = { path = "../codec-dom" }
 codec-markdown = { path = "../codec-markdown" }
+clap = { workspace = true }
 flate2 = { workspace = true }
+tar = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true }
 
 [lints]
 workspace = true

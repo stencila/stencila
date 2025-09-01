@@ -2,10 +2,7 @@ use std::path::Path;
 
 use codec::{
     EncodeInfo, EncodeOptions,
-    common::{
-        eyre::{Result, bail},
-        tracing,
-    },
+    eyre::{Result, bail},
     format::Format,
     schema::Node,
 };

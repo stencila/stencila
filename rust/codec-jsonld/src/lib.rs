@@ -1,13 +1,11 @@
 use std::collections::HashMap;
 
+use once_cell::sync::Lazy;
+use serde_json::{self, Map, Value, json};
+
 use codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    common::{
-        async_trait::async_trait,
-        eyre::Result,
-        once_cell::sync::Lazy,
-        serde_json::{self, Map, Value, json},
-    },
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
+    eyre::Result,
     format::Format,
     schema::{Node, NodeType},
     status::Status,

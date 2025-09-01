@@ -4,7 +4,7 @@ use pandoc_types::definition::{self as pandoc};
 
 use codec::{
     DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    common::eyre::{Result, bail},
+    eyre::{Result, bail},
     format::Format,
     schema::*,
 };

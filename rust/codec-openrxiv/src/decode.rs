@@ -1,17 +1,15 @@
 use url::Url;
 
+use eyre::{Result, bail};
+use futures::StreamExt;
+use once_cell::sync::Lazy;
+use regex::Regex;
+use reqwest::{Client, Response};
+use tempfile::tempdir;
+use tokio::{fs::File, io::AsyncWriteExt};
+
 use codec::{
     Codec, DecodeInfo, DecodeOptions,
-    common::{
-        eyre::{Result, bail},
-        futures::StreamExt,
-        once_cell::sync::Lazy,
-        regex::Regex,
-        reqwest::{Client, Response},
-        tempfile::tempdir,
-        tokio::{fs::File, io::AsyncWriteExt},
-        tracing,
-    },
     format::Format,
     schema::Node,
 };

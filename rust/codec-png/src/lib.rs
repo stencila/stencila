@@ -2,10 +2,8 @@ use std::path::Path;
 
 use codec::{
     Codec, CodecSupport, EncodeInfo, EncodeOptions, NodeType,
-    common::{
-        async_trait::async_trait,
-        eyre::{Result, bail},
-    },
+    async_trait,
+    eyre::{Result, bail},
     format::Format,
     schema::Node,
     status::Status,

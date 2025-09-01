@@ -1,5 +1,4 @@
 use codec::{
-    common::{serde_json::from_value, tracing},
     format::Format,
     schema::{
         AudioObject, Block, CodeBlock, File, Heading, ImageObject, Inline, List, ListItem,
@@ -11,6 +10,7 @@ use codec::{
 };
 use codec_dom_trait::to_dom;
 use codec_text::to_text;
+use serde_json::from_value;
 
 use crate::{
     inlines::{inlines_from_lexical, inlines_to_lexical},

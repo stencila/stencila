@@ -4,13 +4,10 @@ use roxmltree::Document;
 use zip::ZipArchive;
 
 use codec::{
-    common::{
-        eyre::{Context, Result, eyre},
-        indexmap::IndexMap,
-        serde_json,
-    },
+    eyre::{Context, Result, eyre},
     schema::Primitive,
 };
+use indexmap::IndexMap;
 
 /// Read embedded files and custom properties from a DOCX into a map of [`Primitive`] nodes
 /// for the `extra`, and other properties, of an `Article`
