@@ -6,7 +6,10 @@ edition = "2024"
 [dependencies]
 common = { path = "../common" }
 format = { path = "../format" }
+once_cell = { workspace = true }
+regex = { workspace = true }
 schema = { path = "../schema" }
+seahash = { workspace = true }
 
 [lints]
 workspace = true

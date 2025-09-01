@@ -1,6 +1,9 @@
 use std::hash::{Hash, Hasher};
 
-use common::{once_cell::sync::Lazy, regex::Regex, seahash::SeaHasher};
+use once_cell::sync::Lazy;
+use regex::Regex;
+use seahash::SeaHasher;
+
 use format::Format;
 use schema::{CompilationDigest, ExecutionTag};
 
