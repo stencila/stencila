@@ -1,4 +1,3 @@
-use common::serde_json;
 use common_dev::{pretty_assertions::assert_eq, proptest::prelude::*};
 
 use schema::{

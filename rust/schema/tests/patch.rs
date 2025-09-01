@@ -3,16 +3,14 @@ use std::{
     fs::read_to_string,
 };
 
+use eyre::{Ok, Result, bail};
+use glob::glob;
+use itertools::Itertools;
 use serde::Serialize;
+use tokio;
 
 use codec::{Codec, DecodeOptions, format::Format};
 use codec_markdown::MarkdownCodec;
-use common::{
-    eyre::{Ok, Result, bail},
-    glob::glob,
-    itertools::Itertools,
-    tokio,
-};
 use common_dev::{insta::assert_yaml_snapshot, pretty_assertions::assert_eq};
 use node_strip::{StripScope, StripTargets, strip};
 use schema::{

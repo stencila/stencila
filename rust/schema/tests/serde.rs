@@ -4,12 +4,12 @@
 
 use std::str::FromStr;
 
-use common::{
-    eyre::{Result, bail},
-    indexmap::IndexMap,
-    itertools::Itertools,
-    serde_json, serde_yaml,
-};
+use eyre::{Result, bail};
+use indexmap::IndexMap;
+use itertools::Itertools;
+use serde_json;
+use serde_yaml;
+
 use schema::{Array, Article, Date, IntegerOrString, Node, Object, Primitive};
 
 /// Test that unrecognized keys are collected into the `Article.extra`
