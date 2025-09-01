@@ -1,17 +1,14 @@
 use std::{env, sync::OnceLock, time::Duration};
 
 use cached::proc_macro::cached;
+use eyre::{Result, bail, eyre};
+use reqwest::{
+    Client,
+    header::{AUTHORIZATION, HeaderMap, HeaderValue},
+};
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use strum::Display;
 
-use common::{
-    eyre::{Result, bail, eyre},
-    reqwest::{
-        self, Client,
-        header::{AUTHORIZATION, HeaderMap, HeaderValue},
-    },
-    tracing,
-};
 use version::STENCILA_USER_AGENT;
 
 /// The base URL for the Stencila Cloud API

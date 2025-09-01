@@ -5,10 +5,12 @@ edition = "2024"
 
 [dependencies]
 cached = { workspace = true }
-common = { "path" = "../common" }
+eyre = { workspace = true }
+reqwest = { workspace = true }
 secrets = { "path" = "../secrets" }
 serde = { workspace = true }
 strum = { workspace = true }
+tracing = { workspace = true }
 version = { "path" = "../version" }
 
 [lints]
