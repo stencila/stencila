@@ -8,7 +8,6 @@ use axum::{
     response::{IntoResponse, Response},
 };
 
-use common::tracing;
 
 /// An internal server error
 #[derive(Debug)]

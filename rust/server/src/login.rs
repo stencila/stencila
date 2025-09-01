@@ -6,7 +6,6 @@ use axum::{
 use serde::Deserialize;
 use tower_cookies::{Cookie, Cookies};
 
-use common::tracing;
 
 use crate::server::ServerState;
 

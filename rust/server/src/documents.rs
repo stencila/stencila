@@ -15,28 +15,24 @@ use axum::{
     response::{IntoResponse, Response},
     routing::get,
 };
+use eyre::{Result, eyre};
+use futures::{
+    SinkExt, StreamExt,
+    stream::{SplitSink, SplitStream},
+};
+use itertools::Itertools;
 use serde::{Serialize, de::DeserializeOwned};
+use tokio::{
+    self,
+    fs::read,
+    sync::{
+        RwLock,
+        mpsc::{Receiver, Sender, channel},
+    },
+};
+use uuid::Uuid;
 
 use codecs::{DecodeOptions, EncodeOptions};
-use common::{
-    eyre::{self, Result, eyre},
-    futures::{
-        SinkExt, StreamExt,
-        stream::{SplitSink, SplitStream},
-    },
-    itertools::Itertools,
-    serde_json,
-    tokio::{
-        self,
-        fs::read,
-        sync::{
-            RwLock,
-            mpsc::{Receiver, Sender, channel},
-        },
-    },
-    tracing,
-    uuid::Uuid,
-};
 use document::{Document, SyncDirection};
 use format::Format;
 
@@ -664,8 +660,7 @@ fn not_found() -> Response {
 #[cfg(test)]
 mod tests {
     use axum::http::HeaderValue;
-
-    use common::{eyre::Result, tokio};
+    use eyre::Result;
 
     use super::*;
 

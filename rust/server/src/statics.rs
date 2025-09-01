@@ -10,7 +10,6 @@ use axum::{
     routing::get,
 };
 
-use common::tracing;
 use web_dist::Web;
 
 use crate::{

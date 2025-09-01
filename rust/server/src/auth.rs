@@ -5,9 +5,9 @@ use axum::{
     response::{Html, IntoResponse, Response},
     routing::get,
 };
+use reqwest::Client;
 use serde::Deserialize;
 
-use common::{reqwest::Client, tracing};
 use version::STENCILA_VERSION;
 
 use crate::server::ServerState;
