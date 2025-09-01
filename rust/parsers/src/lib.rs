@@ -1,4 +1,6 @@
-use parser::{DefaultParser, common::once_cell::sync::Lazy, format::Format};
+use once_cell::sync::Lazy;
+
+use parser::{DefaultParser, format::Format};
 
 pub use parser::{ParseInfo, Parser, schema::CompilationDigest};
 

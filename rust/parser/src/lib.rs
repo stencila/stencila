@@ -9,7 +9,6 @@ use schema::{CompilationDigest, ExecutionTag};
 
 // Re-exports for the convenience of internal crates implementing
 // the `Parser` trait
-pub use common;
 pub use format;
 pub use schema;
 
