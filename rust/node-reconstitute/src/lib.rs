@@ -1,6 +1,5 @@
 use std::str::FromStr;
 
-use common::tracing;
 use node_url::{NodePosition, NodeUrl};
 use schema::{
     Article, Block, ForBlock, IfBlock, IfBlockClause, IncludeBlock, Inline, Link, Node, NodePath,
@@ -412,7 +411,7 @@ impl VisitorMut for Janitor {
 mod tests {
     use super::*;
 
-    use common::eyre::{Result, bail};
+    use eyre::{Result, bail};
     use schema::{
         Article, Block, ForBlock, Inline, NodePath, NodeType, RawBlock, node_url_path,
         shortcuts::{art, cb, cc, ce, em, fig, frb, ibc, ifb, inb, lnk, p, qb, sec, stb, stg, t},

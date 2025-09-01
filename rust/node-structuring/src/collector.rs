@@ -1,5 +1,9 @@
 use std::collections::HashMap;
 
+use inflector::Inflector;
+use itertools::Itertools;
+use once_cell::sync::Lazy;
+use regex::Regex;
 use strum::Display;
 
 use codec_biblio::decode::{
@@ -9,9 +13,6 @@ use codec_biblio::decode::{
 };
 use codec_links::decode_inlines as text_with_links;
 use codec_text_trait::to_text;
-use common::{
-    inflector::Inflector, itertools::Itertools, once_cell::sync::Lazy, regex::Regex, tracing,
-};
 use schema::{
     Admonition, Article, Block, Figure, ForBlock, Heading, IncludeBlock, Inline, List, ListOrder,
     MathInline, Node, NodeId, Paragraph, Reference, Section, SectionType, StyledBlock, Text,
