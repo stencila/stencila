@@ -8,7 +8,8 @@ mod node_type_properties;
 
 use std::str::FromStr;
 
-use common::{eyre::Result, inflector::Inflector};
+use eyre::Result;
+use inflector::Inflector;
 use node_type_properties::node_type_properties;
 
 pub use crate::node_type::NodeType;

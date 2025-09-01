@@ -1,7 +1,8 @@
 //! Provides the `MarkdownCodec` trait for generating Markdown for Stencila Schema nodes
 
+use inflector::Inflector;
+
 use codec_info::{ContentType, Losses, Mapping, MessageLevel, NodeId, NodeProperty, NodeType};
-use common::{inflector::Inflector, tracing};
 use format::Format;
 
 pub use codec_markdown_derive::MarkdownCodec;

@@ -1,6 +1,5 @@
 use comfy_table::{Cell, CellAlignment, Color, Row};
-
-use common::{itertools::Itertools, serde_json};
+use itertools::Itertools;
 use schema::{Datatable, Primitive, Validator};
 
 use crate::{Tabulated, ToStdout};

@@ -1,6 +1,8 @@
 //! Markdown to Markdown conversion, mostly for internal use
 
-use common::{itertools::Itertools, once_cell::sync::Lazy, regex::Regex};
+use itertools::Itertools;
+use once_cell::sync::Lazy;
+use regex::Regex;
 
 /// Clean a page of Markdown
 ///
@@ -214,7 +216,7 @@ fn remove_unnecessary_inline_math(md: &str) -> String {
         Lazy::new(|| Regex::new(r"\$([^$]*?(?:\\.[^$]*?)*)\$").expect("invalid regex"));
 
     INLINE_MATH_REGEX
-        .replace_all(md, |caps: &common::regex::Captures| {
+        .replace_all(md, |caps: &regex::Captures| {
             let math_content = &caps[1];
             let simplified = simplify_tex(math_content);
 

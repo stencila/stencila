@@ -1,8 +1,9 @@
 use std::{fmt::Display, ops::Range};
 
+use itertools::Itertools;
 use serde::Serialize;
+use serde_with::skip_serializing_none;
 
-use common::{itertools::Itertools, serde_with::skip_serializing_none};
 pub use node_id::NodeId;
 pub use node_type::{NodeProperty, NodeType};
 

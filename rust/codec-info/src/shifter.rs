@@ -3,7 +3,7 @@ use std::{
     time::Duration,
 };
 
-use common::similar::{Algorithm, Change, TextDiff};
+use similar::{Algorithm, Change, TextDiff};
 
 /// Translates UTF8 character indices between two similar strings
 ///

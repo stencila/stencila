@@ -1,4 +1,4 @@
-use common::eyre::Result;
+use eyre::Result;
 use url::Host;
 
 /// Parse an input from the command line as a Ghost host

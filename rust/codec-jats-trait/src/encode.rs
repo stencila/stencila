@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use common::itertools::Itertools;
+use itertools::Itertools;
 
 /// Escape text
 pub fn escape<S>(unescaped: S) -> String

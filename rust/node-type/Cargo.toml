@@ -4,7 +4,8 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-common = { path = "../common" }
+Inflector = { workspace = true }
+eyre = { workspace = true }
 node-id = { path = "../node-id" }
 serde = { workspace = true }
 strum = { workspace = true }

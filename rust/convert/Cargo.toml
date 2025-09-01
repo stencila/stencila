@@ -7,14 +7,24 @@ edition = "2024"
 base64 = { workspace = true }
 codec = { path = "../codec" }
 codec-utils = { path = "../codec-utils" }
-common = { path = "../common" }
 dirs = { path = "../dirs" }
+eyre = { workspace = true }
+glob = { workspace = true }
 headless_chrome = { version = "1.0.13", features = ["fetch", "rustls"] }
+itertools = { workspace = true }
+once_cell = { workspace = true }
 rand = { workspace = true }
+regex = { workspace = true }
+reqwest = { workspace = true }
+seahash = { workspace = true }
 secrets = { path = "../secrets" }
 serde = { workspace = true }
+serde_json = { workspace = true }
 strum = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true }
 tools = { path = "../tools" }
+tracing = { workspace = true }
 version = { path = "../version" }
 web-dist = { path = "../web-dist" }
 

@@ -1,9 +1,6 @@
+use proc_macro2::TokenStream;
+use quote::{format_ident, quote};
 use syn::{Attribute, Data, DataEnum, DataStruct, DeriveInput, Fields, parse_macro_input};
-
-use common::{
-    proc_macro2::TokenStream,
-    quote::{format_ident, quote},
-};
 
 /// Derive the `ReadNode` trait
 pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {

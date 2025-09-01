@@ -1,8 +1,8 @@
 //! Helper functions for encoding to HTML
 
 use html_escape::{encode_safe, encode_single_quoted_attribute};
-
-use common::{inflector::Inflector, itertools::Itertools};
+use inflector::Inflector;
+use itertools::Itertools;
 
 /// Generate a HTML attribute
 ///

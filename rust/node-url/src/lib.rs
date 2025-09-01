@@ -5,15 +5,12 @@ use std::{
 };
 
 use base64::{Engine as _, prelude::BASE64_URL_SAFE_NO_PAD};
+use eyre::{Report, Result};
 use flate2::{Compression, read::ZlibDecoder, write::ZlibEncoder};
 use serde::{Serialize, de::DeserializeOwned};
 use strum::{Display, EnumString};
 use url::Url;
 
-use common::{
-    eyre::{Report, Result},
-    serde_json,
-};
 use node_id::NodeId;
 use node_path::NodePath;
 use node_type::NodeType;
@@ -145,7 +142,7 @@ impl Display for NodeUrl {
 mod tests {
     use std::str::FromStr;
 
-    use common::eyre::{OptionExt, Result};
+    use eyre::{OptionExt, Result};
 
     use super::*;
 

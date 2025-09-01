@@ -2,9 +2,11 @@
 //! browser DOM for Stencila Schema nodes
 
 use html_escape::{encode_safe, encode_single_quoted_attribute};
+use inflector::Inflector;
+use itertools::Itertools;
 use serde::Serialize;
+use smart_default::SmartDefault;
 
-use common::{inflector::Inflector, itertools::Itertools, serde_json, smart_default::SmartDefault};
 use node_id::NodeId;
 use node_type::NodeType;
 

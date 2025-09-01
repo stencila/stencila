@@ -35,17 +35,14 @@ use std::{
 };
 
 use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64};
+use eyre::{Result, eyre};
 use headless_chrome::{
     Browser, LaunchOptionsBuilder, Tab,
     protocol::cdp::{Page, types::Event},
 };
+use itertools::Itertools;
+use once_cell::sync::Lazy;
 
-use common::{
-    eyre::{Result, eyre},
-    itertools::Itertools,
-    once_cell::sync::Lazy,
-    tracing,
-};
 use version::STENCILA_VERSION;
 use web_dist::Web;
 

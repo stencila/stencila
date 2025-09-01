@@ -252,10 +252,9 @@ impl Schemas {
             format!(
                 r#"{GENERATED_COMMENT}
 
+use eyre::{{bail, Report}};
 use serde::Serialize;
 use strum::{{Display, EnumIter, EnumString}};
-
-use common::{{eyre::{{bail, Report}}}};
 
 use node_id::NodeId;
 

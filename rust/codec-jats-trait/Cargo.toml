@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 codec-info = { path = "../codec-info" }
 codec-jats-derive = { path = "../codec-jats-derive" }
-common = { path = "../common" }
+itertools = { workspace = true }
 
 [lints]
 workspace = true

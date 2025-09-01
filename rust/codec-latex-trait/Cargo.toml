@@ -7,11 +7,14 @@ edition = "2024"
 codec-info = { path = "../codec-info" }
 codec-latex-derive = { path = "../codec-latex-derive" }
 codec-utils = { path = "../codec-utils" }
-common = { path = "../common" }
+eyre = { workspace = true }
 format = { path = "../format" }
+glob = { workspace = true }
+itertools = { workspace = true }
 node-path = { path = "../node-path" }
 node-url = { path = "../node-url" }
 rand = { workspace = true }
+tracing = { workspace = true }
 
 [lints]
 workspace = true

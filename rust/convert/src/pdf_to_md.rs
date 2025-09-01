@@ -4,17 +4,13 @@ use std::{
 };
 
 use base64::{Engine as _, engine::general_purpose};
+use eyre::{Context, OptionExt, Report, Result, bail};
 use serde::{Deserialize, Serialize};
 use strum::{Display, EnumIter, IntoEnumIterator};
+use tempfile::tempdir;
+use tokio::fs::{read, read_to_string, write};
 
 use codec::PageSelector;
-use common::{
-    eyre::{Context, OptionExt, Report, Result, bail},
-    reqwest, seahash, serde_json,
-    tempfile::tempdir,
-    tokio::fs::{read, read_to_string, write},
-    tracing,
-};
 use dirs::closest_artifacts_for;
 use secrets::MISTRAL_API_KEY;
 use tools::{AsyncToolCommand, is_installed};

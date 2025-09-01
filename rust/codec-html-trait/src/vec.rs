@@ -1,4 +1,4 @@
-use common::itertools::Itertools;
+use itertools::Itertools;
 
 use crate::{HtmlCodec, HtmlEncodeContext};
 

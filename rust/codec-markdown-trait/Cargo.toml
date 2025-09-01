@@ -4,10 +4,11 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+Inflector = { workspace = true }
 codec-info = { path = "../codec-info" }
 codec-markdown-derive = { path = "../codec-markdown-derive" }
-common = { path = "../common" }
 format = { path = "../format" }
+tracing = { workspace = true }
 
 [lints]
 workspace = true

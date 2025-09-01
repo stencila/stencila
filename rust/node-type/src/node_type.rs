@@ -1,9 +1,8 @@
 // Generated file; do not edit. See `schema-gen` crate.
 
+use eyre::{bail, Report};
 use serde::Serialize;
 use strum::{Display, EnumIter, EnumString};
-
-use common::{eyre::{bail, Report}};
 
 use node_id::NodeId;
 

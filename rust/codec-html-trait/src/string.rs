@@ -1,5 +1,3 @@
-use common::serde_json;
-
 use crate::{HtmlCodec, HtmlEncodeContext, encode::text};
 
 impl HtmlCodec for String {
