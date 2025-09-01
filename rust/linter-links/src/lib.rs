@@ -1,11 +1,13 @@
 use std::{collections::HashMap, path::Path, time::Duration};
 
+use async_trait::async_trait;
+use eyre::Result;
+use once_cell::sync::Lazy;
+use reqwest::Client;
+use tokio::sync::Mutex;
+
 use stencila_linter::{
     Format, Linter, LinterAvailability, LintingOptions, LintingOutput, NodeType,
-    common::{
-        async_trait::async_trait, eyre::Result, once_cell::sync::Lazy, reqwest::Client,
-        tokio::sync::Mutex, tracing,
-    },
     schema::{AuthorRoleName, CompilationMessage, MessageLevel, SoftwareApplication, Timestamp},
 };
 use version::STENCILA_USER_AGENT;

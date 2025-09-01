@@ -4,7 +4,13 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+async-trait = { workspace = true }
+eyre = { workspace = true }
+once_cell = { workspace = true }
+reqwest = { workspace = true }
 stencila-linter = { path = "../linter" }
+tokio = { workspace = true }
+tracing = { workspace = true }
 version = { path = "../version" }
 
 [lints]
