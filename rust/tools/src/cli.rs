@@ -5,12 +5,12 @@ use std::{
 };
 
 use clap::{self, Args, Parser, Subcommand};
+use directories::UserDirs;
 use eyre::{Result, bail};
 use itertools::Itertools;
 use once_cell::sync::Lazy;
-use serde_json::json;
-use directories::UserDirs;
 use pathdiff::diff_paths;
+use serde_json::json;
 
 use cli_utils::{
     AsFormat, Code, ToStdout,

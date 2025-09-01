@@ -7,7 +7,6 @@ use eyre::{Ok, Result, bail};
 use glob::glob;
 use itertools::Itertools;
 use serde::Serialize;
-use tokio;
 
 use codec::{Codec, DecodeOptions, format::Format};
 use codec_markdown::MarkdownCodec;

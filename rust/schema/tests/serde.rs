@@ -7,8 +7,6 @@ use std::str::FromStr;
 use eyre::{Result, bail};
 use indexmap::IndexMap;
 use itertools::Itertools;
-use serde_json;
-use serde_yaml;
 
 use schema::{Array, Article, Date, IntegerOrString, Node, Object, Primitive};
 

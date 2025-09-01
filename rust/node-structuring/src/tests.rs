@@ -1,6 +1,6 @@
-use codec_text_trait::to_text;
-
 use eyre::{Result, bail};
+
+use codec_text_trait::to_text;
 use common_dev::pretty_assertions::assert_eq;
 use schema::{
     AdmonitionType, Article, Block, Citation, CitationGroup, CitationOptions, ImageObject, Inline,

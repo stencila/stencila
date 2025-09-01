@@ -416,7 +416,7 @@ impl<'d> MigrationRunner<'d> {
 
 #[cfg(test)]
 mod tests {
-    use chrono;
+
     use kernel_kuzu::kuzu::SystemConfig;
 
     use super::*;

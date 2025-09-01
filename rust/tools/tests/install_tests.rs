@@ -3,7 +3,6 @@ use std::path::PathBuf;
 use clap::Parser;
 use eyre::{Result, eyre};
 use tempfile::TempDir;
-use tokio;
 
 use tools::cli::Cli;
 use tools::{ToolType, detect_managers};

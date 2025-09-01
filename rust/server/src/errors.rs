@@ -8,7 +8,6 @@ use axum::{
     response::{IntoResponse, Response},
 };
 
-
 /// An internal server error
 #[derive(Debug)]
 pub(crate) struct InternalError;

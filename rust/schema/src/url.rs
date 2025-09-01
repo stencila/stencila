@@ -1,5 +1,5 @@
-use serde::Serialize;
 use eyre::{Result, bail};
+use serde::Serialize;
 
 use node_path::NodePath;
 use node_strip::{StripNode, StripScope, StripTargets};
