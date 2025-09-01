@@ -4,7 +4,9 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+async-trait = { workspace = true }
 common = { path = "../common" }
+eyre = { workspace = true }
 format = { path = "../format" }
 node-type = { path = "../node-type" }
 schema = { path = "../schema" }

@@ -4,11 +4,17 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+async-trait = { workspace = true }
+clap = { workspace = true }
 common = { path = "../common" }
+eyre = { workspace = true }
 format = { path = "../format" }
+Inflector = { workspace = true }
 schema = { path = "../schema" }
 secrets = { path = "../secrets" }
 serde = { workspace = true }
+serde_with = { workspace = true }
+smart-default = { workspace = true }
 strum = { workspace = true }
 
 [lints]

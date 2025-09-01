@@ -1,10 +1,11 @@
 use std::path::Path;
 
-use schema::{AuthorRole, CompilationMessage};
+use async_trait::async_trait;
+use eyre::Result;
 use serde::Serialize;
 use strum::Display;
 
-use common::{async_trait::async_trait, eyre::Result};
+use schema::{AuthorRole, CompilationMessage};
 
 // Re-exports for use by linter implementations
 pub use common;
