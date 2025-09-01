@@ -2,13 +2,11 @@ use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 
-use common::{
-    async_trait::async_trait,
-    eyre::{Result, bail},
-    inflector::Inflector,
-    tokio::sync::Mutex,
-};
+use async_trait::async_trait;
+use eyre::{Result, bail};
+use inflector::Inflector;
 use model::{Model, ModelAvailability, ModelIO, ModelOutput, ModelTask, ModelType};
+use tokio::sync::Mutex;
 
 use crate::{Plugin, PluginEnabled, PluginInstance, PluginStatus, plugins};
 

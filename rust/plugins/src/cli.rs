@@ -1,8 +1,6 @@
+use clap::{self, Parser, Subcommand};
 use cli_utils::color_print::cstr;
-use common::{
-    clap::{self, Parser, Subcommand},
-    eyre::Result,
-};
+use eyre::Result;
 
 use crate::{
     check::Check, disable::Disable, enable::Enable, install::Install, link::Link, list::List,

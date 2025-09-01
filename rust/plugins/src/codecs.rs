@@ -2,12 +2,10 @@ use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 
+use async_trait::async_trait;
 use codec::{Codec, EncodeInfo, EncodeOptions, schema::Node, status::Status};
-use common::{
-    async_trait::async_trait,
-    eyre::{Result, bail},
-    tokio::sync::Mutex,
-};
+use eyre::{Result, bail};
+use tokio::sync::Mutex;
 
 use crate::{Plugin, PluginInstance, plugins};
 

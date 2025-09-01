@@ -6,15 +6,26 @@ edition = "2024"
 [dependencies]
 cli-utils = { path = "../cli-utils" }
 codec = { path = "../codec" }
-common = { path = "../common" }
 common-dev = { path = "../common-dev" }
 dirs = { path = "../dirs" }
 kernel = { path = "../kernel" }
 model = { path = "../model" }
+async-trait = { workspace = true }
+clap = { workspace = true }
+eyre = { workspace = true }
+futures = { workspace = true }
+Inflector = { workspace = true }
+itertools = { workspace = true }
 rand = { workspace = true }
+reqwest = { workspace = true }
 semver = { workspace = true }
 serde = { workspace = true }
+serde_json = { workspace = true }
+serde_with = { workspace = true }
 strum = { workspace = true }
+tokio = { workspace = true }
+toml = { workspace = true }
+tracing = { workspace = true }
 which = { workspace = true }
 
 [lints]

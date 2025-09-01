@@ -1,8 +1,6 @@
+use clap::{self, Args};
 use cli_utils::ToStdout;
-use common::{
-    clap::{self, Args},
-    eyre::Result,
-};
+use eyre::Result;
 
 use crate::Plugin;
 

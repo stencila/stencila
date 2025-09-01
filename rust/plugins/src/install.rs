@@ -1,10 +1,7 @@
+use clap::{self, Args};
 use cli_utils::message;
-use common::{
-    clap::{self, Args},
-    eyre::{Result, bail},
-    tokio::fs::{create_dir_all, remove_dir_all, write},
-    toml, tracing,
-};
+use eyre::{Result, bail};
+use tokio::fs::{create_dir_all, remove_dir_all, write};
 
 use crate::{MANIFEST_FILENAME, Plugin};
 

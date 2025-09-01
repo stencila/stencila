@@ -1,10 +1,7 @@
+use clap::{self, Args};
 use cli_utils::message;
-use common::{
-    clap::{self, Args},
-    eyre::Result,
-    tokio::fs::remove_dir_all,
-    tracing,
-};
+use eyre::Result;
+use tokio::fs::remove_dir_all;
 
 use crate::Plugin;
 

@@ -3,20 +3,16 @@ use std::{
     time::Duration,
 };
 
+use clap::{self, Args};
 use cli_utils::{
     ToStdout,
     tabulated::{Attribute, Cell, Color, Tabulated},
 };
-use common::{
-    clap::{self, Args},
-    eyre::Result,
-    futures::future,
-    itertools::Itertools,
-    serde_json,
-    tokio::fs::{read_to_string, write},
-    tracing,
-};
 use dirs::{DirType, get_app_dir};
+use eyre::Result;
+use futures::future;
+use itertools::Itertools;
+use tokio::fs::{read_to_string, write};
 
 use crate::{Plugin, PluginEnabled, PluginStatus};
 

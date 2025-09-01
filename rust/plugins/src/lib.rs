@@ -20,20 +20,17 @@ use strum::{Display, EnumString};
 use which::which;
 
 use cli_utils::Code;
-use common::{
-    eyre::{OptionExt, Report, Result, bail, eyre},
-    itertools::Itertools,
-    reqwest::{self, Client, Url, header},
-    serde_json::{self, Value},
-    serde_with::{DeserializeFromStr, SerializeDisplay},
-    tokio::{
-        self,
-        io::{AsyncBufReadExt, AsyncWriteExt, BufReader, BufWriter},
-        process::{Child, ChildStdin, ChildStdout, Command},
-    },
-    toml, tracing,
-};
 use dirs::{DirType, get_app_dir};
+use eyre::{OptionExt, Report, Result, bail, eyre};
+use itertools::Itertools;
+use reqwest::{self, Client, Url, header};
+use serde_json::{self, Value};
+use serde_with::{DeserializeFromStr, SerializeDisplay};
+use tokio::{
+    self,
+    io::{AsyncBufReadExt, AsyncWriteExt, BufReader, BufWriter},
+    process::{Child, ChildStdin, ChildStdout, Command},
+};
 
 use codec::{Codec, format::Format};
 use kernel::Kernel;
@@ -707,7 +704,7 @@ impl PluginRuntime {
     Debug, Display, Clone, EnumString, DeserializeFromStr, SerializeDisplay, PartialEq, Eq,
 )]
 #[strum(ascii_case_insensitive, serialize_all = "lowercase")]
-#[serde_with(crate = "common::serde_with")]
+#[serde_with(crate = "serde_with")]
 pub enum PluginPlatform {
     Linux,
     MacOS,
@@ -731,7 +728,7 @@ impl PluginPlatform {
     Debug, Display, Clone, EnumString, DeserializeFromStr, SerializeDisplay, PartialEq, Eq,
 )]
 #[strum(ascii_case_insensitive, serialize_all = "lowercase")]
-#[serde_with(crate = "common::serde_with")]
+#[serde_with(crate = "serde_with")]
 pub enum PluginTransport {
     Stdio,
     Http,
@@ -1063,7 +1060,6 @@ struct JsonRpcError {
 mod tests {
     use super::*;
 
-    use common::toml;
     use common_dev::pretty_assertions::assert_eq;
 
     #[test]

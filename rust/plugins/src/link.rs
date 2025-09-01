@@ -1,12 +1,9 @@
 use std::path::{Path, PathBuf};
 
+use clap::{self, Args};
 use cli_utils::message;
-use common::{
-    clap::{self, Args},
-    eyre::{Result, bail},
-    tokio::fs::{remove_dir_all, remove_file},
-    tracing,
-};
+use eyre::{Result, bail};
+use tokio::fs::{remove_dir_all, remove_file};
 
 use crate::{MANIFEST_FILENAME, Plugin};
 
