@@ -6,7 +6,7 @@
 //! (e.g. pandoc, xelatex). It supports automatic tool discovery, installation, version
 //! management, and nested environment orchestration.
 
-use common::eyre::{OptionExt, Result};
+use eyre::{OptionExt, Result};
 
 pub mod cli;
 mod collaboration;
@@ -99,9 +99,9 @@ macro_rules! json_map {
     { $($key:expr => $value:expr),+ $(,)? } => {
         {
             let capacity = json_map!(@count $($key => $value),+);
-            let mut map = common::serde_json::Map::with_capacity(capacity);
+            let mut map = serde_json::Map::with_capacity(capacity);
             $(
-                map.insert($key.to_string(), common::serde_json::json!($value));
+                map.insert($key.to_string(), serde_json::json!($value));
             )+
             map
         }

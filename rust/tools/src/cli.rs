@@ -4,22 +4,20 @@ use std::{
     process::exit,
 };
 
+use clap::{self, Args, Parser, Subcommand};
+use eyre::{Result, bail};
+use itertools::Itertools;
+use once_cell::sync::Lazy;
+use serde_json::json;
+use directories::UserDirs;
+use pathdiff::diff_paths;
+
 use cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
     format::Format,
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
 };
-use common::{
-    clap::{self, Args, Parser, Subcommand},
-    eyre::{Result, bail},
-    itertools::Itertools,
-    once_cell::sync::Lazy,
-    serde_json::json,
-    tracing,
-};
-use directories::UserDirs;
-use pathdiff::diff_paths;
 
 use crate::{
     command::{AsyncToolCommand, ToolStdio},

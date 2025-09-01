@@ -1,6 +1,9 @@
 use std::path::PathBuf;
 
-use common::{clap::Parser, eyre::Result, tempfile::TempDir, tokio};
+use clap::Parser;
+use eyre::{Result, eyre};
+use tempfile::TempDir;
+use tokio;
 
 use tools::cli::Cli;
 use tools::{ToolType, detect_managers};
@@ -67,7 +70,7 @@ async fn test_install_dry_run_all_workspaces() -> Result<()> {
         // Should not crash
         cli.run().await.map_err(|e| {
             // Provide context about which workspace failed
-            common::eyre::eyre!("Install failed for workspace {}: {}", workspace_name, e)
+            eyre!("Install failed for workspace {}: {}", workspace_name, e)
         })?;
     }
 

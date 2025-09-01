@@ -9,23 +9,19 @@ use std::{
     },
 };
 
+use async_recursion::async_recursion;
+use clap::{self, ValueEnum};
+use eyre::{OptionExt, Result, bail};
 use mcp_types::{Tool as McpTool, ToolInputSchema as McpToolInputSchema};
+use once_cell::sync::Lazy;
+use regex::Regex;
 pub use semver::{Version, VersionReq};
 use serde::Serialize;
 use strum::Display;
+use tempfile::env::temp_dir;
+use tokio::fs::write;
 use which::which;
 
-use common::{
-    async_recursion::async_recursion,
-    clap::{self, ValueEnum},
-    eyre::{OptionExt, Result, bail},
-    once_cell::sync::Lazy,
-    regex::Regex,
-    reqwest,
-    tempfile::env::temp_dir,
-    tokio::fs::write,
-    tracing,
-};
 use version::STENCILA_USER_AGENT;
 
 use crate::{ToolCommand, ToolStdio, command::AsyncToolCommand, json_map};
