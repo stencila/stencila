@@ -8,12 +8,8 @@ use minijinja::{Environment, Error, Value, context, value::Object};
 
 use kernel::{
     Kernel, KernelInstance, KernelType, KernelVariableRequest, KernelVariableRequester,
-    KernelVariableResponder,
-    common::{
-        async_trait::async_trait,
-        eyre::{Report, Result, eyre},
-        serde_json, tokio, tracing,
-    },
+    KernelVariableResponder, async_trait,
+    eyre::{Report, Result, eyre},
     format::Format,
     generate_id,
     schema::{

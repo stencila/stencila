@@ -1,7 +1,7 @@
 use kernel_micro::{
     Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelProvider,
     KernelTerminate, Microkernel,
-    common::eyre::Result,
+    eyre::Result,
     format::Format,
     schema::{ExecutionBounds, MessageLevel},
 };
@@ -74,12 +74,9 @@ impl Microkernel for RKernel {
 #[cfg(test)]
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
+    use indexmap::IndexMap;
     use kernel_micro::{
-        common::{
-            eyre::{Ok, bail},
-            indexmap::IndexMap,
-            tokio,
-        },
+        eyre::{Ok, bail},
         schema::{
             Array, ArrayHint, ArrayValidator, BooleanValidator, Datatable, DatatableColumn,
             DatatableColumnHint, DatatableHint, EnumValidator, ExecutionMessage, Hint, ImageObject,

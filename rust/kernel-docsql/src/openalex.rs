@@ -1,19 +1,15 @@
 use std::sync::{Arc, Mutex as SyncMutex};
 
+use eyre::{Result, bail};
+use itertools::Itertools;
+use tokio::{runtime, task};
+
 use codec_openalex::{
     AuthorsResponse, FundersResponse, InstitutionsResponse, PublishersResponse, SelectResponse,
     SourcesResponse, WorksResponse, list_url, request_ids, request_list,
 };
 use kernel_jinja::{
-    kernel::{
-        common::{
-            eyre::{Result, bail},
-            itertools::Itertools,
-            tokio::{runtime, task},
-            tracing,
-        },
-        schema::{CodeChunk, Datatable, ExecutionMessage, MessageLevel, Node},
-    },
+    kernel::schema::{CodeChunk, Datatable, ExecutionMessage, MessageLevel, Node},
     minijinja::{
         Environment, Error, ErrorKind, State, Value,
         value::{Kwargs, Object, ValueKind, from_args},

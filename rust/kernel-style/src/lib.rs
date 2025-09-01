@@ -1,14 +1,14 @@
 use std::hash::{Hash, Hasher};
 
-use kernel_jinja::JinjaKernelInstance;
+use once_cell::sync::Lazy;
 use railwind::{CollectionOptions, Source, parse_to_string};
+use regex::Regex;
+use seahash::SeaHasher;
 
 use kernel::{
     Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
-    common::{
-        async_trait::async_trait, bs58, eyre::Result, once_cell::sync::Lazy, regex::Regex,
-        seahash::SeaHasher, tracing,
-    },
+    async_trait,
+    eyre::Result,
     format::Format,
     generate_id,
     schema::{
@@ -16,6 +16,7 @@ use kernel::{
         SoftwareApplicationOptions,
     },
 };
+use kernel_jinja::JinjaKernelInstance;
 
 /// A kernel for compiling styles, including Tailwind classes and Jinja templates, into CSS.
 #[derive(Default)]
@@ -217,7 +218,7 @@ impl KernelInstance for StyleKernelInstance {
 #[cfg(test)]
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
-    use kernel::{common::tokio, schema::Node};
+    use kernel::schema::Node;
 
     use super::*;
 

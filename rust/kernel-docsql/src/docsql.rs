@@ -1,13 +1,10 @@
 use std::{fmt, sync::Arc};
 
-use kernel_jinja::{
-    kernel::common::{
-        itertools::Itertools,
-        once_cell::sync::Lazy,
-        regex::{Captures, Regex},
-    },
-    minijinja::{Environment, Error, ErrorKind, Value},
-};
+use itertools::Itertools;
+use once_cell::sync::Lazy;
+use regex::{Captures, Regex};
+
+use kernel_jinja::minijinja::{Environment, Error, ErrorKind, Value};
 
 use crate::{CypherQuery, NodeProxies, NodeProxy, openalex::OpenAlexQuery};
 

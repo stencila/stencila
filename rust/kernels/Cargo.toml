@@ -5,6 +5,8 @@ edition = "2024"
 
 [dependencies]
 cli-utils = { path = "../cli-utils" }
+clap = { workspace = true }
+itertools = { workspace = true }
 kernel = { path = "../kernel" }
 kernel-asciimath = { path = "../kernel-asciimath" }
 kernel-bash = { path = "../kernel-bash" }
@@ -23,6 +25,8 @@ kernel-style = { path = "../kernel-style" }
 kernel-tex = { path = "../kernel-tex" }
 node-diagnostics = { path = "../node-diagnostics" }
 plugins = { path = "../plugins" }
+tokio = { workspace = true }
+tracing = { workspace = true }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }

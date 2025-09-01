@@ -1,6 +1,6 @@
 use kernel_micro::{
     Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelProvider,
-    KernelTerminate, Microkernel, common::eyre::Result, format::Format, schema::ExecutionBounds,
+    KernelTerminate, Microkernel, eyre::Result, format::Format, schema::ExecutionBounds,
 };
 
 /// A kernel for executing Bash code locally
@@ -62,7 +62,7 @@ impl Microkernel for BashKernel {
 mod tests {
     use common_dev::{ntest::timeout, pretty_assertions::assert_eq};
     use kernel_micro::{
-        common::{eyre::bail, tokio},
+        eyre::bail,
         schema::{MessageLevel, Node, Null, Variable},
         tests::{create_instance, start_instance},
     };

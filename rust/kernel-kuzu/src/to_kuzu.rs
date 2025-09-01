@@ -1,10 +1,9 @@
 use kuzu::{LogicalType, Value};
 
+use itertools::Itertools;
+
 use kernel::{
-    common::{
-        eyre::{Result, bail},
-        itertools::Itertools,
-    },
+    eyre::{Result, bail},
     schema::*,
 };
 

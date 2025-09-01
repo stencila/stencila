@@ -1,6 +1,5 @@
 use std::path::Path;
 
-use async_trait::async_trait;
 use clap::{self, ValueEnum};
 use eyre::{Result, bail};
 use format::Format;
@@ -9,13 +8,12 @@ use strum::Display;
 use tokio::sync::{broadcast, mpsc, watch};
 use uuid::Uuid;
 
-// Re-exports for the convenience of internal crates implementing
-// the `Kernel` trait
+// Re-exports for the convenience of crates implementing the `Kernel` trait
+pub use async_trait::async_trait;
+pub use eyre;
 pub use format;
 pub use schema;
 
-// Temporary re-export of common for downstream kernel crates until they are refactored
-pub use common;
 use schema::{
     ExecutionBounds, ExecutionMessage, Node, Null, SoftwareApplication, SoftwareSourceCode,
     Variable,

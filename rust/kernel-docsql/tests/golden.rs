@@ -5,20 +5,17 @@ use std::{
 };
 
 use common_dev::pretty_assertions::assert_eq;
+use eyre::{Result, bail};
+use glob::glob;
+use itertools::Itertools;
 use kernel_docsql::DocsQLKernelInstance;
 use kernel_jinja::kernel::{
     KernelInstance,
-    common::{
-        eyre::{Result, bail},
-        glob::glob,
-        itertools::Itertools,
-        serde_json,
-        tokio::{
-            self,
-            sync::{mpsc, watch},
-        },
-    },
     schema::{CodeChunk, Node, Null},
+};
+use tokio::{
+    self,
+    sync::{mpsc, watch},
 };
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

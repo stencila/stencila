@@ -1,6 +1,6 @@
 use kernel_micro::{
     Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelProvider,
-    KernelTerminate, Microkernel, common::eyre::Result, format::Format, schema::ExecutionBounds,
+    KernelTerminate, Microkernel, eyre::Result, format::Format, schema::ExecutionBounds,
 };
 
 /// A kernel for executing Python code
@@ -77,12 +77,9 @@ impl Microkernel for PythonKernel {
 #[allow(clippy::print_stderr, clippy::unwrap_used)]
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
+    use indexmap::IndexMap;
     use kernel_micro::{
-        common::{
-            eyre::{Ok, bail},
-            indexmap::IndexMap,
-            tokio,
-        },
+        eyre::{Ok, bail},
         schema::{
             Array, ArrayHint, ArrayValidator, BooleanValidator, CodeLocation, Datatable,
             DatatableColumn, DatatableColumnHint, DatatableHint, Hint, ImageObject,

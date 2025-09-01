@@ -4,17 +4,26 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec-openalex = { path = "../codec-openalex" }
 codec-github = { path = "../codec-github" }
+codec-openalex = { path = "../codec-openalex" }
 codec-text-trait = { path = "../codec-text-trait" }
 codec-zenodo = { path = "../codec-zenodo" }
 codecs = { path = "../codecs" }
 embed = { path = "../embed" }
+eyre = { workspace = true }
+Inflector = { workspace = true }
+itertools = { workspace = true }
 kernel-docsdb = { path = "../kernel-docsdb" }
 kernel-jinja = { path = "../kernel-jinja" }
+once_cell = { workspace = true }
+regex = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
+glob = { workspace = true }
 secrets = { path = "../secrets" }
 
 [lints]

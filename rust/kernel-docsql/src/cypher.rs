@@ -1,16 +1,15 @@
 use std::sync::{Arc, Mutex as SyncMutex};
 
+use inflector::Inflector;
+use itertools::Itertools;
+use tokio::{runtime, sync::Mutex, task};
+
 use codec_text_trait::to_text;
 use kernel_docsdb::{DocsDBKernelInstance, QueryResultTransform};
 use kernel_jinja::{
     kernel::{
         KernelInstance,
-        common::{
-            eyre::Result,
-            inflector::Inflector,
-            itertools::Itertools,
-            tokio::{runtime, sync::Mutex, task},
-        },
+        eyre::Result,
         schema::{
             Array, CodeChunk, ExecutionMessage, MessageLevel, Node, NodeType, Primitive,
             PropertyValue, PropertyValueOrString, SectionType,

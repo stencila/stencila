@@ -9,26 +9,21 @@ use std::{
     },
 };
 
+use indexmap::IndexMap;
+use once_cell::sync::Lazy;
+use regex::Regex;
 use rquickjs::{
     Array as JsArray, AsyncContext, AsyncRuntime, Ctx, Error, JsLifetime, Object as JsObject,
     String as JsString, Value, class::Trace, function::Rest,
 };
+use tokio::{
+    self,
+    sync::{mpsc, watch},
+};
 
 use kernel::{
-    Kernel, KernelInstance, KernelSignal, KernelStatus, KernelTerminate,
-    common::{
-        async_trait::async_trait,
-        eyre::{Result, bail, eyre},
-        indexmap::IndexMap,
-        once_cell::sync::Lazy,
-        regex::Regex,
-        serde_json,
-        tokio::{
-            self,
-            sync::{mpsc, watch},
-        },
-        tracing,
-    },
+    Kernel, KernelInstance, KernelSignal, KernelStatus, KernelTerminate, async_trait,
+    eyre::{Result, bail, eyre},
     format::Format,
     generate_id,
     schema::{
@@ -854,8 +849,8 @@ impl<'js> Console<'js> {
 #[cfg(test)]
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
+    use indexmap::IndexMap;
     use kernel::{
-        common::{indexmap::IndexMap, tokio},
         schema::{Array, ArrayHint, Hint, Node, Object, ObjectHint, Primitive, StringHint},
         tests::{create_instance, start_instance},
     };

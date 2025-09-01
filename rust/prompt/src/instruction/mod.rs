@@ -1,6 +1,8 @@
+use itertools::Itertools;
+use once_cell::sync::Lazy;
+use regex::Regex;
 use strum::Display;
 
-use kernel_quickjs::kernel::common::{itertools::Itertools, once_cell::sync::Lazy, regex::Regex};
 use schema::MessagePart;
 
 use crate::{DocumentContext, prelude::*};

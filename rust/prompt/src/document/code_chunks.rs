@@ -1,4 +1,4 @@
-use kernel_quickjs::kernel::common::itertools::Itertools;
+use itertools::Itertools;
 
 use crate::prelude::*;
 

@@ -6,32 +6,28 @@ use std::{
 };
 
 use directories::UserDirs;
+use itertools::Itertools;
 use strum::Display;
+use tempfile::TempDir;
+use tokio::{
+    self,
+    fs::{File, OpenOptions},
+    io::{AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt, BufReader, BufWriter},
+    process::{Child, ChildStderr, ChildStdin, ChildStdout, Command},
+    sync::{mpsc, watch},
+};
 use which::which;
 
 // Re-exports for the convenience of internal crates implementing
 // the `Microkernel` trait
 pub use kernel::{
     Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelProvider,
-    KernelSignal, KernelStatus, KernelTerminate, common, format, schema, tests,
+    KernelSignal, KernelStatus, KernelTerminate, eyre, format, schema, tests,
 };
 
 use kernel::{
-    common::{
-        async_trait::async_trait,
-        eyre::{Context, OptionExt, Result, bail, eyre},
-        itertools::Itertools,
-        serde_json,
-        tempfile::TempDir,
-        tokio::{
-            self,
-            fs::{File, OpenOptions},
-            io::{AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt, BufReader, BufWriter},
-            process::{Child, ChildStderr, ChildStdin, ChildStdout, Command},
-            sync::{mpsc, watch},
-        },
-        tracing,
-    },
+    async_trait,
+    eyre::{Context, OptionExt, Result, bail, eyre},
     generate_id,
     schema::{
         ExecutionBounds, ExecutionMessage, MessageLevel, Node, Null, SoftwareApplication,
@@ -708,8 +704,8 @@ impl KernelInstance for MicrokernelInstance {
 
         #[cfg(unix)]
         {
-            use kernel::common::tempfile::tempdir;
             use nix::{sys::stat, unistd::mkfifo};
+            use tempfile::tempdir;
 
             // Create FIFO pipes for stdin, stdout and stderr of fork
             let pipes_dir = tempdir()?;

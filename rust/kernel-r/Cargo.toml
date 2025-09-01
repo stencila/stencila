@@ -8,7 +8,9 @@ kernel-micro = { path = "../kernel-micro" }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
+indexmap = { workspace = true }
 test-log = { workspace = true }
+tokio = { workspace = true }
 
 [lints]
 workspace = true

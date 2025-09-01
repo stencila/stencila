@@ -3,12 +3,12 @@ use std::{
     sync::{Arc, Mutex as SyncMutex},
 };
 
+use eyre::Result;
+use itertools::Itertools;
+
 use codec_text_trait::to_text;
 use kernel_jinja::{
-    kernel::{
-        common::{eyre::Result, itertools::Itertools, serde_json, tracing},
-        schema::{self, ExecutionMessage, MessageLevel, Node, NodePath, NodeProperty, NodeSet},
-    },
+    kernel::schema::{self, ExecutionMessage, MessageLevel, Node, NodePath, NodeProperty, NodeSet},
     minijinja::{
         Error, ErrorKind, State, Value,
         value::{Enumerator, Object, ObjectRepr},

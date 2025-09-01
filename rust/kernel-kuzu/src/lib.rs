@@ -5,19 +5,15 @@ use std::{
     sync::Arc,
 };
 
+use itertools::Itertools;
 use kuzu::{Connection, Database, LogicalType, SystemConfig, Value};
+use once_cell::sync::Lazy;
+use regex::Regex;
 
 use kernel::{
     Kernel, KernelInstance, KernelType, KernelVariableRequest, KernelVariableRequester,
-    KernelVariableResponder,
-    common::{
-        async_trait::async_trait,
-        eyre::{OptionExt, Result, bail, eyre},
-        itertools::Itertools,
-        once_cell::sync::Lazy,
-        regex::Regex,
-        tracing,
-    },
+    KernelVariableResponder, async_trait,
+    eyre::{OptionExt, Result, bail, eyre},
     format::Format,
     generate_id,
     schema::{
@@ -607,9 +603,10 @@ fn execution_message_for_copy(query: &str, line_offset: usize) -> ExecutionMessa
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
     use kernel::{
-        common::{eyre::bail, tempfile::TempDir, tokio},
+        eyre::bail,
         schema::{Array, CodeLocation, MessageLevel, Primitive},
     };
+    use tempfile::TempDir;
 
     use super::*;
 

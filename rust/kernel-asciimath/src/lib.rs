@@ -1,6 +1,8 @@
+use itertools::Itertools;
+
 use kernel::{
-    Kernel, KernelInstance, KernelType,
-    common::{async_trait::async_trait, eyre::Result, itertools::Itertools, tracing},
+    Kernel, KernelInstance, KernelType, async_trait,
+    eyre::Result,
     format::Format,
     generate_id,
     schema::{
@@ -209,7 +211,7 @@ impl KernelInstance for AsciiMathKernelInstance {
 #[cfg(test)]
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
-    use kernel::{common::tokio, schema::Node};
+    use kernel::schema::Node;
 
     use super::*;
 

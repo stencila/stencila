@@ -6,6 +6,12 @@ edition = "2024"
 [dependencies]
 kernel = { path = "../kernel" }
 rquickjs = { version = "0.9.0", features = ["futures", "macro", "parallel"] }
+indexmap = { workspace = true }
+once_cell = { workspace = true }
+regex = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }

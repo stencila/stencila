@@ -2,12 +2,12 @@ use layout::{
     backends::svg::SVGWriter,
     gv::{DotParser, GraphBuilder},
 };
+use once_cell::sync::Lazy;
+use regex::Regex;
 
 use kernel::{
-    Kernel, KernelInstance, KernelType,
-    common::{
-        async_trait::async_trait, eyre::Result, once_cell::sync::Lazy, regex::Regex, tracing,
-    },
+    Kernel, KernelInstance, KernelType, async_trait,
+    eyre::Result,
     format::Format,
     generate_id,
     schema::{
@@ -150,7 +150,6 @@ impl KernelInstance for GraphvizKernelInstance {
 #[cfg(test)]
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
-    use kernel::common::tokio;
 
     use super::*;
 

@@ -13,6 +13,14 @@ node-canonicalize = { path = "../node-canonicalize" }
 node-db = { path = "../node-db"}
 node-sentencize = { path = "../node-sentencize" }
 lru = { workspace = true }
+futures = { workspace = true }
+itertools = { workspace = true }
+once_cell = { workspace = true }
+regex = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
 
 [lints]
 workspace = true

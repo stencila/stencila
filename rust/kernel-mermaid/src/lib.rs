@@ -1,6 +1,7 @@
 use kernel::{
     Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
-    common::{async_trait::async_trait, eyre::Result, tracing},
+    async_trait,
+    eyre::Result,
     format::Format,
     generate_id,
     schema::{
@@ -135,10 +136,7 @@ impl KernelInstance for MermaidKernelInstance {
 #[cfg(test)]
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
-    use kernel::{
-        common::{eyre::bail, tokio},
-        schema::Node,
-    };
+    use kernel::{eyre::bail, schema::Node};
 
     use super::*;
 

@@ -6,21 +6,16 @@ use std::{
     },
 };
 
+use itertools::Itertools;
 use rhai::{Dynamic, Engine, Map, Scope};
+use tokio::{
+    self,
+    sync::{mpsc, watch},
+};
 
 use kernel::{
-    Kernel, KernelInstance, KernelSignal, KernelStatus, KernelTerminate,
-    common::{
-        async_trait::async_trait,
-        eyre::{Result, bail, eyre},
-        itertools::Itertools,
-        serde_json,
-        tokio::{
-            self,
-            sync::{mpsc, watch},
-        },
-        tracing,
-    },
+    Kernel, KernelInstance, KernelSignal, KernelStatus, KernelTerminate, async_trait,
+    eyre::{Result, bail, eyre},
     format::Format,
     generate_id,
     schema::{
@@ -479,8 +474,8 @@ fn node_to_dynamic(node: &Node) -> Result<Dynamic> {
 #[cfg(test)]
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
+    use indexmap::IndexMap;
     use kernel::{
-        common::{indexmap::IndexMap, tokio},
         schema::{Array, Node, Object, Primitive},
         tests::{create_instance, start_instance},
     };

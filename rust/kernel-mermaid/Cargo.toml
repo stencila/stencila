@@ -6,9 +6,11 @@ edition = "2024"
 [dependencies]
 kernel = { path = "../kernel" }
 kernel-jinja = { path = "../kernel-jinja" }
+tracing = { workspace = true }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
+tokio = { workspace = true }
 
 [lints]
 workspace = true

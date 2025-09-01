@@ -1,8 +1,10 @@
+use latex2mathml::{DisplayStyle, latex_to_mathml};
+use once_cell::sync::Lazy;
+use regex::Regex;
+
 use kernel::{
-    Kernel, KernelInstance, KernelType,
-    common::{
-        async_trait::async_trait, eyre::Result, once_cell::sync::Lazy, regex::Regex, tracing,
-    },
+    Kernel, KernelInstance, KernelType, async_trait,
+    eyre::Result,
     format::Format,
     generate_id,
     schema::{
@@ -10,7 +12,6 @@ use kernel::{
         SoftwareApplicationOptions,
     },
 };
-use latex2mathml::{DisplayStyle, latex_to_mathml};
 
 const NAME: &str = "tex";
 
@@ -149,7 +150,7 @@ impl KernelInstance for TexKernelInstance {
 #[cfg(test)]
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
-    use kernel::{common::tokio, schema::Node};
+    use kernel::schema::Node;
 
     use super::*;
 

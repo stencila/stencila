@@ -9,26 +9,14 @@ use lru::LruCache;
 
 use codecs::EncodeOptions;
 use dirs::{closest_stencila_dir, stencila_db_file, stencila_store_dir};
+use futures::future::join_all;
+use itertools::Itertools;
 use kernel_kuzu::{
     KuzuKernelInstance,
     kernel::{
         Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
-        common::{
-            async_trait::async_trait,
-            eyre::{Result, bail},
-            futures::future::join_all,
-            itertools::Itertools,
-            once_cell::sync::Lazy,
-            regex::Regex,
-            serde_json, serde_yaml,
-            tokio::{
-                self,
-                fs::read_to_string,
-                sync::{Mutex, mpsc, oneshot, watch},
-                task,
-            },
-            tracing,
-        },
+        async_trait,
+        eyre::{Result, bail},
         format::Format,
         generate_id,
         schema::{
@@ -40,6 +28,14 @@ use kernel_kuzu::{
 use node_canonicalize::canonicalize;
 use node_db::NodeDatabase;
 use node_sentencize::sentencize;
+use once_cell::sync::Lazy;
+use regex::Regex;
+use tokio::{
+    self,
+    fs::read_to_string,
+    sync::{Mutex, mpsc, oneshot, watch},
+    task,
+};
 
 pub use kernel_kuzu::QueryResultTransform;
 

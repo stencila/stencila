@@ -1,18 +1,14 @@
 use std::sync::{Arc, Mutex as SyncMutex};
 
+use eyre::{Result, bail};
+use itertools::Itertools;
+use tokio::{runtime, task};
+
 use codec_github::{
     SearchCodeResponse, SearchRepositoriesResponse, SearchUsersResponse, request, search_url,
 };
 use kernel_jinja::{
-    kernel::{
-        common::{
-            eyre::{Result, bail},
-            itertools::Itertools,
-            tokio::{runtime, task},
-            tracing,
-        },
-        schema::{CodeChunk, ExecutionMessage, MessageLevel, Node},
-    },
+    kernel::schema::{CodeChunk, ExecutionMessage, MessageLevel, Node},
     minijinja::{
         Environment, Error, ErrorKind, State, Value,
         value::{Kwargs, Object, ValueKind, from_args},

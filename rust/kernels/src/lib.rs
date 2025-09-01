@@ -4,16 +4,11 @@ use std::{
     sync::Arc,
 };
 
+use tokio::sync::{Mutex, RwLock, broadcast, mpsc, watch};
+
 use kernel::{
     Kernel, KernelInstance, KernelVariableRequest, KernelVariableRequester, KernelVariableResponse,
-    common::{
-        eyre::{Result, bail},
-        tokio::{
-            self,
-            sync::{Mutex, RwLock, broadcast, mpsc, watch},
-        },
-        tracing,
-    },
+    eyre::{Result, bail},
     format::Format,
     schema::{ExecutionBounds, ExecutionMessage, Node},
 };
@@ -578,10 +573,7 @@ impl Kernels {
 #[cfg(test)]
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
-    use kernel::{
-        common::tokio,
-        schema::{MessageLevel, Node},
-    };
+    use kernel::schema::{MessageLevel, Node};
 
     use super::*;
 

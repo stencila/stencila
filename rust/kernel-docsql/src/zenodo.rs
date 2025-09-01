@@ -1,15 +1,11 @@
 use std::sync::{Arc, Mutex as SyncMutex};
 
+use eyre::Result;
+use tokio::{runtime, task};
+
 use codec_zenodo::{SearchRecordsResponse, request};
 use kernel_jinja::{
-    kernel::{
-        common::{
-            eyre::Result,
-            tokio::{runtime, task},
-            tracing,
-        },
-        schema::{CodeChunk, ExecutionMessage, MessageLevel, Node},
-    },
+    kernel::schema::{CodeChunk, ExecutionMessage, MessageLevel, Node},
     minijinja::{
         Environment, Error, ErrorKind, State, Value,
         value::{Kwargs, Object, ValueKind, from_args},

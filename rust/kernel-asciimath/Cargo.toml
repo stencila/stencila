@@ -6,9 +6,12 @@ edition = "2024"
 [dependencies]
 kernel = { path = "../kernel" }
 mathemascii = "0.4.0"
+itertools = { workspace = true }
+tracing = { workspace = true }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
+tokio = { workspace = true }
 
 [lints]
 workspace = true

@@ -1,6 +1,6 @@
 use kernel_micro::{
     Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelProvider,
-    KernelTerminate, Microkernel, common::eyre::Result, format::Format, schema::ExecutionBounds,
+    KernelTerminate, Microkernel, eyre::Result, format::Format, schema::ExecutionBounds,
 };
 
 /// A kernel for executing JavaScript code in Node.js
@@ -66,8 +66,9 @@ impl Microkernel for NodeJsKernel {
 #[cfg(test)]
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
+    use indexmap::IndexMap;
+
     use kernel_micro::{
-        common::{indexmap::IndexMap, tokio},
         schema::{
             Array, ArrayHint, CodeLocation, ExecutionMessage, Hint, MessageLevel, Node, Null,
             Object, ObjectHint, Primitive, StringHint, Variable,

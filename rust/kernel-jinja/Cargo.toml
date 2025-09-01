@@ -6,6 +6,9 @@ edition = "2024"
 [dependencies]
 kernel = { path = "../kernel" }
 minijinja = { version = "2.11.0", features = ["loader", "json", "debug"] }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }

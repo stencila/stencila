@@ -7,7 +7,6 @@ edition = "2024"
 async-trait = { workspace = true }
 bs58 = { workspace = true }
 clap = { workspace = true }
-common = { path = "../common" }
 eyre = { workspace = true }
 pretty_assertions = { workspace = true }
 format = { path = "../format" }

@@ -1,3 +1,6 @@
+use clap::{self, Args, Parser, Subcommand};
+use itertools::Itertools;
+
 use cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
@@ -5,12 +8,7 @@ use cli_utils::{
 };
 use kernel::{
     KernelAvailability, KernelProvider, KernelSpecification, KernelType,
-    common::{
-        clap::{self, Args, Parser, Subcommand},
-        eyre::Result,
-        itertools::Itertools,
-        tracing,
-    },
+    eyre::Result,
     format::Format,
     schema::{ExecutionBounds, ExecutionMessage, Node, NodeId, NodeType, StringOrNumber},
 };

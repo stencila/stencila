@@ -8,7 +8,6 @@ use codec::{
 mod decode;
 use decode::decode_path;
 
-
 /// A codec for decoding MECA
 ///
 /// See https://www.niso.org/standards-committees/meca
