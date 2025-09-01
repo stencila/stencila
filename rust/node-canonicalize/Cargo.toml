@@ -8,12 +8,20 @@ base64 = { workspace = true }
 codec-cbor = { path = "../codec-cbor" }
 codec-openalex = { path = "../codec-openalex" }
 codec-text = { path = "../codec-text" }
-common = { path = "../common" }
+eyre = { workspace = true }
+futures = { workspace = true }
 human_name = "2.0.3"
+once_cell = { workspace = true }
+regex = { workspace = true }
 schema = { path = "../schema" }
+seahash = { workspace = true }
+tracing = { workspace = true }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
+eyre = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
 
 [lints]
 workspace = true

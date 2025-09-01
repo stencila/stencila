@@ -3,9 +3,10 @@
 use std::hash::{Hash, Hasher};
 
 use base64::{Engine as _, prelude::BASE64_URL_SAFE_NO_PAD};
+use eyre::Result;
+use seahash::SeaHasher;
 
 use codec_cbor::r#trait::CborCodec;
-use common::{eyre::Result, seahash::SeaHasher};
 use schema::{Organization, Person, Reference};
 
 /// Hash a Stencila [`Organization`] to a ROR-like string
