@@ -1,15 +1,11 @@
 use std::path::{Component, Path, PathBuf};
 
+use eyre::{Result, bail};
 use serde::{Deserialize, Serialize};
-
-use common::{
-    eyre::{Result, bail},
-    tokio::{
-        self,
-        fs::{File, create_dir_all, remove_dir_all, remove_file, rename},
-        sync::mpsc::{Receiver, Sender},
-    },
-    tracing,
+use tokio::{
+    self,
+    fs::{File, create_dir_all, remove_dir_all, remove_file, rename},
+    sync::mpsc::{Receiver, Sender},
 };
 
 use crate::Document;

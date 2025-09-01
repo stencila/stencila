@@ -3,22 +3,18 @@ use std::sync::{
     atomic::{AtomicU32, Ordering},
 };
 
+use eyre::Result;
+use indexmap::IndexMap;
 use json_patch::{PatchOperation, ReplaceOperation};
 use serde::{Deserialize, Serialize};
-
-use common::{
-    eyre::Result,
-    indexmap::IndexMap,
-    serde_json,
-    tokio::{
-        self,
-        sync::{
-            Mutex,
-            mpsc::{Receiver, Sender},
-        },
+use tokio::{
+    self,
+    sync::{
+        Mutex,
+        mpsc::{Receiver, Sender},
     },
-    tracing,
 };
+
 use schema::{Node, NodeId, NodePath};
 
 use crate::Document;
@@ -178,12 +174,13 @@ impl Document {
 mod tests {
     use json_patch::{AddOperation, RemoveOperation};
 
-    use common::{eyre::bail, tokio::sync::mpsc::channel};
     use common_dev::pretty_assertions::assert_eq;
+    use eyre::bail;
     use schema::{
         NodeType,
         shortcuts::{art, p, t},
     };
+    use tokio::sync::mpsc::channel;
 
     use crate::Update;
 

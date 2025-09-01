@@ -7,23 +7,19 @@ use std::{
     time::UNIX_EPOCH,
 };
 
+use chrono::Utc;
+use eyre::{OptionExt, Result, bail};
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 use strum::Display;
+use tokio::{
+    self,
+    fs::{read_to_string, remove_dir_all, remove_file, rename, write},
+};
 use url::Url;
 
 use codecs::{DecodeOptions, EncodeOptions};
-use common::{
-    chrono::Utc,
-    eyre::{OptionExt, Result, bail},
-    itertools::Itertools,
-    serde_json,
-    serde_with::skip_serializing_none,
-    tokio::{
-        self,
-        fs::{read_to_string, remove_dir_all, remove_file, rename, write},
-    },
-    tracing,
-};
 use dirs::{
     DB_FILE, DOCS_FILE, STORE_DIR, closest_stencila_dir, stencila_artifacts_dir, stencila_db_file,
     stencila_docs_file, stencila_store_dir, workspace_dir, workspace_relative_path,

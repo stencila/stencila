@@ -4,11 +4,10 @@ use std::{
     time::UNIX_EPOCH,
 };
 
-use common::{
-    eyre::Result,
-    glob::{MatchOptions, glob, glob_with},
-    itertools::Itertools,
-};
+use eyre::Result;
+use glob::{MatchOptions, glob, glob_with};
+use itertools::Itertools;
+
 use format::Format;
 
 use crate::Document;

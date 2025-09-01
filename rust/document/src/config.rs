@@ -3,14 +3,12 @@ use std::{
     sync::Arc,
 };
 
-use common::{
-    eyre::Result,
-    serde_yaml,
-    tokio::{
-        fs::{read_to_string, write},
-        sync::RwLock,
-    },
+use eyre::Result;
+use tokio::{
+    fs::{read_to_string, write},
+    sync::RwLock,
 };
+
 use dirs::{CONFIG_FILE, DirType, closest_config_file, get_app_dir};
 use schema::{Article, Config, Node};
 

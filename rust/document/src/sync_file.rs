@@ -7,15 +7,12 @@ use std::{
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
+use eyre::Result;
 use format::Format;
 use notify::{EventKind, RecursiveMode, Watcher};
+use tokio::{self, time};
 
 use codecs::{DecodeOptions, EncodeOptions};
-use common::{
-    eyre::Result,
-    tokio::{self, time},
-    tracing,
-};
 use schema::Node;
 
 use crate::{Document, SyncDirection, Update};

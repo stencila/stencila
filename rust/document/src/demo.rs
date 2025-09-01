@@ -6,8 +6,12 @@ use std::{
     time::{Duration, SystemTime},
 };
 
+use clap::{self, Args, ValueEnum};
+use eyre::{Context, Result, bail};
 use format::Format;
+use itertools::Itertools;
 use rand::{Rng, rng, rngs::ThreadRng};
+use serde_json::json;
 
 use cli_utils::{
     Code, ToStdout, clear_terminal,
@@ -17,13 +21,6 @@ use cli_utils::{
     terminal_size::terminal_size,
 };
 use codec_text::to_text;
-use common::{
-    clap::{self, Args, ValueEnum},
-    eyre::{Context, Result, bail},
-    itertools::Itertools,
-    serde_json::json,
-    tracing,
-};
 use schema::{Block, Inline, ListItem, MessageLevel, Node, Visitor, WalkControl, WalkthroughStep};
 use tools::{Agg, Tool, ToolStdio};
 
@@ -506,7 +503,7 @@ impl Walker {
                 // column widths.
                 // See https://docs.asciinema.org/manual/asciicast/v2/
                 let (width, height) = terminal_size;
-                let header = common::serde_json::json!({
+                let header = serde_json::json!({
                     "version": 2,
                     "width": width,
                     "height": height

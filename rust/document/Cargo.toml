@@ -5,15 +5,22 @@ edition = "2024"
 
 [dependencies]
 ask = { path = "../ask" }
+chrono = { workspace = true }
+chrono-humanize = { workspace = true }
+clap = { workspace = true }
 cli-utils = { path = "../cli-utils" }
 codec-json = { path = "../codec-json" }
 codec-text = { path = "../codec-text" }
 codecs = { path = "../codecs" }
-common = { path = "../common" }
 dirs = { path = "../dirs" }
+eyre = { workspace = true }
 format = { path = "../format" }
-kernels = { path = "../kernels" }
+futures = { workspace = true }
+glob = { workspace = true }
+indexmap = { workspace = true }
+itertools = { workspace = true }
 json-patch = "1.2.0"
+kernels = { path = "../kernels" }
 node-canonicalize = { path = "../node-canonicalize" }
 node-db = { path = "../node-db" }
 node-diagnostics = { path = "../node-diagnostics" }
@@ -25,10 +32,18 @@ node-sentencize = { path = "../node-sentencize" }
 node-strip = { path = "../node-strip" }
 notify = { version = "8.2.0", default-features = false, features = ["macos_kqueue"] }
 rand = { workspace = true }
+reqwest = { workspace = true }
 schema = { path = "../schema" }
 serde = { workspace = true }
+serde_json = { workspace = true }
+serde_with = { workspace = true }
+serde_yaml = { workspace = true }
+similar = { workspace = true }
+smart-default = { workspace = true }
 strum = { workspace = true }
+tokio = { workspace = true }
 tools = { path = "../tools" }
+tracing = { workspace = true }
 url = { workspace = true }
 
 [dev-dependencies]

@@ -7,24 +7,20 @@ use std::{
     time::Duration,
 };
 
+use eyre::Result;
 use json_patch::{PatchOperation as MappingOperation, ReplaceOperation};
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
+use similar::{Algorithm, DiffTag, TextDiffConfig};
+use tokio::{
+    self,
+    sync::{
+        Mutex,
+        mpsc::{Receiver, Sender},
+    },
+};
 
 use codecs::{DecodeOptions, EncodeInfo, EncodeOptions, Mapping};
-use common::{
-    eyre::Result,
-    serde_json,
-    serde_with::skip_serializing_none,
-    similar::{Algorithm, DiffTag, TextDiffConfig},
-    tokio::{
-        self,
-        sync::{
-            Mutex,
-            mpsc::{Receiver, Sender},
-        },
-    },
-    tracing,
-};
 
 use crate::{Document, Update};
 
@@ -482,14 +478,15 @@ fn extract_chars(content: &str, range: Range<usize>) -> &str {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use common::{eyre::Report, tokio::sync::mpsc::channel};
     use common_dev::{ntest::timeout, pretty_assertions::assert_eq};
+    use eyre::Report;
     use format::Format;
     use node_strip::StripScope;
     use schema::{
         NodeType,
         shortcuts::{art, p, t},
     };
+    use tokio::sync::mpsc::channel;
 
     use super::*;
 
