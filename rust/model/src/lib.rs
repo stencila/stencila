@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use clap::{self, ValueEnum};
 use eyre::Result;
 use inflector::Inflector;
@@ -11,13 +10,12 @@ use schema::{
     StringOrNumber, Timestamp,
 };
 
-// Export crates for the convenience of dependant crates
+// Export crates for the convenience of crates implementing the Model trait
+pub use async_trait::async_trait;
+pub use eyre;
 pub use format;
 pub use schema;
 pub use secrets;
-
-// Temporary re-export of common for downstream model crates until they are refactored
-pub use common;
 
 mod output;
 mod task;

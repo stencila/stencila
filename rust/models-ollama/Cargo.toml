@@ -5,12 +5,17 @@ edition = "2024"
 
 [dependencies]
 cached = { workspace = true }
+Inflector = { workspace = true }
 model = { path = "../model" }
 # Ensure that rustls is used to avoid adding a dependence on OpenSSL
 ollama-rs = { version = "0.3.2", default-features = false, features = [
     "rustls",
     "stream",
 ] }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }
 
 [lints]
 workspace = true

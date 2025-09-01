@@ -4,9 +4,17 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-model = { path = "../model" }
 cached = { workspace = true }
+Inflector = { workspace = true }
+itertools = { workspace = true }
+model = { path = "../model" }
+reqwest = { workspace = true }
 serde = { workspace = true }
+serde_with = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }
 
 [lints]
 workspace = true

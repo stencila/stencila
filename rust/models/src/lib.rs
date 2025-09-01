@@ -2,12 +2,10 @@
 
 use std::{cmp::Ordering, collections::HashMap, sync::Arc};
 
-use model::common::{
-    eyre::{Result, bail},
-    futures::future::join_all,
-    itertools::Itertools,
-    tracing,
-};
+use futures::future::join_all;
+use itertools::Itertools;
+
+use model::eyre::{Result, bail};
 
 pub use model::{
     Model, ModelAvailability, ModelOutput, ModelOutputKind, ModelSpecification, ModelTask,

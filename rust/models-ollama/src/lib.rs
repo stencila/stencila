@@ -1,6 +1,7 @@
 use std::{sync::Arc, time::Duration};
 
 use cached::proc_macro::cached;
+use inflector::Inflector;
 use ollama_rs::{
     Ollama,
     generation::{
@@ -11,13 +12,8 @@ use ollama_rs::{
 };
 
 use model::{
-    Model, ModelIO, ModelOutput, ModelTask, ModelType,
-    common::{
-        async_trait::async_trait,
-        eyre::{Result, eyre},
-        inflector::Inflector,
-        tracing,
-    },
+    Model, ModelIO, ModelOutput, ModelTask, ModelType, async_trait,
+    eyre::{Result, eyre},
     schema::{self, ImageObject, MessagePart},
 };
 
@@ -278,7 +274,7 @@ async fn list_ollama_models(_unused: u8) -> Result<Vec<LocalModel>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use model::{common::tokio, test_task_repeat_word};
+    use model::test_task_repeat_word;
 
     #[tokio::test]
     async fn list_models() -> Result<()> {

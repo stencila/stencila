@@ -4,7 +4,10 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+clap = { workspace = true }
 cli-utils = { path = "../cli-utils" }
+futures = { workspace = true }
+itertools = { workspace = true }
 model = { path = "../model" }
 models-anthropic = { path = "../models-anthropic" }
 models-google = { path = "../models-google" }
@@ -13,6 +16,8 @@ models-ollama = { path = "../models-ollama" }
 models-openai = { path = "../models-openai" }
 models-stencila = { path = "../models-stencila" }
 plugins = { path = "../plugins" }
+serde_yaml = { workspace = true }
+tracing = { workspace = true }
 
 [lints]
 workspace = true

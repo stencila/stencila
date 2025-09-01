@@ -1,18 +1,14 @@
 use std::{sync::Arc, time::Duration};
 
 use cached::proc_macro::cached;
+use itertools::Itertools;
+use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 use model::{
-    Model, ModelIO, ModelOutput, ModelTask, ModelType,
-    common::{
-        async_trait::async_trait,
-        eyre::{Result, bail},
-        itertools::Itertools,
-        reqwest::Client,
-        serde_with::skip_serializing_none,
-        tracing,
-    },
+    Model, ModelIO, ModelOutput, ModelTask, ModelType, async_trait,
+    eyre::{Result, bail},
     schema::{ImageObject, MessagePart, MessageRole},
     secrets,
 };
@@ -308,7 +304,7 @@ struct MessagesResponse {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use model::{common::tokio, test_task_repeat_word};
+    use model::test_task_repeat_word;
 
     #[tokio::test]
     async fn list_models() -> Result<()> {

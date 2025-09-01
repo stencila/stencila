@@ -14,16 +14,12 @@ use async_openai::{
     },
 };
 use cached::proc_macro::cached;
+use inflector::Inflector;
+use itertools::Itertools;
 
 use model::{
-    Model, ModelIO, ModelOutput, ModelTask, ModelTaskKind, ModelType,
-    common::{
-        async_trait::async_trait,
-        eyre::{Result, bail},
-        inflector::Inflector,
-        itertools::Itertools,
-        tracing,
-    },
+    Model, ModelIO, ModelOutput, ModelTask, ModelTaskKind, ModelType, async_trait,
+    eyre::{Result, bail},
     schema::{ImageObject, MessagePart, MessageRole},
     secrets,
 };
@@ -523,7 +519,7 @@ async fn list_openai_models(_unused: u8) -> Result<ListModelResponse> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use model::{common::tokio, test_task_repeat_word};
+    use model::test_task_repeat_word;
 
     #[tokio::test]
     async fn list_models() -> Result<()> {

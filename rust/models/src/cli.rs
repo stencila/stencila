@@ -1,16 +1,15 @@
+use clap::{self, Args, Parser, Subcommand};
 use cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
 };
+use itertools::Itertools;
+use serde_yaml;
+
 use model::{
     ModelAvailability, ModelSpecification, ModelTask, ModelType,
-    common::{
-        clap::{self, Args, Parser, Subcommand},
-        eyre::Result,
-        itertools::Itertools,
-        serde_yaml,
-    },
+    eyre::Result,
     format::Format,
     schema::{InstructionMessage, ModelParameters},
 };
