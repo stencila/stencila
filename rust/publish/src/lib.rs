@@ -1,7 +1,5 @@
-use common::{
-    clap::{self, Parser, Subcommand},
-    eyre::Result,
-};
+use clap::{Parser, Subcommand};
+use eyre::Result;
 
 /// Publish one or more documents
 #[derive(Debug, Parser)]

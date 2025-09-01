@@ -4,13 +4,19 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+clap = { workspace = true }
 cloud = { path = "../cloud" }
 codec = { "path" = "../codec" }
 codec-swb = { "path" = "../codec-swb" }
-common = { "path" = "../common" }
 document = { path = "../document" }
+eyre = { workspace = true }
+reqwest = { workspace = true }
 schema = { "path" = "../schema" }
 serde = { workspace = true }
+serde_json = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
 
 [lints]
 workspace = true

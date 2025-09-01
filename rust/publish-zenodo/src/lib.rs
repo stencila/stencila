@@ -2,20 +2,17 @@
 
 use std::{path::PathBuf, str::FromStr};
 
+use clap::{
+    Parser, ValueHint,
+    builder::{ArgPredicate, PossibleValue},
+};
+use eyre::{OptionExt, Result, bail};
+use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use serde_json::{Value, json};
 
 use cli_utils::{color_print::cstr, parse_host};
 use codec::schema::ConfigPublishZenodoAccessRight;
-use common::{
-    clap::{
-        self, Parser, ValueHint,
-        builder::{ArgPredicate, PossibleValue},
-    },
-    eyre::{OptionExt, Result, bail},
-    reqwest::Client,
-    serde_json::{Value, json},
-    tokio, tracing,
-};
 use document::{Document, schema, schema::Node};
 
 mod metadata_extraction;
@@ -720,7 +717,7 @@ impl Cli {
         if !&deposition_response.status().is_success() {
             let http_code = deposition_response.status().as_u16();
             let data: Value = deposition_response.json().await?;
-            let debug_info = common::serde_json::to_string_pretty(&data)?;
+            let debug_info = serde_json::to_string_pretty(&data)?;
 
             if let Some(Value::String(top_level_message)) = data.get("message") {
                 tracing::info!(

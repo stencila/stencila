@@ -1,12 +1,12 @@
+use eyre::{Result, bail};
+use tempfile::tempdir;
+
 use document::{Document, schema::Node};
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use codec::schema::ConfigPublishZenodoAccessRight;
-    use common::eyre::bail;
-    use common::tempfile::tempdir;
-    use common::{eyre::Result, tokio};
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_ghost_config_parsing() -> Result<()> {

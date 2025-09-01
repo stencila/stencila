@@ -4,7 +4,8 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-common = { "path" = "../common" }
+clap = { workspace = true }
+eyre = { workspace = true }
 publish-ghost = { "path" = "../publish-ghost" }
 publish-stencila = { "path" = "../publish-stencila" }
 publish-zenodo = { path = "../publish-zenodo" }

@@ -1,21 +1,17 @@
 use std::path::{Path, PathBuf};
 
+use clap::Parser;
+use eyre::{Result, bail, eyre};
+use reqwest::{
+    Client,
+    multipart::{Form, Part},
+};
 use serde::Serialize;
+use tempfile::TempDir;
 
 use cloud::ErrorResponse;
 use codec::{Codec, EncodeOptions};
 use codec_swb::SwbCodec;
-use common::{
-    clap::{self, Parser},
-    eyre::{Result, bail, eyre},
-    reqwest::{
-        Client,
-        multipart::{Form, Part},
-    },
-    serde_json,
-    tempfile::TempDir,
-    tokio, tracing,
-};
 use document::Document;
 use schema::Node;
 

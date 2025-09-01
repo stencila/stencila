@@ -1,6 +1,7 @@
-use codec::schema::{Person, Primitive, PropertyValue, PropertyValueOrString};
-use common::{eyre::OptionExt, regex, tracing};
 use std::{borrow::Cow, sync::OnceLock};
+
+use codec::schema::{Person, Primitive, PropertyValue, PropertyValueOrString};
+use eyre::OptionExt;
 
 pub(crate) fn extract_affiliations(author: &Person) -> Option<impl Iterator<Item = Cow<'_, str>>> {
     let Person {
@@ -16,7 +17,7 @@ pub(crate) fn extract_affiliations(author: &Person) -> Option<impl Iterator<Item
     }
 
     if aff.len() > 1 {
-        common::tracing::warn!(
+        tracing::warn!(
             "Author has multiple affiliations, only one can be added programmatically. Edit the record in Zenodo's web interface to correct any mistakes."
         );
     }
@@ -98,7 +99,7 @@ pub(crate) fn extract_doi(id: &PropertyValueOrString) -> Option<Cow<'_, str>> {
 }
 
 /// Parse an input from the command line as a Ghost host
-pub fn parse_doi(arg: &str) -> common::eyre::Result<String> {
+pub fn parse_doi(arg: &str) -> eyre::Result<String> {
     let doi = find_doi(arg).ok_or_eyre("DOI supplied is invalid")?;
     tracing::error!("wat {}", doi);
     Ok(doi.to_string())
@@ -230,7 +231,7 @@ fn find_doi(text: &str) -> Option<Cow<'_, str>> {
     Some(Cow::Borrowed(doi))
 }
 
-#[common::tracing::instrument]
+#[tracing::instrument]
 pub(crate) fn extract_orcid(id: &PropertyValueOrString) -> Option<Cow<'_, str>> {
     match id {
         PropertyValueOrString::PropertyValue(property) => {
@@ -253,7 +254,7 @@ pub(crate) fn extract_orcid(id: &PropertyValueOrString) -> Option<Cow<'_, str>> 
     }
 }
 
-#[common::tracing::instrument]
+#[tracing::instrument]
 pub(crate) fn find_orcid(text: &str) -> Option<Cow<'_, str>> {
     // this function is uglier than it should be because we permit people to specify ORCID
     // in a variety of ways, including with or without the orcid.org domain, with or without
