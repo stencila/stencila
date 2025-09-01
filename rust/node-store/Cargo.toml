@@ -10,16 +10,25 @@ proptest-high = ["schema/proptest-high"]
 proptest-max = ["schema/proptest-max"]
 
 [dependencies]
+async-trait = { workspace = true }
 automerge = "0.6.1"
-common = { path = "../common" }
+eyre = { workspace = true }
 node-store-derive = { path = "../node-store-derive" }
 node-strip = { path = "../node-strip" }
 node-type = { path = "../node-type" }
+serde_json = { workspace = true }
+smol_str = { workspace = true }
+tokio = { workspace = true }
 
 [dev-dependencies]
 codecs = { path = "../codecs" }
 common-dev = { path = "../common-dev" }
+eyre = { workspace = true }
+glob = { workspace = true }
+itertools = { workspace = true }
 schema = { path = "../schema" }
+serde_json = { workspace = true }
+tokio = { workspace = true }
 
 [lints]
 workspace = true

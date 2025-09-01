@@ -1,4 +1,4 @@
-use common::eyre::Result;
+use eyre::Result;
 
 use crate::prelude::*;
 

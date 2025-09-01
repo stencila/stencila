@@ -53,7 +53,7 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
         fields.extend(field);
     }
     methods.extend(quote! {
-        fn load_map<S: node_store::ReadStore>(store: &S, obj_id: &node_store::ObjId) -> common::eyre::Result<Self> {
+        fn load_map<S: node_store::ReadStore>(store: &S, obj_id: &node_store::ObjId) -> eyre::Result<Self> {
             let mut node = Self::default();
 
             #fields
@@ -84,7 +84,7 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum, attrs: &Vec<Attribute>)
                 stringify!(#variant_name) => Ok(Self::#variant_name(#variant_name::load_map(store, obj_id)?)),
             },
             Fields::Unit => quote! {
-                stringify!(#variant_name) => common::eyre::bail!(
+                stringify!(#variant_name) => eyre::bail!(
                     "Attempting to load unit variant `{}::{}` as map",
                     stringify!(#enum_name),
                     stringify!(#variant_name)
@@ -94,13 +94,13 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum, attrs: &Vec<Attribute>)
         cases.extend(case)
     }
     methods.extend(quote! {
-        fn load_map<S: node_store::ReadStore>(store: &S, obj_id: &node_store::ObjId) -> common::eyre::Result<Self> {
+        fn load_map<S: node_store::ReadStore>(store: &S, obj_id: &node_store::ObjId) -> eyre::Result<Self> {
             let Some(node_type) = node_store::get_type(store, obj_id)? else {
-                common::eyre::bail!("Automerge object has no `type` property needed for loading enum `{}`", stringify!(#enum_name));
+                eyre::bail!("Automerge object has no `type` property needed for loading enum `{}`", stringify!(#enum_name));
             };
             match node_type.as_str() {
                 #cases
-                _ => common::eyre::bail!("Unexpected type `{node_type}` in Automerge store for enum `{}`", stringify!(#enum_name))
+                _ => eyre::bail!("Unexpected type `{node_type}` in Automerge store for enum `{}`", stringify!(#enum_name))
             }
         }
     });
@@ -112,7 +112,7 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum, attrs: &Vec<Attribute>)
         .all(|variant| matches!(variant.fields, Fields::Unit))
     {
         methods.extend(quote! {
-            fn load_str(value: &smol_str::SmolStr) -> common::eyre::Result<Self> {
+            fn load_str(value: &smol_str::SmolStr) -> eyre::Result<Self> {
                 Ok(serde_json::from_str(&["\"", &value, "\""].concat())?)
             }
         });
@@ -130,7 +130,7 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum, attrs: &Vec<Attribute>)
     }
     if impl_default {
         methods.extend(quote! {
-            fn load_none() -> common::eyre::Result<Self> {
+            fn load_none() -> eyre::Result<Self> {
                 Ok(Self::default())
             }
         });

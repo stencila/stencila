@@ -2,7 +2,8 @@
 
 #![allow(unused_imports)]
 
-use common::eyre::Result;
+use eyre::Result;
+
 use common_dev::{
     pretty_assertions::assert_eq,
     proptest::prelude::{ProptestConfig, proptest},

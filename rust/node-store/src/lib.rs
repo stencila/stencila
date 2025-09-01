@@ -3,15 +3,12 @@
 use std::path::Path;
 use std::time::SystemTime;
 
+use async_trait::async_trait;
 use automerge::ROOT;
-
-use common::{
-    async_trait::async_trait,
-    eyre::{Context, Result, bail},
-    smol_str::SmolStr,
-    tokio::fs::{read, write},
-};
+use eyre::{Context, Result, bail};
 use node_strip::StripNode;
+use smol_str::SmolStr;
+use tokio::fs::{read, write};
 
 pub use automerge::{
     self, AutoCommit as WriteStore, ChangeHash as CommitHash, ObjId, ObjType, Prop,
@@ -40,7 +37,7 @@ pub use utilities::*;
 #[macro_export]
 macro_rules! bail_type {
     ($message:literal) => {
-        common::eyre::bail!($message, type = std::any::type_name::<Self>())
+        eyre::bail!($message, type = std::any::type_name::<Self>())
     };
 }
 
@@ -48,7 +45,7 @@ macro_rules! bail_type {
 #[macro_export]
 macro_rules! bail_load_unexpected {
     ($unexpected:literal) => {
-        common::eyre::bail!(
+        eyre::bail!(
             "Unexpected Automerge `{unexpected}` while attempting to load `{type}` from store",
             unexpected = $unexpected,
             type = std::any::type_name::<Self>()
@@ -271,7 +268,7 @@ pub async fn load_store(path: &Path) -> Result<WriteStore> {
 
 /// Inspect an Automerge store by serializing it to JSON
 pub fn inspect_store<S: ReadStore>(store: &S) -> Result<String> {
-    Ok(common::serde_json::to_string_pretty(
-        &automerge::AutoSerde::from(store),
-    )?)
+    Ok(serde_json::to_string_pretty(&automerge::AutoSerde::from(
+        store,
+    ))?)
 }

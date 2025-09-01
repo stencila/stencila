@@ -1,6 +1,6 @@
 use automerge::{ObjType, Prop, ScalarValue, Value};
 
-use common::eyre::{Result, bail};
+use eyre::{Result, bail};
 use node_type::NodeType;
 
 use crate::{ReadStore, automerge::ObjId};

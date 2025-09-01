@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
-use common::{eyre::Result, serde_json::json};
+use eyre::Result;
+use serde_json::json;
+
 use common_dev::pretty_assertions::assert_eq;
 
 use schema::{Array, Article, Block, Cord, Inline, Node, Null, Object, Paragraph, Primitive, Text};
@@ -267,7 +269,7 @@ fn article() -> Result<()> {
 /// Test loading & dumping of `Node`s
 #[test]
 fn node() -> Result<()> {
-    use common::serde_json::{self, json};
+    use serde_json::{self, json};
 
     let mut base = WriteStore::new();
 

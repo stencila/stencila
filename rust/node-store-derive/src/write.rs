@@ -52,7 +52,7 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
         fields.extend(field);
     }
     methods.extend(quote! {
-        fn sync_map(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId) -> common::eyre::Result<()> {
+        fn sync_map(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId) -> eyre::Result<()> {
             use node_store::automerge::{ReadDoc, transaction::Transactable};
 
             #fields
@@ -92,7 +92,7 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
         fields.extend(field);
     }
     methods.extend(quote! {
-        fn insert_prop(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId, prop: node_store::Prop) -> common::eyre::Result<()> {
+        fn insert_prop(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId, prop: node_store::Prop) -> eyre::Result<()> {
             use node_store::{ObjType, Prop, automerge::{transaction::Transactable}};
 
             let prop_obj_id = match prop.clone() {
@@ -105,7 +105,7 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
             Ok(())
         }
 
-        fn insert_into(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId) -> common::eyre::Result<()> {
+        fn insert_into(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId) -> eyre::Result<()> {
             use node_store::automerge::transaction::Transactable;
 
             #fields
@@ -118,7 +118,7 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     // Note that currently this could be made into a function
     // to avoid code bloat
     methods.extend(quote! {
-        fn put_prop(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId, prop: node_store::Prop) -> common::eyre::Result<()> {
+        fn put_prop(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId, prop: node_store::Prop) -> eyre::Result<()> {
             use node_store::{ReadStore, ObjType, automerge::{Value, transaction::Transactable}};
 
             // Get the existing object at the property
@@ -163,7 +163,7 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
                 Self::#variant_name(variant) => variant.sync_map(store, obj_id),
             },
             Fields::Unit => quote! {
-                Self::#variant_name => common::eyre::bail!(
+                Self::#variant_name => eyre::bail!(
                     "Attempting to dump unit variant `{}::{}` as an Automerge object",
                     stringify!(#enum_name),
                     stringify!(#variant_name)
@@ -173,7 +173,7 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
         cases.extend(case)
     }
     methods.extend(quote! {
-        fn sync_map(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId) -> common::eyre::Result<()> {
+        fn sync_map(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId) -> eyre::Result<()> {
             match self {
                 #cases
             }
@@ -195,7 +195,7 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
         cases.extend(case)
     }
     methods.extend(quote! {
-        fn insert_prop(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId, prop: node_store::Prop) -> common::eyre::Result<()> {
+        fn insert_prop(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId, prop: node_store::Prop) -> eyre::Result<()> {
             match self {
                 #cases
             }
@@ -217,7 +217,7 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
         cases.extend(case)
     }
     methods.extend(quote! {
-        fn put_prop(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId, prop: node_store::Prop) -> common::eyre::Result<()> {
+        fn put_prop(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId, prop: node_store::Prop) -> eyre::Result<()> {
             match self {
                 #cases
             }

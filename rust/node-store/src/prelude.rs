@@ -3,6 +3,6 @@ pub(crate) use automerge::{
     transaction::Transactable,
 };
 
-pub(crate) use common::eyre::Result;
+pub(crate) use eyre::Result;
 
 pub(crate) use crate::{ReadNode, WriteNode};
