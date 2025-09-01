@@ -1,5 +1,5 @@
-use common::eyre::{Result, eyre};
 use dirs::{DirType, get_app_dir};
+use eyre::{Result, eyre};
 use fastembed::{EmbeddingModel, InitOptions, TextEmbedding};
 
 /// Generate embeddings for more that one text
