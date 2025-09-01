@@ -1,17 +1,13 @@
 use std::path::Path;
 
+use async_trait::async_trait;
+use clap::{self, ValueEnum};
+use eyre::{Result, bail};
+use format::Format;
 use serde::{Deserialize, Serialize};
 use strum::Display;
-
-use common::{
-    async_trait::async_trait,
-    bs58,
-    clap::{self, ValueEnum},
-    eyre::{Result, bail},
-    tokio::sync::{broadcast, mpsc, watch},
-    uuid::Uuid,
-};
-use format::Format;
+use tokio::sync::{broadcast, mpsc, watch};
+use uuid::Uuid;
 
 // Re-exports for the convenience of internal crates implementing
 // the `Kernel` trait
@@ -401,13 +397,10 @@ pub enum KernelSignal {
 pub mod tests {
     use std::{env, time::Duration};
 
-    use common::{
-        eyre::{OptionExt, Report},
-        indexmap::IndexMap,
-        itertools::Itertools,
-        tokio, tracing,
-    };
     use common_dev::pretty_assertions::assert_eq;
+    use eyre::{OptionExt, Report};
+    use indexmap::IndexMap;
+    use itertools::Itertools;
     use schema::{Array, Null, Object, Paragraph, Primitive, SoftwareApplication};
 
     use super::*;
