@@ -13,7 +13,6 @@ use eyre::Result;
 use once_cell::sync::Lazy;
 use strum::Display;
 use tokio::sync::Mutex;
-use tracing;
 
 pub use crate::lsp::LspClient;
 use crate::{cli::CliProvider, default::DefaultProvider, lsp::LspProvider};
