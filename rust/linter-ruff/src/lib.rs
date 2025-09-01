@@ -4,16 +4,11 @@ use std::{
 };
 
 use serde::Deserialize;
+use tempfile::NamedTempFile;
 
 use stencila_linter::{
-    Format, Linter, LinterAvailability, LintingOptions, LintingOutput, NodeType,
-    common::{
-        async_trait::async_trait,
-        eyre::{OptionExt, Result},
-        serde_json,
-        tempfile::NamedTempFile,
-        tracing,
-    },
+    Format, Linter, LinterAvailability, LintingOptions, LintingOutput, NodeType, async_trait,
+    eyre::{OptionExt, Result},
     schema::{
         AuthorRoleName, CodeLocation, CompilationMessage, MessageLevel, SoftwareApplication,
         Timestamp,

@@ -1,7 +1,5 @@
 use std::path::Path;
 
-use async_trait::async_trait;
-use eyre::Result;
 use harper_core::{
     Dialect, Document,
     linting::{Lint, LintGroup, LintKind, Linter as _, Suggestion},
@@ -12,7 +10,8 @@ use once_cell::sync::Lazy;
 use tokio::sync::Mutex;
 
 use stencila_linter::{
-    Format, Linter, LinterAvailability, LintingOptions, LintingOutput, NodeType,
+    Format, Linter, LinterAvailability, LintingOptions, LintingOutput, NodeType, async_trait,
+    eyre::Result,
     schema::{
         AuthorRoleName, CodeLocation, CompilationMessage, MessageLevel, SoftwareApplication,
         Timestamp,

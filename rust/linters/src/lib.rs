@@ -5,15 +5,13 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+use itertools::Itertools;
+use once_cell::sync::Lazy;
+
 pub use stencila_linter::LintingOptions;
 use stencila_linter::{
     Linter, LinterAvailability, LintingOutput,
-    common::{
-        eyre::{Result, bail},
-        itertools::Itertools,
-        once_cell::sync::Lazy,
-        tracing,
-    },
+    eyre::{Result, bail},
 };
 use stencila_linter_links::LinksLinter;
 use stencila_linter_lintr::LintRLinter;

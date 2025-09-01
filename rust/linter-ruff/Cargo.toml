@@ -5,8 +5,11 @@ edition = "2024"
 
 [dependencies]
 serde = { workspace = true }
+serde_json = { workspace = true }
 stencila-linter = { path = "../linter" }
+tempfile = { workspace = true }
 tools = { path = "../tools" }
+tracing = { workspace = true }
 
 [lints]
 workspace = true

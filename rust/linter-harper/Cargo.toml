@@ -4,8 +4,6 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-async-trait = { workspace = true }
-eyre = { workspace = true }
 harper-core = { version = "0.59.0", features = ["concurrent"] }
 itertools = { workspace = true }
 once_cell = { workspace = true }

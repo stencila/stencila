@@ -5,7 +5,9 @@ edition = "2024"
 
 [dependencies]
 stencila-linter = { path = "../linter" }
+tempfile = { workspace = true }
 tools = { path = "../tools" }
+tracing = { workspace = true }
 
 [lints]
 workspace = true

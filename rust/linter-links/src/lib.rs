@@ -1,13 +1,12 @@
 use std::{collections::HashMap, path::Path, time::Duration};
 
-use async_trait::async_trait;
-use eyre::Result;
 use once_cell::sync::Lazy;
 use reqwest::Client;
 use tokio::sync::Mutex;
 
 use stencila_linter::{
-    Format, Linter, LinterAvailability, LintingOptions, LintingOutput, NodeType,
+    Format, Linter, LinterAvailability, LintingOptions, LintingOutput, NodeType, async_trait,
+    eyre::Result,
     schema::{AuthorRoleName, CompilationMessage, MessageLevel, SoftwareApplication, Timestamp},
 };
 use version::STENCILA_USER_AGENT;
@@ -196,8 +195,6 @@ async fn is_url_accessible(url: &str) -> Option<bool> {
 
 #[cfg(test)]
 mod tests {
-    use stencila_linter::common::tokio;
-
     use super::*;
 
     #[tokio::test]

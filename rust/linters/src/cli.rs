@@ -1,19 +1,18 @@
 use std::path::PathBuf;
 
+use clap::{self, Args, Parser, Subcommand};
 use cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
     tabulated::{Attribute, Cell, Color, Tabulated},
 };
+use itertools::Itertools;
+use serde_yaml;
+use tokio::fs::read_to_string;
+
 use stencila_linter::{
     Format, LinterAvailability, LinterSpecification, LintingOptions, NodeType,
-    common::{
-        clap::{self, Args, Parser, Subcommand},
-        eyre::{Result, bail},
-        itertools::Itertools,
-        serde_yaml,
-        tokio::fs::read_to_string,
-    },
+    eyre::{Result, bail},
 };
 
 use crate::{lint, list};

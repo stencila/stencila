@@ -4,12 +4,8 @@ use std::{
 };
 
 use stencila_linter::{
-    Format, Linter, LinterAvailability, LintingOptions, LintingOutput, NodeType,
-    common::{
-        async_trait::async_trait,
-        eyre::{OptionExt, Result},
-        tempfile, tracing,
-    },
+    Format, Linter, LinterAvailability, LintingOptions, LintingOutput, NodeType, async_trait,
+    eyre::{OptionExt, Result},
     schema::{AuthorRoleName, SoftwareApplication, Timestamp},
 };
 use tools::{R, StyleR, Tool};
