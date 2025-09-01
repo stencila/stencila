@@ -1,4 +1,5 @@
-use common::indexmap::IndexMap;
+use indexmap::IndexMap;
+
 use schema::{
     Block, Inline, ListItem, Node, NodeId, NodePath, NodeProperty, NodeSlot, TableCell, TableRow,
     Visitor, WalkControl, WalkNode,

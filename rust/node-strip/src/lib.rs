@@ -2,12 +2,9 @@
 
 use std::{collections::HashMap, fmt::Display};
 
+use clap::{self, ValueEnum};
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
-
-use common::{
-    clap::{self, ValueEnum},
-    indexmap::IndexMap,
-};
 
 pub use node_strip_derive::StripNode;
 

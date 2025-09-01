@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-common = { path = "../common" }
+indexmap = { workspace = true }
 schema = { path = "../schema" }
 
 [lints]

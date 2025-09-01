@@ -4,7 +4,8 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-common = { path = "../common" }
+clap = { workspace = true }
+indexmap = { workspace = true }
 node-strip-derive = { path = "../node-strip-derive" }
 serde = { workspace = true }
 
