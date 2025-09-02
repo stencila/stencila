@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["node/stencila-node", "python/stencila", "rust/*"]
+members = ["rust/*", "node/stencila-node", "python/stencila"]
 
 [workspace.dependencies]
 Inflector = "0.11.4"
@@ -56,6 +56,8 @@ tl = "0.7.8"
 tokio = { version = "1.47.1", features = ["full", "tracing"] }
 toml = "0.9.5"
 tracing = { version = "0.1.41", features = ["log"] }
+tracing-error = "0.2.1"
+tracing-subscriber = { version = "0.3.20", features = ["env-filter", "json"] }
 url = { version = "2.5.7", features = ["serde"] }
 uuid = { version = "1.18.1", features = ["v4"] }
 which = "8.0.0"

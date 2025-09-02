@@ -51,8 +51,8 @@ tar = { workspace = true }
 tempfile = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
-tracing-error = "0.2.1"
-tracing-subscriber = { version = "0.3.19", features = ["env-filter", "json"] }
+tracing-error = { workspace = true }
+tracing-subscriber = { workspace = true }
 url = { workspace = true }
 webbrowser = "1.0.5"
 zip = { workspace = true }
