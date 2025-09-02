@@ -26,7 +26,6 @@ stencila-dirs = { path = "../dirs" }
 stencila-images = { path = "../images" }
 stencila-model = { path = "../model" }
 stencila-models = { path = "../models" }
-stencila-prompt = { path = "../prompt" }
 stencila-version = { path = "../version" }
 tar = { workspace = true }
 tokio = { workspace = true }

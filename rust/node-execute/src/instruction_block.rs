@@ -145,9 +145,7 @@ impl Executable for InstructionBlock {
 
         // Execute the `PromptBlock`. The instruction context needs to
         // be set for the prompt context to be complete (i.e. include `instruction` variable)
-        executor.instruction_context = Some((&*self).into());
         self.prompt.execute(executor).await;
-        executor.instruction_context = None;
 
         // Render the `PromptBlock` into a system prompt
         let system_prompt = to_markdown_flavor(&self.prompt.content, Format::Markdown);

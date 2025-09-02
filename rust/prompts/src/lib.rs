@@ -43,9 +43,6 @@ use stencila_model::{
 };
 use stencila_version::stencila_version;
 
-// Re-exports
-pub use stencila_prompt;
-
 pub mod cli;
 
 /// An instance of a prompt
