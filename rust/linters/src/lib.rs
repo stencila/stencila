@@ -12,11 +12,17 @@ use stencila_linter::{
     Linter, LinterAvailability, LintingOutput,
     eyre::{Result, bail},
 };
+
 use stencila_linter_links::LinksLinter;
 use stencila_linter_lintr::LintRLinter;
 use stencila_linter_pyright::PyrightLinter;
 use stencila_linter_ruff::RuffLinter;
 use stencila_linter_styler::StyleRLinter;
+
+// Disabled until linter configuration and custom dictionaries
+// are introduced because can be very noisy for large documents
+#[cfg(feature = "stencila-linter-harper")]
+use stencila_linter_harper::HarperLinter;
 
 pub mod cli;
 
@@ -30,15 +36,14 @@ pub async fn list() -> Vec<Box<dyn Linter>> {
 
         // Programming languages
         Box::<RuffLinter>::default() as Box<dyn Linter>,
-        Box::<PyrightLinter>::default() as Box<dyn Linter>,
-        Box::<StyleRLinter>::default() as Box<dyn Linter>,
-        Box::<LintRLinter>::default() as Box<dyn Linter>,
+        Box::<PyrightLinter>::default(),
+        Box::<StyleRLinter>::default(),
+        Box::<LintRLinter>::default(),
         // Content validation
-        Box::<LinksLinter>::default() as Box<dyn Linter>,
+        Box::<LinksLinter>::default(),
         // Grammar and spelling
-        // Disabled until linter configuration and custom dictionaries
-        // are introduced because can be very noisy for large documents
-        // Box::<HarperLinter>::default() as Box<dyn Linter>,
+        #[cfg(feature = "stencila-linter-harper")]
+        Box::<HarperLinter>::default(),
     ]
 }
 

@@ -9,7 +9,7 @@ itertools = { workspace = true }
 serde_yaml = { workspace = true }
 stencila-cli-utils = { path = "../cli-utils" }
 stencila-linter = { path = "../linter" }
-stencila-linter-harper = { path = "../linter-harper" }
+stencila-linter-harper = { path = "../linter-harper", optional = true }
 stencila-linter-links = { path = "../linter-links" }
 stencila-linter-lintr = { path = "../linter-lintr" }
 stencila-linter-pyright = { path = "../linter-pyright" }
