@@ -6,7 +6,7 @@ use stencila_ask::{
 };
 
 /// As little CLI for manually testing this crate
-/// Run it using `cargo run -p ask`
+/// Run it using `cargo run -p stencila-stencila-ask`
 #[allow(clippy::print_stderr)]
 #[tokio::main]
 async fn main() -> Result<()> {

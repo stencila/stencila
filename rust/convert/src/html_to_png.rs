@@ -949,7 +949,7 @@ fn wrap_html(html: &str) -> String {
     // a local Stencila server with permissive CORS (so that headless
     // browser can get use web dist):
     //
-    // cargo run -p cli serve --cors permissive
+    // cargo run --bin stencila serve --cors permissive
     //let static_prefix = "http://localhost:9000/~static/dev".to_string();
 
     // Add CSS

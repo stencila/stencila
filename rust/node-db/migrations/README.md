@@ -67,7 +67,7 @@ For complex changes like column type modifications, migrations use a multi-step 
 Migrations are automatically created during schema generation:
 
 ```sh
-cargo run -p schema-gen
+cargo run -p stencila-schema-gen
 ```
 
 ## Execution

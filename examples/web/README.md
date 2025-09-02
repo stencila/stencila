@@ -26,7 +26,7 @@ The recommended way to add examples with a JSON sidecar file is to use the `new`
 
 ```sh
 # Using a development version of the CLI
-cargo run -p cli new paragraph/simple.smd --sidecar json
+cargo run --bin stencila new paragraph/simple.smd --sidecar json
 
 # Using an installed version of the CLI
 stencila new paragraph/simple.smd --sidecar json
@@ -37,7 +37,7 @@ stencila new paragraph/simple.smd --sidecar json
 Preview each example in VSCode, or using the built-in server using,
 
 ```sh
-cargo run -p cli preview multi/flat.smd
+cargo run --bin stencila preview multi/flat.smd
 ```
 
 ## Running tests

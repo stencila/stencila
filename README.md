@@ -170,7 +170,7 @@ Kernels are what executes the code in Stencila `CodeChunk`s and `CodeExpression`
 | HTTP                                                                       | Interact with RESTful APIs                                 | ❔ Maybe; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-http)  |
 
 > [!TIP]
-> Run `stencila kernels` (or `cargo run -p cli kernels` in development) for an up to date list of kernels, including those available through plugins.
+> Run `stencila kernels` (or `cargo run --bin stencila kernels` in development) for an up to date list of kernels, including those available through plugins.
 
 ### Tools
 

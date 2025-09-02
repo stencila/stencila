@@ -192,7 +192,7 @@ fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, Encode
 
         // During development (e.g. when generating PDFs via HTML) it can be useful to
         // use a local development version of the web assets. To do so, uncomment the
-        // next line and run `cargo run -p cli serve --cors permissive`
+        // next line and run `cargo run --bin stencila serve --cors permissive`
         //#[cfg(debug_assertions)]
         //let static_prefix = format!("http://localhost:9000/~static/dev");
 

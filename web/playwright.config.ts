@@ -60,7 +60,7 @@ export default defineConfig({
   ],
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'cargo run -p cli serve ../examples/web --no-auth',
+    command: 'cargo run --bin stencila serve ../examples/web --no-auth',
     url: 'http://127.0.0.1:9000',
     reuseExistingServer: !process.env.CI,
   },

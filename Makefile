@@ -13,7 +13,7 @@ install:
 # This uses Stencila itself to install the tools defined in mise.toml etc
 # As such it also acts as a test of that functionality.
 install-tools:
-	cargo run -p cli tools install --debug
+	cargo run --bin stencila tools install --debug
 
 # Make formatting and linting fixes
 fix:

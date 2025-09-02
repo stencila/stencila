@@ -35,13 +35,13 @@ To add a new type of generated output:
 - Test by generating the new output. By default all outputs are generated. To generated only some, list them e.g.
 
 ```sh
-cargo run -p schema-gen -- docs rust
+cargo run -p stencila-schema-gen -- docs rust
 ```
 
 Because this crate depends upon the Rust types it generates (for generating documentation), if there are any errors in that Rust code, it is not possible to recompile. To avoid this circular dependency, run generation without the `docs` feature enabled:
 
 ```sh
-cargo run -p schema-gen --no-default-features
+cargo run -p stencila-schema-gen --no-default-features
 ```
 
 > [!WARNING]

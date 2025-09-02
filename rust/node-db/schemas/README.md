@@ -23,5 +23,5 @@ See `../../schema-gen/src/kuzu_types.rs` for the schema representation that is s
 The current schema (`current.cypher`) and current snapshot (`v99.99.99.json`) are automatically created during the schema generation:
 
 ```sh
-cargo run -p schema-gen
+cargo run -p stencila-schema-gen
 ```

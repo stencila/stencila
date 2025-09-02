@@ -8,4 +8,4 @@ TARGETS = $(foreach src,$(SOURCES),$(src).myst $(src).qmd)
 all: $(TARGETS)
 
 %.myst %.qmd: %.smd
-	cargo run -p cli convert $< $@
+	cargo run --bin stencila convert $< $@

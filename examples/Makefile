@@ -4,7 +4,7 @@ all: conversion kernels
 
 # Execute a particular prompt example and save as JSON
 prompts/%.json: prompts/%.md
-	cargo run -p cli execute $< $@ --skip-code
+	cargo run --bin stencila execute $< $@ --skip-code
 
 # Execute all prompt examples
 prompts: $(patsubst %.md,%.json,$(filter-out %README.md,$(wildcard prompts/**/*.md)))
@@ -18,7 +18,7 @@ conversion:
 
 # Execute a particular kernel example and save as JSON
 kernels/%.json: kernels/%.md
-	cargo run -p cli --quiet execute $< $@
+	cargo run --bin stencila --quiet execute $< $@
 
 # Execute all kernel examples
 kernels: $(patsubst %.md,%.json,$(filter-out %README.md,$(wildcard kernels/**/*.md)))
