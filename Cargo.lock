@@ -1243,7 +1243,7 @@ dependencies = [
  "log",
  "quick-xml 0.37.5",
  "serde",
- "zip 4.3.0",
+ "zip 4.6.0",
 ]
 
 [[package]]
@@ -8906,7 +8906,7 @@ dependencies = [
  "tracing-subscriber",
  "url",
  "webbrowser",
- "zip 2.5.0",
+ "zip 4.6.0",
 ]
 
 [[package]]
@@ -9104,7 +9104,7 @@ dependencies = [
  "tempfile",
  "tokio",
  "uuid",
- "zip 2.5.0",
+ "zip 4.6.0",
 ]
 
 [[package]]
@@ -9306,7 +9306,7 @@ dependencies = [
  "stencila-codec",
  "stencila-version",
  "tokio",
- "zip 2.5.0",
+ "zip 4.6.0",
 ]
 
 [[package]]
@@ -9467,7 +9467,7 @@ dependencies = [
  "tempfile",
  "tokio",
  "tracing",
- "zip 2.5.0",
+ "zip 4.6.0",
 ]
 
 [[package]]
@@ -13519,15 +13519,16 @@ dependencies = [
 
 [[package]]
 name = "zip"
-version = "4.3.0"
+version = "4.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9aed4ac33e8eb078c89e6cbb1d5c4c7703ec6d299fc3e7c3695af8f8b423468b"
+checksum = "c034aa6c54f654df20e7dc3713bc51705c12f280748fb6d7f40f87c696623e34"
 dependencies = [
  "arbitrary",
  "crc32fast",
  "flate2",
  "indexmap 2.11.0",
  "memchr",
+ "time",
  "zopfli",
 ]
 
