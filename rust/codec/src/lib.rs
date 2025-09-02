@@ -297,7 +297,7 @@ pub trait Codec: Sync + Send {
             .map(|(bytes, info)| (String::from_utf8_lossy(&bytes).to_string(), info))
     }
 
-    /// Encode a Stencila Schema to a file
+    /// Encode a Stencila Schema node to a file
     #[tracing::instrument(skip(self, node, file))]
     async fn to_file(
         &self,
@@ -318,11 +318,12 @@ pub trait Codec: Sync + Send {
                 .map(|(string, info)| (string.as_bytes().to_vec(), info))
         }?;
         file.write_all(&content).await?;
+        file.flush().await?;
 
         Ok(info)
     }
 
-    /// Encode a Stencila Schema to a file system path
+    /// Encode a Stencila Schema node to a file system path
     #[tracing::instrument(skip(self, node))]
     async fn to_path(
         &self,
