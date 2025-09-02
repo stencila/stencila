@@ -5,7 +5,7 @@ use std::{
 };
 
 use chrono::{DateTime, Utc};
-use clap::{self, Parser};
+use clap::Parser;
 use eyre::{Context, OptionExt, Result, bail, eyre};
 use jsonwebtoken as jwt;
 use reqwest::{Client, Response, StatusCode, multipart::Form};

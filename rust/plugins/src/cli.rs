@@ -1,4 +1,4 @@
-use clap::{self, Parser, Subcommand};
+use clap::{Parser, Subcommand};
 use cli_utils::color_print::cstr;
 use eyre::Result;
 

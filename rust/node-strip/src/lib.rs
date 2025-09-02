@@ -2,7 +2,7 @@
 
 use std::{collections::HashMap, fmt::Display};
 
-use clap::{self, ValueEnum};
+use clap::ValueEnum;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 

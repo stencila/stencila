@@ -1,6 +1,6 @@
 use strum::{EnumIter, IntoEnumIterator};
 
-use clap::{self, Parser, ValueEnum};
+use clap::{Parser, ValueEnum};
 use eyre::Result;
 use itertools::Itertools;
 

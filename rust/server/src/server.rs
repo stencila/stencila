@@ -14,7 +14,7 @@ use axum::{
     response::{IntoResponse, Response},
     routing::get,
 };
-use clap::{self, Args};
+use clap::Args;
 use rand::{Rng, rng};
 use serde::Deserialize;
 use smart_default::SmartDefault;

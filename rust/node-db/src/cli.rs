@@ -2,7 +2,7 @@
 
 use std::{env::current_dir, path::PathBuf};
 
-use clap::{self, Args};
+use clap::Args;
 use eyre::{Result, bail};
 use itertools::Itertools;
 use tokio::fs::remove_file;

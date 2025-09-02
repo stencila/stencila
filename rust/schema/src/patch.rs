@@ -3,7 +3,7 @@ use std::{any::type_name, collections::HashMap, fmt::Debug, ops::Range};
 use eyre::{Report, Result, bail};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
-use serde_json::{self, Value as JsonValue};
+use serde_json::Value as JsonValue;
 
 use format::Format;
 use node_id::NodeId;

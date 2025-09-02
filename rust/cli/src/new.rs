@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use clap::{self, Parser, ValueEnum};
+use clap::{Parser, ValueEnum};
 use eyre::Result;
 
 use cli_utils::color_print::cstr;

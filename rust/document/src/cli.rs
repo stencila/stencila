@@ -6,7 +6,7 @@ use std::{
 
 use chrono::TimeDelta;
 use chrono_humanize;
-use clap::{self, Parser};
+use clap::Parser;
 use eyre::{Report, Result, bail};
 use futures::future::try_join_all;
 use itertools::Itertools;

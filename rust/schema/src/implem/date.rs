@@ -1,6 +1,6 @@
 use std::{str::FromStr, sync::LazyLock};
 
-use chrono::{self, Datelike};
+use chrono::Datelike;
 use eyre::{Report, Result};
 use inflector::Inflector;
 use regex::Regex;

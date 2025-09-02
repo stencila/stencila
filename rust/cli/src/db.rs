@@ -1,6 +1,6 @@
 use std::{env::current_dir, path::PathBuf};
 
-use clap::{self, Parser, Subcommand};
+use clap::{Parser, Subcommand};
 use eyre::Result;
 use itertools::Itertools;
 

@@ -7,7 +7,7 @@ use tracing_subscriber::{
     registry::LookupSpan,
 };
 
-use clap::{self, ValueEnum};
+use clap::ValueEnum;
 use eyre::Result;
 use tracing::{Event, Level, Subscriber, metadata::LevelFilter};
 

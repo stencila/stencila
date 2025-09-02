@@ -15,7 +15,7 @@ use std::{
 
 use rand::{Rng, distr::Alphanumeric, rng};
 use semver::{Version, VersionReq};
-use serde::{self, Deserialize, Deserializer, Serialize, Serializer, de::DeserializeOwned};
+use serde::{Deserialize, Deserializer, Serialize, Serializer, de::DeserializeOwned};
 use strum::{Display, EnumString};
 use which::which;
 
@@ -23,8 +23,8 @@ use cli_utils::Code;
 use dirs::{DirType, get_app_dir};
 use eyre::{OptionExt, Report, Result, bail, eyre};
 use itertools::Itertools;
-use reqwest::{self, Client, Url, header};
-use serde_json::{self, Value};
+use reqwest::{Client, Url, header};
+use serde_json::Value;
 use serde_with::{DeserializeFromStr, SerializeDisplay};
 use tokio::{
     self,

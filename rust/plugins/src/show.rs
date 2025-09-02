@@ -1,4 +1,4 @@
-use clap::{self, Args};
+use clap::Args;
 use cli_utils::ToStdout;
 use eyre::Result;
 

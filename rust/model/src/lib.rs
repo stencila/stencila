@@ -1,4 +1,4 @@
-use clap::{self, ValueEnum};
+use clap::ValueEnum;
 use eyre::Result;
 use inflector::Inflector;
 use serde::{Deserialize, Serialize};

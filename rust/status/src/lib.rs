@@ -2,7 +2,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use strum::{Display, EnumString};
 
-use clap::{self, ValueEnum};
+use clap::ValueEnum;
 
 #[derive(
     Debug, Display, Default, Clone, Copy, ValueEnum, EnumString, Deserialize, Serialize, JsonSchema,

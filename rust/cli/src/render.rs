@@ -1,6 +1,6 @@
 use std::{path::PathBuf, process::exit};
 
-use clap::{self, Parser};
+use clap::Parser;
 use eyre::{Result, bail, eyre};
 
 use ask::{Answer, AskLevel, AskOptions, ask_with};

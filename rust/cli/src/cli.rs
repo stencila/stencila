@@ -1,9 +1,9 @@
 use ask::Answer;
-use clap::{self, Parser, Subcommand};
+use clap::{Parser, Subcommand};
 use eyre::{Result, bail};
 
 use cli_utils::color_print::cstr;
-use server::{self, ServeOptions};
+use server::ServeOptions;
 use version::STENCILA_VERSION;
 
 use crate::{

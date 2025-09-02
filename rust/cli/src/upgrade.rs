@@ -10,7 +10,7 @@ use std::{
     time::{Duration, SystemTime},
 };
 
-use clap::{self, Parser};
+use clap::Parser;
 use eyre::{Report, Result, bail};
 use flate2::read::GzDecoder;
 use reqwest::{Client, header::USER_AGENT};

@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use clap::{self, ValueEnum};
+use clap::ValueEnum;
 use eyre::{Result, bail};
 use format::Format;
 use serde::{Deserialize, Serialize};

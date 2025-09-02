@@ -1,7 +1,7 @@
 use std::io::{IsTerminal, Read, stdin};
 
 use ask::ask_for_password;
-use clap::{self, Args, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand};
 use eyre::Result;
 
 use cli_utils::{

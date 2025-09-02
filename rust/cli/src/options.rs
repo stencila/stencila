@@ -3,7 +3,7 @@ use std::{
     str::FromStr,
 };
 
-use clap::{self, Args};
+use clap::Args;
 
 use codecs::PageSelector;
 use format::Format;

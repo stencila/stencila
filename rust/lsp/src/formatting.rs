@@ -9,7 +9,7 @@ use async_lsp::{
     lsp_types::{Position, Range, TextEdit},
 };
 use itertools::Itertools;
-use similar::{self, Algorithm, capture_diff_slices};
+use similar::{Algorithm, capture_diff_slices};
 use tokio::sync::RwLock;
 
 use codecs::{EncodeOptions, Format, LossesResponse};

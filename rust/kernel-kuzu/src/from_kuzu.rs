@@ -4,7 +4,7 @@ use indexmap::IndexMap;
 use kuzu::{LogicalType, NodeVal, QueryResult, RelVal, Value};
 use regex::Regex;
 use serde::Serialize;
-use serde_json::{self, json};
+use serde_json::json;
 use strum::Display;
 
 use kernel::{

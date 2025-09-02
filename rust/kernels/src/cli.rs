@@ -1,4 +1,4 @@
-use clap::{self, Args, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand};
 use itertools::Itertools;
 
 use cli_utils::{

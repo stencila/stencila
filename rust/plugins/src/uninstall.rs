@@ -1,4 +1,4 @@
-use clap::{self, Args};
+use clap::Args;
 use cli_utils::message;
 use eyre::Result;
 use tokio::fs::remove_dir_all;

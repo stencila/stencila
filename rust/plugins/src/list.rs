@@ -3,7 +3,7 @@ use std::{
     time::Duration,
 };
 
-use clap::{self, Args};
+use clap::Args;
 use cli_utils::{
     ToStdout,
     tabulated::{Attribute, Cell, Color, Tabulated},

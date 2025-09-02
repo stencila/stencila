@@ -5,7 +5,7 @@ use std::{
     sync::Arc,
 };
 
-use clap::{self, ValueEnum};
+use clap::ValueEnum;
 use eyre::{OptionExt, Result, bail, eyre};
 use serde::{Deserialize, Serialize};
 use smart_default::SmartDefault;

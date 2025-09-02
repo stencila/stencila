@@ -1,6 +1,6 @@
 use std::{fs::File, path::Path};
 
-use clap::{self, Parser};
+use clap::Parser;
 use flate2::{Compression, write::GzEncoder};
 use tar::Builder;
 use tempfile::TempDir;

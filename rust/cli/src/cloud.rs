@@ -1,5 +1,5 @@
 use ask::ask_for_password;
-use clap::{self, Args, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand};
 use eyre::{Result, bail};
 use url::Url;
 

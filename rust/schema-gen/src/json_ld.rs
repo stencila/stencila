@@ -9,7 +9,7 @@ use eyre::Result;
 use futures::future::try_join_all;
 use glob::glob;
 use itertools::Itertools;
-use serde_json::{self, json};
+use serde_json::json;
 use tokio::fs::{remove_file, write};
 
 use crate::{

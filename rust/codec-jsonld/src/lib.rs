@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::LazyLock};
 
-use serde_json::{self, Map, Value, json};
+use serde_json::{Map, Value, json};
 
 use codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,

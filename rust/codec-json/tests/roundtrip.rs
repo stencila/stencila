@@ -1,4 +1,4 @@
-use serde_json::{self, json};
+use serde_json::json;
 
 use codec::{
     Codec, EncodeOptions,

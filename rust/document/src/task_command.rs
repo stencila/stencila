@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use eyre::{Result, bail};
 use itertools::Itertools;
-use tokio::{self, task::JoinHandle};
+use tokio::task::JoinHandle;
 
 use codecs::DecodeOptions;
 use format::Format;

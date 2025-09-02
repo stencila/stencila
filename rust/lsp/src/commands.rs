@@ -22,7 +22,7 @@ use async_lsp::{
 };
 use eyre::{OptionExt, Result};
 use itertools::Itertools;
-use serde_json::{self, Value, json};
+use serde_json::{Value, json};
 use tokio::{
     sync::{RwLock, mpsc, watch::Receiver},
     time::timeout,

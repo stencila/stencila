@@ -8,7 +8,7 @@ use nbformat::{
         MultilineString, Notebook as NotebookV4, Output,
     },
 };
-use serde_json::{self, Map, Value, json};
+use serde_json::{Map, Value, json};
 
 use codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Losses, NodeId,

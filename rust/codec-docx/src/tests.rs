@@ -1,5 +1,5 @@
 use indexmap::IndexMap;
-use serde_json::{self, json};
+use serde_json::json;
 use tempfile::tempdir;
 
 use codec::{

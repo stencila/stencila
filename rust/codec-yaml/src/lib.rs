@@ -5,7 +5,7 @@ use codec::{
     schema::{Article, Node, NodeType},
     status::Status,
 };
-use serde_yaml::{self, Value};
+use serde_yaml::Value;
 use version::STENCILA_VERSION;
 
 pub mod r#trait;

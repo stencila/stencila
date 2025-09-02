@@ -1,6 +1,6 @@
 use std::{fmt::Display, sync::LazyLock};
 
-use clap::{self, ValueEnum};
+use clap::ValueEnum;
 use eyre::{Result, bail};
 use serde::Serialize;
 use syntect::{

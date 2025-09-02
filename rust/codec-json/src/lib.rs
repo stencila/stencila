@@ -5,7 +5,7 @@ use std::{
 };
 
 use serde_json::{Map, Value};
-use zip::{self, ZipArchive, write::FileOptions};
+use zip::{ZipArchive, write::FileOptions};
 
 use codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,

@@ -1,4 +1,4 @@
-use clap::{self, Parser};
+use clap::Parser;
 use eyre::Result;
 
 use ask::{Answer, ask_with_default};

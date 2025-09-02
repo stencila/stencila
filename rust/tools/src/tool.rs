@@ -10,7 +10,7 @@ use std::{
 };
 
 use async_recursion::async_recursion;
-use clap::{self, ValueEnum};
+use clap::ValueEnum;
 use eyre::{OptionExt, Result, bail};
 use mcp_types::{Tool as McpTool, ToolInputSchema as McpToolInputSchema};
 use regex::Regex;

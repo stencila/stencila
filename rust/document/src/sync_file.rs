@@ -10,7 +10,7 @@ use std::{
 use eyre::Result;
 use format::Format;
 use notify::{EventKind, RecursiveMode, Watcher};
-use tokio::{self, time};
+use tokio::time;
 
 use codecs::{DecodeOptions, EncodeOptions};
 use schema::Node;

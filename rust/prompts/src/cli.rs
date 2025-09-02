@@ -1,4 +1,4 @@
-use clap::{self, Args, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand};
 use eyre::Result;
 use itertools::Itertools;
 

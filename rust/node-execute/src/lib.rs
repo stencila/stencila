@@ -2,7 +2,7 @@
 
 use std::{collections::HashMap, fmt::Debug, path::PathBuf, str::FromStr, sync::Arc};
 
-use clap::{self, Args};
+use clap::Args;
 use eyre::{Result, bail, eyre};
 use futures::future::join_all;
 use indexmap::IndexSet;

@@ -2,7 +2,7 @@
 
 use std::{env, fs::create_dir_all, path::PathBuf};
 
-use clap::{self, ValueEnum};
+use clap::ValueEnum;
 use directories::ProjectDirs;
 use eyre::{OptionExt, Result};
 use strum::{Display, EnumString};

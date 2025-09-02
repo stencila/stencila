@@ -1,4 +1,4 @@
-use clap::{self, Args, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand};
 use cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,

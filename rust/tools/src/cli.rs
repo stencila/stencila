@@ -5,7 +5,7 @@ use std::{
     sync::LazyLock,
 };
 
-use clap::{self, Args, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand};
 use directories::UserDirs;
 use eyre::{Result, bail};
 use itertools::Itertools;

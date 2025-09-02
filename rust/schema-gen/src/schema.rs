@@ -8,7 +8,7 @@ use inflector::Inflector;
 use itertools::Itertools;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize, Serializer};
-use serde_json::{self, json};
+use serde_json::json;
 use serde_with::skip_serializing_none;
 use serde_yaml;
 use smart_default::SmartDefault;

@@ -6,7 +6,7 @@ use std::{
     time::{Duration, SystemTime},
 };
 
-use clap::{self, Args, ValueEnum};
+use clap::{Args, ValueEnum};
 use eyre::{Context, Result, bail};
 use format::Format;
 use itertools::Itertools;

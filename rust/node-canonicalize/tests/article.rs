@@ -1,5 +1,5 @@
 use eyre::{Result, bail};
-use serde_json::{self, json};
+use serde_json::json;
 
 use node_canonicalize::canonicalize;
 use pretty_assertions::assert_eq;

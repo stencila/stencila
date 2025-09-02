@@ -1,6 +1,6 @@
 use std::{path::PathBuf, process::exit};
 
-use clap::{self, Parser};
+use clap::Parser;
 use eyre::Result;
 
 use cli_utils::color_print::cstr;

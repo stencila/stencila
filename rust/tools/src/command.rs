@@ -7,7 +7,7 @@ use std::{
 use derive_more::{Deref, DerefMut};
 use eyre::{Result, bail};
 use itertools::Itertools;
-use tokio::{self, process::Command as AsyncCommand};
+use tokio::process::Command as AsyncCommand;
 
 use ask::{Answer, AskLevel, AskOptions, ask_with};
 

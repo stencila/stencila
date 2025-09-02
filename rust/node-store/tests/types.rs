@@ -269,7 +269,7 @@ fn article() -> Result<()> {
 /// Test loading & dumping of `Node`s
 #[test]
 fn node() -> Result<()> {
-    use serde_json::{self, json};
+    use serde_json::json;
 
     let mut base = WriteStore::new();
 

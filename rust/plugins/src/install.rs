@@ -1,4 +1,4 @@
-use clap::{self, Args};
+use clap::Args;
 use cli_utils::message;
 use eyre::{Result, bail};
 use tokio::fs::{create_dir_all, remove_dir_all, write};
