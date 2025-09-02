@@ -38,39 +38,33 @@ pub mod cli;
 
 /// Get a list of available kernels
 pub async fn list() -> Vec<Box<dyn Kernel>> {
-    let mut kernels = vec![
+    vec![
         // The order here is important it is used in places like
         // `stencila kernels list`, LSP completion lists, and other user interfaces
 
         // Programming
         Box::<PythonKernel>::default() as Box<dyn Kernel>,
-        Box::<RKernel>::default() as Box<dyn Kernel>,
-        Box::<QuickJsKernel>::default() as Box<dyn Kernel>,
-        Box::<NodeJsKernel>::default() as Box<dyn Kernel>,
-        Box::<BashKernel>::default() as Box<dyn Kernel>,
+        Box::<RKernel>::default(),
+        Box::<QuickJsKernel>::default(),
+        Box::<NodeJsKernel>::default(),
+        Box::<BashKernel>::default(),
+        #[cfg(feature = "stencila-kernel-rhai")]
+        Box::<RhaiKernel>::default(),
         // Database
-        Box::<KuzuKernel>::default() as Box<dyn Kernel>,
-        Box::<DocsDBKernel>::default() as Box<dyn Kernel>,
-        Box::<DocsQLKernel>::default() as Box<dyn Kernel>,
+        Box::<KuzuKernel>::default(),
+        Box::<DocsDBKernel>::default(),
+        Box::<DocsQLKernel>::default(),
         // Diagrams
-        Box::<MermaidKernel>::default() as Box<dyn Kernel>,
-        Box::<GraphvizKernel>::default() as Box<dyn Kernel>,
+        Box::<MermaidKernel>::default(),
+        Box::<GraphvizKernel>::default(),
         // Templating
-        Box::<JinjaKernel>::default() as Box<dyn Kernel>,
+        Box::<JinjaKernel>::default(),
         // Math
-        Box::<AsciiMathKernel>::default() as Box<dyn Kernel>,
-        Box::<TexKernel>::default() as Box<dyn Kernel>,
+        Box::<AsciiMathKernel>::default(),
+        Box::<TexKernel>::default(),
         // Styling
-        Box::<StyleKernel>::default() as Box<dyn Kernel>,
-    ];
-
-    #[cfg(feature = "stencila-kernel-rhai")]
-    kernels.push(Box::<RhaiKernel>::default() as Box<dyn Kernel>);
-
-    let provided_by_plugins = &mut stencila_plugins::kernels::list().await;
-    kernels.append(provided_by_plugins);
-
-    kernels
+        Box::<StyleKernel>::default(),
+    ]
 }
 
 /// Get a kernel by name

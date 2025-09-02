@@ -23,7 +23,6 @@ pub async fn list() -> Vec<Arc<dyn Model>> {
             2 => ("Mistral", stencila_models_mistral::list().await),
             3 => ("Ollama", stencila_models_ollama::list().await),
             4 => ("OpenAI", stencila_models_openai::list().await),
-            5 => ("Plugins", stencila_plugins::models::list().await),
             6 => ("Stencila", stencila_models_stencila::list().await),
             _ => return vec![],
         };

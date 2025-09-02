@@ -16,7 +16,6 @@ stencila-models-mistral = { path = "../models-mistral" }
 stencila-models-ollama = { path = "../models-ollama" }
 stencila-models-openai = { path = "../models-openai" }
 stencila-models-stencila = { path = "../models-stencila" }
-stencila-plugins = { path = "../plugins" }
 tracing = { workspace = true }
 
 [lints]

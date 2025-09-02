@@ -46,7 +46,6 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   • <g>local</g> - Running locally (e.g. Ollama)
   • <g>remote</g> - Cloud-based APIs
   • <g>router</g> - Routes to other models
-  • <g>plugin</g> - Provided by plugins
 "
 );
 
@@ -152,7 +151,6 @@ impl List {
                     Router => Cell::new("router").fg(Color::Green),
                     Proxied => Cell::new("proxied").fg(Color::Cyan),
                     Remote => Cell::new("remote").fg(Color::Magenta),
-                    Plugin(name) => Cell::new(format!("plugin \"{name}\"")).fg(Color::DarkCyan),
                 },
                 match availability {
                     Available => Cell::new(availability).fg(Color::Green),

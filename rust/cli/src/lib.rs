@@ -124,8 +124,6 @@ mod tests {
             // Codecs module help strings
             ("formats::cli", stencila_codecs::cli::CLI_AFTER_LONG_HELP),
             ("formats::list", stencila_codecs::cli::LIST_AFTER_LONG_HELP),
-            // Plugins module help strings
-            ("plugins::cli", stencila_plugins::cli::CLI_AFTER_LONG_HELP),
             // Secrets module help strings
             ("secrets::cli", stencila_secrets::cli::CLI_AFTER_LONG_HELP),
             ("secrets::set", stencila_secrets::cli::SET_AFTER_LONG_HELP),

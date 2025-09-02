@@ -136,9 +136,6 @@ impl List {
                 match provider {
                     KernelProvider::Builtin => Cell::new("builtin").fg(Color::Green),
                     KernelProvider::Environment => Cell::new("environ").fg(Color::Cyan),
-                    KernelProvider::Plugin(name) => {
-                        Cell::new(format!("plugin \"{name}\"")).fg(Color::Blue)
-                    }
                 },
                 Cell::new(availability).fg(match availability {
                     KernelAvailability::Available => Color::Green,
