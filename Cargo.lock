@@ -1399,9 +1399,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.5.45"
+version = "4.5.46"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1fc0e74a703892159f5ae7d3aac52c8e6c392f5ae5f359c70b5881d60aaac318"
+checksum = "2c5e4fcf9c21d2e544ca1ee9d8552de13019a42aa7dbf32747fa7aaf1df76e57"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -1418,9 +1418,9 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.5.44"
+version = "4.5.46"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b3e7f4214277f3c7aa526a59dd3fbe306a370daee1f8b7b8c987069cd8e888a8"
+checksum = "fecb53a0e6fcfb055f686001bc2e2592fa527efaf38dbe81a6a9563562e57d41"
 dependencies = [
  "anstream",
  "anstyle",
@@ -2148,7 +2148,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72d61316b8a2ec26bb554745591174022bb048dbcc508091b15dd4f6fcb4793a"
 dependencies = [
  "cubecl-common",
- "darling 0.21.2",
+ "darling 0.21.3",
  "derive-new",
  "ident_case",
  "prettyplease",
@@ -2163,7 +2163,7 @@ version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b7c27cf02393d78a41ad125ef6d6274cd3930385f6945779f4f21a2c66e718db"
 dependencies = [
- "darling 0.21.2",
+ "darling 0.21.3",
  "proc-macro2",
  "quote",
  "syn 2.0.106",
@@ -2355,12 +2355,12 @@ dependencies = [
 
 [[package]]
 name = "darling"
-version = "0.21.2"
+version = "0.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08440b3dd222c3d0433e63e097463969485f112baff337dfdaca043a0d760570"
+checksum = "9cdf337090841a411e2a7f3deb9187445851f91b309c0c0a29e05f74a00a48c0"
 dependencies = [
- "darling_core 0.21.2",
- "darling_macro 0.21.2",
+ "darling_core 0.21.3",
+ "darling_macro 0.21.3",
 ]
 
 [[package]]
@@ -2379,9 +2379,9 @@ dependencies = [
 
 [[package]]
 name = "darling_core"
-version = "0.21.2"
+version = "0.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d25b7912bc28a04ab1b7715a68ea03aaa15662b43a1a4b2c480531fd19f8bf7e"
+checksum = "1247195ecd7e3c85f83c8d2a366e4210d588e802133e1e355180a9870b517ea4"
 dependencies = [
  "fnv",
  "ident_case",
@@ -2404,11 +2404,11 @@ dependencies = [
 
 [[package]]
 name = "darling_macro"
-version = "0.21.2"
+version = "0.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ce154b9bea7fb0c8e8326e62d00354000c36e79770ff21b8c84e3aa267d9d531"
+checksum = "d38308df82d1080de0afee5d069fa14b0326a88c14f15c5ccda35b4a6c414c81"
 dependencies = [
- "darling_core 0.21.2",
+ "darling_core 0.21.3",
  "quote",
  "syn 2.0.106",
 ]
@@ -2499,9 +2499,9 @@ dependencies = [
 
 [[package]]
 name = "deranged"
-version = "0.4.0"
+version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c9e6a11ca8224451684bc0d7d5a7adbf8f2fd6887261a1cfc3c0432f9d4068e"
+checksum = "d630bccd429a5bb5a64b5e94f693bfc48c9f8566418fda4c494cc94f911f87cc"
 dependencies = [
  "powerfmt",
  "serde",
@@ -3634,7 +3634,7 @@ dependencies = [
  "futures-core",
  "futures-sink",
  "http",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "slab",
  "tokio",
  "tokio-util",
@@ -3777,7 +3777,7 @@ dependencies = [
  "biblatex",
  "ciborium",
  "citationberg",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "numerals",
  "paste",
  "serde",
@@ -4315,9 +4315,9 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "2.10.0"
+version = "2.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe4cd85333e22411419a0bcae1297d25e58c9443848b11dc6a86fefe8c78a661"
+checksum = "f2481980430f9f78649238835720ddccc57e52df14ffce1c6f37391d61b563e9"
 dependencies = [
  "equivalent",
  "hashbrown 0.15.5",
@@ -4812,7 +4812,7 @@ dependencies = [
  "dashmap",
  "data-encoding",
  "getrandom 0.2.15",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "itertools 0.10.5",
  "lazy_static",
  "lightningcss-derive",
@@ -5336,7 +5336,7 @@ dependencies = [
  "half",
  "hashbrown 0.15.5",
  "hexf-parse",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "log",
  "num-traits",
  "once_cell",
@@ -6270,7 +6270,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42cf17e9a1800f5f396bc67d193dc9411b59012a5876445ef450d449881e1016"
 dependencies = [
  "base64 0.22.1",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "quick-xml 0.32.0",
  "serde",
  "time",
@@ -6392,7 +6392,7 @@ dependencies = [
  "comfy-table",
  "either",
  "hashbrown 0.15.5",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "itoa",
  "num-traits",
  "polars-arrow",
@@ -6519,7 +6519,7 @@ dependencies = [
  "chrono",
  "fallible-streaming-iterator",
  "hashbrown 0.15.5",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "itoa",
  "num-traits",
  "polars-arrow",
@@ -6594,7 +6594,7 @@ dependencies = [
  "either",
  "hashbrown 0.15.5",
  "hex",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "jsonpath_lib_polars_vendor",
  "libm",
  "memchr",
@@ -6710,7 +6710,7 @@ version = "0.50.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4b2daa5d628c4aa56deed967cc64fd24c9f62a919c8aaaf2b77b1457f8684f98"
 dependencies = [
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "polars-error",
  "polars-utils",
  "serde",
@@ -6811,7 +6811,7 @@ dependencies = [
  "flate2",
  "foldhash",
  "hashbrown 0.15.5",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "libc",
  "memmap2",
  "num-traits",
@@ -7584,9 +7584,9 @@ dependencies = [
 
 [[package]]
 name = "regex"
-version = "1.11.1"
+version = "1.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b544ef1b4eac5dc2db33ea63606ae9ffcfac26c1416a2806ae0bf5f56b201191"
+checksum = "23d7fd106d8c02486a8d64e778353d1cffe08ce79ac2e82f540c86d0facf6912"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -7827,7 +7827,7 @@ checksum = "b91f7eff05f748767f183df4320a63d6936e9c6107d97c9e6bdd9784f4289c94"
 dependencies = [
  "base64 0.21.7",
  "bitflags 2.9.2",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "serde",
  "serde_derive",
 ]
@@ -7879,7 +7879,7 @@ dependencies = [
  "convert_case 0.6.0",
  "fnv",
  "ident_case",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "proc-macro-crate",
  "proc-macro2",
  "quote",
@@ -8166,7 +8166,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "82d20c4491bc164fa2f6c5d44565947a52ad80b9505d8e36f8d54c27c739fcd0"
 dependencies = [
  "dyn-clone",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "ref-cast",
  "schemars_derive 1.0.4",
  "serde",
@@ -8339,7 +8339,7 @@ version = "1.0.143"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d401abef1d108fbd9cbaebc3e46611f4b1021f714a0597a71f41ee463f5f4a5a"
 dependencies = [
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "itoa",
  "memchr",
  "ryu",
@@ -8460,7 +8460,7 @@ dependencies = [
  "chrono",
  "hex",
  "indexmap 1.9.3",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "schemars 0.9.0",
  "schemars 1.0.4",
  "serde",
@@ -8488,7 +8488,7 @@ version = "0.9.34+deprecated"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6a8b1a1a2ebf674015cc02edccce75287f1a0130d394307b36743c2f5d504b47"
 dependencies = [
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "itoa",
  "ryu",
  "serde",
@@ -9030,7 +9030,7 @@ name = "stencila-codec-cff"
 version = "0.0.0"
 dependencies = [
  "glob",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "insta",
  "itertools 0.14.0",
  "serde",
@@ -9046,7 +9046,7 @@ name = "stencila-codec-csl"
 version = "0.0.0"
 dependencies = [
  "glob",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "insta",
  "itertools 0.14.0",
  "serde",
@@ -9087,7 +9087,7 @@ dependencies = [
 name = "stencila-codec-docx"
 version = "0.0.0"
 dependencies = [
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "pretty_assertions",
  "regex",
  "roxmltree",
@@ -9141,7 +9141,7 @@ name = "stencila-codec-dom-derive"
 version = "0.0.0"
 dependencies = [
  "Inflector",
- "darling 0.21.2",
+ "darling 0.21.3",
  "proc-macro2",
  "quote",
  "syn 2.0.106",
@@ -9211,7 +9211,7 @@ name = "stencila-codec-html-derive"
 version = "0.0.0"
 dependencies = [
  "Inflector",
- "darling 0.21.2",
+ "darling 0.21.3",
  "itertools 0.14.0",
  "proc-macro2",
  "quote",
@@ -9280,7 +9280,7 @@ dependencies = [
 name = "stencila-codec-jats-derive"
 version = "0.0.0"
 dependencies = [
- "darling 0.21.2",
+ "darling 0.21.3",
  "itertools 0.14.0",
  "proc-macro2",
  "quote",
@@ -9356,7 +9356,7 @@ name = "stencila-codec-latex-derive"
 version = "0.0.0"
 dependencies = [
  "Inflector",
- "darling 0.21.2",
+ "darling 0.21.3",
  "proc-macro2",
  "quote",
  "syn 2.0.106",
@@ -9413,7 +9413,7 @@ name = "stencila-codec-markdown"
 version = "0.0.0"
 dependencies = [
  "Inflector",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "insta",
  "itertools 0.14.0",
  "markdown",
@@ -9438,7 +9438,7 @@ name = "stencila-codec-markdown-derive"
 version = "0.0.0"
 dependencies = [
  "Inflector",
- "darling 0.21.2",
+ "darling 0.21.3",
  "proc-macro2",
  "quote",
  "syn 2.0.106",
@@ -9486,7 +9486,7 @@ version = "0.0.0"
 dependencies = [
  "glob",
  "governor",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "insta",
  "itertools 0.14.0",
  "reqwest",
@@ -9819,7 +9819,7 @@ dependencies = [
  "eyre",
  "futures",
  "glob",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "itertools 0.14.0",
  "json-patch",
  "notify",
@@ -9898,7 +9898,7 @@ dependencies = [
  "bs58",
  "clap",
  "eyre",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "itertools 0.14.0",
  "pretty_assertions",
  "serde",
@@ -10006,7 +10006,7 @@ dependencies = [
 name = "stencila-kernel-kuzu"
 version = "0.0.0"
 dependencies = [
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "itertools 0.14.0",
  "kuzu",
  "pretty_assertions",
@@ -10053,7 +10053,7 @@ dependencies = [
 name = "stencila-kernel-nodejs"
 version = "0.0.0"
 dependencies = [
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "pretty_assertions",
  "stencila-kernel-micro",
  "test-log",
@@ -10064,7 +10064,7 @@ dependencies = [
 name = "stencila-kernel-python"
 version = "0.0.0"
 dependencies = [
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "pretty_assertions",
  "stencila-kernel-micro",
  "test-log",
@@ -10075,7 +10075,7 @@ dependencies = [
 name = "stencila-kernel-quickjs"
 version = "0.0.0"
 dependencies = [
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "pretty_assertions",
  "regex",
  "rquickjs",
@@ -10090,7 +10090,7 @@ dependencies = [
 name = "stencila-kernel-r"
 version = "0.0.0"
 dependencies = [
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "pretty_assertions",
  "stencila-kernel-micro",
  "test-log",
@@ -10101,7 +10101,7 @@ dependencies = [
 name = "stencila-kernel-rhai"
 version = "0.0.0"
 dependencies = [
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "itertools 0.14.0",
  "pretty_assertions",
  "rhai",
@@ -10532,7 +10532,7 @@ dependencies = [
  "clap",
  "eyre",
  "futures",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "insta",
  "itertools 0.14.0",
  "regex",
@@ -10582,7 +10582,7 @@ dependencies = [
 name = "stencila-node-map"
 version = "0.0.0"
 dependencies = [
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "stencila-schema",
 ]
 
@@ -10600,7 +10600,7 @@ name = "stencila-node-patch-derive"
 version = "0.0.0"
 dependencies = [
  "Inflector",
- "darling 0.21.2",
+ "darling 0.21.3",
  "proc-macro2",
  "quote",
  "stencila-format",
@@ -10624,7 +10624,7 @@ name = "stencila-node-probe-derive"
 version = "0.0.0"
 dependencies = [
  "Inflector",
- "darling 0.21.2",
+ "darling 0.21.3",
  "proc-macro2",
  "quote",
  "syn 2.0.106",
@@ -10684,7 +10684,7 @@ name = "stencila-node-strip"
 version = "0.0.0"
 dependencies = [
  "clap",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "serde",
  "stencila-node-strip-derive",
 ]
@@ -10693,7 +10693,7 @@ dependencies = [
 name = "stencila-node-strip-derive"
 version = "0.0.0"
 dependencies = [
- "darling 0.21.2",
+ "darling 0.21.3",
  "proc-macro2",
  "quote",
  "syn 2.0.106",
@@ -10749,7 +10749,7 @@ name = "stencila-node-walk-derive"
 version = "0.0.0"
 dependencies = [
  "Inflector",
- "darling 0.21.2",
+ "darling 0.21.3",
  "proc-macro2",
  "quote",
  "syn 2.0.106",
@@ -10948,7 +10948,7 @@ dependencies = [
  "eyre",
  "glob",
  "human_name",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "insta",
  "interim",
  "itertools 0.14.0",
@@ -11001,7 +11001,7 @@ dependencies = [
  "eyre",
  "futures",
  "glob",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "itertools 0.14.0",
  "schemars 1.0.4",
  "semver",
@@ -11516,12 +11516,11 @@ dependencies = [
 
 [[package]]
 name = "time"
-version = "0.3.41"
+version = "0.3.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8a7619e19bc266e0f9c5e6686659d394bc57973859340060a69221e57dbc0c40"
+checksum = "8ca967379f9d8eb8058d86ed467d81d03e81acd45757e4ca341c24affbe8e8e3"
 dependencies = [
  "deranged",
- "itoa",
  "num-conv",
  "powerfmt",
  "serde",
@@ -11531,15 +11530,15 @@ dependencies = [
 
 [[package]]
 name = "time-core"
-version = "0.1.4"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c9e9a38711f559d9e3ce1cdb06dd7c5b8ea546bc90052da6d06bb76da74bb07c"
+checksum = "a9108bb380861b07264b950ded55a44a14a4adc68b9f5efd85aafc3aa4d40a68"
 
 [[package]]
 name = "time-macros"
-version = "0.2.22"
+version = "0.2.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3526739392ec93fd8b359c8e98514cb3e8e021beb4e5f597b00a0221f8ed8a49"
+checksum = "7182799245a7264ce590b349d90338f1c1affad93d2639aed5f8f69c090b334c"
 dependencies = [
  "num-conv",
  "time-core",
@@ -11725,7 +11724,7 @@ version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "75129e1dc5000bfbaa9fee9d1b21f974f9fbad9daec557a521ee6e080825f6e8"
 dependencies = [
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "serde",
  "serde_spanned 1.0.0",
  "toml_datetime 0.7.0",
@@ -11758,7 +11757,7 @@ version = "0.22.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "41fe8c660ae4257887cf66394862d21dbca4a6ddd26f04a3560410406a2f819a"
 dependencies = [
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "serde",
  "serde_spanned 0.6.9",
  "toml_datetime 0.6.11",
@@ -12313,9 +12312,9 @@ dependencies = [
 
 [[package]]
 name = "url"
-version = "2.5.6"
+version = "2.5.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "137a3c834eaf7139b73688502f3f1141a0337c5d8e4d9b536f9b8c796e26a7c4"
+checksum = "08bc136a29a3d1758e07a9cca267be308aeebf5cfd5a10f3f67ab2097683ef5b"
 dependencies = [
  "form_urlencoded",
  "idna",
@@ -12355,9 +12354,9 @@ checksum = "06abde3611657adf66d383f00b093d7faecc7fa57071cce2578660c9f1010821"
 
 [[package]]
 name = "uuid"
-version = "1.18.0"
+version = "1.18.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f33196643e165781c20a5ead5582283a7dacbb87855d867fbc2df3f81eddc1be"
+checksum = "2f87b8aa10b915a06587d0dec516c282ff295b475d94abf425d62b57710070a2"
 dependencies = [
  "getrandom 0.3.1",
  "js-sys",
@@ -12710,7 +12709,7 @@ dependencies = [
  "cfg_aliases",
  "document-features",
  "hashbrown 0.15.5",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "log",
  "naga",
  "once_cell",
@@ -13485,7 +13484,7 @@ dependencies = [
  "crc32fast",
  "crossbeam-utils",
  "displaydoc",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "num_enum",
  "thiserror 1.0.69",
 ]
@@ -13506,7 +13505,7 @@ dependencies = [
  "flate2",
  "getrandom 0.3.1",
  "hmac",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "lzma-rs",
  "memchr",
  "pbkdf2",
@@ -13527,7 +13526,7 @@ dependencies = [
  "arbitrary",
  "crc32fast",
  "flate2",
- "indexmap 2.10.0",
+ "indexmap 2.11.0",
  "memchr",
  "zopfli",
 ]
