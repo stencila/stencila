@@ -9412,6 +9412,7 @@ dependencies = [
 name = "stencila-codec-markdown"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
  "indexmap 2.10.0",
  "insta",
  "itertools 0.14.0",

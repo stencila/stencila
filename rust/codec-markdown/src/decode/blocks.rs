@@ -1,6 +1,7 @@
 use std::{collections::HashMap, str::FromStr};
 
 use indexmap::IndexMap;
+use inflector::Inflector;
 use markdown::{
     mdast::{self, AlignKind},
     unist::Position,
@@ -8,7 +9,7 @@ use markdown::{
 use serde_json::json;
 use winnow::{
     LocatingSlice as Located, ModalResult, Parser,
-    ascii::{Caseless, alphanumeric1, multispace0, multispace1, space0},
+    ascii::{Caseless, multispace0, multispace1, space0},
     combinator::{alt, delimited, eof, opt, preceded, separated, terminated},
     stream::AsChar,
     token::{take_till, take_until, take_while},
@@ -1045,10 +1046,14 @@ fn suggestion_block(input: &mut Located<&str>) -> ModalResult<Block> {
 
 /// Parse a [`Section`] node
 fn section(input: &mut Located<&str>) -> ModalResult<Block> {
-    alphanumeric1
+    take_while(1.., |_| true)
         .map(|section_type: &str| {
+            // Allow for alternative casing of section type by converting to
+            // casing expected by `SectionType::from_str`
+            let section_type = section_type.to_pascal_case().parse().ok();
+
             Block::Section(Section {
-                section_type: section_type.parse().ok(),
+                section_type,
                 ..Default::default()
             })
         })

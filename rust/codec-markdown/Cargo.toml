@@ -4,6 +4,7 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+Inflector = { workspace = true }
 indexmap = { workspace = true }
 itertools = { workspace = true }
 markdown = "1.0.0"
