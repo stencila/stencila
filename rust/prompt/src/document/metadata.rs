@@ -25,9 +25,10 @@ impl From<&stencila_schema::Article> for Metadata {
     fn from(article: &stencila_schema::Article) -> Self {
         Self {
             title: article.title.as_ref().map(to_markdown),
-            description: article.description.clone(),
-            genre: article.genre.as_ref().map(|genre| genre.join(", ")),
+            description: article.options.description.clone(),
+            genre: article.options.genre.as_ref().map(|genre| genre.join(", ")),
             keywords: article
+                .options
                 .keywords
                 .as_ref()
                 .map(|keywords| keywords.join(", ")),

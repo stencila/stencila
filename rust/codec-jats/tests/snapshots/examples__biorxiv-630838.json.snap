@@ -121,14 +121,6 @@ expression: article
       ]
     }
   ],
-  "dateReceived": {
-    "type": "Date",
-    "value": "2024-12-31"
-  },
-  "dateAccepted": {
-    "type": "Date",
-    "value": "2025-1-01"
-  },
   "datePublished": {
     "type": "Date",
     "value": "2025-1-1"
@@ -12648,6 +12640,14 @@ expression: article
       "value": "Cell Biology"
     }
   ],
+  "dateReceived": {
+    "type": "Date",
+    "value": "2024-12-31"
+  },
+  "dateAccepted": {
+    "type": "Date",
+    "value": "2025-1-01"
+  },
   "publisher": {
     "type": "Organization",
     "name": "Cold Spring Harbor Laboratory"

@@ -219,6 +219,19 @@ impl From<Record> for Article {
             })
             .collect();
 
+        let keywords = {
+            let mut all_keywords = metadata.keywords.clone();
+            // Add communities as keywords with a prefix
+            for community in &metadata.communities {
+                all_keywords.push(format!("community:{}", community.id));
+            }
+            if !all_keywords.is_empty() {
+                Some(all_keywords)
+            } else {
+                None
+            }
+        };
+
         Article {
             title: Some(vec![Inline::Text(Text::from(metadata.title.clone()))]),
             authors: Some(authors),
@@ -226,18 +239,6 @@ impl From<Record> for Article {
                 .description
                 .as_ref()
                 .map(|desc| parse_html_or_text(desc)),
-            keywords: {
-                let mut all_keywords = metadata.keywords.clone();
-                // Add communities as keywords with a prefix
-                for community in &metadata.communities {
-                    all_keywords.push(format!("community:{}", community.id));
-                }
-                if !all_keywords.is_empty() {
-                    Some(all_keywords)
-                } else {
-                    None
-                }
-            },
             date_published: Some(Date {
                 value: metadata.publication_date.clone(),
                 ..Default::default()
@@ -245,6 +246,7 @@ impl From<Record> for Article {
             doi: metadata.doi.clone(),
             references: all_references(&record),
             options: Box::new(ArticleOptions {
+                keywords,
                 licenses: metadata
                     .license
                     .as_ref()

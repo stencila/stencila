@@ -393,7 +393,7 @@ impl Cli {
             let Node::Article(article) = root else { return None };
 
             let title = article.title.as_ref().map(stencila_codec_text::to_text).or_else(|| self.title.clone()).unwrap_or_else(|| { "Untitled".to_string() });
-            let description = article.description.as_ref().map(stencila_codec_text::to_text);
+            let description = article.options.description.as_ref().map(stencila_codec_text::to_text);
             let mut creators = Vec::new();
             let mut doi = None;
 
@@ -457,7 +457,7 @@ impl Cli {
             let mut method = None;
 
             tracing::debug!("article:{:?}",article);
-            if let Some(config) = &article.config {
+            if let Some(config) = &article.options.config {
                 tracing::debug!("config:{:?}",config);
                 if let Some(publish) = &config.publish
                     && let Some(publisher) = &publish.zenodo{

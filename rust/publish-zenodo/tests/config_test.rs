@@ -33,6 +33,7 @@ config:
             .inspect(|root| {
                 if let Node::Article(article) = root {
                     article
+                        .options
                         .config
                         .as_ref()
                         .and_then(|config| config.publish.as_ref())

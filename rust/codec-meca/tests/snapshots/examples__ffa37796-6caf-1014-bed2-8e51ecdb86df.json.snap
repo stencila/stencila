@@ -76,25 +76,10 @@ expression: article
       ]
     }
   ],
-  "dateReceived": {
-    "type": "Date",
-    "value": "2025-5-29"
-  },
-  "dateAccepted": {
-    "type": "Date",
-    "value": "2025-6-05"
-  },
   "datePublished": {
     "type": "Date",
     "value": "2025"
   },
-  "keywords": [
-    "unaligned data",
-    "longitudinal",
-    "stages",
-    "out-of-sample inference",
-    "generative"
-  ],
   "references": [
     {
       "type": "Reference",
@@ -5043,10 +5028,25 @@ expression: article
       "value": "Bioinformatics"
     }
   ],
+  "dateReceived": {
+    "type": "Date",
+    "value": "2025-5-29"
+  },
+  "dateAccepted": {
+    "type": "Date",
+    "value": "2025-6-05"
+  },
   "funders": [
     {
       "type": "Organization"
     }
+  ],
+  "keywords": [
+    "unaligned data",
+    "longitudinal",
+    "stages",
+    "out-of-sample inference",
+    "generative"
   ],
   "publisher": {
     "type": "Organization",

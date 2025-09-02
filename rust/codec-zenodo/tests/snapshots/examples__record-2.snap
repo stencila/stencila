@@ -65,9 +65,6 @@ expression: node
     "type": "Date",
     "value": "2023-05-31"
   },
-  "keywords": [
-    "community:nime_conference"
-  ],
   "title": [
     {
       "type": "Text",
@@ -77,6 +74,9 @@ expression: node
     }
   ],
   "content": [],
+  "keywords": [
+    "community:nime_conference"
+  ],
   "licenses": [
     "cc-by-4.0"
   ]

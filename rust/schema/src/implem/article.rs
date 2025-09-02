@@ -112,9 +112,19 @@ impl DomCodec for Article {
         self.doi.to_dom_attr("doi", context);
         self.options.identifiers.to_dom_attr("identifiers", context);
 
+        self.options
+            .date_created
+            .to_dom_attr("date-created", context);
+        self.options
+            .date_modified
+            .to_dom_attr("date-modified", context);
+        self.options
+            .date_received
+            .to_dom_attr("date-received", context);
+        self.options
+            .date_accepted
+            .to_dom_attr("date-accepted", context);
         self.date_published.to_dom_attr("date-published", context);
-        self.date_accepted.to_dom_attr("date-accepted", context);
-        self.date_created.to_dom_attr("date-created", context);
 
         self.options.is_part_of.to_dom_attr("is-part-of", context);
         self.options.page_start.to_dom_attr("page-start", context);
@@ -147,7 +157,7 @@ impl DomCodec for Article {
             context.push_slot_fn("section", "abstract", |context| r#abstract.to_dom(context));
         }
 
-        if let Some(headings) = &self.headings {
+        if let Some(headings) = &self.options.headings {
             context.push_slot_fn("nav", "headings", |context| headings.to_dom(context));
         }
 
@@ -212,8 +222,10 @@ impl LatexCodec for Article {
             if let Some(date) = self
                 .date_published
                 .as_ref()
-                .or(self.date_modified.as_ref())
-                .or(self.date_created.as_ref())
+                .or(self.options.date_modified.as_ref())
+                .or(self.options.date_accepted.as_ref())
+                .or(self.options.date_received.as_ref())
+                .or(self.options.date_created.as_ref())
             {
                 context.property_fn(NodeProperty::Date, |context| {
                     context
@@ -225,7 +237,7 @@ impl LatexCodec for Article {
                 context.newline();
             }
 
-            if let Some(keywords) = &self.keywords {
+            if let Some(keywords) = &self.options.keywords {
                 context.property_fn(NodeProperty::Keywords, |context| {
                     context
                         .command_begin("keywords")

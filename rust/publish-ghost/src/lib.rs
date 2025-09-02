@@ -237,7 +237,7 @@ impl Cli {
             // get resource type from YAML header if none provided in cli
             doc.inspect(|root: &Node| {
                 if let Node::Article(article) = root
-                    && let Some(config) = &article.config
+                    && let Some(config) = &article.options.config
                     && let Some(publish) = &config.publish
                     && let Some(publisher) = &publish.ghost
                     && let Some(r#type) = &publisher.r#type
@@ -455,7 +455,7 @@ impl Cli {
             let Node::Article(article) = root else { return };
 
             article.title = title.as_ref().map(|title| vec![t(title)]);
-            article.description = custom_excerpt.clone();
+            article.options.description = custom_excerpt.clone();
         })
         .await;
 
@@ -517,13 +517,13 @@ impl Cli {
 
                     // If no custom excerpt provided, use the article description
                     if self.excerpt.is_none() {
-                        excerpt = article.description.clone();
+                        excerpt = article.options.description.clone();
                     } else {
                         excerpt = self.excerpt.clone();
                     }
 
                     //Get config meta data
-                    if let Some(config) = &article.config
+                    if let Some(config) = &article.options.config
                         && let Some(publish) = &config.publish
                             && let Some(publisher) = &publish.ghost {
                                 if self.slug.is_some() {

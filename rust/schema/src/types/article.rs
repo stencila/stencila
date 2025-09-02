@@ -61,12 +61,6 @@ pub struct Article {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// A description of the item.
-    #[strip(metadata)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub description: Option<String>,
-
     /// The type of `CreativeWork` (e.g. article, book, software application).
     #[serde(alias = "work-type", alias = "work_type")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
@@ -96,55 +90,12 @@ pub struct Article {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub provenance: Option<Vec<ProvenanceCount>>,
 
-    /// Date/time of creation.
-    #[serde(alias = "date-created", alias = "date_created")]
-    #[serde(default, deserialize_with = "option_string_or_object")]
-    #[strip(metadata)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub date_created: Option<Date>,
-
-    /// Date/time that work was received.
-    #[serde(alias = "date-received", alias = "date_received")]
-    #[serde(default, deserialize_with = "option_string_or_object")]
-    #[strip(metadata)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub date_received: Option<Date>,
-
-    /// Date/time of acceptance.
-    #[serde(alias = "date-accepted", alias = "date_accepted")]
-    #[serde(default, deserialize_with = "option_string_or_object")]
-    #[strip(metadata)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub date_accepted: Option<Date>,
-
-    /// Date/time of most recent modification.
-    #[serde(alias = "date-modified", alias = "date_modified")]
-    #[serde(default, deserialize_with = "option_string_or_object")]
-    #[strip(metadata)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub date_modified: Option<Date>,
-
     /// Date of first publication.
     #[serde(alias = "date", alias = "date-published", alias = "date_published")]
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub date_published: Option<Date>,
-
-    /// Genre of the creative work, broadcast channel or group.
-    #[serde(default, deserialize_with = "option_csv_or_array")]
-    #[strip(metadata)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub genre: Option<Vec<String>>,
-
-    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    #[serde(alias = "keyword")]
-    #[serde(default, deserialize_with = "option_csv_or_array")]
-    #[strip(metadata)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub keywords: Option<Vec<String>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     #[serde(alias = "citations", alias = "reference")]
@@ -175,17 +126,6 @@ pub struct Article {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub frontmatter: Option<String>,
 
-    /// Configuration options for the document.
-    #[strip(metadata)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub config: Option<Config>,
-
-    /// A list of links to headings, including implied section headings, within the document
-    #[strip(content, temporary)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub headings: Option<List>,
-
     /// The content of the article.
     #[serde(deserialize_with = "one_or_many")]
     #[strip(content)]
@@ -196,12 +136,6 @@ pub struct Article {
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks(4)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks(8)"#))]
     pub content: Vec<Block>,
-
-    /// Nodes, usually from within `content` of the article, that have been archived.
-    #[serde(default, deserialize_with = "option_one_or_many")]
-    #[strip(content, archive)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub archive: Option<Vec<Node>>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -227,6 +161,12 @@ pub struct ArticleOptions {
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub alternate_names: Option<Vec<String>>,
+
+    /// A description of the item.
+    #[strip(metadata)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub description: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
     #[serde(alias = "identifier")]
@@ -286,6 +226,34 @@ pub struct ArticleOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub comments: Option<Vec<Comment>>,
 
+    /// Date/time of creation.
+    #[serde(alias = "date-created", alias = "date_created")]
+    #[serde(default, deserialize_with = "option_string_or_object")]
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub date_created: Option<Date>,
+
+    /// Date/time that work was received.
+    #[serde(alias = "date-received", alias = "date_received")]
+    #[serde(default, deserialize_with = "option_string_or_object")]
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub date_received: Option<Date>,
+
+    /// Date/time of acceptance.
+    #[serde(alias = "date-accepted", alias = "date_accepted")]
+    #[serde(default, deserialize_with = "option_string_or_object")]
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub date_accepted: Option<Date>,
+
+    /// Date/time of most recent modification.
+    #[serde(alias = "date-modified", alias = "date_modified")]
+    #[serde(default, deserialize_with = "option_string_or_object")]
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub date_modified: Option<Date>,
+
     /// People or organizations that funded the `CreativeWork`.
     #[serde(alias = "funder")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
@@ -299,6 +267,21 @@ pub struct ArticleOptions {
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub funded_by: Option<Vec<GrantOrMonetaryGrant>>,
+
+    /// Genre of the creative work, broadcast channel or group.
+    #[serde(default, deserialize_with = "option_csv_or_array")]
+    #[strip(metadata)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub genre: Option<Vec<String>>,
+
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
+    #[serde(alias = "keyword")]
+    #[serde(default, deserialize_with = "option_csv_or_array")]
+    #[strip(metadata)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub keywords: Option<Vec<String>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
     #[serde(alias = "is-part-of", alias = "is_part_of")]
@@ -449,6 +432,23 @@ pub struct ArticleOptions {
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub pagination: Option<String>,
+
+    /// Configuration options for the document.
+    #[strip(metadata)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub config: Option<Config>,
+
+    /// A list of links to headings, including implied section headings, within the document
+    #[strip(content, temporary)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub headings: Option<List>,
+
+    /// Nodes, usually from within `content` of the article, that have been archived.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(content, archive)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub archive: Option<Vec<Node>>,
 
     /// Additional metadata for the article.
     #[serde(flatten, deserialize_with = "empty_object_is_none")]

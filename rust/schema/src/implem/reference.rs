@@ -68,7 +68,10 @@ impl From<&Article> for Reference {
             date: article
                 .date_published
                 .as_ref()
-                .or(article.date_modified.as_ref())
+                .or(article.options.date_modified.as_ref())
+                .or(article.options.date_accepted.as_ref())
+                .or(article.options.date_received.as_ref())
+                .or(article.options.date_created.as_ref())
                 .and_then(|date| replicate(date).ok()),
             title: article.title(),
             is_part_of: article.is_part_of().map(Box::new),

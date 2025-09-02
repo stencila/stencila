@@ -121,14 +121,6 @@ expression: article
       ]
     }
   ],
-  "dateReceived": {
-    "type": "Date",
-    "value": "2025-6-09"
-  },
-  "dateAccepted": {
-    "type": "Date",
-    "value": "2025-6-11"
-  },
   "datePublished": {
     "type": "Date",
     "value": "2025"
@@ -2577,6 +2569,14 @@ expression: article
       "value": "Molecular Biology"
     }
   ],
+  "dateReceived": {
+    "type": "Date",
+    "value": "2025-6-09"
+  },
+  "dateAccepted": {
+    "type": "Date",
+    "value": "2025-6-11"
+  },
   "funders": [
     {
       "type": "Organization"

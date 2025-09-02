@@ -211,14 +211,6 @@ expression: article
       ]
     }
   ],
-  "dateReceived": {
-    "type": "Date",
-    "value": "2025-6-16"
-  },
-  "dateAccepted": {
-    "type": "Date",
-    "value": "2025-6-16"
-  },
   "datePublished": {
     "type": "Date",
     "value": "2025"
@@ -3897,6 +3889,14 @@ expression: article
       "value": "Genetics"
     }
   ],
+  "dateReceived": {
+    "type": "Date",
+    "value": "2025-6-16"
+  },
+  "dateAccepted": {
+    "type": "Date",
+    "value": "2025-6-16"
+  },
   "funders": [
     {
       "type": "Organization"

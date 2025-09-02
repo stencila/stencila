@@ -66,7 +66,7 @@ impl Executable for Article {
 
         // Diff the headings list with the current, prepend any generated diff ops
         // with the path to headings and send a patch if necessary
-        match diff(&self.headings, &headings, None, None) {
+        match diff(&self.options.headings, &headings, None, None) {
             Ok(mut patch) => {
                 if !patch.ops.is_empty() {
                     patch.node_id = Some(node_id);

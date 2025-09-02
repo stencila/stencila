@@ -10,7 +10,7 @@ use tokio::{
 };
 
 use stencila_dirs::{CONFIG_FILE, DirType, closest_config_file, get_app_dir};
-use stencila_schema::{Article, Config, Node};
+use stencila_schema::{Config, Node};
 
 use crate::Document;
 
@@ -68,10 +68,8 @@ impl Document {
     ) -> Result<(Config, Vec<PathBuf>)> {
         // Check for document level config
         let root = &*root.read().await;
-        if let Node::Article(Article {
-            config: Some(config),
-            ..
-        }) = root
+        if let Node::Article(article) = root
+            && let Some(config) = &article.options.config
         {
             let path = path
                 .clone()
@@ -97,12 +95,12 @@ impl Document {
     /// Merge config from the root of a document into an existing config
     pub async fn config_merge_root(config: Config, root: &Arc<RwLock<Node>>) -> Config {
         // TODO: make this a proper merge. Currently, it just uses the config from the doc
-        if let Node::Article(Article {
-            config: Some(config),
-            ..
-        }) = &*root.read().await
-        {
-            config.clone()
+        if let Node::Article(article) = &*root.read().await {
+            if let Some(config) = &article.options.config {
+                config.clone()
+            } else {
+                config
+            }
         } else {
             config
         }

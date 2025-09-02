@@ -43,14 +43,6 @@ expression: node
     "type": "Date",
     "value": "2023-10-12"
   },
-  "keywords": [
-    "trends in agriculture science",
-    "popular Article",
-    "Agriculture science",
-    "agriworld",
-    "vigyan varta",
-    "community:trendsinagriculturescience"
-  ],
   "title": [
     {
       "type": "Text",
@@ -60,6 +52,14 @@ expression: node
     }
   ],
   "content": [],
+  "keywords": [
+    "trends in agriculture science",
+    "popular Article",
+    "Agriculture science",
+    "agriworld",
+    "vigyan varta",
+    "community:trendsinagriculturescience"
+  ],
   "licenses": [
     "cc-by-4.0"
   ]

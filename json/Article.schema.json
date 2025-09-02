@@ -41,20 +41,10 @@
     "title",
     "authors",
     "provenance",
-    "genre",
-    "keywords",
-    "abstract",
-    "dateCreated",
-    "dateModified",
-    "dateReceived",
-    "dateAccepted",
     "datePublished",
-    "description",
+    "abstract",
     "references",
-    "frontmatter",
-    "config",
-    "headings",
-    "archive"
+    "frontmatter"
   ],
   "properties": {
     "type": {

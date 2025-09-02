@@ -29,10 +29,10 @@ impl VisitorMut for Replacer {
             }
 
             //  Apply collected keywords
-            if article.keywords.is_none()
+            if article.options.keywords.is_none()
                 && let Some(keywords) = self.collector.keywords.take()
             {
-                article.keywords = Some(keywords);
+                article.options.keywords = Some(keywords);
             }
 
             // Replace blocks in the content of the article

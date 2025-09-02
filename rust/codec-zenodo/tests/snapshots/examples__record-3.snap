@@ -62,16 +62,6 @@ expression: node
     "type": "Date",
     "value": "2022-12-19"
   },
-  "keywords": [
-    "Sensitive data services",
-    "Secure computing environment",
-    "SD Connect",
-    "SD Desktop",
-    "Finnish Federated EGA",
-    "ELIXIR",
-    "community:elixir-fi",
-    "community:csc"
-  ],
   "title": [
     {
       "type": "Text",
@@ -90,6 +80,16 @@ expression: node
       ],
       "name": "ELIXIR - A distributed infrastructure for life-science information"
     }
+  ],
+  "keywords": [
+    "Sensitive data services",
+    "Secure computing environment",
+    "SD Connect",
+    "SD Desktop",
+    "Finnish Federated EGA",
+    "ELIXIR",
+    "community:elixir-fi",
+    "community:csc"
   ],
   "licenses": [
     "cc-by-4.0"

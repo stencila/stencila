@@ -26,20 +26,10 @@ core:
   - title
   - authors
   - provenance
-  - genre
-  - keywords
-  - abstract
-  - dateCreated
-  - dateModified
-  - dateReceived
-  - dateAccepted
   - datePublished
-  - description
+  - abstract
   - references
   - frontmatter
-  - config
-  - headings
-  - archive
 properties:
   pageStart:
     "@id": schema:pageStart

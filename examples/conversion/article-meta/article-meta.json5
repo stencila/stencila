@@ -16,22 +16,10 @@
       familyNames: [ "Andrews" ]
     }
   ],
-  dateCreated: {
-    type: "Date",
-    value: "2001-01-01"
-  },
-  dateAccepted: {
-    type: "Date",
-    value: "2011-11-11"
-  },
   datePublished: {
     type: "Date",
     value: "2022-02-22"
   },
-  keywords: [
-    "keyword",
-    "test"
-  ],
   title: [
     {
       type: "Text",
@@ -77,6 +65,14 @@
       ]
     }
   ],
+  dateCreated: {
+    type: "Date",
+    value: "2001-01-01"
+  },
+  dateAccepted: {
+    type: "Date",
+    value: "2011-11-11"
+  },
   funders: [
     {
       type: "Organization",
@@ -87,5 +83,9 @@
       familyNames: [ "Zenon" ],
       givenNames: [ "Zorro" ]
     }
+  ],
+  keywords: [
+    "keyword",
+    "test"
   ]
 }

@@ -185,7 +185,7 @@ fn property_aliases() -> Result<()> {
         "content": { "type": "ThematicBreak"}
     }))?;
 
-    assert_eq!(article.keywords, Some(vec!["one".to_string()]));
+    assert_eq!(article.options.keywords, Some(vec!["one".to_string()]));
     assert_eq!(
         article.options.alternate_names,
         Some(vec!["alt-name".to_string()])

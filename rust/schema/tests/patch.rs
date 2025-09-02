@@ -903,7 +903,7 @@ fn archive_patch_new() -> Result<()> {
     )?;
 
     assert_eq!(
-        article.archive.iter().flatten().next().unwrap(),
+        article.options.archive.iter().flatten().next().unwrap(),
         &Node::InstructionBlock(inb)
     );
     assert!(article.content.is_empty());
@@ -938,7 +938,7 @@ fn archive_patch_new() -> Result<()> {
     )?;
 
     assert_eq!(
-        article.archive.iter().flatten().next().unwrap(),
+        article.options.archive.iter().flatten().next().unwrap(),
         &Node::InstructionBlock(inb)
     );
     if let Some(Block::Paragraph(Paragraph {
@@ -982,7 +982,7 @@ fn archive_patch_new() -> Result<()> {
     )?;
 
     assert_eq!(
-        article.archive.iter().flatten().next().unwrap(),
+        article.options.archive.iter().flatten().next().unwrap(),
         &Node::InstructionBlock(inb)
     );
     assert_eq!(&article.content, &blocks);

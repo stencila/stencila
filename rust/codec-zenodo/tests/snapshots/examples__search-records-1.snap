@@ -70,10 +70,6 @@ expression: node
     "type": "Date",
     "value": "2025-04-30"
   },
-  "keywords": [
-    "Linear Regression, Lasso Regression",
-    "community:compub"
-  ],
   "references": [
     {
       "type": "Reference",
@@ -480,6 +476,10 @@ expression: node
     }
   ],
   "content": [],
+  "keywords": [
+    "Linear Regression, Lasso Regression",
+    "community:compub"
+  ],
   "licenses": [
     "cc-by-4.0"
   ]

@@ -253,7 +253,7 @@ static CONFIG: LazyLock<Config> = LazyLock::new(|| {
 /// Use the `UPDATE_EXAMPLES` environment variable to overwrite any existing
 /// files e.g.
 ///
-///   UPDATE_EXAMPLES=true cargo test -p codecs examples
+///   UPDATE_EXAMPLES=true cargo test -p stencila-codecs examples
 #[tokio::test]
 #[allow(clippy::print_stderr)]
 async fn examples() -> Result<()> {

@@ -204,9 +204,9 @@ fn decode_date(path: &str, node: &Node, article: &mut Article, losses: &mut Loss
     record_attrs_lost(path, node, ["date-type"], losses);
 
     if date_type == Some("accepted") {
-        article.date_accepted = date_element_to_date(node);
+        article.options.date_accepted = date_element_to_date(node);
     } else if date_type == Some("received") {
-        article.date_received = date_element_to_date(node);
+        article.options.date_received = date_element_to_date(node);
     }
 }
 
@@ -464,10 +464,10 @@ fn decode_kwd_group(path: &str, node: &Node, article: &mut Article, losses: &mut
         .map(|child| decode_kwd(path, &child, losses))
         .collect();
 
-    if let Some(ref mut vector) = article.keywords {
+    if let Some(ref mut vector) = article.options.keywords {
         vector.append(&mut keywords);
     } else {
-        article.keywords = Some(keywords);
+        article.options.keywords = Some(keywords);
     }
 }
 

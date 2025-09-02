@@ -90,7 +90,7 @@ fn article_to_pandoc(
         meta.insert("date".into(), string_to_meta_value(&date.value.to_string()));
     }
 
-    if let Some(keywords) = &article.keywords {
+    if let Some(keywords) = &article.options.keywords {
         let mut keywords_meta = Vec::new();
         for keyword in keywords {
             keywords_meta.push(string_to_meta_value(keyword));
@@ -149,8 +149,11 @@ fn article_from_pandoc(pandoc: pandoc::Pandoc, context: &mut PandocDecodeContext
         title,
         date_published,
         content,
-        keywords,
         r#abstract,
+        options: Box::new(ArticleOptions {
+            keywords,
+            ..Default::default()
+        }),
         ..Default::default()
     }
 }

@@ -15,8 +15,9 @@ use tokio::fs::{create_dir_all, remove_dir_all, remove_file};
 
 use stencila_codecs::{CodecSupport, Format};
 use stencila_schema::{
-    Article, Block, Config, ConfigPublish, ConfigPublishGhost, ConfigPublishGhostState,
-    ConfigPublishGhostType, Inline, Node, NodeType, NoteType, TableCell, shortcuts::*,
+    Article, ArticleOptions, Block, Config, ConfigPublish, ConfigPublishGhost,
+    ConfigPublishGhostState, ConfigPublishGhostType, Inline, Node, NodeType, NoteType, TableCell,
+    shortcuts::*,
 };
 
 use crate::{
@@ -184,10 +185,13 @@ async fn docs_file(dest: &Path, schema: &Schema, context: &Context) -> Result<St
 
     let article = Article {
         title: title_inlines,
-        description,
-        config,
         frontmatter,
         content,
+        options: Box::new(ArticleOptions {
+            description,
+            config,
+            ..Default::default()
+        }),
         ..Default::default()
     };
 

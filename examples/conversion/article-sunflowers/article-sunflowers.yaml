@@ -48,22 +48,9 @@ authors:
   givenNames:
   - Stacey
   - L
-dateReceived:
-  type: Date
-  value: 2022-6-30
-dateAccepted:
-  type: Date
-  value: 2022-7-02
 datePublished:
   type: Date
   value: '2022'
-keywords:
-- Helianthus annuus
-- rhythms
-- anthesis
-- spiral phyllotaxy
-- floral organs
-- external coincidence model
 references:
 - type: Reference
   id: c1
@@ -4516,6 +4503,19 @@ about:
 - type: PropertyValue
   propertyId: hwp-journal-coll
   value: Plant Biology
+dateReceived:
+  type: Date
+  value: 2022-6-30
+dateAccepted:
+  type: Date
+  value: 2022-7-02
+keywords:
+- Helianthus annuus
+- rhythms
+- anthesis
+- spiral phyllotaxy
+- floral organs
+- external coincidence model
 publisher:
   type: Organization
   name: Cold Spring Harbor Laboratory

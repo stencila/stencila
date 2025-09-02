@@ -13,7 +13,7 @@ prompts: $(patsubst %.md,%.json,$(filter-out %README.md,$(wildcard prompts/**/*.
 # Run the codecs `examples` test with `UPDATE_EXAMPLES` env var to
 # overwrite existing generated files
 conversion:
-	UPDATE_EXAMPLES=true cargo test -p codecs --test examples
+	UPDATE_EXAMPLES=true cargo test -p stencila-codecs --test examples
 .PHONY: conversion
 
 # Execute a particular kernel example and save as JSON

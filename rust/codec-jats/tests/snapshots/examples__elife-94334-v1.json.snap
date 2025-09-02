@@ -203,18 +203,6 @@ expression: article
     "type": "Date",
     "value": "2024-12-10"
   },
-  "keywords": [
-    "double-strand break",
-    "DSB",
-    "DNA damage checkpoint",
-    "DDC",
-    "spindle assembly 3 checkpoint",
-    "SAC",
-    "S. cerevisiae",
-    "auxin-inducible degron",
-    "HO endonuclease",
-    "S. cerevisiae"
-  ],
   "references": [
     {
       "type": "Reference",
@@ -17783,6 +17771,18 @@ expression: article
       "name": "National Institute of General Medical Sciences",
       "url": "http://dx.doi.org/10.13039/100000057"
     }
+  ],
+  "keywords": [
+    "double-strand break",
+    "DSB",
+    "DNA damage checkpoint",
+    "DDC",
+    "spindle assembly 3 checkpoint",
+    "SAC",
+    "S. cerevisiae",
+    "auxin-inducible degron",
+    "HO endonuclease",
+    "S. cerevisiae"
   ],
   "parts": [
     {

@@ -392,30 +392,10 @@ expression: article
       ]
     }
   ],
-  "dateReceived": {
-    "type": "Date",
-    "value": "2018-9-06"
-  },
-  "dateAccepted": {
-    "type": "Date",
-    "value": "2018-11-07"
-  },
   "datePublished": {
     "type": "Date",
     "value": "2019-3"
   },
-  "keywords": [
-    "Carbon cycle",
-    "Carboxylation",
-    "coordination",
-    "ecophysiology",
-    "electron transport",
-    "Jmax",
-    "light availability",
-    "nitrogen availability",
-    "temperature",
-    "Vcmax"
-  ],
   "references": [
     {
       "type": "Reference",
@@ -20193,6 +20173,14 @@ expression: article
       "value": "Letters"
     }
   ],
+  "dateReceived": {
+    "type": "Date",
+    "value": "2018-9-06"
+  },
+  "dateAccepted": {
+    "type": "Date",
+    "value": "2018-11-07"
+  },
   "funders": [
     {
       "type": "Organization",
@@ -20224,6 +20212,18 @@ expression: article
       "name": "USDA ",
       "url": "10.13039/100000199"
     }
+  ],
+  "keywords": [
+    "Carbon cycle",
+    "Carboxylation",
+    "coordination",
+    "ecophysiology",
+    "electron transport",
+    "Jmax",
+    "light availability",
+    "nitrogen availability",
+    "temperature",
+    "Vcmax"
   ],
   "parts": [
     {

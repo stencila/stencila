@@ -36,7 +36,7 @@
           "name": "description",
           "dataType": "String",
           "nullable": true,
-          "onOptions": false
+          "onOptions": true
         },
         {
           "name": "name",
@@ -60,25 +60,25 @@
           "name": "dateCreated",
           "dataType": "Date",
           "nullable": true,
-          "onOptions": false
+          "onOptions": true
         },
         {
           "name": "dateReceived",
           "dataType": "Date",
           "nullable": true,
-          "onOptions": false
+          "onOptions": true
         },
         {
           "name": "dateAccepted",
           "dataType": "Date",
           "nullable": true,
-          "onOptions": false
+          "onOptions": true
         },
         {
           "name": "dateModified",
           "dataType": "Date",
           "nullable": true,
-          "onOptions": false
+          "onOptions": true
         },
         {
           "name": "datePublished",
@@ -90,13 +90,13 @@
           "name": "genre",
           "dataType": "StringArray",
           "nullable": true,
-          "onOptions": false
+          "onOptions": true
         },
         {
           "name": "keywords",
           "dataType": "StringArray",
           "nullable": true,
-          "onOptions": false
+          "onOptions": true
         },
         {
           "name": "repository",
