@@ -3,12 +3,12 @@
 use std::{fs, path::Path};
 
 use stencila_codec::{
-    Codec, DecodeOptions, EncodeOptions,
+    DecodeOptions, EncodeOptions,
     eyre::{Context, Result, eyre},
     stencila_format::Format,
     stencila_schema::{Datatable, Node},
 };
-use stencila_codec_csv::CsvCodec;
+use stencila_codec_polars::{decode_from_path, encode_to_path};
 
 /// Load a test datatable from JSON file
 fn load_test_datatable(filename: &str) -> Result<Node> {
@@ -24,11 +24,15 @@ fn load_test_datatable(filename: &str) -> Result<Node> {
 }
 
 /// Test roundtrip encoding/decoding for all formats with all test datatables
-#[tokio::test]
-async fn test_roundtrip_all_formats() -> Result<()> {
+#[test]
+fn test_roundtrip_all_formats() -> Result<()> {
     let test_files = ["datatable-1.json", "datatable-2.json", "datatable-3.json"];
-    let formats = [("csv", Format::Csv), ("tsv", Format::Tsv)];
-    let codec = CsvCodec;
+    let formats = [
+        ("csv", Format::Csv),
+        ("tsv", Format::Tsv),
+        ("parquet", Format::Parquet),
+        ("arrow", Format::Arrow),
+    ];
 
     // Test each datatable with each format
     for test_file in &test_files {
@@ -45,23 +49,21 @@ async fn test_roundtrip_all_formats() -> Result<()> {
                 .tempfile()?;
             let temp_path = temp_file.path();
 
-            // Encode to file using codec
+            // Encode to file
             let encode_options = EncodeOptions {
                 format: Some(format.clone()),
                 ..Default::default()
             };
 
-            codec
-                .to_path(&original_node, temp_path, Some(encode_options))
-                .await?;
+            encode_to_path(&original_node, temp_path, Some(encode_options))?;
 
-            // Decode from file using codec
+            // Decode from file
             let decode_options = DecodeOptions {
                 format: Some(format.clone()),
                 ..Default::default()
             };
 
-            let (decoded_node, _, _) = codec.from_path(temp_path, Some(decode_options)).await?;
+            let decoded_node = decode_from_path(temp_path, Some(decode_options))?;
 
             // Verify structure is preserved
             match (&original_node, &decoded_node) {

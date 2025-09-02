@@ -27,6 +27,9 @@ pub use stencila_codec::{
     stencila_format::Format,
 };
 
+use stencila_codec_utils::rebase_edits;
+use stencila_node_strip::{StripNode, StripTargets};
+
 use stencila_codec_arxiv::ArxivCodec;
 use stencila_codec_cbor::CborCodec;
 use stencila_codec_cff::CffCodec;
@@ -61,14 +64,14 @@ use stencila_codec_text::TextCodec;
 use stencila_codec_xlsx::XlsxCodec;
 use stencila_codec_yaml::YamlCodec;
 
-use stencila_codec_utils::rebase_edits;
-use stencila_node_strip::{StripNode, StripTargets};
+#[cfg(feature = "stencila-codec-polars")]
+use stencila_codec_polars::PolarsCodec;
 
 pub mod cli;
 
 /// Get a list of all codecs
 pub fn list() -> Vec<Box<dyn Codec>> {
-    let codecs = vec![
+    vec![
         Box::new(CborCodec) as Box<dyn Codec>,
         Box::new(CffCodec),
         Box::new(CslCodec),
@@ -91,6 +94,8 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(LexicalCodec),
         Box::new(MarkdownCodec),
         Box::new(MecaCodec),
+        #[cfg(feature = "stencila-codec-polars")]
+        Box::new(PolarsCodec),
         Box::new(RnwCodec),
         Box::new(OdtCodec),
         Box::new(PandocCodec),
@@ -101,16 +106,10 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(TextCodec),
         Box::new(XlsxCodec),
         Box::new(YamlCodec),
-        // arXiv codec support from HTML but because after all others supporting HTML
+        // arXiv codec supports from HTML but because after all others supporting HTML
         // will need to be explicitly chosen
         Box::new(ArxivCodec),
-    ];
-
-    // TODO: make plugins a dependency and append codecs to list
-    //let provided_by_plugins = &mut plugins::codecs::list();
-    //codecs.append(provided_by_plugins);
-
-    codecs
+    ]
 }
 
 /// Resolve whether an optional string is a codec

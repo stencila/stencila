@@ -63,18 +63,14 @@ expression: specs
     "status": "beta",
     "supports_from_formats": {
       "csv": "NoLoss",
-      "tsv": "NoLoss",
-      "parquet": "NoLoss",
-      "arrow": "NoLoss"
+      "tsv": "NoLoss"
     },
     "supports_from_bytes": false,
     "supports_from_string": true,
     "supports_from_path": true,
     "supports_to_formats": {
       "csv": "LowLoss",
-      "tsv": "LowLoss",
-      "parquet": "NoLoss",
-      "arrow": "NoLoss"
+      "tsv": "LowLoss"
     },
     "supports_to_bytes": false,
     "supports_to_string": true,

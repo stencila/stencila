@@ -1,24 +1,15 @@
-use std::path::Path;
-
-use polars::prelude::*;
-
 use stencila_codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
     eyre::{Result, bail},
     stencila_format::Format,
-    stencila_schema::{Node, NodeType},
+    stencila_schema::{
+        ArrayValidator, BooleanValidator, Datatable, DatatableColumn, IntegerValidator, Node,
+        NodeType, Null, NumberValidator, Primitive, StringValidator, Validator,
+    },
     stencila_status::Status,
 };
 
-mod conversion;
-mod formats;
-
-use conversion::{dataframe_to_datatable, datatable_to_dataframe};
-use formats::{
-    read_arrow, read_csv, read_parquet, read_tsv, write_arrow, write_csv, write_parquet, write_tsv,
-};
-
-/// A codec for tabular data formats (CSV, TSV, Parquet, Arrow, Avro)
+/// A codec for tabular data formats (CSV, TSV)
 pub struct CsvCodec;
 
 #[async_trait]
@@ -34,7 +25,7 @@ impl Codec for CsvCodec {
     fn supports_from_format(&self, format: &Format) -> CodecSupport {
         use CodecSupport::*;
         match format {
-            Format::Csv | Format::Tsv | Format::Parquet | Format::Arrow => NoLoss,
+            Format::Csv | Format::Tsv => NoLoss,
             _ => None,
         }
     }
@@ -43,7 +34,6 @@ impl Codec for CsvCodec {
         use CodecSupport::*;
         match format {
             Format::Csv | Format::Tsv => LowLoss,
-            Format::Parquet | Format::Arrow => NoLoss,
             _ => None,
         }
     }
@@ -64,32 +54,54 @@ impl Codec for CsvCodec {
         }
     }
 
-    async fn from_path(
-        &self,
-        path: &Path,
-        options: Option<DecodeOptions>,
-    ) -> Result<(Node, Option<Node>, DecodeInfo)> {
-        let node = decode_from_path(path, options)?;
-        Ok((node, None, DecodeInfo::none()))
-    }
-
     async fn from_str(
         &self,
         str: &str,
         options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
-        let node = decode_from_str(str, options)?;
-        Ok((node, DecodeInfo::none()))
-    }
+        let options = options.unwrap_or_default();
+        let format = options.format.unwrap_or(Format::Csv);
 
-    async fn to_path(
-        &self,
-        node: &Node,
-        path: &Path,
-        options: Option<EncodeOptions>,
-    ) -> Result<EncodeInfo> {
-        encode_to_path(node, path, options)?;
-        Ok(EncodeInfo::none())
+        let delimiter = match format {
+            Format::Csv => b',',
+            Format::Tsv => b'\t',
+            _ => bail!("Format {} not supported for string decoding", format),
+        };
+
+        let cursor = std::io::Cursor::new(str.as_bytes());
+        let mut reader = csv::ReaderBuilder::new()
+            .delimiter(delimiter)
+            .has_headers(true)
+            .from_reader(cursor);
+
+        // Get headers
+        let headers = reader.headers()?.clone();
+        let column_names: Vec<String> = headers.iter().map(|h| h.to_string()).collect();
+
+        // Read all records into memory for type inference
+        let mut raw_data: Vec<Vec<String>> = Vec::new();
+        for result in reader.records() {
+            let record = result?;
+            raw_data.push(record.iter().map(|s| s.to_string()).collect());
+        }
+
+        // Create columns with type inference
+        let mut columns = Vec::new();
+        for (col_index, column_name) in column_names.iter().enumerate() {
+            let column_values: Vec<&str> = raw_data
+                .iter()
+                .map(|row| row.get(col_index).map(|s| s.as_str()).unwrap_or(""))
+                .collect();
+
+            let (values, validator) = infer_column_type_and_parse(&column_values)?;
+
+            let mut column = DatatableColumn::new(column_name.clone(), values);
+            column.validator = Some(validator);
+            columns.push(column);
+        }
+
+        let datatable = Datatable::new(columns);
+        Ok((Node::Datatable(datatable), DecodeInfo::none()))
     }
 
     async fn to_string(
@@ -97,114 +109,198 @@ impl Codec for CsvCodec {
         node: &Node,
         options: Option<EncodeOptions>,
     ) -> Result<(String, EncodeInfo)> {
-        let string = encode_to_string(node, options)?;
+        let datatable = match node {
+            Node::Datatable(dt) => dt,
+            _ => bail!("Only Datatable nodes can be encoded to tabular formats"),
+        };
+
+        let options = options.unwrap_or_default();
+        let format = options.format.unwrap_or(Format::Csv);
+
+        let delimiter = match format {
+            Format::Csv => b',',
+            Format::Tsv => b'\t',
+            _ => bail!("Format {} not supported for string encoding", format),
+        };
+
+        let mut bytes = Vec::new();
+        {
+            let mut writer = csv::WriterBuilder::new()
+                .delimiter(delimiter)
+                .from_writer(&mut bytes);
+
+            // Write headers
+            let headers: Vec<&str> = datatable
+                .columns
+                .iter()
+                .map(|col| col.name.as_str())
+                .collect();
+            writer.write_record(&headers)?;
+
+            // Determine the number of rows (assuming all columns have the same length)
+            let num_rows = datatable
+                .columns
+                .first()
+                .map(|col| col.values.len())
+                .unwrap_or(0);
+
+            // Write data rows
+            for row_index in 0..num_rows {
+                let row: Vec<String> = datatable
+                    .columns
+                    .iter()
+                    .map(|col| primitive_to_string(&col.values[row_index]))
+                    .collect();
+                writer.write_record(&row)?;
+            }
+
+            writer.flush()?;
+        } // writer is dropped here
+
+        let string = String::from_utf8(bytes)?;
         Ok((string, EncodeInfo::none()))
     }
 }
 
-/// Decode a [`Datatable`] from a file path.
+/// Infer the column type from sample values and parse them into Primitives.
 ///
-/// Automatically detects the format based on the file extension if not specified in options.
-/// Supports CSV, TSV, Parquet, and Arrow formats. The file is read using Polars DataFrame
-/// operations for efficient processing, then converted to Stencila's [`Datatable`] schema.
-pub fn decode_from_path(path: &Path, options: Option<DecodeOptions>) -> Result<Node> {
-    let options = options.unwrap_or_default();
-    let format = options.format.unwrap_or_else(|| Format::from_path(path));
+/// Examines all non-empty values to determine the most specific type that can
+/// accommodate all values. Returns both the parsed values and an appropriate validator.
+fn infer_column_type_and_parse(values: &[&str]) -> Result<(Vec<Primitive>, ArrayValidator)> {
+    let mut has_integers = false;
+    let mut has_floats = false;
+    let mut has_booleans = false;
+    let mut non_null_count = 0;
 
-    let df = match format {
-        Format::Csv => read_csv(path)?,
-        Format::Tsv => read_tsv(path)?,
-        Format::Parquet => read_parquet(path)?,
-        Format::Arrow => read_arrow(path)?,
-        _ => bail!("Unsupported format: {}", format),
-    };
-
-    Ok(Node::Datatable(dataframe_to_datatable(df)?))
-}
-
-/// Decode a [`Datatable`] from a string.
-///
-/// Defaults to CSV format if not specified in options. Currently supports CSV and TSV
-/// formats for string decoding. Uses an in-memory cursor to parse the string data
-/// through Polars, which is then converted to a [`Datatable`].
-pub fn decode_from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node> {
-    let options = options.unwrap_or_default();
-    let format = options.format.unwrap_or(Format::Csv);
-
-    let df = match format {
-        Format::Csv => {
-            let cursor = std::io::Cursor::new(str.as_bytes());
-            CsvReader::new(cursor).finish()?
+    // First pass: analyze types
+    for value in values {
+        if value.trim().is_empty() {
+            continue;
         }
-        Format::Tsv => {
-            // CsvReader doesn't support separator on cursors in polars 0.43
-            // So we'll use the default CSV reader for now
-            // This is a limitation that should be addressed in future versions
-            let cursor = std::io::Cursor::new(str.as_bytes());
-            CsvReader::new(cursor).finish()?
+
+        non_null_count += 1;
+
+        if value.parse::<bool>().is_ok() && (*value == "true" || *value == "false") {
+            has_booleans = true;
+        } else if value.parse::<i64>().is_ok() {
+            has_integers = true;
+        } else if value.parse::<f64>().is_ok() {
+            has_floats = true;
         }
-        _ => bail!("Format {} not supported for string decoding", format),
-    };
-
-    Ok(Node::Datatable(dataframe_to_datatable(df)?))
-}
-
-/// Encode a [`Node`] containing a [`Datatable`] to a file path.
-///
-/// Automatically determines the output format from the file extension if not specified.
-/// The [`Datatable`] is first converted to a Polars DataFrame for efficient serialization,
-/// then written to the specified format (CSV, TSV, Parquet, or Arrow).
-pub fn encode_to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<()> {
-    let datatable = match node {
-        Node::Datatable(dt) => dt,
-        _ => bail!("Only Datatable nodes can be encoded to tabular formats"),
-    };
-
-    let options = options.unwrap_or_default();
-    let format = options.format.unwrap_or_else(|| Format::from_path(path));
-
-    let df = datatable_to_dataframe(datatable)?;
-
-    match format {
-        Format::Csv => write_csv(&df, path)?,
-        Format::Tsv => write_tsv(&df, path)?,
-        Format::Parquet => write_parquet(&df, path)?,
-        Format::Arrow => write_arrow(&df, path)?,
-        _ => bail!("Unsupported format: {}", format),
     }
 
-    Ok(())
-}
-
-/// Encode a [`Node`] containing a [`Datatable`] to a string.
-///
-/// Defaults to CSV format if not specified in options. Currently supports CSV and TSV
-/// formats for string encoding. The [`Datatable`] is converted to a Polars DataFrame
-/// and then serialized to an in-memory buffer before returning as a string.
-pub fn encode_to_string(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
-    let datatable = match node {
-        Node::Datatable(dt) => dt,
-        _ => bail!("Only Datatable nodes can be encoded to tabular formats"),
+    // Determine the most appropriate type
+    let (parsed_values, validator) = if non_null_count == 0 {
+        // All null/empty values - default to string
+        let vals: Vec<Primitive> = values
+            .iter()
+            .map(|v| {
+                if v.trim().is_empty() {
+                    Primitive::Null(Null)
+                } else {
+                    Primitive::String(v.to_string())
+                }
+            })
+            .collect();
+        let mut validator = ArrayValidator::new();
+        validator.items_validator =
+            Some(Box::new(Validator::StringValidator(StringValidator::new())));
+        (vals, validator)
+    } else if has_booleans
+        && non_null_count == values.iter().filter(|v| v.parse::<bool>().is_ok()).count()
+    {
+        // All non-null values are booleans
+        let vals: Vec<Primitive> = values
+            .iter()
+            .map(|v| {
+                if v.trim().is_empty() {
+                    Primitive::Null(Null)
+                } else {
+                    match v.parse::<bool>() {
+                        Ok(b) => Primitive::Boolean(b),
+                        Err(_) => Primitive::String(v.to_string()),
+                    }
+                }
+            })
+            .collect();
+        let mut validator = ArrayValidator::new();
+        validator.items_validator = Some(Box::new(Validator::BooleanValidator(
+            BooleanValidator::new(),
+        )));
+        (vals, validator)
+    } else if has_floats {
+        // Has floating point numbers
+        let vals: Vec<Primitive> = values
+            .iter()
+            .map(|v| {
+                if v.trim().is_empty() {
+                    Primitive::Null(Null)
+                } else {
+                    match v.parse::<f64>() {
+                        Ok(n) => Primitive::Number(n),
+                        Err(_) => Primitive::String(v.to_string()),
+                    }
+                }
+            })
+            .collect();
+        let mut validator = ArrayValidator::new();
+        validator.items_validator =
+            Some(Box::new(Validator::NumberValidator(NumberValidator::new())));
+        (vals, validator)
+    } else if has_integers {
+        // Only integers
+        let vals: Vec<Primitive> = values
+            .iter()
+            .map(|v| {
+                if v.trim().is_empty() {
+                    Primitive::Null(Null)
+                } else {
+                    match v.parse::<i64>() {
+                        Ok(i) => Primitive::Integer(i),
+                        Err(_) => Primitive::String(v.to_string()),
+                    }
+                }
+            })
+            .collect();
+        let mut validator = ArrayValidator::new();
+        validator.items_validator = Some(Box::new(Validator::IntegerValidator(
+            IntegerValidator::new(),
+        )));
+        (vals, validator)
+    } else {
+        // Default to string
+        let vals: Vec<Primitive> = values
+            .iter()
+            .map(|v| {
+                if v.trim().is_empty() {
+                    Primitive::Null(Null)
+                } else {
+                    Primitive::String(v.to_string())
+                }
+            })
+            .collect();
+        let mut validator = ArrayValidator::new();
+        validator.items_validator =
+            Some(Box::new(Validator::StringValidator(StringValidator::new())));
+        (vals, validator)
     };
 
-    let options = options.unwrap_or_default();
-    let format = options.format.unwrap_or(Format::Csv);
+    Ok((parsed_values, validator))
+}
 
-    let df = datatable_to_dataframe(datatable)?;
-
-    match format {
-        Format::Csv => {
-            let mut bytes = Vec::new();
-            let mut writer = CsvWriter::new(&mut bytes);
-            writer.finish(&mut df.clone())?;
-            Ok(String::from_utf8(bytes)?)
-        }
-        Format::Tsv => {
-            let mut bytes = Vec::new();
-            let mut writer = CsvWriter::new(&mut bytes).with_separator(b'\t');
-            writer.finish(&mut df.clone())?;
-            Ok(String::from_utf8(bytes)?)
-        }
-        _ => bail!("Format {} not supported for string encoding", format),
+/// Convert a Primitive value to its string representation for CSV output.
+///
+/// Handles all Primitive types and converts them to appropriate string formats
+/// that can be round-tripped through CSV parsing.
+fn primitive_to_string(primitive: &Primitive) -> String {
+    match primitive {
+        Primitive::Null(_) => String::new(),
+        Primitive::Boolean(b) => b.to_string(),
+        Primitive::Integer(i) => i.to_string(),
+        Primitive::UnsignedInteger(u) => u.to_string(),
+        Primitive::Number(n) => n.to_string(),
+        Primitive::String(s) => s.clone(),
+        Primitive::Array(_) => format!("{primitive:?}"), // Fallback for complex types
+        Primitive::Object(_) => format!("{primitive:?}"), // Fallback for complex types
     }
 }

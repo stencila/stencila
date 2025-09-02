@@ -1,0 +1,55 @@
+{
+  "type": "Datatable",
+  "columns": [
+    {
+      "type": "DatatableColumn",
+      "name": "unsigned_id",
+      "values": [100, 200, 0, null],
+      "validator": {
+        "type": "ArrayValidator",
+        "itemsValidator": {
+          "type": "IntegerValidator",
+          "minimum": 0
+        }
+      }
+    },
+    {
+      "type": "DatatableColumn",
+      "name": "description",
+      "values": [
+        "First item with, comma",
+        "Second\titem\twith\ttabs",
+        "Third \"item\" with quotes",
+        "Fourth\nitem\nwith\nnewlines"
+      ],
+      "validator": {
+        "type": "ArrayValidator",
+        "itemsValidator": {
+          "type": "StringValidator"
+        }
+      }
+    },
+    {
+      "type": "DatatableColumn",
+      "name": "percentage",
+      "values": [0.0, 100.0, -5.25, 3.14159],
+      "validator": {
+        "type": "ArrayValidator",
+        "itemsValidator": {
+          "type": "NumberValidator"
+        }
+      }
+    },
+    {
+      "type": "DatatableColumn",
+      "name": "flag",
+      "values": [false, false, true, false],
+      "validator": {
+        "type": "ArrayValidator",
+        "itemsValidator": {
+          "type": "BooleanValidator"
+        }
+      }
+    }
+  ]
+}
