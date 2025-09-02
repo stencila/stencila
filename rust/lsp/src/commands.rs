@@ -4,7 +4,7 @@ use std::{
     path::PathBuf,
     str::FromStr,
     sync::{
-        Arc,
+        Arc, LazyLock,
         atomic::{AtomicI32, Ordering},
     },
     time::Duration,
@@ -22,7 +22,6 @@ use async_lsp::{
 };
 use eyre::{OptionExt, Result};
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 use serde_json::{self, Value, json};
 use tokio::{
     sync::{RwLock, mpsc, watch::Receiver},
@@ -1211,7 +1210,7 @@ fn path_buf_arg(arg: Option<Value>) -> Result<PathBuf, ResponseError> {
         .ok_or_else(|| invalid_request("Path argument missing or invalid"))
 }
 
-static PROGRESS_TOKEN: Lazy<AtomicI32> = Lazy::new(AtomicI32::default);
+static PROGRESS_TOKEN: LazyLock<AtomicI32> = LazyLock::new(AtomicI32::default);
 
 /// Create and begin a progress notification
 async fn create_progress(

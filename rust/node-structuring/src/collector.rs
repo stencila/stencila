@@ -1,8 +1,7 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::LazyLock};
 
 use inflector::Inflector;
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 use regex::Regex;
 use strum::Display;
 
@@ -747,7 +746,7 @@ fn is_primary_section_type(section_type: &SectionType) -> bool {
 /// starts with "Figure X" or "Fig X" where X is a number.
 fn detect_figure_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)> {
     // Detect figure captions like "Figure 1.", "Fig 2:", "Figure 12 -", "Figure A2" etc.
-    static FIGURE_CAPTION_REGEX: Lazy<Regex> = Lazy::new(|| {
+    static FIGURE_CAPTION_REGEX: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r"(?i)^(?:Figure|Fig\.?)\s*([A-Z]?\d+)[.:\-\s]*").expect("invalid regex")
     });
 
@@ -771,8 +770,9 @@ fn detect_figure_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)
 /// starts with "Table X" where X is a number.
 fn detect_table_caption(inlines: &Vec<Inline>) -> Option<(String, String, bool)> {
     // Detect table captions like "Table 1.", "Table 2:", "Table 12 -", , "Table B3" etc.
-    static TABLE_CAPTION_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"(?i)^(?:Table)\s*([A-Z]?\d+)[.:\-\s]*").expect("invalid regex"));
+    static TABLE_CAPTION_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(r"(?i)^(?:Table)\s*([A-Z]?\d+)[.:\-\s]*").expect("invalid regex")
+    });
 
     let text = to_text(inlines);
 
@@ -949,7 +949,7 @@ fn has_links(inlines: Vec<Inline>) -> Option<Vec<Inline>> {
 ///
 /// Returns (numbering_string, depth, cleaned_text) if numbering is found
 fn extract_heading_numbering(text: &str) -> (Option<String>, usize, String) {
-    static HEADING_NUMBER_REGEX: Lazy<Regex> = Lazy::new(|| {
+    static HEADING_NUMBER_REGEX: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r"^(?:(?:Chapter|Section|Part)\s+)?([A-Z]\.(?:[0-9]+(?:\.[A-Z]?[0-9]+)*)?|[A-Z][0-9]+(?:\.[A-Z]?[0-9]+)*|[0-9]+(?:\.[A-Z]?[0-9]+)*|[IVX]+\.(?:[0-9]+(?:\.[A-Z]?[0-9]+)*)?)[.\s]*(.*)$")
             .expect("invalid regex")
     });

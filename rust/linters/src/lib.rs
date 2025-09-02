@@ -2,11 +2,10 @@ use std::{
     collections::HashMap,
     env::current_dir,
     path::{Path, PathBuf},
-    sync::{Arc, Mutex},
+    sync::{Arc, LazyLock, Mutex},
 };
 
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 
 pub use stencila_linter::LintingOptions;
 use stencila_linter::{
@@ -68,7 +67,8 @@ pub async fn lint(
 
     // Cache linter availability to avoid relatively expensive
     // calls to `linter.availability()` on each call of this function.
-    static LINTER_AVAILABLE: Lazy<Arc<Mutex<HashMap<String, bool>>>> = Lazy::new(Arc::default);
+    static LINTER_AVAILABLE: LazyLock<Arc<Mutex<HashMap<String, bool>>>> =
+        LazyLock::new(Arc::default);
 
     // Filter the list of linters for those that are available and will handle the content
     let linters = list()

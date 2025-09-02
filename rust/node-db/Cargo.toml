@@ -15,7 +15,6 @@ embed = { path = "../embed" }
 eyre = { workspace = true }
 itertools = { workspace = true }
 kernel-kuzu = { path = "../kernel-kuzu" }
-once_cell = { workspace = true }
 rust-embed = { version = "8.7.2", features = ["interpolate-folder-path", "include-exclude"] }
 schema = { path = "../schema" }
 semver = { workspace = true }

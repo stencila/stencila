@@ -1,8 +1,9 @@
+use std::sync::LazyLock;
+
 use url::Url;
 
 use eyre::{Result, bail};
 use futures::StreamExt;
-use once_cell::sync::Lazy;
 use regex::Regex;
 use reqwest::{Client, Response};
 use tempfile::tempdir;
@@ -36,15 +37,15 @@ const DOI_PREFIX: &str = "10.1101";
 pub(super) fn extract_openrxiv_id(identifier: &str) -> Option<(String, Option<String>)> {
     let identifier = identifier.trim().to_lowercase();
 
-    static OPENRXIV_URL_REGEX: Lazy<Regex> = Lazy::new(|| {
+    static OPENRXIV_URL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r"^/content/10\.1101/(.*?)(?:\.full\.pdf)?$").expect("invalid regex")
     });
 
-    static DOI_URL_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"^/10\.1101/(.*)$").expect("invalid regex"));
+    static DOI_URL_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^/10\.1101/(.*)$").expect("invalid regex"));
 
-    static DOI_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"^10\.1101/(.*)$").expect("invalid regex"));
+    static DOI_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^10\.1101/(.*)$").expect("invalid regex"));
 
     // Try to parse as URL first
     if let Ok(url) = Url::parse(&identifier) {

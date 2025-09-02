@@ -7,7 +7,6 @@ edition = "2024"
 async-trait = { workspace = true }
 eyre = { workspace = true }
 lsp-types = { version = "0.95.1" }
-once_cell = { workspace = true }
 owo-colors = "4.2.2"
 rpassword = "7.4.0"
 strum = { workspace = true }

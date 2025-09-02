@@ -6,7 +6,6 @@ edition = "2024"
 [dependencies]
 harper-core = { version = "0.59.0", features = ["concurrent"] }
 itertools = { workspace = true }
-once_cell = { workspace = true }
 stencila-linter = { path = "../linter" }
 tokio = { workspace = true }
 tracing = { workspace = true }

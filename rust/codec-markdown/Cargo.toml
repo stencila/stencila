@@ -13,7 +13,6 @@ itertools = { workspace = true }
 markdown = "1.0.0"
 media-embed = { path = "../media-embed" }
 media-extract = { path = "../media-extract" }
-once_cell = { workspace = true }
 regex = { workspace = true }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }

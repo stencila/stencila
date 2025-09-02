@@ -1,8 +1,7 @@
-use std::fmt::Display;
+use std::{fmt::Display, sync::LazyLock};
 
 use clap::{self, ValueEnum};
 use eyre::{Result, bail};
-use once_cell::sync::Lazy;
 use serde::Serialize;
 use syntect::{
     easy::HighlightLines, highlighting::ThemeSet, parsing::SyntaxSet,
@@ -71,8 +70,8 @@ impl ToStdout for Code {
         // Consider whether to only bake in a subset of syntaxes and themes? See the following for examples of this
         // https://github.com/ducaale/xh/blob/master/build.rs
         // https://github.com/sharkdp/bat/blob/0b44aa6f68ab967dd5d74b7e02d306f2b8388928/src/assets.rs
-        static SYNTAXES: Lazy<SyntaxSet> = Lazy::new(SyntaxSet::load_defaults_newlines);
-        static THEMES: Lazy<ThemeSet> = Lazy::new(ThemeSet::load_defaults);
+        static SYNTAXES: LazyLock<SyntaxSet> = LazyLock::new(SyntaxSet::load_defaults_newlines);
+        static THEMES: LazyLock<ThemeSet> = LazyLock::new(ThemeSet::load_defaults);
 
         let ext = match self.format {
             Format::Dom => "html".to_string(),

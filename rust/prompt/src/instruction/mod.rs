@@ -1,6 +1,6 @@
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 use regex::Regex;
+use std::sync::LazyLock;
 use strum::Display;
 
 use schema::MessagePart;
@@ -48,7 +48,7 @@ impl Instruction {
             return document.next_block();
         };
 
-        static TARGET: Lazy<Regex> = Lazy::new(|| {
+        static TARGET: LazyLock<Regex> = LazyLock::new(|| {
             Regex::new(
                 r"((below|next)|(above|prev(ious)?))?\s*((code)|(fig(ure)?)|(tab(le)?))?\s*(\d+)?",
             )

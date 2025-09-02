@@ -1,4 +1,4 @@
-use std::num::NonZeroU32;
+use std::{num::NonZeroU32, sync::LazyLock};
 
 use governor::{
     Quota, RateLimiter as GovernorRateLimiter,
@@ -6,7 +6,6 @@ use governor::{
     state::{InMemoryState, NotKeyed},
 };
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 use reqwest::{
     Client,
     header::{ACCEPT, HeaderMap, HeaderValue},
@@ -23,29 +22,29 @@ const API_BASE_URL: &str = "https://zenodo.org/api";
 // https://developers.zenodo.org/#rate-limiting
 
 // Guest API rate limiter
-static GUEST_MINUTE_GOVERNOR: Lazy<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
-    Lazy::new(|| {
+static GUEST_MINUTE_GOVERNOR: LazyLock<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
+    LazyLock::new(|| {
         // 60 requests/minute => 58 requests/minute for safety
         GovernorRateLimiter::direct(Quota::per_minute(NonZeroU32::new(58).expect("invalid")))
     });
 
 // Authenticated API rate limiter
-static AUTH_MINUTE_GOVERNOR: Lazy<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
-    Lazy::new(|| {
+static AUTH_MINUTE_GOVERNOR: LazyLock<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
+    LazyLock::new(|| {
         // 100 requests/minute => 95 requests/minute for safety
         GovernorRateLimiter::direct(Quota::per_minute(NonZeroU32::new(95).expect("invalid")))
     });
 
 // Guest hourly rate limiter
-static GUEST_HOURLY_GOVERNOR: Lazy<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
-    Lazy::new(|| {
+static GUEST_HOURLY_GOVERNOR: LazyLock<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
+    LazyLock::new(|| {
         // 2000 requests/hour => 1950 requests/hour for safety
         GovernorRateLimiter::direct(Quota::per_hour(NonZeroU32::new(1950).expect("invalid")))
     });
 
 // Authenticated hourly rate limiter
-static AUTH_HOURLY_GOVERNOR: Lazy<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
-    Lazy::new(|| {
+static AUTH_HOURLY_GOVERNOR: LazyLock<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
+    LazyLock::new(|| {
         // 5000 requests/hour => 4900 requests/hour for safety
         GovernorRateLimiter::direct(Quota::per_hour(NonZeroU32::new(4900).expect("invalid")))
     });
@@ -70,7 +69,7 @@ async fn apply_rate_limiting(authenticated: bool) -> Result<()> {
     Ok(())
 }
 
-static CLIENT: Lazy<Client> = Lazy::new(|| {
+static CLIENT: LazyLock<Client> = LazyLock::new(|| {
     Client::builder()
         .user_agent(STENCILA_USER_AGENT)
         .default_headers(HeaderMap::from_iter([(

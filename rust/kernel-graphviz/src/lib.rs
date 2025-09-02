@@ -1,8 +1,9 @@
+use std::sync::LazyLock;
+
 use layout::{
     backends::svg::SVGWriter,
     gv::{DotParser, GraphBuilder},
 };
-use once_cell::sync::Lazy;
 use regex::Regex;
 
 use kernel::{
@@ -110,8 +111,8 @@ impl KernelInstance for GraphvizKernelInstance {
                     .replace('}', "%7D")
                     .replace('<', "%3C")
                     .replace('>', "%3E");
-                static SPACES_RE: Lazy<Regex> =
-                    Lazy::new(|| Regex::new(r"\s+").expect("invalid regex"));
+                static SPACES_RE: LazyLock<Regex> =
+                    LazyLock::new(|| Regex::new(r"\s+").expect("invalid regex"));
                 let svg = SPACES_RE.replace_all(&svg, " ");
                 let data_uri = format!("data:image/svg+xml,{svg}");
 

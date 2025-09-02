@@ -6,7 +6,6 @@ edition = "2024"
 [dependencies]
 codec = { path = "../codec" }
 codec-csl = { path = "../codec-csl" }
-once_cell = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true }
 tracing = { workspace = true }

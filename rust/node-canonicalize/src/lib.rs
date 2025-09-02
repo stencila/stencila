@@ -1,6 +1,7 @@
+use std::sync::LazyLock;
+
 use eyre::Result;
 use futures::future::try_join_all;
-use once_cell::sync::Lazy;
 use regex::Regex;
 
 use schema::{
@@ -32,23 +33,23 @@ fn is_doi(id: &Option<String>) -> bool {
         return false;
     }
 
-    static REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"(?i)^10.\d{4,9}/[-._;()/:A-Z0-9]+$").expect("invalid regex"));
+    static REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"(?i)^10.\d{4,9}/[-._;()/:A-Z0-9]+$").expect("invalid regex"));
     REGEX.is_match(id)
 }
 
 /// Is an optional id a valid ORCID
 fn is_orcid(id: &Option<String>) -> bool {
     let Some(id) = id else { return false };
-    static REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"^\d{4}-\d{4}-\d{4}-\d{3}[0-9X]$").expect("invalid regex"));
+    static REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^\d{4}-\d{4}-\d{4}-\d{3}[0-9X]$").expect("invalid regex"));
     REGEX.is_match(id)
 }
 
 /// Is an optional id a valid ROR
 fn is_ror(id: &Option<String>) -> bool {
     let Some(id) = id else { return false };
-    static REGEX: Lazy<Regex> = Lazy::new(|| {
+    static REGEX: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r"(?i)^0[a-hj-km-np-tv-z|0-9]{6}[0-9]{2}$").expect("invalid regex")
     });
     REGEX.is_match(id)

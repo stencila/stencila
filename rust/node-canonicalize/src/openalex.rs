@@ -1,5 +1,6 @@
+use std::sync::LazyLock;
+
 use eyre::Result;
-use once_cell::sync::Lazy;
 use regex::Regex;
 
 use codec_openalex::{
@@ -13,15 +14,16 @@ use crate::{is_doi, is_orcid, is_ror};
 /// Is an optional id a pseudo ORCID based on from OpenAlex authorship (not name match)
 pub(super) fn is_authorship_orcid(id: &Option<String>) -> bool {
     let Some(id) = id else { return false };
-    static REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"^A000-\d{4}-\d{4}-\d{4}$").expect("invalid regex"));
+    static REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^A000-\d{4}-\d{4}-\d{4}$").expect("invalid regex"));
     REGEX.is_match(id)
 }
 
 /// Is an optional id a pseudo ROR based on from OpenAlex authorship
 pub(super) fn is_authorship_ror(id: &Option<String>) -> bool {
     let Some(id) = id else { return false };
-    static REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)^A\d+$").expect("invalid regex"));
+    static REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"(?i)^A\d+$").expect("invalid regex"));
     REGEX.is_match(id)
 }
 

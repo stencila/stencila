@@ -1,9 +1,8 @@
-use std::str::FromStr;
+use std::{str::FromStr, sync::LazyLock};
 
 use chrono::{self, Datelike};
 use eyre::{Report, Result};
 use inflector::Inflector;
-use once_cell::sync::Lazy;
 use regex::Regex;
 
 use crate::{Date, prelude::*};
@@ -56,8 +55,9 @@ impl FromStr for Date {
         use interim::{Dialect, parse_date_string};
 
         // If matches an ISO 8601 then use that...
-        static REGEX: Lazy<Regex> =
-            Lazy::new(|| Regex::new(r"^\d{4}(-\d\d(-\d\d)?)?$").expect("Unable to create regex"));
+        static REGEX: LazyLock<Regex> = LazyLock::new(|| {
+            Regex::new(r"^\d{4}(-\d\d(-\d\d)?)?$").expect("Unable to create regex")
+        });
         if REGEX.is_match(string) {
             return Ok(Self::new(string.to_string()));
         }

@@ -1,11 +1,10 @@
 //! Tests on examples of Stencila documents
 
-use std::{collections::BTreeMap, env, fs::File, path::PathBuf};
+use std::{collections::BTreeMap, env, fs::File, path::PathBuf, sync::LazyLock};
 
 use glob::glob;
 use itertools::Itertools;
 use json_value_merge::Merge;
-use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use smart_default::SmartDefault;
@@ -53,7 +52,7 @@ struct DecodeConfig {
 }
 
 /// Default config
-static CONFIG: Lazy<Config> = Lazy::new(|| {
+static CONFIG: LazyLock<Config> = LazyLock::new(|| {
     BTreeMap::from([
         (
             "cbor".into(),
@@ -366,9 +365,10 @@ async fn examples() -> Result<()> {
 
                     // If DOM HTML redact ids since these will change between test runs
                     if config.format == Format::Dom {
-                        static ID_REGEX: Lazy<Regex> =
-                            Lazy::new(|| Regex::new(r" id=[a-z]{3}_\w+").expect("invalid_regex"));
-                        static HEADING_REGEX: Lazy<Regex> = Lazy::new(|| {
+                        static ID_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+                            Regex::new(r" id=[a-z]{3}_\w+").expect("invalid_regex")
+                        });
+                        static HEADING_REGEX: LazyLock<Regex> = LazyLock::new(|| {
                             Regex::new(r" heading=[a-z]{3}_\w+").expect("invalid_regex")
                         });
 

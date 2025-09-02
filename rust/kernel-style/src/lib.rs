@@ -1,6 +1,8 @@
-use std::hash::{Hash, Hasher};
+use std::{
+    hash::{Hash, Hasher},
+    sync::LazyLock,
+};
 
-use once_cell::sync::Lazy;
 use railwind::{CollectionOptions, Source, parse_to_string};
 use regex::Regex;
 use seahash::SeaHasher;
@@ -84,7 +86,8 @@ impl StyleKernelInstance {
         let mut messages = Vec::new();
 
         // Transpile any dollar variable interpolations to Jinja interpolation
-        static REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"\$(\w+)").expect("Invalid regex"));
+        static REGEX: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new(r"\$(\w+)").expect("Invalid regex"));
         let code = REGEX.replace_all(code, "{{$1}}");
 
         // Render any Jinja templating

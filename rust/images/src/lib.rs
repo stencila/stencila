@@ -3,6 +3,7 @@ use std::{
     hash::{Hash, Hasher},
     io::{Cursor, Write},
     path::{Path, PathBuf},
+    sync::LazyLock,
 };
 
 use base64::{Engine as _, engine::general_purpose::STANDARD};
@@ -10,7 +11,6 @@ use eyre::{OptionExt, Result, bail};
 use image::{GenericImage, GenericImageView, ImageBuffer, ImageFormat, ImageReader, Rgba, open};
 use itertools::Itertools;
 use mime_guess::from_path;
-use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 use seahash::SeaHasher;
 
@@ -216,8 +216,9 @@ pub fn img_srcs_to_paths(
 
 /// Replace the `src` attributes of <img> tags using a transformation function
 fn img_srcs_transform(html: &str, transform: impl Fn(&str) -> String) -> String {
-    static REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r#"(<img[^>]*\s)src=["']([^"']+)["']"#).expect("invalid regex"));
+    static REGEX: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(r#"(<img[^>]*\s)src=["']([^"']+)["']"#).expect("invalid regex")
+    });
 
     REGEX
         .replace_all(html, |caps: &Captures| {

@@ -15,7 +15,6 @@ codec-text = { path = "../codec-text" }
 codec-xlsx = { path = "../codec-xlsx" }
 governor = { workspace = true }
 itertools = { workspace = true }
-once_cell = { workspace = true }
 reqwest = { workspace = true }
 secrets = { path = "../secrets" }
 serde = { workspace = true }

@@ -1,4 +1,4 @@
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 
 use parser::{DefaultParser, format::Format};
 
@@ -10,7 +10,7 @@ pub fn parse(
     language: &Option<String>,
     compilation_digest: &Option<CompilationDigest>,
 ) -> ParseInfo {
-    static PARSERS: Lazy<Vec<Box<dyn Parser>>> = Lazy::new(Vec::new);
+    static PARSERS: LazyLock<Vec<Box<dyn Parser>>> = LazyLock::new(Vec::new);
 
     let format = language
         .as_ref()

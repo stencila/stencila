@@ -7,7 +7,6 @@ edition = "2024"
 codec = { path = "../codec" }
 codec-latex = { path = "../codec-latex" }
 itertools = { workspace = true }
-once_cell = { workspace = true }
 regex = { workspace = true }
 
 [dev-dependencies]

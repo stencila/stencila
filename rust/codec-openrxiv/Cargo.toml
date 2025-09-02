@@ -10,7 +10,6 @@ codec-meca = { path = "../codec-meca" }
 codec-pdf = { path = "../codec-pdf" }
 eyre = { workspace = true }
 futures = { workspace = true }
-once_cell = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true }
 tempfile = { workspace = true }

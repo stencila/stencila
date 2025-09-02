@@ -1,6 +1,5 @@
-use std::str::FromStr;
+use std::{str::FromStr, sync::LazyLock};
 
-use once_cell::sync::Lazy;
 use regex::Regex;
 
 use crate::{Person, PersonOptions, prelude::*};
@@ -119,14 +118,15 @@ impl FromStr for Person {
             // Note: currently not using the "generational suffix" e.g "Jr" parsed
             // by `human_name`.
 
-            static EMAIL_REGEX: Lazy<Regex> =
-                Lazy::new(|| Regex::new("<([^@]+@.+)>").expect("Unable to create regex"));
+            static EMAIL_REGEX: LazyLock<Regex> =
+                LazyLock::new(|| Regex::new("<([^@]+@.+)>").expect("Unable to create regex"));
             let emails = EMAIL_REGEX
                 .captures(string)
                 .map(|email| vec![email[1].to_string()]);
 
-            static URL_REGEX: Lazy<Regex> =
-                Lazy::new(|| Regex::new("\\((https?://[^)]+)\\)").expect("Unable to create regex"));
+            static URL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+                Regex::new("\\((https?://[^)]+)\\)").expect("Unable to create regex")
+            });
             let url = URL_REGEX.captures(string).map(|url| url[1].to_string());
 
             Self {

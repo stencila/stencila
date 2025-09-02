@@ -1,13 +1,15 @@
 //! Handling of custom requests and notifications related to
 //! the DOM HTML representation of a document
 
-use std::{collections::HashMap, sync::Arc};
+use std::{
+    collections::HashMap,
+    sync::{Arc, LazyLock},
+};
 
 use async_lsp::{
     ClientSocket, ErrorCode, ResponseError,
     lsp_types::{notification::Notification, request::Request},
 };
-use once_cell::sync::Lazy;
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
 use tokio::{
@@ -86,8 +88,8 @@ impl Notification for PublishDom {
 
 /// A map of subscriptions to document DOMs
 #[allow(clippy::type_complexity)]
-static SUBSCRIPTIONS: Lazy<Mutex<HashMap<String, (Sender<DomPatch>, JoinHandle<()>)>>> =
-    Lazy::new(Mutex::default);
+static SUBSCRIPTIONS: LazyLock<Mutex<HashMap<String, (Sender<DomPatch>, JoinHandle<()>)>>> =
+    LazyLock::new(Mutex::default);
 
 /// Handle a request to subscribe to DOM HTML updates for a document
 pub async fn subscribe(

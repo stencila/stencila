@@ -2,12 +2,11 @@ use std::{
     collections::HashMap,
     path::{Path, PathBuf},
     str::FromStr,
-    sync::Arc,
+    sync::{Arc, LazyLock},
 };
 
 use itertools::Itertools;
 use kuzu::{Connection, Database, LogicalType, SystemConfig, Value};
-use once_cell::sync::Lazy;
 use regex::Regex;
 
 use kernel::{
@@ -268,8 +267,8 @@ impl KernelInstance for KuzuKernelInstance {
         };
 
         // Request any parameters needed by the code
-        static PARAM_REGEX: Lazy<Regex> =
-            Lazy::new(|| Regex::new(r"\$([a-zA-Z_][\w_]*)").expect("invalid regex"));
+        static PARAM_REGEX: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new(r"\$([a-zA-Z_][\w_]*)").expect("invalid regex"));
         let mut params: Vec<(String, Option<Value>)> = PARAM_REGEX
             .captures(&code)
             .iter()
@@ -348,7 +347,7 @@ impl KernelInstance for KuzuKernelInstance {
 
         // Search for a "// @db" line in the code specifying path, and optionally
         // read/write access, to database.
-        static DB_REGEX: Lazy<Regex> = Lazy::new(|| {
+        static DB_REGEX: LazyLock<Regex> = LazyLock::new(|| {
             Regex::new(r"(?m)^\/\/\s*@db\s+(?:(ro|rw)\s+)?(.+)$").expect("invalid regex")
         });
         if let Some(captures) = DB_REGEX.captures(&code) {
@@ -426,7 +425,7 @@ impl KernelInstance for KuzuKernelInstance {
                 // If the query contains a `// @assign` comment then store the results
                 // as a node. Because `QueryResult` is not clone-able it can
                 // either be assigned or output, but not both
-                static ASSIGN_REGEX: Lazy<Regex> = Lazy::new(|| {
+                static ASSIGN_REGEX: LazyLock<Regex> = LazyLock::new(|| {
                     Regex::new(r"(?m)^\/\/\s+*@assign\s+(\w+)(?:[ ]+(\w+))?")
                         .expect("invalid regex")
                 });
@@ -476,8 +475,8 @@ impl KernelInstance for KuzuKernelInstance {
         }
 
         // Check if the default transform kind has been overridden
-        static OUTPUT_REGEX: Lazy<Regex> =
-            Lazy::new(|| Regex::new(r"(?m)^\/\/\s*@out\s+(\w+)$").expect("invalid regex"));
+        static OUTPUT_REGEX: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new(r"(?m)^\/\/\s*@out\s+(\w+)$").expect("invalid regex"));
         let transform = if let Some(captures) = OUTPUT_REGEX.captures(&code) {
             Some(QueryResultTransform::from_str(&captures[1])?)
         } else {

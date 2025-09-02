@@ -1,12 +1,13 @@
 use std::path::Path;
 
+use std::sync::LazyLock;
+
 use harper_core::{
     Dialect, Document,
     linting::{Lint, LintGroup, LintKind, Linter as _, Suggestion},
     spell::FstDictionary,
 };
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 use tokio::sync::Mutex;
 
 use stencila_linter::{
@@ -56,7 +57,7 @@ impl Linter for HarperLinter {
     ) -> Result<LintingOutput> {
         tracing::trace!("Linting with Harper");
 
-        static LINTER: Lazy<Mutex<LintGroup>> = Lazy::new(|| {
+        static LINTER: LazyLock<Mutex<LintGroup>> = LazyLock::new(|| {
             Mutex::new(LintGroup::new_curated(
                 FstDictionary::curated(),
                 Dialect::American,

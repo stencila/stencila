@@ -1,5 +1,6 @@
+use std::sync::LazyLock;
+
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 
 use codec::{
@@ -34,7 +35,7 @@ pub(super) async fn decode(
 }
 
 /// Regex for custom commands and environments
-static RE: Lazy<Regex> = Lazy::new(|| {
+static RE: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r"(?sx)
 
@@ -399,8 +400,8 @@ fn latex_to_blocks(latex: &str, island_style: &Option<String>) -> Vec<Block> {
 
             // If no id is specified, try to get from the \label command within the table
             if id.is_none() {
-                static RE: Lazy<Regex> =
-                    Lazy::new(|| Regex::new(r"\\label\{([^}]+)\}").expect("invalid regex"));
+                static RE: LazyLock<Regex> =
+                    LazyLock::new(|| Regex::new(r"\\label\{([^}]+)\}").expect("invalid regex"));
                 if let Some(label) = RE
                     .captures(content)
                     .and_then(|caps| caps.get(1))

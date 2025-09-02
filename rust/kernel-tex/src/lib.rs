@@ -1,5 +1,6 @@
+use std::sync::LazyLock;
+
 use latex2mathml::{DisplayStyle, latex_to_mathml};
-use once_cell::sync::Lazy;
 use regex::Regex;
 
 use kernel::{
@@ -74,8 +75,8 @@ impl TexKernelInstance {
         match latex_to_mathml(tex, style) {
             Ok(mathml) => {
                 // Some (most?) errors are embedded into the MathML so we attempt to regex them out
-                static REGEX: Lazy<Regex> =
-                    Lazy::new(|| Regex::new(r"\[PARSE ERROR: (.*?)\]").expect("invalid regex"));
+                static REGEX: LazyLock<Regex> =
+                    LazyLock::new(|| Regex::new(r"\[PARSE ERROR: (.*?)\]").expect("invalid regex"));
 
                 if let Some(matches) = REGEX.captures(&mathml) {
                     (

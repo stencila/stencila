@@ -1,7 +1,9 @@
-use std::hash::{Hash, Hasher};
+use std::{
+    hash::{Hash, Hasher},
+    sync::LazyLock,
+};
 
 use eyre::Report;
-use once_cell::sync::Lazy;
 use regex::Regex;
 use seahash::SeaHasher;
 
@@ -16,8 +18,8 @@ pub(crate) use crate::{Executable, Executor};
 
 /// Is a name a valid variable name?
 pub fn is_valid_variable_name(name: &str) -> bool {
-    static VARIABLE_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"^[a-zA-Z_][\w_]*$").expect("invalid regex"));
+    static VARIABLE_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^[a-zA-Z_][\w_]*$").expect("invalid regex"));
     VARIABLE_REGEX.is_match(name)
 }
 

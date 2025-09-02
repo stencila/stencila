@@ -1,10 +1,9 @@
 use std::{
     path::{Path, PathBuf},
-    sync::{Arc, Mutex as SyncMutex, MutexGuard as SyncMutexGuard},
+    sync::{Arc, LazyLock, Mutex as SyncMutex, MutexGuard as SyncMutexGuard},
 };
 
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 use regex::Regex;
 use tokio::sync::Mutex;
 
@@ -262,7 +261,7 @@ impl KernelInstance for DocsQLKernelInstance {
                 continue;
             }
 
-            static ASSIGN: Lazy<Regex> = Lazy::new(|| {
+            static ASSIGN: LazyLock<Regex> = LazyLock::new(|| {
                 Regex::new(r"^\s*let\s+([a-zA-Z][\w_]*)\s*=\s*(.+)").expect("invalid regex")
             });
 

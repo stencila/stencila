@@ -4,13 +4,12 @@ use std::{
     collections::HashMap,
     path::Path,
     sync::{
-        Arc,
+        Arc, LazyLock,
         atomic::{AtomicU8, Ordering},
     },
 };
 
 use indexmap::IndexMap;
-use once_cell::sync::Lazy;
 use regex::Regex;
 use rquickjs::{
     Array as JsArray, AsyncContext, AsyncRuntime, Ctx, Error, JsLifetime, Object as JsObject,
@@ -744,7 +743,7 @@ impl QuickJsKernelInstance {
 
                             let mut code_location = None;
                             if let Some(stack_trace) = &stack_trace {
-                                static REGEX: Lazy<Regex> = Lazy::new(|| {
+                                static REGEX: LazyLock<Regex> = LazyLock::new(|| {
                                     Regex::new(r"eval_script:(\d+):(\d+)").expect("invalid regex")
                                 });
 

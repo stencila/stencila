@@ -1,6 +1,5 @@
-use std::str::FromStr;
+use std::{str::FromStr, sync::LazyLock};
 
-use once_cell::sync::Lazy;
 use regex::Regex;
 use tl::{HTMLTag, Parser, ParserOptions, parse};
 
@@ -504,8 +503,8 @@ fn decode_author_from_creator(parser: &Parser, tag: &HTMLTag) -> Vec<Author> {
 pub fn decode_authors_from_text(text: &str) -> Vec<Author> {
     let text = text.trim().trim_end_matches(['.', ',', ';']);
 
-    static SPLIT_BY: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r",|&|\band\b|\n").expect("invalid regex"));
+    static SPLIT_BY: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r",|&|\band\b|\n").expect("invalid regex"));
     let standard_parts: Vec<&str> = SPLIT_BY.split(text).collect();
 
     // If standard separators worked, use them
@@ -551,8 +550,8 @@ pub fn decode_authors_from_text(text: &str) -> Vec<Author> {
 fn parse_superscript_separated_authors(text: &str) -> Option<Vec<Author>> {
     // Pattern to detect: "Name1 Number  Name2 Number  ..."
     // Look for digit followed by 2+ spaces pattern
-    static SUP_PATTERN: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"\d+\s{2,}").expect("invalid regex"));
+    static SUP_PATTERN: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"\d+\s{2,}").expect("invalid regex"));
 
     // Check if text contains the pattern
     if !SUP_PATTERN.is_match(text) {

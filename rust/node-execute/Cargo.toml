@@ -17,7 +17,6 @@ stencila-linters = { path = "../linters" }
 models = { path = "../models" }
 node-contains = { path = "../node-contains" }
 node-diagnostics = { path = "../node-diagnostics" }
-once_cell = { workspace = true }
 parsers = { path = "../parsers" }
 prompts = { path = "../prompts" }
 regex = { workspace = true }

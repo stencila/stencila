@@ -1,4 +1,4 @@
-use std::num::NonZeroU32;
+use std::{num::NonZeroU32, sync::LazyLock};
 
 use governor::{
     Quota, RateLimiter as GovernorRateLimiter,
@@ -6,7 +6,6 @@ use governor::{
     state::{InMemoryState, NotKeyed},
 };
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 use reqwest::{Client, Response, StatusCode};
 use serde::de::DeserializeOwned;
 use tokio::time::{Duration, Instant, sleep};
@@ -28,14 +27,14 @@ const API_BASE_URL: &str = "https://api.openalex.org";
 // 10 requests/second, 100,000 requests/day
 
 // Per-second rate limiter (9 req/s for safety)
-static SECOND_GOVERNOR: Lazy<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
-    Lazy::new(|| {
+static SECOND_GOVERNOR: LazyLock<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
+    LazyLock::new(|| {
         GovernorRateLimiter::direct(Quota::per_second(NonZeroU32::new(9).expect("invalid")))
     });
 
 // Daily rate limiter approximation (95,000 req/day ≈ 3958 req/hour)
-static DAILY_GOVERNOR: Lazy<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
-    Lazy::new(|| {
+static DAILY_GOVERNOR: LazyLock<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
+    LazyLock::new(|| {
         GovernorRateLimiter::direct(Quota::per_hour(NonZeroU32::new(3958).expect("invalid")))
     });
 
@@ -54,7 +53,7 @@ async fn apply_rate_limiting() -> Result<()> {
     Ok(())
 }
 
-static CLIENT: Lazy<Client> = Lazy::new(|| {
+static CLIENT: LazyLock<Client> = LazyLock::new(|| {
     Client::builder()
         .user_agent(STENCILA_USER_AGENT)
         .build()

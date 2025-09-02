@@ -1,8 +1,7 @@
-use std::env;
+use std::{env, sync::LazyLock};
 
 use eyre::{Context, Result, bail};
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 
@@ -65,7 +64,7 @@ pub const MISTRAL_API_KEY: &str = "MISTRAL_API_KEY";
 pub const GHOST_ADMIN_API_KEY: &str = "GHOST_ADMIN_API_KEY";
 
 /// A list of secrets used by Stencila
-static SECRETS: Lazy<Vec<Secret>> = Lazy::new(|| {
+static SECRETS: LazyLock<Vec<Secret>> = LazyLock::new(|| {
     vec![
         Secret::new(
             SecretCategory::AiApiKey,

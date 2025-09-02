@@ -6,7 +6,6 @@ edition = "2024"
 [dependencies]
 kernel = { path = "../kernel" }
 layout-rs = { git = "https://github.com/nadavrot/layout", rev = "9ff0d4976df64b9dc5684db7088e73499d1243d1" }
-once_cell = { workspace = true }
 regex = { workspace = true }
 tracing = { workspace = true }
 

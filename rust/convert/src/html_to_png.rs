@@ -41,7 +41,7 @@ use headless_chrome::{
     protocol::cdp::{Page, types::Event},
 };
 use itertools::Itertools;
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 
 use version::STENCILA_VERSION;
 use web_dist::Web;
@@ -216,8 +216,8 @@ impl Drop for BrowserManager {
 }
 
 /// Static browser manager instance that is reused across function calls
-static BROWSER_MANAGER: Lazy<Mutex<BrowserManager>> =
-    Lazy::new(|| Mutex::new(BrowserManager::new()));
+static BROWSER_MANAGER: LazyLock<Mutex<BrowserManager>> =
+    LazyLock::new(|| Mutex::new(BrowserManager::new()));
 
 /// Creates a new browser instance with optimized launch options
 fn create_browser() -> Result<Browser> {

@@ -1,4 +1,4 @@
-use std::num::NonZeroU32;
+use std::{num::NonZeroU32, sync::LazyLock};
 
 use governor::{
     Quota, RateLimiter as GovernorRateLimiter,
@@ -6,7 +6,6 @@ use governor::{
     state::{InMemoryState, NotKeyed},
 };
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 use reqwest::{
     Client,
     header::{ACCEPT, HeaderMap, HeaderName, HeaderValue},
@@ -25,34 +24,36 @@ const API_BASE_URL: &str = "https://api.github.com";
 // https://docs.github.com/en/rest/search/search?apiVersion=2022-11-28#rate-limit
 
 // Default API rate limiters
-static DEFAULT_UNAUTH_GOVERNOR: Lazy<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
-    Lazy::new(|| {
-        // 60 requests/hour => 58 requests/hour
-        GovernorRateLimiter::direct(Quota::per_hour(NonZeroU32::new(58).expect("invalid")))
-    });
+static DEFAULT_UNAUTH_GOVERNOR: LazyLock<
+    GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>,
+> = LazyLock::new(|| {
+    // 60 requests/hour => 58 requests/hour
+    GovernorRateLimiter::direct(Quota::per_hour(NonZeroU32::new(58).expect("invalid")))
+});
 
-static DEFAULT_AUTH_GOVERNOR: Lazy<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
-    Lazy::new(|| {
+static DEFAULT_AUTH_GOVERNOR: LazyLock<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
+    LazyLock::new(|| {
         // 5000 requests/hour => 4900 requests/hour
         GovernorRateLimiter::direct(Quota::per_hour(NonZeroU32::new(4900).expect("invalid")))
     });
 
 // Search code rate limiter (requires authentication)
-static SEARCH_CODE_GOVERNOR: Lazy<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
-    Lazy::new(|| {
+static SEARCH_CODE_GOVERNOR: LazyLock<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
+    LazyLock::new(|| {
         // 10 requests/minute => 9 requests/minute
         GovernorRateLimiter::direct(Quota::per_minute(NonZeroU32::new(9).expect("invalid")))
     });
 
 // Other search endpoints rate limiters
-static SEARCH_UNAUTH_GOVERNOR: Lazy<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
-    Lazy::new(|| {
-        // 10 requests/minute => 9 requests/minute
-        GovernorRateLimiter::direct(Quota::per_minute(NonZeroU32::new(9).expect("invalid")))
-    });
+static SEARCH_UNAUTH_GOVERNOR: LazyLock<
+    GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>,
+> = LazyLock::new(|| {
+    // 10 requests/minute => 9 requests/minute
+    GovernorRateLimiter::direct(Quota::per_minute(NonZeroU32::new(9).expect("invalid")))
+});
 
-static SEARCH_AUTH_GOVERNOR: Lazy<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
-    Lazy::new(|| {
+static SEARCH_AUTH_GOVERNOR: LazyLock<GovernorRateLimiter<NotKeyed, InMemoryState, DefaultClock>> =
+    LazyLock::new(|| {
         // 30 requests/minute => 28 requests/minute
         GovernorRateLimiter::direct(Quota::per_minute(NonZeroU32::new(28).expect("invalid")))
     });
@@ -86,7 +87,7 @@ async fn apply_rate_limiting(url: &str, authenticated: bool) -> Result<()> {
     Ok(())
 }
 
-static CLIENT: Lazy<Client> = Lazy::new(|| {
+static CLIENT: LazyLock<Client> = LazyLock::new(|| {
     Client::builder()
         .user_agent(STENCILA_USER_AGENT)
         .default_headers(HeaderMap::from_iter([

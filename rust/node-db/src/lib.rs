@@ -7,10 +7,11 @@ use std::{
     sync::Arc,
 };
 
+use std::sync::LazyLock;
+
 use derive_more::{Deref, DerefMut};
 use eyre::{Context, Result, bail, eyre};
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 use tempfile::NamedTempFile;
 use time::{
     Duration, OffsetDateTime,
@@ -675,7 +676,7 @@ fn escape_csv_field(field: String) -> String {
 fn format_timestamp(value: OffsetDateTime) -> Result<String> {
     // It is necessary to specify the format for timestamps in CSV files because `to_string`
     // adds offset seconds which the Kuzu CSV parser does not like
-    static TIMESTAMP_FORMAT: Lazy<Vec<BorrowedFormatItem>> = Lazy::new(|| {
+    static TIMESTAMP_FORMAT: LazyLock<Vec<BorrowedFormatItem>> = LazyLock::new(|| {
         format_description::parse(
                 "[year]-[month]-[day] [hour]:[minute]:[second].[subsecond digits:6][offset_hour sign:mandatory]:[offset_minute]",
             ).expect("invalid format")

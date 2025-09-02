@@ -10,8 +10,9 @@
 
 #![allow(unused_imports)]
 
+use std::sync::LazyLock;
+
 use futures::executor::block_on;
-use once_cell::sync::Lazy;
 use tokio::runtime;
 
 use codec::{

@@ -1,4 +1,5 @@
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
+
 use regex::Regex;
 use url::Url;
 
@@ -27,26 +28,26 @@ use super::decode_src::decode_arxiv_src;
 pub(super) fn extract_arxiv_id(identifier: &str) -> Option<String> {
     let identifier = identifier.trim().to_lowercase();
 
-    static ARXIV_URL_REGEX: Lazy<Regex> = Lazy::new(|| {
+    static ARXIV_URL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r"^/(?:(?:abs|pdf|src|html|format)/)?([0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?)$")
             .expect("invalid regex")
     });
 
-    static DOI_URL_REGEX: Lazy<Regex> = Lazy::new(|| {
+    static DOI_URL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r"^/10\.48550/arxiv\.([0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?)$")
             .expect("invalid regex")
     });
 
-    static ARXIV_ID_REGEX: Lazy<Regex> = Lazy::new(|| {
+    static ARXIV_ID_REGEX: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r"^arxiv:([0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?)$").expect("invalid regex")
     });
 
-    static DOI_REGEX: Lazy<Regex> = Lazy::new(|| {
+    static DOI_REGEX: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r"^10\.48550/arxiv\.([0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?)$").expect("invalid regex")
     });
 
-    static BARE_ID_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"^[0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?$").expect("invalid regex"));
+    static BARE_ID_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^[0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?$").expect("invalid regex"));
 
     // Try to parse as URL first
     if let Ok(url) = Url::parse(&identifier) {

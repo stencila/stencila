@@ -1,7 +1,9 @@
-use std::{fmt, sync::Arc};
+use std::{
+    fmt,
+    sync::{Arc, LazyLock},
+};
 
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 
 use kernel_jinja::minijinja::{Environment, Error, ErrorKind, Value};
@@ -293,7 +295,7 @@ pub(super) fn strip_comments(code: &str) -> String {
 ///
 /// Uses single digit codes and spacing to ensure that the code stays the same length.
 pub(super) fn encode_filters(code: &str) -> String {
-    static FILTERS: Lazy<Regex> = Lazy::new(|| {
+    static FILTERS: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r"((?:\(|,)\s*)(\*|(?:\.[a-zA-Z][\w_]*))\s*(==|\!=|<=|<|>=|>|\~=|\~\!|\^=|\$=|in|has|=)\s*")
             .expect("invalid regex")
     });
@@ -313,8 +315,9 @@ pub(super) fn encode_filters(code: &str) -> String {
         [before, &name, &spaces, "="].concat()
     });
 
-    static SUBQUERY: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"((?:\(|,)\s*)\.\.\.([a-zA-Z][\w_]*)").expect("invalid regex"));
+    static SUBQUERY: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(r"((?:\(|,)\s*)\.\.\.([a-zA-Z][\w_]*)").expect("invalid regex")
+    });
 
     SUBQUERY
         .replace_all(&code, |captures: &Captures| {

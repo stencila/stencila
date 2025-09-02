@@ -1,7 +1,8 @@
 //! Markdown to Markdown conversion, mostly for internal use
 
+use std::sync::LazyLock;
+
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 use regex::Regex;
 
 /// Clean a page of Markdown
@@ -44,10 +45,10 @@ fn remove_line_numbers(md: &str) -> String {
     // First, find all lines containing potential line numbers. Must be a number
     // followed by whitespace (not a list numbering). Can be after heading
     // hashes.
-    static ONLY_NUMBER_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"^(\d+)\s*$").expect("invalid regex"));
-    static STARTING_NUMBER_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"^(#{1,6}\s*)?(\d+)\s+(.*)$").expect("invalid regex"));
+    static ONLY_NUMBER_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^(\d+)\s*$").expect("invalid regex"));
+    static STARTING_NUMBER_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^(#{1,6}\s*)?(\d+)\s+(.*)$").expect("invalid regex"));
 
     let lines = md
         .lines()
@@ -152,14 +153,14 @@ fn remove_heading_formatting(md: &str) -> String {
     // Use separate regexes for each formatting type to ensure balanced markers
     // (e.g., ** must be paired with **, not with __ or *). The regex crate doesn't
     // support backreferences, so we need explicit patterns for each marker type.
-    static BOLD_DOUBLE_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"^(#{1,6})\s*\*\*(.*?)\*\*\s*$").expect("invalid regex"));
-    static BOLD_UNDERSCORE_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"^(#{1,6})\s*__(.*?)__\s*$").expect("invalid regex"));
-    static EMPHASIS_STAR_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"^(#{1,6})\s*\*(.*?)\*\s*$").expect("invalid regex"));
-    static EMPHASIS_UNDERSCORE_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"^(#{1,6})\s*_(.*?)_\s*$").expect("invalid regex"));
+    static BOLD_DOUBLE_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^(#{1,6})\s*\*\*(.*?)\*\*\s*$").expect("invalid regex"));
+    static BOLD_UNDERSCORE_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^(#{1,6})\s*__(.*?)__\s*$").expect("invalid regex"));
+    static EMPHASIS_STAR_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^(#{1,6})\s*\*(.*?)\*\s*$").expect("invalid regex"));
+    static EMPHASIS_UNDERSCORE_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^(#{1,6})\s*_(.*?)_\s*$").expect("invalid regex"));
 
     let lines: Vec<&str> = md.lines().collect();
     let mut result = Vec::new();
@@ -212,8 +213,8 @@ fn remove_heading_formatting(md: &str) -> String {
 /// parsing. The other examples above do not cause such issues but are
 /// unnecessary.
 fn remove_unnecessary_inline_math(md: &str) -> String {
-    static INLINE_MATH_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"\$([^$]*?(?:\\.[^$]*?)*)\$").expect("invalid regex"));
+    static INLINE_MATH_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"\$([^$]*?(?:\\.[^$]*?)*)\$").expect("invalid regex"));
 
     INLINE_MATH_REGEX
         .replace_all(md, |caps: &regex::Captures| {
@@ -236,7 +237,7 @@ fn remove_unnecessary_inline_math(md: &str) -> String {
 fn simplify_tex(tex: &str) -> String {
     use std::collections::HashMap;
 
-    static REPLACEMENTS: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
+    static REPLACEMENTS: LazyLock<HashMap<&str, &str>> = LazyLock::new(|| {
         HashMap::from([
             // Common symbol replacements
             ("\\$", "$"),      // Escaped dollar
@@ -410,7 +411,7 @@ fn contains_tex_commands(s: &str) -> bool {
 /// or "Figure X") and ensures there is a blank line before and after them. This helps with
 /// proper caption recognition during document structuring.
 fn ensure_isolated_blocks(md: &str) -> String {
-    static LINE_REGEX: Lazy<Regex> = Lazy::new(|| {
+    static LINE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r"(^\!\[[^\]]*\]\([^\)]*\)\s*$)|(^#{1,6})|(^(?i)(?:Table|Figure|Fig\.?)\s*\d+[.:\-\s]*)").expect("invalid regex")
     });
 
@@ -453,13 +454,13 @@ fn ensure_isolated_blocks(md: &str) -> String {
 /// paragraphs.
 fn ensure_isolated_references(md: &str) -> String {
     // Regex to detect a heading for the references section
-    static REFERENCES_REGEX: Lazy<Regex> = Lazy::new(|| {
+    static REFERENCES_REGEX: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r"(?i)^#{1,4}\s*(?:\d+\.?\s*|[a-z]\.?\s*|[ivx]+\.?\s*)?(references?|bibliography|works?\s+cited|literature\s+cited|citations?|sources?|reference\s+list|further\s+reading|additional\s+sources|for\s+further\s+information)\s*$").expect("invalid regex")
     });
 
     // Regex to detect a heading after the references section
-    static HEADING_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"^#{1,4}").expect("invalid regex"));
+    static HEADING_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^#{1,4}").expect("invalid regex"));
 
     // Regex to ensure numbered lines are numbered list items
     // 1 => 1.
@@ -467,14 +468,14 @@ fn ensure_isolated_references(md: &str) -> String {
     // 1) => 1.
     // [1] => 1.
     // (1) => 1.
-    static NUMBERED_REGEX: Lazy<Regex> = Lazy::new(|| {
+    static NUMBERED_REGEX: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r"^\s*[\(\[]*\s*(\d+)\s*[\)\]\.]*\s*(.*)$").expect("invalid regex")
     });
 
     // Regex to detect whether a line appears to be the start of a reference
     // based on having a punctuated year e.g. "(1981)" "2021."
-    static YEAR_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"(\((19|20)\d\d\))|((19|20)\d\d.)").expect("invalid regex"));
+    static YEAR_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"(\((19|20)\d\d\))|((19|20)\d\d.)").expect("invalid regex"));
 
     fn replace_chars(line: &str) -> String {
         // Replace ■ with endash

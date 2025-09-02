@@ -2,7 +2,7 @@ use std::{
     num::NonZeroUsize,
     path::{Path, PathBuf},
     str::FromStr,
-    sync::Arc,
+    sync::{Arc, LazyLock},
 };
 
 use lru::LruCache;
@@ -28,7 +28,6 @@ use kernel_kuzu::{
 use node_canonicalize::canonicalize;
 use node_db::NodeDatabase;
 use node_sentencize::sentencize;
-use once_cell::sync::Lazy;
 use regex::Regex;
 use tokio::{
     self,
@@ -566,8 +565,9 @@ impl KernelInstance for DocsDBKernelInstance {
         tracing::trace!("Executing query in DocsDB kernel");
 
         // Check for db aliases and set db and store paths accordingly
-        static DB_REGEX: Lazy<Regex> =
-            Lazy::new(|| Regex::new(r"^\/\/\s*@(document|workspace)\s*$").expect("invalid regex"));
+        static DB_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+            Regex::new(r"^\/\/\s*@(document|workspace)\s*$").expect("invalid regex")
+        });
         let mut lines = Vec::new();
         for line in code.lines() {
             if let Some(captures) = DB_REGEX.captures(line) {

@@ -4,7 +4,7 @@ use std::{
     path::{Path, PathBuf},
     process::Command,
     sync::{
-        Mutex,
+        LazyLock, Mutex,
         atomic::{AtomicBool, Ordering},
     },
 };
@@ -13,7 +13,6 @@ use async_recursion::async_recursion;
 use clap::{self, ValueEnum};
 use eyre::{OptionExt, Result, bail};
 use mcp_types::{Tool as McpTool, ToolInputSchema as McpToolInputSchema};
-use once_cell::sync::Lazy;
 use regex::Regex;
 pub use semver::{Version, VersionReq};
 use serde::Serialize;
@@ -197,8 +196,8 @@ pub trait Tool: Sync + Send {
         // replace hyphens with dots so that we can extract as many parts as possible.
         let line = line.replace("-", ".");
 
-        static REGEX: Lazy<Regex> =
-            Lazy::new(|| Regex::new(r"(\d+)(?:\.(\d+))?(?:\.(\d+))?").expect("invalid regex"));
+        static REGEX: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new(r"(\d+)(?:\.(\d+))?(?:\.(\d+))?").expect("invalid regex"));
 
         let captures = REGEX.captures(&line)?;
 
@@ -345,8 +344,8 @@ impl Debug for dyn Tool {
 /// This helps avoid repeated installation attempts when environment managers
 /// install tools that aren't immediately visible in the current process PATH
 /// Key format: "tool_name@version_req" (e.g., "pandoc@^2.0.0")
-static INSTALLED_TOOLS_CACHE: Lazy<Mutex<HashSet<String>>> =
-    Lazy::new(|| Mutex::new(HashSet::new()));
+static INSTALLED_TOOLS_CACHE: LazyLock<Mutex<HashSet<String>>> =
+    LazyLock::new(|| Mutex::new(HashSet::new()));
 
 /// Clear the installed tools cache
 ///

@@ -8,9 +8,10 @@
 //! before destructive operations without needing to know whether it's being
 //! used in a CLI tool or within a code editor via LSP.
 
+use std::sync::LazyLock;
+
 use async_trait::async_trait;
 use eyre::Result;
-use once_cell::sync::Lazy;
 use strum::Display;
 use tokio::sync::Mutex;
 
@@ -221,7 +222,7 @@ impl AskContext {
 }
 
 /// Global context
-static GLOBAL_CONTEXT: Lazy<Mutex<Option<AskContext>>> = Lazy::new(|| Mutex::new(None));
+static GLOBAL_CONTEXT: LazyLock<Mutex<Option<AskContext>>> = LazyLock::new(|| Mutex::new(None));
 
 /// Setup the global confirmation context
 async fn global_context(context: AskContext) -> Result<()> {

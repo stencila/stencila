@@ -1,4 +1,4 @@
-use std::{collections::HashMap, ops::Range};
+use std::{collections::HashMap, ops::Range, sync::LazyLock};
 
 use markdown::{
     ParseOptions,
@@ -6,7 +6,6 @@ use markdown::{
     to_mdast,
     unist::Position,
 };
-use once_cell::sync::Lazy;
 use regex::Regex;
 
 use codec::{
@@ -116,8 +115,8 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
 /// will ignore any footnote references that do not have a corresponding footnote content,
 /// it is necessary to add fake footnote content to the Markdown before parsing.
 fn decode_blocks(md: &str, context: &mut Context) -> Vec<Block> {
-    static FOOTNOTE_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"\[\^\w+\]").expect("invalid regex"));
+    static FOOTNOTE_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"\[\^\w+\]").expect("invalid regex"));
 
     let captures = FOOTNOTE_REGEX.captures_iter(md);
 

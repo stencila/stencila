@@ -1,8 +1,7 @@
-use std::{collections::BTreeSet, error::Error, str::FromStr};
+use std::{collections::BTreeSet, error::Error, str::FromStr, sync::LazyLock};
 
 use indexmap::IndexMap;
 use kuzu::{LogicalType, NodeVal, QueryResult, RelVal, Value};
-use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Serialize;
 use serde_json::{self, json};
@@ -457,7 +456,7 @@ pub fn execution_message_from_error(
         .trim()
         .to_string();
 
-    static PARSER_EXC_REGEX: Lazy<Regex> = Lazy::new(|| {
+    static PARSER_EXC_REGEX: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r#"(?ms)\(line: (\d+), offset: (\d+)\).*?"(.*?)""#).expect("invalid regex")
     });
 

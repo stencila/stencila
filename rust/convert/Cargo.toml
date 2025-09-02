@@ -12,7 +12,6 @@ eyre = { workspace = true }
 glob = { workspace = true }
 headless_chrome = { version = "1.0.13", features = ["fetch", "rustls"] }
 itertools = { workspace = true }
-once_cell = { workspace = true }
 rand = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true }

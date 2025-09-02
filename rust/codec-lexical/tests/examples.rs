@@ -1,7 +1,6 @@
-use std::{fs::read_to_string, path::PathBuf};
+use std::{fs::read_to_string, path::PathBuf, sync::LazyLock};
 
 use glob::glob;
-use once_cell::sync::Lazy;
 use regex::Regex;
 
 use codec::{EncodeOptions, eyre::Result, format::Format};
@@ -21,8 +20,8 @@ fn examples() -> Result<()> {
 
     // Redact ids in DOM HTML since these will change between test runs
     fn redact(content: &str) -> String {
-        static ID_REGEX: Lazy<Regex> =
-            Lazy::new(|| Regex::new(r" id=[a-z]{3}_\w+").expect("invalid_regex"));
+        static ID_REGEX: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new(r" id=[a-z]{3}_\w+").expect("invalid_regex"));
 
         ID_REGEX.replace_all(content, " id=xxx").to_string()
     }

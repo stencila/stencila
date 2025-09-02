@@ -3,14 +3,16 @@ use std::{
     fs::{File, create_dir_all},
     io::Cursor,
     path::{Path, PathBuf},
-    sync::atomic::{AtomicBool, Ordering},
+    sync::{
+        LazyLock,
+        atomic::{AtomicBool, Ordering},
+    },
     time::{Duration, SystemTime},
 };
 
 use clap::{self, Parser};
 use eyre::{Report, Result, bail};
 use flate2::read::GzDecoder;
-use once_cell::sync::Lazy;
 use reqwest::{Client, header::USER_AGENT};
 use serde::{Deserialize, Serialize};
 use serde_json;
@@ -45,7 +47,7 @@ pub async fn upgrade(force: bool) -> Result<Option<String>> {
     Ok(Some(latest.version()))
 }
 
-static UPGRADE_AVAILABLE: Lazy<AtomicBool> = Lazy::new(AtomicBool::default);
+static UPGRADE_AVAILABLE: LazyLock<AtomicBool> = LazyLock::new(AtomicBool::default);
 
 /// Check if an upgrade is available
 ///

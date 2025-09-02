@@ -1,6 +1,8 @@
-use std::hash::{Hash, Hasher};
+use std::{
+    hash::{Hash, Hasher},
+    sync::LazyLock,
+};
 
-use once_cell::sync::Lazy;
 use regex::Regex;
 use seahash::SeaHasher;
 
@@ -73,7 +75,7 @@ pub trait Parser: Sync + Send {
 
     /// Extract execution tags from some code
     fn execution_tags(&self, code: &str) -> Option<Vec<ExecutionTag>> {
-        static REGEX: Lazy<Regex> = Lazy::new(|| {
+        static REGEX: LazyLock<Regex> = LazyLock::new(|| {
             Regex::new(
                 r"@(pure|impure|assigns|changes|uses|imports|reads|writes|watches)\s*([^\n]*)",
             )

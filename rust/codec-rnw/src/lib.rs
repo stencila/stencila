@@ -1,5 +1,6 @@
+use std::sync::LazyLock;
+
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 
 use codec::{
@@ -84,8 +85,8 @@ impl Codec for RnwCodec {
 /// the LaTeX codec into `CodeChunk` and `CodeExpression` nodes respectively.
 fn latex_from_rnw(noweb: &str) -> String {
     // Code expression regex
-    static SEXPR: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"\\Sexpr\{([^}]*)\}").expect("invalid regex"));
+    static SEXPR: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"\\Sexpr\{([^}]*)\}").expect("invalid regex"));
 
     let latex = SEXPR.replace_all(noweb, |captures: &Captures| {
         let code = &captures[1];
@@ -93,7 +94,7 @@ fn latex_from_rnw(noweb: &str) -> String {
         ["\\expr{", code, "}"].concat()
     });
 
-    static CHUNK: Lazy<Regex> = Lazy::new(|| {
+    static CHUNK: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r"(?ms)^\s*<<\s*(.*?)\s*>>=\n(.*?)^\s*@\s*$").expect("invalid regex")
     });
 

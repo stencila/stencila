@@ -1,4 +1,5 @@
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
+
 use regex::Regex;
 use reqwest::{Client, header};
 use url::Url;
@@ -19,8 +20,9 @@ use version::STENCILA_USER_AGENT;
 pub(super) fn extract_doi(identifier: &str) -> Option<String> {
     let input = identifier.trim();
 
-    static DOI_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"(?i)^10\.\d{4,9}/[-._;()/:A-Z0-9]+$").expect("invalid regex"));
+    static DOI_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(r"(?i)^10\.\d{4,9}/[-._;()/:A-Z0-9]+$").expect("invalid regex")
+    });
 
     // Handle DOI URLs
     if let Ok(url) = input.parse::<Url>()

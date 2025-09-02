@@ -7,7 +7,6 @@ edition = "2024"
 clap = { workspace = true }
 cli-utils = { path = "../cli-utils" }
 itertools = { workspace = true }
-once_cell = { workspace = true }
 serde_yaml = { workspace = true }
 stencila-linter = { path = "../linter" }
 stencila-linter-harper = { path = "../linter-harper" }

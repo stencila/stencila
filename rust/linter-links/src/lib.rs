@@ -1,6 +1,5 @@
-use std::{collections::HashMap, path::Path, time::Duration};
+use std::{collections::HashMap, path::Path, sync::LazyLock, time::Duration};
 
-use once_cell::sync::Lazy;
 use reqwest::Client;
 use tokio::sync::Mutex;
 
@@ -12,7 +11,7 @@ use stencila_linter::{
 use version::STENCILA_USER_AGENT;
 
 /// HTTP client for making link check requests
-static HTTP_CLIENT: Lazy<Client> = Lazy::new(|| {
+static HTTP_CLIENT: LazyLock<Client> = LazyLock::new(|| {
     Client::builder()
         .timeout(Duration::from_secs(10))
         .user_agent(STENCILA_USER_AGENT)
@@ -108,8 +107,8 @@ impl Linter for LinksLinter {
 /// Uses caching to avoid repeated connectivity checks
 async fn has_internet_connectivity() -> bool {
     // Cache for storing connectivity status
-    static CONNECTIVITY_CACHE: Lazy<Mutex<Option<(bool, std::time::Instant)>>> =
-        Lazy::new(|| Mutex::new(None));
+    static CONNECTIVITY_CACHE: LazyLock<Mutex<Option<(bool, std::time::Instant)>>> =
+        LazyLock::new(|| Mutex::new(None));
 
     // Cache connectivity result for 30 seconds
     const CACHE_DURATION_SECS: u64 = 30;
@@ -148,8 +147,8 @@ async fn has_internet_connectivity() -> bool {
 /// Uses caching to avoid redundant requests
 async fn is_url_accessible(url: &str) -> Option<bool> {
     // Cache for storing HTTP link check results to avoid redundant requests
-    static LINK_CHECK_CACHE: Lazy<Mutex<HashMap<String, bool>>> =
-        Lazy::new(|| Mutex::new(HashMap::new()));
+    static LINK_CHECK_CACHE: LazyLock<Mutex<HashMap<String, bool>>> =
+        LazyLock::new(|| Mutex::new(HashMap::new()));
 
     // Check internet connectivity first
     if !has_internet_connectivity().await {

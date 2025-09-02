@@ -2,13 +2,13 @@ use std::{
     fs::canonicalize,
     path::{Path, PathBuf},
     process::exit,
+    sync::LazyLock,
 };
 
 use clap::{self, Args, Parser, Subcommand};
 use directories::UserDirs;
 use eyre::{Result, bail};
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 use pathdiff::diff_paths;
 use serde_json::json;
 
@@ -824,8 +824,8 @@ impl Run {
 
 /// Strip the home directory from a path and replace it with `~`
 fn strip_home_dir(path: &Path) -> String {
-    static HOME: Lazy<Option<PathBuf>> =
-        Lazy::new(|| UserDirs::new().map(|dirs| dirs.home_dir().to_path_buf()));
+    static HOME: LazyLock<Option<PathBuf>> =
+        LazyLock::new(|| UserDirs::new().map(|dirs| dirs.home_dir().to_path_buf()));
 
     if let Some(rest) = HOME.as_ref().and_then(|home| path.strip_prefix(home).ok()) {
         PathBuf::from("~").join(rest)

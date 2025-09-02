@@ -68,7 +68,6 @@ proptest = { workspace = true }
 glob = { workspace = true }
 itertools = { workspace = true }
 json_value_merge = "2.0.1"
-once_cell = { workspace = true }
 regex = { workspace = true }
 serde_yaml = { workspace = true }
 smart-default = { workspace = true }

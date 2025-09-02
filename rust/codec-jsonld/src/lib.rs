@@ -1,6 +1,5 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::LazyLock};
 
-use once_cell::sync::Lazy;
 use serde_json::{self, Map, Value, json};
 
 use codec::{
@@ -14,33 +13,34 @@ use codec::{
 /// A codec for JSON-LD
 pub struct JsonLdCodec;
 
-static CONTEXT_MAPS: Lazy<(HashMap<String, String>, HashMap<String, String>)> = Lazy::new(|| {
-    let context: serde_json::Value =
-        serde_json::from_str(include_str!("../../../json/context.jsonld"))
-            .expect("Should be valid JSON");
+static CONTEXT_MAPS: LazyLock<(HashMap<String, String>, HashMap<String, String>)> =
+    LazyLock::new(|| {
+        let context: serde_json::Value =
+            serde_json::from_str(include_str!("../../../json/context.jsonld"))
+                .expect("Should be valid JSON");
 
-    let graph = context["@graph"]
-        .as_object()
-        .expect("Should be an object")
-        .to_owned();
+        let graph = context["@graph"]
+            .as_object()
+            .expect("Should be an object")
+            .to_owned();
 
-    let decode = graph
-        .iter()
-        .map(|(key, value)| {
-            (
-                value.as_str().expect("Should be string").to_string(),
-                key.clone(),
-            )
-        })
-        .collect();
+        let decode = graph
+            .iter()
+            .map(|(key, value)| {
+                (
+                    value.as_str().expect("Should be string").to_string(),
+                    key.clone(),
+                )
+            })
+            .collect();
 
-    let encode = graph
-        .into_iter()
-        .map(|(key, value)| (key, value.as_str().expect("Should be string").to_owned()))
-        .collect();
+        let encode = graph
+            .into_iter()
+            .map(|(key, value)| (key, value.as_str().expect("Should be string").to_owned()))
+            .collect();
 
-    (decode, encode)
-});
+        (decode, encode)
+    });
 
 #[async_trait]
 impl Codec for JsonLdCodec {

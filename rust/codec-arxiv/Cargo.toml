@@ -11,7 +11,6 @@ codec-latex = { path = "../codec-latex" }
 codec-pdf = { path = "../codec-pdf" }
 flate2 = { workspace = true }
 futures = { workspace = true }
-once_cell = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true }
 tar = { workspace = true }

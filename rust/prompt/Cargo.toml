@@ -8,7 +8,6 @@ codec-markdown-trait = { path = "../codec-markdown-trait" }
 itertools = { workspace = true }
 kernel-quickjs = { path = "../kernel-quickjs" }
 kernels = { path = "../kernels" }
-once_cell = { workspace = true }
 regex = { workspace = true }
 rquickjs = { version = "0.9.0", features = ["futures", "macro", "parallel"] }
 serde_json = { workspace = true }
