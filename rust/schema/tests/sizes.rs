@@ -10,7 +10,7 @@
 //!
 //! Run like this:
 //!
-//!   cargo test -p schema --test sizes -- --nocapture
+//!   cargo test -p stencila-schema --test sizes -- --nocapture
 
 use stencila_schema::*;
 
@@ -25,6 +25,7 @@ macro_rules! sizes {
             for (name, size) in sizes {
                 eprintln!("{:<20} {:>6}", name, size);
             }
+            eprintln!("\n");
         }
     };
 }
@@ -32,9 +33,12 @@ macro_rules! sizes {
 #[test]
 #[allow(clippy::print_stderr)]
 fn sizes() {
+    sizes!(Node, CreativeWorkVariant, Block, Inline);
+
     sizes!(
         CreativeWorkVariant,
         Article,
+        CreativeWork,
         AudioObject,
         Chat,
         Claim,
@@ -54,8 +58,6 @@ fn sizes() {
         Table,
         VideoObject
     );
-
-    eprintln!("\n");
 
     sizes!(
         Block,
@@ -89,8 +91,6 @@ fn sizes() {
         Walkthrough
     );
 
-    eprintln!("\n");
-
     sizes!(
         Inline,
         AudioObject,
@@ -120,15 +120,20 @@ fn sizes() {
         Time,
         Timestamp,
         Underline,
-        VideoObject,
+        VideoObject
+    );
+
+    sizes!(ListItem, Reference, TableRow, TableCell, IfBlockClause);
+
+    sizes!(
+        Primitive,
         Null,
         Boolean,
         Integer,
         UnsignedInteger,
-        Number
+        Number,
+        String,
+        Array,
+        Object
     );
-
-    eprintln!("\n");
-
-    sizes!(ListItem, Reference, TableRow, TableCell);
 }
