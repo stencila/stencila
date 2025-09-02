@@ -20,7 +20,7 @@ stencila-media-extract = { path = "../media-extract" }
 strum = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
-winnow = "0.7.12"
+winnow = { workspace = true }
 
 [dev-dependencies]
 insta = { workspace = true }

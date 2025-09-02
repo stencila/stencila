@@ -59,6 +59,7 @@ tracing = { version = "0.1.41", features = ["log"] }
 url = { version = "2.5.6", features = ["serde"] }
 uuid = { version = "1.18.0", features = ["v4"] }
 which = "8.0.0"
+winnow = "0.7.13"
 zip = { version = "2.3.0", default-features = false, features = ["deflate", "time"] } # To reduce dependencies avoid bzip2, lzma, xz, and zstd compression which are rare for zip archive. Reinstate those if necessary
 
 [workspace.lints.rust]

@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 Inflector = { workspace = true }
 stencila-codec = { path = "../codec" }
-winnow = "0.7.12"
+winnow = { workspace = true }
 
 [dev-dependencies]
 
