@@ -11,7 +11,6 @@ use stencila_codec::{
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{Inline, Link, Node, Paragraph, shortcuts::t},
-    stencila_status::Status,
 };
 
 /// A codec for links within a document
@@ -27,10 +26,6 @@ pub struct LinksCodec;
 impl Codec for LinksCodec {
     fn name(&self) -> &str {
         "links"
-    }
-
-    fn status(&self) -> Status {
-        Status::Beta
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

@@ -20,7 +20,6 @@ stencila-codec-utils = { path = "../codec-utils" }
 stencila-format = { path = "../format" }
 stencila-node-strip = { path = "../node-strip" }
 stencila-schema = { path = "../schema" }
-stencila-status = { path = "../status" }
 strum = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }

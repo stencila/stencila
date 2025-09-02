@@ -19,7 +19,6 @@ use stencila_codec::{
         Article, Author, Block, CodeChunk, CodeChunkOptions, ExecutionMessage, ImageObject,
         LabelType, Node, Object, Person, RawBlock,
     },
-    stencila_status::Status,
 };
 
 /// A codec for Jupyter Notebooks
@@ -29,10 +28,6 @@ pub struct IpynbCodec;
 impl Codec for IpynbCodec {
     fn name(&self) -> &str {
         "ipynb"
-    }
-
-    fn status(&self) -> Status {
-        Status::UnderDevelopment
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

@@ -6,7 +6,6 @@ use stencila_codec::{
         ArrayValidator, BooleanValidator, Datatable, DatatableColumn, IntegerValidator, Node,
         NodeType, Null, NumberValidator, Primitive, StringValidator, Validator,
     },
-    stencila_status::Status,
 };
 
 /// A codec for tabular data formats (CSV, TSV)
@@ -16,10 +15,6 @@ pub struct CsvCodec;
 impl Codec for CsvCodec {
     fn name(&self) -> &str {
         "csv"
-    }
-
-    fn status(&self) -> Status {
-        Status::Beta
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

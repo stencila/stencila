@@ -4,7 +4,6 @@ use stencila_codec::{
     Codec, DecodeInfo, DecodeOptions, async_trait,
     eyre::{Result, bail, eyre},
     stencila_schema::Node,
-    stencila_status::Status,
 };
 
 mod author;
@@ -54,10 +53,6 @@ pub struct OpenAlexCodec;
 impl Codec for OpenAlexCodec {
     fn name(&self) -> &str {
         "openalex"
-    }
-
-    fn status(&self) -> Status {
-        Status::Beta
     }
 
     async fn from_str(

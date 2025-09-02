@@ -4,9 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use async_trait::async_trait;
 use eyre::{Result, bail};
-use stencila_codec::{
-    Codec, EncodeInfo, EncodeOptions, stencila_schema::Node, stencila_status::Status,
-};
+use stencila_codec::{Codec, EncodeInfo, EncodeOptions, stencila_schema::Node};
 use tokio::sync::Mutex;
 
 use crate::{Plugin, PluginInstance, plugins};
@@ -45,10 +43,6 @@ impl PluginCodec {
 impl Codec for PluginCodec {
     fn name(&self) -> &str {
         &self.name
-    }
-
-    fn status(&self) -> Status {
-        Status::Alpha
     }
 
     async fn to_string(

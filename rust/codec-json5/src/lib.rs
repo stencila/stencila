@@ -3,7 +3,6 @@ use stencila_codec::{
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{Node, NodeType},
-    stencila_status::Status,
 };
 
 use stencila_codec_json5_trait::Json5Codec as _;
@@ -18,10 +17,6 @@ pub struct Json5Codec;
 impl Codec for Json5Codec {
     fn name(&self) -> &str {
         "json5"
-    }
-
-    fn status(&self) -> Status {
-        Status::Stable
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

@@ -12,7 +12,6 @@ use stencila_codec::{
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::{Article, Node, NodeType},
-    stencila_status::Status,
 };
 use stencila_version::STENCILA_VERSION;
 
@@ -26,10 +25,6 @@ pub struct JsonCodec;
 impl Codec for JsonCodec {
     fn name(&self) -> &str {
         "json"
-    }
-
-    fn status(&self) -> Status {
-        Status::Stable
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

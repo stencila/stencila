@@ -1,7 +1,6 @@
 use stencila_codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, NodeType,
     async_trait, eyre::Result, stencila_format::Format, stencila_schema::Node,
-    stencila_status::Status,
 };
 
 use lexical::LexicalDoc;
@@ -20,10 +19,6 @@ pub struct LexicalCodec;
 impl Codec for LexicalCodec {
     fn name(&self) -> &str {
         "lexical"
-    }
-
-    fn status(&self) -> Status {
-        Status::Alpha
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

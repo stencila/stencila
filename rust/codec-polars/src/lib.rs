@@ -7,7 +7,6 @@ use stencila_codec::{
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::{Node, NodeType},
-    stencila_status::Status,
 };
 
 mod conversion;
@@ -25,10 +24,6 @@ pub struct PolarsCodec;
 impl Codec for PolarsCodec {
     fn name(&self) -> &str {
         "polars"
-    }
-
-    fn status(&self) -> Status {
-        Status::Beta
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

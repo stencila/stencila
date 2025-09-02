@@ -7,7 +7,6 @@ use stencila_codec::{
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{Node, NodeType},
-    stencila_status::Status,
 };
 
 pub use stencila_codec_markdown_trait::{to_markdown, to_markdown_flavor};
@@ -29,10 +28,6 @@ pub struct MarkdownCodec;
 impl Codec for MarkdownCodec {
     fn name(&self) -> &str {
         "markdown"
-    }
-
-    fn status(&self) -> Status {
-        Status::Beta
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

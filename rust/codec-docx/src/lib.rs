@@ -10,7 +10,6 @@ use stencila_codec::{
     eyre::{OptionExt, Result},
     stencila_format::Format,
     stencila_schema::{Article, Node, Object, Primitive, strip_non_content},
-    stencila_status::Status,
 };
 use stencila_codec_json::JsonCodec;
 use stencila_codec_pandoc::{
@@ -37,10 +36,6 @@ const DEFAULT_TEMPLATE: &str = "default.docx";
 impl Codec for DocxCodec {
     fn name(&self) -> &str {
         "docx"
-    }
-
-    fn status(&self) -> Status {
-        Status::UnderDevelopment
     }
 
     fn availability(&self) -> CodecAvailability {

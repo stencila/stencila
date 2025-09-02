@@ -11,7 +11,6 @@ use stencila_codec::{
         Article, Datatable, Node, PropertyValueOrString, SoftwareSourceCode,
         SoftwareSourceCodeOptions, StringOrNumber,
     },
-    stencila_status::Status,
 };
 use stencila_codec_csv::CsvCodec;
 use stencila_codec_ipynb::IpynbCodec;
@@ -42,10 +41,6 @@ pub struct ZenodoCodec;
 impl Codec for ZenodoCodec {
     fn name(&self) -> &str {
         "zenodo"
-    }
-
-    fn status(&self) -> Status {
-        Status::Beta
     }
 
     async fn from_str(

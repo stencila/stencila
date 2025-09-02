@@ -6,7 +6,6 @@ use regex::{Captures, Regex};
 use stencila_codec::{
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     NodeType, async_trait, eyre::Result, stencila_format::Format, stencila_schema::Node,
-    stencila_status::Status,
 };
 use stencila_codec_latex::LatexCodec;
 
@@ -23,10 +22,6 @@ pub struct RnwCodec;
 impl Codec for RnwCodec {
     fn name(&self) -> &str {
         "rnw"
-    }
-
-    fn status(&self) -> Status {
-        Status::Alpha
     }
 
     fn availability(&self) -> CodecAvailability {

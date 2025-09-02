@@ -4,7 +4,6 @@ use stencila_codec::{
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::Node,
-    stencila_status::Status,
 };
 use stencila_codec_latex_trait::to_latex;
 use stencila_codec_pandoc::{pandoc_availability, pandoc_to_format, root_to_pandoc};
@@ -20,10 +19,6 @@ const PANDOC_FORMAT: &str = "latex";
 impl Codec for LatexCodec {
     fn name(&self) -> &str {
         "latex"
-    }
-
-    fn status(&self) -> Status {
-        Status::UnderDevelopment
     }
 
     fn availability(&self) -> CodecAvailability {

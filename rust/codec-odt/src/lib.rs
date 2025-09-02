@@ -3,7 +3,6 @@ use std::path::Path;
 use stencila_codec::{
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     NodeType, async_trait, eyre::Result, stencila_format::Format, stencila_schema::Node,
-    stencila_status::Status,
 };
 use stencila_codec_json::JsonCodec;
 use stencila_codec_pandoc::{
@@ -21,10 +20,6 @@ const PANDOC_FORMAT: &str = "odt";
 impl Codec for OdtCodec {
     fn name(&self) -> &str {
         "odt"
-    }
-
-    fn status(&self) -> Status {
-        Status::UnderDevelopment
     }
 
     fn availability(&self) -> CodecAvailability {

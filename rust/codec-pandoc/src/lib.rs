@@ -4,7 +4,6 @@ use stencila_codec::{
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{Node, NodeType},
-    stencila_status::Status,
 };
 
 mod blocks;
@@ -33,10 +32,6 @@ pub struct PandocCodec;
 impl Codec for PandocCodec {
     fn name(&self) -> &str {
         "pandoc"
-    }
-
-    fn status(&self) -> Status {
-        Status::UnderDevelopment
     }
 
     fn availability(&self) -> CodecAvailability {

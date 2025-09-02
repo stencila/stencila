@@ -2,7 +2,7 @@ use std::path::Path;
 
 use stencila_codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, NodeType, async_trait, eyre::Result,
-    stencila_format::Format, stencila_schema::Node, stencila_status::Status,
+    stencila_format::Format, stencila_schema::Node,
 };
 
 mod decode;
@@ -17,10 +17,6 @@ pub struct MecaCodec;
 impl Codec for MecaCodec {
     fn name(&self) -> &str {
         "meca"
-    }
-
-    fn status(&self) -> Status {
-        Status::UnderDevelopment
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

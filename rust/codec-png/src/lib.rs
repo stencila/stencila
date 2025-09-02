@@ -5,7 +5,6 @@ use stencila_codec::{
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::Node,
-    stencila_status::Status,
 };
 use stencila_codec_dom_trait::to_dom;
 use stencila_codec_latex_trait::{latex_to_image, to_latex};
@@ -28,10 +27,6 @@ pub struct PngCodec;
 impl Codec for PngCodec {
     fn name(&self) -> &str {
         "png"
-    }
-
-    fn status(&self) -> Status {
-        Status::Alpha
     }
 
     fn supports_from_format(&self, _format: &Format) -> CodecSupport {

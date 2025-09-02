@@ -11,7 +11,6 @@ use stencila_codec::{
     eyre::{Ok, Result},
     stencila_format::Format,
     stencila_schema::Node,
-    stencila_status::Status,
 };
 use stencila_codec_dom::DomCodec;
 use stencila_codec_jsonld::JsonLdCodec;
@@ -53,10 +52,6 @@ pub struct SwbCodec {
 impl Codec for SwbCodec {
     fn name(&self) -> &str {
         "swb"
-    }
-
-    fn status(&self) -> Status {
-        Status::Alpha
     }
 
     fn supports_to_format(&self, format: &Format) -> CodecSupport {

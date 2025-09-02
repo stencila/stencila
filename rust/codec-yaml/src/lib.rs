@@ -4,7 +4,6 @@ use stencila_codec::{
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{Article, Node, NodeType},
-    stencila_status::Status,
 };
 use stencila_version::STENCILA_VERSION;
 
@@ -21,10 +20,6 @@ pub struct YamlCodec;
 impl Codec for YamlCodec {
     fn name(&self) -> &str {
         "yaml"
-    }
-
-    fn status(&self) -> Status {
-        Status::Stable
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

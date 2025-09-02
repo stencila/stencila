@@ -15,8 +15,6 @@ use smart_default::SmartDefault;
 use strum::{Display, EnumIter};
 use tokio::fs::read_to_string;
 
-use stencila_status::Status;
-
 /// A schema in the Stencila Schema
 ///
 /// This meta-schema is based on JSON Schema with custom extensions
@@ -331,6 +329,39 @@ pub struct Schema {
     /// Whether the `extend()` method has been run on this schema yet
     #[serde(skip)]
     pub is_extended: bool,
+}
+
+#[derive(Debug, Display, Default, Clone, Copy, Deserialize, Serialize, JsonSchema)]
+#[strum(serialize_all = "kebab-case")]
+#[serde(rename_all = "kebab-case")]
+pub enum Status {
+    Planned,
+    Experimental,
+    UnderDevelopment,
+    Alpha,
+    Beta,
+    #[default]
+    Stable,
+}
+
+impl Status {
+    /// Whether the status is the default
+    pub fn is_default(&self) -> bool {
+        matches!(self, Self::Stable)
+    }
+
+    /// Get the emoji associated with the status
+    pub fn emoji(&self) -> &str {
+        use Status::*;
+        match self {
+            Planned => "🧭",
+            Experimental => "🧪",
+            UnderDevelopment => "🚧",
+            Alpha => "⚠️",
+            Beta => "🔶",
+            Stable => "🟢",
+        }
+    }
 }
 
 #[derive(

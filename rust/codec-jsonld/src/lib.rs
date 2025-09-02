@@ -7,7 +7,6 @@ use stencila_codec::{
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{Node, NodeType},
-    stencila_status::Status,
 };
 
 /// A codec for JSON-LD
@@ -46,10 +45,6 @@ static CONTEXT_MAPS: LazyLock<(HashMap<String, String>, HashMap<String, String>)
 impl Codec for JsonLdCodec {
     fn name(&self) -> &str {
         "jsonld"
-    }
-
-    fn status(&self) -> Status {
-        Status::Beta
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

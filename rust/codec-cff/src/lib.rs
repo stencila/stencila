@@ -1,6 +1,6 @@
 use stencila_codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, async_trait, eyre::Result,
-    stencila_format::Format, stencila_schema::Node, stencila_status::Status,
+    stencila_format::Format, stencila_schema::Node,
 };
 
 mod cff;
@@ -26,10 +26,6 @@ pub struct CffCodec;
 impl Codec for CffCodec {
     fn name(&self) -> &str {
         "cff"
-    }
-
-    fn status(&self) -> Status {
-        Status::Beta
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

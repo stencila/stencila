@@ -3,7 +3,6 @@ use std::path::Path;
 use stencila_codec::{
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     async_trait, eyre::Result, stencila_format::Format, stencila_schema::Node,
-    stencila_status::Status,
 };
 use stencila_codec_docx::DocxCodec;
 
@@ -14,10 +13,6 @@ pub struct GDocxCodec;
 impl Codec for GDocxCodec {
     fn name(&self) -> &str {
         "gdocx"
-    }
-
-    fn status(&self) -> Status {
-        Status::Alpha
     }
 
     fn availability(&self) -> CodecAvailability {

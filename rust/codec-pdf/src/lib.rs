@@ -6,7 +6,6 @@ use stencila_codec::{
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{Article, Node},
-    stencila_status::Status,
 };
 use stencila_codec_dom::DomCodec;
 use stencila_codec_latex::LatexCodec;
@@ -23,10 +22,6 @@ pub struct PdfCodec;
 impl Codec for PdfCodec {
     fn name(&self) -> &str {
         "pdf"
-    }
-
-    fn status(&self) -> Status {
-        Status::Beta
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

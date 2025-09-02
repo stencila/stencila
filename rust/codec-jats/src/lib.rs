@@ -3,7 +3,6 @@ use stencila_codec::{
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{Node, NodeType},
-    stencila_status::Status,
 };
 
 mod decode;
@@ -22,10 +21,6 @@ pub struct JatsCodec;
 impl Codec for JatsCodec {
     fn name(&self) -> &str {
         "jats"
-    }
-
-    fn status(&self) -> Status {
-        Status::UnderDevelopment
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

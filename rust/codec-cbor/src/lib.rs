@@ -3,7 +3,6 @@ use stencila_codec::{
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{Node, NodeType},
-    stencila_status::Status,
 };
 
 pub mod r#trait;
@@ -16,10 +15,6 @@ pub struct CborCodec;
 impl Codec for CborCodec {
     fn name(&self) -> &str {
         "cbor"
-    }
-
-    fn status(&self) -> Status {
-        Status::Stable
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

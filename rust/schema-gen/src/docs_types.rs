@@ -18,10 +18,9 @@ use stencila_schema::{
     Article, Block, Config, ConfigPublish, ConfigPublishGhost, ConfigPublishGhostState,
     ConfigPublishGhostType, Inline, Node, NodeType, NoteType, TableCell, shortcuts::*,
 };
-use stencila_status::Status;
 
 use crate::{
-    schema::{Category, Items, ProptestLevel, Schema, Type},
+    schema::{Category, Items, ProptestLevel, Schema, Status, Type},
     schemas::Schemas,
 };
 

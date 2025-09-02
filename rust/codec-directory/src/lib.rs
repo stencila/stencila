@@ -10,7 +10,6 @@ use stencila_codec::{
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::{Directory, File, FileOrDirectory, Node, NodeType},
-    stencila_status::Status,
 };
 
 /// A codec for "decoding" a directory to a Stencila `Directory` node
@@ -20,10 +19,6 @@ pub struct DirectoryCodec;
 impl Codec for DirectoryCodec {
     fn name(&self) -> &str {
         "directory"
-    }
-
-    fn status(&self) -> Status {
-        Status::UnderDevelopment
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

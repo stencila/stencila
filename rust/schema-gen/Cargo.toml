@@ -25,7 +25,6 @@ serde_yaml = { workspace = true }
 smart-default = { workspace = true }
 stencila-codecs = { path = "../codecs", optional = true }
 stencila-schema = { path = "../schema", optional = true }
-stencila-status = { path = "../status" }
 strum = { workspace = true }
 tokio = { workspace = true }
 topological-sort = "0.2.2"

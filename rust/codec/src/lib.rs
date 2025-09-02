@@ -18,7 +18,6 @@ use stencila_codec_utils::git_info;
 use stencila_format::Format;
 use stencila_node_strip::StripScope;
 use stencila_schema::{Article, Node};
-use stencila_status::Status;
 
 // Re-exports for the convenience of internal crates implementing `Codec`
 pub use async_trait::async_trait;
@@ -26,7 +25,6 @@ pub use eyre;
 pub use stencila_codec_info::*;
 pub use stencila_format;
 pub use stencila_schema;
-pub use stencila_status;
 
 /// The direction of conversion
 pub enum CodecDirection {
@@ -55,12 +53,6 @@ pub trait Codec: Sync + Send {
     /// the relevant options on the command line e.g. `--to jats-pandoc`.
     /// Should be kebab-cased.
     fn name(&self) -> &str;
-
-    /// The status of the codec
-    ///
-    /// Used when listing codecs and to warn users when using a codec that
-    /// is not stable.
-    fn status(&self) -> Status;
 
     /// Get the availability of the kernel on the current machine
     fn availability(&self) -> CodecAvailability {

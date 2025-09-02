@@ -5,7 +5,6 @@ use stencila_codec::{
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::{Node, NodeType},
-    stencila_status::Status,
 };
 
 mod conversion;
@@ -24,10 +23,6 @@ pub struct XlsxCodec;
 impl Codec for XlsxCodec {
     fn name(&self) -> &str {
         "xlsx"
-    }
-
-    fn status(&self) -> Status {
-        Status::Beta
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

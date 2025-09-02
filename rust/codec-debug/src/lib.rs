@@ -3,7 +3,6 @@ use stencila_codec::{
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{Node, NodeType},
-    stencila_status::Status,
 };
 
 /// A codec for the Rust debug format
@@ -17,10 +16,6 @@ pub struct DebugCodec;
 impl Codec for DebugCodec {
     fn name(&self) -> &str {
         "debug"
-    }
-
-    fn status(&self) -> Status {
-        Status::Stable
     }
 
     fn supports_from_string(&self) -> bool {

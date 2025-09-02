@@ -3,7 +3,6 @@ use stencila_codec::{
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::Node,
-    stencila_status::Status,
 };
 
 mod decode;
@@ -20,10 +19,6 @@ pub struct ArxivCodec;
 impl Codec for ArxivCodec {
     fn name(&self) -> &str {
         "arxiv"
-    }
-
-    fn status(&self) -> Status {
-        Status::UnderDevelopment
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

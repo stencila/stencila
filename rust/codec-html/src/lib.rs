@@ -3,7 +3,6 @@ use stencila_codec::{
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{Node, NodeType},
-    stencila_status::Status,
 };
 
 mod decode;
@@ -19,10 +18,6 @@ pub struct HtmlCodec;
 impl Codec for HtmlCodec {
     fn name(&self) -> &str {
         "html"
-    }
-
-    fn status(&self) -> Status {
-        Status::UnderDevelopment
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

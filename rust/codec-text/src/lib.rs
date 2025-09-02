@@ -3,7 +3,6 @@ use stencila_codec::{
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{Node, NodeType},
-    stencila_status::Status,
 };
 
 use stencila_codec_text_trait::TextCodec as _;
@@ -17,10 +16,6 @@ pub struct TextCodec;
 impl Codec for TextCodec {
     fn name(&self) -> &str {
         "text"
-    }
-
-    fn status(&self) -> Status {
-        Status::Beta
     }
 
     fn supports_to_format(&self, format: &Format) -> CodecSupport {

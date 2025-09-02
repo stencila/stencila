@@ -9,7 +9,6 @@ use stencila_codec::{
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::{Node, NodeType},
-    stencila_status::Status,
 };
 use stencila_codec_dom_trait::{
     DomCodec as DomCodecTrait, DomEncodeContext,
@@ -27,10 +26,6 @@ pub struct DomCodec;
 impl Codec for DomCodec {
     fn name(&self) -> &str {
         "dom"
-    }
-
-    fn status(&self) -> Status {
-        Status::Beta
     }
 
     fn supports_to_format(&self, format: &Format) -> CodecSupport {

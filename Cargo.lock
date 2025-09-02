@@ -8945,7 +8945,6 @@ dependencies = [
  "stencila-format",
  "stencila-node-strip",
  "stencila-schema",
- "stencila-status",
  "strum 0.27.2",
  "tokio",
  "tracing",
@@ -10991,7 +10990,6 @@ dependencies = [
  "smart-default",
  "stencila-codecs",
  "stencila-schema",
- "stencila-status",
  "strum 0.27.2",
  "tokio",
  "topological-sort",
@@ -11038,16 +11036,6 @@ dependencies = [
  "tower-http",
  "tracing",
  "uuid",
-]
-
-[[package]]
-name = "stencila-status"
-version = "0.0.0"
-dependencies = [
- "clap",
- "schemars 1.0.4",
- "serde",
- "strum 0.27.2",
 ]
 
 [[package]]

@@ -4,7 +4,6 @@ use stencila_codec::{
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::{Article, Node},
-    stencila_status::Status,
 };
 
 mod conversion;
@@ -18,10 +17,6 @@ pub struct BiblioCodec;
 impl Codec for BiblioCodec {
     fn name(&self) -> &str {
         "biblio"
-    }
-
-    fn status(&self) -> Status {
-        Status::Beta
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

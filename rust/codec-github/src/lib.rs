@@ -10,7 +10,6 @@ use stencila_codec::{
     stencila_schema::{
         Article, Datatable, Node, SoftwareSourceCode, SoftwareSourceCodeOptions, Text,
     },
-    stencila_status::Status,
 };
 use stencila_codec_csv::CsvCodec;
 use stencila_codec_ipynb::IpynbCodec;
@@ -43,10 +42,6 @@ pub struct GithubCodec;
 impl Codec for GithubCodec {
     fn name(&self) -> &str {
         "github"
-    }
-
-    fn status(&self) -> Status {
-        Status::Beta
     }
 
     async fn from_str(

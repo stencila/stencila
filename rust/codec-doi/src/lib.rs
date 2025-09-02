@@ -3,7 +3,6 @@ use stencila_codec::{
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::Node,
-    stencila_status::Status,
 };
 
 mod decode;
@@ -24,10 +23,6 @@ pub struct DoiCodec;
 impl Codec for DoiCodec {
     fn name(&self) -> &str {
         "doi"
-    }
-
-    fn status(&self) -> Status {
-        Status::Alpha
     }
 
     fn supports_from_format(&self, _format: &Format) -> CodecSupport {
