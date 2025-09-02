@@ -1,4 +1,4 @@
-use codec_info::{lost_exec_options, lost_options, lost_props};
+use stencila_codec_info::{lost_exec_options, lost_options, lost_props};
 
 use crate::{CodeExpression, prelude::*};
 

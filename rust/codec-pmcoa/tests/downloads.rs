@@ -1,7 +1,7 @@
-use codec::{Codec, eyre::Result};
 use insta::{assert_json_snapshot, assert_yaml_snapshot};
+use stencila_codec::{Codec, eyre::Result};
 
-use codec_pmcoa::PmcOaCodec;
+use stencila_codec_pmcoa::PmcOaCodec;
 
 /// Download and decode from PMCID Currently skipping this test because request
 /// fails with 500 status code (including when using `xh` and Firefox, so not

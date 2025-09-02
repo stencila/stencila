@@ -1,6 +1,6 @@
 use clap::Args;
-use cli_utils::message;
 use eyre::Result;
+use stencila_cli_utils::message;
 
 use crate::Plugin;
 

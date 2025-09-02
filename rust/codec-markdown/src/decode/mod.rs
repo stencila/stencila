@@ -8,11 +8,11 @@ use markdown::{
 };
 use regex::Regex;
 
-use codec::{
+use stencila_codec::{
     DecodeInfo, DecodeOptions, Losses, Mapping,
     eyre::{Result, eyre},
-    format::Format,
-    schema::{
+    stencila_format::Format,
+    stencila_schema::{
         Article, Block, Chat, Inline, Node, NodeId, NodeType, Null, Prompt, VisitorMut, WalkControl,
     },
 };

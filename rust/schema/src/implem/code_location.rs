@@ -1,6 +1,6 @@
 use inflector::Inflector;
 
-use codec_dom_trait::DomEncodeContext;
+use stencila_codec_dom_trait::DomEncodeContext;
 
 use crate::CodeLocation;
 

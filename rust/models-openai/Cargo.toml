@@ -1,14 +1,14 @@
 [package]
-name = "models-openai"
+name = "stencila-models-openai"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+Inflector = { workspace = true }
 async-openai = { version = "0.29.1", features = ["rustls"] }
 cached = { workspace = true }
-Inflector = { workspace = true }
 itertools = { workspace = true }
-model = { path = "../model" }
+stencila-model = { path = "../model" }
 tracing = { workspace = true }
 
 [dev-dependencies]

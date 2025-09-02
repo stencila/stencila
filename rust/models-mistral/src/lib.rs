@@ -7,11 +7,11 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-use model::{
+use stencila_model::{
     Model, ModelIO, ModelOutput, ModelTask, ModelType, async_trait,
     eyre::{Result, bail},
-    schema::{MessagePart, MessageRole},
-    secrets,
+    stencila_schema::{MessagePart, MessageRole},
+    stencila_secrets,
 };
 
 const BASE_URL: &str = "https://api.mistral.ai/v1";
@@ -133,7 +133,7 @@ impl Model for MistralModel {
         let response = self
             .client
             .post(format!("{BASE_URL}/chat/completions"))
-            .bearer_auth(secrets::env_or_get(API_KEY)?)
+            .bearer_auth(stencila_secrets::env_or_get(API_KEY)?)
             .json(&request)
             .send()
             .await?;
@@ -226,7 +226,7 @@ enum ChatRole {
 pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
     // Check for API key before calling IO cached function so that we never cache an empty list
     // and allow for users to set key, and then get list, while process is running
-    if secrets::env_or_get(API_KEY).is_err() {
+    if stencila_secrets::env_or_get(API_KEY).is_err() {
         tracing::trace!("The environment variable or secret `{API_KEY}` is not available");
         return Ok(vec![]);
     };
@@ -269,7 +269,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
 async fn list_mistral_models() -> Result<ModelsResponse> {
     let response = Client::new()
         .get(format!("{BASE_URL}/models"))
-        .bearer_auth(secrets::env_or_get(API_KEY)?)
+        .bearer_auth(stencila_secrets::env_or_get(API_KEY)?)
         .send()
         .await?;
 
@@ -284,13 +284,13 @@ async fn list_mistral_models() -> Result<ModelsResponse> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use model::test_task_repeat_word;
+    use stencila_model::test_task_repeat_word;
 
     #[tokio::test]
     async fn list_models() -> Result<()> {
         let list = list().await?;
 
-        if secrets::env_or_get(API_KEY).is_err() {
+        if stencila_secrets::env_or_get(API_KEY).is_err() {
             assert_eq!(list.len(), 0)
         } else {
             assert!(!list.is_empty())
@@ -301,7 +301,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task() -> Result<()> {
-        if secrets::env_or_get(API_KEY).is_err() {
+        if stencila_secrets::env_or_get(API_KEY).is_err() {
             return Ok(());
         }
 

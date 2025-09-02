@@ -1,10 +1,10 @@
 [package]
-name = "node-first"
+name = "stencila-node-first"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-schema = { path = "../schema" }
+stencila-schema = { path = "../schema" }
 
 [lints]
 workspace = true

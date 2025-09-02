@@ -19,13 +19,13 @@ use tokio::{
     sync::{RwLock, mpsc, watch},
 };
 
-use codec_utils::git_info;
-use codecs::{
+use stencila_codec_utils::git_info;
+use stencila_codecs::{
     DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Format, LossesResponse, MessageLevel,
     Messages,
 };
-use document::{Document, Update};
-use schema::{
+use stencila_document::{Document, Update};
+use stencila_schema::{
     Article, Author, AuthorRole, AuthorRoleName, CompilationMessage, Duration, ExecutionBounds,
     ExecutionMessage, ExecutionMode, ExecutionRequired, ExecutionStatus, Node, NodeId, NodeType,
     Person, ProvenanceCount, Timestamp, Visitor,
@@ -529,7 +529,7 @@ impl TextDocument {
                 ..Default::default()
             });
         let author = AuthorRole {
-            author: schema::AuthorRoleAuthor::Person(person),
+            author: stencila_schema::AuthorRoleAuthor::Person(person),
             role_name: AuthorRoleName::Writer,
             format: Some(format.name().to_string()),
             ..Default::default()
@@ -677,7 +677,7 @@ impl TextDocument {
             };
 
             // Decode the source into a node
-            let (node, DecodeInfo { messages, .. }) = match codecs::from_str_with_info(
+            let (node, DecodeInfo { messages, .. }) = match stencila_codecs::from_str_with_info(
                 &new_source,
                 Some(DecodeOptions {
                     format: Some(format.clone()),
@@ -820,23 +820,24 @@ impl TextDocument {
             let node = receiver.borrow_and_update().clone();
 
             // Encode the document to get generated content and mapping
-            let (generated, EncodeInfo { mapping, .. }) = match codecs::to_string_with_info(
-                &node,
-                Some(EncodeOptions {
-                    format: Some(format.clone()),
-                    // Reduce log level for reporting encoding losses
-                    losses: LossesResponse::Trace,
-                    ..Default::default()
-                }),
-            )
-            .await
-            {
-                Ok(result) => result,
-                Err(error) => {
-                    tracing::error!("While encoding document: {error}");
-                    continue;
-                }
-            };
+            let (generated, EncodeInfo { mapping, .. }) =
+                match stencila_codecs::to_string_with_info(
+                    &node,
+                    Some(EncodeOptions {
+                        format: Some(format.clone()),
+                        // Reduce log level for reporting encoding losses
+                        losses: LossesResponse::Trace,
+                        ..Default::default()
+                    }),
+                )
+                .await
+                {
+                    Ok(result) => result,
+                    Err(error) => {
+                        tracing::error!("While encoding document: {error}");
+                        continue;
+                    }
+                };
 
             // Walk the node to collect nodes and diagnostics
             let source = source.read().await;

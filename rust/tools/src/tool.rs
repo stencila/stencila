@@ -21,7 +21,7 @@ use tempfile::env::temp_dir;
 use tokio::fs::write;
 use which::which;
 
-use version::STENCILA_USER_AGENT;
+use stencila_version::STENCILA_USER_AGENT;
 
 use crate::{ToolCommand, ToolStdio, command::AsyncToolCommand, json_map};
 

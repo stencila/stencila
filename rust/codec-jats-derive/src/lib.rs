@@ -176,7 +176,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     quote! {
         impl JatsCodec for #struct_name {
             fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses) {
-                use codec_jats_trait::encode::{elem, elem_no_attrs};
+                use stencila_codec_jats_trait::encode::{elem, elem_no_attrs};
 
                 let mut attrs = vec![#attrs];
                 let mut content = String::new();

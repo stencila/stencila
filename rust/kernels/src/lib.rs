@@ -6,33 +6,33 @@ use std::{
 
 use tokio::sync::{Mutex, RwLock, broadcast, mpsc, watch};
 
-use kernel::{
+use stencila_kernel::{
     Kernel, KernelInstance, KernelVariableRequest, KernelVariableRequester, KernelVariableResponse,
     eyre::{Result, bail},
-    format::Format,
-    schema::{ExecutionBounds, ExecutionMessage, Node},
+    stencila_format::Format,
+    stencila_schema::{ExecutionBounds, ExecutionMessage, Node},
 };
-use kernel_asciimath::AsciiMathKernel;
-use kernel_bash::BashKernel;
-use kernel_docsdb::{
+use stencila_kernel_asciimath::AsciiMathKernel;
+use stencila_kernel_bash::BashKernel;
+use stencila_kernel_docsdb::{
     DocsDBKernel, DocsDBKernelInstance, DocsDBVariableListReceiver, DocsDBVariableListSender,
 };
-use kernel_docsql::{DocsQLKernel, DocsQLKernelInstance};
-use kernel_graphviz::GraphvizKernel;
-use kernel_jinja::JinjaKernel;
-use kernel_kuzu::KuzuKernel;
-use kernel_mermaid::MermaidKernel;
-use kernel_nodejs::NodeJsKernel;
-use kernel_python::PythonKernel;
-use kernel_quickjs::QuickJsKernel;
-use kernel_r::RKernel;
-use kernel_style::StyleKernel;
-use kernel_tex::TexKernel;
+use stencila_kernel_docsql::{DocsQLKernel, DocsQLKernelInstance};
+use stencila_kernel_graphviz::GraphvizKernel;
+use stencila_kernel_jinja::JinjaKernel;
+use stencila_kernel_kuzu::KuzuKernel;
+use stencila_kernel_mermaid::MermaidKernel;
+use stencila_kernel_nodejs::NodeJsKernel;
+use stencila_kernel_python::PythonKernel;
+use stencila_kernel_quickjs::QuickJsKernel;
+use stencila_kernel_r::RKernel;
+use stencila_kernel_style::StyleKernel;
+use stencila_kernel_tex::TexKernel;
 
-#[cfg(feature = "kernel-rhai")]
-use kernel_rhai::RhaiKernel;
+#[cfg(feature = "stencila-kernel-rhai")]
+use stencila_kernel_rhai::RhaiKernel;
 
-pub use kernel::{KernelAvailability, KernelProvider, KernelSpecification, KernelType};
+pub use stencila_kernel::{KernelAvailability, KernelProvider, KernelSpecification, KernelType};
 
 pub mod cli;
 
@@ -64,10 +64,10 @@ pub async fn list() -> Vec<Box<dyn Kernel>> {
         Box::<StyleKernel>::default() as Box<dyn Kernel>,
     ];
 
-    #[cfg(feature = "kernel-rhai")]
+    #[cfg(feature = "stencila-kernel-rhai")]
     kernels.push(Box::<RhaiKernel>::default() as Box<dyn Kernel>);
 
-    let provided_by_plugins = &mut plugins::kernels::list().await;
+    let provided_by_plugins = &mut stencila_plugins::kernels::list().await;
     kernels.append(provided_by_plugins);
 
     kernels
@@ -572,8 +572,8 @@ impl Kernels {
 
 #[cfg(test)]
 mod tests {
-    use kernel::schema::{MessageLevel, Node};
     use pretty_assertions::assert_eq;
+    use stencila_kernel::stencila_schema::{MessageLevel, Node};
 
     use super::*;
 

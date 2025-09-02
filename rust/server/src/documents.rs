@@ -32,9 +32,9 @@ use tokio::{
 };
 use uuid::Uuid;
 
-use codecs::{DecodeOptions, EncodeOptions};
-use document::{Document, SyncDirection};
-use format::Format;
+use stencila_codecs::{DecodeOptions, EncodeOptions};
+use stencila_document::{Document, SyncDirection};
+use stencila_format::Format;
 
 use crate::{
     errors::InternalError,

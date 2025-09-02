@@ -1,6 +1,7 @@
-use kernel_micro::{
+use stencila_kernel_micro::{
     Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelProvider,
-    KernelTerminate, Microkernel, eyre::Result, format::Format, schema::ExecutionBounds,
+    KernelTerminate, Microkernel, eyre::Result, stencila_format::Format,
+    stencila_schema::ExecutionBounds,
 };
 
 /// A kernel for executing Bash code locally
@@ -60,13 +61,13 @@ impl Microkernel for BashKernel {
 #[cfg(test)]
 #[allow(clippy::print_stderr)]
 mod tests {
-    use kernel_micro::{
-        eyre::bail,
-        schema::{MessageLevel, Node, Null, Variable},
-        tests::{create_instance, start_instance},
-    };
     use ntest::timeout;
     use pretty_assertions::assert_eq;
+    use stencila_kernel_micro::{
+        eyre::bail,
+        stencila_schema::{MessageLevel, Node, Null, Variable},
+        tests::{create_instance, start_instance},
+    };
 
     use super::*;
 
@@ -91,7 +92,7 @@ mod tests {
             return Ok(());
         };
 
-        kernel_micro::tests::execution(
+        stencila_kernel_micro::tests::execution(
             instance,
             vec![
                 // Empty code: no outputs
@@ -186,7 +187,7 @@ echo $value",
             return Ok(());
         };
 
-        kernel_micro::tests::evaluation(
+        stencila_kernel_micro::tests::evaluation(
             instance,
             vec![
                 // Bash kernel only supports simple integer expressions...
@@ -212,7 +213,7 @@ echo $value",
             return Ok(());
         };
 
-        kernel_micro::tests::printing(
+        stencila_kernel_micro::tests::printing(
             instance,
             r#"print str"#,
             r#"print str1 str2"#,
@@ -368,7 +369,7 @@ echo $value",
             return Ok(());
         };
 
-        let sw = kernel_micro::tests::info(instance).await?;
+        let sw = stencila_kernel_micro::tests::info(instance).await?;
         assert_eq!(sw.name, "Bash");
         assert!(sw.options.software_version.is_some());
         assert!(sw.options.operating_system.is_some());
@@ -388,7 +389,7 @@ echo $value",
             return Ok(());
         };
 
-        let pkgs = kernel_micro::tests::packages(instance).await?;
+        let pkgs = stencila_kernel_micro::tests::packages(instance).await?;
         assert!(pkgs.is_empty());
 
         Ok(())
@@ -406,7 +407,7 @@ echo $value",
             return Ok(());
         };
 
-        kernel_micro::tests::var_listing(
+        stencila_kernel_micro::tests::var_listing(
             instance,
             r#"
 declare str="str"
@@ -460,7 +461,7 @@ declare -A obj=(["key1"]="value1" ["key2"]="value2")
             return Ok(());
         };
 
-        kernel_micro::tests::var_management(instance).await
+        stencila_kernel_micro::tests::var_management(instance).await
     }
 
     /// Standard kernel test for signals
@@ -477,7 +478,7 @@ declare -A obj=(["key1"]="value1" ["key2"]="value2")
             return Ok(());
         };
 
-        kernel_micro::tests::signals(
+        stencila_kernel_micro::tests::signals(
             instance,
             "
 # Setup step
@@ -508,7 +509,7 @@ sleep 100",
             return Ok(());
         };
 
-        kernel_micro::tests::stop(instance).await
+        stencila_kernel_micro::tests::stop(instance).await
     }
 
     /// `BashKernel` specific test of execution tasks that may involve additional escaping

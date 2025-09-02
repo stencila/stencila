@@ -8,7 +8,7 @@ use syntect::{
     util::as_24_bit_terminal_escaped,
 };
 
-use format::Format;
+use stencila_format::Format;
 
 use crate::ToStdout;
 

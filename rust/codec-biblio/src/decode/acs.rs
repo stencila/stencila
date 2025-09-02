@@ -6,7 +6,9 @@ use winnow::{
     combinator::{alt, delimited, opt, preceded, separated},
 };
 
-use codec::schema::{Author, CreativeWorkType, Organization, Person, PersonOptions, Reference};
+use stencila_codec::stencila_schema::{
+    Author, CreativeWorkType, Organization, Person, PersonOptions, Reference,
+};
 
 use crate::decode::{
     parts::{
@@ -218,9 +220,9 @@ fn acs_editors(input: &mut &str) -> Result<Vec<Person>> {
 
 #[cfg(test)]
 mod tests {
-    use codec::schema::IntegerOrString;
-    use codec_text_trait::to_text;
     use pretty_assertions::assert_eq;
+    use stencila_codec::stencila_schema::IntegerOrString;
+    use stencila_codec_text_trait::to_text;
 
     use super::*;
 

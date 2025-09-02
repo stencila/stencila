@@ -1,13 +1,11 @@
 [package]
-name = "tools"
+name = "stencila-tools"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-ask = { path = "../ask" }
 async-recursion = { workspace = true }
 clap = { workspace = true }
-cli-utils = { path = "../cli-utils" }
 derive_more = { workspace = true }
 directories = { workspace = true }
 eyre = { workspace = true }
@@ -19,11 +17,13 @@ reqwest = { workspace = true }
 semver = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+stencila-ask = { path = "../ask" }
+stencila-cli-utils = { path = "../cli-utils" }
+stencila-version = { path = "../version" }
 strum = { workspace = true }
 tempfile = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
-version = { path = "../version" }
 which = { workspace = true }
 
 [dev-dependencies]

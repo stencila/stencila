@@ -8,7 +8,7 @@ use axum::{
 use reqwest::Client;
 use serde::Deserialize;
 
-use version::STENCILA_VERSION;
+use stencila_version::STENCILA_VERSION;
 
 use crate::server::ServerState;
 
@@ -50,25 +50,26 @@ pub async fn callback(
     };
 
     let Ok(response) = Client::new()
-        .post(format!("{}/access-tokens/otc", cloud::base_url()))
+        .post(format!("{}/access-tokens/otc", stencila_cloud::base_url()))
         .header("Content-Type", "application/json")
-        .json(&cloud::OtcRequest { otc })
+        .json(&stencila_cloud::OtcRequest { otc })
         .send()
         .await
     else {
         return (StatusCode::BAD_REQUEST, "One-time code is required").into_response();
     };
 
-    let response = match cloud::process_response::<cloud::OtcResponse>(response).await {
-        Ok(resp) => resp,
-        Err(err) => {
-            return (
-                StatusCode::UNAUTHORIZED,
-                format!("Authentication failed: {err}"),
-            )
-                .into_response();
-        }
-    };
+    let response =
+        match stencila_cloud::process_response::<stencila_cloud::OtcResponse>(response).await {
+            Ok(resp) => resp,
+            Err(err) => {
+                return (
+                    StatusCode::UNAUTHORIZED,
+                    format!("Authentication failed: {err}"),
+                )
+                    .into_response();
+            }
+        };
 
     if response.token.is_empty() {
         return (
@@ -78,7 +79,7 @@ pub async fn callback(
             .into_response();
     }
 
-    if let Err(error) = cloud::signin(&response.token) {
+    if let Err(error) = stencila_cloud::signin(&response.token) {
         tracing::error!("Unable to sign in using token: {error}");
 
         return (

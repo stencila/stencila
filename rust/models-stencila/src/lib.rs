@@ -6,7 +6,7 @@ use itertools::Itertools;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
-use model::{
+use stencila_model::{
     Model, ModelAvailability, ModelIO, ModelOutput, ModelTask, ModelType, async_trait,
     eyre::{Result, bail, eyre},
 };
@@ -71,7 +71,7 @@ impl Model for StencilaModel {
     }
 
     fn availability(&self) -> ModelAvailability {
-        cloud::api_token()
+        stencila_cloud::api_token()
             .as_ref()
             .map(|_| ModelAvailability::Available)
             .unwrap_or(ModelAvailability::RequiresKey)
@@ -98,7 +98,7 @@ impl Model for StencilaModel {
     }
 
     async fn perform_task(&self, task: &ModelTask) -> Result<ModelOutput> {
-        let token = cloud::api_token().ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or key chain entry found. Get one at https://stencila.cloud/."))?;
+        let token = stencila_cloud::api_token().ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or key chain entry found. Get one at https://stencila.cloud/."))?;
 
         if task.dry_run {
             return ModelOutput::empty(self);
@@ -106,7 +106,7 @@ impl Model for StencilaModel {
 
         let response = self
             .client
-            .post(format!("{}/models/task", cloud::base_url()))
+            .post(format!("{}/models/task", stencila_cloud::base_url()))
             .bearer_auth(token)
             .json(&PerformTaskRequest {
                 provider: self.provider.clone(),
@@ -153,7 +153,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
 #[cached(time = 21_600, result = true)]
 async fn list_stencila_models(_unused: u8) -> Result<Vec<StencilaModel>> {
     let response = Client::new()
-        .get(format!("{}/models", cloud::base_url()))
+        .get(format!("{}/models", stencila_cloud::base_url()))
         .send()
         .await?;
 
@@ -169,7 +169,7 @@ async fn list_stencila_models(_unused: u8) -> Result<Vec<StencilaModel>> {
 #[allow(clippy::print_stderr)]
 mod tests {
     use super::*;
-    use model::test_task_repeat_word;
+    use stencila_model::test_task_repeat_word;
 
     #[tokio::test]
     async fn list_models() -> Result<()> {
@@ -186,7 +186,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_router() -> Result<()> {
-        if cloud::api_token().is_none() {
+        if stencila_cloud::api_token().is_none() {
             return Ok(());
         }
 
@@ -203,7 +203,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_anthropic() -> Result<()> {
-        if cloud::api_token().is_none() {
+        if stencila_cloud::api_token().is_none() {
             return Ok(());
         }
 
@@ -220,7 +220,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_google() -> Result<()> {
-        if cloud::api_token().is_none() {
+        if stencila_cloud::api_token().is_none() {
             return Ok(());
         }
 
@@ -237,7 +237,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_mistral() -> Result<()> {
-        if cloud::api_token().is_none() {
+        if stencila_cloud::api_token().is_none() {
             return Ok(());
         }
 
@@ -254,7 +254,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_openai() -> Result<()> {
-        if cloud::api_token().is_none() {
+        if stencila_cloud::api_token().is_none() {
             return Ok(());
         }
 

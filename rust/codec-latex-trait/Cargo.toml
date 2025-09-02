@@ -1,19 +1,19 @@
 [package]
-name = "codec-latex-trait"
+name = "stencila-codec-latex-trait"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec-info = { path = "../codec-info" }
-codec-latex-derive = { path = "../codec-latex-derive" }
-codec-utils = { path = "../codec-utils" }
 eyre = { workspace = true }
-format = { path = "../format" }
 glob = { workspace = true }
 itertools = { workspace = true }
-node-path = { path = "../node-path" }
-node-url = { path = "../node-url" }
 rand = { workspace = true }
+stencila-codec-info = { path = "../codec-info" }
+stencila-codec-latex-derive = { path = "../codec-latex-derive" }
+stencila-codec-utils = { path = "../codec-utils" }
+stencila-format = { path = "../format" }
+stencila-node-path = { path = "../node-path" }
+stencila-node-url = { path = "../node-url" }
 tracing = { workspace = true }
 
 [lints]

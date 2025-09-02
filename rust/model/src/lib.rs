@@ -4,7 +4,7 @@ use inflector::Inflector;
 use serde::{Deserialize, Serialize};
 use strum::Display;
 
-use schema::{
+use stencila_schema::{
     AuthorRole, AuthorRoleAuthor, AuthorRoleName, InstructionMessage, MessagePart, MessageRole,
     Organization, PersonOrOrganization, SoftwareApplication, SoftwareApplicationOptions,
     StringOrNumber, Timestamp,
@@ -13,9 +13,9 @@ use schema::{
 // Export crates for the convenience of crates implementing the Model trait
 pub use async_trait::async_trait;
 pub use eyre;
-pub use format;
-pub use schema;
-pub use secrets;
+pub use stencila_format;
+pub use stencila_schema;
+pub use stencila_secrets;
 
 mod output;
 mod task;

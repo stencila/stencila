@@ -1,5 +1,5 @@
 [package]
-name = "cloud"
+name = "stencila-cloud"
 version = "0.0.0"
 edition = "2024"
 
@@ -7,11 +7,11 @@ edition = "2024"
 cached = { workspace = true }
 eyre = { workspace = true }
 reqwest = { workspace = true }
-secrets = { "path" = "../secrets" }
 serde = { workspace = true }
+stencila-secrets = { "path" = "../secrets" }
+stencila-version = { "path" = "../version" }
 strum = { workspace = true }
 tracing = { workspace = true }
-version = { "path" = "../version" }
 
 [lints]
 workspace = true

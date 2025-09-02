@@ -1,10 +1,10 @@
 [package]
-name = "node-find"
+name = "stencila-node-find"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-schema = { path = "../schema" }
+stencila-schema = { path = "../schema" }
 
 [lints]
 workspace = true

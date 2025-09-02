@@ -1,13 +1,13 @@
 [package]
-name = "media-embed"
+name = "stencila-media-embed"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 eyre = { workspace = true }
-format = { path = "../format" }
-images = { path = "../images" }
-schema = { path = "../schema" }
+stencila-format = { path = "../format" }
+stencila-images = { path = "../images" }
+stencila-schema = { path = "../schema" }
 tracing = { workspace = true }
 
 [lints]

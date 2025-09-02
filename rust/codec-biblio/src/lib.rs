@@ -1,10 +1,10 @@
-use codec::{
+use stencila_codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, NodeType,
     async_trait,
     eyre::{Result, bail},
-    format::Format,
-    schema::{Article, Node},
-    status::Status,
+    stencila_format::Format,
+    stencila_schema::{Article, Node},
+    stencila_status::Status,
 };
 
 mod conversion;

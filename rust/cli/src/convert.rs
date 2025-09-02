@@ -3,8 +3,8 @@ use std::path::PathBuf;
 use clap::Parser;
 use eyre::Result;
 
-use cli_utils::color_print::cstr;
-use format::Format;
+use stencila_cli_utils::color_print::cstr;
+use stencila_format::Format;
 
 use crate::options::{DecodeOptions, EncodeOptions, StripOptions};
 
@@ -113,10 +113,10 @@ impl Cli {
         let decode_options = decode_options
             .build(input_path.as_deref(), strip_options.clone())
             .with_tool(from_tool, Vec::new());
-        let node = codecs::from_identifier(input, Some(decode_options)).await?;
+        let node = stencila_codecs::from_identifier(input, Some(decode_options)).await?;
 
         if outputs.is_empty() || outputs.iter().all(|path| path.to_string_lossy() == "-") {
-            codecs::to_stdout(
+            stencila_codecs::to_stdout(
                 &node,
                 Some(
                     encode_options
@@ -137,7 +137,7 @@ impl Cli {
                 let tool_args = tool_args.clone();
 
                 if output == PathBuf::from("-") {
-                    codecs::to_stdout(
+                    stencila_codecs::to_stdout(
                         &node,
                         Some(
                             encode_options
@@ -147,7 +147,7 @@ impl Cli {
                     )
                     .await?;
                 } else {
-                    let completed = codecs::to_path(
+                    let completed = stencila_codecs::to_path(
                         &node,
                         &output,
                         Some(

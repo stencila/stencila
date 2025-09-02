@@ -1,11 +1,11 @@
 use std::{fs::read_to_string, path::PathBuf};
 
-use codec::{
+use insta::assert_json_snapshot;
+use stencila_codec::{
     Codec,
     eyre::{OptionExt, Result},
 };
-use codec_zenodo::ZenodoCodec;
-use insta::assert_json_snapshot;
+use stencila_codec_zenodo::ZenodoCodec;
 
 /// Decode Zenodo API responses into Stencila schema nodes
 #[tokio::test]

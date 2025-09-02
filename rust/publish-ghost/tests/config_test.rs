@@ -1,11 +1,11 @@
-use document::{Document, schema::Node};
 use eyre::{Result, bail};
+use stencila_document::{Document, stencila_schema::Node};
 use tempfile::tempdir;
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use document::schema::{ConfigPublishGhostState, ConfigPublishGhostType};
+    use stencila_document::stencila_schema::{ConfigPublishGhostState, ConfigPublishGhostType};
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_ghost_config_parsing() -> Result<()> {

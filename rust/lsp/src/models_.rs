@@ -2,7 +2,7 @@
 
 use async_lsp::lsp_types::request::Request;
 
-use models::ModelSpecification;
+use stencila_models::ModelSpecification;
 
 pub struct ListModels;
 
@@ -13,7 +13,7 @@ impl Request for ListModels {
 }
 
 pub async fn list() -> Vec<ModelSpecification> {
-    models::list()
+    stencila_models::list()
         .await
         .into_iter()
         .map(|model| ModelSpecification::from(model.as_ref()))

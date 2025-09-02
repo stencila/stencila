@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
-use codecs::DecodeOptions;
-use schema::{Article, Block, CompilationMessage, IncludeBlock};
+use stencila_codecs::DecodeOptions;
+use stencila_schema::{Article, Block, CompilationMessage, IncludeBlock};
 
 use crate::prelude::*;
 
@@ -119,7 +119,7 @@ async fn source_to_content(
     };
 
     // Decode the URL
-    let content: Option<Vec<Block>> = match codecs::from_identifier(
+    let content: Option<Vec<Block>> = match stencila_codecs::from_identifier(
         &url,
         Some(DecodeOptions {
             media_type: media_type.clone(),

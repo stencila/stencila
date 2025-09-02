@@ -14,64 +14,96 @@ use tokio::{
 use url::Url;
 use walkdir::WalkDir;
 
-use ask::{Answer, AskLevel, AskOptions, ask_with};
-use cli_utils::{Code, ToStdout};
-use codec::schema::{Article, Block, IncludeBlock, Node, VisitorAsync, WalkControl, WalkNode};
-pub use codec::{
+use stencila_ask::{Answer, AskLevel, AskOptions, ask_with};
+use stencila_cli_utils::{Code, ToStdout};
+use stencila_codec::stencila_schema::{
+    Article, Block, IncludeBlock, Node, VisitorAsync, WalkControl, WalkNode,
+};
+pub use stencila_codec::{
     Codec, CodecDirection, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     Losses, LossesResponse, Mapping, MappingEntry, Message, MessageLevel, Messages, PageSelector,
     PoshMap, Position8, Position16, Positions, Range8, Range16,
     eyre::{Context, OptionExt, Result, bail, eyre},
-    format::Format,
+    stencila_format::Format,
 };
-use codec_arxiv::ArxivCodec;
-use codec_doi::DoiCodec;
-use codec_github::GithubCodec;
-use codec_openrxiv::OpenRxivCodec;
-use codec_pmcoa::PmcOaCodec;
-use codec_utils::rebase_edits;
-use node_strip::{StripNode, StripTargets};
+
+use stencila_codec_arxiv::ArxivCodec;
+use stencila_codec_cbor::CborCodec;
+use stencila_codec_cff::CffCodec;
+use stencila_codec_csl::CslCodec;
+use stencila_codec_csv::CsvCodec;
+use stencila_codec_debug::DebugCodec;
+use stencila_codec_directory::DirectoryCodec;
+use stencila_codec_docx::DocxCodec;
+use stencila_codec_doi::DoiCodec;
+use stencila_codec_dom::DomCodec;
+use stencila_codec_gdocx::GDocxCodec;
+use stencila_codec_github::GithubCodec;
+use stencila_codec_html::HtmlCodec;
+use stencila_codec_ipynb::IpynbCodec;
+use stencila_codec_jats::JatsCodec;
+use stencila_codec_json::JsonCodec;
+use stencila_codec_json5::Json5Codec;
+use stencila_codec_jsonld::JsonLdCodec;
+use stencila_codec_latex::LatexCodec;
+use stencila_codec_lexical::LexicalCodec;
+use stencila_codec_markdown::MarkdownCodec;
+use stencila_codec_meca::MecaCodec;
+use stencila_codec_odt::OdtCodec;
+use stencila_codec_openrxiv::OpenRxivCodec;
+use stencila_codec_pandoc::PandocCodec;
+use stencila_codec_pdf::PdfCodec;
+use stencila_codec_pmcoa::PmcOaCodec;
+use stencila_codec_png::PngCodec;
+use stencila_codec_rnw::RnwCodec;
+use stencila_codec_swb::SwbCodec;
+use stencila_codec_text::TextCodec;
+use stencila_codec_xlsx::XlsxCodec;
+use stencila_codec_yaml::YamlCodec;
+
+use stencila_codec_utils::rebase_edits;
+use stencila_node_strip::{StripNode, StripTargets};
 
 pub mod cli;
 
 /// Get a list of all codecs
 pub fn list() -> Vec<Box<dyn Codec>> {
     let codecs = vec![
-        Box::new(codec_cbor::CborCodec) as Box<dyn Codec>,
-        Box::new(codec_cff::CffCodec),
-        Box::new(codec_csl::CslCodec),
-        Box::new(codec_csv::CsvCodec),
-        Box::new(codec_debug::DebugCodec),
-        Box::new(codec_docx::DocxCodec),
+        Box::new(CborCodec) as Box<dyn Codec>,
+        Box::new(CffCodec),
+        Box::new(CslCodec),
+        Box::new(CsvCodec),
+        Box::new(DebugCodec),
+        Box::new(DocxCodec),
         // DomCodec supports to HTML and because listed here before HtmlCodec
         // will be selected when encoding to HTML
-        Box::new(codec_dom::DomCodec),
-        Box::new(codec_directory::DirectoryCodec),
-        Box::new(codec_gdocx::GDocxCodec),
-        Box::new(codec_github::GithubCodec),
-        Box::new(codec_html::HtmlCodec),
-        Box::new(codec_ipynb::IpynbCodec),
-        Box::new(codec_jats::JatsCodec),
-        Box::new(codec_json::JsonCodec),
-        Box::new(codec_json5::Json5Codec),
-        Box::new(codec_jsonld::JsonLdCodec),
-        Box::new(codec_latex::LatexCodec),
-        Box::new(codec_lexical::LexicalCodec),
-        Box::new(codec_markdown::MarkdownCodec),
-        Box::new(codec_meca::MecaCodec),
-        Box::new(codec_rnw::RnwCodec),
-        Box::new(codec_odt::OdtCodec),
-        Box::new(codec_pandoc::PandocCodec),
-        Box::new(codec_pmcoa::PmcOaCodec),
-        Box::new(codec_pdf::PdfCodec),
-        Box::new(codec_png::PngCodec),
-        Box::<codec_swb::SwbCodec>::default(),
-        Box::new(codec_text::TextCodec),
-        Box::new(codec_xlsx::XlsxCodec),
-        Box::new(codec_yaml::YamlCodec),
+        Box::new(DomCodec),
+        Box::new(DirectoryCodec),
+        Box::new(GDocxCodec),
+        Box::new(GithubCodec),
+        Box::new(HtmlCodec),
+        Box::new(IpynbCodec),
+        Box::new(JatsCodec),
+        Box::new(JsonCodec),
+        Box::new(Json5Codec),
+        Box::new(JsonLdCodec),
+        Box::new(LatexCodec),
+        Box::new(LexicalCodec),
+        Box::new(MarkdownCodec),
+        Box::new(MecaCodec),
+        Box::new(RnwCodec),
+        Box::new(OdtCodec),
+        Box::new(PandocCodec),
+        Box::new(PmcOaCodec),
+        Box::new(PdfCodec),
+        Box::new(PngCodec),
+        Box::<SwbCodec>::default(),
+        Box::new(TextCodec),
+        Box::new(XlsxCodec),
+        Box::new(YamlCodec),
         // arXiv codec support from HTML but because after all others supporting HTML
         // will need to be explicitly chosen
-        Box::new(codec_arxiv::ArxivCodec),
+        Box::new(ArxivCodec),
     ];
 
     // TODO: make plugins a dependency and append codecs to list

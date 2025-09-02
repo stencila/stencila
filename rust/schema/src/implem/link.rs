@@ -1,5 +1,5 @@
-use codec_info::lost_options;
-use codec_text_trait::to_text;
+use stencila_codec_info::lost_options;
+use stencila_codec_text_trait::to_text;
 
 use crate::{Inline, Link, prelude::*};
 

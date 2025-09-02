@@ -2,9 +2,9 @@ use kuzu::{LogicalType, Value};
 
 use itertools::Itertools;
 
-use kernel::{
+use stencila_kernel::{
     eyre::{Result, bail},
-    schema::*,
+    stencila_schema::*,
 };
 
 /// Create a Kuzu [`Value`] from a Stencila [`Node`]

@@ -1,5 +1,5 @@
 [package]
-name = "node-probe-derive"
+name = "stencila-node-probe-derive"
 version = "0.0.0"
 edition = "2024"
 

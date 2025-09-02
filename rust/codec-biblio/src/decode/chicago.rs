@@ -5,7 +5,7 @@
 //! the standard components of Chicago references including authors, titles, publisher
 //! information, publication dates, volume/issue numbers, page ranges, and DOIs/URLs.
 
-use codec::schema::Date;
+use stencila_codec::stencila_schema::Date;
 use winnow::{
     Parser, Result,
     ascii::{Caseless, multispace0, multispace1},
@@ -13,7 +13,7 @@ use winnow::{
     token::{take_until, take_while},
 };
 
-use codec::schema::{
+use stencila_codec::stencila_schema::{
     CreativeWorkType, Organization, PersonOrOrganization, Reference, shortcuts::t,
 };
 
@@ -280,9 +280,9 @@ pub fn web(input: &mut &str) -> Result<Reference> {
 
 #[cfg(test)]
 mod tests {
-    use codec::schema::IntegerOrString;
-    use codec_text_trait::to_text;
     use pretty_assertions::assert_eq;
+    use stencila_codec::stencila_schema::IntegerOrString;
+    use stencila_codec_text_trait::to_text;
 
     use super::*;
 

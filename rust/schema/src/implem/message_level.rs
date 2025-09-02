@@ -1,13 +1,15 @@
+use stencila_codec_info::MessageLevel as CodecMessageLevel;
+
 use crate::MessageLevel;
 
-impl From<MessageLevel> for codec_info::MessageLevel {
+impl From<MessageLevel> for CodecMessageLevel {
     fn from(val: MessageLevel) -> Self {
         match val {
-            MessageLevel::Trace => codec_info::MessageLevel::Warning,
-            MessageLevel::Debug => codec_info::MessageLevel::Warning,
-            MessageLevel::Info => codec_info::MessageLevel::Warning,
-            MessageLevel::Warning => codec_info::MessageLevel::Warning,
-            MessageLevel::Error | MessageLevel::Exception => codec_info::MessageLevel::Error,
+            MessageLevel::Trace => CodecMessageLevel::Warning,
+            MessageLevel::Debug => CodecMessageLevel::Warning,
+            MessageLevel::Info => CodecMessageLevel::Warning,
+            MessageLevel::Warning => CodecMessageLevel::Warning,
+            MessageLevel::Error | MessageLevel::Exception => CodecMessageLevel::Error,
         }
     }
 }

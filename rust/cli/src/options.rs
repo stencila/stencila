@@ -5,9 +5,9 @@ use std::{
 
 use clap::Args;
 
-use codecs::PageSelector;
-use format::Format;
-use node_strip::StripScope;
+use stencila_codecs::PageSelector;
+use stencila_format::Format;
+use stencila_node_strip::StripScope;
 
 /// Command line arguments for stripping nodes
 ///
@@ -87,8 +87,8 @@ pub struct DecodeOptions {
     ///
     /// Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or
     /// a filename to write the losses to (only `json` or `yaml` file extensions are supported).
-    #[arg(long, default_value_t = codecs::LossesResponse::Debug, help_heading = "Decoding Options")]
-    input_losses: codecs::LossesResponse,
+    #[arg(long, default_value_t = stencila_codecs::LossesResponse::Debug, help_heading = "Decoding Options")]
+    input_losses: stencila_codecs::LossesResponse,
 }
 
 impl DecodeOptions {
@@ -97,7 +97,7 @@ impl DecodeOptions {
         &self,
         input: Option<&Path>,
         strip_options: StripOptions,
-    ) -> codecs::DecodeOptions {
+    ) -> stencila_codecs::DecodeOptions {
         let codec = self.from.clone();
 
         let format = self.from.as_ref().map_or_else(
@@ -107,7 +107,7 @@ impl DecodeOptions {
 
         let coarse = self.coarse.then_some(true).or(self.fine.then_some(false));
 
-        codecs::DecodeOptions {
+        stencila_codecs::DecodeOptions {
             codec,
             format,
             coarse,
@@ -234,8 +234,8 @@ pub struct EncodeOptions {
     /// Action when there are losses encoding to output files
     ///
     /// See help for `--input-losses` for details.
-    #[arg(long, default_value_t = codecs::LossesResponse::Debug, help_heading = "Encoding Options")]
-    output_losses: codecs::LossesResponse,
+    #[arg(long, default_value_t = stencila_codecs::LossesResponse::Debug, help_heading = "Encoding Options")]
+    output_losses: stencila_codecs::LossesResponse,
 }
 
 impl EncodeOptions {
@@ -247,7 +247,7 @@ impl EncodeOptions {
         output: Option<&Path>,
         default_format: Format,
         strip_options: StripOptions,
-    ) -> codecs::EncodeOptions {
+    ) -> stencila_codecs::EncodeOptions {
         let codec = self.to.clone();
 
         let format = self
@@ -295,7 +295,7 @@ impl EncodeOptions {
             }
         });
 
-        codecs::EncodeOptions {
+        stencila_codecs::EncodeOptions {
             codec,
             format,
             compact,

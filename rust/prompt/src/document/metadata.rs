@@ -21,8 +21,8 @@ pub struct Metadata {
     pub keywords: Option<String>,
 }
 
-impl From<&schema::Article> for Metadata {
-    fn from(article: &schema::Article) -> Self {
+impl From<&stencila_schema::Article> for Metadata {
+    fn from(article: &stencila_schema::Article) -> Self {
         Self {
             title: article.title.as_ref().map(to_markdown),
             description: article.description.clone(),

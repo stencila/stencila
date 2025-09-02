@@ -4,7 +4,7 @@ use winnow::{
     token::take_while,
 };
 
-use codec::schema::{Inline, shortcuts::t};
+use stencila_codec::stencila_schema::{Inline, shortcuts::t};
 
 use crate::decode::parts::chars::{
     is_double_close_quote, is_single_close_quote, one_double_close_quote, one_double_open_quote,

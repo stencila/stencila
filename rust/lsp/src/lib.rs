@@ -29,7 +29,7 @@ mod text_document;
 mod utils;
 
 pub use run::run;
-use schema::{MessageLevel, Organization, Person};
+use stencila_schema::{MessageLevel, Organization, Person};
 use text_document::TextDocument;
 
 /// The state of the language server

@@ -2,7 +2,7 @@
 
 use async_lsp::lsp_types::request::Request;
 
-use kernels::KernelSpecification;
+use stencila_kernels::KernelSpecification;
 
 pub struct ListKernels;
 
@@ -13,7 +13,7 @@ impl Request for ListKernels {
 }
 
 pub async fn list() -> Vec<KernelSpecification> {
-    kernels::list()
+    stencila_kernels::list()
         .await
         .into_iter()
         .map(|kernel| KernelSpecification::from(kernel.as_ref()))

@@ -1,16 +1,16 @@
 [package]
-name = "embed"
+name = "stencila-embed"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-dirs = { path = "../dirs" }
 eyre = { workspace = true }
 # Ensure that rustls is used to avoid adding a dependence on OpenSSL
 fastembed = { version = "5.1.0", default-features = false, features = [
     "hf-hub-rustls-tls",
     "ort-download-binaries",
 ] }
+stencila-dirs = { path = "../dirs" }
 
 [lints]
 workspace = true

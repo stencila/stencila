@@ -1,19 +1,19 @@
 [package]
-name = "kernel-rhai"
+name = "stencila-kernel-rhai"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-kernel = { path = "../kernel" }
-rhai = { version = "1.22.2", features = ["sync", "serde"] }
 itertools = { workspace = true }
+rhai = { version = "1.22.2", features = ["sync", "serde"] }
 serde_json = { workspace = true }
+stencila-kernel = { path = "../kernel" }
 tokio = { workspace = true }
 tracing = { workspace = true }
 
 [dev-dependencies]
-pretty_assertions = { workspace = true }
 indexmap = { workspace = true }
+pretty_assertions = { workspace = true }
 test-log = { workspace = true }
 
 [lints]

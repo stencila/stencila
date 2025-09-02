@@ -8,7 +8,7 @@ use eyre::{Result, bail};
 use indexmap::IndexMap;
 use itertools::Itertools;
 
-use schema::{Array, Article, Date, IntegerOrString, Node, Object, Primitive};
+use stencila_schema::{Array, Article, Date, IntegerOrString, Node, Object, Primitive};
 
 /// Test that unrecognized keys are collected into the `Article.extra`
 /// primitive [`Object`].

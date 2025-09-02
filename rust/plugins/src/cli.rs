@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
-use cli_utils::color_print::cstr;
 use eyre::Result;
+use stencila_cli_utils::color_print::cstr;
 
 use crate::{
     check::Check, disable::Disable, enable::Enable, install::Install, link::Link, list::List,

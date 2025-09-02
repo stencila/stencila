@@ -1,12 +1,12 @@
 use std::path::PathBuf;
 
-use codec::{
+use insta::{assert_json_snapshot, assert_yaml_snapshot};
+use stencila_codec::{
     Codec,
     eyre::{OptionExt, Result},
 };
-use insta::{assert_json_snapshot, assert_yaml_snapshot};
 
-use codec_pmcoa::PmcOaCodec;
+use stencila_codec_pmcoa::PmcOaCodec;
 
 /// Decode each example of a PMC OA Package and create JSON snapshots (including for losses)
 #[tokio::test]

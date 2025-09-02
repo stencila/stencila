@@ -2,9 +2,9 @@ use std::str::FromStr;
 
 use serde::Deserialize;
 
-use codec::{
+use stencila_codec::{
     eyre::Result,
-    schema::{Node, Organization, OrganizationOptions, Person, PersonOptions},
+    stencila_schema::{Node, Organization, OrganizationOptions, Person, PersonOptions},
 };
 
 /// An OpenAlex `Author` object

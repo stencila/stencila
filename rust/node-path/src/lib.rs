@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 
 use eyre::{Context, OptionExt, Report, Result, bail};
 use itertools::Itertools;
-use node_type::NodeProperty;
+use stencila_node_type::NodeProperty;
 
 /// A slot in a node path: either a property identifier or the index of a vector.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]

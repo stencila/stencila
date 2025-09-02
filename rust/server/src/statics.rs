@@ -10,7 +10,7 @@ use axum::{
     routing::get,
 };
 
-use web_dist::Web;
+use stencila_web_dist::Web;
 
 use crate::{
     errors::InternalError,

@@ -1,5 +1,5 @@
 [package]
-name = "codec-text-derive"
+name = "stencila-codec-text-derive"
 version = "0.0.0"
 edition = "2024"
 

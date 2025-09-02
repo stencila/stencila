@@ -6,13 +6,13 @@ use std::{
 use regex::Regex;
 use seahash::SeaHasher;
 
-use format::Format;
-use schema::{CompilationDigest, ExecutionTag};
+use stencila_format::Format;
+use stencila_schema::{CompilationDigest, ExecutionTag};
 
 // Re-exports for the convenience of internal crates implementing
 // the `Parser` trait
-pub use format;
-pub use schema;
+pub use stencila_format;
+pub use stencila_schema;
 
 /// Parse information
 pub struct ParseInfo {

@@ -1,11 +1,11 @@
 [package]
-name = "codec-jsonld"
+name = "stencila-codec-jsonld"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec = { path = "../codec" }
 serde_json = { workspace = true }
+stencila-codec = { path = "../codec" }
 
 [lints]
 workspace = true

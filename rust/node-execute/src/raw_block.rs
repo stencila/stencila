@@ -1,5 +1,5 @@
-use codecs::Format;
-use schema::{CompilationMessage, RawBlock};
+use stencila_codecs::Format;
+use stencila_schema::{CompilationMessage, RawBlock};
 
 use crate::prelude::*;
 
@@ -16,7 +16,7 @@ impl Executable for RawBlock {
         let node_id = self.node_id();
 
         // Parse the code to determine if it or the format has changed since last time
-        let info = parsers::parse(
+        let info = stencila_parsers::parse(
             &self.content,
             &Some(self.format.clone()),
             &self.compilation_digest,

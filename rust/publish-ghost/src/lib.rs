@@ -14,10 +14,10 @@ use serde_with::skip_serializing_none;
 use strum::Display;
 use url::Host;
 
-use cli_utils::parse_host;
-use document::{
-    DecodeOptions, Document, EncodeOptions, Format, LossesResponse, codecs,
-    schema::{ConfigPublishGhostState, ConfigPublishGhostType, Node, shortcuts::t},
+use stencila_cli_utils::parse_host;
+use stencila_document::{
+    DecodeOptions, Document, EncodeOptions, Format, LossesResponse, stencila_codecs,
+    stencila_schema::{ConfigPublishGhostState, ConfigPublishGhostType, Node, shortcuts::t},
 };
 
 const API_KEY_NAME: &str = "GHOST_ADMIN_API_KEY";
@@ -509,7 +509,7 @@ impl Cli {
                     //Get document title
                     if self.title.is_none() {
                         if let Some(inlines) = &article.title {
-                            title = Some(codec_text::to_text(inlines));
+                            title = Some(stencila_codec_text::to_text(inlines));
                         }
                     } else {
                         title = self.title.clone();
@@ -599,7 +599,7 @@ impl Cli {
 
         // Extract images (and other media in the future) and upload to Ghost
         // and rewrite their URLs to be their URLs on the Ghost server
-        node_media::extract_media(
+        stencila_node_media::extract_media(
             &mut root,
             doc.directory(),
             media_dir,
@@ -638,7 +638,7 @@ impl Cli {
 
         // Dump root node to a Lexical (Ghost's Dialect) string.
         // Important: this version of the root node has rewritten URLs
-        let lexical = codecs::to_string(
+        let lexical = stencila_codecs::to_string(
             &root,
             Some(EncodeOptions {
                 format: Some(Format::Koenig),
@@ -734,7 +734,7 @@ fn generate_jwt(key: &Option<String>) -> Result<String> {
     // Use the key provided on CLI or in env, otherwise try to get secret from env or store
     let key = key
         .clone()
-        .or_else(|| secrets::env_or_get(API_KEY_NAME).ok())
+        .or_else(|| stencila_secrets::env_or_get(API_KEY_NAME).ok())
         .ok_or_eyre("Ghost Admin API key not provided and not set as a secret")?;
 
     let Some((id, secret)) = key.split_once(':') else {

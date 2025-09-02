@@ -1,19 +1,19 @@
 [package]
-name = "model"
+name = "stencila-model"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+Inflector = { workspace = true }
 async-trait = { workspace = true }
 clap = { workspace = true }
 eyre = { workspace = true }
-format = { path = "../format" }
-Inflector = { workspace = true }
-schema = { path = "../schema" }
-secrets = { path = "../secrets" }
 serde = { workspace = true }
 serde_with = { workspace = true }
 smart-default = { workspace = true }
+stencila-format = { path = "../format" }
+stencila-schema = { path = "../schema" }
+stencila-secrets = { path = "../secrets" }
 strum = { workspace = true }
 
 [lints]

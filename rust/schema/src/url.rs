@@ -1,11 +1,11 @@
 use eyre::{Result, bail};
 use serde::Serialize;
 
-use node_path::NodePath;
-use node_strip::{StripNode, StripScope, StripTargets};
-use node_type::NodeType;
+use stencila_node_path::NodePath;
+use stencila_node_strip::{StripNode, StripScope, StripTargets};
+use stencila_node_type::NodeType;
 
-pub use node_url::{NodePosition, NodeUrl};
+pub use stencila_node_url::{NodePosition, NodeUrl};
 
 /// Create a [`NodeUrl`] with the path to the node (in a cache) to allow reconstitution
 pub fn node_url_path(

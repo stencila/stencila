@@ -2,14 +2,14 @@ use std::{fs::read_to_string, path::PathBuf};
 
 use glob::glob;
 
-use codec::{
-    Codec, DecodeOptions, EncodeOptions,
-    eyre::{OptionExt, Result},
-    format::Format,
-};
-use codec_biblio::BiblioCodec;
 use insta::assert_json_snapshot;
 use pretty_assertions::assert_eq;
+use stencila_codec::{
+    Codec, DecodeOptions, EncodeOptions,
+    eyre::{OptionExt, Result},
+    stencila_format::Format,
+};
+use stencila_codec_biblio::BiblioCodec;
 
 /// Decode bibliographic files and test round-trip conversions
 #[tokio::test]

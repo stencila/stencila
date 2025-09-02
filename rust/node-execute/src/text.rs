@@ -1,6 +1,6 @@
-use codecs::Format;
-use schema::{NodeType, Text};
+use stencila_codecs::Format;
 use stencila_linters::LintingOptions;
+use stencila_schema::{NodeType, Text};
 
 use crate::{CompileOptions, prelude::*};
 

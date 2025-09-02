@@ -1,4 +1,6 @@
-use schema::{Block, Inline, Paragraph, Sentence, Text, VisitorMut, WalkControl, WalkNode};
+use stencila_schema::{
+    Block, Inline, Paragraph, Sentence, Text, VisitorMut, WalkControl, WalkNode,
+};
 
 /// Transform inlines within [`Paragraph`]s into [`Sentence`]s
 pub fn sentencize<T: WalkNode>(node: &mut T) {
@@ -49,7 +51,7 @@ fn transform(inlines: &mut Vec<Inline>) {
 #[cfg(test)]
 mod tests {
     use pretty_assertions::assert_eq;
-    use schema::shortcuts::{ci, ct, p, sen, t};
+    use stencila_schema::shortcuts::{ci, ct, p, sen, t};
 
     use super::*;
 

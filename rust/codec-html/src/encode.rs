@@ -1,6 +1,6 @@
-use codec::{EncodeInfo, EncodeOptions, eyre::Result, schema::Node};
+use stencila_codec::{EncodeInfo, EncodeOptions, eyre::Result, stencila_schema::Node};
 
-use codec_html_trait::{HtmlCodec as _, HtmlEncodeContext};
+use stencila_codec_html_trait::{HtmlCodec as _, HtmlEncodeContext};
 
 /// Encode a Stencila Schema [`Node`] to a HTML string
 pub(super) fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {

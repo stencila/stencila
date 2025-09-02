@@ -8,21 +8,23 @@ use std::{
 
 use clap::{Args, ValueEnum};
 use eyre::{Context, Result, bail};
-use format::Format;
 use itertools::Itertools;
 use rand::{Rng, rng, rngs::ThreadRng};
 use serde_json::json;
+use stencila_format::Format;
 
-use cli_utils::{
+use stencila_cli_utils::{
     Code, ToStdout, clear_terminal,
     color_print::cstr,
     strip_ansi_escapes,
     tabulated::{Cell, Tabulated},
     terminal_size::terminal_size,
 };
-use codec_text::to_text;
-use schema::{Block, Inline, ListItem, MessageLevel, Node, Visitor, WalkControl, WalkthroughStep};
-use tools::{Agg, Tool, ToolStdio};
+use stencila_codec_text::to_text;
+use stencila_schema::{
+    Block, Inline, ListItem, MessageLevel, Node, Visitor, WalkControl, WalkthroughStep,
+};
+use stencila_tools::{Agg, Tool, ToolStdio};
 
 use crate::Document;
 
@@ -881,7 +883,7 @@ impl Drop for Walker {
 }
 
 impl Visitor for Walker {
-    fn visit_node(&mut self, node: &schema::Node) -> WalkControl {
+    fn visit_node(&mut self, node: &Node) -> WalkControl {
         // Just continue walk for root level nodes
         if matches!(node, Node::Article(..)) {
             return WalkControl::Continue;

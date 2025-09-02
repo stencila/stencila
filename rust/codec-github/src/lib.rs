@@ -3,18 +3,20 @@ use std::path::PathBuf;
 use serde::de::DeserializeOwned;
 use tokio::fs::write;
 
-use codec::{
+use stencila_codec::{
     Codec, DecodeInfo, DecodeOptions, async_trait,
     eyre::{Result, bail},
-    format::Format,
-    schema::{Article, Datatable, Node, SoftwareSourceCode, SoftwareSourceCodeOptions, Text},
-    status::Status,
+    stencila_format::Format,
+    stencila_schema::{
+        Article, Datatable, Node, SoftwareSourceCode, SoftwareSourceCodeOptions, Text,
+    },
+    stencila_status::Status,
 };
-use codec_csv::CsvCodec;
-use codec_ipynb::IpynbCodec;
-use codec_latex::LatexCodec;
-use codec_markdown::MarkdownCodec;
-use codec_xlsx::XlsxCodec;
+use stencila_codec_csv::CsvCodec;
+use stencila_codec_ipynb::IpynbCodec;
+use stencila_codec_latex::LatexCodec;
+use stencila_codec_markdown::MarkdownCodec;
+use stencila_codec_xlsx::XlsxCodec;
 
 pub mod client;
 pub mod decode;

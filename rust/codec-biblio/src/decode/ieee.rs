@@ -12,7 +12,7 @@ use winnow::{
     token::take_while,
 };
 
-use codec::schema::{
+use stencila_codec::stencila_schema::{
     Author, CreativeWorkType, Date, Organization, Person, PersonOptions, Reference, StringOrNumber,
     shortcuts::t,
 };
@@ -368,11 +368,11 @@ fn ieee_edition(input: &mut &str) -> Result<StringOrNumber> {
 
 #[cfg(test)]
 mod tests {
-    use codec::schema::{
+    use pretty_assertions::assert_eq;
+    use stencila_codec::stencila_schema::{
         IntegerOrString, OrganizationOptions, PersonOrOrganization, PostalAddressOrString,
     };
-    use codec_text_trait::to_text;
-    use pretty_assertions::assert_eq;
+    use stencila_codec_text_trait::to_text;
 
     use super::*;
 

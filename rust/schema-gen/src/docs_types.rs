@@ -13,12 +13,12 @@ use itertools::Itertools;
 use strum::IntoEnumIterator;
 use tokio::fs::{create_dir_all, remove_dir_all, remove_file};
 
-use codecs::{CodecSupport, Format};
-use schema::{
+use stencila_codecs::{CodecSupport, Format};
+use stencila_schema::{
     Article, Block, Config, ConfigPublish, ConfigPublishGhost, ConfigPublishGhostState,
     ConfigPublishGhostType, Inline, Node, NodeType, NoteType, TableCell, shortcuts::*,
 };
-use status::Status;
+use stencila_status::Status;
 
 use crate::{
     schema::{Category, Items, ProptestLevel, Schema, Type},
@@ -192,7 +192,7 @@ async fn docs_file(dest: &Path, schema: &Schema, context: &Context) -> Result<St
         ..Default::default()
     };
 
-    codecs::to_path(&Node::Article(article), &path, None).await?;
+    stencila_codecs::to_path(&Node::Article(article), &path, None).await?;
 
     Ok(title)
 }
@@ -402,7 +402,7 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
 
     let node_type = NodeType::try_from(title).ok();
     for format in Format::iter() {
-        let Ok(codec) = codecs::get(None, Some(&format), None) else {
+        let Ok(codec) = stencila_codecs::get(None, Some(&format), None) else {
             continue;
         };
 

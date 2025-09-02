@@ -2,11 +2,11 @@ use std::collections::HashMap;
 
 use pandoc_types::definition::{self as pandoc};
 
-use codec::{
+use stencila_codec::{
     DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     eyre::{Result, bail},
-    format::Format,
-    schema::*,
+    stencila_format::Format,
+    stencila_schema::*,
 };
 
 use crate::{

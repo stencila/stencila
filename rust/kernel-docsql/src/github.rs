@@ -4,24 +4,23 @@ use eyre::{Result, bail};
 use itertools::Itertools;
 use tokio::{runtime, task};
 
-use codec_github::{
+use stencila_codec_github::{
     SearchCodeResponse, SearchRepositoriesResponse, SearchUsersResponse, request, search_url,
 };
-use kernel_jinja::{
-    kernel::schema::{CodeChunk, ExecutionMessage, MessageLevel, Node},
+use stencila_kernel_jinja::{
     minijinja::{
         Environment, Error, ErrorKind, State, Value,
         value::{Kwargs, Object, ValueKind, from_args},
     },
+    stencila_kernel::stencila_schema::{CodeChunk, ExecutionMessage, MessageLevel, Node},
 };
 
 use crate::{
     NodeProxy,
     docsql::{Operator, PropertyType, decode_filter},
-    extend_messages,
+    extend_messages, is_testing,
     nodes::{all, first, get, last},
     subquery::Subquery,
-    testing,
 };
 
 /// Add GitHub functions to the Jinja environment
@@ -336,7 +335,7 @@ impl GitHubQuery {
     ) -> Result<(), Error> {
         // GitHub search API has a limit of 5 AND/OR/NOT operators per query
         // See https://docs.github.com/en/rest/search/search?apiVersion=2022-11-28#limitations-on-query-length
-        let ids = if testing() {
+        let ids = if is_testing() {
             Some(test_ids)
         } else {
             let q = query.unwrap_or_else(|| self.clone_for(entity_type));

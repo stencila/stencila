@@ -12,10 +12,10 @@ use itertools::Itertools;
 use pathdiff::diff_paths;
 use serde_json::json;
 
-use cli_utils::{
+use stencila_cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
-    format::Format,
+    stencila_format::Format,
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
 };
 

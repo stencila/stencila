@@ -3,9 +3,9 @@ use std::path::PathBuf;
 use clap::Parser;
 use eyre::{OptionExt, Result, bail};
 
-use cli_utils::color_print::cstr;
-use document::{Document, SyncDirection};
-use server::{ServeOptions, get_server_token};
+use stencila_cli_utils::color_print::cstr;
+use stencila_document::{Document, SyncDirection};
+use stencila_server::{ServeOptions, get_server_token};
 
 /// Preview a document
 ///
@@ -77,7 +77,7 @@ impl Cli {
             server_token: Some(server_token.clone()),
             ..Default::default()
         };
-        let serve = tokio::spawn(async move { server::serve(options).await });
+        let serve = tokio::spawn(async move { stencila_server::serve(options).await });
 
         // Open the browser to the login page with redirect to the document path
         let path = file.strip_prefix(&dir)?.to_string_lossy();

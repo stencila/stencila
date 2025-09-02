@@ -3,7 +3,7 @@ use std::{ops::Deref, sync::Arc};
 use eyre::Result;
 use inflector::Inflector;
 
-use kernel_jinja::minijinja::{
+use stencila_kernel_jinja::minijinja::{
     Environment, Error, State, Value,
     value::{Kwargs, Object, from_args},
 };

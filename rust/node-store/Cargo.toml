@@ -1,34 +1,34 @@
 [package]
-name = "node-store"
+name = "stencila-node-store"
 version = "0.0.0"
 edition = "2024"
 
 [features]
-proptest-min = ["schema/proptest-min"]
-proptest-low = ["schema/proptest-low"]
-proptest-high = ["schema/proptest-high"]
-proptest-max = ["schema/proptest-max"]
+proptest-min = ["stencila-schema/proptest-min"]
+proptest-low = ["stencila-schema/proptest-low"]
+proptest-high = ["stencila-schema/proptest-high"]
+proptest-max = ["stencila-schema/proptest-max"]
 
 [dependencies]
 async-trait = { workspace = true }
 automerge = "0.6.1"
 eyre = { workspace = true }
-node-store-derive = { path = "../node-store-derive" }
-node-strip = { path = "../node-strip" }
-node-type = { path = "../node-type" }
 serde_json = { workspace = true }
 smol_str = { workspace = true }
+stencila-node-store-derive = { path = "../node-store-derive" }
+stencila-node-strip = { path = "../node-strip" }
+stencila-node-type = { path = "../node-type" }
 tokio = { workspace = true }
 
 [dev-dependencies]
-codecs = { path = "../codecs" }
-pretty_assertions = { workspace = true }
-proptest = { workspace = true }
 eyre = { workspace = true }
 glob = { workspace = true }
 itertools = { workspace = true }
-schema = { path = "../schema" }
+pretty_assertions = { workspace = true }
+proptest = { workspace = true }
 serde_json = { workspace = true }
+stencila-codecs = { path = "../codecs" }
+stencila-schema = { path = "../schema" }
 tokio = { workspace = true }
 
 [lints]

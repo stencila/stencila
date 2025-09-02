@@ -1,9 +1,9 @@
-use kernel_micro::{
+use stencila_kernel_micro::{
     Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelProvider,
     KernelTerminate, Microkernel,
     eyre::Result,
-    format::Format,
-    schema::{ExecutionBounds, MessageLevel},
+    stencila_format::Format,
+    stencila_schema::{ExecutionBounds, MessageLevel},
 };
 
 /// A kernel for executing R code
@@ -74,9 +74,10 @@ impl Microkernel for RKernel {
 #[cfg(test)]
 mod tests {
     use indexmap::IndexMap;
-    use kernel_micro::{
+    use pretty_assertions::assert_eq;
+    use stencila_kernel_micro::{
         eyre::{Ok, bail},
-        schema::{
+        stencila_schema::{
             Array, ArrayHint, ArrayValidator, BooleanValidator, Datatable, DatatableColumn,
             DatatableColumnHint, DatatableHint, EnumValidator, ExecutionMessage, Hint, ImageObject,
             IntegerValidator, Node, Null, NumberValidator, Object, ObjectHint, Primitive,
@@ -84,7 +85,6 @@ mod tests {
         },
         tests::{create_instance, start_instance, start_instance_with},
     };
-    use pretty_assertions::assert_eq;
 
     use super::*;
 
@@ -116,7 +116,7 @@ mod tests {
             return Ok(());
         };
 
-        kernel_micro::tests::execution(
+        stencila_kernel_micro::tests::execution(
             instance,
             vec![
                 // Empty code: no outputs
@@ -183,7 +183,7 @@ b",
             return Ok(());
         };
 
-        kernel_micro::tests::evaluation(
+        stencila_kernel_micro::tests::evaluation(
             instance,
             vec![
                 ("1 + 1", Node::Integer(2), None),
@@ -229,7 +229,7 @@ b",
             return Ok(());
         };
 
-        kernel_micro::tests::printing(
+        stencila_kernel_micro::tests::printing(
             instance,
             r#"print('str')"#,
             r#"print('str1'); print('str2')"#,
@@ -344,7 +344,7 @@ ggplot(data.frame(x=c(1, 2, NA), y=c(2, 4, NA)), aes(x=x,y=y)) + geom_point()
             return Ok(());
         };
 
-        let sw = kernel_micro::tests::info(instance).await?;
+        let sw = stencila_kernel_micro::tests::info(instance).await?;
         assert_eq!(sw.name, "R");
         assert!(sw.options.software_version.is_some());
         assert!(sw.options.operating_system.is_some());
@@ -361,7 +361,7 @@ ggplot(data.frame(x=c(1, 2, NA), y=c(2, 4, NA)), aes(x=x,y=y)) + geom_point()
             return Ok(());
         };
 
-        let pkgs = kernel_micro::tests::packages(instance).await?;
+        let pkgs = stencila_kernel_micro::tests::packages(instance).await?;
         assert!(!pkgs.is_empty());
 
         Ok(())
@@ -376,7 +376,7 @@ ggplot(data.frame(x=c(1, 2, NA), y=c(2, 4, NA)), aes(x=x,y=y)) + geom_point()
             return Ok(());
         };
 
-        kernel_micro::tests::var_listing(
+        stencila_kernel_micro::tests::var_listing(
             instance,
             r#"
 nul <- NULL
@@ -476,7 +476,7 @@ para <- list(type='Paragraph', content=list())
             return Ok(());
         };
 
-        kernel_micro::tests::var_management(instance).await
+        stencila_kernel_micro::tests::var_management(instance).await
     }
 
     /// `RKernel` specific test for `list` and `get` with `data.frame`s
@@ -878,7 +878,7 @@ m2",
             return Ok(());
         };
 
-        kernel_micro::tests::forking(instance).await
+        stencila_kernel_micro::tests::forking(instance).await
     }
 
     /// Custom test to check that modules imported in the main kernel instance are
@@ -951,7 +951,7 @@ class(toRd)
             return Ok(());
         };
 
-        kernel_micro::tests::signals(
+        stencila_kernel_micro::tests::signals(
             instance,
             "
 # Setup step
@@ -983,7 +983,7 @@ Sys.sleep(100)",
             return Ok(());
         };
 
-        kernel_micro::tests::stop(instance).await
+        stencila_kernel_micro::tests::stop(instance).await
     }
 
     /// Custom test for boxed kernel

@@ -14,9 +14,9 @@ use async_lsp::{
 };
 use tokio::{fs::read_dir, sync::RwLock};
 
-use codecs::{Format, Positions};
-use kernels::KernelType;
-use schema::{InstructionType, Prompt, StringOrNumber};
+use stencila_codecs::{Format, Positions};
+use stencila_kernels::KernelType;
+use stencila_schema::{InstructionType, Prompt, StringOrNumber};
 
 use crate::utils::position_to_position16;
 
@@ -127,7 +127,7 @@ async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, R
         None
     };
 
-    let items = prompts::list()
+    let items = stencila_prompts::list()
         .await
         .iter()
         .filter_map(|prompt| {
@@ -161,7 +161,7 @@ async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, R
                 CompletionItemKind::INTERFACE
             };
 
-            let label = prompts::shorten(name, &instruction_type);
+            let label = stencila_prompts::shorten(name, &instruction_type);
 
             let version = match version {
                 StringOrNumber::String(version) => version.to_string(),
@@ -224,7 +224,7 @@ async fn create_node_type_completion(
 
 /// Provide completion list of models
 async fn model_completion() -> Result<Option<CompletionResponse>, ResponseError> {
-    let items = models::list()
+    let items = stencila_models::list()
         .await
         .iter()
         .filter_map(|model| {
@@ -253,7 +253,7 @@ async fn model_completion() -> Result<Option<CompletionResponse>, ResponseError>
 
 /// Provide completion list of kernels
 async fn kernel_snippets(line_num: u32) -> Result<Option<CompletionResponse>, ResponseError> {
-    let items = kernels::list()
+    let items = stencila_kernels::list()
         .await
         .iter()
         .filter(|kernel| kernel.is_available() && !matches!(kernel.r#type(), KernelType::Styling))

@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use codec::schema::{
+use stencila_codec::stencila_schema::{
     Article, ArticleOptions, Author, CreativeWorkVariant, CreativeWorkVariantOrString, Date,
     IntegerOrString, Organization, Periodical, PeriodicalOptions, Person, PersonOptions,
     PersonOrOrganization, Primitive, PropertyValue, PropertyValueOrString, PublicationIssue,

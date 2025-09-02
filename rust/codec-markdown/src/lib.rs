@@ -2,15 +2,15 @@ use std::{env::current_dir, path::Path};
 
 use tokio::fs::{create_dir_all, write};
 
-use codec::{
+use stencila_codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
     eyre::Result,
-    format::Format,
-    schema::{Node, NodeType},
-    status::Status,
+    stencila_format::Format,
+    stencila_schema::{Node, NodeType},
+    stencila_status::Status,
 };
 
-pub use codec_markdown_trait::{to_markdown, to_markdown_flavor};
+pub use stencila_codec_markdown_trait::{to_markdown, to_markdown_flavor};
 
 mod decode;
 pub use decode::decode;
@@ -19,8 +19,8 @@ pub use decode::preprocess;
 
 mod encode;
 pub use encode::encode;
-use media_embed::embed_media;
-use media_extract::extract_media;
+use stencila_media_embed::embed_media;
+use stencila_media_extract::extract_media;
 
 /// A codec for Markdown
 pub struct MarkdownCodec;

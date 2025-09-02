@@ -1,6 +1,6 @@
 use smart_default::SmartDefault;
 
-use schema::WalkNode;
+use stencila_schema::WalkNode;
 
 use crate::{collector::Collector, replacer::Replacer, sectioner::Sectioner};
 

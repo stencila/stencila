@@ -2,12 +2,12 @@ use std::{collections::HashMap, sync::LazyLock};
 
 use serde_json::{Map, Value, json};
 
-use codec::{
+use stencila_codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
     eyre::Result,
-    format::Format,
-    schema::{Node, NodeType},
-    status::Status,
+    stencila_format::Format,
+    stencila_schema::{Node, NodeType},
+    stencila_status::Status,
 };
 
 /// A codec for JSON-LD

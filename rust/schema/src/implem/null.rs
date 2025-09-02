@@ -1,4 +1,4 @@
-use node_store::{
+use stencila_node_store::{
     ReadNode, WriteNode, WriteStore,
     automerge::{ObjId, Prop, ScalarValue, transaction::Transactable},
 };

@@ -1,5 +1,5 @@
 [package]
-name = "format"
+name = "stencila-format"
 version = "0.0.0"
 edition = "2024"
 

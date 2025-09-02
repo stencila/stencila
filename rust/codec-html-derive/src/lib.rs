@@ -72,7 +72,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
     if type_attr.special {
         return quote! {
-            impl codec_html_trait::HtmlCodec for #struct_name {
+            impl stencila_codec_html_trait::HtmlCodec for #struct_name {
                 fn to_html(&self, context: &mut HtmlEncodeContext) -> String {
                     self.to_html_special(context)
                 }
@@ -156,9 +156,9 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     });
 
     quote! {
-        impl codec_html_trait::HtmlCodec for #struct_name {
+        impl stencila_codec_html_trait::HtmlCodec for #struct_name {
             fn to_html_parts(&self, context: &mut HtmlEncodeContext) -> (&str, Vec<String>, Vec<String>) {
-                use codec_html_trait::encode::{attr, elem};
+                use stencila_codec_html_trait::encode::{attr, elem};
 
                 let mut attrs = vec![#attrs];
                 let mut children = Vec::new();
@@ -212,7 +212,7 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
     }
 
     quote! {
-        impl codec_html_trait::HtmlCodec for #enum_name {
+        impl stencila_codec_html_trait::HtmlCodec for #enum_name {
             fn to_html(&self, context: &mut HtmlEncodeContext) -> String {
                 match self {
                     #variants_to_html

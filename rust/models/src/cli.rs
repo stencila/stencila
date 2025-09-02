@@ -1,17 +1,17 @@
 use clap::{Args, Parser, Subcommand};
-use cli_utils::{
+use itertools::Itertools;
+use serde_yaml;
+use stencila_cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
 };
-use itertools::Itertools;
-use serde_yaml;
 
-use model::{
+use stencila_model::{
     ModelAvailability, ModelSpecification, ModelTask, ModelType,
     eyre::Result,
-    format::Format,
-    schema::{InstructionMessage, ModelParameters},
+    stencila_format::Format,
+    stencila_schema::{InstructionMessage, ModelParameters},
 };
 
 use crate::select;

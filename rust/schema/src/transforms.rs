@@ -5,7 +5,7 @@
 //! trait. If possible, prefer to implement `From`, or `Into` in the `implem/*.rs`
 //! file for the type, rather than add another function here.
 
-use node_type::NodeType;
+use stencila_node_type::NodeType;
 
 use crate::{Block, CodeBlock, CodeChunk, CodeExpression, CodeInline, Inline, Node};
 

@@ -1,8 +1,8 @@
-use codec::schema::{
+use serde::Deserialize;
+use stencila_codec::stencila_schema::{
     CreativeWorkVariantOrString, Node, SoftwareSourceCode, SoftwareSourceCodeOptions,
     StringOrNumber,
 };
-use serde::Deserialize;
 
 use crate::search_code::{SimpleUser, TextMatch};
 

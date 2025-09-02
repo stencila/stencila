@@ -1,15 +1,16 @@
 use std::path::Path;
 
-use codec::{
+use stencila_codec::{
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    NodeType, async_trait, eyre::Result, format::Format, schema::Node, status::Status,
+    NodeType, async_trait, eyre::Result, stencila_format::Format, stencila_schema::Node,
+    stencila_status::Status,
 };
-use codec_json::JsonCodec;
-use codec_pandoc::{
+use stencila_codec_json::JsonCodec;
+use stencila_codec_pandoc::{
     coarse_to_path, pandoc_availability, pandoc_from_format, pandoc_to_format, root_from_pandoc,
     root_to_pandoc,
 };
-use node_reconstitute::reconstitute;
+use stencila_node_reconstitute::reconstitute;
 
 /// A codec for Open Document Format
 pub struct OdtCodec;

@@ -1,13 +1,10 @@
 [package]
-name = "convert"
+name = "stencila-convert"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 base64 = { workspace = true }
-codec = { path = "../codec" }
-codec-utils = { path = "../codec-utils" }
-dirs = { path = "../dirs" }
 eyre = { workspace = true }
 glob = { workspace = true }
 headless_chrome = { version = "1.0.13", features = ["fetch", "rustls"] }
@@ -16,16 +13,19 @@ rand = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true }
 seahash = { workspace = true }
-secrets = { path = "../secrets" }
 serde = { workspace = true }
 serde_json = { workspace = true }
+stencila-codec = { path = "../codec" }
+stencila-codec-utils = { path = "../codec-utils" }
+stencila-dirs = { path = "../dirs" }
+stencila-secrets = { path = "../secrets" }
+stencila-tools = { path = "../tools" }
+stencila-version = { path = "../version" }
+stencila-web-dist = { path = "../web-dist" }
 strum = { workspace = true }
 tempfile = { workspace = true }
 tokio = { workspace = true }
-tools = { path = "../tools" }
 tracing = { workspace = true }
-version = { path = "../version" }
-web-dist = { path = "../web-dist" }
 
 [dev-dependencies]
 insta = { workspace = true }

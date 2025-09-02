@@ -1,5 +1,5 @@
 [package]
-name = "kernel"
+name = "stencila-kernel"
 version = "0.0.0"
 edition = "2024"
 
@@ -8,12 +8,12 @@ async-trait = { workspace = true }
 bs58 = { workspace = true }
 clap = { workspace = true }
 eyre = { workspace = true }
-pretty_assertions = { workspace = true }
-format = { path = "../format" }
 indexmap = { workspace = true }
 itertools = { workspace = true }
-schema = { path = "../schema" }
+pretty_assertions = { workspace = true }
 serde = { workspace = true }
+stencila-format = { path = "../format" }
+stencila-schema = { path = "../schema" }
 strum = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }

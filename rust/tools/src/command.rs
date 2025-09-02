@@ -9,7 +9,7 @@ use eyre::{Result, bail};
 use itertools::Itertools;
 use tokio::process::Command as AsyncCommand;
 
-use ask::{Answer, AskLevel, AskOptions, ask_with};
+use stencila_ask::{Answer, AskLevel, AskOptions, ask_with};
 
 use crate::{
     get,

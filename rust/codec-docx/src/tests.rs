@@ -2,16 +2,16 @@ use indexmap::IndexMap;
 use serde_json::json;
 use tempfile::tempdir;
 
-use codec::{
+use pretty_assertions::assert_eq;
+use stencila_codec::{
     Codec, EncodeOptions,
     eyre::Result,
-    schema::{
+    stencila_schema::{
         Article, ArticleOptions, Node, Object, Primitive,
         shortcuts::{cc, ce, p, t},
     },
 };
-use pretty_assertions::assert_eq;
-use version::STENCILA_VERSION;
+use stencila_version::STENCILA_VERSION;
 
 use crate::DocxCodec;
 

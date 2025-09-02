@@ -8,7 +8,7 @@ use winnow::{
     token::{take, take_while},
 };
 
-use codec::schema::{Author, Organization, Person};
+use stencila_codec::stencila_schema::{Author, Organization, Person};
 
 use crate::decode::parts::chars::{is_hyphen, one_apostrophe, one_hyphen};
 

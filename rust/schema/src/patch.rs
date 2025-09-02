@@ -5,10 +5,10 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use serde_json::Value as JsonValue;
 
-use format::Format;
-use node_id::NodeId;
-use node_path::{NodePath, NodeSlot};
-use node_type::NodeProperty;
+use stencila_format::Format;
+use stencila_node_id::NodeId;
+use stencila_node_path::{NodePath, NodeSlot};
+use stencila_node_type::NodeProperty;
 
 use crate::{
     Author, AuthorRole, AuthorRoleName, Block, ChatMessage, CordOp, Inline, Node, PromptBlock,

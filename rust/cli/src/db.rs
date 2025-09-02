@@ -4,15 +4,15 @@ use clap::{Parser, Subcommand};
 use eyre::Result;
 use itertools::Itertools;
 
-use cli_utils::{Code, ToStdout, color_print::cstr, message};
-use codecs::{EncodeOptions, LossesResponse};
-use dirs::closest_stencila_dir;
-use document::Document;
-use format::Format;
-use kernels::Kernels;
-use node_db::cli::{Migrate, Migrations, New};
-use node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
-use schema::{
+use stencila_cli_utils::{Code, ToStdout, color_print::cstr, message};
+use stencila_codecs::{EncodeOptions, LossesResponse};
+use stencila_dirs::closest_stencila_dir;
+use stencila_document::Document;
+use stencila_format::Format;
+use stencila_kernels::Kernels;
+use stencila_node_db::cli::{Migrate, Migrations, New};
+use stencila_node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
+use stencila_schema::{
     Article, Block, Collection, CreativeWorkVariant, ExecutionBounds, Node, NodeId, NodeType,
 };
 
@@ -145,7 +145,7 @@ impl Add {
         };
         let stencila_dir = closest_stencila_dir(&base_path, true).await?;
 
-        let decode_options: codecs::DecodeOptions = self
+        let decode_options: stencila_codecs::DecodeOptions = self
             .decode_options
             .build(Some(&first_path), StripOptions::default())
             .with_tool(self.tool, self.tool_args);
@@ -330,7 +330,7 @@ impl Query {
 
         if let Some(output) = output.map(PathBuf::from) {
             // If output is defined then encode to file
-            codecs::to_path(
+            stencila_codecs::to_path(
                 &node,
                 &output,
                 Some(EncodeOptions {
@@ -347,7 +347,7 @@ impl Query {
         } else {
             // Otherwise print using output format, defaulting to Markdown
             let format = self.r#to.unwrap_or(Format::Markdown);
-            let content = codecs::to_string(
+            let content = stencila_codecs::to_string(
                 &node,
                 Some(EncodeOptions {
                     format: Some(format.clone()),

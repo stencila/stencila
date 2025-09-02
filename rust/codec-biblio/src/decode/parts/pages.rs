@@ -7,7 +7,7 @@ use winnow::{
     token::take_while,
 };
 
-use codec::schema::{IntegerOrString, Reference};
+use stencila_codec::stencila_schema::{IntegerOrString, Reference};
 
 use crate::decode::parts::chars::is_hyphen;
 

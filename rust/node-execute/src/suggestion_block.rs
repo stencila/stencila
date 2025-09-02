@@ -1,4 +1,4 @@
-use schema::{ExecutionBounds, SuggestionBlock, SuggestionStatus};
+use stencila_schema::{ExecutionBounds, SuggestionBlock, SuggestionStatus};
 
 use crate::prelude::*;
 

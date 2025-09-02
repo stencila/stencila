@@ -1,5 +1,5 @@
 [package]
-name = "version"
+name = "stencila-version"
 version = "2.6.0"
 edition = "2024"
 

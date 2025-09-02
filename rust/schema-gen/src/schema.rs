@@ -15,7 +15,7 @@ use smart_default::SmartDefault;
 use strum::{Display, EnumIter};
 use tokio::fs::read_to_string;
 
-use status::Status;
+use stencila_status::Status;
 
 /// A schema in the Stencila Schema
 ///

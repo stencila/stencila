@@ -1,6 +1,6 @@
 //! Trait for encoding to plain text
 
-pub use codec_text_derive::TextCodec;
+pub use stencila_codec_text_derive::TextCodec;
 
 /// Encode a node that implements `TextCodec` to plain text
 pub fn to_text<T>(node: &T) -> String

@@ -1,8 +1,8 @@
-use codec::{
-    eyre::Result,
-    schema::{Primitive, PropertyValue, PropertyValueOrString},
-};
 use indexmap::IndexMap;
+use stencila_codec::{
+    eyre::Result,
+    stencila_schema::{Primitive, PropertyValue, PropertyValueOrString},
+};
 
 /// Generate a pseudo-ORCID from an OpenAlex ID
 pub fn generate_pseudo_orcid(openalex_id: &str, prefix: char) -> Result<String> {

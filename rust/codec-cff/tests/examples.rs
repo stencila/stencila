@@ -1,12 +1,12 @@
 use std::{fs::read_to_string, path::PathBuf};
 
-use codec::{
+use stencila_codec::{
     Codec,
     eyre::{OptionExt, Result},
 };
 
-use codec_cff::CffCodec;
 use insta::assert_json_snapshot;
+use stencila_codec_cff::CffCodec;
 
 /// Decode CFF files into Stencila nodes
 #[tokio::test]

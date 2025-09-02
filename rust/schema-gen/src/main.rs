@@ -4,7 +4,7 @@ use clap::{Parser, ValueEnum};
 use eyre::Result;
 use itertools::Itertools;
 
-use schema_gen::schemas::Schemas;
+use stencila_schema_gen::schemas::Schemas;
 
 /// Generate things from the Stencila Schema
 #[derive(Parser)]

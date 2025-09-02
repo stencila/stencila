@@ -9,11 +9,11 @@ use reqwest::{
 use serde::Serialize;
 use tempfile::TempDir;
 
-use cloud::ErrorResponse;
-use codec::{Codec, EncodeOptions};
-use codec_swb::SwbCodec;
-use document::Document;
-use schema::Node;
+use stencila_cloud::ErrorResponse;
+use stencila_codec::{Codec, EncodeOptions};
+use stencila_codec_swb::SwbCodec;
+use stencila_document::Document;
+use stencila_schema::Node;
 
 /// Publish to Stencila Cloud
 #[derive(Debug, Parser)]
@@ -81,7 +81,7 @@ async fn publish_node(
     dry_run: bool,
     swb: &SwbCodec,
 ) -> Result<()> {
-    let token = cloud::api_token().ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or key chain entry found. Get one at https://stencila.cloud/."))?;
+    let token = stencila_cloud::api_token().ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or key chain entry found. Get one at https://stencila.cloud/."))?;
 
     let key = key.as_deref().unwrap_or_default().to_string();
     let base_url = format!("https://{key}.stencila.site");
@@ -115,7 +115,7 @@ async fn publish_node(
     }
 
     let response = Client::new()
-        .put(format!("{}/sites/{}", cloud::base_url(), key))
+        .put(format!("{}/sites/{}", stencila_cloud::base_url(), key))
         .bearer_auth(token)
         .multipart(form)
         .send()

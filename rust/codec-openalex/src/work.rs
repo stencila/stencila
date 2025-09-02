@@ -3,9 +3,9 @@ use std::collections::HashMap;
 use indexmap::IndexMap;
 use serde::Deserialize;
 
-use codec::{
+use stencila_codec::{
     eyre::{Result, bail},
-    schema::{
+    stencila_schema::{
         self, Article, ArticleOptions, Block, CreativeWork, CreativeWorkOptions,
         CreativeWorkVariant, CreativeWorkVariantOrString, Date, Inline, IntegerOrString, Node,
         Organization, OrganizationOptions, Paragraph, Periodical, Person, PersonOptions,
@@ -231,7 +231,7 @@ impl From<Work> for Article {
 
         // Map authorships to authors
         let authors = work.authorships.as_ref().and_then(|authorships| {
-            let authors: Vec<schema::Author> = authorships
+            let authors: Vec<stencila_schema::Author> = authorships
                 .iter()
                 .filter_map(|authorship| {
                     authorship.author.as_ref().map(|dehydrated_author| {
@@ -261,7 +261,7 @@ impl From<Work> for Article {
                             ..Default::default()
                         };
 
-                        schema::Author::Person(person)
+                        stencila_schema::Author::Person(person)
                     })
                 })
                 .collect();
@@ -343,7 +343,7 @@ impl From<Work> for CreativeWork {
 
         // Map authorships to authors
         let authors = work.authorships.and_then(|authorships| {
-            let authors: Vec<schema::Author> = authorships
+            let authors: Vec<stencila_schema::Author> = authorships
                 .into_iter()
                 .filter_map(|authorship| {
                     authorship.author.map(|dehydrated_author| {
@@ -372,7 +372,7 @@ impl From<Work> for CreativeWork {
                             ..Default::default()
                         };
 
-                        schema::Author::Person(person)
+                        stencila_schema::Author::Person(person)
                     })
                 })
                 .collect();

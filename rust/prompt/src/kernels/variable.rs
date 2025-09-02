@@ -25,8 +25,8 @@ pub struct Variable {
     pub(super) native_hint: Option<String>,
 }
 
-impl From<schema::Variable> for Variable {
-    fn from(var: schema::Variable) -> Self {
+impl From<stencila_schema::Variable> for Variable {
+    fn from(var: stencila_schema::Variable) -> Self {
         Self {
             name: var.name.clone(),
             r#type: var.node_type.clone(),
@@ -90,9 +90,9 @@ pub enum Hint {
     Unknown,
 }
 
-impl From<schema::Hint> for Hint {
-    fn from(hint: schema::Hint) -> Self {
-        use schema::Hint::*;
+impl From<stencila_schema::Hint> for Hint {
+    fn from(hint: stencila_schema::Hint) -> Self {
+        use stencila_schema::Hint::*;
         match hint {
             Boolean(value) => Self::Boolean(value),
             Integer(value) => Self::Integer(value as i32),
@@ -122,8 +122,8 @@ impl From<schema::Hint> for Hint {
     }
 }
 
-impl From<schema::DatatableColumnHint> for Hint {
-    fn from(hint: schema::DatatableColumnHint) -> Self {
+impl From<stencila_schema::DatatableColumnHint> for Hint {
+    fn from(hint: stencila_schema::DatatableColumnHint) -> Self {
         Self::DatatableColumn {
             name: hint.name,
             r#type: hint.item_type,
@@ -333,12 +333,12 @@ impl Hint {
     }
 }
 
-fn primitive_to_f64(primitive: schema::Primitive) -> Option<f64> {
+fn primitive_to_f64(primitive: stencila_schema::Primitive) -> Option<f64> {
     match primitive {
-        schema::Primitive::Boolean(value) => Some(value as i32 as f64),
-        schema::Primitive::Integer(value) => Some(value as f64),
-        schema::Primitive::UnsignedInteger(value) => Some(value as f64),
-        schema::Primitive::Number(value) => Some(value),
+        stencila_schema::Primitive::Boolean(value) => Some(value as i32 as f64),
+        stencila_schema::Primitive::Integer(value) => Some(value as f64),
+        stencila_schema::Primitive::UnsignedInteger(value) => Some(value as f64),
+        stencila_schema::Primitive::Number(value) => Some(value),
         _ => None,
     }
 }

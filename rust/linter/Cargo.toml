@@ -6,10 +6,10 @@ edition = "2024"
 [dependencies]
 async-trait = { workspace = true }
 eyre = { workspace = true }
-format = { path = "../format" }
-node-type = { path = "../node-type" }
-schema = { path = "../schema" }
 serde = { workspace = true }
+stencila-format = { path = "../format" }
+stencila-node-type = { path = "../node-type" }
+stencila-schema = { path = "../schema" }
 strum = { workspace = true }
 
 [lints]

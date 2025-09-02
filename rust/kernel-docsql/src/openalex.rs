@@ -4,24 +4,25 @@ use eyre::{Result, bail};
 use itertools::Itertools;
 use tokio::{runtime, task};
 
-use codec_openalex::{
+use stencila_codec_openalex::{
     AuthorsResponse, FundersResponse, InstitutionsResponse, PublishersResponse, SelectResponse,
     SourcesResponse, WorksResponse, list_url, request_ids, request_list,
 };
-use kernel_jinja::{
-    kernel::schema::{CodeChunk, Datatable, ExecutionMessage, MessageLevel, Node},
+use stencila_kernel_jinja::{
     minijinja::{
         Environment, Error, ErrorKind, State, Value,
         value::{Kwargs, Object, ValueKind, from_args},
+    },
+    stencila_kernel::stencila_schema::{
+        CodeChunk, Datatable, ExecutionMessage, MessageLevel, Node,
     },
 };
 
 use crate::{
     docsql::{Operator, PropertyType, decode_filter, encode_filter},
-    extend_messages,
+    extend_messages, is_testing,
     nodes::{NodeProxy, all, first, get, last},
     subquery::Subquery,
-    testing,
 };
 
 /// Add OpenAlex functions to the Jinja environment
@@ -160,7 +161,7 @@ impl OpenAlexQuery {
             };
 
             let keyword_query = self.clone_for("keywords").search(&search);
-            if let Some(ids) = if testing() {
+            if let Some(ids) = if is_testing() {
                 Some(vec!["keywords/diagnosis".to_string()])
             } else {
                 keyword_query.ids()
@@ -406,7 +407,7 @@ impl OpenAlexQuery {
         let ids_maybe = |query: OpenAlexQuery, entity_type: &str| {
             if query.filters.is_empty() && query.search.is_none() {
                 None
-            } else if testing() {
+            } else if is_testing() {
                 Some(get_test_ids(entity_type).join("|"))
             } else {
                 // If no ids returned then use a valid but
@@ -704,7 +705,7 @@ impl OpenAlexQuery {
         entity_type: &str,
         filter_name: &str,
     ) -> Result<(), Error> {
-        let ids = if testing() {
+        let ids = if is_testing() {
             Some(get_test_ids(entity_type).join("|"))
         } else {
             let q = query.unwrap_or_else(|| self.clone_for(entity_type));

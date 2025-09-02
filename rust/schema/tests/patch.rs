@@ -8,12 +8,12 @@ use glob::glob;
 use itertools::Itertools;
 use serde::Serialize;
 
-use codec::{Codec, DecodeOptions, format::Format};
-use codec_markdown::MarkdownCodec;
 use insta::assert_yaml_snapshot;
-use node_strip::{StripScope, StripTargets, strip};
 use pretty_assertions::assert_eq;
-use schema::{
+use stencila_codec::{Codec, DecodeOptions, stencila_format::Format};
+use stencila_codec_markdown::MarkdownCodec;
+use stencila_node_strip::{StripScope, StripTargets, strip};
+use stencila_schema::{
     Article, Author, AuthorRole, AuthorRoleName, Block, CodeChunk, Cord, CordAuthorship, CordOp,
     Figure, Inline, InstructionBlock, InstructionType, Node, NodePath, NodeProperty, NodeSlot,
     Paragraph, Patch, PatchNode, PatchOp, PatchValue, Person, Primitive, ProvenanceCategory,
@@ -89,7 +89,7 @@ async fn fixtures() -> Result<()> {
             },
             AuthorRoleName::Importer,
         );
-        schema::authorship(&mut old, vec![alice])?;
+        stencila_schema::authorship(&mut old, vec![alice])?;
 
         // Calculate the ops
         let bob = AuthorRole::person(
@@ -105,7 +105,7 @@ async fn fixtures() -> Result<()> {
 
         // Apply ops
         let mut merged = old.clone();
-        schema::patch(&mut merged, patch.clone())?;
+        stencila_schema::patch(&mut merged, patch.clone())?;
 
         // Assert that, when authors and provenance are stripped from both,
         // `merged` is the same as `new`

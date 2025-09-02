@@ -7,11 +7,11 @@ use itertools::Itertools;
 use serde::Serialize;
 use smart_default::SmartDefault;
 
-use node_id::NodeId;
-use node_type::NodeType;
+use stencila_node_id::NodeId;
+use stencila_node_type::NodeType;
 
-pub use codec_dom_derive::DomCodec;
 pub use html_escape;
+pub use stencila_codec_dom_derive::DomCodec;
 
 /// Encode a node that implements `DomCodec` to DOM HTML
 pub fn to_dom<T>(node: &T) -> String

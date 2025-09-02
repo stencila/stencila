@@ -1,6 +1,6 @@
 //! Utilities for executing code
 
-use schema::{Block, CodeChunk, ExecutionBounds, VisitorMut, WalkControl, WalkNode};
+use stencila_schema::{Block, CodeChunk, ExecutionBounds, VisitorMut, WalkControl, WalkNode};
 
 /// Apply execution bounds to all executable nodes within a root node
 pub(super) fn apply_execution_bounds<W: WalkNode>(node: &mut W, execution_bounds: ExecutionBounds) {

@@ -2,9 +2,9 @@ use std::{any::type_name_of_val, str::FromStr};
 
 use pandoc_types::definition::{self as pandoc};
 
-use codec::{format::Format, schema::*};
-use codec_png::to_png_data_uri;
-use codec_text_trait::to_text;
+use stencila_codec::{stencila_format::Format, stencila_schema::*};
+use stencila_codec_png::to_png_data_uri;
+use stencila_codec_text_trait::to_text;
 
 use crate::{
     inlines::{

@@ -3,11 +3,12 @@ use std::sync::LazyLock;
 use itertools::Itertools;
 use regex::{Captures, Regex};
 
-use codec::{
+use stencila_codec::{
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    NodeType, async_trait, eyre::Result, format::Format, schema::Node, status::Status,
+    NodeType, async_trait, eyre::Result, stencila_format::Format, stencila_schema::Node,
+    stencila_status::Status,
 };
-use codec_latex::LatexCodec;
+use stencila_codec_latex::LatexCodec;
 
 /// A codec for Rnw
 ///

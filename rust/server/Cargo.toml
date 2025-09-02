@@ -1,5 +1,5 @@
 [package]
-name = "server"
+name = "stencila-server"
 version = "0.0.0"
 authors = ["Nokome Bentley <nokome@stencila.io"]
 edition = "2024"
@@ -7,11 +7,7 @@ edition = "2024"
 [dependencies]
 axum = { version = "0.8.4", features = ["ws"] }
 clap = { workspace = true }
-cloud = { path = "../cloud" }
-codecs = { path = "../codecs" }
-document = { path = "../document" }
 eyre = { workspace = true }
-format = { path = "../format" }
 futures = { workspace = true }
 itertools = { workspace = true }
 mime_guess = { workspace = true }
@@ -20,16 +16,19 @@ reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 smart-default = { workspace = true }
+stencila-cloud = { path = "../cloud" }
+stencila-codecs = { path = "../codecs" }
+stencila-document = { path = "../document" }
+stencila-format = { path = "../format" }
+stencila-version = { path = "../version" }
+stencila-web-dist = { path = "../web-dist" }
 tokio = { workspace = true }
 tower-cookies = "0.11.0"
 tower-http = { version = "0.6.6", features = ["trace", "cors"] }
 tracing = { workspace = true }
 uuid = { workspace = true }
-version = { path = "../version" }
-web-dist = { path = "../web-dist" }
 
 [dev-dependencies]
-
 
 [lints]
 workspace = true

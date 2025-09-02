@@ -18,13 +18,13 @@ use std::path::Path;
 
 use pandoc_types::definition::Pandoc;
 
-use codec::{
+use stencila_codec::{
     DecodeOptions, EncodeOptions,
     eyre::{Result, bail},
-    format::Format,
+    stencila_format::Format,
 };
+use stencila_tools::{Pandoc as PandocTool, Tool, ToolStdio};
 use tokio::io::AsyncWriteExt;
-use tools::{Pandoc as PandocTool, Tool, ToolStdio};
 
 /// Call Pandoc binary to convert some input content to Pandoc JSON.
 #[tracing::instrument(skip(input))]

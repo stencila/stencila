@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use async_trait::async_trait;
 use eyre::{Result, bail};
 use inflector::Inflector;
-use model::{Model, ModelAvailability, ModelIO, ModelOutput, ModelTask, ModelType};
+use stencila_model::{Model, ModelAvailability, ModelIO, ModelOutput, ModelTask, ModelType};
 use tokio::sync::Mutex;
 
 use crate::{Plugin, PluginEnabled, PluginInstance, PluginStatus, plugins};

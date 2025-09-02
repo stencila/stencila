@@ -8,7 +8,7 @@ use async_lsp::{
 };
 use serde::{Deserialize, Serialize};
 
-use schema::{ExecutionStatus, NodeType};
+use stencila_schema::{ExecutionStatus, NodeType};
 
 use crate::text_document::TextNode;
 

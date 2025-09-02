@@ -14,7 +14,7 @@ use winnow::{
     token::take_while,
 };
 
-use codec::schema::{
+use stencila_codec::stencila_schema::{
     Author, CreativeWorkType, Inline, IntegerOrString, Organization, Person, PersonOptions,
     Reference, shortcuts::t,
 };
@@ -340,9 +340,11 @@ fn apj_editors(input: &mut &str) -> Result<Vec<Person>> {
 
 #[cfg(test)]
 mod tests {
-    use codec::schema::{OrganizationOptions, PersonOrOrganization, PostalAddressOrString};
-    use codec_text_trait::to_text;
     use pretty_assertions::assert_eq;
+    use stencila_codec::stencila_schema::{
+        OrganizationOptions, PersonOrOrganization, PostalAddressOrString,
+    };
+    use stencila_codec_text_trait::to_text;
 
     use super::*;
 

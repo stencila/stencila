@@ -8,7 +8,7 @@ use insta::assert_json_snapshot;
 #[test]
 fn specs() {
     let mut specs = BTreeMap::new();
-    let codecs = codecs::list();
+    let codecs = stencila_codecs::list();
     for codec in &codecs {
         specs.insert(
             codec.name(),

@@ -25,8 +25,8 @@ use tower_http::{
     trace::TraceLayer,
 };
 
-use document::SyncDirection;
-pub(crate) use version::STENCILA_VERSION;
+use stencila_document::SyncDirection;
+pub(crate) use stencila_version::STENCILA_VERSION;
 
 use crate::{
     auth,

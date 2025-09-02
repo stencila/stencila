@@ -1,12 +1,12 @@
-use codec::{
+use polars::prelude::*;
+use stencila_codec::{
     eyre::Result,
-    schema::{
+    stencila_schema::{
         ArrayValidator, BooleanValidator, Datatable, DatatableColumn, DateTimeValidator,
         DateValidator, IntegerValidator, Null, NumberValidator, Primitive, StringValidator,
         Validator,
     },
 };
-use polars::prelude::*;
 
 /// Convert a Polars [`DataFrame`] to a Stencila [`Datatable`].
 ///

@@ -1,4 +1,4 @@
-use codec_info::lost_options;
+use stencila_codec_info::lost_options;
 
 use crate::{MathBlock, MessageLevel, prelude::*};
 
@@ -17,7 +17,7 @@ impl MathBlock {
     }
 
     pub fn to_jats_special(&self) -> (String, Losses) {
-        use codec_jats_trait::encode::{elem, elem_no_attrs};
+        use stencila_codec_jats_trait::encode::{elem, elem_no_attrs};
 
         let label = self
             .label

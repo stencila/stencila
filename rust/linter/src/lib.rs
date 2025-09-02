@@ -4,14 +4,14 @@ use eyre::Result;
 use serde::Serialize;
 use strum::Display;
 
-use schema::{AuthorRole, CompilationMessage};
+use stencila_schema::{AuthorRole, CompilationMessage};
 
 // Re-exports for the convenience of crates implementing the `Linter` trait
 pub use async_trait::async_trait;
 pub use eyre;
-pub use format::Format;
-pub use node_type::NodeType;
-pub use schema;
+pub use stencila_format::Format;
+pub use stencila_node_type::NodeType;
+pub use stencila_schema;
 
 #[async_trait]
 pub trait Linter: Send + Sync {

@@ -1,4 +1,4 @@
-use schema::CallBlock;
+use stencila_schema::CallBlock;
 
 use crate::prelude::*;
 

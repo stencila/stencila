@@ -3,9 +3,9 @@ use std::{env::current_dir, path::PathBuf};
 use clap::{Parser};
 use eyre::Result;
 
-use cli_utils::color_print::cstr;
-use dirs::closest_stencila_dir;
-use document::Document;
+use stencila_cli_utils::color_print::cstr;
+use stencila_dirs::closest_stencila_dir;
+use stencila_document::Document;
 
 /// Remove documents from the workspace database
 #[derive(Debug, Parser)]

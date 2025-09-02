@@ -3,13 +3,13 @@ use std::path::Path;
 use glob::glob;
 use zip::ZipArchive;
 
-use codec::{
+use stencila_codec::{
     Codec, DecodeInfo, DecodeOptions,
     eyre::{OptionExt, Result},
-    schema::Node,
+    stencila_schema::Node,
 };
-use codec_jats::JatsCodec;
-use media_embed::embed_media;
+use stencila_codec_jats::JatsCodec;
+use stencila_media_embed::embed_media;
 
 /// Decode a MECA file to a Stencila [`Node`]
 #[tracing::instrument]

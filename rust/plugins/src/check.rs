@@ -1,11 +1,12 @@
 use clap::Args;
-use cli_utils::message;
-use codec::schema::{ExecutionBounds, shortcuts};
 use eyre::Result;
-use kernel::schema::{Node, Null};
-use model::{
+
+use stencila_cli_utils::message;
+use stencila_codec::stencila_schema::{ExecutionBounds, shortcuts};
+use stencila_kernel::stencila_schema::{Node, Null};
+use stencila_model::{
     ModelTask,
-    schema::{InstructionMessage, MessagePart},
+    stencila_schema::{InstructionMessage, MessagePart},
 };
 
 use crate::Plugin;

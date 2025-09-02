@@ -4,10 +4,10 @@ use eyre::{Result, bail};
 use itertools::Itertools;
 use tokio::task::JoinHandle;
 
-use codecs::DecodeOptions;
-use format::Format;
-use node_execute::{ExecuteOptions, compile, execute, interrupt};
-use schema::{
+use stencila_codecs::DecodeOptions;
+use stencila_format::Format;
+use stencila_node_execute::{ExecuteOptions, compile, execute, interrupt};
+use stencila_schema::{
     Article, Block, ChatMessage, ChatMessageOptions, CodeChunk, CodeExpression, File, Inline, Node,
     NodeId, NodePath, NodeProperty, Paragraph, Patch, PatchNode, PatchOp,
     transforms::blocks_to_inlines,
@@ -146,7 +146,7 @@ impl Document {
                     content_type,
                 } => {
                     let status = if let Err(error) = async {
-                        let Ok(Node::Article(Article { content, .. })) = codecs::from_str(
+                        let Ok(Node::Article(Article { content, .. })) = stencila_codecs::from_str(
                             &content,
                             Some(DecodeOptions {
                                 format: Some(format),
@@ -269,7 +269,7 @@ impl Document {
                     // Apply the patch if appropriate
                     if let Some(patch) = patch {
                         let root = &mut *root.write().await;
-                        if let Err(error) = schema::patch(root, patch) {
+                        if let Err(error) = stencila_schema::patch(root, patch) {
                             send_status(
                                 &status_sender,
                                 CommandStatus::Failed(format!(
@@ -322,7 +322,7 @@ impl Document {
 
 /// Create a patch for a chat from the fields of a [`Command::PatchExecuteChat`]
 async fn chat_patch(chat_id: &NodeId, text: String, files: Option<Vec<File>>) -> Result<Patch> {
-    let Ok(Node::Article(Article { content, .. })) = codecs::from_str(
+    let Ok(Node::Article(Article { content, .. })) = stencila_codecs::from_str(
         &text,
         Some(DecodeOptions {
             format: Some(Format::Markdown),

@@ -1,4 +1,4 @@
-use schema::{AppendixBreak, CompilationMessage};
+use stencila_schema::{AppendixBreak, CompilationMessage};
 
 use crate::prelude::*;
 

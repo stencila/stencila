@@ -1,7 +1,7 @@
 use crate::{PromptContext, prelude::*};
 
 use pretty_assertions::assert_eq;
-use schema::{Node, Null, SectionType, shortcuts::t};
+use stencila_schema::{Node, Null, SectionType, shortcuts::t};
 
 use super::{
     Document, Metadata,
@@ -157,10 +157,10 @@ async fn sections() -> Result<()> {
 #[tokio::test]
 async fn section_headings() -> Result<()> {
     let mut sections = Sections::default();
-    sections.push_heading(&schema::Heading::new(1, vec![t("Introduction")]));
-    sections.push_heading(&schema::Heading::new(1, vec![t("Methods")]));
-    sections.push_heading(&schema::Heading::new(1, vec![t("Results")]));
-    sections.push_heading(&schema::Heading::new(1, vec![t("Discussion")]));
+    sections.push_heading(&stencila_schema::Heading::new(1, vec![t("Introduction")]));
+    sections.push_heading(&stencila_schema::Heading::new(1, vec![t("Methods")]));
+    sections.push_heading(&stencila_schema::Heading::new(1, vec![t("Results")]));
+    sections.push_heading(&stencila_schema::Heading::new(1, vec![t("Discussion")]));
 
     let context = PromptContext {
         document: Some(Document {

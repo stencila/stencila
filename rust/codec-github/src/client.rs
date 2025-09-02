@@ -13,8 +13,8 @@ use reqwest::{
 use serde::de::DeserializeOwned;
 use tokio::time::Instant;
 
-use codec::eyre::{Result, bail};
-use version::STENCILA_USER_AGENT;
+use stencila_codec::eyre::{Result, bail};
+use stencila_version::STENCILA_USER_AGENT;
 
 const API_BASE_URL: &str = "https://api.github.com";
 
@@ -113,7 +113,7 @@ where
 {
     tracing::debug!("Making GitHub API request");
 
-    let token = secrets::env_or_get("GITHUB_TOKEN").ok();
+    let token = stencila_secrets::env_or_get("GITHUB_TOKEN").ok();
 
     apply_rate_limiting(url, token.is_some()).await?;
 

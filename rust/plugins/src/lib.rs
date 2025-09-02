@@ -19,22 +19,22 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer, de::DeserializeOwn
 use strum::{Display, EnumString};
 use which::which;
 
-use cli_utils::Code;
-use dirs::{DirType, get_app_dir};
 use eyre::{OptionExt, Report, Result, bail, eyre};
 use itertools::Itertools;
 use reqwest::{Client, Url, header};
 use serde_json::Value;
 use serde_with::{DeserializeFromStr, SerializeDisplay};
+use stencila_cli_utils::Code;
+use stencila_dirs::{DirType, get_app_dir};
 use tokio::{
     self,
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader, BufWriter},
     process::{Child, ChildStdin, ChildStdout, Command},
 };
 
-use codec::{Codec, format::Format};
-use kernel::Kernel;
-use model::Model;
+use stencila_codec::{Codec, stencila_format::Format};
+use stencila_kernel::Kernel;
+use stencila_model::Model;
 
 use codecs::PluginCodec;
 use kernels::PluginKernel;

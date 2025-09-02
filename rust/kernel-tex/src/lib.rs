@@ -3,12 +3,12 @@ use std::sync::LazyLock;
 use latex2mathml::{DisplayStyle, latex_to_mathml};
 use regex::Regex;
 
-use kernel::{
+use stencila_kernel::{
     Kernel, KernelInstance, KernelType, async_trait,
     eyre::Result,
-    format::Format,
     generate_id,
-    schema::{
+    stencila_format::Format,
+    stencila_schema::{
         ExecutionBounds, ExecutionMessage, MessageLevel, Node, SoftwareApplication,
         SoftwareApplicationOptions,
     },
@@ -150,8 +150,8 @@ impl KernelInstance for TexKernelInstance {
 
 #[cfg(test)]
 mod tests {
-    use kernel::schema::Node;
     use pretty_assertions::assert_eq;
+    use stencila_kernel::stencila_schema::Node;
 
     use super::*;
 

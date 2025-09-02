@@ -1,13 +1,13 @@
 use std::path::PathBuf;
 
-use codec::{
-    format::Format,
-    schema::{
+use serde::Deserialize;
+use stencila_codec::{
+    stencila_format::Format,
+    stencila_schema::{
         Article, ArticleOptions, Datatable, DatatableOptions, Node, PropertyValueOrString,
         SoftwareSourceCode, SoftwareSourceCodeOptions,
     },
 };
-use serde::Deserialize;
 
 /// Code search result item from GitHub search API
 #[derive(Deserialize)]

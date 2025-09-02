@@ -1,17 +1,17 @@
 [package]
-name = "codec-pdf"
+name = "stencila-codec-pdf"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec = { path = "../codec" }
-codec-dom = { path = "../codec-dom" }
-codec-latex = { path = "../codec-latex" }
-codec-markdown = { path = "../codec-markdown" }
-codec-utils = { path = "../codec-utils" }
-convert = { path = "../convert" }
-media-embed = { path = "../media-embed" }
-node-structuring = { path = "../node-structuring" }
+stencila-codec = { path = "../codec" }
+stencila-codec-dom = { path = "../codec-dom" }
+stencila-codec-latex = { path = "../codec-latex" }
+stencila-codec-markdown = { path = "../codec-markdown" }
+stencila-codec-utils = { path = "../codec-utils" }
+stencila-convert = { path = "../convert" }
+stencila-media-embed = { path = "../media-embed" }
+stencila-node-structuring = { path = "../node-structuring" }
 
 [lints]
 workspace = true

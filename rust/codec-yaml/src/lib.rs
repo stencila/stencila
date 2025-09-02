@@ -1,12 +1,12 @@
-use codec::{
+use serde_yaml::Value;
+use stencila_codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
     eyre::Result,
-    format::Format,
-    schema::{Article, Node, NodeType},
-    status::Status,
+    stencila_format::Format,
+    stencila_schema::{Article, Node, NodeType},
+    stencila_status::Status,
 };
-use serde_yaml::Value;
-use version::STENCILA_VERSION;
+use stencila_version::STENCILA_VERSION;
 
 pub mod r#trait;
 use r#trait::YamlCodec as _;

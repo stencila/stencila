@@ -1,5 +1,5 @@
-use node_id::NodeId;
-use node_type::NodeProperty;
+use stencila_node_id::NodeId;
+use stencila_node_type::NodeProperty;
 
 use crate::{Mapping, Position8, Position16, Positions, Range8, Range16, Shifter};
 

@@ -1,10 +1,11 @@
 use std::path::Path;
 
-use codec::{
+use stencila_codec::{
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    async_trait, eyre::Result, format::Format, schema::Node, status::Status,
+    async_trait, eyre::Result, stencila_format::Format, stencila_schema::Node,
+    stencila_status::Status,
 };
-use codec_docx::DocxCodec;
+use stencila_codec_docx::DocxCodec;
 
 /// A codec for DOCX compatible with uploads/downloads to/from Google Docs
 pub struct GDocxCodec;

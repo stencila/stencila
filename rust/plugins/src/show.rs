@@ -1,6 +1,6 @@
 use clap::Args;
-use cli_utils::ToStdout;
 use eyre::Result;
+use stencila_cli_utils::ToStdout;
 
 use crate::Plugin;
 

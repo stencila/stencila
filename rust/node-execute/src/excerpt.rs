@@ -1,4 +1,4 @@
-use schema::Excerpt;
+use stencila_schema::Excerpt;
 
 use crate::prelude::*;
 

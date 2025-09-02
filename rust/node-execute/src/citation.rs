@@ -1,10 +1,10 @@
-use schema::{Citation, CompilationMessage, NodeType, replicate};
+use stencila_schema::{Citation, CompilationMessage, NodeId, NodeType, replicate};
 
 use crate::prelude::*;
 
 impl Executable for Citation {
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
-        let node_id: schema::NodeId = self.node_id();
+        let node_id: NodeId = self.node_id();
         tracing::trace!("Compiling Citation {node_id}");
 
         if let Some(reference) = &self.options.cites {

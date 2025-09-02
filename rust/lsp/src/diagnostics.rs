@@ -12,7 +12,7 @@ use async_lsp::{
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
-use schema::{
+use stencila_schema::{
     Author, AuthorRoleName, CodeLocation, ExecutionBounds, ExecutionMode, ExecutionRequired,
     ExecutionStatus, MessageLevel, NodeType, StringOrNumber,
 };

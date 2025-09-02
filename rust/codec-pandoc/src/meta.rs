@@ -1,6 +1,6 @@
 use pandoc_types::definition::{self as pandoc};
 
-use codec::schema::*;
+use stencila_codec::stencila_schema::*;
 
 use crate::{
     inlines::{inlines_from_pandoc, inlines_to_pandoc, string_from_pandoc_inlines},

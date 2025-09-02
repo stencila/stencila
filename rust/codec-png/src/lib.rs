@@ -1,15 +1,15 @@
 use std::path::Path;
 
-use codec::{
+use stencila_codec::{
     Codec, CodecSupport, EncodeInfo, EncodeOptions, NodeType, async_trait,
     eyre::{Result, bail},
-    format::Format,
-    schema::Node,
-    status::Status,
+    stencila_format::Format,
+    stencila_schema::Node,
+    stencila_status::Status,
 };
-use codec_dom_trait::to_dom;
-use codec_latex_trait::{latex_to_image, to_latex};
-use convert::{html_to_png::html_to_png_file, html_to_png_data_uri};
+use stencila_codec_dom_trait::to_dom;
+use stencila_codec_latex_trait::{latex_to_image, to_latex};
+use stencila_convert::{html_to_png::html_to_png_file, html_to_png_data_uri};
 
 /// Encode a node as a PNG dataURI
 pub fn to_png_data_uri(node: &Node) -> Result<String> {

@@ -1,4 +1,4 @@
-use schema::InstructionInline;
+use stencila_schema::InstructionInline;
 
 use crate::{interrupt_impl, prelude::*};
 

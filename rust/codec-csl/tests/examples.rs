@@ -1,11 +1,11 @@
 use std::{fs::read_to_string, path::PathBuf};
 
-use codec::{
+use insta::assert_json_snapshot;
+use stencila_codec::{
     Codec,
     eyre::{OptionExt, Result},
 };
-use codec_csl::CslCodec;
-use insta::assert_json_snapshot;
+use stencila_codec_csl::CslCodec;
 
 /// Decode CSL-JSON into articles
 #[tokio::test]

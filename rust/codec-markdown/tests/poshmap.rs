@@ -1,8 +1,8 @@
-use codec::{
+use insta::assert_snapshot;
+use stencila_codec::{
     Codec, EncodeInfo, NodeType, PoshMap, Position8, Position16, Range8, Range16, eyre::Result,
 };
-use codec_markdown::MarkdownCodec;
-use insta::assert_snapshot;
+use stencila_codec_markdown::MarkdownCodec;
 
 #[tokio::test]
 #[allow(clippy::unwrap_used)]

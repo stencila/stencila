@@ -1,59 +1,59 @@
 [package]
-name = "codecs"
+name = "stencila-codecs"
 version = "0.0.0"
 edition = "2024"
 
 [features]
-proptest-min = ["codec/proptest-min"]
-proptest-low = ["codec/proptest-low"]
-proptest-high = ["codec/proptest-high"]
-proptest-max = ["codec/proptest-max"]
+proptest-min = ["stencila-codec/proptest-min"]
+proptest-low = ["stencila-codec/proptest-low"]
+proptest-high = ["stencila-codec/proptest-high"]
+proptest-max = ["stencila-codec/proptest-max"]
 
 [dependencies]
-ask = { path = "../ask" }
 chrono = { workspace = true }
 clap = { workspace = true }
-cli-utils = { path = "../cli-utils" }
-codec = { path = "../codec" }
-codec-arxiv = { path = "../codec-arxiv" }
-codec-cbor = { path = "../codec-cbor" }
-codec-cff = { path = "../codec-cff" }
-codec-csl = { path = "../codec-csl" }
-codec-csv = { path = "../codec-csv" }
-codec-debug = { path = "../codec-debug" }
-codec-directory = { path = "../codec-directory" }
-codec-docx = { path = "../codec-docx" }
-codec-doi = { path = "../codec-doi" }
-codec-dom = { path = "../codec-dom" }
-codec-gdocx = { path = "../codec-gdocx" }
-codec-github = { path = "../codec-github" }
-codec-html = { path = "../codec-html" }
-codec-ipynb = { path = "../codec-ipynb" }
-codec-jats = { path = "../codec-jats" }
-codec-json = { path = "../codec-json" }
-codec-json5 = { path = "../codec-json5" }
-codec-jsonld = { path = "../codec-jsonld" }
-codec-latex = { path = "../codec-latex" }
-codec-lexical = { path = "../codec-lexical" }
-codec-markdown = { path = "../codec-markdown" }
-codec-meca = { path = "../codec-meca" }
-codec-odt = { path = "../codec-odt" }
-codec-openrxiv = { path = "../codec-openrxiv" }
-codec-pandoc = { path = "../codec-pandoc" }
-codec-pdf = { path = "../codec-pdf" }
-codec-pmcoa = { path = "../codec-pmcoa" }
-codec-png = { path = "../codec-png" }
-codec-rnw = { path = "../codec-rnw" }
-codec-swb = { path = "../codec-swb" }
-codec-text = { path = "../codec-text" }
-codec-utils = { path = "../codec-utils" }
-codec-xlsx = { path = "../codec-xlsx" }
-codec-yaml = { path = "../codec-yaml" }
 futures = { workspace = true }
-node-strip = { path = "../node-strip" }
 reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+stencila-ask = { path = "../ask" }
+stencila-cli-utils = { path = "../cli-utils" }
+stencila-codec = { path = "../codec" }
+stencila-codec-arxiv = { path = "../codec-arxiv" }
+stencila-codec-cbor = { path = "../codec-cbor" }
+stencila-codec-cff = { path = "../codec-cff" }
+stencila-codec-csl = { path = "../codec-csl" }
+stencila-codec-csv = { path = "../codec-csv" }
+stencila-codec-debug = { path = "../codec-debug" }
+stencila-codec-directory = { path = "../codec-directory" }
+stencila-codec-docx = { path = "../codec-docx" }
+stencila-codec-doi = { path = "../codec-doi" }
+stencila-codec-dom = { path = "../codec-dom" }
+stencila-codec-gdocx = { path = "../codec-gdocx" }
+stencila-codec-github = { path = "../codec-github" }
+stencila-codec-html = { path = "../codec-html" }
+stencila-codec-ipynb = { path = "../codec-ipynb" }
+stencila-codec-jats = { path = "../codec-jats" }
+stencila-codec-json = { path = "../codec-json" }
+stencila-codec-json5 = { path = "../codec-json5" }
+stencila-codec-jsonld = { path = "../codec-jsonld" }
+stencila-codec-latex = { path = "../codec-latex" }
+stencila-codec-lexical = { path = "../codec-lexical" }
+stencila-codec-markdown = { path = "../codec-markdown" }
+stencila-codec-meca = { path = "../codec-meca" }
+stencila-codec-odt = { path = "../codec-odt" }
+stencila-codec-openrxiv = { path = "../codec-openrxiv" }
+stencila-codec-pandoc = { path = "../codec-pandoc" }
+stencila-codec-pdf = { path = "../codec-pdf" }
+stencila-codec-pmcoa = { path = "../codec-pmcoa" }
+stencila-codec-png = { path = "../codec-png" }
+stencila-codec-rnw = { path = "../codec-rnw" }
+stencila-codec-swb = { path = "../codec-swb" }
+stencila-codec-text = { path = "../codec-text" }
+stencila-codec-utils = { path = "../codec-utils" }
+stencila-codec-xlsx = { path = "../codec-xlsx" }
+stencila-codec-yaml = { path = "../codec-yaml" }
+stencila-node-strip = { path = "../node-strip" }
 strum = { workspace = true }
 tempfile = { workspace = true }
 tokio = { workspace = true }
@@ -62,12 +62,12 @@ url = { workspace = true }
 walkdir = "2.5.0"
 
 [dev-dependencies]
-insta = { workspace = true }
-pretty_assertions = { workspace = true }
-proptest = { workspace = true }
 glob = { workspace = true }
+insta = { workspace = true }
 itertools = { workspace = true }
 json_value_merge = "2.0.1"
+pretty_assertions = { workspace = true }
+proptest = { workspace = true }
 regex = { workspace = true }
 serde_yaml = { workspace = true }
 smart-default = { workspace = true }

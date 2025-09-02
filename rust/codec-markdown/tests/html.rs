@@ -1,14 +1,16 @@
-use codec::{
-    eyre::{Result, bail},
-    schema::{Article, Block, Inline, Node, Paragraph},
-};
 use insta::assert_yaml_snapshot;
+use stencila_codec::{
+    eyre::{Result, bail},
+    stencila_schema::{Article, Block, Inline, Node, Paragraph},
+};
 
 /// Inline HTML is transformed to Stencila nodes
 #[test]
 fn inlines() -> Result<()> {
     fn decode(md: &str) -> Result<Vec<Inline>> {
-        let (Node::Article(Article { content, .. }), ..) = codec_markdown::decode(md, None)? else {
+        let (Node::Article(Article { content, .. }), ..) =
+            stencila_codec_markdown::decode(md, None)?
+        else {
             bail!("Expected an Article")
         };
 

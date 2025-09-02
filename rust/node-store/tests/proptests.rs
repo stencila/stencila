@@ -4,10 +4,10 @@
 
 use eyre::Result;
 
-use node_store::{ReadNode, WriteNode, WriteStore};
 use pretty_assertions::assert_eq;
 use proptest::prelude::{ProptestConfig, proptest};
-use schema::Article;
+use stencila_node_store::{ReadNode, WriteNode, WriteStore};
+use stencila_schema::Article;
 
 #[cfg(any(
     feature = "proptest-min",

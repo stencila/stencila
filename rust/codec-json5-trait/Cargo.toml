@@ -1,5 +1,5 @@
 [package]
-name = "codec-json5-trait"
+name = "stencila-codec-json5-trait"
 version = "0.0.0"
 edition = "2024"
 

@@ -1,4 +1,4 @@
-use codec::schema::{Inline, shortcuts::t};
+use stencila_codec::stencila_schema::{Inline, shortcuts::t};
 use winnow::{
     Parser, Result,
     ascii::{Caseless, multispace1},

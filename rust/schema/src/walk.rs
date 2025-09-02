@@ -3,8 +3,8 @@ use std::future::Future;
 use async_recursion::async_recursion;
 use eyre::Result;
 
-use node_id::NodeId;
-use node_type::{NodeProperty, NodeType};
+use stencila_node_id::NodeId;
+use stencila_node_type::{NodeProperty, NodeType};
 
 use crate::{
     Array, Block, Boolean, Citation, CreativeWorkVariant, IfBlockClause, Inline, Integer, ListItem,

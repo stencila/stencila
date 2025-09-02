@@ -4,7 +4,7 @@ use eyre::{bail, Report};
 use serde::Serialize;
 use strum::{Display, EnumIter, EnumString};
 
-use node_id::NodeId;
+use stencila_node_id::NodeId;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Display, EnumString, EnumIter)]
 pub enum NodeType {

@@ -1,10 +1,10 @@
 use futures::stream::{FuturesUnordered, StreamExt};
 use itertools::Itertools;
 
-use codec_cbor::r#trait::CborCodec;
-use codec_markdown::to_markdown_flavor;
-use codecs::Format;
-use schema::{
+use stencila_codec_cbor::r#trait::CborCodec;
+use stencila_codec_markdown::to_markdown_flavor;
+use stencila_codecs::Format;
+use stencila_schema::{
     Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, CompilationDigest, InstructionBlock,
     SoftwareApplication,
 };
@@ -188,7 +188,7 @@ impl Executable for InstructionBlock {
                 instruction.model_parameters.model_ids = Some(model_ids);
             };
             futures.push(async move {
-                prompts::execute_instruction_block(
+                stencila_prompts::execute_instruction_block(
                     instructors,
                     prompter,
                     &system_prompt,

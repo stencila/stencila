@@ -1,18 +1,18 @@
 [package]
-name = "codec-latex"
+name = "stencila-codec-latex"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec = { path = "../codec" }
-codec-latex-trait = { path = "../codec-latex-trait" }
-codec-pandoc = { path = "../codec-pandoc" }
 itertools = { workspace = true }
 regex = { workspace = true }
+stencila-codec = { path = "../codec" }
+stencila-codec-latex-trait = { path = "../codec-latex-trait" }
+stencila-codec-pandoc = { path = "../codec-pandoc" }
 
 [dev-dependencies]
-insta = { workspace = true }
 glob = { workspace = true }
+insta = { workspace = true }
 tokio = { workspace = true }
 which = { workspace = true }
 

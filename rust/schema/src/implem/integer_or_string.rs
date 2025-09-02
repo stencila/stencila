@@ -1,4 +1,4 @@
-use node_store::ReadNode;
+use stencila_node_store::ReadNode;
 
 use crate::{IntegerOrString, prelude::*};
 

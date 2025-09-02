@@ -6,12 +6,14 @@ use std::{
 use eyre::Result;
 use itertools::Itertools;
 
-use codec_text_trait::to_text;
-use kernel_jinja::{
-    kernel::schema::{self, ExecutionMessage, MessageLevel, Node, NodePath, NodeProperty, NodeSet},
+use stencila_codec_text_trait::to_text;
+use stencila_kernel_jinja::{
     minijinja::{
         Error, ErrorKind, State, Value,
         value::{Enumerator, Object, ObjectRepr},
+    },
+    stencila_kernel::stencila_schema::{
+        self, ExecutionMessage, MessageLevel, Node, NodePath, NodeProperty, NodeSet,
     },
 };
 
@@ -141,7 +143,7 @@ impl Object for NodeProxy {
             return Some(Value::UNDEFINED);
         };
 
-        let Ok(property) = schema::get(&self.node, NodePath::from(property)) else {
+        let Ok(property) = stencila_schema::get(&self.node, NodePath::from(property)) else {
             if let Some(mut msgs) = lock_messages(&self.messages) {
                 msgs.push(ExecutionMessage::new(
                     MessageLevel::Error,

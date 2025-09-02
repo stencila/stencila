@@ -1,23 +1,23 @@
 [package]
-name = "kernel-docsdb"
+name = "stencila-kernel-docsdb"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec-json = { path = "../codec-json" }
-codec-markdown = { path = "../codec-markdown" }
-codecs = { path = "../codecs" }
-dirs = { path = "../dirs"}
-kernel-kuzu = { path = "../kernel-kuzu"}
-node-canonicalize = { path = "../node-canonicalize" }
-node-db = { path = "../node-db"}
-node-sentencize = { path = "../node-sentencize" }
-lru = { workspace = true }
 futures = { workspace = true }
 itertools = { workspace = true }
+lru = { workspace = true }
 regex = { workspace = true }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }
+stencila-codec-json = { path = "../codec-json" }
+stencila-codec-markdown = { path = "../codec-markdown" }
+stencila-codecs = { path = "../codecs" }
+stencila-dirs = { path = "../dirs" }
+stencila-kernel-kuzu = { path = "../kernel-kuzu" }
+stencila-node-canonicalize = { path = "../node-canonicalize" }
+stencila-node-db = { path = "../node-db" }
+stencila-node-sentencize = { path = "../node-sentencize" }
 tokio = { workspace = true }
 tracing = { workspace = true }
 

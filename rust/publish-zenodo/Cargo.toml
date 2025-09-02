@@ -1,19 +1,19 @@
 [package]
-name = "publish-zenodo"
+name = "stencila-publish-zenodo"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 clap = { workspace = true }
-cli-utils = { path = "../cli-utils" }
-codec = { path = "../codec" }
-codec-text = { path = "../codec-text" }
-document = { path = "../document" }
 eyre = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+stencila-cli-utils = { path = "../cli-utils" }
+stencila-codec = { path = "../codec" }
+stencila-codec-text = { path = "../codec-text" }
+stencila-document = { path = "../document" }
 tokio = { workspace = true }
 tracing = { workspace = true }
 url = { workspace = true }

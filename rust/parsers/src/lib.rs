@@ -1,8 +1,8 @@
 use std::sync::LazyLock;
 
-use parser::{DefaultParser, format::Format};
+use stencila_parser::{DefaultParser, stencila_format::Format};
 
-pub use parser::{ParseInfo, Parser, schema::CompilationDigest};
+pub use stencila_parser::{ParseInfo, Parser, stencila_schema::CompilationDigest};
 
 /// Parse some code in a language
 pub fn parse(

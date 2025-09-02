@@ -9,8 +9,8 @@ use tokio::{
     sync::RwLock,
 };
 
-use dirs::{CONFIG_FILE, DirType, closest_config_file, get_app_dir};
-use schema::{Article, Config, Node};
+use stencila_dirs::{CONFIG_FILE, DirType, closest_config_file, get_app_dir};
+use stencila_schema::{Article, Config, Node};
 
 use crate::Document;
 

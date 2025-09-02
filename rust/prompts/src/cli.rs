@@ -2,13 +2,13 @@ use clap::{Args, Parser, Subcommand};
 use eyre::Result;
 use itertools::Itertools;
 
-use cli_utils::{
+use stencila_cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
     tabulated::{Attribute, Cell, Color, Tabulated},
 };
-use codecs::{EncodeOptions, Format};
-use model::schema::{InstructionType, Node, Prompt, StringOrNumber};
+use stencila_codecs::{EncodeOptions, Format};
+use stencila_model::stencila_schema::{InstructionType, Node, Prompt, StringOrNumber};
 
 /// Manage prompts
 #[derive(Debug, Parser)]
@@ -163,7 +163,7 @@ impl Show {
     async fn run(self) -> Result<()> {
         let prompt = super::get(&self.name).await?;
 
-        let content = codecs::to_string(
+        let content = stencila_codecs::to_string(
             &Node::Prompt(prompt.inner),
             Some(EncodeOptions {
                 format: Some(self.to.clone()),

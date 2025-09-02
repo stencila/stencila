@@ -1,13 +1,13 @@
 [package]
-name = "codec-odt"
+name = "stencila-codec-odt"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec = { path = "../codec" }
-codec-json = { path = "../codec-json" }
-codec-pandoc = { path = "../codec-pandoc" }
-node-reconstitute = { path = "../node-reconstitute" }
+stencila-codec = { path = "../codec" }
+stencila-codec-json = { path = "../codec-json" }
+stencila-codec-pandoc = { path = "../codec-pandoc" }
+stencila-node-reconstitute = { path = "../node-reconstitute" }
 
 [lints]
 workspace = true

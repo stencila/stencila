@@ -9,8 +9,8 @@ use regex::Regex;
 use uuid::Uuid;
 use zip::{ZipArchive, ZipWriter, write::SimpleFileOptions};
 
-use codec::eyre::{Context, OptionExt, Result, eyre};
-use codec_utils::move_file;
+use stencila_codec::eyre::{Context, OptionExt, Result, eyre};
+use stencila_codec_utils::move_file;
 
 /// Encode custom data and properties into a DOCX
 pub fn data_and_properties(

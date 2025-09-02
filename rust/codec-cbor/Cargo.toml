@@ -1,12 +1,12 @@
 [package]
-name = "codec-cbor"
+name = "stencila-codec-cbor"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 ciborium = "0.2.2"
-codec = { path = "../codec" }
 serde = { workspace = true }
+stencila-codec = { path = "../codec" }
 zstd = "0.13.3"
 
 [lints]

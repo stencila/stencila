@@ -18,14 +18,14 @@ use time::{
     format_description::{self, BorrowedFormatItem},
 };
 
-use kernel_kuzu::{
+use stencila_kernel_kuzu::{
     KuzuKernel, ToKuzu,
     kuzu::{
         Connection, Database, Error as KuzuError, LogicalType, PreparedStatement, SystemConfig,
         Value,
     },
 };
-use schema::{Node, NodeId, NodePath, NodeProperty, NodeType, Visitor, WalkNode};
+use stencila_schema::{Node, NodeId, NodePath, NodeProperty, NodeType, Visitor, WalkNode};
 
 pub mod cli;
 mod migrations;
@@ -638,7 +638,7 @@ impl NodeDatabase {
             }).unzip();
 
             // Generate embeddings for each
-            let embeddings: Vec<Vec<f32>> = embed::passages(texts)?;
+            let embeddings: Vec<Vec<f32>> = stencila_embed::passages(texts)?;
 
             // Insert embeddings into table
             let mut statement = connection.prepare(&format!("MATCH (node:`{table}`) WHERE node.nodeId = $node_id SET node.embeddings = $embeddings"))?;

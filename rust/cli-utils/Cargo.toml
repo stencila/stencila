@@ -1,5 +1,5 @@
 [package]
-name = "cli-utils"
+name = "stencila-cli-utils"
 version = "0.0.0"
 edition = "2024"
 
@@ -9,12 +9,12 @@ color-print = "0.3"
 comfy-table = "7.1.4"
 derive_more = { workspace = true }
 eyre = { workspace = true }
-format = { path = "../format" }
 itertools = { workspace = true }
-schema = { path = "../schema" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }
+stencila-format = { path = "../format" }
+stencila-schema = { path = "../schema" }
 syntect = "5.2.0"
 terminal_size = "0.4.3"
 textwrap = { version = "0.16.2", features = ["terminal_size"] }

@@ -1,6 +1,6 @@
 use url::Url;
 
-use codec::eyre::{Result, bail};
+use stencila_codec::eyre::{Result, bail};
 
 use crate::{
     client::{api_url, request},

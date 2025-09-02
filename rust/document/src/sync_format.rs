@@ -20,7 +20,7 @@ use tokio::{
     },
 };
 
-use codecs::{DecodeOptions, EncodeInfo, EncodeOptions, Mapping};
+use stencila_codecs::{DecodeOptions, EncodeInfo, EncodeOptions, Mapping};
 
 use crate::{Document, Update};
 
@@ -207,7 +207,7 @@ impl Document {
                 mapping: initial_mapping,
                 ..
             },
-        ) = codecs::to_string_with_info(&node, encode_options.clone()).await?;
+        ) = stencila_codecs::to_string_with_info(&node, encode_options.clone()).await?;
 
         // Create the mutex for the current content and mapping and initialize the version
         let current = Arc::new(Mutex::new((
@@ -338,7 +338,7 @@ impl Document {
                         // Update the root node
                         // TODO consider debouncing this since `from_str` and the update will be relatively expensive
                         if let Ok(node) =
-                            codecs::from_str(current_content, decode_options.clone()).await
+                            stencila_codecs::from_str(current_content, decode_options.clone()).await
                         {
                             // TODO: update `format` should be based on the `path` & `decode_options`
                             // and `authors` should use the local user
@@ -382,7 +382,9 @@ impl Document {
                             mapping: new_mapping,
                             ..
                         },
-                    ) = match codecs::to_string_with_info(&node, encode_options.clone()).await {
+                    ) = match stencila_codecs::to_string_with_info(&node, encode_options.clone())
+                        .await
+                    {
                         Ok(string) => string,
                         Err(error) => {
                             tracing::error!("While encoding node to string: {error}");
@@ -479,11 +481,11 @@ fn extract_chars(content: &str, range: Range<usize>) -> &str {
 #[allow(clippy::unwrap_used)]
 mod tests {
     use eyre::Report;
-    use format::Format;
-    use node_strip::StripScope;
     use ntest::timeout;
     use pretty_assertions::assert_eq;
-    use schema::{
+    use stencila_format::Format;
+    use stencila_node_strip::StripScope;
+    use stencila_schema::{
         NodeType,
         shortcuts::{art, p, t},
     };

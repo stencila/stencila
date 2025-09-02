@@ -1,15 +1,6 @@
 use itertools::Itertools;
 use serde_json;
 
-use codec::{
-    eyre::{OptionExt, Result, bail},
-    schema::{
-        Block, Inline, Reference,
-        shortcuts::{em, lnk, p, stg, sub, sup, t, u},
-    },
-};
-use codec_markdown_trait::to_markdown;
-use codec_text_trait::to_text;
 use hayagriva::{
     BibliographyDriver, BibliographyItem, BibliographyRequest, CitationItem, CitationRequest,
     ElemChild, Entry, Formatted, Library, RenderedBibliography,
@@ -17,6 +8,15 @@ use hayagriva::{
     citationberg::{FontStyle, FontWeight, Style, TextDecoration, VerticalAlign},
     io::to_yaml_str,
 };
+use stencila_codec::{
+    eyre::{OptionExt, Result, bail},
+    stencila_schema::{
+        Block, Inline, Reference,
+        shortcuts::{em, lnk, p, stg, sub, sup, t, u},
+    },
+};
+use stencila_codec_markdown_trait::to_markdown;
+use stencila_codec_text_trait::to_text;
 
 use crate::conversion::reference_to_entry;
 

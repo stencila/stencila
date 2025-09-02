@@ -1,4 +1,4 @@
-use schema::{Heading, LabelType, NodeType};
+use stencila_schema::{Heading, LabelType, NodeType};
 
 use crate::{HeadingInfo, prelude::*};
 

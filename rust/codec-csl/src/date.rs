@@ -2,9 +2,9 @@ use std::str::FromStr;
 
 use serde::Deserialize;
 
-use codec::{
+use stencila_codec::{
     eyre::{Report, bail},
-    schema::Date,
+    stencila_schema::Date,
 };
 
 use indexmap::IndexMap;

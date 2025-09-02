@@ -2,12 +2,12 @@ use std::{fs::read_to_string, path::PathBuf};
 
 use glob::glob;
 
-use codec::{
+use insta::assert_json_snapshot;
+use stencila_codec::{
     Codec,
     eyre::{OptionExt, Result},
 };
-use codec_openalex::OpenAlexCodec;
-use insta::assert_json_snapshot;
+use stencila_codec_openalex::OpenAlexCodec;
 
 /// Decode CSL-JSON into articles
 #[tokio::test]

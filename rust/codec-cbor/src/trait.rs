@@ -1,6 +1,6 @@
 use serde::{Serialize, de::DeserializeOwned};
 
-use codec::eyre::Result;
+use stencila_codec::eyre::Result;
 
 impl<T> CborCodec for T where T: DeserializeOwned + Serialize {}
 

@@ -5,9 +5,9 @@ use std::{cmp::Ordering, collections::HashMap, sync::Arc};
 use futures::future::join_all;
 use itertools::Itertools;
 
-use model::eyre::{Result, bail};
+use stencila_model::eyre::{Result, bail};
 
-pub use model::{
+pub use stencila_model::{
     Model, ModelAvailability, ModelOutput, ModelOutputKind, ModelSpecification, ModelTask,
     ModelType,
 };
@@ -18,13 +18,13 @@ pub mod cli;
 pub async fn list() -> Vec<Arc<dyn Model>> {
     let futures = (0..=6).map(|provider| async move {
         let (provider, result) = match provider {
-            0 => ("Anthropic", models_anthropic::list().await),
-            1 => ("Google", models_google::list().await),
-            2 => ("Mistral", models_mistral::list().await),
-            3 => ("Ollama", models_ollama::list().await),
-            4 => ("OpenAI", models_openai::list().await),
-            5 => ("Plugins", plugins::models::list().await),
-            6 => ("Stencila", models_stencila::list().await),
+            0 => ("Anthropic", stencila_models_anthropic::list().await),
+            1 => ("Google", stencila_models_google::list().await),
+            2 => ("Mistral", stencila_models_mistral::list().await),
+            3 => ("Ollama", stencila_models_ollama::list().await),
+            4 => ("OpenAI", stencila_models_openai::list().await),
+            5 => ("Plugins", stencila_plugins::models::list().await),
+            6 => ("Stencila", stencila_models_stencila::list().await),
             _ => return vec![],
         };
 

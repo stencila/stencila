@@ -1,11 +1,11 @@
-use ask::ask_for_password;
 use clap::{Args, Parser, Subcommand};
 use eyre::{Result, bail};
 use url::Url;
 
-use cli_utils::{color_print::cstr, message};
-use cloud::TokenSource;
-use server::{ServeOptions, get_server_token};
+use stencila_ask::ask_for_password;
+use stencila_cli_utils::{color_print::cstr, message};
+use stencila_cloud::TokenSource;
+use stencila_server::{ServeOptions, get_server_token};
 
 /// Manage Stencila Cloud account
 #[derive(Debug, Parser)]
@@ -56,7 +56,7 @@ pub static STATUS_AFTER_LONG_HELP: &str = cstr!(
 
 impl Status {
     async fn run(self) -> Result<()> {
-        let status = cloud::status();
+        let status = stencila_cloud::status();
 
         match (status.token, status.token_source) {
             (Some(redacted_token), Some(source)) => {
@@ -114,7 +114,7 @@ impl Signin {
                 "Enter an access token from <b>https://stencila.cloud/access-tokens</>"
             ))
             .await?;
-            cloud::signin(&token)?;
+            stencila_cloud::signin(&token)?;
 
             return Ok(());
         }
@@ -130,7 +130,7 @@ impl Signin {
             ..Default::default()
         };
 
-        let serve = tokio::spawn(async move { server::serve(options).await });
+        let serve = tokio::spawn(async move { stencila_server::serve(options).await });
 
         // Open the browser to the Stencila Cloud CLI signin page with a callback
         // to the ~auth endpoint.
@@ -175,7 +175,7 @@ pub static SIGNOUT_AFTER_LONG_HELP: &str = cstr!(
 
 impl Signout {
     pub async fn run(self) -> Result<()> {
-        let status_before = cloud::signout()?;
+        let status_before = stencila_cloud::signout()?;
 
         match (status_before.token, status_before.token_source) {
             (Some(_), Some(TokenSource::Keyring)) => message(

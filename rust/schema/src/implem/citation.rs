@@ -1,10 +1,10 @@
-use codec_info::lost_options;
+use stencila_codec_info::lost_options;
 
 use crate::{Citation, CitationMode, prelude::*};
 
 impl Citation {
     pub fn to_jats_special(&self) -> (String, Losses) {
-        use codec_jats_trait::encode::elem;
+        use stencila_codec_jats_trait::encode::elem;
 
         let mut losses = lost_options!(self, id);
 

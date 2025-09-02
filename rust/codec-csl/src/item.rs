@@ -1,7 +1,7 @@
 use serde::Deserialize;
 
-use codec::schema::{
-    Article, ArticleOptions, Author, Block, CreativeWorkVariant, Date, IntegerOrString,
+use stencila_codec::stencila_schema::{
+    self, Article, ArticleOptions, Author, Block, CreativeWorkVariant, Date, IntegerOrString,
     Organization, Paragraph, Periodical, PeriodicalOptions, PersonOrOrganization, Primitive,
     PropertyValue, PropertyValueOrString, PublicationIssue, PublicationVolume, Reference,
     shortcuts::{p, t},
@@ -317,8 +317,8 @@ impl From<ReferenceValue> for Reference {
                 None
             } else {
                 // Try to parse as a name, fallback to literal
-                use codec::schema::{Person, PersonOptions};
                 use std::str::FromStr;
+                use stencila_schema::{Person, PersonOptions};
 
                 let person = Person::from_str(&author_str).unwrap_or_else(|_| Person {
                     options: Box::new(PersonOptions {
@@ -327,7 +327,7 @@ impl From<ReferenceValue> for Reference {
                     }),
                     ..Default::default()
                 });
-                Some(vec![codec::schema::Author::Person(person)])
+                Some(vec![stencila_schema::Author::Person(person)])
             }
         });
 
@@ -345,7 +345,7 @@ impl From<ReferenceValue> for Reference {
         let is_part_of = ref_value
             .journal_title
             .map(|journal_title| Reference {
-                work_type: Some(codec::schema::CreativeWorkType::Periodical),
+                work_type: Some(stencila_schema::CreativeWorkType::Periodical),
                 title: Some(vec![t(&journal_title)]),
                 issue_number: ref_value.issue.map(IntegerOrString::String),
                 volume_number: ref_value.volume.map(IntegerOrString::String),

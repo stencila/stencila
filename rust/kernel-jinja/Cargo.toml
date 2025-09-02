@@ -1,12 +1,12 @@
 [package]
-name = "kernel-jinja"
+name = "stencila-kernel-jinja"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-kernel = { path = "../kernel" }
 minijinja = { version = "2.11.0", features = ["loader", "json", "debug"] }
 serde_json = { workspace = true }
+stencila-kernel = { path = "../kernel" }
 tokio = { workspace = true }
 tracing = { workspace = true }
 

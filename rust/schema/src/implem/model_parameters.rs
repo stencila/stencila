@@ -1,11 +1,11 @@
-use codec_markdown_trait::MarkdownCodec;
-use format::Format;
-use node_type::NodeProperty;
+use stencila_codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext};
+use stencila_format::Format;
+use stencila_node_type::NodeProperty;
 
 use crate::ModelParameters;
 
 impl MarkdownCodec for ModelParameters {
-    fn to_markdown(&self, context: &mut codec_markdown_trait::MarkdownEncodeContext) {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         if matches!(context.format, Format::Myst) {
             if let Some(model_ids) = &self.model_ids
                 && !model_ids.is_empty()

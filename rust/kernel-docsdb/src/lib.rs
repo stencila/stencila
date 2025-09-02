@@ -7,28 +7,28 @@ use std::{
 
 use lru::LruCache;
 
-use codecs::EncodeOptions;
-use dirs::{closest_stencila_dir, stencila_db_file, stencila_store_dir};
 use futures::future::join_all;
 use itertools::Itertools;
-use kernel_kuzu::{
+use regex::Regex;
+use stencila_codecs::EncodeOptions;
+use stencila_dirs::{closest_stencila_dir, stencila_db_file, stencila_store_dir};
+use stencila_kernel_kuzu::{
     KuzuKernelInstance,
-    kernel::{
+    stencila_kernel::{
         Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
         async_trait,
         eyre::{Result, bail},
-        format::Format,
         generate_id,
-        schema::{
+        stencila_format::Format,
+        stencila_schema::{
             Array, Excerpt, ExecutionBounds, ExecutionMessage, Node, NodeId, NodeSet, NodeType,
             Primitive, Reference, SoftwareApplication, Variable, get, shortcuts::t,
         },
     },
 };
-use node_canonicalize::canonicalize;
-use node_db::NodeDatabase;
-use node_sentencize::sentencize;
-use regex::Regex;
+use stencila_node_canonicalize::canonicalize;
+use stencila_node_db::NodeDatabase;
+use stencila_node_sentencize::sentencize;
 use tokio::{
     self,
     fs::read_to_string,
@@ -36,7 +36,7 @@ use tokio::{
     task,
 };
 
-pub use kernel_kuzu::QueryResultTransform;
+pub use stencila_kernel_kuzu::QueryResultTransform;
 
 const NAME: &str = "docsdb";
 
@@ -427,7 +427,7 @@ impl DocsDBKernelInstance {
             ));
         };
 
-        let content = codec_markdown::decode(&md, None)?.0.try_into()?;
+        let content = stencila_codec_markdown::decode(&md, None)?.0.try_into()?;
 
         Ok(Node::Excerpt(Excerpt {
             source,
@@ -466,7 +466,7 @@ impl DocsDBKernelInstance {
             task::spawn(async move {
                 // Try each identifier for this document until one succeeds
                 for identifier in identifiers {
-                    match codecs::from_identifier(&identifier, None).await {
+                    match stencila_codecs::from_identifier(&identifier, None).await {
                         Ok(mut root) => {
                             // Generate a unique document ID
                             let doc_id = NodeId::random(*b"doc");
@@ -482,7 +482,7 @@ impl DocsDBKernelInstance {
 
                             // Store the document as JSON
                             let store_path = store_dir.join(format!("{doc_id}.json"));
-                            if let Err(error) = codec_json::to_path(
+                            if let Err(error) = stencila_codec_json::to_path(
                                 &root,
                                 &store_path,
                                 Some(EncodeOptions {

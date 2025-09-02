@@ -28,11 +28,11 @@ use tokio::{
     time::timeout,
 };
 
-use codecs::{DecodeOptions, EncodeOptions, Format};
-use document::{Command, CommandNodes, CommandScope, CommandStatus, Document};
-use node_execute::ExecuteOptions;
-use node_find::find;
-use schema::{
+use stencila_codecs::{DecodeOptions, EncodeOptions, Format};
+use stencila_document::{Command, CommandNodes, CommandScope, CommandStatus, Document};
+use stencila_node_execute::ExecuteOptions;
+use stencila_node_find::find;
+use stencila_schema::{
     AuthorRole, AuthorRoleName, Block, Chat, ContentType, ExecutionMode, InstructionBlock,
     InstructionMessage, InstructionType, ModelParameters, Node, NodeId, NodePath, NodeProperty,
     NodeType, Patch, PatchNode, PatchOp, PatchValue, PromptBlock, SuggestionBlock, Timestamp, diff,
@@ -917,7 +917,7 @@ pub(super) async fn doc_command(
             // If no prompt provided then infer one from the instruction type, node type etc
             let target = match prompt {
                 Some(prompt) => Some(prompt),
-                None => prompts::infer(&instruction_type, &node_types, &None)
+                None => stencila_prompts::infer(&instruction_type, &node_types, &None)
                     .await
                     .map(|prompt| [&prompt.name, "?"].concat()),
             };
@@ -1114,7 +1114,7 @@ pub(super) async fn merge_doc(
     let edited_path = path_buf_arg(args.next())?;
     let original_path = path_buf_arg(args.next())?;
 
-    match codecs::merge(
+    match stencila_codecs::merge(
         &edited_path,
         Some(&original_path),
         None,

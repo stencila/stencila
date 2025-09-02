@@ -1,4 +1,4 @@
-use codec::schema::{Author, Date};
+use stencila_codec::stencila_schema::{Author, Date};
 
 use crate::decode::parts::authors::extract_name;
 
@@ -37,7 +37,7 @@ pub fn generate_id(authors: &[Author], date: &Option<(Date, Option<String>)>) ->
 
 #[cfg(test)]
 mod tests {
-    use codec::schema::{Organization, Person};
+    use stencila_codec::stencila_schema::{Organization, Person};
 
     use super::*;
 

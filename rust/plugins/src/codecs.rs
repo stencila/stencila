@@ -3,8 +3,10 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 
 use async_trait::async_trait;
-use codec::{Codec, EncodeInfo, EncodeOptions, schema::Node, status::Status};
 use eyre::{Result, bail};
+use stencila_codec::{
+    Codec, EncodeInfo, EncodeOptions, stencila_schema::Node, stencila_status::Status,
+};
 use tokio::sync::Mutex;
 
 use crate::{Plugin, PluginInstance, plugins};

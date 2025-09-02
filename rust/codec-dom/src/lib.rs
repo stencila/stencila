@@ -4,21 +4,21 @@ use itertools::Itertools;
 use lightningcss::stylesheet::{ParserOptions, PrinterOptions, StyleSheet};
 use tokio::fs::{create_dir_all, write};
 
-use codec::{
+use stencila_codec::{
     Codec, CodecSupport, EncodeInfo, EncodeOptions, async_trait,
     eyre::{Result, bail},
-    format::Format,
-    schema::{Node, NodeType},
-    status::Status,
+    stencila_format::Format,
+    stencila_schema::{Node, NodeType},
+    stencila_status::Status,
 };
-use codec_dom_trait::{
+use stencila_codec_dom_trait::{
     DomCodec as DomCodecTrait, DomEncodeContext,
     html_escape::{encode_double_quoted_attribute, encode_safe},
 };
-use codec_text_trait::to_text;
-use media_embed::embed_media;
-use media_extract::extract_media;
-use version::STENCILA_VERSION;
+use stencila_codec_text_trait::to_text;
+use stencila_media_embed::embed_media;
+use stencila_media_extract::extract_media;
+use stencila_version::STENCILA_VERSION;
 
 /// A codec for DOM HTML
 pub struct DomCodec;

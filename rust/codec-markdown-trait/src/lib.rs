@@ -2,10 +2,12 @@
 
 use inflector::Inflector;
 
-use codec_info::{ContentType, Losses, Mapping, MessageLevel, NodeId, NodeProperty, NodeType};
-use format::Format;
+use stencila_codec_info::{
+    ContentType, Losses, Mapping, MessageLevel, NodeId, NodeProperty, NodeType,
+};
+use stencila_format::Format;
 
-pub use codec_markdown_derive::MarkdownCodec;
+pub use stencila_codec_markdown_derive::MarkdownCodec;
 
 pub trait MarkdownCodec {
     /// Encode a Stencila Schema node to Markdown

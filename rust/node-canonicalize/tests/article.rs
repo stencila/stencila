@@ -1,9 +1,9 @@
 use eyre::{Result, bail};
 use serde_json::json;
 
-use node_canonicalize::canonicalize;
 use pretty_assertions::assert_eq;
-use schema::{Article, Author, Date, Node, Person, shortcuts::t};
+use stencila_node_canonicalize::canonicalize;
+use stencila_schema::{Article, Author, Date, Node, Person, shortcuts::t};
 
 /// Article with a DOI on OpenAlex should get that DOI
 #[tokio::test]

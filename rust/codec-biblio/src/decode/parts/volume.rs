@@ -5,7 +5,7 @@ use winnow::{
     token::take_while,
 };
 
-use codec::schema::IntegerOrString;
+use stencila_codec::stencila_schema::IntegerOrString;
 
 /// Parse a volume
 pub fn volume(input: &mut &str) -> Result<IntegerOrString> {

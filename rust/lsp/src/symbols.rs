@@ -10,7 +10,7 @@ use async_lsp::{
 };
 use tokio::sync::{RwLock, watch::Receiver};
 
-use schema::NodeType;
+use stencila_schema::NodeType;
 
 use crate::text_document::{SyncState, TextNode};
 

@@ -1,17 +1,17 @@
 [package]
-name = "models-ollama"
+name = "stencila-models-ollama"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-cached = { workspace = true }
 Inflector = { workspace = true }
-model = { path = "../model" }
+cached = { workspace = true }
 # Ensure that rustls is used to avoid adding a dependence on OpenSSL
 ollama-rs = { version = "0.3.2", default-features = false, features = [
     "rustls",
     "stream",
 ] }
+stencila-model = { path = "../model" }
 tracing = { workspace = true }
 
 [dev-dependencies]

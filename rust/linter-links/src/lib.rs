@@ -6,9 +6,11 @@ use tokio::sync::Mutex;
 use stencila_linter::{
     Format, Linter, LinterAvailability, LintingOptions, LintingOutput, NodeType, async_trait,
     eyre::Result,
-    schema::{AuthorRoleName, CompilationMessage, MessageLevel, SoftwareApplication, Timestamp},
+    stencila_schema::{
+        AuthorRoleName, CompilationMessage, MessageLevel, SoftwareApplication, Timestamp,
+    },
 };
-use version::STENCILA_USER_AGENT;
+use stencila_version::STENCILA_USER_AGENT;
 
 /// HTTP client for making link check requests
 static HTTP_CLIENT: LazyLock<Client> = LazyLock::new(|| {

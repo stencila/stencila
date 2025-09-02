@@ -1,12 +1,12 @@
 [package]
-name = "codec-jats-trait"
+name = "stencila-codec-jats-trait"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec-info = { path = "../codec-info" }
-codec-jats-derive = { path = "../codec-jats-derive" }
 itertools = { workspace = true }
+stencila-codec-info = { path = "../codec-info" }
+stencila-codec-jats-derive = { path = "../codec-jats-derive" }
 
 [lints]
 workspace = true

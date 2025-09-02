@@ -3,12 +3,12 @@ use std::{str::FromStr, sync::LazyLock};
 use regex::Regex;
 use tl::{HTMLTag, Parser, ParserOptions, parse};
 
-use codec::{
+use stencila_codec::{
     DecodeInfo, DecodeOptions, Losses,
     eyre::{Result, bail},
-    schema::{Article, Author, Block, Inline, Node, Person, Reference, shortcuts::t},
+    stencila_schema::{Article, Author, Block, Inline, Node, Person, Reference, shortcuts::t},
 };
-use codec_biblio::decode::text_to_reference;
+use stencila_codec_biblio::decode::text_to_reference;
 
 use super::decode::arxiv_id_to_doi;
 use super::decode_html_blocks::*;

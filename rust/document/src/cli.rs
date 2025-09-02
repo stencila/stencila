@@ -13,17 +13,19 @@ use itertools::Itertools;
 use reqwest::Url;
 use tokio::fs::create_dir_all;
 
-use ask::{Answer, ask_with_default};
-use cli_utils::{
+use stencila_ask::{Answer, ask_with_default};
+use stencila_cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
     tabulated::{Attribute, Cell, Color, Tabulated},
 };
-use codecs::{EncodeOptions, LossesResponse};
-use dirs::{CreateStencilaDirOptions, STENCILA_DIR, closest_workspace_dir, stencila_dir_create};
-use format::Format;
-use node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
-use schema::{Article, Block, Collection, CreativeWorkVariant, Node, NodeId, NodeType};
+use stencila_codecs::{EncodeOptions, LossesResponse};
+use stencila_dirs::{
+    CreateStencilaDirOptions, STENCILA_DIR, closest_workspace_dir, stencila_dir_create,
+};
+use stencila_format::Format;
+use stencila_node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
+use stencila_schema::{Article, Block, Collection, CreativeWorkVariant, Node, NodeId, NodeType};
 
 use crate::track::DocumentRemote;
 
@@ -233,7 +235,7 @@ impl Query {
 
         if let Some(output) = self.output.map(PathBuf::from) {
             // If output is defined then encode to file
-            codecs::to_path(
+            stencila_codecs::to_path(
                 &node,
                 &output,
                 Some(EncodeOptions {
@@ -250,7 +252,7 @@ impl Query {
         } else {
             // Otherwise print using output format, defaulting to Markdown
             let format = self.r#to.unwrap_or(Format::Markdown);
-            let content = codecs::to_string(
+            let content = stencila_codecs::to_string(
                 &node,
                 Some(EncodeOptions {
                     format: Some(format.clone()),

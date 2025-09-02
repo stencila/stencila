@@ -15,7 +15,7 @@ use tokio::{
     },
 };
 
-use schema::{Node, NodeId, NodePath};
+use stencila_schema::{Node, NodeId, NodePath};
 
 use crate::Document;
 
@@ -84,7 +84,7 @@ impl Document {
 
         // Get the node and its JSON value
         let node = self.root.read().await;
-        let map = node_map::map(&*node);
+        let map = stencila_node_map::map(&*node);
         let value = serde_json::to_value(&ObjectState {
             node: node.clone(),
             map,
@@ -130,7 +130,7 @@ impl Document {
 
                 // Get the new version of the node and its JSON serialization
                 let node = node_receiver.borrow_and_update().clone();
-                let map = node_map::map(&node);
+                let map = stencila_node_map::map(&node);
                 let new = match serde_json::to_value(&ObjectState { node, map }) {
                     Ok(new) => new,
                     Err(error) => {
@@ -176,7 +176,7 @@ mod tests {
 
     use eyre::bail;
     use pretty_assertions::assert_eq;
-    use schema::{
+    use stencila_schema::{
         NodeType,
         shortcuts::{art, p, t},
     };

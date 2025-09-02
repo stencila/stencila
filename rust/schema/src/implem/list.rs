@@ -1,5 +1,5 @@
-use codec_html_trait::encode::elem;
-use codec_info::lost_options;
+use stencila_codec_html_trait::encode::elem;
+use stencila_codec_info::lost_options;
 
 use crate::{List, ListOrder, prelude::*};
 

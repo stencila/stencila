@@ -1,4 +1,4 @@
-use schema::{CompilationMessage, MathBlock};
+use stencila_schema::{CompilationMessage, MathBlock};
 
 use crate::prelude::*;
 
@@ -17,7 +17,7 @@ impl Executable for MathBlock {
         }
 
         // Parse the code to determine if it or the language has changed since last time
-        let info = parsers::parse(
+        let info = stencila_parsers::parse(
             &self.code,
             &self.math_language,
             &self.options.compilation_digest,

@@ -1,5 +1,5 @@
-use codec_markdown::decode_frontmatter;
-use schema::{Article, NodeSlot, NodeType, Reference, diff};
+use stencila_codec_markdown::decode_frontmatter;
+use stencila_schema::{Article, NodeSlot, NodeType, Reference, diff};
 
 use crate::{HeadingInfo, interrupt_impl, prelude::*};
 

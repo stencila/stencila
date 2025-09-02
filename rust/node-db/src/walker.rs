@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use kernel_kuzu::kuzu::{LogicalType, Value};
-use schema::{
+use stencila_kernel_kuzu::kuzu::{LogicalType, Value};
+use stencila_schema::{
     Article, Author, AuthorRoleAuthor, Block, Citation, IfBlockClause, Inline, ListItem, Node,
     NodeId, NodePath, NodeProperty, NodeSlot, NodeType, Organization, Person, Reference, TableCell,
     TableRow, Visitor, WalkControl,

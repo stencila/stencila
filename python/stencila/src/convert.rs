@@ -4,7 +4,7 @@ use std::path::PathBuf;
 
 use pyo3::prelude::*;
 
-use codecs::Format;
+use stencila_codecs::Format;
 
 use crate::utilities::{runtime_error, value_error};
 
@@ -28,11 +28,11 @@ struct DecodeOptions {
     format: Option<String>,
 }
 
-impl TryInto<codecs::DecodeOptions> for DecodeOptions {
+impl TryInto<stencila_codecs::DecodeOptions> for DecodeOptions {
     type Error = PyErr;
 
-    fn try_into(self) -> PyResult<codecs::DecodeOptions> {
-        Ok(codecs::DecodeOptions {
+    fn try_into(self) -> PyResult<stencila_codecs::DecodeOptions> {
+        Ok(stencila_codecs::DecodeOptions {
             format: self.format.as_ref().map(|format| Format::from_name(format)),
             ..Default::default()
         })
@@ -61,11 +61,11 @@ struct EncodeOptions {
     compact: Option<bool>,
 }
 
-impl TryInto<codecs::EncodeOptions> for EncodeOptions {
+impl TryInto<stencila_codecs::EncodeOptions> for EncodeOptions {
     type Error = PyErr;
 
-    fn try_into(self) -> PyResult<codecs::EncodeOptions> {
-        Ok(codecs::EncodeOptions {
+    fn try_into(self) -> PyResult<stencila_codecs::EncodeOptions> {
+        Ok(stencila_codecs::EncodeOptions {
             format: self.format.as_ref().map(|format| Format::from_name(format)),
             standalone: self.standalone,
             compact: self.compact,
@@ -80,7 +80,7 @@ fn from_string(py: Python, input: String, options: DecodeOptions) -> PyResult<Bo
     pyo3_async_runtimes::tokio::future_into_py(py, async move {
         let options = Some(options.try_into()?);
 
-        let node = codecs::from_str(&input, options)
+        let node = stencila_codecs::from_str(&input, options)
             .await
             .map_err(runtime_error)?;
 
@@ -97,7 +97,7 @@ fn from_path(py: Python, path: String, options: DecodeOptions) -> PyResult<Bound
         let path = PathBuf::from(path);
         let options = Some(options.try_into()?);
 
-        let node = codecs::from_path(&path, options)
+        let node = stencila_codecs::from_path(&path, options)
             .await
             .map_err(runtime_error)?;
 
@@ -117,7 +117,7 @@ fn to_string(py: Python, json: String, options: EncodeOptions) -> PyResult<Bound
             .map_err(eyre::Report::new)
             .map_err(value_error)?;
 
-        codecs::to_string(&node, options)
+        stencila_codecs::to_string(&node, options)
             .await
             .map_err(runtime_error)
     })
@@ -139,7 +139,7 @@ fn to_path(
             .map_err(eyre::Report::new)
             .map_err(value_error)?;
 
-        codecs::to_path(&node, &path, options)
+        stencila_codecs::to_path(&node, &path, options)
             .await
             .map_err(runtime_error)?;
 
@@ -170,7 +170,7 @@ fn from_to(
         let decode_options = Some(decode_options.try_into()?);
         let encode_options = Some(encode_options.try_into()?);
 
-        codecs::convert(
+        stencila_codecs::convert(
             input.as_deref(),
             output.as_deref(),
             decode_options,

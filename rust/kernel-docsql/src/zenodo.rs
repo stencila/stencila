@@ -3,13 +3,13 @@ use std::sync::{Arc, Mutex as SyncMutex};
 use eyre::Result;
 use tokio::{runtime, task};
 
-use codec_zenodo::{SearchRecordsResponse, request};
-use kernel_jinja::{
-    kernel::schema::{CodeChunk, ExecutionMessage, MessageLevel, Node},
+use stencila_codec_zenodo::{SearchRecordsResponse, request};
+use stencila_kernel_jinja::{
     minijinja::{
         Environment, Error, ErrorKind, State, Value,
         value::{Kwargs, Object, ValueKind, from_args},
     },
+    stencila_kernel::stencila_schema::{CodeChunk, ExecutionMessage, MessageLevel, Node},
 };
 
 use crate::{

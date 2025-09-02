@@ -11,8 +11,8 @@ use reqwest::Url;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
 
-use codecs::{EncodeOptions, Format};
-use document::Document;
+use stencila_codecs::{EncodeOptions, Format};
+use stencila_document::Document;
 
 pub struct SubscribeContent;
 
@@ -76,7 +76,7 @@ pub async fn subscribe(
         tokio::spawn(async move {
             while receiver.changed().await.is_ok() {
                 let node = receiver.borrow_and_update().clone();
-                match codecs::to_string(&node, options.clone()).await {
+                match stencila_codecs::to_string(&node, options.clone()).await {
                     Ok(content) => {
                         if let Err(error) = client.notify::<PublishContent>(PublishContentParams {
                             uri: uri.clone(),

@@ -1,13 +1,13 @@
 [package]
-name = "codec-yaml"
+name = "stencila-codec-yaml"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec = { path = "../codec" }
 serde = { workspace = true }
 serde_yaml = { workspace = true }
-version = { path = "../version" }
+stencila-codec = { path = "../codec" }
+stencila-version = { path = "../version" }
 
 [dev-dependencies]
 tokio = { workspace = true }

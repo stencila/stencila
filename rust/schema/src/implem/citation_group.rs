@@ -1,4 +1,4 @@
-use codec_info::lost_options;
+use stencila_codec_info::lost_options;
 
 use crate::{CitationGroup, prelude::*};
 

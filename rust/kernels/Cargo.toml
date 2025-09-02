@@ -1,30 +1,30 @@
 [package]
-name = "kernels"
+name = "stencila-kernels"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-cli-utils = { path = "../cli-utils" }
 clap = { workspace = true }
 itertools = { workspace = true }
-kernel = { path = "../kernel" }
-kernel-asciimath = { path = "../kernel-asciimath" }
-kernel-bash = { path = "../kernel-bash" }
-kernel-docsdb = { path = "../kernel-docsdb" }
-kernel-docsql = { path = "../kernel-docsql" }
-kernel-graphviz = { path = "../kernel-graphviz" }
-kernel-jinja = { path = "../kernel-jinja" }
-kernel-kuzu = { path = "../kernel-kuzu" }
-kernel-mermaid = { path = "../kernel-mermaid" }
-kernel-nodejs = { path = "../kernel-nodejs" }
-kernel-python = { path = "../kernel-python" }
-kernel-quickjs = { path = "../kernel-quickjs" }
-kernel-r = { path = "../kernel-r" }
-kernel-rhai = { path = "../kernel-rhai", optional = true }
-kernel-style = { path = "../kernel-style" }
-kernel-tex = { path = "../kernel-tex" }
-node-diagnostics = { path = "../node-diagnostics" }
-plugins = { path = "../plugins" }
+stencila-cli-utils = { path = "../cli-utils" }
+stencila-kernel = { path = "../kernel" }
+stencila-kernel-asciimath = { path = "../kernel-asciimath" }
+stencila-kernel-bash = { path = "../kernel-bash" }
+stencila-kernel-docsdb = { path = "../kernel-docsdb" }
+stencila-kernel-docsql = { path = "../kernel-docsql" }
+stencila-kernel-graphviz = { path = "../kernel-graphviz" }
+stencila-kernel-jinja = { path = "../kernel-jinja" }
+stencila-kernel-kuzu = { path = "../kernel-kuzu" }
+stencila-kernel-mermaid = { path = "../kernel-mermaid" }
+stencila-kernel-nodejs = { path = "../kernel-nodejs" }
+stencila-kernel-python = { path = "../kernel-python" }
+stencila-kernel-quickjs = { path = "../kernel-quickjs" }
+stencila-kernel-r = { path = "../kernel-r" }
+stencila-kernel-rhai = { path = "../kernel-rhai", optional = true }
+stencila-kernel-style = { path = "../kernel-style" }
+stencila-kernel-tex = { path = "../kernel-tex" }
+stencila-node-diagnostics = { path = "../node-diagnostics" }
+stencila-plugins = { path = "../plugins" }
 tokio = { workspace = true }
 tracing = { workspace = true }
 

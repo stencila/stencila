@@ -1,7 +1,7 @@
 use crate::{PromptContext, prelude::*};
 
 use pretty_assertions::assert_eq;
-use schema::Node;
+use stencila_schema::Node;
 
 use super::{
     Kernel, Kernels, Package,

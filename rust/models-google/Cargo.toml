@@ -1,15 +1,15 @@
 [package]
-name = "models-google"
+name = "stencila-models-google"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 cached = { workspace = true }
 itertools = { workspace = true }
-model = { path = "../model" }
 reqwest = { workspace = true }
 serde = { workspace = true }
 serde_with = { workspace = true }
+stencila-model = { path = "../model" }
 tracing = { workspace = true }
 
 [dev-dependencies]

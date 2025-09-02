@@ -1,6 +1,7 @@
-use kernel_micro::{
+use stencila_kernel_micro::{
     Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelProvider,
-    KernelTerminate, Microkernel, eyre::Result, format::Format, schema::ExecutionBounds,
+    KernelTerminate, Microkernel, eyre::Result, stencila_format::Format,
+    stencila_schema::ExecutionBounds,
 };
 
 /// A kernel for executing JavaScript code in Node.js
@@ -68,8 +69,8 @@ mod tests {
     use indexmap::IndexMap;
     use pretty_assertions::assert_eq;
 
-    use kernel_micro::{
-        schema::{
+    use stencila_kernel_micro::{
+        stencila_schema::{
             Array, ArrayHint, CodeLocation, ExecutionMessage, Hint, MessageLevel, Node, Null,
             Object, ObjectHint, Primitive, StringHint, Variable,
         },
@@ -91,7 +92,7 @@ mod tests {
             return Ok(());
         };
 
-        kernel_micro::tests::execution(
+        stencila_kernel_micro::tests::execution(
             instance,
             vec![
                 // Empty code: no outputs
@@ -165,7 +166,7 @@ console.log(a, b, c, d)",
             return Ok(());
         };
 
-        kernel_micro::tests::evaluation(
+        stencila_kernel_micro::tests::evaluation(
             instance,
             vec![
                 ("1 + 1", Node::Integer(2), None),
@@ -212,7 +213,7 @@ console.log(a, b, c, d)",
             return Ok(());
         };
 
-        kernel_micro::tests::printing(
+        stencila_kernel_micro::tests::printing(
             instance,
             r#"console.log('str')"#,
             r#"console.log('str1', 'str2')"#,
@@ -356,7 +357,7 @@ console.error("Error message");
             return Ok(());
         };
 
-        let sw = kernel_micro::tests::info(instance).await?;
+        let sw = stencila_kernel_micro::tests::info(instance).await?;
         assert_eq!(sw.name, "Node.js");
         assert!(sw.options.software_version.is_some());
         assert!(sw.options.operating_system.is_some());
@@ -379,7 +380,7 @@ console.error("Error message");
             return Ok(());
         };
 
-        let pkgs = kernel_micro::tests::packages(instance).await?;
+        let pkgs = stencila_kernel_micro::tests::packages(instance).await?;
         assert!(!pkgs.is_empty());
 
         Ok(())
@@ -393,7 +394,7 @@ console.error("Error message");
             return Ok(());
         };
 
-        kernel_micro::tests::var_listing(
+        stencila_kernel_micro::tests::var_listing(
             instance,
             r#"
 var nul = null;
@@ -484,7 +485,7 @@ var para = {type: "Paragraph", content:[]}
             return Ok(());
         };
 
-        kernel_micro::tests::var_management(instance).await
+        stencila_kernel_micro::tests::var_management(instance).await
     }
 
     /// Standard kernel test for forking
@@ -495,7 +496,7 @@ var para = {type: "Paragraph", content:[]}
             return Ok(());
         };
 
-        kernel_micro::tests::forking(instance).await
+        stencila_kernel_micro::tests::forking(instance).await
     }
 
     /// Custom test to check that modules imported in the main kernel instance are
@@ -598,7 +599,7 @@ console.log(typeof fs.read, typeof path.join, typeof crypto.createHash)
             return Ok(());
         };
 
-        kernel_micro::tests::signals(
+        stencila_kernel_micro::tests::signals(
             instance,
             "
 // Setup step
@@ -638,7 +639,7 @@ sleep(100);",
             return Ok(());
         };
 
-        kernel_micro::tests::stop(instance).await
+        stencila_kernel_micro::tests::stop(instance).await
     }
 
     /// `NodeKernel` specific test for re-declarations of variables

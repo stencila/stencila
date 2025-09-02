@@ -52,8 +52,8 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
         fields.extend(field);
     }
     methods.extend(quote! {
-        fn sync_map(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId) -> eyre::Result<()> {
-            use node_store::automerge::{ReadDoc, transaction::Transactable};
+        fn sync_map(&self, store: &mut stencila_node_store::WriteStore, obj_id: &stencila_node_store::ObjId) -> eyre::Result<()> {
+            use stencila_node_store::automerge::{ReadDoc, transaction::Transactable};
 
             #fields
 
@@ -92,8 +92,8 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
         fields.extend(field);
     }
     methods.extend(quote! {
-        fn insert_prop(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId, prop: node_store::Prop) -> eyre::Result<()> {
-            use node_store::{ObjType, Prop, automerge::{transaction::Transactable}};
+        fn insert_prop(&self, store: &mut stencila_node_store::WriteStore, obj_id: &stencila_node_store::ObjId, prop: stencila_node_store::Prop) -> eyre::Result<()> {
+            use stencila_node_store::{ObjType, Prop, automerge::{transaction::Transactable}};
 
             let prop_obj_id = match prop.clone() {
                 Prop::Map(key) => store.put_object(obj_id, key, ObjType::Map)?,
@@ -105,8 +105,8 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
             Ok(())
         }
 
-        fn insert_into(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId) -> eyre::Result<()> {
-            use node_store::automerge::transaction::Transactable;
+        fn insert_into(&self, store: &mut stencila_node_store::WriteStore, obj_id: &stencila_node_store::ObjId) -> eyre::Result<()> {
+            use stencila_node_store::automerge::transaction::Transactable;
 
             #fields
 
@@ -118,8 +118,8 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     // Note that currently this could be made into a function
     // to avoid code bloat
     methods.extend(quote! {
-        fn put_prop(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId, prop: node_store::Prop) -> eyre::Result<()> {
-            use node_store::{ReadStore, ObjType, automerge::{Value, transaction::Transactable}};
+        fn put_prop(&self, store: &mut stencila_node_store::WriteStore, obj_id: &stencila_node_store::ObjId, prop: stencila_node_store::Prop) -> eyre::Result<()> {
+            use stencila_node_store::{ReadStore, ObjType, automerge::{Value, transaction::Transactable}};
 
             // Get the existing object at the property
             let existing = store.get(obj_id, prop.clone())?;
@@ -142,7 +142,7 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     });
 
     quote! {
-        impl node_store::WriteNode for #struct_name {
+        impl stencila_node_store::WriteNode for #struct_name {
             #methods
         }
     }
@@ -173,7 +173,7 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
         cases.extend(case)
     }
     methods.extend(quote! {
-        fn sync_map(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId) -> eyre::Result<()> {
+        fn sync_map(&self, store: &mut stencila_node_store::WriteStore, obj_id: &stencila_node_store::ObjId) -> eyre::Result<()> {
             match self {
                 #cases
             }
@@ -195,7 +195,7 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
         cases.extend(case)
     }
     methods.extend(quote! {
-        fn insert_prop(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId, prop: node_store::Prop) -> eyre::Result<()> {
+        fn insert_prop(&self, store: &mut stencila_node_store::WriteStore, obj_id: &stencila_node_store::ObjId, prop: stencila_node_store::Prop) -> eyre::Result<()> {
             match self {
                 #cases
             }
@@ -217,7 +217,7 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
         cases.extend(case)
     }
     methods.extend(quote! {
-        fn put_prop(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId, prop: node_store::Prop) -> eyre::Result<()> {
+        fn put_prop(&self, store: &mut stencila_node_store::WriteStore, obj_id: &stencila_node_store::ObjId, prop: stencila_node_store::Prop) -> eyre::Result<()> {
             match self {
                 #cases
             }
@@ -225,7 +225,7 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
     });
 
     quote! {
-        impl node_store::WriteNode for #enum_name {
+        impl stencila_node_store::WriteNode for #enum_name {
             #methods
         }
     }

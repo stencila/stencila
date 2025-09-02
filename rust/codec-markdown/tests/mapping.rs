@@ -1,14 +1,14 @@
-use codec::{
+use insta::{assert_snapshot, assert_yaml_snapshot};
+use stencila_codec::{
     Codec, EncodeInfo,
     eyre::Result,
-    format::Format,
-    schema::{
+    stencila_format::Format,
+    stencila_schema::{
         AuthorRole, AuthorRoleName, Person, authorship, merge,
         shortcuts::{art, p, t},
     },
 };
-use codec_markdown::MarkdownCodec;
-use insta::{assert_snapshot, assert_yaml_snapshot};
+use stencila_codec_markdown::MarkdownCodec;
 
 /// Test that mapping of Unicode characters is correct: ie uses character indices, not bytes indices
 #[tokio::test]

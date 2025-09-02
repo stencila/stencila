@@ -1,10 +1,10 @@
-use codec::{
+use stencila_codec::{
     DecodeInfo, EncodeInfo, EncodeOptions,
     eyre::{Result, bail},
-    format::Format,
-    schema::{Article, Node},
+    stencila_format::Format,
+    stencila_schema::{Article, Node},
 };
-use codec_dom_trait::to_dom;
+use stencila_codec_dom_trait::to_dom;
 
 use crate::{
     blocks::{blocks_from_lexical, blocks_to_lexical},

@@ -2,9 +2,9 @@
 
 use async_lsp::lsp_types::request::Request;
 
-use prompts::PromptInstance;
+use stencila_prompts::PromptInstance;
 
-pub use prompts::list;
+pub use stencila_prompts::list;
 
 pub struct ListPrompts;
 

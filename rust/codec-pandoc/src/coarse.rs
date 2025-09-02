@@ -1,12 +1,12 @@
 use std::path::Path;
 
-use codec::{
+use stencila_codec::{
     EncodeInfo, EncodeOptions,
     eyre::{Result, bail},
-    format::Format,
-    schema::Node,
+    stencila_format::Format,
+    stencila_schema::Node,
 };
-use codec_latex_trait::to_latex;
+use stencila_codec_latex_trait::to_latex;
 
 use crate::format_to_path;
 

@@ -1,11 +1,11 @@
 [package]
-name = "node-media"
+name = "stencila-node-media"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-images = { path = "../images" }
-schema = { path = "../schema" }
+stencila-images = { path = "../images" }
+stencila-schema = { path = "../schema" }
 tracing = { workspace = true }
 
 [lints]

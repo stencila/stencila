@@ -1,8 +1,8 @@
 use itertools::Itertools;
 use pandoc_types::definition::{self as pandoc, Attr, Target};
 
-use codec::{format::Format, schema::*};
-use codec_text_trait::to_text;
+use stencila_codec::{stencila_format::Format, stencila_schema::*};
+use stencila_codec_text_trait::to_text;
 
 use crate::{
     blocks::{blocks_from_pandoc, blocks_to_pandoc},

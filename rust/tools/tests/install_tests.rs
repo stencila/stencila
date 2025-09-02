@@ -4,8 +4,8 @@ use clap::Parser;
 use eyre::{Result, eyre};
 use tempfile::TempDir;
 
-use tools::cli::Cli;
-use tools::{ToolType, detect_managers};
+use stencila_tools::cli::Cli;
+use stencila_tools::{ToolType, detect_managers};
 
 /// Helper function to get the path to example workspaces
 fn example_workspace_path(name: &str) -> PathBuf {

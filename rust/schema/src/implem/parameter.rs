@@ -1,7 +1,7 @@
 use inflector::Inflector;
 
-use codec_html_trait::encode::{attr, elem};
-use codec_info::{lost_exec_options, lost_options};
+use stencila_codec_html_trait::encode::{attr, elem};
+use stencila_codec_info::{lost_exec_options, lost_options};
 
 use crate::{Parameter, Validator, prelude::*};
 

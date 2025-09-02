@@ -53,7 +53,7 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
         fields.extend(field);
     }
     methods.extend(quote! {
-        fn load_map<S: node_store::ReadStore>(store: &S, obj_id: &node_store::ObjId) -> eyre::Result<Self> {
+        fn load_map<S: stencila_node_store::ReadStore>(store: &S, obj_id: &stencila_node_store::ObjId) -> eyre::Result<Self> {
             let mut node = Self::default();
 
             #fields
@@ -63,7 +63,7 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     });
 
     quote! {
-        impl node_store::ReadNode for #struct_name {
+        impl stencila_node_store::ReadNode for #struct_name {
             #methods
         }
     }
@@ -94,8 +94,8 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum, attrs: &Vec<Attribute>)
         cases.extend(case)
     }
     methods.extend(quote! {
-        fn load_map<S: node_store::ReadStore>(store: &S, obj_id: &node_store::ObjId) -> eyre::Result<Self> {
-            let Some(node_type) = node_store::get_type(store, obj_id)? else {
+        fn load_map<S: stencila_node_store::ReadStore>(store: &S, obj_id: &stencila_node_store::ObjId) -> eyre::Result<Self> {
+            let Some(node_type) = stencila_node_store::get_type(store, obj_id)? else {
                 eyre::bail!("Automerge object has no `type` property needed for loading enum `{}`", stringify!(#enum_name));
             };
             match node_type.as_str() {
@@ -137,7 +137,7 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum, attrs: &Vec<Attribute>)
     }
 
     quote! {
-        impl node_store::ReadNode for #enum_name {
+        impl stencila_node_store::ReadNode for #enum_name {
             #methods
         }
     }

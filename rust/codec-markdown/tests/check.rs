@@ -1,6 +1,6 @@
-use codec::{Codec, DecodeInfo, Messages, eyre::Result};
-use codec_markdown::MarkdownCodec;
 use insta::assert_snapshot;
+use stencila_codec::{Codec, DecodeInfo, Messages, eyre::Result};
+use stencila_codec_markdown::MarkdownCodec;
 
 async fn messages(md: &str) -> Result<Messages> {
     let (.., DecodeInfo { messages, .. }) = MarkdownCodec {}.from_str(md, None).await?;

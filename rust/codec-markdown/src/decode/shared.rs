@@ -14,12 +14,12 @@ use winnow::{
     token::{none_of, take_until, take_while},
 };
 
-use codec::schema::{
+use stencila_codec::stencila_schema::{
     Date, DateTime, Duration, ExecutionBounds, ExecutionMode, ImageObject, InstructionMessage,
     InstructionType, MessagePart, ModelParameters, Node, RelativePosition, Time, Timestamp,
 };
-use codec_json5_trait::Json5Codec;
-use codec_text_trait::TextCodec;
+use stencila_codec_json5_trait::Json5Codec;
+use stencila_codec_text_trait::TextCodec;
 
 use crate::decode::inlines::mds_to_string;
 
@@ -467,8 +467,8 @@ pub fn string_to_instruction_message(md: &str) -> InstructionMessage {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use codec::eyre::Result;
     use pretty_assertions::assert_eq;
+    use stencila_codec::eyre::Result;
 
     use super::*;
 

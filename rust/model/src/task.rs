@@ -3,8 +3,8 @@ use serde_with::skip_serializing_none;
 use smart_default::SmartDefault;
 use strum::Display;
 
-use format::Format;
-use schema::{InstructionMessage, InstructionType, ModelParameters};
+use stencila_format::Format;
+use stencila_schema::{InstructionMessage, InstructionType, ModelParameters};
 
 /// The kind of generative model task
 #[derive(Debug, Default, Display, Clone, Copy, PartialEq, Deserialize, Serialize)]

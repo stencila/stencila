@@ -10,8 +10,8 @@ use reqwest::{Client, Response, StatusCode};
 use serde::de::DeserializeOwned;
 use tokio::time::{Duration, Instant, sleep};
 
-use codec::eyre::{Result, bail};
-use version::STENCILA_USER_AGENT;
+use stencila_codec::eyre::{Result, bail};
+use stencila_version::STENCILA_USER_AGENT;
 
 use crate::{
     author::Author,

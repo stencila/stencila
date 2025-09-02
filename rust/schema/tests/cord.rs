@@ -1,7 +1,7 @@
 use pretty_assertions::assert_eq;
 use proptest::prelude::*;
 
-use schema::{
+use stencila_schema::{
     AuthorType, Block, Cord, CordAuthorship,
     cord_provenance::{display, human_written},
 };

@@ -1,23 +1,23 @@
 [package]
-name = "codec-openalex"
+name = "stencila-codec-openalex"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec = { path = "../codec" }
 governor = { workspace = true }
 indexmap = { workspace = true }
 itertools = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+stencila-codec = { path = "../codec" }
+stencila-version = { path = "../version" }
 tokio = { workspace = true }
 tracing = { workspace = true }
-version = { path = "../version" }
 
 [dev-dependencies]
-insta = { workspace = true }
 glob = { workspace = true }
+insta = { workspace = true }
 
 [lints]
 workspace = true

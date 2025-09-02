@@ -1,6 +1,7 @@
 use comfy_table::{Cell, CellAlignment, Color, Row};
 use itertools::Itertools;
-use schema::{Datatable, Primitive, Validator};
+
+use stencila_schema::{Datatable, Primitive, Validator};
 
 use crate::{Tabulated, ToStdout};
 

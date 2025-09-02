@@ -1,48 +1,48 @@
 [package]
-name = "document"
+name = "stencila-document"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-ask = { path = "../ask" }
 chrono = { workspace = true }
 chrono-humanize = { workspace = true }
 clap = { workspace = true }
-cli-utils = { path = "../cli-utils" }
-codec-json = { path = "../codec-json" }
-codec-text = { path = "../codec-text" }
-codecs = { path = "../codecs" }
-dirs = { path = "../dirs" }
 eyre = { workspace = true }
-format = { path = "../format" }
 futures = { workspace = true }
 glob = { workspace = true }
 indexmap = { workspace = true }
 itertools = { workspace = true }
 json-patch = "1.2.0"
-kernels = { path = "../kernels" }
-node-canonicalize = { path = "../node-canonicalize" }
-node-db = { path = "../node-db" }
-node-diagnostics = { path = "../node-diagnostics" }
-node-execute = { path = "../node-execute" }
-node-find = { path = "../node-find" }
-node-first = { path = "../node-first" }
-node-map = { path = "../node-map" }
-node-sentencize = { path = "../node-sentencize" }
-node-strip = { path = "../node-strip" }
 notify = { version = "8.2.0", default-features = false, features = ["macos_kqueue"] }
 rand = { workspace = true }
 reqwest = { workspace = true }
-schema = { path = "../schema" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_with = { workspace = true }
 serde_yaml = { workspace = true }
 similar = { workspace = true }
 smart-default = { workspace = true }
+stencila-ask = { path = "../ask" }
+stencila-cli-utils = { path = "../cli-utils" }
+stencila-codec-json = { path = "../codec-json" }
+stencila-codec-text = { path = "../codec-text" }
+stencila-codecs = { path = "../codecs" }
+stencila-dirs = { path = "../dirs" }
+stencila-format = { path = "../format" }
+stencila-kernels = { path = "../kernels" }
+stencila-node-canonicalize = { path = "../node-canonicalize" }
+stencila-node-db = { path = "../node-db" }
+stencila-node-diagnostics = { path = "../node-diagnostics" }
+stencila-node-execute = { path = "../node-execute" }
+stencila-node-find = { path = "../node-find" }
+stencila-node-first = { path = "../node-first" }
+stencila-node-map = { path = "../node-map" }
+stencila-node-sentencize = { path = "../node-sentencize" }
+stencila-node-strip = { path = "../node-strip" }
+stencila-schema = { path = "../schema" }
+stencila-tools = { path = "../tools" }
 strum = { workspace = true }
 tokio = { workspace = true }
-tools = { path = "../tools" }
 tracing = { workspace = true }
 url = { workspace = true }
 

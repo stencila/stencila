@@ -6,9 +6,9 @@ edition = "2024"
 [dependencies]
 reqwest = { workspace = true }
 stencila-linter = { path = "../linter" }
+stencila-version = { path = "../version" }
 tokio = { workspace = true }
 tracing = { workspace = true }
-version = { path = "../version" }
 
 [lints]
 workspace = true

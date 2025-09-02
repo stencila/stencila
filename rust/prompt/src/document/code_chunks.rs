@@ -47,8 +47,8 @@ impl CodeChunk {
     }
 }
 
-impl From<&schema::CodeChunk> for CodeChunk {
-    fn from(code_chunk: &schema::CodeChunk) -> Self {
+impl From<&stencila_schema::CodeChunk> for CodeChunk {
+    fn from(code_chunk: &stencila_schema::CodeChunk) -> Self {
         Self {
             language: code_chunk.programming_language.clone(),
             code: code_chunk.code.string.clone(),

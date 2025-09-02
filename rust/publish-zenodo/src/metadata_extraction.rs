@@ -1,7 +1,7 @@
 use std::{borrow::Cow, sync::OnceLock};
 
-use codec::schema::{Person, Primitive, PropertyValue, PropertyValueOrString};
 use eyre::OptionExt;
+use stencila_codec::stencila_schema::{Person, Primitive, PropertyValue, PropertyValueOrString};
 
 pub(crate) fn extract_affiliations(author: &Person) -> Option<impl Iterator<Item = Cow<'_, str>>> {
     let Person {

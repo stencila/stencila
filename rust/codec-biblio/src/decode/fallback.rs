@@ -18,7 +18,7 @@ use winnow::{
     token::any,
 };
 
-use codec::schema::{Author, CreativeWorkType, Date, Reference};
+use stencila_codec::stencila_schema::{Author, CreativeWorkType, Date, Reference};
 
 use crate::decode::{
     parts::{authors::persons, date::year_az, doi::doi_or_url},

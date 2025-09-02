@@ -5,7 +5,7 @@ use winnow::{
     token::take_while,
 };
 
-use codec::schema::{
+use stencila_codec::stencila_schema::{
     Organization, OrganizationOptions, PersonOrOrganization, PostalAddressOrString,
 };
 

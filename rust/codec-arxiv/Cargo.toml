@@ -1,18 +1,18 @@
 [package]
-name = "codec-arxiv"
+name = "stencila-codec-arxiv"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 base64 = { workspace = true }
-codec = { path = "../codec" }
-codec-biblio = { path = "../codec-biblio" }
-codec-latex = { path = "../codec-latex" }
-codec-pdf = { path = "../codec-pdf" }
 flate2 = { workspace = true }
 futures = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true }
+stencila-codec = { path = "../codec" }
+stencila-codec-biblio = { path = "../codec-biblio" }
+stencila-codec-latex = { path = "../codec-latex" }
+stencila-codec-pdf = { path = "../codec-pdf" }
 tar = { workspace = true }
 tempfile = { workspace = true }
 tl = { workspace = true }
@@ -21,8 +21,8 @@ tracing = { workspace = true }
 url = { workspace = true }
 
 [dev-dependencies]
-insta = { workspace = true }
 glob = { workspace = true }
+insta = { workspace = true }
 
 [lints]
 workspace = true

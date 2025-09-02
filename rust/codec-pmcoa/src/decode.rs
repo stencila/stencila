@@ -12,14 +12,14 @@ use tokio::{
 };
 use url::Url;
 
-use codec::{
+use stencila_codec::{
     Codec, DecodeInfo, DecodeOptions,
     eyre::{ContextCompat, OptionExt, Result, bail},
-    schema::Node,
+    stencila_schema::Node,
 };
-use codec_jats::JatsCodec;
-use media_embed::embed_media;
-use version::STENCILA_USER_AGENT;
+use stencila_codec_jats::JatsCodec;
+use stencila_media_embed::embed_media;
+use stencila_version::STENCILA_USER_AGENT;
 
 /// Extract and PMCID from an identifier
 pub(super) fn extract_pmcid(identifier: &str) -> Option<String> {

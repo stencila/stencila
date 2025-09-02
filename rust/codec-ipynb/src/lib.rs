@@ -10,16 +10,16 @@ use nbformat::{
 };
 use serde_json::{Map, Value, json};
 
-use codec::{
+use stencila_codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Losses, NodeId,
     NodeType, async_trait,
     eyre::{Result, bail, eyre},
-    format::Format,
-    schema::{
+    stencila_format::Format,
+    stencila_schema::{
         Article, Author, Block, CodeChunk, CodeChunkOptions, ExecutionMessage, ImageObject,
         LabelType, Node, Object, Person, RawBlock,
     },
-    status::Status,
+    stencila_status::Status,
 };
 
 /// A codec for Jupyter Notebooks
@@ -201,7 +201,7 @@ fn node_to_notebook(node: &Node) -> Result<(Notebook, Losses)> {
                 cells.push(cell);
             }
             block => {
-                let block_md = codec_markdown::encode(
+                let block_md = stencila_codec_markdown::encode(
                     // Treat as an article so that footnotes are encoded
                     &Node::Article(Article::new(vec![block.clone()])),
                     Some(EncodeOptions {
@@ -276,7 +276,7 @@ fn blocks_from_markdown_cell(
 ) -> Result<Vec<Block>> {
     let md = source.join("");
 
-    let (Node::Article(Article { content, .. }), ..) = codec_markdown::decode(
+    let (Node::Article(Article { content, .. }), ..) = stencila_codec_markdown::decode(
         &md,
         Some(DecodeOptions {
             format: Some(Format::Myst),
@@ -335,7 +335,7 @@ fn code_chunk_from_code_cell(
             .map(String::from);
         if let Some(md) = meta.get("caption").and_then(|value| value.as_str())
             && let Ok((Node::Article(Article { content, .. }), ..)) =
-                codec_markdown::decode(md, None)
+                stencila_codec_markdown::decode(md, None)
         {
             caption = Some(content);
         }
@@ -382,7 +382,7 @@ fn code_chunk_to_code_cell(code_chunk: &CodeChunk) -> Result<Cell> {
         stencila.insert("label".into(), json!(value));
     }
     if let Some(blocks) = &code_chunk.caption {
-        let md = codec_markdown::encode(
+        let md = stencila_codec_markdown::encode(
             &Node::Article(Article::new(blocks.clone())),
             Some(EncodeOptions {
                 format: Some(Format::Markdown),

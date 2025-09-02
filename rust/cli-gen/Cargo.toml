@@ -1,11 +1,11 @@
 [package]
-name = "cli-gen"
+name = "stencila-cli-gen"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 clap-markdown = "0.1.5"
-cli = { path = "../cli" }
+stencila-cli = { path = "../cli" }
 
 [lints]
 workspace = true

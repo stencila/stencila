@@ -2,8 +2,8 @@ use eyre::Result;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-use format::Format;
-use schema::{AuthorRole, AuthorRoleName};
+use stencila_format::Format;
+use stencila_schema::{AuthorRole, AuthorRoleName};
 
 use crate::Model;
 

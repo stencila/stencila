@@ -1,5 +1,5 @@
 [package]
-name = "codec-markdown-derive"
+name = "stencila-codec-markdown-derive"
 version = "0.0.0"
 edition = "2024"
 

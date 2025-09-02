@@ -1,4 +1,4 @@
-use codec_dom_trait::DomCodec;
+use stencila_codec_dom_trait::DomCodec;
 
 use crate::{Chat, SuggestionBlock, prelude::*};
 

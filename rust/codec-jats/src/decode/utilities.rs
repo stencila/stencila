@@ -1,7 +1,7 @@
 use itertools::Itertools;
 use roxmltree::Node;
 
-use codec::Losses;
+use stencila_codec::Losses;
 
 /// Extend a path with a new child tag name
 pub(super) fn extend_path(path: &str, tag: &str) -> String {

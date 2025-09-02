@@ -1,4 +1,4 @@
-use codec_markdown_trait::to_markdown;
+use stencila_codec_markdown_trait::to_markdown;
 
 use crate::{
     Article, Block, CreativeWorkType, Inline, RawBlock, Reference, prelude::*, replicate,
@@ -59,7 +59,7 @@ impl Article {
     }
 
     pub fn to_jats_special(&self) -> (String, Losses) {
-        use codec_jats_trait::encode::{elem, elem_no_attrs};
+        use stencila_codec_jats_trait::encode::{elem, elem_no_attrs};
 
         let mut losses = Losses::none();
 

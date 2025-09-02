@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use time::{OffsetDateTime, format_description::well_known::Rfc3339};
 
-use kernel_kuzu::kuzu::{Connection, Database, Value};
+use stencila_kernel_kuzu::kuzu::{Connection, Database, Value};
 
 /// Represents a single migration with metadata
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -417,7 +417,7 @@ impl<'d> MigrationRunner<'d> {
 #[cfg(test)]
 mod tests {
 
-    use kernel_kuzu::kuzu::SystemConfig;
+    use stencila_kernel_kuzu::kuzu::SystemConfig;
 
     use super::*;
 

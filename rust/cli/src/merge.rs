@@ -3,8 +3,8 @@ use std::path::PathBuf;
 use clap::Parser;
 use eyre::Result;
 
-use cli_utils::color_print::cstr;
-use format::Format;
+use stencila_cli_utils::color_print::cstr;
+use stencila_format::Format;
 
 use crate::options::{DecodeOptions, EncodeOptions, StripOptions};
 
@@ -81,7 +81,7 @@ impl Cli {
             StripOptions::default(),
         );
 
-        let modified_files = codecs::merge(
+        let modified_files = stencila_codecs::merge(
             &self.edited,
             self.original.as_deref(),
             self.unedited.as_deref(),

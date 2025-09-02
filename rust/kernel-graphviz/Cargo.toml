@@ -1,20 +1,20 @@
 [package]
-name = "kernel-graphviz"
+name = "stencila-kernel-graphviz"
 version = "0.0.0"
 edition = "2024"
 
+[package.metadata.cargo-machete]
+ignored = ["layout-rs"]
+
 [dependencies]
-kernel = { path = "../kernel" }
 layout-rs = { git = "https://github.com/nadavrot/layout", rev = "9ff0d4976df64b9dc5684db7088e73499d1243d1" }
 regex = { workspace = true }
+stencila-kernel = { path = "../kernel" }
 tracing = { workspace = true }
 
 [dev-dependencies]
 pretty_assertions = { workspace = true }
 tokio = { workspace = true }
-
-[package.metadata.cargo-machete]
-ignored = ["layout-rs"]
 
 [lints]
 workspace = true

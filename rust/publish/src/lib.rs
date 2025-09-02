@@ -10,11 +10,11 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Publisher {
-    #[command(after_help(publish_zenodo::AFTER_HELP))]
-    #[command(after_long_help(publish_zenodo::AFTER_LONG_HELP))]
-    Zenodo(Box<publish_zenodo::Cli>),
-    Ghost(Box<publish_ghost::Cli>),
-    Stencila(Box<publish_stencila::Cli>),
+    #[command(after_help(stencila_publish_zenodo::AFTER_HELP))]
+    #[command(after_long_help(stencila_publish_zenodo::AFTER_LONG_HELP))]
+    Zenodo(Box<stencila_publish_zenodo::Cli>),
+    Ghost(Box<stencila_publish_ghost::Cli>),
+    Stencila(Box<stencila_publish_stencila::Cli>),
 }
 
 impl Cli {

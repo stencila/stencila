@@ -3,17 +3,17 @@ use std::sync::LazyLock;
 use itertools::Itertools;
 use regex::{Captures, Regex};
 
-use codec::{
+use stencila_codec::{
     DecodeInfo, DecodeOptions,
     eyre::Result,
-    format::Format,
-    schema::{
+    stencila_format::Format,
+    stencila_schema::{
         AppendixBreak, Article, Block, CodeChunk, CodeExpression, ForBlock, Heading, IfBlock,
         IfBlockClause, IncludeBlock, Inline, InlinesBlock, Island, LabelType, Link, Node, RawBlock,
         Text,
     },
 };
-use codec_pandoc::{pandoc_from_format, root_from_pandoc};
+use stencila_codec_pandoc::{pandoc_from_format, root_from_pandoc};
 
 use crate::PANDOC_FORMAT;
 

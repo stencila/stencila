@@ -6,9 +6,9 @@ use eyre::Result;
 use glob::glob;
 use itertools::Itertools;
 
-use node_store::{ReadNode, WriteNode, WriteStore};
 use pretty_assertions::assert_eq;
-use schema::Node;
+use stencila_node_store::{ReadNode, WriteNode, WriteStore};
+use stencila_schema::Node;
 
 /// Test writing/reading examples to/from store
 ///
@@ -39,7 +39,7 @@ async fn examples() -> Result<()> {
 
         eprintln!("> {name}");
 
-        let node = codecs::from_path(&path, None).await?;
+        let node = stencila_codecs::from_path(&path, None).await?;
 
         let mut store = WriteStore::default();
         node.dump(&mut store)?;

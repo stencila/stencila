@@ -1,4 +1,8 @@
-use schema::{Node, NodeId, Visitor, WalkControl, WalkNode};
+use stencila_schema::{
+    Block, Citation, IfBlockClause, Inline, ListItem, Node, NodeId, NodeProperty, NodeType,
+    SuggestionBlock, SuggestionInline, TableCell, TableRow, Visitor, WalkControl, WalkNode,
+    WalkthroughStep,
+};
 
 /// Find a node with a given [`NodeId`] within another node
 pub fn find<T>(node: &T, node_id: NodeId) -> Option<Node>
@@ -31,11 +35,11 @@ impl Finder {
 }
 
 impl Visitor for Finder {
-    fn enter_struct(&mut self, _node_type: schema::NodeType, _node_id: NodeId) -> WalkControl {
+    fn enter_struct(&mut self, _node_type: NodeType, _node_id: NodeId) -> WalkControl {
         self.walk_control()
     }
 
-    fn enter_property(&mut self, _property: schema::NodeProperty) -> WalkControl {
+    fn enter_property(&mut self, _property: NodeProperty) -> WalkControl {
         self.walk_control()
     }
 
@@ -54,7 +58,7 @@ impl Visitor for Finder {
         WalkControl::Continue
     }
 
-    fn visit_block(&mut self, block: &schema::Block) -> WalkControl {
+    fn visit_block(&mut self, block: &Block) -> WalkControl {
         if let Some(node_id) = block.node_id()
             && node_id == self.node_id
         {
@@ -65,7 +69,7 @@ impl Visitor for Finder {
         WalkControl::Continue
     }
 
-    fn visit_inline(&mut self, inline: &schema::Inline) -> WalkControl {
+    fn visit_inline(&mut self, inline: &Inline) -> WalkControl {
         if let Some(node_id) = inline.node_id()
             && node_id == self.node_id
         {
@@ -76,7 +80,7 @@ impl Visitor for Finder {
         WalkControl::Continue
     }
 
-    fn visit_citation(&mut self, citation: &schema::Citation) -> WalkControl {
+    fn visit_citation(&mut self, citation: &Citation) -> WalkControl {
         if citation.node_id() == self.node_id {
             self.node = Some(Node::Citation(citation.clone()));
             return WalkControl::Break;
@@ -85,7 +89,7 @@ impl Visitor for Finder {
         WalkControl::Continue
     }
 
-    fn visit_if_block_clause(&mut self, clause: &schema::IfBlockClause) -> WalkControl {
+    fn visit_if_block_clause(&mut self, clause: &IfBlockClause) -> WalkControl {
         if clause.node_id() == self.node_id {
             self.node = Some(Node::IfBlockClause(clause.clone()));
             return WalkControl::Break;
@@ -94,7 +98,7 @@ impl Visitor for Finder {
         WalkControl::Continue
     }
 
-    fn visit_list_item(&mut self, list_item: &schema::ListItem) -> WalkControl {
+    fn visit_list_item(&mut self, list_item: &ListItem) -> WalkControl {
         if list_item.node_id() == self.node_id {
             self.node = Some(Node::ListItem(list_item.clone()));
             return WalkControl::Break;
@@ -103,7 +107,7 @@ impl Visitor for Finder {
         WalkControl::Continue
     }
 
-    fn visit_suggestion_block(&mut self, block: &schema::SuggestionBlock) -> WalkControl {
+    fn visit_suggestion_block(&mut self, block: &SuggestionBlock) -> WalkControl {
         if block.node_id() == self.node_id {
             self.node = Some(Node::SuggestionBlock(block.clone()));
             return WalkControl::Break;
@@ -112,7 +116,7 @@ impl Visitor for Finder {
         WalkControl::Continue
     }
 
-    fn visit_suggestion_inline(&mut self, inline: &schema::SuggestionInline) -> WalkControl {
+    fn visit_suggestion_inline(&mut self, inline: &SuggestionInline) -> WalkControl {
         if inline.node_id() == self.node_id {
             self.node = Some(Node::SuggestionInline(inline.clone()));
             return WalkControl::Break;
@@ -121,7 +125,7 @@ impl Visitor for Finder {
         WalkControl::Continue
     }
 
-    fn visit_table_row(&mut self, table_row: &schema::TableRow) -> WalkControl {
+    fn visit_table_row(&mut self, table_row: &TableRow) -> WalkControl {
         if table_row.node_id() == self.node_id {
             self.node = Some(Node::TableRow(table_row.clone()));
             return WalkControl::Break;
@@ -130,7 +134,7 @@ impl Visitor for Finder {
         WalkControl::Continue
     }
 
-    fn visit_table_cell(&mut self, table_cell: &schema::TableCell) -> WalkControl {
+    fn visit_table_cell(&mut self, table_cell: &TableCell) -> WalkControl {
         if table_cell.node_id() == self.node_id {
             self.node = Some(Node::TableCell(table_cell.clone()));
             return WalkControl::Break;
@@ -139,10 +143,7 @@ impl Visitor for Finder {
         WalkControl::Continue
     }
 
-    fn visit_walkthrough_step(
-        &mut self,
-        walkthrough_step: &schema::WalkthroughStep,
-    ) -> WalkControl {
+    fn visit_walkthrough_step(&mut self, walkthrough_step: &WalkthroughStep) -> WalkControl {
         if walkthrough_step.node_id() == self.node_id {
             self.node = Some(Node::WalkthroughStep(walkthrough_step.clone()));
             return WalkControl::Break;

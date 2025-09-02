@@ -1,5 +1,5 @@
-use codec_info::{lost_exec_options, lost_options};
-use node_url::NodePosition;
+use stencila_codec_info::{lost_exec_options, lost_options};
+use stencila_node_url::NodePosition;
 
 use crate::{IncludeBlock, prelude::*};
 

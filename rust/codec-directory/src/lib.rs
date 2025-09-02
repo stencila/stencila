@@ -5,12 +5,12 @@ use std::{
 
 use ignore::Walk;
 
-use codec::{
+use stencila_codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, async_trait,
     eyre::{Result, bail},
-    format::Format,
-    schema::{Directory, File, FileOrDirectory, Node, NodeType},
-    status::Status,
+    stencila_format::Format,
+    stencila_schema::{Directory, File, FileOrDirectory, Node, NodeType},
+    stencila_status::Status,
 };
 
 /// A codec for "decoding" a directory to a Stencila `Directory` node

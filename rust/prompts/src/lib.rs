@@ -23,31 +23,30 @@ use itertools::Itertools;
 use regex::Regex;
 use reqwest::Client;
 use rust_embed::RustEmbed;
+use semver::Version;
 use serde::{Deserialize, Serialize, Serializer, ser::SerializeStruct};
 use tar::Archive;
 use tokio::fs::{create_dir_all, read_to_string, remove_dir_all, write};
 
-use codec_markdown::to_markdown;
-use codecs::{DecodeOptions, Format};
-use dirs::{DirType, get_app_dir};
-use images::ensure_http_or_data_uri;
-
-use model::{
+use stencila_codec_markdown::to_markdown;
+use stencila_codecs::{DecodeOptions, Format};
+use stencila_dirs::{DirType, get_app_dir};
+use stencila_images::ensure_http_or_data_uri;
+use stencila_model::{
     ModelOutput, ModelOutputKind, ModelTask,
-    schema::{
+    stencila_schema::{
         Article, AudioObject, Author, AuthorRole, Block, CompilationMessage, ExecutionMessage,
         ImageObject, Inline, InstructionBlock, InstructionMessage, InstructionType, Link,
         MessageLevel, MessagePart, Node, NodeType, Prompt, SuggestionBlock, SuggestionStatus,
         Timestamp, UnsignedIntegerOrString, VideoObject, authorship, shortcuts::p,
     },
 };
+use stencila_version::stencila_version;
+
+// Re-exports
+pub use stencila_prompt;
 
 pub mod cli;
-
-// Re-export
-pub use prompt;
-use semver::Version;
-use version::stencila_version;
 
 /// An instance of a prompt
 ///
@@ -415,7 +414,7 @@ async fn list_dir(dir: &Path) -> Result<Vec<PromptInstance>> {
 
         let content = read_to_string(&path).await?;
 
-        let node = codecs::from_str(
+        let node = stencila_codecs::from_str(
             &content,
             Some(DecodeOptions {
                 format: Some(Format::from_name(&ext.to_string_lossy())),
@@ -692,13 +691,13 @@ pub async fn execute_instruction_block(
         kind,
         format,
         content,
-    } = models::perform_task(task).await?;
+    } = stencila_models::perform_task(task).await?;
     let ended = Timestamp::now();
 
     let blocks = match kind {
         ModelOutputKind::Text => {
             // Decode the model output into blocks
-            let node = codecs::from_str(
+            let node = stencila_codecs::from_str(
                 &content,
                 Some(DecodeOptions {
                     format: format

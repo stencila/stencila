@@ -1,13 +1,12 @@
 [package]
 edition = "2024"
-name = "node"
+name = "stencila-node"
 version = "2.0.0-alpha.25"
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-codecs = { path = "../../rust/codecs" }
 eyre = { workspace = true }
 napi = { version = "2.16.17", default-features = false, features = [
     "async",
@@ -15,6 +14,7 @@ napi = { version = "2.16.17", default-features = false, features = [
 ] }
 napi-derive = "2.16.13"
 serde_json = { workspace = true }
+stencila-codecs = { path = "../../rust/codecs" }
 
 [build-dependencies]
 napi-build = "2.2.2"

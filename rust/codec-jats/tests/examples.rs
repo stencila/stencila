@@ -2,10 +2,10 @@ use std::{fs::read_to_string, path::PathBuf};
 
 use glob::glob;
 
-use codec::{EncodeOptions, eyre::Result};
+use stencila_codec::{EncodeOptions, eyre::Result};
 
-use codec_jats::{decode, encode};
 use insta::{assert_json_snapshot, assert_snapshot, assert_yaml_snapshot};
+use stencila_codec_jats::{decode, encode};
 
 /// Decode each example of a JATS article and create JSON and JATS snapshots
 /// including for losses

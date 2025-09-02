@@ -1,12 +1,12 @@
 [package]
-name = "node-reconstitute"
+name = "stencila-node-reconstitute"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 eyre = { workspace = true }
-node-url = { path = "../node-url" }
-schema = { path = "../schema" }
+stencila-node-url = { path = "../node-url" }
+stencila-schema = { path = "../schema" }
 tracing = { workspace = true }
 
 [lints]

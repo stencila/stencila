@@ -1,16 +1,16 @@
 use std::{path::PathBuf, str::FromStr};
 
-use codec::{
-    format::Format,
-    schema::{
+use stencila_codec::{
+    stencila_format::Format,
+    stencila_schema::{
         Article, ArticleOptions, Author, Block, CreativeWorkVariantOrString, Datatable,
         DatatableOptions, Date, Grant, GrantOptions, GrantOrMonetaryGrant, Inline, Node,
         Organization, Paragraph, Person, PersonOptions, PropertyValueOrString, Reference,
         SoftwareSourceCode, SoftwareSourceCodeOptions, StringOrNumber, Text,
     },
 };
-use codec_biblio::decode::text_to_reference;
-use codec_text::to_text;
+use stencila_codec_biblio::decode::text_to_reference;
+use stencila_codec_text::to_text;
 
 use crate::responses::Record;
 
@@ -19,7 +19,7 @@ fn parse_html_or_text(content: &str) -> Vec<Block> {
     // Check if content contains HTML tags
     if content.contains('<') && content.contains('>') {
         // Try to parse as HTML
-        match codec_html::decode(content, None) {
+        match stencila_codec_html::decode(content, None) {
             Ok((Node::Article(article), _)) => {
                 if !article.content.is_empty() {
                     return article.content;
@@ -43,7 +43,7 @@ fn strip_html_tags(content: &str) -> String {
     // Check if content contains HTML tags
     if content.contains('<') && content.contains('>') {
         // Try to parse as HTML and extract text content
-        match codec_html::decode(content, None) {
+        match stencila_codec_html::decode(content, None) {
             Ok((Node::Article(article), _)) => {
                 // Extract all text from the blocks
                 to_text(&article)

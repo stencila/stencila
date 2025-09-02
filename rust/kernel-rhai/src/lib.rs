@@ -13,12 +13,12 @@ use tokio::{
     sync::{mpsc, watch},
 };
 
-use kernel::{
+use stencila_kernel::{
     Kernel, KernelInstance, KernelSignal, KernelStatus, KernelTerminate, async_trait,
     eyre::{Result, bail, eyre},
-    format::Format,
     generate_id,
-    schema::{
+    stencila_format::Format,
+    stencila_schema::{
         ArrayHint, ExecutionBounds, ExecutionMessage, Hint, MessageLevel, Node, NodeType, Null,
         ObjectHint, SoftwareApplication, SoftwareApplicationOptions, SoftwareSourceCode,
         StringHint, Unknown, Variable,
@@ -474,11 +474,11 @@ fn node_to_dynamic(node: &Node) -> Result<Dynamic> {
 #[cfg(test)]
 mod tests {
     use indexmap::IndexMap;
-    use kernel::{
-        schema::{Array, Node, Object, Primitive},
+    use pretty_assertions::assert_eq;
+    use stencila_kernel::{
+        stencila_schema::{Array, Node, Object, Primitive},
         tests::{create_instance, start_instance},
     };
-    use pretty_assertions::assert_eq;
 
     use super::*;
 
@@ -495,7 +495,7 @@ mod tests {
             return Ok(());
         };
 
-        kernel::tests::execution(
+        stencila_kernel::tests::execution(
             instance,
             vec![
                 // Empty code: no outputs
@@ -545,7 +545,7 @@ b",
             return Ok(());
         };
 
-        kernel::tests::evaluation(
+        stencila_kernel::tests::evaluation(
             instance,
             vec![
                 ("1 + 1", Node::Integer(2), None),
@@ -593,7 +593,7 @@ b",
             return Ok(());
         };
 
-        kernel::tests::printing(
+        stencila_kernel::tests::printing(
             instance,
             r#"print("str");"#,
             r#"print("str1"); print("str2");"#,
@@ -644,7 +644,7 @@ b",
             return Ok(());
         };
 
-        let sw = kernel::tests::info(instance).await?;
+        let sw = stencila_kernel::tests::info(instance).await?;
         assert_eq!(sw.name, "Rhai");
         assert!(sw.options.software_version.is_some());
         assert!(
@@ -665,7 +665,7 @@ b",
             return Ok(());
         };
 
-        let pkgs = kernel::tests::packages(instance).await?;
+        let pkgs = stencila_kernel::tests::packages(instance).await?;
         assert!(pkgs.is_empty());
 
         Ok(())
@@ -678,7 +678,7 @@ b",
             return Ok(());
         };
 
-        kernel::tests::var_listing(
+        stencila_kernel::tests::var_listing(
             instance,
             r#"
 let nul = ();
@@ -769,7 +769,7 @@ let para = #{type:"Paragraph", content:[]};
             return Ok(());
         };
 
-        kernel::tests::var_management(instance).await
+        stencila_kernel::tests::var_management(instance).await
     }
 
     /// Standard kernel test for forking
@@ -779,7 +779,7 @@ let para = #{type:"Paragraph", content:[]};
             return Ok(());
         };
 
-        kernel::tests::forking(instance).await
+        stencila_kernel::tests::forking(instance).await
     }
 
     /// Standard kernel test for signals
@@ -792,7 +792,7 @@ let para = #{type:"Paragraph", content:[]};
             return Ok(());
         };
 
-        kernel::tests::signals(
+        stencila_kernel::tests::signals(
             instance,
             "
 sleep(0.1);
@@ -815,6 +815,6 @@ sleep(0.1)",
             return Ok(());
         };
 
-        kernel::tests::stop(instance).await
+        stencila_kernel::tests::stop(instance).await
     }
 }

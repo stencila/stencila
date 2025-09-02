@@ -1,5 +1,5 @@
 [package]
-name = "cli"
+name = "stencila-cli"
 version = "0.0.0"
 authors = ["Nokome Bentley <nokome@stencila.io"]
 edition = "2024"
@@ -12,48 +12,48 @@ path = "src/main.rs"
 tokio-console = ["console-subscriber"]
 
 [dependencies]
-ask = { path = "../ask" }
 clap = { workspace = true }
-cli-utils = { path = "../cli-utils" }
-cloud = { path = "../cloud" }
-codecs = { path = "../codecs" }
 color-eyre = { version = "0.6.5", features = ["issue-url"] }
 console-subscriber = { version = "0.4.1", optional = true }
-dirs = { path = "../dirs" }
-document = { path = "../document" }
 eyre = { workspace = true }
 flate2 = { workspace = true }
-format = { path = "../format" }
 itertools = { workspace = true }
-kernels = { path = "../kernels" }
-lsp = { path = "../lsp" }
-models = { path = "../models" }
-node-db = { path = "../node-db" }
-node-diagnostics = { path = "../node-diagnostics" }
-node-execute = { path = "../node-execute" }
-node-strip = { path = "../node-strip" }
-plugins = { path = "../plugins" }
-prompts = { path = "../prompts" }
-publish = { path = "../publish" }
 reqwest = { workspace = true }
-schema = { path = "../schema" }
-secrets = { path = "../secrets" }
 self-replace = "1.3.7"
 semver = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-server = { path = "../server" }
+stencila-ask = { path = "../ask" }
+stencila-cli-utils = { path = "../cli-utils" }
+stencila-cloud = { path = "../cloud" }
+stencila-codecs = { path = "../codecs" }
+stencila-dirs = { path = "../dirs" }
+stencila-document = { path = "../document" }
+stencila-format = { path = "../format" }
+stencila-kernels = { path = "../kernels" }
 stencila-linters = { path = "../linters" }
+stencila-lsp = { path = "../lsp" }
+stencila-models = { path = "../models" }
+stencila-node-db = { path = "../node-db" }
+stencila-node-diagnostics = { path = "../node-diagnostics" }
+stencila-node-execute = { path = "../node-execute" }
+stencila-node-strip = { path = "../node-strip" }
+stencila-plugins = { path = "../plugins" }
+stencila-prompts = { path = "../prompts" }
+stencila-publish = { path = "../publish" }
+stencila-schema = { path = "../schema" }
+stencila-secrets = { path = "../secrets" }
+stencila-server = { path = "../server" }
+stencila-tools = { path = "../tools" }
+stencila-version = { path = "../version" }
 strum = { workspace = true }
 tar = { workspace = true }
 tempfile = { workspace = true }
 tokio = { workspace = true }
-tools = { path = "../tools" }
 tracing = { workspace = true }
 tracing-error = "0.2.1"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter", "json"] }
 url = { workspace = true }
-version = { path = "../version" }
 webbrowser = "1.0.5"
 zip = { workspace = true }
 

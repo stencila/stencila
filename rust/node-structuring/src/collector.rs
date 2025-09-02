@@ -5,14 +5,14 @@ use itertools::Itertools;
 use regex::Regex;
 use strum::Display;
 
-use codec_biblio::decode::{
+use stencila_codec_biblio::decode::{
     bracketed_numeric_citation, parenthetic_numeric_citation, superscripted_numeric_citation,
     text_to_reference, text_with_author_year_citations, text_with_bracketed_numeric_citations,
     text_with_parenthetic_numeric_citations,
 };
-use codec_links::decode_inlines as text_with_links;
-use codec_text_trait::to_text;
-use schema::{
+use stencila_codec_links::decode_inlines as text_with_links;
+use stencila_codec_text_trait::to_text;
+use stencila_schema::{
     Admonition, Article, Block, Figure, ForBlock, Heading, IncludeBlock, Inline, List, ListOrder,
     MathInline, Node, NodeId, Paragraph, Reference, Section, SectionType, StyledBlock, Text,
     VisitorMut, WalkControl, shortcuts::t,
@@ -973,7 +973,7 @@ fn extract_heading_numbering(text: &str) -> (Option<String>, usize, String) {
 #[cfg(test)]
 mod tests {
     use pretty_assertions::assert_eq;
-    use schema::shortcuts::t;
+    use stencila_schema::shortcuts::t;
 
     use super::*;
 
@@ -1073,7 +1073,7 @@ mod tests {
         // Test with complex paragraph structure
         let result = detect_figure_caption(&vec![
             t("Figure 5. This caption has "),
-            schema::shortcuts::em([t("emphasis")]),
+            stencila_schema::shortcuts::em([t("emphasis")]),
             t(" and more text."),
         ]);
         assert!(

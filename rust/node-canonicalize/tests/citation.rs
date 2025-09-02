@@ -1,8 +1,8 @@
 use eyre::Result;
 
 use insta::assert_json_snapshot;
-use node_canonicalize::canonicalize;
-use schema::{
+use stencila_node_canonicalize::canonicalize;
+use stencila_schema::{
     Article, Node, Reference,
     shortcuts::{ct, p},
 };

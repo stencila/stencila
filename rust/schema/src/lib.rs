@@ -26,10 +26,10 @@ pub use url::*;
 pub mod shortcuts;
 pub mod transforms;
 
-pub use node_id::NodeId;
-pub use node_path::{NodePath, NodeSlot};
-pub use node_strip::{StripNode, StripScope, StripTargets, strip, strip_non_content};
-pub use node_type::{ContentType, NodeProperty, NodeType};
+pub use stencila_node_id::NodeId;
+pub use stencila_node_path::{NodePath, NodeSlot};
+pub use stencila_node_strip::{StripNode, StripScope, StripTargets, strip, strip_non_content};
+pub use stencila_node_type::{ContentType, NodeProperty, NodeType};
 
 pub mod cord_provenance;
 

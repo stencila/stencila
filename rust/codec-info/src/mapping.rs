@@ -4,8 +4,8 @@ use itertools::Itertools;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 
-pub use node_id::NodeId;
-pub use node_type::{NodeProperty, NodeType};
+pub use stencila_node_id::NodeId;
+pub use stencila_node_type::{NodeProperty, NodeType};
 
 /// A mapping between UTF-8 character indices and nodes and their properties
 #[derive(Debug, Default, Clone, PartialEq, Serialize)]

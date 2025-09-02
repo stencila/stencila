@@ -52,7 +52,7 @@ impl Duration {
     }
 
     pub fn to_jats_special(&self) -> (String, Losses) {
-        use codec_jats_trait::encode::elem;
+        use stencila_codec_jats_trait::encode::elem;
 
         (
             elem(

@@ -1,10 +1,10 @@
 [package]
-name = "node-sentencize"
+name = "stencila-node-sentencize"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-schema = { path = "../schema" }
+stencila-schema = { path = "../schema" }
 
 [dev-dependencies]
 pretty_assertions = { workspace = true }

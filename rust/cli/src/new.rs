@@ -3,9 +3,9 @@ use std::path::PathBuf;
 use clap::{Parser, ValueEnum};
 use eyre::Result;
 
-use cli_utils::color_print::cstr;
-use document::Document;
-use schema::NodeType;
+use stencila_cli_utils::color_print::cstr;
+use stencila_document::Document;
+use stencila_schema::NodeType;
 
 /// Create a new, tracked, document
 #[derive(Debug, Parser)]

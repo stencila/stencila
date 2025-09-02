@@ -7,7 +7,7 @@ use winnow::{
     token::take_while,
 };
 
-use codec::schema::Date;
+use stencila_codec::stencila_schema::Date;
 
 /// Parse a 4 digit year in range 1200-2050
 pub fn year(input: &mut &str) -> Result<Date> {

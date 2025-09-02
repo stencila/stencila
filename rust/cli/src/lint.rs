@@ -3,8 +3,8 @@ use std::{path::PathBuf, process::exit};
 use clap::Parser;
 use eyre::Result;
 
-use cli_utils::{AsFormat, Code, ToStdout, color_print::cstr};
-use document::Document;
+use stencila_cli_utils::{AsFormat, Code, ToStdout, color_print::cstr};
+use stencila_document::Document;
 
 /// Lint one or more documents
 #[derive(Debug, Parser)]

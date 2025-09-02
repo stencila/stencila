@@ -1,29 +1,29 @@
 [package]
-name = "node-execute"
+name = "stencila-node-execute"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 clap = { workspace = true }
-codec-cbor = { path = "../codec-cbor" }
-codec-markdown = { path = "../codec-markdown" }
-codecs = { path = "../codecs" }
 eyre = { workspace = true }
 futures = { workspace = true }
 indexmap = { workspace = true }
 itertools = { workspace = true }
-kernels = { path = "../kernels" }
-stencila-linters = { path = "../linters" }
-models = { path = "../models" }
-node-contains = { path = "../node-contains" }
-node-diagnostics = { path = "../node-diagnostics" }
-parsers = { path = "../parsers" }
-prompts = { path = "../prompts" }
 regex = { workspace = true }
 seahash = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-schema = { path = "../schema" }
+stencila-codec-cbor = { path = "../codec-cbor" }
+stencila-codec-markdown = { path = "../codec-markdown" }
+stencila-codecs = { path = "../codecs" }
+stencila-kernels = { path = "../kernels" }
+stencila-linters = { path = "../linters" }
+stencila-models = { path = "../models" }
+stencila-node-contains = { path = "../node-contains" }
+stencila-node-diagnostics = { path = "../node-diagnostics" }
+stencila-parsers = { path = "../parsers" }
+stencila-prompts = { path = "../prompts" }
+stencila-schema = { path = "../schema" }
 tokio = { workspace = true }
 tracing = { workspace = true }
 

@@ -11,9 +11,9 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 
-use cli_utils::{color_print::cstr, parse_host};
-use codec::schema::ConfigPublishZenodoAccessRight;
-use document::{Document, schema, schema::Node};
+use stencila_cli_utils::{color_print::cstr, parse_host};
+use stencila_codec::stencila_schema::ConfigPublishZenodoAccessRight;
+use stencila_document::{Document, stencila_schema, stencila_schema::Node};
 
 mod metadata_extraction;
 
@@ -72,8 +72,8 @@ Every source format has its own mechanism for providing metadata. For example, w
   <dim>---</>
 ");
 
-fn parse_date(input: &str) -> Result<schema::Date> {
-    schema::Date::from_str(input)
+fn parse_date(input: &str) -> Result<stencila_schema::Date> {
+    stencila_schema::Date::from_str(input)
 }
 
 /// Items within Zenodo's controlled vocabulary of accepted types of publication
@@ -194,7 +194,7 @@ pub struct Cli {
     #[arg(long, value_name = "YYYY-MM-DD")]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
     #[arg(value_parser = parse_date)]
-    publication_date: Option<schema::Date>,
+    publication_date: Option<stencila_schema::Date>,
 
     /// Title to use for the deposit
     ///
@@ -244,7 +244,7 @@ pub struct Cli {
     #[arg(long, value_name = "YYYY-MM-DD")]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
     #[arg(value_parser = parse_date)]
-    embargoed: Option<schema::Date>,
+    embargoed: Option<stencila_schema::Date>,
 
     /// Conditions to fulfill to access deposition
     ///
@@ -392,8 +392,8 @@ impl Cli {
         let metadata_from_doc = doc.inspect(|root| {
             let Node::Article(article) = root else { return None };
 
-            let title = article.title.as_ref().map(codec_text::to_text).or_else(|| self.title.clone()).unwrap_or_else(|| { "Untitled".to_string() });
-            let description = article.description.as_ref().map(codec_text::to_text);
+            let title = article.title.as_ref().map(stencila_codec_text::to_text).or_else(|| self.title.clone()).unwrap_or_else(|| { "Untitled".to_string() });
+            let description = article.description.as_ref().map(stencila_codec_text::to_text);
             let mut creators = Vec::new();
             let mut doi = None;
 
@@ -407,7 +407,7 @@ impl Cli {
 
             if let Some(authors) = &article.authors {
                 for author in authors {
-                    if let schema::Author::Person(person) = author {
+                    if let stencila_schema::Author::Person(person) = author {
                         let mut affiliation = None;
 
                         // Zenodo expects ORCIDs to be numbers and hyphens only, e.g,
@@ -484,7 +484,7 @@ impl Cli {
 
             tracing::debug!("{:?}", embargoed);
             tracing::debug!("{:?}", access_right);
-            if let Some(schema::Date {
+            if let Some(stencila_schema::Date {
                 value: embargo_date,
                 ..
             }) = embargoed
@@ -633,7 +633,7 @@ impl Cli {
             debug_assert_eq!(self.access_right, "open");
         }
 
-        if let Some(schema::Date {
+        if let Some(stencila_schema::Date {
             value: embargo_date,
             ..
         }) = self.embargoed

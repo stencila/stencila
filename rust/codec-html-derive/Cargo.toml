@@ -1,5 +1,5 @@
 [package]
-name = "codec-html-derive"
+name = "stencila-codec-html-derive"
 version = "0.0.0"
 edition = "2024"
 
@@ -7,8 +7,8 @@ edition = "2024"
 proc-macro = true
 
 [dependencies]
-darling = { workspace = true }
 Inflector = { workspace = true }
+darling = { workspace = true }
 itertools = { workspace = true }
 proc-macro2 = { workspace = true }
 quote = { workspace = true }

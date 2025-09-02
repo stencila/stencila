@@ -263,21 +263,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ask"
-version = "0.0.0"
-dependencies = [
- "async-trait",
- "eyre",
- "lsp-types",
- "owo-colors",
- "rpassword",
- "strum 0.27.2",
- "textwrap",
- "tokio",
- "tracing",
-]
-
-[[package]]
 name = "async-channel"
 version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1463,907 +1448,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f46ad14479a25103f283c0f10005961cf086d8dc42205bb44c46ac563475dca6"
 
 [[package]]
-name = "cli"
-version = "0.0.0"
-dependencies = [
- "ask",
- "clap",
- "cli-utils",
- "cloud",
- "codecs",
- "color-eyre",
- "console-subscriber",
- "dirs 0.0.0",
- "document",
- "eyre",
- "flate2",
- "format",
- "itertools 0.14.0",
- "kernels",
- "lsp",
- "models",
- "node-db",
- "node-diagnostics",
- "node-execute",
- "node-strip",
- "plugins",
- "prompts",
- "publish",
- "reqwest",
- "schema",
- "secrets",
- "self-replace",
- "semver",
- "serde",
- "serde_json",
- "server",
- "stencila-linters",
- "strum 0.27.2",
- "tar",
- "tempfile",
- "tokio",
- "tools",
- "tracing",
- "tracing-error",
- "tracing-subscriber",
- "url",
- "version",
- "webbrowser",
- "zip 2.5.0",
-]
-
-[[package]]
-name = "cli-gen"
-version = "0.1.0"
-dependencies = [
- "clap-markdown",
- "cli",
-]
-
-[[package]]
-name = "cli-utils"
-version = "0.0.0"
-dependencies = [
- "clap",
- "color-print",
- "comfy-table",
- "derive_more 2.0.1",
- "eyre",
- "format",
- "itertools 0.14.0",
- "schema",
- "serde",
- "serde_json",
- "serde_yaml",
- "syntect",
- "terminal_size",
- "textwrap",
- "url",
-]
-
-[[package]]
-name = "cloud"
-version = "0.0.0"
-dependencies = [
- "cached",
- "eyre",
- "reqwest",
- "secrets",
- "serde",
- "strum 0.27.2",
- "tracing",
- "version",
-]
-
-[[package]]
 name = "cmake"
 version = "0.1.54"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e7caa3f9de89ddbe2c607f4101924c5abec803763ae9534e4f4d7d8f84aa81f0"
 dependencies = [
  "cc",
-]
-
-[[package]]
-name = "codec"
-version = "0.0.0"
-dependencies = [
- "async-trait",
- "codec-info",
- "codec-utils",
- "eyre",
- "format",
- "node-strip",
- "schema",
- "serde",
- "serde_with",
- "smart-default",
- "status",
- "strum 0.27.2",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "codec-arxiv"
-version = "0.0.0"
-dependencies = [
- "base64 0.22.1",
- "codec",
- "codec-biblio",
- "codec-latex",
- "codec-pdf",
- "flate2",
- "futures",
- "glob",
- "insta",
- "regex",
- "reqwest",
- "tar",
- "tempfile",
- "tl",
- "tokio",
- "tracing",
- "url",
-]
-
-[[package]]
-name = "codec-biblio"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "codec",
- "codec-markdown-trait",
- "codec-text-trait",
- "glob",
- "hayagriva",
- "insta",
- "itertools 0.14.0",
- "pretty_assertions",
- "reqwest",
- "serde_json",
- "tokio",
- "tracing",
- "winnow",
-]
-
-[[package]]
-name = "codec-cbor"
-version = "0.0.0"
-dependencies = [
- "ciborium",
- "codec",
- "serde",
- "zstd",
-]
-
-[[package]]
-name = "codec-cff"
-version = "0.0.0"
-dependencies = [
- "codec",
- "glob",
- "indexmap 2.10.0",
- "insta",
- "itertools 0.14.0",
- "serde",
- "serde_json",
- "serde_with",
- "serde_yaml",
- "tokio",
-]
-
-[[package]]
-name = "codec-csl"
-version = "0.0.0"
-dependencies = [
- "codec",
- "glob",
- "indexmap 2.10.0",
- "insta",
- "itertools 0.14.0",
- "serde",
- "serde_json",
- "serde_with",
- "tokio",
-]
-
-[[package]]
-name = "codec-csv"
-version = "0.0.0"
-dependencies = [
- "codec",
- "polars",
- "serde_json",
- "tempfile",
-]
-
-[[package]]
-name = "codec-debug"
-version = "0.0.0"
-dependencies = [
- "codec",
-]
-
-[[package]]
-name = "codec-directory"
-version = "0.0.0"
-dependencies = [
- "codec",
- "ignore",
- "mime_guess",
-]
-
-[[package]]
-name = "codec-docx"
-version = "0.0.0"
-dependencies = [
- "codec",
- "codec-json",
- "codec-pandoc",
- "codec-utils",
- "dirs 0.0.0",
- "indexmap 2.10.0",
- "media-embed",
- "node-reconstitute",
- "pretty_assertions",
- "regex",
- "roxmltree",
- "rust-embed",
- "serde_json",
- "tempfile",
- "tokio",
- "uuid",
- "version",
- "zip 2.5.0",
-]
-
-[[package]]
-name = "codec-doi"
-version = "0.0.0"
-dependencies = [
- "codec",
- "codec-csl",
- "regex",
- "reqwest",
- "tracing",
- "url",
- "version",
-]
-
-[[package]]
-name = "codec-dom"
-version = "0.0.0"
-dependencies = [
- "codec",
- "codec-dom-trait",
- "codec-text-trait",
- "itertools 0.14.0",
- "lightningcss",
- "media-embed",
- "media-extract",
- "quick-xml 0.37.5",
- "tokio",
- "version",
-]
-
-[[package]]
-name = "codec-dom-derive"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "darling 0.21.2",
- "proc-macro2",
- "quote",
- "syn 2.0.106",
-]
-
-[[package]]
-name = "codec-dom-trait"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "codec-dom-derive",
- "html-escape",
- "itertools 0.14.0",
- "node-id",
- "node-type",
- "serde",
- "serde_json",
- "smart-default",
-]
-
-[[package]]
-name = "codec-gdocx"
-version = "0.0.0"
-dependencies = [
- "codec",
- "codec-docx",
-]
-
-[[package]]
-name = "codec-github"
-version = "0.0.0"
-dependencies = [
- "base64 0.22.1",
- "codec",
- "codec-csv",
- "codec-ipynb",
- "codec-latex",
- "codec-markdown",
- "codec-xlsx",
- "glob",
- "governor",
- "insta",
- "itertools 0.14.0",
- "reqwest",
- "secrets",
- "serde",
- "serde_json",
- "tempfile",
- "tokio",
- "tracing",
- "url",
- "version",
-]
-
-[[package]]
-name = "codec-html"
-version = "0.0.0"
-dependencies = [
- "codec",
- "codec-html-trait",
- "quick-xml 0.37.5",
- "tl",
-]
-
-[[package]]
-name = "codec-html-derive"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "darling 0.21.2",
- "itertools 0.14.0",
- "proc-macro2",
- "quote",
- "syn 2.0.106",
-]
-
-[[package]]
-name = "codec-html-trait"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "codec-html-derive",
- "html-escape",
- "itertools 0.14.0",
- "serde_json",
-]
-
-[[package]]
-name = "codec-info"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "derive_more 2.0.1",
- "eyre",
- "format",
- "itertools 0.14.0",
- "node-id",
- "node-type",
- "serde",
- "serde_json",
- "serde_with",
- "serde_yaml",
- "similar",
- "strum 0.27.2",
- "tracing",
-]
-
-[[package]]
-name = "codec-ipynb"
-version = "0.0.0"
-dependencies = [
- "codec",
- "codec-markdown",
- "jupyter-protocol",
- "nbformat",
- "serde_json",
-]
-
-[[package]]
-name = "codec-jats"
-version = "0.0.0"
-dependencies = [
- "codec",
- "codec-jats-trait",
- "codec-text-trait",
- "glob",
- "insta",
- "itertools 0.14.0",
- "pretty_assertions",
- "quick-xml 0.37.5",
- "roxmltree",
- "tokio",
-]
-
-[[package]]
-name = "codec-jats-derive"
-version = "0.0.0"
-dependencies = [
- "darling 0.21.2",
- "itertools 0.14.0",
- "proc-macro2",
- "quote",
- "syn 2.0.106",
-]
-
-[[package]]
-name = "codec-jats-trait"
-version = "0.0.0"
-dependencies = [
- "codec-info",
- "codec-jats-derive",
- "itertools 0.14.0",
-]
-
-[[package]]
-name = "codec-json"
-version = "0.0.0"
-dependencies = [
- "codec",
- "pretty_assertions",
- "serde",
- "serde_json",
- "tokio",
- "version",
- "zip 2.5.0",
-]
-
-[[package]]
-name = "codec-json5"
-version = "0.0.0"
-dependencies = [
- "codec",
- "codec-json5-trait",
- "tokio",
-]
-
-[[package]]
-name = "codec-json5-trait"
-version = "0.0.0"
-dependencies = [
- "eyre",
- "json5",
- "json5format",
- "serde",
-]
-
-[[package]]
-name = "codec-jsonld"
-version = "0.0.0"
-dependencies = [
- "codec",
- "serde_json",
-]
-
-[[package]]
-name = "codec-latex"
-version = "0.0.0"
-dependencies = [
- "codec",
- "codec-latex-trait",
- "codec-pandoc",
- "glob",
- "insta",
- "itertools 0.14.0",
- "regex",
- "tokio",
- "which 8.0.0",
-]
-
-[[package]]
-name = "codec-latex-derive"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "darling 0.21.2",
- "proc-macro2",
- "quote",
- "syn 2.0.106",
-]
-
-[[package]]
-name = "codec-latex-trait"
-version = "0.0.0"
-dependencies = [
- "codec-info",
- "codec-latex-derive",
- "codec-utils",
- "eyre",
- "format",
- "glob",
- "itertools 0.14.0",
- "node-path",
- "node-url",
- "rand 0.9.2",
- "tracing",
-]
-
-[[package]]
-name = "codec-lexical"
-version = "0.0.0"
-dependencies = [
- "bitflags 2.9.2",
- "codec",
- "codec-dom-trait",
- "codec-markdown",
- "codec-text",
- "glob",
- "insta",
- "monostate",
- "regex",
- "serde",
- "serde_json",
- "serde_with",
- "smart-default",
- "tracing",
-]
-
-[[package]]
-name = "codec-links"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "codec",
- "winnow",
-]
-
-[[package]]
-name = "codec-markdown"
-version = "0.0.0"
-dependencies = [
- "codec",
- "codec-json5-trait",
- "codec-markdown-trait",
- "codec-text-trait",
- "indexmap 2.10.0",
- "insta",
- "itertools 0.14.0",
- "markdown",
- "media-embed",
- "media-extract",
- "pretty_assertions",
- "regex",
- "serde_json",
- "serde_yaml",
- "strum 0.27.2",
- "tokio",
- "tracing",
- "winnow",
-]
-
-[[package]]
-name = "codec-markdown-derive"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "darling 0.21.2",
- "proc-macro2",
- "quote",
- "syn 2.0.106",
-]
-
-[[package]]
-name = "codec-markdown-trait"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "codec-info",
- "codec-markdown-derive",
- "format",
- "tracing",
-]
-
-[[package]]
-name = "codec-meca"
-version = "0.0.0"
-dependencies = [
- "codec",
- "codec-jats",
- "glob",
- "insta",
- "media-embed",
- "tempfile",
- "tokio",
- "tracing",
- "zip 2.5.0",
-]
-
-[[package]]
-name = "codec-odt"
-version = "0.0.0"
-dependencies = [
- "codec",
- "codec-json",
- "codec-pandoc",
- "node-reconstitute",
-]
-
-[[package]]
-name = "codec-openalex"
-version = "0.0.0"
-dependencies = [
- "codec",
- "glob",
- "governor",
- "indexmap 2.10.0",
- "insta",
- "itertools 0.14.0",
- "reqwest",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
- "version",
-]
-
-[[package]]
-name = "codec-openrxiv"
-version = "0.0.0"
-dependencies = [
- "cloud",
- "codec",
- "codec-meca",
- "codec-pdf",
- "eyre",
- "futures",
- "regex",
- "reqwest",
- "tempfile",
- "tokio",
- "tracing",
- "url",
- "version",
-]
-
-[[package]]
-name = "codec-pandoc"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "codec",
- "codec-latex-trait",
- "codec-png",
- "codec-text-trait",
- "itertools 0.14.0",
- "pandoc_types",
- "serde",
- "serde_json",
- "tokio",
- "tools",
- "tracing",
-]
-
-[[package]]
-name = "codec-pdf"
-version = "0.0.0"
-dependencies = [
- "codec",
- "codec-dom",
- "codec-latex",
- "codec-markdown",
- "codec-utils",
- "convert",
- "media-embed",
- "node-structuring",
-]
-
-[[package]]
-name = "codec-pmcoa"
-version = "0.0.0"
-dependencies = [
- "codec",
- "codec-jats",
- "flate2",
- "futures",
- "glob",
- "insta",
- "media-embed",
- "regex",
- "reqwest",
- "tar",
- "tempfile",
- "tokio",
- "tracing",
- "url",
- "version",
-]
-
-[[package]]
-name = "codec-png"
-version = "0.0.0"
-dependencies = [
- "codec",
- "codec-dom-trait",
- "codec-latex-trait",
- "convert",
-]
-
-[[package]]
-name = "codec-rnw"
-version = "0.0.0"
-dependencies = [
- "codec",
- "codec-latex",
- "glob",
- "insta",
- "itertools 0.14.0",
- "regex",
- "tokio",
-]
-
-[[package]]
-name = "codec-swb"
-version = "0.0.0"
-dependencies = [
- "clap",
- "codec",
- "codec-dom",
- "codec-jsonld",
- "codec-markdown",
- "flate2",
- "tar",
- "tempfile",
- "tokio",
-]
-
-[[package]]
-name = "codec-text"
-version = "0.0.0"
-dependencies = [
- "codec",
- "codec-text-trait",
-]
-
-[[package]]
-name = "codec-text-derive"
-version = "0.0.0"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.106",
-]
-
-[[package]]
-name = "codec-text-trait"
-version = "0.0.0"
-dependencies = [
- "codec-text-derive",
-]
-
-[[package]]
-name = "codec-utils"
-version = "0.0.0"
-dependencies = [
- "eyre",
- "itertools 0.14.0",
- "proptest",
- "reqwest",
- "similar",
- "which 8.0.0",
-]
-
-[[package]]
-name = "codec-xlsx"
-version = "0.0.0"
-dependencies = [
- "calamine",
- "codec",
-]
-
-[[package]]
-name = "codec-yaml"
-version = "0.0.0"
-dependencies = [
- "codec",
- "serde",
- "serde_yaml",
- "tokio",
- "version",
-]
-
-[[package]]
-name = "codec-zenodo"
-version = "0.0.0"
-dependencies = [
- "codec",
- "codec-biblio",
- "codec-csv",
- "codec-html",
- "codec-ipynb",
- "codec-latex",
- "codec-markdown",
- "codec-text",
- "codec-xlsx",
- "glob",
- "governor",
- "insta",
- "itertools 0.14.0",
- "reqwest",
- "secrets",
- "serde",
- "serde_json",
- "tempfile",
- "tokio",
- "tracing",
- "url",
- "version",
-]
-
-[[package]]
-name = "codecs"
-version = "0.0.0"
-dependencies = [
- "ask",
- "chrono",
- "clap",
- "cli-utils",
- "codec",
- "codec-arxiv",
- "codec-cbor",
- "codec-cff",
- "codec-csl",
- "codec-csv",
- "codec-debug",
- "codec-directory",
- "codec-docx",
- "codec-doi",
- "codec-dom",
- "codec-gdocx",
- "codec-github",
- "codec-html",
- "codec-ipynb",
- "codec-jats",
- "codec-json",
- "codec-json5",
- "codec-jsonld",
- "codec-latex",
- "codec-lexical",
- "codec-markdown",
- "codec-meca",
- "codec-odt",
- "codec-openrxiv",
- "codec-pandoc",
- "codec-pdf",
- "codec-pmcoa",
- "codec-png",
- "codec-rnw",
- "codec-swb",
- "codec-text",
- "codec-utils",
- "codec-xlsx",
- "codec-yaml",
- "futures",
- "glob",
- "insta",
- "itertools 0.14.0",
- "json_value_merge",
- "node-strip",
- "pretty_assertions",
- "proptest",
- "regex",
- "reqwest",
- "serde",
- "serde_json",
- "serde_yaml",
- "smart-default",
- "strum 0.27.2",
- "tempfile",
- "tokio",
- "tracing",
- "url",
- "walkdir",
 ]
 
 [[package]]
@@ -2622,36 +1712,6 @@ name = "constant_time_eq"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7c74b8349d32d297c9134b8c88677813a227df8f779daa29bfc29c183fe3dca6"
-
-[[package]]
-name = "convert"
-version = "0.0.0"
-dependencies = [
- "base64 0.22.1",
- "codec",
- "codec-utils",
- "dirs 0.0.0",
- "eyre",
- "glob",
- "headless_chrome",
- "insta",
- "itertools 0.14.0",
- "rand 0.9.2",
- "regex",
- "reqwest",
- "seahash",
- "secrets",
- "serde",
- "serde_json",
- "strum 0.27.2",
- "tempfile",
- "test-log",
- "tokio",
- "tools",
- "tracing",
- "version",
- "web-dist",
-]
 
 [[package]]
 name = "convert_case"
@@ -3549,18 +2609,6 @@ dependencies = [
 
 [[package]]
 name = "dirs"
-version = "0.0.0"
-dependencies = [
- "clap",
- "directories",
- "eyre",
- "smart-default",
- "strum 0.27.2",
- "tokio",
-]
-
-[[package]]
-name = "dirs"
 version = "5.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "44c45a9d03d6676652bcb5e724c7e988de1acad23a711b5217ab9cbecbec2225"
@@ -3610,55 +2658,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.106",
-]
-
-[[package]]
-name = "document"
-version = "0.0.0"
-dependencies = [
- "ask",
- "chrono",
- "chrono-humanize",
- "clap",
- "cli-utils",
- "codec-json",
- "codec-text",
- "codecs",
- "dirs 0.0.0",
- "eyre",
- "format",
- "futures",
- "glob",
- "indexmap 2.10.0",
- "itertools 0.14.0",
- "json-patch",
- "kernels",
- "node-canonicalize",
- "node-db",
- "node-diagnostics",
- "node-execute",
- "node-find",
- "node-first",
- "node-map",
- "node-sentencize",
- "node-strip",
- "notify",
- "ntest",
- "pretty_assertions",
- "rand 0.9.2",
- "reqwest",
- "schema",
- "serde",
- "serde_json",
- "serde_with",
- "serde_yaml",
- "similar",
- "smart-default",
- "strum 0.27.2",
- "tokio",
- "tools",
- "tracing",
- "url",
 ]
 
 [[package]]
@@ -3745,15 +2744,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8d45f5d833b6d98bd2aab0c2de70b18bfaa10faf661a1578fd8e5dfb15eb7eba"
 dependencies = [
  "document-features",
-]
-
-[[package]]
-name = "embed"
-version = "0.1.0"
-dependencies = [
- "dirs 0.0.0",
- "eyre",
- "fastembed",
 ]
 
 [[package]]
@@ -4040,15 +3030,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cb4cb245038516f5f85277875cdaa4f7d2c9a0fa0468de06ed190163b1581fcf"
 dependencies = [
  "percent-encoding",
-]
-
-[[package]]
-name = "format"
-version = "0.0.0"
-dependencies = [
- "eyre",
- "serde_with",
- "strum 0.27.2",
 ]
 
 [[package]]
@@ -5289,20 +4270,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "images"
-version = "0.0.0"
-dependencies = [
- "base64 0.22.1",
- "eyre",
- "image",
- "itertools 0.14.0",
- "mime",
- "mime_guess",
- "regex",
- "seahash",
-]
-
-[[package]]
 name = "imgref"
 version = "1.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5644,286 +4611,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "kernel"
-version = "0.0.0"
-dependencies = [
- "async-trait",
- "bs58",
- "clap",
- "eyre",
- "format",
- "indexmap 2.10.0",
- "itertools 0.14.0",
- "pretty_assertions",
- "schema",
- "serde",
- "strum 0.27.2",
- "tokio",
- "tracing",
- "uuid",
-]
-
-[[package]]
-name = "kernel-asciimath"
-version = "0.0.0"
-dependencies = [
- "itertools 0.14.0",
- "kernel",
- "mathemascii",
- "pretty_assertions",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "kernel-bash"
-version = "0.0.0"
-dependencies = [
- "kernel-micro",
- "ntest",
- "pretty_assertions",
- "test-log",
- "tokio",
-]
-
-[[package]]
-name = "kernel-docsdb"
-version = "0.0.0"
-dependencies = [
- "codec-json",
- "codec-markdown",
- "codecs",
- "dirs 0.0.0",
- "futures",
- "itertools 0.14.0",
- "kernel-kuzu",
- "lru",
- "node-canonicalize",
- "node-db",
- "node-sentencize",
- "regex",
- "serde_json",
- "serde_yaml",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "kernel-docsql"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "codec-github",
- "codec-openalex",
- "codec-text-trait",
- "codec-zenodo",
- "codecs",
- "embed",
- "eyre",
- "glob",
- "itertools 0.14.0",
- "kernel-docsdb",
- "kernel-jinja",
- "pretty_assertions",
- "regex",
- "secrets",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "kernel-graphviz"
-version = "0.0.0"
-dependencies = [
- "kernel",
- "layout-rs",
- "pretty_assertions",
- "regex",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "kernel-jinja"
-version = "0.0.0"
-dependencies = [
- "kernel",
- "minijinja",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "kernel-kuzu"
-version = "0.0.0"
-dependencies = [
- "indexmap 2.10.0",
- "itertools 0.14.0",
- "kernel",
- "kernel-jinja",
- "kuzu",
- "pretty_assertions",
- "regex",
- "serde",
- "serde_json",
- "strum 0.27.2",
- "tempfile",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "kernel-mermaid"
-version = "0.0.0"
-dependencies = [
- "kernel",
- "kernel-jinja",
- "pretty_assertions",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "kernel-micro"
-version = "0.0.0"
-dependencies = [
- "directories",
- "dirs 0.0.0",
- "itertools 0.14.0",
- "kernel",
- "nix",
- "serde_json",
- "strum 0.27.2",
- "tempfile",
- "tokio",
- "tracing",
- "which 8.0.0",
-]
-
-[[package]]
-name = "kernel-nodejs"
-version = "0.0.0"
-dependencies = [
- "indexmap 2.10.0",
- "kernel-micro",
- "pretty_assertions",
- "test-log",
- "tokio",
-]
-
-[[package]]
-name = "kernel-python"
-version = "0.0.0"
-dependencies = [
- "indexmap 2.10.0",
- "kernel-micro",
- "pretty_assertions",
- "test-log",
- "tokio",
-]
-
-[[package]]
-name = "kernel-quickjs"
-version = "0.0.0"
-dependencies = [
- "indexmap 2.10.0",
- "kernel",
- "pretty_assertions",
- "regex",
- "rquickjs",
- "serde_json",
- "test-log",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "kernel-r"
-version = "0.0.0"
-dependencies = [
- "indexmap 2.10.0",
- "kernel-micro",
- "pretty_assertions",
- "test-log",
- "tokio",
-]
-
-[[package]]
-name = "kernel-rhai"
-version = "0.0.0"
-dependencies = [
- "indexmap 2.10.0",
- "itertools 0.14.0",
- "kernel",
- "pretty_assertions",
- "rhai",
- "serde_json",
- "test-log",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "kernel-style"
-version = "0.0.0"
-dependencies = [
- "bs58",
- "kernel",
- "kernel-jinja",
- "pretty_assertions",
- "railwind",
- "regex",
- "seahash",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "kernel-tex"
-version = "0.0.0"
-dependencies = [
- "kernel",
- "latex2mathml",
- "pretty_assertions",
- "regex",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "kernels"
-version = "0.0.0"
-dependencies = [
- "clap",
- "cli-utils",
- "itertools 0.14.0",
- "kernel",
- "kernel-asciimath",
- "kernel-bash",
- "kernel-docsdb",
- "kernel-docsql",
- "kernel-graphviz",
- "kernel-jinja",
- "kernel-kuzu",
- "kernel-mermaid",
- "kernel-nodejs",
- "kernel-python",
- "kernel-quickjs",
- "kernel-r",
- "kernel-rhai",
- "kernel-style",
- "kernel-tex",
- "node-diagnostics",
- "plugins",
- "pretty_assertions",
- "test-log",
- "tokio",
- "tracing",
-]
-
-[[package]]
 name = "keyring"
 version = "3.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6249,41 +4936,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "lsp"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "ask",
- "async-lsp",
- "async-trait",
- "codec-markdown-trait",
- "codec-text-trait",
- "codec-utils",
- "codecs",
- "document",
- "eyre",
- "itertools 0.14.0",
- "kernels",
- "models",
- "node-execute",
- "node-find",
- "percent-encoding",
- "prompts",
- "reqwest",
- "schema",
- "serde",
- "serde_json",
- "similar",
- "smart-default",
- "tokio",
- "tokio-util",
- "tower 0.5.2",
- "tracing",
- "tracing-subscriber",
- "uuid",
-]
-
-[[package]]
 name = "lsp-types"
 version = "0.95.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6512,27 +5164,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ae960838283323069879657ca3de837e9f7bbb4c7bf6ea7f1b290d5e9476d2e0"
 
 [[package]]
-name = "media-embed"
-version = "0.0.0"
-dependencies = [
- "eyre",
- "format",
- "images",
- "schema",
- "tracing",
-]
-
-[[package]]
-name = "media-extract"
-version = "0.0.0"
-dependencies = [
- "eyre",
- "images",
- "schema",
- "tracing",
-]
-
-[[package]]
 name = "memchr"
 version = "2.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6648,125 +5279,6 @@ name = "moddef"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4a0b3262dc837d2513fe2ef31ff8461352ef932dcca31ba0c0abe33547cf6b9b"
-
-[[package]]
-name = "model"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "async-trait",
- "clap",
- "eyre",
- "format",
- "schema",
- "secrets",
- "serde",
- "serde_with",
- "smart-default",
- "strum 0.27.2",
-]
-
-[[package]]
-name = "models"
-version = "0.0.0"
-dependencies = [
- "clap",
- "cli-utils",
- "futures",
- "itertools 0.14.0",
- "model",
- "models-anthropic",
- "models-google",
- "models-mistral",
- "models-ollama",
- "models-openai",
- "models-stencila",
- "plugins",
- "serde_yaml",
- "tracing",
-]
-
-[[package]]
-name = "models-anthropic"
-version = "0.0.0"
-dependencies = [
- "cached",
- "itertools 0.14.0",
- "model",
- "reqwest",
- "serde",
- "serde_with",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "models-google"
-version = "0.0.0"
-dependencies = [
- "cached",
- "itertools 0.14.0",
- "model",
- "reqwest",
- "serde",
- "serde_with",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "models-mistral"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "cached",
- "itertools 0.14.0",
- "model",
- "reqwest",
- "serde",
- "serde_with",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "models-ollama"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "cached",
- "model",
- "ollama-rs",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "models-openai"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "async-openai",
- "cached",
- "itertools 0.14.0",
- "model",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "models-stencila"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "cached",
- "cloud",
- "itertools 0.14.0",
- "model",
- "reqwest",
- "serde",
- "tokio",
-]
 
 [[package]]
 name = "monostate"
@@ -6975,316 +5487,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b93853da6d84c2e3c7d730d6473e8817692dd89be387eb01b94d7f108ecb5b8c"
 dependencies = [
  "spin 0.5.2",
-]
-
-[[package]]
-name = "node"
-version = "2.0.0-alpha.25"
-dependencies = [
- "codecs",
- "eyre",
- "napi",
- "napi-build",
- "napi-derive",
- "serde_json",
-]
-
-[[package]]
-name = "node-canonicalize"
-version = "0.0.0"
-dependencies = [
- "base64 0.22.1",
- "codec-cbor",
- "codec-openalex",
- "codec-text",
- "eyre",
- "futures",
- "human_name",
- "insta",
- "pretty_assertions",
- "regex",
- "schema",
- "seahash",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "node-contains"
-version = "0.0.0"
-dependencies = [
- "schema",
-]
-
-[[package]]
-name = "node-db"
-version = "0.0.0"
-dependencies = [
- "ask",
- "chrono",
- "clap",
- "cli-utils",
- "codec-text-trait",
- "derive_more 2.0.1",
- "dirs 0.0.0",
- "embed",
- "eyre",
- "itertools 0.14.0",
- "kernel-kuzu",
- "rust-embed",
- "schema",
- "semver",
- "serde",
- "sha2",
- "tempfile",
- "time",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "node-diagnostics"
-version = "0.0.0"
-dependencies = [
- "ariadne",
- "codec-info",
- "eyre",
- "format",
- "schema",
- "serde",
- "serde_with",
- "strum 0.27.2",
-]
-
-[[package]]
-name = "node-execute"
-version = "0.0.0"
-dependencies = [
- "clap",
- "codec-cbor",
- "codec-markdown",
- "codecs",
- "eyre",
- "futures",
- "indexmap 2.10.0",
- "insta",
- "itertools 0.14.0",
- "kernels",
- "models",
- "node-contains",
- "node-diagnostics",
- "parsers",
- "prompts",
- "regex",
- "schema",
- "seahash",
- "serde",
- "serde_json",
- "stencila-linters",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "node-find"
-version = "0.0.0"
-dependencies = [
- "schema",
-]
-
-[[package]]
-name = "node-first"
-version = "0.0.0"
-dependencies = [
- "schema",
-]
-
-[[package]]
-name = "node-id"
-version = "0.0.0"
-dependencies = [
- "derive_more 2.0.1",
- "eyre",
- "rand 0.9.2",
- "serde_with",
-]
-
-[[package]]
-name = "node-map"
-version = "0.0.0"
-dependencies = [
- "indexmap 2.10.0",
- "schema",
-]
-
-[[package]]
-name = "node-media"
-version = "0.0.0"
-dependencies = [
- "images",
- "schema",
- "tracing",
-]
-
-[[package]]
-name = "node-patch-derive"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "darling 0.21.2",
- "format",
- "proc-macro2",
- "quote",
- "syn 2.0.106",
-]
-
-[[package]]
-name = "node-path"
-version = "0.0.0"
-dependencies = [
- "derive_more 2.0.1",
- "eyre",
- "itertools 0.14.0",
- "node-type",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "node-probe-derive"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "darling 0.21.2",
- "proc-macro2",
- "quote",
- "syn 2.0.106",
-]
-
-[[package]]
-name = "node-reconstitute"
-version = "0.0.0"
-dependencies = [
- "eyre",
- "node-url",
- "schema",
- "tracing",
-]
-
-[[package]]
-name = "node-sentencize"
-version = "0.0.0"
-dependencies = [
- "pretty_assertions",
- "schema",
-]
-
-[[package]]
-name = "node-store"
-version = "0.0.0"
-dependencies = [
- "async-trait",
- "automerge",
- "codecs",
- "eyre",
- "glob",
- "itertools 0.14.0",
- "node-store-derive",
- "node-strip",
- "node-type",
- "pretty_assertions",
- "proptest",
- "schema",
- "serde_json",
- "smol_str",
- "tokio",
-]
-
-[[package]]
-name = "node-store-derive"
-version = "0.0.0"
-dependencies = [
- "eyre",
- "proc-macro2",
- "quote",
- "syn 2.0.106",
-]
-
-[[package]]
-name = "node-strip"
-version = "0.0.0"
-dependencies = [
- "clap",
- "indexmap 2.10.0",
- "node-strip-derive",
- "serde",
-]
-
-[[package]]
-name = "node-strip-derive"
-version = "0.0.0"
-dependencies = [
- "darling 0.21.2",
- "proc-macro2",
- "quote",
- "syn 2.0.106",
-]
-
-[[package]]
-name = "node-structuring"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "codec-biblio",
- "codec-links",
- "codec-text-trait",
- "eyre",
- "itertools 0.14.0",
- "pretty_assertions",
- "regex",
- "schema",
- "smart-default",
- "strum 0.27.2",
- "tracing",
-]
-
-[[package]]
-name = "node-type"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "eyre",
- "node-id",
- "serde",
- "strum 0.27.2",
-]
-
-[[package]]
-name = "node-url"
-version = "0.0.0"
-dependencies = [
- "base64 0.22.1",
- "eyre",
- "flate2",
- "node-id",
- "node-path",
- "node-type",
- "serde",
- "serde_json",
- "strum 0.27.2",
- "url",
-]
-
-[[package]]
-name = "node-walk-derive"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "darling 0.21.2",
- "proc-macro2",
- "quote",
- "syn 2.0.106",
 ]
 
 [[package]]
@@ -7841,23 +6043,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "parser"
-version = "0.0.0"
-dependencies = [
- "format",
- "regex",
- "schema",
- "seahash",
-]
-
-[[package]]
-name = "parsers"
-version = "0.1.0"
-dependencies = [
- "parser",
-]
-
-[[package]]
 name = "paste"
 version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8068,35 +6253,6 @@ dependencies = [
  "quick-xml 0.32.0",
  "serde",
  "time",
-]
-
-[[package]]
-name = "plugins"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "async-trait",
- "clap",
- "cli-utils",
- "codec",
- "dirs 0.0.0",
- "eyre",
- "futures",
- "itertools 0.14.0",
- "kernel",
- "model",
- "pretty_assertions",
- "rand 0.9.2",
- "reqwest",
- "semver",
- "serde",
- "serde_json",
- "serde_with",
- "strum 0.27.2",
- "tokio",
- "toml 0.9.5",
- "tracing",
- "which 8.0.0",
 ]
 
 [[package]]
@@ -8756,55 +6912,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "prompt"
-version = "0.0.0"
-dependencies = [
- "codec-markdown-trait",
- "itertools 0.14.0",
- "kernel-quickjs",
- "kernels",
- "pretty_assertions",
- "regex",
- "rquickjs",
- "serde_json",
- "strum 0.27.2",
- "tokio",
-]
-
-[[package]]
-name = "prompts"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "cached",
- "clap",
- "cli-utils",
- "codec-markdown",
- "codecs",
- "derive_more 2.0.1",
- "dirs 0.0.0",
- "eyre",
- "flate2",
- "futures",
- "glob",
- "images",
- "itertools 0.14.0",
- "model",
- "models",
- "prompt",
- "regex",
- "reqwest",
- "rust-embed",
- "semver",
- "serde",
- "serde_json",
- "tar",
- "tokio",
- "tracing",
- "version",
-]
-
-[[package]]
 name = "proptest"
 version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8894,81 +7001,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
-]
-
-[[package]]
-name = "publish"
-version = "0.0.0"
-dependencies = [
- "clap",
- "eyre",
- "publish-ghost",
- "publish-stencila",
- "publish-zenodo",
-]
-
-[[package]]
-name = "publish-ghost"
-version = "0.0.0"
-dependencies = [
- "chrono",
- "clap",
- "cli-utils",
- "codec-text",
- "document",
- "eyre",
- "jsonwebtoken",
- "node-media",
- "reqwest",
- "secrets",
- "serde",
- "serde_json",
- "serde_with",
- "strum 0.27.2",
- "tempfile",
- "tokio",
- "tracing",
- "url",
-]
-
-[[package]]
-name = "publish-stencila"
-version = "0.0.0"
-dependencies = [
- "clap",
- "cloud",
- "codec",
- "codec-swb",
- "document",
- "eyre",
- "reqwest",
- "schema",
- "serde",
- "serde_json",
- "tempfile",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "publish-zenodo"
-version = "0.0.0"
-dependencies = [
- "clap",
- "cli-utils",
- "codec",
- "codec-text",
- "document",
- "eyre",
- "proptest",
- "regex",
- "reqwest",
- "serde",
- "serde_json",
- "tempfile",
- "tokio",
- "tracing",
- "url",
 ]
 
 [[package]]
@@ -10083,88 +8115,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "schema"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "async-recursion",
- "chrono",
- "chrono-humanize",
- "codec",
- "codec-dom-trait",
- "codec-html-trait",
- "codec-info",
- "codec-jats-trait",
- "codec-json5-trait",
- "codec-latex-trait",
- "codec-markdown",
- "codec-markdown-trait",
- "codec-text-trait",
- "derive_more 2.0.1",
- "eyre",
- "format",
- "glob",
- "human_name",
- "images",
- "indexmap 2.10.0",
- "insta",
- "interim",
- "itertools 0.14.0",
- "monostate",
- "node-id",
- "node-patch-derive",
- "node-path",
- "node-probe-derive",
- "node-store",
- "node-strip",
- "node-type",
- "node-url",
- "node-walk-derive",
- "pretty_assertions",
- "proptest",
- "proptest-derive",
- "regex",
- "serde",
- "serde_json",
- "serde_with",
- "serde_yaml",
- "similar",
- "smart-default",
- "smol_str",
- "strum 0.27.2",
- "time",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "schema-gen"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "async-recursion",
- "clap",
- "codecs",
- "eyre",
- "futures",
- "glob",
- "indexmap 2.10.0",
- "itertools 0.14.0",
- "schema",
- "schemars 1.0.4",
- "semver",
- "serde",
- "serde_json",
- "serde_with",
- "serde_yaml",
- "smart-default",
- "status",
- "strum 0.27.2",
- "tokio",
- "topological-sort",
-]
-
-[[package]]
 name = "schemars"
 version = "0.8.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -10252,21 +8202,6 @@ checksum = "e891af845473308773346dc847b2c23ee78fe442e0472ac50e22a18a93d3ae5a"
 dependencies = [
  "serde",
  "zeroize",
-]
-
-[[package]]
-name = "secrets"
-version = "0.0.0"
-dependencies = [
- "ask",
- "clap",
- "cli-utils",
- "eyre",
- "itertools 0.14.0",
- "keyring",
- "serde",
- "serde_with",
- "tracing",
 ]
 
 [[package]]
@@ -10537,34 +8472,6 @@ dependencies = [
  "ryu",
  "serde",
  "unsafe-libyaml",
-]
-
-[[package]]
-name = "server"
-version = "0.0.0"
-dependencies = [
- "axum 0.8.4",
- "clap",
- "cloud",
- "codecs",
- "document",
- "eyre",
- "format",
- "futures",
- "itertools 0.14.0",
- "mime_guess",
- "rand 0.9.2",
- "reqwest",
- "serde",
- "serde_json",
- "smart-default",
- "tokio",
- "tower-cookies",
- "tower-http",
- "tracing",
- "uuid",
- "version",
- "web-dist",
 ]
 
 [[package]]
@@ -10917,24 +8824,1316 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
-name = "status"
+name = "stencila-ask"
+version = "0.0.0"
+dependencies = [
+ "async-trait",
+ "eyre",
+ "lsp-types",
+ "owo-colors",
+ "rpassword",
+ "strum 0.27.2",
+ "textwrap",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-cli"
 version = "0.0.0"
 dependencies = [
  "clap",
- "schemars 1.0.4",
+ "color-eyre",
+ "console-subscriber",
+ "eyre",
+ "flate2",
+ "itertools 0.14.0",
+ "reqwest",
+ "self-replace",
+ "semver",
  "serde",
+ "serde_json",
+ "stencila-ask",
+ "stencila-cli-utils",
+ "stencila-cloud",
+ "stencila-codecs",
+ "stencila-dirs",
+ "stencila-document",
+ "stencila-format",
+ "stencila-kernels",
+ "stencila-linters",
+ "stencila-lsp",
+ "stencila-models",
+ "stencila-node-db",
+ "stencila-node-diagnostics",
+ "stencila-node-execute",
+ "stencila-node-strip",
+ "stencila-plugins",
+ "stencila-prompts",
+ "stencila-publish",
+ "stencila-schema",
+ "stencila-secrets",
+ "stencila-server",
+ "stencila-tools",
+ "stencila-version",
+ "strum 0.27.2",
+ "tar",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "tracing-error",
+ "tracing-subscriber",
+ "url",
+ "webbrowser",
+ "zip 2.5.0",
+]
+
+[[package]]
+name = "stencila-cli-gen"
+version = "0.1.0"
+dependencies = [
+ "clap-markdown",
+ "stencila-cli",
+]
+
+[[package]]
+name = "stencila-cli-utils"
+version = "0.0.0"
+dependencies = [
+ "clap",
+ "color-print",
+ "comfy-table",
+ "derive_more 2.0.1",
+ "eyre",
+ "itertools 0.14.0",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "stencila-format",
+ "stencila-schema",
+ "syntect",
+ "terminal_size",
+ "textwrap",
+ "url",
+]
+
+[[package]]
+name = "stencila-cloud"
+version = "0.0.0"
+dependencies = [
+ "cached",
+ "eyre",
+ "reqwest",
+ "serde",
+ "stencila-secrets",
+ "stencila-version",
+ "strum 0.27.2",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-codec"
+version = "0.0.0"
+dependencies = [
+ "async-trait",
+ "eyre",
+ "serde",
+ "serde_with",
+ "smart-default",
+ "stencila-codec-info",
+ "stencila-codec-utils",
+ "stencila-format",
+ "stencila-node-strip",
+ "stencila-schema",
+ "stencila-status",
+ "strum 0.27.2",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-codec-arxiv"
+version = "0.0.0"
+dependencies = [
+ "base64 0.22.1",
+ "flate2",
+ "futures",
+ "glob",
+ "insta",
+ "regex",
+ "reqwest",
+ "stencila-codec",
+ "stencila-codec-biblio",
+ "stencila-codec-latex",
+ "stencila-codec-pdf",
+ "tar",
+ "tempfile",
+ "tl",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "stencila-codec-biblio"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "glob",
+ "hayagriva",
+ "insta",
+ "itertools 0.14.0",
+ "pretty_assertions",
+ "reqwest",
+ "serde_json",
+ "stencila-codec",
+ "stencila-codec-markdown-trait",
+ "stencila-codec-text-trait",
+ "tokio",
+ "tracing",
+ "winnow",
+]
+
+[[package]]
+name = "stencila-codec-cbor"
+version = "0.0.0"
+dependencies = [
+ "ciborium",
+ "serde",
+ "stencila-codec",
+ "zstd",
+]
+
+[[package]]
+name = "stencila-codec-cff"
+version = "0.0.0"
+dependencies = [
+ "glob",
+ "indexmap 2.10.0",
+ "insta",
+ "itertools 0.14.0",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "serde_yaml",
+ "stencila-codec",
+ "tokio",
+]
+
+[[package]]
+name = "stencila-codec-csl"
+version = "0.0.0"
+dependencies = [
+ "glob",
+ "indexmap 2.10.0",
+ "insta",
+ "itertools 0.14.0",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "stencila-codec",
+ "tokio",
+]
+
+[[package]]
+name = "stencila-codec-csv"
+version = "0.0.0"
+dependencies = [
+ "polars",
+ "serde_json",
+ "stencila-codec",
+ "tempfile",
+]
+
+[[package]]
+name = "stencila-codec-debug"
+version = "0.0.0"
+dependencies = [
+ "stencila-codec",
+]
+
+[[package]]
+name = "stencila-codec-directory"
+version = "0.0.0"
+dependencies = [
+ "ignore",
+ "mime_guess",
+ "stencila-codec",
+]
+
+[[package]]
+name = "stencila-codec-docx"
+version = "0.0.0"
+dependencies = [
+ "indexmap 2.10.0",
+ "pretty_assertions",
+ "regex",
+ "roxmltree",
+ "rust-embed",
+ "serde_json",
+ "stencila-codec",
+ "stencila-codec-json",
+ "stencila-codec-pandoc",
+ "stencila-codec-utils",
+ "stencila-dirs",
+ "stencila-media-embed",
+ "stencila-node-reconstitute",
+ "stencila-version",
+ "tempfile",
+ "tokio",
+ "uuid",
+ "zip 2.5.0",
+]
+
+[[package]]
+name = "stencila-codec-doi"
+version = "0.0.0"
+dependencies = [
+ "regex",
+ "reqwest",
+ "stencila-codec",
+ "stencila-codec-csl",
+ "stencila-version",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "stencila-codec-dom"
+version = "0.0.0"
+dependencies = [
+ "itertools 0.14.0",
+ "lightningcss",
+ "quick-xml 0.37.5",
+ "stencila-codec",
+ "stencila-codec-dom-trait",
+ "stencila-codec-text-trait",
+ "stencila-media-embed",
+ "stencila-media-extract",
+ "stencila-version",
+ "tokio",
+]
+
+[[package]]
+name = "stencila-codec-dom-derive"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "darling 0.21.2",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.106",
+]
+
+[[package]]
+name = "stencila-codec-dom-trait"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "html-escape",
+ "itertools 0.14.0",
+ "serde",
+ "serde_json",
+ "smart-default",
+ "stencila-codec-dom-derive",
+ "stencila-node-id",
+ "stencila-node-type",
+]
+
+[[package]]
+name = "stencila-codec-gdocx"
+version = "0.0.0"
+dependencies = [
+ "stencila-codec",
+ "stencila-codec-docx",
+]
+
+[[package]]
+name = "stencila-codec-github"
+version = "0.0.0"
+dependencies = [
+ "base64 0.22.1",
+ "glob",
+ "governor",
+ "insta",
+ "itertools 0.14.0",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "stencila-codec",
+ "stencila-codec-csv",
+ "stencila-codec-ipynb",
+ "stencila-codec-latex",
+ "stencila-codec-markdown",
+ "stencila-codec-xlsx",
+ "stencila-secrets",
+ "stencila-version",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "stencila-codec-html"
+version = "0.0.0"
+dependencies = [
+ "quick-xml 0.37.5",
+ "stencila-codec",
+ "stencila-codec-html-trait",
+ "tl",
+]
+
+[[package]]
+name = "stencila-codec-html-derive"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "darling 0.21.2",
+ "itertools 0.14.0",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.106",
+]
+
+[[package]]
+name = "stencila-codec-html-trait"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "html-escape",
+ "itertools 0.14.0",
+ "serde_json",
+ "stencila-codec-html-derive",
+]
+
+[[package]]
+name = "stencila-codec-info"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "derive_more 2.0.1",
+ "eyre",
+ "itertools 0.14.0",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "serde_yaml",
+ "similar",
+ "stencila-format",
+ "stencila-node-id",
+ "stencila-node-type",
+ "strum 0.27.2",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-codec-ipynb"
+version = "0.0.0"
+dependencies = [
+ "jupyter-protocol",
+ "nbformat",
+ "serde_json",
+ "stencila-codec",
+ "stencila-codec-markdown",
+]
+
+[[package]]
+name = "stencila-codec-jats"
+version = "0.0.0"
+dependencies = [
+ "glob",
+ "insta",
+ "itertools 0.14.0",
+ "pretty_assertions",
+ "quick-xml 0.37.5",
+ "roxmltree",
+ "stencila-codec",
+ "stencila-codec-jats-trait",
+ "stencila-codec-text-trait",
+ "tokio",
+]
+
+[[package]]
+name = "stencila-codec-jats-derive"
+version = "0.0.0"
+dependencies = [
+ "darling 0.21.2",
+ "itertools 0.14.0",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.106",
+]
+
+[[package]]
+name = "stencila-codec-jats-trait"
+version = "0.0.0"
+dependencies = [
+ "itertools 0.14.0",
+ "stencila-codec-info",
+ "stencila-codec-jats-derive",
+]
+
+[[package]]
+name = "stencila-codec-json"
+version = "0.0.0"
+dependencies = [
+ "pretty_assertions",
+ "serde",
+ "serde_json",
+ "stencila-codec",
+ "stencila-version",
+ "tokio",
+ "zip 2.5.0",
+]
+
+[[package]]
+name = "stencila-codec-json5"
+version = "0.0.0"
+dependencies = [
+ "stencila-codec",
+ "stencila-codec-json5-trait",
+ "tokio",
+]
+
+[[package]]
+name = "stencila-codec-json5-trait"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "json5",
+ "json5format",
+ "serde",
+]
+
+[[package]]
+name = "stencila-codec-jsonld"
+version = "0.0.0"
+dependencies = [
+ "serde_json",
+ "stencila-codec",
+]
+
+[[package]]
+name = "stencila-codec-latex"
+version = "0.0.0"
+dependencies = [
+ "glob",
+ "insta",
+ "itertools 0.14.0",
+ "regex",
+ "stencila-codec",
+ "stencila-codec-latex-trait",
+ "stencila-codec-pandoc",
+ "tokio",
+ "which 8.0.0",
+]
+
+[[package]]
+name = "stencila-codec-latex-derive"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "darling 0.21.2",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.106",
+]
+
+[[package]]
+name = "stencila-codec-latex-trait"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "glob",
+ "itertools 0.14.0",
+ "rand 0.9.2",
+ "stencila-codec-info",
+ "stencila-codec-latex-derive",
+ "stencila-codec-utils",
+ "stencila-format",
+ "stencila-node-path",
+ "stencila-node-url",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-codec-lexical"
+version = "0.0.0"
+dependencies = [
+ "bitflags 2.9.2",
+ "glob",
+ "insta",
+ "monostate",
+ "regex",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "smart-default",
+ "stencila-codec",
+ "stencila-codec-dom-trait",
+ "stencila-codec-markdown",
+ "stencila-codec-text",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-codec-links"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "stencila-codec",
+ "winnow",
+]
+
+[[package]]
+name = "stencila-codec-markdown"
+version = "0.0.0"
+dependencies = [
+ "indexmap 2.10.0",
+ "insta",
+ "itertools 0.14.0",
+ "markdown",
+ "pretty_assertions",
+ "regex",
+ "serde_json",
+ "serde_yaml",
+ "stencila-codec",
+ "stencila-codec-json5-trait",
+ "stencila-codec-markdown-trait",
+ "stencila-codec-text-trait",
+ "stencila-media-embed",
+ "stencila-media-extract",
+ "strum 0.27.2",
+ "tokio",
+ "tracing",
+ "winnow",
+]
+
+[[package]]
+name = "stencila-codec-markdown-derive"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "darling 0.21.2",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.106",
+]
+
+[[package]]
+name = "stencila-codec-markdown-trait"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "stencila-codec-info",
+ "stencila-codec-markdown-derive",
+ "stencila-format",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-codec-meca"
+version = "0.0.0"
+dependencies = [
+ "glob",
+ "insta",
+ "stencila-codec",
+ "stencila-codec-jats",
+ "stencila-media-embed",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "zip 2.5.0",
+]
+
+[[package]]
+name = "stencila-codec-odt"
+version = "0.0.0"
+dependencies = [
+ "stencila-codec",
+ "stencila-codec-json",
+ "stencila-codec-pandoc",
+ "stencila-node-reconstitute",
+]
+
+[[package]]
+name = "stencila-codec-openalex"
+version = "0.0.0"
+dependencies = [
+ "glob",
+ "governor",
+ "indexmap 2.10.0",
+ "insta",
+ "itertools 0.14.0",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "stencila-codec",
+ "stencila-version",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-codec-openrxiv"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "futures",
+ "regex",
+ "reqwest",
+ "stencila-cloud",
+ "stencila-codec",
+ "stencila-codec-meca",
+ "stencila-codec-pdf",
+ "stencila-version",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "stencila-codec-pandoc"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "itertools 0.14.0",
+ "pandoc_types",
+ "serde",
+ "serde_json",
+ "stencila-codec",
+ "stencila-codec-latex-trait",
+ "stencila-codec-png",
+ "stencila-codec-text-trait",
+ "stencila-tools",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-codec-pdf"
+version = "0.0.0"
+dependencies = [
+ "stencila-codec",
+ "stencila-codec-dom",
+ "stencila-codec-latex",
+ "stencila-codec-markdown",
+ "stencila-codec-utils",
+ "stencila-convert",
+ "stencila-media-embed",
+ "stencila-node-structuring",
+]
+
+[[package]]
+name = "stencila-codec-pmcoa"
+version = "0.0.0"
+dependencies = [
+ "flate2",
+ "futures",
+ "glob",
+ "insta",
+ "regex",
+ "reqwest",
+ "stencila-codec",
+ "stencila-codec-jats",
+ "stencila-media-embed",
+ "stencila-version",
+ "tar",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "stencila-codec-png"
+version = "0.0.0"
+dependencies = [
+ "stencila-codec",
+ "stencila-codec-dom-trait",
+ "stencila-codec-latex-trait",
+ "stencila-convert",
+]
+
+[[package]]
+name = "stencila-codec-rnw"
+version = "0.0.0"
+dependencies = [
+ "glob",
+ "insta",
+ "itertools 0.14.0",
+ "regex",
+ "stencila-codec",
+ "stencila-codec-latex",
+ "tokio",
+]
+
+[[package]]
+name = "stencila-codec-swb"
+version = "0.0.0"
+dependencies = [
+ "clap",
+ "flate2",
+ "stencila-codec",
+ "stencila-codec-dom",
+ "stencila-codec-jsonld",
+ "stencila-codec-markdown",
+ "tar",
+ "tempfile",
+ "tokio",
+]
+
+[[package]]
+name = "stencila-codec-text"
+version = "0.0.0"
+dependencies = [
+ "stencila-codec",
+ "stencila-codec-text-trait",
+]
+
+[[package]]
+name = "stencila-codec-text-derive"
+version = "0.0.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.106",
+]
+
+[[package]]
+name = "stencila-codec-text-trait"
+version = "0.0.0"
+dependencies = [
+ "stencila-codec-text-derive",
+]
+
+[[package]]
+name = "stencila-codec-utils"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "itertools 0.14.0",
+ "proptest",
+ "reqwest",
+ "similar",
+ "which 8.0.0",
+]
+
+[[package]]
+name = "stencila-codec-xlsx"
+version = "0.0.0"
+dependencies = [
+ "calamine",
+ "stencila-codec",
+]
+
+[[package]]
+name = "stencila-codec-yaml"
+version = "0.0.0"
+dependencies = [
+ "serde",
+ "serde_yaml",
+ "stencila-codec",
+ "stencila-version",
+ "tokio",
+]
+
+[[package]]
+name = "stencila-codec-zenodo"
+version = "0.0.0"
+dependencies = [
+ "glob",
+ "governor",
+ "insta",
+ "itertools 0.14.0",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "stencila-codec",
+ "stencila-codec-biblio",
+ "stencila-codec-csv",
+ "stencila-codec-html",
+ "stencila-codec-ipynb",
+ "stencila-codec-latex",
+ "stencila-codec-markdown",
+ "stencila-codec-text",
+ "stencila-codec-xlsx",
+ "stencila-secrets",
+ "stencila-version",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "stencila-codecs"
+version = "0.0.0"
+dependencies = [
+ "chrono",
+ "clap",
+ "futures",
+ "glob",
+ "insta",
+ "itertools 0.14.0",
+ "json_value_merge",
+ "pretty_assertions",
+ "proptest",
+ "regex",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "smart-default",
+ "stencila-ask",
+ "stencila-cli-utils",
+ "stencila-codec",
+ "stencila-codec-arxiv",
+ "stencila-codec-cbor",
+ "stencila-codec-cff",
+ "stencila-codec-csl",
+ "stencila-codec-csv",
+ "stencila-codec-debug",
+ "stencila-codec-directory",
+ "stencila-codec-docx",
+ "stencila-codec-doi",
+ "stencila-codec-dom",
+ "stencila-codec-gdocx",
+ "stencila-codec-github",
+ "stencila-codec-html",
+ "stencila-codec-ipynb",
+ "stencila-codec-jats",
+ "stencila-codec-json",
+ "stencila-codec-json5",
+ "stencila-codec-jsonld",
+ "stencila-codec-latex",
+ "stencila-codec-lexical",
+ "stencila-codec-markdown",
+ "stencila-codec-meca",
+ "stencila-codec-odt",
+ "stencila-codec-openrxiv",
+ "stencila-codec-pandoc",
+ "stencila-codec-pdf",
+ "stencila-codec-pmcoa",
+ "stencila-codec-png",
+ "stencila-codec-rnw",
+ "stencila-codec-swb",
+ "stencila-codec-text",
+ "stencila-codec-utils",
+ "stencila-codec-xlsx",
+ "stencila-codec-yaml",
+ "stencila-node-strip",
+ "strum 0.27.2",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "url",
+ "walkdir",
+]
+
+[[package]]
+name = "stencila-convert"
+version = "0.0.0"
+dependencies = [
+ "base64 0.22.1",
+ "eyre",
+ "glob",
+ "headless_chrome",
+ "insta",
+ "itertools 0.14.0",
+ "rand 0.9.2",
+ "regex",
+ "reqwest",
+ "seahash",
+ "serde",
+ "serde_json",
+ "stencila-codec",
+ "stencila-codec-utils",
+ "stencila-dirs",
+ "stencila-secrets",
+ "stencila-tools",
+ "stencila-version",
+ "stencila-web-dist",
+ "strum 0.27.2",
+ "tempfile",
+ "test-log",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-dirs"
+version = "0.0.0"
+dependencies = [
+ "clap",
+ "directories",
+ "eyre",
+ "smart-default",
+ "strum 0.27.2",
+ "tokio",
+]
+
+[[package]]
+name = "stencila-document"
+version = "0.0.0"
+dependencies = [
+ "chrono",
+ "chrono-humanize",
+ "clap",
+ "eyre",
+ "futures",
+ "glob",
+ "indexmap 2.10.0",
+ "itertools 0.14.0",
+ "json-patch",
+ "notify",
+ "ntest",
+ "pretty_assertions",
+ "rand 0.9.2",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "serde_yaml",
+ "similar",
+ "smart-default",
+ "stencila-ask",
+ "stencila-cli-utils",
+ "stencila-codec-json",
+ "stencila-codec-text",
+ "stencila-codecs",
+ "stencila-dirs",
+ "stencila-format",
+ "stencila-kernels",
+ "stencila-node-canonicalize",
+ "stencila-node-db",
+ "stencila-node-diagnostics",
+ "stencila-node-execute",
+ "stencila-node-find",
+ "stencila-node-first",
+ "stencila-node-map",
+ "stencila-node-sentencize",
+ "stencila-node-strip",
+ "stencila-schema",
+ "stencila-tools",
+ "strum 0.27.2",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "stencila-embed"
+version = "0.1.0"
+dependencies = [
+ "eyre",
+ "fastembed",
+ "stencila-dirs",
+]
+
+[[package]]
+name = "stencila-format"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "serde_with",
  "strum 0.27.2",
 ]
 
 [[package]]
-name = "stencila"
-version = "2.0.0-beta.2"
+name = "stencila-images"
+version = "0.0.0"
 dependencies = [
- "codecs",
+ "base64 0.22.1",
  "eyre",
- "pyo3",
- "pyo3-async-runtimes",
+ "image",
+ "itertools 0.14.0",
+ "mime",
+ "mime_guess",
+ "regex",
+ "seahash",
+]
+
+[[package]]
+name = "stencila-kernel"
+version = "0.0.0"
+dependencies = [
+ "async-trait",
+ "bs58",
+ "clap",
+ "eyre",
+ "indexmap 2.10.0",
+ "itertools 0.14.0",
+ "pretty_assertions",
+ "serde",
+ "stencila-format",
+ "stencila-schema",
+ "strum 0.27.2",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "stencila-kernel-asciimath"
+version = "0.0.0"
+dependencies = [
+ "itertools 0.14.0",
+ "mathemascii",
+ "pretty_assertions",
+ "stencila-kernel",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-kernel-bash"
+version = "0.0.0"
+dependencies = [
+ "ntest",
+ "pretty_assertions",
+ "stencila-kernel-micro",
+ "test-log",
+ "tokio",
+]
+
+[[package]]
+name = "stencila-kernel-docsdb"
+version = "0.0.0"
+dependencies = [
+ "futures",
+ "itertools 0.14.0",
+ "lru",
+ "regex",
  "serde_json",
+ "serde_yaml",
+ "stencila-codec-json",
+ "stencila-codec-markdown",
+ "stencila-codecs",
+ "stencila-dirs",
+ "stencila-kernel-kuzu",
+ "stencila-node-canonicalize",
+ "stencila-node-db",
+ "stencila-node-sentencize",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-kernel-docsql"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "eyre",
+ "glob",
+ "itertools 0.14.0",
+ "pretty_assertions",
+ "regex",
+ "serde_json",
+ "stencila-codec-github",
+ "stencila-codec-openalex",
+ "stencila-codec-text-trait",
+ "stencila-codec-zenodo",
+ "stencila-codecs",
+ "stencila-embed",
+ "stencila-kernel-docsdb",
+ "stencila-kernel-jinja",
+ "stencila-secrets",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-kernel-graphviz"
+version = "0.0.0"
+dependencies = [
+ "layout-rs",
+ "pretty_assertions",
+ "regex",
+ "stencila-kernel",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-kernel-jinja"
+version = "0.0.0"
+dependencies = [
+ "minijinja",
+ "serde_json",
+ "stencila-kernel",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-kernel-kuzu"
+version = "0.0.0"
+dependencies = [
+ "indexmap 2.10.0",
+ "itertools 0.14.0",
+ "kuzu",
+ "pretty_assertions",
+ "regex",
+ "serde",
+ "serde_json",
+ "stencila-kernel",
+ "stencila-kernel-jinja",
+ "strum 0.27.2",
+ "tempfile",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-kernel-mermaid"
+version = "0.0.0"
+dependencies = [
+ "pretty_assertions",
+ "stencila-kernel",
+ "stencila-kernel-jinja",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-kernel-micro"
+version = "0.0.0"
+dependencies = [
+ "directories",
+ "itertools 0.14.0",
+ "nix",
+ "serde_json",
+ "stencila-dirs",
+ "stencila-kernel",
+ "strum 0.27.2",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "which 8.0.0",
+]
+
+[[package]]
+name = "stencila-kernel-nodejs"
+version = "0.0.0"
+dependencies = [
+ "indexmap 2.10.0",
+ "pretty_assertions",
+ "stencila-kernel-micro",
+ "test-log",
+ "tokio",
+]
+
+[[package]]
+name = "stencila-kernel-python"
+version = "0.0.0"
+dependencies = [
+ "indexmap 2.10.0",
+ "pretty_assertions",
+ "stencila-kernel-micro",
+ "test-log",
+ "tokio",
+]
+
+[[package]]
+name = "stencila-kernel-quickjs"
+version = "0.0.0"
+dependencies = [
+ "indexmap 2.10.0",
+ "pretty_assertions",
+ "regex",
+ "rquickjs",
+ "serde_json",
+ "stencila-kernel",
+ "test-log",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-kernel-r"
+version = "0.0.0"
+dependencies = [
+ "indexmap 2.10.0",
+ "pretty_assertions",
+ "stencila-kernel-micro",
+ "test-log",
+ "tokio",
+]
+
+[[package]]
+name = "stencila-kernel-rhai"
+version = "0.0.0"
+dependencies = [
+ "indexmap 2.10.0",
+ "itertools 0.14.0",
+ "pretty_assertions",
+ "rhai",
+ "serde_json",
+ "stencila-kernel",
+ "test-log",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-kernel-style"
+version = "0.0.0"
+dependencies = [
+ "bs58",
+ "pretty_assertions",
+ "railwind",
+ "regex",
+ "seahash",
+ "stencila-kernel",
+ "stencila-kernel-jinja",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-kernel-tex"
+version = "0.0.0"
+dependencies = [
+ "latex2mathml",
+ "pretty_assertions",
+ "regex",
+ "stencila-kernel",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-kernels"
+version = "0.0.0"
+dependencies = [
+ "clap",
+ "itertools 0.14.0",
+ "pretty_assertions",
+ "stencila-cli-utils",
+ "stencila-kernel",
+ "stencila-kernel-asciimath",
+ "stencila-kernel-bash",
+ "stencila-kernel-docsdb",
+ "stencila-kernel-docsql",
+ "stencila-kernel-graphviz",
+ "stencila-kernel-jinja",
+ "stencila-kernel-kuzu",
+ "stencila-kernel-mermaid",
+ "stencila-kernel-nodejs",
+ "stencila-kernel-python",
+ "stencila-kernel-quickjs",
+ "stencila-kernel-r",
+ "stencila-kernel-rhai",
+ "stencila-kernel-style",
+ "stencila-kernel-tex",
+ "stencila-node-diagnostics",
+ "stencila-plugins",
+ "test-log",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -10943,10 +10142,10 @@ version = "0.0.0"
 dependencies = [
  "async-trait",
  "eyre",
- "format",
- "node-type",
- "schema",
  "serde",
+ "stencila-format",
+ "stencila-node-type",
+ "stencila-schema",
  "strum 0.27.2",
 ]
 
@@ -10967,9 +10166,9 @@ version = "0.0.0"
 dependencies = [
  "reqwest",
  "stencila-linter",
+ "stencila-version",
  "tokio",
  "tracing",
- "version",
 ]
 
 [[package]]
@@ -10979,8 +10178,8 @@ dependencies = [
  "serde",
  "serde_json",
  "stencila-linter",
+ "stencila-tools",
  "tempfile",
- "tools",
  "tracing",
 ]
 
@@ -10991,8 +10190,8 @@ dependencies = [
  "serde",
  "serde_json",
  "stencila-linter",
+ "stencila-tools",
  "tempfile",
- "tools",
  "tracing",
 ]
 
@@ -11003,8 +10202,8 @@ dependencies = [
  "serde",
  "serde_json",
  "stencila-linter",
+ "stencila-tools",
  "tempfile",
- "tools",
  "tracing",
 ]
 
@@ -11013,8 +10212,8 @@ name = "stencila-linter-styler"
 version = "0.0.0"
 dependencies = [
  "stencila-linter",
+ "stencila-tools",
  "tempfile",
- "tools",
  "tracing",
 ]
 
@@ -11023,9 +10222,9 @@ name = "stencila-linters"
 version = "0.0.0"
 dependencies = [
  "clap",
- "cli-utils",
  "itertools 0.14.0",
  "serde_yaml",
+ "stencila-cli-utils",
  "stencila-linter",
  "stencila-linter-harper",
  "stencila-linter-links",
@@ -11035,6 +10234,849 @@ dependencies = [
  "stencila-linter-styler",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "stencila-lsp"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "async-lsp",
+ "async-trait",
+ "eyre",
+ "itertools 0.14.0",
+ "percent-encoding",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "similar",
+ "smart-default",
+ "stencila-ask",
+ "stencila-codec-markdown-trait",
+ "stencila-codec-text-trait",
+ "stencila-codec-utils",
+ "stencila-codecs",
+ "stencila-document",
+ "stencila-kernels",
+ "stencila-models",
+ "stencila-node-execute",
+ "stencila-node-find",
+ "stencila-prompts",
+ "stencila-schema",
+ "tokio",
+ "tokio-util",
+ "tower 0.5.2",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+]
+
+[[package]]
+name = "stencila-media-embed"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "stencila-format",
+ "stencila-images",
+ "stencila-schema",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-media-extract"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "stencila-images",
+ "stencila-schema",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-model"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "async-trait",
+ "clap",
+ "eyre",
+ "serde",
+ "serde_with",
+ "smart-default",
+ "stencila-format",
+ "stencila-schema",
+ "stencila-secrets",
+ "strum 0.27.2",
+]
+
+[[package]]
+name = "stencila-models"
+version = "0.0.0"
+dependencies = [
+ "clap",
+ "futures",
+ "itertools 0.14.0",
+ "serde_yaml",
+ "stencila-cli-utils",
+ "stencila-model",
+ "stencila-models-anthropic",
+ "stencila-models-google",
+ "stencila-models-mistral",
+ "stencila-models-ollama",
+ "stencila-models-openai",
+ "stencila-models-stencila",
+ "stencila-plugins",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-models-anthropic"
+version = "0.0.0"
+dependencies = [
+ "cached",
+ "itertools 0.14.0",
+ "reqwest",
+ "serde",
+ "serde_with",
+ "stencila-model",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-models-google"
+version = "0.0.0"
+dependencies = [
+ "cached",
+ "itertools 0.14.0",
+ "reqwest",
+ "serde",
+ "serde_with",
+ "stencila-model",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-models-mistral"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "cached",
+ "itertools 0.14.0",
+ "reqwest",
+ "serde",
+ "serde_with",
+ "stencila-model",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-models-ollama"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "cached",
+ "ollama-rs",
+ "stencila-model",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-models-openai"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "async-openai",
+ "cached",
+ "itertools 0.14.0",
+ "stencila-model",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-models-stencila"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "cached",
+ "itertools 0.14.0",
+ "reqwest",
+ "serde",
+ "stencila-cloud",
+ "stencila-model",
+ "tokio",
+]
+
+[[package]]
+name = "stencila-node"
+version = "2.0.0-alpha.25"
+dependencies = [
+ "eyre",
+ "napi",
+ "napi-build",
+ "napi-derive",
+ "serde_json",
+ "stencila-codecs",
+]
+
+[[package]]
+name = "stencila-node-canonicalize"
+version = "0.0.0"
+dependencies = [
+ "base64 0.22.1",
+ "eyre",
+ "futures",
+ "human_name",
+ "insta",
+ "pretty_assertions",
+ "regex",
+ "seahash",
+ "serde_json",
+ "stencila-codec-cbor",
+ "stencila-codec-openalex",
+ "stencila-codec-text",
+ "stencila-schema",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-node-contains"
+version = "0.0.0"
+dependencies = [
+ "stencila-schema",
+]
+
+[[package]]
+name = "stencila-node-db"
+version = "0.0.0"
+dependencies = [
+ "chrono",
+ "clap",
+ "derive_more 2.0.1",
+ "eyre",
+ "itertools 0.14.0",
+ "rust-embed",
+ "semver",
+ "serde",
+ "sha2",
+ "stencila-ask",
+ "stencila-cli-utils",
+ "stencila-codec-text-trait",
+ "stencila-dirs",
+ "stencila-embed",
+ "stencila-kernel-kuzu",
+ "stencila-schema",
+ "tempfile",
+ "time",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-node-diagnostics"
+version = "0.0.0"
+dependencies = [
+ "ariadne",
+ "eyre",
+ "serde",
+ "serde_with",
+ "stencila-codec-info",
+ "stencila-format",
+ "stencila-schema",
+ "strum 0.27.2",
+]
+
+[[package]]
+name = "stencila-node-execute"
+version = "0.0.0"
+dependencies = [
+ "clap",
+ "eyre",
+ "futures",
+ "indexmap 2.10.0",
+ "insta",
+ "itertools 0.14.0",
+ "regex",
+ "seahash",
+ "serde",
+ "serde_json",
+ "stencila-codec-cbor",
+ "stencila-codec-markdown",
+ "stencila-codecs",
+ "stencila-kernels",
+ "stencila-linters",
+ "stencila-models",
+ "stencila-node-contains",
+ "stencila-node-diagnostics",
+ "stencila-parsers",
+ "stencila-prompts",
+ "stencila-schema",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-node-find"
+version = "0.0.0"
+dependencies = [
+ "stencila-schema",
+]
+
+[[package]]
+name = "stencila-node-first"
+version = "0.0.0"
+dependencies = [
+ "stencila-schema",
+]
+
+[[package]]
+name = "stencila-node-id"
+version = "0.0.0"
+dependencies = [
+ "derive_more 2.0.1",
+ "eyre",
+ "rand 0.9.2",
+ "serde_with",
+]
+
+[[package]]
+name = "stencila-node-map"
+version = "0.0.0"
+dependencies = [
+ "indexmap 2.10.0",
+ "stencila-schema",
+]
+
+[[package]]
+name = "stencila-node-media"
+version = "0.0.0"
+dependencies = [
+ "stencila-images",
+ "stencila-schema",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-node-patch-derive"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "darling 0.21.2",
+ "proc-macro2",
+ "quote",
+ "stencila-format",
+ "syn 2.0.106",
+]
+
+[[package]]
+name = "stencila-node-path"
+version = "0.0.0"
+dependencies = [
+ "derive_more 2.0.1",
+ "eyre",
+ "itertools 0.14.0",
+ "serde",
+ "serde_json",
+ "stencila-node-type",
+]
+
+[[package]]
+name = "stencila-node-probe-derive"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "darling 0.21.2",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.106",
+]
+
+[[package]]
+name = "stencila-node-reconstitute"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "stencila-node-url",
+ "stencila-schema",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-node-sentencize"
+version = "0.0.0"
+dependencies = [
+ "pretty_assertions",
+ "stencila-schema",
+]
+
+[[package]]
+name = "stencila-node-store"
+version = "0.0.0"
+dependencies = [
+ "async-trait",
+ "automerge",
+ "eyre",
+ "glob",
+ "itertools 0.14.0",
+ "pretty_assertions",
+ "proptest",
+ "serde_json",
+ "smol_str",
+ "stencila-codecs",
+ "stencila-node-store-derive",
+ "stencila-node-strip",
+ "stencila-node-type",
+ "stencila-schema",
+ "tokio",
+]
+
+[[package]]
+name = "stencila-node-store-derive"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.106",
+]
+
+[[package]]
+name = "stencila-node-strip"
+version = "0.0.0"
+dependencies = [
+ "clap",
+ "indexmap 2.10.0",
+ "serde",
+ "stencila-node-strip-derive",
+]
+
+[[package]]
+name = "stencila-node-strip-derive"
+version = "0.0.0"
+dependencies = [
+ "darling 0.21.2",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.106",
+]
+
+[[package]]
+name = "stencila-node-structuring"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "eyre",
+ "itertools 0.14.0",
+ "pretty_assertions",
+ "regex",
+ "smart-default",
+ "stencila-codec-biblio",
+ "stencila-codec-links",
+ "stencila-codec-text-trait",
+ "stencila-schema",
+ "strum 0.27.2",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-node-type"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "eyre",
+ "serde",
+ "stencila-node-id",
+ "strum 0.27.2",
+]
+
+[[package]]
+name = "stencila-node-url"
+version = "0.0.0"
+dependencies = [
+ "base64 0.22.1",
+ "eyre",
+ "flate2",
+ "serde",
+ "serde_json",
+ "stencila-node-id",
+ "stencila-node-path",
+ "stencila-node-type",
+ "strum 0.27.2",
+ "url",
+]
+
+[[package]]
+name = "stencila-node-walk-derive"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "darling 0.21.2",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.106",
+]
+
+[[package]]
+name = "stencila-parser"
+version = "0.0.0"
+dependencies = [
+ "regex",
+ "seahash",
+ "stencila-format",
+ "stencila-schema",
+]
+
+[[package]]
+name = "stencila-parsers"
+version = "0.1.0"
+dependencies = [
+ "stencila-parser",
+]
+
+[[package]]
+name = "stencila-plugins"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "async-trait",
+ "clap",
+ "eyre",
+ "futures",
+ "itertools 0.14.0",
+ "pretty_assertions",
+ "rand 0.9.2",
+ "reqwest",
+ "semver",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "stencila-cli-utils",
+ "stencila-codec",
+ "stencila-dirs",
+ "stencila-kernel",
+ "stencila-model",
+ "strum 0.27.2",
+ "tokio",
+ "toml 0.9.5",
+ "tracing",
+ "which 8.0.0",
+]
+
+[[package]]
+name = "stencila-prompt"
+version = "0.0.0"
+dependencies = [
+ "itertools 0.14.0",
+ "pretty_assertions",
+ "regex",
+ "rquickjs",
+ "serde_json",
+ "stencila-codec-markdown-trait",
+ "stencila-kernel-quickjs",
+ "stencila-kernels",
+ "strum 0.27.2",
+ "tokio",
+]
+
+[[package]]
+name = "stencila-prompts"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "cached",
+ "clap",
+ "derive_more 2.0.1",
+ "eyre",
+ "flate2",
+ "futures",
+ "glob",
+ "itertools 0.14.0",
+ "regex",
+ "reqwest",
+ "rust-embed",
+ "semver",
+ "serde",
+ "serde_json",
+ "stencila-cli-utils",
+ "stencila-codec-markdown",
+ "stencila-codecs",
+ "stencila-dirs",
+ "stencila-images",
+ "stencila-model",
+ "stencila-models",
+ "stencila-prompt",
+ "stencila-version",
+ "tar",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-publish"
+version = "0.0.0"
+dependencies = [
+ "clap",
+ "eyre",
+ "stencila-publish-ghost",
+ "stencila-publish-stencila",
+ "stencila-publish-zenodo",
+]
+
+[[package]]
+name = "stencila-publish-ghost"
+version = "0.0.0"
+dependencies = [
+ "chrono",
+ "clap",
+ "eyre",
+ "jsonwebtoken",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "stencila-cli-utils",
+ "stencila-codec-text",
+ "stencila-document",
+ "stencila-node-media",
+ "stencila-secrets",
+ "strum 0.27.2",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "stencila-publish-stencila"
+version = "0.0.0"
+dependencies = [
+ "clap",
+ "eyre",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "stencila-cloud",
+ "stencila-codec",
+ "stencila-codec-swb",
+ "stencila-document",
+ "stencila-schema",
+ "tempfile",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-publish-zenodo"
+version = "0.0.0"
+dependencies = [
+ "clap",
+ "eyre",
+ "proptest",
+ "regex",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "stencila-cli-utils",
+ "stencila-codec",
+ "stencila-codec-text",
+ "stencila-document",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "stencila-python"
+version = "2.0.0-beta.2"
+dependencies = [
+ "eyre",
+ "pyo3",
+ "pyo3-async-runtimes",
+ "serde_json",
+ "stencila-codecs",
+]
+
+[[package]]
+name = "stencila-schema"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "async-recursion",
+ "chrono",
+ "chrono-humanize",
+ "derive_more 2.0.1",
+ "eyre",
+ "glob",
+ "human_name",
+ "indexmap 2.10.0",
+ "insta",
+ "interim",
+ "itertools 0.14.0",
+ "monostate",
+ "pretty_assertions",
+ "proptest",
+ "proptest-derive",
+ "regex",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "serde_yaml",
+ "similar",
+ "smart-default",
+ "smol_str",
+ "stencila-codec",
+ "stencila-codec-dom-trait",
+ "stencila-codec-html-trait",
+ "stencila-codec-info",
+ "stencila-codec-jats-trait",
+ "stencila-codec-json5-trait",
+ "stencila-codec-latex-trait",
+ "stencila-codec-markdown",
+ "stencila-codec-markdown-trait",
+ "stencila-codec-text-trait",
+ "stencila-format",
+ "stencila-images",
+ "stencila-node-id",
+ "stencila-node-patch-derive",
+ "stencila-node-path",
+ "stencila-node-probe-derive",
+ "stencila-node-store",
+ "stencila-node-strip",
+ "stencila-node-type",
+ "stencila-node-url",
+ "stencila-node-walk-derive",
+ "strum 0.27.2",
+ "time",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-schema-gen"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "async-recursion",
+ "clap",
+ "eyre",
+ "futures",
+ "glob",
+ "indexmap 2.10.0",
+ "itertools 0.14.0",
+ "schemars 1.0.4",
+ "semver",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "serde_yaml",
+ "smart-default",
+ "stencila-codecs",
+ "stencila-schema",
+ "stencila-status",
+ "strum 0.27.2",
+ "tokio",
+ "topological-sort",
+]
+
+[[package]]
+name = "stencila-secrets"
+version = "0.0.0"
+dependencies = [
+ "clap",
+ "eyre",
+ "itertools 0.14.0",
+ "keyring",
+ "serde",
+ "serde_with",
+ "stencila-ask",
+ "stencila-cli-utils",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-server"
+version = "0.0.0"
+dependencies = [
+ "axum 0.8.4",
+ "clap",
+ "eyre",
+ "futures",
+ "itertools 0.14.0",
+ "mime_guess",
+ "rand 0.9.2",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "smart-default",
+ "stencila-cloud",
+ "stencila-codecs",
+ "stencila-document",
+ "stencila-format",
+ "stencila-version",
+ "stencila-web-dist",
+ "tokio",
+ "tower-cookies",
+ "tower-http",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "stencila-status"
+version = "0.0.0"
+dependencies = [
+ "clap",
+ "schemars 1.0.4",
+ "serde",
+ "strum 0.27.2",
+]
+
+[[package]]
+name = "stencila-tools"
+version = "0.0.0"
+dependencies = [
+ "async-recursion",
+ "clap",
+ "derive_more 2.0.1",
+ "directories",
+ "eyre",
+ "itertools 0.14.0",
+ "mcp-types",
+ "pathdiff",
+ "regex",
+ "reqwest",
+ "semver",
+ "serde",
+ "serde_json",
+ "stencila-ask",
+ "stencila-cli-utils",
+ "stencila-version",
+ "strum 0.27.2",
+ "tempfile",
+ "test-log",
+ "tokio",
+ "tracing",
+ "which 8.0.0",
+]
+
+[[package]]
+name = "stencila-version"
+version = "2.6.0"
+dependencies = [
+ "semver",
+]
+
+[[package]]
+name = "stencila-web-dist"
+version = "0.0.0"
+dependencies = [
+ "rust-embed",
 ]
 
 [[package]]
@@ -11742,34 +11784,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tools"
-version = "0.0.0"
-dependencies = [
- "ask",
- "async-recursion",
- "clap",
- "cli-utils",
- "derive_more 2.0.1",
- "directories",
- "eyre",
- "itertools 0.14.0",
- "mcp-types",
- "pathdiff",
- "regex",
- "reqwest",
- "semver",
- "serde",
- "serde_json",
- "strum 0.27.2",
- "tempfile",
- "test-log",
- "tokio",
- "tracing",
- "version",
- "which 8.0.0",
-]
-
-[[package]]
 name = "topological-sort"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -12365,13 +12379,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
 
 [[package]]
-name = "version"
-version = "2.6.0"
-dependencies = [
- "semver",
-]
-
-[[package]]
 name = "version-compare"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -12536,13 +12543,6 @@ dependencies = [
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
-]
-
-[[package]]
-name = "web-dist"
-version = "0.0.0"
-dependencies = [
- "rust-embed",
 ]
 
 [[package]]

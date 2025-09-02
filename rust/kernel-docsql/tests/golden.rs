@@ -7,12 +7,12 @@ use std::{
 use eyre::{Result, bail};
 use glob::glob;
 use itertools::Itertools;
-use kernel_docsql::DocsQLKernelInstance;
-use kernel_jinja::kernel::{
-    KernelInstance,
-    schema::{CodeChunk, Node, Null},
-};
 use pretty_assertions::assert_eq;
+use stencila_kernel_docsql::DocsQLKernelInstance;
+use stencila_kernel_jinja::stencila_kernel::{
+    KernelInstance,
+    stencila_schema::{CodeChunk, Node, Null},
+};
 use tokio::{
     self,
     sync::{mpsc, watch},
@@ -50,7 +50,7 @@ async fn golden() -> Result<()> {
     };
 
     let update = env::var("UPDATE_GOLDEN").is_ok();
-    let github_auth = secrets::env_or_get("GITHUB_TOKEN").ok();
+    let github_auth = stencila_secrets::env_or_get("GITHUB_TOKEN").ok();
 
     for path in test_paths {
         let contents = read_to_string(&path)?;

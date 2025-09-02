@@ -26,9 +26,9 @@ use tokio::{
 use tracing;
 use zip::ZipArchive;
 
-use cli_utils::color_print::cstr;
-use dirs::{DirType, get_app_dir};
-use version::{STENCILA_USER_AGENT, STENCILA_VERSION};
+use stencila_cli_utils::color_print::cstr;
+use stencila_dirs::{DirType, get_app_dir};
+use stencila_version::{STENCILA_USER_AGENT, STENCILA_VERSION};
 
 /// Upgrade the Stencila CLI to the latest version
 pub async fn upgrade(force: bool) -> Result<Option<String>> {

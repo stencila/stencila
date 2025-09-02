@@ -1,4 +1,4 @@
-use codec::{Losses, format::Format};
+use stencila_codec::{Losses, stencila_format::Format};
 
 use crate::lexical::TextFormat;
 

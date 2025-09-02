@@ -1,5 +1,5 @@
 [package]
-name = "node-path"
+name = "stencila-node-path"
 version = "0.0.0"
 edition = "2024"
 
@@ -7,9 +7,9 @@ edition = "2024"
 derive_more = { workspace = true }
 eyre = { workspace = true }
 itertools = { workspace = true }
-node-type = { path = "../node-type" }
 serde = { workspace = true }
 serde_json = { workspace = true }
+stencila-node-type = { path = "../node-type" }
 
 [lints]
 workspace = true

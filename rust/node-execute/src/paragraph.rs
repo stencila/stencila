@@ -1,4 +1,4 @@
-use schema::Paragraph;
+use stencila_schema::Paragraph;
 
 use crate::prelude::*;
 

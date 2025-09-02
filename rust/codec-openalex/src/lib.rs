@@ -1,10 +1,10 @@
 use serde::de::DeserializeOwned;
 
-use codec::{
+use stencila_codec::{
     Codec, DecodeInfo, DecodeOptions, async_trait,
     eyre::{Result, bail, eyre},
-    schema::Node,
-    status::Status,
+    stencila_schema::Node,
+    stencila_status::Status,
 };
 
 mod author;

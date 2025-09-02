@@ -1,8 +1,8 @@
-use schema::cord_provenance::*;
+use stencila_schema::cord_provenance::*;
 
 #[test]
 fn cord_provenance() {
-    use schema::ProvenanceCategory::*;
+    use stencila_schema::ProvenanceCategory::*;
 
     let prov = human_written();
     assert_eq!(prov, 0b00000000);

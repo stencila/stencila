@@ -40,7 +40,7 @@ pub(super) fn initialize_options(state: &mut ServerState, options: serde_json::V
 pub(super) async fn initialize(client: ClientSocket) -> Result<InitializeResult, ResponseError> {
     tracing::debug!("Initializing language server connection");
 
-    ask::setup_lsp(AskClient::new(client))
+    stencila_ask::setup_lsp(AskClient::new(client))
         .await
         .map_err(|error| ResponseError::new(ErrorCode::INTERNAL_ERROR, error.to_string()))?;
 
@@ -140,7 +140,7 @@ impl AskClient {
 }
 
 #[async_trait]
-impl ask::LspClient for AskClient {
+impl stencila_ask::LspClient for AskClient {
     async fn show_message_request(
         &self,
         params: ShowMessageRequestParams,

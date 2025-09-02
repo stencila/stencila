@@ -1,12 +1,12 @@
 use serde::Serialize;
 
-use codec::{
-    Losses, NodeProperty, NodeType,
-    format::Format,
-    schema::{NodePath, NodePosition, NodeSlot, StripNode, node_url_jzb64, node_url_path},
-};
 use inflector::Inflector;
 use pandoc_types::definition::{self as pandoc, Target};
+use stencila_codec::{
+    Losses, NodeProperty, NodeType,
+    stencila_format::Format,
+    stencila_schema::{NodePath, NodePosition, NodeSlot, StripNode, node_url_jzb64, node_url_path},
+};
 
 /// The context for encoding to Pandoc AST
 pub(super) struct PandocEncodeContext {

@@ -1,5 +1,5 @@
-use codec_markdown::decode_frontmatter;
-use schema::{NodeType, Prompt};
+use stencila_codec_markdown::decode_frontmatter;
+use stencila_schema::{NodeType, Prompt};
 
 use crate::prelude::*;
 

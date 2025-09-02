@@ -1,36 +1,36 @@
 [package]
-name = "prompts"
+name = "stencila-prompts"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+Inflector = { workspace = true }
 cached = { workspace = true }
 clap = { workspace = true }
-cli-utils = { path = "../cli-utils" }
-codec-markdown = {path = "../codec-markdown" }
-codecs = {path = "../codecs" }
 derive_more = { workspace = true }
-dirs = { path = "../dirs" }
 eyre = { workspace = true }
 flate2 = { workspace = true }
 futures = { workspace = true }
 glob = { workspace = true }
-images = { path = "../images" }
-Inflector = { workspace = true }
 itertools = { workspace = true }
-model = { path = "../model" }
-models = { path = "../models" }
-prompt = { path = "../prompt" }
 regex = { workspace = true }
 reqwest = { workspace = true }
 rust-embed = { version = "8.7.2", features = ["interpolate-folder-path", "include-exclude"] }
 semver = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+stencila-cli-utils = { path = "../cli-utils" }
+stencila-codec-markdown = { path = "../codec-markdown" }
+stencila-codecs = { path = "../codecs" }
+stencila-dirs = { path = "../dirs" }
+stencila-images = { path = "../images" }
+stencila-model = { path = "../model" }
+stencila-models = { path = "../models" }
+stencila-prompt = { path = "../prompt" }
+stencila-version = { path = "../version" }
 tar = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
-version = { path = "../version" }
 
 [lints]
 workspace = true

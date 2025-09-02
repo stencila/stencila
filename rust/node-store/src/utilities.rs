@@ -1,7 +1,7 @@
 use automerge::{ObjType, Prop, ScalarValue, Value};
 
 use eyre::{Result, bail};
-use node_type::NodeType;
+use stencila_node_type::NodeType;
 
 use crate::{ReadStore, automerge::ObjId};
 

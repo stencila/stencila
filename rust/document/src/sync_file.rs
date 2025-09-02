@@ -8,12 +8,12 @@ use std::{
 };
 
 use eyre::Result;
-use format::Format;
 use notify::{EventKind, RecursiveMode, Watcher};
+use stencila_format::Format;
 use tokio::time;
 
-use codecs::{DecodeOptions, EncodeOptions};
-use schema::Node;
+use stencila_codecs::{DecodeOptions, EncodeOptions};
+use stencila_schema::Node;
 
 use crate::{Document, SyncDirection, Update};
 
@@ -48,24 +48,24 @@ impl Document {
             // as necessary.
             match direction {
                 SyncDirection::In => {
-                    let node = codecs::from_path(path, decode_options.clone()).await?;
+                    let node = stencila_codecs::from_path(path, decode_options.clone()).await?;
                     is_directory = node_is_dir(&node);
                     *self.root.write().await = node;
                 }
                 SyncDirection::Out => {
                     let node = self.root.read().await;
                     is_directory = node_is_dir(&node);
-                    codecs::to_path(&node, path, encode_options.clone()).await?;
+                    stencila_codecs::to_path(&node, path, encode_options.clone()).await?;
                 }
                 SyncDirection::InOut => {
                     if path.exists() {
-                        let node = codecs::from_path(path, decode_options.clone()).await?;
+                        let node = stencila_codecs::from_path(path, decode_options.clone()).await?;
                         is_directory = node_is_dir(&node);
                         *self.root.write().await = node;
                     } else {
                         let node = self.root.read().await;
                         is_directory = node_is_dir(&node);
-                        codecs::to_path(&node, path, encode_options.clone()).await?;
+                        stencila_codecs::to_path(&node, path, encode_options.clone()).await?;
                     }
                 }
             }
@@ -173,7 +173,7 @@ impl Document {
                         path_buf.display()
                     );
 
-                    match codecs::from_path(&path_buf, decode_options.clone()).await {
+                    match stencila_codecs::from_path(&path_buf, decode_options.clone()).await {
                         Ok(node) => {
                             if let Err(error) = update_sender
                                 // TODO: `authors` should use the local user
@@ -212,7 +212,7 @@ impl Document {
                     let node = receiver.borrow_and_update().clone();
 
                     if let Err(error) =
-                        codecs::to_path(&node, &path_buf, encode_options.clone()).await
+                        stencila_codecs::to_path(&node, &path_buf, encode_options.clone()).await
                     {
                         tracing::error!("While exporting node to `{}`: {error}", path_buf.display())
                     }

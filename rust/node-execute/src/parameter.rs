@@ -1,4 +1,4 @@
-use schema::Parameter;
+use stencila_schema::Parameter;
 
 use crate::prelude::*;
 

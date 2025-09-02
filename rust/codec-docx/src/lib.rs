@@ -4,22 +4,22 @@ use rust_embed::RustEmbed;
 use tempfile::{NamedTempFile, tempdir};
 use tokio::fs::{create_dir_all, write};
 
-use codec::{
+use stencila_codec::{
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     NodeType, async_trait,
     eyre::{OptionExt, Result},
-    format::Format,
-    schema::{Article, Node, Object, Primitive, strip_non_content},
-    status::Status,
+    stencila_format::Format,
+    stencila_schema::{Article, Node, Object, Primitive, strip_non_content},
+    stencila_status::Status,
 };
-use codec_json::JsonCodec;
-use codec_pandoc::{
+use stencila_codec_json::JsonCodec;
+use stencila_codec_pandoc::{
     coarse_to_path, pandoc_availability, pandoc_from_format, pandoc_to_format, root_from_pandoc,
     root_to_pandoc,
 };
-use media_embed::embed_media;
-use node_reconstitute::reconstitute;
-use version::STENCILA_VERSION;
+use stencila_media_embed::embed_media;
+use stencila_node_reconstitute::reconstitute;
+use stencila_version::STENCILA_VERSION;
 
 mod decode;
 mod encode;
@@ -210,7 +210,7 @@ impl Codec for DocxCodec {
                 // Default to using builtin template by extracting it to cache
                 // The cache path includes the Stencila version so that it is cache-busted
                 // for each new version
-                use dirs::{DirType, get_app_dir};
+                use stencila_dirs::{DirType, get_app_dir};
                 let template = get_app_dir(DirType::Templates, false)?
                     .join(STENCILA_VERSION)
                     .join(DEFAULT_TEMPLATE);

@@ -1,4 +1,4 @@
-use codec_info::lost_options;
+use stencila_codec_info::lost_options;
 
 use crate::{HorizontalAlignment, Table, TableRow, TableRowType, prelude::*};
 
@@ -6,7 +6,7 @@ use super::utils::caption_to_dom;
 
 impl Table {
     pub fn to_jats_special(&self) -> (String, Losses) {
-        use codec_jats_trait::encode::{elem, elem_no_attrs};
+        use stencila_codec_jats_trait::encode::{elem, elem_no_attrs};
 
         let mut losses = lost_options!(self, id);
 
@@ -68,7 +68,7 @@ impl Table {
     }
 
     pub fn to_html_special(&self, context: &mut HtmlEncodeContext) -> String {
-        use codec_html_trait::encode::{attr, elem};
+        use stencila_codec_html_trait::encode::{attr, elem};
 
         let label = self
             .label
@@ -147,7 +147,7 @@ impl DomCodec for Table {
 
 impl MarkdownCodec for Table {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        use codec_markdown_trait::to_markdown;
+        use stencila_codec_markdown_trait::to_markdown;
 
         context
             .enter_node(self.node_type(), self.node_id())

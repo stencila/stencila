@@ -1,11 +1,11 @@
 [package]
-name = "codec-gdocx"
+name = "stencila-codec-gdocx"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec = { path = "../codec" }
-codec-docx = { path = "../codec-docx" }
+stencila-codec = { path = "../codec" }
+stencila-codec-docx = { path = "../codec-docx" }
 
 [lints]
 workspace = true

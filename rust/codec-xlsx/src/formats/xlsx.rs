@@ -2,9 +2,9 @@ use std::path::Path;
 
 use calamine::{Reader, Xlsx, open_workbook};
 
-use codec::{
+use stencila_codec::{
     eyre::{Context, Result, bail, eyre},
-    schema::Datatable,
+    stencila_schema::Datatable,
 };
 
 use crate::conversion::range_to_datatable;

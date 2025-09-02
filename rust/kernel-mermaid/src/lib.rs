@@ -1,15 +1,15 @@
-use kernel::{
+use stencila_kernel::{
     Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
     async_trait,
     eyre::Result,
-    format::Format,
     generate_id,
-    schema::{
+    stencila_format::Format,
+    stencila_schema::{
         ExecutionBounds, ExecutionMessage, ImageObject, Node, SoftwareApplication,
         SoftwareApplicationOptions,
     },
 };
-use kernel_jinja::JinjaKernelInstance;
+use stencila_kernel_jinja::JinjaKernelInstance;
 
 /// A kernel for rendering Mermaid diagrams
 #[derive(Default)]
@@ -135,8 +135,8 @@ impl KernelInstance for MermaidKernelInstance {
 
 #[cfg(test)]
 mod tests {
-    use kernel::{eyre::bail, schema::Node};
     use pretty_assertions::assert_eq;
+    use stencila_kernel::{eyre::bail, stencila_schema::Node};
 
     use super::*;
 

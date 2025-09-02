@@ -64,7 +64,7 @@ impl Kernels {
 
 impl Kernels {
     /// Create a set of kernel contexts from a set of kernel instances
-    pub async fn from_kernels(kernels: &kernels::Kernels) -> Result<Self> {
+    pub async fn from_kernels(kernels: &stencila_kernels::Kernels) -> Result<Self> {
         let mut items = Vec::new();
         for kernel in kernels.instances().await {
             let mut kernel_instance = kernel.lock().await;

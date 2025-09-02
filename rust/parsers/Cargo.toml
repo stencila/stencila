@@ -1,10 +1,10 @@
 [package]
-name = "parsers"
+name = "stencila-parsers"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-parser = { path = "../parser" }
+stencila-parser = { path = "../parser" }
 
 [lints]
 workspace = true

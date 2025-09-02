@@ -1,15 +1,15 @@
 [package]
-name = "codec-swb"
+name = "stencila-codec-swb"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec = { path = "../codec" }
-codec-jsonld = { path = "../codec-jsonld" }
-codec-dom = { path = "../codec-dom" }
-codec-markdown = { path = "../codec-markdown" }
 clap = { workspace = true }
 flate2 = { workspace = true }
+stencila-codec = { path = "../codec" }
+stencila-codec-dom = { path = "../codec-dom" }
+stencila-codec-jsonld = { path = "../codec-jsonld" }
+stencila-codec-markdown = { path = "../codec-markdown" }
 tar = { workspace = true }
 tempfile = { workspace = true }
 tokio = { workspace = true }

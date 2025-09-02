@@ -27,7 +27,7 @@ mod tests {
     use super::*;
 
     use clap::Parser;
-    use cli_utils::strip_ansi_escapes;
+    use stencila_cli_utils::strip_ansi_escapes;
 
     /// Test that all CLI example commands in AFTER_LONG_HELP strings parse correctly
     ///
@@ -67,6 +67,7 @@ mod tests {
         eprintln!("✅ Validated {successful_commands} CLI example commands successfully!");
     }
 
+    #[rustfmt::skip]
     fn collect_all_after_long_help() -> Vec<(&'static str, &'static str)> {
         vec![
             // CLI module help strings
@@ -84,58 +85,58 @@ mod tests {
             ("upgrade", crate::upgrade::CLI_AFTER_LONG_HELP),
             ("uninstall", crate::uninstall::CLI_AFTER_LONG_HELP),
             // Document module help strings
-            ("document::init", document::cli::INIT_AFTER_LONG_HELP),
-            ("document::config", document::cli::CONFIG_AFTER_LONG_HELP),
-            ("document::status", document::cli::STATUS_AFTER_LONG_HELP),
-            ("document::move", document::cli::MOVE_AFTER_LONG_HELP),
-            ("document::track", document::cli::TRACK_AFTER_LONG_HELP),
-            ("document::untrack", document::cli::UNTRACK_AFTER_LONG_HELP),
-            ("document::clean", document::cli::CLEAN_AFTER_LONG_HELP),
-            ("document::query", document::cli::QUERY_AFTER_LONG_HELP),
+            ("document::init", stencila_document::cli::INIT_AFTER_LONG_HELP),
+            ("document::config", stencila_document::cli::CONFIG_AFTER_LONG_HELP),
+            ("document::status", stencila_document::cli::STATUS_AFTER_LONG_HELP),
+            ("document::move", stencila_document::cli::MOVE_AFTER_LONG_HELP),
+            ("document::track", stencila_document::cli::TRACK_AFTER_LONG_HELP),
+            ("document::untrack", stencila_document::cli::UNTRACK_AFTER_LONG_HELP),
+            ("document::clean", stencila_document::cli::CLEAN_AFTER_LONG_HELP),
+            ("document::query", stencila_document::cli::QUERY_AFTER_LONG_HELP),
             // DB module help strings
-            ("db::new", node_db::cli::NEW_AFTER_LONG_HELP),
+            ("db::new", stencila_node_db::cli::NEW_AFTER_LONG_HELP),
             ("db::add", crate::db::ADD_AFTER_LONG_HELP),
             ("db::remove", crate::db::REMOVE_AFTER_LONG_HELP),
             ("db::query", crate::db::QUERY_AFTER_LONG_HELP),
-            ("db::migrate", node_db::cli::MIGRATE_AFTER_LONG_HELP),
-            ("db::migrations", node_db::cli::MIGRATIONS_AFTER_LONG_HELP),
+            ("db::migrate", stencila_node_db::cli::MIGRATE_AFTER_LONG_HELP),
+            ("db::migrations", stencila_node_db::cli::MIGRATIONS_AFTER_LONG_HELP),
             // Prompts module help strings
-            ("prompts::cli", prompts::cli::CLI_AFTER_LONG_HELP),
-            ("prompts::list", prompts::cli::LIST_AFTER_LONG_HELP),
-            ("prompts::show", prompts::cli::SHOW_AFTER_LONG_HELP),
-            ("prompts::infer", prompts::cli::INFER_AFTER_LONG_HELP),
-            ("prompts::update", prompts::cli::UPDATE_AFTER_LONG_HELP),
-            ("prompts::reset", prompts::cli::RESET_AFTER_LONG_HELP),
+            ("prompts::cli", stencila_prompts::cli::CLI_AFTER_LONG_HELP),
+            ("prompts::list", stencila_prompts::cli::LIST_AFTER_LONG_HELP),
+            ("prompts::show", stencila_prompts::cli::SHOW_AFTER_LONG_HELP),
+            ("prompts::infer", stencila_prompts::cli::INFER_AFTER_LONG_HELP),
+            ("prompts::update", stencila_prompts::cli::UPDATE_AFTER_LONG_HELP),
+            ("prompts::reset", stencila_prompts::cli::RESET_AFTER_LONG_HELP),
             // Models module help strings
-            ("models::cli", models::cli::CLI_AFTER_LONG_HELP),
-            ("models::list", models::cli::LIST_AFTER_LONG_HELP),
-            ("models::run", models::cli::RUN_AFTER_LONG_HELP),
+            ("models::cli", stencila_models::cli::CLI_AFTER_LONG_HELP),
+            ("models::list", stencila_models::cli::LIST_AFTER_LONG_HELP),
+            ("models::run", stencila_models::cli::RUN_AFTER_LONG_HELP),
             // Kernels module help strings
-            ("kernels::cli", kernels::cli::CLI_AFTER_LONG_HELP),
-            ("kernels::list", kernels::cli::LIST_AFTER_LONG_HELP),
-            ("kernels::info", kernels::cli::INFO_AFTER_LONG_HELP),
-            ("kernels::packages", kernels::cli::PACKAGES_AFTER_LONG_HELP),
-            ("kernels::execute", kernels::cli::EXECUTE_AFTER_LONG_HELP),
-            ("kernels::evaluate", kernels::cli::EVALUATE_AFTER_LONG_HELP),
+            ("kernels::cli", stencila_kernels::cli::CLI_AFTER_LONG_HELP),
+            ("kernels::list", stencila_kernels::cli::LIST_AFTER_LONG_HELP),
+            ("kernels::info", stencila_kernels::cli::INFO_AFTER_LONG_HELP),
+            ("kernels::packages", stencila_kernels::cli::PACKAGES_AFTER_LONG_HELP),
+            ("kernels::execute", stencila_kernels::cli::EXECUTE_AFTER_LONG_HELP),
+            ("kernels::evaluate", stencila_kernels::cli::EVALUATE_AFTER_LONG_HELP),
             // Linters module help strings
             ("linters::list", stencila_linters::cli::LIST_AFTER_LONG_HELP),
             ("linters::lint", stencila_linters::cli::LINT_AFTER_LONG_HELP),
             // Codecs module help strings
-            ("formats::cli", codecs::cli::CLI_AFTER_LONG_HELP),
-            ("formats::list", codecs::cli::LIST_AFTER_LONG_HELP),
+            ("formats::cli", stencila_codecs::cli::CLI_AFTER_LONG_HELP),
+            ("formats::list", stencila_codecs::cli::LIST_AFTER_LONG_HELP),
             // Plugins module help strings
-            ("plugins::cli", plugins::cli::CLI_AFTER_LONG_HELP),
+            ("plugins::cli", stencila_plugins::cli::CLI_AFTER_LONG_HELP),
             // Secrets module help strings
-            ("secrets::cli", secrets::cli::CLI_AFTER_LONG_HELP),
-            ("secrets::set", secrets::cli::SET_AFTER_LONG_HELP),
-            ("secrets::delete", secrets::cli::DELETE_AFTER_LONG_HELP),
+            ("secrets::cli", stencila_secrets::cli::CLI_AFTER_LONG_HELP),
+            ("secrets::set", stencila_secrets::cli::SET_AFTER_LONG_HELP),
+            ("secrets::delete", stencila_secrets::cli::DELETE_AFTER_LONG_HELP),
             // Tools module help strings
-            ("tools::cli", tools::cli::CLI_AFTER_LONG_HELP),
-            ("tools::list", tools::cli::LIST_AFTER_LONG_HELP),
-            ("tools::show", tools::cli::SHOW_AFTER_LONG_HELP),
-            ("tools::install", tools::cli::INSTALL_AFTER_LONG_HELP),
-            ("tools::env", tools::cli::ENV_AFTER_LONG_HELP),
-            ("tools::run", tools::cli::RUN_AFTER_LONG_HELP),
+            ("tools::cli", stencila_tools::cli::CLI_AFTER_LONG_HELP),
+            ("tools::list", stencila_tools::cli::LIST_AFTER_LONG_HELP),
+            ("tools::show", stencila_tools::cli::SHOW_AFTER_LONG_HELP),
+            ("tools::install", stencila_tools::cli::INSTALL_AFTER_LONG_HELP),
+            ("tools::env", stencila_tools::cli::ENV_AFTER_LONG_HELP),
+            ("tools::run", stencila_tools::cli::RUN_AFTER_LONG_HELP),
             // Cloud module help strings
             ("cloud::cli", crate::cloud::CLI_AFTER_LONG_HELP),
             ("cloud::signin", crate::cloud::SIGNIN_AFTER_LONG_HELP),

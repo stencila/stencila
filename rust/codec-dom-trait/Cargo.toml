@@ -1,18 +1,18 @@
 [package]
-name = "codec-dom-trait"
+name = "stencila-codec-dom-trait"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 Inflector = { workspace = true }
-codec-dom-derive = { path = "../codec-dom-derive" }
 html-escape = "0.2.13"
 itertools = { workspace = true }
-node-id = { path = "../node-id" }
-node-type = { path = "../node-type" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 smart-default = { workspace = true }
+stencila-codec-dom-derive = { path = "../codec-dom-derive" }
+stencila-node-id = { path = "../node-id" }
+stencila-node-type = { path = "../node-type" }
 
 [lints]
 workspace = true

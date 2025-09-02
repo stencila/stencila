@@ -7,12 +7,12 @@ use eyre::Report;
 use regex::Regex;
 use seahash::SeaHasher;
 
-pub use schema::{
+pub use stencila_schema::{
     Array, Duration, ExecutionMessage, ExecutionRequired, ExecutionStatus, MessageLevel, Node,
     NodeProperty, Null, PatchNode, PatchOp, PatchValue, Primitive, Timestamp, WalkControl,
     WalkNode,
 };
-use schema::{CompilationDigest, CompilationMessage};
+use stencila_schema::{CompilationDigest, CompilationMessage};
 
 pub(crate) use crate::{Executable, Executor};
 

@@ -13,7 +13,7 @@ use tokio::sync::Mutex;
 use stencila_linter::{
     Format, Linter, LinterAvailability, LintingOptions, LintingOutput, NodeType, async_trait,
     eyre::Result,
-    schema::{
+    stencila_schema::{
         AuthorRoleName, CodeLocation, CompilationMessage, MessageLevel, SoftwareApplication,
         Timestamp,
     },

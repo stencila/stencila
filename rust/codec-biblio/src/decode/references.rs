@@ -6,7 +6,7 @@ use winnow::{
     combinator::{alt, opt, preceded},
 };
 
-use codec::schema::Reference;
+use stencila_codec::stencila_schema::Reference;
 
 use crate::decode::{acs, apa, apj, chicago, fallback::fallback, ieee, lncs, mla, vancouver};
 
@@ -115,9 +115,11 @@ pub fn reference(input: &str) -> Reference {
 
 #[cfg(test)]
 mod tests {
-    use codec::schema::{CreativeWorkType, IntegerOrString, Organization, PersonOrOrganization};
-    use codec_text_trait::to_text;
     use pretty_assertions::assert_eq;
+    use stencila_codec::stencila_schema::{
+        CreativeWorkType, IntegerOrString, Organization, PersonOrOrganization,
+    };
+    use stencila_codec_text_trait::to_text;
 
     use super::*;
 

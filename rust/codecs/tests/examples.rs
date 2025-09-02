@@ -13,14 +13,14 @@ use tokio::{
     fs::{read_to_string, remove_file, write},
 };
 
-use codec::{
+use pretty_assertions::assert_eq;
+use stencila_codec::{
     DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     eyre::{Context, Result},
-    format::Format,
-    schema::NodeType,
+    stencila_format::Format,
+    stencila_schema::NodeType,
 };
-use node_strip::{StripNode, StripTargets};
-use pretty_assertions::assert_eq;
+use stencila_node_strip::{StripNode, StripTargets};
 
 type Config = BTreeMap<String, FormatConfig>;
 
@@ -307,7 +307,7 @@ async fn examples() -> Result<()> {
             .unwrap_or("json");
         let path = dir.join(format!("{name}.{canon}"));
 
-        let node = codecs::from_path(
+        let node = stencila_codecs::from_path(
             &path,
             Some(DecodeOptions {
                 reproducible: Some(false),
@@ -336,7 +336,7 @@ async fn examples() -> Result<()> {
             let mut file = path.parent().expect("should have parent").join(prefix);
             file.set_extension(extension.as_str());
 
-            let codec = codecs::get(None, Some(&config.format), None)?;
+            let codec = stencila_codecs::get(None, Some(&config.format), None)?;
 
             let mut original = node.clone();
 

@@ -4,20 +4,20 @@ use inflector::Inflector;
 use itertools::Itertools;
 use tokio::{runtime, sync::Mutex, task};
 
-use codec_text_trait::to_text;
-use kernel_docsdb::{DocsDBKernelInstance, QueryResultTransform};
-use kernel_jinja::{
-    kernel::{
-        KernelInstance,
-        eyre::Result,
-        schema::{
-            Array, CodeChunk, ExecutionMessage, MessageLevel, Node, NodeType, Primitive,
-            PropertyValue, PropertyValueOrString, SectionType,
-        },
-    },
+use stencila_codec_text_trait::to_text;
+use stencila_kernel_docsdb::{DocsDBKernelInstance, QueryResultTransform};
+use stencila_kernel_jinja::{
     minijinja::{
         Environment, Error, ErrorKind, State, Value,
         value::{DynObject, Kwargs, Object, from_args},
+    },
+    stencila_kernel::{
+        KernelInstance,
+        eyre::Result,
+        stencila_schema::{
+            Array, CodeChunk, ExecutionMessage, MessageLevel, Node, NodeType, Primitive,
+            PropertyValue, PropertyValueOrString, SectionType,
+        },
     },
 };
 
@@ -354,7 +354,7 @@ impl CypherQuery {
                         ));
                     };
 
-                    let embeddings = embed::query(&text).map_err(|error| {
+                    let embeddings = stencila_embed::query(&text).map_err(|error| {
                         Error::new(
                             ErrorKind::InvalidOperation,
                             format!("while generating embeddings: {error}"),
@@ -1588,7 +1588,7 @@ fn extract_work_identifiers(
                 value: Primitive::String(value),
                 ..
             }) if value.starts_with("http") => {
-                if codecs::codec_for_identifier(value).is_some() {
+                if stencila_codecs::codec_for_identifier(value).is_some() {
                     result.push(value.clone());
                 }
             }

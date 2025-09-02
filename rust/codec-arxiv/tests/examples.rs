@@ -3,11 +3,11 @@ use std::path::PathBuf;
 use glob::glob;
 use insta::{assert_json_snapshot, assert_yaml_snapshot};
 
-use codec::{
+use stencila_codec::{
     Codec,
     eyre::{OptionExt, Result},
 };
-use codec_arxiv::ArxivCodec;
+use stencila_codec_arxiv::ArxivCodec;
 
 /// Decode each example of an arXiv HTML page and create JSON snapshots (including for losses)
 #[tokio::test]

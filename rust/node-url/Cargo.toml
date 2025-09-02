@@ -1,5 +1,5 @@
 [package]
-name = "node-url"
+name = "stencila-node-url"
 version = "0.0.0"
 edition = "2024"
 
@@ -7,11 +7,11 @@ edition = "2024"
 base64 = { workspace = true }
 eyre = { workspace = true }
 flate2 = { workspace = true }
-node-id = { path = "../node-id" }
-node-path = { path = "../node-path" }
-node-type = { path = "../node-type" }
 serde = { workspace = true }
 serde_json = { workspace = true }
+stencila-node-id = { path = "../node-id" }
+stencila-node-path = { path = "../node-path" }
+stencila-node-type = { path = "../node-type" }
 strum = { workspace = true }
 url = { workspace = true }
 

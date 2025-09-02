@@ -1,9 +1,9 @@
 use itertools::Itertools;
 use roxmltree::Node;
 
-use codec::{
+use stencila_codec::{
     Losses,
-    schema::{Article, Author, Date, Person, Reference, shortcuts::t},
+    stencila_schema::{Article, Author, Date, Person, Reference, shortcuts::t},
 };
 
 use super::{

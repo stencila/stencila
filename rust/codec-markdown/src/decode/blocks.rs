@@ -14,9 +14,9 @@ use winnow::{
     token::{take_till, take_until, take_while},
 };
 
-use codec::{
-    format::Format,
-    schema::{
+use stencila_codec::{
+    stencila_format::Format,
+    stencila_schema::{
         Admonition, AdmonitionType, AppendixBreak, Author, Block, CallArgument, CallBlock, Chat,
         ChatMessage, ChatMessageGroup, ChatMessageOptions, Claim, CodeBlock, CodeChunk,
         CodeExpression, ExecutionBounds, ExecutionMode, Figure, ForBlock, Heading,
@@ -1991,8 +1991,8 @@ fn mds_to_table_cells(
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use codec::schema::{ClaimType, ExecutionMode, Node};
     use pretty_assertions::assert_eq;
+    use stencila_codec::stencila_schema::{ClaimType, ExecutionMode, Node};
 
     use super::*;
 

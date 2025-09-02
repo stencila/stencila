@@ -5,8 +5,8 @@ use glob::glob;
 use rand::{Rng, distr::Alphanumeric, rng};
 use tokio::fs::{create_dir_all, read_to_string, remove_file, write};
 
-use codec_utils::move_file;
-use tools::{Tool, Xelatex};
+use stencila_codec_utils::move_file;
+use stencila_tools::{Tool, Xelatex};
 
 /// Convert a LaTeX string to a PDF file
 #[tracing::instrument(skip(latex))]

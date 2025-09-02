@@ -1,13 +1,13 @@
-use codec::{
+use stencila_codec::{
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     NodeType, async_trait,
     eyre::{Result, bail},
-    format::Format,
-    schema::Node,
-    status::Status,
+    stencila_format::Format,
+    stencila_schema::Node,
+    stencila_status::Status,
 };
-use codec_latex_trait::to_latex;
-use codec_pandoc::{pandoc_availability, pandoc_to_format, root_to_pandoc};
+use stencila_codec_latex_trait::to_latex;
+use stencila_codec_pandoc::{pandoc_availability, pandoc_to_format, root_to_pandoc};
 
 mod decode;
 

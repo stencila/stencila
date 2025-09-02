@@ -14,7 +14,7 @@ mod parsers;
 pub use parsers::*;
 
 pub use color_print;
-pub use format;
+pub use stencila_format;
 
 // Modules for diagnostics to stderr
 // Consider using `tracing::warn!` and `tracing::error` instead for

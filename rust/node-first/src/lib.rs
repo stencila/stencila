@@ -1,4 +1,8 @@
-use schema::{Node, NodeId, NodeType, Visitor, WalkControl, WalkNode};
+use stencila_schema::{
+    Block, Citation, IfBlockClause, Inline, ListItem, Node, NodeId, NodeProperty, NodeType,
+    SuggestionBlock, SuggestionInline, TableCell, TableRow, Visitor, WalkControl, WalkNode,
+    WalkthroughStep,
+};
 
 /// Get the first node of one or more [`NodeType`]s within another node
 pub fn first<T>(node: &T, node_types: &[NodeType]) -> Option<Node>
@@ -31,11 +35,11 @@ impl Walker<'_> {
 }
 
 impl Visitor for Walker<'_> {
-    fn enter_struct(&mut self, _node_type: schema::NodeType, _node_id: NodeId) -> WalkControl {
+    fn enter_struct(&mut self, _node_type: NodeType, _node_id: NodeId) -> WalkControl {
         self.walk_control()
     }
 
-    fn enter_property(&mut self, _property: schema::NodeProperty) -> WalkControl {
+    fn enter_property(&mut self, _property: NodeProperty) -> WalkControl {
         self.walk_control()
     }
 
@@ -52,7 +56,7 @@ impl Visitor for Walker<'_> {
         WalkControl::Continue
     }
 
-    fn visit_block(&mut self, block: &schema::Block) -> WalkControl {
+    fn visit_block(&mut self, block: &Block) -> WalkControl {
         if self.node_types.contains(&block.node_type()) {
             self.node = Some(block.clone().into());
             return WalkControl::Break;
@@ -61,7 +65,7 @@ impl Visitor for Walker<'_> {
         WalkControl::Continue
     }
 
-    fn visit_inline(&mut self, inline: &schema::Inline) -> WalkControl {
+    fn visit_inline(&mut self, inline: &Inline) -> WalkControl {
         if self.node_types.contains(&inline.node_type()) {
             self.node = Some(inline.clone().into());
             return WalkControl::Break;
@@ -70,7 +74,7 @@ impl Visitor for Walker<'_> {
         WalkControl::Continue
     }
 
-    fn visit_citation(&mut self, citation: &schema::Citation) -> WalkControl {
+    fn visit_citation(&mut self, citation: &Citation) -> WalkControl {
         if self.node_types.contains(&citation.node_type()) {
             self.node = Some(Node::Citation(citation.clone()));
             return WalkControl::Break;
@@ -79,7 +83,7 @@ impl Visitor for Walker<'_> {
         WalkControl::Continue
     }
 
-    fn visit_if_block_clause(&mut self, clause: &schema::IfBlockClause) -> WalkControl {
+    fn visit_if_block_clause(&mut self, clause: &IfBlockClause) -> WalkControl {
         if self.node_types.contains(&clause.node_type()) {
             self.node = Some(Node::IfBlockClause(clause.clone()));
             return WalkControl::Break;
@@ -88,7 +92,7 @@ impl Visitor for Walker<'_> {
         WalkControl::Continue
     }
 
-    fn visit_list_item(&mut self, list_item: &schema::ListItem) -> WalkControl {
+    fn visit_list_item(&mut self, list_item: &ListItem) -> WalkControl {
         if self.node_types.contains(&list_item.node_type()) {
             self.node = Some(Node::ListItem(list_item.clone()));
             return WalkControl::Break;
@@ -97,7 +101,7 @@ impl Visitor for Walker<'_> {
         WalkControl::Continue
     }
 
-    fn visit_suggestion_block(&mut self, block: &schema::SuggestionBlock) -> WalkControl {
+    fn visit_suggestion_block(&mut self, block: &SuggestionBlock) -> WalkControl {
         if self.node_types.contains(&block.node_type()) {
             self.node = Some(Node::SuggestionBlock(block.clone()));
             return WalkControl::Break;
@@ -106,7 +110,7 @@ impl Visitor for Walker<'_> {
         WalkControl::Continue
     }
 
-    fn visit_suggestion_inline(&mut self, inline: &schema::SuggestionInline) -> WalkControl {
+    fn visit_suggestion_inline(&mut self, inline: &SuggestionInline) -> WalkControl {
         if self.node_types.contains(&inline.node_type()) {
             self.node = Some(Node::SuggestionInline(inline.clone()));
             return WalkControl::Break;
@@ -115,7 +119,7 @@ impl Visitor for Walker<'_> {
         WalkControl::Continue
     }
 
-    fn visit_table_row(&mut self, table_row: &schema::TableRow) -> WalkControl {
+    fn visit_table_row(&mut self, table_row: &TableRow) -> WalkControl {
         if self.node_types.contains(&table_row.node_type()) {
             self.node = Some(Node::TableRow(table_row.clone()));
             return WalkControl::Break;
@@ -124,7 +128,7 @@ impl Visitor for Walker<'_> {
         WalkControl::Continue
     }
 
-    fn visit_table_cell(&mut self, table_cell: &schema::TableCell) -> WalkControl {
+    fn visit_table_cell(&mut self, table_cell: &TableCell) -> WalkControl {
         if self.node_types.contains(&table_cell.node_type()) {
             self.node = Some(Node::TableCell(table_cell.clone()));
             return WalkControl::Break;
@@ -133,10 +137,7 @@ impl Visitor for Walker<'_> {
         WalkControl::Continue
     }
 
-    fn visit_walkthrough_step(
-        &mut self,
-        walkthrough_step: &schema::WalkthroughStep,
-    ) -> WalkControl {
+    fn visit_walkthrough_step(&mut self, walkthrough_step: &WalkthroughStep) -> WalkControl {
         if self.node_types.contains(&walkthrough_step.node_type()) {
             self.node = Some(Node::WalkthroughStep(walkthrough_step.clone()));
             return WalkControl::Break;

@@ -5,12 +5,12 @@ use std::{env::set_var, process::exit};
 use clap::Parser;
 use eyre::Result;
 
-use cli::{
+use stencila_cli::{
     Cli, Command, errors,
     logging::{self, LoggingFormat, LoggingLevel},
     upgrade,
 };
-use cli_utils::message;
+use stencila_cli_utils::message;
 
 /// Main entry function
 #[tokio::main]
@@ -46,11 +46,11 @@ async fn main() -> Result<()> {
     };
 
     if matches!(cli.command, Command::Lsp) {
-        lsp::run(log_level.into(), &cli.log_filter).await?
+        stencila_lsp::run(log_level.into(), &cli.log_filter).await?
     } else {
         errors::setup(&error_details, cli.error_link)?;
         logging::setup(log_level, &cli.log_filter, log_format)?;
-        ask::setup_cli(cli.assume_answer()).await?;
+        stencila_ask::setup_cli(cli.assume_answer()).await?;
 
         let skip_upgrade = matches!(cli.command, Command::Upgrade(..));
         if !skip_upgrade {

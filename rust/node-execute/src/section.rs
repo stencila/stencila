@@ -1,4 +1,4 @@
-use schema::Section;
+use stencila_schema::Section;
 
 use crate::prelude::*;
 

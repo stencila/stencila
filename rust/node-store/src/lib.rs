@@ -6,8 +6,8 @@ use std::time::SystemTime;
 use async_trait::async_trait;
 use automerge::ROOT;
 use eyre::{Context, Result, bail};
-use node_strip::StripNode;
 use smol_str::SmolStr;
+use stencila_node_strip::StripNode;
 use tokio::fs::{read, write};
 
 pub use automerge::{
@@ -16,7 +16,7 @@ pub use automerge::{
 };
 pub(crate) use automerge::{ScalarValue, Value, transaction::CommitOptions};
 
-pub use node_store_derive::{ReadNode, WriteNode};
+pub use stencila_node_store_derive::{ReadNode, WriteNode};
 
 mod prelude;
 

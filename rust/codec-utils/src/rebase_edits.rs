@@ -34,7 +34,7 @@ use similar::{Algorithm, DiffOp, capture_diff_slices};
 /// let original = "**bold** text here";     // O: Markdown with formatting  
 /// let unedited = "bold text here";         // U: Plain text version without formatting
 /// let edited = "BOLD text here";           // E: user changed "bold" to "BOLD"
-/// let result = codec_utils::rebase_edits(original, unedited, edited);
+/// let result = stencila_codec_utils::rebase_edits(original, unedited, edited);
 /// assert_eq!(result, "**BOLD** text here"); // O′: edit applied, formatting preserved
 /// ```
 pub fn rebase_edits(original: &str, unedited: &str, edited: &str) -> String {
@@ -54,10 +54,10 @@ pub fn rebase_edits(original: &str, unedited: &str, edited: &str) -> String {
     let unedited = unedited.chars().collect_vec();
     let edited = edited.chars().collect_vec();
 
-    // TODO: use objective, reproducible methods to evaluate suitability of alternative diff
-    // algorithms. Currently using Myers for both
-    // diffs as ad-hoc testing found it produced fewer conflicts that Myers+Patience. Also
-    // Patience can take a very long time on large document.
+    // TODO: use objective, reproducible methods to evaluate suitability of
+    // alternative diff algorithms. Currently using Myers for both diffs as
+    // ad-hoc testing found it produced fewer conflicts that Myers+Patience.
+    // Also Patience can take a very long time on large document.
 
     let o2u_ops = capture_diff_slices(Algorithm::Myers, &original, &unedited);
 

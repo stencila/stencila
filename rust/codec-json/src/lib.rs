@@ -7,14 +7,14 @@ use std::{
 use serde_json::{Map, Value};
 use zip::{ZipArchive, write::FileOptions};
 
-use codec::{
+use stencila_codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
     eyre::{Result, bail},
-    format::Format,
-    schema::{Article, Node, NodeType},
-    status::Status,
+    stencila_format::Format,
+    stencila_schema::{Article, Node, NodeType},
+    stencila_status::Status,
 };
-use version::STENCILA_VERSION;
+use stencila_version::STENCILA_VERSION;
 
 pub mod r#trait;
 use r#trait::JsonCodec as _;

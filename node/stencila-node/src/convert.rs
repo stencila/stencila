@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use napi::Result;
 use napi_derive::napi;
 
-use codecs::{Format, LossesResponse};
+use stencila_codecs::{Format, LossesResponse};
 
 use crate::utilities::generic_failure;
 
@@ -22,11 +22,11 @@ pub struct DecodeOptions {
     pub losses: Option<String>,
 }
 
-impl TryInto<codecs::DecodeOptions> for DecodeOptions {
+impl TryInto<stencila_codecs::DecodeOptions> for DecodeOptions {
     type Error = napi::Error;
 
-    fn try_into(self) -> Result<codecs::DecodeOptions> {
-        Ok(codecs::DecodeOptions {
+    fn try_into(self) -> Result<stencila_codecs::DecodeOptions> {
+        Ok(stencila_codecs::DecodeOptions {
             format: self.format.as_ref().map(|format| Format::from_name(format)),
             losses: self
                 .losses
@@ -62,11 +62,11 @@ pub struct EncodeOptions {
     pub losses: Option<String>,
 }
 
-impl TryInto<codecs::EncodeOptions> for EncodeOptions {
+impl TryInto<stencila_codecs::EncodeOptions> for EncodeOptions {
     type Error = napi::Error;
 
-    fn try_into(self) -> Result<codecs::EncodeOptions> {
-        Ok(codecs::EncodeOptions {
+    fn try_into(self) -> Result<stencila_codecs::EncodeOptions> {
+        Ok(stencila_codecs::EncodeOptions {
             format: self.format.as_ref().map(|format| Format::from_name(format)),
             standalone: self.standalone,
             compact: self.compact,
@@ -87,7 +87,7 @@ pub async fn from_string(input: String, options: Option<DecodeOptions>) -> Resul
         None => None,
     };
 
-    let node = codecs::from_str(&input, options)
+    let node = stencila_codecs::from_str(&input, options)
         .await
         .map_err(generic_failure)?;
 
@@ -105,7 +105,7 @@ pub async fn from_path(path: String, options: Option<DecodeOptions>) -> Result<S
         None => None,
     };
 
-    let node = codecs::from_path(&path, options)
+    let node = stencila_codecs::from_path(&path, options)
         .await
         .map_err(generic_failure)?;
 
@@ -126,7 +126,7 @@ pub async fn to_string(json: String, options: Option<EncodeOptions>) -> Result<S
         .map_err(eyre::Report::new)
         .map_err(generic_failure)?;
 
-    codecs::to_string(&node, options)
+    stencila_codecs::to_string(&node, options)
         .await
         .map_err(generic_failure)
 }
@@ -144,7 +144,7 @@ pub async fn to_path(json: String, path: String, options: Option<EncodeOptions>)
         .map_err(eyre::Report::new)
         .map_err(generic_failure)?;
 
-    codecs::to_path(&node, &path, options)
+    stencila_codecs::to_path(&node, &path, options)
         .await
         .map_err(generic_failure)?;
 
@@ -170,7 +170,7 @@ pub async fn from_to(
         None => None,
     };
 
-    codecs::convert(
+    stencila_codecs::convert(
         input.as_deref(),
         output.as_deref(),
         decode_options,

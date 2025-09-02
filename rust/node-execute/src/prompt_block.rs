@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use schema::{CompilationDigest, PromptBlock, replicate};
+use stencila_schema::{CompilationDigest, PromptBlock, replicate};
 
 use crate::{prelude::*, state_digest};
 
@@ -33,22 +33,26 @@ impl Executable for PromptBlock {
                 .as_ref()
                 .map(|target| target.ends_with("?"))
                 .unwrap_or_default())
-            && let Some(prompt) = prompts::infer(
+            && let Some(prompt) = stencila_prompts::infer(
                 &self.instruction_type,
                 &self.node_types,
                 &self.query.as_deref(),
             )
             .await
         {
-            let name = [&prompts::shorten(&prompt.name, &self.instruction_type), "?"].concat();
+            let name = [
+                &stencila_prompts::shorten(&prompt.name, &self.instruction_type),
+                "?",
+            ]
+            .concat();
             self.target = Some(name.clone());
             executor.patch(&node_id, [set(NodeProperty::Target, name)]);
         }
 
         // Populate prompt content so it is preview-able to the user
         let messages = if let Some(target) = &self.target {
-            let target = prompts::expand(target, &self.instruction_type);
-            match prompts::get(&target).await {
+            let target = stencila_prompts::expand(target, &self.instruction_type);
+            match stencila_prompts::get(&target).await {
                 Ok(prompt) => {
                     // Get the home directory of the prompt, needed at execution times
                     let dir = prompt.home().to_string_lossy().to_string();

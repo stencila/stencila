@@ -1,19 +1,19 @@
 [package]
-name = "publish-stencila"
+name = "stencila-publish-stencila"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 clap = { workspace = true }
-cloud = { path = "../cloud" }
-codec = { "path" = "../codec" }
-codec-swb = { "path" = "../codec-swb" }
-document = { path = "../document" }
 eyre = { workspace = true }
 reqwest = { workspace = true }
-schema = { "path" = "../schema" }
 serde = { workspace = true }
 serde_json = { workspace = true }
+stencila-cloud = { path = "../cloud" }
+stencila-codec = { "path" = "../codec" }
+stencila-codec-swb = { "path" = "../codec-swb" }
+stencila-document = { path = "../document" }
+stencila-schema = { "path" = "../schema" }
 tempfile = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }

@@ -1,4 +1,4 @@
-use codec::schema::shortcuts::{art, p, t};
+use stencila_codec::stencila_schema::shortcuts::{art, p, t};
 
 use super::*;
 

@@ -7,15 +7,15 @@ use eyre::{Result, bail};
 use itertools::Itertools;
 use tokio::fs::remove_file;
 
-use ask::ask;
-use cli_utils::{
+use stencila_ask::ask;
+use stencila_cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
     message,
     tabulated::{Attribute, Cell, Color, Tabulated},
 };
-use dirs::{closest_stencila_dir, stencila_db_file};
-use kernel_kuzu::kuzu::{Database, SystemConfig};
+use stencila_dirs::{closest_stencila_dir, stencila_db_file};
+use stencila_kernel_kuzu::kuzu::{Database, SystemConfig};
 
 use crate::{NodeDatabase, migrations::MigrationRunner};
 

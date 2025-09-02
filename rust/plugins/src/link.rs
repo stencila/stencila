@@ -1,8 +1,8 @@
 use std::path::{Path, PathBuf};
 
 use clap::Args;
-use cli_utils::message;
 use eyre::{Result, bail};
+use stencila_cli_utils::message;
 use tokio::fs::{remove_dir_all, remove_file};
 
 use crate::{MANIFEST_FILENAME, Plugin};

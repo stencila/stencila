@@ -22,8 +22,8 @@ impl Paragraph {
     }
 }
 
-impl From<&schema::Paragraph> for Paragraph {
-    fn from(paragraph: &schema::Paragraph) -> Self {
+impl From<&stencila_schema::Paragraph> for Paragraph {
+    fn from(paragraph: &stencila_schema::Paragraph) -> Self {
         Self {
             markdown: to_markdown(&paragraph.content),
         }

@@ -16,8 +16,8 @@ pub struct MathBlock {
     markdown: String,
 }
 
-impl From<&schema::MathBlock> for MathBlock {
-    fn from(math_block: &schema::MathBlock) -> Self {
+impl From<&stencila_schema::MathBlock> for MathBlock {
+    fn from(math_block: &stencila_schema::MathBlock) -> Self {
         Self {
             language: math_block.math_language.clone(),
             markdown: to_markdown(math_block),

@@ -14,7 +14,7 @@ use winnow::{
     token::take_while,
 };
 
-use codec::schema::{
+use stencila_codec::stencila_schema::{
     CreativeWorkType, Date, Inline, IntegerOrString, Organization, PersonOrOrganization, Reference,
     shortcuts::t,
 };
@@ -344,8 +344,8 @@ fn apa_title(input: &mut &str) -> Result<Vec<Inline>> {
 
 #[cfg(test)]
 mod tests {
-    use codec_text_trait::to_text;
     use pretty_assertions::assert_eq;
+    use stencila_codec_text_trait::to_text;
 
     use super::*;
 

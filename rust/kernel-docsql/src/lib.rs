@@ -7,18 +7,20 @@ use itertools::Itertools;
 use regex::Regex;
 use tokio::sync::Mutex;
 
-use kernel_docsdb::{DocsDBChannels, DocsDBKernelInstance};
-use kernel_jinja::{
+use stencila_kernel_docsdb::{DocsDBChannels, DocsDBKernelInstance};
+use stencila_kernel_jinja::{
     self, JinjaKernelContext,
-    kernel::{
+    minijinja::{Environment, Error, ErrorKind, UndefinedBehavior, Value, context},
+    stencila_kernel::{
         Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
         async_trait,
         eyre::{OptionExt, Result, eyre},
-        format::Format,
         generate_id,
-        schema::{ExecutionBounds, ExecutionMessage, MessageLevel, Node, SoftwareApplication},
+        stencila_format::Format,
+        stencila_schema::{
+            ExecutionBounds, ExecutionMessage, MessageLevel, Node, SoftwareApplication,
+        },
     },
-    minijinja::{Environment, Error, ErrorKind, UndefinedBehavior, Value, context},
 };
 
 mod cypher;
@@ -482,10 +484,10 @@ impl KernelInstance for DocsQLKernelInstance {
 
 /// Convert and error into an execution message with appropriate line and column offsets
 fn error_to_execution_message(
-    error: kernel_jinja::minijinja::Error,
+    error: stencila_kernel_jinja::minijinja::Error,
     line_offset: usize,
 ) -> ExecutionMessage {
-    let mut message = kernel_jinja::error_to_execution_message(error);
+    let mut message = stencila_kernel_jinja::error_to_execution_message(error);
 
     if let Some(location) = message.code_location.as_mut() {
         if let Some(start_line) = location.start_line.as_mut() {
@@ -535,15 +537,15 @@ fn extend_messages(messages: &SyncMutex<Vec<ExecutionMessage>>, message: String)
 /// During tests, rather than make a request return some fixed entity ids
 /// this is particularly useful for snapshot tests to avoid potentially
 /// changing ids.
-fn testing() -> bool {
-    std::env::var("CARGO_PKG_NAME") == Ok("kernel-docsql".to_string())
+fn is_testing() -> bool {
+    std::env::var("CARGO_PKG_NAME") == Ok("stencila-kernel-docsql".to_string())
 }
 
 #[cfg(test)]
 mod tests {
 
     #[test]
-    fn test_testing() {
-        assert!(super::testing());
+    fn test_is_testing() {
+        assert!(super::is_testing());
     }
 }

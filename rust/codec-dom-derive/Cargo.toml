@@ -1,5 +1,5 @@
 [package]
-name = "codec-dom-derive"
+name = "stencila-codec-dom-derive"
 version = "0.0.0"
 edition = "2024"
 

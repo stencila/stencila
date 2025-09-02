@@ -1,8 +1,8 @@
 use eyre::{Result, bail};
 
-use node_canonicalize::canonicalize;
 use pretty_assertions::assert_eq;
-use schema::{Node, Organization};
+use stencila_node_canonicalize::canonicalize;
+use stencila_schema::{Node, Organization};
 
 /// Organization with ROR on OpenAlex should get ROR
 #[tokio::test]

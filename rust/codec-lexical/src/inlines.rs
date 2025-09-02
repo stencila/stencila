@@ -1,6 +1,6 @@
-use codec::{
-    format::Format,
-    schema::{
+use stencila_codec::{
+    stencila_format::Format,
+    stencila_schema::{
         Annotation, CodeExpression, CodeInline, Emphasis, Inline, Link, MathInline, QuoteInline,
         Strikeout, Strong, Subscript, Superscript, Text, Underline,
     },
@@ -130,7 +130,7 @@ fn code_expr_to_lexical(code: &CodeExpression) -> lexical::InlineNode {
     // otherwise, encode the code as inline code
     if let Some(output) = &code.output {
         lexical::InlineNode::Text(lexical::TextNode {
-            text: codec_text::to_text(output),
+            text: stencila_codec_text::to_text(output),
             ..Default::default()
         })
     } else {

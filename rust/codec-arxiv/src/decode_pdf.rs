@@ -3,8 +3,8 @@ use reqwest::Response;
 use tempfile::tempdir;
 use tokio::{fs::File, io::AsyncWriteExt};
 
-use codec::{Codec, DecodeInfo, DecodeOptions, eyre::Result, schema::Node};
-use codec_pdf::PdfCodec;
+use stencila_codec::{Codec, DecodeInfo, DecodeOptions, eyre::Result, stencila_schema::Node};
+use stencila_codec_pdf::PdfCodec;
 
 use super::decode::arxiv_id_to_doi;
 

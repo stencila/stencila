@@ -1,27 +1,27 @@
 [package]
-name = "plugins"
+name = "stencila-plugins"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-cli-utils = { path = "../cli-utils" }
-codec = { path = "../codec" }
-pretty_assertions = { workspace = true }
-dirs = { path = "../dirs" }
-kernel = { path = "../kernel" }
-model = { path = "../model" }
+Inflector = { workspace = true }
 async-trait = { workspace = true }
 clap = { workspace = true }
 eyre = { workspace = true }
 futures = { workspace = true }
-Inflector = { workspace = true }
 itertools = { workspace = true }
+pretty_assertions = { workspace = true }
 rand = { workspace = true }
 reqwest = { workspace = true }
 semver = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_with = { workspace = true }
+stencila-cli-utils = { path = "../cli-utils" }
+stencila-codec = { path = "../codec" }
+stencila-dirs = { path = "../dirs" }
+stencila-kernel = { path = "../kernel" }
+stencila-model = { path = "../model" }
 strum = { workspace = true }
 tokio = { workspace = true }
 toml = { workspace = true }

@@ -1,13 +1,13 @@
 [package]
-name = "codec-markdown-trait"
+name = "stencila-codec-markdown-trait"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 Inflector = { workspace = true }
-codec-info = { path = "../codec-info" }
-codec-markdown-derive = { path = "../codec-markdown-derive" }
-format = { path = "../format" }
+stencila-codec-info = { path = "../codec-info" }
+stencila-codec-markdown-derive = { path = "../codec-markdown-derive" }
+stencila-format = { path = "../format" }
 tracing = { workspace = true }
 
 [lints]

@@ -1,14 +1,14 @@
 [package]
-name = "kernel-nodejs"
+name = "stencila-kernel-nodejs"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-kernel-micro = { path = "../kernel-micro" }
+stencila-kernel-micro = { path = "../kernel-micro" }
 
 [dev-dependencies]
-pretty_assertions = { workspace = true }
 indexmap = { workspace = true }
+pretty_assertions = { workspace = true }
 test-log = { workspace = true }
 tokio = { workspace = true }
 

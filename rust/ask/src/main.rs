@@ -1,6 +1,6 @@
 use eyre::Result;
 
-use ask::{
+use stencila_ask::{
     Answer, AskLevel, AskOptions, ask, ask_for_password, ask_with, ask_with_default,
     ask_with_default_and_cancel, setup_cli,
 };

@@ -15,15 +15,15 @@ use std::sync::LazyLock;
 use futures::executor::block_on;
 use tokio::runtime;
 
-use codec::{
-    DecodeOptions, EncodeOptions,
-    eyre::Result,
-    format::Format,
-    schema::{Article, AudioObject, Node},
-};
-use node_strip::{StripNode, StripTargets};
 use pretty_assertions::assert_eq;
 use proptest::prelude::{ProptestConfig, proptest};
+use stencila_codec::{
+    DecodeOptions, EncodeOptions,
+    eyre::Result,
+    stencila_format::Format,
+    stencila_schema::{Article, AudioObject, Node},
+};
+use stencila_node_strip::{StripNode, StripTargets};
 
 /// Do a roundtrip conversion to/from a format
 #[allow(unused)]
@@ -34,7 +34,7 @@ fn roundtrip(
     decode_options: Option<DecodeOptions>,
 ) -> Result<Node> {
     block_on(async {
-        let codec = codecs::get(None, Some(&format), None)?;
+        let codec = stencila_codecs::get(None, Some(&format), None)?;
 
         let encode_options = Some(EncodeOptions {
             format: Some(format.clone()),

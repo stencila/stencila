@@ -9,18 +9,18 @@ use itertools::Itertools;
 use kuzu::{Connection, Database, LogicalType, SystemConfig, Value};
 use regex::Regex;
 
-use kernel::{
+use stencila_kernel::{
     Kernel, KernelInstance, KernelType, KernelVariableRequest, KernelVariableRequester,
     KernelVariableResponder, async_trait,
     eyre::{OptionExt, Result, bail, eyre},
-    format::Format,
     generate_id,
-    schema::{
+    stencila_format::Format,
+    stencila_schema::{
         Array, CodeLocation, Datatable, ExecutionBounds, ExecutionMessage, MessageLevel, Node,
         Null, SoftwareApplication, SoftwareApplicationOptions, StringOrNumber,
     },
 };
-use kernel_jinja::JinjaKernelInstance;
+use stencila_kernel_jinja::JinjaKernelInstance;
 
 mod from_kuzu;
 pub use from_kuzu::*;
@@ -29,8 +29,8 @@ mod to_kuzu;
 pub use to_kuzu::*;
 
 // Re-exports for convenience of dependant crates
-pub use kernel;
 pub use kuzu;
+pub use stencila_kernel;
 
 const NAME: &str = "kuzu";
 
@@ -600,11 +600,11 @@ fn execution_message_for_copy(query: &str, line_offset: usize) -> ExecutionMessa
 
 #[cfg(test)]
 mod tests {
-    use kernel::{
-        eyre::bail,
-        schema::{Array, CodeLocation, MessageLevel, Primitive},
-    };
     use pretty_assertions::assert_eq;
+    use stencila_kernel::{
+        eyre::bail,
+        stencila_schema::{Array, CodeLocation, MessageLevel, Primitive},
+    };
     use tempfile::TempDir;
 
     use super::*;

@@ -3,11 +3,11 @@ use std::sync::LazyLock;
 use eyre::Result;
 use regex::Regex;
 
-use codec_openalex::{
+use stencila_codec_openalex::{
     OpenAlexWork, search_authors, search_institutions, search_works, work_by_doi,
 };
-use codec_text::to_text;
-use schema::{AuthorRole, AuthorRoleAuthor, Reference};
+use stencila_codec_text::to_text;
+use stencila_schema::{AuthorRole, AuthorRoleAuthor, Reference};
 
 use crate::{is_doi, is_orcid, is_ror};
 
@@ -74,8 +74,8 @@ pub(super) async fn reference(reference: &mut Reference) -> Result<()> {
             .flatten()
             .zip(authorships.iter())
         {
-            if let schema::Author::Person(person)
-            | schema::Author::AuthorRole(AuthorRole {
+            if let stencila_schema::Author::Person(person)
+            | stencila_schema::Author::AuthorRole(AuthorRole {
                 author: AuthorRoleAuthor::Person(person),
                 ..
             }) = author

@@ -2,8 +2,8 @@ use std::path::Path;
 
 use clap::ValueEnum;
 use eyre::{Result, bail};
-use format::Format;
 use serde::{Deserialize, Serialize};
+use stencila_format::Format;
 use strum::Display;
 use tokio::sync::{broadcast, mpsc, watch};
 use uuid::Uuid;
@@ -11,10 +11,10 @@ use uuid::Uuid;
 // Re-exports for the convenience of crates implementing the `Kernel` trait
 pub use async_trait::async_trait;
 pub use eyre;
-pub use format;
-pub use schema;
+pub use stencila_format;
+pub use stencila_schema;
 
-use schema::{
+use stencila_schema::{
     ExecutionBounds, ExecutionMessage, Node, Null, SoftwareApplication, SoftwareSourceCode,
     Variable,
 };
@@ -402,7 +402,7 @@ pub mod tests {
     use itertools::Itertools;
     use pretty_assertions::assert_eq;
 
-    use schema::{Array, Null, Object, Paragraph, Primitive, SoftwareApplication};
+    use stencila_schema::{Array, Null, Object, Paragraph, Primitive, SoftwareApplication};
 
     use super::*;
 

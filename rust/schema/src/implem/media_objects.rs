@@ -1,11 +1,11 @@
-use codec_info::lost_options;
-use images::highlight_image;
+use stencila_codec_info::lost_options;
+use stencila_images::highlight_image;
 
 use crate::{AudioObject, ImageObject, MediaObject, VideoObject, prelude::*};
 
 macro_rules! html_attrs {
     ($object:expr) => {{
-        use codec_html_trait::encode::attr;
+        use stencila_codec_html_trait::encode::attr;
 
         let mut attrs = vec![attr("src", $object.content_url.as_str())];
 
@@ -44,7 +44,7 @@ macro_rules! jats_content {
         let mut content = String::new();
 
         if let Some(caption) = &$object.caption {
-            use codec_jats_trait::encode::escape;
+            use stencila_codec_jats_trait::encode::escape;
 
             let caption = caption.to_text();
             content.push_str(&["<alt-text>", &escape(caption.trim()), "</alt-text>"].concat())
@@ -102,7 +102,7 @@ impl MediaObject {
         // attributes and to ensure `AudioObject` and `VideoObject` ad differentiated
         // through the `mimetype` attribute
 
-        use codec_jats_trait::encode::elem;
+        use stencila_codec_jats_trait::encode::elem;
 
         (elem("inline-media", jats_attrs!(self), ""), Losses::todo())
     }
@@ -110,7 +110,7 @@ impl MediaObject {
 
 impl AudioObject {
     pub fn to_html_special(&self, _context: &mut HtmlEncodeContext) -> String {
-        use codec_html_trait::encode::elem;
+        use stencila_codec_html_trait::encode::elem;
 
         let mut attrs = html_attrs!(self);
         attrs.push("controls".to_string());
@@ -119,7 +119,7 @@ impl AudioObject {
     }
 
     pub fn to_jats_special(&self) -> (String, Losses) {
-        use codec_jats_trait::encode::elem;
+        use stencila_codec_jats_trait::encode::elem;
 
         let mut attrs = jats_attrs!(self);
         if !attrs.iter().any(|(name, ..)| name == &"mimetype") {
@@ -154,13 +154,13 @@ impl MarkdownCodec for AudioObject {
 
 impl ImageObject {
     pub fn to_html_special(&self, _context: &mut HtmlEncodeContext) -> String {
-        use codec_html_trait::encode::elem;
+        use stencila_codec_html_trait::encode::elem;
 
         elem("img", &html_attrs!(self), &[])
     }
 
     pub fn to_jats_special(&self) -> (String, Losses) {
-        use codec_jats_trait::encode::elem;
+        use stencila_codec_jats_trait::encode::elem;
 
         (
             elem("inline-graphic", jats_attrs!(self), jats_content!(self)),
@@ -225,8 +225,8 @@ impl LatexCodec for ImageObject {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
         let path = if self.content_url.starts_with("data:") {
             let images_dir = context.temp_dir.clone();
-            let image_name =
-                images::data_uri_to_file(&self.content_url, &images_dir).unwrap_or_default();
+            let image_name = stencila_images::data_uri_to_file(&self.content_url, &images_dir)
+                .unwrap_or_default();
             let path = images_dir.join(image_name);
 
             if context.highlight
@@ -258,7 +258,7 @@ impl MarkdownCodec for ImageObject {
 
 impl VideoObject {
     pub fn to_html_special(&self, _context: &mut HtmlEncodeContext) -> String {
-        use codec_html_trait::encode::elem;
+        use stencila_codec_html_trait::encode::elem;
 
         let mut attrs = html_attrs!(self);
         attrs.push("controls".to_string());
@@ -267,7 +267,7 @@ impl VideoObject {
     }
 
     pub fn to_jats_special(&self) -> (String, Losses) {
-        use codec_jats_trait::encode::elem;
+        use stencila_codec_jats_trait::encode::elem;
 
         let mut attrs = jats_attrs!(self);
         if !attrs.iter().any(|(name, ..)| name == &"mimetype") {

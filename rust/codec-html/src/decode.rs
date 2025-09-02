@@ -1,9 +1,9 @@
 use tl::{HTMLTag, Parser, ParserOptions, RawChildren, parse};
 
-use codec::{
+use stencila_codec::{
     DecodeInfo, DecodeOptions,
     eyre::{Result, bail},
-    schema::{
+    stencila_schema::{
         Article, Block, ImageObject, Inline, Link, Node, StyledBlock, StyledInline,
         shortcuts::{em, h1, h2, h3, h4, h5, h6, p, sec, stg, stk, sub, sup, t, u},
     },

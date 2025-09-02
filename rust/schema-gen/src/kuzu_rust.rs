@@ -16,9 +16,9 @@ pub fn generate_node_types(
 ) -> String {
     let mut result = r"// Generated file, do not edit. See the Rust `schema-gen` crate.
 
-use kernel_kuzu::{kuzu::{LogicalType, Value}, ToKuzu};
-use codec_text_trait::to_text;
-use schema::*;
+use stencila_kernel_kuzu::{kuzu::{LogicalType, Value}, ToKuzu};
+use stencila_codec_text_trait::to_text;
+use stencila_schema::*;
 
 use super::{embeddings_property, embeddings_type, DatabaseNode};
 

@@ -1,10 +1,10 @@
 [package]
-name = "codec-text-trait"
+name = "stencila-codec-text-trait"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec-text-derive = { path = "../codec-text-derive" }
+stencila-codec-text-derive = { path = "../codec-text-derive" }
 
 [lints]
 workspace = true

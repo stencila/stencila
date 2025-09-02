@@ -1,20 +1,20 @@
 use std::path::Path;
 
-use codec::{
+use stencila_codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, NodeType,
     async_trait,
     eyre::Result,
-    format::Format,
-    schema::{Article, Node},
-    status::Status,
+    stencila_format::Format,
+    stencila_schema::{Article, Node},
+    stencila_status::Status,
 };
-use codec_dom::DomCodec;
-use codec_latex::LatexCodec;
-use codec_markdown::MarkdownCodec;
-use codec_utils::git_info;
-use convert::{html_to_pdf, latex_to_pdf, pdf_to_md};
-use media_embed::embed_media;
-use node_structuring::structuring;
+use stencila_codec_dom::DomCodec;
+use stencila_codec_latex::LatexCodec;
+use stencila_codec_markdown::MarkdownCodec;
+use stencila_codec_utils::git_info;
+use stencila_convert::{html_to_pdf, latex_to_pdf, pdf_to_md};
+use stencila_media_embed::embed_media;
+use stencila_node_structuring::structuring;
 
 /// A codec for PDF
 pub struct PdfCodec;

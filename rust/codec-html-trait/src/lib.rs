@@ -14,7 +14,7 @@ mod string;
 mod unsigned_integer;
 mod vec;
 
-pub use codec_html_derive::HtmlCodec;
+pub use stencila_codec_html_derive::HtmlCodec;
 
 pub mod encode;
 

@@ -1,8 +1,8 @@
 use async_lsp::lsp_types::Range;
 
-use codec_text_trait::TextCodec;
-use codecs::{Mapping, PoshMap};
-use schema::*;
+use stencila_codec_text_trait::TextCodec;
+use stencila_codecs::{Mapping, PoshMap};
+use stencila_schema::*;
 
 use crate::{
     text_document::{TextNode, TextNodeExecution},
@@ -225,7 +225,7 @@ impl Visitor for Inspector<'_, '_> {
         WalkControl::Break
     }
 
-    fn visit_citation(&mut self, citation: &schema::Citation) -> WalkControl {
+    fn visit_citation(&mut self, citation: &Citation) -> WalkControl {
         let node_id = citation.node_id();
 
         let code_range = self

@@ -1,4 +1,4 @@
-use codec_dom_trait::{DomCodec, DomEncodeContext};
+use stencila_codec_dom_trait::{DomCodec, DomEncodeContext};
 
 use crate::Block;
 

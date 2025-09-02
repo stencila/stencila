@@ -1,5 +1,5 @@
-use codec_info::lost_options;
 use indexmap::IndexMap;
+use stencila_codec_info::lost_options;
 
 use crate::{ArrayValidator, Datatable, DatatableColumn, Object, Primitive, prelude::*};
 

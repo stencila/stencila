@@ -1,9 +1,9 @@
 use roxmltree::{Document, ParsingOptions};
 
-use codec::{
+use stencila_codec::{
     DecodeInfo, DecodeOptions, Losses,
     eyre::{Result, bail},
-    schema::{Article, Node},
+    stencila_schema::{Article, Node},
 };
 
 mod back;

@@ -1,10 +1,10 @@
 [package]
-name = "kernel-bash"
+name = "stencila-kernel-bash"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-kernel-micro = { path = "../kernel-micro" }
+stencila-kernel-micro = { path = "../kernel-micro" }
 
 [dev-dependencies]
 ntest = { workspace = true }

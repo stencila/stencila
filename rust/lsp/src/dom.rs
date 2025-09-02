@@ -22,8 +22,8 @@ use tokio::{
 };
 use uuid::Uuid;
 
-use document::{Document, DomPatch};
-use schema::NodeId;
+use stencila_document::{Document, DomPatch};
+use stencila_schema::NodeId;
 
 pub struct SubscribeDom;
 

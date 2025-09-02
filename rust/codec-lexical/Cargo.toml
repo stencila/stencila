@@ -1,22 +1,22 @@
 [package]
-name = "codec-lexical"
+name = "stencila-codec-lexical"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 bitflags = "2.9.2"
-codec = { path = "../codec" }
-codec-dom-trait = { path = "../codec-dom-trait" }
-codec-markdown = { path = "../codec-markdown" }
-codec-text = { path = "../codec-text" }
 monostate = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_with = { workspace = true }
 smart-default = { workspace = true }
+stencila-codec = { path = "../codec" }
+stencila-codec-dom-trait = { path = "../codec-dom-trait" }
+stencila-codec-markdown = { path = "../codec-markdown" }
+stencila-codec-text = { path = "../codec-text" }
 tracing = { workspace = true }
 
 [dev-dependencies]
-insta = { workspace = true }
 glob = { workspace = true }
+insta = { workspace = true }
 regex = { workspace = true }

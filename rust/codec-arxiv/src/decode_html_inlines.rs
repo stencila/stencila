@@ -1,7 +1,7 @@
 use tl::{HTMLTag, Parser};
 
-use codec::schema::{
-    Citation, CitationGroup, CitationMode, ImageObject, Inline, Link, MathInline,
+use stencila_codec::stencila_schema::{
+    Citation, CitationGroup, CitationMode, CodeInline, ImageObject, Inline, Link, MathInline,
     shortcuts::{em, stg, stk, sub, sup, t, u},
 };
 
@@ -503,7 +503,7 @@ pub fn decode_span(
     } else if class.contains("ltx_font_italic") {
         return vec![em(content)];
     } else if class.contains("ltx_font_typewriter") {
-        return vec![Inline::CodeInline(codec::schema::CodeInline {
+        return vec![Inline::CodeInline(CodeInline {
             code: extract_text_from_inlines(&content).into(),
             ..Default::default()
         })];

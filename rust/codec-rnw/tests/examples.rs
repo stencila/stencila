@@ -1,9 +1,9 @@
 use std::path::PathBuf;
 
-use codec::{Codec, EncodeOptions, eyre::Result};
+use stencila_codec::{Codec, EncodeOptions, eyre::Result};
 
-use codec_rnw::RnwCodec;
 use insta::{assert_json_snapshot, assert_snapshot, assert_yaml_snapshot};
+use stencila_codec_rnw::RnwCodec;
 
 /// Decode each example of a Noweb document and create JSON and Rnw snapshots
 /// including snapshots for losses

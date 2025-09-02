@@ -1,16 +1,16 @@
 [package]
-name = "node-diagnostics"
+name = "stencila-node-diagnostics"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 ariadne = "0.5.1"
-codec-info = { path = "../codec-info" }
 eyre = { workspace = true }
-format = { path = "../format" }
-schema = { path = "../schema" }
 serde = { workspace = true }
 serde_with = { workspace = true }
+stencila-codec-info = { path = "../codec-info" }
+stencila-format = { path = "../format" }
+stencila-schema = { path = "../schema" }
 strum = { workspace = true }
 
 [lints]

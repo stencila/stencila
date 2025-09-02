@@ -9,12 +9,12 @@ use tempfile::NamedTempFile;
 use stencila_linter::{
     Format, Linter, LinterAvailability, LintingOptions, LintingOutput, NodeType, async_trait,
     eyre::{OptionExt, Result},
-    schema::{
+    stencila_schema::{
         AuthorRoleName, CodeLocation, CompilationMessage, MessageLevel, SoftwareApplication,
         Timestamp,
     },
 };
-use tools::{Ruff, Tool};
+use stencila_tools::{Ruff, Tool};
 
 #[derive(Default)]
 pub struct RuffLinter;

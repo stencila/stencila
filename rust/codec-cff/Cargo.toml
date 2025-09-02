@@ -1,20 +1,20 @@
 [package]
-name = "codec-cff"
+name = "stencila-codec-cff"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec = { path = "../codec" }
 indexmap = { workspace = true }
 itertools = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_with = { workspace = true }
 serde_yaml = { workspace = true }
+stencila-codec = { path = "../codec" }
 
 [dev-dependencies]
-insta = { workspace = true }
 glob = { workspace = true }
+insta = { workspace = true }
 tokio = { workspace = true }
 
 [lints]

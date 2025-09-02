@@ -11,9 +11,9 @@ use winnow::{
     token::{take, take_until, take_while},
 };
 
-use codec::{
-    format::Format,
-    schema::{
+use stencila_codec::{
+    stencila_format::Format,
+    stencila_schema::{
         AudioObject, BooleanValidator, Button, Citation, CitationGroup, CitationMode,
         CodeExpression, CodeInline, Cord, DateTimeValidator, DateValidator, DurationValidator,
         Emphasis, EnumValidator, ImageObject, Inline, IntegerValidator, Link, MathInline, Node,
@@ -22,7 +22,7 @@ use codec::{
         TimeValidator, TimestampValidator, Underline, Validator, VideoObject,
     },
 };
-use codec_text_trait::to_text;
+use stencila_codec_text_trait::to_text;
 
 use super::{
     Context,
@@ -903,8 +903,8 @@ pub(super) fn mds_to_string(mds: &[mdast::Node]) -> String {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use codec::schema::ExecutionMode;
     use pretty_assertions::assert_eq;
+    use stencila_codec::stencila_schema::ExecutionMode;
 
     use super::*;
 

@@ -19,15 +19,15 @@ use tokio::{
 };
 use url::Url;
 
-use codecs::{DecodeOptions, EncodeOptions};
-use dirs::{
+use stencila_codecs::{DecodeOptions, EncodeOptions};
+use stencila_dirs::{
     DB_FILE, DOCS_FILE, STORE_DIR, closest_stencila_dir, stencila_artifacts_dir, stencila_db_file,
     stencila_docs_file, stencila_store_dir, workspace_dir, workspace_relative_path,
 };
-use node_canonicalize::canonicalize;
-use node_db::NodeDatabase;
-use node_sentencize::sentencize;
-use schema::{Node, NodeId};
+use stencila_node_canonicalize::canonicalize;
+use stencila_node_db::NodeDatabase;
+use stencila_node_sentencize::sentencize;
+use stencila_schema::{Node, NodeId};
 
 use crate::Document;
 
@@ -274,7 +274,7 @@ impl Document {
         let root = self.root.read().await;
 
         // Write the root node to storage
-        codec_json::to_path(
+        stencila_codec_json::to_path(
             &root,
             &store_path,
             Some(EncodeOptions {
@@ -301,7 +301,7 @@ impl Document {
             bail!("No tracking storage path for document {}", path.display())
         };
 
-        Ok(codec_json::from_path(&storage_path, None)?.0)
+        Ok(stencila_codec_json::from_path(&storage_path, None)?.0)
     }
 
     /// Start tracking a document path
@@ -322,7 +322,7 @@ impl Document {
             bail!("Path does not exist or is not a file: {}", path.display())
         }
 
-        if !codecs::from_path_is_supported(path) {
+        if !stencila_codecs::from_path_is_supported(path) {
             bail!("File format is not supported: {}", path.display())
         }
 
@@ -387,7 +387,7 @@ impl Document {
             bail!("Path does not exist or is not a file: {}", path.display())
         }
 
-        if !codecs::from_path_is_supported(path) {
+        if !stencila_codecs::from_path_is_supported(path) {
             bail!("File format is not supported: {}", path.display())
         }
 
@@ -461,7 +461,8 @@ impl Document {
                 let doc_id = new_id();
                 let store_dir = stencila_store_dir(stencila_dir, true).await?;
                 let store_path = store_dir.join(format!("{doc_id}.json"));
-                let root = codecs::from_identifier(identifier, decode_options.clone()).await?;
+                let root =
+                    stencila_codecs::from_identifier(identifier, decode_options.clone()).await?;
                 (doc_id, store_path, root)
             };
 
@@ -474,7 +475,7 @@ impl Document {
             }
 
             // Store root node
-            codec_json::to_path(
+            stencila_codec_json::to_path(
                 &root,
                 &store_path,
                 Some(EncodeOptions {
@@ -674,7 +675,7 @@ impl Document {
         let stencila_dir = closest_stencila_dir(dir, false).await?;
         let workspace_dir = workspace_dir(&stencila_dir)?;
 
-        let answer = ask::ask(&format!("Are you sure you want to clean {}? Unused cache files, and all artifact directories, within it will be deleted.", stencila_dir.display())).await?;
+        let answer = stencila_ask::ask(&format!("Are you sure you want to clean {}? Unused cache files, and all artifact directories, within it will be deleted.", stencila_dir.display())).await?;
         if answer.is_no() {
             return Ok(());
         }

@@ -1,14 +1,14 @@
-use codec::{
+use stencila_codec::{
     Codec, CodecSupport, EncodeInfo, EncodeOptions, async_trait,
     eyre::Result,
-    format::Format,
-    schema::{Node, NodeType},
-    status::Status,
+    stencila_format::Format,
+    stencila_schema::{Node, NodeType},
+    stencila_status::Status,
 };
 
-use codec_text_trait::TextCodec as _;
+use stencila_codec_text_trait::TextCodec as _;
 
-pub use codec_text_trait::to_text;
+pub use stencila_codec_text_trait::to_text;
 
 /// A codec for plain text
 pub struct TextCodec;

@@ -12,7 +12,7 @@
 //!
 //!   cargo test -p schema --test sizes -- --nocapture
 
-use schema::*;
+use stencila_schema::*;
 
 macro_rules! sizes {
     ($($t:ty),*) => {

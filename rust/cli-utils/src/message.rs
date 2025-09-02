@@ -60,10 +60,10 @@ pub fn message(message: &str, icon: Option<&str>) {
 #[macro_export]
 macro_rules! message {
     ($str:literal, $($arg:tt)*) => {
-        cli_utils::message(&format!($str, $($arg)*), None)
+        stencila_cli_utils::message(&format!($str, $($arg)*), None)
     };
 
     ($str:literal) => {
-        cli_utils::message($str, None)
+        stencila_cli_utils::message($str, None)
     };
 }

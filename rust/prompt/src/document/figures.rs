@@ -25,8 +25,8 @@ impl Figure {
     }
 }
 
-impl From<&schema::Figure> for Figure {
-    fn from(figure: &schema::Figure) -> Self {
+impl From<&stencila_schema::Figure> for Figure {
+    fn from(figure: &stencila_schema::Figure) -> Self {
         Self {
             label: figure.label.clone(),
             caption: figure.caption.as_ref().map(to_markdown),

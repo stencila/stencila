@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
-use node_url::{NodePosition, NodeUrl};
-use schema::{
+use stencila_node_url::{NodePosition, NodeUrl};
+use stencila_schema::{
     Article, Block, ForBlock, IfBlock, IfBlockClause, IncludeBlock, Inline, Link, Node, NodePath,
     NodeProperty, NodeSet, NodeSlot, Paragraph, RawBlock, Section, StyledBlock, VisitorMut,
     WalkControl, get,
@@ -412,7 +412,7 @@ mod tests {
     use super::*;
 
     use eyre::{Result, bail};
-    use schema::{
+    use stencila_schema::{
         Article, Block, ForBlock, Inline, NodePath, NodeType, RawBlock, node_url_path,
         shortcuts::{art, cb, cc, ce, em, fig, frb, ibc, ifb, inb, lnk, p, qb, sec, stb, stg, t},
     };

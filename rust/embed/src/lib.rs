@@ -1,6 +1,6 @@
-use dirs::{DirType, get_app_dir};
 use eyre::{Result, eyre};
 use fastembed::{EmbeddingModel, InitOptions, TextEmbedding};
+use stencila_dirs::{DirType, get_app_dir};
 
 /// Generate embeddings for more that one text
 ///

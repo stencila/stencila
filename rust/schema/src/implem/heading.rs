@@ -1,10 +1,10 @@
-use codec_info::lost_options;
+use stencila_codec_info::lost_options;
 
 use crate::{Heading, LabelType, prelude::*};
 
 impl Heading {
     pub fn to_jats_special(&self) -> (String, Losses) {
-        use codec_jats_trait::encode::elem;
+        use stencila_codec_jats_trait::encode::elem;
 
         let (content, mut losses) = self.content.to_jats();
 
@@ -20,7 +20,7 @@ impl Heading {
     }
 
     pub fn to_html_special(&self, context: &mut HtmlEncodeContext) -> String {
-        use codec_html_trait::encode::{attr, elem};
+        use stencila_codec_html_trait::encode::{attr, elem};
         elem(
             &["h", &self.level.clamp(1, 6).to_string()].concat(),
             &[attr("id", &self.id.to_html_attr(context))],

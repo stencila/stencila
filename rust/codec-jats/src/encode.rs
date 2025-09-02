@@ -6,8 +6,8 @@ use quick_xml::{
 };
 use roxmltree::{Node as XmlNode, NodeType as XmlNodeType};
 
-use codec::{EncodeInfo, EncodeOptions, Losses, eyre::Result, schema::Node};
-use codec_jats_trait::JatsCodec as _;
+use stencila_codec::{EncodeInfo, EncodeOptions, Losses, eyre::Result, stencila_schema::Node};
+use stencila_codec_jats_trait::JatsCodec as _;
 
 /// Encode a [`Node`] as JATS XML
 pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {

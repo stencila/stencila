@@ -1,6 +1,6 @@
 use async_lsp::lsp_types::{Position, Range};
 
-use codecs::{Position16, Range16};
+use stencila_codecs::{Position16, Range16};
 
 /// Convert a Stencila [`Range16`] to a LSP [`Range`]
 pub(super) fn range16_to_range(range: Range16) -> Range {

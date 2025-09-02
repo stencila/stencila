@@ -1,11 +1,11 @@
 [package]
-name = "codec-xlsx"
+name = "stencila-codec-xlsx"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec = { path = "../codec" }
 calamine = "0.30"
+stencila-codec = { path = "../codec" }
 
 [dev-dependencies]
 

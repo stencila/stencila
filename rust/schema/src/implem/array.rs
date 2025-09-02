@@ -1,5 +1,5 @@
-use codec_html_trait::encode::elem;
-use node_store::{
+use stencila_codec_html_trait::encode::elem;
+use stencila_node_store::{
     ReadNode, ReadStore, WriteNode, WriteStore,
     automerge::{ObjId, Prop},
 };

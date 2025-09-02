@@ -4,9 +4,9 @@ use regex::Regex;
 use reqwest::{Client, header};
 use url::Url;
 
-use codec::{Codec, DecodeInfo, DecodeOptions, eyre::Result, schema::Node};
-use codec_csl::CslCodec;
-use version::STENCILA_USER_AGENT;
+use stencila_codec::{Codec, DecodeInfo, DecodeOptions, eyre::Result, stencila_schema::Node};
+use stencila_codec_csl::CslCodec;
+use stencila_version::STENCILA_USER_AGENT;
 
 /// Extract a DOI from an identifier string
 ///

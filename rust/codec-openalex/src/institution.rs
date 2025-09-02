@@ -1,7 +1,7 @@
 use serde::Deserialize;
 
-use codec::schema::{ImageObject, Node, Organization, OrganizationOptions};
 use indexmap::IndexMap;
+use stencila_codec::stencila_schema::{ImageObject, Node, Organization, OrganizationOptions};
 
 use crate::utils::convert_ids_to_identifiers;
 

@@ -8,18 +8,18 @@
 
 use serde_json::json;
 
-use codec::{
+use pretty_assertions::assert_eq;
+use stencila_codec::{
     eyre::Result,
-    schema::{
+    stencila_schema::{
         Array, Article, ArticleOptions, Block, Boolean, Date, Emphasis, Inline, Integer,
         IntegerOrString, Node, Null, Number, Object, Paragraph, Person, Primitive, ThematicBreak,
         Time,
         shortcuts::{p, t},
     },
 };
-use pretty_assertions::assert_eq;
 
-use codec_json::r#trait::JsonCodec;
+use stencila_codec_json::r#trait::JsonCodec;
 
 /// Test deserialization of primitive types from JSON
 #[test]

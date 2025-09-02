@@ -2,12 +2,13 @@
 
 use std::{fs, path::Path};
 
-use codec::{
+use stencila_codec::{
     DecodeOptions, EncodeOptions,
     eyre::{Context, Result, eyre},
-    format::Format,
-    schema::{Datatable, Node},
+    stencila_format::Format,
+    stencila_schema::{Datatable, Node},
 };
+use stencila_codec_csv::{decode_from_path, encode_to_path};
 
 /// Load a test datatable from JSON file
 fn load_test_datatable(filename: &str) -> Result<Node> {
@@ -54,7 +55,7 @@ fn test_roundtrip_all_formats() -> Result<()> {
                 ..Default::default()
             };
 
-            codec_csv::encode_to_path(&original_node, temp_path, Some(encode_options))?;
+            encode_to_path(&original_node, temp_path, Some(encode_options))?;
 
             // Decode from file
             let decode_options = DecodeOptions {
@@ -62,7 +63,7 @@ fn test_roundtrip_all_formats() -> Result<()> {
                 ..Default::default()
             };
 
-            let decoded_node = codec_csv::decode_from_path(temp_path, Some(decode_options))?;
+            let decoded_node = decode_from_path(temp_path, Some(decode_options))?;
 
             // Verify structure is preserved
             match (&original_node, &decoded_node) {

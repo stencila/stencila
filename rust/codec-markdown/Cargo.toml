@@ -1,21 +1,21 @@
 [package]
-name = "codec-markdown"
+name = "stencila-codec-markdown"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec = { path = "../codec" }
-codec-json5-trait = { path = "../codec-json5-trait" }
-codec-markdown-trait = { path = "../codec-markdown-trait" }
-codec-text-trait = { path = "../codec-text-trait" }
 indexmap = { workspace = true }
 itertools = { workspace = true }
 markdown = "1.0.0"
-media-embed = { path = "../media-embed" }
-media-extract = { path = "../media-extract" }
 regex = { workspace = true }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }
+stencila-codec = { path = "../codec" }
+stencila-codec-json5-trait = { path = "../codec-json5-trait" }
+stencila-codec-markdown-trait = { path = "../codec-markdown-trait" }
+stencila-codec-text-trait = { path = "../codec-text-trait" }
+stencila-media-embed = { path = "../media-embed" }
+stencila-media-extract = { path = "../media-extract" }
 strum = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }

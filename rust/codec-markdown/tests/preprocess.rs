@@ -1,6 +1,6 @@
 use insta::assert_snapshot;
 
-use codec_markdown::preprocess;
+use stencila_codec_markdown::preprocess;
 
 /// Check of preprocessing for ensuring empty lines between fenced divs
 #[rustfmt::skip]

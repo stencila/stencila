@@ -10,10 +10,10 @@ use strum::{Display, EnumIter, IntoEnumIterator};
 use tempfile::tempdir;
 use tokio::fs::{read, read_to_string, write};
 
-use codec::PageSelector;
-use dirs::closest_artifacts_for;
-use secrets::MISTRAL_API_KEY;
-use tools::{AsyncToolCommand, is_installed};
+use stencila_codec::PageSelector;
+use stencila_dirs::closest_artifacts_for;
+use stencila_secrets::MISTRAL_API_KEY;
+use stencila_tools::{AsyncToolCommand, is_installed};
 
 use crate::md_to_md::{clean_md, clean_md_page};
 
@@ -59,7 +59,7 @@ pub async fn pdf_to_md(
         // Use the specified tool
         Some(tool) => Tool::from_str(tool)?,
         None => {
-            if secrets::env_or_get(MISTRAL_API_KEY).is_ok() {
+            if stencila_secrets::env_or_get(MISTRAL_API_KEY).is_ok() {
                 // If a Mistral API key is available, use that
                 Tool::Mistral
             } else {
@@ -163,7 +163,7 @@ pub async fn pdf_to_md_mistral(
         read_to_string(response_path).await?
     } else {
         // Get API key
-        let api_key = secrets::env_or_get(MISTRAL_API_KEY)?;
+        let api_key = stencila_secrets::env_or_get(MISTRAL_API_KEY)?;
 
         // Send request
         tracing::info!("Converting PDF to Markdown using Mistral OCR; this may take some time");

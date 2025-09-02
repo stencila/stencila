@@ -1,12 +1,12 @@
 [package]
-name = "kernel-asciimath"
+name = "stencila-kernel-asciimath"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-kernel = { path = "../kernel" }
-mathemascii = "0.4.0"
 itertools = { workspace = true }
+mathemascii = "0.4.0"
+stencila-kernel = { path = "../kernel" }
 tracing = { workspace = true }
 
 [dev-dependencies]

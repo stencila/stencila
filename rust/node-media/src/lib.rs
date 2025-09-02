@@ -1,6 +1,7 @@
 use std::path::{Path, PathBuf};
 
-use schema::{Block, ImageObject, Inline, VisitorMut, WalkControl, WalkNode};
+use stencila_images::{data_uri_to_file, file_uri_to_file};
+use stencila_schema::{Block, ImageObject, Inline, VisitorMut, WalkControl, WalkNode};
 
 /// Walk over a node and extract/copy all media files into a folder and re-write URLs
 ///
@@ -46,7 +47,7 @@ where
     fn visit_image(&mut self, image: &mut ImageObject) -> WalkControl {
         let image_path = if image.content_url.starts_with("data:") {
             // Encode the data URI to a file
-            match images::data_uri_to_file(&image.content_url, &self.dest_dir) {
+            match data_uri_to_file(&image.content_url, &self.dest_dir) {
                 Ok(path) => Some(path),
                 Err(error) => {
                     tracing::warn!("While encoding image data URI to file: {error}");
@@ -54,8 +55,7 @@ where
                 }
             }
         } else {
-            match images::file_uri_to_file(&image.content_url, Some(&self.src_dir), &self.dest_dir)
-            {
+            match file_uri_to_file(&image.content_url, Some(&self.src_dir), &self.dest_dir) {
                 Ok(path) => Some(path),
                 Err(error) => {
                     tracing::warn!("While encoding image to file: {error}");

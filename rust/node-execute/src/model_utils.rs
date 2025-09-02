@@ -1,9 +1,9 @@
 use eyre::{Result, bail};
 
-use codec_markdown::to_markdown_flavor;
-use codecs::{DecodeOptions, Format};
-use models::{ModelOutput, ModelOutputKind, ModelTask};
-use schema::{
+use stencila_codec_markdown::to_markdown_flavor;
+use stencila_codecs::{DecodeOptions, Format};
+use stencila_models::{ModelOutput, ModelOutputKind, ModelTask};
+use stencila_schema::{
     Article, AudioObject, AuthorRole, Block, File, ImageObject, Inline, InstructionMessage, Link,
     MessagePart, MessageRole, Node, Text, VideoObject, shortcuts::p,
 };
@@ -94,7 +94,7 @@ pub(super) async fn model_task_to_blocks_and_authors(
         kind,
         format,
         content,
-    } = models::perform_task(task).await?;
+    } = stencila_models::perform_task(task).await?;
 
     let blocks = match kind {
         ModelOutputKind::Text => {
@@ -115,7 +115,7 @@ pub(super) async fn model_task_to_blocks_and_authors(
             };
 
             // Decode the model output into blocks
-            let node = codecs::from_str(
+            let node = stencila_codecs::from_str(
                 &content,
                 Some(DecodeOptions {
                     format,

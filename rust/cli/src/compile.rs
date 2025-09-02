@@ -3,8 +3,8 @@ use std::{path::PathBuf, process::exit};
 use clap::Parser;
 use eyre::Result;
 
-use cli_utils::color_print::cstr;
-use document::Document;
+use stencila_cli_utils::color_print::cstr;
+use stencila_document::Document;
 
 use crate::options::{DecodeOptions, StripOptions};
 

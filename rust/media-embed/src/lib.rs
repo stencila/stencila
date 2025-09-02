@@ -1,8 +1,9 @@
 use std::path::{Path, PathBuf};
 
 use eyre::{Context, Result, bail, eyre};
-use format::Format;
-use schema::{Block, ImageObject, Inline, VisitorMut, WalkControl, WalkNode};
+use stencila_format::Format;
+use stencila_images::{convert, path_to_data_uri};
+use stencila_schema::{Block, ImageObject, Inline, VisitorMut, WalkControl, WalkNode};
 
 /// Embed any media files within [`ImageObject`] and other media objects as dataURIs
 ///
@@ -60,7 +61,7 @@ impl Walker {
                     let mut to = path.clone();
                     to.set_extension(format.extension());
 
-                    match images::convert(&path, &to) {
+                    match convert(&path, &to) {
                         Ok(..) => {
                             path = to;
                         }
@@ -70,7 +71,7 @@ impl Walker {
                     }
                 }
 
-                match images::path_to_data_uri(&path) {
+                match path_to_data_uri(&path) {
                     Ok(url) => {
                         image.content_url = url;
                     }

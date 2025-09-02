@@ -17,11 +17,11 @@ use cached::proc_macro::cached;
 use inflector::Inflector;
 use itertools::Itertools;
 
-use model::{
+use stencila_model::{
     Model, ModelIO, ModelOutput, ModelTask, ModelTaskKind, ModelType, async_trait,
     eyre::{Result, bail},
-    schema::{ImageObject, MessagePart, MessageRole},
-    secrets,
+    stencila_schema::{ImageObject, MessagePart, MessageRole},
+    stencila_secrets,
 };
 
 /// The name of the env var or secret for the API key
@@ -129,7 +129,7 @@ impl Model for OpenAIModel {
 impl OpenAIModel {
     /// Create a client with the correct API key
     fn client() -> Result<Client<OpenAIConfig>> {
-        let api_key = secrets::env_or_get(API_KEY)?;
+        let api_key = stencila_secrets::env_or_get(API_KEY)?;
         Ok(Client::with_config(
             OpenAIConfig::new().with_api_key(api_key),
         ))
@@ -436,7 +436,7 @@ impl OpenAIModel {
 pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
     // Check for API key before calling IO cached function so that we never cache an empty list
     // and allow for users to set key, and then get list, while process is running
-    if secrets::env_or_get(API_KEY).is_err() {
+    if stencila_secrets::env_or_get(API_KEY).is_err() {
         tracing::trace!("The environment variable or secret `{API_KEY}` is not available");
         return Ok(vec![]);
     };
@@ -519,13 +519,13 @@ async fn list_openai_models(_unused: u8) -> Result<ListModelResponse> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use model::test_task_repeat_word;
+    use stencila_model::test_task_repeat_word;
 
     #[tokio::test]
     async fn list_models() -> Result<()> {
         let list = list().await?;
 
-        if secrets::env_or_get(API_KEY).is_err() {
+        if stencila_secrets::env_or_get(API_KEY).is_err() {
             assert_eq!(list.len(), 0)
         } else {
             assert!(!list.is_empty())
@@ -536,7 +536,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task() -> Result<()> {
-        if secrets::env_or_get(API_KEY).is_err() {
+        if stencila_secrets::env_or_get(API_KEY).is_err() {
             return Ok(());
         }
 

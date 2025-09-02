@@ -12,7 +12,7 @@ use reqwest::Url;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
 
-use schema::NodeId;
+use stencila_schema::NodeId;
 
 use crate::text_document::TextNode;
 

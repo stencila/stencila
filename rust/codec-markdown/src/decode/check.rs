@@ -1,6 +1,6 @@
 use strum::Display;
 
-use codec::{Message, MessageLevel, Messages, format::Format};
+use stencila_codec::{Message, MessageLevel, Messages, stencila_format::Format};
 
 /// Check Markdown prior to decoding
 pub fn check(md: &str, _format: &Format) -> Messages {

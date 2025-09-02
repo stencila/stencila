@@ -13,8 +13,8 @@ use itertools::Itertools;
 use serde_json::json;
 use tokio::sync::RwLock;
 
-use codecs::Format;
-use schema::NodeType;
+use stencila_codecs::Format;
+use stencila_schema::NodeType;
 
 use crate::{
     commands::{

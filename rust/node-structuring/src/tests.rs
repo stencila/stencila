@@ -1,10 +1,10 @@
 use eyre::{Result, bail};
 
-use codec_text_trait::to_text;
 use pretty_assertions::assert_eq;
-use schema::{
+use stencila_codec_text_trait::to_text;
+use stencila_schema::{
     AdmonitionType, Article, Block, Citation, CitationGroup, CitationOptions, ImageObject, Inline,
-    Node, SectionType, Strikeout, Strong, Superscript, Underline,
+    Node, SectionType, Strikeout, Strong, Superscript, Underline, WalkNode,
     shortcuts::{em, h1, h2, h3, h4, h5, li, lnk, mi, ol, p, sec, stb, t, tbl},
 };
 
@@ -46,7 +46,7 @@ fn ctg<const N: usize>(citations: [(&str, &str); N]) -> Inline {
 }
 
 /// Shortcut for running structuring without sectioning
-fn structuring_without_sectioning<T: schema::WalkNode>(node: &mut T) {
+fn structuring_without_sectioning<T: WalkNode>(node: &mut T) {
     structuring_with_options(
         node,
         StructuringOptions {
@@ -59,7 +59,7 @@ fn structuring_without_sectioning<T: schema::WalkNode>(node: &mut T) {
 }
 
 /// Shortcut for running structuring with bracketed numeric citations
-fn structuring_with_bracketed<T: schema::WalkNode>(node: &mut T) {
+fn structuring_with_bracketed<T: WalkNode>(node: &mut T) {
     structuring_with_options(
         node,
         StructuringOptions {
@@ -70,7 +70,7 @@ fn structuring_with_bracketed<T: schema::WalkNode>(node: &mut T) {
 }
 
 /// Shortcut for running structuring with parenthetic numeric citations
-fn structuring_with_parenthetic<T: schema::WalkNode>(node: &mut T) {
+fn structuring_with_parenthetic<T: WalkNode>(node: &mut T) {
     structuring_with_options(
         node,
         StructuringOptions {
@@ -81,7 +81,7 @@ fn structuring_with_parenthetic<T: schema::WalkNode>(node: &mut T) {
 }
 
 /// Shortcut for running structuring with superscripted numeric citations
-fn structuring_with_superscripted<T: schema::WalkNode>(node: &mut T) {
+fn structuring_with_superscripted<T: WalkNode>(node: &mut T) {
     structuring_with_options(
         node,
         StructuringOptions {
@@ -92,7 +92,7 @@ fn structuring_with_superscripted<T: schema::WalkNode>(node: &mut T) {
 }
 
 /// Shortcut for running structuring with author-year citations
-fn structuring_with_author_year<T: schema::WalkNode>(node: &mut T) {
+fn structuring_with_author_year<T: WalkNode>(node: &mut T) {
     structuring_with_options(
         node,
         StructuringOptions {
@@ -210,7 +210,7 @@ fn heading_level_and_text_updates() -> Result<()> {
 
     // Test that h2 with numbering overrides original level
     let mut article = Node::Article(Article::new(vec![
-        schema::shortcuts::h2([t("1.2.3.4 Deep Section")]),
+        stencila_schema::shortcuts::h2([t("1.2.3.4 Deep Section")]),
         p([t("Deep content.")]),
     ]));
     structuring_without_sectioning(&mut article);
@@ -1314,7 +1314,7 @@ fn image_and_caption_edge_cases() -> Result<()> {
     }
 
     // Test that nested content IS processed (figures work in sections too)
-    use schema::shortcuts::sec;
+    use stencila_schema::shortcuts::sec;
 
     let mut article_nested = Node::Article(Article::new(vec![sec([
         h1([t("Section")]),
@@ -1365,7 +1365,7 @@ fn image_and_caption_edge_cases() -> Result<()> {
 
 #[test]
 fn nested_figures_in_various_blocks() -> Result<()> {
-    use schema::shortcuts::{adm, sec};
+    use stencila_schema::shortcuts::{adm, sec};
 
     // Test figure in admonition
     let mut article1 = Node::Article(Article::new(vec![adm(

@@ -1,13 +1,13 @@
 [package]
-name = "codec-meca"
+name = "stencila-codec-meca"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec = { path = "../codec" }
-codec-jats = { path = "../codec-jats" }
 glob = { workspace = true }
-media-embed = { path = "../media-embed" }
+stencila-codec = { path = "../codec" }
+stencila-codec-jats = { path = "../codec-jats" }
+stencila-media-embed = { path = "../media-embed" }
 tempfile = { workspace = true }
 tracing = { workspace = true }
 zip = { workspace = true }

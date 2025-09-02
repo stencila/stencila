@@ -1,10 +1,10 @@
-use codec::{
+use insta::assert_snapshot;
+use stencila_codec::{
     Codec,
     eyre::Result,
-    schema::{CodeChunk, Node},
+    stencila_schema::{CodeChunk, Node},
 };
-use codec_markdown::MarkdownCodec;
-use insta::assert_snapshot;
+use stencila_codec_markdown::MarkdownCodec;
 
 /// Test that a sufficient number of enclosing backticks are encoded to escape
 /// backticks in the code

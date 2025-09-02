@@ -3,13 +3,13 @@ use std::path::Path;
 use serde::{Deserialize, Serialize};
 
 use async_trait::async_trait;
-use codec::schema::ExecutionBounds;
 use eyre::{Result, bail};
-use kernel::{
+use stencila_codec::stencila_schema::ExecutionBounds;
+use stencila_kernel::{
     Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelProvider,
     KernelTerminate,
-    format::Format,
-    schema::{ExecutionMessage, Node, SoftwareApplication, SoftwareSourceCode, Variable},
+    stencila_format::Format,
+    stencila_schema::{ExecutionMessage, Node, SoftwareApplication, SoftwareSourceCode, Variable},
 };
 
 use crate::{Plugin, PluginEnabled, PluginInstance, PluginStatus, plugins};

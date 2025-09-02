@@ -6,7 +6,7 @@ use clap::ValueEnum;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 
-pub use node_strip_derive::StripNode;
+pub use stencila_node_strip_derive::StripNode;
 
 /// Strip properties from a node and its descendants
 pub fn strip<T>(node: &mut T, targets: StripTargets)

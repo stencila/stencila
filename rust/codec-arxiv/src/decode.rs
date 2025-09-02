@@ -3,10 +3,10 @@ use std::sync::LazyLock;
 use regex::Regex;
 use url::Url;
 
-use codec::{
+use stencila_codec::{
     DecodeInfo, DecodeOptions,
     eyre::{Result, bail},
-    schema::Node,
+    stencila_schema::Node,
 };
 
 use super::decode_html::decode_arxiv_html;

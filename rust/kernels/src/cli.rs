@@ -1,18 +1,18 @@
 use clap::{Args, Parser, Subcommand};
 use itertools::Itertools;
 
-use cli_utils::{
+use stencila_cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
 };
-use kernel::{
+use stencila_kernel::{
     KernelAvailability, KernelProvider, KernelSpecification, KernelType,
     eyre::Result,
-    format::Format,
-    schema::{ExecutionBounds, ExecutionMessage, Node, NodeId, NodeType, StringOrNumber},
+    stencila_format::Format,
+    stencila_schema::{ExecutionBounds, ExecutionMessage, Node, NodeId, NodeType, StringOrNumber},
 };
-use node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
+use stencila_node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
 
 use crate::Kernels;
 

@@ -1,5 +1,5 @@
 [package]
-name = "codec-info"
+name = "stencila-codec-info"
 version = "0.0.0"
 edition = "2024"
 
@@ -7,15 +7,15 @@ edition = "2024"
 Inflector = { workspace = true }
 derive_more = { workspace = true }
 eyre = { workspace = true }
-format = { path = "../format" }
 itertools = { workspace = true }
-node-id = { path = "../node-id" }
-node-type = { path = "../node-type" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_with = { workspace = true }
 serde_yaml = { workspace = true }
 similar = { workspace = true }
+stencila-format = { path = "../format" }
+stencila-node-id = { path = "../node-id" }
+stencila-node-type = { path = "../node-type" }
 strum = { workspace = true }
 tracing = { workspace = true }
 

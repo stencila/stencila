@@ -1,4 +1,4 @@
-use node_store::{ReadNode, ReadStore, automerge::ObjId};
+use stencila_node_store::{ReadNode, ReadStore, automerge::ObjId};
 
 use crate::{Array, Null, Object, Primitive, prelude::*};
 

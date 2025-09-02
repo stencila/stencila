@@ -6,7 +6,7 @@ use std::{
 use itertools::Itertools;
 use regex::{Captures, Regex};
 
-use kernel_jinja::minijinja::{Environment, Error, ErrorKind, Value};
+use stencila_kernel_jinja::minijinja::{Environment, Error, ErrorKind, Value};
 
 use crate::{CypherQuery, NodeProxies, NodeProxy, openalex::OpenAlexQuery};
 

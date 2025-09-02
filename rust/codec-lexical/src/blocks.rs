@@ -1,6 +1,7 @@
-use codec::{
-    format::Format,
-    schema::{
+use serde_json::from_value;
+use stencila_codec::{
+    stencila_format::Format,
+    stencila_schema::{
         AudioObject, Block, CodeBlock, File, Heading, ImageObject, Inline, List, ListItem,
         ListOrder, MathBlock, Paragraph, QuoteBlock, RawBlock, Table, Text, ThematicBreak,
         VideoObject,
@@ -8,9 +9,8 @@ use codec::{
         transforms::blocks_to_inlines,
     },
 };
-use codec_dom_trait::to_dom;
-use codec_text::to_text;
-use serde_json::from_value;
+use stencila_codec_dom_trait::to_dom;
+use stencila_codec_text::to_text;
 
 use crate::{
     inlines::{inlines_from_lexical, inlines_to_lexical},
@@ -289,15 +289,16 @@ fn list_to_lexical(list: &List, context: &mut LexicalEncodeContext) -> lexical::
         .flat_map(|item| &item.content)
         .any(|block| matches!(block, Block::List(List { .. })))
     {
-        let markdown = match codec_markdown::encode(&art([Block::List(list.clone())]), None) {
-            Ok((md, ..)) => md,
-            Err(error) => {
-                // If encoding fails (should very, rarely if at all)
-                // record loss and return empty string
-                context.losses.add(format!("Markdown: {error}"));
-                String::new()
-            }
-        };
+        let markdown =
+            match stencila_codec_markdown::encode(&art([Block::List(list.clone())]), None) {
+                Ok((md, ..)) => md,
+                Err(error) => {
+                    // If encoding fails (should very, rarely if at all)
+                    // record loss and return empty string
+                    context.losses.add(format!("Markdown: {error}"));
+                    String::new()
+                }
+            };
 
         lexical::BlockNode::Markdown(lexical::MarkdownNode {
             markdown,
@@ -474,7 +475,9 @@ fn markdown_from_lexical(
     block: lexical::MarkdownNode,
     context: &mut LexicalDecodeContext,
 ) -> Vec<Block> {
-    match codec_markdown::decode(&block.markdown, None).and_then(|(node, ..)| node.try_into()) {
+    match stencila_codec_markdown::decode(&block.markdown, None)
+        .and_then(|(node, ..)| node.try_into())
+    {
         Ok(blocks) => blocks,
         Err(error) => {
             // If decoding or transform fails (should very, rarely if at all)
@@ -486,7 +489,8 @@ fn markdown_from_lexical(
 }
 
 fn table_to_lexical(table: &Table, context: &mut LexicalEncodeContext) -> lexical::BlockNode {
-    let markdown = match codec_markdown::encode(&art([Block::Table(table.clone())]), None) {
+    let markdown = match stencila_codec_markdown::encode(&art([Block::Table(table.clone())]), None)
+    {
         Ok((md, ..)) => md,
         Err(error) => {
             // If encoding fails (should very, rarely if at all)

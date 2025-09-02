@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
-use node_execute::{CompileOptions, ExecuteOptions};
-use schema::{Config, Node, PatchNode, PatchOp, authorship};
+use stencila_node_execute::{CompileOptions, ExecuteOptions};
+use stencila_schema::{Config, Node, PatchNode, PatchOp, authorship};
 
 use crate::{
     Command, CommandNodes, CommandScope, Document, DocumentCommandSender, DocumentPatchReceiver,
@@ -56,7 +56,7 @@ impl Document {
                             }
                         }
                         *root = node;
-                    } else if let Err(error) = schema::merge(root, &update.node, update.format, update.authors) {
+                    } else if let Err(error) = stencila_schema::merge(root, &update.node, update.format, update.authors) {
                         tracing::error!("While merging update into root: {error}");
                     }
 
@@ -82,7 +82,7 @@ impl Document {
                                 }
                             }
                         }
-                    } else if let Err(error) = schema::patch(root, patch) {
+                    } else if let Err(error) = stencila_schema::patch(root, patch) {
                         tracing::debug!("While applying patch to root: {error}");
                     }
 

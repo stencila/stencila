@@ -12,8 +12,8 @@ use itertools::Itertools;
 use similar::{Algorithm, capture_diff_slices};
 use tokio::sync::RwLock;
 
-use codecs::{EncodeOptions, Format, LossesResponse};
-use document::Document;
+use stencila_codecs::{EncodeOptions, Format, LossesResponse};
+use stencila_document::Document;
 
 /// Handle to format a document
 #[tracing::instrument(skip(doc))]

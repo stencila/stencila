@@ -3,9 +3,9 @@ use std::str::FromStr;
 use itertools::Itertools;
 use roxmltree::Node;
 
-use codec::{
+use stencila_codec::{
     Losses,
-    schema::{
+    stencila_schema::{
         Admonition, Article, AudioObject, AudioObjectOptions, Block, Citation, CitationMode,
         CitationOptions, Claim, ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord,
         Date, DateTime, Duration, ExecutionMode, Figure, Heading, ImageObject, ImageObjectOptions,

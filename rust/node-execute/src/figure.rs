@@ -1,4 +1,4 @@
-use schema::{Figure, LabelType, NodeProperty};
+use stencila_schema::{Figure, LabelType, NodeProperty};
 
 use crate::prelude::*;
 

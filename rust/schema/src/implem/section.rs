@@ -1,12 +1,12 @@
 use inflector::Inflector;
 
-use codec_info::lost_options;
+use stencila_codec_info::lost_options;
 
 use crate::{Section, SectionType, prelude::*};
 
 impl Section {
     pub fn to_html_special(&self, context: &mut HtmlEncodeContext) -> String {
-        use codec_html_trait::encode::{attr, elem};
+        use stencila_codec_html_trait::encode::{attr, elem};
 
         let (tag, attrs) = match &self.section_type {
             Some(SectionType::Main) => ("main", vec![]),

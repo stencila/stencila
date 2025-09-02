@@ -3,7 +3,7 @@ use regex::Regex;
 use std::sync::LazyLock;
 use strum::Display;
 
-use schema::MessagePart;
+use stencila_schema::MessagePart;
 
 use crate::{DocumentContext, prelude::*};
 
@@ -159,8 +159,8 @@ impl Instruction {
     }
 }
 
-impl From<&schema::InstructionBlock> for Instruction {
-    fn from(value: &schema::InstructionBlock) -> Self {
+impl From<&stencila_schema::InstructionBlock> for Instruction {
+    fn from(value: &stencila_schema::InstructionBlock) -> Self {
         Self {
             r#type: value.instruction_type.to_string(),
             message: Some(

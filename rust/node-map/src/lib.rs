@@ -1,6 +1,6 @@
 use indexmap::IndexMap;
 
-use schema::{
+use stencila_schema::{
     Block, Inline, ListItem, Node, NodeId, NodePath, NodeProperty, NodeSlot, TableCell, TableRow,
     Visitor, WalkControl, WalkNode,
 };

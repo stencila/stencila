@@ -16,13 +16,13 @@ use tokio::{
     sync::{RwLock, mpsc, oneshot, watch},
 };
 
-use codecs::PoshMap;
-use kernels::Kernels;
-use node_diagnostics::{Diagnostic, DiagnosticLevel, diagnostics};
-use node_execute::CompileOptions;
-use node_find::find;
-use node_first::first;
-use schema::{
+use stencila_codecs::PoshMap;
+use stencila_kernels::Kernels;
+use stencila_node_diagnostics::{Diagnostic, DiagnosticLevel, diagnostics};
+use stencila_node_execute::CompileOptions;
+use stencila_node_find::find;
+use stencila_node_first::first;
+use stencila_schema::{
     Article, AuthorRole, Chat, Config, ContentType, ExecutionBounds, File, Node, NodeId,
     NodeProperty, NodeType, Null, Patch, Prompt,
 };
@@ -43,9 +43,9 @@ mod task_update;
 mod track;
 
 // Re-exports for convenience of consuming crates
-pub use codecs::{self, DecodeOptions, EncodeOptions, Format, LossesResponse};
-pub use node_execute::ExecuteOptions;
-pub use schema;
+pub use stencila_codecs::{self, DecodeOptions, EncodeOptions, Format, LossesResponse};
+pub use stencila_node_execute::ExecuteOptions;
+pub use stencila_schema;
 pub use sync_dom::DomPatch;
 
 /// The synchronization mode between documents and external resources
@@ -571,7 +571,7 @@ impl Document {
             bail!("The `format` option must be provided")
         };
 
-        let node = codecs::from_str(source, options).await?;
+        let node = stencila_codecs::from_str(source, options).await?;
 
         self.update(Update {
             node,
@@ -603,7 +603,7 @@ impl Document {
             .as_ref()
             .and_then(|opts| opts.format.clone())
             .or_else(|| Some(Format::from_path(source)));
-        let node = codecs::from_path(source, options).await?;
+        let node = stencila_codecs::from_path(source, options).await?;
 
         self.update(Update {
             node,
@@ -627,7 +627,7 @@ impl Document {
             format: Some(format),
             ..options.unwrap_or_default()
         };
-        codecs::to_string(&root, Some(options)).await
+        stencila_codecs::to_string(&root, Some(options)).await
     }
 
     /// Export a document to a file
@@ -640,7 +640,7 @@ impl Document {
     pub async fn export(&self, dest: &Path, options: Option<EncodeOptions>) -> Result<bool> {
         let root = self.root.read().await;
 
-        codecs::to_path(&root, dest, options).await
+        stencila_codecs::to_path(&root, dest, options).await
     }
 
     /// Save the document to its source file
@@ -867,7 +867,7 @@ impl Document {
             let poshmap = if !(format.is_binary() || format.is_lossless()) {
                 source = read_to_string(path).await?;
 
-                let (content, info) = codecs::to_string_with_info(
+                let (content, info) = stencila_codecs::to_string_with_info(
                     &*self.root.read().await,
                     Some(EncodeOptions {
                         format: Some(format),

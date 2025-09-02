@@ -2,7 +2,7 @@ use base64::{Engine, engine::general_purpose::STANDARD};
 use serde::Deserialize;
 use url::Url;
 
-use codec::eyre::{Result, bail};
+use stencila_codec::eyre::{Result, bail};
 
 use crate::client::{api_url, request};
 
@@ -168,7 +168,7 @@ pub(super) async fn fetch_github_file(file_info: &GithubFileInfo) -> Result<Vec<
 
 #[cfg(test)]
 mod tests {
-    use codec::eyre::OptionExt;
+    use stencila_codec::eyre::OptionExt;
 
     use super::*;
 

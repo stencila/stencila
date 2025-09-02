@@ -6,12 +6,12 @@ use winnow::{
     token::{any, take_while},
 };
 
-use codec::{
+use stencila_codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, NodeType, async_trait,
     eyre::Result,
-    format::Format,
-    schema::{Inline, Link, Node, Paragraph, shortcuts::t},
-    status::Status,
+    stencila_format::Format,
+    stencila_schema::{Inline, Link, Node, Paragraph, shortcuts::t},
+    stencila_status::Status,
 };
 
 /// A codec for links within a document

@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
-use codec_html_trait::encode::{attr, elem};
-use node_store::{
+use stencila_codec_html_trait::encode::{attr, elem};
+use stencila_node_store::{
     ReadNode, ReadStore, WriteNode, WriteStore,
     automerge::{ObjId, ObjType, Prop, Value, iter::MapRangeItem, transaction::Transactable},
 };

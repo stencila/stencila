@@ -23,8 +23,8 @@ impl Heading {
     }
 }
 
-impl From<&schema::Heading> for Heading {
-    fn from(heading: &schema::Heading) -> Self {
+impl From<&stencila_schema::Heading> for Heading {
+    fn from(heading: &stencila_schema::Heading) -> Self {
         Self {
             level: heading.level as i32,
             content: to_markdown(&heading.content),

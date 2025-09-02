@@ -6,12 +6,12 @@ use layout::{
 };
 use regex::Regex;
 
-use kernel::{
+use stencila_kernel::{
     Kernel, KernelInstance, KernelType, async_trait,
     eyre::Result,
-    format::Format,
     generate_id,
-    schema::{
+    stencila_format::Format,
+    stencila_schema::{
         ExecutionBounds, ExecutionMessage, ImageObject, MessageLevel, Node, SoftwareApplication,
         SoftwareApplicationOptions,
     },

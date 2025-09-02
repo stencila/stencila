@@ -28,8 +28,8 @@ impl Table {
     }
 }
 
-impl From<&schema::Table> for Table {
-    fn from(table: &schema::Table) -> Self {
+impl From<&stencila_schema::Table> for Table {
+    fn from(table: &stencila_schema::Table) -> Self {
         Self {
             label: table.label.clone(),
             caption: table.caption.as_ref().map(to_markdown),

@@ -1,11 +1,11 @@
 [package]
-name = "node-map"
+name = "stencila-node-map"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 indexmap = { workspace = true }
-schema = { path = "../schema" }
+stencila-schema = { path = "../schema" }
 
 [lints]
 workspace = true

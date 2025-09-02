@@ -1,10 +1,10 @@
 [package]
-name = "codec-debug"
+name = "stencila-codec-debug"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec = { path = "../codec" }
+stencila-codec = { path = "../codec" }
 
 [lints]
 workspace = true

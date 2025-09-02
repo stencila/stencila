@@ -1,8 +1,8 @@
 use eyre::{Result, bail};
 
-use node_canonicalize::canonicalize;
 use pretty_assertions::assert_eq;
-use schema::{Node, Person};
+use stencila_node_canonicalize::canonicalize;
+use stencila_schema::{Node, Person};
 
 /// Person with ORCID on OpenAlex should get ORCID
 #[tokio::test]

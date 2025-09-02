@@ -1,11 +1,11 @@
 [package]
-name = "kernel-mermaid"
+name = "stencila-kernel-mermaid"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-kernel = { path = "../kernel" }
-kernel-jinja = { path = "../kernel-jinja" }
+stencila-kernel = { path = "../kernel" }
+stencila-kernel-jinja = { path = "../kernel-jinja" }
 tracing = { workspace = true }
 
 [dev-dependencies]

@@ -20,12 +20,12 @@ use tokio::{
     sync::{mpsc, watch},
 };
 
-use kernel::{
+use stencila_kernel::{
     Kernel, KernelInstance, KernelSignal, KernelStatus, KernelTerminate, async_trait,
     eyre::{Result, bail, eyre},
-    format::Format,
     generate_id,
-    schema::{
+    stencila_format::Format,
+    stencila_schema::{
         Array, ArrayHint, CodeLocation, ExecutionBounds, ExecutionMessage, Hint, MessageLevel,
         Node, NodeType, Null, Object, ObjectHint, Primitive, SoftwareApplication,
         SoftwareApplicationOptions, SoftwareSourceCode, StringHint, Variable,
@@ -33,7 +33,7 @@ use kernel::{
 };
 
 // Re-export primarily for use by the `prompt` crate
-pub use kernel;
+pub use stencila_kernel;
 
 /// A kernel for executing JavaScript using the QuickJS engine.
 #[derive(Default)]
@@ -848,11 +848,13 @@ impl<'js> Console<'js> {
 #[cfg(test)]
 mod tests {
     use indexmap::IndexMap;
-    use kernel::{
-        schema::{Array, ArrayHint, Hint, Node, Object, ObjectHint, Primitive, StringHint},
+    use pretty_assertions::assert_eq;
+    use stencila_kernel::{
+        stencila_schema::{
+            Array, ArrayHint, Hint, Node, Object, ObjectHint, Primitive, StringHint,
+        },
         tests::{create_instance, start_instance},
     };
-    use pretty_assertions::assert_eq;
 
     use super::*;
 
@@ -869,7 +871,7 @@ mod tests {
             return Ok(());
         };
 
-        kernel::tests::execution(
+        stencila_kernel::tests::execution(
             instance,
             vec![
                 // Empty code: no outputs
@@ -930,7 +932,7 @@ console.log(a, b, c, d)",
             return Ok(());
         };
 
-        kernel::tests::evaluation(
+        stencila_kernel::tests::evaluation(
             instance,
             vec![
                 ("1 + 1", Node::Integer(2), None),
@@ -975,7 +977,7 @@ console.log(a, b, c, d)",
             return Ok(());
         };
 
-        kernel::tests::printing(
+        stencila_kernel::tests::printing(
             instance,
             r#"console.log('str')"#,
             r#"console.log('str1', 'str2')"#,
@@ -1101,7 +1103,7 @@ console.error("Error message");
             return Ok(());
         };
 
-        let sw = kernel::tests::info(instance).await?;
+        let sw = stencila_kernel::tests::info(instance).await?;
         assert_eq!(sw.name, "QuickJS");
         assert!(sw.options.software_version.is_some());
         assert!(sw.options.operating_system.is_some());
@@ -1116,7 +1118,7 @@ console.error("Error message");
             return Ok(());
         };
 
-        let pkgs = kernel::tests::packages(instance).await?;
+        let pkgs = stencila_kernel::tests::packages(instance).await?;
         assert!(pkgs.is_empty());
 
         Ok(())
@@ -1129,7 +1131,7 @@ console.error("Error message");
             return Ok(());
         };
 
-        kernel::tests::var_listing(
+        stencila_kernel::tests::var_listing(
             instance,
             r#"
 var nul = null;
@@ -1220,7 +1222,7 @@ var para = {type: "Paragraph", content:[]}
             return Ok(());
         };
 
-        kernel::tests::var_management(instance).await
+        stencila_kernel::tests::var_management(instance).await
     }
 
     /// Standard kernel test for forking
@@ -1230,6 +1232,6 @@ var para = {type: "Paragraph", content:[]}
             return Ok(());
         };
 
-        kernel::tests::forking(instance).await
+        stencila_kernel::tests::forking(instance).await
     }
 }

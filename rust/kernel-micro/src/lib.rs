@@ -20,16 +20,16 @@ use which::which;
 
 // Re-exports for the convenience of internal crates implementing
 // the `Microkernel` trait
-pub use kernel::{
+pub use stencila_kernel::{
     Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelProvider,
-    KernelSignal, KernelStatus, KernelTerminate, eyre, format, schema, tests,
+    KernelSignal, KernelStatus, KernelTerminate, eyre, stencila_format, stencila_schema, tests,
 };
 
-use kernel::{
+use stencila_kernel::{
     async_trait,
     eyre::{Context, OptionExt, Result, bail, eyre},
     generate_id,
-    schema::{
+    stencila_schema::{
         ExecutionBounds, ExecutionMessage, MessageLevel, Node, Null, SoftwareApplication,
         SoftwareSourceCode, Variable,
     },
@@ -138,7 +138,8 @@ pub trait Microkernel: Sync + Send + Kernel {
 
         // Always write the script file, even if it already exists, to allow for changes
         // to the microkernel's script
-        let kernels_dir: PathBuf = dirs::get_app_dir(dirs::DirType::Kernels, true)?;
+        let kernels_dir: PathBuf =
+            stencila_dirs::get_app_dir(stencila_dirs::DirType::Kernels, true)?;
         let (script_name, script) = self.microkernel_script();
         let script_file = kernels_dir.join(script_name);
         write(&script_file, script)?;

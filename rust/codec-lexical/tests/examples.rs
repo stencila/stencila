@@ -3,9 +3,9 @@ use std::{fs::read_to_string, path::PathBuf, sync::LazyLock};
 use glob::glob;
 use regex::Regex;
 
-use codec::{EncodeOptions, eyre::Result, format::Format};
-use codec_lexical::{decode, encode};
 use insta::{assert_json_snapshot, assert_snapshot, assert_yaml_snapshot};
+use stencila_codec::{EncodeOptions, eyre::Result, stencila_format::Format};
+use stencila_codec_lexical::{decode, encode};
 
 /// Decode each example of a Lexical document and create JSON and Lexical snapshots
 /// including snapshots for losses

@@ -1,4 +1,4 @@
-use schema::{CompilationMessage, MathInline};
+use stencila_schema::{CompilationMessage, MathInline};
 
 use crate::prelude::*;
 
@@ -8,7 +8,7 @@ impl Executable for MathInline {
         let node_id = self.node_id();
 
         // Parse the code to determine if it or the language has changed since last time
-        let info = parsers::parse(
+        let info = stencila_parsers::parse(
             &self.code,
             &self.math_language,
             &self.options.compilation_digest,

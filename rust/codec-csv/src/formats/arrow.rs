@@ -2,7 +2,7 @@ use std::path::Path;
 
 use polars::prelude::*;
 
-use codec::eyre::Result;
+use stencila_codec::eyre::Result;
 
 /// Read an Arrow IPC file into a Polars [`DataFrame`].
 ///

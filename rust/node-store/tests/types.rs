@@ -5,9 +5,11 @@ use serde_json::json;
 
 use pretty_assertions::assert_eq;
 
-use schema::{Array, Article, Block, Cord, Inline, Node, Null, Object, Paragraph, Primitive, Text};
+use stencila_schema::{
+    Array, Article, Block, Cord, Inline, Node, Null, Object, Paragraph, Primitive, Text,
+};
 
-use node_store::{ReadNode, WriteNode, WriteStore};
+use stencila_node_store::{ReadNode, WriteNode, WriteStore};
 
 /// Test loading & dumping of `Primitive` nodes
 #[test]

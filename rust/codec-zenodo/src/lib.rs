@@ -3,20 +3,21 @@ use std::path::PathBuf;
 use serde::de::DeserializeOwned;
 use tokio::fs::write;
 
-use codec::{
+use stencila_codec::{
     Codec, DecodeInfo, DecodeOptions, async_trait,
-    eyre::{Result, bail},
-    format::Format,
-    schema::{
-        Article, Datatable, Node, SoftwareSourceCode, SoftwareSourceCodeOptions, StringOrNumber,
+    eyre::{Result, bail, eyre},
+    stencila_format::Format,
+    stencila_schema::{
+        Article, Datatable, Node, PropertyValueOrString, SoftwareSourceCode,
+        SoftwareSourceCodeOptions, StringOrNumber,
     },
-    status::Status,
+    stencila_status::Status,
 };
-use codec_csv::CsvCodec;
-use codec_ipynb::IpynbCodec;
-use codec_latex::LatexCodec;
-use codec_markdown::MarkdownCodec;
-use codec_xlsx::XlsxCodec;
+use stencila_codec_csv::CsvCodec;
+use stencila_codec_ipynb::IpynbCodec;
+use stencila_codec_latex::LatexCodec;
+use stencila_codec_markdown::MarkdownCodec;
+use stencila_codec_xlsx::XlsxCodec;
 
 pub mod client;
 pub mod decode;
@@ -153,22 +154,20 @@ impl ZenodoCodec {
                 options.repository = repository;
                 options.url = doi_url.clone();
                 options.version = version.map(StringOrNumber::String);
-                options.identifiers =
-                    doi_url.map(|url| vec![codec::schema::PropertyValueOrString::String(url)]);
+                options.identifiers = doi_url.map(|url| vec![PropertyValueOrString::String(url)]);
             }
             Node::SoftwareSourceCode(code) => {
                 code.repository = repository;
                 code.version = version.map(StringOrNumber::String);
                 code.options.url = doi_url.clone();
                 code.options.identifiers =
-                    doi_url.map(|url| vec![codec::schema::PropertyValueOrString::String(url)]);
+                    doi_url.map(|url| vec![PropertyValueOrString::String(url)]);
             }
             Node::Datatable(Datatable { options, .. }) => {
                 options.repository = repository;
                 options.url = doi_url.clone();
                 options.version = version.map(StringOrNumber::String);
-                options.identifiers =
-                    doi_url.map(|url| vec![codec::schema::PropertyValueOrString::String(url)]);
+                options.identifiers = doi_url.map(|url| vec![PropertyValueOrString::String(url)]);
             }
             _ => {
                 // For other node types, we don't set these properties
@@ -237,7 +236,7 @@ fn select_primary_file(record: &Record) -> Result<&responses::FileInfo> {
     record
         .files
         .first()
-        .ok_or_else(|| codec::eyre::eyre!("No files available in Zenodo record"))
+        .ok_or_else(|| eyre!("No files available in Zenodo record"))
 }
 
 /// Decode a Stencila [`Node`] from a Zenodo response JSON of known type

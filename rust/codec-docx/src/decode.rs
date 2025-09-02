@@ -3,11 +3,11 @@ use std::{fs::File, io::Read, path::Path};
 use roxmltree::Document;
 use zip::ZipArchive;
 
-use codec::{
-    eyre::{Context, Result, eyre},
-    schema::Primitive,
-};
 use indexmap::IndexMap;
+use stencila_codec::{
+    eyre::{Context, Result, eyre},
+    stencila_schema::Primitive,
+};
 
 /// Read embedded files and custom properties from a DOCX into a map of [`Primitive`] nodes
 /// for the `extra`, and other properties, of an `Article`

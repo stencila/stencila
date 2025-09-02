@@ -1,18 +1,18 @@
 use reqwest::Url;
 
-use codec::{
-    eyre::Result,
-    schema::{
-        Author, Cord, CreativeWorkType, Date, Inline, IntegerOrString, Organization, Person,
-        PersonOrOrganization, PostalAddressOrString, Primitive, PropertyValue,
-        PropertyValueOrString, Reference, StringOrNumber, Text,
-    },
-};
 use hayagriva::{
     Entry,
     types::{
         Date as HDate, EntryType, FormatString, MaybeTyped, Numeric, PageRanges, PageRangesPart,
         Person as HPerson, QualifiedUrl, SerialNumber,
+    },
+};
+use stencila_codec::{
+    eyre::Result,
+    stencila_schema::{
+        Author, Cord, CreativeWorkType, Date, Inline, IntegerOrString, Organization, Person,
+        PersonOrOrganization, PostalAddressOrString, Primitive, PropertyValue,
+        PropertyValueOrString, Reference, StringOrNumber, Text,
     },
 };
 

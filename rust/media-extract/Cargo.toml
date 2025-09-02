@@ -1,12 +1,12 @@
 [package]
-name = "media-extract"
+name = "stencila-media-extract"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 eyre = { workspace = true }
-images = { path = "../images" }
-schema = { path = "../schema" }
+stencila-images = { path = "../images" }
+stencila-schema = { path = "../schema" }
 tracing = { workspace = true }
 
 [lints]

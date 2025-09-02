@@ -13,8 +13,8 @@ use reqwest::{
 use serde::de::DeserializeOwned;
 use tokio::time::Instant;
 
-use codec::eyre::{Result, bail};
-use version::STENCILA_USER_AGENT;
+use stencila_codec::eyre::{Result, bail};
+use stencila_version::STENCILA_USER_AGENT;
 
 const API_BASE_URL: &str = "https://zenodo.org/api";
 
@@ -88,7 +88,7 @@ where
 {
     tracing::debug!("Making Zenodo API request");
 
-    let token = secrets::env_or_get("ZENODO_TOKEN").ok();
+    let token = stencila_secrets::env_or_get("ZENODO_TOKEN").ok();
 
     apply_rate_limiting(token.is_some()).await?;
 

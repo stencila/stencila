@@ -1,6 +1,7 @@
-use kernel_micro::{
+use stencila_kernel_micro::{
     Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelProvider,
-    KernelTerminate, Microkernel, eyre::Result, format::Format, schema::ExecutionBounds,
+    KernelTerminate, Microkernel, eyre::Result, stencila_format::Format,
+    stencila_schema::ExecutionBounds,
 };
 
 /// A kernel for executing Python code
@@ -77,9 +78,10 @@ impl Microkernel for PythonKernel {
 #[allow(clippy::print_stderr, clippy::unwrap_used)]
 mod tests {
     use indexmap::IndexMap;
-    use kernel_micro::{
+    use pretty_assertions::assert_eq;
+    use stencila_kernel_micro::{
         eyre::{Ok, bail},
-        schema::{
+        stencila_schema::{
             Array, ArrayHint, ArrayValidator, BooleanValidator, CodeLocation, Datatable,
             DatatableColumn, DatatableColumnHint, DatatableHint, Hint, ImageObject,
             IntegerValidator, MessageLevel, Node, Null, NumberValidator, Object, ObjectHint,
@@ -87,7 +89,6 @@ mod tests {
         },
         tests::{create_instance, start_instance, start_instance_with},
     };
-    use pretty_assertions::assert_eq;
 
     use super::*;
 
@@ -104,7 +105,7 @@ mod tests {
             return Ok(());
         };
 
-        kernel_micro::tests::execution(
+        stencila_kernel_micro::tests::execution(
             instance,
             vec![
                 // Empty code: no outputs
@@ -283,7 +284,7 @@ finally:
             }
         };
 
-        kernel_micro::tests::evaluation(
+        stencila_kernel_micro::tests::evaluation(
             instance,
             vec![
                 ("1 + 1", Node::Integer(2), None),
@@ -412,7 +413,7 @@ warnings.warn('This is a warning message', UserWarning)
             return Ok(());
         };
 
-        kernel_micro::tests::printing(
+        stencila_kernel_micro::tests::printing(
             instance,
             r#"print('str')"#,
             r#"print('str1', 'str2')"#,
@@ -529,7 +530,7 @@ baz()
             return Ok(());
         };
 
-        let sw = kernel_micro::tests::info(instance).await?;
+        let sw = stencila_kernel_micro::tests::info(instance).await?;
         assert_eq!(sw.name, "Python");
         assert!(sw.options.software_version.is_some());
         assert!(sw.options.software_version.unwrap().starts_with("3."));
@@ -545,7 +546,7 @@ baz()
             return Ok(());
         };
 
-        let pkgs = kernel_micro::tests::packages(instance).await?;
+        let pkgs = stencila_kernel_micro::tests::packages(instance).await?;
         assert!(!pkgs.is_empty());
 
         Ok(())
@@ -558,7 +559,7 @@ baz()
             return Ok(());
         };
 
-        kernel_micro::tests::var_listing(
+        stencila_kernel_micro::tests::var_listing(
             instance,
             r#"
 nul = None
@@ -671,7 +672,7 @@ para = {'type':'Paragraph', 'content':[]}
             return Ok(());
         };
 
-        kernel_micro::tests::var_management(instance).await
+        stencila_kernel_micro::tests::var_management(instance).await
     }
 
     /// `PythonKernel` specific test for `list` and `get` with `numpy.ndarray`s
@@ -1335,7 +1336,7 @@ m2",
             return Ok(());
         };
 
-        kernel_micro::tests::forking(instance).await
+        stencila_kernel_micro::tests::forking(instance).await
     }
 
     /// Custom test to check that modules imported in the main kernel instance are
@@ -1419,7 +1420,7 @@ print(type(sys), type(datetime), type(glob))
             return Ok(());
         };
 
-        kernel_micro::tests::signals(
+        stencila_kernel_micro::tests::signals(
             instance,
             "
 # Setup step
@@ -1450,7 +1451,7 @@ sleep(100)",
             return Ok(());
         };
 
-        kernel_micro::tests::stop(instance).await
+        stencila_kernel_micro::tests::stop(instance).await
     }
 
     /// `PythonKernel` specific test that imported modules are available in functions

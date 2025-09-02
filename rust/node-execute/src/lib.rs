@@ -10,16 +10,17 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tokio::sync::{RwLock, RwLockWriteGuard, mpsc, oneshot};
 
-use codecs::{DecodeOptions, Format};
-use kernels::Kernels;
-use prompts::prompt::{DocumentContext, InstructionContext};
-use schema::{
-    AuthorRole, AuthorRoleName, Block, Citation, CompilationMessage, Config, ExecutionBounds,
-    ExecutionMode, ExecutionRequired, ExecutionStatus, Inline, LabelType, Link, List, ListItem,
-    ListOrder, Node, NodeId, NodePath, NodeProperty, NodeType, Paragraph, Patch, PatchNode,
-    PatchOp, PatchValue, Reference, Timestamp, VisitorAsync, WalkControl, WalkNode,
-};
+use stencila_codecs::{DecodeOptions, Format};
+use stencila_kernels::Kernels;
 use stencila_linters::LintingOptions;
+use stencila_prompts::stencila_prompt::{DocumentContext, InstructionContext};
+use stencila_schema::{
+    AuthorRole, AuthorRoleName, Block, Citation, CompilationMessage, Config, ExecutionBounds,
+    ExecutionMode, ExecutionRequired, ExecutionStatus, IfBlockClause, Inline, LabelType, Link,
+    List, ListItem, ListOrder, Node, NodeId, NodePath, NodeProperty, NodeType, Paragraph, Patch,
+    PatchNode, PatchOp, PatchValue, Reference, SuggestionBlock, Timestamp, VisitorAsync,
+    WalkControl, WalkNode,
+};
 
 type NodeIds = Vec<NodeId>;
 
@@ -920,7 +921,7 @@ impl Executor {
             // operations on it e.g. execution have the correct line numberings etc
             // Currently just debug level logging of errors but that may need
             // to be revisited later?
-            if let Err(error) = schema::patch(node, patch.clone()) {
+            if let Err(error) = stencila_schema::patch(node, patch.clone()) {
                 tracing::debug!("While applying local linting patch: {error}");
             }
         }
@@ -1137,24 +1138,16 @@ impl Executor {
     }
 
     /// Patch several properties of a node and attribute authorship
-    pub fn patch_with_authors<P>(
-        &self,
-        node_id: &NodeId,
-        authors: Vec<schema::AuthorRole>,
-        pairs: P,
-    ) where
+    pub fn patch_with_authors<P>(&self, node_id: &NodeId, authors: Vec<AuthorRole>, pairs: P)
+    where
         P: IntoIterator<Item = (NodeProperty, PatchOp)>,
     {
         self.send_patch_ops(node_id, Some(authors), pairs)
     }
 
     /// Send patch operations reflecting a change in the state of a node during execution
-    fn send_patch_ops<P>(
-        &self,
-        node_id: &NodeId,
-        authors: Option<Vec<schema::AuthorRole>>,
-        pairs: P,
-    ) where
+    fn send_patch_ops<P>(&self, node_id: &NodeId, authors: Option<Vec<AuthorRole>>, pairs: P)
+    where
         P: IntoIterator<Item = (NodeProperty, PatchOp)>,
     {
         let Some(sender) = &self.patch_sender else {
@@ -1239,17 +1232,11 @@ impl VisitorAsync for Executor {
         })
     }
 
-    async fn visit_suggestion_block(
-        &mut self,
-        block: &mut schema::SuggestionBlock,
-    ) -> Result<WalkControl> {
+    async fn visit_suggestion_block(&mut self, block: &mut SuggestionBlock) -> Result<WalkControl> {
         Ok(self.visit_executable(block).await)
     }
 
-    async fn visit_if_block_clause(
-        &mut self,
-        block: &mut schema::IfBlockClause,
-    ) -> Result<WalkControl> {
+    async fn visit_if_block_clause(&mut self, block: &mut IfBlockClause) -> Result<WalkControl> {
         Ok(self.visit_executable(block).await)
     }
 

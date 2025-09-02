@@ -1,7 +1,9 @@
 use itertools::Itertools;
 
-use codec::schema::{Citation, CitationGroup, CitationOptions, Inline, Superscript, Text};
-use codec_text_trait::to_text;
+use stencila_codec::stencila_schema::{
+    Citation, CitationGroup, CitationOptions, Inline, Superscript, Text,
+};
+use stencila_codec_text_trait::to_text;
 
 /// Normalize a vector of Stencila inlines to:
 ///

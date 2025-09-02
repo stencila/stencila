@@ -16,8 +16,8 @@ pub struct MathInline {
     markdown: String,
 }
 
-impl From<&schema::MathInline> for MathInline {
-    fn from(math_block: &schema::MathInline) -> Self {
+impl From<&stencila_schema::MathInline> for MathInline {
+    fn from(math_block: &stencila_schema::MathInline) -> Self {
         Self {
             language: math_block.math_language.clone(),
             markdown: to_markdown(math_block),

@@ -1,4 +1,4 @@
-use schema::{CodeExpression, ExecutionMode};
+use stencila_schema::{CodeExpression, ExecutionMode};
 
 use crate::{interrupt_impl, prelude::*};
 
@@ -12,7 +12,7 @@ impl Executable for CodeExpression {
         let lang = executor.programming_language(&self.programming_language);
 
         // Parse the code to determine if it or the language has changed since last time
-        let info = parsers::parse(&self.code, &lang, &self.options.compilation_digest);
+        let info = stencila_parsers::parse(&self.code, &lang, &self.options.compilation_digest);
 
         // Add code to the linting context
         executor.linting_code(&node_id, &self.code.to_string(), &lang, info.changed.yes());

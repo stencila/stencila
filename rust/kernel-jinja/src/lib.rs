@@ -6,21 +6,21 @@ use std::{
 
 use minijinja::{Environment, Error, Value, context, value::Object};
 
-use kernel::{
+use stencila_kernel::{
     Kernel, KernelInstance, KernelType, KernelVariableRequest, KernelVariableRequester,
     KernelVariableResponder, async_trait,
     eyre::{Report, Result, eyre},
-    format::Format,
     generate_id,
-    schema::{
+    stencila_format::Format,
+    stencila_schema::{
         CodeLocation, ExecutionBounds, ExecutionMessage, MessageLevel, Node, Null,
         SoftwareApplication, SoftwareApplicationOptions,
     },
 };
 
 // Re-exports for dependants
-pub use kernel;
 pub use minijinja;
+pub use stencila_kernel;
 
 const NAME: &str = "jinja";
 

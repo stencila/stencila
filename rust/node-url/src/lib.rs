@@ -11,9 +11,9 @@ use serde::{Serialize, de::DeserializeOwned};
 use strum::{Display, EnumString};
 use url::Url;
 
-use node_id::NodeId;
-use node_path::NodePath;
-use node_type::NodeType;
+use stencila_node_id::NodeId;
+use stencila_node_path::NodePath;
+use stencila_node_type::NodeType;
 
 const BASE_URL: &str = "https://stencila.link";
 

@@ -34,8 +34,8 @@ impl Node {
     }
 }
 
-impl From<&schema::Node> for Node {
-    fn from(node: &schema::Node) -> Self {
+impl From<&stencila_schema::Node> for Node {
+    fn from(node: &stencila_schema::Node) -> Self {
         Self {
             r#type: node.node_type().to_string(),
             json: serde_json::to_string_pretty(node).unwrap_or_default(),

@@ -1,4 +1,4 @@
-use format::Format;
+use stencila_format::Format;
 
 use crate::{AuthorRole, AuthorRoleName, SoftwareApplication, Timestamp};
 

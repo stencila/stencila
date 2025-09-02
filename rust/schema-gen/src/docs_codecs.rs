@@ -12,8 +12,8 @@ use inflector::Inflector;
 use itertools::Itertools;
 use strum::IntoEnumIterator;
 
-use codecs::{CodecSupport, EncodeOptions, Format};
-use schema::{Article, Inline, Node, NodeType, TableCell, shortcuts::*};
+use stencila_codecs::{CodecSupport, EncodeOptions, Format};
+use stencila_schema::{Article, Inline, Node, NodeType, TableCell, shortcuts::*};
 
 use crate::{
     schema::{Category, HtmlOptions, JatsOptions, MarkdownOptions, Schema},
@@ -48,7 +48,7 @@ impl Schemas {
             };
             let format = Format::from_name(name.to_string_lossy().as_ref());
 
-            let Ok(codec) = codecs::get(None, Some(&format), None) else {
+            let Ok(codec) = stencila_codecs::get(None, Some(&format), None) else {
                 continue;
             };
 
@@ -151,7 +151,7 @@ impl Schemas {
                 ..Default::default()
             };
 
-            let md = codecs::to_string(
+            let md = stencila_codecs::to_string(
                 &Node::Article(article),
                 Some(EncodeOptions {
                     format: Some(Format::Markdown),

@@ -1,14 +1,14 @@
 [package]
-name = "kernel-quickjs"
+name = "stencila-kernel-quickjs"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-kernel = { path = "../kernel" }
-rquickjs = { version = "0.9.0", features = ["futures", "macro", "parallel"] }
 indexmap = { workspace = true }
 regex = { workspace = true }
+rquickjs = { version = "0.9.0", features = ["futures", "macro", "parallel"] }
 serde_json = { workspace = true }
+stencila-kernel = { path = "../kernel" }
 tokio = { workspace = true }
 tracing = { workspace = true }
 

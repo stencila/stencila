@@ -1,16 +1,16 @@
 [package]
-name = "prompt"
+name = "stencila-prompt"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec-markdown-trait = { path = "../codec-markdown-trait" }
 itertools = { workspace = true }
-kernel-quickjs = { path = "../kernel-quickjs" }
-kernels = { path = "../kernels" }
 regex = { workspace = true }
 rquickjs = { version = "0.9.0", features = ["futures", "macro", "parallel"] }
 serde_json = { workspace = true }
+stencila-codec-markdown-trait = { path = "../codec-markdown-trait" }
+stencila-kernel-quickjs = { path = "../kernel-quickjs" }
+stencila-kernels = { path = "../kernels" }
 strum = { workspace = true }
 
 [dev-dependencies]

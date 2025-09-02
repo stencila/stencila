@@ -3,12 +3,12 @@ use std::io::Read;
 
 use reqwest::Response;
 
-use codec::{
+use stencila_codec::{
     Codec, DecodeInfo, DecodeOptions,
     eyre::{Context, Result, bail},
-    schema::Node,
+    stencila_schema::Node,
 };
-use codec_latex::LatexCodec;
+use stencila_codec_latex::LatexCodec;
 
 use super::decode::arxiv_id_to_doi;
 

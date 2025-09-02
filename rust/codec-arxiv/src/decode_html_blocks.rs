@@ -1,9 +1,9 @@
 use tl::{HTMLTag, Parser};
 
-use codec::schema::{
-    AppendixBreak, Block, Claim, ClaimType, CodeBlock, Figure, HorizontalAlignment, ImageObject,
-    Inline, List, ListItem, ListOrder, MathBlock, RawBlock, Section, SectionType, Table, TableCell,
-    TableCellType, TableRow, TableRowType,
+use stencila_codec::stencila_schema::{
+    AppendixBreak, Block, Claim, ClaimType, CodeBlock, Figure, Heading, HorizontalAlignment,
+    ImageObject, Inline, List, ListItem, ListOrder, MathBlock, RawBlock, Section, SectionType,
+    Table, TableCell, TableCellType, TableRow, TableRowType,
     shortcuts::{p, t},
 };
 
@@ -595,7 +595,7 @@ pub fn decode_heading(
         }
     };
 
-    Block::Heading(codec::schema::Heading {
+    Block::Heading(Heading {
         level,
         label,
         content,
@@ -787,7 +787,6 @@ pub fn decode_math_block(
 
 /// Decode a <p> element into a [`Paragraph`]
 pub fn decode_p(parser: &Parser, tag: &HTMLTag, context: &mut ArxivDecodeContext) -> Block {
-    use codec::schema::shortcuts::p;
     p(decode_inlines(parser, tag, context))
 }
 

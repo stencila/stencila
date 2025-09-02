@@ -24,7 +24,7 @@ impl Sections {
     }
 
     /// Push a section onto the list
-    pub fn push(&mut self, section: &schema::Section) {
+    pub fn push(&mut self, section: &stencila_schema::Section) {
         let section = section
             .section_type
             .as_ref()
@@ -37,14 +37,14 @@ impl Sections {
     ///
     /// This allows us to treat [`schema::Heading`]s as section dividers without requiring.
     /// authors to use the more heavy weight section syntax.
-    pub fn push_heading(&mut self, heading: &schema::Heading) {
+    pub fn push_heading(&mut self, heading: &stencila_schema::Heading) {
         if let Some(section_type) = Self::heading_section_type(heading) {
             self.items.push(section_type.to_string());
         }
     }
 
     /// Enter a section defined by a heading
-    pub fn enter_heading(&mut self, heading: &schema::Heading) {
+    pub fn enter_heading(&mut self, heading: &stencila_schema::Heading) {
         if Self::heading_section_type(heading).is_some() {
             self.enter();
         }
@@ -52,13 +52,15 @@ impl Sections {
 
     /// Returns a [`schema::SectionType`] if the heading if level one and it's content
     /// matches one of the section types
-    fn heading_section_type(heading: &schema::Heading) -> Option<schema::SectionType> {
+    fn heading_section_type(
+        heading: &stencila_schema::Heading,
+    ) -> Option<stencila_schema::SectionType> {
         if heading.level != 1 {
             return None;
         }
 
         let content = to_markdown(&heading.content).to_lowercase();
-        schema::SectionType::from_text(&content).ok()
+        stencila_schema::SectionType::from_text(&content).ok()
     }
 }
 

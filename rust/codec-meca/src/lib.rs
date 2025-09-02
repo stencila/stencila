@@ -1,8 +1,8 @@
 use std::path::Path;
 
-use codec::{
+use stencila_codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, NodeType, async_trait, eyre::Result,
-    format::Format, schema::Node, status::Status,
+    stencila_format::Format, stencila_schema::Node, stencila_status::Status,
 };
 
 mod decode;

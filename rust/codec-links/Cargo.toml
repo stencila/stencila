@@ -1,11 +1,11 @@
 [package]
-name = "codec-links"
+name = "stencila-codec-links"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec = { path = "../codec" }
 Inflector = { workspace = true }
+stencila-codec = { path = "../codec" }
 winnow = "0.7.12"
 
 [dev-dependencies]

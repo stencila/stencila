@@ -10,9 +10,9 @@ use async_lsp::{
 };
 use tokio::sync::RwLock;
 
-use codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext, to_markdown};
-use document::Document;
-use schema::{Citation, CodeChunk, CodeExpression, Node, NodeId, NodeType, Reference};
+use stencila_codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext, to_markdown};
+use stencila_document::Document;
+use stencila_schema::{Citation, CodeChunk, CodeExpression, Node, NodeId, NodeType, Reference};
 
 use crate::text_document::TextNode;
 

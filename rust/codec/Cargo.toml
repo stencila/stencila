@@ -1,26 +1,26 @@
 [package]
-name = "codec"
+name = "stencila-codec"
 version = "0.0.0"
 edition = "2024"
 
 [features]
-proptest-min = ["schema/proptest-min"]
-proptest-low = ["schema/proptest-low"]
-proptest-high = ["schema/proptest-high"]
-proptest-max = ["schema/proptest-max"]
+proptest-min = ["stencila-schema/proptest-min"]
+proptest-low = ["stencila-schema/proptest-low"]
+proptest-high = ["stencila-schema/proptest-high"]
+proptest-max = ["stencila-schema/proptest-max"]
 
 [dependencies]
 async-trait = { workspace = true }
-codec-info = { path = "../codec-info" }
-codec-utils = { path = "../codec-utils" }
 eyre = { workspace = true }
-format = { path = "../format" }
-node-strip = { path = "../node-strip" }
-schema = { path = "../schema" }
 serde = { workspace = true }
 serde_with = { workspace = true }
 smart-default = { workspace = true }
-status = { path = "../status" }
+stencila-codec-info = { path = "../codec-info" }
+stencila-codec-utils = { path = "../codec-utils" }
+stencila-format = { path = "../format" }
+stencila-node-strip = { path = "../node-strip" }
+stencila-schema = { path = "../schema" }
+stencila-status = { path = "../status" }
 strum = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }

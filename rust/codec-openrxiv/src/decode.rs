@@ -9,10 +9,12 @@ use reqwest::{Client, Response};
 use tempfile::tempdir;
 use tokio::{fs::File, io::AsyncWriteExt};
 
-use codec::{Codec, DecodeInfo, DecodeOptions, format::Format, schema::Node};
-use codec_meca::MecaCodec;
-use codec_pdf::PdfCodec;
-use version::STENCILA_USER_AGENT;
+use stencila_codec::{
+    Codec, DecodeInfo, DecodeOptions, stencila_format::Format, stencila_schema::Node,
+};
+use stencila_codec_meca::MecaCodec;
+use stencila_codec_pdf::PdfCodec;
+use stencila_version::STENCILA_USER_AGENT;
 
 const BIORXIV: &str = "biorxiv.org";
 const MEDRXIV: &str = "medrxiv.org";
@@ -137,7 +139,7 @@ pub(super) async fn decode_openrxiv_id(
         tracing::debug!("Trying `{format}` format: {url}");
 
         let client = if url.contains("stencila.cloud") {
-            cloud::client().await?
+            stencila_cloud::client().await?
         } else {
             Client::builder().user_agent(STENCILA_USER_AGENT).build()?
         };

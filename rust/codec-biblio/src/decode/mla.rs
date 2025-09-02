@@ -7,7 +7,7 @@
 
 use std::str::FromStr;
 
-use codec::schema::{Author, Date, Person};
+use stencila_codec::stencila_schema::{Author, Date, Person};
 use winnow::{
     Parser, Result,
     ascii::{multispace0, multispace1},
@@ -15,7 +15,7 @@ use winnow::{
     token::take_while,
 };
 
-use codec::schema::{
+use stencila_codec::stencila_schema::{
     CreativeWorkType, Organization, PersonOrOrganization, Reference, shortcuts::t,
 };
 
@@ -361,9 +361,9 @@ pub fn mla_editors(input: &mut &str) -> Result<Vec<Person>> {
 
 #[cfg(test)]
 mod tests {
-    use codec::schema::{IntegerOrString, Person};
-    use codec_text_trait::to_text;
     use pretty_assertions::assert_eq;
+    use stencila_codec::stencila_schema::{IntegerOrString, Person};
+    use stencila_codec_text_trait::to_text;
 
     use super::*;
 

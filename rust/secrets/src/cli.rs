@@ -1,10 +1,10 @@
 use std::io::{IsTerminal, Read, stdin};
 
-use ask::ask_for_password;
 use clap::{Args, Parser, Subcommand};
 use eyre::Result;
+use stencila_ask::ask_for_password;
 
-use cli_utils::{
+use stencila_cli_utils::{
     ToStdout,
     color_print::cstr,
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},

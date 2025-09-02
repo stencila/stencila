@@ -3,9 +3,9 @@ use std::{path::PathBuf, process::exit};
 use clap::Parser;
 use eyre::Result;
 
-use cli_utils::color_print::cstr;
-use document::{Document, demo::DemoOptions};
-use node_execute::ExecuteOptions;
+use stencila_cli_utils::color_print::cstr;
+use stencila_document::{Document, demo::DemoOptions};
+use stencila_node_execute::ExecuteOptions;
 
 /// Run a terminal demonstration from a document
 #[derive(Debug, Parser)]

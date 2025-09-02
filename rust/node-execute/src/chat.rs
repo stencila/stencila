@@ -4,9 +4,9 @@ use futures::{StreamExt, stream::FuturesUnordered};
 use itertools::Itertools;
 use serde_json::json;
 
-use models::ModelTask;
-use node_diagnostics::{DiagnosticLevel, diagnostics_gte};
-use schema::{
+use stencila_models::ModelTask;
+use stencila_node_diagnostics::{DiagnosticLevel, diagnostics_gte};
+use stencila_schema::{
     Author, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, ChatMessageGroup,
     ChatMessageOptions, ExecutionBounds, InstructionMessage, InstructionType, MessagePart,
     MessageRole, ModelParameters, NodePath, Patch, SoftwareApplication, authorship,
@@ -250,8 +250,8 @@ impl Executable for Chat {
         // Create an author role for the prompt
         let mut prompt_author_role: Option<AuthorRole> = None;
         if let Some(target) = &self.prompt.target {
-            let target = prompts::expand(target, &self.prompt.instruction_type);
-            if let Ok(prompt) = prompts::get(&target).await {
+            let target = stencila_prompts::expand(target, &self.prompt.instruction_type);
+            if let Ok(prompt) = stencila_prompts::get(&target).await {
                 prompt_author_role = Some(AuthorRole {
                     last_modified: Some(Timestamp::now()),
                     ..prompt.deref().clone().into()
@@ -278,7 +278,7 @@ impl Executable for Chat {
         let model_ids = match &self.model_parameters.model_ids {
             Some(ids) => ids.clone(),
             // If no model ids specified, use the first available model
-            None => models::list()
+            None => stencila_models::list()
                 .await
                 .into_iter()
                 .find(|model| model.is_available())
@@ -292,7 +292,7 @@ impl Executable for Chat {
             .flat_map(|x| vec![x; replicates])
             .cloned()
             .collect_vec();
-        let models = models::list().await;
+        let models = stencila_models::list().await;
         let mut chat_messages = model_ids
             .iter()
             .map(|model_id| {

@@ -1,12 +1,12 @@
 [package]
-name = "kernel-tex"
+name = "stencila-kernel-tex"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-kernel = { path = "../kernel" }
 latex2mathml = { git = "https://github.com/TheClams/latex2mathml", rev = "26cdf2be7f58663b3274fadf4118e9ec86ca21ce" }
 regex = { workspace = true }
+stencila-kernel = { path = "../kernel" }
 tracing = { workspace = true }
 
 [dev-dependencies]

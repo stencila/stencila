@@ -8,7 +8,7 @@ use eyre::Result;
 use glob::{MatchOptions, glob, glob_with};
 use itertools::Itertools;
 
-use format::Format;
+use stencila_format::Format;
 
 use crate::Document;
 

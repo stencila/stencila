@@ -2,12 +2,12 @@ use clap::{Args, Parser, Subcommand};
 use serde::Serialize;
 use strum::IntoEnumIterator;
 
-use cli_utils::{
+use stencila_cli_utils::{
     AsFormat, Code, Tabulated, ToStdout,
     color_print::cstr,
     tabulated::{Attribute, Cell, Color},
 };
-use codec::{CodecAvailability, CodecDirection, eyre::Result, format::Format};
+use stencila_codec::{CodecAvailability, CodecDirection, eyre::Result, stencila_format::Format};
 
 /// List the support for formats
 #[derive(Debug, Parser)]

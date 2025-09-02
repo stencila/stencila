@@ -1,4 +1,4 @@
-use schema::{CompilationMessage, StyledBlock};
+use stencila_schema::{CompilationMessage, StyledBlock};
 
 use crate::prelude::*;
 
@@ -8,7 +8,7 @@ impl Executable for StyledBlock {
         let node_id = self.node_id();
 
         // Parse the code to determine if it or the language has changed since last time
-        let info = parsers::parse(
+        let info = stencila_parsers::parse(
             &self.code,
             &self.style_language,
             &self.options.compilation_digest,

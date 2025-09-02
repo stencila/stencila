@@ -1,22 +1,22 @@
 [package]
-name = "models"
+name = "stencila-models"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 clap = { workspace = true }
-cli-utils = { path = "../cli-utils" }
 futures = { workspace = true }
 itertools = { workspace = true }
-model = { path = "../model" }
-models-anthropic = { path = "../models-anthropic" }
-models-google = { path = "../models-google" }
-models-mistral = { path = "../models-mistral" }
-models-ollama = { path = "../models-ollama" }
-models-openai = { path = "../models-openai" }
-models-stencila = { path = "../models-stencila" }
-plugins = { path = "../plugins" }
 serde_yaml = { workspace = true }
+stencila-cli-utils = { path = "../cli-utils" }
+stencila-model = { path = "../model" }
+stencila-models-anthropic = { path = "../models-anthropic" }
+stencila-models-google = { path = "../models-google" }
+stencila-models-mistral = { path = "../models-mistral" }
+stencila-models-ollama = { path = "../models-ollama" }
+stencila-models-openai = { path = "../models-openai" }
+stencila-models-stencila = { path = "../models-stencila" }
+stencila-plugins = { path = "../plugins" }
 tracing = { workspace = true }
 
 [lints]

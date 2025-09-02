@@ -7,9 +7,9 @@ use serde::Serialize;
 use serde_json::json;
 use strum::Display;
 
-use kernel::{
+use stencila_kernel::{
     eyre::{Report, Result, bail},
-    schema::*,
+    stencila_schema::*,
 };
 
 /// The type of transform to ally when converting Kuzu query result to

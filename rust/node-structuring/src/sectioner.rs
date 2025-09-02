@@ -1,5 +1,5 @@
-use codec_text_trait::to_text;
-use schema::{
+use stencila_codec_text_trait::to_text;
+use stencila_schema::{
     Admonition, AppendixBreak, Article, Block, ForBlock, Heading, IncludeBlock, Node, Section,
     SectionType, StyledBlock, VisitorMut, WalkControl,
 };
@@ -142,7 +142,7 @@ fn create_section_from_heading(heading: &Heading, remaining_blocks: &[Block]) ->
 #[cfg(test)]
 mod tests {
     use pretty_assertions::assert_eq;
-    use schema::shortcuts::{h1, h2, h3, p, t};
+    use stencila_schema::shortcuts::{h1, h2, h3, p, t};
 
     use super::*;
 

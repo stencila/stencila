@@ -1,17 +1,17 @@
 [package]
-name = "codec-rnw"
+name = "stencila-codec-rnw"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec = { path = "../codec" }
-codec-latex = { path = "../codec-latex" }
 itertools = { workspace = true }
 regex = { workspace = true }
+stencila-codec = { path = "../codec" }
+stencila-codec-latex = { path = "../codec-latex" }
 
 [dev-dependencies]
-insta = { workspace = true }
 glob = { workspace = true }
+insta = { workspace = true }
 tokio = { workspace = true }
 
 [lints]

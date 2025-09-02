@@ -11,7 +11,7 @@ use async_lsp::{
     tracing::TracingLayer,
 };
 use eyre::Result;
-use schema::NodeId;
+use stencila_schema::NodeId;
 use tower::ServiceBuilder;
 use tracing_subscriber::filter::LevelFilter;
 

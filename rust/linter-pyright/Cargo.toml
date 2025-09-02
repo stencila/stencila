@@ -7,8 +7,8 @@ edition = "2024"
 serde = { workspace = true }
 serde_json = { workspace = true }
 stencila-linter = { path = "../linter" }
+stencila-tools = { path = "../tools" }
 tempfile = { workspace = true }
-tools = { path = "../tools" }
 tracing = { workspace = true }
 
 [lints]

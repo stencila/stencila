@@ -3,11 +3,11 @@ use std::{path::PathBuf, process::exit};
 use clap::Parser;
 use eyre::{Result, bail, eyre};
 
-use ask::{Answer, AskLevel, AskOptions, ask_with};
-use cli_utils::{Code, ToStdout, color_print::cstr};
-use document::Document;
-use format::Format;
-use node_execute::ExecuteOptions;
+use stencila_ask::{Answer, AskLevel, AskOptions, ask_with};
+use stencila_cli_utils::{Code, ToStdout, color_print::cstr};
+use stencila_document::Document;
+use stencila_format::Format;
+use stencila_node_execute::ExecuteOptions;
 
 use crate::{
     options::{DecodeOptions, EncodeOptions, StripOptions},
@@ -192,7 +192,7 @@ impl Cli {
                 decode_options.format = Some(Format::Markdown)
             }
 
-            let root = codecs::from_stdin(Some(decode_options.clone())).await?;
+            let root = stencila_codecs::from_stdin(Some(decode_options.clone())).await?;
             Document::from(root, None, Some(decode_options)).await?
         } else {
             let decode_options = self
@@ -245,7 +245,7 @@ impl Cli {
                 let content = doc
                     .dump(
                         format.clone(),
-                        Some(codecs::EncodeOptions {
+                        Some(stencila_codecs::EncodeOptions {
                             render: Some(true),
                             ..self.encode_options.build(
                                 input.as_deref(),
@@ -269,7 +269,7 @@ impl Cli {
             let completed = doc
                 .export(
                     output,
-                    Some(codecs::EncodeOptions {
+                    Some(stencila_codecs::EncodeOptions {
                         render: Some(true),
                         ..self.encode_options.build(
                             input.as_deref(),

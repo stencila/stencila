@@ -6,9 +6,9 @@ use std::{
 use stencila_linter::{
     Format, Linter, LinterAvailability, LintingOptions, LintingOutput, NodeType, async_trait,
     eyre::{OptionExt, Result},
-    schema::{AuthorRoleName, SoftwareApplication, Timestamp},
+    stencila_schema::{AuthorRoleName, SoftwareApplication, Timestamp},
 };
-use tools::{R, StyleR, Tool};
+use stencila_tools::{R, StyleR, Tool};
 
 #[derive(Default)]
 pub struct StyleRLinter;

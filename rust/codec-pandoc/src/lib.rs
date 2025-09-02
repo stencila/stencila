@@ -1,10 +1,10 @@
-use codec::{
+use stencila_codec::{
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     async_trait,
     eyre::Result,
-    format::Format,
-    schema::{Node, NodeType},
-    status::Status,
+    stencila_format::Format,
+    stencila_schema::{Node, NodeType},
+    stencila_status::Status,
 };
 
 mod blocks;
@@ -92,7 +92,7 @@ impl Codec for PandocCodec {
 }
 
 pub fn pandoc_availability() -> CodecAvailability {
-    match tools::is_installed("pandoc") {
+    match stencila_tools::is_installed("pandoc") {
         Ok(true) => CodecAvailability::Available,
         _ => CodecAvailability::Installable("pandoc".into()),
     }

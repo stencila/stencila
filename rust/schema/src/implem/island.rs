@@ -1,4 +1,4 @@
-use codec_latex_trait::{latex_to_image, to_latex};
+use stencila_codec_latex_trait::{latex_to_image, to_latex};
 
 use crate::{Island, LabelType, prelude::*};
 

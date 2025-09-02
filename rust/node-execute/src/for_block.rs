@@ -1,5 +1,5 @@
-use codec_cbor::r#trait::CborCodec;
-use schema::{Block, ExecutionMode, ForBlock, Section, SectionType, replicate};
+use stencila_codec_cbor::r#trait::CborCodec;
+use stencila_schema::{Block, ExecutionMode, ForBlock, Section, SectionType, replicate};
 
 use crate::{interrupt_impl, prelude::*};
 
@@ -13,7 +13,7 @@ impl Executable for ForBlock {
         let lang = executor.programming_language(&self.programming_language);
 
         // Parse the code to determine if it or the language has changed since last time
-        let mut info = parsers::parse(&self.code, &lang, &self.options.compilation_digest);
+        let mut info = stencila_parsers::parse(&self.code, &lang, &self.options.compilation_digest);
 
         // Add variable and code to linting context
         executor.linting_variable(&self.variable, &lang, info.changed.yes());

@@ -11,13 +11,13 @@ use eyre::{Result, bail};
 use itertools::Itertools;
 use rand::{Rng, distr::Alphanumeric, rng};
 
-use codec_info::{EncodeInfo, Losses, Mapping, NodeId, NodeProperty, NodeType};
-use codec_utils::{move_file, split_paragraph};
-use format::Format;
-use node_path::{NodePath, NodeSlot};
-use node_url::{NodePosition, NodeUrl};
+use stencila_codec_info::{EncodeInfo, Losses, Mapping, NodeId, NodeProperty, NodeType};
+use stencila_codec_utils::{move_file, split_paragraph};
+use stencila_format::Format;
+use stencila_node_path::{NodePath, NodeSlot};
+use stencila_node_url::{NodePosition, NodeUrl};
 
-pub use codec_latex_derive::LatexCodec;
+pub use stencila_codec_latex_derive::LatexCodec;
 
 mod escape;
 use escape::escape_latex;

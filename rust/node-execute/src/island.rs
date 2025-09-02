@@ -1,4 +1,4 @@
-use schema::{Island, LabelType, NodeProperty};
+use stencila_schema::{Island, LabelType, NodeProperty};
 
 use crate::prelude::*;
 

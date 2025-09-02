@@ -4,28 +4,29 @@ use std::{
     str::FromStr,
 };
 
-use codec_utils::git_info;
 use eyre::{Report, Result, bail};
-use format::Format;
-use node_strip::StripScope;
-use schema::{Article, Node};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use smart_default::SmartDefault;
-use status::Status;
 use strum::{Display, IntoEnumIterator};
 use tokio::{
     fs::{File, create_dir_all},
     io::{AsyncReadExt, AsyncWriteExt},
 };
 
+use stencila_codec_utils::git_info;
+use stencila_format::Format;
+use stencila_node_strip::StripScope;
+use stencila_schema::{Article, Node};
+use stencila_status::Status;
+
 // Re-exports for the convenience of internal crates implementing `Codec`
 pub use async_trait::async_trait;
-pub use codec_info::*;
 pub use eyre;
-pub use format;
-pub use schema;
-pub use status;
+pub use stencila_codec_info::*;
+pub use stencila_format;
+pub use stencila_schema;
+pub use stencila_status;
 
 /// The direction of conversion
 pub enum CodecDirection {

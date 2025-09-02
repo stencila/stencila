@@ -20,10 +20,10 @@ use tokio::{
     },
 };
 
-use codecs::EncodeOptions;
-use format::Format;
-use node_find::find;
-use schema::NodeId;
+use stencila_codecs::EncodeOptions;
+use stencila_format::Format;
+use stencila_node_find::find;
+use stencila_schema::NodeId;
 
 use crate::Document;
 
@@ -185,11 +185,11 @@ impl Document {
                 let Some(node) = find(&*root, node_id.clone()) else {
                     bail!("Unable to find node in document: {node_id}")
                 };
-                codecs::to_string(&node, encode_options.clone()).await?
+                stencila_codecs::to_string(&node, encode_options.clone()).await?
             }
             None => {
                 let node = self.root.read().await;
-                codecs::to_string(&node, encode_options.clone()).await?
+                stencila_codecs::to_string(&node, encode_options.clone()).await?
             }
         };
 
@@ -267,9 +267,9 @@ impl Document {
                             }
                             return;
                         };
-                        codecs::to_string(&node, encode_options.clone()).await
+                        stencila_codecs::to_string(&node, encode_options.clone()).await
                     }
-                    None => codecs::to_string(&root, encode_options.clone()).await,
+                    None => stencila_codecs::to_string(&root, encode_options.clone()).await,
                 };
                 let new_content = match new_content {
                     Ok(string) => string,

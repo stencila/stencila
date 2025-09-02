@@ -43,8 +43,8 @@ use headless_chrome::{
 use itertools::Itertools;
 use std::sync::LazyLock;
 
-use version::STENCILA_VERSION;
-use web_dist::Web;
+use stencila_version::STENCILA_VERSION;
+use stencila_web_dist::Web;
 
 /// Converts HTML to PNG and returns as data URI
 ///

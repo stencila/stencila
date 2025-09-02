@@ -1,5 +1,5 @@
-use codec_info::lost_options;
-use codec_json5_trait::Json5Codec;
+use stencila_codec_info::lost_options;
+use stencila_codec_json5_trait::Json5Codec;
 
 use crate::{
     ArrayValidator, BooleanValidator, ConstantValidator, DateTimeValidator, DateValidator,

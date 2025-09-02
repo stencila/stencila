@@ -3,9 +3,9 @@ use std::path::{Path, PathBuf};
 use clap::Parser;
 use eyre::Result;
 
-use cli_utils::color_print::cstr;
-use document::{Document, SyncDirection};
-use format::Format;
+use stencila_cli_utils::color_print::cstr;
+use stencila_document::{Document, SyncDirection};
+use stencila_format::Format;
 
 use crate::options::{DecodeOptions, EncodeOptions, StripOptions};
 

@@ -1,5 +1,5 @@
-use codec::schema::shortcuts::{art, aud, img, p, sti, vid};
 use pretty_assertions::assert_eq;
+use stencila_codec::stencila_schema::shortcuts::{art, aud, img, p, sti, vid};
 
 use super::*;
 

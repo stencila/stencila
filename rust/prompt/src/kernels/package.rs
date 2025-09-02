@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-use schema::StringOrNumber;
+use stencila_schema::StringOrNumber;
 
 /// A package available within a kernel instance
 #[derive(Default, Clone, Trace, JsLifetime)]
@@ -25,8 +25,8 @@ impl Package {
     }
 }
 
-impl From<schema::SoftwareSourceCode> for Package {
-    fn from(sw: schema::SoftwareSourceCode) -> Self {
+impl From<stencila_schema::SoftwareSourceCode> for Package {
+    fn from(sw: stencila_schema::SoftwareSourceCode) -> Self {
         Self {
             name: sw.name,
             version: sw.version.map(|version| match version {

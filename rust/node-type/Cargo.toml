@@ -1,13 +1,13 @@
 [package]
-name = "node-type"
+name = "stencila-node-type"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 Inflector = { workspace = true }
 eyre = { workspace = true }
-node-id = { path = "../node-id" }
 serde = { workspace = true }
+stencila-node-id = { path = "../node-id" }
 strum = { workspace = true }
 
 [lints]

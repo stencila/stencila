@@ -1,9 +1,9 @@
 use std::str::FromStr;
 
-use codec::schema::{
+use serde::Deserialize;
+use stencila_codec::stencila_schema::{
     ContactPoint, ImageObject, Node, Organization, OrganizationOptions, Person, PersonOptions,
 };
-use serde::Deserialize;
 
 use crate::search_code::TextMatch;
 

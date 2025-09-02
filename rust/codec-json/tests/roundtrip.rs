@@ -1,17 +1,17 @@
 use serde_json::json;
 
-use codec::{
+use pretty_assertions::assert_eq;
+use stencila_codec::{
     Codec, EncodeOptions,
     eyre::{Result, bail},
-    schema::{
+    stencila_schema::{
         Article, Block, Inline,
         shortcuts::{art, p, t},
     },
 };
-use pretty_assertions::assert_eq;
-use version::STENCILA_VERSION;
+use stencila_version::STENCILA_VERSION;
 
-use codec_json::JsonCodec;
+use stencila_codec_json::JsonCodec;
 
 /// Test serialization and deserialization of a high level creative work type
 ///

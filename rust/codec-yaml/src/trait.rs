@@ -1,7 +1,7 @@
 use serde::{Serialize, de::DeserializeOwned};
 use serde_yaml;
 
-use codec::eyre::Result;
+use stencila_codec::eyre::Result;
 
 impl<T> YamlCodec for T where T: DeserializeOwned + Serialize {}
 

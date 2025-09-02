@@ -1,8 +1,8 @@
-use kernel_quickjs::{
-    QuickJsKernelInstance,
-    kernel::{KernelInstance, eyre::Result},
-};
 use rquickjs::Error;
+use stencila_kernel_quickjs::{
+    QuickJsKernelInstance,
+    stencila_kernel::{KernelInstance, eyre::Result},
+};
 
 mod document;
 mod instruction;

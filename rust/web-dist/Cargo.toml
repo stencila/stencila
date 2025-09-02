@@ -1,5 +1,5 @@
 [package]
-name = "web-dist"
+name = "stencila-web-dist"
 version = "0.0.0"
 edition = "2024"
 

@@ -6,7 +6,7 @@ use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::{Data, DataEnum, DeriveInput, Fields, Ident, Path, parse_macro_input, parse_str};
 
-use format::Format;
+use stencila_format::Format;
 
 #[derive(FromDeriveInput)]
 #[darling(attributes(patch))]

@@ -1,6 +1,6 @@
-use codec::{Codec, eyre::Result};
-use codec_markdown::MarkdownCodec;
 use insta::assert_yaml_snapshot;
+use stencila_codec::{Codec, eyre::Result};
+use stencila_codec_markdown::MarkdownCodec;
 
 /// Regression test for cases where the first inline of the first paragraph
 /// is not a `Text` node.

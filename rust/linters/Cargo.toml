@@ -5,9 +5,9 @@ edition = "2024"
 
 [dependencies]
 clap = { workspace = true }
-cli-utils = { path = "../cli-utils" }
 itertools = { workspace = true }
 serde_yaml = { workspace = true }
+stencila-cli-utils = { path = "../cli-utils" }
 stencila-linter = { path = "../linter" }
 stencila-linter-harper = { path = "../linter-harper" }
 stencila-linter-links = { path = "../linter-links" }

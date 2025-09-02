@@ -2,10 +2,10 @@ use std::str::FromStr;
 
 use serde_json::json;
 
-use codec::{
+use stencila_codec::{
     NodeType,
-    format::Format,
-    schema::{
+    stencila_format::Format,
+    stencila_schema::{
         Article, Chat, CodeLocation, CompilationMessage, MessageLevel, Node, Prompt, shortcuts::t,
     },
 };

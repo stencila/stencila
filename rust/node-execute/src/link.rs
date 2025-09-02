@@ -1,6 +1,6 @@
-use codecs::Format;
-use schema::{CompilationMessage, LabelType, Link, NodeType, shortcuts::t};
+use stencila_codecs::Format;
 use stencila_linters::LintingOptions;
+use stencila_schema::{CompilationMessage, LabelType, Link, NodeType, shortcuts::t};
 
 use crate::{CompileOptions, prelude::*};
 

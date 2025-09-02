@@ -9,7 +9,7 @@ use reqwest::{
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use strum::Display;
 
-use version::STENCILA_USER_AGENT;
+use stencila_version::STENCILA_USER_AGENT;
 
 /// The base URL for the Stencila Cloud API
 ///
@@ -41,10 +41,12 @@ static API_TOKEN: OnceLock<String> = OnceLock::new();
 #[tracing::instrument]
 pub fn api_token() -> Option<String> {
     API_TOKEN.get().cloned().or_else(|| {
-        secrets::env_or_get(API_TOKEN_NAME).ok().inspect(|token| {
-            // If we successfully retrieved the token, store it for future use
-            API_TOKEN.set(token.clone()).ok();
-        })
+        stencila_secrets::env_or_get(API_TOKEN_NAME)
+            .ok()
+            .inspect(|token| {
+                // If we successfully retrieved the token, store it for future use
+                API_TOKEN.set(token.clone()).ok();
+            })
     })
 }
 
@@ -52,7 +54,7 @@ pub fn api_token() -> Option<String> {
 ///
 /// Sets the API token on the keyring;
 pub fn signin(token: &str) -> Result<Status> {
-    secrets::set(API_TOKEN_NAME, token)?;
+    stencila_secrets::set(API_TOKEN_NAME, token)?;
     API_TOKEN.set(token.into()).map_err(|error| eyre!(error))?;
 
     Ok(status())
@@ -65,14 +67,14 @@ pub fn signin(token: &str) -> Result<Status> {
 pub fn signout() -> Result<Status> {
     let status = status();
     if matches!(status.token_source, Some(TokenSource::Keyring)) {
-        secrets::delete(API_TOKEN_NAME)?
+        stencila_secrets::delete(API_TOKEN_NAME)?
     }
     Ok(status)
 }
 
 /// Get the Stencila Cloud authentication status
 pub fn status() -> Status {
-    let token = env::var(API_TOKEN_NAME).ok().map(secrets::redact);
+    let token = env::var(API_TOKEN_NAME).ok().map(stencila_secrets::redact);
     if token.is_some() {
         return Status {
             token,
@@ -80,7 +82,9 @@ pub fn status() -> Status {
         };
     }
 
-    let token = secrets::get(API_TOKEN_NAME).ok().map(secrets::redact);
+    let token = stencila_secrets::get(API_TOKEN_NAME)
+        .ok()
+        .map(stencila_secrets::redact);
     if token.is_some() {
         return Status {
             token,

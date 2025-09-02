@@ -1,11 +1,11 @@
 [package]
-name = "codec-json5"
+name = "stencila-codec-json5"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-codec = { path = "../codec" }
-codec-json5-trait = { path = "../codec-json5-trait" }
+stencila-codec = { path = "../codec" }
+stencila-codec-json5-trait = { path = "../codec-json5-trait" }
 
 [dev-dependencies]
 tokio = { workspace = true }

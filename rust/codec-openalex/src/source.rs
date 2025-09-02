@@ -1,7 +1,9 @@
 use serde::Deserialize;
 
-use codec::schema::{Node, Organization, Periodical, PeriodicalOptions, PersonOrOrganization};
 use indexmap::IndexMap;
+use stencila_codec::stencila_schema::{
+    Node, Organization, Periodical, PeriodicalOptions, PersonOrOrganization,
+};
 
 use crate::utils::convert_ids_to_identifiers;
 

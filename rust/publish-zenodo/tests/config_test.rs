@@ -1,12 +1,12 @@
 use eyre::{Result, bail};
 use tempfile::tempdir;
 
-use document::{Document, schema::Node};
+use stencila_document::{Document, stencila_schema::Node};
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use codec::schema::ConfigPublishZenodoAccessRight;
+    use stencila_codec::stencila_schema::ConfigPublishZenodoAccessRight;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_ghost_config_parsing() -> Result<()> {

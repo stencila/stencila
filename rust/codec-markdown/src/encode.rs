@@ -1,5 +1,5 @@
-use codec::{EncodeInfo, EncodeOptions, eyre::Result, schema::Node};
-use codec_markdown_trait::{MarkdownCodec as _, MarkdownEncodeContext};
+use stencila_codec::{EncodeInfo, EncodeOptions, eyre::Result, stencila_schema::Node};
+use stencila_codec_markdown_trait::{MarkdownCodec as _, MarkdownEncodeContext};
 
 /// Encode a Stencila Schema [`Node`] to a Markdown string
 pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {

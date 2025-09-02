@@ -1,13 +1,13 @@
 use std::path::PathBuf;
 
 use clap::{Args, Parser, Subcommand};
-use cli_utils::{
+use itertools::Itertools;
+use serde_yaml;
+use stencila_cli_utils::{
     AsFormat, Code, ToStdout,
     color_print::cstr,
     tabulated::{Attribute, Cell, Color, Tabulated},
 };
-use itertools::Itertools;
-use serde_yaml;
 use tokio::fs::read_to_string;
 
 use stencila_linter::{

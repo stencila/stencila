@@ -1,7 +1,8 @@
 use std::path::{Path, PathBuf};
 
 use eyre::Result;
-use schema::{Block, ImageObject, Inline, VisitorMut, WalkControl, WalkNode};
+
+use stencila_schema::{Block, ImageObject, Inline, VisitorMut, WalkControl, WalkNode};
 
 /// Write any [`ImageObject`] and other media objects with a dataURI to a file
 /// and change target accordingly
@@ -30,7 +31,7 @@ struct Walker {
 impl Walker {
     fn extract_image(&self, image: &mut ImageObject) {
         if image.content_url.starts_with("data:image/") {
-            match images::data_uri_to_file(&image.content_url, &self.dir) {
+            match stencila_images::data_uri_to_file(&image.content_url, &self.dir) {
                 Ok(file_name) => {
                     image.content_url = self.dir.join(file_name).to_string_lossy().to_string();
                 }

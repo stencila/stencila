@@ -2,12 +2,12 @@ use std::{fs::read_to_string, path::PathBuf};
 
 use glob::glob;
 
-use codec::{
+use insta::assert_json_snapshot;
+use stencila_codec::{
     Codec,
     eyre::{OptionExt, Result},
 };
-use codec_github::GithubCodec;
-use insta::assert_json_snapshot;
+use stencila_codec_github::GithubCodec;
 
 /// Decode GitHub API responses into Stencila schema nodes
 #[tokio::test]

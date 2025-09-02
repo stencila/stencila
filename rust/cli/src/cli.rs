@@ -1,10 +1,10 @@
-use ask::Answer;
 use clap::{Parser, Subcommand};
 use eyre::{Result, bail};
 
-use cli_utils::color_print::cstr;
-use server::ServeOptions;
-use version::STENCILA_VERSION;
+use stencila_ask::Answer;
+use stencila_cli_utils::color_print::cstr;
+use stencila_server::ServeOptions;
+use stencila_version::STENCILA_VERSION;
 
 use crate::{
     compile, convert, db, demo, execute, lint,
@@ -229,14 +229,14 @@ impl Cli {
 pub enum Command {
     New(new::Cli),
 
-    Init(document::cli::Init),
-    Config(document::cli::Config),
+    Init(stencila_document::cli::Init),
+    Config(stencila_document::cli::Config),
 
-    Status(document::cli::Status),
-    Move(document::cli::Move),
-    Track(document::cli::Track),
-    Untrack(document::cli::Untrack),
-    Clean(document::cli::Clean),
+    Status(stencila_document::cli::Status),
+    Move(stencila_document::cli::Move),
+    Track(stencila_document::cli::Track),
+    Untrack(stencila_document::cli::Untrack),
+    Clean(stencila_document::cli::Clean),
     Convert(convert::Cli),
     Merge(merge::Cli),
     Sync(sync::Cli),
@@ -245,22 +245,22 @@ pub enum Command {
     Lint(lint::Cli),
     Execute(execute::Cli),
     Render(render::Cli),
-    Query(document::cli::Query),
+    Query(stencila_document::cli::Query),
 
     Preview(preview::Cli),
-    Publish(publish::Cli),
+    Publish(stencila_publish::Cli),
     Demo(demo::Demo),
 
     Db(db::Cli),
 
-    Prompts(prompts::cli::Cli),
-    Models(models::cli::Cli),
-    Kernels(kernels::cli::Cli),
+    Prompts(stencila_prompts::cli::Cli),
+    Models(stencila_models::cli::Cli),
+    Kernels(stencila_kernels::cli::Cli),
     Linters(stencila_linters::cli::Cli),
-    Formats(codecs::cli::Cli),
-    Plugins(plugins::cli::Cli),
-    Secrets(secrets::cli::Cli),
-    Tools(tools::cli::Cli),
+    Formats(stencila_codecs::cli::Cli),
+    Plugins(stencila_plugins::cli::Cli),
+    Secrets(stencila_secrets::cli::Cli),
+    Tools(stencila_tools::cli::Cli),
 
     Serve(ServeOptions),
     /// Run the Language Server Protocol server
@@ -321,7 +321,7 @@ impl Cli {
             Command::Secrets(secrets) => secrets.run().await,
             Command::Tools(tools) => tools.run().await,
 
-            Command::Serve(options) => server::serve(options).await,
+            Command::Serve(options) => stencila_server::serve(options).await,
 
             Command::Cloud(cloud) => cloud.run().await,
             Command::Signin(signin) => signin.run().await,

@@ -11,10 +11,10 @@ use ollama_rs::{
     models::{LocalModel, ModelOptions},
 };
 
-use model::{
+use stencila_model::{
     Model, ModelIO, ModelOutput, ModelTask, ModelType, async_trait,
     eyre::{Result, eyre},
-    schema::{self, ImageObject, MessagePart},
+    stencila_schema::{self, ImageObject, MessagePart},
 };
 
 /// A model running on a Ollama (https://github.com/jmorganca/ollama/) server
@@ -117,9 +117,9 @@ impl Model for OllamaModel {
             .iter()
             .map(|message| {
                 let role = match message.role.unwrap_or_default() {
-                    schema::MessageRole::Model => MessageRole::Assistant,
-                    schema::MessageRole::System => MessageRole::System,
-                    schema::MessageRole::User => MessageRole::User,
+                    stencila_schema::MessageRole::Model => MessageRole::Assistant,
+                    stencila_schema::MessageRole::System => MessageRole::System,
+                    stencila_schema::MessageRole::User => MessageRole::User,
                 };
 
                 let mut content = String::new();
@@ -274,7 +274,7 @@ async fn list_ollama_models(_unused: u8) -> Result<Vec<LocalModel>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use model::test_task_repeat_word;
+    use stencila_model::test_task_repeat_word;
 
     #[tokio::test]
     async fn list_models() -> Result<()> {

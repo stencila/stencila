@@ -4,14 +4,14 @@ use std::{
 };
 
 use clap::Args;
-use cli_utils::{
-    ToStdout,
-    tabulated::{Attribute, Cell, Color, Tabulated},
-};
-use dirs::{DirType, get_app_dir};
 use eyre::Result;
 use futures::future;
 use itertools::Itertools;
+use stencila_cli_utils::{
+    ToStdout,
+    tabulated::{Attribute, Cell, Color, Tabulated},
+};
+use stencila_dirs::{DirType, get_app_dir};
 use tokio::fs::{read_to_string, write};
 
 use crate::{Plugin, PluginEnabled, PluginStatus};

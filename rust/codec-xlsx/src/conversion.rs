@@ -2,9 +2,9 @@ use std::collections::HashMap;
 
 use calamine::{Data, Range};
 
-use codec::{
+use stencila_codec::{
     eyre::Result,
-    schema::{
+    stencila_schema::{
         ArrayValidator, BooleanValidator, Datatable, DatatableColumn, IntegerValidator, Null,
         NumberValidator, Primitive, StringValidator, Validator,
     },

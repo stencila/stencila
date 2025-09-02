@@ -4,7 +4,7 @@ use eyre::Result;
 use futures::future::try_join_all;
 use regex::Regex;
 
-use schema::{
+use stencila_schema::{
     Article, Author, AuthorRole, AuthorRoleAuthor, Citation, Node, Organization, Person, Reference,
     VisitorMut, WalkControl, WalkNode, replicate,
 };

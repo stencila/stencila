@@ -2,10 +2,10 @@ use std::path::PathBuf;
 
 use glob::glob;
 
-use codec::{Codec, DecodeOptions, EncodeOptions, eyre::Result};
+use stencila_codec::{Codec, DecodeOptions, EncodeOptions, eyre::Result};
 
-use codec_latex::LatexCodec;
 use insta::{assert_json_snapshot, assert_snapshot};
+use stencila_codec_latex::LatexCodec;
 
 /// Decode each example of a LaTeX document and create JSON and LaTeX snapshots
 /// including snapshots for losses

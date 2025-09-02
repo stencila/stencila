@@ -6,7 +6,7 @@ use winnow::{
     token::{any, take_while},
 };
 
-use codec::schema::{
+use stencila_codec::stencila_schema::{
     Author, Citation, CitationGroup, CitationMode, CitationOptions, Inline, Person, shortcuts::t,
 };
 

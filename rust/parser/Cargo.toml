@@ -1,13 +1,13 @@
 [package]
-name = "parser"
+name = "stencila-parser"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-format = { path = "../format" }
 regex = { workspace = true }
-schema = { path = "../schema" }
 seahash = { workspace = true }
+stencila-format = { path = "../format" }
+stencila-schema = { path = "../schema" }
 
 [lints]
 workspace = true

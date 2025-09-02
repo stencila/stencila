@@ -6,16 +6,16 @@ use tar::Builder;
 use tempfile::TempDir;
 use tokio::fs::write;
 
-use codec::{
+use stencila_codec::{
     Codec, CodecSupport, EncodeInfo, EncodeOptions, async_trait,
     eyre::{Ok, Result},
-    format::Format,
-    schema::Node,
-    status::Status,
+    stencila_format::Format,
+    stencila_schema::Node,
+    stencila_status::Status,
 };
-use codec_dom::DomCodec;
-use codec_jsonld::JsonLdCodec;
-use codec_markdown::MarkdownCodec;
+use stencila_codec_dom::DomCodec;
+use stencila_codec_jsonld::JsonLdCodec;
+use stencila_codec_markdown::MarkdownCodec;
 
 /// A codec for creating a Stencila Web Bundle (SWB)
 ///

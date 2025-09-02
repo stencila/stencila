@@ -6,11 +6,11 @@ use serde::Serialize;
 use serde_with::skip_serializing_none;
 use strum::Display;
 
-use codec_info::{PoshMap, Position8, Positions, Range8};
-use format::Format;
-use schema::{
-    Block, CodeLocation, CompilationMessage, Cord, ExecutionMessage, Inline, MessageLevel, Node,
-    NodeId, NodeProperty, NodeType, Visitor, WalkControl, WalkNode,
+use stencila_codec_info::{PoshMap, Position8, Positions, Range8};
+use stencila_format::Format;
+use stencila_schema::{
+    Block, Citation, CodeLocation, CompilationMessage, Cord, ExecutionMessage, IfBlockClause,
+    Inline, MessageLevel, Node, NodeId, NodeProperty, NodeType, Visitor, WalkControl, WalkNode,
 };
 
 /// Collect all diagnostic messages from a node
@@ -523,7 +523,7 @@ impl Visitor for Collector {
     }
 
     #[rustfmt::skip]
-    fn visit_block(&mut self, block: &schema::Block) -> WalkControl {
+    fn visit_block(&mut self, block: &Block) -> WalkControl {
         match block {
             Block::AppendixBreak(block) => cms!(self, block, None, None, None),
             Block::CallBlock(block) => cms_ems!(self, block, None, None, None),
@@ -554,7 +554,7 @@ impl Visitor for Collector {
     }
 
     #[rustfmt::skip]
-    fn visit_inline(&mut self, inline: &schema::Inline) -> WalkControl {
+    fn visit_inline(&mut self, inline: &Inline) -> WalkControl {
         match inline {
             Inline::CodeExpression(inline) => cms_ems!(self, inline, Some(NodeProperty::Code), inline.programming_language.as_deref(), Some(&inline.code)),
             Inline::InstructionInline(inline) => cms_ems!(self, inline, None, None, None),
@@ -568,13 +568,13 @@ impl Visitor for Collector {
         WalkControl::Continue
     }
 
-    fn visit_citation(&mut self, citation: &schema::Citation) -> WalkControl {
+    fn visit_citation(&mut self, citation: &Citation) -> WalkControl {
         cms!(self, citation, Some(NodeProperty::Target), None, None);
 
         WalkControl::Continue
     }
 
-    fn visit_if_block_clause(&mut self, clause: &schema::IfBlockClause) -> WalkControl {
+    fn visit_if_block_clause(&mut self, clause: &IfBlockClause) -> WalkControl {
         cms_ems!(
             self,
             clause,

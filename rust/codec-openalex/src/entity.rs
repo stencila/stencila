@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use codec::schema::Node;
+use stencila_codec::stencila_schema::Node;
 
 use crate::{
     author::Author, funder::Funder, institution::Institution, publisher::Publisher, work::Work,

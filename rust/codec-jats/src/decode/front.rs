@@ -1,9 +1,9 @@
-use codec_text_trait::to_text;
 use roxmltree::Node;
+use stencila_codec_text_trait::to_text;
 
-use codec::{
+use stencila_codec::{
     Losses,
-    schema::{
+    stencila_schema::{
         Article, Author, Block, CreativeWorkVariant, Date, Heading, IntegerOrString, Organization,
         OrganizationOptions, Person, PersonOptions, PersonOrOrganization, Primitive, PropertyValue,
         PropertyValueOrString, PublicationVolume, StringOrNumber, ThingVariant,
