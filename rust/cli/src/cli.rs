@@ -258,7 +258,6 @@ pub enum Command {
     Kernels(stencila_kernels::cli::Cli),
     Linters(stencila_linters::cli::Cli),
     Formats(stencila_codecs::cli::Cli),
-    Plugins(stencila_plugins::cli::Cli),
     Secrets(stencila_secrets::cli::Cli),
     Tools(stencila_tools::cli::Cli),
 
@@ -317,7 +316,6 @@ impl Cli {
             Command::Kernels(kernels) => kernels.run().await,
             Command::Linters(linters) => linters.run().await,
             Command::Formats(codecs) => codecs.run().await,
-            Command::Plugins(plugins) => plugins.run().await,
             Command::Secrets(secrets) => secrets.run().await,
             Command::Tools(tools) => tools.run().await,
 

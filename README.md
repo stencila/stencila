@@ -144,7 +144,6 @@ Interoperability with existing formats has always been a key feature of Stencila
 | ODT                                                                                                 |    🧭    |    🧭    |                                                                                                                                                                                  | Relies on Pandoc                                                                                                                                            |
 | Google Docs                                                                                         |    🧭    |    🧭    |                                                                                                                                                                                  | Planned [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-gdoc)                                                                                |
 | PDF                                                                                                 |    🧭    |    🧭    |                                                                                                                                                                                  | Planned, relies on HTML; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-pdf)                                                                |
-| Codec Plugin API                                                                                    |    🧭    |    🧭    |                                                                                                                                                                                  | An API allowing codecs to be developed as plugins in Python, Node.js, and other languages                                                                   |
 
 ### Kernels
 
@@ -170,7 +169,7 @@ Kernels are what executes the code in Stencila `CodeChunk`s and `CodeExpression`
 | HTTP                                                                       | Interact with RESTful APIs                                 | ❔ Maybe; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-http)  |
 
 > [!TIP]
-> Run `stencila kernels` (or `cargo run --bin stencila kernels` in development) for an up to date list of kernels, including those available through plugins.
+> Run `stencila kernels` (or `cargo run --bin stencila kernels` in development) for an up to date list of kernels.
 
 ### Tools
 
@@ -184,7 +183,7 @@ Tools are what we call the self-contained Stencila products you can download and
 
 ### SDKs
 
-Stencila's software development kits (SDKs) enable developers to create plugins to extend Stencila's core functionality or to build other tools on top of. At this stage we are planning to support Python, Node.js and R but more languages may be added if there is demand.
+Stencila's software development kits (SDKs) enable developers to build tools on top of Stencila's core functionality. At this stage we are planning to support Python, Node.js and R but more languages may be added if there is demand.
 
 | Language   | Description                                                     | Status                                                        | Coverage                                                                                                                                                                |
 | ---------- | --------------------------------------------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

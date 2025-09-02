@@ -33,7 +33,6 @@ pub enum ModelType {
     Router,
     Remote,
     Proxied,
-    Plugin(String),
 }
 
 /// The availability of a model on the current machine

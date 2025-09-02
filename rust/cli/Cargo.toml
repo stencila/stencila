@@ -38,7 +38,6 @@ stencila-node-db = { path = "../node-db" }
 stencila-node-diagnostics = { path = "../node-diagnostics" }
 stencila-node-execute = { path = "../node-execute" }
 stencila-node-strip = { path = "../node-strip" }
-stencila-plugins = { path = "../plugins" }
 stencila-prompts = { path = "../prompts" }
 stencila-publish = { path = "../publish" }
 stencila-schema = { path = "../schema" }

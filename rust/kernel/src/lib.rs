@@ -114,7 +114,6 @@ pub enum KernelType {
 pub enum KernelProvider {
     Builtin,
     Environment,
-    Plugin(String),
 }
 
 /// The availability of a kernel on the current machine

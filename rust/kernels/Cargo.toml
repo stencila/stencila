@@ -24,7 +24,6 @@ stencila-kernel-rhai = { path = "../kernel-rhai", optional = true }
 stencila-kernel-style = { path = "../kernel-style" }
 stencila-kernel-tex = { path = "../kernel-tex" }
 stencila-node-diagnostics = { path = "../node-diagnostics" }
-stencila-plugins = { path = "../plugins" }
 tokio = { workspace = true }
 tracing = { workspace = true }
 
