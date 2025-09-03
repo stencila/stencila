@@ -35,7 +35,10 @@ pub(super) fn is_authorship_ror(id: &Option<String>) -> bool {
 pub(super) async fn reference(reference: &mut Reference) -> Result<()> {
     let work: OpenAlexWork = if let (Some(doi), true) = (&reference.doi, is_doi(&reference.doi)) {
         tracing::trace!("Fetching work");
-        work_by_doi(doi).await?
+        match work_by_doi(doi).await? {
+            Some(work) => work,
+            None => return Ok(()),
+        }
     } else {
         let Some(title) = &reference.title else {
             return Ok(());

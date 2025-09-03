@@ -181,11 +181,19 @@ pub async fn request_ids(url: &str) -> Result<Vec<String>> {
 
 /// Fetch a work from OpenAlex by DOI
 #[tracing::instrument]
-pub async fn work_by_doi(doi: &str) -> Result<Work> {
+pub async fn work_by_doi(doi: &str) -> Result<Option<Work>> {
     tracing::trace!("Fetching work by DOI: {doi}");
 
-    let response = request(&format!("works/https://doi.org/{doi}"), &[]).await?;
-    Ok(response.json().await?)
+    match request(&format!("works/https://doi.org/{doi}"), &[]).await {
+        Ok(response) => Ok(response.json().await?),
+        Err(error) => {
+            if error.to_string().to_lowercase().contains("404 not found") {
+                return Ok(None);
+            } else {
+                bail!(error)
+            }
+        }
+    }
 }
 
 /// Search for works by title and optional year
