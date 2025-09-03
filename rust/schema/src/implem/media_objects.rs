@@ -1,5 +1,4 @@
 use stencila_codec_info::lost_options;
-use stencila_images::highlight_image;
 
 use crate::{AudioObject, ImageObject, MediaObject, VideoObject, prelude::*};
 
@@ -223,30 +222,19 @@ impl DomCodec for ImageObject {
 
 impl LatexCodec for ImageObject {
     fn to_latex(&self, context: &mut LatexEncodeContext) {
-        let path = if self.content_url.starts_with("data:") {
-            let images_dir = context.temp_dir.clone();
-            let image_name = stencila_images::data_uri_to_file(&self.content_url, &images_dir)
-                .unwrap_or_default();
-            let path = images_dir.join(image_name);
-
-            if context.highlight
-                && context.has_format_via_pandoc()
-                && let Err(error) = highlight_image(&path)
-            {
-                tracing::error!("While highlighting image object: {error}");
-            }
-
-            path.to_string_lossy().to_string()
+        if self.content_url.starts_with("data:") {
+            context
+                .enter_node(self.node_type(), self.node_id())
+                .str(r"% Base64 encoded images are not supported. Use the --extract-media option")
+                .exit_node();
         } else {
-            self.content_url.clone()
-        };
-
-        context
-            .enter_node(self.node_type(), self.node_id())
-            .str(r"\includegraphics[width=\linewidth,keepaspectratio]{")
-            .str(&path)
-            .char('}')
-            .exit_node();
+            context
+                .enter_node(self.node_type(), self.node_id())
+                .str(r"\includegraphics[width=\linewidth,keepaspectratio]{")
+                .str(&self.content_url)
+                .char('}')
+                .exit_node();
+        }
     }
 }
 
