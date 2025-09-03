@@ -37,8 +37,24 @@ pub struct Variable {
     #[serde(alias = "node-type", alias = "node_type")]
     pub node_type: Option<String>,
 
+    /// Non-core optional fields
+    #[serde(flatten)]
+    #[html(flatten)]
+    #[jats(flatten)]
+    pub options: Box<VariableOptions>,
+
+    /// A unique identifier for a node within a document
+    #[serde(skip)]
+    pub uid: NodeUid
+}
+
+#[skip_serializing_none]
+#[serde_as]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
+#[serde(rename_all = "camelCase")]
+pub struct VariableOptions {
     /// The value of the variable.
-    pub value: Option<Box<Node>>,
+    pub value: Option<Node>,
 
     /// A hint to the value and/or structure of the variable.
     pub hint: Option<Hint>,
@@ -46,10 +62,6 @@ pub struct Variable {
     /// A textual hint to the value and/or structure of the variable.
     #[serde(alias = "native-hint", alias = "native_hint")]
     pub native_hint: Option<String>,
-
-    /// A unique identifier for a node within a document
-    #[serde(skip)]
-    pub uid: NodeUid
 }
 
 impl Variable {

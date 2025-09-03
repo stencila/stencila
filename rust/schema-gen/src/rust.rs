@@ -72,7 +72,6 @@ const BOX_PROPERTIES: &[&str] = &[
     "PublicationIssue.is_part_of",
     "PublicationVolume.is_part_of",
     "Reference.is_part_of",
-    "Variable.value",
 ];
 
 const KEYWORDS: &[&str; 52] = &[

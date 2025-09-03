@@ -1659,7 +1659,7 @@ impl DatabaseNode for Variable {
             (NodeProperty::ProgrammingLanguage, self.programming_language.to_kuzu_type(), self.programming_language.to_kuzu_value()),
             (NodeProperty::NativeType, self.native_type.to_kuzu_type(), self.native_type.to_kuzu_value()),
             (NodeProperty::NodeType, self.node_type.to_kuzu_type(), self.node_type.to_kuzu_value()),
-            (NodeProperty::NativeHint, self.native_hint.to_kuzu_type(), self.native_hint.to_kuzu_value())
+            (NodeProperty::NativeHint, self.options.native_hint.to_kuzu_type(), self.options.native_hint.to_kuzu_value())
         ]
     }
 

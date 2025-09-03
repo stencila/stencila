@@ -30,9 +30,9 @@ impl From<stencila_schema::Variable> for Variable {
         Self {
             name: var.name.clone(),
             r#type: var.node_type.clone(),
-            hint: var.hint.map(Hint::from),
+            hint: var.options.hint.map(Hint::from),
             native_type: var.native_type.clone(),
-            native_hint: var.native_hint.clone(),
+            native_hint: var.options.native_hint.clone(),
         }
     }
 }

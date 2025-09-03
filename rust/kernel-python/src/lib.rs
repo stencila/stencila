@@ -85,7 +85,7 @@ mod tests {
             Array, ArrayHint, ArrayValidator, BooleanValidator, CodeLocation, Datatable,
             DatatableColumn, DatatableColumnHint, DatatableHint, Hint, ImageObject,
             IntegerValidator, MessageLevel, Node, Null, NumberValidator, Object, ObjectHint,
-            Primitive, StringHint, StringValidator, Validator, Variable,
+            Primitive, StringHint, StringValidator, Validator, Variable, VariableOptions,
         },
         tests::{create_instance, start_instance, start_instance_with},
     };
@@ -583,55 +583,73 @@ para = {'type':'Paragraph', 'content':[]}
                     name: "bool".to_string(),
                     native_type: Some("bool".to_string()),
                     node_type: Some("Boolean".to_string()),
-                    hint: Some(Hint::Boolean(true)),
                     programming_language: Some("Python".to_string()),
+                    options: Box::new(VariableOptions {
+                        hint: Some(Hint::Boolean(true)),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 },
                 Variable {
                     name: "int".to_string(),
                     native_type: Some("int".to_string()),
                     node_type: Some("Integer".to_string()),
-                    hint: Some(Hint::Integer(123)),
                     programming_language: Some("Python".to_string()),
+                    options: Box::new(VariableOptions {
+                        hint: Some(Hint::Integer(123)),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 },
                 Variable {
                     name: "num".to_string(),
                     native_type: Some("float".to_string()),
                     node_type: Some("Number".to_string()),
-                    hint: Some(Hint::Number(1.23)),
                     programming_language: Some("Python".to_string()),
+                    options: Box::new(VariableOptions {
+                        hint: Some(Hint::Number(1.23)),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 },
                 Variable {
                     name: "str".to_string(),
                     native_type: Some("str".to_string()),
                     node_type: Some("String".to_string()),
-                    hint: Some(Hint::StringHint(StringHint::new(4))),
                     programming_language: Some("Python".to_string()),
+                    options: Box::new(VariableOptions {
+                        hint: Some(Hint::StringHint(StringHint::new(4))),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 },
                 Variable {
                     name: "arr".to_string(),
                     native_type: Some("list".to_string()),
                     node_type: Some("Array".to_string()),
-                    hint: Some(Hint::ArrayHint(ArrayHint {
-                        length: 3,
-                        ..Default::default()
-                    })),
                     programming_language: Some("Python".to_string()),
+                    options: Box::new(VariableOptions {
+                        hint: Some(Hint::ArrayHint(ArrayHint {
+                            length: 3,
+                            ..Default::default()
+                        })),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 },
                 Variable {
                     name: "obj".to_string(),
                     native_type: Some("dict".to_string()),
                     node_type: Some("Object".to_string()),
-                    hint: Some(Hint::ObjectHint(ObjectHint::new(
-                        2,
-                        vec!["a".to_string(), "b".to_string()],
-                        vec![Hint::Integer(1), Hint::Number(2.3)],
-                    ))),
                     programming_language: Some("Python".to_string()),
+                    options: Box::new(VariableOptions {
+                        hint: Some(Hint::ObjectHint(ObjectHint::new(
+                            2,
+                            vec!["a".to_string(), "b".to_string()],
+                            vec![Hint::Integer(1), Hint::Number(2.3)],
+                        ))),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 },
                 Variable {
@@ -715,7 +733,7 @@ a4 = np.array([1.23, 4.56], dtype=np.float64)
         macro_rules! var {
             ($name:expr) => {{
                 let mut var = list.iter().find(|var| var.name == $name).unwrap().clone();
-                var.native_hint = None;
+                var.options.native_hint = None;
                 var
             }};
         }
@@ -731,15 +749,18 @@ a4 = np.array([1.23, 4.56], dtype=np.float64)
                 name: "a1".to_string(),
                 native_type: Some("ndarray".to_string()),
                 node_type: Some("Array".to_string()),
-                hint: Some(Hint::ArrayHint(ArrayHint {
-                    length: 2,
-                    item_types: Some(vec!["Boolean".to_string()]),
-                    minimum: Some(Primitive::Boolean(false)),
-                    maximum: Some(Primitive::Boolean(true)),
-                    nulls: Some(0),
-                    ..Default::default()
-                })),
                 programming_language: Some("Python".to_string()),
+                options: Box::new(VariableOptions {
+                    hint: Some(Hint::ArrayHint(ArrayHint {
+                        length: 2,
+                        item_types: Some(vec!["Boolean".to_string()]),
+                        minimum: Some(Primitive::Boolean(false)),
+                        maximum: Some(Primitive::Boolean(true)),
+                        nulls: Some(0),
+                        ..Default::default()
+                    })),
+                    ..Default::default()
+                }),
                 ..Default::default()
             },
         );
@@ -757,15 +778,18 @@ a4 = np.array([1.23, 4.56], dtype=np.float64)
                 name: "a2".to_string(),
                 native_type: Some("ndarray".to_string()),
                 node_type: Some("Array".to_string()),
-                hint: Some(Hint::ArrayHint(ArrayHint {
-                    length: 3,
-                    item_types: Some(vec!["Integer".to_string()]),
-                    minimum: Some(Primitive::Integer(-1)),
-                    maximum: Some(Primitive::Integer(1)),
-                    nulls: Some(0),
-                    ..Default::default()
-                })),
                 programming_language: Some("Python".to_string()),
+                options: Box::new(VariableOptions {
+                    hint: Some(Hint::ArrayHint(ArrayHint {
+                        length: 3,
+                        item_types: Some(vec!["Integer".to_string()]),
+                        minimum: Some(Primitive::Integer(-1)),
+                        maximum: Some(Primitive::Integer(1)),
+                        nulls: Some(0),
+                        ..Default::default()
+                    })),
+                    ..Default::default()
+                }),
                 ..Default::default()
             },
         );
@@ -784,15 +808,18 @@ a4 = np.array([1.23, 4.56], dtype=np.float64)
                 name: "a3".to_string(),
                 native_type: Some("ndarray".to_string()),
                 node_type: Some("Array".to_string()),
-                hint: Some(Hint::ArrayHint(ArrayHint {
-                    length: 3,
-                    item_types: Some(vec!["UnsignedInteger".to_string()]),
-                    minimum: Some(Primitive::Integer(1)),
-                    maximum: Some(Primitive::Integer(3)),
-                    nulls: Some(0),
-                    ..Default::default()
-                })),
                 programming_language: Some("Python".to_string()),
+                options: Box::new(VariableOptions {
+                    hint: Some(Hint::ArrayHint(ArrayHint {
+                        length: 3,
+                        item_types: Some(vec!["UnsignedInteger".to_string()]),
+                        minimum: Some(Primitive::Integer(1)),
+                        maximum: Some(Primitive::Integer(3)),
+                        nulls: Some(0),
+                        ..Default::default()
+                    })),
+                    ..Default::default()
+                }),
                 ..Default::default()
             },
         );
@@ -811,15 +838,18 @@ a4 = np.array([1.23, 4.56], dtype=np.float64)
                 name: "a364".to_string(),
                 native_type: Some("ndarray".to_string()),
                 node_type: Some("Array".to_string()),
-                hint: Some(Hint::ArrayHint(ArrayHint {
-                    length: 3,
-                    item_types: Some(vec!["UnsignedInteger".to_string()]),
-                    minimum: Some(Primitive::Integer(4)),
-                    maximum: Some(Primitive::Integer(6)),
-                    nulls: Some(0),
-                    ..Default::default()
-                })),
                 programming_language: Some("Python".to_string()),
+                options: Box::new(VariableOptions {
+                    hint: Some(Hint::ArrayHint(ArrayHint {
+                        length: 3,
+                        item_types: Some(vec!["UnsignedInteger".to_string()]),
+                        minimum: Some(Primitive::Integer(4)),
+                        maximum: Some(Primitive::Integer(6)),
+                        nulls: Some(0),
+                        ..Default::default()
+                    })),
+                    ..Default::default()
+                }),
                 ..Default::default()
             },
         );
@@ -838,15 +868,18 @@ a4 = np.array([1.23, 4.56], dtype=np.float64)
                 name: "a4".to_string(),
                 native_type: Some("ndarray".to_string()),
                 node_type: Some("Array".to_string()),
-                hint: Some(Hint::ArrayHint(ArrayHint {
-                    length: 2,
-                    item_types: Some(vec!["Number".to_string()]),
-                    minimum: Some(Primitive::Number(1.23)),
-                    maximum: Some(Primitive::Number(4.56)),
-                    nulls: Some(0),
-                    ..Default::default()
-                })),
                 programming_language: Some("Python".to_string()),
+                options: Box::new(VariableOptions {
+                    hint: Some(Hint::ArrayHint(ArrayHint {
+                        length: 2,
+                        item_types: Some(vec!["Number".to_string()]),
+                        minimum: Some(Primitive::Number(1.23)),
+                        maximum: Some(Primitive::Number(4.56)),
+                        nulls: Some(0),
+                        ..Default::default()
+                    })),
+                    ..Default::default()
+                }),
                 ..Default::default()
             },
         );
@@ -911,42 +944,44 @@ df1 = pd.DataFrame({
                 name: "df1".to_string(),
                 native_type: Some("DataFrame".to_string()),
                 node_type: Some("Datatable".to_string()),
-                hint: Some(Hint::DatatableHint(DatatableHint::new(
-                    2,
-                    vec![
-                        DatatableColumnHint {
-                            name: "c1".to_string(),
-                            item_type: "Boolean".to_string(),
-                            minimum: Some(Primitive::Boolean(false)),
-                            maximum: Some(Primitive::Boolean(true)),
-                            nulls: Some(0),
-                            ..Default::default()
-                        },
-                        DatatableColumnHint {
-                            name: "c2".to_string(),
-                            item_type: "Integer".to_string(),
-                            minimum: Some(Primitive::Integer(1)),
-                            maximum: Some(Primitive::Integer(2)),
-                            nulls: Some(0),
-                            ..Default::default()
-                        },
-                        DatatableColumnHint {
-                            name: "c3".to_string(),
-                            item_type: "Number".to_string(),
-                            minimum: Some(Primitive::Number(1.23)),
-                            maximum: Some(Primitive::Number(4.56)),
-                            nulls: Some(0),
-                            ..Default::default()
-                        },
-                        DatatableColumnHint {
-                            name: "c4".to_string(),
-                            item_type: "String".to_string(),
-                            ..Default::default()
-                        }
-                    ]
-                ))),
-                native_hint: Some(
-                    r#"The `dtypes` of the `DataFrame` are:
+                programming_language: Some("Python".to_string()),
+                options: Box::new(VariableOptions {
+                    hint: Some(Hint::DatatableHint(DatatableHint::new(
+                        2,
+                        vec![
+                            DatatableColumnHint {
+                                name: "c1".to_string(),
+                                item_type: "Boolean".to_string(),
+                                minimum: Some(Primitive::Boolean(false)),
+                                maximum: Some(Primitive::Boolean(true)),
+                                nulls: Some(0),
+                                ..Default::default()
+                            },
+                            DatatableColumnHint {
+                                name: "c2".to_string(),
+                                item_type: "Integer".to_string(),
+                                minimum: Some(Primitive::Integer(1)),
+                                maximum: Some(Primitive::Integer(2)),
+                                nulls: Some(0),
+                                ..Default::default()
+                            },
+                            DatatableColumnHint {
+                                name: "c3".to_string(),
+                                item_type: "Number".to_string(),
+                                minimum: Some(Primitive::Number(1.23)),
+                                maximum: Some(Primitive::Number(4.56)),
+                                nulls: Some(0),
+                                ..Default::default()
+                            },
+                            DatatableColumnHint {
+                                name: "c4".to_string(),
+                                item_type: "String".to_string(),
+                                ..Default::default()
+                            }
+                        ]
+                    ))),
+                    native_hint: Some(
+                        r#"The `dtypes` of the `DataFrame` are:
 
 ```
 c1       bool
@@ -977,11 +1012,12 @@ min    1.000000  1.230000
 75%    1.750000  3.727500
 max    2.000000  4.560000
 ```"#
-                        .to_string()
-                ),
-                programming_language: Some("Python".to_string()),
+                            .to_string()
+                    ),
+                    ..Default::default()
+                }),
                 ..Default::default()
-            },
+            }
         );
         assert_eq!(
             get!("df1"),

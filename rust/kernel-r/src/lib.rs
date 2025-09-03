@@ -81,7 +81,7 @@ mod tests {
             Array, ArrayHint, ArrayValidator, BooleanValidator, Datatable, DatatableColumn,
             DatatableColumnHint, DatatableHint, EnumValidator, ExecutionMessage, Hint, ImageObject,
             IntegerValidator, Node, Null, NumberValidator, Object, ObjectHint, Primitive,
-            StringHint, StringValidator, Validator, Variable,
+            StringHint, StringValidator, Validator, Variable, VariableOptions,
         },
         tests::{create_instance, start_instance, start_instance_with},
     };
@@ -400,59 +400,77 @@ para <- list(type='Paragraph', content=list())
                     name: "bool".to_string(),
                     native_type: Some("logical".to_string()),
                     node_type: Some("Boolean".to_string()),
-                    hint: Some(Hint::Boolean(true)),
                     programming_language: Some("R".to_string()),
+                    options: Box::new(VariableOptions {
+                        hint: Some(Hint::Boolean(true)),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 },
                 Variable {
                     name: "int".to_string(),
                     native_type: Some("numeric".to_string()),
                     node_type: Some("Number".to_string()),
-                    hint: Some(Hint::Integer(123)),
                     programming_language: Some("R".to_string()),
+                    options: Box::new(VariableOptions {
+                        hint: Some(Hint::Integer(123)),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 },
                 Variable {
                     name: "num".to_string(),
                     native_type: Some("numeric".to_string()),
                     node_type: Some("Number".to_string()),
-                    hint: Some(Hint::Number(1.23)),
                     programming_language: Some("R".to_string()),
+                    options: Box::new(VariableOptions {
+                        hint: Some(Hint::Number(1.23)),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 },
                 Variable {
                     name: "str".to_string(),
                     native_type: Some("character".to_string()),
                     node_type: Some("String".to_string()),
-                    hint: Some(Hint::StringHint(StringHint::new(4))),
                     programming_language: Some("R".to_string()),
+                    options: Box::new(VariableOptions {
+                        hint: Some(Hint::StringHint(StringHint::new(4))),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 },
                 Variable {
                     name: "arr".to_string(),
                     native_type: Some("numeric".to_string()),
                     node_type: Some("Array".to_string()),
-                    hint: Some(Hint::ArrayHint(ArrayHint {
-                        length: 3,
-                        item_types: Some(vec!["Number".to_string()]),
-                        minimum: Some(Primitive::Integer(1)),
-                        maximum: Some(Primitive::Integer(3)),
-                        nulls: Some(0),
-                        ..Default::default()
-                    })),
                     programming_language: Some("R".to_string()),
+                    options: Box::new(VariableOptions {
+                        hint: Some(Hint::ArrayHint(ArrayHint {
+                            length: 3,
+                            item_types: Some(vec!["Number".to_string()]),
+                            minimum: Some(Primitive::Integer(1)),
+                            maximum: Some(Primitive::Integer(3)),
+                            nulls: Some(0),
+                            ..Default::default()
+                        })),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 },
                 Variable {
                     name: "obj".to_string(),
                     native_type: Some("list".to_string()),
                     node_type: Some("Object".to_string()),
-                    hint: Some(Hint::ObjectHint(ObjectHint::new(
-                        2,
-                        vec!["a".to_string(), "b".to_string()],
-                        vec![Hint::Integer(1), Hint::Number(2.3)],
-                    ))),
                     programming_language: Some("R".to_string()),
+                    options: Box::new(VariableOptions {
+                        hint: Some(Hint::ObjectHint(ObjectHint::new(
+                            2,
+                            vec!["a".to_string(), "b".to_string()],
+                            vec![Hint::Integer(1), Hint::Number(2.3)],
+                        ))),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 },
                 Variable {
@@ -511,48 +529,51 @@ df1 = data.frame(
                 name: "df1".to_string(),
                 native_type: Some("data.frame".to_string()),
                 node_type: Some("Datatable".to_string()),
-                hint: Some(Hint::DatatableHint(DatatableHint::new(
-                    3,
-                    vec![
-                        DatatableColumnHint {
-                            name: "c1".to_string(),
-                            item_type: "Boolean".to_string(),
-                            nulls: Some(1),
-                            ..Default::default()
-                        },
-                        DatatableColumnHint {
-                            name: "c2".to_string(),
-                            item_type: "Number".to_string(),
-                            minimum: Some(Primitive::Integer(1)),
-                            maximum: Some(Primitive::Integer(2)),
-                            nulls: Some(1),
-                            ..Default::default()
-                        },
-                        DatatableColumnHint {
-                            name: "c3".to_string(),
-                            item_type: "Number".to_string(),
-                            minimum: Some(Primitive::Number(1.23)),
-                            maximum: Some(Primitive::Number(4.56)),
-                            nulls: Some(1),
-                            ..Default::default()
-                        },
-                        DatatableColumnHint {
-                            name: "c4".to_string(),
-                            item_type: "String".to_string(),
-                            minimum: Some(Primitive::String("a".to_string())),
-                            maximum: Some(Primitive::String("b".to_string())),
-                            nulls: Some(1),
-                            ..Default::default()
-                        },
-                        DatatableColumnHint {
-                            name: "c5".to_string(),
-                            item_type: "String".to_string(),
-                            nulls: Some(1),
-                            ..Default::default()
-                        }
-                    ]
-                ))),
                 programming_language: Some("R".to_string()),
+                options: Box::new(VariableOptions {
+                    hint: Some(Hint::DatatableHint(DatatableHint::new(
+                        3,
+                        vec![
+                            DatatableColumnHint {
+                                name: "c1".to_string(),
+                                item_type: "Boolean".to_string(),
+                                nulls: Some(1),
+                                ..Default::default()
+                            },
+                            DatatableColumnHint {
+                                name: "c2".to_string(),
+                                item_type: "Number".to_string(),
+                                minimum: Some(Primitive::Integer(1)),
+                                maximum: Some(Primitive::Integer(2)),
+                                nulls: Some(1),
+                                ..Default::default()
+                            },
+                            DatatableColumnHint {
+                                name: "c3".to_string(),
+                                item_type: "Number".to_string(),
+                                minimum: Some(Primitive::Number(1.23)),
+                                maximum: Some(Primitive::Number(4.56)),
+                                nulls: Some(1),
+                                ..Default::default()
+                            },
+                            DatatableColumnHint {
+                                name: "c4".to_string(),
+                                item_type: "String".to_string(),
+                                minimum: Some(Primitive::String("a".to_string())),
+                                maximum: Some(Primitive::String("b".to_string())),
+                                nulls: Some(1),
+                                ..Default::default()
+                            },
+                            DatatableColumnHint {
+                                name: "c5".to_string(),
+                                item_type: "String".to_string(),
+                                nulls: Some(1),
+                                ..Default::default()
+                            }
+                        ]
+                    ))),
+                    ..Default::default()
+                }),
                 ..Default::default()
             }),
         );

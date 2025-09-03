@@ -417,9 +417,9 @@ impl DocsDBKernelInstance {
 
         md.push_str(". ");
 
-        if let Some(native_hint) = variable.native_hint.as_ref() {
+        if let Some(native_hint) = variable.options.native_hint.as_ref() {
             md.push_str(native_hint);
-        } else if let Some(hint) = variable.hint.as_ref() {
+        } else if let Some(hint) = variable.options.hint.as_ref() {
             let yaml = serde_yaml::to_string(hint)?;
             md.push_str(&format!(
                 " A summary of the variable:\n\n```yaml\n{yaml}\n```"

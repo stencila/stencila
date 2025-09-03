@@ -10,9 +10,6 @@ core:
   - programmingLanguage
   - nativeType
   - nodeType
-  - value
-  - hint
-  - nativeHint
 properties:
   name:
     '@id': schema:name

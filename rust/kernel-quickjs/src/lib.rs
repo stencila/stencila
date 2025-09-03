@@ -28,7 +28,7 @@ use stencila_kernel::{
     stencila_schema::{
         Array, ArrayHint, CodeLocation, ExecutionBounds, ExecutionMessage, Hint, MessageLevel,
         Node, NodeType, Null, Object, ObjectHint, Primitive, SoftwareApplication,
-        SoftwareApplicationOptions, SoftwareSourceCode, StringHint, Variable,
+        SoftwareApplicationOptions, SoftwareSourceCode, StringHint, Variable, VariableOptions,
     },
 };
 
@@ -284,7 +284,10 @@ impl KernelInstance for QuickJsKernelInstance {
                             programming_language,
                             native_type,
                             node_type,
-                            hint,
+                            options: Box::new(VariableOptions {
+                                hint,
+                                ..Default::default()
+                            }),
                             ..Default::default()
                         })
                     })
@@ -1155,52 +1158,70 @@ var para = {type: "Paragraph", content:[]}
                     name: "bool".to_string(),
                     native_type: Some("boolean".to_string()),
                     node_type: Some("Boolean".to_string()),
-                    hint: Some(Hint::Boolean(true)),
                     programming_language: Some("JavaScript".to_string()),
+                    options: Box::new(VariableOptions {
+                        hint: Some(Hint::Boolean(true)),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 },
                 Variable {
                     name: "int".to_string(),
                     native_type: Some("bigint".to_string()),
                     node_type: Some("Integer".to_string()),
-                    hint: Some(Hint::Integer(123)),
                     programming_language: Some("JavaScript".to_string()),
+                    options: Box::new(VariableOptions {
+                        hint: Some(Hint::Integer(123)),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 },
                 Variable {
                     name: "num".to_string(),
                     native_type: Some("number".to_string()),
                     node_type: Some("Number".to_string()),
-                    hint: Some(Hint::Number(1.23)),
                     programming_language: Some("JavaScript".to_string()),
+                    options: Box::new(VariableOptions {
+                        hint: Some(Hint::Number(1.23)),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 },
                 Variable {
                     name: "str".to_string(),
                     native_type: Some("string".to_string()),
                     node_type: Some("String".to_string()),
-                    hint: Some(Hint::StringHint(StringHint::new(4))),
                     programming_language: Some("JavaScript".to_string()),
+                    options: Box::new(VariableOptions {
+                        hint: Some(Hint::StringHint(StringHint::new(4))),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 },
                 Variable {
                     name: "arr".to_string(),
                     native_type: Some("array".to_string()),
                     node_type: Some("Array".to_string()),
-                    hint: Some(Hint::ArrayHint(ArrayHint::new(3))),
                     programming_language: Some("JavaScript".to_string()),
+                    options: Box::new(VariableOptions {
+                        hint: Some(Hint::ArrayHint(ArrayHint::new(3))),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 },
                 Variable {
                     name: "obj".to_string(),
                     native_type: Some("object".to_string()),
                     node_type: Some("Object".to_string()),
-                    hint: Some(Hint::ObjectHint(ObjectHint::new(
-                        2,
-                        vec!["a".to_string(), "b".to_string()],
-                        vec![Hint::Integer(1), Hint::Number(2.3)],
-                    ))),
                     programming_language: Some("JavaScript".to_string()),
+                    options: Box::new(VariableOptions {
+                        hint: Some(Hint::ObjectHint(ObjectHint::new(
+                            2,
+                            vec!["a".to_string(), "b".to_string()],
+                            vec![Hint::Integer(1), Hint::Number(2.3)],
+                        ))),
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 },
                 Variable {

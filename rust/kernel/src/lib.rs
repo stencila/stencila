@@ -624,7 +624,7 @@ pub mod tests {
 
             // Do not test native hints as this time
             let mut actual = actual.clone();
-            actual.native_hint = None;
+            actual.options.native_hint = None;
 
             assert_eq!(actual, expected)
         }

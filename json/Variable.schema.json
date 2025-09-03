@@ -17,10 +17,7 @@
     "id",
     "programmingLanguage",
     "nativeType",
-    "nodeType",
-    "value",
-    "hint",
-    "nativeHint"
+    "nodeType"
   ],
   "properties": {
     "type": {
