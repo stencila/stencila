@@ -13,10 +13,6 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila track`↴](#stencila-track)
 * [`stencila untrack`↴](#stencila-untrack)
 * [`stencila clean`↴](#stencila-clean)
-* [`stencila add`↴](#stencila-add)
-* [`stencila remove`↴](#stencila-remove)
-* [`stencila rebuild`↴](#stencila-rebuild)
-* [`stencila query`↴](#stencila-query)
 * [`stencila convert`↴](#stencila-convert)
 * [`stencila merge`↴](#stencila-merge)
 * [`stencila sync`↴](#stencila-sync)
@@ -24,14 +20,20 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila lint`↴](#stencila-lint)
 * [`stencila execute`↴](#stencila-execute)
 * [`stencila render`↴](#stencila-render)
+* [`stencila query`↴](#stencila-query)
 * [`stencila preview`↴](#stencila-preview)
 * [`stencila publish`↴](#stencila-publish)
 * [`stencila publish zenodo`↴](#stencila-publish-zenodo)
 * [`stencila publish ghost`↴](#stencila-publish-ghost)
 * [`stencila publish stencila`↴](#stencila-publish-stencila)
 * [`stencila demo`↴](#stencila-demo)
-* [`stencila serve`↴](#stencila-serve)
-* [`stencila lsp`↴](#stencila-lsp)
+* [`stencila db`↴](#stencila-db)
+* [`stencila db new`↴](#stencila-db-new)
+* [`stencila db add`↴](#stencila-db-add)
+* [`stencila db remove`↴](#stencila-db-remove)
+* [`stencila db query`↴](#stencila-db-query)
+* [`stencila db migrate`↴](#stencila-db-migrate)
+* [`stencila db migrations`↴](#stencila-db-migrations)
 * [`stencila prompts`↴](#stencila-prompts)
 * [`stencila prompts list`↴](#stencila-prompts-list)
 * [`stencila prompts show`↴](#stencila-prompts-show)
@@ -52,15 +54,6 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila linters lint`↴](#stencila-linters-lint)
 * [`stencila formats`↴](#stencila-formats)
 * [`stencila formats list`↴](#stencila-formats-list)
-* [`stencila plugins`↴](#stencila-plugins)
-* [`stencila plugins list`↴](#stencila-plugins-list)
-* [`stencila plugins install`↴](#stencila-plugins-install)
-* [`stencila plugins uninstall`↴](#stencila-plugins-uninstall)
-* [`stencila plugins link`↴](#stencila-plugins-link)
-* [`stencila plugins enable`↴](#stencila-plugins-enable)
-* [`stencila plugins disable`↴](#stencila-plugins-disable)
-* [`stencila plugins show`↴](#stencila-plugins-show)
-* [`stencila plugins check`↴](#stencila-plugins-check)
 * [`stencila secrets`↴](#stencila-secrets)
 * [`stencila secrets list`↴](#stencila-secrets-list)
 * [`stencila secrets set`↴](#stencila-secrets-set)
@@ -71,6 +64,8 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila tools install`↴](#stencila-tools-install)
 * [`stencila tools env`↴](#stencila-tools-env)
 * [`stencila tools run`↴](#stencila-tools-run)
+* [`stencila serve`↴](#stencila-serve)
+* [`stencila lsp`↴](#stencila-lsp)
 * [`stencila cloud`↴](#stencila-cloud)
 * [`stencila cloud status`↴](#stencila-cloud-status)
 * [`stencila cloud signin`↴](#stencila-cloud-signin)
@@ -116,10 +111,6 @@ Examples
 * `track` — Start tracking a document
 * `untrack` — Stop tracking a document
 * `clean` — Clean the current workspace
-* `add` — Add documents to the workspace database
-* `remove` — Remove documents from the workspace database
-* `rebuild` — Rebuild a workspace database
-* `query` — Query a workspace database
 * `convert` — Convert a document to another format
 * `merge` — Merge changes from another format
 * `sync` — Synchronize a document between formats
@@ -127,19 +118,20 @@ Examples
 * `lint` — Lint one or more documents
 * `execute` — Execute a document
 * `render` — Render a document
+* `query` — Query a workspace database
 * `preview` — Preview a document
 * `publish` — Publish one or more documents
 * `demo` — Run a terminal demonstration from a document
-* `serve` — Run the HTTP/Websocket server
-* `lsp` — Run the Language Server Protocol server
+* `db` — Manage the workspace and other document databases
 * `prompts` — Manage prompts
 * `models` — Manage generative models
 * `kernels` — Manage execution kernels
 * `linters` — Manage linters
 * `formats` — List the support for formats
-* `plugins` — Manage plugins
 * `secrets` — Manage secrets
 * `tools` — Manage tools and environments used by Stencila
+* `serve` — Run the HTTP/Websocket server
+* `lsp` — Run the Language Server Protocol server
 * `cloud` — Manage Stencila Cloud account
 * `signin` — Sign in to Stencila Cloud
 * `signout` — Sign out from Stencila Cloud
@@ -405,195 +397,6 @@ Examples
 
 
 
-## `stencila add`
-
-Add documents to the workspace database
-
-**Usage:** `stencila add [OPTIONS] <DOCUMENTS>... [-- <TOOL_ARGS>...]`
-
-Examples
-  # Add a single document to workspace database
-  stencila add document.md
-
-  # Add multiple local Markdown documents
-  stencila add *.md docs/*.md
-
-  # Add all local Markdown documents
-  stencila add **/*.md
-
-  # Add a bioRxiv preprint using its DOI
-  stencila add https://doi.org/10.1101/2021.11.24.469827
-
-  # Add specific pages from a PDF document
-  stencila add report.pdf --pages 1,3,5-10
-
-  # Add PDF excluding cover and appendix pages
-  stencila add book.pdf --pages 2- --exclude-pages 50-
-
-  # Add only even pages from a document
-  stencila add manuscript.pdf --pages even
-
-Note
-  This adds documents to the workspace database for
-  indexing and querying. Files must be within the
-  workspace directory to be added. Page selection
-  options are available for multi-page formats like PDF.
-
-
-###### **Arguments:**
-
-* `<DOCUMENTS>` — The documents to add to the workspace database
-* `<TOOL_ARGS>` — Arguments to pass through to the tool using for decoding
-
-   Only supported for formats that use external tools for decoding and ignored otherwise.
-
-###### **Options:**
-
-* `-f`, `--from <FROM>` — The format of the input/s
-
-   If not supplied, and inputting from a file, is inferred from the extension. See `stencila formats list` for available formats.
-* `--fine` — Use fine decoding if available for input format
-
-   Use this flag to decode content to the finest level of granularity supported by the format. This is the default for most formats.
-* `--coarse` — Use coarse decoding if available for input format
-
-   Use this flag to decode content to the coarsest level of granularity supported by the format. Useful for decoding formats that are not fully supported to avoid loss of structure.
-* `--cache <CACHE>` — Reconstitute nodes from a cache
-
-   Only useful when reconstituting a document from a file previously encoded with the `--reproducible` option and where a JSON cache of the document was encoded at the same times.
-
-   Only supported for some formats (.e.g DOCX, ODT). At present, the cache must be the path to a JSON file.
-* `--pages <PAGES>` — Pages to include when decoding multi-page documents
-
-   Supports 1-based page selectors: single pages (N), ranges (N-M), open ranges (N- or -M), and keywords (odd, even). Multiple selectors can be combined with commas. Examples: --pages 1,3,5-7 or --pages 2-10,15-
-* `--exclude-pages <EXCLUDE_PAGES>` — Pages to exclude when decoding multi-page documents
-
-   Uses the same syntax as --pages but excludes the specified pages. Applied after --pages selection, allowing fine-grained control. Example: --pages 1-10 --exclude-pages 3,7 includes pages 1,2,4,5,6,8,9,10
-* `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
-
-   Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
-
-  Default value: `debug`
-* `--tool <TOOL>` — The tool to use for decoding inputs
-
-   Only supported for formats that use alternative external tools for decoding and ignored otherwise.
-* `--no-canonicalize` — Do not canonicalize the document
-* `--no-sentencize` — Do not split document paragraphs into sentences
-
-
-
-## `stencila remove`
-
-Remove documents from the workspace database
-
-**Usage:** `stencila remove <DOCUMENTS>...`
-
-Examples
-  # Remove a document from workspace database
-  stencila remove document.md
-
-  # Remove multiple documents
-  stencila remove *.md docs/*.md
-
-  # Use the rm alias
-  stencila rm old-document.md
-
-Note
-  This removes documents from the workspace database
-  but does not delete the actual files. The files
-  will no longer be indexed or queryable.
-
-
-###### **Arguments:**
-
-* `<DOCUMENTS>` — The document to remove from the workspace database
-
-
-
-## `stencila rebuild`
-
-Rebuild a workspace database
-
-**Usage:** `stencila rebuild [DIR]`
-
-Examples
-  # Rebuild database for current workspace
-  stencila rebuild
-
-  # Rebuild database for specific workspace
-  stencila rebuild ./my-project
-
-Note
-  This recreates the workspace database from scratch,
-  re-scanning all tracked documents and their metadata.
-  Use this if the database becomes corrupted or outdated.
-
-
-###### **Arguments:**
-
-* `<DIR>` — The workspace directory to rebuild the database for
-
-   Defaults to the current directory.
-
-  Default value: `.`
-
-
-
-## `stencila query`
-
-Query a workspace database
-
-**Usage:** `stencila query [OPTIONS] <INPUT> [QUERY] [OUTPUT]`
-
-Examples
-  # Query the workspace database
-  stencila query "workspace.paragraphs()"
-
-  # Query a specific document
-  stencila query article.qmd "paragraphs().sample(3)"
-
-  # Query with output to file
-  stencila query report.myst "headings(.level == 1)" headings.md
-
-  # Use Cypher query language
-  stencila query doc.ipynb --cypher "MATCH (h:Heading) WHERE h.level = 1 RETURN h"
-
-
-###### **Arguments:**
-
-* `<INPUT>` — The document, or document database, to query
-
-   Use the path to a file to create a temporary database for that file to query.
-* `<QUERY>` — The DocsQL or Cypher query to run
-
-   If the query begins with the word `MATCH` it will be assumed to be cypher. Use the `--cypher` flag to force this.
-* `<OUTPUT>` — The path of the file to output the result to
-
-   If not supplied the output content is written to `stdout`.
-
-###### **Options:**
-
-* `--dir <DIR>` — The directory from which the closest workspace should be found
-
-   Only applies when `input` is `.` or `workspace` Defaults to the current directory. Use this option if wanting to query a database outside of the current workspace, or if not in a workspace.
-
-  Default value: `.`
-* `-c`, `--cypher` — Use Cypher as the query language (instead of DocsQL the default)
-* `--no-compile` — Do not compile the document before querying it
-
-   By default, the document is compiled before it is loaded into the database. This means that if it has any `IncludeBlock` nodes that their included content will be included in the database. Use this flag to turn off this behavior.
-* `-t`, `--to <TO>` — The format to output the result as
-
-   Defaults to inferring the format from the file name extension of the `output`. If no `output` is supplied, defaults to JSON. See `stencila codecs list` for available formats.
-* `--compact` — Use compact form of encoding if possible
-
-   Use this flag to produce the compact forms of encoding (e.g. no indentation) which are supported by some formats (e.g. JSON, HTML).
-* `-p`, `--pretty` — Use a "pretty" form of encoding if possible
-
-   Use this flag to produce pretty forms of encoding (e.g. indentation) which are supported by some formats (e.g. JSON, HTML).
-
-
-
 ## `stencila convert`
 
 Convert a document to another format
@@ -688,6 +491,12 @@ Examples
 * `--no-highlight` — Do not highlight the rendered outputs of executable nodes
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
+* `--embed-media` — Embed media files as data URIs
+
+   When enabled, external media files (images, audio, video) referenced in the document will be converted to data URIs and embedded directly in the output. This creates a self-contained document but may increase file size significantly. Currently respected for Markdown-flavors and HTML. Should not be used with `--extract-media`.
+* `--extract-media <FOLDER>` — Extract embedded media to a folder
+
+   Depending on the format, this is often the default when encoding to files. When provided, any data URIs in the document will be extracted to files in the specified directory, and the references will be updated to point to these external files. This reduces document size but creates external dependencies. Currently respected for Markdown-flavors and HTML. Should not be used with `--embed-media`.
 * `--recursive` — Recursively encode the content of `IncludeBlock`s to their source file
 
    Only supported when encoding to a path.
@@ -815,6 +624,12 @@ Examples
 * `--no-highlight` — Do not highlight the rendered outputs of executable nodes
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
+* `--embed-media` — Embed media files as data URIs
+
+   When enabled, external media files (images, audio, video) referenced in the document will be converted to data URIs and embedded directly in the output. This creates a self-contained document but may increase file size significantly. Currently respected for Markdown-flavors and HTML. Should not be used with `--extract-media`.
+* `--extract-media <FOLDER>` — Extract embedded media to a folder
+
+   Depending on the format, this is often the default when encoding to files. When provided, any data URIs in the document will be extracted to files in the specified directory, and the references will be updated to point to these external files. This reduces document size but creates external dependencies. Currently respected for Markdown-flavors and HTML. Should not be used with `--embed-media`.
 * `--recursive` — Recursively encode the content of `IncludeBlock`s to their source file
 
    Only supported when encoding to a path.
@@ -920,6 +735,12 @@ Note
 * `--no-highlight` — Do not highlight the rendered outputs of executable nodes
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
+* `--embed-media` — Embed media files as data URIs
+
+   When enabled, external media files (images, audio, video) referenced in the document will be converted to data URIs and embedded directly in the output. This creates a self-contained document but may increase file size significantly. Currently respected for Markdown-flavors and HTML. Should not be used with `--extract-media`.
+* `--extract-media <FOLDER>` — Extract embedded media to a folder
+
+   Depending on the format, this is often the default when encoding to files. When provided, any data URIs in the document will be extracted to files in the specified directory, and the references will be updated to point to these external files. This reduces document size but creates external dependencies. Currently respected for Markdown-flavors and HTML. Should not be used with `--embed-media`.
 * `--recursive` — Recursively encode the content of `IncludeBlock`s to their source file
 
    Only supported when encoding to a path.
@@ -1248,6 +1069,12 @@ Examples
 * `--no-highlight` — Do not highlight the rendered outputs of executable nodes
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
+* `--embed-media` — Embed media files as data URIs
+
+   When enabled, external media files (images, audio, video) referenced in the document will be converted to data URIs and embedded directly in the output. This creates a self-contained document but may increase file size significantly. Currently respected for Markdown-flavors and HTML. Should not be used with `--extract-media`.
+* `--extract-media <FOLDER>` — Extract embedded media to a folder
+
+   Depending on the format, this is often the default when encoding to files. When provided, any data URIs in the document will be extracted to files in the specified directory, and the references will be updated to point to these external files. This reduces document size but creates external dependencies. Currently respected for Markdown-flavors and HTML. Should not be used with `--embed-media`.
 * `--recursive` — Recursively encode the content of `IncludeBlock`s to their source file
 
    Only supported when encoding to a path.
@@ -1290,6 +1117,53 @@ Examples
 
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
+
+
+
+## `stencila query`
+
+Query a workspace database
+
+**Usage:** `stencila query [OPTIONS] <FILE> <QUERY> [OUTPUT]`
+
+Examples
+  # Query a specific document
+  stencila query article.qmd "paragraphs().sample(3)"
+
+  # Query with output to file
+  stencila query report.myst "headings(.level == 1)" headings.md
+
+  # Use Cypher query language
+  stencila query doc.ipynb --cypher "MATCH (h:Heading) WHERE h.level = 1 RETURN h"
+
+
+###### **Arguments:**
+
+* `<FILE>` — The document to query
+
+   Use the path to a file to create a temporary database for that file to query.
+* `<QUERY>` — The DocsQL or Cypher query to run
+
+   If the query begins with the word `MATCH` it will be assumed to be cypher. Use the `--cypher` flag to force this.
+* `<OUTPUT>` — The path of the file to output the result to
+
+   If not supplied the output content is written to `stdout`.
+
+###### **Options:**
+
+* `-c`, `--cypher` — Use Cypher as the query language (instead of DocsQL the default)
+* `--no-compile` — Do not compile the document before querying it
+
+   By default, the document is compiled before it is loaded into the database. This means that if it has any `IncludeBlock` nodes that their included content will be included in the database. Use this flag to turn off this behavior.
+* `-t`, `--to <TO>` — The format to output the result as
+
+   Defaults to inferring the format from the file name extension of the `output`. If no `output` is supplied, defaults to JSON. See `stencila codecs list` for available formats.
+* `--compact` — Use compact form of encoding if possible
+
+   Use this flag to produce the compact forms of encoding (e.g. no indentation) which are supported by some formats (e.g. JSON, HTML).
+* `-p`, `--pretty` — Use a "pretty" form of encoding if possible
+
+   Use this flag to produce pretty forms of encoding (e.g. indentation) which are supported by some formats (e.g. JSON, HTML).
 
 
 
@@ -1708,69 +1582,265 @@ Examples
 
 
 
-## `stencila serve`
+## `stencila db`
 
-Run the HTTP/Websocket server
+Manage the workspace and other document databases
 
-**Usage:** `stencila serve [OPTIONS] [DIR]`
+**Usage:** `stencila db <COMMAND>`
+
+Examples
+  # Run pending migrations on workspace database
+  stencila db migrate
+
+  # Check migration status
+  stencila db migrations status
+
+  # Validate migrations without applying
+  stencila db migrate --dry-run
+
+  # Work with a specific database
+  stencila db migrate /path/to/database.db
+
+
+###### **Subcommands:**
+
+* `new` — Create a new document database
+* `add` — Add documents to the workspace database
+* `remove` — Remove documents from the workspace database
+* `query` — Query a workspace database
+* `migrate` — Run pending database migrations
+* `migrations` — Show applied and pending migrations
+
+
+
+## `stencila db new`
+
+Create a new document database
+
+**Usage:** `stencila db new [OPTIONS] [PATH]`
+
+Examples
+  # Create a document database in the current workspace
+  stencila db new
+
+  # Create a document database at a specific path
+  stencila db new path/to/my-database.kuzu
+
+  # Overwrite the database if it already exists
+  stencila db new temp.kuzu --force
+
 
 ###### **Arguments:**
 
-* `<DIR>` — The directory to serve
+* `<PATH>` — Path to the database file
 
-   Defaults to the current working directory
-
-  Default value: `.`
+   If not specified, creates a new workspace database.
 
 ###### **Options:**
 
-* `-a`, `--address <ADDRESS>` — The address to serve on
-
-   Defaults to `127.0.0.1` (localhost), use `0.0.0.0` to listen on all addresses.
-
-  Default value: `127.0.0.1`
-* `-p`, `--port <PORT>` — The port to serve on
-
-   Defaults to port 9000.
-
-  Default value: `9000`
-* `--no-auth` — Do not authenticate or authorize requests
-
-   By default, requests to all routes (except `~static/*`) require an access token.
-* `--raw` — Should files be served raw?
-
-   When `true` and a request is made to a path that exists within `dir`, the file will be served with a `Content-Type` header corresponding to the file's extension.
-* `--source` — Should `SourceMap` headers be sent?
-
-   When `true`, then the `SourceMap` header will be set with the URL of the document that was rendered as HTML. Usually only useful if `raw` is also `true`.
-* `--sync <SYNC>` — Whether and in which direction(s) to sync served documents
-
-  Possible values: `in`, `out`, `in-out`
-
-* `--cors <CORS>` — CORS policy level
-
-   Controls Cross-Origin Resource Sharing (CORS) headers. Ordered from most to least restrictive: - `none`: No CORS headers (default) - `restrictive`: Allow GET and POST requests from localhost - `local`: Allow any requests from localhost and 127.0.0.1 origins - `permissive`: Allow all origins, methods, and headers
-
-  Default value: `none`
-
-  Possible values:
-  - `none`:
-    No CORS headers
-  - `restrictive`:
-    Allow only same-origin requests
-  - `local`:
-    Allow localhost and 127.0.0.1 origins only
-  - `permissive`:
-    Allow all origins, methods, and headers
+* `-f`, `--force` — Overwrite the database if it already exists
 
 
 
+## `stencila db add`
 
-## `stencila lsp`
+Add documents to the workspace database
 
-Run the Language Server Protocol server
+**Usage:** `stencila db add [OPTIONS] <DOCUMENTS>... [-- <TOOL_ARGS>...]`
 
-**Usage:** `stencila lsp`
+Examples
+  # Add a single document to workspace database
+  stencila db add document.md
+
+  # Add multiple local Markdown documents
+  stencila db add *.md docs/*.md
+
+  # Add all local Markdown documents
+  stencila db add **/*.md
+
+  # Add a bioRxiv preprint using its DOI
+  stencila db add https://doi.org/10.1101/2021.11.24.469827
+
+  # Add specific pages from a PDF document
+  stencila db add report.pdf --pages 1,3,5-10
+
+  # Add PDF excluding cover and appendix pages
+  stencila db add book.pdf --pages 2- --exclude-pages 50-
+
+  # Add only even pages from a document
+  stencila db add manuscript.pdf --pages even
+
+Note
+  This adds documents to the workspace database for
+  indexing and querying. Files must be within the
+  workspace directory to be added. Page selection
+  options are available for multi-page formats like PDF.
+
+
+###### **Arguments:**
+
+* `<DOCUMENTS>` — The documents to add to the workspace database
+* `<TOOL_ARGS>` — Arguments to pass through to the tool using for decoding
+
+   Only supported for formats that use external tools for decoding and ignored otherwise.
+
+###### **Options:**
+
+* `-f`, `--from <FROM>` — The format of the input/s
+
+   If not supplied, and inputting from a file, is inferred from the extension. See `stencila formats list` for available formats.
+* `--fine` — Use fine decoding if available for input format
+
+   Use this flag to decode content to the finest level of granularity supported by the format. This is the default for most formats.
+* `--coarse` — Use coarse decoding if available for input format
+
+   Use this flag to decode content to the coarsest level of granularity supported by the format. Useful for decoding formats that are not fully supported to avoid loss of structure.
+* `--cache <CACHE>` — Reconstitute nodes from a cache
+
+   Only useful when reconstituting a document from a file previously encoded with the `--reproducible` option and where a JSON cache of the document was encoded at the same times.
+
+   Only supported for some formats (.e.g DOCX, ODT). At present, the cache must be the path to a JSON file.
+* `--pages <PAGES>` — Pages to include when decoding multi-page documents
+
+   Supports 1-based page selectors: single pages (N), ranges (N-M), open ranges (N- or -M), and keywords (odd, even). Multiple selectors can be combined with commas. Examples: --pages 1,3,5-7 or --pages 2-10,15-
+* `--exclude-pages <EXCLUDE_PAGES>` — Pages to exclude when decoding multi-page documents
+
+   Uses the same syntax as --pages but excludes the specified pages. Applied after --pages selection, allowing fine-grained control. Example: --pages 1-10 --exclude-pages 3,7 includes pages 1,2,4,5,6,8,9,10
+* `--input-losses <INPUT_LOSSES>` — Action when there are losses decoding from input files
+
+   Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or a filename to write the losses to (only `json` or `yaml` file extensions are supported).
+
+  Default value: `debug`
+* `--tool <TOOL>` — The tool to use for decoding inputs
+
+   Only supported for formats that use alternative external tools for decoding and ignored otherwise.
+* `--no-canonicalize` — Do not canonicalize the document
+* `--no-sentencize` — Do not split document paragraphs into sentences
+
+
+
+## `stencila db remove`
+
+Remove documents from the workspace database
+
+**Usage:** `stencila db remove <DOCUMENTS>...`
+
+Examples
+  # Remove a document from workspace database
+  stencila db remove document.md
+
+  # Remove multiple documents
+  stencila db remove *.md docs/*.md
+
+  # Use the rm alias
+  stencila db rm old-document.md
+
+Note
+  This removes documents from the workspace database
+  but does not delete the actual files. The files
+  will no longer be indexed or queryable.
+
+
+###### **Arguments:**
+
+* `<DOCUMENTS>` — The document to remove from the workspace database
+
+
+
+## `stencila db query`
+
+Query a workspace database
+
+**Usage:** `stencila db query [OPTIONS] <QUERY> [OUTPUT]`
+
+Examples
+  # Query the workspace database
+  stencila db query "workspace.paragraphs()"
+
+  # Use Cypher query language
+  stencila db query --cypher "MATCH (h:Heading) WHERE h.level = 1 RETURN h"
+
+
+###### **Arguments:**
+
+* `<QUERY>` — The DocsQL or Cypher query to run
+
+   If the query begins with the word `MATCH` it will be assumed to be cypher. Use the `--cypher` flag to force this.
+* `<OUTPUT>` — The path of the file to output the result to
+
+   If not supplied the output content is written to `stdout`.
+
+###### **Options:**
+
+* `-c`, `--cypher` — Use Cypher as the query language (instead of DocsQL the default)
+* `-t`, `--to <TO>` — The format to output the result as
+
+   Defaults to inferring the format from the file name extension of the `output`. If no `output` is supplied, defaults to JSON. See `stencila codecs list` for available formats.
+* `--compact` — Use compact form of encoding if possible
+
+   Use this flag to produce the compact forms of encoding (e.g. no indentation) which are supported by some formats (e.g. JSON, HTML).
+* `-p`, `--pretty` — Use a "pretty" form of encoding if possible
+
+   Use this flag to produce pretty forms of encoding (e.g. indentation) which are supported by some formats (e.g. JSON, HTML).
+
+
+
+## `stencila db migrate`
+
+Run pending database migrations
+
+**Usage:** `stencila db migrate [OPTIONS] [DB]`
+
+Examples
+  # Apply pending migrations to workspace database
+  stencila db migrate
+
+  # Preview what migrations would be applied
+  stencila db migrate --dry-run
+
+  # Apply migrations to a specific database
+  stencila db migrate path/to/my-database.kuzu
+
+
+###### **Arguments:**
+
+* `<DB>` — Path to the database file
+
+   If not specified, uses the workspace database
+
+###### **Options:**
+
+* `-d`, `--dry-run` — Preview migrations without applying them
+
+
+
+## `stencila db migrations`
+
+Show applied and pending migrations
+
+**Usage:** `stencila db migrations [OPTIONS] [DB]`
+
+Examples
+  # Show applied and pending migrations for the workspace database
+  stencila db migrations
+
+  # Output migrations as JSON
+  stencila db migrations --as json
+
+  # Show migrations for a specific database
+  stencila db migrations path/to/database.kuzu
+
+
+###### **Arguments:**
+
+* `<DB>` — Path to the database file
+
+###### **Options:**
+
+* `-a`, `--as <AS>` — Output format
+
+  Possible values: `json`, `yaml`
+
 
 
 
@@ -1949,7 +2019,6 @@ Model Types
   • local - Running locally (e.g. Ollama)
   • remote - Cloud-based APIs
   • router - Routes to other models
-  • plugin - Provided by plugins
 
 
 ###### **Subcommands:**
@@ -2340,163 +2409,6 @@ Columns
 
 
 
-## `stencila plugins`
-
-Manage plugins
-
-**Usage:** `stencila plugins [COMMAND]`
-
-Examples
-  # List all available plugins
-  stencila plugins
-
-  # Install a plugin from a URL
-  stencila plugins install https://github.com/user/plugin.git
-
-  # Install a plugin from a local directory
-  stencila plugins install ./my-plugin
-
-  # Show details about a plugin
-  stencila plugins show my-plugin
-
-  # Enable a plugin
-  stencila plugins enable my-plugin
-
-  # Disable a plugin
-  stencila plugins disable my-plugin
-
-  # Check plugin health
-  stencila plugins check my-plugin
-
-  # Uninstall a plugin
-  stencila plugins uninstall my-plugin
-
-Plugin Management
-  Plugins can extend Stencila's functionality by adding support for
-  new formats, kernels, models, and other features.
-
-
-###### **Subcommands:**
-
-* `list` — List plugins
-* `install` — Install a plugin
-* `uninstall` — Uninstall a plugin
-* `link` — Link to a local plugin
-* `enable` — Enable a plugin
-* `disable` — Disable a plugin
-* `show` — Show details of a plugin
-* `check` — Check a plugin
-
-
-
-## `stencila plugins list`
-
-List plugins
-
-**Usage:** `stencila plugins list [OPTIONS]`
-
-###### **Options:**
-
-* `-r`, `--refresh` — Force refresh of plugin manifests
-* `--installed` — Only list installed plugins
-* `--installable` — Only list installable plugins
-* `-o`, `--outdated` — Only list installed but outdated plugins
-* `-e`, `--enabled` — Only list installed and enabled plugins
-
-
-
-## `stencila plugins install`
-
-Install a plugin
-
-**Usage:** `stencila plugins install <NAME>`
-
-###### **Arguments:**
-
-* `<NAME>` — The name or URL of the plugin to install
-
-   If a URL is supplied it should be a URL to the manifest TOML file of the plugin. e.g. https://example.org/plugin/stencila-plugin.toml
-
-
-
-## `stencila plugins uninstall`
-
-Uninstall a plugin
-
-**Usage:** `stencila plugins uninstall <NAME>`
-
-###### **Arguments:**
-
-* `<NAME>` — The name of the plugin to uninstall
-
-
-
-## `stencila plugins link`
-
-Link to a local plugin
-
-**Usage:** `stencila plugins link <DIRECTORY>`
-
-###### **Arguments:**
-
-* `<DIRECTORY>` — The directory to link to
-
-
-
-## `stencila plugins enable`
-
-Enable a plugin
-
-**Usage:** `stencila plugins enable <NAME>`
-
-###### **Arguments:**
-
-* `<NAME>` — The name of the plugin to enable
-
-
-
-## `stencila plugins disable`
-
-Disable a plugin
-
-**Usage:** `stencila plugins disable <NAME>`
-
-###### **Arguments:**
-
-* `<NAME>` — The name of the plugin to disable
-
-
-
-## `stencila plugins show`
-
-Show details of a plugin
-
-**Usage:** `stencila plugins show <NAME>`
-
-###### **Arguments:**
-
-* `<NAME>` — The name of the plugin to install
-
-
-
-## `stencila plugins check`
-
-Check a plugin
-
-**Usage:** `stencila plugins check [OPTIONS] <NAME>`
-
-###### **Arguments:**
-
-* `<NAME>` — The name of the plugin to install
-
-###### **Options:**
-
-* `--skip-codecs` — Skip checking codecs
-* `--skip-kernels` — Skip checking kernels
-* `--skip-models` — Skip checking models
-
-
-
 ## `stencila secrets`
 
 Manage secrets
@@ -2852,6 +2764,72 @@ Examples
 * `-C`, `--cwd <DIR>` — Working directory for the command
 
    Environment detection will be performed relative to this directory. If not specified, uses the current working directory.
+
+
+
+## `stencila serve`
+
+Run the HTTP/Websocket server
+
+**Usage:** `stencila serve [OPTIONS] [DIR]`
+
+###### **Arguments:**
+
+* `<DIR>` — The directory to serve
+
+   Defaults to the current working directory
+
+  Default value: `.`
+
+###### **Options:**
+
+* `-a`, `--address <ADDRESS>` — The address to serve on
+
+   Defaults to `127.0.0.1` (localhost), use `0.0.0.0` to listen on all addresses.
+
+  Default value: `127.0.0.1`
+* `-p`, `--port <PORT>` — The port to serve on
+
+   Defaults to port 9000.
+
+  Default value: `9000`
+* `--no-auth` — Do not authenticate or authorize requests
+
+   By default, requests to all routes (except `~static/*`) require an access token.
+* `--raw` — Should files be served raw?
+
+   When `true` and a request is made to a path that exists within `dir`, the file will be served with a `Content-Type` header corresponding to the file's extension.
+* `--source` — Should `SourceMap` headers be sent?
+
+   When `true`, then the `SourceMap` header will be set with the URL of the document that was rendered as HTML. Usually only useful if `raw` is also `true`.
+* `--sync <SYNC>` — Whether and in which direction(s) to sync served documents
+
+  Possible values: `in`, `out`, `in-out`
+
+* `--cors <CORS>` — CORS policy level
+
+   Controls Cross-Origin Resource Sharing (CORS) headers. Ordered from most to least restrictive: - `none`: No CORS headers (default) - `restrictive`: Allow GET and POST requests from localhost - `local`: Allow any requests from localhost and 127.0.0.1 origins - `permissive`: Allow all origins, methods, and headers
+
+  Default value: `none`
+
+  Possible values:
+  - `none`:
+    No CORS headers
+  - `restrictive`:
+    Allow only same-origin requests
+  - `local`:
+    Allow localhost and 127.0.0.1 origins only
+  - `permissive`:
+    Allow all origins, methods, and headers
+
+
+
+
+## `stencila lsp`
+
+Run the Language Server Protocol server
+
+**Usage:** `stencila lsp`
 
 
 

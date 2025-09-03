@@ -17,14 +17,13 @@ config:
 
 The `Excerpt` type has these properties:
 
-| Name            | Description                                                          | Type                                                                     | Inherited from                                                     | `JSON-LD @id`                        | Aliases                            |
-| --------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------ | ---------------------------------- |
-| `id`            | The identifier for this item.                                        | [`String`](https://stencila.ghost.io/docs/reference/schema/string)       | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id) | -                                  |
-| `source`        | A `Reference` to the `CreativeWork` that the excerpt was taken from. | [`Reference`](https://stencila.ghost.io/docs/reference/schema/reference) | -                                                                  | `stencila:source`                    | -                                  |
-| `nodePath`      | A `Reference` to the `CreativeWork` that the excerpt was taken from. | [`String`](https://stencila.ghost.io/docs/reference/schema/string)       | -                                                                  | `stencila:nodePath`                  | `node-path`, `node_path`           |
-| `nodeAncestors` | The route to the node that was excerpted including the .             | [`String`](https://stencila.ghost.io/docs/reference/schema/string)       | -                                                                  | `stencila:nodeAncestors`             | `node-ancestors`, `node_ancestors` |
-| `nodeType`      | The type of the node that was excerpted.                             | [`String`](https://stencila.ghost.io/docs/reference/schema/string)       | -                                                                  | `stencila:nodeType`                  | `node-type`, `node_type`           |
-| `content`       | The excerpted content.                                               | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*        | -                                                                  | `stencila:content`                   | -                                  |
+| Name        | Description                                                          | Type                                                                     | Inherited from                                                     | `JSON-LD @id`                        | Aliases                    |
+| ----------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------ | -------------------------- |
+| `id`        | The identifier for this item.                                        | [`String`](https://stencila.ghost.io/docs/reference/schema/string)       | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id) | -                          |
+| `source`    | A `Reference` to the `CreativeWork` that the excerpt was taken from. | [`Reference`](https://stencila.ghost.io/docs/reference/schema/reference) | -                                                                  | `stencila:source`                    | -                          |
+| `nodePath`  | The path to the node that was excepted.                              | [`String`](https://stencila.ghost.io/docs/reference/schema/string)       | -                                                                  | `stencila:nodePath`                  | `node-path`, `node_path`   |
+| `nodeTypes` | The types of the ancestor nodes and the node that was excerpted.     | [`String`](https://stencila.ghost.io/docs/reference/schema/string)       | -                                                                  | `stencila:nodeTypes`                 | `node-types`, `node_types` |
+| `content`   | The excerpted content.                                               | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*        | -                                                                  | `stencila:content`                   | -                          |
 
 # Related
 
@@ -70,8 +69,6 @@ The `Excerpt` type can be encoded (serialized) to, and/or decoded (deserialized)
 | [Citation File Format](https://stencila.ghost.io/docs/reference/formats/cff)        |              |              |                                    |
 | [CSV](https://stencila.ghost.io/docs/reference/formats/csv)                         |              |              |                                    |
 | [TSV](https://stencila.ghost.io/docs/reference/formats/tsv)                         |              |              |                                    |
-| [Apache Parquet](https://stencila.ghost.io/docs/reference/formats/parquet)          |              |              |                                    |
-| [Apache Arrow](https://stencila.ghost.io/docs/reference/formats/arrow)              |              |              |                                    |
 | [Microsoft Excel XLSX](https://stencila.ghost.io/docs/reference/formats/xlsx)       |              |              |                                    |
 | [Microsoft Excel XLS](https://stencila.ghost.io/docs/reference/formats/xls)         |              |              |                                    |
 | [OpenDocument Spreadsheet](https://stencila.ghost.io/docs/reference/formats/ods)    |              |              |                                    |

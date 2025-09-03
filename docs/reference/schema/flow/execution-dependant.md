@@ -21,7 +21,8 @@ The `ExecutionDependant` type has these properties:
 | ------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------ | ------------------------------------------ |
 | `id`                | The identifier for this item.               | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                           | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id) | -                                          |
 | `dependantRelation` | The relation to the dependant.              | [`ExecutionDependantRelation`](https://stencila.ghost.io/docs/reference/schema/execution-dependant-relation) | -                                                                  | `stencila:dependantRelation`         | `dependant-relation`, `dependant_relation` |
-| `dependantNode`     | The node that is the dependant.             | [`ExecutionDependantNode`](https://stencila.ghost.io/docs/reference/schema/execution-dependant-node)         | -                                                                  | `stencila:dependantNode`             | `dependant-node`, `dependant_node`         |
+| `dependantType`     | The type of node that is the dependant.     | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                           | -                                                                  | `stencila:dependantType`             | `dependant-type`, `dependant_type`         |
+| `dependantId`       | The id of node that is the dependant.       | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                           | -                                                                  | `stencila:dependantId`               | `dependant-id`, `dependant_id`             |
 | `codeLocation`      | The location that the dependant is defined. | [`CodeLocation`](https://stencila.ghost.io/docs/reference/schema/code-location)                              | -                                                                  | `stencila:codeLocation`              | `code-location`, `code_location`           |
 
 # Related
@@ -68,8 +69,6 @@ The `ExecutionDependant` type can be encoded (serialized) to, and/or decoded (de
 | [Citation File Format](https://stencila.ghost.io/docs/reference/formats/cff)        |              |              |         |
 | [CSV](https://stencila.ghost.io/docs/reference/formats/csv)                         |              |              |         |
 | [TSV](https://stencila.ghost.io/docs/reference/formats/tsv)                         |              |              |         |
-| [Apache Parquet](https://stencila.ghost.io/docs/reference/formats/parquet)          |              |              |         |
-| [Apache Arrow](https://stencila.ghost.io/docs/reference/formats/arrow)              |              |              |         |
 | [Microsoft Excel XLSX](https://stencila.ghost.io/docs/reference/formats/xlsx)       |              |              |         |
 | [Microsoft Excel XLS](https://stencila.ghost.io/docs/reference/formats/xls)         |              |              |         |
 | [OpenDocument Spreadsheet](https://stencila.ghost.io/docs/reference/formats/ods)    |              |              |         |

@@ -102,8 +102,6 @@ The `Datatable` type can be encoded (serialized) to, and/or decoded (deserialize
 | [Citation File Format](https://stencila.ghost.io/docs/reference/formats/cff)        |              |              |                                    |
 | [CSV](https://stencila.ghost.io/docs/reference/formats/csv)                         | 🟢 No loss    | 🟢 No loss    |                                    |
 | [TSV](https://stencila.ghost.io/docs/reference/formats/tsv)                         | 🟢 No loss    | 🟢 No loss    |                                    |
-| [Apache Parquet](https://stencila.ghost.io/docs/reference/formats/parquet)          | 🟢 No loss    | 🟢 No loss    |                                    |
-| [Apache Arrow](https://stencila.ghost.io/docs/reference/formats/arrow)              | 🟢 No loss    | 🟢 No loss    |                                    |
 | [Microsoft Excel XLSX](https://stencila.ghost.io/docs/reference/formats/xlsx)       |              | 🔷 Low loss   |                                    |
 | [Microsoft Excel XLS](https://stencila.ghost.io/docs/reference/formats/xls)         |              | 🔷 Low loss   |                                    |
 | [OpenDocument Spreadsheet](https://stencila.ghost.io/docs/reference/formats/ods)    |              | 🔷 Low loss   |                                    |

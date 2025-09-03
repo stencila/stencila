@@ -69,8 +69,6 @@ The `CompilationMessage` type can be encoded (serialized) to, and/or decoded (de
 | [Citation File Format](https://stencila.ghost.io/docs/reference/formats/cff)        |              |              |         |
 | [CSV](https://stencila.ghost.io/docs/reference/formats/csv)                         |              |              |         |
 | [TSV](https://stencila.ghost.io/docs/reference/formats/tsv)                         |              |              |         |
-| [Apache Parquet](https://stencila.ghost.io/docs/reference/formats/parquet)          |              |              |         |
-| [Apache Arrow](https://stencila.ghost.io/docs/reference/formats/arrow)              |              |              |         |
 | [Microsoft Excel XLSX](https://stencila.ghost.io/docs/reference/formats/xlsx)       |              |              |         |
 | [Microsoft Excel XLS](https://stencila.ghost.io/docs/reference/formats/xls)         |              |              |         |
 | [OpenDocument Spreadsheet](https://stencila.ghost.io/docs/reference/formats/ods)    |              |              |         |
