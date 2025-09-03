@@ -65,7 +65,7 @@ test-setup:
 # Run tests
 test: test-setup	
 	# Run all the test in the workspace (except `node` which is tested elsewhere)
-	cargo test --workspace --no-fail-fast --exclude node -- --nocapture
+	cargo test --workspace --no-fail-fast --exclude stencila-node -- --nocapture
 
 # Run tests with coverage
 # Coverage is reported to ../lcov.info so it can be used by the VSCode Coverage Gutters extension
