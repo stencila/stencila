@@ -1,5 +1,6 @@
 use crate::{
-    Article, CreativeWork, CreativeWorkType, CreativeWorkVariant, Reference, prelude::*, replicate,
+    Article, CreativeWork, CreativeWorkType, CreativeWorkVariant, Reference, ReferenceOptions,
+    prelude::*, replicate,
 };
 
 impl From<&Node> for Reference {
@@ -75,9 +76,12 @@ impl From<&Article> for Reference {
                 .and_then(|date| replicate(date).ok()),
             title: article.title(),
             is_part_of: article.is_part_of().map(Box::new),
-            page_start: article.options.page_start.clone(),
-            page_end: article.options.page_end.clone(),
-            pagination: article.options.pagination.clone(),
+            options: Box::new(ReferenceOptions {
+                page_start: article.options.page_start.clone(),
+                page_end: article.options.page_end.clone(),
+                pagination: article.options.pagination.clone(),
+                ..Default::default()
+            }),
             ..Default::default()
         }
     }

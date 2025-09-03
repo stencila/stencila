@@ -193,7 +193,6 @@ pub enum NodeProperty {
     Name,
     NativeHint,
     NativeType,
-    NodeAncestors,
     NodeCount,
     NodePath,
     NodeType,

@@ -5,7 +5,7 @@
 //! the standard components of Chicago references including authors, titles, publisher
 //! information, publication dates, volume/issue numbers, page ranges, and DOIs/URLs.
 
-use stencila_codec::stencila_schema::Date;
+use stencila_codec::stencila_schema::{Date, ReferenceOptions};
 use winnow::{
     Parser, Result,
     ascii::{Caseless, multispace0, multispace1},
@@ -22,6 +22,7 @@ use crate::decode::{
         authors::{authors, persons},
         date::year_az,
         doi::doi_or_url,
+        is_part_of::{in_book, in_journal},
         pages::pages,
         separator::separator,
         terminator::terminator,
@@ -105,12 +106,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
                     )),
                     authors: Some(authors),
                     title: Some(title),
-                    is_part_of: Some(Box::new(Reference {
-                        title: Some(vec![t(journal.trim())]),
-                        volume_number: Some(volume),
-                        issue_number: issue,
-                        ..Default::default()
-                    })),
+                    is_part_of: in_journal(vec![t(journal.trim())], Some(volume), issue),
                     date,
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
@@ -149,15 +145,18 @@ pub fn book(input: &mut &str) -> Result<Reference> {
                 id: Some(generate_id(&authors, &Some((date.clone(), date_suffix)))),
                 authors: Some(authors),
                 title: Some(title),
-                publisher: publisher.map(|publisher| {
-                    PersonOrOrganization::Organization(Organization {
-                        name: Some(publisher.trim().to_string()),
-                        ..Default::default()
-                    })
-                }),
                 date: Some(date),
                 doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                 url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
+                options: Box::new(ReferenceOptions {
+                    publisher: publisher.map(|publisher| {
+                        PersonOrOrganization::Organization(Organization {
+                            name: Some(publisher.trim().to_string()),
+                            ..Default::default()
+                        })
+                    }),
+                    ..Default::default()
+                }),
                 ..Default::default()
             },
         )
@@ -215,17 +214,17 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
                     id: Some(generate_id(&authors, &Some((date.clone(), date_suffix)))),
                     authors: Some(authors),
                     title: Some(chapter_title),
-                    is_part_of: Some(Box::new(Reference {
-                        title: Some(vec![t(book_title.trim())]),
+                    is_part_of: in_book(
+                        vec![t(book_title.trim())],
                         editors,
-                        publisher: publisher.map(|pub_name| {
+                        publisher.map(|pub_name| {
                             PersonOrOrganization::Organization(Organization {
                                 name: Some(pub_name.trim().to_string()),
                                 ..Default::default()
                             })
                         }),
-                        ..Default::default()
-                    })),
+                        None,
+                    ),
                     date: Some(date),
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
@@ -292,15 +291,15 @@ mod tests {
         let reference =
             article(&mut r#"Wilson, Mark. "New Discoveries." Nature vol. 500 (2021)."#)?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
-        assert!(reference.page_start.is_none());
+        assert!(reference.options.page_start.is_none());
 
         // Test with pages
         let reference = article(
             &mut r#"Brown, Alice. "Research Methods." Science Journal vol. 10 (2020): 100-115."#,
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
-        assert!(reference.page_start.is_some());
-        assert!(reference.page_end.is_some());
+        assert!(reference.options.page_start.is_some());
+        assert!(reference.options.page_end.is_some());
 
         // Canonical Chicago article format with all components
         let reference = article(
@@ -324,7 +323,7 @@ mod tests {
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|part_of| part_of.volume_number.as_ref())
+                .and_then(|part_of| part_of.options.volume_number.as_ref())
                 .cloned(),
             Some(IntegerOrString::Integer(15))
         );
@@ -332,13 +331,13 @@ mod tests {
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|part_of| part_of.issue_number.as_ref())
+                .and_then(|part_of| part_of.options.issue_number.as_ref())
                 .cloned(),
             Some(IntegerOrString::Integer(3))
         );
         assert!(reference.date.is_some());
-        assert!(reference.page_start.is_some());
-        assert!(reference.page_end.is_some());
+        assert!(reference.options.page_start.is_some());
+        assert!(reference.options.page_end.is_some());
         assert!(reference.doi.is_some());
 
         Ok(())
@@ -356,7 +355,7 @@ mod tests {
             reference.title.map(|title| to_text(&title)),
             Some("The Art of Programming".to_string())
         );
-        assert!(reference.publisher.is_some());
+        assert!(reference.options.publisher.is_some());
         assert!(reference.date.is_some());
         assert!(reference.doi.is_some());
 
@@ -394,8 +393,8 @@ mod tests {
                 .map(to_text),
             Some("Handbook of Methods".to_string())
         );
-        assert!(reference.page_start.is_some());
-        assert!(reference.page_end.is_some());
+        assert!(reference.options.page_start.is_some());
+        assert!(reference.options.page_end.is_some());
         assert!(reference.doi.is_some());
 
         // Multiple authors and editors
@@ -408,7 +407,7 @@ mod tests {
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|part_of| part_of.editors.as_ref())
+                .and_then(|part_of| part_of.options.editors.as_ref())
                 .map(|editors| !editors.is_empty())
                 .unwrap_or(false)
         );

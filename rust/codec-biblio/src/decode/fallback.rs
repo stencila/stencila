@@ -18,7 +18,9 @@ use winnow::{
     token::any,
 };
 
-use stencila_codec::stencila_schema::{Author, CreativeWorkType, Date, Reference};
+use stencila_codec::stencila_schema::{
+    Author, CreativeWorkType, Date, Reference, ReferenceOptions,
+};
 
 use crate::decode::{
     parts::{authors::persons, date::year_az, doi::doi_or_url},
@@ -95,13 +97,16 @@ pub fn fallback(mut input: &str) -> Reference {
                 reference.id = Some(generate_id(authors, &reference_date_with_suffix));
             }
 
-            reference.text = some_if_not_blank(input);
+            reference.options.text = some_if_not_blank(input);
 
             reference
         })
         .parse_next(&mut input)
         .unwrap_or_else(|_| Reference {
-            text: some_if_not_blank(input),
+            options: Box::new(ReferenceOptions {
+                text: some_if_not_blank(input),
+                ..Default::default()
+            }),
             ..Default::default()
         })
 }
@@ -200,7 +205,7 @@ mod tests {
         assert_eq!(r.doi, None);
         assert_eq!(r.url, None);
         assert_eq!(
-            r.text,
+            r.options.text,
             Some("Some unstructured reference text about research".to_string())
         );
     }
@@ -214,7 +219,7 @@ mod tests {
         assert_eq!(r.date, None);
         assert_eq!(r.doi, None);
         assert_eq!(r.url, None);
-        assert_eq!(r.text, None);
+        assert_eq!(r.options.text, None);
 
         let r = fallback("   \t\n   ");
         assert_eq!(r.work_type, None);
@@ -223,6 +228,6 @@ mod tests {
         assert_eq!(r.date, None);
         assert_eq!(r.doi, None);
         assert_eq!(r.url, None);
-        assert_eq!(r.text, None);
+        assert_eq!(r.options.text, None);
     }
 }

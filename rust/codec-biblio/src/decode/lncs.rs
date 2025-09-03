@@ -14,7 +14,7 @@ use winnow::{
 
 use stencila_codec::stencila_schema::{
     Author, CreativeWorkType, IntegerOrString, Organization, Person, PersonOptions, Reference,
-    StringOrNumber, shortcuts::t,
+    ReferenceOptions, StringOrNumber, shortcuts::t,
 };
 
 use crate::decode::{
@@ -22,6 +22,7 @@ use crate::decode::{
         authors::{authors, organization, person_given_family},
         date::year_az,
         doi::doi_or_url,
+        is_part_of::{in_book, in_journal, in_proceedings},
         pages::pages,
         publisher::publisher_place,
         separator::separator,
@@ -88,12 +89,11 @@ pub fn article(input: &mut &str) -> Result<Reference> {
                     id: Some(generate_id(&authors, &date_suffix)),
                     authors: Some(authors),
                     title: Some(title),
-                    is_part_of: Some(Box::new(Reference {
-                        title: Some(vec![t(journal.trim())]),
-                        volume_number: Some(IntegerOrString::from(volume)),
-                        issue_number: issue.map(IntegerOrString::from),
-                        ..Default::default()
-                    })),
+                    is_part_of: in_journal(
+                        vec![t(journal.trim())],
+                        Some(IntegerOrString::from(volume)),
+                        issue.map(IntegerOrString::from),
+                    ),
                     date: date_suffix.map(|(date, ..)| date),
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
@@ -147,11 +147,7 @@ pub fn conference(input: &mut &str) -> Result<Reference> {
                     id: Some(generate_id(&authors, &date_suffix)),
                     authors: Some(authors),
                     title: Some(chapter_title),
-                    is_part_of: Some(Box::new(Reference {
-                        title: Some(vec![t(proceedings_title.trim())]),
-                        publisher,
-                        ..Default::default()
-                    })),
+                    is_part_of: in_proceedings(vec![t(proceedings_title.trim())], None, publisher),
                     date: date_suffix.map(|(date, ..)| date),
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
@@ -215,13 +211,12 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
                     id: Some(generate_id(&authors, &date_suffix)),
                     authors: Some(authors),
                     title: Some(chapter_title),
-                    is_part_of: Some(Box::new(Reference {
-                        title: Some(vec![t(book_title.trim())]),
-                        editors: Some(editors),
-                        version: edition,
+                    is_part_of: in_book(
+                        vec![t(book_title.trim())],
+                        Some(editors),
                         publisher,
-                        ..Default::default()
-                    })),
+                        edition,
+                    ),
                     date: date_suffix.map(|(date, ..)| date),
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
@@ -261,11 +256,14 @@ pub fn book(input: &mut &str) -> Result<Reference> {
                     id: Some(generate_id(&authors, &Some((date.clone(), suffix)))),
                     authors: Some(authors),
                     title: Some(title),
-                    version: edition,
-                    publisher,
                     date: Some(date),
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
+                    options: Box::new(ReferenceOptions {
+                        version: edition,
+                        publisher,
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 }
             },
@@ -392,7 +390,7 @@ mod tests {
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|part_of| part_of.volume_number.as_ref())
+                .and_then(|part_of| part_of.options.volume_number.as_ref())
                 .cloned(),
             Some(IntegerOrString::Integer(12))
         );
@@ -400,12 +398,18 @@ mod tests {
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|part_of| part_of.issue_number.as_ref())
+                .and_then(|part_of| part_of.options.issue_number.as_ref())
                 .cloned(),
             Some(IntegerOrString::Integer(3))
         );
-        assert_eq!(reference.page_start, Some(IntegerOrString::Integer(45)));
-        assert_eq!(reference.page_end, Some(IntegerOrString::Integer(67)));
+        assert_eq!(
+            reference.options.page_start,
+            Some(IntegerOrString::Integer(45))
+        );
+        assert_eq!(
+            reference.options.page_end,
+            Some(IntegerOrString::Integer(67))
+        );
         assert!(reference.date.is_some());
 
         Ok(())
@@ -421,14 +425,14 @@ mod tests {
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|proceedings| proceedings.editors.clone()),
+                .and_then(|proceedings| proceedings.options.editors.clone()),
             None
         );
         assert_eq!(
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|proceedings| proceedings.version.clone()),
+                .and_then(|proceedings| proceedings.options.version.clone()),
             None
         );
         assert!(reference.date.is_some());
@@ -474,16 +478,16 @@ mod tests {
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|book| book.version.clone()),
+                .and_then(|book| book.options.version.clone()),
             Some(StringOrNumber::String("3rd edn".into()))
         );
-        assert!(reference.page_start.is_some());
-        assert!(reference.page_end.is_some());
+        assert!(reference.options.page_start.is_some());
+        assert!(reference.options.page_end.is_some());
         assert_eq!(
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|book| book.publisher.clone()),
+                .and_then(|book| book.options.publisher.clone()),
             Some(PersonOrOrganization::Organization(Organization {
                 name: Some("Springer".into()),
                 ..Default::default()
@@ -506,7 +510,7 @@ mod tests {
         );
         assert_eq!(reference.is_part_of, None);
         assert_eq!(
-            reference.publisher,
+            reference.options.publisher,
             Some(PersonOrOrganization::Organization(Organization {
                 name: Some("Springer".into()),
                 options: Box::new(OrganizationOptions {

@@ -3,7 +3,7 @@ use roxmltree::Node;
 
 use stencila_codec::{
     Losses,
-    stencila_schema::{Article, Author, Date, Person, Reference, shortcuts::t},
+    stencila_schema::{Article, Author, Date, Person, Reference, ReferenceOptions, shortcuts::t},
 };
 
 use super::{
@@ -101,8 +101,11 @@ fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Re
     let is_part_of = source
         .map(|title| Reference {
             title: Some(vec![t(title)]),
-            volume_number,
-            issue_number,
+            options: Box::new(ReferenceOptions {
+                volume_number,
+                issue_number,
+                ..Default::default()
+            }),
             ..Default::default()
         })
         .map(Box::new);
@@ -114,8 +117,11 @@ fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Re
         date,
         title,
         is_part_of,
-        page_start,
-        page_end,
+        options: Box::new(ReferenceOptions {
+            page_start,
+            page_end,
+            ..Default::default()
+        }),
         ..Default::default()
     }
 }

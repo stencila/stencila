@@ -16,7 +16,7 @@ use winnow::{
 
 use stencila_codec::stencila_schema::{
     Author, CreativeWorkType, Inline, IntegerOrString, Organization, Person, PersonOptions,
-    Reference, shortcuts::t,
+    Reference, ReferenceOptions, shortcuts::t,
 };
 
 use crate::decode::{
@@ -24,6 +24,7 @@ use crate::decode::{
         authors::{authors, person_given_family},
         date::year_az,
         doi::doi_or_url,
+        is_part_of::{in_book, in_journal, in_proceedings},
         pages::pages,
         publisher::place_publisher,
         separator::separator,
@@ -72,11 +73,11 @@ pub fn article(input: &mut &str) -> Result<Reference> {
                     id: Some(generate_id(&authors, &Some((date.clone(), suffix)))),
                     authors: Some(authors),
                     date: Some(date),
-                    is_part_of: Some(Box::new(Reference {
-                        title: Some(vec![t(journal.trim())]),
-                        volume_number: Some(IntegerOrString::from(volume)),
-                        ..Default::default()
-                    })),
+                    is_part_of: in_journal(
+                        vec![t(journal.trim())],
+                        Some(IntegerOrString::from(volume)),
+                        None,
+                    ),
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
                     ..pages.unwrap_or_default()
@@ -132,11 +133,7 @@ pub fn conference(input: &mut &str) -> Result<Reference> {
                     id: Some(generate_id(&authors, &Some((date.clone(), suffix)))),
                     authors: Some(authors),
                     date: Some(date),
-                    is_part_of: Some(Box::new(Reference {
-                        title: Some(vec![t(proceedings_title.trim())]),
-                        publisher,
-                        ..Default::default()
-                    })),
+                    is_part_of: in_proceedings(vec![t(proceedings_title.trim())], None, publisher),
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
                     ..pages.unwrap_or_default()
@@ -209,12 +206,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
                     authors: Some(authors),
                     date: Some(date),
                     title: Some(chapter_title),
-                    is_part_of: Some(Box::new(Reference {
-                        title: Some(book_title),
-                        editors,
-                        publisher,
-                        ..Default::default()
-                    })),
+                    is_part_of: in_book(book_title, editors, publisher, None),
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
                     ..pages.unwrap_or_default()
@@ -257,9 +249,12 @@ pub fn book(input: &mut &str) -> Result<Reference> {
                 authors: Some(authors),
                 date: Some(date),
                 title: Some(title),
-                publisher,
                 doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                 url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
+                options: Box::new(ReferenceOptions {
+                    publisher,
+                    ..Default::default()
+                }),
                 ..Default::default()
             },
         )
@@ -373,11 +368,14 @@ mod tests {
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|part_of| part_of.volume_number.as_ref())
+                .and_then(|part_of| part_of.options.volume_number.as_ref())
                 .cloned(),
             Some(IntegerOrString::Integer(12))
         );
-        assert_eq!(reference.page_start, Some(IntegerOrString::Integer(45)));
+        assert_eq!(
+            reference.options.page_start,
+            Some(IntegerOrString::Integer(45))
+        );
 
         // RAS / MNRAS style without comma after family name and comma after all authors
         let reference =
@@ -405,12 +403,15 @@ mod tests {
                 .map(to_text),
             Some("Proc. 10th Int. Conf. Examples".to_string())
         );
-        assert_eq!(reference.page_start, Some(IntegerOrString::Integer(123)));
+        assert_eq!(
+            reference.options.page_start,
+            Some(IntegerOrString::Integer(123))
+        );
         assert_eq!(
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|proceedings| proceedings.publisher.clone()),
+                .and_then(|proceedings| proceedings.options.publisher.clone()),
             Some(PersonOrOrganization::Organization(Organization {
                 name: Some("Springer".into()),
                 options: Box::new(OrganizationOptions {
@@ -448,15 +449,18 @@ mod tests {
             reference
                 .is_part_of
                 .as_ref()
-                .map(|book| book.editors.iter().flatten().count()),
+                .map(|book| book.options.editors.iter().flatten().count()),
             Some(2)
         );
-        assert_eq!(reference.page_start, Some(IntegerOrString::Integer(45)));
+        assert_eq!(
+            reference.options.page_start,
+            Some(IntegerOrString::Integer(45))
+        );
         assert_eq!(
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|proceedings| proceedings.publisher.clone()),
+                .and_then(|proceedings| proceedings.options.publisher.clone()),
             Some(PersonOrOrganization::Organization(Organization {
                 name: Some("Springer".into()),
                 options: Box::new(OrganizationOptions {
@@ -483,7 +487,7 @@ mod tests {
         );
         assert_eq!(reference.is_part_of, None);
         assert_eq!(
-            reference.publisher,
+            reference.options.publisher,
             Some(PersonOrOrganization::Organization(Organization {
                 name: Some("Springer".into()),
                 options: Box::new(OrganizationOptions {

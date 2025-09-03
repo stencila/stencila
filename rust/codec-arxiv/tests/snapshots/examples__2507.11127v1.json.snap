@@ -119,6 +119,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -192,6 +193,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Collection",
         "title": [
           {
             "type": "Text",
@@ -236,6 +238,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -271,11 +274,6 @@ expression: article
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "CoRR",
-        "address": "abs/cs/0511042"
-      },
       "date": {
         "type": "Date",
         "value": "2005"
@@ -287,7 +285,12 @@ expression: article
             "string": "Dimensions of neural-symbolic integration - A structured survey"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "CoRR",
+        "address": "abs/cs/0511042"
+      }
     },
     {
       "type": "Reference",
@@ -339,6 +342,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -393,10 +397,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
-        "publisher": {
-          "type": "Organization",
-          "name": "AAAI Press/International Joint Conferences on Artificial Intelligence"
-        },
+        "workType": "Collection",
         "title": [
           {
             "type": "Text",
@@ -404,7 +405,11 @@ expression: article
               "string": "Proceedings of 24th International Joint Conference on Artificial Intelligence (IJCAI)"
             }
           }
-        ]
+        ],
+        "publisher": {
+          "type": "Organization",
+          "name": "AAAI Press/International Joint Conferences on Artificial Intelligence"
+        }
       },
       "pageStart": 2770,
       "pageEnd": 2776
@@ -424,11 +429,6 @@ expression: article
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "d’Avila Garcez",
-        "address": "Sebastian Bader, Howard Bowman, Pedro M. Domingos, Pascal Hitzler, Kai-Uwe Kühnberger, Luís C. Lamb, Daniel Lowd, Priscila Machado Vieira Lima, Leo de Penning, Gadi Pinkas, Hoifung Poon, and Gerson Zaverucha. Neural-symbolic learning and reasoning: A survey and interpretation. CoRR, abs/1711.03902"
-      },
       "date": {
         "type": "Date",
         "value": "2017"
@@ -440,7 +440,12 @@ expression: article
             "string": "Besold, Artur S"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "d’Avila Garcez",
+        "address": "Sebastian Bader, Howard Bowman, Pedro M. Domingos, Pascal Hitzler, Kai-Uwe Kühnberger, Luís C. Lamb, Daniel Lowd, Priscila Machado Vieira Lima, Leo de Penning, Gadi Pinkas, Hoifung Poon, and Gerson Zaverucha. Neural-symbolic learning and reasoning: A survey and interpretation. CoRR, abs/1711.03902"
+      }
     },
     {
       "type": "Reference",
@@ -574,6 +579,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -632,6 +638,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -865,6 +872,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -930,6 +938,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -980,6 +989,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1087,6 +1097,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1139,10 +1150,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
-        "publisher": {
-          "type": "Organization",
-          "name": "Springer"
-        },
+        "workType": "Collection",
         "title": [
           {
             "type": "Text",
@@ -1150,7 +1158,11 @@ expression: article
               "string": "European Conference on Symbolic and Quantitative Approaches to Reasoning and Uncertainty"
             }
           }
-        ]
+        ],
+        "publisher": {
+          "type": "Organization",
+          "name": "Springer"
+        }
       },
       "pageStart": 53,
       "pageEnd": 57
@@ -1215,10 +1227,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
-        "publisher": {
-          "type": "Organization",
-          "name": "PMLR"
-        },
+        "workType": "Collection",
         "title": [
           {
             "type": "Text",
@@ -1226,7 +1235,11 @@ expression: article
               "string": "International Conference on Machine Learning"
             }
           }
-        ]
+        ],
+        "publisher": {
+          "type": "Organization",
+          "name": "PMLR"
+        }
       },
       "pageStart": 1931,
       "pageEnd": 1941
@@ -1333,6 +1346,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1401,6 +1415,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1465,6 +1480,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1520,10 +1536,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
-        "publisher": {
-          "type": "Organization",
-          "name": "Springer"
-        },
+        "workType": "Collection",
         "title": [
           {
             "type": "Text",
@@ -1531,7 +1544,11 @@ expression: article
               "string": "International Conference on Neural-Symbolic Learning and Reasoning"
             }
           }
-        ]
+        ],
+        "publisher": {
+          "type": "Organization",
+          "name": "Springer"
+        }
       },
       "pageStart": 312,
       "pageEnd": 330
@@ -1726,6 +1743,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1776,6 +1794,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1839,6 +1858,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Collection",
         "title": [
           {
             "type": "Text",
@@ -1933,10 +1953,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
-        "publisher": {
-          "type": "Organization",
-          "name": "PMLR"
-        },
+        "workType": "Collection",
         "title": [
           {
             "type": "Text",
@@ -1944,7 +1961,11 @@ expression: article
               "string": "Uncertainty in Artificial Intelligence"
             }
           }
-        ]
+        ],
+        "publisher": {
+          "type": "Organization",
+          "name": "PMLR"
+        }
       },
       "pageStart": 908,
       "pageEnd": 917
@@ -1998,10 +2019,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
-        "publisher": {
-          "type": "Organization",
-          "name": "Springer"
-        },
+        "workType": "Collection",
         "title": [
           {
             "type": "Text",
@@ -2009,7 +2027,11 @@ expression: article
               "string": "Joint European Conference on Machine Learning and Knowledge Discovery in Databases"
             }
           }
-        ]
+        ],
+        "publisher": {
+          "type": "Organization",
+          "name": "Springer"
+        }
       },
       "pageStart": 517,
       "pageEnd": 532
@@ -2094,6 +2116,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2162,6 +2185,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2211,6 +2235,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2251,6 +2276,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2359,10 +2385,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
-        "publisher": {
-          "type": "Organization",
-          "name": "PMLR"
-        },
+        "workType": "Collection",
         "title": [
           {
             "type": "Text",
@@ -2370,7 +2393,11 @@ expression: article
               "string": "International Conference on Probabilistic Graphical Models"
             }
           }
-        ]
+        ],
+        "publisher": {
+          "type": "Organization",
+          "name": "PMLR"
+        }
       },
       "pageStart": 401,
       "pageEnd": 412
@@ -2425,6 +2452,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2565,6 +2593,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2607,6 +2636,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2646,6 +2676,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2698,6 +2729,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2810,10 +2842,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
-        "publisher": {
-          "type": "Organization",
-          "name": "Springer"
-        },
+        "workType": "Collection",
         "title": [
           {
             "type": "Text",
@@ -2821,7 +2850,11 @@ expression: article
               "string": "International Conference on Neural-Symbolic Learning and Reasoning"
             }
           }
-        ]
+        ],
+        "publisher": {
+          "type": "Organization",
+          "name": "Springer"
+        }
       },
       "pageStart": 219,
       "pageEnd": 239
@@ -3053,6 +3086,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Collection",
         "title": [
           {
             "type": "Text",
@@ -3103,6 +3137,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -3164,6 +3199,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Collection",
         "title": [
           {
             "type": "Text",
@@ -3236,6 +3272,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -3276,6 +3313,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",

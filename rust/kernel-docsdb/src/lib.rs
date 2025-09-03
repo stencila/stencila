@@ -21,8 +21,8 @@ use stencila_kernel_kuzu::{
         generate_id,
         stencila_format::Format,
         stencila_schema::{
-            Array, Excerpt, ExecutionBounds, ExecutionMessage, Node, NodeId, NodeSet, NodeType,
-            Primitive, Reference, SoftwareApplication, Variable, get, shortcuts::t,
+            Array, Excerpt, ExecutionBounds, ExecutionMessage, Node, NodeId, NodeSet, Primitive,
+            Reference, SoftwareApplication, Variable, get, shortcuts::t,
         },
     },
 };
@@ -355,8 +355,7 @@ impl DocsDBKernelInstance {
                 id,
                 source,
                 node_path: node_path_str.to_string(),
-                node_ancestors: node_ancestors.to_string(),
-                node_type: node_type.to_string(),
+                node_types: [node_ancestors, "/", node_type].concat(),
                 content,
                 ..Default::default()
             });
@@ -432,8 +431,7 @@ impl DocsDBKernelInstance {
         Ok(Node::Excerpt(Excerpt {
             source,
             node_path: String::new(),
-            node_ancestors: "Document".to_string(),
-            node_type: NodeType::Variable.to_string(),
+            node_types: "Article.Variable".to_string(),
             content,
             ..Default::default()
         }))

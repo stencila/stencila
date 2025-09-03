@@ -12,7 +12,7 @@ use stencila_codec::{
     stencila_schema::{
         Author, Cord, CreativeWorkType, Date, Inline, IntegerOrString, Organization, Person,
         PersonOrOrganization, PostalAddressOrString, Primitive, PropertyValue,
-        PropertyValueOrString, Reference, StringOrNumber, Text,
+        PropertyValueOrString, Reference, ReferenceOptions, StringOrNumber, Text,
     },
 };
 
@@ -144,15 +144,18 @@ pub fn entry_to_reference(entry: &Entry) -> Result<Reference> {
                     ..Default::default()
                 })]),
                 authors: parent_authors,
-                editors: parent_editors,
                 date: parent_date,
-                publisher: parent_publisher,
-                version: parent_version,
-                identifiers: parent_identifiers,
                 url: parent_url,
-                pagination: parent_pagination,
-                volume_number: parent_volume_number,
-                issue_number: parent_issue_number,
+                options: Box::new(ReferenceOptions {
+                    editors: parent_editors,
+                    publisher: parent_publisher,
+                    version: parent_version,
+                    identifiers: parent_identifiers,
+                    pagination: parent_pagination,
+                    volume_number: parent_volume_number,
+                    issue_number: parent_issue_number,
+                    ..Default::default()
+                }),
                 ..Default::default()
             })
         })
@@ -250,19 +253,22 @@ pub fn entry_to_reference(entry: &Entry) -> Result<Reference> {
         id,
         title,
         authors,
-        editors,
         date,
         doi,
         url,
         is_part_of,
-        page_start,
-        page_end,
-        pagination: final_pagination,
-        publisher,
-        version,
-        volume_number,
-        issue_number,
-        identifiers,
+        options: Box::new(ReferenceOptions {
+            editors,
+            page_start,
+            page_end,
+            pagination: final_pagination,
+            publisher,
+            version,
+            volume_number,
+            issue_number,
+            identifiers,
+            ..Default::default()
+        }),
         ..Default::default()
     })
 }
@@ -322,7 +328,7 @@ pub fn reference_to_entry(reference: &Reference) -> Result<Entry> {
     }
 
     // Set publisher and location
-    if let Some(publisher) = &reference.publisher {
+    if let Some(publisher) = &reference.options.publisher {
         match publisher {
             PersonOrOrganization::Organization(org) => {
                 if let Some(pub_name) = &org.name {
@@ -364,7 +370,7 @@ pub fn reference_to_entry(reference: &Reference) -> Result<Entry> {
     }
 
     // Set version/edition
-    if let Some(version) = &reference.version {
+    if let Some(version) = &reference.options.version {
         let edition_str = match version {
             StringOrNumber::String(s) => s.clone(),
             StringOrNumber::Number(n) => n.to_string(),
@@ -373,17 +379,17 @@ pub fn reference_to_entry(reference: &Reference) -> Result<Entry> {
     }
 
     // Set volume number (for books)
-    if let Some(volume_number) = &reference.volume_number {
+    if let Some(volume_number) = &reference.options.volume_number {
         entry.set_volume(integer_or_string_to_maybe_numeric(volume_number));
     }
 
     // Set issue number (for serials)
-    if let Some(issue_number) = &reference.issue_number {
+    if let Some(issue_number) = &reference.options.issue_number {
         entry.set_issue(integer_or_string_to_maybe_numeric(issue_number));
     }
 
     // Set page numbers - prioritize page-total over pagination for total pages
-    if let Some(pagination) = &reference.pagination {
+    if let Some(pagination) = &reference.options.pagination {
         // Check if pagination is in "X pages" format for page-total
         if pagination.ends_with(PAGES_SUFFIX) {
             let page_count = pagination.trim_end_matches(PAGES_SUFFIX);
@@ -396,7 +402,7 @@ pub fn reference_to_entry(reference: &Reference) -> Result<Entry> {
             entry.set_page_range(MaybeTyped::String(pagination.clone()));
         }
     } else {
-        match (&reference.page_start, &reference.page_end) {
+        match (&reference.options.page_start, &reference.options.page_end) {
             (Some(start), Some(end)) => {
                 let page_str = format!(
                     "{}-{}",
@@ -421,7 +427,7 @@ pub fn reference_to_entry(reference: &Reference) -> Result<Entry> {
     }
 
     // Add identifiers from the identifiers field
-    if let Some(identifiers) = &reference.identifiers {
+    if let Some(identifiers) = &reference.options.identifiers {
         for identifier in identifiers {
             match identifier {
                 PropertyValueOrString::PropertyValue(prop_val) => {
@@ -593,7 +599,7 @@ fn set_contributors(entry: &mut Entry, reference: &Reference) {
         }
     }
 
-    if let Some(editors) = &reference.editors {
+    if let Some(editors) = &reference.options.editors {
         let persons: Vec<HPerson> = editors
             .iter()
             .filter_map(stencila_person_to_hayagriva_person)
@@ -803,7 +809,7 @@ fn handle_reference_container(entry: &mut Entry, container: &Reference) {
         }
 
         // Set publisher
-        if let Some(publisher) = &container.publisher {
+        if let Some(publisher) = &container.options.publisher {
             match publisher {
                 PersonOrOrganization::Organization(org) => {
                     if let Some(pub_name) = &org.name {
@@ -836,7 +842,7 @@ fn handle_reference_container(entry: &mut Entry, container: &Reference) {
         }
 
         // Set edition/version if available
-        if let Some(version) = &container.version {
+        if let Some(version) = &container.options.version {
             let edition = match version {
                 StringOrNumber::String(s) => MaybeTyped::String(s.clone()),
                 StringOrNumber::Number(n) => MaybeTyped::Typed(Numeric::new(*n as i32)),
@@ -845,7 +851,7 @@ fn handle_reference_container(entry: &mut Entry, container: &Reference) {
         }
 
         // Set volume and issue if available - ensure they're stored as integers when possible
-        if let Some(volume_number) = &container.volume_number {
+        if let Some(volume_number) = &container.options.volume_number {
             match volume_number {
                 IntegerOrString::Integer(i) => {
                     parent.set_volume(MaybeTyped::Typed(Numeric::new(*i as i32)))
@@ -860,7 +866,7 @@ fn handle_reference_container(entry: &mut Entry, container: &Reference) {
             }
         }
 
-        if let Some(issue_number) = &container.issue_number {
+        if let Some(issue_number) = &container.options.issue_number {
             match issue_number {
                 IntegerOrString::Integer(i) => {
                     parent.set_issue(MaybeTyped::Typed(Numeric::new(*i as i32)))
@@ -876,7 +882,7 @@ fn handle_reference_container(entry: &mut Entry, container: &Reference) {
         }
 
         // Set page-total if pagination is available
-        if let Some(pagination) = &container.pagination
+        if let Some(pagination) = &container.options.pagination
             && pagination.ends_with(PAGES_SUFFIX)
         {
             let page_count = pagination.trim_end_matches(PAGES_SUFFIX);
@@ -886,7 +892,7 @@ fn handle_reference_container(entry: &mut Entry, container: &Reference) {
         }
 
         // Set identifiers (ISBN, etc.)
-        if let Some(identifiers) = &container.identifiers {
+        if let Some(identifiers) = &container.options.identifiers {
             let mut serial_numbers = std::collections::BTreeMap::new();
             for identifier in identifiers {
                 if let PropertyValueOrString::PropertyValue(prop_val) = identifier

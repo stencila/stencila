@@ -7,7 +7,7 @@
 
 use std::str::FromStr;
 
-use stencila_codec::stencila_schema::{Author, Date, Person};
+use stencila_codec::stencila_schema::{Author, Date, Person, ReferenceOptions};
 use winnow::{
     Parser, Result,
     ascii::{multispace0, multispace1},
@@ -24,6 +24,7 @@ use crate::decode::{
         authors::{person_family_given, person_given_family},
         date::year_az,
         doi::doi_or_url,
+        is_part_of::{in_book, in_journal},
         pages::pages,
         separator::separator,
         title::{title_period_terminated, title_quoted},
@@ -86,12 +87,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
                     id: Some(generate_id(&authors, &Some((date.clone(), suffix)))),
                     authors: Some(authors),
                     title: Some(title),
-                    is_part_of: Some(Box::new(Reference {
-                        title: Some(vec![t(journal.trim())]),
-                        volume_number: volume,
-                        issue_number: issue,
-                        ..Default::default()
-                    })),
+                    is_part_of: in_journal(vec![t(journal.trim())], volume, issue),
                     date: Some(date),
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
@@ -128,17 +124,20 @@ pub fn book(input: &mut &str) -> Result<Reference> {
                 id: Some(generate_id(&authors, &Some((date.clone(), suffix)))),
                 authors: Some(authors),
                 title: Some(title),
-                publisher: publisher.map(|publisher| {
-                    PersonOrOrganization::Organization(Organization {
-                        name: Some(publisher.trim().to_string()),
-                        ..Default::default()
-                    })
-                }),
                 date: Some(date),
                 doi: doi_or_url
                     .as_ref()
                     .and_then(|doi_or_url| doi_or_url.doi.clone()),
                 url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
+                options: Box::new(ReferenceOptions {
+                    publisher: publisher.map(|publisher| {
+                        PersonOrOrganization::Organization(Organization {
+                            name: Some(publisher.trim().to_string()),
+                            ..Default::default()
+                        })
+                    }),
+                    ..Default::default()
+                }),
                 ..Default::default()
             },
         )
@@ -187,15 +186,15 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
                     id: Some(generate_id(&authors, &Some((date.clone(), suffix)))),
                     authors: Some(authors),
                     title: Some(chapter_title),
-                    is_part_of: Some(Box::new(Reference {
-                        title: Some(vec![t(book_title.trim())]),
-                        editors: Some(editors),
-                        publisher: Some(PersonOrOrganization::Organization(Organization {
+                    is_part_of: in_book(
+                        vec![t(book_title.trim())],
+                        Some(editors),
+                        Some(PersonOrOrganization::Organization(Organization {
                             name: Some(publisher.trim().to_string()),
                             ..Default::default()
                         })),
-                        ..Default::default()
-                    })),
+                        None,
+                    ),
                     date: Some(date),
                     doi: doi_or_url
                         .as_ref()
@@ -362,7 +361,7 @@ pub fn mla_editors(input: &mut &str) -> Result<Vec<Person>> {
 #[cfg(test)]
 mod tests {
     use pretty_assertions::assert_eq;
-    use stencila_codec::stencila_schema::{IntegerOrString, Person};
+    use stencila_codec::stencila_schema::Person;
     use stencila_codec_text_trait::to_text;
 
     use super::*;
@@ -649,17 +648,12 @@ mod tests {
         assert!(reference.authors.is_some());
         assert_eq!(reference.title, Some(vec![t("Title of Article")]));
         assert_eq!(
-            reference.is_part_of,
-            Some(Box::new(Reference {
-                title: Some(vec![t("Title of Journal")]),
-                volume_number: Some(IntegerOrString::Integer(1)),
-                issue_number: Some(IntegerOrString::Integer(2)),
-                ..Default::default()
-            }))
+            reference.is_part_of.and_then(|journal| journal.title),
+            Some(vec![t("Title of Journal")])
         );
         assert!(reference.date.is_some());
-        assert!(reference.page_start.is_some());
-        assert!(reference.page_end.is_some());
+        assert!(reference.options.page_start.is_some());
+        assert!(reference.options.page_end.is_some());
 
         // Example with all components and non-standard whitespace
         let reference = mla(
@@ -679,8 +673,8 @@ mod tests {
                 .map(|title| to_text(&title)),
             Some("Environmental Science".to_string())
         );
-        assert!(reference.page_start.is_some());
-        assert!(reference.page_end.is_some());
+        assert!(reference.options.page_start.is_some());
+        assert!(reference.options.page_end.is_some());
         assert!(reference.doi.is_some());
 
         // Without issue number
@@ -688,12 +682,19 @@ mod tests {
             &mut "Brown, Alice. \"Research Methods.\" Science Journal, vol. 10, 2020, pp. 100-115",
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
-        assert!(reference.is_part_of.expect("to be").issue_number.is_none());
+        assert!(
+            reference
+                .is_part_of
+                .expect("to be")
+                .options
+                .issue_number
+                .is_none()
+        );
 
         // Without pages
         let reference = mla(&mut "Wilson, Mark. \"New Discoveries.\" Nature, vol. 500, 2021.")?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
-        assert!(reference.page_start.is_none());
+        assert!(reference.options.page_start.is_none());
 
         Ok(())
     }
@@ -711,7 +712,7 @@ mod tests {
             reference.title.map(|title| to_text(&title)),
             Some("The Art of Programming".to_string())
         );
-        assert!(reference.publisher.is_some());
+        assert!(reference.options.publisher.is_some());
         assert!(reference.doi.is_some());
 
         // Without DOI
@@ -730,7 +731,7 @@ mod tests {
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
         assert!(reference.authors.is_some());
-        assert!(reference.page_start.is_some());
+        assert!(reference.options.page_start.is_some());
         assert!(reference.doi.is_some());
 
         // Single author with hyphenated name; one editor with middle initial
@@ -739,7 +740,7 @@ mod tests {
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
         assert!(reference.authors.is_some());
-        assert!(reference.page_start.is_some());
+        assert!(reference.options.page_start.is_some());
         assert!(reference.doi.is_none());
 
         // Two chapter authors; two editors with DOI
@@ -748,7 +749,7 @@ mod tests {
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
         assert!(reference.authors.is_some());
-        assert!(reference.page_start.is_some());
+        assert!(reference.options.page_start.is_some());
         assert!(reference.doi.is_some());
 
         // Author with accent marks; multiple editors with et al
@@ -757,21 +758,21 @@ mod tests {
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
         assert!(reference.authors.is_some());
-        assert!(reference.page_start.is_some());
+        assert!(reference.options.page_start.is_some());
 
         // Chapter with single-letter initials for editor
         let reference = mla(
             &mut "Wilson, R. K. \"Data Mining Techniques.\" Handbook of Analytics, edited by A. B. Chen, Academic Press, 2020, pp. 45-78.",
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
-        assert!(reference.page_start.is_some());
+        assert!(reference.options.page_start.is_some());
 
         // Whitespace variations (simplified to work with current parser)
         let reference = mla(
             &mut "Smith, John A. \"Testing Methods.\" Research Handbook, edited by Maria Johnson, Academic Press, 2021, pp. 10-25.",
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
-        assert!(reference.page_start.is_some());
+        assert!(reference.options.page_start.is_some());
 
         Ok(())
     }

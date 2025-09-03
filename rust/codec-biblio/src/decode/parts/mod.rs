@@ -2,6 +2,7 @@ pub mod authors;
 pub mod chars;
 pub mod date;
 pub mod doi;
+pub mod is_part_of;
 pub mod journal;
 pub mod pages;
 pub mod preprints;

@@ -186,6 +186,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -238,6 +239,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -325,6 +327,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -368,6 +371,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -439,6 +443,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Book",
         "title": [
           {
             "type": "Text",
@@ -514,6 +519,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -582,6 +588,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -653,6 +660,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -706,6 +714,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -750,6 +759,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -854,6 +864,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -907,6 +918,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -936,10 +948,6 @@ expression: article
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "PhD thesis, University of North Carolina at Chapel Hill"
-      },
       "date": {
         "type": "Date",
         "value": "2023"
@@ -951,7 +959,11 @@ expression: article
             "string": "Statistical Methods for Analyzing Interval-Censored Multi-State Data"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "PhD thesis, University of North Carolina at Chapel Hill"
+      }
     },
     {
       "type": "Reference",
@@ -1012,6 +1024,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1055,6 +1068,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1097,6 +1111,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1148,6 +1163,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1208,6 +1224,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1309,6 +1326,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1370,6 +1388,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1422,6 +1441,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1474,6 +1494,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1566,6 +1587,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1638,6 +1660,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1702,6 +1725,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1765,6 +1789,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1793,10 +1818,6 @@ expression: article
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Combinatorics, Probability and Computing, 11(5):501–514"
-      },
       "date": {
         "type": "Date",
         "value": "2002"
@@ -1808,7 +1829,11 @@ expression: article
             "string": "Poisson–Dirichlet and GEM invariant distributions for split-and-merge transformations of an interval partition"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Combinatorics, Probability and Computing, 11(5):501–514"
+      }
     },
     {
       "type": "Reference",
@@ -1837,10 +1862,6 @@ expression: article
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "MIT Press"
-      },
       "date": {
         "type": "Date",
         "value": "2006"
@@ -1852,7 +1873,11 @@ expression: article
             "string": "Gaussian Processes for Machine Learning"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "MIT Press"
+      }
     },
     {
       "type": "Reference",
@@ -1901,6 +1926,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1952,6 +1978,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1995,6 +2022,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2038,6 +2066,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2089,10 +2118,6 @@ expression: article
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "PhD thesis, University of Kentucky"
-      },
       "date": {
         "type": "Date",
         "value": "2016"
@@ -2104,7 +2129,11 @@ expression: article
             "string": "Continuous Time Multi-State Models for Interval Censored Data"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "PhD thesis, University of Kentucky"
+      }
     },
     {
       "type": "Reference",
@@ -2145,6 +2174,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2197,6 +2227,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2250,6 +2281,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2303,6 +2335,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2347,6 +2380,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2425,6 +2459,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",

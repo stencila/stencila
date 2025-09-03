@@ -374,7 +374,6 @@
     "name": "schema:name",
     "nativeHint": "stencila:nativeHint",
     "nativeType": "stencila:nativeType",
-    "nodeAncestors": "stencila:nodeAncestors",
     "nodeCount": "stencila:nodeCount",
     "nodePath": "stencila:nodePath",
     "nodeType": "stencila:nodeType",

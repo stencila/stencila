@@ -1361,6 +1361,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",

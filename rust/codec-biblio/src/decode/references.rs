@@ -129,7 +129,7 @@ mod tests {
         let r = reference("Plain text with no structure, DOI or URL");
         assert_eq!(r.work_type, None);
         assert_eq!(
-            r.text,
+            r.options.text,
             Some("Plain text with no structure, DOI or URL".into())
         );
         assert_eq!(r.doi, None);
@@ -137,14 +137,17 @@ mod tests {
 
         let r = reference("Plain text with a doi 10.12345/xyz");
         assert_eq!(r.work_type, None);
-        assert_eq!(r.text, Some("Plain text with a doi 10.12345/xyz".into()));
+        assert_eq!(
+            r.options.text,
+            Some("Plain text with a doi 10.12345/xyz".into())
+        );
         assert_eq!(r.doi, Some("10.12345/xyz".into()));
         assert_eq!(r.url, None);
 
         let r = reference("Plain text with a url https://example.org");
         assert_eq!(r.work_type, Some(CreativeWorkType::WebPage));
         assert_eq!(
-            r.text,
+            r.options.text,
             Some("Plain text with a url https://example.org".into())
         );
         assert_eq!(r.doi, None);
@@ -180,7 +183,7 @@ mod tests {
                 .map(|title| to_text(&title)),
             Some("Journal of Machine Learning Research".to_string())
         );
-        assert_eq!(r.page_end, Some(IntegerOrString::Integer(2830)));
+        assert_eq!(r.options.page_end, Some(IntegerOrString::Integer(2830)));
 
         let r = reference(
             "3.\tMcKinney, W. (2010). Data structures for statistical computing in Python. In Proceedings of the 9th Python in Science Conference (pp. 51–56).",
@@ -197,20 +200,20 @@ mod tests {
             "4.\tHunter, J. D. (2007). Matplotlib: A 2D graphics environment. Computing in Science & Engineering, 9(3), 90–95.",
         );
         assert_eq!(r.work_type, Some(CreativeWorkType::Article));
-        assert_eq!(r.page_end, Some(IntegerOrString::Integer(95)));
+        assert_eq!(r.options.page_end, Some(IntegerOrString::Integer(95)));
 
         let r = reference(
             "5.\tWaskom, M. (2021). Seaborn: statistical data visualization. Journal of Open Source Software, 6(60), 3021.",
         );
         assert_eq!(r.work_type, Some(CreativeWorkType::Article));
-        assert_eq!(r.page_start, Some(IntegerOrString::Integer(3021)));
+        assert_eq!(r.options.page_start, Some(IntegerOrString::Integer(3021)));
 
         let r = reference(
             "6.\tJames, G., Witten, D., Hastie, T., & Tibshirani, R. (2013). An Introduction to Statistical Learning: with Applications in R. Springer.",
         );
         assert_eq!(r.work_type, Some(CreativeWorkType::Book));
         assert_eq!(
-            r.publisher,
+            r.options.publisher,
             Some(PersonOrOrganization::Organization(Organization {
                 name: Some("Springer".to_string()),
                 ..Default::default()
@@ -221,14 +224,14 @@ mod tests {
             "7.\tTibshirani, R. (1996). Regression shrinkage and selection via the Lasso. Journal of the Royal Statistical Society: Series B (Methodological), 58(1), 267-288.",
         );
         assert_eq!(r.work_type, Some(CreativeWorkType::Article));
-        assert_eq!(r.page_end, Some(IntegerOrString::Integer(288)));
+        assert_eq!(r.options.page_end, Some(IntegerOrString::Integer(288)));
 
         let r = reference(
             "8.\tRaschka, S., & Mirjalili, V. (2017). Python Machine Learning: Machine Learning and Deep Learning with Python, scikit-learn, and TensorFlow 2. Packt Publishing Ltd.",
         );
         assert_eq!(r.work_type, Some(CreativeWorkType::Book));
         assert_eq!(
-            r.publisher,
+            r.options.publisher,
             Some(PersonOrOrganization::Organization(Organization {
                 name: Some("Packt Publishing Ltd".to_string()),
                 ..Default::default()
@@ -252,13 +255,13 @@ mod tests {
             "Anyaso-Samuel, S., Bandyopadhyay, D., and Datta, S. (2023). Pseudo-value regression of clustered multistate current status data with informative cluster sizes. Statistical Methods in Medical Research, 32(8):1494–1510.",
         );
         assert_eq!(r.work_type, Some(CreativeWorkType::Article));
-        assert_eq!(r.page_end, Some(IntegerOrString::Integer(1510)));
+        assert_eq!(r.options.page_end, Some(IntegerOrString::Integer(1510)));
 
         let r = reference(
             "Anyaso-Samuel, S. and Datta, S. (2024). Nonparametric estimation of a future entry time distribution given the knowledge of a past state occupation in a progressive multistate model with current status data. arXiv preprint arXiv:2405.05781.",
         );
         assert_eq!(r.work_type, Some(CreativeWorkType::Article));
-        assert_eq!(r.pagination, Some("2405.05781".into()));
+        assert_eq!(r.options.pagination, Some("2405.05781".into()));
 
         let r = reference(
             "Bietti, A., Bruna, J., Sanford, C., and Song, M. J. (2022). Learning single-index models with shallow neural networks. In Advances in Neural Information Processing Systems, volume 35, pages 9768–9783. Curran Associates, Inc.",
@@ -270,19 +273,19 @@ mod tests {
                 .map(|title| to_text(&title)),
             Some("Advances in Neural Information Processing Systems, volume 35, pages 9768–9783. Curran Associates, Inc.".to_string())
         );
-        assert_eq!(r.page_end, None);
+        assert_eq!(r.options.page_end, None);
 
         let r = reference(
             "Escobar, M. D. and West, M. (1995). Bayesian density estimation and inference using mixtures. Journal of the American Statistical Association, 90(430):577–588.",
         );
         assert_eq!(r.work_type, Some(CreativeWorkType::Article));
-        assert_eq!(r.page_end, Some(IntegerOrString::Integer(588)));
+        assert_eq!(r.options.page_end, Some(IntegerOrString::Integer(588)));
 
         let r = reference(
             "Mdala, I., Olsen, I., Haffajee, A. D., Socransky, S. S., Thoresen, M., and de Blasio, B. F. (2014). Comparing clinical attachment level and pocket depth for predicting periodontal disease progression in healthy sites of patients with chronic periodontitis using multi-state markov models. Journal of Clinical Periodontology, 41(9):837–845.",
         );
         assert_eq!(r.work_type, Some(CreativeWorkType::Article));
-        assert_eq!(r.page_end, Some(IntegerOrString::Integer(845)));
+        assert_eq!(r.options.page_end, Some(IntegerOrString::Integer(845)));
     }
 
     // References extracted from arXiv 2507.09057v1 HTML as plain text that had issues
@@ -292,7 +295,7 @@ mod tests {
             "Kareem Ahmed, Stefano Teso, Kai-Wei Chang, Guy Van den Broeck, and Antonio Vergari. Semantic probabilistic layers for neuro-symbolic learning. Advances in Neural Information Processing Systems, 35:29944–29959, 2022.",
         );
         assert_eq!(r.work_type, Some(CreativeWorkType::Article));
-        assert_eq!(r.page_end, Some(IntegerOrString::Integer(29959)));
+        assert_eq!(r.options.page_end, Some(IntegerOrString::Integer(29959)));
         assert!(r.date.is_some());
 
         let r = reference(
@@ -306,14 +309,17 @@ mod tests {
                     .to_string()
             )
         );
-        assert_eq!(r.is_part_of.clone().and_then(|book| book.editors), None);
+        assert_eq!(
+            r.is_part_of.clone().and_then(|book| book.options.editors),
+            None
+        );
         assert_eq!(
             r.is_part_of
                 .and_then(|book| book.title)
                 .map(|title| to_text(&title)),
             Some("Proceedings of 24th International Joint Conference on Artificial Intelligence (IJCAI)".to_string())
         );
-        assert_eq!(r.page_end, Some(IntegerOrString::Integer(2776)));
+        assert_eq!(r.options.page_end, Some(IntegerOrString::Integer(2776)));
         assert!(r.date.is_some());
     }
 
@@ -324,7 +330,7 @@ mod tests {
             "Abadi M. G., Navarro J. F., Fardal M., Babul A., Steinmetz M., 2010, MNRAS, 407, 435",
         );
         assert_eq!(r.work_type, Some(CreativeWorkType::Article));
-        assert_eq!(r.page_start, Some(IntegerOrString::Integer(435)));
+        assert_eq!(r.options.page_start, Some(IntegerOrString::Integer(435)));
         assert!(r.date.is_some());
     }
 
@@ -341,7 +347,7 @@ mod tests {
                 .map(|title| to_text(&title)),
             Some("Annual Review of Financial Economics".to_string())
         );
-        assert_eq!(r.page_end, Some(IntegerOrString::Integer(326)));
+        assert_eq!(r.options.page_end, Some(IntegerOrString::Integer(326)));
         assert!(r.date.is_some());
     }
 
@@ -362,10 +368,10 @@ mod tests {
         );
         assert_eq!(
             r.is_part_of
-                .and_then(|journal| journal.issue_number.clone()),
+                .and_then(|journal| journal.options.issue_number.clone()),
             Some(IntegerOrString::Integer(3))
         );
-        assert_eq!(r.page_end, Some(IntegerOrString::Integer(214)));
+        assert_eq!(r.options.page_end, Some(IntegerOrString::Integer(214)));
         assert!(r.date.is_some());
 
         // Non-numeric issue and pages
@@ -375,10 +381,13 @@ mod tests {
         assert_eq!(r.work_type, Some(CreativeWorkType::Article));
         assert_eq!(
             r.is_part_of
-                .and_then(|journal| journal.issue_number.clone()),
+                .and_then(|journal| journal.options.issue_number.clone()),
             Some(IntegerOrString::String("D1".into()))
         );
-        assert_eq!(r.page_end, Some(IntegerOrString::String("D1262".into())));
+        assert_eq!(
+            r.options.page_end,
+            Some(IntegerOrString::String("D1262".into()))
+        );
         assert!(r.date.is_some());
     }
 
@@ -400,7 +409,7 @@ mod tests {
         );
         assert_eq!(
             r.is_part_of
-                .and_then(|journal| journal.volume_number.clone()),
+                .and_then(|journal| journal.options.volume_number.clone()),
             Some(IntegerOrString::Integer(12))
         );
 
@@ -419,9 +428,9 @@ mod tests {
         );
         assert_eq!(
             r.is_part_of
-                .and_then(|journal| journal.volume_number.clone()),
+                .and_then(|journal| journal.options.volume_number.clone()),
             Some(IntegerOrString::Integer(12))
         );
-        assert_eq!(r.page_end, Some(IntegerOrString::Integer(10)));
+        assert_eq!(r.options.page_end, Some(IntegerOrString::Integer(10)));
     }
 }

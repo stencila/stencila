@@ -15,8 +15,7 @@
     "type",
     "source",
     "nodePath",
-    "nodeAncestors",
-    "nodeType",
+    "nodeTypes",
     "content"
   ],
   "core": [
@@ -54,7 +53,7 @@
     },
     "nodePath": {
       "@id": "stencila:nodePath",
-      "description": "A `Reference` to the `CreativeWork` that the excerpt was taken from.",
+      "description": "The path to the node that was excepted.",
       "aliases": [
         "node-path",
         "node_path"
@@ -64,24 +63,12 @@
       ],
       "type": "string"
     },
-    "nodeAncestors": {
-      "@id": "stencila:nodeAncestors",
-      "description": "The route to the node that was excerpted including the .",
+    "nodeTypes": {
+      "@id": "stencila:nodeTypes",
+      "description": "The types of the ancestor nodes and the node that was excerpted.",
       "aliases": [
-        "node-ancestors",
-        "node_ancestors"
-      ],
-      "strip": [
-        "metadata"
-      ],
-      "type": "string"
-    },
-    "nodeType": {
-      "@id": "stencila:nodeType",
-      "description": "The type of the node that was excerpted.",
-      "aliases": [
-        "node-type",
-        "node_type"
+        "node-types",
+        "node_types"
       ],
       "strip": [
         "metadata"

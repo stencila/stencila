@@ -57,10 +57,6 @@ expression: node
         "type": "Reference",
         "id": "a1_parent",
         "workType": "Periodical",
-        "publisher": {
-          "type": "Organization",
-          "name": "American Physical Society"
-        },
         "title": [
           {
             "type": "Text",
@@ -69,6 +65,10 @@ expression: node
             }
           }
         ],
+        "publisher": {
+          "type": "Organization",
+          "name": "American Physical Society"
+        },
         "volumeNumber": 102,
         "issueNumber": 16
       },
@@ -217,10 +217,6 @@ expression: node
         "type": "Reference",
         "id": "a3_parent",
         "workType": "Periodical",
-        "publisher": {
-          "type": "Organization",
-          "name": "Nature Publishing Group"
-        },
         "title": [
           {
             "type": "Text",
@@ -229,6 +225,10 @@ expression: node
             }
           }
         ],
+        "publisher": {
+          "type": "Organization",
+          "name": "Nature Publishing Group"
+        },
         "volumeNumber": 18,
         "issueNumber": 3
       },
@@ -364,10 +364,6 @@ expression: node
         "type": "Reference",
         "id": "a5_parent",
         "workType": "Collection",
-        "publisher": {
-          "type": "Organization",
-          "name": "Association for Computing Machinery"
-        },
         "title": [
           {
             "type": "Text",
@@ -375,7 +371,11 @@ expression: node
               "string": "Proceedings of the 26th Symposium on Operating Systems Principles"
             }
           }
-        ]
+        ],
+        "publisher": {
+          "type": "Organization",
+          "name": "Association for Computing Machinery"
+        }
       },
       "pageStart": 325,
       "pageEnd": 341

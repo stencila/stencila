@@ -8,8 +8,7 @@ markdown:
 required:
   - source
   - nodePath
-  - nodeAncestors
-  - nodeType
+  - nodeTypes
   - content
 properties:
   source:
@@ -21,17 +20,12 @@ properties:
       elem: div
   nodePath:
     "@id": stencila:nodePath
-    description: A `Reference` to the `CreativeWork` that the excerpt was taken from.
+    description: The path to the node that was excepted.
     type: string
     strip: [metadata]
-  nodeAncestors:
-    "@id": stencila:nodeAncestors
-    description: The route to the node that was excerpted including the .
-    type: string
-    strip: [metadata]
-  nodeType:
-    "@id": stencila:nodeType
-    description: The type of the node that was excerpted.
+  nodeTypes:
+    "@id": stencila:nodeTypes
+    description: The types of the ancestor nodes and the node that was excerpted.
     type: string
     strip: [metadata]
   content:

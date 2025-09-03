@@ -20,20 +20,10 @@
     "workType",
     "doi",
     "authors",
-    "editors",
-    "publisher",
     "date",
     "title",
     "isPartOf",
-    "volumeNumber",
-    "issueNumber",
-    "pageStart",
-    "pageEnd",
-    "pagination",
-    "version",
-    "identifiers",
-    "url",
-    "text"
+    "url"
   ],
   "properties": {
     "type": {

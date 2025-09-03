@@ -23,11 +23,8 @@ export class Excerpt extends Entity {
   @property({ attribute: 'node-path' })
   nodePath: string
 
-  @property({ attribute: 'node-ancestors' })
-  nodeAncestors: string
-
-  @property({ attribute: 'node-type' })
-  nodeType_: NodeType
+  @property({ attribute: 'node-types' })
+  nodeTypes: string
 
   /**
    * Toggle show/hide content
@@ -66,6 +63,8 @@ export class Excerpt extends Entity {
   }
 
   override renderCard() {
+    const nodeType = this.nodeTypes.split('/').pop() ?? ''
+
     return html`
       <stencila-ui-block-on-demand
         type="Excerpt"
@@ -76,10 +75,10 @@ export class Excerpt extends Entity {
       >
         <div slot="header-right" class="flex items-center gap-1">
           <stencila-ui-icon
-            name=${nodeUi(this.nodeType_).icon}
+            name=${nodeUi(nodeType).icon}
             class="text-sm"
           ></stencila-ui-icon>
-          <span class="font-semibold text-sm">${this.nodeType_}</span>
+          <span class="font-semibold text-sm">${nodeType}</span>
         </div>
         <div slot="body" class="p-3">
           <slot name="source"></slot>
@@ -107,7 +106,7 @@ export class Excerpt extends Entity {
 
   private renderAncestors() {
     return html`<div class="text-xs font-sans">
-      ${this.nodeAncestors.replace(/\//g, ' > ')} > ${this.nodeType_}
+      ${this.nodeTypes.replace(/\//g, ' > ')}
     </div>`
   }
 

@@ -13,8 +13,8 @@ use winnow::{
 };
 
 use stencila_codec::stencila_schema::{
-    Author, CreativeWorkType, Date, Organization, Person, PersonOptions, Reference, StringOrNumber,
-    shortcuts::t,
+    Author, CreativeWorkType, Date, Organization, Person, PersonOptions, Reference,
+    ReferenceOptions, StringOrNumber, shortcuts::t,
 };
 
 use crate::decode::{
@@ -22,6 +22,7 @@ use crate::decode::{
         authors::{authors, organization, person_given_family},
         date::{year, year_az},
         doi::doi_or_url,
+        is_part_of::{in_book, in_journal},
         pages::pages,
         publisher::place_publisher,
         separator::separator,
@@ -67,7 +68,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
         // Title
         preceded(separator, title_quoted),
         // Journal: Parse journal name ending with comma
-        opt(preceded(separator, take_while(1.., |c: char| c != ','))),
+        preceded(separator, take_while(1.., |c: char| c != ',')),
         // Volume
         opt(preceded(separator, vol_prefixed_volume)),
         // Issue
@@ -98,12 +99,7 @@ pub fn article(input: &mut &str) -> Result<Reference> {
                     id: Some(generate_id(&authors, &date_with_suffix)),
                     authors: Some(authors),
                     title: Some(title),
-                    is_part_of: Some(Box::new(Reference {
-                        title: journal.map(|journal| vec![t(journal.trim())]),
-                        volume_number: volume,
-                        issue_number: issue,
-                        ..Default::default()
-                    })),
+                    is_part_of: in_journal(vec![t(journal.trim())], volume, issue),
                     date: date_with_suffix.map(|(date, ..)| date),
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
@@ -168,13 +164,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
                     id: Some(generate_id(&authors, &date_with_suffix)),
                     authors: Some(authors),
                     title: Some(chapter_title),
-                    is_part_of: Some(Box::new(Reference {
-                        title: Some(vec![t(book_title.trim())]),
-                        editors,
-                        version: edition,
-                        publisher,
-                        ..Default::default()
-                    })),
+                    is_part_of: in_book(vec![t(book_title.trim())], editors, publisher, edition),
                     date: date_with_suffix.map(|(date, ..)| date),
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
@@ -216,11 +206,14 @@ pub fn book(input: &mut &str) -> Result<Reference> {
                     id: Some(generate_id(&authors, &Some((date.clone(), date_suffix)))),
                     authors: Some(authors),
                     title: Some(vec![t(title.trim())]),
-                    version: edition,
-                    publisher,
                     date: Some(date),
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
+                    options: Box::new(ReferenceOptions {
+                        version: edition,
+                        publisher,
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 }
             },
@@ -406,7 +399,7 @@ mod tests {
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|part_of| part_of.volume_number.as_ref())
+                .and_then(|part_of| part_of.options.volume_number.as_ref())
                 .cloned(),
             Some(IntegerOrString::Integer(12))
         );
@@ -414,13 +407,13 @@ mod tests {
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|part_of| part_of.issue_number.as_ref())
+                .and_then(|part_of| part_of.options.issue_number.as_ref())
                 .cloned(),
             Some(IntegerOrString::Integer(6))
         );
         assert!(reference.date.is_some());
         // e028456 should be parsed as pagination, not page_start
-        assert!(reference.pagination.is_some() || reference.page_start.is_some());
+        assert!(reference.options.pagination.is_some() || reference.options.page_start.is_some());
 
         // Keep only the simple cases that work for now
         // Single author
@@ -464,14 +457,14 @@ mod tests {
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|book| book.version.clone()),
+                .and_then(|book| book.options.version.clone()),
             Some(StringOrNumber::from("4th ed"))
         );
         assert_eq!(
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|book| book.publisher.clone()),
+                .and_then(|book| book.options.publisher.clone()),
             Some(PersonOrOrganization::Organization(Organization {
                 name: Some("Elsevier".into()),
                 options: Box::new(OrganizationOptions {
@@ -484,8 +477,8 @@ mod tests {
             }))
         );
         assert!(reference.date.is_some());
-        assert!(reference.page_start.is_some());
-        assert!(reference.page_end.is_some());
+        assert!(reference.options.page_start.is_some());
+        assert!(reference.options.page_end.is_some());
 
         // Chapter without edition info
         let reference = ieee(
@@ -502,14 +495,14 @@ mod tests {
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|book| book.version.clone()),
+                .and_then(|book| book.options.version.clone()),
             None
         );
         assert_eq!(
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|book| book.publisher.clone()),
+                .and_then(|book| book.options.publisher.clone()),
             Some(PersonOrOrganization::Organization(Organization {
                 name: Some("McGraw-Hill".into()),
                 options: Box::new(OrganizationOptions {
@@ -520,8 +513,8 @@ mod tests {
             }))
         );
         assert!(reference.date.is_some());
-        assert!(reference.page_start.is_some());
-        assert!(reference.page_end.is_some());
+        assert!(reference.options.page_start.is_some());
+        assert!(reference.options.page_end.is_some());
 
         // Chapter with three editors and edition
         let reference = ieee(
@@ -546,7 +539,7 @@ mod tests {
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|book| book.editors.as_ref())
+                .and_then(|book| book.options.editors.as_ref())
                 .map(|editors| editors.len()),
             Some(3)
         );
@@ -554,14 +547,14 @@ mod tests {
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|book| book.version.clone()),
+                .and_then(|book| book.options.version.clone()),
             Some(StringOrNumber::from("3rd ed"))
         );
         assert_eq!(
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|book| book.publisher.clone()),
+                .and_then(|book| book.options.publisher.clone()),
             Some(PersonOrOrganization::Organization(Organization {
                 name: Some("Academic Press".into()),
                 options: Box::new(OrganizationOptions {
@@ -571,8 +564,8 @@ mod tests {
                 ..Default::default()
             }))
         );
-        assert!(reference.page_start.is_some());
-        assert!(reference.page_end.is_some());
+        assert!(reference.options.page_start.is_some());
+        assert!(reference.options.page_end.is_some());
 
         // Single author, single editor
         let reference = ieee(
@@ -595,16 +588,16 @@ mod tests {
             &mut r#"P. Taylor, "Introduction to data mining," in Data Science Methods, E. Clark, Ed., Academic Press, 2020."#,
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
-        assert!(reference.page_start.is_none());
-        assert!(reference.page_end.is_none());
+        assert!(reference.options.page_start.is_none());
+        assert!(reference.options.page_end.is_none());
 
         // With single page using "p." prefix
         let reference = ieee(
             &mut r#"R. Garcia, "Summary," in Research Methods, L. Martinez, Ed., Science Press, 2019, p. 25."#,
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
-        assert!(reference.page_start.is_some());
-        assert!(reference.page_end.is_none());
+        assert!(reference.options.page_start.is_some());
+        assert!(reference.options.page_end.is_none());
 
         // With complex author names (hyphens, apostrophes)
         let reference = ieee(
@@ -630,14 +623,14 @@ mod tests {
             reference
                 .is_part_of
                 .as_ref()
-                .and_then(|book| book.publisher.clone()),
+                .and_then(|book| book.options.publisher.clone()),
             Some(PersonOrOrganization::Organization(Organization {
                 name: Some("Science Press".into()),
                 ..Default::default()
             }))
         );
-        assert!(reference.page_start.is_some());
-        assert!(reference.page_end.is_some());
+        assert!(reference.options.page_start.is_some());
+        assert!(reference.options.page_end.is_some());
         assert_eq!(reference.doi, Some("10.1234/example.doi".to_string()));
 
         // With URL (currently failing - URL parsing needs enhancement)
@@ -667,8 +660,8 @@ mod tests {
             reference.title.map(|title| to_text(&title)),
             Some("Programming Guide".to_string())
         );
-        assert!(reference.version.is_none());
-        assert!(reference.publisher.is_some());
+        assert!(reference.options.version.is_none());
+        assert!(reference.options.publisher.is_some());
         assert!(reference.date.is_some());
         assert!(reference.doi.is_none());
 
@@ -682,7 +675,7 @@ mod tests {
             reference.title.map(|title| to_text(&title)),
             Some("Advanced Algorithms".to_string())
         );
-        assert!(reference.publisher.is_some());
+        assert!(reference.options.publisher.is_some());
 
         // Book with edition
         let reference =
@@ -693,7 +686,7 @@ mod tests {
             Some("Database Systems".to_string())
         );
         assert_eq!(
-            reference.version.clone(),
+            reference.options.version.clone(),
             Some(StringOrNumber::from("4th ed"))
         );
 

@@ -47,17 +47,6 @@ pub struct Reference {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     pub authors: Option<Vec<Author>>,
 
-    /// People who edited the referenced work.
-    #[serde(alias = "editor")]
-    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
-    #[strip(metadata)]
-    pub editors: Option<Vec<Person>>,
-
-    /// A publisher of the referenced work.
-    #[serde(default, deserialize_with = "option_string_or_object")]
-    #[strip(metadata)]
-    pub publisher: Option<PersonOrOrganization>,
-
     /// Date of first publication.
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[dom(with = "Date::to_dom_attr")]
@@ -73,6 +62,36 @@ pub struct Reference {
     /// Another `Reference` that this reference is a part of.
     #[serde(alias = "is-part-of", alias = "is_part_of")]
     pub is_part_of: Option<Box<Reference>>,
+
+    /// The URL of the referenced work.
+    pub url: Option<String>,
+
+    /// Non-core optional fields
+    #[serde(flatten)]
+    #[html(flatten)]
+    #[jats(flatten)]
+    pub options: Box<ReferenceOptions>,
+
+    /// A unique identifier for a node within a document
+    #[serde(skip)]
+    pub uid: NodeUid
+}
+
+#[skip_serializing_none]
+#[serde_as]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
+#[serde(rename_all = "camelCase")]
+pub struct ReferenceOptions {
+    /// People who edited the referenced work.
+    #[serde(alias = "editor")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
+    #[strip(metadata)]
+    pub editors: Option<Vec<Person>>,
+
+    /// A publisher of the referenced work.
+    #[serde(default, deserialize_with = "option_string_or_object")]
+    #[strip(metadata)]
+    pub publisher: Option<PersonOrOrganization>,
 
     /// Identifies the volume of publication or multi-part work; for example, "iii" or "2".
     #[serde(alias = "volume-number", alias = "volume_number")]
@@ -103,15 +122,8 @@ pub struct Reference {
     #[strip(metadata)]
     pub identifiers: Option<Vec<PropertyValueOrString>>,
 
-    /// The URL of the referenced work.
-    pub url: Option<String>,
-
     /// Plain text representation of the referenced work.
     pub text: Option<String>,
-
-    /// A unique identifier for a node within a document
-    #[serde(skip)]
-    pub uid: NodeUid
 }
 
 impl Reference {

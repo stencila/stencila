@@ -258,6 +258,9 @@
       "rdfs:comment": "The type of nodes the prompt is being used for",
       "schema:domainIncludes": [
         {
+          "@id": "stencila:Excerpt"
+        },
+        {
           "@id": "stencila:Prompt"
         },
         {

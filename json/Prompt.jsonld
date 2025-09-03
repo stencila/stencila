@@ -928,6 +928,9 @@
       "rdfs:comment": "The types of nodes that the prompt supports",
       "schema:domainIncludes": [
         {
+          "@id": "stencila:Excerpt"
+        },
+        {
           "@id": "stencila:Prompt"
         },
         {

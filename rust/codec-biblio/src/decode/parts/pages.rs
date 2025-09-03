@@ -7,7 +7,7 @@ use winnow::{
     token::take_while,
 };
 
-use stencila_codec::stencila_schema::{IntegerOrString, Reference};
+use stencila_codec::stencila_schema::{IntegerOrString, Reference, ReferenceOptions};
 
 use crate::decode::parts::chars::is_hyphen;
 
@@ -38,8 +38,11 @@ pub fn page_range(input: &mut &str) -> Result<Reference> {
         ),
     )
     .map(|(start, _, end): (&str, _, &str)| Reference {
-        page_start: Some(IntegerOrString::from(start)),
-        page_end: Some(IntegerOrString::from(end)),
+        options: Box::new(ReferenceOptions {
+            page_start: Some(IntegerOrString::from(start)),
+            page_end: Some(IntegerOrString::from(end)),
+            ..Default::default()
+        }),
         ..Default::default()
     })
     .parse_next(input)
@@ -54,7 +57,10 @@ pub fn page_single(input: &mut &str) -> Result<Reference> {
         take_while(1.., |c: char| c.is_alphanumeric()),
     )
     .map(|page| Reference {
-        page_start: Some(IntegerOrString::from(page)),
+        options: Box::new(ReferenceOptions {
+            page_start: Some(IntegerOrString::from(page)),
+            ..Default::default()
+        }),
         ..Default::default()
     })
     .parse_next(input)
@@ -71,7 +77,10 @@ pub fn pagination(input: &mut &str) -> Result<Reference> {
         take_while(1.., |c: char| c.is_alphanumeric()),
     )
     .map(|pagination: &str| Reference {
-        pagination: Some(pagination.into()),
+        options: Box::new(ReferenceOptions {
+            pagination: Some(pagination.into()),
+            ..Default::default()
+        }),
         ..Default::default()
     })
     .parse_next(input)
@@ -83,50 +92,42 @@ mod tests {
 
     use super::*;
 
+    fn pages_(
+        input: &str,
+    ) -> Result<(
+        Option<IntegerOrString>,
+        Option<IntegerOrString>,
+        Option<String>,
+    )> {
+        let mut input = input;
+        let Reference { options, .. } = pages(&mut input)?;
+        Ok((options.page_start, options.page_end, options.pagination))
+    }
+
     #[test]
     fn test_page_range() -> Result<()> {
         // Basic hyphen-minus
-        let Reference {
-            page_start,
-            page_end,
-            ..
-        } = pages(&mut "1-9")?;
+        let (page_start, page_end, ..) = pages_("1-9")?;
         assert_eq!(page_start, Some(IntegerOrString::Integer(1)));
         assert_eq!(page_end, Some(IntegerOrString::Integer(9)));
 
         // En dash
-        let Reference {
-            page_start,
-            page_end,
-            ..
-        } = pages(&mut "12–34")?;
+        let (page_start, page_end, ..) = pages_("12–34")?;
         assert_eq!(page_start, Some(IntegerOrString::Integer(12)));
         assert_eq!(page_end, Some(IntegerOrString::Integer(34)));
 
         // With spaces around dash
-        let Reference {
-            page_start,
-            page_end,
-            ..
-        } = pages(&mut "100 - 200")?;
+        let (page_start, page_end, ..) = pages_("100 - 200")?;
         assert_eq!(page_start, Some(IntegerOrString::Integer(100)));
         assert_eq!(page_end, Some(IntegerOrString::Integer(200)));
 
         // Em dash
-        let Reference {
-            page_start,
-            page_end,
-            ..
-        } = pages(&mut "5—15")?;
+        let (page_start, page_end, ..) = pages_("5—15")?;
         assert_eq!(page_start, Some(IntegerOrString::Integer(5)));
         assert_eq!(page_end, Some(IntegerOrString::Integer(15)));
 
         // Minus sign
-        let Reference {
-            page_start,
-            page_end,
-            ..
-        } = pages(&mut "7−17")?;
+        let (page_start, page_end, ..) = pages_("7−17")?;
         assert_eq!(page_start, Some(IntegerOrString::Integer(7)));
         assert_eq!(page_end, Some(IntegerOrString::Integer(17)));
 
@@ -135,20 +136,15 @@ mod tests {
 
     #[test]
     fn test_page_single() -> Result<()> {
-        let Reference {
-            page_start,
-            page_end,
-            pagination,
-            ..
-        } = pages(&mut "42")?;
+        let (page_start, page_end, pagination) = pages_("42")?;
         assert_eq!(page_start, Some(IntegerOrString::Integer(42)));
         assert_eq!(page_end, None);
         assert_eq!(pagination, None);
 
-        let Reference { page_start, .. } = pages(&mut "1")?;
+        let (page_start, ..) = pages_("1")?;
         assert_eq!(page_start, Some(IntegerOrString::Integer(1)));
 
-        let Reference { page_start, .. } = pages(&mut "999")?;
+        let (page_start, ..) = pages_("999")?;
         assert_eq!(page_start, Some(IntegerOrString::Integer(999)));
 
         Ok(())
@@ -157,26 +153,21 @@ mod tests {
     #[test]
     fn test_non_numeric() -> Result<()> {
         // Roman numerals
-        let Reference {
-            page_start,
-            page_end,
-            pagination,
-            ..
-        } = pages(&mut "xii")?;
+        let (page_start, page_end, pagination) = pages_("xii")?;
         assert_eq!(page_start, Some(IntegerOrString::from("xii")));
         assert_eq!(page_end, None);
         assert_eq!(pagination, None);
 
         // Alphanumeric
-        let Reference { page_start, .. } = pages(&mut "A1")?;
+        let (page_start, ..) = pages_("A1")?;
         assert_eq!(page_start, Some(IntegerOrString::from("A1")));
 
         // Complex pagination
-        let Reference { page_start, .. } = pages(&mut "S123")?;
+        let (page_start, ..) = pages_("S123")?;
         assert_eq!(page_start, Some(IntegerOrString::from("S123")));
 
         // Mixed case
-        let Reference { page_start, .. } = pages(&mut "Appendix")?;
+        let (page_start, ..) = pages_("Appendix")?;
         assert_eq!(page_start, Some(IntegerOrString::from("Appendix")));
 
         Ok(())
@@ -185,21 +176,26 @@ mod tests {
     #[test]
     fn test_page_range_specific_parsers() -> Result<()> {
         // Test page_range directly
-        let Reference {
-            page_start,
-            page_end,
-            ..
-        } = page_range(&mut "25-50")?;
-        assert_eq!(page_start, Some(IntegerOrString::Integer(25)));
-        assert_eq!(page_end, Some(IntegerOrString::Integer(50)));
+        let reference = page_range(&mut "25-50")?;
+        assert_eq!(
+            reference.options.page_start,
+            Some(IntegerOrString::Integer(25))
+        );
+        assert_eq!(
+            reference.options.page_end,
+            Some(IntegerOrString::Integer(50))
+        );
 
         // Test page_single directly
-        let Reference { page_start, .. } = page_single(&mut "77")?;
-        assert_eq!(page_start, Some(IntegerOrString::Integer(77)));
+        let reference = page_single(&mut "77")?;
+        assert_eq!(
+            reference.options.page_start,
+            Some(IntegerOrString::Integer(77))
+        );
 
         // Test pagination directly
-        let Reference { pagination, .. } = pagination(&mut "iv")?;
-        assert_eq!(pagination, Some("iv".to_string()));
+        let reference = pagination(&mut "iv")?;
+        assert_eq!(reference.options.pagination, Some("iv".to_string()));
 
         Ok(())
     }

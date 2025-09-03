@@ -183,6 +183,7 @@ expression: node
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -225,6 +226,7 @@ expression: node
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Book",
         "title": [
           {
             "type": "Text",
@@ -267,6 +269,7 @@ expression: node
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -310,6 +313,7 @@ expression: node
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -365,10 +369,6 @@ expression: node
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Springer"
-      },
       "date": {
         "type": "Date",
         "value": "2013"
@@ -380,7 +380,11 @@ expression: node
             "string": "An Introduction to Statistical Learning: with Applications in R"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Springer"
+      }
     },
     {
       "type": "Reference",
@@ -411,6 +415,7 @@ expression: node
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -449,10 +454,6 @@ expression: node
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Packt Publishing Ltd"
-      },
       "date": {
         "type": "Date",
         "value": "2017"
@@ -464,7 +465,11 @@ expression: node
             "string": "Python Machine Learning: Machine Learning and Deep Learning with Python, scikit-learn, and TensorFlow 2"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Packt Publishing Ltd"
+      }
     }
   ],
   "title": [

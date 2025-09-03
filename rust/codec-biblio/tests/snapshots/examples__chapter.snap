@@ -43,11 +43,6 @@ expression: node
             ]
           }
         ],
-        "publisher": {
-          "type": "Organization",
-          "name": "Macmillan",
-          "address": "London"
-        },
         "date": {
           "type": "Date",
           "value": "1865"
@@ -60,6 +55,11 @@ expression: node
             }
           }
         ],
+        "publisher": {
+          "type": "Organization",
+          "name": "Macmillan",
+          "address": "London"
+        },
         "pagination": "96 pages",
         "identifiers": [
           {
@@ -107,6 +107,18 @@ expression: node
         "type": "Reference",
         "id": "c2_parent",
         "workType": "Book",
+        "date": {
+          "type": "Date",
+          "value": "2001"
+        },
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "Bioinformatics: The Machine Learning Approach"
+            }
+          }
+        ],
         "editors": [
           {
             "type": "Person",
@@ -132,18 +144,6 @@ expression: node
           "name": "MIT Press",
           "address": "Cambridge, MA"
         },
-        "date": {
-          "type": "Date",
-          "value": "2001"
-        },
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "Bioinformatics: The Machine Learning Approach"
-            }
-          }
-        ],
         "pagination": "452 pages",
         "version": "2",
         "identifiers": [
@@ -202,11 +202,6 @@ expression: node
             ]
           }
         ],
-        "publisher": {
-          "type": "Organization",
-          "name": "Harper & Brothers",
-          "address": "New York"
-        },
         "date": {
           "type": "Date",
           "value": "1851"
@@ -219,6 +214,11 @@ expression: node
             }
           }
         ],
+        "publisher": {
+          "type": "Organization",
+          "name": "Harper & Brothers",
+          "address": "New York"
+        },
         "pagination": "635 pages",
         "identifiers": [
           {
@@ -278,11 +278,6 @@ expression: node
             ]
           }
         ],
-        "publisher": {
-          "type": "Organization",
-          "name": "Methuen & Co.",
-          "address": "London"
-        },
         "date": {
           "type": "Date",
           "value": "1926"
@@ -295,6 +290,11 @@ expression: node
             }
           }
         ],
+        "publisher": {
+          "type": "Organization",
+          "name": "Methuen & Co.",
+          "address": "London"
+        },
         "pagination": "158 pages",
         "identifiers": [
           {
@@ -341,6 +341,19 @@ expression: node
         "type": "Reference",
         "id": "c5_parent",
         "workType": "Book",
+        "date": {
+          "type": "Date",
+          "value": "2011"
+        },
+        "title": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "The Architecture of Open Source Applications"
+            }
+          }
+        ],
+        "url": "http://aosabook.org/en/index.html",
         "editors": [
           {
             "type": "Person",
@@ -365,18 +378,6 @@ expression: node
           "type": "Organization",
           "name": "Lulu.com"
         },
-        "date": {
-          "type": "Date",
-          "value": "2011"
-        },
-        "title": [
-          {
-            "type": "Text",
-            "value": {
-              "string": "The Architecture of Open Source Applications"
-            }
-          }
-        ],
         "pagination": "432 pages",
         "identifiers": [
           {
@@ -384,8 +385,7 @@ expression: node
             "propertyId": "isbn",
             "value": "978-1-257-63801-7"
           }
-        ],
-        "url": "http://aosabook.org/en/index.html"
+        ]
       },
       "pageStart": 29,
       "pageEnd": 47,

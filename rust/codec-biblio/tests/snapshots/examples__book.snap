@@ -50,11 +50,6 @@ expression: node
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "MIT Press",
-        "address": "Cambridge, MA"
-      },
       "date": {
         "type": "Date",
         "value": "2009"
@@ -67,6 +62,11 @@ expression: node
           }
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "MIT Press",
+        "address": "Cambridge, MA"
+      },
       "pagination": "1312 pages",
       "version": "3",
       "identifiers": [
@@ -90,6 +90,18 @@ expression: node
           "givenNames": [
             "John"
           ]
+        }
+      ],
+      "date": {
+        "type": "Date",
+        "value": "1995"
+      },
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The \"Anniversaries\" and the \"Epicedes and Obsequies\""
+          }
         }
       ],
       "editors": [
@@ -118,18 +130,6 @@ expression: node
         "name": "Indiana University Press",
         "address": "Bloomington"
       },
-      "date": {
-        "type": "Date",
-        "value": "1995"
-      },
-      "title": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "The \"Anniversaries\" and the \"Epicedes and Obsequies\""
-          }
-        }
-      ],
       "volumeNumber": 6
     },
     {
@@ -147,10 +147,6 @@ expression: node
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Dargaud"
-      },
       "date": {
         "type": "Date",
         "value": "2018"
@@ -163,6 +159,10 @@ expression: node
           }
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Dargaud"
+      },
       "volumeNumber": 1,
       "version": "1"
     },
@@ -208,11 +208,6 @@ expression: node
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Addison-Wesley Professional",
-        "address": "Boston, MA"
-      },
       "date": {
         "type": "Date",
         "value": "1994"
@@ -225,6 +220,11 @@ expression: node
           }
         }
       ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Addison-Wesley Professional",
+        "address": "Boston, MA"
+      },
       "pagination": "395 pages",
       "identifiers": [
         {
@@ -249,11 +249,6 @@ expression: node
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "MVG",
-        "address": "München"
-      },
       "date": {
         "type": "Date",
         "value": "2020"
@@ -265,7 +260,12 @@ expression: node
             "string": "Den Boden unter den Füßen verlieren"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "MVG",
+        "address": "München"
+      }
     }
   ],
   "content": []

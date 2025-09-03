@@ -4,6 +4,7 @@ use stencila_codec::stencila_schema::{
     self, Article, ArticleOptions, Author, Block, CreativeWorkVariant, Date, IntegerOrString,
     Organization, Paragraph, Periodical, PeriodicalOptions, PersonOrOrganization, Primitive,
     PropertyValue, PropertyValueOrString, PublicationIssue, PublicationVolume, Reference,
+    ReferenceOptions,
     shortcuts::{p, t},
 };
 
@@ -347,8 +348,11 @@ impl From<ReferenceValue> for Reference {
             .map(|journal_title| Reference {
                 work_type: Some(stencila_schema::CreativeWorkType::Periodical),
                 title: Some(vec![t(&journal_title)]),
-                issue_number: ref_value.issue.map(IntegerOrString::String),
-                volume_number: ref_value.volume.map(IntegerOrString::String),
+                options: Box::new(ReferenceOptions {
+                    issue_number: ref_value.issue.map(IntegerOrString::String),
+                    volume_number: ref_value.volume.map(IntegerOrString::String),
+                    ..Default::default()
+                }),
                 ..Default::default()
             })
             .map(Box::new);
@@ -362,7 +366,10 @@ impl From<ReferenceValue> for Reference {
             date,
             title,
             is_part_of,
-            page_start,
+            options: Box::new(ReferenceOptions {
+                page_start,
+                ..Default::default()
+            }),
             ..Default::default()
         }
     }

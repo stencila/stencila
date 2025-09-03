@@ -16,7 +16,7 @@ use winnow::{
 
 use stencila_codec::stencila_schema::{
     CreativeWorkType, Date, Inline, IntegerOrString, Organization, PersonOrOrganization, Reference,
-    shortcuts::t,
+    ReferenceOptions, shortcuts::t,
 };
 
 use crate::decode::{
@@ -24,6 +24,7 @@ use crate::decode::{
         authors::{authors, persons},
         date::year_az,
         doi::doi_or_url,
+        is_part_of::{in_book, in_journal},
         journal::journal_no_comma,
         pages::pages,
         preprints::preprint_server,
@@ -72,7 +73,10 @@ pub fn article(input: &mut &str) -> Result<Reference> {
                     (preprint_server, multispace0, ":", multispace0).map(|_| (None, None)),
                     take_while(1.., |c: char| !c.is_whitespace()).map(|id: &str| {
                         Some(Reference {
-                            pagination: Some(id.trim_end_matches(['.', ',', ';']).to_string()),
+                            options: Box::new(ReferenceOptions {
+                                pagination: Some(id.trim_end_matches(['.', ',', ';']).to_string()),
+                                ..Default::default()
+                            }),
                             ..Default::default()
                         })
                     }),
@@ -116,12 +120,11 @@ pub fn article(input: &mut &str) -> Result<Reference> {
                     authors: Some(authors),
                     date: Some(date),
                     title: Some(title),
-                    is_part_of: Some(Box::new(Reference {
-                        title: Some(journal),
-                        volume_number: volume.map(IntegerOrString::from),
-                        issue_number: issue.map(IntegerOrString::from),
-                        ..Default::default()
-                    })),
+                    is_part_of: in_journal(
+                        journal,
+                        volume.map(IntegerOrString::from),
+                        issue.map(IntegerOrString::from),
+                    ),
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
                     ..pages.unwrap_or_default()
@@ -161,14 +164,17 @@ pub fn book(input: &mut &str) -> Result<Reference> {
                 authors: Some(authors),
                 date: Some(date),
                 title: Some(title),
-                publisher: publisher.map(|publisher| {
-                    PersonOrOrganization::Organization(Organization {
-                        name: Some(publisher.trim().to_string()),
-                        ..Default::default()
-                    })
-                }),
                 doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                 url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
+                options: Box::new(ReferenceOptions {
+                    publisher: publisher.map(|publisher| {
+                        PersonOrOrganization::Organization(Organization {
+                            name: Some(publisher.trim().to_string()),
+                            ..Default::default()
+                        })
+                    }),
+                    ..Default::default()
+                }),
                 ..Default::default()
             },
         )
@@ -246,17 +252,17 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
                     authors: Some(authors),
                     date: Some(date),
                     title: Some(chapter_title),
-                    is_part_of: Some(Box::new(Reference {
-                        title: Some(vec![t(book_title.trim().to_string())]),
+                    is_part_of: in_book(
+                        vec![t(book_title.trim().to_string())],
                         editors,
-                        publisher: publisher.map(|publisher| {
+                        publisher.map(|publisher| {
                             PersonOrOrganization::Organization(Organization {
                                 name: Some(publisher.trim().to_string()),
                                 ..Default::default()
                             })
                         }),
-                        ..Default::default()
-                    })),
+                        None,
+                    ),
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
                     ..pages.unwrap_or_default()
@@ -375,8 +381,8 @@ mod tests {
                 .map(|title| to_text(&title)),
             Some("Title of Journal".to_string())
         );
-        assert!(reference.page_start.is_some());
-        assert!(reference.page_end.is_some());
+        assert!(reference.options.page_start.is_some());
+        assert!(reference.options.page_end.is_some());
         assert_eq!(reference.url, None);
         assert!(reference.doi.is_some());
 
@@ -387,15 +393,15 @@ mod tests {
             reference
                 .is_part_of
                 .as_ref()
-                .map(|part_of| part_of.issue_number.is_none())
+                .map(|part_of| part_of.options.issue_number.is_none())
                 .unwrap_or(false)
         );
 
         // Without pages
         let reference = apa(&mut "Jones, A. (2021). New findings. Nature, 500(1).")?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
-        assert!(reference.page_start.is_none());
-        assert!(reference.page_end.is_none());
+        assert!(reference.options.page_start.is_none());
+        assert!(reference.options.page_end.is_none());
 
         // Without DOI
         let reference = apa(&mut "Brown, K. (2019). Analysis. Medical Journal, 25(3) 10-20.")?;
@@ -443,7 +449,10 @@ mod tests {
             &mut "Anyaso-Samuel, S., Bandyopadhyay, D., and Datta, S. (2023). Pseudo-value regression of clustered multistate current status data with informative cluster sizes. Statistical Methods in Medical Research, 32(8):1494–1510.",
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
-        assert_eq!(reference.page_end, Some(IntegerOrString::Integer(1510)));
+        assert_eq!(
+            reference.options.page_end,
+            Some(IntegerOrString::Integer(1510))
+        );
 
         // arxiv as publisher
         let reference = apa(
@@ -453,11 +462,12 @@ mod tests {
         assert_eq!(
             reference.is_part_of,
             Some(Box::new(Reference {
+                work_type: Some(CreativeWorkType::Periodical),
                 title: Some(vec![t("arXiv")]),
                 ..Default::default()
             }))
         );
-        assert_eq!(reference.pagination, Some("2405.05781".into()));
+        assert_eq!(reference.options.pagination, Some("2405.05781".into()));
 
         Ok(())
     }
@@ -475,7 +485,7 @@ mod tests {
             reference.title.map(|title| to_text(&title)),
             Some("Research Methods in Psychology".to_string())
         );
-        assert!(reference.publisher.is_some());
+        assert!(reference.options.publisher.is_some());
         assert!(reference.doi.is_some());
 
         // Without DOI
@@ -519,14 +529,14 @@ mod tests {
             Some("Handbook of Psychology".to_string())
         );
         assert_eq!(
-            reference.is_part_of.and_then(|book| book.publisher),
+            reference.is_part_of.and_then(|book| book.options.publisher),
             Some(PersonOrOrganization::Organization(Organization {
                 name: Some("Academic Press".to_string()),
                 ..Default::default()
             }))
         );
-        assert!(reference.page_start.is_some());
-        assert!(reference.page_end.is_some());
+        assert!(reference.options.page_start.is_some());
+        assert!(reference.options.page_end.is_some());
         assert!(reference.doi.is_some());
 
         // Multiple editors
@@ -538,7 +548,7 @@ mod tests {
             reference
                 .is_part_of
                 .as_ref()
-                .map(|part_of| part_of.editors.is_some())
+                .map(|part_of| part_of.options.editors.is_some())
                 .unwrap_or(false)
         );
         assert_eq!(reference.doi, None);

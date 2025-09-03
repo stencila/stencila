@@ -13,7 +13,8 @@ use winnow::{
 };
 
 use stencila_codec::stencila_schema::{
-    Author, CreativeWorkType, Organization, Person, PersonOptions, Reference, shortcuts::t,
+    Author, CreativeWorkType, Organization, Person, PersonOptions, Reference, ReferenceOptions,
+    shortcuts::t,
 };
 
 use crate::decode::{
@@ -21,6 +22,7 @@ use crate::decode::{
         authors::{authors, organization, person_family_initials},
         date::year_az,
         doi::doi_or_url,
+        is_part_of::{in_book, in_journal},
         pages::pages,
         publisher::place_publisher,
         separator::separator,
@@ -101,13 +103,8 @@ pub fn article(input: &mut &str) -> Result<Reference> {
                     id: Some(generate_id(&authors, &Some((date.clone(), suffix)))),
                     authors: Some(authors),
                     title: Some(title),
-                    is_part_of: Some(Box::new(Reference {
-                        title: Some(journal),
-                        volume_number: volume,
-                        issue_number: issue,
-                        ..Default::default()
-                    })),
                     date: Some(date),
+                    is_part_of: in_journal(journal, volume, issue),
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
                     ..pages.unwrap_or_default()
@@ -146,9 +143,12 @@ pub fn book(input: &mut &str) -> Result<Reference> {
                 authors: Some(authors),
                 date: Some(date),
                 title: Some(title),
-                publisher,
                 doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                 url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
+                options: Box::new(ReferenceOptions {
+                    publisher,
+                    ..Default::default()
+                }),
                 ..Default::default()
             },
         )
@@ -173,7 +173,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
         // Editors: Parse editors after "In:" (Vancouver format)
         preceded(separator, vancouver_editors),
         // Book Title: Parse book title after editors
-        opt(preceded(separator, title_period_terminated)),
+        preceded(separator, title_period_terminated),
         // Place: Publisher: Parse place and publisher
         opt(preceded(separator, place_publisher)),
         // Year: Publication year after semicolon
@@ -230,12 +230,7 @@ pub fn chapter(input: &mut &str) -> Result<Reference> {
                     authors: Some(authors),
                     title: Some(chapter_title),
                     date: date_suffix.map(|(date, ..)| date),
-                    is_part_of: Some(Box::new(Reference {
-                        title: book_title,
-                        editors: Some(editors),
-                        publisher,
-                        ..Default::default()
-                    })),
+                    is_part_of: in_book(book_title, Some(editors), publisher, None),
                     doi: doi_or_url.clone().and_then(|doi_or_url| doi_or_url.doi),
                     url: doi_or_url.and_then(|doi_or_url| doi_or_url.url),
                     ..pages.unwrap_or_default()
@@ -365,8 +360,8 @@ mod tests {
             Some("BMJ".to_string())
         );
         assert!(reference.date.is_some());
-        assert!(reference.page_start.is_some());
-        assert!(reference.page_end.is_some());
+        assert!(reference.options.page_start.is_some());
+        assert!(reference.options.page_end.is_some());
 
         // Multiple authors
         let reference = vancouver(
@@ -378,7 +373,7 @@ mod tests {
         // Without pages
         let reference = vancouver(&mut "Brown K. Research methods. Science. 2022;10(3).")?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
-        assert!(reference.page_start.is_none());
+        assert!(reference.options.page_start.is_none());
 
         // Without issue number
         let reference =
@@ -388,14 +383,14 @@ mod tests {
             reference
                 .is_part_of
                 .clone()
-                .and_then(|part_of| part_of.volume_number),
+                .and_then(|part_of| part_of.options.volume_number),
             Some(IntegerOrString::Integer(15))
         );
         assert_eq!(
             reference
                 .is_part_of
                 .clone()
-                .and_then(|part_of| part_of.issue_number),
+                .and_then(|part_of| part_of.options.issue_number),
             None
         );
 
@@ -414,7 +409,7 @@ mod tests {
             reference.title.map(|title| to_text(&title)),
             Some("Programming Guide".to_string())
         );
-        assert!(reference.publisher.is_some());
+        assert!(reference.options.publisher.is_some());
         assert!(reference.date.is_some());
 
         // Single author book
@@ -427,7 +422,7 @@ mod tests {
         let reference =
             vancouver(&mut "Wilson M. Statistical Computing. Science Publications; 2021.")?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Book));
-        assert!(reference.publisher.is_some());
+        assert!(reference.options.publisher.is_some());
 
         // Book with multiple family names
         let reference =
@@ -461,13 +456,16 @@ mod tests {
                 book.title.as_ref().map(to_text),
                 Some("Handbook of Psychology".to_string())
             );
-            assert!(book.editors.is_some());
-            assert_eq!(book.editors.as_ref().map(|editors| editors.len()), Some(1));
-            assert!(book.publisher.is_some());
+            assert!(book.options.editors.is_some());
+            assert_eq!(
+                book.options.editors.as_ref().map(|editors| editors.len()),
+                Some(1)
+            );
+            assert!(book.options.publisher.is_some());
         }
         assert!(reference.date.is_some());
-        assert!(reference.page_start.is_some());
-        assert!(reference.page_end.is_some());
+        assert!(reference.options.page_start.is_some());
+        assert!(reference.options.page_end.is_some());
 
         // Chapter with multiple authors and multiple editors
         let reference = vancouver(
@@ -476,7 +474,10 @@ mod tests {
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
         assert_eq!(reference.authors.map(|authors| authors.len()), Some(2));
         if let Some(book) = reference.is_part_of.as_ref() {
-            assert_eq!(book.editors.as_ref().map(|editors| editors.len()), Some(3));
+            assert_eq!(
+                book.options.editors.as_ref().map(|editors| editors.len()),
+                Some(3)
+            );
         }
 
         // Chapter without page numbers
@@ -484,24 +485,24 @@ mod tests {
             &mut "Johnson A. Data visualization techniques. In: Miller C. Modern Data Science. Chicago: Tech Publishers; 2022.",
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
-        assert!(reference.page_start.is_none());
-        assert!(reference.page_end.is_none());
+        assert!(reference.options.page_start.is_none());
+        assert!(reference.options.page_end.is_none());
 
         // Chapter with single page number using "p."
         let reference = vancouver(
             &mut "Davis R. Introduction to algorithms. In: White L. Computer Science Fundamentals. London: Academic Publications; 2021. p. 25.",
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
-        assert!(reference.page_start.is_some());
-        assert!(reference.page_end.is_none());
+        assert!(reference.options.page_start.is_some());
+        assert!(reference.options.page_end.is_none());
 
         // Chapter with pages using "pp." prefix
         let reference = vancouver(
             &mut "Garcia M. Machine learning basics. In: Anderson P. AI and Computing. San Francisco: Innovation Press; 2023. pp. 75-92.",
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
-        assert!(reference.page_start.is_some());
-        assert!(reference.page_end.is_some());
+        assert!(reference.options.page_start.is_some());
+        assert!(reference.options.page_end.is_some());
 
         // Chapter with complex family names
         let reference = vancouver(
@@ -516,7 +517,7 @@ mod tests {
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
         if let Some(book) = reference.is_part_of.as_ref() {
-            assert!(book.publisher.is_some());
+            assert!(book.options.publisher.is_some());
         }
 
         // Chapter with organization as editor
@@ -525,8 +526,11 @@ mod tests {
         )?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
         if let Some(book) = reference.is_part_of.as_ref() {
-            assert!(book.editors.is_some());
-            assert_eq!(book.editors.as_ref().map(|editors| editors.len()), Some(1));
+            assert!(book.options.editors.is_some());
+            assert_eq!(
+                book.options.editors.as_ref().map(|editors| editors.len()),
+                Some(1)
+            );
         }
 
         // Chapter with DOI
@@ -536,17 +540,6 @@ mod tests {
         assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
         assert!(reference.doi.is_some());
         assert_eq!(reference.doi, Some("10.1234/example.doi".to_string()));
-
-        // Chapter with URL - temporarily disabled due to parsing issue
-        // let reference = vancouver(
-        //     &mut "Kumar S. Database design patterns. In: Patel R. Modern Database Systems. Online Publications; 2022. pp. 50-75. Available from: https://example.com/db-chapter",
-        // )?;
-        // assert_eq!(reference.work_type, Some(CreativeWorkType::Chapter));
-        // assert!(reference.url.is_some());
-        // assert_eq!(
-        //     reference.url,
-        //     Some("https://example.com/db-chapter".to_string())
-        // );
 
         Ok(())
     }

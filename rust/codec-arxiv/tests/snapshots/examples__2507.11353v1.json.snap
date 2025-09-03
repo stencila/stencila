@@ -178,6 +178,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -239,6 +240,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -319,6 +321,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -463,6 +466,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -522,6 +526,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -584,6 +589,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -658,6 +664,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -821,6 +828,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -869,10 +877,6 @@ expression: article
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Mathematical Finance: An International Journal of Mathematics, Statistics and Financial Economics 14(3), 317–350"
-      },
       "date": {
         "type": "Date",
         "value": "2004"
@@ -884,7 +888,11 @@ expression: article
             "string": "A general framework for pricing credit risk"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Mathematical Finance: An International Journal of Mathematics, Statistics and Financial Economics 14(3), 317–350"
+      }
     },
     {
       "type": "Reference",
@@ -990,6 +998,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1081,6 +1090,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1233,6 +1243,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1321,6 +1332,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1382,6 +1394,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1432,6 +1445,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1560,6 +1574,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1650,6 +1665,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1710,6 +1726,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1762,6 +1779,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1846,10 +1864,6 @@ expression: article
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Dynamic Games and Applications"
-      },
       "date": {
         "type": "Date",
         "value": "2024"
@@ -1861,7 +1875,11 @@ expression: article
             "string": "A mean field game model for renewable investment under long-term uncertainty and risk aversion"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Dynamic Games and Applications"
+      }
     },
     {
       "type": "Reference",
@@ -1892,6 +1910,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -1944,6 +1963,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2014,6 +2034,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2063,10 +2084,6 @@ expression: article
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "2003 of Lecture Notes in Mathematics, Springer-Verlag Berlin Heidelberg"
-      },
       "date": {
         "type": "Date",
         "value": "2010"
@@ -2078,7 +2095,11 @@ expression: article
             "string": "Mean field games and applications, in ‘Paris-Princeton Lectures on Mathematical Finance 2010’, Vol"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "2003 of Lecture Notes in Mathematics, Springer-Verlag Berlin Heidelberg"
+      }
     },
     {
       "type": "Reference",
@@ -2174,6 +2195,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2228,6 +2250,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2281,6 +2304,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2334,6 +2358,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2386,6 +2411,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2486,6 +2512,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2522,10 +2549,6 @@ expression: article
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "Environment, Development and Sustainability 20, 2545–2563"
-      },
       "date": {
         "type": "Date",
         "value": "2018"
@@ -2537,7 +2560,11 @@ expression: article
             "string": "Environmental taxation for reducing greenhouse gases emissions in chile: an input-output analysis"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Environment, Development and Sustainability 20, 2545–2563"
+      }
     },
     {
       "type": "Reference",
@@ -2634,6 +2661,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2676,6 +2704,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2719,6 +2748,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2771,6 +2801,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2834,6 +2865,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2862,10 +2894,6 @@ expression: article
           ]
         }
       ],
-      "publisher": {
-        "type": "Organization",
-        "name": "J"
-      },
       "date": {
         "type": "Date",
         "value": "1970"
@@ -2877,7 +2905,11 @@ expression: article
             "string": "Convex Analysis, Princeton Mathematical Series, Princeton University Press, Princeton, N"
           }
         }
-      ]
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "J"
+      }
     },
     {
       "type": "Reference",
@@ -2917,6 +2949,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -2960,6 +2993,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -3014,6 +3048,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -3111,6 +3146,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
@@ -3161,6 +3197,7 @@ expression: article
       ],
       "isPartOf": {
         "type": "Reference",
+        "workType": "Periodical",
         "title": [
           {
             "type": "Text",
