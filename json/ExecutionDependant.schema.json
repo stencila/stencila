@@ -12,7 +12,8 @@
   "required": [
     "type",
     "dependantRelation",
-    "dependantNode"
+    "dependantType",
+    "dependantId"
   ],
   "core": [
     "id",
@@ -46,14 +47,23 @@
       ],
       "$ref": "ExecutionDependantRelation.schema.json"
     },
-    "dependantNode": {
-      "@id": "stencila:dependantNode",
-      "description": "The node that is the dependant.",
+    "dependantType": {
+      "@id": "stencila:dependantType",
+      "description": "The type of node that is the dependant.",
       "aliases": [
-        "dependant-node",
-        "dependant_node"
+        "dependant-type",
+        "dependant_type"
       ],
-      "$ref": "ExecutionDependantNode.schema.json"
+      "type": "string"
+    },
+    "dependantId": {
+      "@id": "stencila:dependantId",
+      "description": "The id of node that is the dependant.",
+      "aliases": [
+        "dependant-id",
+        "dependant_id"
+      ],
+      "type": "string"
     },
     "codeLocation": {
       "@id": "stencila:codeLocation",

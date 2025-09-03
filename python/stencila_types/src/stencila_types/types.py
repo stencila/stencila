@@ -1896,8 +1896,11 @@ class ExecutionDependant(Entity):
     dependant_relation: ExecutionDependantRelation
     """The relation to the dependant."""
 
-    dependant_node: ExecutionDependantNode
-    """The node that is the dependant."""
+    dependant_type: str
+    """The type of node that is the dependant."""
+
+    dependant_id: str
+    """The id of node that is the dependant."""
 
     code_location: CodeLocation | None = None
     """The location that the dependant is defined."""
@@ -1914,8 +1917,11 @@ class ExecutionDependency(Entity):
     dependency_relation: ExecutionDependencyRelation
     """The relation to the dependency."""
 
-    dependency_node: ExecutionDependencyNode
-    """The node that is the dependency."""
+    dependency_type: str
+    """The type of node that is the dependency."""
+
+    dependency_id: str
+    """The id of node that is the dependency."""
 
     code_location: CodeLocation | None = None
     """The location that the dependency is defined."""
@@ -3402,36 +3408,6 @@ Union type for all types that are descended from `CreativeWork`
 """
 
 
-ExecutionDependantNode = Union[
-    Button,
-    CallBlock,
-    CodeChunk,
-    CodeExpression,
-    File,
-    Function,
-    Parameter,
-    StyledBlock,
-    StyledInline,
-    Variable,
-]
-"""
-Node types that can be execution dependencies.
-"""
-
-
-ExecutionDependencyNode = Union[
-    Button,
-    CodeChunk,
-    File,
-    Parameter,
-    SoftwareSourceCode,
-    Variable,
-]
-"""
-Node types that can be execution dependencies.
-"""
-
-
 Hint = Union[
     ArrayHint,
     DatatableHint,
@@ -3852,8 +3828,6 @@ UNIONS = [
     AuthorRoleAuthor,
     Block,
     CreativeWorkVariant,
-    ExecutionDependantNode,
-    ExecutionDependencyNode,
     Hint,
     Inline,
     MessagePart,

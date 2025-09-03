@@ -2,7 +2,6 @@
 
 import { CodeLocation } from "./CodeLocation.js";
 import { Entity } from "./Entity.js";
-import { ExecutionDependantNode } from "./ExecutionDependantNode.js";
 import { ExecutionDependantRelation } from "./ExecutionDependantRelation.js";
 
 /**
@@ -18,27 +17,33 @@ export class ExecutionDependant extends Entity {
   dependantRelation: ExecutionDependantRelation;
 
   /**
-   * The node that is the dependant.
+   * The type of node that is the dependant.
    */
-  dependantNode: ExecutionDependantNode;
+  dependantType: string;
+
+  /**
+   * The id of node that is the dependant.
+   */
+  dependantId: string;
 
   /**
    * The location that the dependant is defined.
    */
   codeLocation?: CodeLocation;
 
-  constructor(dependantRelation: ExecutionDependantRelation, dependantNode: ExecutionDependantNode, options?: Partial<ExecutionDependant>) {
+  constructor(dependantRelation: ExecutionDependantRelation, dependantType: string, dependantId: string, options?: Partial<ExecutionDependant>) {
     super();
     this.type = "ExecutionDependant";
     if (options) Object.assign(this, options);
     this.dependantRelation = dependantRelation;
-    this.dependantNode = dependantNode;
+    this.dependantType = dependantType;
+    this.dependantId = dependantId;
   }
 }
 
 /**
 * Create a new `ExecutionDependant`
 */
-export function executionDependant(dependantRelation: ExecutionDependantRelation, dependantNode: ExecutionDependantNode, options?: Partial<ExecutionDependant>): ExecutionDependant {
-  return new ExecutionDependant(dependantRelation, dependantNode, options);
+export function executionDependant(dependantRelation: ExecutionDependantRelation, dependantType: string, dependantId: string, options?: Partial<ExecutionDependant>): ExecutionDependant {
+  return new ExecutionDependant(dependantRelation, dependantType, dependantId, options);
 }

@@ -6,7 +6,8 @@ category: flow
 description: An upstream execution dependency of a node.
 required:
   - dependencyRelation
-  - dependencyNode
+  - dependencyType
+  - dependencyId
 core:
   - codeLocation
 properties:
@@ -14,10 +15,14 @@ properties:
     '@id': stencila:dependencyRelation
     description: The relation to the dependency.
     $ref: ExecutionDependencyRelation
-  dependencyNode:
-    '@id': stencila:dependencyNode
-    description: The node that is the dependency.
-    $ref: ExecutionDependencyNode
+  dependencyType:
+    '@id': stencila:dependencyType
+    description: The type of node that is the dependency.
+    type: string
+  dependencyId:
+    '@id': stencila:dependencyId
+    description: The id of node that is the dependency.
+    type: string
   codeLocation:
     '@id': stencila:codeLocation
     description: The location that the dependency is defined.

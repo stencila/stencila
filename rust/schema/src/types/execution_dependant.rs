@@ -3,7 +3,6 @@
 use crate::prelude::*;
 
 use super::code_location::CodeLocation;
-use super::execution_dependant_node::ExecutionDependantNode;
 use super::execution_dependant_relation::ExecutionDependantRelation;
 use super::string::String;
 
@@ -27,9 +26,13 @@ pub struct ExecutionDependant {
     #[serde(alias = "dependant-relation", alias = "dependant_relation")]
     pub dependant_relation: ExecutionDependantRelation,
 
-    /// The node that is the dependant.
-    #[serde(alias = "dependant-node", alias = "dependant_node")]
-    pub dependant_node: ExecutionDependantNode,
+    /// The type of node that is the dependant.
+    #[serde(alias = "dependant-type", alias = "dependant_type")]
+    pub dependant_type: String,
+
+    /// The id of node that is the dependant.
+    #[serde(alias = "dependant-id", alias = "dependant_id")]
+    pub dependant_id: String,
 
     /// The location that the dependant is defined.
     #[serde(alias = "code-location", alias = "code_location")]
@@ -51,10 +54,11 @@ impl ExecutionDependant {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(dependant_relation: ExecutionDependantRelation, dependant_node: ExecutionDependantNode) -> Self {
+    pub fn new(dependant_relation: ExecutionDependantRelation, dependant_type: String, dependant_id: String) -> Self {
         Self {
             dependant_relation,
-            dependant_node,
+            dependant_type,
+            dependant_id,
             ..Default::default()
         }
     }

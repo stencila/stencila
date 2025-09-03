@@ -30,15 +30,27 @@
       }
     },
     {
-      "@id": "stencila:dependantNode",
+      "@id": "stencila:dependantType",
       "@type": "rdfs:Property",
-      "rdfs:label": "dependantNode",
-      "rdfs:comment": "The node that is the dependant.",
+      "rdfs:label": "dependantType",
+      "rdfs:comment": "The type of node that is the dependant.",
       "schema:domainIncludes": {
         "@id": "stencila:ExecutionDependant"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:ExecutionDependantNode"
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:dependantId",
+      "@type": "rdfs:Property",
+      "rdfs:label": "dependantId",
+      "rdfs:comment": "The id of node that is the dependant.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ExecutionDependant"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
       }
     },
     {
