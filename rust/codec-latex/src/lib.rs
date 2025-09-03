@@ -1,3 +1,8 @@
+use std::path::Path;
+
+use stencila_media_extract::extract_media;
+use tokio::fs::{create_dir_all, write};
+
 use stencila_codec::{
     Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
     NodeType, async_trait,
@@ -5,15 +10,15 @@ use stencila_codec::{
     stencila_format::Format,
     stencila_schema::Node,
 };
-use stencila_codec_latex_trait::to_latex;
 use stencila_codec_pandoc::{pandoc_availability, pandoc_to_format, root_to_pandoc};
 
+use crate::{decode::decode, encode::encode};
+
 mod decode;
+mod encode;
 
 /// A codec for LaTeX
 pub struct LatexCodec;
-
-const PANDOC_FORMAT: &str = "latex";
 
 #[async_trait]
 impl Codec for LatexCodec {
@@ -52,7 +57,7 @@ impl Codec for LatexCodec {
         latex: &str,
         options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
-        decode::decode(latex, options).await
+        decode(latex, options).await
     }
 
     async fn to_string(
@@ -62,35 +67,57 @@ impl Codec for LatexCodec {
     ) -> Result<(String, EncodeInfo)> {
         let mut options = options.unwrap_or_default();
         let format = options.format.clone().unwrap_or(Format::Latex);
-        let tool = options.tool.clone().unwrap_or_default();
-        let standalone = options.standalone.unwrap_or_default();
-        let render = options.render.unwrap_or_default();
-        let highlight = options.highlight.unwrap_or_default();
-        let reproducible = options.reproducible.unwrap_or_default();
 
-        if tool.is_empty() {
-            Ok(to_latex(
-                node,
-                format,
-                standalone,
-                render,
-                highlight,
-                reproducible,
-                None,
-            ))
-        } else if tool == "pandoc" {
+        if options.tool.is_none() {
+            if let Some(media) = options.extract_media.as_ref() {
+                let mut copy = node.clone();
+                dbg!(&copy);
+                extract_media(&mut copy, media)?;
+                encode(&copy, options)
+            } else {
+                encode(node, options)
+            }
+        } else if matches!(options.tool.as_deref(), Some("pandoc")) {
             options.tool_args.push("--listings".into());
-            if standalone {
+            if options.standalone.unwrap_or_default() {
                 options.tool_args.push("--standalone".into());
             }
             let options = Some(options);
 
             let (pandoc, info) = root_to_pandoc(node, format, &options)?;
-            let output = pandoc_to_format(&pandoc, None, PANDOC_FORMAT, &options).await?;
+            let output = pandoc_to_format(&pandoc, None, "latex", &options).await?;
 
             Ok((output, info))
         } else {
-            bail!("Tool `{tool}` is not supported for encoding to {format}")
+            bail!("Tool is not supported")
         }
+    }
+
+    async fn to_path(
+        &self,
+        node: &Node,
+        path: &Path,
+        options: Option<EncodeOptions>,
+    ) -> Result<EncodeInfo> {
+        let mut options = options.unwrap_or_default();
+        if options.embed_media.unwrap_or_default() {
+            bail!("Embedded media are not supported with LaTeX");
+        }
+        if options.standalone.is_none() {
+            options.standalone = Some(true);
+        }
+        if options.extract_media.is_none() {
+            options.extract_media = Some(path.with_extension("media"));
+        }
+        options.to_path = Some(path.to_path_buf());
+
+        let (md, info) = self.to_string(node, Some(options)).await?;
+
+        if let Some(parent) = path.parent() {
+            create_dir_all(parent).await?;
+        }
+        write(&path, md).await?;
+
+        Ok(info)
     }
 }

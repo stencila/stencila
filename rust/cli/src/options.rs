@@ -197,8 +197,8 @@ pub struct EncodeOptions {
     /// files. When provided, any data URIs in the document will be extracted to
     /// files in the specified directory, and the references will be updated to
     /// point to these external files. This reduces document size but creates
-    /// external dependencies. Currently respected for Markdown-flavors and
-    /// HTML. Should not be used with `--embed-media`.
+    /// external dependencies. Currently respected for Markdown-flavors, LaTeX
+    /// and HTML. Should not be used with `--embed-media`.
     #[arg(
         long,
         conflicts_with = "embed_media",

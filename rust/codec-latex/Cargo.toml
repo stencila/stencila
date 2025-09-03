@@ -9,11 +9,12 @@ regex = { workspace = true }
 stencila-codec = { path = "../codec" }
 stencila-codec-latex-trait = { path = "../codec-latex-trait" }
 stencila-codec-pandoc = { path = "../codec-pandoc" }
+stencila-media-extract = { path = "../media-extract" }
+tokio = { workspace = true }
 
 [dev-dependencies]
 glob = { workspace = true }
 insta = { workspace = true }
-tokio = { workspace = true }
 which = { workspace = true }
 
 [lints]

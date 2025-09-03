@@ -15,8 +15,6 @@ use stencila_codec::{
 };
 use stencila_codec_pandoc::{pandoc_from_format, root_from_pandoc};
 
-use crate::PANDOC_FORMAT;
-
 /// Decode LaTeX
 pub(super) async fn decode(
     latex: &str,
@@ -159,7 +157,7 @@ pub(super) async fn fine(
     }
 
     let latex = transform(latex);
-    let pandoc = pandoc_from_format(&latex, None, PANDOC_FORMAT, &options).await?;
+    let pandoc = pandoc_from_format(&latex, None, "latex", &options).await?;
     root_from_pandoc(pandoc, Format::Latex, &options)
 }
 
