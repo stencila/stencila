@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 
 use eyre::Result;
 
-use stencila_schema::{Block, ImageObject, Inline, VisitorMut, WalkControl, WalkNode};
+use stencila_schema::{Block, ImageObject, Inline, Node, VisitorMut, WalkControl, WalkNode};
 
 /// Write any [`ImageObject`] and other media objects with a dataURI to a file
 /// and change target accordingly
@@ -42,6 +42,14 @@ impl Walker {
 }
 
 impl VisitorMut for Walker {
+    fn visit_node(&mut self, node: &mut Node) -> WalkControl {
+        if let Node::ImageObject(image) = node {
+            self.extract_image(image)
+        }
+
+        WalkControl::Continue
+    }
+
     fn visit_block(&mut self, block: &mut Block) -> WalkControl {
         if let Block::ImageObject(image) = block {
             self.extract_image(image)
