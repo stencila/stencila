@@ -35,7 +35,7 @@ walkthroughs:
 compile: install walkthroughs
 	rm -rf out
 	npm run compile
-	cargo build -p cli
+	cargo build -p stencila-cli
 
 # Build and run Docker image for local testing of extension in that environment
 # It copies the local debug version of the CLI binary, rather than

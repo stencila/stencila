@@ -28,7 +28,7 @@ playwright: install
 
 # Run end-to-end tests
 e2e: playwright build
-	cargo build -p cli
+	cargo build -p stencila-cli
 	npm run e2e
 
 # Run watch
