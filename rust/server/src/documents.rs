@@ -174,10 +174,9 @@ pub async fn serve_path(
         return Ok(not_found());
     };
 
-    // Return early if the path is an image
-    if let Some(ext) = path.extension().and_then(|ext| ext.to_str())
-        && matches!(ext, "png" | "jpg" | "jpeg" | "svg")
-    {
+    // Return early if the path is a media file
+    let format = Format::from_path(&path);
+    if format.is_media() {
         let bytes = read(&path).await.map_err(InternalError::new)?;
         let content_type = mime_guess::from_path(path).first_or_octet_stream();
 
