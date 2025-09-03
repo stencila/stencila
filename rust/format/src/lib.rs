@@ -259,9 +259,12 @@ impl Format {
                 | PmcOa
                 | Xls
                 | Xlsx
-        ) || self.is_image()
-            || self.is_audio()
-            || self.is_video()
+        ) || self.is_media()
+    }
+
+    /// Is this a media format (image, audio or video) ?
+    pub fn is_media(&self) -> bool {
+        self.is_image() || self.is_audio() || self.is_video()
     }
 
     /// Is this an image format?
@@ -334,7 +337,7 @@ impl Format {
             "jats" | "jats.xml" => Jats,
             "javascript" | "js" | "nodejs" | "quickjs" => JavaScript,
             "jinja" => Jinja,
-            "jpeg" => Jpeg,
+            "jpeg" | "jpg" => Jpeg,
             "json" => Json,
             "json5" => Json5,
             "jsonld" | "json-ld" => JsonLd,
