@@ -2,8 +2,7 @@ use std::path::{Path, PathBuf};
 
 use eyre::{Context, Result, bail, eyre};
 
-use stencila_format::Format;
-use stencila_images::{convert, path_to_data_uri};
+use stencila_images::path_to_data_uri_to_embed;
 use stencila_schema::{Block, ImageObject, Inline, Node, VisitorMut, WalkControl, WalkNode};
 
 /// Embed any media files within [`ImageObject`] and other media objects as dataURIs
@@ -33,10 +32,7 @@ where
         bail!("Directory does not exist: {}", dir.display());
     }
 
-    let mut walker = Walker {
-        dir: dir.into(),
-        tiff_to: Some(Format::Png),
-    };
+    let mut walker = Walker { dir: dir.into() };
     walker.walk(node);
 
     Ok(())
@@ -45,34 +41,14 @@ where
 struct Walker {
     /// The directory containing images
     dir: PathBuf,
-
-    /// The format to convert TIFF images to
-    tiff_to: Option<Format>,
 }
 
 impl Walker {
     fn embed_image(&self, image: &mut ImageObject) {
         for ext in ["", ".png", ".jpg", ".jpeg", ".gif", ".tif", ".tiff"] {
-            let mut path = self.dir.join([&image.content_url, ext].concat());
-
+            let path = self.dir.join([&image.content_url, ext].concat());
             if path.exists() {
-                if let (Some("tif" | "tiff"), Some(format)) =
-                    (path.extension().and_then(|ext| ext.to_str()), &self.tiff_to)
-                {
-                    let mut to = path.clone();
-                    to.set_extension(format.extension());
-
-                    match convert(&path, &to) {
-                        Ok(..) => {
-                            path = to;
-                        }
-                        Err(error) => {
-                            tracing::error!("While converting TIFF to PNG: {error}")
-                        }
-                    }
-                }
-
-                match path_to_data_uri(&path) {
+                match path_to_data_uri_to_embed(&path, None) {
                     Ok(url) => {
                         image.content_url = url;
                     }
