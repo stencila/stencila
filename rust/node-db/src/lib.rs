@@ -203,7 +203,7 @@ impl NodeDatabase {
 
         if is_new_database {
             // Initialize new database with current schema
-            tracing::debug!("Initializing new database with current schema");
+            tracing::trace!("Initializing new database with current schema");
 
             let schema = include_str!("../schemas/current.cypher");
             for statement in schema.split(";") {
@@ -217,7 +217,7 @@ impl NodeDatabase {
             }
         } else {
             // Existing database - check and apply migrations if needed
-            tracing::debug!("Checking for pending migrations in existing database");
+            tracing::trace!("Checking for pending migrations in existing database");
 
             let runner = MigrationRunner::new(database);
 
@@ -225,7 +225,7 @@ impl NodeDatabase {
                 Ok(pending_migrations) => {
                     if !pending_migrations.is_empty() {
                         if auto_migrate {
-                            tracing::info!(
+                            tracing::debug!(
                                 "Found {} pending migration(s), applying automatically",
                                 pending_migrations.len()
                             );
@@ -233,7 +233,7 @@ impl NodeDatabase {
                             // Auto-apply migrations
                             match runner.execute_pending_migrations(false) {
                                 Ok(applied) => {
-                                    tracing::info!(
+                                    tracing::debug!(
                                         "Successfully applied {} migration(s)",
                                         applied.len()
                                     );
@@ -494,7 +494,8 @@ impl NodeDatabase {
                     }
 
                     let field = match value {
-                        Value::Null(..) => "NULL".to_string(),
+                        // Use empty strings for nulls (Kuzu treats "NULL" as a string, not a null value)
+                        Value::Null(..) => "".to_string(),
                         Value::String(string) => {
                             if string.is_empty() {
                                 "\"\"".to_string()
