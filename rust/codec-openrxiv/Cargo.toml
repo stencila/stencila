@@ -12,6 +12,7 @@ stencila-cloud = { path = "../cloud" }
 stencila-codec = { path = "../codec" }
 stencila-codec-meca = { path = "../codec-meca" }
 stencila-codec-pdf = { path = "../codec-pdf" }
+stencila-dirs = { path = "../dirs" }
 stencila-version = { path = "../version" }
 tempfile = { workspace = true }
 tokio = { workspace = true }

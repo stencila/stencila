@@ -460,6 +460,23 @@ pub struct DecodeOptions {
     /// the document.
     pub cache: Option<PathBuf>,
 
+    /// Ignore any existing artifacts created during decoding of the input
+    ///
+    /// When `true`, ignores cached artifacts and forces re-processing. Useful when you want
+    /// to repeat downloads or intermediate processing (e.g., to get updated data or retry
+    /// failed OCR).
+    pub ignore_artifacts: Option<bool>,
+
+    /// Do not create any artifacts during decoding
+    ///
+    /// By default, artifacts (cached intermediate files) are created in the closest `.stencila`
+    /// directory and reused when decoding the same input. Artifacts include large file downloads,
+    /// intermediate conversion results (e.g., OCR output from images, extracted media files),
+    /// and processed data that's expensive to regenerate. Setting this to `true` prevents
+    /// creating new artifacts, though existing ones may still be used unless `ignore_artifacts`
+    /// is also set.
+    pub no_artifacts: Option<bool>,
+
     /// Automatically create `Island` nodes by wrapping elements in the decoded document
     ///
     /// Only supported by some codecs. The interpretation of these strings is dependent on

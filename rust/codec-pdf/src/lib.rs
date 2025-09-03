@@ -67,7 +67,23 @@ impl Codec for PdfCodec {
         let exclude_pages = options
             .as_ref()
             .and_then(|opts| opts.exclude_pages.as_ref());
-        let md_path = pdf_to_md(path, tool, include_pages, exclude_pages).await?;
+        let ignore_artifacts = options
+            .as_ref()
+            .and_then(|opts| opts.ignore_artifacts)
+            .unwrap_or_default();
+        let no_artifacts = options
+            .as_ref()
+            .and_then(|opts| opts.no_artifacts)
+            .unwrap_or_default();
+        let md_path = pdf_to_md(
+            path,
+            tool,
+            include_pages,
+            exclude_pages,
+            ignore_artifacts,
+            no_artifacts,
+        )
+        .await?;
 
         // Decode the Markdown file to a node
         let (mut node, orig, info) = MarkdownCodec.from_path(&md_path, options).await?;

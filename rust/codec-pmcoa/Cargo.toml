@@ -11,6 +11,7 @@ regex = { workspace = true }
 reqwest = { workspace = true }
 stencila-codec = { path = "../codec" }
 stencila-codec-jats = { path = "../codec-jats" }
+stencila-dirs = { path = "../dirs" }
 stencila-media-embed = { path = "../media-embed" }
 stencila-version = { path = "../version" }
 tar = { workspace = true }

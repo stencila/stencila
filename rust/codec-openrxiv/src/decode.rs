@@ -1,4 +1,4 @@
-use std::sync::LazyLock;
+use std::{env::current_dir, sync::LazyLock};
 
 use url::Url;
 
@@ -14,11 +14,11 @@ use stencila_codec::{
 };
 use stencila_codec_meca::MecaCodec;
 use stencila_codec_pdf::PdfCodec;
+use stencila_dirs::closest_artifacts_for;
 use stencila_version::STENCILA_USER_AGENT;
 
 const BIORXIV: &str = "biorxiv.org";
 const MEDRXIV: &str = "medrxiv.org";
-
 const DOI_PREFIX: &str = "10.1101";
 
 /// Extract an openRxiv id from an identifier
@@ -176,6 +176,15 @@ pub(super) async fn decode_preprint(
     response: Response,
     options: Option<DecodeOptions>,
 ) -> Result<(Node, DecodeInfo)> {
+    let ignore_artifacts = options
+        .as_ref()
+        .and_then(|opts| opts.ignore_artifacts)
+        .unwrap_or_default();
+    let no_artifacts = options
+        .as_ref()
+        .and_then(|opts| opts.no_artifacts)
+        .unwrap_or_default();
+
     let format = response
         .headers()
         .get("content-type")
@@ -188,26 +197,42 @@ pub(super) async fn decode_preprint(
         Format::Meca
     };
 
-    let temp_dir = tempdir()?;
-    let temp_ext = format.extension();
-    let temp_path = temp_dir.path().join(format!("{openrxiv_id}.{temp_ext}"));
+    let filename = format!("{openrxiv_id}.{}", format.extension());
 
-    let mut file = File::create(&temp_path).await?;
-    let mut stream = response.bytes_stream();
-    while let Some(chunk_result) = stream.next().await {
-        let chunk = chunk_result?;
-        file.write_all(&chunk).await?;
+    // Create temporary directory (must be kept alive for entire function)
+    let temp_dir = tempdir()?;
+
+    // Determine where to store/look for the downloaded file
+    let file_path = if no_artifacts {
+        // Don't cache, use temporary directory
+        temp_dir.path().join(&filename)
+    } else {
+        // Use artifacts directory for caching
+        let artifacts_key = format!("openrxiv-{openrxiv_id}-{format}");
+        let artifacts_dir = closest_artifacts_for(&current_dir()?, &artifacts_key).await?;
+        artifacts_dir.join(&filename)
+    };
+
+    // Download the file if needed
+    let should_download = !file_path.exists() || ignore_artifacts;
+    if should_download {
+        let mut file = File::create(&file_path).await?;
+        let mut stream = response.bytes_stream();
+        while let Some(chunk_result) = stream.next().await {
+            let chunk = chunk_result?;
+            file.write_all(&chunk).await?;
+        }
+        file.flush().await?;
+        drop(file);
     }
-    file.flush().await?;
-    drop(file);
 
     let (mut node, .., info) = match format {
-        Format::Meca => MecaCodec.from_path(&temp_path, options).await?,
-        Format::Pdf => PdfCodec.from_path(&temp_path, options).await?,
+        Format::Meca => MecaCodec.from_path(&file_path, options).await?,
+        Format::Pdf => PdfCodec.from_path(&file_path, options).await?,
         _ => bail!("Unhandled format `{format}`"),
     };
 
-    // Set doi, and other metadata
+    // Set DOI, and other metadata
     if let Node::Article(article) = &mut node {
         let doi = openrxiv_id_to_doi(openrxiv_id);
         article.doi = Some(doi.clone());

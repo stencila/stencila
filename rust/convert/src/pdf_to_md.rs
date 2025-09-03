@@ -1,4 +1,5 @@
 use std::{
+    env::current_dir,
     path::{Path, PathBuf},
     str::FromStr,
 };
@@ -29,10 +30,6 @@ enum Tool {
     Mistral,
 }
 
-// Prefixes used for artifact directories cp2m = "convert PDF to Markdown"
-
-const MISTRAL_ARTIFACT_PREFIX: &str = "cp2mmi";
-
 impl FromStr for Tool {
     type Err = Report;
 
@@ -54,6 +51,8 @@ pub async fn pdf_to_md(
     tool: Option<&str>,
     include_pages: Option<&Vec<PageSelector>>,
     exclude_pages: Option<&Vec<PageSelector>>,
+    ignore_artifacts: bool,
+    no_artifacts: bool,
 ) -> Result<PathBuf> {
     let tool = match tool {
         // Use the specified tool
@@ -77,7 +76,16 @@ pub async fn pdf_to_md(
     };
 
     match tool {
-        Tool::Mistral => pdf_to_md_mistral(pdf, include_pages, exclude_pages).await,
+        Tool::Mistral => {
+            pdf_to_md_mistral(
+                pdf,
+                include_pages,
+                exclude_pages,
+                ignore_artifacts,
+                no_artifacts,
+            )
+            .await
+        }
         _ => pdf_to_md_local(pdf, tool, include_pages, exclude_pages).await,
     }
 }
@@ -148,20 +156,30 @@ pub async fn pdf_to_md_mistral(
     pdf_path: &Path,
     include_pages: Option<&Vec<PageSelector>>,
     exclude_pages: Option<&Vec<PageSelector>>,
+    ignore_artifacts: bool,
+    no_artifacts: bool,
 ) -> Result<PathBuf> {
     // Read PDF
     let pdf_bytes = read(pdf_path).await?;
 
-    // Get / create a new artifacts directory
-    let digest = seahash::hash(&pdf_bytes);
-    let key = format!("{MISTRAL_ARTIFACT_PREFIX}-{digest:x}");
-    let artifacts_path = closest_artifacts_for(pdf_path, &key).await?;
+    // Create temporary directory (must be kept alive for entire function)
+    let temp_dir = tempdir()?;
+
+    // Determine where to store/look for artifacts
+    let artifacts_path = if no_artifacts {
+        // Don't cache, use temporary directory
+        temp_dir.path().to_path_buf()
+    } else {
+        // Use artifacts directory for caching using PDF hash digest as key
+        let digest = seahash::hash(&pdf_bytes);
+        let key = format!("pdfmd-{digest:x}");
+        closest_artifacts_for(&current_dir()?, &key).await?
+    };
 
     // Read or get response JSON
     let response_path = artifacts_path.join("response.json");
-    let response_json = if response_path.exists() {
-        read_to_string(response_path).await?
-    } else {
+    let should_fetch = !response_path.exists() || ignore_artifacts;
+    let response_json = if should_fetch {
         // Get API key
         let api_key = stencila_secrets::env_or_get(MISTRAL_API_KEY)?;
 
@@ -184,11 +202,16 @@ pub async fn pdf_to_md_mistral(
             bail!("Mistral OCR request failed: {}", error_text);
         }
 
-        // Store response text
         let json = response.text().await?;
-        write(response_path, &json).await?;
+
+        // Store response JSON (only if not using temp directory)
+        if !no_artifacts {
+            write(&response_path, &json).await?;
+        }
 
         json
+    } else {
+        read_to_string(response_path).await?
     };
 
     // Parse response JSON

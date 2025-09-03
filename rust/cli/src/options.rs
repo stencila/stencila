@@ -83,6 +83,26 @@ pub struct DecodeOptions {
     #[arg(long, value_delimiter = ',', value_parser = PageSelector::from_str, help_heading = "Decoding Options")]
     exclude_pages: Option<Vec<PageSelector>>,
 
+    /// Ignore cached artifacts and force re-processing
+    ///
+    /// When decoding documents, Stencila caches intermediate artifacts
+    /// (downloads, OCR results, etc.) in the nearest `.stencila` folder. Use
+    /// this flag to ignore existing cached artifacts and re-download or
+    /// re-process everything from scratch. Useful for getting updated data or
+    /// retrying failed processing.
+    #[arg(long, help_heading = "Decoding Options")]
+    ignore_artifacts: bool,
+
+    /// Prevent creating artifacts during decoding
+    ///
+    /// By default, Stencila saves intermediate artifacts like downloads, OCR
+    /// outputs, and extracted media to a `.stencila/artifacts` folder for reuse
+    /// in future runs. Use this flag to disable artifacts entirely. Existing
+    /// cached artifacts may still be used unless `--ignore-artifacts` is also
+    /// specified.
+    #[arg(long, help_heading = "Decoding Options")]
+    no_artifacts: bool,
+
     /// Action when there are losses decoding from input files
     ///
     /// Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or
@@ -114,6 +134,8 @@ impl DecodeOptions {
             cache: self.cache.clone(),
             include_pages: self.pages.clone(),
             exclude_pages: self.exclude_pages.clone(),
+            ignore_artifacts: self.ignore_artifacts.then_some(true),
+            no_artifacts: self.no_artifacts.then_some(true),
             strip_scopes: strip_options.strip_scopes,
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,

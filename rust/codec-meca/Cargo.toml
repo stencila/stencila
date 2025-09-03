@@ -7,6 +7,7 @@ edition = "2024"
 glob = { workspace = true }
 stencila-codec = { path = "../codec" }
 stencila-codec-jats = { path = "../codec-jats" }
+stencila-dirs = { path = "../dirs" }
 stencila-media-embed = { path = "../media-embed" }
 tempfile = { workspace = true }
 tracing = { workspace = true }
