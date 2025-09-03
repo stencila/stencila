@@ -6,7 +6,7 @@ import { insertClones } from '../../clients/commands'
 import { withTwind } from '../../twind'
 
 import { nodeUi } from './icons-and-colours'
-import { tagNameToNodeType } from './node-tag-map'
+import { tagNameToNodeType } from './tag-name-node-type'
 
 /**
  * Renders the control to insert selected nodes into a document.

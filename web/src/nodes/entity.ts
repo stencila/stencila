@@ -7,7 +7,7 @@ import { property, state } from 'lit/decorators'
 import { insertClones, mergeNode } from '../clients/commands'
 import { DocumentAccess, DocumentView, NodeId } from '../types'
 import { EntityContext, entityContext } from '../ui/nodes/entity-context'
-import { tagNameToNodeType } from '../ui/nodes/node-tag-map'
+import { tagNameToNodeType } from '../ui/nodes/tag-name-node-type'
 import { closestGlobally } from '../utilities/closestGlobally'
 import { getModeParam } from '../utilities/getModeParam'
 
@@ -119,6 +119,30 @@ export abstract class Entity extends LitElement {
   }
 
   /**
+   * The Stencila node type this element represents
+   */
+  protected type() : NodeType {
+    return tagNameToNodeType(this.tagName)
+  }
+
+  /**
+   * Whether the entity is the current [root] node
+   */
+  protected isRoot(): boolean {
+    return this.root
+  }
+
+  /**
+   * Whether the entity is the current [root], or has a parent [root] node
+   *
+   * Used to alter the rendering behavior of node cards for "freestanding"
+   * nodes (e.g. those embedded in a Ghost page).
+   */
+  protected hasRoot(): boolean {
+    return this.isRoot() || this.closestGlobally('[root]') !== null
+  }
+
+  /**
    * Whether the parent node is of the specified type
    */
   protected parentNodeIs(nodeType: NodeType): boolean {
@@ -155,23 +179,6 @@ export abstract class Entity extends LitElement {
       this.closestGlobally('stencila-chat-message[message-role="Model"]') !==
         null
     )
-  }
-
-  /**
-   * Whether the entity is the current [root] node
-   */
-  protected isRoot() {
-    return this.root
-  }
-
-  /**
-   * Whether the entity is the current [root], or has a parent [root] node
-   *
-   * Used to alter the rendering behavior of node cards for "freestanding"
-   * nodes (e.g. those embedded in a Ghost page).
-   */
-  protected hasRoot() {
-    return this.isRoot() || this.closestGlobally('[root]') !== null
   }
 
   /**

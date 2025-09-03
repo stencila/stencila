@@ -1,6 +1,6 @@
-import { apply, css } from '@twind/core'
+import { css } from '@twind/core'
 import { html, PropertyValues } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, state } from 'lit/decorators.js'
 import { unsafeSVG } from 'lit/directives/unsafe-svg'
 
 import { withTwind } from '../twind'
@@ -9,8 +9,8 @@ import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/cards/inline-on-demand'
 import '../ui/nodes/properties/authors'
 
-import { Entity } from './entity'
 import { ExecutionMessage } from './execution-message'
+import { MediaObject } from './media-object'
 
 /**
  * Web component representing a Stencila Schema `ImageObject` node
@@ -19,7 +19,7 @@ import { ExecutionMessage } from './execution-message'
  */
 @customElement('stencila-image-object')
 @withTwind()
-export class ImageObject extends Entity {
+export class ImageObject extends MediaObject {
   static MEDIA_TYPES = {
     cytoscape: 'application/vnd.cytoscape.v3+json',
     mermaid: 'text/vnd.mermaid',
@@ -28,29 +28,6 @@ export class ImageObject extends Entity {
     htmlMap: 'text/html',
   } as const
 
-  /**
-   * The media (MIME) type of the image
-   */
-  @property({ attribute: 'media-type' })
-  mediaType?: string
-
-  /**
-   * The URL of the source of the image
-   *
-   * For HTTP and file URLs, equivalent to the `src` attribute in HTML. See `renderImg` for how this is used
-   * to rewrite the URL if necessary, depending upon the context.
-   *
-   * For code-based, rendered images (e.g. Mermaid, Vega) this will be the code that needs to be
-   * rendered into an image (see methods below).
-   */
-  @property({ attribute: 'content-url' })
-  contentUrl?: string
-
-  /**
-   * The resolved URL of the <imd> `src` attribute, if applicable
-   */
-  @state()
-  imgSrc?: string
 
   /**
    * The rendered SVG of the content, if applicable
@@ -71,12 +48,6 @@ export class ImageObject extends Entity {
    * accidental bloat of the bundle if cytoscape is statically imported.
    */
   private cytoscape?: { resize: () => void } 
-
-  /**
-   * Any error message generated while attempting to render the content
-   */
-  @state()
-  private error?: string
 
   private clearCodeChunkMessages(codeChunk: HTMLElement) {
     // Clear any existing messages
@@ -137,37 +108,8 @@ export class ImageObject extends Entity {
         await this.compileHtmlMap()
       } else if (this.contentUrl.startsWith('data:')) {
         // This should not occur, but if it does, do nothing
-      } else {
-        if (
-          this.contentUrl.startsWith('https://') ||
-          this.contentUrl.startsWith('https://')
-        ) {
-          // Use HTTP URLs directly
-          this.imgSrc = this.contentUrl
-        } else {
-          // If file path, and in VSCode webview, then prefix a file path with workspace URI
-          const workspace = this.closestGlobally(
-            'stencila-vscode-view'
-          )?.getAttribute('workspace')
-
-          this.imgSrc = workspace
-            ? `${workspace}/${this.contentUrl}`
-            : this.contentUrl
-        }
-
-        // Prefetch to check that URL is valid
-        const response = await fetch(this.imgSrc, { method: 'HEAD' })
-        if (response.ok) {
-          this.error = undefined
-        } else {
-          let src = this.contentUrl
-          if (src.length > 40) {
-            src = src.slice(0, 40) + '\u2026'
-          }
-          const message = await response.text()
-          this.error = `Error fetching image '${src}': ${message}`
-        }
       }
+      // URL resolution is handled by parent MediaObject class
     }
   }
 
@@ -435,55 +377,7 @@ export class ImageObject extends Entity {
     }
   }
 
-  override render() {
-    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
-      return this.renderContent()
-    }
-
-    if (this.isWithinModelChatMessage()) {
-      return this.renderCardWithChatAction()
-    }
-
-    return this.renderCard()
-  }
-
-  override renderCard() {
-    return this.parentNodeIs('CodeChunk')
-      ? this.renderBlockOnDemand()
-      : this.renderInlineOnDemand()
-  }
-
-  private renderBlockOnDemand() {
-    return html`
-      <stencila-ui-block-on-demand
-        type="ImageObject"
-        node-id=${this.id}
-        depth=${this.depth}
-        ?has-root=${this.hasRoot()}
-      >
-        ${this.renderContent()}
-      </stencila-ui-block-on-demand>
-    `
-  }
-
-  private renderInlineOnDemand() {
-    return html`
-      <stencila-ui-inline-on-demand type="ImageObject">
-        <div slot="body">
-          <stencila-ui-node-authors type="ImageObject">
-            <slot name="authors"></slot>
-          </stencila-ui-node-authors>
-        </div>
-        ${this.renderContent()}
-      </stencila-ui-inline-on-demand>
-    `
-  }
-
-  private renderContent() {
-    if (this.error) {
-      return this.renderError()
-    }
-
+  protected renderContent() {
     if (this.mediaType === ImageObject.MEDIA_TYPES.cytoscape) {
       return this.renderCytoscape()
     }
@@ -501,18 +395,6 @@ export class ImageObject extends Entity {
     }
 
     return this.svg ? this.renderSvg() : this.renderImg()
-  }
-
-  private renderError() {
-    const classes = apply(
-      'overflow-x-auto px-2 py-1',
-      'rounded border border-red-200 bg-red-100',
-      'text-red-900 text-sm whitespace-pre'
-    )
-
-    return html`<div slot="content">
-      <pre class=${classes}><code>${this.error}</code></pre>
-    </div>`
   }
 
   private renderSvg() {
@@ -560,7 +442,7 @@ export class ImageObject extends Entity {
     `
     return html`
       <div slot="content" class=${imgStyles}>
-        ${this.imgSrc ? html`<img src=${this.imgSrc} />` : html`<slot></slot>`}
+        ${this.mediaSrc ? html`<img src=${this.mediaSrc} />` : html`<slot></slot>`}
       </div>
     `
   }
