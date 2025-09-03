@@ -103,9 +103,6 @@ impl Executable for CodeChunk {
         let node_id = self.node_id();
         tracing::trace!("Preparing CodeChunk {node_id}");
 
-        // Add code chunk to document context
-        executor.document_context.code_chunks.push((&*self).into());
-
         // Set execution status
         if let Some(status) = executor.node_execution_status(
             self.node_type(),
@@ -135,17 +132,11 @@ impl Executable for CodeChunk {
         // imports etc in this code
         executor.linting_code(&node_id, &self.code.to_string(), &lang, true);
 
-        // Enter the code chunk context
-        executor.document_context.code_chunks.enter();
-
         if !matches!(
             self.options.execution_status,
             Some(ExecutionStatus::Pending)
         ) {
             tracing::trace!("Skipping CodeChunk {node_id}");
-
-            // Exit the code chunk context
-            executor.document_context.code_chunks.exit();
 
             // Continue walk to execute any outputs
             return WalkControl::Continue;
@@ -270,9 +261,6 @@ impl Executable for CodeChunk {
                 ],
             );
         };
-
-        // Exit the code chunk context
-        executor.document_context.code_chunks.exit();
 
         // Continue walk to execute any outputs
         WalkControl::Continue

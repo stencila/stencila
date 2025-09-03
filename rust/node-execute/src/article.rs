@@ -141,9 +141,6 @@ impl Executable for Article {
         let node_id = self.node_id();
         tracing::trace!("Preparing Article {node_id}");
 
-        // Add article metadata to document context
-        executor.document_context.metadata = (&*self).into();
-
         // Set execution status
         self.options.execution_status = Some(ExecutionStatus::Pending);
         executor.patch(

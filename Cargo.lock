@@ -10748,22 +10748,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "stencila-prompt"
-version = "0.0.0"
-dependencies = [
- "itertools 0.14.0",
- "pretty_assertions",
- "regex",
- "rquickjs",
- "serde_json",
- "stencila-codec-markdown-trait",
- "stencila-kernel-quickjs",
- "stencila-kernels",
- "strum 0.27.2",
- "tokio",
-]
-
-[[package]]
 name = "stencila-prompts"
 version = "0.0.0"
 dependencies = [
@@ -10789,7 +10773,6 @@ dependencies = [
  "stencila-images",
  "stencila-model",
  "stencila-models",
- "stencila-prompt",
  "stencila-version",
  "tar",
  "tokio",

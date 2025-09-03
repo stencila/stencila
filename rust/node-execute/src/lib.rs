@@ -13,7 +13,6 @@ use tokio::sync::{RwLock, RwLockWriteGuard, mpsc, oneshot};
 use stencila_codecs::{DecodeOptions, Format};
 use stencila_kernels::Kernels;
 use stencila_linters::LintingOptions;
-use stencila_prompts::stencila_prompt::{DocumentContext, InstructionContext};
 use stencila_schema::{
     AuthorRole, AuthorRoleName, Block, Citation, CompilationMessage, Config, ExecutionBounds,
     ExecutionMode, ExecutionRequired, ExecutionStatus, IfBlockClause, Inline, LabelType, Link,
@@ -47,12 +46,10 @@ mod link;
 mod math_block;
 mod math_inline;
 mod model_utils;
-mod paragraph;
 mod parameter;
 mod prompt;
 mod prompt_block;
 mod raw_block;
-mod section;
 mod styled_block;
 mod styled_inline;
 mod suggestion_block;
@@ -200,12 +197,6 @@ pub struct Executor {
     ///
     /// Used to skip headings within figures, tables and code chunk captions.
     walk_ancestors: Vec<NodeType>,
-
-    /// The document context for prompts
-    document_context: DocumentContext,
-
-    /// The instruction context for prompts
-    instruction_context: Option<InstructionContext>,
 
     /// Information on the headings in the document
     headings: Vec<HeadingInfo>,
@@ -445,8 +436,6 @@ impl Executor {
             execution_status: ExecutionStatus::Pending,
             walk_position: 0,
             walk_ancestors: Default::default(),
-            document_context: DocumentContext::default(),
-            instruction_context: None,
             headings: Vec::new(),
             appendix_count: None,
             table_count: 0,
@@ -931,11 +920,6 @@ impl Executor {
 
     /// Run [`Phase::Prepare`]
     async fn prepare(&mut self, root: &mut Node) -> Result<()> {
-        // Create a new context before walking the tree to avoid
-        // having hangover information from the last time the prepare
-        // phase was run.
-        self.document_context = DocumentContext::default();
-
         self.phase = Phase::Prepare;
         self.walk_position = 0;
         self.walk_ancestors.clear();
@@ -1257,10 +1241,8 @@ impl VisitorAsync for Executor {
             InstructionBlock(node) => self.visit_executable(node).await,
             Island(node) => self.visit_executable(node).await,
             MathBlock(node) => self.visit_executable(node).await,
-            Paragraph(node) => self.visit_executable(node).await,
             PromptBlock(node) => self.visit_executable(node).await,
             RawBlock(node) => self.visit_executable(node).await,
-            Section(node) => self.visit_executable(node).await,
             StyledBlock(node) => self.visit_executable(node).await,
             SuggestionBlock(node) => self.visit_executable(node).await,
             Table(node) => self.visit_executable(node).await,
