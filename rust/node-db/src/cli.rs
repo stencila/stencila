@@ -218,6 +218,10 @@ impl Migrations {
             );
         }
 
+        if let Err(error) = runner.check_version_compatibility() {
+            tracing::warn!("Failed to check version compatibility: {error}");
+        }
+
         Ok(())
     }
 }

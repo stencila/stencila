@@ -20,6 +20,7 @@ stencila-dirs = { path = "../dirs" }
 stencila-embed = { path = "../embed" }
 stencila-kernel-kuzu = { path = "../kernel-kuzu" }
 stencila-schema = { path = "../schema" }
+stencila-version = { path = "../version" }
 tempfile = { workspace = true }
 time = { workspace = true }
 tokio = { workspace = true }

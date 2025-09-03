@@ -4,10 +4,8 @@ use std::{
     fs::{read_to_string, remove_file},
     io::{BufWriter, Write},
     path::Path,
-    sync::Arc,
+    sync::{Arc, LazyLock},
 };
-
-use std::sync::LazyLock;
 
 use derive_more::{Deref, DerefMut};
 use eyre::{Context, Result, bail, eyre};
@@ -206,6 +204,8 @@ impl NodeDatabase {
             tracing::trace!("Initializing new database with current schema");
 
             let schema = include_str!("../schemas/current.cypher");
+
+            // Execute schema statements
             for statement in schema.split(";") {
                 let statement = statement.trim();
                 if statement.starts_with("//") || statement.is_empty() {
@@ -214,6 +214,13 @@ impl NodeDatabase {
                 connection
                     .query(statement)
                     .wrap_err_with(|| eyre!("Failed to execute: {statement}"))?;
+            }
+
+            // Record the initial schema version so we can track version compatibility
+            let runner = MigrationRunner::new(database);
+            if let Err(error) = runner.record_initial_schema(schema) {
+                tracing::warn!("Failed to record initial schema version: {error}");
+                // Continue with initialization even if version recording fails
             }
         } else {
             // Existing database - check and apply migrations if needed
@@ -264,6 +271,12 @@ impl NodeDatabase {
                     tracing::warn!("Failed to check for pending migrations: {error}");
                     // Continue with initialization even if migration check fails
                 }
+            }
+
+            // Check version compatibility (warn if CLI version is behind applied migrations)
+            if let Err(error) = runner.check_version_compatibility() {
+                tracing::warn!("Failed to check version compatibility: {error}");
+                // Continue with initialization even if version check fails
             }
         }
 

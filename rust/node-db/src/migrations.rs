@@ -8,6 +8,7 @@ use sha2::{Digest, Sha256};
 use time::{OffsetDateTime, format_description::well_known::Rfc3339};
 
 use stencila_kernel_kuzu::kuzu::{Connection, Database, Value};
+use stencila_version::stencila_version;
 
 /// Represents a single migration with metadata
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -154,32 +155,41 @@ impl<'d> MigrationRunner<'d> {
         Self { database }
     }
 
-    /// Check if the migrations table exists
-    pub fn migrations_table_exists(&self) -> Result<bool> {
+    /// Record the initial schema version for a newly created database
+    ///
+    /// This creates a migration record with the current version to track
+    /// what version of Stencila originally created the database schema.
+    pub fn record_initial_schema(&self, schema: &str) -> Result<()> {
         let connection = Connection::new(self.database)?;
 
-        let mut result = connection.query("CALL show_tables() RETURN name")?;
+        let current_version = stencila_version();
+        let applied_at = OffsetDateTime::now_utc()
+            .format(&Rfc3339)
+            .map_err(|_| eyre!("Failed to format timestamp"))?;
 
-        for _i in 0..result.get_num_tuples() {
-            let row = result
-                .next()
-                .ok_or_else(|| eyre!("Expected row from query result"))?;
-            if let Value::String(table_name) = &row[0]
-                && table_name == "_migrations"
-            {
-                return Ok(true);
-            }
-        }
+        let mut hasher = Sha256::new();
+        hasher.update(schema.as_bytes());
+        let checksum = format!("{:x}", hasher.finalize());
 
-        Ok(false)
+        // Create a record indicating this database was initialized with the current schema
+        let cypher = format!(
+            "CREATE (m:_migrations {{version: '{current_version}', appliedAt: timestamp('{applied_at}'), checksum: '{checksum}'}})",
+        );
+
+        connection
+            .query(&cypher)
+            .wrap_err("Failed to record initial schema version in _migrations table")?;
+
+        tracing::debug!(
+            "Recorded initial schema version v{} in _migrations table",
+            current_version
+        );
+
+        Ok(())
     }
 
     /// Get all applied migrations from the database
     pub fn get_applied_migrations(&self) -> Result<HashMap<Version, MigrationHistory>> {
-        if !self.migrations_table_exists()? {
-            return Ok(HashMap::new());
-        }
-
         let connection = Connection::new(self.database)?;
 
         let mut result =
@@ -412,6 +422,34 @@ impl<'d> MigrationRunner<'d> {
             pending_versions,
         })
     }
+
+    /// Check if the current CLI version is compatible with applied database migrations
+    ///
+    /// This warns the user if the CLI version is behind the highest applied migration version.
+    pub fn check_version_compatibility(&self) -> Result<()> {
+        let applied_migrations = self.get_applied_migrations()?;
+
+        if applied_migrations.is_empty() {
+            tracing::trace!("No applied migrations found, version compatibility check skipped");
+            return Ok(());
+        }
+
+        let current_version = stencila_version();
+        let highest_applied_version = applied_migrations.keys().max().expect("is not empty");
+
+        tracing::trace!(
+            "Version compatibility check: CLI v{current_version} vs highest applied migration v{highest_applied_version}",
+        );
+
+        if current_version < *highest_applied_version {
+            tracing::warn!(
+                "The database was created or migrated by a newer version of Stencila (v{highest_applied_version}). \
+                Consider upgrading to ensure full compatibility.",
+            );
+        }
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -527,21 +565,6 @@ mod tests {
         // Verify timestamp format (should be RFC3339)
         assert!(chrono::DateTime::parse_from_rfc3339(&history.applied_at).is_ok());
 
-        Ok(())
-    }
-
-    #[test]
-    fn test_migrations_table_exists() -> Result<()> {
-        let database = Database::new(":memory:", SystemConfig::default())
-            .map_err(|e| eyre!("Failed to create test database: {}", e))?;
-
-        let runner = MigrationRunner::new(&database);
-
-        // For an empty database, migrations table should not exist
-        assert!(!runner.migrations_table_exists()?);
-
-        // Note: In practice, the migrations table would be created by the schema initialization
-        // This test just verifies that the check works correctly
         Ok(())
     }
 

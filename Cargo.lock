@@ -9324,6 +9324,7 @@ dependencies = [
  "stencila-codec",
  "stencila-codec-latex-trait",
  "stencila-codec-pandoc",
+ "stencila-media-extract",
  "tokio",
  "which 8.0.0",
 ]
@@ -10480,6 +10481,7 @@ dependencies = [
  "stencila-embed",
  "stencila-kernel-kuzu",
  "stencila-schema",
+ "stencila-version",
  "tempfile",
  "time",
  "tokio",
@@ -10904,7 +10906,6 @@ dependencies = [
  "stencila-codec-markdown-trait",
  "stencila-codec-text-trait",
  "stencila-format",
- "stencila-images",
  "stencila-node-id",
  "stencila-node-patch-derive",
  "stencila-node-path",
