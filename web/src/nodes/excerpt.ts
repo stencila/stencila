@@ -75,7 +75,7 @@ export class Excerpt extends Entity {
       >
         <div slot="header-right" class="flex items-center gap-1">
           <stencila-ui-icon
-            name=${nodeUi(nodeType).icon}
+            name=${nodeUi(nodeType as NodeType).icon}
             class="text-sm"
           ></stencila-ui-icon>
           <span class="font-semibold text-sm">${nodeType}</span>
