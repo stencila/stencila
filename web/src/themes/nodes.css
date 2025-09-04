@@ -110,10 +110,7 @@ stencila-paragraph {
   }
 }
 
-/* ------------ */
-
-/* tables, datatable and figures */
-
+/* table, datatable and figure */
 
 stencila-table,
 stencila-datatable {
@@ -165,8 +162,7 @@ stencila-datatable {
 stencila-table:not([root]),
 stencila-figure:not([root]),
 stencila-code-chunk:not([root]) {
-  display: block;
-  @apply my-12;
+  @apply block my-12;
 }
 
 stencila-table,
@@ -209,7 +205,25 @@ stencila-code-chunk {
   }
 }
 
-/* ------------ */
+/* Media objects */
+
+/* For block media objects (i.e. not inline within a paragraph or heading) that are not within
+a figure, give vertical margin */
+stencila-audio-object:not([root]):not(stencila-figure *, stencila-paragraph *, stencila-heading *),
+stencila-image-object:not([root]):not(stencila-figure *, stencila-paragraph *, stencila-heading *),
+stencila-video-object:not([root]):not(stencila-figure *, stencila-paragraph *, stencila-heading *) {
+  @apply block my-12;
+}
+
+/* Style caption (note this will apply to images etc within figures and so it intentionally smaller
+than the figure caption text and centered below the image. */
+stencila-audio-object,
+stencila-image-object,
+stencila-video-object {
+  & [slot='caption'] {
+    @apply block text-center text-xs;
+  }
+}
 
 /* admonitions  */
 
@@ -227,8 +241,6 @@ stencila-admonition {
   }
 }
 
-/* ------------ */
-
 /* quote blocks */
 
 stencila-quote-block {
@@ -244,19 +256,6 @@ stencila-quote-block {
     }
   }
 }
-
-/* ------------ */
-
-/* images */
-
-stencila-figure,
-stencila-image-object {
-  img {
-    @apply object-cover max-w-full aspect-auto m-auto block;
-  }
-}
-
-/* ------------ */
 
 /* lists */
 

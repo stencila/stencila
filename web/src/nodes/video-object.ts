@@ -14,20 +14,27 @@ import { MediaObject } from './media-object'
 @customElement('stencila-video-object')
 @withTwind()
 export class VideoObject extends MediaObject {
-  override renderContent() {
-    const styles = css`
-      & video {
-        width: 100%;
+  override renderMediaElem() {
+    return html`<video src=${this.mediaSrc} controls></video>` 
+  }
+
+  override renderCardContent() {
+    const videoStyles = css`
+      & {
+        display: block;
         max-width: 100%;
         height: auto;
+        margin: 1rem auto;
+        border-radius: 3px;
       }
     `
     
     return html`
-      <div slot="content" class=${styles}>
-        ${this.mediaSrc 
-          ? html`<video src=${this.mediaSrc} controls></video>` 
-          : html`<slot></slot>`}
+      <div slot="content">
+        ${this.mediaSrc ?  html`<video class=${videoStyles} src=${this.mediaSrc} controls></video>` : html`<slot></slot>`}
+        <div>
+          <slot name="caption"></slot>
+        </div>
       </div>
     `
   }

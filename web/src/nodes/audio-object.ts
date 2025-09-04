@@ -14,18 +14,34 @@ import { MediaObject } from './media-object'
 @customElement('stencila-audio-object')
 @withTwind()
 export class AudioObject extends MediaObject {
-  override renderContent() {
-    const styles = css`
-      & audio {
-        width: 100%;
-        max-width: 100%;
+  override renderMediaElem() {
+    // This inline style is necessary to override a constructed stylesheet
+    // somewhere that is causing <img> to be displayed as block
+    const audioStyles = css`
+      & {
+        display: inline;
+        border-radius: 3px;
+      }
+    `
+    return html`<audio class=${audioStyles} src=${this.mediaSrc} controls></audio>`
+  }
+
+  override renderCardContent() {
+    const audioStyles = css`
+      & {
+        display: block;
+        width: 100%; // Without this audio controls are small and centered
+        height: auto;
+        margin: 1rem auto;
+        border-radius: 3px;
       }
     `
     return html`
-      <div slot="content" class=${styles}>
-        ${this.mediaSrc 
-          ? html`<audio src=${this.mediaSrc} controls></audio>` 
-          : html`<slot></slot>`}
+      <div slot="content" class="text-center">
+        ${this.mediaSrc ?  html`<audio class=${audioStyles} src=${this.mediaSrc} controls></audio>` : html`<slot></slot>`}
+        <div>
+          <slot name="caption"></slot>
+        </div>
       </div>
     `
   }

@@ -4,6 +4,8 @@ import { property, state } from 'lit/decorators.js'
 
 import { Entity } from './entity'
 
+import '../ui/nodes/properties/authors'
+
 /**
  * Base class for media objects (image, video, audio) with common properties and URL resolution
  */
@@ -90,8 +92,8 @@ export abstract class MediaObject extends Entity {
     }
   }
 
-  // @ts-expect-error return type
-  override render() {
+  // @ts-expect-error TemplateResult return type differences
+  override render(): TemplateResult {
     if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return this.renderErrorOrContent()
     }
@@ -103,10 +105,11 @@ export abstract class MediaObject extends Entity {
     return this.renderCard()
   }
 
-  override renderCard() {
-    return this.parentNodeIs('CodeChunk')
-      ? this.renderBlockOnDemand()
-      : this.renderInlineOnDemand()
+  // @ts-expect-error TemplateResult return type differences
+  override renderCard(): TemplateResult {
+    return this.parentNodeIs('Paragraph') || this.parentNodeIs('Heading')
+      ? this.renderMediaElem()
+      : this.renderBlockOnDemand()
   }
 
   protected renderBlockOnDemand() {
@@ -117,26 +120,18 @@ export abstract class MediaObject extends Entity {
         depth=${this.depth}
         ?has-root=${this.hasRoot()}
       >
-        ${this.renderErrorOrContent()}
-      </stencila-ui-block-on-demand>
-    `
-  }
-
-  protected renderInlineOnDemand() {
-    return html`
-      <stencila-ui-inline-on-demand type=${this.type()}>
         <div slot="body">
           <stencila-ui-node-authors type=${this.type()}>
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
         ${this.renderErrorOrContent()}
-      </stencila-ui-inline-on-demand>
+      </stencila-ui-block-on-demand>
     `
   }
 
   protected renderErrorOrContent() {
-    return this.error ? this.renderError() : this.renderContent()
+    return this.error ? this.renderError() : this.renderCardContent()
   }
 
   protected renderError() {
@@ -151,5 +146,7 @@ export abstract class MediaObject extends Entity {
     </div>`
   }
 
-  protected abstract renderContent(): TemplateResult
+  protected abstract renderMediaElem(): TemplateResult
+
+  protected abstract renderCardContent(): TemplateResult
 }

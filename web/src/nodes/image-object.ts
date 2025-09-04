@@ -7,7 +7,6 @@ import { withTwind } from '../twind'
 
 import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/cards/inline-on-demand'
-import '../ui/nodes/properties/authors'
 
 import { ExecutionMessage } from './execution-message'
 import { MediaObject } from './media-object'
@@ -377,7 +376,18 @@ export class ImageObject extends MediaObject {
     }
   }
 
-  protected renderContent() {
+  override renderMediaElem() {
+    // This inline style is necessary to override a constructed stylesheet
+    // somewhere that is causing <img> to be displayed as block
+    const imgStyles = css`
+      & {
+        display: inline;
+      }
+    `
+    return html`<img class=${imgStyles} src=${this.mediaSrc} />`
+  }
+
+  override renderCardContent() {
     if (this.mediaType === ImageObject.MEDIA_TYPES.cytoscape) {
       return this.renderCytoscape()
     }
@@ -436,13 +446,19 @@ export class ImageObject extends MediaObject {
 
   private renderImg() {
     const imgStyles = css`
-      & img {
-        width: 100%;
+      & {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        margin: 1rem auto;
       }
     `
     return html`
-      <div slot="content" class=${imgStyles}>
-        ${this.mediaSrc ? html`<img src=${this.mediaSrc} />` : html`<slot></slot>`}
+      <div slot="content">
+        ${this.mediaSrc ? html`<img class=${imgStyles} src=${this.mediaSrc} />` : html`<slot></slot>`}
+        <div>
+          <slot name="caption"></slot>
+        </div>
       </div>
     `
   }
