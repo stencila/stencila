@@ -136,12 +136,27 @@ impl DomCodec for AudioObject {
     fn to_dom(&self, context: &mut DomEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())
-            .push_attr("content-url", &self.content_url)
+            .push_attr("content-url", &self.content_url);
+
+        context
             .enter_elem("audio")
             .push_attr("src", &self.content_url)
             .push_attr_boolean("controls")
-            .exit_elem()
-            .exit_node();
+            .exit_elem();
+
+        if let Some(title) = &self.title {
+            context.push_slot_fn("span", "title", |context| title.to_dom(context));
+        }
+
+        if let Some(caption) = &self.caption {
+            context.push_slot_fn("span", "caption", |context| caption.to_dom(context));
+        }
+
+        if let Some(authors) = &self.options.authors {
+            context.push_slot_fn("span", "authors", |context| authors.to_dom(context));
+        }
+
+        context.exit_node();
     }
 }
 
@@ -273,12 +288,27 @@ impl DomCodec for VideoObject {
     fn to_dom(&self, context: &mut DomEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())
-            .push_attr("content-url", &self.content_url)
+            .push_attr("content-url", &self.content_url);
+
+        context
             .enter_elem("video")
             .push_attr("src", &self.content_url)
             .push_attr_boolean("controls")
-            .exit_elem()
-            .exit_node();
+            .exit_elem();
+
+        if let Some(title) = &self.title {
+            context.push_slot_fn("span", "title", |context| title.to_dom(context));
+        }
+
+        if let Some(caption) = &self.caption {
+            context.push_slot_fn("span", "caption", |context| caption.to_dom(context));
+        }
+
+        if let Some(authors) = &self.options.authors {
+            context.push_slot_fn("span", "authors", |context| authors.to_dom(context));
+        }
+
+        context.exit_node();
     }
 }
 
