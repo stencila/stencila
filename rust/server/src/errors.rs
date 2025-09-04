@@ -21,6 +21,7 @@ impl InternalError {
     /// entry for the 500 code so that is not done here to avoid duplication.
     /// Also `tracing::error("{error:?}")` escape ASCII colors which messes up
     /// the colored display.
+    #[allow(clippy::print_stderr)]
     pub fn new<T>(error: T) -> Self
     where
         T: Display + Debug,
