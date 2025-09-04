@@ -25,8 +25,8 @@ export class AuthorRole extends Entity {
   @property({ attribute: 'last-modified', type: Number })
   lastModified: number
 
-  @property()
-  type: 'Person' | 'Organization' | 'SoftwareApplication'
+  @property({ attribute: 'type'})
+  authorType: 'Person' | 'Organization' | 'SoftwareApplication'
 
   @property()
   _id: string
@@ -40,7 +40,7 @@ export class AuthorRole extends Entity {
   override render() {
     return html`
       <stencila-ui-node-author
-        type=${this.type}
+        type=${this.authorType}
         _id=${this._id}
         name=${this.name}
         role=${this.roleName}
