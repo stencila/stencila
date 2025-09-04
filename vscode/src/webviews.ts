@@ -337,6 +337,7 @@ export async function initializeWebViewPanel(
     `style-src ${cspSource} 'unsafe-inline' ${allowedFontDomains.join(' ')}`,
     `font-src ${cspSource} ${allowedFontDomains.join(' ')}`,
     `img-src ${cspSource} https: data:`,
+    `media-src ${cspSource} https: data:`,
     `connect-src ${cspSource} https: data:`,
     `frame-src ${cspSource} blob: data:`,
   ].join('; ')
