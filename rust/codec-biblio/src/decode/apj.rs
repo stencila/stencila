@@ -381,7 +381,6 @@ mod tests {
         let reference =
             article(&mut r#"Smith P. A., Doe J., & Black A., 2019, Int. J. Examples, 12, 45"#)?;
         assert_eq!(reference.work_type, Some(CreativeWorkType::Article));
-        dbg!(&reference);
         assert_eq!(reference.authors.map(|authors| authors.len()), Some(3));
 
         Ok(())

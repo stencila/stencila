@@ -1226,6 +1226,7 @@ mod tests {
     }
 
     #[ignore = "primarily for development"]
+    #[allow(clippy::dbg_macro)]
     #[test_log::test]
     fn test_perf() -> Result<()> {
         // Ensure clean state

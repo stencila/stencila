@@ -69,6 +69,7 @@ unsafe_code = "deny"
 
 [workspace.lints.clippy]
 unwrap_used = "deny"
+dbg_macro = "deny"
 print_stdout = "deny"
 print_stderr = "warn"
 large_enum_variant = "allow"

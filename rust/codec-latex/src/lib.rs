@@ -71,7 +71,6 @@ impl Codec for LatexCodec {
         if options.tool.is_none() {
             if let Some(media) = options.extract_media.as_ref() {
                 let mut copy = node.clone();
-                dbg!(&copy);
                 extract_media(&mut copy, media)?;
                 encode(&copy, options)
             } else {
