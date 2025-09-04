@@ -1,31 +1,70 @@
-all: fix audit test build
+all: fix test audit pubcheck
 
+# Install dependencies
 install:
-	make -C stencila-node install
+ifdef CI
+	cd .. && npm ci --ignore-scripts
+else
+	cd .. && npm install --ignore-scripts
+endif
+	make -C ../ts build
 
-fix:
-	make -C stencila-node fix
+# Make formatting and linting fixes
+fix: install
+	npm run fix
 
-lint:
-	make -C stencila-node lint
+# Run linting checks
+lint: install
+	npm run lint
 
-outdated:
-	make -C stencila-node outdated
+# Run tests
+test: install
+	npm run build:debug
+	npm test
 
-audit:
-	make -C stencila-node audit
+# Run tests with coverage
+cover: install
+	npm run build:debug
+	npm run cover
 
-pubcheck:
-	make -C stencila-node pubcheck
+# Run benchmarks with release build
+# This moves the release build of the addon to `stencila.node`
+# which is the expected path of the addon.
+bench: install
+	npm run build:addon
+	mv stencila.*.node stencila.node
+	npm run bench
+.PHONY: bench
 
-test:
-	make -C stencila-node test
+# List outdated dependencies
+outdated: install
+	npm outdated
 
-cover:
-	make -C stencila-node cover
+# Audit dependencies
+audit: install
+	npm run unused
+	cd .. && npm run audit
 
-build:
-	make -C stencila-node build
+# Build the Node binary add-on only
+addon: install
+	npm run build:addon
 
+# Build the TypeScript into `dist` folder
+# It is necessary to build the addon (just debug for speed) because that
+# generates the `bindings.d.cts` file.
+dist: install
+	npm run build:debug
+	npm run build:dist
+.PHONY: dist
+
+# Run package publishing checks
+pubcheck: dist
+	npm run pubcheck
+
+# Publish the package
+publish: dist
+	npm publish --access public
+
+# Clean up development artifacts
 clean:
-	make -C stencila-node clean
+	rm -rf bindings.d.cts *.node ./dist

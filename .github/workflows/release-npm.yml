@@ -66,25 +66,6 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  # Build and publish @stencila/plugin package
-  publish-plugin:
-    if: ${{ inputs.publish-plugin }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js and NPM
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          registry-url: "https://registry.npmjs.org"
-
-      - name: Publish @stencila/plugin
-        run: make -C node/stencila-plugin -B install publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
   # Create a release for @stencila/node binary addons to be uploaded to
   create-release:
     runs-on: ubuntu-latest
@@ -180,7 +161,7 @@ jobs:
   # Trigger the install test workflow
   trigger-install:
     if: ${{ inputs.trigger-install }}
-    needs: [publish-types, publish-plugin, publish-node]
+    needs: [publish-types, publish-node]
     runs-on: ubuntu-latest
     permissions:
         actions: write

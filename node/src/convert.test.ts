@@ -20,7 +20,7 @@ test('fromString', async () => {
 
 test('fromPath', async () => {
   const node = await fromPath(
-    '../../examples/conversion/paragraph/paragraph.json',
+    '../examples/conversion/paragraph/paragraph.json',
   )
 
   expect(node instanceof Article)
@@ -54,7 +54,7 @@ test('toPath', async () => {
 
 test('fromTo', async () => {
   const md = await fromTo(
-    '../../examples/conversion/paragraph/paragraph.json',
+    '../examples/conversion/paragraph/paragraph.json',
     undefined,
     undefined,
     {

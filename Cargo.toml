@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["rust/*", "node/stencila-node", "python/stencila"]
+members = ["rust/*", "node", "python/stencila"]
 
 [workspace.dependencies]
 Inflector = "0.11.4"

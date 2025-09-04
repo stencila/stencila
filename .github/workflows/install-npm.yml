@@ -35,27 +35,6 @@ jobs:
       - name: Install package using Yarn
         run: yarn add @stencila/types
 
-  plugin:
-    strategy:
-      fail-fast: false
-      matrix:
-        version:
-          - 18
-          - 20
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup Node.js and NPM
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.version }}
-          registry-url: "https://registry.npmjs.org"
-
-      - name: Install package using NPM
-        run: npm install @stencila/plugin && npm rm @stencila/plugin
-
-      - name: Install package using Yarn
-        run: yarn add @stencila/plugin
-
   node:
     strategy:
       fail-fast: false

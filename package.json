@@ -1,8 +1,7 @@
 {
   "type": "module",
   "workspaces": [
-    "node/stencila-node",
-    "node/stencila-plugin",
+    "node",
     "ts",
     "web",
     "ghost"
