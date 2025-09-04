@@ -1196,7 +1196,7 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
 
             *parent = Block::CodeChunk(chunk);
         } else {
-            // Put all paragraphs into the caption (unless they have just a single image) and
+            // Put all paragraphs into the caption (unless they have just a single media object) and
             // everything else in the content
             let mut caption = vec![];
             let mut content = vec![];
@@ -1205,7 +1205,15 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
                     content: inlines, ..
                 }) = &child
                 {
-                    if let (1, Some(Inline::ImageObject(..))) = (inlines.len(), inlines.first()) {
+                    if let (
+                        1,
+                        Some(
+                            Inline::ImageObject(..)
+                            | Inline::AudioObject(..)
+                            | Inline::VideoObject(..),
+                        ),
+                    ) = (inlines.len(), inlines.first())
+                    {
                         content.push(child)
                     } else {
                         caption.push(child)
