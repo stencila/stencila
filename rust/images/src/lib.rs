@@ -8,7 +8,7 @@ use std::{
 
 use base64::{Engine as _, engine::general_purpose::STANDARD};
 use eyre::{OptionExt, Result, bail};
-use image::{GenericImageView, ImageFormat, ImageReader, imageops, open};
+use image::{ImageFormat, ImageReader, open};
 use itertools::Itertools;
 use mime_guess::from_path;
 use regex::{Captures, Regex};
@@ -48,66 +48,6 @@ pub fn path_to_data_uri(path: &Path) -> Result<String> {
         image.write_to(&mut Cursor::new(&mut bytes), ImageFormat::Png)?;
         STANDARD.encode(&bytes)
     };
-
-    Ok(format!("data:{mime_type};base64,{encoded}"))
-}
-
-/// Convert a filesystem path to an image to embed in a document
-///
-/// Compared to `path_to_data_uri` this function will (1) not return a dataURI
-/// for the TIFF format, and (2) will scale the image if it is wider than
-/// `max_width` (defaults to 1200px).
-pub fn path_to_data_uri_to_embed(path: &Path, max_width: Option<u32>) -> Result<String> {
-    let max_width = max_width.unwrap_or(1200);
-
-    // Determine input format
-    let input_format = ImageFormat::from_path(path)?;
-    let is_tiff = input_format == ImageFormat::Tiff;
-
-    // Load the image
-    let img = ImageReader::open(path)?.decode()?;
-    let (original_width, original_height) = img.dimensions();
-
-    // Check if we need to resize (large image or TIFF format)
-    let needs_resize = original_width > max_width || is_tiff;
-    if !needs_resize {
-        // Small non-TIFF image: return original format data URI
-        return path_to_data_uri(path);
-    }
-
-    // Calculate new dimensions for resizing
-    let (new_width, new_height) = if original_width > max_width {
-        // Calculate proportional height to maintain aspect ratio
-        let aspect_ratio = original_height as f64 / original_width as f64;
-        let new_height = (max_width as f64 * aspect_ratio).round() as u32;
-        (max_width, new_height)
-    } else {
-        // TIFF smaller than max_width, keep original dimensions but convert to PNG
-        (original_width, original_height)
-    };
-
-    // Resize the image if dimensions changed
-    let processed_img = if (new_width, new_height) != (original_width, original_height) {
-        imageops::resize(&img, new_width, new_height, imageops::FilterType::Lanczos3)
-    } else {
-        img.to_rgba8()
-    };
-
-    // Convert to DynamicImage and save as data URI
-    let dynamic_img = image::DynamicImage::ImageRgba8(processed_img);
-
-    // Use the same format unless TIFF
-    let output_format = if is_tiff {
-        ImageFormat::Png
-    } else {
-        input_format
-    };
-    let mime_type = output_format.to_mime_type();
-
-    // Convert to data URI
-    let mut bytes: Vec<u8> = Vec::new();
-    dynamic_img.write_to(&mut Cursor::new(&mut bytes), output_format)?;
-    let encoded = STANDARD.encode(&bytes);
 
     Ok(format!("data:{mime_type};base64,{encoded}"))
 }

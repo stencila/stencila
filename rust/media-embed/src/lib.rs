@@ -1,9 +1,13 @@
-use std::path::{Path, PathBuf};
+use std::{
+    io::Cursor,
+    path::{Path, PathBuf},
+};
 
 use base64::{Engine as _, engine::general_purpose::STANDARD};
 use eyre::{Context, Result, bail, eyre};
+use image::{GenericImageView, ImageFormat, ImageReader, imageops};
+use tempfile::NamedTempFile;
 
-use stencila_images::path_to_data_uri_to_embed;
 use stencila_schema::{
     AudioObject, Block, ImageObject, Inline, Node, VideoObject, VisitorMut, WalkControl, WalkNode,
 };
@@ -25,6 +29,10 @@ use stencila_tools::{Ffmpeg, Tool};
 /// - Images: .png, .jpg, .jpeg, .gif, .tif, .tiff
 /// - Videos: .mp4, .avi, .mov, .mkv, .webm, .wmv  
 /// - Audio: .mp3, .wav, .flac, .ogg, .aac, .m4a
+///
+/// This function does not return errors for individual media processing failures.
+/// Instead, failures are logged as warnings or errors, allowing the embedding
+/// process to continue for other media objects in the document.
 pub fn embed_media<T>(node: &mut T, path: &Path) -> Result<()>
 where
     T: WalkNode,
@@ -45,20 +53,20 @@ where
         bail!("Directory does not exist: {}", dir.display());
     }
 
-    let mut walker = Walker { dir: dir.into() };
-    walker.walk(node);
+    let mut embedder = Embedder { dir: dir.into() };
+    embedder.walk(node);
 
     Ok(())
 }
 
-struct Walker {
+struct Embedder {
     /// The base directory for relative filesystem paths
     dir: PathBuf,
 }
 
-impl Walker {
+impl Embedder {
     /// Resolve a media file path, handling both absolute and relative paths
-    fn resolve_media_path(&self, content_url: &str, extension: &str) -> PathBuf {
+    fn resolve_path(&self, content_url: &str, extension: &str) -> PathBuf {
         let path_with_ext = [content_url, extension].concat();
         let path = Path::new(&path_with_ext);
 
@@ -71,30 +79,114 @@ impl Walker {
 
     /// Embed an image by converting to a data URI using optimized settings
     fn embed_image(&self, image: &mut ImageObject) {
-        for ext in ["", ".png", ".jpg", ".jpeg", ".gif", ".tif", ".tiff"] {
-            let path = self.resolve_media_path(&image.content_url, ext);
-            if path.exists() {
-                match path_to_data_uri_to_embed(&path, None) {
-                    Ok(url) => {
-                        image.content_url = url;
-                    }
-                    Err(error) => {
-                        tracing::error!("While converting image to dataURI: {error}")
-                    }
-                }
+        const IMAGE_EXTENSIONS: &[&str] = &["", ".png", ".jpg", ".jpeg", ".gif", ".tif", ".tiff"];
 
+        for ext in IMAGE_EXTENSIONS {
+            let path = self.resolve_path(&image.content_url, ext);
+            if path.exists() {
+                self.process_image(&path, image);
                 return;
             }
         }
+
+        tracing::warn!("Image file does not exist: {}", image.content_url);
+    }
+
+    /// Process an image file by optimizing and converting to data URI
+    fn process_image(&self, path: &Path, image: &mut ImageObject) {
+        const MAX_WIDTH: u32 = 1200; // Default max width for web viewing
+
+        // Determine input format
+        let input_format = match ImageFormat::from_path(path) {
+            Ok(format) => format,
+            Err(error) => {
+                tracing::error!("Failed to determine image format: {error}");
+                return;
+            }
+        };
+        let is_tiff = input_format == ImageFormat::Tiff;
+
+        // Load the image
+        let img = match ImageReader::open(path) {
+            Ok(reader) => match reader.decode() {
+                Ok(img) => img,
+                Err(error) => {
+                    tracing::error!("Failed to decode image: {error}");
+                    return;
+                }
+            },
+            Err(error) => {
+                tracing::error!("Failed to open image: {error}");
+                return;
+            }
+        };
+        let (original_width, original_height) = img.dimensions();
+
+        // Check if we need to resize (large image or TIFF format)
+        let needs_resize = original_width > MAX_WIDTH || is_tiff;
+
+        let data_uri = if !needs_resize {
+            // Small non-TIFF image: convert directly without resizing
+            let mut bytes: Vec<u8> = Vec::new();
+            if let Err(error) = img.write_to(&mut Cursor::new(&mut bytes), input_format) {
+                tracing::error!("Failed to encode image: {error}");
+                return;
+            }
+            let encoded = STANDARD.encode(&bytes);
+            let mime_type = input_format.to_mime_type();
+            format!("data:{mime_type};base64,{encoded}")
+        } else {
+            // Calculate new dimensions for resizing
+            let (new_width, new_height) = if original_width > MAX_WIDTH {
+                // Calculate proportional height to maintain aspect ratio
+                let aspect_ratio = original_height as f64 / original_width as f64;
+                let new_height = (MAX_WIDTH as f64 * aspect_ratio).round() as u32;
+                (MAX_WIDTH, new_height)
+            } else {
+                // TIFF smaller than max_width, keep original dimensions but convert to PNG
+                (original_width, original_height)
+            };
+
+            // Resize the image if dimensions changed
+            let processed_img = if (new_width, new_height) != (original_width, original_height) {
+                imageops::resize(&img, new_width, new_height, imageops::FilterType::Lanczos3)
+            } else {
+                img.to_rgba8()
+            };
+
+            // Convert to DynamicImage
+            let dynamic_img = image::DynamicImage::ImageRgba8(processed_img);
+
+            // Use the same format unless TIFF
+            let output_format = if is_tiff {
+                ImageFormat::Png
+            } else {
+                input_format
+            };
+            let mime_type = output_format.to_mime_type();
+
+            // Convert to data URI
+            let mut bytes: Vec<u8> = Vec::new();
+            if let Err(error) = dynamic_img.write_to(&mut Cursor::new(&mut bytes), output_format) {
+                tracing::error!("Failed to encode processed image: {error}");
+                return;
+            }
+            let encoded = STANDARD.encode(&bytes);
+            format!("data:{mime_type};base64,{encoded}")
+        };
+
+        image.content_url = data_uri;
     }
 
     /// Embed an audio file by converting to MP3 and encoding as data URI
     fn embed_audio(&self, audio: &mut AudioObject) {
+        const AUDIO_EXTENSIONS: &[&str] = &["", ".mp3", ".wav", ".flac", ".ogg", ".aac", ".m4a"];
+
         // Try different audio file extensions
-        for ext in ["", ".mp3", ".wav", ".flac", ".ogg", ".aac", ".m4a"] {
-            let path = self.resolve_media_path(&audio.content_url, ext);
+        for ext in AUDIO_EXTENSIONS {
+            let path = self.resolve_path(&audio.content_url, ext);
             if path.exists() {
-                self.process_audio_file(&path, audio);
+                self.process_audio(&path, audio);
                 return;
             }
         }
@@ -103,14 +195,16 @@ impl Walker {
     }
 
     /// Process an audio file using FFmpeg to optimize and convert to data URI
-    fn process_audio_file(&self, path: &Path, audio: &mut AudioObject) {
+    fn process_audio(&self, path: &Path, audio: &mut AudioObject) {
         // Create a temporary file for the optimized output
-        let temp_dir = std::env::temp_dir();
-        let timestamp = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_millis())
-            .unwrap_or(0);
-        let temp_output = temp_dir.join(format!("embedded_{}.mp3", timestamp));
+        let temp_file = match NamedTempFile::with_suffix(".mp3") {
+            Ok(file) => file,
+            Err(error) => {
+                tracing::error!("Failed to create temporary file: {error}");
+                return;
+            }
+        };
+        let temp_output = temp_file.path();
 
         // Use FFmpeg to convert and optimize the audio
         let mut command = Ffmpeg.command();
@@ -123,13 +217,13 @@ impl Walker {
                 "-ar", "44100", // Standard sample rate
                 "-y",    // Overwrite output file
             ])
-            .arg(&temp_output);
+            .arg(temp_output);
 
         match command.output() {
             Ok(output) => {
                 if output.status.success() {
                     // Read the optimized audio file and convert to base64
-                    match std::fs::read(&temp_output) {
+                    match std::fs::read(temp_output) {
                         Ok(audio_bytes) => {
                             let encoded = STANDARD.encode(&audio_bytes);
                             let data_uri = format!("data:audio/mpeg;base64,{encoded}");
@@ -140,16 +234,14 @@ impl Walker {
                         }
                     }
                 } else {
+                    let stdout = String::from_utf8_lossy(&output.stdout);
                     let stderr = String::from_utf8_lossy(&output.stderr);
-                    tracing::error!("FFmpeg failed to process audio: {stderr}");
+                    tracing::error!(
+                        "FFmpeg failed to process audio. stdout: {stdout}, stderr: {stderr}"
+                    );
                 }
 
-                // Clean up temporary file
-                if temp_output.exists()
-                    && let Err(error) = std::fs::remove_file(&temp_output)
-                {
-                    tracing::warn!("Failed to remove temporary file: {error}");
-                }
+                // Temporary file will be cleaned up automatically when temp_file is dropped
             }
             Err(error) => {
                 tracing::error!("Failed to execute FFmpeg: {error}");
@@ -159,11 +251,13 @@ impl Walker {
 
     /// Embed a video by converting to MP4 and encoding as data URI
     fn embed_video(&self, video: &mut VideoObject) {
+        const VIDEO_EXTENSIONS: &[&str] = &["", ".mp4", ".avi", ".mov", ".mkv", ".webm", ".wmv"];
+
         // Try different video file extensions
-        for ext in ["", ".mp4", ".avi", ".mov", ".mkv", ".webm", ".wmv"] {
-            let path = self.resolve_media_path(&video.content_url, ext);
+        for ext in VIDEO_EXTENSIONS {
+            let path = self.resolve_path(&video.content_url, ext);
             if path.exists() {
-                self.process_video_file(&path, video);
+                self.process_video(&path, video);
                 return;
             }
         }
@@ -172,14 +266,16 @@ impl Walker {
     }
 
     /// Process a video file using FFmpeg to optimize and convert to data URI
-    fn process_video_file(&self, path: &Path, video: &mut VideoObject) {
+    fn process_video(&self, path: &Path, video: &mut VideoObject) {
         // Create a temporary file for the optimized output
-        let temp_dir = std::env::temp_dir();
-        let timestamp = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_millis())
-            .unwrap_or(0);
-        let temp_output = temp_dir.join(format!("embedded_{}.mp4", timestamp));
+        let temp_file = match NamedTempFile::with_suffix(".mp4") {
+            Ok(file) => file,
+            Err(error) => {
+                tracing::error!("Failed to create temporary file: {error}");
+                return;
+            }
+        };
+        let temp_output = temp_file.path();
 
         // Use FFmpeg to convert and optimize the video
         let mut command = Ffmpeg.command();
@@ -205,13 +301,13 @@ impl Walker {
                 "+faststart", // Enable fast start for web playback
                 "-y",         // Overwrite output file
             ])
-            .arg(&temp_output);
+            .arg(temp_output);
 
         match command.output() {
             Ok(output) => {
                 if output.status.success() {
                     // Read the optimized video file and convert to base64
-                    match std::fs::read(&temp_output) {
+                    match std::fs::read(temp_output) {
                         Ok(video_bytes) => {
                             let encoded = STANDARD.encode(&video_bytes);
                             let data_uri = format!("data:video/mp4;base64,{}", encoded);
@@ -222,16 +318,14 @@ impl Walker {
                         }
                     }
                 } else {
+                    let stdout = String::from_utf8_lossy(&output.stdout);
                     let stderr = String::from_utf8_lossy(&output.stderr);
-                    tracing::error!("FFmpeg failed to process video: {stderr}");
+                    tracing::error!(
+                        "FFmpeg failed to process video. stdout: {stdout}, stderr: {stderr}"
+                    );
                 }
 
-                // Clean up temporary file
-                if temp_output.exists()
-                    && let Err(error) = std::fs::remove_file(&temp_output)
-                {
-                    tracing::warn!("Failed to remove temporary file: {error}");
-                }
+                // Temporary file will be cleaned up automatically when temp_file is dropped
             }
             Err(error) => {
                 tracing::error!("Failed to execute FFmpeg: {error}");
@@ -240,7 +334,7 @@ impl Walker {
     }
 }
 
-impl VisitorMut for Walker {
+impl VisitorMut for Embedder {
     fn visit_node(&mut self, node: &mut Node) -> WalkControl {
         match node {
             Node::AudioObject(audio) => self.embed_audio(audio),
