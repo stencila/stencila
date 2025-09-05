@@ -119,6 +119,7 @@ export type NodeType =
   | "SuggestionBlock"
   | "SuggestionInline"
   | "Superscript"
+  | "Supplement"
   | "Table"
   | "TableCell"
   | "TableRow"
@@ -258,6 +259,7 @@ export const NodeTypeList = [
   "SuggestionBlock",
   "SuggestionInline",
   "Superscript",
+  "Supplement",
   "Table",
   "TableCell",
   "TableRow",

@@ -32,6 +32,7 @@ export type BlockType =
   | "Section"
   | "StyledBlock"
   | "SuggestionBlock"
+  | "Supplement"
   | "Table"
   | "ThematicBreak"
   | "VideoObject"
@@ -69,6 +70,7 @@ export const BlockTypeList = [
   "Section",
   "StyledBlock",
   "SuggestionBlock",
+  "Supplement",
   "Table",
   "ThematicBreak",
   "VideoObject",

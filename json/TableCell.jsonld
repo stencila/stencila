@@ -74,7 +74,7 @@
       }
     },
     {
-      "@id": "stencila:colspan",
+      "@id": "stencila:columnSpan",
       "@type": "rdfs:Property",
       "rdfs:label": "columnSpan",
       "rdfs:comment": "How many columns the cell extends.",
@@ -86,7 +86,7 @@
       }
     },
     {
-      "@id": "stencila:rowspan",
+      "@id": "stencila:rowSpan",
       "@type": "rdfs:Property",
       "rdfs:label": "rowSpan",
       "rdfs:comment": "How many columns the cell extends.",

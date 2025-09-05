@@ -152,6 +152,9 @@
         },
         {
           "@id": "stencila:Reference"
+        },
+        {
+          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {
@@ -744,6 +747,9 @@
         },
         {
           "@id": "stencila:Styled"
+        },
+        {
+          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {

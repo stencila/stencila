@@ -69,6 +69,9 @@
         },
         {
           "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {

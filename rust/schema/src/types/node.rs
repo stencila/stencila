@@ -121,6 +121,7 @@ use super::subscript::Subscript;
 use super::suggestion_block::SuggestionBlock;
 use super::suggestion_inline::SuggestionInline;
 use super::superscript::Superscript;
+use super::supplement::Supplement;
 use super::table::Table;
 use super::table_cell::TableCell;
 use super::table_row::TableRow;
@@ -380,6 +381,8 @@ pub enum Node {
     SuggestionInline(SuggestionInline),
 
     Superscript(Superscript),
+
+    Supplement(Supplement),
 
     Table(Table),
 

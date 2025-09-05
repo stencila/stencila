@@ -33,6 +33,7 @@ import { type RawBlock } from "./RawBlock.js";
 import { type Section } from "./Section.js";
 import { type StyledBlock } from "./StyledBlock.js";
 import { type SuggestionBlock } from "./SuggestionBlock.js";
+import { type Supplement } from "./Supplement.js";
 import { type Table } from "./Table.js";
 import { type ThematicBreak } from "./ThematicBreak.js";
 import { type VideoObject } from "./VideoObject.js";
@@ -73,6 +74,7 @@ export type Block =
   Section |
   StyledBlock |
   SuggestionBlock |
+  Supplement |
   Table |
   ThematicBreak |
   VideoObject |
@@ -114,6 +116,7 @@ export function block(other: Block): Block {
     case "Section":
     case "StyledBlock":
     case "SuggestionBlock":
+    case "Supplement":
     case "Table":
     case "ThematicBreak":
     case "VideoObject":

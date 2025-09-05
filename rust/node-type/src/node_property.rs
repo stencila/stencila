@@ -293,6 +293,7 @@ pub enum NodeProperty {
     Version,
     VerticalAlignment,
     VolumeNumber,
+    Work,
     WorkType,
     Zenodo,
 }

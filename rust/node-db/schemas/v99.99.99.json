@@ -511,12 +511,6 @@
           "onOptions": false
         },
         {
-          "name": "labelAutomatically",
-          "dataType": "Boolean",
-          "nullable": true,
-          "onOptions": false
-        },
-        {
           "name": "isEchoed",
           "dataType": "Boolean",
           "nullable": true,
@@ -835,12 +829,6 @@
           "dataType": "String",
           "nullable": true,
           "onOptions": false
-        },
-        {
-          "name": "labelAutomatically",
-          "dataType": "Boolean",
-          "nullable": true,
-          "onOptions": false
         }
       ],
       "primaryKey": null,
@@ -857,16 +845,88 @@
       "name": "File",
       "columns": [
         {
+          "name": "description",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
           "name": "name",
           "dataType": "String",
           "nullable": true,
           "onOptions": false
         },
         {
+          "name": "url",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "doi",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "dateCreated",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateReceived",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateAccepted",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "dateModified",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "datePublished",
+          "dataType": "Date",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "genre",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "keywords",
+          "dataType": "StringArray",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
+          "name": "repository",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
+        },
+        {
           "name": "path",
           "dataType": "String",
           "nullable": true,
           "onOptions": false
+        },
+        {
+          "name": "commit",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": true
         },
         {
           "name": "mediaType",
@@ -1390,12 +1450,6 @@
         {
           "name": "label",
           "dataType": "String",
-          "nullable": true,
-          "onOptions": false
-        },
-        {
-          "name": "labelAutomatically",
-          "dataType": "Boolean",
           "nullable": true,
           "onOptions": false
         }
@@ -2149,6 +2203,27 @@
       "hasStandardNodeFields": true
     },
     {
+      "name": "Supplement",
+      "columns": [
+        {
+          "name": "label",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        },
+        {
+          "name": "target",
+          "dataType": "String",
+          "nullable": true,
+          "onOptions": false
+        }
+      ],
+      "primaryKey": null,
+      "derivedProperties": [],
+      "hasEmbeddings": false,
+      "hasStandardNodeFields": true
+    },
+    {
       "name": "Table",
       "columns": [
         {
@@ -2238,12 +2313,6 @@
         {
           "name": "label",
           "dataType": "String",
-          "nullable": true,
-          "onOptions": false
-        },
-        {
-          "name": "labelAutomatically",
-          "dataType": "Boolean",
           "nullable": true,
           "onOptions": false
         }
@@ -2552,6 +2621,10 @@
         },
         {
           "from": "Annotation",
+          "to": "Supplement"
+        },
+        {
+          "from": "Annotation",
           "to": "Table"
         },
         {
@@ -2676,6 +2749,10 @@
         },
         {
           "from": "Admonition",
+          "to": "Supplement"
+        },
+        {
+          "from": "Admonition",
           "to": "Table"
         },
         {
@@ -2824,6 +2901,10 @@
         },
         {
           "from": "Article",
+          "to": "Supplement"
+        },
+        {
+          "from": "Article",
           "to": "Table"
         },
         {
@@ -2912,6 +2993,10 @@
         },
         {
           "from": "Claim",
+          "to": "Supplement"
+        },
+        {
+          "from": "Claim",
           "to": "Table"
         },
         {
@@ -3000,6 +3085,10 @@
         },
         {
           "from": "Figure",
+          "to": "Supplement"
+        },
+        {
+          "from": "Figure",
           "to": "Table"
         },
         {
@@ -3088,6 +3177,10 @@
         },
         {
           "from": "ForBlock",
+          "to": "Supplement"
+        },
+        {
+          "from": "ForBlock",
           "to": "Table"
         },
         {
@@ -3236,6 +3329,10 @@
         },
         {
           "from": "IfBlockClause",
+          "to": "Supplement"
+        },
+        {
+          "from": "IfBlockClause",
           "to": "Table"
         },
         {
@@ -3324,6 +3421,10 @@
         },
         {
           "from": "IncludeBlock",
+          "to": "Supplement"
+        },
+        {
+          "from": "IncludeBlock",
           "to": "Table"
         },
         {
@@ -3472,6 +3573,10 @@
         },
         {
           "from": "ListItem",
+          "to": "Supplement"
+        },
+        {
+          "from": "ListItem",
           "to": "Table"
         },
         {
@@ -3560,6 +3665,10 @@
         },
         {
           "from": "Note",
+          "to": "Supplement"
+        },
+        {
+          "from": "Note",
           "to": "Table"
         },
         {
@@ -3708,6 +3817,10 @@
         },
         {
           "from": "QuoteBlock",
+          "to": "Supplement"
+        },
+        {
+          "from": "QuoteBlock",
           "to": "Table"
         },
         {
@@ -3856,6 +3969,10 @@
         },
         {
           "from": "Section",
+          "to": "Supplement"
+        },
+        {
+          "from": "Section",
           "to": "Table"
         },
         {
@@ -4001,6 +4118,10 @@
         {
           "from": "StyledBlock",
           "to": "StyledBlock"
+        },
+        {
+          "from": "StyledBlock",
+          "to": "Supplement"
         },
         {
           "from": "StyledBlock",
@@ -4230,6 +4351,18 @@
         },
         {
           "from": "Figure",
+          "to": "AuthorRole"
+        },
+        {
+          "from": "File",
+          "to": "Person"
+        },
+        {
+          "from": "File",
+          "to": "Organization"
+        },
+        {
+          "from": "File",
           "to": "AuthorRole"
         },
         {
@@ -4525,6 +4658,18 @@
           "to": "AuthorRole"
         },
         {
+          "from": "File",
+          "to": "Person"
+        },
+        {
+          "from": "File",
+          "to": "Organization"
+        },
+        {
+          "from": "File",
+          "to": "AuthorRole"
+        },
+        {
           "from": "ImageObject",
           "to": "Person"
         },
@@ -4611,6 +4756,10 @@
           "to": "Person"
         },
         {
+          "from": "File",
+          "to": "Person"
+        },
+        {
           "from": "ImageObject",
           "to": "Person"
         },
@@ -4678,6 +4827,10 @@
         },
         {
           "from": "Figure",
+          "to": "Reference"
+        },
+        {
+          "from": "File",
           "to": "Reference"
         },
         {

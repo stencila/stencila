@@ -42,6 +42,9 @@
       "$ref": "Figure.schema.json"
     },
     {
+      "$ref": "File.schema.json"
+    },
+    {
       "$ref": "Grant.schema.json"
     },
     {

@@ -126,6 +126,7 @@ pub enum NodeType {
     SuggestionBlock,
     SuggestionInline,
     Superscript,
+    Supplement,
     Table,
     TableCell,
     TableRow,
@@ -154,13 +155,13 @@ impl NodeType {
     /// Is the node type a creative work type?
     pub fn is_creative_work(&self) -> bool {
         use NodeType::*;
-        matches!(self, Article|AudioObject|Chat|Claim|Collection|Comment|Datatable|Figure|ImageObject|MediaObject|Periodical|Prompt|PublicationIssue|PublicationVolume|Review|SoftwareApplication|SoftwareSourceCode|Table|VideoObject)
+        matches!(self, Article|AudioObject|Chat|Claim|Collection|Comment|Datatable|Figure|File|ImageObject|MediaObject|Periodical|Prompt|PublicationIssue|PublicationVolume|Review|SoftwareApplication|SoftwareSourceCode|Table|VideoObject)
     }
 
     /// Is the node type a block content type?
     pub fn is_block(&self) -> bool {
         use NodeType::*;
-        matches!(self, Admonition|AppendixBreak|AudioObject|CallBlock|Chat|ChatMessage|ChatMessageGroup|Claim|CodeBlock|CodeChunk|Excerpt|Figure|File|ForBlock|Form|Heading|IfBlock|ImageObject|IncludeBlock|InlinesBlock|InstructionBlock|Island|List|MathBlock|Paragraph|PromptBlock|QuoteBlock|RawBlock|Section|StyledBlock|SuggestionBlock|Table|ThematicBreak|VideoObject|Walkthrough)
+        matches!(self, Admonition|AppendixBreak|AudioObject|CallBlock|Chat|ChatMessage|ChatMessageGroup|Claim|CodeBlock|CodeChunk|Excerpt|Figure|File|ForBlock|Form|Heading|IfBlock|ImageObject|IncludeBlock|InlinesBlock|InstructionBlock|Island|List|MathBlock|Paragraph|PromptBlock|QuoteBlock|RawBlock|Section|StyledBlock|SuggestionBlock|Supplement|Table|ThematicBreak|VideoObject|Walkthrough)
     }
 
     /// Is the node type an inline content type?
@@ -302,6 +303,7 @@ impl TryFrom<&NodeId> for NodeType {
             "sgb" => SuggestionBlock,
             "sgi" => SuggestionInline,
             "sup" => Superscript,
+            "spl" => Supplement,
             "tbl" => Table,
             "tbc" => TableCell,
             "tbr" => TableRow,

@@ -42,6 +42,7 @@ impl Block {
             Section,
             StyledBlock,
             SuggestionBlock,
+            Supplement,
             Table,
             ThematicBreak,
             VideoObject,
@@ -90,6 +91,7 @@ impl Block {
             Section,
             StyledBlock,
             SuggestionBlock,
+            Supplement,
             Table,
             ThematicBreak,
             VideoObject,
@@ -202,6 +204,7 @@ impl TryFrom<Node> for Block {
             Section,
             StyledBlock,
             SuggestionBlock,
+            Supplement,
             Table,
             ThematicBreak,
             Walkthrough

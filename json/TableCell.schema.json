@@ -25,10 +25,7 @@
   ],
   "core": [
     "id",
-    "cellType",
-    "horizontalAlignment",
-    "horizontalAlignmentCharacter",
-    "verticalAlignment"
+    "cellType"
   ],
   "properties": {
     "type": {
@@ -65,13 +62,16 @@
       "type": "string"
     },
     "columnSpan": {
-      "@id": "stencila:colspan",
+      "@id": "stencila:columnSpan",
       "description": "How many columns the cell extends.",
       "$comment": "Based on the HTML `colspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).",
       "aliases": [
         "column-span",
         "column_span"
       ],
+      "dom": {
+        "attr": "colspan"
+      },
       "html": {
         "attr": "colspan"
       },
@@ -80,13 +80,16 @@
       "maximum": 1000.0
     },
     "rowSpan": {
-      "@id": "stencila:rowspan",
+      "@id": "stencila:rowSpan",
       "description": "How many columns the cell extends.",
       "$comment": "Based on the HTML `rowspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).",
       "aliases": [
         "row-span",
         "row_span"
       ],
+      "dom": {
+        "attr": "rowspan"
+      },
       "html": {
         "attr": "rowspan"
       },

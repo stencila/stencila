@@ -186,6 +186,12 @@ anyOf:
         description: Do not generate `SuggestionBlock` nodes in block content.
         skip: true
 
+  - $ref: Supplement
+    proptest:
+      min:
+        description: Do not generate `Supplement` nodes in block content.
+        skip: true
+
   - $ref: Table
 
   - $ref: ThematicBreak

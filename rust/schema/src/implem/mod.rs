@@ -82,6 +82,7 @@ mod styled_inline;
 mod suggestion_block;
 mod suggestion_inline;
 mod suggestion_status;
+mod supplement;
 mod table;
 mod table_cell;
 mod table_row;

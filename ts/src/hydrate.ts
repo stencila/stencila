@@ -287,6 +287,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.SuggestionInline.prototype);
     case "Superscript":
       return Object.setPrototypeOf(value, types.Superscript.prototype);
+    case "Supplement":
+      return Object.setPrototypeOf(value, types.Supplement.prototype);
     case "Table":
       return Object.setPrototypeOf(value, types.Table.prototype);
     case "TableCell":

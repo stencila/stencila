@@ -152,6 +152,9 @@
         },
         {
           "@id": "stencila:Reference"
+        },
+        {
+          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {
@@ -719,6 +722,9 @@
         },
         {
           "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {

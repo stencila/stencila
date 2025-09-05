@@ -216,6 +216,9 @@
         },
         {
           "@id": "stencila:Styled"
+        },
+        {
+          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {
@@ -283,6 +286,9 @@
         },
         {
           "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {
@@ -309,6 +315,9 @@
         },
         {
           "@id": "stencila:MathBlock"
+        },
+        {
+          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {

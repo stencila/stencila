@@ -180,6 +180,10 @@
       "const": "Figure"
     },
     {
+      "@id": "stencila:FileCreativeWorkType",
+      "const": "File"
+    },
+    {
       "@id": "stencila:ImageObjectCreativeWorkType",
       "const": "ImageObject"
     },

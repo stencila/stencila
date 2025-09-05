@@ -33,6 +33,7 @@ use super::raw_block::RawBlock;
 use super::section::Section;
 use super::styled_block::StyledBlock;
 use super::suggestion_block::SuggestionBlock;
+use super::supplement::Supplement;
 use super::table::Table;
 use super::thematic_break::ThematicBreak;
 use super::video_object::VideoObject;
@@ -170,6 +171,12 @@ pub enum Block {
     #[cfg_attr(feature = "proptest-high", proptest(skip))]
     #[cfg_attr(feature = "proptest-max", proptest(skip))]
     SuggestionBlock(SuggestionBlock),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    Supplement(Supplement),
 
     Table(Table),
 

@@ -15,6 +15,7 @@ use super::datatable::Datatable;
 use super::defined_term::DefinedTerm;
 use super::enumeration::Enumeration;
 use super::figure::Figure;
+use super::file::File;
 use super::grant::Grant;
 use super::image_object::ImageObject;
 use super::list_item::ListItem;
@@ -65,6 +66,8 @@ pub enum ThingVariant {
     Enumeration(Enumeration),
 
     Figure(Figure),
+
+    File(File),
 
     Grant(Grant),
 

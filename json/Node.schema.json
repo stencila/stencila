@@ -357,6 +357,9 @@
       "$ref": "Superscript.schema.json"
     },
     {
+      "$ref": "Supplement.schema.json"
+    },
+    {
       "$ref": "Table.schema.json"
     },
     {

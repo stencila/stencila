@@ -152,6 +152,9 @@
         },
         {
           "@id": "stencila:Reference"
+        },
+        {
+          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {
@@ -707,6 +710,9 @@
         },
         {
           "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {
@@ -733,6 +739,9 @@
         },
         {
           "@id": "stencila:MathBlock"
+        },
+        {
+          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {
@@ -762,6 +771,9 @@
         },
         {
           "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {

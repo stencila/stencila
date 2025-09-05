@@ -266,6 +266,15 @@
       "$ref": "SuggestionBlock.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Supplement` nodes in block content.",
+          "skip": true
+        }
+      },
+      "$ref": "Supplement.schema.json"
+    },
+    {
       "$ref": "Table.schema.json"
     },
     {

@@ -1,0 +1,84 @@
+title: Supplement
+'@id': stencila:Supplement
+nick: spl
+extends: Entity
+category: works
+description: A supplementary `CreativeWork` that supports this work but is not considered part of its main content.
+$comment: |
+  Corresponds to the JATS `<supplementary-material>` element 
+  (https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/supplementary-material.html).
+  
+  As in JATS, this is a `Block` content type so that supplementary material 
+  can be positioned close to the content it relates to (e.g., within a figure caption) 
+  rather than only at the end of an article. Nevertheless, many articles 
+  will include a dedicated "Supplementary Materials" section composed of a `Heading` 
+  followed by one or more `Supplement` blocks.
+markdown:
+  derive: false
+core:
+  - workType
+  - label
+  - labelAutomatically
+  - caption
+  - target
+properties:
+  workType:
+    "@id": stencila:workType
+    description: The `CreativeWork` type of the supplement.
+    $ref: CreativeWorkType
+  label:
+    '@id': stencila:label
+    description: A short identifier or title for the supplement (e.g., "S1").
+    type: string
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+  labelAutomatically:
+    '@id': stencila:labelAutomatically
+    description: Whether the supplement label should be automatically generated and updated.
+    type: boolean
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+  caption:
+    '@id': schema:caption
+    description: A brief caption or description for the supplement.
+    $comment: |
+      Supplements that are figures or tables often include their own 
+      detailed captions. This property is intended for a shorter, 
+      general description of the supplementary material.
+    type: array
+    items:
+      $ref: Block
+    walk: true
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+    dom:
+      elem: div
+  target:
+    '@id': schema:target
+    description: A reference to the supplement.
+    $comment: |
+      Usually a relative path but may be a full URL.
+    type: string
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+  compilationMessages:
+    '@id': stencila:compilationMessages
+    description: Any messages generated while embedding the supplement.
+    type: array
+    items:
+      $ref: CompilationMessage
+    strip: [compilation]
+    dom:
+      elem: span
+  work:
+    '@id': stencila:work
+    description: The `CreativeWork` that constitutes the supplement.
+    $comment: |
+      Often only a reference to the supplementary work (i.e., just `target`) will be available. 
+      However, this property also allows inclusion of the full content of the work if necessary.
+    $ref: CreativeWorkVariant
+    strip: [content]
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+    dom:
+      elem: div
