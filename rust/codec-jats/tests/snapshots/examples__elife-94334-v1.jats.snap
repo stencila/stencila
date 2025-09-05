@@ -167,9 +167,9 @@ expression: jats
             </thead>
             <tbody>
               <tr>
-                <td>
+                <td rowspan="5">
                 </td>
-                <td>
+                <td rowspan="5">
                   <p>
                     <italic>DDC2-AID</italic>
                   </p>
@@ -244,9 +244,9 @@ expression: jats
                 </td>
               </tr>
               <tr>
-                <td>
+                <td rowspan="5">
                 </td>
-                <td>
+                <td rowspan="5">
                   <p>
                     <italic>DDC2-AID CHK1∆</italic>
                   </p>
@@ -321,9 +321,9 @@ expression: jats
                 </td>
               </tr>
               <tr>
-                <td>
+                <td rowspan="5">
                 </td>
-                <td>
+                <td rowspan="5">
                   <p>
                     <italic>RAD9-AID</italic>
                   </p>
@@ -398,9 +398,9 @@ expression: jats
                 </td>
               </tr>
               <tr>
-                <td>
+                <td rowspan="3">
                 </td>
-                <td>
+                <td rowspan="3">
                   <p>
                     <italic>RAD9-AID CHK1∆</italic>
                   </p>
@@ -447,9 +447,9 @@ expression: jats
                 </td>
               </tr>
               <tr>
-                <td>
+                <td rowspan="5">
                 </td>
-                <td>
+                <td rowspan="5">
                   <p>
                     <italic>RAD24-AID</italic>
                   </p>
@@ -524,9 +524,9 @@ expression: jats
                 </td>
               </tr>
               <tr>
-                <td>
+                <td rowspan="3">
                 </td>
-                <td>
+                <td rowspan="3">
                   <p>
                     <italic>RAD24-AID CHK1∆</italic>
                   </p>
@@ -573,9 +573,9 @@ expression: jats
                 </td>
               </tr>
               <tr>
-                <td>
+                <td rowspan="3">
                 </td>
-                <td>
+                <td rowspan="3">
                   <p>
                     <italic>RAD53-AID TIR1(F74G</italic>)</p>
                 </td>
@@ -621,9 +621,9 @@ expression: jats
                 </td>
               </tr>
               <tr>
-                <td>
+                <td rowspan="3">
                 </td>
-                <td>
+                <td rowspan="3">
                   <p>
                     <italic>RAD9-AID pRAD9-AID</italic>
                   </p>
@@ -670,9 +670,9 @@ expression: jats
                 </td>
               </tr>
               <tr>
-                <td>
+                <td rowspan="3">
                 </td>
-                <td>
+                <td rowspan="3">
                   <p>
                     <italic>DDC2-AID MAD2-AID AND MAD2-AID</italic>
                   </p>

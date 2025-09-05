@@ -57,7 +57,7 @@ expression: jats
             </thead>
             <tbody>
               <tr>
-                <td>
+                <td rowspan="4">
                   <p>
                     <italic>Anabas testudineus</italic>
                   </p>
@@ -65,10 +65,10 @@ expression: jats
                 <td>
                   <p>0.12</p>
                 </td>
-                <td>
+                <td rowspan="4">
                   <p>0.0265</p>
                 </td>
-                <td>
+                <td rowspan="4">
                   <p>This is the average mass</p>
                 </td>
               </tr>
@@ -88,7 +88,7 @@ expression: jats
                 </td>
               </tr>
               <tr>
-                <td>
+                <td rowspan="8">
                   <p>
                     <italic>Channa striata</italic>
                   </p>
@@ -177,7 +177,7 @@ expression: jats
                 </td>
               </tr>
               <tr>
-                <td>
+                <td rowspan="7">
                   <p>
                     <italic>Clarias batrachus et gariepinus</italic>
                   </p>
@@ -253,7 +253,7 @@ expression: jats
                 </td>
               </tr>
               <tr>
-                <td>
+                <td rowspan="6">
                   <p>
                     <italic>Monopterus albus</italic>
                   </p>

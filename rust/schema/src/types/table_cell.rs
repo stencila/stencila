@@ -35,21 +35,6 @@ pub struct TableCell {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub cell_type: Option<TableCellType>,
 
-    /// The horizontal alignment of the content of a table cell.
-    #[serde(alias = "horizontal-alignment", alias = "horizontal_alignment")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub horizontal_alignment: Option<HorizontalAlignment>,
-
-    /// The character to be used in horizontal alignment of the content of a table cell.
-    #[serde(alias = "horizontal-alignment-character", alias = "horizontal_alignment_character")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub horizontal_alignment_character: Option<String>,
-
-    /// The vertical alignment of the content of a table cell.
-    #[serde(alias = "vertical-alignment", alias = "vertical_alignment")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub vertical_alignment: Option<VerticalAlignment>,
-
     /// Contents of the table cell.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
@@ -93,6 +78,21 @@ pub struct TableCellOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "rowspan")]
     pub row_span: Option<Integer>,
+
+    /// The horizontal alignment of the content of a table cell.
+    #[serde(alias = "horizontal-alignment", alias = "horizontal_alignment")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub horizontal_alignment: Option<HorizontalAlignment>,
+
+    /// The character to be used in horizontal alignment of the content of a table cell.
+    #[serde(alias = "horizontal-alignment-character", alias = "horizontal_alignment_character")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub horizontal_alignment_character: Option<String>,
+
+    /// The vertical alignment of the content of a table cell.
+    #[serde(alias = "vertical-alignment", alias = "vertical_alignment")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub vertical_alignment: Option<VerticalAlignment>,
 }
 
 impl TableCell {

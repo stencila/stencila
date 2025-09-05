@@ -423,7 +423,7 @@ fn table_to_pandoc(table: &Table, context: &mut PandocEncodeContext) -> pandoc::
 }
 
 fn table_cell_to_pandoc(cell: &TableCell, context: &mut PandocEncodeContext) -> pandoc::Cell {
-    let align = match cell.horizontal_alignment {
+    let align = match cell.options.horizontal_alignment {
         Some(HorizontalAlignment::AlignLeft) => pandoc::Alignment::AlignLeft,
         Some(HorizontalAlignment::AlignCenter) => pandoc::Alignment::AlignCenter,
         Some(HorizontalAlignment::AlignRight) => pandoc::Alignment::AlignRight,
@@ -549,10 +549,10 @@ fn table_cell_from_pandoc(cell: pandoc::Cell, context: &mut PandocDecodeContext)
 
     TableCell {
         content,
-        horizontal_alignment,
         options: Box::new(TableCellOptions {
             row_span,
             column_span,
+            horizontal_alignment,
             ..Default::default()
         }),
         ..Default::default()

@@ -12093,7 +12093,8 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "rowSpan": 5
                     },
                     {
                       "type": "TableCell",
@@ -12114,7 +12115,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "rowSpan": 5
                     },
                     {
                       "type": "TableCell",
@@ -12463,7 +12465,8 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "rowSpan": 5
                     },
                     {
                       "type": "TableCell",
@@ -12484,7 +12487,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "rowSpan": 5
                     },
                     {
                       "type": "TableCell",
@@ -12833,7 +12837,8 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "rowSpan": 5
                     },
                     {
                       "type": "TableCell",
@@ -12854,7 +12859,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "rowSpan": 5
                     },
                     {
                       "type": "TableCell",
@@ -13203,7 +13209,8 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "rowSpan": 3
                     },
                     {
                       "type": "TableCell",
@@ -13224,7 +13231,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "rowSpan": 3
                     },
                     {
                       "type": "TableCell",
@@ -13435,7 +13443,8 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "rowSpan": 5
                     },
                     {
                       "type": "TableCell",
@@ -13456,7 +13465,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "rowSpan": 5
                     },
                     {
                       "type": "TableCell",
@@ -13805,7 +13815,8 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "rowSpan": 3
                     },
                     {
                       "type": "TableCell",
@@ -13826,7 +13837,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "rowSpan": 3
                     },
                     {
                       "type": "TableCell",
@@ -14037,7 +14049,8 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "rowSpan": 3
                     },
                     {
                       "type": "TableCell",
@@ -14064,7 +14077,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "rowSpan": 3
                     },
                     {
                       "type": "TableCell",
@@ -14275,7 +14289,8 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "rowSpan": 3
                     },
                     {
                       "type": "TableCell",
@@ -14296,7 +14311,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "rowSpan": 3
                     },
                     {
                       "type": "TableCell",
@@ -14507,7 +14523,8 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": []
+                      "content": [],
+                      "rowSpan": 3
                     },
                     {
                       "type": "TableCell",
@@ -14528,7 +14545,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "rowSpan": 3
                     },
                     {
                       "type": "TableCell",

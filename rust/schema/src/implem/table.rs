@@ -270,11 +270,11 @@ fn encode_rows_to_markdown(self_rows: &[TableRow], context: &mut MarkdownEncodeC
             // Column alignment determined by the first cell with a non-None alignment
             match column_alignments.get_mut(column) {
                 Some(column_alignment) => {
-                    if column_alignment.is_none() && cell.horizontal_alignment.is_some() {
-                        *column_alignment = cell.horizontal_alignment;
+                    if column_alignment.is_none() && cell.options.horizontal_alignment.is_some() {
+                        *column_alignment = cell.options.horizontal_alignment;
                     }
                 }
-                None => column_alignments.push(cell.horizontal_alignment),
+                None => column_alignments.push(cell.options.horizontal_alignment),
             }
 
             cells.push(cell_md);

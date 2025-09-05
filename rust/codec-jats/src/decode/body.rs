@@ -12,8 +12,8 @@ use stencila_codec::{
         CreativeWorkType, Date, DateTime, Duration, ExecutionMode, Figure, Heading, ImageObject,
         ImageObjectOptions, Inline, Link, List, ListItem, ListOrder, MathBlock, MathBlockOptions,
         MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section, SectionType,
-        StyledInline, Supplement, Table, TableCell, TableRow, TableRowType, Text, ThematicBreak,
-        Time, Timestamp, VideoObject, VideoObjectOptions,
+        StyledInline, Supplement, Table, TableCell, TableCellOptions, TableRow, TableRowType, Text,
+        ThematicBreak, Time, Timestamp, VideoObject, VideoObjectOptions,
         shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
     },
 };
@@ -783,14 +783,30 @@ fn decode_table_row(
 /// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/td.html
 /// and https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/th.html
 fn decode_table_cell(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> TableCell {
+    let row_span = node
+        .attribute("rowspan")
+        .and_then(|alignment| alignment.parse().ok())
+        .and_then(|row_span| (row_span != 1).then_some(row_span));
+
+    let column_span = node
+        .attribute("colspan")
+        .and_then(|alignment| alignment.parse().ok())
+        .and_then(|row_span| (row_span != 1).then_some(row_span));
+
     let vertical_alignment = node
         .attribute("valign")
         .and_then(|alignment| alignment.parse().ok());
+
     let horizontal_alignment = node
         .attribute("align")
         .and_then(|alignment| alignment.parse().ok());
 
-    record_attrs_lost(path, node, ["valign", "align"], losses);
+    record_attrs_lost(
+        path,
+        node,
+        ["rowspan", "colspan", "valign", "align"],
+        losses,
+    );
 
     // First try to decode as inlines (usual case) filtering out whitespace only inlines
     let inlines: Vec<Inline> = decode_inlines(path, node.children(), losses)
@@ -810,8 +826,13 @@ fn decode_table_cell(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
 
     TableCell {
         content,
-        vertical_alignment,
-        horizontal_alignment,
+        options: Box::new(TableCellOptions {
+            row_span,
+            column_span,
+            vertical_alignment,
+            horizontal_alignment,
+            ..Default::default()
+        }),
         ..Default::default()
     }
 }

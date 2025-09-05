@@ -3,7 +3,7 @@ use tl::{HTMLTag, Parser};
 use stencila_codec::stencila_schema::{
     AppendixBreak, Block, Claim, ClaimType, CodeBlock, Figure, Heading, HorizontalAlignment,
     ImageObject, Inline, List, ListItem, ListOrder, MathBlock, RawBlock, Section, SectionType,
-    Table, TableCell, TableCellType, TableRow, TableRowType,
+    Table, TableCell, TableCellOptions, TableCellType, TableRow, TableRowType,
     shortcuts::{p, t},
 };
 
@@ -555,8 +555,11 @@ fn decode_table_cell(
 
     TableCell {
         cell_type,
-        horizontal_alignment,
         content,
+        options: Box::new(TableCellOptions {
+            horizontal_alignment,
+            ..Default::default()
+        }),
         ..Default::default()
     }
 }

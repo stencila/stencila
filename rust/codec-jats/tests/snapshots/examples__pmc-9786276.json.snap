@@ -6749,7 +6749,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "rowSpan": 4
                     },
                     {
                       "type": "TableCell",
@@ -6781,7 +6782,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "rowSpan": 4
                     },
                     {
                       "type": "TableCell",
@@ -6797,7 +6799,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "rowSpan": 4
                     }
                   ]
                 },
@@ -6886,7 +6889,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "rowSpan": 8
                     },
                     {
                       "type": "TableCell",
@@ -7283,7 +7287,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "rowSpan": 7
                     },
                     {
                       "type": "TableCell",
@@ -7603,7 +7608,8 @@ expression: article
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "rowSpan": 6
                     },
                     {
                       "type": "TableCell",
