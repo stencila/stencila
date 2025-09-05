@@ -58,6 +58,13 @@ fn decode_article_meta(path: &str, node: &Node, article: &mut Article, losses: &
 
 /// Decode an `<abstract>` element
 fn decode_abstract(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+    // Some articles have multiple <abstract> elements (e.g. an additional one with abstract-type="graphical")
+    // We just take the first one.
+    if article.r#abstract.is_some() {
+        record_node_lost(path, node, losses);
+        return;
+    }
+
     record_attrs_lost(path, node, [], losses);
 
     let content = decode_blocks(path, node.children(), losses, 0)
