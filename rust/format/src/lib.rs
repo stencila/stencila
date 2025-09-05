@@ -108,9 +108,11 @@ pub enum Format {
     // Video formats
     Avi,
     Mkv,
+    Mov,
     Mp4,
     Ogv,
     WebM,
+    Wmv,
     // Directories, bundles and archives
     Directory,
     Swb,
@@ -170,6 +172,7 @@ impl Format {
             Meca => "Meca",
             Mermaid => "Mermaid",
             Mkv => "Matroska",
+            Mov => "QuickTime",
             Mp3 => "MPEG-3",
             Mp4 => "MPEG-4",
             Myst => "MyST Markdown",
@@ -200,6 +203,7 @@ impl Format {
             Wav => "WAV",
             WebM => "WebM",
             WebP => "WebP",
+            Wmv => "Windows Media Video",
             Xls => "Microsoft Excel XLS",
             Xlsx => "Microsoft Excel XLSX",
             Yaml => "YAML",
@@ -282,7 +286,7 @@ impl Format {
     /// Is this a video format?
     pub fn is_video(&self) -> bool {
         use Format::*;
-        matches!(self, Avi | Mkv | Mp4 | Ogv | WebM)
+        matches!(self, Avi | Mkv | Mov | Mp4 | Ogv | WebM | Wmv)
     }
 
     /// Is this format a flavor of JSON?
@@ -350,6 +354,7 @@ impl Format {
             "meca" => Meca,
             "mermaid" => Mermaid,
             "mkv" => Mkv,
+            "mov" => Mov,
             "mp3" => Mp3,
             "mp4" => Mp4,
             "myst" => Myst,
@@ -381,6 +386,7 @@ impl Format {
             "wav" => Wav,
             "webm" => WebM,
             "webp" => WebP,
+            "wmv" => Wmv,
             "xls" => Xls,
             "xlsx" => Xlsx,
             "yaml" | "yml" => Yaml,
@@ -565,6 +571,7 @@ impl Display for Format {
             Meca => "meca",
             Mermaid => "mermaid",
             Mkv => "mkv",
+            Mov => "mov",
             Mp3 => "mp3",
             Mp4 => "mp4",
             Myst => "myst",
@@ -595,6 +602,7 @@ impl Display for Format {
             Wav => "wav",
             WebM => "webm",
             WebP => "webp",
+            Wmv => "wmv",
             Xls => "xls",
             Xlsx => "xlsx",
             Yaml => "yaml",
