@@ -168,10 +168,11 @@ expression: jats
             <tbody>
               <tr>
                 <td>
-                  <p>&#10;                  &#10;</p>
                 </td>
                 <td>
-                  <p>&#10;<italic>DDC2-AID</italic>&#10;</p>
+                  <p>
+                    <italic>DDC2-AID</italic>
+                  </p>
                 </td>
                 <td>
                   <p>0 vs 5 + IAA</p>
@@ -244,10 +245,11 @@ expression: jats
               </tr>
               <tr>
                 <td>
-                  <p>&#10;                  &#10;</p>
                 </td>
                 <td>
-                  <p>&#10;<italic>DDC2-AID CHK1∆</italic>&#10;</p>
+                  <p>
+                    <italic>DDC2-AID CHK1∆</italic>
+                  </p>
                 </td>
                 <td>
                   <p>0 vs 5 + IAA</p>
@@ -320,10 +322,11 @@ expression: jats
               </tr>
               <tr>
                 <td>
-                  <p>&#10;                  &#10;</p>
                 </td>
                 <td>
-                  <p>&#10;<italic>RAD9-AID</italic>&#10;</p>
+                  <p>
+                    <italic>RAD9-AID</italic>
+                  </p>
                 </td>
                 <td>
                   <p>0 vs 5 + IAA</p>
@@ -396,10 +399,11 @@ expression: jats
               </tr>
               <tr>
                 <td>
-                  <p>&#10;                  &#10;</p>
                 </td>
                 <td>
-                  <p>&#10;<italic>RAD9-AID CHK1∆</italic>&#10;</p>
+                  <p>
+                    <italic>RAD9-AID CHK1∆</italic>
+                  </p>
                 </td>
                 <td>
                   <p>0 vs 5 + IAA</p>
@@ -444,10 +448,11 @@ expression: jats
               </tr>
               <tr>
                 <td>
-                  <p>&#10;                  &#10;</p>
                 </td>
                 <td>
-                  <p>&#10;<italic>RAD24-AID</italic>&#10;</p>
+                  <p>
+                    <italic>RAD24-AID</italic>
+                  </p>
                 </td>
                 <td>
                   <p>0 vs 5 + IAA</p>
@@ -520,10 +525,11 @@ expression: jats
               </tr>
               <tr>
                 <td>
-                  <p>&#10;                  &#10;</p>
                 </td>
                 <td>
-                  <p>&#10;<italic>RAD24-AID CHK1∆</italic>&#10;</p>
+                  <p>
+                    <italic>RAD24-AID CHK1∆</italic>
+                  </p>
                 </td>
                 <td>
                   <p>0 vs 5 + IAA</p>
@@ -568,7 +574,6 @@ expression: jats
               </tr>
               <tr>
                 <td>
-                  <p>&#10;                  &#10;</p>
                 </td>
                 <td>
                   <p>
@@ -617,10 +622,11 @@ expression: jats
               </tr>
               <tr>
                 <td>
-                  <p>&#10;                  &#10;</p>
                 </td>
                 <td>
-                  <p>&#10;<italic>RAD9-AID pRAD9-AID</italic>&#10;</p>
+                  <p>
+                    <italic>RAD9-AID pRAD9-AID</italic>
+                  </p>
                 </td>
                 <td>
                   <p>18 vs 18 + IAA</p>
@@ -665,10 +671,11 @@ expression: jats
               </tr>
               <tr>
                 <td>
-                  <p>&#10;                  &#10;</p>
                 </td>
                 <td>
-                  <p>&#10;<italic>DDC2-AID MAD2-AID AND MAD2-AID</italic>&#10;</p>
+                  <p>
+                    <italic>DDC2-AID MAD2-AID AND MAD2-AID</italic>
+                  </p>
                 </td>
                 <td>
                   <p>18 + IAA vs 18 + IAA</p>

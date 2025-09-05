@@ -12093,25 +12093,7 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": [
-                        {
-                          "type": "Paragraph",
-                          "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                  "
-                              }
-                            },
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                "
-                              }
-                            }
-                          ]
-                        }
-                      ]
+                      "content": []
                     },
                     {
                       "type": "TableCell",
@@ -12119,12 +12101,6 @@ expression: article
                         {
                           "type": "Paragraph",
                           "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                  "
-                              }
-                            },
                             {
                               "type": "Emphasis",
                               "content": [
@@ -12135,12 +12111,6 @@ expression: article
                                   }
                                 }
                               ]
-                            },
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                "
-                              }
                             }
                           ]
                         }
@@ -12493,25 +12463,7 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": [
-                        {
-                          "type": "Paragraph",
-                          "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                  "
-                              }
-                            },
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                "
-                              }
-                            }
-                          ]
-                        }
-                      ]
+                      "content": []
                     },
                     {
                       "type": "TableCell",
@@ -12519,12 +12471,6 @@ expression: article
                         {
                           "type": "Paragraph",
                           "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                  "
-                              }
-                            },
                             {
                               "type": "Emphasis",
                               "content": [
@@ -12535,12 +12481,6 @@ expression: article
                                   }
                                 }
                               ]
-                            },
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                "
-                              }
                             }
                           ]
                         }
@@ -12893,25 +12833,7 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": [
-                        {
-                          "type": "Paragraph",
-                          "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                  "
-                              }
-                            },
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                "
-                              }
-                            }
-                          ]
-                        }
-                      ]
+                      "content": []
                     },
                     {
                       "type": "TableCell",
@@ -12919,12 +12841,6 @@ expression: article
                         {
                           "type": "Paragraph",
                           "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                  "
-                              }
-                            },
                             {
                               "type": "Emphasis",
                               "content": [
@@ -12935,12 +12851,6 @@ expression: article
                                   }
                                 }
                               ]
-                            },
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                "
-                              }
                             }
                           ]
                         }
@@ -13293,25 +13203,7 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": [
-                        {
-                          "type": "Paragraph",
-                          "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                  "
-                              }
-                            },
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                "
-                              }
-                            }
-                          ]
-                        }
-                      ]
+                      "content": []
                     },
                     {
                       "type": "TableCell",
@@ -13319,12 +13211,6 @@ expression: article
                         {
                           "type": "Paragraph",
                           "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                  "
-                              }
-                            },
                             {
                               "type": "Emphasis",
                               "content": [
@@ -13335,12 +13221,6 @@ expression: article
                                   }
                                 }
                               ]
-                            },
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                "
-                              }
                             }
                           ]
                         }
@@ -13555,25 +13435,7 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": [
-                        {
-                          "type": "Paragraph",
-                          "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                  "
-                              }
-                            },
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                "
-                              }
-                            }
-                          ]
-                        }
-                      ]
+                      "content": []
                     },
                     {
                       "type": "TableCell",
@@ -13581,12 +13443,6 @@ expression: article
                         {
                           "type": "Paragraph",
                           "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                  "
-                              }
-                            },
                             {
                               "type": "Emphasis",
                               "content": [
@@ -13597,12 +13453,6 @@ expression: article
                                   }
                                 }
                               ]
-                            },
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                "
-                              }
                             }
                           ]
                         }
@@ -13955,25 +13805,7 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": [
-                        {
-                          "type": "Paragraph",
-                          "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                  "
-                              }
-                            },
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                "
-                              }
-                            }
-                          ]
-                        }
-                      ]
+                      "content": []
                     },
                     {
                       "type": "TableCell",
@@ -13981,12 +13813,6 @@ expression: article
                         {
                           "type": "Paragraph",
                           "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                  "
-                              }
-                            },
                             {
                               "type": "Emphasis",
                               "content": [
@@ -13997,12 +13823,6 @@ expression: article
                                   }
                                 }
                               ]
-                            },
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                "
-                              }
                             }
                           ]
                         }
@@ -14217,25 +14037,7 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": [
-                        {
-                          "type": "Paragraph",
-                          "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                  "
-                              }
-                            },
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                "
-                              }
-                            }
-                          ]
-                        }
-                      ]
+                      "content": []
                     },
                     {
                       "type": "TableCell",
@@ -14473,25 +14275,7 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": [
-                        {
-                          "type": "Paragraph",
-                          "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                  "
-                              }
-                            },
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                "
-                              }
-                            }
-                          ]
-                        }
-                      ]
+                      "content": []
                     },
                     {
                       "type": "TableCell",
@@ -14499,12 +14283,6 @@ expression: article
                         {
                           "type": "Paragraph",
                           "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                  "
-                              }
-                            },
                             {
                               "type": "Emphasis",
                               "content": [
@@ -14515,12 +14293,6 @@ expression: article
                                   }
                                 }
                               ]
-                            },
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                "
-                              }
                             }
                           ]
                         }
@@ -14735,25 +14507,7 @@ expression: article
                   "cells": [
                     {
                       "type": "TableCell",
-                      "content": [
-                        {
-                          "type": "Paragraph",
-                          "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                  "
-                              }
-                            },
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                "
-                              }
-                            }
-                          ]
-                        }
-                      ]
+                      "content": []
                     },
                     {
                       "type": "TableCell",
@@ -14761,12 +14515,6 @@ expression: article
                         {
                           "type": "Paragraph",
                           "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                  "
-                              }
-                            },
                             {
                               "type": "Emphasis",
                               "content": [
@@ -14777,12 +14525,6 @@ expression: article
                                   }
                                 }
                               ]
-                            },
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "\n                "
-                              }
                             }
                           ]
                         }

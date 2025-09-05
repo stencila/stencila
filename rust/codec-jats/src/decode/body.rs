@@ -792,10 +792,21 @@ fn decode_table_cell(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
 
     record_attrs_lost(path, node, ["valign", "align"], losses);
 
-    let mut content = vec![p(decode_inlines(path, node.children(), losses))];
-    if decode_inlines(path, node.children(), losses).is_empty() {
-        content = decode_blocks(path, node.children(), losses, depth);
-    }
+    // First try to decode as inlines (usual case) filtering out whitespace only inlines
+    let inlines: Vec<Inline> = decode_inlines(path, node.children(), losses)
+        .into_iter()
+        .filter_map(|inline| (!to_text(&inline).trim().is_empty()).then_some(inline))
+        .collect();
+
+    let content = if inlines.is_empty() {
+        // Fallback to decoding as blocks, again filtering out whitespace only
+        decode_blocks(path, node.children(), losses, depth)
+            .into_iter()
+            .filter_map(|block| (!to_text(&block).trim().is_empty()).then_some(block))
+            .collect()
+    } else {
+        vec![p(inlines)]
+    };
 
     TableCell {
         content,

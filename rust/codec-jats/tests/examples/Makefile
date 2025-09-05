@@ -1,4 +1,9 @@
-all: biorxiv-573522.jats.xml biorxiv-630838.jats.xml elife-94334-v1.jats.xml pmc-6849754.jats.xml format
+all: biorxiv-573522.jats.xml \
+     biorxiv-630838.jats.xml \
+	 elife-94334-v1.jats.xml \
+	 pmc-6849754.jats.xml \
+	 pmc-9786276.jats.xml \
+	 format
 
 # bioXiv articles
 
@@ -21,6 +26,10 @@ elife-94334-v1.jats.xml:
 # Article with inline and block MathML
 pmc-6849754.jats.xml:
 	curl -sSL "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pmc&id=PMC6849754&rettype=xml" -o $@
+
+# Article with table with row spans and several videos as supplementary material
+pmc-9786276.jats.xml:
+	curl -sSL "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pmc&id=PMC9786276&rettype=xml" -o $@
 
 format:
 	npx prettier --plugin=@prettier/plugin-xml --xml-whitespace-sensitivity preserve --write '**/*.jats.xml'
