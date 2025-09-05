@@ -9481,6 +9481,7 @@ dependencies = [
  "stencila-codec-jats",
  "stencila-dirs",
  "stencila-media-embed",
+ "stencila-node-supplements",
  "tempfile",
  "tokio",
  "tracing",
@@ -9581,6 +9582,7 @@ dependencies = [
  "stencila-codec-jats",
  "stencila-dirs",
  "stencila-media-embed",
+ "stencila-node-supplements",
  "stencila-version",
  "tar",
  "tempfile",
@@ -10327,10 +10329,13 @@ dependencies = [
 name = "stencila-media-embed"
 version = "0.0.0"
 dependencies = [
+ "base64 0.22.1",
  "eyre",
+ "image",
  "stencila-format",
- "stencila-images",
  "stencila-schema",
+ "stencila-tools",
+ "tempfile",
  "tracing",
 ]
 
@@ -10732,6 +10737,23 @@ dependencies = [
  "stencila-codec-text-trait",
  "stencila-schema",
  "strum 0.27.2",
+ "tracing",
+]
+
+[[package]]
+name = "stencila-node-supplements"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "stencila-codec",
+ "stencila-codec-csv",
+ "stencila-codec-docx",
+ "stencila-codec-ipynb",
+ "stencila-codec-latex",
+ "stencila-codec-pdf",
+ "stencila-codec-xlsx",
+ "stencila-media-embed",
+ "stencila-schema",
  "tracing",
 ]
 

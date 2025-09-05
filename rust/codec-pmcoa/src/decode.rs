@@ -6,6 +6,7 @@ use glob::glob;
 use regex::Regex;
 use reqwest::{Client, header::USER_AGENT};
 use stencila_dirs::closest_artifacts_for;
+use stencila_node_supplements::embed_supplements;
 use tar::Archive;
 use tempfile::tempdir;
 use tokio::{fs::File, io::AsyncWriteExt};
@@ -138,8 +139,9 @@ pub(super) async fn decode_path(
     // Decode the JATS
     let (mut node, .., info) = JatsCodec.from_path(&jats_path, options).await?;
 
-    // Embed any images
+    // Embed media and supplements
     embed_media(&mut node, &dir)?;
+    embed_supplements(&mut node, &dir).await?;
 
     Ok((node, None, info))
 }

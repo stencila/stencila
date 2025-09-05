@@ -63,6 +63,7 @@
         "docsql",
         "dtype",
         "emax",
+        "embedder",
         "emin",
         "fastembed",
         "frontmatter",

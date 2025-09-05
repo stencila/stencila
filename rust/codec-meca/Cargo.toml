@@ -9,6 +9,7 @@ stencila-codec = { path = "../codec" }
 stencila-codec-jats = { path = "../codec-jats" }
 stencila-dirs = { path = "../dirs" }
 stencila-media-embed = { path = "../media-embed" }
+stencila-node-supplements = { path = "../node-supplements" }
 tempfile = { workspace = true }
 tracing = { workspace = true }
 zip = { workspace = true }
