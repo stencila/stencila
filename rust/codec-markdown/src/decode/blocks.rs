@@ -24,8 +24,8 @@ use stencila_codec::{
         HorizontalAlignment, IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline,
         InstructionBlock, InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock,
         Node, Paragraph, PromptBlock, QuoteBlock, RawBlock, Section, SoftwareApplication,
-        StyledBlock, SuggestionBlock, SuggestionStatus, Table, TableCell, TableRow, TableRowType,
-        Text, ThematicBreak, Walkthrough, WalkthroughStep,
+        StyledBlock, SuggestionBlock, SuggestionStatus, Table, TableCell, TableCellOptions,
+        TableRow, TableRowType, Text, ThematicBreak, Walkthrough, WalkthroughStep,
     },
 };
 
@@ -1988,7 +1988,10 @@ fn mds_to_table_cells(
 
                 let node = TableCell {
                     content,
-                    horizontal_alignment,
+                    options: Box::new(TableCellOptions {
+                        horizontal_alignment,
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 };
                 context.map_position(&position, node.node_type(), Some(node.node_id()));
